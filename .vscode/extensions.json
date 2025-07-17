@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "svelte.svelte-vscode",
+    "tauri-apps.tauri-vscode",
+    "oven.bun-vscode",
+    "fill-labs.dependi",
+    "vadimcn.vscode-lldb"
+  ]
+}
