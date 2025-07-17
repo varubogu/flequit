@@ -16,7 +16,8 @@
   "license": "MIT",
   "dependencies": {
     "@tauri-apps/api": "^2.6.0",
-    "@tauri-apps/plugin-opener": "^2.4.0"
+    "@tauri-apps/plugin-opener": "^2.4.0",
+    "paneforge": "^1.0.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",

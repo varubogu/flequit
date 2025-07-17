@@ -2,6 +2,7 @@
   import Sidebar from '$lib/components/Sidebar.svelte';
   import TaskList from '$lib/components/TaskList.svelte';
   import TaskDetail from '$lib/components/TaskDetail.svelte';
+  import ResizableLayout from '$lib/components/ResizableLayout.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import type { ViewType } from '$lib/services/view-service';
   
@@ -10,24 +11,22 @@
   }
 </script>
 
+{#snippet taskListSnippet()}
+  <TaskList 
+    title={viewStore.viewTitle}
+    tasks={viewStore.tasks}
+    showAddButton={viewStore.showAddButton}
+  />
+{/snippet}
+
+{#snippet taskDetailSnippet()}
+  <TaskDetail />
+{/snippet}
+
 <div class="h-screen flex">
   <!-- Sidebar -->
   <Sidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
   
-  <!-- Main Content -->
-  <div class="flex-1 flex">
-    <!-- Task List -->
-    <div class="w-96 border-r">
-      <TaskList 
-        title={viewStore.viewTitle}
-        tasks={viewStore.tasks}
-        showAddButton={viewStore.showAddButton}
-      />
-    </div>
-    
-    <!-- Task Detail -->
-    <div class="flex-1">
-      <TaskDetail />
-    </div>
-  </div>
+  <!-- Main Content with Resizable Layout -->
+  <ResizableLayout leftPane={taskListSnippet} rightPane={taskDetailSnippet} />
 </div>

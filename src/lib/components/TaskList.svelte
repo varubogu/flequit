@@ -78,7 +78,6 @@
             placeholder="Enter task title..."
             bind:value={newTaskTitle}
             onkeydown={handleKeydown}
-            autofocus
           />
           <button 
             class="btn btn-primary"
