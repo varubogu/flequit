@@ -1,6 +1,6 @@
-# command_report
+# プロジェクト作成過程のコマンド使用履歴
 
-## initialize
+## 初期化
 
 ```bash
 bun create tauri-app
@@ -15,7 +15,7 @@ bun create tauri-app
 ✔ Choose your UI flavor · TypeScript
 ```
 
-## package install
+## Tauriに必要なパッケージをインストール
 
 sudo apt update
 sudo apt install
@@ -28,7 +28,6 @@ sudo apt install
   libssl-dev \
   libayatana-appindicator3-dev \
   librsvg2-dev
-
 
 ## 翻訳機能を追加
 
