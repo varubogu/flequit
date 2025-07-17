@@ -4,6 +4,7 @@
     "tauri-apps.tauri-vscode",
     "oven.bun-vscode",
     "fill-labs.dependi",
-    "vadimcn.vscode-lldb"
+    "vadimcn.vscode-lldb",
+    "editorconfig.editorconfig",
   ]
 }

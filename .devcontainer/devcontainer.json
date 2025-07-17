@@ -6,7 +6,10 @@
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
-		"ghcr.io/shyim/devcontainers-features/bun:0": {}
+		"ghcr.io/shyim/devcontainers-features/bun:0": {},
+		"ghcr.io/devcontainers/features/node": {
+			"version": "latest"
+		}
 	},
 	"customizations": {
 		"vscode": {
@@ -16,10 +19,13 @@
 				"fill-labs.dependi",
 				"rust-lang.rust-analyzer",
 				"vadimcn.vscode-lldb",
-				"svelte.svelte-vscode"
+				"svelte.svelte-vscode",
+				"Anthropic.claude-code",
+				"google.geminicodeassist",
+				"EditorConfig.EditorConfig"
 			]
 		}
-	}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -29,6 +35,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "rustc --version",
+	"postCreateCommand": "./init_env"
 
 	// Configure tool-specific properties.
 	// "customizations": {},

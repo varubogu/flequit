@@ -1,0 +1,16 @@
+# https://editorconfig.org
+
+# このファイルがプロジェクトのルートであることを示す
+root = true
+
+# 全てのファイルに適用されるルール
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# JavaScriptとTypeScriptファイルに適用されるルール
+[*.{js,ts,jsx,tsx}]
+indent_style = space
+indent_size = 2

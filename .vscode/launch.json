@@ -5,6 +5,36 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "node-terminal",
+            "name": "web debug",
+            "command": "bun run dev",
+            "request": "launch"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "tauri debug",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--manifest-path=./src-tauri/Cargo.toml",
+                    "--no-default-features"
+                ]
+            },
+            // `beforeDevCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
+            "preLaunchTask": "ui:dev"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Tauri prod debug",
+            "cargo": {
+                "args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
+            },
+            // `beforeBuildCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
+            "preLaunchTask": "ui:build"
+            }
+        {
             "type": "bun",
             "internalConsoleOptions": "neverOpen",
             "request": "launch",
@@ -31,12 +61,6 @@
             "name": "Attach Bun",
             "url": "ws://localhost:6499/",
             "stopOnEntry": false
-        },
-        {
-            "type": "node-terminal",
-            "name": "web dev",
-            "command": "bun run dev",
-            "request": "launch"
         }
     ]
 }
