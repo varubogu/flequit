@@ -24,7 +24,8 @@
 				"google.geminicodeassist",
 				"EditorConfig.EditorConfig",
 				"vitest.explorer",
-				"ms-playwright.playwright"
+				"ms-playwright.playwright",
+				"bradlc.vscode-tailwindcss"
 			]
 		}
 	},

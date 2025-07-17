@@ -8,6 +8,7 @@
     "editorconfig.editorconfig",
     "vitest.explorer",
     "ms-playwright.playwright",
-    "inlang.vs-code-extension"
+    "inlang.vs-code-extension",
+    "bradlc.vscode-tailwindcss"
   ]
 }
