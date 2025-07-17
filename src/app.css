@@ -269,3 +269,41 @@ body {
 .hover\:bg-muted:hover { background-color: var(--color-muted); }
 .hover\:bg-accent:hover { background-color: var(--color-accent); }
 .hover\:opacity-80:hover { opacity: 0.8; }
+
+/* Paneforge styling */
+[data-pane-resizer] {
+  background-color: var(--color-border);
+  width: 10px;
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+[data-pane-resizer]:hover {
+  background-color: var(--color-primary);
+}
+
+[data-pane-resizer][data-active="pointer"] {
+  background-color: var(--color-primary);
+}
+
+/* Add visual indicator */
+[data-pane-resizer]:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 32px;
+  background-color: var(--color-muted-foreground);
+  border-radius: 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+[data-pane-resizer]:hover:before,
+[data-pane-resizer][data-active="pointer"]:before {
+  opacity: 1;
+  background-color: var(--color-primary-foreground);
+}
