@@ -6,5 +6,7 @@
     "fill-labs.dependi",
     "vadimcn.vscode-lldb",
     "editorconfig.editorconfig",
+    "vitest.explorer",
+    "ms-playwright.playwright",
   ]
 }

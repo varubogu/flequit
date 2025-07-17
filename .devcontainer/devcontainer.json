@@ -22,7 +22,9 @@
 				"svelte.svelte-vscode",
 				"Anthropic.claude-code",
 				"google.geminicodeassist",
-				"EditorConfig.EditorConfig"
+				"EditorConfig.EditorConfig",
+				"vitest.explorer",
+				"ms-playwright.playwright"
 			]
 		}
 	},
