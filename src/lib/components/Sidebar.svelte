@@ -2,27 +2,27 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
-  
+
   interface Props {
     currentView?: ViewType;
     onViewChange?: (view: ViewType) => void;
   }
-  
+
   let { currentView = 'all', onViewChange }: Props = $props();
-  
+
   let projects = $derived(taskStore.projects);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
-  
+
   function handleViewChange(view: ViewType) {
     onViewChange?.(view);
   }
-  
+
   function handleProjectSelect(project: ProjectTree) {
     taskStore.selectProject(project.id);
     onViewChange?.('project');
   }
-  
+
   function getProjectTaskCount(project: ProjectTree): number {
     return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
   }
@@ -32,9 +32,8 @@
   <!-- Header -->
   <div class="p-4 border-b">
     <h1 class="text-lg font-bold">Flequit</h1>
-    <p class="text-sm text-muted-foreground">Task Management</p>
   </div>
-  
+
   <!-- Navigation -->
   <nav class="flex-1 p-4">
     <div class="space-y-1">
@@ -43,7 +42,7 @@
         <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
           Views
         </h3>
-        
+
         <button
           class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
           class:bg-muted={currentView === 'all'}
@@ -57,7 +56,7 @@
             {taskStore.allTasks.length}
           </span>
         </button>
-        
+
         <button
           class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
           class:bg-muted={currentView === 'today'}
@@ -73,7 +72,7 @@
             </span>
           {/if}
         </button>
-        
+
         <button
           class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
           class:bg-muted={currentView === 'overdue'}
@@ -89,7 +88,7 @@
             </span>
           {/if}
         </button>
-        
+
         <button
           class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
           class:bg-muted={currentView === 'completed'}
@@ -101,13 +100,13 @@
           </div>
         </button>
       </div>
-      
+
       <!-- Projects -->
       <div>
         <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
           Projects
         </h3>
-        
+
         {#if projects.length === 0}
           <div class="text-sm text-muted-foreground px-3 py-2">
             No projects yet
@@ -120,7 +119,7 @@
               onclick={() => handleProjectSelect(project)}
             >
               <div class="flex items-center gap-2 min-w-0">
-                <div 
+                <div
                   class="w-3 h-3 rounded-full flex-shrink-0"
                   style="background-color: {project.color || '#3b82f6'}"
                 ></div>
@@ -130,7 +129,7 @@
                 {getProjectTaskCount(project)}
               </span>
             </button>
-            
+
             <!-- Task Lists (when project is selected) -->
             {#if currentView === 'project' && taskStore.selectedProjectId === project.id}
               <div class="ml-4 mt-1 space-y-1">
@@ -153,7 +152,7 @@
       </div>
     </div>
   </nav>
-  
+
   <!-- Footer -->
   <div class="p-4 border-t">
     <div class="text-xs text-muted-foreground text-center">
