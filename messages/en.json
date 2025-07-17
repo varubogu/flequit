@@ -1,4 +1,14 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format",
-  "example_message": "Hello world {username}"
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "task": "Task",
+    "list": "List",
+    "detail": "Detail",
+    "create": "Create",
+    "edit": "Edit",
+    "remove": "Delete",
+    "importance": "Importance",
+    "priority": "Priority",
+    "due_date": "Due Date",
+    "completed": "Completed",
+    "incomplete": "Incomplete"
 }

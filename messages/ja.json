@@ -1,4 +1,14 @@
 {
-  "$schema": "https://inlang.com/schema/inlang-message-format",
-  "example_message": "Guten Tag {username}"
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "task": "タスク",
+    "list": "リスト",
+    "detail": "詳細",
+    "create": "作成",
+    "edit": "編集",
+    "remove": "削除",
+    "importance": "重要度",
+    "priority": "優先度",
+    "due_date": "期限",
+    "completed": "完了",
+    "incomplete": "未完了"
 }

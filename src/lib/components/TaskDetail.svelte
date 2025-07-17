@@ -1,0 +1,224 @@
+<script lang="ts">
+  import { taskStore } from '$lib/stores/tasks.svelte';
+  import type { TaskWithSubTasks, TaskStatus } from '$lib/types/task';
+  import { formatDetailedDate, formatDateTime, formatDateForInput } from '$lib/utils/date-utils';
+  import { getStatusLabel, getPriorityLabel, getPriorityColorClass } from '$lib/utils/task-utils';
+  import { TaskService } from '$lib/services/task-service';
+  
+  let task = $derived(taskStore.selectedTask);
+  let isEditing = $state(false);
+  let editForm = $state({
+    title: '',
+    description: '',
+    due_date: '',
+    priority: 0
+  });
+  
+  $effect(() => {
+    if (task) {
+      editForm = {
+        title: task.title,
+        description: task.description || '',
+        due_date: formatDateForInput(task.due_date),
+        priority: task.priority
+      };
+    }
+  });
+  
+  function handleEdit() {
+    isEditing = true;
+  }
+  
+  function handleSave() {
+    if (!task) return;
+    TaskService.updateTaskFromForm(task.id, editForm);
+    isEditing = false;
+  }
+  
+  function handleCancel() {
+    if (task) {
+      editForm = {
+        title: task.title,
+        description: task.description || '',
+        due_date: formatDateForInput(task.due_date),
+        priority: task.priority
+      };
+    }
+    isEditing = false;
+  }
+  
+  function handleStatusChange(event: Event) {
+    if (!task) return;
+    const target = event.target as HTMLSelectElement;
+    TaskService.changeTaskStatus(task.id, target.value as TaskStatus);
+  }
+  
+  function handleDelete() {
+    if (!task) return;
+    TaskService.deleteTask(task.id);
+  }
+  
+  function handleSubTaskToggle(subTaskId: string) {
+    if (!task) return;
+    TaskService.toggleSubTaskStatus(task, subTaskId);
+  }
+</script>
+
+<div class="flex flex-col h-full bg-card">
+  {#if task}
+    <!-- Header -->
+    <div class="p-6 border-b">
+      {#if isEditing}
+        <div class="space-y-4">
+          <input
+            type="text"
+            class="input w-full text-xl font-semibold"
+            bind:value={editForm.title}
+            placeholder="Task title"
+          />
+          <div class="flex gap-2">
+            <button class="btn btn-primary" onclick={handleSave}>Save</button>
+            <button class="btn btn-secondary" onclick={handleCancel}>Cancel</button>
+          </div>
+        </div>
+      {:else}
+        <div class="flex items-start justify-between">
+          <h1 class="text-2xl font-bold mb-2">{task.title}</h1>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost" onclick={handleEdit}>Edit</button>
+            <button class="btn btn-ghost text-red-600" onclick={handleDelete}>Delete</button>
+          </div>
+        </div>
+      {/if}
+    </div>
+    
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-6 space-y-6">
+      <!-- Status -->
+      <div>
+        <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
+        <select 
+          id="task-status"
+          class="input"
+          value={task.status}
+          onchange={handleStatusChange}
+        >
+          <option value="not_started">Not Started</option>
+          <option value="in_progress">In Progress</option>
+          <option value="waiting">Waiting</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      
+      <!-- Description -->
+      <div>
+        <label for="task-description" class="block text-sm font-medium mb-2">Description</label>
+        {#if isEditing}
+          <textarea
+            id="task-description"
+            class="input w-full min-h-24"
+            bind:value={editForm.description}
+            placeholder="Task description"
+          ></textarea>
+        {:else}
+          <p class="text-muted-foreground">
+            {task.description || 'No description provided'}
+          </p>
+        {/if}
+      </div>
+      
+      <!-- Due Date -->
+      <div>
+        <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
+        {#if isEditing}
+          <input
+            id="task-due-date"
+            type="date"
+            class="input"
+            bind:value={editForm.due_date}
+          />
+        {:else}
+          <p class="text-muted-foreground">{formatDetailedDate(task.due_date)}</p>
+        {/if}
+      </div>
+      
+      <!-- Priority -->
+      <div>
+        <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
+        {#if isEditing}
+          <select id="task-priority" class="input" bind:value={editForm.priority}>
+            <option value={1}>High (1)</option>
+            <option value={2}>Medium (2)</option>
+            <option value={3}>Low (3)</option>
+            <option value={4}>Lowest (4)</option>
+          </select>
+        {:else}
+          <span class="px-2 py-1 rounded text-sm {getPriorityColorClass(task.priority)}">
+            {getPriorityLabel(task.priority)} ({task.priority})
+          </span>
+        {/if}
+      </div>
+      
+      <!-- Sub-tasks -->
+      {#if task.sub_tasks.length > 0}
+        <div>
+          <h3 class="block text-sm font-medium mb-2">Sub-tasks</h3>
+          <div class="space-y-2">
+            {#each task.sub_tasks as subTask}
+              <div class="flex items-center gap-3 p-3 border rounded">
+                <button 
+                  class="text-lg"
+                  onclick={() => handleSubTaskToggle(subTask.id)}
+                  aria-label="Toggle subtask completion"
+                >
+                  {subTask.status === 'completed' ? '✅' : '⚪'}
+                </button>
+                <span 
+                  class="flex-1"
+                  class:line-through={subTask.status === 'completed'}
+                  class:text-muted-foreground={subTask.status === 'completed'}
+                >
+                  {subTask.title}
+                </span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+      
+      <!-- Tags -->
+      {#if task.tags.length > 0}
+        <div>
+          <h3 class="block text-sm font-medium mb-2">Tags</h3>
+          <div class="flex flex-wrap gap-2">
+            {#each task.tags as tag}
+              <span 
+                class="px-3 py-1 rounded-full text-sm border"
+                style="border-color: {tag.color}; color: {tag.color};"
+              >
+                {tag.name}
+              </span>
+            {/each}
+          </div>
+        </div>
+      {/if}
+      
+      <!-- Metadata -->
+      <div class="border-t pt-4 space-y-2 text-sm text-muted-foreground">
+        <div>Created: {formatDateTime(task.created_at)}</div>
+        <div>Updated: {formatDateTime(task.updated_at)}</div>
+        <div>Task ID: {task.id}</div>
+      </div>
+    </div>
+  {:else}
+    <!-- No task selected -->
+    <div class="flex-1 flex items-center justify-center">
+      <div class="text-center text-muted-foreground">
+        <div class="text-6xl mb-4">📝</div>
+        <h2 class="text-xl font-semibold mb-2">No task selected</h2>
+        <p>Select a task from the list to view its details</p>
+      </div>
+    </div>
+  {/if}
+</div>
