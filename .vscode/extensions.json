@@ -8,5 +8,6 @@
     "editorconfig.editorconfig",
     "vitest.explorer",
     "ms-playwright.playwright",
+    "inlang.vs-code-extension"
   ]
 }

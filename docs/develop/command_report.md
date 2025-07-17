@@ -28,3 +28,12 @@ sudo apt install
   libssl-dev \
   libayatana-appindicator3-dev \
   librsvg2-dev
+
+
+## 翻訳機能を追加
+
+https://inlang.com/m/gerre34r/library-inlang-paraglideJs/vite
+
+```shell
+npx @inlang/paraglide-js@latest init
+```
