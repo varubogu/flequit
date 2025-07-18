@@ -33,8 +33,10 @@
     size?: VariantProps<typeof buttonVariants>["size"];
     class?: string;
     children?: Snippet;
-    onclick?: () => void;
+    onclick?: (event?: Event) => void;
     disabled?: boolean;
+    title?: string;
+    "aria-label"?: string;
   };
   
   let {

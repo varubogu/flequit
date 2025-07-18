@@ -4,9 +4,10 @@
 
   type Props = {
     class?: string;
-    value?: string;
+    value?: string | number;
     onchange?: (event: Event) => void;
     children?: Snippet;
+    id?: string;
   };
 
   let { 

@@ -7,6 +7,7 @@
     type?: string;
     placeholder?: string;
     onkeydown?: (event: KeyboardEvent) => void;
+    id?: string;
   };
 
   let {

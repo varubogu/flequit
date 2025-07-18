@@ -5,6 +5,7 @@
     class?: string;
     value?: string;
     placeholder?: string;
+    id?: string;
   };
 
   let { 
