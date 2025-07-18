@@ -25,7 +25,8 @@
 				"EditorConfig.EditorConfig",
 				"vitest.explorer",
 				"ms-playwright.playwright",
-				"bradlc.vscode-tailwindcss"
+				"bradlc.vscode-tailwindcss",
+				"inlang.vs-code-extension"
 			]
 		}
 	},
