@@ -30,7 +30,7 @@
     }
 
     document.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
@@ -53,13 +53,13 @@
 <Card class="w-64 border-r flex flex-col h-full">
   <!-- Header -->
   <div class="p-4 border-b">
-    <Button 
-      variant="ghost" 
+    <Button
+      variant="ghost"
       class="w-full justify-start gap-2 px-3 py-2 h-auto text-muted-foreground"
       onclick={() => showSearchDialog = true}
     >
       <Search class="h-4 w-4" />
-      <span class="text-sm">Search tasks...</span>
+      <span class="text-sm">Search</span>
       <div class="ml-auto">
         <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span class="text-xs">⌘</span>K
@@ -172,7 +172,7 @@
 </Card>
 
 <!-- Search Command Dialog -->
-<SearchCommand 
-  bind:open={showSearchDialog} 
-  onOpenChange={(open) => showSearchDialog = open} 
+<SearchCommand
+  bind:open={showSearchDialog}
+  onOpenChange={(open) => showSearchDialog = open}
 />
