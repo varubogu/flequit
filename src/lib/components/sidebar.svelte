@@ -5,6 +5,8 @@
   import Button from '$lib/components/ui/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import SidebarButton from '$lib/components/sidebar-button.svelte';
+  import SearchCommand from '$lib/components/search-command.svelte';
+  import { Search } from 'lucide-svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -16,6 +18,23 @@
   let projects = $derived(taskStore.projects);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
+  let showSearchDialog = $state(false);
+
+  // グローバルキーボードショートカット
+  $effect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        showSearchDialog = true;
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  });
 
   function handleViewChange(view: ViewType) {
     onViewChange?.(view);
@@ -34,7 +53,19 @@
 <Card class="w-64 border-r flex flex-col h-full">
   <!-- Header -->
   <div class="p-4 border-b">
-    <h1 class="text-lg font-bold">Flequit</h1>
+    <Button 
+      variant="ghost" 
+      class="w-full justify-start gap-2 px-3 py-2 h-auto text-muted-foreground"
+      onclick={() => showSearchDialog = true}
+    >
+      <Search class="h-4 w-4" />
+      <span class="text-sm">Search tasks...</span>
+      <div class="ml-auto">
+        <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <span class="text-xs">⌘</span>K
+        </kbd>
+      </div>
+    </Button>
   </div>
 
   <!-- Navigation -->
@@ -139,3 +170,9 @@
     </div>
   </div>
 </Card>
+
+<!-- Search Command Dialog -->
+<SearchCommand 
+  bind:open={showSearchDialog} 
+  onOpenChange={(open) => showSearchDialog = open} 
+/>

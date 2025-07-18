@@ -96,6 +96,55 @@
   box-shadow: 0 2px 8px -2px hsl(221.2 83.2% 53.3% / 0.2);
 }
 
+/* Command Dialog fixes */
+[data-slot="command"] {
+  background-color: hsl(var(--color-background)) !important;
+  color: hsl(var(--color-foreground)) !important;
+}
+
+[data-slot="dialog-overlay"] {
+  background-color: hsl(0 0% 0% / 0.5) !important;
+}
+
+[data-slot="dialog-content"] {
+  background-color: hsl(var(--color-background)) !important;
+  color: hsl(var(--color-foreground)) !important;
+  border: 1px solid hsl(var(--color-border)) !important;
+}
+
+/* Command specific styling */
+[data-command-input] {
+  background-color: transparent !important;
+  color: hsl(var(--color-foreground)) !important;
+  border: none !important;
+  outline: none !important;
+}
+
+[data-command-input]::placeholder {
+  color: hsl(var(--color-muted-foreground)) !important;
+}
+
+[data-command-item] {
+  color: hsl(var(--color-foreground)) !important;
+}
+
+[data-command-item][data-selected="true"] {
+  background-color: hsl(var(--color-accent)) !important;
+  color: hsl(var(--color-accent-foreground)) !important;
+}
+
+[data-command-group-heading] {
+  color: hsl(var(--color-muted-foreground)) !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+[data-command-empty] {
+  color: hsl(var(--color-muted-foreground)) !important;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
   line-height: 1.5;
