@@ -1,6 +1,7 @@
 import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
@@ -12,6 +13,7 @@ export default defineConfig(async () => ({
       project: './project.inlang',
       outdir: './src/paraglide'
     }),
+    tailwindcss(),
     sveltekit()
   ],
 

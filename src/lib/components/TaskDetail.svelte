@@ -4,6 +4,11 @@
   import { formatDetailedDate, formatDateTime, formatDateForInput } from '$lib/utils/date-utils';
   import { getStatusLabel, getPriorityLabel, getPriorityColorClass } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/task-service';
+  import Button from '$lib/components/ui/button.svelte';
+  import Input from '$lib/components/ui/input.svelte';
+  import Textarea from '$lib/components/ui/textarea.svelte';
+  import Select from '$lib/components/ui/select.svelte';
+  import Card from '$lib/components/ui/card.svelte';
   
   let task = $derived(taskStore.selectedTask);
   let isEditing = $state(false);
@@ -64,7 +69,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full bg-card">
+<Card class="flex flex-col h-full">
   {#if task}
     <!-- Header -->
     <div class="p-6 border-b">
@@ -221,4 +226,4 @@
       </div>
     </div>
   {/if}
-</div>
+</Card>

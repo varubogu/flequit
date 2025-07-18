@@ -15,9 +15,16 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.11",
     "@tauri-apps/api": "^2.6.0",
     "@tauri-apps/plugin-opener": "^2.4.0",
-    "paneforge": "^1.0.0"
+    "bits-ui": "^2.8.11",
+    "clsx": "^2.1.1",
+    "lucide-svelte": "^0.525.0",
+    "paneforge": "^1.0.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwind-variants": "^1.0.0",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.8",
