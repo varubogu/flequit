@@ -1,9 +1,9 @@
 <script lang="ts">
   import TaskItem from './task-item.svelte';
+  import TaskAddForm from './task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/ui/button.svelte';
-  import Input from '$lib/components/ui/input.svelte';
   
   interface Props {
     title?: string;
@@ -17,36 +17,19 @@
     showAddButton = false 
   }: Props = $props();
   
-  let newTaskTitle = $state('');
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   
-  function handleAddTask() {
-    if (TaskListService.addNewTask(newTaskTitle)) {
-      newTaskTitle = '';
-      showAddForm = false;
-    }
-  }
-  
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      handleAddTask();
-    } else if (event.key === 'Escape') {
-      showAddForm = false;
-      newTaskTitle = '';
-    }
-  }
-  
   function toggleAddForm() {
     showAddForm = !showAddForm;
-    if (!showAddForm) {
-      newTaskTitle = '';
-    }
   }
   
-  function cancelAddForm() {
+  function handleTaskAdded() {
     showAddForm = false;
-    newTaskTitle = '';
+  }
+  
+  function handleCancel() {
+    showAddForm = false;
   }
 </script>
 
@@ -72,29 +55,10 @@
     
     <!-- Add Task Form -->
     {#if showAddForm}
-      <div class="mt-3">
-        <div class="flex gap-2">
-          <Input
-            type="text"
-            class="flex-1"
-            placeholder="Enter task title..."
-            bind:value={newTaskTitle}
-            onkeydown={handleKeydown}
-          />
-          <Button 
-            onclick={handleAddTask}
-            disabled={!newTaskTitle.trim()}
-          >
-            Add
-          </Button>
-          <Button 
-            variant="secondary"
-            onclick={cancelAddForm}
-          >
-            Cancel
-          </Button>
-        </div>
-      </div>
+      <TaskAddForm
+        onTaskAdded={handleTaskAdded}
+        onCancel={handleCancel}
+      />
     {/if}
   </div>
   
