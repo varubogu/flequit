@@ -8,6 +8,7 @@
   import Input from '$lib/components/ui/input.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import Select from '$lib/components/ui/select.svelte';
+  import { Save, X, Edit3, Trash2 } from 'lucide-svelte';
   import Card from '$lib/components/ui/card.svelte';
   
   let task = $derived(taskStore.selectedTask);
@@ -82,16 +83,24 @@
             placeholder="Task title"
           />
           <div class="flex gap-2">
-            <Button onclick={handleSave}>Save</Button>
-            <Button variant="secondary" onclick={handleCancel}>Cancel</Button>
+            <Button size="icon" onclick={handleSave} title="Save">
+              <Save class="h-4 w-4" />
+            </Button>
+            <Button variant="secondary" size="icon" onclick={handleCancel} title="Cancel">
+              <X class="h-4 w-4" />
+            </Button>
           </div>
         </div>
       {:else}
         <div class="flex items-start justify-between">
           <h1 class="text-2xl font-bold mb-2">{task.title}</h1>
           <div class="flex gap-2">
-            <Button variant="ghost" onclick={handleEdit}>Edit</Button>
-            <Button variant="ghost" class="text-destructive" onclick={handleDelete}>Delete</Button>
+            <Button variant="ghost" size="icon" onclick={handleEdit} title="Edit">
+              <Edit3 class="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" class="text-destructive" onclick={handleDelete} title="Delete">
+              <Trash2 class="h-4 w-4" />
+            </Button>
           </div>
         </div>
       {/if}

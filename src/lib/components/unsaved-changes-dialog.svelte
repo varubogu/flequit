@@ -6,6 +6,7 @@
   import DialogDescription from "$lib/components/ui/dialog-description.svelte";
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
   import Button from "$lib/components/ui/button.svelte";
+  import { Save, Trash2, X } from 'lucide-svelte';
 
   interface Props {
     show: boolean;
@@ -31,23 +32,25 @@
       </DialogDescription>
     </DialogHeader>
     
-    <DialogFooter class="flex flex-col gap-2 sm:flex-col">
-      <Button onclick={onSaveAndContinue} class="w-full">
-        保存して移動
+    <DialogFooter class="flex flex-row gap-2 justify-center">
+      <Button size="icon" onclick={onSaveAndContinue} title="保存して移動">
+        <Save class="h-4 w-4" />
       </Button>
       <Button 
         variant="secondary" 
+        size="icon"
         onclick={onDiscardAndContinue} 
-        class="w-full"
+        title="破棄して移動"
       >
-        破棄して移動
+        <Trash2 class="h-4 w-4" />
       </Button>
       <Button 
         variant="ghost" 
+        size="icon"
         onclick={onCancel} 
-        class="w-full"
+        title="キャンセル"
       >
-        キャンセル
+        <X class="h-4 w-4" />
       </Button>
     </DialogFooter>
   </DialogContent>

@@ -4,6 +4,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/ui/button.svelte';
+  import { Plus } from 'lucide-svelte';
   
   interface Props {
     title?: string;
@@ -44,10 +45,11 @@
         </span>
         {#if showAddButton}
           <Button 
-            size="sm"
+            size="icon"
             onclick={toggleAddForm}
+            title="Add Task"
           >
-            + Add Task
+            <Plus class="h-4 w-4" />
           </Button>
         {/if}
       </div>

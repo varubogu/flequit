@@ -6,6 +6,7 @@
   import DialogDescription from "$lib/components/ui/dialog-description.svelte";
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
   import Button from "$lib/components/ui/button.svelte";
+  import { Check, X } from 'lucide-svelte';
 
   interface Props {
     show: boolean;
@@ -38,11 +39,11 @@
     </DialogHeader>
     
     <DialogFooter>
-      <Button variant="outline" onclick={onCancel}>
-        {cancelText}
+      <Button variant="outline" size="icon" onclick={onCancel} title={cancelText}>
+        <X class="h-4 w-4" />
       </Button>
-      <Button onclick={onConfirm}>
-        {confirmText}
+      <Button size="icon" onclick={onConfirm} title={confirmText}>
+        <Check class="h-4 w-4" />
       </Button>
     </DialogFooter>
   </DialogContent>
