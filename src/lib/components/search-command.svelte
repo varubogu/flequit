@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
+  import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import { Search } from "lucide-svelte";
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
@@ -118,9 +119,11 @@
       <Command.Group heading="Quick Actions">
         <Command.Item onSelect={() => console.log('Add task')}>
           <span>Add New Task</span>
+          <KeyboardShortcut keys={['cmd', 'n']} class="ml-auto" />
         </Command.Item>
         <Command.Item onSelect={() => console.log('View all')}>
           <span>View All Tasks</span>
+          <KeyboardShortcut keys={['cmd', 'a']} class="ml-auto" />
         </Command.Item>
       </Command.Group>
     {/if}

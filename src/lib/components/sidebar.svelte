@@ -6,6 +6,7 @@
   import Card from '$lib/components/ui/card.svelte';
   import SidebarButton from '$lib/components/sidebar-button.svelte';
   import SearchCommand from '$lib/components/search-command.svelte';
+  import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import { Search } from 'lucide-svelte';
 
   interface Props {
@@ -61,9 +62,7 @@
       <Search class="h-4 w-4" />
       <span class="text-sm">Search</span>
       <div class="ml-auto">
-        <kbd class="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-          <span class="text-xs">⌘</span>K
-        </kbd>
+        <KeyboardShortcut keys={['cmd', 'k']} />
       </div>
     </Button>
   </div>
