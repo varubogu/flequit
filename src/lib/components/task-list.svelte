@@ -63,7 +63,7 @@
   </div>
   
   <!-- Task List -->
-  <div class="flex-1 overflow-auto p-4">
+  <div class="flex-1 overflow-auto p-4 min-w-0">
     {#if tasks.length === 0}
       <div class="text-center text-muted-foreground py-8">
         <div class="text-4xl mb-2">📝</div>
@@ -77,7 +77,7 @@
         </p>
       </div>
     {:else}
-      <div class="space-y-3">
+      <div class="space-y-3 min-w-0">
         {#each tasks as task (task.id)}
           <TaskItem {task} />
         {/each}

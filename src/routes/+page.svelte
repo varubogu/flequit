@@ -32,4 +32,3 @@
     </Resizable.Pane>
   </Resizable.PaneGroup>
 </div>
-

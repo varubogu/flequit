@@ -82,6 +82,20 @@
   transition-duration: 150ms;
 }
 
+/* Enhanced task item hover states */
+.task-item-button:hover {
+  background-color: hsl(210 40% 96%);
+  border-color: hsl(221.2 83.2% 53.3% / 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px hsl(221.2 83.2% 53.3% / 0.15);
+}
+
+.task-item-button.selected {
+  background-color: hsl(210 40% 96%);
+  border-color: hsl(221.2 83.2% 53.3%);
+  box-shadow: 0 2px 8px -2px hsl(221.2 83.2% 53.3% / 0.2);
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
   line-height: 1.5;
