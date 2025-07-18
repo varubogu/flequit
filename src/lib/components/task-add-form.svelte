@@ -2,7 +2,7 @@
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/ui/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { Plus, X } from 'lucide-svelte';
+  import { Save, X } from 'lucide-svelte';
 
   interface Props {
     onTaskAdded?: () => void;
@@ -43,15 +43,15 @@
       bind:value={newTaskTitle}
       onkeydown={handleKeydown}
     />
-    <Button 
+    <Button
       size="icon"
       onclick={handleAddTask}
       disabled={!newTaskTitle.trim()}
       title="Add Task"
     >
-      <Plus class="h-4 w-4" />
+      <Save class="h-4 w-4" />
     </Button>
-    <Button 
+    <Button
       variant="secondary"
       size="icon"
       onclick={handleCancel}

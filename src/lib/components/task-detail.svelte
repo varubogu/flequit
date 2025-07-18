@@ -8,9 +8,9 @@
   import Input from '$lib/components/ui/input.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import Select from '$lib/components/ui/select.svelte';
-  import { Save, X, Edit3, Trash2 } from 'lucide-svelte';
+  import { Save, X, Edit, Trash2, } from 'lucide-svelte';
   import Card from '$lib/components/ui/card.svelte';
-  
+
   let task = $derived(taskStore.selectedTask);
   let isEditing = $state(false);
   let editForm = $state({
@@ -19,7 +19,7 @@
     due_date: '',
     priority: 0
   });
-  
+
   $effect(() => {
     if (task) {
       editForm = {
@@ -30,17 +30,17 @@
       };
     }
   });
-  
+
   function handleEdit() {
     isEditing = true;
   }
-  
+
   function handleSave() {
     if (!task) return;
     TaskService.updateTaskFromForm(task.id, editForm);
     isEditing = false;
   }
-  
+
   function handleCancel() {
     if (task) {
       editForm = {
@@ -52,18 +52,18 @@
     }
     isEditing = false;
   }
-  
+
   function handleStatusChange(event: Event) {
     if (!task) return;
     const target = event.target as HTMLSelectElement;
     TaskService.changeTaskStatus(task.id, target.value as TaskStatus);
   }
-  
+
   function handleDelete() {
     if (!task) return;
     TaskService.deleteTask(task.id);
   }
-  
+
   function handleSubTaskToggle(subTaskId: string) {
     if (!task) return;
     TaskService.toggleSubTaskStatus(task, subTaskId);
@@ -96,7 +96,7 @@
           <h1 class="text-2xl font-bold mb-2">{task.title}</h1>
           <div class="flex gap-2">
             <Button variant="ghost" size="icon" onclick={handleEdit} title="Edit">
-              <Edit3 class="h-4 w-4" />
+              <Edit class="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" class="text-destructive" onclick={handleDelete} title="Delete">
               <Trash2 class="h-4 w-4" />
@@ -105,13 +105,13 @@
         </div>
       {/if}
     </div>
-    
+
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6 space-y-6">
       <!-- Status -->
       <div>
         <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
-        <Select 
+        <Select
           id="task-status"
           value={task.status}
           onchange={handleStatusChange}
@@ -123,7 +123,7 @@
           <option value="cancelled">Cancelled</option>
         </Select>
       </div>
-      
+
       <!-- Description -->
       <div>
         <label for="task-description" class="block text-sm font-medium mb-2">Description</label>
@@ -140,7 +140,7 @@
           </p>
         {/if}
       </div>
-      
+
       <!-- Due Date -->
       <div>
         <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
@@ -154,7 +154,7 @@
           <p class="text-muted-foreground">{formatDetailedDate(task.due_date)}</p>
         {/if}
       </div>
-      
+
       <!-- Priority -->
       <div>
         <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
@@ -171,7 +171,7 @@
           </span>
         {/if}
       </div>
-      
+
       <!-- Sub-tasks -->
       {#if task.sub_tasks.length > 0}
         <div>
@@ -179,7 +179,7 @@
           <div class="space-y-2">
             {#each task.sub_tasks as subTask}
               <div class="flex items-center gap-3 p-3 border rounded">
-                <Button 
+                <Button
                   variant="ghost"
                   size="icon"
                   class="text-lg h-8 w-8"
@@ -188,7 +188,7 @@
                 >
                   {subTask.status === 'completed' ? '✅' : '⚪'}
                 </Button>
-                <span 
+                <span
                   class="flex-1"
                   class:line-through={subTask.status === 'completed'}
                   class:text-muted-foreground={subTask.status === 'completed'}
@@ -200,14 +200,14 @@
           </div>
         </div>
       {/if}
-      
+
       <!-- Tags -->
       {#if task.tags.length > 0}
         <div>
           <h3 class="block text-sm font-medium mb-2">Tags</h3>
           <div class="flex flex-wrap gap-2">
             {#each task.tags as tag}
-              <span 
+              <span
                 class="px-3 py-1 rounded-full text-sm border"
                 style="border-color: {tag.color}; color: {tag.color};"
               >
@@ -217,7 +217,7 @@
           </div>
         </div>
       {/if}
-      
+
       <!-- Metadata -->
       <div class="border-t pt-4 space-y-2 text-sm text-muted-foreground">
         <div>Created: {formatDateTime(task.created_at)}</div>
