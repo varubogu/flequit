@@ -5,7 +5,7 @@
   import { getStatusIcon, getPriorityColor, calculateSubTaskProgress } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/task-service';
   import Badge from '$lib/components/ui/badge.svelte';
-  import Card from '$lib/components/ui/card.svelte';
+  import Button from '$lib/components/ui/button.svelte';
   
   interface Props {
     task: TaskWithSubTasks;
@@ -37,13 +37,15 @@
 >
   <div class="flex items-start gap-3">
     <!-- Status Toggle -->
-    <button 
-      class="text-lg mt-1 hover:scale-110 transition"
-      onclick={handleStatusToggle}
+    <Button 
+      variant="ghost"
+      size="icon"
+      class="text-lg mt-1 hover:scale-110 transition h-8 w-8"
+      onclick={(e) => e && handleStatusToggle(e)}
       title="Toggle completion status"
     >
       {getStatusIcon(task.status)}
-    </button>
+    </Button>
     
     <!-- Task Content -->
     <div class="flex-1 min-w-0">

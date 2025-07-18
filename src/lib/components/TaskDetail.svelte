@@ -75,23 +75,23 @@
     <div class="p-6 border-b">
       {#if isEditing}
         <div class="space-y-4">
-          <input
+          <Input
             type="text"
-            class="input w-full text-xl font-semibold"
+            class="w-full text-xl font-semibold"
             bind:value={editForm.title}
             placeholder="Task title"
           />
           <div class="flex gap-2">
-            <button class="btn btn-primary" onclick={handleSave}>Save</button>
-            <button class="btn btn-secondary" onclick={handleCancel}>Cancel</button>
+            <Button onclick={handleSave}>Save</Button>
+            <Button variant="secondary" onclick={handleCancel}>Cancel</Button>
           </div>
         </div>
       {:else}
         <div class="flex items-start justify-between">
           <h1 class="text-2xl font-bold mb-2">{task.title}</h1>
           <div class="flex gap-2">
-            <button class="btn btn-ghost" onclick={handleEdit}>Edit</button>
-            <button class="btn btn-ghost text-red-600" onclick={handleDelete}>Delete</button>
+            <Button variant="ghost" onclick={handleEdit}>Edit</Button>
+            <Button variant="ghost" class="text-destructive" onclick={handleDelete}>Delete</Button>
           </div>
         </div>
       {/if}
@@ -102,9 +102,8 @@
       <!-- Status -->
       <div>
         <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
-        <select 
+        <Select 
           id="task-status"
-          class="input"
           value={task.status}
           onchange={handleStatusChange}
         >
@@ -113,19 +112,19 @@
           <option value="waiting">Waiting</option>
           <option value="completed">Completed</option>
           <option value="cancelled">Cancelled</option>
-        </select>
+        </Select>
       </div>
       
       <!-- Description -->
       <div>
         <label for="task-description" class="block text-sm font-medium mb-2">Description</label>
         {#if isEditing}
-          <textarea
+          <Textarea
             id="task-description"
-            class="input w-full min-h-24"
+            class="w-full min-h-24"
             bind:value={editForm.description}
             placeholder="Task description"
-          ></textarea>
+          />
         {:else}
           <p class="text-muted-foreground">
             {task.description || 'No description provided'}
@@ -137,10 +136,9 @@
       <div>
         <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
         {#if isEditing}
-          <input
+          <Input
             id="task-due-date"
             type="date"
-            class="input"
             bind:value={editForm.due_date}
           />
         {:else}
@@ -152,12 +150,12 @@
       <div>
         <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
         {#if isEditing}
-          <select id="task-priority" class="input" bind:value={editForm.priority}>
+          <Select id="task-priority" bind:value={editForm.priority}>
             <option value={1}>High (1)</option>
             <option value={2}>Medium (2)</option>
             <option value={3}>Low (3)</option>
             <option value={4}>Lowest (4)</option>
-          </select>
+          </Select>
         {:else}
           <span class="px-2 py-1 rounded text-sm {getPriorityColorClass(task.priority)}">
             {getPriorityLabel(task.priority)} ({task.priority})
@@ -172,13 +170,15 @@
           <div class="space-y-2">
             {#each task.sub_tasks as subTask}
               <div class="flex items-center gap-3 p-3 border rounded">
-                <button 
-                  class="text-lg"
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  class="text-lg h-8 w-8"
                   onclick={() => handleSubTaskToggle(subTask.id)}
                   aria-label="Toggle subtask completion"
                 >
                   {subTask.status === 'completed' ? '✅' : '⚪'}
-                </button>
+                </Button>
                 <span 
                   class="flex-1"
                   class:line-through={subTask.status === 'completed'}
