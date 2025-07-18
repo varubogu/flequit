@@ -4,6 +4,8 @@
   import { formatDate, getDueDateClass } from '$lib/utils/date-utils';
   import { getStatusIcon, getPriorityColor, calculateSubTaskProgress } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/task-service';
+  import Badge from '$lib/components/ui/badge.svelte';
+  import Card from '$lib/components/ui/card.svelte';
   
   interface Props {
     task: TaskWithSubTasks;
@@ -26,12 +28,12 @@
 </script>
 
 <div 
-  class="card cursor-pointer transition hover:bg-muted border-l-4 {getPriorityColor(task.priority)}"
+  class="rounded-lg border bg-card text-card-foreground shadow-sm cursor-pointer transition hover:bg-muted border-l-4 {getPriorityColor(task.priority)} p-4"
   class:bg-muted={isSelected}
   onclick={handleTaskClick}
   role="button"
   tabindex="0"
-  onkeydown={(e) => e.key === 'Enter' && handleTaskClick()}
+  onkeydown={(e: KeyboardEvent) => e.key === 'Enter' && handleTaskClick()}
 >
   <div class="flex items-start gap-3">
     <!-- Status Toggle -->
@@ -84,12 +86,13 @@
       {#if task.tags.length > 0}
         <div class="flex flex-wrap gap-1 mt-2">
           {#each task.tags as tag}
-            <span 
-              class="px-2 py-0.5 text-xs rounded-full border"
+            <Badge 
+              variant="outline"
+              class="text-xs"
               style="border-color: {tag.color}; color: {tag.color};"
             >
               {tag.name}
-            </span>
+            </Badge>
           {/each}
         </div>
       {/if}

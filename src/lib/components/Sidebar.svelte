@@ -2,6 +2,9 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
+  import Button from '$lib/components/ui/button.svelte';
+  import Badge from '$lib/components/ui/badge.svelte';
+  import Card from '$lib/components/ui/card.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -28,7 +31,7 @@
   }
 </script>
 
-<div class="w-64 bg-card border-r flex flex-col h-full">
+<Card class="w-64 border-r flex flex-col h-full">
   <!-- Header -->
   <div class="p-4 border-b">
     <h1 class="text-lg font-bold">Flequit</h1>
@@ -159,4 +162,4 @@
       Flequit v0.1.0
     </div>
   </div>
-</div>
+</Card>

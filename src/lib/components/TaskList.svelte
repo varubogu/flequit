@@ -2,6 +2,8 @@
   import TaskItem from './TaskItem.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
+  import Button from '$lib/components/ui/button.svelte';
+  import Input from '$lib/components/ui/input.svelte';
   
   interface Props {
     title?: string;
@@ -58,12 +60,12 @@
           {taskCountText}
         </span>
         {#if showAddButton}
-          <button 
-            class="btn btn-primary text-sm"
+          <Button 
+            size="sm"
             onclick={toggleAddForm}
           >
             + Add Task
-          </button>
+          </Button>
         {/if}
       </div>
     </div>
@@ -72,26 +74,25 @@
     {#if showAddForm}
       <div class="mt-3">
         <div class="flex gap-2">
-          <input
+          <Input
             type="text"
-            class="input flex-1"
+            class="flex-1"
             placeholder="Enter task title..."
             bind:value={newTaskTitle}
             onkeydown={handleKeydown}
           />
-          <button 
-            class="btn btn-primary"
+          <Button 
             onclick={handleAddTask}
             disabled={!newTaskTitle.trim()}
           >
             Add
-          </button>
-          <button 
-            class="btn btn-secondary"
+          </Button>
+          <Button 
+            variant="secondary"
             onclick={cancelAddForm}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     {/if}

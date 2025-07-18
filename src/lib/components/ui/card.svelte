@@ -5,6 +5,10 @@
   type Props = {
     class?: string;
     children?: Snippet;
+    onclick?: () => void;
+    onkeydown?: (event: KeyboardEvent) => void;
+    role?: string;
+    tabindex?: number;
   };
 
   let { class: className, children, ...restProps }: Props = $props();
