@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TaskItem from './TaskItem.svelte';
+  import TaskItem from './task-item.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/ui/button.svelte';

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Sidebar from '$lib/components/Sidebar.svelte';
-  import TaskList from '$lib/components/TaskList.svelte';
-  import TaskDetail from '$lib/components/TaskDetail.svelte';
+  import Sidebar from '$lib/components/sidebar.svelte';
+  import TaskList from '$lib/components/task-list.svelte';
+  import TaskDetail from '$lib/components/task-detail.svelte';
   import { PaneGroup, Pane, PaneResizer } from 'paneforge';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import type { ViewType } from '$lib/services/view-service';
