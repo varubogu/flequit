@@ -2,7 +2,7 @@
   import Sidebar from '$lib/components/sidebar.svelte';
   import TaskList from '$lib/components/task-list.svelte';
   import TaskDetail from '$lib/components/task-detail.svelte';
-  import { PaneGroup, Pane, PaneResizer } from 'paneforge';
+  import * as Resizable from '$lib/components/ui/resizable/index.js';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import type { ViewType } from '$lib/services/view-service';
 
@@ -16,20 +16,20 @@
   <Sidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
 
   <!-- Main Content with Resizable Panels -->
-  <PaneGroup direction="horizontal">
-    <Pane defaultSize={30} minSize={30} maxSize={50} order={1}>
+  <Resizable.PaneGroup direction="horizontal">
+    <Resizable.Pane defaultSize={30} minSize={30} maxSize={50}>
       <TaskList
         title={viewStore.viewTitle}
         tasks={viewStore.tasks}
         showAddButton={viewStore.showAddButton}
       />
-    </Pane>
+    </Resizable.Pane>
 
-    <PaneResizer />
+    <Resizable.Handle />
 
-    <Pane defaultSize={50} minSize={30} order={2}>
+    <Resizable.Pane defaultSize={50} minSize={30}>
       <TaskDetail />
-    </Pane>
-  </PaneGroup>
+    </Resizable.Pane>
+  </Resizable.PaneGroup>
 </div>
 
