@@ -3,8 +3,8 @@
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
   import Button from '$lib/components/ui/button.svelte';
-  import Badge from '$lib/components/ui/badge.svelte';
   import Card from '$lib/components/ui/card.svelte';
+  import SidebarButton from '$lib/components/sidebar-button.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -46,62 +46,37 @@
           Views
         </h3>
 
-        <button
-          class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
-          class:bg-muted={currentView === 'all'}
+        <SidebarButton
+          icon="📝"
+          label="All Tasks"
+          count={taskStore.allTasks.length}
+          isActive={currentView === 'all'}
           onclick={() => handleViewChange('all')}
-        >
-          <div class="flex items-center gap-2">
-            <span>📝</span>
-            <span>All Tasks</span>
-          </div>
-          <span class="text-xs text-muted-foreground">
-            {taskStore.allTasks.length}
-          </span>
-        </button>
+        />
 
-        <button
-          class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
-          class:bg-muted={currentView === 'today'}
+        <SidebarButton
+          icon="📅"
+          label="Today"
+          count={todayTasksCount}
+          isActive={currentView === 'today'}
           onclick={() => handleViewChange('today')}
-        >
-          <div class="flex items-center gap-2">
-            <span>📅</span>
-            <span>Today</span>
-          </div>
-          {#if todayTasksCount > 0}
-            <span class="text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full">
-              {todayTasksCount}
-            </span>
-          {/if}
-        </button>
+        />
 
-        <button
-          class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
-          class:bg-muted={currentView === 'overdue'}
+        <SidebarButton
+          icon="🚨"
+          label="Overdue"
+          count={overdueTasksCount}
+          isActive={currentView === 'overdue'}
           onclick={() => handleViewChange('overdue')}
-        >
-          <div class="flex items-center gap-2">
-            <span>🚨</span>
-            <span>Overdue</span>
-          </div>
-          {#if overdueTasksCount > 0}
-            <span class="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">
-              {overdueTasksCount}
-            </span>
-          {/if}
-        </button>
+        />
 
-        <button
-          class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
-          class:bg-muted={currentView === 'completed'}
+        <SidebarButton
+          icon="✅"
+          label="Completed"
+          count={taskStore.allTasks.filter(t => t.status === 'completed').length}
+          isActive={currentView === 'completed'}
           onclick={() => handleViewChange('completed')}
-        >
-          <div class="flex items-center gap-2">
-            <span>✅</span>
-            <span>Completed</span>
-          </div>
-        </button>
+        />
       </div>
 
       <!-- Projects -->
@@ -116,9 +91,9 @@
           </div>
         {:else}
           {#each projects as project (project.id)}
-            <button
-              class="flex items-center justify-between w-full px-3 py-2 text-sm rounded hover:bg-muted transition"
-              class:bg-muted={currentView === 'project' && taskStore.selectedProjectId === project.id}
+            <Button
+              variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+              class="flex items-center justify-between w-full h-auto p-3 text-sm"
               onclick={() => handleProjectSelect(project)}
             >
               <div class="flex items-center gap-2 min-w-0">
@@ -131,22 +106,23 @@
               <span class="text-xs text-muted-foreground flex-shrink-0">
                 {getProjectTaskCount(project)}
               </span>
-            </button>
+            </Button>
 
             <!-- Task Lists (when project is selected) -->
             {#if currentView === 'project' && taskStore.selectedProjectId === project.id}
               <div class="ml-4 mt-1 space-y-1">
                 {#each project.task_lists as list (list.id)}
-                  <button
-                    class="flex items-center justify-between w-full px-3 py-1.5 text-xs rounded hover:bg-muted transition"
-                    class:bg-muted={taskStore.selectedListId === list.id}
+                  <Button
+                    variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+                    size="sm"
+                    class="flex items-center justify-between w-full h-auto p-2 text-xs"
                     onclick={() => taskStore.selectList(list.id)}
                   >
                     <span class="truncate">{list.name}</span>
                     <span class="text-muted-foreground">
                       {list.tasks.length}
                     </span>
-                  </button>
+                  </Button>
                 {/each}
               </div>
             {/if}
