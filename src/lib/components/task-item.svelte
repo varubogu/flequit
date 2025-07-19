@@ -15,6 +15,8 @@
   let { task }: Props = $props();
 
   let isSelected = $derived(taskStore.selectedTaskId === task.id);
+  let hasSelectedSubTask = $derived(task.sub_tasks.some(st => st.id === taskStore.selectedSubTaskId));
+  let isActiveTask = $derived(isSelected || hasSelectedSubTask);
   let completedSubTasks = $derived(task.sub_tasks.filter(st => st.status === 'completed').length);
   let subTaskProgress = $derived(calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length));
   let showSubTasks = $state(false);
@@ -31,6 +33,11 @@
   function handleSubTaskToggle(event: Event, subTaskId: string) {
     event.stopPropagation();
     TaskService.toggleSubTaskStatus(task, subTaskId);
+  }
+  
+  function handleSubTaskClick(event: Event, subTaskId: string) {
+    event.stopPropagation();
+    TaskService.selectSubTask(subTaskId);
   }
 
   function toggleSubTasksAccordion(event: Event) {
@@ -62,7 +69,7 @@
   <!-- Main Task Button -->
   <Button
     variant="ghost"
-    class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(task.priority)} p-4 h-auto flex-1 justify-start text-left transition-all {isSelected ? 'selected' : ''} min-w-0"
+    class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(task.priority)} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask ? 'selected' : ''} min-w-0"
     onclick={handleTaskClick}
   >
     <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
@@ -140,7 +147,11 @@
 {#if task.sub_tasks.length > 0 && showSubTasks}
   <div class="ml-10 mt-2 space-y-2">
     {#each task.sub_tasks as subTask (subTask.id)}
-      <div class="flex items-center gap-2 p-2 rounded border bg-muted/30">
+      <Button
+        variant="ghost"
+        class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto {taskStore.selectedSubTaskId === subTask.id ? 'bg-primary/10 border-primary' : 'bg-muted/30'}"
+        onclick={(e) => e && handleSubTaskClick(e, subTask.id)}
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -150,14 +161,21 @@
         >
           {subTask.status === 'completed' ? '✅' : '⚪'}
         </Button>
-        <span
-          class="flex-1 text-sm"
-          class:line-through={subTask.status === 'completed'}
-          class:text-muted-foreground={subTask.status === 'completed'}
-        >
-          {subTask.title}
-        </span>
-      </div>
+        <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
+          <span
+            class="text-sm font-medium truncate"
+            class:line-through={subTask.status === 'completed'}
+            class:text-muted-foreground={subTask.status === 'completed'}
+          >
+            {subTask.title}
+          </span>
+          {#if subTask.due_date}
+            <span class="text-xs text-muted-foreground whitespace-nowrap">
+              {formatDate(subTask.due_date)}
+            </span>
+          {/if}
+        </div>
+      </Button>
     {/each}
   </div>
 {/if}

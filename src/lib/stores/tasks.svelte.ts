@@ -1,9 +1,10 @@
-import type { Task, TaskList, Project, ProjectTree, TaskWithSubTasks } from '$lib/types/task';
+import type { Task, TaskList, Project, ProjectTree, TaskWithSubTasks, SubTask } from '$lib/types/task';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
   projects = $state<ProjectTree[]>([]);
   selectedTaskId = $state<string | null>(null);
+  selectedSubTaskId = $state<string | null>(null);
   selectedProjectId = $state<string | null>(null);
   selectedListId = $state<string | null>(null);
   
@@ -15,6 +16,20 @@ export class TaskStore {
       for (const list of project.task_lists) {
         const task = list.tasks.find(t => t.id === this.selectedTaskId);
         if (task) return task;
+      }
+    }
+    return null;
+  }
+  
+  get selectedSubTask(): SubTask | null {
+    if (!this.selectedSubTaskId) return null;
+    
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTask = task.sub_tasks.find(st => st.id === this.selectedSubTaskId);
+          if (subTask) return subTask;
+        }
       }
     }
     return null;
@@ -57,6 +72,12 @@ export class TaskStore {
   
   selectTask(taskId: string | null) {
     this.selectedTaskId = taskId;
+    this.selectedSubTaskId = null; // Clear subtask selection when selecting a task
+  }
+  
+  selectSubTask(subTaskId: string | null) {
+    this.selectedSubTaskId = subTaskId;
+    this.selectedTaskId = null; // Clear task selection when selecting a subtask
   }
   
   selectProject(projectId: string | null) {
@@ -121,6 +142,41 @@ export class TaskStore {
             this.selectedTaskId = null;
           }
           return;
+        }
+      }
+    }
+  }
+  
+  updateSubTask(subTaskId: string, updates: Partial<SubTask>) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTaskIndex = task.sub_tasks.findIndex(st => st.id === subTaskId);
+          if (subTaskIndex !== -1) {
+            task.sub_tasks[subTaskIndex] = {
+              ...task.sub_tasks[subTaskIndex],
+              ...updates,
+              updated_at: new Date()
+            };
+            return;
+          }
+        }
+      }
+    }
+  }
+  
+  deleteSubTask(subTaskId: string) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTaskIndex = task.sub_tasks.findIndex(st => st.id === subTaskId);
+          if (subTaskIndex !== -1) {
+            task.sub_tasks.splice(subTaskIndex, 1);
+            if (this.selectedSubTaskId === subTaskId) {
+              this.selectedSubTaskId = null;
+            }
+            return;
+          }
         }
       }
     }

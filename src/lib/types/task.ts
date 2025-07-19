@@ -47,6 +47,11 @@ export interface SubTask {
   title: string;
   description?: string;
   status: TaskStatus;
+  priority?: number;
+  start_date?: Date;
+  end_date?: Date;
+  due_date?: Date;
+  recurrence_rule?: string;
   order_index: number;
   created_at: Date;
   updated_at: Date;

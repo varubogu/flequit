@@ -10,6 +10,10 @@ export class TaskService {
     taskStore.selectTask(taskId);
   }
   
+  static selectSubTask(subTaskId: string | null): void {
+    taskStore.selectSubTask(subTaskId);
+  }
+  
   static updateTask(taskId: string, updates: Partial<Task>): void {
     taskStore.updateTask(taskId, updates);
   }
@@ -74,5 +78,42 @@ export class TaskService {
       order_index: 0,
       is_archived: false
     });
+  }
+  
+  static updateSubTaskFromForm(subTaskId: string, formData: {
+    title: string;
+    description: string;
+    due_date: string;
+    priority: number;
+  }): void {
+    const updates: Partial<SubTask> = {
+      title: formData.title,
+      description: formData.description || undefined,
+      priority: formData.priority || undefined
+    };
+    
+    if (formData.due_date) {
+      updates.due_date = new Date(formData.due_date);
+    } else {
+      updates.due_date = undefined;
+    }
+    
+    this.updateSubTask(subTaskId, updates);
+  }
+  
+  static updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
+    taskStore.updateSubTask(subTaskId, updates);
+  }
+  
+  static changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
+    this.updateSubTask(subTaskId, { status: newStatus });
+  }
+  
+  static deleteSubTask(subTaskId: string): boolean {
+    if (confirm('Are you sure you want to delete this subtask?')) {
+      taskStore.deleteSubTask(subTaskId);
+      return true;
+    }
+    return false;
   }
 }

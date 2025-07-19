@@ -47,7 +47,13 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'subtask-1',
                   task_id: 'task-1',
                   title: 'Check work inbox',
+                  description: 'Review all unread emails in work account',
                   status: 'not_started',
+                  priority: 2,
+                  start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
+                  end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
+                  due_date: new Date(today.getTime() + 2 * 60 * 60 * 1000), // 2 hours from now
+                  recurrence_rule: 'FREQ=DAILY',
                   order_index: 0,
                   created_at: new Date(),
                   updated_at: new Date()
@@ -186,7 +192,10 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'subtask-3',
                   task_id: 'task-5',
                   title: 'Design login UI',
+                  description: 'Create wireframes and mockups for login interface',
                   status: 'completed',
+                  priority: 2,
+                  due_date: yesterday,
                   order_index: 0,
                   created_at: new Date(),
                   updated_at: new Date()
@@ -195,7 +204,10 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'subtask-4',
                   task_id: 'task-5', 
                   title: 'Implement backend API',
+                  description: 'Create REST endpoints for authentication',
                   status: 'in_progress',
+                  priority: 1,
+                  due_date: today,
                   order_index: 1,
                   created_at: new Date(),
                   updated_at: new Date()
@@ -204,7 +216,10 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'subtask-5',
                   task_id: 'task-5',
                   title: 'Write unit tests',
+                  description: 'Create comprehensive test coverage for auth flow',
                   status: 'not_started',
+                  priority: 2,
+                  due_date: tomorrow,
                   order_index: 2,
                   created_at: new Date(),
                   updated_at: new Date()

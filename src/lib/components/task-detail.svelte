@@ -1,7 +1,7 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import type { TaskWithSubTasks, TaskStatus } from '$lib/types/task';
-  import { formatDetailedDate, formatDateTime, formatDateForInput } from '$lib/utils/date-utils';
+  import type { TaskWithSubTasks, TaskStatus, SubTask } from '$lib/types/task';
+  import { formatDetailedDate, formatDateTime, formatDateForInput, formatDate } from '$lib/utils/date-utils';
   import { getStatusLabel, getPriorityLabel, getPriorityColorClass } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/task-service';
   import Button from '$lib/components/ui/button.svelte';
@@ -12,6 +12,10 @@
   import Card from '$lib/components/ui/card.svelte';
 
   let task = $derived(taskStore.selectedTask);
+  let subTask = $derived(taskStore.selectedSubTask);
+  let currentItem = $derived(task || subTask);
+  let isSubTask = $derived(!!subTask);
+  
   let editForm = $state({
     title: '',
     description: '',
@@ -21,12 +25,12 @@
   let saveTimeout: number | null = null;
 
   $effect(() => {
-    if (task) {
+    if (currentItem) {
       editForm = {
-        title: task.title,
-        description: task.description || '',
-        due_date: formatDateForInput(task.due_date),
-        priority: task.priority
+        title: currentItem.title,
+        description: currentItem.description || '',
+        due_date: formatDateForInput(currentItem.due_date),
+        priority: currentItem.priority || 0
       };
     }
   });
@@ -36,8 +40,12 @@
       clearTimeout(saveTimeout);
     }
     saveTimeout = setTimeout(() => {
-      if (task) {
-        TaskService.updateTaskFromForm(task.id, editForm);
+      if (currentItem) {
+        if (isSubTask) {
+          TaskService.updateSubTaskFromForm(currentItem.id, editForm);
+        } else {
+          TaskService.updateTaskFromForm(currentItem.id, editForm);
+        }
       }
     }, 500); // 500ms delay
   }
@@ -48,34 +56,57 @@
 
 
   function handleStatusChange(event: Event) {
-    if (!task) return;
+    if (!currentItem) return;
     const target = event.target as HTMLSelectElement;
-    TaskService.changeTaskStatus(task.id, target.value as TaskStatus);
+    if (isSubTask) {
+      TaskService.changeSubTaskStatus(currentItem.id, target.value as TaskStatus);
+    } else {
+      TaskService.changeTaskStatus(currentItem.id, target.value as TaskStatus);
+    }
   }
 
   function handleDelete() {
-    if (!task) return;
-    TaskService.deleteTask(task.id);
+    if (!currentItem) return;
+    if (isSubTask) {
+      TaskService.deleteSubTask(currentItem.id);
+    } else {
+      TaskService.deleteTask(currentItem.id);
+    }
   }
 
   function handleSubTaskToggle(subTaskId: string) {
     if (!task) return;
     TaskService.toggleSubTaskStatus(task, subTaskId);
   }
+  
+  function handleSubTaskClick(subTaskId: string) {
+    TaskService.selectSubTask(subTaskId);
+  }
+  
+  function handleGoToParentTask() {
+    if (isSubTask && currentItem) {
+      TaskService.selectTask(currentItem.task_id);
+    }
+  }
 </script>
 
 <Card class="flex flex-col h-full">
-  {#if task}
+  {#if currentItem}
     <!-- Header -->
     <div class="p-6 border-b">
       <div class="flex items-start justify-between">
-        <Input
-          type="text"
-          class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
-          bind:value={editForm.title}
-          placeholder="Task title"
-          oninput={handleFormChange}
-        />
+        <div class="flex-1">
+          {#if isSubTask}
+            <div class="text-sm text-muted-foreground mb-1">Sub-task</div>
+          {/if}
+          <Input
+            type="text"
+            class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
+            bind:value={editForm.title}
+            placeholder={isSubTask ? "Sub-task title" : "Task title"}
+            oninput={handleFormChange}
+          />
+        </div>
         <div class="flex gap-2 ml-4">
           <Button variant="ghost" size="icon" class="text-destructive" onclick={handleDelete} title="Delete">
             <Trash2 class="h-4 w-4" />
@@ -92,7 +123,7 @@
           <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
           <Select
             id="task-status"
-            value={task.status}
+            value={currentItem.status}
             onchange={handleStatusChange}
             class="w-full"
           >
@@ -105,7 +136,9 @@
         </div>
 
         <div class="min-w-[140px] flex-1">
-          <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
+          <label for="task-due-date" class="block text-sm font-medium mb-2">
+            Due Date {#if isSubTask}<span class="text-xs text-muted-foreground">(Optional)</span>{/if}
+          </label>
           <Input
             id="task-due-date"
             type="date"
@@ -116,8 +149,13 @@
         </div>
 
         <div class="min-w-[120px] flex-1">
-          <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
+          <label for="task-priority" class="block text-sm font-medium mb-2">
+            Priority {#if isSubTask}<span class="text-xs text-muted-foreground">(Optional)</span>{/if}
+          </label>
           <Select id="task-priority" bind:value={editForm.priority} onchange={handleFormChange} class="w-full">
+            {#if isSubTask}
+              <option value={0}>Not Set</option>
+            {/if}
             <option value={1}>High (1)</option>
             <option value={2}>Medium (2)</option>
             <option value={3}>Low (3)</option>
@@ -128,47 +166,63 @@
 
       <!-- Description -->
       <div>
-        <label for="task-description" class="block text-sm font-medium mb-2">Description</label>
+        <label for="task-description" class="block text-sm font-medium mb-2">
+          Description {#if isSubTask}<span class="text-xs text-muted-foreground">(Optional)</span>{/if}
+        </label>
         <Textarea
           id="task-description"
           class="w-full min-h-24"
           bind:value={editForm.description}
-          placeholder="Task description"
+          placeholder={isSubTask ? "Sub-task description (optional)" : "Task description"}
           oninput={handleFormChange}
         />
       </div>
 
-      <!-- Sub-tasks -->
-      {#if task.sub_tasks.length > 0}
+      <!-- Sub-tasks (only show for main tasks, not for sub-tasks) -->
+      {#if !isSubTask && task && task.sub_tasks.length > 0}
         <div>
           <h3 class="block text-sm font-medium mb-2">Sub-tasks</h3>
           <div class="space-y-2">
             {#each task.sub_tasks as subTask}
-              <div class="flex items-center gap-3 p-3 border rounded">
+              <Button
+                variant="ghost"
+                class="flex items-center gap-3 p-3 border rounded w-full justify-start h-auto {taskStore.selectedSubTaskId === subTask.id ? 'bg-primary/10 border-primary' : ''}"
+                onclick={() => handleSubTaskClick(subTask.id)}
+              >
                 <Button
                   variant="ghost"
                   size="icon"
                   class="text-lg h-8 w-8"
-                  onclick={() => handleSubTaskToggle(subTask.id)}
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    handleSubTaskToggle(subTask.id);
+                  }}
                   aria-label="Toggle subtask completion"
                 >
                   {subTask.status === 'completed' ? '✅' : '⚪'}
                 </Button>
-                <span
-                  class="flex-1"
-                  class:line-through={subTask.status === 'completed'}
-                  class:text-muted-foreground={subTask.status === 'completed'}
-                >
-                  {subTask.title}
-                </span>
-              </div>
+                <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
+                  <span
+                    class="font-medium truncate"
+                    class:line-through={subTask.status === 'completed'}
+                    class:text-muted-foreground={subTask.status === 'completed'}
+                  >
+                    {subTask.title}
+                  </span>
+                  {#if subTask.due_date}
+                    <span class="text-xs text-muted-foreground whitespace-nowrap">
+                      {formatDate(subTask.due_date)}
+                    </span>
+                  {/if}
+                </div>
+              </Button>
             {/each}
           </div>
         </div>
       {/if}
 
-      <!-- Tags -->
-      {#if task.tags.length > 0}
+      <!-- Tags (only for main tasks) -->
+      {#if !isSubTask && task && task.tags.length > 0}
         <div>
           <h3 class="block text-sm font-medium mb-2">Tags</h3>
           <div class="flex flex-wrap gap-2">
@@ -186,18 +240,29 @@
 
       <!-- Metadata -->
       <div class="border-t pt-4 space-y-2 text-sm text-muted-foreground">
-        <div>Created: {formatDateTime(task.created_at)}</div>
-        <div>Updated: {formatDateTime(task.updated_at)}</div>
-        <div>Task ID: {task.id}</div>
+        <div>Created: {formatDateTime(currentItem.created_at)}</div>
+        <div>Updated: {formatDateTime(currentItem.updated_at)}</div>
+        <div>{isSubTask ? 'Sub-task' : 'Task'} ID: {currentItem.id}</div>
+        {#if isSubTask}
+          <div>Parent Task ID: {currentItem.task_id}</div>
+          <Button
+            variant="outline"
+            size="sm"
+            onclick={() => handleGoToParentTask()}
+            class="mt-2"
+          >
+            Go to Parent Task
+          </Button>
+        {/if}
       </div>
     </div>
   {:else}
-    <!-- No task selected -->
+    <!-- No task or subtask selected -->
     <div class="flex-1 flex items-center justify-center">
       <div class="text-center text-muted-foreground">
         <div class="text-6xl mb-4">📝</div>
         <h2 class="text-xl font-semibold mb-2">No task selected</h2>
-        <p>Select a task from the list to view its details</p>
+        <p>Select a task or sub-task from the list to view its details</p>
       </div>
     </div>
   {/if}
