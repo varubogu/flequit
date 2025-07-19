@@ -3,6 +3,7 @@
   import TaskAddForm from './task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
+  import { ViewService } from '$lib/services/view-service';
   import Button from '$lib/components/ui/button.svelte';
   import { Plus } from 'lucide-svelte';
   
@@ -20,6 +21,7 @@
   
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
+  let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');
   
   function toggleAddForm() {
     showAddForm = !showAddForm;
@@ -68,10 +70,12 @@
   <div class="flex-1 overflow-auto p-4 min-w-0">
     {#if tasks.length === 0}
       <div class="text-center text-muted-foreground py-8">
-        <div class="text-4xl mb-2">📝</div>
-        <p class="text-lg">No tasks found</p>
+        <div class="text-4xl mb-2">{isSearchView ? '🔍' : '📝'}</div>
+        <p class="text-lg">{isSearchView ? 'No search results' : 'No tasks found'}</p>
         <p class="text-sm">
-          {#if showAddButton}
+          {#if isSearchView}
+            Try a different search term or check your spelling
+          {:else if showAddButton}
             Click "Add Task" to create your first task
           {:else}
             Add some tasks to get started

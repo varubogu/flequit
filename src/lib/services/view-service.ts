@@ -1,10 +1,10 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth';
+export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth' | 'search';
 
 export class ViewService {
-  static getTasksForView(view: ViewType): TaskWithSubTasks[] {
+  static getTasksForView(view: ViewType, searchQuery: string = ''): TaskWithSubTasks[] {
     switch (view) {
       case 'today':
         return taskStore.todayTasks;
@@ -22,12 +22,14 @@ export class ViewService {
         return this.getNextWeekTasks();
       case 'thismonth':
         return this.getThisMonthTasks();
+      case 'search':
+        return this.getSearchResults(searchQuery);
       default:
         return taskStore.allTasks;
     }
   }
   
-  static getViewTitle(view: ViewType): string {
+  static getViewTitle(view: ViewType, searchQuery: string = ''): string {
     switch (view) {
       case 'today':
         return 'Today';
@@ -45,6 +47,8 @@ export class ViewService {
         return 'Next Week';
       case 'thismonth':
         return 'This Month';
+      case 'search':
+        return searchQuery ? `Search: "${searchQuery}"` : 'All Tasks';
       default:
         return 'All Tasks';
     }
@@ -53,6 +57,7 @@ export class ViewService {
   static shouldShowAddButton(view: ViewType): boolean {
     return view === 'all' || view === 'project' || view === 'tomorrow' || view === 'next3days' || view === 'nextweek' || view === 'thismonth';
   }
+  
   
   static handleViewChange(view: ViewType): void {
     // Clear task selection when changing views
@@ -151,5 +156,23 @@ export class ViewService {
       const dueDate = new Date(task.due_date);
       return dueDate >= today && dueDate <= endOfMonth;
     });
+  }
+
+  private static getSearchResults(searchQuery: string): TaskWithSubTasks[] {
+    if (!searchQuery.trim()) {
+      // 空の検索クエリの場合は全タスクを返す
+      return taskStore.allTasks;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    return taskStore.allTasks.filter(task =>
+      task.title.toLowerCase().includes(query) ||
+      task.description?.toLowerCase().includes(query) ||
+      task.sub_tasks.some(subTask =>
+        subTask.title.toLowerCase().includes(query) ||
+        subTask.description?.toLowerCase().includes(query)
+      ) ||
+      task.tags.some(tag => tag.name.toLowerCase().includes(query))
+    );
   }
 }
