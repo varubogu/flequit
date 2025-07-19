@@ -1,5 +1,6 @@
 <script lang="ts">
   import { TaskListService } from '$lib/services/task-list-service';
+  import { TaskService } from '$lib/services/task-service';
   import Button from '$lib/components/ui/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { Save, X } from 'lucide-svelte';
@@ -14,8 +15,10 @@
   let newTaskTitle = $state('');
 
   function handleAddTask() {
-    if (TaskListService.addNewTask(newTaskTitle)) {
+    const newTaskId = TaskListService.addNewTask(newTaskTitle);
+    if (newTaskId) {
       newTaskTitle = '';
+      TaskService.selectTask(newTaskId);
       onTaskAdded?.();
     }
   }
