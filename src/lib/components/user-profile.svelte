@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/ui/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
+  import SettingsDialog from '$lib/components/settings-dialog.svelte';
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
 
   interface User {
@@ -27,6 +28,7 @@
   }: Props = $props();
 
   let showMenu = $state(false);
+  let showSettings = $state(false);
 
   function getInitials(name: string): string {
     return name
@@ -52,8 +54,9 @@
   }
 
   function handleSettings() {
-    onSettings?.();
+    showSettings = true;
     showMenu = false;
+    onSettings?.();
   }
 
   function handleSwitchAccount() {
@@ -183,3 +186,9 @@
     </Card>
   {/if}
 </div>
+
+<!-- Settings Dialog -->
+<SettingsDialog
+  bind:open={showSettings}
+  onOpenChange={(open) => showSettings = open}
+/>
