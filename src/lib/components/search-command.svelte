@@ -11,7 +11,7 @@
     onOpenChange?: (open: boolean) => void;
   }
 
-  let { open = false, onOpenChange }: Props = $props();
+  let { open = $bindable(false), onOpenChange }: Props = $props();
 
   let searchValue = $state('');
   let filteredTasks = $state<TaskWithSubTasks[]>([]);

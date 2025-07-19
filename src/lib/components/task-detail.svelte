@@ -8,17 +8,17 @@
   import Input from '$lib/components/ui/input.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import Select from '$lib/components/ui/select.svelte';
-  import { Save, X, Edit, Trash2, } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import Card from '$lib/components/ui/card.svelte';
 
   let task = $derived(taskStore.selectedTask);
-  let isEditing = $state(false);
   let editForm = $state({
     title: '',
     description: '',
     due_date: '',
     priority: 0
   });
+  let saveTimeout: number | null = null;
 
   $effect(() => {
     if (task) {
@@ -31,27 +31,21 @@
     }
   });
 
-  function handleEdit() {
-    isEditing = true;
-  }
-
-  function handleSave() {
-    if (!task) return;
-    TaskService.updateTaskFromForm(task.id, editForm);
-    isEditing = false;
-  }
-
-  function handleCancel() {
-    if (task) {
-      editForm = {
-        title: task.title,
-        description: task.description || '',
-        due_date: formatDateForInput(task.due_date),
-        priority: task.priority
-      };
+  function debouncedSave() {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
     }
-    isEditing = false;
+    saveTimeout = setTimeout(() => {
+      if (task) {
+        TaskService.updateTaskFromForm(task.id, editForm);
+      }
+    }, 500); // 500ms delay
   }
+
+  function handleFormChange() {
+    debouncedSave();
+  }
+
 
   function handleStatusChange(event: Event) {
     if (!task) return;
@@ -74,36 +68,20 @@
   {#if task}
     <!-- Header -->
     <div class="p-6 border-b">
-      {#if isEditing}
-        <div class="space-y-4">
-          <Input
-            type="text"
-            class="w-full text-xl font-semibold"
-            bind:value={editForm.title}
-            placeholder="Task title"
-          />
-          <div class="flex gap-2">
-            <Button size="icon" onclick={handleSave} title="Save">
-              <Save class="h-4 w-4" />
-            </Button>
-            <Button variant="secondary" size="icon" onclick={handleCancel} title="Cancel">
-              <X class="h-4 w-4" />
-            </Button>
-          </div>
+      <div class="flex items-start justify-between">
+        <Input
+          type="text"
+          class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
+          bind:value={editForm.title}
+          placeholder="Task title"
+          oninput={handleFormChange}
+        />
+        <div class="flex gap-2 ml-4">
+          <Button variant="ghost" size="icon" class="text-destructive" onclick={handleDelete} title="Delete">
+            <Trash2 class="h-4 w-4" />
+          </Button>
         </div>
-      {:else}
-        <div class="flex items-start justify-between">
-          <h1 class="text-2xl font-bold mb-2">{task.title}</h1>
-          <div class="flex gap-2">
-            <Button variant="ghost" size="icon" onclick={handleEdit} title="Edit">
-              <Edit class="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" class="text-destructive" onclick={handleDelete} title="Delete">
-              <Trash2 class="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      {/if}
+      </div>
     </div>
 
     <!-- Content -->
@@ -127,49 +105,35 @@
       <!-- Description -->
       <div>
         <label for="task-description" class="block text-sm font-medium mb-2">Description</label>
-        {#if isEditing}
-          <Textarea
-            id="task-description"
-            class="w-full min-h-24"
-            bind:value={editForm.description}
-            placeholder="Task description"
-          />
-        {:else}
-          <p class="text-muted-foreground">
-            {task.description || 'No description provided'}
-          </p>
-        {/if}
+        <Textarea
+          id="task-description"
+          class="w-full min-h-24"
+          bind:value={editForm.description}
+          placeholder="Task description"
+          oninput={handleFormChange}
+        />
       </div>
 
       <!-- Due Date -->
       <div>
         <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
-        {#if isEditing}
-          <Input
-            id="task-due-date"
-            type="date"
-            bind:value={editForm.due_date}
-          />
-        {:else}
-          <p class="text-muted-foreground">{formatDetailedDate(task.due_date)}</p>
-        {/if}
+        <Input
+          id="task-due-date"
+          type="date"
+          bind:value={editForm.due_date}
+          onchange={handleFormChange}
+        />
       </div>
 
       <!-- Priority -->
       <div>
         <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
-        {#if isEditing}
-          <Select id="task-priority" bind:value={editForm.priority}>
-            <option value={1}>High (1)</option>
-            <option value={2}>Medium (2)</option>
-            <option value={3}>Low (3)</option>
-            <option value={4}>Lowest (4)</option>
-          </Select>
-        {:else}
-          <span class="px-2 py-1 rounded text-sm {getPriorityColorClass(task.priority)}">
-            {getPriorityLabel(task.priority)} ({task.priority})
-          </span>
-        {/if}
+        <Select id="task-priority" bind:value={editForm.priority} onchange={handleFormChange}>
+          <option value={1}>High (1)</option>
+          <option value={2}>Medium (2)</option>
+          <option value={3}>Low (3)</option>
+          <option value={4}>Lowest (4)</option>
+        </Select>
       </div>
 
       <!-- Sub-tasks -->
