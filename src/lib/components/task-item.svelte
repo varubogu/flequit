@@ -6,6 +6,7 @@
   import { TaskService } from '$lib/services/task-service';
   import Badge from '$lib/components/ui/badge.svelte';
   import Button from '$lib/components/ui/button.svelte';
+  import { ChevronDown, ChevronRight } from 'lucide-svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -16,6 +17,7 @@
   let isSelected = $derived(taskStore.selectedTaskId === task.id);
   let completedSubTasks = $derived(task.sub_tasks.filter(st => st.status === 'completed').length);
   let subTaskProgress = $derived(calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length));
+  let showSubTasks = $state(false);
 
   function handleTaskClick() {
     TaskService.selectTask(task.id);
@@ -25,14 +27,45 @@
     event.stopPropagation();
     TaskService.toggleTaskStatus(task.id);
   }
+
+  function handleSubTaskToggle(event: Event, subTaskId: string) {
+    event.stopPropagation();
+    TaskService.toggleSubTaskStatus(task, subTaskId);
+  }
+
+  function toggleSubTasksAccordion(event: Event) {
+    event.stopPropagation();
+    showSubTasks = !showSubTasks;
+  }
 </script>
 
-<Button
-  variant="ghost"
-  class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(task.priority)} p-4 h-auto w-full justify-start text-left transition-all {isSelected ? 'selected' : ''}"
-  onclick={handleTaskClick}
->
-  <div class="flex items-start gap-3 w-full">
+<div class="flex items-start gap-1 w-full">
+  <!-- Accordion Toggle Button -->
+  {#if task.sub_tasks.length > 0}
+    <Button
+      variant="ghost"
+      size="icon"
+      class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
+      onclick={toggleSubTasksAccordion}
+      title="Toggle subtasks"
+    >
+      {#if showSubTasks}
+        <ChevronDown class="h-4 w-4" />
+      {:else}
+        <ChevronRight class="h-4 w-4" />
+      {/if}
+    </Button>
+  {:else}
+    <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+  {/if}
+
+  <!-- Main Task Button -->
+  <Button
+    variant="ghost"
+    class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(task.priority)} p-4 h-auto flex-1 justify-start text-left transition-all {isSelected ? 'selected' : ''}"
+    onclick={handleTaskClick}
+  >
+    <div class="flex items-start gap-3 w-full">
     <!-- Status Toggle -->
     <Button
       variant="ghost"
@@ -99,5 +132,31 @@
         </div>
       {/if}
     </div>
+  </Button>
+</div>
+
+<!-- Sub-tasks Accordion -->
+{#if task.sub_tasks.length > 0 && showSubTasks}
+  <div class="ml-10 mt-2 space-y-2">
+    {#each task.sub_tasks as subTask (subTask.id)}
+      <div class="flex items-center gap-2 p-2 rounded border bg-muted/30">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="text-lg h-6 w-6 min-h-[24px] min-w-[24px]"
+          onclick={(e) => e && handleSubTaskToggle(e, subTask.id)}
+          title="Toggle subtask completion"
+        >
+          {subTask.status === 'completed' ? '✅' : '⚪'}
+        </Button>
+        <span
+          class="flex-1 text-sm"
+          class:line-through={subTask.status === 'completed'}
+          class:text-muted-foreground={subTask.status === 'completed'}
+        >
+          {subTask.title}
+        </span>
+      </div>
+    {/each}
   </div>
-</Button>
+{/if}
