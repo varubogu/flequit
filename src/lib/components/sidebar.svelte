@@ -7,7 +7,7 @@
   import SidebarButton from '$lib/components/sidebar-button.svelte';
   import SearchCommand from '$lib/components/search-command.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search } from 'lucide-svelte';
+  import { Search, ChevronDown, ChevronRight } from 'lucide-svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -20,6 +20,7 @@
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
   let showSearchDialog = $state(false);
+  let expandedProjects = $state<Set<string>>(new Set());
 
   // グローバルキーボードショートカット
   $effect(() => {
@@ -44,6 +45,15 @@
   function handleProjectSelect(project: ProjectTree) {
     taskStore.selectProject(project.id);
     onViewChange?.('project');
+  }
+
+  function toggleProjectExpansion(projectId: string) {
+    if (expandedProjects.has(projectId)) {
+      expandedProjects.delete(projectId);
+    } else {
+      expandedProjects.add(projectId);
+    }
+    expandedProjects = new Set(expandedProjects);
   }
 
   function getProjectTaskCount(project: ProjectTree): number {
@@ -181,41 +191,65 @@
           </div>
         {:else}
           {#each projects as project (project.id)}
-            <Button
-              variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-              class="flex items-center justify-between w-full h-auto p-3 text-sm"
-              onclick={() => handleProjectSelect(project)}
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="w-3 h-3 rounded-full flex-shrink-0"
-                  style="background-color: {project.color || '#3b82f6'}"
-                ></div>
-                <span class="truncate">{project.name}</span>
-              </div>
-              <span class="text-xs text-muted-foreground flex-shrink-0">
-                {getProjectTaskCount(project)}
-              </span>
-            </Button>
+            <div class="flex items-start w-full">
+              <!-- Accordion Toggle Button -->
+              {#if project.task_lists.length > 0}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
+                  onclick={() => toggleProjectExpansion(project.id)}
+                  title="Toggle task lists"
+                >
+                  {#if expandedProjects.has(project.id)}
+                    <ChevronDown class="h-4 w-4" />
+                  {:else}
+                    <ChevronRight class="h-4 w-4" />
+                  {/if}
+                </Button>
+              {:else}
+                <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+              {/if}
 
-            <!-- Task Lists (when project is selected) -->
-            {#if currentView === 'project' && taskStore.selectedProjectId === project.id}
-              <div class="ml-4 mt-1 space-y-1">
-                {#each project.task_lists as list (list.id)}
-                  <Button
-                    variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
-                    size="sm"
-                    class="flex items-center justify-between w-full h-auto p-2 text-xs"
-                    onclick={() => taskStore.selectList(list.id)}
-                  >
-                    <span class="truncate">{list.name}</span>
-                    <span class="text-muted-foreground">
-                      {list.tasks.length}
-                    </span>
-                  </Button>
-                {/each}
+              <!-- Project Button -->
+              <div class="flex-1">
+                <Button
+                  variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+                  class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
+                  onclick={() => handleProjectSelect(project)}
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div
+                      class="w-3 h-3 rounded-full flex-shrink-0"
+                      style="background-color: {project.color || '#3b82f6'}"
+                    ></div>
+                    <span class="truncate">{project.name}</span>
+                  </div>
+                  <span class="text-xs text-muted-foreground flex-shrink-0">
+                    {getProjectTaskCount(project)}
+                  </span>
+                </Button>
+
+                <!-- Task Lists (when project is expanded) -->
+                {#if expandedProjects.has(project.id)}
+                  <div class="ml-4 mt-1 space-y-1">
+                    {#each project.task_lists as list (list.id)}
+                      <Button
+                        variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+                        size="sm"
+                        class="flex items-center justify-between w-full h-auto p-2 text-xs"
+                        onclick={() => taskStore.selectList(list.id)}
+                      >
+                        <span class="truncate">{list.name}</span>
+                        <span class="text-muted-foreground">
+                          {list.tasks.length}
+                        </span>
+                      </Button>
+                    {/each}
+                  </div>
+                {/if}
               </div>
-            {/if}
+            </div>
           {/each}
         {/if}
       </div>
