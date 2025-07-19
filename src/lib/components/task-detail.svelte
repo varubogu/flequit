@@ -86,20 +86,44 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6 space-y-6">
-      <!-- Status -->
-      <div>
-        <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
-        <Select
-          id="task-status"
-          value={task.status}
-          onchange={handleStatusChange}
-        >
-          <option value="not_started">Not Started</option>
-          <option value="in_progress">In Progress</option>
-          <option value="waiting">Waiting</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </Select>
+      <!-- Status, Due Date, Priority -->
+      <div class="flex flex-wrap gap-4">
+        <div class="min-w-[120px] flex-1">
+          <label for="task-status" class="block text-sm font-medium mb-2">Status</label>
+          <Select
+            id="task-status"
+            value={task.status}
+            onchange={handleStatusChange}
+            class="w-full"
+          >
+            <option value="not_started">Not Started</option>
+            <option value="in_progress">In Progress</option>
+            <option value="waiting">Waiting</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </Select>
+        </div>
+
+        <div class="min-w-[140px] flex-1">
+          <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
+          <Input
+            id="task-due-date"
+            type="date"
+            bind:value={editForm.due_date}
+            onchange={handleFormChange}
+            class="w-full"
+          />
+        </div>
+
+        <div class="min-w-[120px] flex-1">
+          <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
+          <Select id="task-priority" bind:value={editForm.priority} onchange={handleFormChange} class="w-full">
+            <option value={1}>High (1)</option>
+            <option value={2}>Medium (2)</option>
+            <option value={3}>Low (3)</option>
+            <option value={4}>Lowest (4)</option>
+          </Select>
+        </div>
       </div>
 
       <!-- Description -->
@@ -112,28 +136,6 @@
           placeholder="Task description"
           oninput={handleFormChange}
         />
-      </div>
-
-      <!-- Due Date -->
-      <div>
-        <label for="task-due-date" class="block text-sm font-medium mb-2">Due Date</label>
-        <Input
-          id="task-due-date"
-          type="date"
-          bind:value={editForm.due_date}
-          onchange={handleFormChange}
-        />
-      </div>
-
-      <!-- Priority -->
-      <div>
-        <label for="task-priority" class="block text-sm font-medium mb-2">Priority</label>
-        <Select id="task-priority" bind:value={editForm.priority} onchange={handleFormChange}>
-          <option value={1}>High (1)</option>
-          <option value={2}>Medium (2)</option>
-          <option value={3}>Low (3)</option>
-          <option value={4}>Lowest (4)</option>
-        </Select>
       </div>
 
       <!-- Sub-tasks -->
