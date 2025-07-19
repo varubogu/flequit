@@ -39,7 +39,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "rustc --version",
-	"postCreateCommand": "./init_env"
+	"postCreateCommand": "/workspaces/${localWorkspaceFolderBasename}/init_env"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
