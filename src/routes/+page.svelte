@@ -17,7 +17,7 @@
 
   <!-- Main Content with Resizable Panels -->
   <Resizable.PaneGroup direction="horizontal">
-    <Resizable.Pane defaultSize={30} minSize={30} maxSize={50}>
+    <Resizable.Pane defaultSize={30} minSize={20}>
       <TaskList
         title={viewStore.viewTitle}
         tasks={viewStore.tasks}
@@ -27,7 +27,7 @@
 
     <Resizable.Handle />
 
-    <Resizable.Pane defaultSize={50} minSize={30}>
+    <Resizable.Pane defaultSize={50} minSize={20}>
       <TaskDetail />
     </Resizable.Pane>
   </Resizable.PaneGroup>
