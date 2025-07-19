@@ -68,6 +68,7 @@
   bind:open
   onOpenChange={onOpenChange}
   class="max-w-2xl"
+  shouldFilter={false}
 >
   <Command.Input
     placeholder={isCommandMode ? "Type a command..." : "Search tasks..."}
