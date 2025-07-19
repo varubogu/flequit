@@ -11,7 +11,7 @@
   }
 </script>
 
-<div class="h-screen flex">
+<div class="h-screen flex bg-background">
   <!-- Sidebar -->
   <Sidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
 

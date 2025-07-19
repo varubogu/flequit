@@ -186,7 +186,7 @@
             {#each task.sub_tasks as subTask}
               <Button
                 variant="ghost"
-                class="flex items-center gap-3 p-3 border rounded w-full justify-start h-auto {taskStore.selectedSubTaskId === subTask.id ? 'bg-primary/10 border-primary' : ''}"
+                class="flex items-center gap-3 p-3 border rounded w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId === subTask.id ? 'bg-primary/10 border-primary' : ''}"
                 onclick={() => handleSubTaskClick(subTask.id)}
               >
                 <Button

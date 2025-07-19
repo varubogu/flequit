@@ -4,6 +4,7 @@
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import Input from '$lib/components/ui/input.svelte';
+  import { themeStore } from '$lib/stores/theme.svelte';
   import { ArrowLeft, Search } from 'lucide-svelte';
 
   interface Props {
@@ -42,7 +43,7 @@
     customDueDays: [] as number[],
     
     // Appearance Settings
-    theme: 'default',
+    theme: themeStore.theme,
     font: 'default',
     fontSize: 13,
     fontColor: 'default',
@@ -85,10 +86,16 @@
     console.log('Add custom due day');
   }
 
-  // Auto-save settings when they change
+  // Watch for theme changes and apply immediately
   $effect(() => {
-    // TODO: Implement auto-save logic
-    console.log('Settings changed', settings);
+    themeStore.setTheme(settings.theme);
+  });
+
+  // Initialize settings from store when dialog opens
+  $effect(() => {
+    if (open) {
+      settings.theme = themeStore.theme;
+    }
   });
 </script>
 
@@ -155,8 +162,8 @@
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                   <!-- Week Start -->
                   <div>
-                    <label class="text-sm font-medium">Week starts on</label>
-                    <select bind:value={settings.weekStart} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <label for="week-start" class="text-sm font-medium">Week starts on</label>
+                    <select id="week-start" bind:value={settings.weekStart} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
                       <option value="sunday">Sunday</option>
                       <option value="monday">Monday</option>
                     </select>
@@ -164,42 +171,42 @@
 
                   <!-- Due Date Buttons -->
                   <div>
-                    <label class="text-sm font-medium mb-3 block">Due Date Button Visibility</label>
+                    <div class="text-sm font-medium mb-3 block">Due Date Button Visibility</div>
                     <div class="grid grid-cols-2 gap-2">
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.overdue} class="rounded" />
+                        <input id="due-overdue" type="checkbox" bind:checked={settings.dueDateButtons.overdue} class="rounded" />
                         <span class="text-sm">Overdue</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.today} class="rounded" />
+                        <input id="due-today" type="checkbox" bind:checked={settings.dueDateButtons.today} class="rounded" />
                         <span class="text-sm">Today</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.tomorrow} class="rounded" />
+                        <input id="due-tomorrow" type="checkbox" bind:checked={settings.dueDateButtons.tomorrow} class="rounded" />
                         <span class="text-sm">Tomorrow</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.threeDays} class="rounded" />
+                        <input id="due-three-days" type="checkbox" bind:checked={settings.dueDateButtons.threeDays} class="rounded" />
                         <span class="text-sm">3 Days</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.thisWeek} class="rounded" />
+                        <input id="due-this-week" type="checkbox" bind:checked={settings.dueDateButtons.thisWeek} class="rounded" />
                         <span class="text-sm">This Week</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.thisMonth} class="rounded" />
+                        <input id="due-this-month" type="checkbox" bind:checked={settings.dueDateButtons.thisMonth} class="rounded" />
                         <span class="text-sm">This Month</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.thisQuarter} class="rounded" />
+                        <input id="due-this-quarter" type="checkbox" bind:checked={settings.dueDateButtons.thisQuarter} class="rounded" />
                         <span class="text-sm">This Quarter</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.thisYear} class="rounded" />
+                        <input id="due-this-year" type="checkbox" bind:checked={settings.dueDateButtons.thisYear} class="rounded" />
                         <span class="text-sm">This Year</span>
                       </label>
                       <label class="flex items-center gap-2">
-                        <input type="checkbox" bind:checked={settings.dueDateButtons.thisYearEnd} class="rounded" />
+                        <input id="due-this-fiscal-year" type="checkbox" bind:checked={settings.dueDateButtons.thisYearEnd} class="rounded" />
                         <span class="text-sm">This Fiscal Year</span>
                       </label>
                     </div>
@@ -207,7 +214,7 @@
 
                   <!-- Custom Due Days -->
                   <div class="xl:col-span-2">
-                    <label class="text-sm font-medium mb-3 block">Add Custom Due Date Button</label>
+                    <div class="text-sm font-medium mb-3 block">Add Custom Due Date Button</div>
                     <Button variant="outline" onclick={addCustomDueDay}>
                       Add Custom Due Date
                     </Button>
@@ -226,18 +233,21 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   <!-- Theme -->
                   <div>
-                    <label class="text-sm font-medium">Theme</label>
-                    <select bind:value={settings.theme} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                      <option value="default">Default</option>
-                      <option value="dark">Dark</option>
+                    <label for="theme-select" class="text-sm font-medium">Theme</label>
+                    <select id="theme-select" bind:value={settings.theme} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
+                      <option value="default">Default (System: {themeStore.systemTheme})</option>
                       <option value="light">Light</option>
+                      <option value="dark">Dark</option>
                     </select>
+                    <p class="mt-1 text-xs text-muted-foreground">
+                      Current: {themeStore.effectiveTheme}
+                    </p>
                   </div>
 
                   <!-- Font -->
                   <div>
-                    <label class="text-sm font-medium">Font</label>
-                    <select bind:value={settings.font} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <label for="font-select" class="text-sm font-medium">Font</label>
+                    <select id="font-select" bind:value={settings.font} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
                       <option value="default">Default</option>
                       <option value="system">System Font</option>
                       <option value="arial">Arial</option>
@@ -247,8 +257,9 @@
 
                   <!-- Font Size -->
                   <div>
-                    <label class="text-sm font-medium">Font Size</label>
+                    <label for="font-size" class="text-sm font-medium">Font Size</label>
                     <Input
+                      id="font-size"
                       type="number"
                       bind:value={settings.fontSize}
                       min="10"
@@ -259,8 +270,8 @@
 
                   <!-- Font Color -->
                   <div>
-                    <label class="text-sm font-medium">Font Color</label>
-                    <select bind:value={settings.fontColor} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <label for="font-color" class="text-sm font-medium">Font Color</label>
+                    <select id="font-color" bind:value={settings.fontColor} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
                       <option value="default">Default</option>
                       <option value="black">Black</option>
                       <option value="white">White</option>
@@ -269,8 +280,8 @@
 
                   <!-- Background Color -->
                   <div>
-                    <label class="text-sm font-medium">Background Color</label>
-                    <select bind:value={settings.backgroundColor} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <label for="background-color" class="text-sm font-medium">Background Color</label>
+                    <select id="background-color" bind:value={settings.backgroundColor} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
                       <option value="default">Default</option>
                       <option value="white">White</option>
                       <option value="black">Black</option>
@@ -290,8 +301,8 @@
                 <div class="space-y-6">
                   <!-- Account Selection -->
                   <div class="max-w-md">
-                    <label class="text-sm font-medium">Account Type</label>
-                    <select bind:value={settings.selectedAccount} class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                    <label for="account-type" class="text-sm font-medium">Account Type</label>
+                    <select id="account-type" bind:value={settings.selectedAccount} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
                       <option value="local">Local Account</option>
                       <option value="cloud">Cloud Account</option>
                     </select>
@@ -311,7 +322,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                       <!-- Account Icon -->
                       <div>
-                        <label class="text-sm font-medium">Account Icon</label>
+                        <div class="text-sm font-medium mb-1">Account Icon</div>
                         <Button variant="outline" class="mt-1 w-full">
                           Choose File
                         </Button>
@@ -319,26 +330,26 @@
 
                       <!-- Account Name -->
                       <div>
-                        <label class="text-sm font-medium">Account Name</label>
-                        <Input bind:value={settings.accountName} class="mt-1" />
+                        <label for="account-name" class="text-sm font-medium">Account Name</label>
+                        <Input id="account-name" bind:value={settings.accountName} class="mt-1" />
                       </div>
 
                       <!-- Email -->
                       <div>
-                        <label class="text-sm font-medium">Email Address</label>
-                        <Input type="email" bind:value={settings.email} class="mt-1" />
+                        <label for="email-address" class="text-sm font-medium">Email Address</label>
+                        <Input id="email-address" type="email" bind:value={settings.email} class="mt-1" />
                       </div>
 
                       <!-- Password -->
                       <div>
-                        <label class="text-sm font-medium">Password</label>
-                        <Input type="password" bind:value={settings.password} class="mt-1" />
+                        <label for="password" class="text-sm font-medium">Password</label>
+                        <Input id="password" type="password" bind:value={settings.password} class="mt-1" />
                       </div>
 
                       <!-- Server URL -->
                       <div class="md:col-span-2">
-                        <label class="text-sm font-medium">Server URL</label>
-                        <Input bind:value={settings.serverUrl} class="mt-1" />
+                        <label for="server-url" class="text-sm font-medium">Server URL</label>
+                        <Input id="server-url" bind:value={settings.serverUrl} class="mt-1" />
                       </div>
                     </div>
                   {:else}

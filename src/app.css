@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@theme {
+/* Light theme (default) */
+:root,
+.light {
   --color-border: 214.3 31.8% 91.4%;
   --color-input: 214.3 31.8% 91.4%;
   --color-ring: 221.2 83.2% 53.3%;
@@ -24,25 +26,72 @@
   --radius: 0.5rem;
 }
 
+/* Dark theme overrides */
+.dark {
+  --color-border: 217.2 32.6% 17.5%;
+  --color-input: 217.2 32.6% 17.5%;
+  --color-ring: 224.3 76.3% 62.2%;
+  --color-background: 222.2 84% 4.9%;
+  --color-foreground: 210 40% 98%;
+  --color-primary: 224.3 76.3% 62.2%;
+  --color-primary-foreground: 210 40% 3.9%;
+  --color-secondary: 217.2 32.6% 17.5%;
+  --color-secondary-foreground: 210 40% 98%;
+  --color-destructive: 0 62.8% 30.6%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-muted: 217.2 32.6% 17.5%;
+  --color-muted-foreground: 215 20.2% 65.1%;
+  --color-accent: 217.2 32.6% 17.5%;
+  --color-accent-foreground: 210 40% 98%;
+  --color-popover: 222.2 84% 4.9%;
+  --color-popover-foreground: 210 40% 98%;
+  --color-card: 222.2 84% 4.9%;
+  --color-card-foreground: 210 40% 98%;
+}
+
+@theme {
+  /* Tailwind CSS v4 theme registration */
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --radius: var(--radius);
+}
+
 /* Button hover states for Tailwind CSS v4 compatibility */
 .hover\:bg-primary\/90:hover {
-  background-color: hsl(221.2 83.2% 53.3% / 0.9);
+  background-color: hsl(var(--color-primary) / 0.9);
 }
 
 .hover\:bg-destructive\/90:hover {
-  background-color: hsl(0 84.2% 60.2% / 0.9);
+  background-color: hsl(var(--color-destructive) / 0.9);
 }
 
 .hover\:bg-secondary\/80:hover {
-  background-color: hsl(210 40% 96% / 0.8);
+  background-color: hsl(var(--color-secondary) / 0.8);
 }
 
 .hover\:bg-accent:hover {
-  background-color: hsl(210 40% 96%);
+  background-color: hsl(var(--color-accent));
 }
 
 .hover\:text-accent-foreground:hover {
-  color: hsl(222.2 84% 4.9%);
+  color: hsl(var(--color-accent-foreground));
 }
 
 .focus-visible\:ring-2:focus-visible {
@@ -61,7 +110,7 @@
 }
 
 .focus-visible\:ring-ring:focus-visible {
-  --tw-ring-color: hsl(221.2 83.2% 53.3%);
+  --tw-ring-color: hsl(var(--color-ring));
 }
 
 /* Active states for better interaction feedback */
@@ -84,16 +133,16 @@
 
 /* Enhanced task item hover states */
 .task-item-button:hover {
-  background-color: hsl(210 40% 96%);
-  border-color: hsl(221.2 83.2% 53.3% / 0.3);
+  background-color: hsl(var(--color-accent));
+  border-color: hsl(var(--color-primary) / 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px hsl(221.2 83.2% 53.3% / 0.15);
+  box-shadow: 0 4px 12px -2px hsl(var(--color-primary) / 0.15);
 }
 
 .task-item-button.selected {
-  background-color: hsl(210 40% 96%);
-  border-color: hsl(221.2 83.2% 53.3%);
-  box-shadow: 0 2px 8px -2px hsl(221.2 83.2% 53.3% / 0.2);
+  background-color: hsl(var(--color-accent));
+  border-color: hsl(var(--color-primary));
+  box-shadow: 0 2px 8px -2px hsl(var(--color-primary) / 0.2);
 }
 
 /* Command Dialog fixes */
@@ -130,8 +179,8 @@
 
 [data-command-item][data-selected="true"],
 [data-command-item][aria-selected="true"] {
-  background-color: hsl(221.2 83.2% 53.3%) !important;
-  color: white !important;
+  background-color: hsl(var(--color-primary)) !important;
+  color: hsl(var(--color-primary-foreground)) !important;
 }
 
 [data-command-group-heading] {
@@ -198,4 +247,37 @@ body {
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Explicit Tailwind class definitions for theme support */
+.text-muted-foreground {
+  color: hsl(var(--color-muted-foreground));
+}
+
+.text-foreground {
+  color: hsl(var(--color-foreground));
+}
+
+.text-card-foreground {
+  color: hsl(var(--color-card-foreground));
+}
+
+.bg-background {
+  background-color: hsl(var(--color-background));
+}
+
+.bg-card {
+  background-color: hsl(var(--color-card));
+}
+
+.bg-muted {
+  background-color: hsl(var(--color-muted));
+}
+
+.border-input {
+  border-color: hsl(var(--color-input));
+}
+
+.border {
+  border-color: hsl(var(--color-border));
 }
