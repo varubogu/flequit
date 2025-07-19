@@ -128,9 +128,10 @@
   color: hsl(var(--color-foreground)) !important;
 }
 
-[data-command-item][data-selected="true"] {
-  background-color: hsl(var(--color-accent)) !important;
-  color: hsl(var(--color-accent-foreground)) !important;
+[data-command-item][data-selected="true"],
+[data-command-item][aria-selected="true"] {
+  background-color: hsl(221.2 83.2% 53.3%) !important;
+  color: white !important;
 }
 
 [data-command-group-heading] {
