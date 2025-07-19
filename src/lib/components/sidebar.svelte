@@ -6,6 +6,7 @@
   import Card from '$lib/components/ui/card.svelte';
   import SidebarButton from '$lib/components/sidebar-button.svelte';
   import SearchCommand from '$lib/components/search-command.svelte';
+  import UserProfile from '$lib/components/user-profile.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import { Search, ChevronDown, ChevronRight } from 'lucide-svelte';
 
@@ -21,6 +22,14 @@
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
   let showSearchDialog = $state(false);
   let expandedProjects = $state<Set<string>>(new Set());
+
+  // Mock user data - replace with actual user store
+  let currentUser = $state({
+    id: '1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    avatar: null
+  });
 
   // グローバルキーボードショートカット
   $effect(() => {
@@ -58,6 +67,27 @@
 
   function getProjectTaskCount(project: ProjectTree): number {
     return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
+  }
+
+  function handleLogin() {
+    console.log('Login clicked');
+    // TODO: Implement login logic
+  }
+
+  function handleLogout() {
+    console.log('Logout clicked');
+    currentUser = null;
+    // TODO: Implement logout logic
+  }
+
+  function handleSettings() {
+    console.log('Settings clicked');
+    // TODO: Implement settings logic
+  }
+
+  function handleSwitchAccount() {
+    console.log('Switch Account clicked');
+    // TODO: Implement account switching logic
   }
 </script>
 
@@ -257,10 +287,14 @@
   </nav>
 
   <!-- Footer -->
-  <div class="p-4 border-t">
-    <div class="text-xs text-muted-foreground text-center">
-      Flequit v0.1.0
-    </div>
+  <div class="border-t">
+    <UserProfile
+      user={currentUser}
+      onLogin={handleLogin}
+      onLogout={handleLogout}
+      onSettings={handleSettings}
+      onSwitchAccount={handleSwitchAccount}
+    />
   </div>
 </Card>
 
