@@ -9,7 +9,7 @@
   import SearchCommand from '$lib/components/search-command.svelte';
   import UserProfile from '$lib/components/user-profile.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search, ChevronDown, ChevronRight, EyeOff, Edit2, Trash2, Plus } from 'lucide-svelte';
+  import { Search, ChevronDown, ChevronRight, Edit2, Trash2, Plus } from 'lucide-svelte';
   import { contextMenuStore } from '$lib/stores/context-menu.svelte';
   import ProjectDialog from '$lib/components/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task-list-dialog.svelte';
@@ -133,14 +133,6 @@
     }
   }
 
-  function hideView(viewId: string) {
-    const viewToHide = viewsVisibilityStore.configuration.viewItems.find(v => v.id === viewId);
-    if (viewToHide) {
-      const visible = viewsVisibilityStore.visibleViews.filter(v => v.id !== viewId);
-      const hidden = [...viewsVisibilityStore.hiddenViews, viewToHide];
-      viewsVisibilityStore.setLists(visible, hidden);
-    }
-  }
 
   function handleLogin() {
     console.log('Login clicked');
@@ -283,13 +275,6 @@
             count={getTaskCountForView(view.id)}
             isActive={currentView === view.id}
             onclick={() => handleViewChange(view.id as ViewType)}
-            contextMenuItems={[
-              {
-                label: 'Hide View',
-                action: () => hideView(view.id),
-                icon: EyeOff
-              }
-            ]}
           />
         {/each}
       </div>

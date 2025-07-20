@@ -54,11 +54,11 @@
     </Dialog.Header>
     <div class="grid gap-4 py-4">
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="name" class="text-right">Name</Label>
+        <Label for="task-list-name" class="text-right">Task List Name</Label>
         <Input
-          id="name"
+          id="task-list-name"
           bind:value={name}
-          placeholder="Task list name"
+          placeholder="Enter task list name"
           class="col-span-3"
           onkeydown={handleKeydown}
         />

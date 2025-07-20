@@ -4,9 +4,10 @@
   interface Props {
     class?: string;
     for?: string;
+    children?: any;
   }
 
-  let { class: className, for: htmlFor, ...restProps }: Props = $props();
+  let { class: className, for: htmlFor, children, ...restProps }: Props = $props();
 </script>
 
 <label
@@ -17,5 +18,5 @@
   )}
   {...restProps}
 >
-  <slot />
+  {@render children?.()}
 </label>

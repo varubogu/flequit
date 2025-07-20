@@ -57,19 +57,19 @@
     </Dialog.Header>
     <div class="grid gap-4 py-4">
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="name" class="text-right">Name</Label>
+        <Label for="project-name" class="text-right">Project Name</Label>
         <Input
-          id="name"
+          id="project-name"
           bind:value={name}
-          placeholder="Project name"
+          placeholder="Enter project name"
           class="col-span-3"
           onkeydown={handleKeydown}
         />
       </div>
       <div class="grid grid-cols-4 items-center gap-4">
-        <Label for="color" class="text-right">Color</Label>
+        <Label for="project-color" class="text-right">Project Color</Label>
         <input
-          id="color"
+          id="project-color"
           type="color"
           bind:value={color}
           class="col-span-3 h-10 w-full rounded-md border border-input bg-background px-3 py-2"
