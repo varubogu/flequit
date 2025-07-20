@@ -10,9 +10,12 @@
     currentDate?: string;
     position?: { x: number; y: number };
     isRangeDate?: boolean;
+    onchange?: (event: CustomEvent) => void;
+    onclose?: () => void;
+    onclear?: () => void;
   }
 
-  let { show = false, currentDate = '', position = { x: 0, y: 0 }, isRangeDate = false }: Props = $props();
+  let { show = false, currentDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose, onclear }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
   // Common end date/time (used for both single mode and range end)
@@ -56,12 +59,14 @@
 
     function handleClickOutside(event: MouseEvent) {
       if (pickerElement && !pickerElement.contains(event.target as Node)) {
+        onclose?.();
         dispatch('close');
       }
     }
 
     function handleKeydown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
+        onclose?.();
         dispatch('close');
       }
     }
@@ -84,7 +89,11 @@
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
       
+      const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
+      onchange?.(changeEvent);
       dispatch('change', { date, dateTime, isRangeDate: false });
+      
+      onclose?.();
       dispatch('close');
     }
   }
@@ -93,7 +102,7 @@
     if (startValue && endValue) {
       const start = startValue.toString();
       const end = endValue.toString();
-      dispatch('change', { 
+      const eventDetail = { 
         date: start, 
         dateTime: `${start}T${startTime}`,
         range: { 
@@ -101,7 +110,13 @@
           end: `${end}T${endTime}` 
         },
         isRangeDate: true
-      });
+      };
+      
+      const changeEvent = new CustomEvent('change', { detail: eventDetail });
+      onchange?.(changeEvent);
+      dispatch('change', eventDetail);
+      
+      onclose?.();
       dispatch('close');
     }
   }
@@ -129,7 +144,7 @@
 
   function handleRangeInputChange() {
     if (startDate && endDate) {
-      dispatch('change', { 
+      const eventDetail = { 
         date: startDate, 
         dateTime: `${startDate}T${startTime}`,
         range: { 
@@ -137,7 +152,13 @@
           end: `${endDate}T${endTime}` 
         },
         isRangeDate: true
-      });
+      };
+      
+      const changeEvent = new CustomEvent('change', { detail: eventDetail });
+      onchange?.(changeEvent);
+      dispatch('change', eventDetail);
+      
+      onclose?.();
       dispatch('close');
     }
   }
@@ -172,12 +193,16 @@
     <!-- Range Mode Switch -->
     <div class="flex items-center justify-between mb-3">
       <span class="text-sm text-muted-foreground">範囲</span>
-      <Switch bind:checked={useRangeMode} onCheckedChange={(checked) => {
-        dispatch('change', { 
+      <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
+        const eventDetail = { 
           date: endDate || '', 
           dateTime: `${endDate || ''}T${endTime}`,
           isRangeDate: checked
-        });
+        };
+        
+        const changeEvent = new CustomEvent('change', { detail: eventDetail });
+        onchange?.(changeEvent);
+        dispatch('change', eventDetail);
       }} />
       <span class="text-sm text-muted-foreground"></span>
     </div>
