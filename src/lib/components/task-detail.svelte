@@ -91,14 +91,27 @@
   function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     const { dateTime, range, isRangeDate } = event.detail;
     
-    if (isRangeDate && range) {
-      editForm = {
-        ...editForm,
-        start_date: new Date(range.start),
-        end_date: new Date(range.end),
-        is_range_date: true
-      };
+    if (isRangeDate) {
+      if (range) {
+        // Range mode with both start and end dates
+        editForm = {
+          ...editForm,
+          start_date: new Date(range.start),
+          end_date: new Date(range.end),
+          is_range_date: true
+        };
+      } else {
+        // Range mode switched on, but no range data yet - keep current end_date as both start and end
+        const currentEndDate = editForm.end_date || new Date(dateTime);
+        editForm = {
+          ...editForm,
+          start_date: currentEndDate,
+          end_date: currentEndDate,
+          is_range_date: true
+        };
+      }
     } else {
+      // Single mode
       editForm = {
         ...editForm,
         end_date: new Date(dateTime),

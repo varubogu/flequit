@@ -136,14 +136,27 @@
   function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     const { dateTime, range, isRangeDate } = event.detail;
     
-    if (isRangeDate && range) {
-      taskStore.updateTask(task.id, { 
-        ...task, 
-        start_date: new Date(range.start),
-        end_date: new Date(range.end),
-        is_range_date: true
-      });
+    if (isRangeDate) {
+      if (range) {
+        // Range mode with both start and end dates
+        taskStore.updateTask(task.id, { 
+          ...task, 
+          start_date: new Date(range.start),
+          end_date: new Date(range.end),
+          is_range_date: true
+        });
+      } else {
+        // Range mode switched on, but no range data yet - keep current end_date as both start and end
+        const currentEndDate = task.end_date || new Date(dateTime);
+        taskStore.updateTask(task.id, { 
+          ...task, 
+          start_date: currentEndDate,
+          end_date: currentEndDate,
+          is_range_date: true
+        });
+      }
     } else {
+      // Single mode
       taskStore.updateTask(task.id, { 
         ...task, 
         end_date: new Date(dateTime),
@@ -192,14 +205,27 @@
     if (subTaskIndex === -1) return;
 
     const updatedSubTasks = [...task.sub_tasks];
-    if (isRangeDate && range) {
-      updatedSubTasks[subTaskIndex] = {
-        ...updatedSubTasks[subTaskIndex],
-        start_date: new Date(range.start),
-        end_date: new Date(range.end),
-        is_range_date: true
-      };
+    if (isRangeDate) {
+      if (range) {
+        // Range mode with both start and end dates
+        updatedSubTasks[subTaskIndex] = {
+          ...updatedSubTasks[subTaskIndex],
+          start_date: new Date(range.start),
+          end_date: new Date(range.end),
+          is_range_date: true
+        };
+      } else {
+        // Range mode switched on, but no range data yet - keep current end_date as both start and end
+        const currentEndDate = updatedSubTasks[subTaskIndex].end_date || new Date(dateTime);
+        updatedSubTasks[subTaskIndex] = {
+          ...updatedSubTasks[subTaskIndex],
+          start_date: currentEndDate,
+          end_date: currentEndDate,
+          is_range_date: true
+        };
+      }
     } else {
+      // Single mode
       updatedSubTasks[subTaskIndex] = {
         ...updatedSubTasks[subTaskIndex],
         end_date: new Date(dateTime),
