@@ -4,8 +4,10 @@
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { themeStore } from '$lib/stores/theme.svelte';
-  import { ArrowLeft, Search } from 'lucide-svelte';
+  import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
+  import { ArrowLeft, Search, RotateCcw } from 'lucide-svelte';
   import SettingsDraggableItems from './settings-draggable-items.svelte';
+  import ConfirmDialog from './confirm-dialog.svelte';
 
   interface Props {
     open?: boolean;
@@ -25,6 +27,7 @@
   let selectedCategory = $state('basic');
   let searchQuery = $state('');
   let settingsContentElement: HTMLElement;
+  let showResetConfirm = $state(false);
 
   // Mock settings state
   let settings = $state({
@@ -85,6 +88,11 @@
   function addCustomDueDay() {
     // TODO: Implement custom due day addition
     console.log('Add custom due day');
+  }
+
+  function handleResetViews() {
+    viewsVisibilityStore.resetToDefaults();
+    showResetConfirm = false;
   }
 
   // Watch for theme changes and apply immediately
@@ -186,7 +194,13 @@
           <section id="settings-views">
             <div class="space-y-6">
               <div>
-                <h3 class="text-lg font-medium mb-4">Views Settings</h3>
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg font-medium">Views Settings</h3>
+                  <Button variant="outline" size="sm" onclick={() => showResetConfirm = true}>
+                    <RotateCcw class="h-3 w-3 mr-2" />
+                    Reset to Defaults
+                  </Button>
+                </div>
                 <p class="text-sm text-muted-foreground mb-4">
                   Drag and drop to reorder views or move them between visible and hidden sections.
                 </p>
@@ -338,3 +352,14 @@
     </div>
   </DialogContent>
 </Dialog>
+
+{#if showResetConfirm}
+  <ConfirmDialog
+    show={showResetConfirm}
+    title="Reset View Settings"
+    message="Are you sure you want to reset the view visibility and order to the default settings?"
+    confirmText="Reset"
+    onConfirm={handleResetViews}
+    onCancel={() => showResetConfirm = false}
+  />
+{/if}

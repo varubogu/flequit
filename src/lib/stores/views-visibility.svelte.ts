@@ -12,13 +12,13 @@ export interface ViewsConfiguration {
 
 const DEFAULT_VIEW_ITEMS: ViewItem[] = [
   { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
-  { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-  { id: 'overdue', label: 'Overdue', icon: '🚨', visible: true, order: 2 },
-  { id: 'completed', label: 'Completed', icon: '✅', visible: true, order: 3 },
-  { id: 'tomorrow', label: 'Tomorrow', icon: '📆', visible: true, order: 4 },
-  { id: 'next3days', label: 'Next 3 Days', icon: '📋', visible: true, order: 5 },
-  { id: 'nextweek', label: 'Next Week', icon: '📊', visible: true, order: 6 },
-  { id: 'thismonth', label: 'This Month', icon: '📅', visible: true, order: 7 }
+  { id: 'overdue', label: 'Overdue', icon: '🚨', visible: true, order: 1 },
+  { id: 'today', label: 'Today', icon: '📅', visible: true, order: 2 },
+  { id: 'tomorrow', label: 'Tomorrow', icon: '📆', visible: true, order: 3 },
+  { id: 'completed', label: 'Completed', icon: '✅', visible: true, order: 4 },
+  { id: 'next3days', label: 'Next 3 Days', icon: '📋', visible: false, order: 5 },
+  { id: 'nextweek', label: 'Next Week', icon: '📊', visible: false, order: 6 },
+  { id: 'thismonth', label: 'This Month', icon: '📅', visible: false, order: 7 }
 ];
 
 const STORAGE_KEY = 'views-configuration';
