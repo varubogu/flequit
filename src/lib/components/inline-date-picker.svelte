@@ -21,7 +21,7 @@
   // Common end date/time (used for both single mode and range end)
   let endDate = $state(currentDate ? new Date(currentDate).toISOString().split('T')[0] : '');
   let endTime = $state(currentDate ? new Date(currentDate).toTimeString().split(' ')[0] : '00:00:00');
-  
+
   let useRangeMode = $state(isRangeDate);
   let startValue = $state<CalendarDate | undefined>(undefined);
   let endValue = $state<CalendarDate | undefined>(undefined);
@@ -42,7 +42,7 @@
       const date = new Date(currentDate);
       endDate = date.toISOString().split('T')[0];
       endTime = date.toTimeString().split(' ')[0];
-      
+
       // Update calendar value
       try {
         calendarValue = parseDate(endDate);
@@ -88,11 +88,11 @@
     if (endDate) {
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
-      
+
       const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
       onchange?.(changeEvent);
       dispatch('change', { date, dateTime, isRangeDate: false });
-      
+
       // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
   }
@@ -108,20 +108,20 @@
     if (startValue && endValue) {
       const start = startValue.toString();
       const end = endValue.toString();
-      const eventDetail = { 
-        date: start, 
+      const eventDetail = {
+        date: start,
         dateTime: `${start}T${startTime}`,
-        range: { 
-          start: `${start}T${startTime}`, 
-          end: `${end}T${endTime}` 
+        range: {
+          start: `${start}T${startTime}`,
+          end: `${end}T${endTime}`
         },
         isRangeDate: true
       };
-      
+
       const changeEvent = new CustomEvent('change', { detail: eventDetail });
       onchange?.(changeEvent);
       dispatch('change', eventDetail);
-      
+
       // CLOSE on range calendar selection (this is intentional)
       onclose?.();
       dispatch('close');
@@ -131,15 +131,15 @@
   function handleCalendarChange() {
     if (calendarValue) {
       endDate = calendarValue.toString();
-      
+
       // Only close when selecting from calendar component
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
-      
+
       const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
       onchange?.(changeEvent);
       dispatch('change', { date, dateTime, isRangeDate: false });
-      
+
       onclose?.();
       dispatch('close');
     }
@@ -162,33 +162,33 @@
   function handleRangeInputChange() {
     if (startDate || endDate) {
       // Just update the values, don't close
-      const eventDetail = { 
-        date: startDate || endDate || '', 
+      const eventDetail = {
+        date: startDate || endDate || '',
         dateTime: `${startDate || endDate || ''}T${startTime}`,
-        range: startDate && endDate ? { 
-          start: `${startDate}T${startTime}`, 
-          end: `${endDate}T${endTime}` 
+        range: startDate && endDate ? {
+          start: `${startDate}T${startTime}`,
+          end: `${endDate}T${endTime}`
         } : undefined,
         isRangeDate: true
       };
-      
+
       const changeEvent = new CustomEvent('change', { detail: eventDetail });
       onchange?.(changeEvent);
       dispatch('change', eventDetail);
-      
+
       // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
   }
 
   // Initialize default values
   let rangeInitialized = $state(false);
-  
+
   // Watch for range mode changes only
   $effect(() => {
     if (useRangeMode && !rangeInitialized) {
       const today = now(getLocalTimeZone());
       const todayCalendar = new CalendarDate(today.year, today.month, today.day);
-      
+
       rangePlaceholder = todayCalendar;
       rangeValue = {start: undefined, end: undefined};
       rangeInitialized = true;
@@ -211,12 +211,12 @@
     <div class="flex items-center justify-between mb-3">
       <span class="text-sm text-muted-foreground">範囲</span>
       <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
-        const eventDetail = { 
-          date: endDate || '', 
+        const eventDetail = {
+          date: endDate || '',
           dateTime: `${endDate || ''}T${endTime}`,
           isRangeDate: checked
         };
-        
+
         const changeEvent = new CustomEvent('change', { detail: eventDetail });
         onchange?.(changeEvent);
         dispatch('change', eventDetail);
@@ -224,6 +224,36 @@
       <span class="text-sm text-muted-foreground"></span>
     </div>
 
+    {#if useRangeMode}
+      <!-- Start Date/Time (Range mode only) -->
+      <div class="grid grid-cols-2 gap-2">
+        <input
+          type="date"
+          bind:value={startDate}
+          oninput={handleRangeInputChange}
+          onkeydown={(e) => {
+            // Allow normal typing and navigation
+            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' ||
+                e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
+                /^[0-9/-]$/.test(e.key)) {
+              return;
+            }
+            // Block other keys that might trigger calendar
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
+          class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
+        />
+        <input
+          type="time"
+          step="1"
+          bind:value={startTime}
+          oninput={handleRangeInputChange}
+          class="px-3 py-2 text-sm border border-input rounded-md bg-background"
+        />
+      </div>
+    {/if}
     <!-- Date/Time Inputs (Always shown) -->
     <div class="space-y-3">
       <!-- Due Date/Time (Always visible) -->
@@ -240,7 +270,7 @@
           }}
           onkeydown={(e) => {
             // Allow normal typing and navigation
-            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
+            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' ||
                 e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
                 /^[0-9/-]$/.test(e.key)) {
               return;
@@ -267,41 +297,13 @@
         />
       </div>
 
+
       {#if useRangeMode}
-        <!-- Start Date/Time (Range mode only) -->
-        <div class="grid grid-cols-2 gap-2">
-          <input
-            type="date"
-            bind:value={startDate}
-            oninput={handleRangeInputChange}
-            onkeydown={(e) => {
-              // Allow normal typing and navigation
-              if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
-                  e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
-                  /^[0-9/-]$/.test(e.key)) {
-                return;
-              }
-              // Block other keys that might trigger calendar
-              if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
-                e.preventDefault();
-              }
-            }}
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
-          />
-          <input
-            type="time"
-            step="1"
-            bind:value={startTime}
-            oninput={handleRangeInputChange}
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-          />
-        </div>
-        
-        <!-- Range Calendar -->
+       <!-- Range Calendar -->
         <RangeCalendar
           bind:value={rangeValue}
           bind:placeholder={rangePlaceholder}
-          onValueChange={(v: any) => { 
+          onValueChange={(v: any) => {
             if (v?.start) {
               startValue = v.start;
               startDate = v.start.toString();
