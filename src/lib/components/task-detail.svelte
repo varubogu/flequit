@@ -10,6 +10,7 @@
   import Select from '$lib/components/ui/select.svelte';
   import { Trash2 } from 'lucide-svelte';
   import Card from '$lib/components/ui/card.svelte';
+  import InlineDatePicker from '$lib/components/inline-date-picker.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
@@ -20,9 +21,16 @@
     title: '',
     description: '',
     due_date: '',
+    start_date: undefined as Date | undefined,
+    end_date: undefined as Date | undefined,
+    is_range_date: false,
     priority: 0
   });
   let saveTimeout: number | null = null;
+  
+  // Date picker state
+  let showDatePicker = $state(false);
+  let datePickerPosition = $state({ x: 0, y: 0 });
 
   $effect(() => {
     if (currentItem) {
@@ -30,6 +38,9 @@
         title: currentItem.title,
         description: currentItem.description || '',
         due_date: formatDateForInput(currentItem.due_date),
+        start_date: currentItem.start_date,
+        end_date: currentItem.end_date,
+        is_range_date: currentItem.is_range_date || false,
         priority: currentItem.priority || 0
       };
     }
@@ -52,6 +63,60 @@
 
   function handleFormChange() {
     debouncedSave();
+  }
+
+  // Date picker handlers
+  function handleDueDateClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    datePickerPosition = {
+      x: Math.min(rect.left, window.innerWidth - 300),
+      y: rect.bottom + 8
+    };
+    showDatePicker = true;
+  }
+
+  function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
+    const { date, range, isRangeDate } = event.detail;
+    
+    if (isRangeDate && range) {
+      const updatedData = {
+        ...editForm,
+        start_date: new Date(range.start),
+        end_date: new Date(range.end),
+        due_date: range.end,
+        is_range_date: true
+      };
+      editForm = updatedData;
+    } else {
+      const updatedData = {
+        ...editForm,
+        due_date: date,
+        start_date: undefined,
+        end_date: undefined,
+        is_range_date: false
+      };
+      editForm = updatedData;
+    }
+    
+    debouncedSave();
+  }
+
+  function handleDateClear() {
+    editForm = {
+      ...editForm,
+      due_date: '',
+      start_date: undefined,
+      end_date: undefined,
+      is_range_date: false
+    };
+    debouncedSave();
+  }
+
+  function handleDatePickerClose() {
+    showDatePicker = false;
   }
 
 
@@ -139,13 +204,17 @@
           <label for="task-due-date" class="block text-sm font-medium mb-2">
             Due Date {#if isSubTask}<span class="text-xs text-muted-foreground">(Optional)</span>{/if}
           </label>
-          <Input
-            id="task-due-date"
-            type="date"
-            bind:value={editForm.due_date}
-            onchange={handleFormChange}
-            class="w-full"
-          />
+          <Button
+            variant="outline"
+            class="w-full justify-start text-left h-10 px-3 py-2 font-normal"
+            onclick={handleDueDateClick}
+          >
+            {#if editForm.due_date}
+              {formatDate(editForm.due_date)}
+            {:else}
+              <span class="text-muted-foreground">Select date</span>
+            {/if}
+          </Button>
         </div>
 
         <div class="min-w-[120px] flex-1">
@@ -267,3 +336,14 @@
     </div>
   {/if}
 </Card>
+
+<!-- Inline Date Picker -->
+<InlineDatePicker
+  show={showDatePicker}
+  currentDate={editForm.due_date}
+  position={datePickerPosition}
+  isRangeDate={currentItem?.is_range_date || false}
+  onchange={handleDateChange}
+  onclear={handleDateClear}
+  onclose={handleDatePickerClose}
+/>
