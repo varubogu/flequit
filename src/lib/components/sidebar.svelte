@@ -134,7 +134,6 @@
   }
 
   function handleSettings() {
-    console.log('Settings clicked');
     // TODO: Implement settings logic
   }
 
