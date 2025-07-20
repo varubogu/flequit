@@ -2,10 +2,10 @@
   import Button from '$lib/components/ui/button.svelte';
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
-  import Card from '$lib/components/ui/card.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { themeStore } from '$lib/stores/theme.svelte';
   import { ArrowLeft, Search } from 'lucide-svelte';
+  import SettingsDraggableItems from './settings-draggable-items.svelte';
 
   interface Props {
     open?: boolean;
@@ -17,6 +17,7 @@
   // Settings categories
   const categories = [
     { id: 'basic', name: 'General', description: 'Week start, due date buttons' },
+    { id: 'views', name: 'Views', description: 'Control which views appear in sidebar' },
     { id: 'appearance', name: 'Appearance', description: 'Theme, font, color settings' },
     { id: 'account', name: 'Account', description: 'Account selection and settings' }
   ];
@@ -41,14 +42,14 @@
       thisYearEnd: false
     },
     customDueDays: [] as number[],
-    
+
     // Appearance Settings
     theme: themeStore.theme,
     font: 'default',
     fontSize: 13,
     fontColor: 'default',
     backgroundColor: 'default',
-    
+
     // Account Settings
     selectedAccount: 'local',
     accountIcon: null as string | null,
@@ -69,7 +70,7 @@
       const containerRect = settingsContentElement.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
       const scrollTop = settingsContentElement.scrollTop + elementRect.top - containerRect.top - 20;
-      
+
       settingsContentElement.scrollTo({
         top: scrollTop,
         behavior: 'smooth'
@@ -157,7 +158,7 @@
             <div class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium mb-4">General Settings</h3>
-                
+
                 <!-- Settings Grid -->
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                   <!-- Week Start -->
@@ -167,49 +168,6 @@
                       <option value="sunday">Sunday</option>
                       <option value="monday">Monday</option>
                     </select>
-                  </div>
-
-                  <!-- Due Date Buttons -->
-                  <div>
-                    <div class="text-sm font-medium mb-3 block">Due Date Button Visibility</div>
-                    <div class="grid grid-cols-2 gap-2">
-                      <label class="flex items-center gap-2">
-                        <input id="due-overdue" type="checkbox" bind:checked={settings.dueDateButtons.overdue} class="rounded" />
-                        <span class="text-sm">Overdue</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-today" type="checkbox" bind:checked={settings.dueDateButtons.today} class="rounded" />
-                        <span class="text-sm">Today</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-tomorrow" type="checkbox" bind:checked={settings.dueDateButtons.tomorrow} class="rounded" />
-                        <span class="text-sm">Tomorrow</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-three-days" type="checkbox" bind:checked={settings.dueDateButtons.threeDays} class="rounded" />
-                        <span class="text-sm">3 Days</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-this-week" type="checkbox" bind:checked={settings.dueDateButtons.thisWeek} class="rounded" />
-                        <span class="text-sm">This Week</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-this-month" type="checkbox" bind:checked={settings.dueDateButtons.thisMonth} class="rounded" />
-                        <span class="text-sm">This Month</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-this-quarter" type="checkbox" bind:checked={settings.dueDateButtons.thisQuarter} class="rounded" />
-                        <span class="text-sm">This Quarter</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-this-year" type="checkbox" bind:checked={settings.dueDateButtons.thisYear} class="rounded" />
-                        <span class="text-sm">This Year</span>
-                      </label>
-                      <label class="flex items-center gap-2">
-                        <input id="due-this-fiscal-year" type="checkbox" bind:checked={settings.dueDateButtons.thisYearEnd} class="rounded" />
-                        <span class="text-sm">This Fiscal Year</span>
-                      </label>
-                    </div>
                   </div>
 
                   <!-- Custom Due Days -->
@@ -224,12 +182,25 @@
             </div>
           </section>
 
+          <!-- Views Settings -->
+          <section id="settings-views">
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-lg font-medium mb-4">Views Settings</h3>
+                <p class="text-sm text-muted-foreground mb-4">
+                  Drag and drop to reorder views or move them between visible and hidden sections.
+                </p>
+                <SettingsDraggableItems />
+              </div>
+            </div>
+          </section>
+
           <!-- Appearance Settings -->
           <section id="settings-appearance">
             <div class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium mb-4">Appearance Settings</h3>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   <!-- Theme -->
                   <div>
@@ -297,7 +268,7 @@
             <div class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium mb-4">Account Settings</h3>
-                
+
                 <div class="space-y-6">
                   <!-- Account Selection -->
                   <div class="max-w-md">

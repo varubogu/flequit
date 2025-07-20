@@ -7,6 +7,7 @@
         "@tailwindcss/vite": "^4.1.11",
         "@tauri-apps/api": "^2.6.0",
         "@tauri-apps/plugin-opener": "^2.4.0",
+        "@thisux/sveltednd": "^0.0.20",
         "bits-ui": "^2.8.11",
         "clsx": "^2.1.1",
         "lucide-svelte": "^0.525.0",
@@ -234,6 +235,8 @@
 
     "@tauri-apps/plugin-opener": ["@tauri-apps/plugin-opener@2.4.0", "", { "dependencies": { "@tauri-apps/api": "^2.6.0" } }, "sha512-43VyN8JJtvKWJY72WI/KNZszTpDpzHULFxQs0CJBIYUdCRowQ6Q1feWTDb979N7nldqSuDOaBupZ6wz2nvuWwQ=="],
 
+    "@thisux/sveltednd": ["@thisux/sveltednd@0.0.20", "", { "dependencies": { "@thisux/sveltednd": "^0.0.18" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-VE0HopIlHIvNOfSZ1SsiIzl1AmTU0VSd2Nz2Q2nIdqIUsT/UP4hiLw2ed2jFqTKTbqC+kbCYL9vuBpkYnEw+Kw=="],
+
     "@types/cookie": ["@types/cookie@0.6.0", "", {}, "sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA=="],
 
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
@@ -434,10 +437,16 @@
 
     "@tailwindcss/oxide-wasm32-wasi/tslib": ["tslib@2.8.1", "", { "bundled": true }, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
 
+    "@thisux/sveltednd/@thisux/sveltednd": ["@thisux/sveltednd@0.0.18", "", { "dependencies": { "@thisux/sveltednd": "^0.0.17" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-MO+iR9ZRHApvtwgWujmqwUbhv9mKs0jLOmeG4tn98GmU1/9wVOi02jrNqeggKg3c8dXz6pMmUHfOfmcq7WwYZg=="],
+
     "paneforge/runed": ["runed@0.23.4", "", { "dependencies": { "esm-env": "^1.0.0" }, "peerDependencies": { "svelte": "^5.7.0" } }, "sha512-9q8oUiBYeXIDLWNK5DfCWlkL0EW3oGbk845VdKlPeia28l751VpfesaB/+7pI6rnbx1I6rqoZ2fZxptOJLxILA=="],
 
     "tailwind-variants/tailwind-merge": ["tailwind-merge@3.0.2", "", {}, "sha512-l7z+OYZ7mu3DTqrL88RiKrKIqO3NcpEO8V/Od04bNpvk0kiIFndGEoqfuzvj4yuhRkHKjRkII2z+KS2HfPcSxw=="],
 
     "@tailwindcss/oxide-wasm32-wasi/@napi-rs/wasm-runtime/@tybys/wasm-util": ["@tybys/wasm-util@0.10.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ=="],
+
+    "@thisux/sveltednd/@thisux/sveltednd/@thisux/sveltednd": ["@thisux/sveltednd@0.0.17", "", { "dependencies": { "@thisux/sveltednd": "^0.0.14" }, "peerDependencies": { "svelte": "^5.0.0" } }, "sha512-lRninjw439phhA8xAHqCpMAX0hnwFMdbXW4M0XJgAdnGxeum+QsLiIC4P3HnkNXAygsVKUqxRcbS84CxDZ9hPw=="],
+
+    "@thisux/sveltednd/@thisux/sveltednd/@thisux/sveltednd/@thisux/sveltednd": ["@thisux/sveltednd@0.0.14", "", {}, "sha512-Vbq69SU3HUomPg6oCXtb89OG89hka0YIkdaErYibn3waK7tYE66IcQxD/Fzg8YNW3EVsXoA9kc7kW5EUBCSQGg=="],
   }
 }

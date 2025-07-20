@@ -1,5 +1,6 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
   import Button from '$lib/components/ui/button.svelte';
@@ -20,6 +21,7 @@
   let projects = $derived(taskStore.projects);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
+  let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let showSearchDialog = $state(false);
   let expandedProjects = $state<Set<string>>(new Set());
 
@@ -69,6 +71,57 @@
     return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
   }
 
+  function getTaskCountForView(viewId: string): number {
+    switch (viewId) {
+      case 'allTasks':
+        return taskStore.allTasks.length;
+      case 'today':
+        return todayTasksCount;
+      case 'overdue':
+        return overdueTasksCount;
+      case 'completed':
+        return taskStore.allTasks.filter(t => t.status === 'completed').length;
+      case 'tomorrow':
+        return taskStore.allTasks.filter(t => {
+          if (t.status === 'completed' || !t.due_date) return false;
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tomorrowStart = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+          const tomorrowEnd = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate() + 1);
+          const dueDate = new Date(t.due_date);
+          return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
+        }).length;
+      case 'next3days':
+        return taskStore.allTasks.filter(t => {
+          if (t.status === 'completed' || !t.due_date) return false;
+          const today = new Date();
+          const threeDaysLater = new Date();
+          threeDaysLater.setDate(today.getDate() + 3);
+          const dueDate = new Date(t.due_date);
+          return dueDate > today && dueDate <= threeDaysLater;
+        }).length;
+      case 'nextweek':
+        return taskStore.allTasks.filter(t => {
+          if (t.status === 'completed' || !t.due_date) return false;
+          const today = new Date();
+          const oneWeekLater = new Date();
+          oneWeekLater.setDate(today.getDate() + 7);
+          const dueDate = new Date(t.due_date);
+          return dueDate > today && dueDate <= oneWeekLater;
+        }).length;
+      case 'thismonth':
+        return taskStore.allTasks.filter(t => {
+          if (t.status === 'completed' || !t.due_date) return false;
+          const today = new Date();
+          const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          const dueDate = new Date(t.due_date);
+          return dueDate >= today && dueDate <= endOfMonth;
+        }).length;
+      default:
+        return 0;
+    }
+  }
+
   function handleLogin() {
     console.log('Login clicked');
     // TODO: Implement login logic
@@ -116,97 +169,15 @@
           Views
         </h3>
 
-        <SidebarButton
-          icon="📝"
-          label="All Tasks"
-          count={taskStore.allTasks.length}
-          isActive={currentView === 'all'}
-          onclick={() => handleViewChange('all')}
-        />
-
-        <SidebarButton
-          icon="📅"
-          label="Today"
-          count={todayTasksCount}
-          isActive={currentView === 'today'}
-          onclick={() => handleViewChange('today')}
-        />
-
-        <SidebarButton
-          icon="🚨"
-          label="Overdue"
-          count={overdueTasksCount}
-          isActive={currentView === 'overdue'}
-          onclick={() => handleViewChange('overdue')}
-        />
-
-        <SidebarButton
-          icon="✅"
-          label="Completed"
-          count={taskStore.allTasks.filter(t => t.status === 'completed').length}
-          isActive={currentView === 'completed'}
-          onclick={() => handleViewChange('completed')}
-        />
-
-        <SidebarButton
-          icon="📆"
-          label="Tomorrow"
-          count={taskStore.allTasks.filter(t => {
-            if (t.status === 'completed' || !t.due_date) return false;
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStart = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
-            const tomorrowEnd = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate() + 1);
-            const dueDate = new Date(t.due_date);
-            return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
-          }).length}
-          isActive={currentView === 'tomorrow'}
-          onclick={() => handleViewChange('tomorrow')}
-        />
-
-        <SidebarButton
-          icon="📋"
-          label="Next 3 Days"
-          count={taskStore.allTasks.filter(t => {
-            if (t.status === 'completed' || !t.due_date) return false;
-            const today = new Date();
-            const threeDaysLater = new Date();
-            threeDaysLater.setDate(today.getDate() + 3);
-            const dueDate = new Date(t.due_date);
-            return dueDate > today && dueDate <= threeDaysLater;
-          }).length}
-          isActive={currentView === 'next3days'}
-          onclick={() => handleViewChange('next3days')}
-        />
-
-        <SidebarButton
-          icon="📊"
-          label="Next Week"
-          count={taskStore.allTasks.filter(t => {
-            if (t.status === 'completed' || !t.due_date) return false;
-            const today = new Date();
-            const oneWeekLater = new Date();
-            oneWeekLater.setDate(today.getDate() + 7);
-            const dueDate = new Date(t.due_date);
-            return dueDate > today && dueDate <= oneWeekLater;
-          }).length}
-          isActive={currentView === 'nextweek'}
-          onclick={() => handleViewChange('nextweek')}
-        />
-
-        <SidebarButton
-          icon="📅"
-          label="This Month"
-          count={taskStore.allTasks.filter(t => {
-            if (t.status === 'completed' || !t.due_date) return false;
-            const today = new Date();
-            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            const dueDate = new Date(t.due_date);
-            return dueDate >= today && dueDate <= endOfMonth;
-          }).length}
-          isActive={currentView === 'thismonth'}
-          onclick={() => handleViewChange('thismonth')}
-        />
+        {#each visibleViews as view (view.id)}
+          <SidebarButton
+            icon={view.icon}
+            label={view.label}
+            count={getTaskCountForView(view.id)}
+            isActive={currentView === view.id}
+            onclick={() => handleViewChange(view.id as ViewType)}
+          />
+        {/each}
       </div>
 
       <!-- Projects -->
