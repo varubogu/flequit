@@ -11,6 +11,7 @@
   import Badge from "$lib/components/ui/badge.svelte";
   import Button from "$lib/components/ui/button.svelte";
   import { contextMenuStore } from "$lib/stores/context-menu.svelte";
+  import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
   import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
 
   interface Props {
@@ -31,6 +32,10 @@
     calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length),
   );
   let showSubTasks = $state(false);
+  
+  // Date picker state
+  let showDatePicker = $state(false);
+  let datePickerPosition = $state({ x: 0, y: 0 });
 
   function handleTaskClick() {
     TaskService.selectTask(task.id);
@@ -114,6 +119,70 @@
       }
     ]);
   }
+
+  // Date picker handlers
+  function handleDueDateClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    datePickerPosition = {
+      x: Math.min(rect.left, window.innerWidth - 300), // Ensure it fits on screen
+      y: rect.bottom + 8
+    };
+    showDatePicker = true;
+  }
+
+  function handleDateChange(event: CustomEvent<{ date: string }>) {
+    const newDate = event.detail.date;
+    taskStore.updateTask(task.id, { ...task, due_date: newDate });
+  }
+
+  function handleDateClear() {
+    taskStore.updateTask(task.id, { ...task, due_date: null });
+  }
+
+  function handleDatePickerClose() {
+    showDatePicker = false;
+  }
+
+  // SubTask date picker
+  let showSubTaskDatePicker = $state(false);
+  let subTaskDatePickerPosition = $state({ x: 0, y: 0 });
+  let editingSubTaskId = $state<string | null>(null);
+
+  function handleSubTaskDueDateClick(event: MouseEvent, subTask: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    subTaskDatePickerPosition = {
+      x: Math.min(rect.left, window.innerWidth - 300),
+      y: rect.bottom + 8
+    };
+    editingSubTaskId = subTask.id;
+    showSubTaskDatePicker = true;
+  }
+
+  function handleSubTaskDateChange(event: CustomEvent<{ date: string }>) {
+    if (!editingSubTaskId) return;
+    
+    const newDate = event.detail.date;
+    // TODO: Implement subtask date update
+    console.log('Update subtask date:', editingSubTaskId, newDate);
+  }
+
+  function handleSubTaskDateClear() {
+    if (!editingSubTaskId) return;
+    
+    // TODO: Implement subtask date clear
+    console.log('Clear subtask date:', editingSubTaskId);
+  }
+
+  function handleSubTaskDatePickerClose() {
+    showSubTaskDatePicker = false;
+    editingSubTaskId = null;
+  }
 </script>
 
 <div class="flex items-start gap-1 w-full">
@@ -174,14 +243,24 @@
           </h3>
 
           {#if task.due_date}
-            <span
+            <button
               class="text-sm whitespace-nowrap flex-shrink-0 {getDueDateClass(
                 task.due_date,
                 task.status,
-              )}"
+              )} hover:bg-muted rounded px-1 py-0.5 transition-colors"
+              onclick={handleDueDateClick}
+              title="Click to change due date"
             >
               {formatDate(task.due_date)}
-            </span>
+            </button>
+          {:else}
+            <button
+              class="text-sm whitespace-nowrap flex-shrink-0 text-muted-foreground hover:bg-muted rounded px-1 py-0.5 transition-colors"
+              onclick={handleDueDateClick}
+              title="Click to set due date"
+            >
+              + Add date
+            </button>
           {/if}
         </div>
 
@@ -259,12 +338,44 @@
             {subTask.title}
           </span>
           {#if subTask.due_date}
-            <span class="text-xs text-muted-foreground whitespace-nowrap">
+            <button
+              class="text-xs text-muted-foreground whitespace-nowrap hover:bg-muted rounded px-1 py-0.5 transition-colors"
+              onclick={(e) => handleSubTaskDueDateClick(e, subTask)}
+              title="Click to change due date"
+            >
               {formatDate(subTask.due_date)}
-            </span>
+            </button>
+          {:else}
+            <button
+              class="text-xs text-muted-foreground whitespace-nowrap hover:bg-muted rounded px-1 py-0.5 transition-colors"
+              onclick={(e) => handleSubTaskDueDateClick(e, subTask)}
+              title="Click to set due date"
+            >
+              + Add date
+            </button>
           {/if}
         </div>
       </Button>
     {/each}
   </div>
 {/if}
+
+<!-- Inline Date Picker -->
+<InlineDatePicker
+  show={showDatePicker}
+  currentDate={task.due_date}
+  position={datePickerPosition}
+  onchange={handleDateChange}
+  onclear={handleDateClear}
+  onclose={handleDatePickerClose}
+/>
+
+<!-- SubTask Date Picker -->
+<InlineDatePicker
+  show={showSubTaskDatePicker}
+  currentDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.due_date : ''}
+  position={subTaskDatePickerPosition}
+  onchange={handleSubTaskDateChange}
+  onclear={handleSubTaskDateClear}
+  onclose={handleSubTaskDatePickerClose}
+/>
