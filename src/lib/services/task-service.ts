@@ -22,12 +22,18 @@ export class TaskService {
     title: string;
     description: string;
     due_date: string;
+    start_date?: Date;
+    end_date?: Date;
+    is_range_date?: boolean;
     priority: number;
   }): void {
     const updates: Partial<Task> = {
       title: formData.title,
       description: formData.description || undefined,
-      priority: formData.priority
+      priority: formData.priority,
+      start_date: formData.start_date,
+      end_date: formData.end_date,
+      is_range_date: formData.is_range_date || false
     };
 
     if (formData.due_date) {
@@ -81,12 +87,18 @@ export class TaskService {
     title: string;
     description: string;
     due_date: string;
+    start_date?: Date;
+    end_date?: Date;
+    is_range_date?: boolean;
     priority: number;
   }): void {
     const updates: Partial<SubTask> = {
       title: formData.title,
       description: formData.description || undefined,
-      priority: formData.priority || undefined
+      priority: formData.priority || undefined,
+      start_date: formData.start_date,
+      end_date: formData.end_date,
+      is_range_date: formData.is_range_date || false
     };
 
     if (formData.due_date) {

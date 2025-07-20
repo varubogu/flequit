@@ -19,10 +19,36 @@
 
   let pickerElement = $state<HTMLElement>();
   // Common end date/time (used for both single mode and range end)
-  let endDate = $state(currentDate ? new Date(currentDate).toISOString().split('T')[0] : '');
-  let endTime = $state(currentDate ? new Date(currentDate).toTimeString().split(' ')[0] : '00:00:00');
+  function formatLocalDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  function formatLocalTime(date: Date): string {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
+  
+  function formatTimeForInput(date: Date): string {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
+  
+  let endDate = $state(currentDate ? formatLocalDate(new Date(currentDate)) : '');
+  let endTime = $state(currentDate ? formatTimeForInput(new Date(currentDate)) : '00:00:00');
 
   let useRangeMode = $state(isRangeDate);
+  
+  // Sync useRangeMode with isRangeDate prop changes
+  $effect(() => {
+    useRangeMode = isRangeDate;
+  });
   let startValue = $state<CalendarDate | undefined>(undefined);
   let endValue = $state<CalendarDate | undefined>(undefined);
   let rangeValue = $state<{start: CalendarDate | undefined, end: CalendarDate | undefined}>({start: undefined, end: undefined});
@@ -40,8 +66,8 @@
   $effect(() => {
     if (show && currentDate && typeof currentDate === 'string') {
       const date = new Date(currentDate);
-      endDate = date.toISOString().split('T')[0];
-      endTime = date.toTimeString().split(' ')[0];
+      endDate = formatLocalDate(date);
+      endTime = formatTimeForInput(date);
 
       // Update calendar value
       try {
@@ -97,12 +123,6 @@
     }
   }
 
-  // Validate date format (YYYY-MM-DD)
-  function isValidDate(dateString: string): boolean {
-    if (!dateString || dateString.length !== 10) return false;
-    const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date.getTime()) && dateString === date.toISOString().split('T')[0];
-  }
 
   function handleRangeChange() {
     if (startValue && endValue) {
@@ -261,7 +281,7 @@
         <input
           type="date"
           bind:value={endDate}
-          oninput={(e) => {
+          oninput={() => {
             if (useRangeMode) {
               handleRangeInputChange();
             } else {
@@ -286,7 +306,7 @@
           type="time"
           step="1"
           bind:value={endTime}
-          oninput={(e) => {
+          oninput={() => {
             if (useRangeMode) {
               handleRangeInputChange();
             } else {

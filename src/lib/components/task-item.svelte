@@ -134,7 +134,7 @@
   }
 
   function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
-    const { date, range, isRangeDate } = event.detail;
+    const { dateTime, range, isRangeDate } = event.detail;
     
     if (isRangeDate && range) {
       taskStore.updateTask(task.id, { 
@@ -147,7 +147,7 @@
     } else {
       taskStore.updateTask(task.id, { 
         ...task, 
-        due_date: new Date(date),
+        due_date: new Date(dateTime),
         start_date: undefined,
         end_date: undefined,
         is_range_date: false
@@ -190,7 +190,7 @@
   function handleSubTaskDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     if (!editingSubTaskId) return;
     
-    const { date, range, isRangeDate } = event.detail;
+    const { dateTime, range, isRangeDate } = event.detail;
     const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
@@ -206,7 +206,7 @@
     } else {
       updatedSubTasks[subTaskIndex] = {
         ...updatedSubTasks[subTaskIndex],
-        due_date: new Date(date),
+        due_date: new Date(dateTime),
         start_date: undefined,
         end_date: undefined,
         is_range_date: false
@@ -418,7 +418,7 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={task.due_date}
+  currentDate={task.due_date ? task.due_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={task.is_range_date || false}
   onchange={handleDateChange}
@@ -429,7 +429,7 @@
 <!-- SubTask Date Picker -->
 <InlineDatePicker
   show={showSubTaskDatePicker}
-  currentDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.due_date : ''}
+  currentDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.due_date?.toISOString() || '') : ''}
   position={subTaskDatePickerPosition}
   isRangeDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.is_range_date || false : false}
   onchange={handleSubTaskDateChange}

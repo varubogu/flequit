@@ -52,10 +52,26 @@
     }
     saveTimeout = setTimeout(() => {
       if (currentItem) {
-        if (isSubTask) {
-          TaskService.updateSubTaskFromForm(currentItem.id, editForm);
+        // Use the same update method as task-item for consistency
+        const updates: any = {
+          title: editForm.title,
+          description: editForm.description || undefined,
+          priority: editForm.priority,
+          start_date: editForm.start_date,
+          end_date: editForm.end_date,
+          is_range_date: editForm.is_range_date
+        };
+        
+        if (editForm.due_date) {
+          updates.due_date = new Date(editForm.due_date);
         } else {
-          TaskService.updateTaskFromForm(currentItem.id, editForm);
+          updates.due_date = undefined;
+        }
+        
+        if (isSubTask) {
+          taskStore.updateSubTask(currentItem.id, updates);
+        } else {
+          taskStore.updateTask(currentItem.id, updates);
         }
       }
     }, 500); // 500ms delay
@@ -79,26 +95,24 @@
   }
 
   function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
-    const { date, range, isRangeDate } = event.detail;
+    const { dateTime, range, isRangeDate } = event.detail;
     
     if (isRangeDate && range) {
-      const updatedData = {
+      editForm = {
         ...editForm,
         start_date: new Date(range.start),
         end_date: new Date(range.end),
         due_date: range.end,
         is_range_date: true
       };
-      editForm = updatedData;
     } else {
-      const updatedData = {
+      editForm = {
         ...editForm,
-        due_date: date,
+        due_date: dateTime,
         start_date: undefined,
         end_date: undefined,
         is_range_date: false
       };
-      editForm = updatedData;
     }
     
     debouncedSave();
@@ -340,9 +354,9 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={editForm.due_date}
+  currentDate={currentItem?.due_date ? currentItem.due_date.toISOString() : ''}
   position={datePickerPosition}
-  isRangeDate={currentItem?.is_range_date || false}
+  isRangeDate={editForm.is_range_date}
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
