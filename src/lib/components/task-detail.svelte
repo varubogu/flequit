@@ -359,6 +359,7 @@
 <InlineDatePicker
   show={showDatePicker}
   currentDate={currentItem?.end_date ? currentItem.end_date.toISOString() : ''}
+  currentStartDate={currentItem?.start_date ? currentItem.start_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
   onchange={handleDateChange}

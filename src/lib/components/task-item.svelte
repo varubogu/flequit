@@ -439,6 +439,7 @@
 <InlineDatePicker
   show={showDatePicker}
   currentDate={task.end_date ? task.end_date.toISOString() : ''}
+  currentStartDate={task.start_date ? task.start_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={task.is_range_date || false}
   onchange={handleDateChange}
@@ -450,6 +451,7 @@
 <InlineDatePicker
   show={showSubTaskDatePicker}
   currentDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.end_date?.toISOString() || '') : ''}
+  currentStartDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.start_date?.toISOString() || '') : ''}
   position={subTaskDatePickerPosition}
   isRangeDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.is_range_date || false : false}
   onchange={handleSubTaskDateChange}

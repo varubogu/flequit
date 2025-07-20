@@ -8,6 +8,7 @@
   interface Props {
     show: boolean;
     currentDate?: string;
+    currentStartDate?: string;
     position?: { x: number; y: number };
     isRangeDate?: boolean;
     onchange?: (event: CustomEvent) => void;
@@ -15,7 +16,7 @@
     onclear?: () => void;
   }
 
-  let { show = false, currentDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose, onclear }: Props = $props();
+  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose, onclear }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
   // Common end date/time (used for both single mode and range end)
@@ -54,8 +55,8 @@
   let rangeValue = $state<{start: CalendarDate | undefined, end: CalendarDate | undefined}>({start: undefined, end: undefined});
   let calendarValue = $state<CalendarDate | undefined>(undefined);
   let rangePlaceholder = $state<CalendarDate | undefined>(undefined);
-  let startDate = $state('');
-  let startTime = $state('00:00:00');
+  let startDate = $state(currentStartDate ? formatLocalDate(new Date(currentStartDate)) : '');
+  let startTime = $state(currentStartDate ? formatTimeForInput(new Date(currentStartDate)) : '00:00:00');
 
   const dispatch = createEventDispatcher<{
     change: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean };
@@ -76,6 +77,18 @@
         const today = now(getLocalTimeZone());
         calendarValue = new CalendarDate(today.year, today.month, today.day);
       }
+    }
+  });
+
+  // Update start date/time when currentStartDate changes
+  $effect(() => {
+    if (currentStartDate && typeof currentStartDate === 'string') {
+      const startDateObj = new Date(currentStartDate);
+      startDate = formatLocalDate(startDateObj);
+      startTime = formatTimeForInput(startDateObj);
+    } else {
+      startDate = '';
+      startTime = '00:00:00';
     }
   });
 
@@ -203,14 +216,33 @@
   // Initialize default values
   let rangeInitialized = $state(false);
 
-  // Watch for range mode changes only
+  // Watch for range mode changes and initialize with current dates
   $effect(() => {
     if (useRangeMode && !rangeInitialized) {
       const today = now(getLocalTimeZone());
       const todayCalendar = new CalendarDate(today.year, today.month, today.day);
 
       rangePlaceholder = todayCalendar;
-      rangeValue = {start: undefined, end: undefined};
+      
+      // Initialize with current start and end dates if available
+      let startCal: CalendarDate | undefined = undefined;
+      let endCal: CalendarDate | undefined = undefined;
+      
+      if (startDate) {
+        try {
+          startCal = parseDate(startDate);
+          startValue = startCal;
+        } catch {}
+      }
+      
+      if (endDate) {
+        try {
+          endCal = parseDate(endDate);
+          endValue = endCal;
+        } catch {}
+      }
+      
+      rangeValue = {start: startCal, end: endCal};
       rangeInitialized = true;
     } else if (!useRangeMode) {
       rangeInitialized = false;
