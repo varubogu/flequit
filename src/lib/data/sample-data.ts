@@ -37,7 +37,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Check and respond to important emails',
               status: 'not_started',
               priority: 1,
-              due_date: today,
+              end_date: today,
               order_index: 0,
               is_archived: false,
               created_at: new Date(),
@@ -52,7 +52,7 @@ export function generateSampleData(): ProjectTree[] {
                   priority: 2,
                   start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
                   end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
-                  due_date: new Date(today.getTime() + 2 * 60 * 60 * 1000), // 2 hours from now
+                  // end_date is already set above
                   recurrence_rule: 'FREQ=DAILY',
                   order_index: 0,
                   created_at: new Date(),
@@ -85,7 +85,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Get ingredients for dinner tonight',
               status: 'not_started',
               priority: 2,
-              due_date: today,
+              end_date: today,
               order_index: 1,
               is_archived: false,
               created_at: new Date(),
@@ -108,7 +108,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'This task was due yesterday',
               status: 'not_started',
               priority: 3,
-              due_date: yesterday,
+              end_date: yesterday,
               order_index: 2,
               is_archived: false,
               created_at: new Date(),
@@ -135,7 +135,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Research destinations and book accommodation',
               status: 'in_progress',
               priority: 1,
-              due_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+              end_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
               order_index: 0,
               is_archived: false,
               created_at: new Date(),
@@ -182,7 +182,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Implement login, signup, and password reset functionality',
               status: 'in_progress',
               priority: 1,
-              due_date: tomorrow,
+              end_date: tomorrow,
               order_index: 0,
               is_archived: false,
               created_at: new Date(),
@@ -195,7 +195,7 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create wireframes and mockups for login interface',
                   status: 'completed',
                   priority: 2,
-                  due_date: yesterday,
+                  end_date: yesterday,
                   order_index: 0,
                   created_at: new Date(),
                   updated_at: new Date()
@@ -207,7 +207,7 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create REST endpoints for authentication',
                   status: 'in_progress',
                   priority: 1,
-                  due_date: today,
+                  end_date: today,
                   order_index: 1,
                   created_at: new Date(),
                   updated_at: new Date()
@@ -219,7 +219,7 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create comprehensive test coverage for auth flow',
                   status: 'not_started',
                   priority: 2,
-                  due_date: tomorrow,
+                  end_date: tomorrow,
                   order_index: 2,
                   created_at: new Date(),
                   updated_at: new Date()

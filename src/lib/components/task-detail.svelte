@@ -1,7 +1,7 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks, TaskStatus, SubTask } from '$lib/types/task';
-  import { formatDetailedDate, formatDateTime, formatDateForInput, formatDate } from '$lib/utils/date-utils';
+  import { formatDetailedDate, formatDateTime, formatDate } from '$lib/utils/date-utils';
   import { getStatusLabel, getPriorityLabel, getPriorityColorClass } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/task-service';
   import Button from '$lib/components/ui/button.svelte';
@@ -20,7 +20,6 @@
   let editForm = $state({
     title: '',
     description: '',
-    due_date: '',
     start_date: undefined as Date | undefined,
     end_date: undefined as Date | undefined,
     is_range_date: false,
@@ -37,7 +36,6 @@
       editForm = {
         title: currentItem.title,
         description: currentItem.description || '',
-        due_date: formatDateForInput(currentItem.due_date),
         start_date: currentItem.start_date,
         end_date: currentItem.end_date,
         is_range_date: currentItem.is_range_date || false,
@@ -62,11 +60,7 @@
           is_range_date: editForm.is_range_date
         };
         
-        if (editForm.due_date) {
-          updates.due_date = new Date(editForm.due_date);
-        } else {
-          updates.due_date = undefined;
-        }
+        // end_date is handled in the updates object above
         
         if (isSubTask) {
           taskStore.updateSubTask(currentItem.id, updates);
@@ -102,15 +96,13 @@
         ...editForm,
         start_date: new Date(range.start),
         end_date: new Date(range.end),
-        due_date: range.end,
         is_range_date: true
       };
     } else {
       editForm = {
         ...editForm,
-        due_date: dateTime,
+        end_date: new Date(dateTime),
         start_date: undefined,
-        end_date: undefined,
         is_range_date: false
       };
     }
@@ -121,7 +113,6 @@
   function handleDateClear() {
     editForm = {
       ...editForm,
-      due_date: '',
       start_date: undefined,
       end_date: undefined,
       is_range_date: false
@@ -223,8 +214,8 @@
             class="w-full justify-start text-left h-10 px-3 py-2 font-normal"
             onclick={handleDueDateClick}
           >
-            {#if editForm.due_date}
-              {formatDate(editForm.due_date)}
+            {#if editForm.end_date}
+              {formatDate(editForm.end_date)}
             {:else}
               <span class="text-muted-foreground">Select date</span>
             {/if}
@@ -292,9 +283,9 @@
                   >
                     {subTask.title}
                   </span>
-                  {#if subTask.due_date}
+                  {#if subTask.end_date}
                     <span class="text-xs text-muted-foreground whitespace-nowrap">
-                      {formatDate(subTask.due_date)}
+                      {formatDate(subTask.end_date)}
                     </span>
                   {/if}
                 </div>
@@ -354,7 +345,7 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={currentItem?.due_date ? currentItem.due_date.toISOString() : ''}
+  currentDate={currentItem?.end_date ? currentItem.end_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
   onchange={handleDateChange}

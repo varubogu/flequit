@@ -21,7 +21,6 @@ export class TaskService {
   static updateTaskFromForm(taskId: string, formData: {
     title: string;
     description: string;
-    due_date: string;
     start_date?: Date;
     end_date?: Date;
     is_range_date?: boolean;
@@ -35,12 +34,6 @@ export class TaskService {
       end_date: formData.end_date,
       is_range_date: formData.is_range_date || false
     };
-
-    if (formData.due_date) {
-      updates.due_date = new Date(formData.due_date);
-    } else {
-      updates.due_date = undefined;
-    }
 
     this.updateTask(taskId, updates);
   }
@@ -86,7 +79,6 @@ export class TaskService {
   static updateSubTaskFromForm(subTaskId: string, formData: {
     title: string;
     description: string;
-    due_date: string;
     start_date?: Date;
     end_date?: Date;
     is_range_date?: boolean;
@@ -100,12 +92,6 @@ export class TaskService {
       end_date: formData.end_date,
       is_range_date: formData.is_range_date || false
     };
-
-    if (formData.due_date) {
-      updates.due_date = new Date(formData.due_date);
-    } else {
-      updates.due_date = undefined;
-    }
 
     this.updateSubTask(subTaskId, updates);
   }

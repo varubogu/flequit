@@ -113,9 +113,9 @@ export class ViewService {
     const tomorrowEnd = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate() + 1);
     
     return taskStore.allTasks.filter(task => {
-      if (task.status === 'completed' || !task.due_date) return false;
+      if (task.status === 'completed' || !task.end_date) return false;
       
-      const dueDate = new Date(task.due_date);
+      const dueDate = new Date(task.end_date);
       return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
     });
   }
@@ -126,9 +126,9 @@ export class ViewService {
     threeDaysLater.setDate(today.getDate() + 3);
     
     return taskStore.allTasks.filter(task => {
-      if (task.status === 'completed' || !task.due_date) return false;
+      if (task.status === 'completed' || !task.end_date) return false;
       
-      const dueDate = new Date(task.due_date);
+      const dueDate = new Date(task.end_date);
       return dueDate > today && dueDate <= threeDaysLater;
     });
   }
@@ -139,9 +139,9 @@ export class ViewService {
     oneWeekLater.setDate(today.getDate() + 7);
     
     return taskStore.allTasks.filter(task => {
-      if (task.status === 'completed' || !task.due_date) return false;
+      if (task.status === 'completed' || !task.end_date) return false;
       
-      const dueDate = new Date(task.due_date);
+      const dueDate = new Date(task.end_date);
       return dueDate > today && dueDate <= oneWeekLater;
     });
   }
@@ -151,9 +151,9 @@ export class ViewService {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     
     return taskStore.allTasks.filter(task => {
-      if (task.status === 'completed' || !task.due_date) return false;
+      if (task.status === 'completed' || !task.end_date) return false;
       
-      const dueDate = new Date(task.due_date);
+      const dueDate = new Date(task.end_date);
       return dueDate >= today && dueDate <= endOfMonth;
     });
   }

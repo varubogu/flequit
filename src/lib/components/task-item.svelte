@@ -141,15 +141,13 @@
         ...task, 
         start_date: new Date(range.start),
         end_date: new Date(range.end),
-        due_date: new Date(range.end),
         is_range_date: true
       });
     } else {
       taskStore.updateTask(task.id, { 
         ...task, 
-        due_date: new Date(dateTime),
+        end_date: new Date(dateTime),
         start_date: undefined,
-        end_date: undefined,
         is_range_date: false
       });
     }
@@ -158,7 +156,6 @@
   function handleDateClear() {
     taskStore.updateTask(task.id, { 
       ...task, 
-      due_date: null,
       start_date: undefined,
       end_date: undefined,
       is_range_date: false
@@ -200,15 +197,13 @@
         ...updatedSubTasks[subTaskIndex],
         start_date: new Date(range.start),
         end_date: new Date(range.end),
-        due_date: new Date(range.end),
         is_range_date: true
       };
     } else {
       updatedSubTasks[subTaskIndex] = {
         ...updatedSubTasks[subTaskIndex],
-        due_date: new Date(dateTime),
+        end_date: new Date(dateTime),
         start_date: undefined,
-        end_date: undefined,
         is_range_date: false
       };
     }
@@ -225,7 +220,6 @@
     const updatedSubTasks = [...task.sub_tasks];
     updatedSubTasks[subTaskIndex] = {
       ...updatedSubTasks[subTaskIndex],
-      due_date: undefined,
       start_date: undefined,
       end_date: undefined,
       is_range_date: false
@@ -297,16 +291,16 @@
             {task.title}
           </h3>
 
-          {#if task.due_date}
+          {#if task.end_date}
             <button
               class="text-sm whitespace-nowrap flex-shrink-0 {getDueDateClass(
-                task.due_date,
+                task.end_date,
                 task.status,
               )} hover:bg-muted rounded px-1 py-0.5 transition-colors"
               onclick={handleDueDateClick}
               title="Click to change due date"
             >
-              {formatDate(task.due_date)}
+              {formatDate(task.end_date)}
             </button>
           {:else}
             <button
@@ -392,13 +386,13 @@
           >
             {subTask.title}
           </span>
-          {#if subTask.due_date}
+          {#if subTask.end_date}
             <button
               class="text-xs text-muted-foreground whitespace-nowrap hover:bg-muted rounded px-1 py-0.5 transition-colors"
               onclick={(e) => handleSubTaskDueDateClick(e, subTask)}
               title="Click to change due date"
             >
-              {formatDate(subTask.due_date)}
+              {formatDate(subTask.end_date)}
             </button>
           {:else}
             <button
@@ -418,7 +412,7 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={task.due_date ? task.due_date.toISOString() : ''}
+  currentDate={task.end_date ? task.end_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={task.is_range_date || false}
   onchange={handleDateChange}
@@ -429,7 +423,7 @@
 <!-- SubTask Date Picker -->
 <InlineDatePicker
   show={showSubTaskDatePicker}
-  currentDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.due_date?.toISOString() || '') : ''}
+  currentDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.end_date?.toISOString() || '') : ''}
   position={subTaskDatePickerPosition}
   isRangeDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.is_range_date || false : false}
   onchange={handleSubTaskDateChange}

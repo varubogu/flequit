@@ -48,8 +48,8 @@ export class TaskStore {
     tomorrow.setDate(tomorrow.getDate() + 1);
     
     return this.allTasks.filter(task => {
-      if (!task.due_date) return false;
-      const dueDate = new Date(task.due_date);
+      if (!task.end_date) return false;
+      const dueDate = new Date(task.end_date);
       return dueDate >= today && dueDate < tomorrow;
     });
   }
@@ -59,8 +59,8 @@ export class TaskStore {
     today.setHours(0, 0, 0, 0);
     
     return this.allTasks.filter(task => {
-      if (!task.due_date || task.status === 'completed') return false;
-      const dueDate = new Date(task.due_date);
+      if (!task.end_date || task.status === 'completed') return false;
+      const dueDate = new Date(task.end_date);
       return dueDate < today;
     });
   }
