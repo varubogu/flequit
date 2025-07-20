@@ -240,6 +240,34 @@ body {
   background-color: hsl(var(--color-primary-foreground));
 }
 
+/* Switch component data-state styling */
+[data-slot="switch"][data-state="checked"] {
+  background-color: hsl(var(--color-primary)) !important;
+}
+
+[data-slot="switch"][data-state="unchecked"] {
+  background-color: hsl(var(--color-input)) !important;
+}
+
+[data-slot="switch-thumb"][data-state="checked"] {
+  background-color: hsl(var(--color-primary-foreground)) !important;
+  transform: translateX(calc(100% - 2px)) !important;
+}
+
+[data-slot="switch-thumb"][data-state="unchecked"] {
+  background-color: hsl(var(--color-background)) !important;
+  transform: translateX(0) !important;
+}
+
+/* Dark theme Switch styling */
+.dark [data-slot="switch-thumb"][data-state="unchecked"] {
+  background-color: hsl(var(--color-foreground)) !important;
+}
+
+.dark [data-slot="switch-thumb"][data-state="checked"] {
+  background-color: hsl(var(--color-foreground)) !important;
+}
+
 /* Utility classes */
 .line-clamp-2 {
   display: -webkit-box;
