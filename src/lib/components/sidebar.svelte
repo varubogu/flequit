@@ -9,7 +9,10 @@
   import SearchCommand from '$lib/components/search-command.svelte';
   import UserProfile from '$lib/components/user-profile.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search, ChevronDown, ChevronRight } from 'lucide-svelte';
+  import { Search, ChevronDown, ChevronRight, EyeOff, Edit2, Trash2, Plus } from 'lucide-svelte';
+  import { contextMenuStore } from '$lib/stores/context-menu.svelte';
+  import ProjectDialog from '$lib/components/project-dialog.svelte';
+  import TaskListDialog from '$lib/components/task-list-dialog.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -24,6 +27,14 @@
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let showSearchDialog = $state(false);
   let expandedProjects = $state<Set<string>>(new Set());
+  
+  // Modal states
+  let showProjectDialog = $state(false);
+  let showTaskListDialog = $state(false);
+  let projectDialogMode: 'add' | 'edit' = $state('add');
+  let taskListDialogMode: 'add' | 'edit' = $state('add');
+  let editingProject: any = $state(null);
+  let editingTaskList: any = $state(null);
 
   // Mock user data - replace with actual user store
   let currentUser = $state({
@@ -122,6 +133,15 @@
     }
   }
 
+  function hideView(viewId: string) {
+    const viewToHide = viewsVisibilityStore.configuration.viewItems.find(v => v.id === viewId);
+    if (viewToHide) {
+      const visible = viewsVisibilityStore.visibleViews.filter(v => v.id !== viewId);
+      const hidden = [...viewsVisibilityStore.hiddenViews, viewToHide];
+      viewsVisibilityStore.setLists(visible, hidden);
+    }
+  }
+
   function handleLogin() {
     console.log('Login clicked');
     // TODO: Implement login logic
@@ -140,6 +160,94 @@
   function handleSwitchAccount() {
     console.log('Switch Account clicked');
     // TODO: Implement account switching logic
+  }
+
+  function handleProjectContextMenu(event: MouseEvent, project: ProjectTree) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    contextMenuStore.open(event.clientX, event.clientY, [
+      {
+        label: 'Edit Project',
+        action: () => openProjectDialog('edit', project),
+        icon: Edit2
+      },
+      {
+        label: 'Add Task List',
+        action: () => openTaskListDialog('add', null, project),
+        icon: Plus
+      },
+      { separator: true },
+      {
+        label: 'Delete Project',
+        action: () => console.log('Delete project:', project.name),
+        icon: Trash2,
+        disabled: project.task_lists.length > 0
+      }
+    ]);
+  }
+
+  function handleTaskListContextMenu(event: MouseEvent, list: any, project: ProjectTree) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    contextMenuStore.open(event.clientX, event.clientY, [
+      {
+        label: 'Edit Task List',
+        action: () => openTaskListDialog('edit', list, project),
+        icon: Edit2
+      },
+      {
+        label: 'Add Task',
+        action: () => console.log('Add task to:', list.name),
+        icon: Plus
+      },
+      { separator: true },
+      {
+        label: 'Delete Task List',
+        action: () => console.log('Delete task list:', list.name),
+        icon: Trash2,
+        disabled: list.tasks.length > 0
+      }
+    ]);
+  }
+
+  // Dialog handlers
+  function openProjectDialog(mode: 'add' | 'edit', project?: any) {
+    projectDialogMode = mode;
+    editingProject = project;
+    showProjectDialog = true;
+  }
+
+  function openTaskListDialog(mode: 'add' | 'edit', taskList?: any, project?: any) {
+    taskListDialogMode = mode;
+    editingTaskList = taskList;
+    editingProject = project;
+    showTaskListDialog = true;
+  }
+
+  function handleProjectSave(event: CustomEvent<{ name: string; color: string }>) {
+    const { name, color } = event.detail;
+    if (projectDialogMode === 'add') {
+      console.log('Creating new project:', name, color);
+      // TODO: Implement project creation
+    } else {
+      console.log('Updating project:', editingProject?.name, 'to', name, color);
+      // TODO: Implement project update
+    }
+    showProjectDialog = false;
+  }
+
+  function handleTaskListSave(event: CustomEvent<{ name: string }>) {
+    const { name } = event.detail;
+    if (taskListDialogMode === 'add') {
+      console.log('Creating new task list:', name, 'in project:', editingProject?.name);
+      // TODO: Implement task list creation
+    } else {
+      console.log('Updating task list:', editingTaskList?.name, 'to', name);
+      // TODO: Implement task list update
+    }
+    showTaskListDialog = false;
   }
 </script>
 
@@ -175,6 +283,13 @@
             count={getTaskCountForView(view.id)}
             isActive={currentView === view.id}
             onclick={() => handleViewChange(view.id as ViewType)}
+            contextMenuItems={[
+              {
+                label: 'Hide View',
+                action: () => hideView(view.id),
+                icon: EyeOff
+              }
+            ]}
           />
         {/each}
       </div>
@@ -217,6 +332,7 @@
                   variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
                   class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
                   onclick={() => handleProjectSelect(project)}
+                  oncontextmenu={(e) => handleProjectContextMenu(e, project)}
                 >
                   <div class="flex items-center gap-2 min-w-0">
                     <div
@@ -239,6 +355,7 @@
                         size="sm"
                         class="flex items-center justify-between w-full h-auto p-2 text-xs"
                         onclick={() => taskStore.selectList(list.id)}
+                        oncontextmenu={(e) => handleTaskListContextMenu(e, list, project)}
                       >
                         <span class="truncate">{list.name}</span>
                         <span class="text-muted-foreground">
@@ -272,4 +389,23 @@
 <SearchCommand
   bind:open={showSearchDialog}
   onOpenChange={(open) => showSearchDialog = open}
+/>
+
+<!-- Project Dialog -->
+<ProjectDialog
+  open={showProjectDialog}
+  mode={projectDialogMode}
+  initialName={editingProject?.name || ''}
+  initialColor={editingProject?.color || '#3b82f6'}
+  onsave={handleProjectSave}
+  onclose={() => showProjectDialog = false}
+/>
+
+<!-- Task List Dialog -->
+<TaskListDialog
+  open={showTaskListDialog}
+  mode={taskListDialogMode}
+  initialName={editingTaskList?.name || ''}
+  onsave={handleTaskListSave}
+  onclose={() => showTaskListDialog = false}
 />

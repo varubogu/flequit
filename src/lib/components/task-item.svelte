@@ -10,7 +10,8 @@
   import { TaskService } from "$lib/services/task-service";
   import Badge from "$lib/components/ui/badge.svelte";
   import Button from "$lib/components/ui/button.svelte";
-  import { ChevronDown, ChevronRight } from "lucide-svelte";
+  import { contextMenuStore } from "$lib/stores/context-menu.svelte";
+  import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
 
   interface Props {
     task: TaskWithSubTasks;
@@ -54,6 +55,65 @@
     event.stopPropagation();
     showSubTasks = !showSubTasks;
   }
+
+  // --- Context Menu Actions ---
+  function handleEdit() {
+    console.log(`Editing task: ${task.title}`);
+    // TODO: Implement edit logic
+  }
+
+  function handleDelete() {
+    TaskService.deleteTask(task.id);
+  }
+
+  function setPriority(priority: 'low' | 'medium' | 'high' | 'urgent') {
+    console.log(`Setting priority to ${priority} for task: ${task.title}`);
+    // TODO: Implement priority change logic
+    taskStore.updateTask(task.id, { ...task, priority });
+  }
+
+  function handleTaskContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    contextMenuStore.open(event.clientX, event.clientY, [
+      {
+        label: 'Edit Task',
+        action: handleEdit,
+        icon: Pencil
+      },
+      {
+        label: 'Set Priority',
+        action: () => console.log('Priority submenu would open'),
+        icon: Flag
+      },
+      { separator: true },
+      {
+        label: 'Delete Task',
+        action: handleDelete,
+        icon: Trash2
+      }
+    ]);
+  }
+
+  function handleSubTaskContextMenu(event: MouseEvent, subTask: any) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    contextMenuStore.open(event.clientX, event.clientY, [
+      {
+        label: 'Edit Subtask',
+        action: () => console.log('Edit subtask:', subTask.title),
+        icon: Pencil
+      },
+      { separator: true },
+      {
+        label: 'Delete Subtask',
+        action: () => console.log('Delete subtask:', subTask.title),
+        icon: Trash2
+      }
+    ]);
+  }
 </script>
 
 <div class="flex items-start gap-1 w-full">
@@ -85,6 +145,7 @@
       ? 'selected'
       : ''} min-w-0"
     onclick={handleTaskClick}
+    oncontextmenu={handleTaskContextMenu}
   >
     <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
       <!-- Status Toggle -->
@@ -178,6 +239,7 @@
           ? 'bg-primary/10 border-primary'
           : ''}"
         onclick={(e) => e && handleSubTaskClick(e, subTask.id)}
+        oncontextmenu={(e) => handleSubTaskContextMenu(e, subTask)}
       >
         <Button
           variant="ghost"

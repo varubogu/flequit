@@ -281,3 +281,15 @@ body {
 .border {
   border-color: hsl(var(--color-border));
 }
+
+.border-border {
+  border-color: hsl(var(--color-border));
+}
+
+.bg-popover {
+  background-color: hsl(var(--color-popover));
+}
+
+.text-popover-foreground {
+  color: hsl(var(--color-popover-foreground));
+}
