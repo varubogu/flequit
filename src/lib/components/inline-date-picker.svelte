@@ -207,40 +207,62 @@
       <span class="text-sm text-muted-foreground"></span>
     </div>
 
-    {#if useRangeMode}
-      <!-- Range Mode: Text inputs and Range Calendar -->
-      <div class="space-y-3">
-        <!-- Start Date/Time -->
+    <!-- Date/Time Inputs (Always shown) -->
+    <div class="space-y-3">
+      <!-- Due Date/Time (Always visible) -->
+      <div class="grid grid-cols-2 gap-2">
+        <input
+          type="date"
+          bind:value={endDate}
+          onchange={useRangeMode ? handleRangeInputChange : handleDateChange}
+          onkeydown={(e) => {
+            // Allow normal typing and navigation
+            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
+                e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
+                /^[0-9/-]$/.test(e.key)) {
+              return;
+            }
+            // Block other keys that might trigger calendar
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
+          class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
+        />
+        <input
+          type="time"
+          step="1"
+          bind:value={endTime}
+          onchange={useRangeMode ? handleRangeInputChange : handleDateChange}
+          class="px-3 py-2 text-sm border border-input rounded-md bg-background"
+        />
+      </div>
+
+      {#if useRangeMode}
+        <!-- Start Date/Time (Range mode only) -->
         <div class="grid grid-cols-2 gap-2">
           <input
             type="date"
             bind:value={startDate}
             onchange={handleRangeInputChange}
-            placeholder="開始日"
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
+            onkeydown={(e) => {
+              // Allow normal typing and navigation
+              if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
+                  e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
+                  /^[0-9/-]$/.test(e.key)) {
+                return;
+              }
+              // Block other keys that might trigger calendar
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+              }
+            }}
+            class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
           />
           <input
             type="time"
             step="1"
             bind:value={startTime}
-            onchange={handleRangeInputChange}
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-          />
-        </div>
-        
-        <!-- End Date/Time -->
-        <div class="grid grid-cols-2 gap-2">
-          <input
-            type="date"
-            bind:value={endDate}
-            onchange={handleRangeInputChange}
-            placeholder="終了日"
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-          />
-          <input
-            type="time"
-            step="1"
-            bind:value={endTime}
             onchange={handleRangeInputChange}
             class="px-3 py-2 text-sm border border-input rounded-md bg-background"
           />
@@ -265,27 +287,7 @@
           }}
           class="w-full"
         />
-      </div>
-    {:else}
-      <!-- Single Mode: Text inputs and Calendar -->
-      <div class="space-y-3">
-        <!-- Date and Time Input -->
-        <div class="grid grid-cols-2 gap-2">
-          <input
-            type="date"
-            bind:value={endDate}
-            onchange={handleDateChange}
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-          />
-          <input
-            type="time"
-            step="1"
-            bind:value={endTime}
-            onchange={handleDateChange}
-            class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-          />
-        </div>
-        
+      {:else}
         <!-- Single Calendar -->
         <Calendar
           bind:value={calendarValue}
@@ -298,7 +300,7 @@
           }}
           class="w-full"
         />
-      </div>
-    {/if}
+      {/if}
+    </div>
   </div>
 {/if}
