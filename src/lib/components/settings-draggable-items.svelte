@@ -20,12 +20,6 @@
   });
 
   function handleDragStart(container: string, item: ViewItem) {
-    console.log('=== DRAG START ===');
-    console.log('container:', container);
-    console.log('item:', item);
-    console.log('current visible:', localVisibleItems.map(i => i.id));
-    console.log('current hidden:', localHiddenItems.map(i => i.id));
-    
     dragState.isDragging = true;
     dragState.draggedItem = item;
   }
@@ -66,46 +60,21 @@
   }
 
   function handleDrop(state: DragDropState<ViewItem>) {
-    console.log('=== DRAG DROP START ===');
-    
     const { sourceContainer, targetContainer, draggedItem, targetElement } = state;
-    console.log('sourceContainer:', sourceContainer);
-    console.log('targetContainer:', targetContainer);
-    console.log('draggedItem:', draggedItem);
-    console.log('targetElement:', targetElement);
 
     // Create new arrays to avoid mutations
     let newVisibleItems = [...localVisibleItems];
     let newHiddenItems = [...localHiddenItems];
 
-    console.log('Before removal - visible items:', newVisibleItems.map(i => i.id));
-    console.log('Before removal - hidden items:', newHiddenItems.map(i => i.id));
-
     // Remove from source
-    const sourceIndex = sourceContainer === 'visible' 
-      ? newVisibleItems.findIndex(i => i.id === draggedItem.id)
-      : newHiddenItems.findIndex(i => i.id === draggedItem.id);
-    
-    console.log('Removing from', sourceContainer, 'at index:', sourceIndex);
-    
     if (sourceContainer === 'visible') {
       newVisibleItems = newVisibleItems.filter(i => i.id !== draggedItem.id);
     } else {
       newHiddenItems = newHiddenItems.filter(i => i.id !== draggedItem.id);
     }
 
-    console.log('After removal - visible items:', newVisibleItems.map(i => i.id));
-    console.log('After removal - hidden items:', newHiddenItems.map(i => i.id));
-
     // Find target index from targetElement
     let targetIndex = -1;
-    console.log('targetElement details:', {
-      element: targetElement,
-      dataset: targetElement?.dataset,
-      itemId: targetElement?.dataset?.itemId,
-      className: targetElement?.className,
-      tagName: targetElement?.tagName
-    });
     
     if (targetElement) {
       // Try multiple approaches to find the target item
@@ -116,16 +85,9 @@
         let parent = targetElement.parentElement;
         while (parent && !targetItemId) {
           targetItemId = parent.dataset?.itemId;
-          console.log('Checking parent:', {
-            element: parent,
-            itemId: parent.dataset?.itemId,
-            className: parent.className
-          });
           parent = parent.parentElement;
         }
       }
-      
-      console.log('Final targetItemId:', targetItemId);
       
       if (targetItemId) {
         if (targetContainer === 'visible') {
@@ -136,30 +98,20 @@
       }
     }
 
-    console.log('Target index:', targetIndex);
-
     // Add to target
     if (targetContainer === 'visible') {
       if (targetIndex >= 0) {
-        console.log('Inserting into visible at index:', targetIndex);
         newVisibleItems.splice(targetIndex, 0, draggedItem);
       } else {
-        console.log('No target index, pushing to visible end');
         newVisibleItems.push(draggedItem);
       }
     } else { // targetContainer === 'hidden'
       if (targetIndex >= 0) {
-        console.log('Inserting into hidden at index:', targetIndex);
         newHiddenItems.splice(targetIndex, 0, draggedItem);
       } else {
-        console.log('No target index, pushing to hidden end');
         newHiddenItems.push(draggedItem);
       }
     }
-
-    console.log('Final - visible items:', newVisibleItems.map(i => i.id));
-    console.log('Final - hidden items:', newHiddenItems.map(i => i.id));
-    console.log('=== DRAG DROP END ===');
 
     // Update local state
     localVisibleItems = newVisibleItems;
