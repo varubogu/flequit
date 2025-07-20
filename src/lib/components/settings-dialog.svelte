@@ -5,6 +5,7 @@
   import Input from '$lib/components/ui/input.svelte';
   import { themeStore } from '$lib/stores/theme.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
+  import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
   import { ArrowLeft, Search, RotateCcw } from 'lucide-svelte';
   import SettingsDraggableItems from './settings-draggable-items.svelte';
   import ConfirmDialog from './confirm-dialog.svelte';
@@ -33,6 +34,7 @@
   let settings = $state({
     // Basic Settings
     weekStart: 'sunday',
+    timezone: settingsStore.timezone,
     dueDateButtons: {
       overdue: false,
       today: true,
@@ -100,10 +102,16 @@
     themeStore.setTheme(settings.theme);
   });
 
+  // Watch for timezone changes and apply immediately
+  $effect(() => {
+    settingsStore.setTimezone(settings.timezone);
+  });
+
   // Initialize settings from store when dialog opens
   $effect(() => {
     if (open) {
       settings.theme = themeStore.theme;
+      settings.timezone = settingsStore.timezone;
     }
   });
 </script>
@@ -176,6 +184,19 @@
                       <option value="sunday">Sunday</option>
                       <option value="monday">Monday</option>
                     </select>
+                  </div>
+
+                  <!-- Timezone -->
+                  <div>
+                    <label for="timezone-select" class="text-sm font-medium">Timezone</label>
+                    <select id="timezone-select" bind:value={settings.timezone} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
+                      {#each AVAILABLE_TIMEZONES as tz}
+                        <option value={tz.value}>{tz.label}</option>
+                      {/each}
+                    </select>
+                    <p class="mt-1 text-xs text-muted-foreground">
+                      Current effective timezone: {settingsStore.effectiveTimezone}
+                    </p>
                   </div>
 
                   <!-- Custom Due Days -->
