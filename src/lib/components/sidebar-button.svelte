@@ -53,7 +53,8 @@
             class={item.destructive ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : ""}
           >
             {#if item.icon}
-              <svelte:component this={item.icon} class="h-4 w-4 mr-2" />
+              {@const IconComponent = item.icon}
+              <IconComponent class="h-4 w-4 mr-2" />
             {/if}
             <span>{item.label}</span>
           </ContextMenu.Item>
