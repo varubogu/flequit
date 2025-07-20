@@ -133,13 +133,36 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(event: CustomEvent<{ date: string }>) {
-    const newDate = event.detail.date;
-    taskStore.updateTask(task.id, { ...task, due_date: newDate });
+  function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
+    const { date, range, isRangeDate } = event.detail;
+    
+    if (isRangeDate && range) {
+      taskStore.updateTask(task.id, { 
+        ...task, 
+        start_date: new Date(range.start),
+        end_date: new Date(range.end),
+        due_date: new Date(range.end),
+        is_range_date: true
+      });
+    } else {
+      taskStore.updateTask(task.id, { 
+        ...task, 
+        due_date: new Date(date),
+        start_date: undefined,
+        end_date: undefined,
+        is_range_date: false
+      });
+    }
   }
 
   function handleDateClear() {
-    taskStore.updateTask(task.id, { ...task, due_date: null });
+    taskStore.updateTask(task.id, { 
+      ...task, 
+      due_date: null,
+      start_date: undefined,
+      end_date: undefined,
+      is_range_date: false
+    });
   }
 
   function handleDatePickerClose() {
@@ -164,19 +187,51 @@
     showSubTaskDatePicker = true;
   }
 
-  function handleSubTaskDateChange(event: CustomEvent<{ date: string }>) {
+  function handleSubTaskDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     if (!editingSubTaskId) return;
     
-    const newDate = event.detail.date;
-    // TODO: Implement subtask date update
-    console.log('Update subtask date:', editingSubTaskId, newDate);
+    const { date, range, isRangeDate } = event.detail;
+    const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
+    if (subTaskIndex === -1) return;
+
+    const updatedSubTasks = [...task.sub_tasks];
+    if (isRangeDate && range) {
+      updatedSubTasks[subTaskIndex] = {
+        ...updatedSubTasks[subTaskIndex],
+        start_date: new Date(range.start),
+        end_date: new Date(range.end),
+        due_date: new Date(range.end),
+        is_range_date: true
+      };
+    } else {
+      updatedSubTasks[subTaskIndex] = {
+        ...updatedSubTasks[subTaskIndex],
+        due_date: new Date(date),
+        start_date: undefined,
+        end_date: undefined,
+        is_range_date: false
+      };
+    }
+    
+    taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
   }
 
   function handleSubTaskDateClear() {
     if (!editingSubTaskId) return;
     
-    // TODO: Implement subtask date clear
-    console.log('Clear subtask date:', editingSubTaskId);
+    const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
+    if (subTaskIndex === -1) return;
+
+    const updatedSubTasks = [...task.sub_tasks];
+    updatedSubTasks[subTaskIndex] = {
+      ...updatedSubTasks[subTaskIndex],
+      due_date: undefined,
+      start_date: undefined,
+      end_date: undefined,
+      is_range_date: false
+    };
+    
+    taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
   }
 
   function handleSubTaskDatePickerClose() {
@@ -365,6 +420,7 @@
   show={showDatePicker}
   currentDate={task.due_date}
   position={datePickerPosition}
+  isRangeDate={task.is_range_date || false}
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
@@ -375,6 +431,7 @@
   show={showSubTaskDatePicker}
   currentDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.due_date : ''}
   position={subTaskDatePickerPosition}
+  isRangeDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.is_range_date || false : false}
   onchange={handleSubTaskDateChange}
   onclear={handleSubTaskDateClear}
   onclose={handleSubTaskDatePickerClose}

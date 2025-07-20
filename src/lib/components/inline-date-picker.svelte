@@ -9,16 +9,17 @@
     show: boolean;
     currentDate?: string;
     position?: { x: number; y: number };
+    isRangeDate?: boolean;
   }
 
-  let { show = false, currentDate = '', position = { x: 0, y: 0 } }: Props = $props();
+  let { show = false, currentDate = '', position = { x: 0, y: 0 }, isRangeDate = false }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
   // Common end date/time (used for both single mode and range end)
   let endDate = $state(currentDate ? new Date(currentDate).toISOString().split('T')[0] : '');
   let endTime = $state(currentDate ? new Date(currentDate).toTimeString().split(' ')[0] : '00:00:00');
   
-  let useRangeMode = $state(false);
+  let useRangeMode = $state(isRangeDate);
   let startValue = $state<CalendarDate | undefined>(undefined);
   let endValue = $state<CalendarDate | undefined>(undefined);
   let rangeValue = $state<{start: CalendarDate | undefined, end: CalendarDate | undefined}>({start: undefined, end: undefined});
@@ -28,7 +29,7 @@
   let startTime = $state('00:00:00');
 
   const dispatch = createEventDispatcher<{
-    change: { date: string; dateTime: string; range?: { start: string; end: string } };
+    change: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean };
     close: void;
     clear: void;
   }>();
@@ -83,7 +84,7 @@
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
       
-      dispatch('change', { date, dateTime });
+      dispatch('change', { date, dateTime, isRangeDate: false });
       dispatch('close');
     }
   }
@@ -98,7 +99,8 @@
         range: { 
           start: `${start}T${startTime}`, 
           end: `${end}T${endTime}` 
-        } 
+        },
+        isRangeDate: true
       });
       dispatch('close');
     }
@@ -133,7 +135,8 @@
         range: { 
           start: `${startDate}T${startTime}`, 
           end: `${endDate}T${endTime}` 
-        } 
+        },
+        isRangeDate: true
       });
       dispatch('close');
     }
@@ -169,7 +172,13 @@
     <!-- Range Mode Switch -->
     <div class="flex items-center justify-between mb-3">
       <span class="text-sm text-muted-foreground">範囲</span>
-      <Switch bind:checked={useRangeMode} />
+      <Switch bind:checked={useRangeMode} onCheckedChange={(checked) => {
+        dispatch('change', { 
+          date: endDate || '', 
+          dateTime: `${endDate || ''}T${endTime}`,
+          isRangeDate: checked
+        });
+      }} />
       <span class="text-sm text-muted-foreground"></span>
     </div>
 

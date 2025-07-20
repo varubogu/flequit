@@ -9,6 +9,7 @@ export interface Task {
   start_date?: Date;
   end_date?: Date;
   due_date?: Date;
+  is_range_date?: boolean;  // 期日が範囲選択かどうか
   recurrence_rule?: string;
   order_index: number;
   is_archived: boolean;
@@ -51,6 +52,7 @@ export interface SubTask {
   start_date?: Date;
   end_date?: Date;
   due_date?: Date;
+  is_range_date?: boolean;  // 期日が範囲選択かどうか
   recurrence_rule?: string;
   order_index: number;
   created_at: Date;
