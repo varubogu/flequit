@@ -83,7 +83,7 @@
     };
   });
 
-  // Auto-save when date changes (single mode)
+  // Auto-save when date changes (single mode) - NO AUTO CLOSE
   function handleDateChange() {
     if (endDate) {
       const date = endDate;
@@ -93,9 +93,15 @@
       onchange?.(changeEvent);
       dispatch('change', { date, dateTime, isRangeDate: false });
       
-      onclose?.();
-      dispatch('close');
+      // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
+  }
+
+  // Validate date format (YYYY-MM-DD)
+  function isValidDate(dateString: string): boolean {
+    if (!dateString || dateString.length !== 10) return false;
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date.getTime()) && dateString === date.toISOString().split('T')[0];
   }
 
   function handleRangeChange() {
@@ -116,6 +122,7 @@
       onchange?.(changeEvent);
       dispatch('change', eventDetail);
       
+      // CLOSE on range calendar selection (this is intentional)
       onclose?.();
       dispatch('close');
     }
@@ -124,7 +131,17 @@
   function handleCalendarChange() {
     if (calendarValue) {
       endDate = calendarValue.toString();
-      handleDateChange();
+      
+      // Only close when selecting from calendar component
+      const date = endDate;
+      const dateTime = `${endDate}T${endTime}`;
+      
+      const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
+      onchange?.(changeEvent);
+      dispatch('change', { date, dateTime, isRangeDate: false });
+      
+      onclose?.();
+      dispatch('close');
     }
   }
 
@@ -143,14 +160,15 @@
   });
 
   function handleRangeInputChange() {
-    if (startDate && endDate) {
+    if (startDate || endDate) {
+      // Just update the values, don't close
       const eventDetail = { 
-        date: startDate, 
-        dateTime: `${startDate}T${startTime}`,
-        range: { 
+        date: startDate || endDate || '', 
+        dateTime: `${startDate || endDate || ''}T${startTime}`,
+        range: startDate && endDate ? { 
           start: `${startDate}T${startTime}`, 
           end: `${endDate}T${endTime}` 
-        },
+        } : undefined,
         isRangeDate: true
       };
       
@@ -158,8 +176,7 @@
       onchange?.(changeEvent);
       dispatch('change', eventDetail);
       
-      onclose?.();
-      dispatch('close');
+      // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
   }
 
@@ -214,7 +231,13 @@
         <input
           type="date"
           bind:value={endDate}
-          onchange={useRangeMode ? handleRangeInputChange : handleDateChange}
+          oninput={(e) => {
+            if (useRangeMode) {
+              handleRangeInputChange();
+            } else {
+              handleDateChange();
+            }
+          }}
           onkeydown={(e) => {
             // Allow normal typing and navigation
             if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
@@ -233,7 +256,13 @@
           type="time"
           step="1"
           bind:value={endTime}
-          onchange={useRangeMode ? handleRangeInputChange : handleDateChange}
+          oninput={(e) => {
+            if (useRangeMode) {
+              handleRangeInputChange();
+            } else {
+              handleDateChange();
+            }
+          }}
           class="px-3 py-2 text-sm border border-input rounded-md bg-background"
         />
       </div>
@@ -244,7 +273,7 @@
           <input
             type="date"
             bind:value={startDate}
-            onchange={handleRangeInputChange}
+            oninput={handleRangeInputChange}
             onkeydown={(e) => {
               // Allow normal typing and navigation
               if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' || 
@@ -263,7 +292,7 @@
             type="time"
             step="1"
             bind:value={startTime}
-            onchange={handleRangeInputChange}
+            oninput={handleRangeInputChange}
             class="px-3 py-2 text-sm border border-input rounded-md bg-background"
           />
         </div>
@@ -283,7 +312,9 @@
               endDate = v.end.toString();
               rangeValue.end = v.end;
             }
-            if (v?.start && v?.end) handleRangeChange();
+            if (v?.start && v?.end) {
+              handleRangeChange();
+            }
           }}
           class="w-full"
         />
@@ -295,7 +326,7 @@
             if (v) {
               calendarValue = v;
               endDate = v.toString();
-              handleDateChange();
+              handleCalendarChange();
             }
           }}
           class="w-full"
