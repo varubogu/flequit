@@ -1,18 +1,18 @@
 <script lang="ts">
-  import type { TaskWithSubTasks } from "$lib/types/task";
+  import type { TaskWithSubTasks, SubTask } from "$lib/types/task";
   import { taskStore } from "$lib/stores/tasks.svelte";
   import {
-    getStatusIcon,
     getPriorityColor,
     calculateSubTaskProgress,
   } from "$lib/utils/task-utils";
   import { TaskService } from "$lib/services/task-service";
-  import Badge from "$lib/components/ui/badge.svelte";
   import Button from "$lib/components/ui/button.svelte";
   import { contextMenuStore, type MenuItem } from "$lib/stores/context-menu.svelte";
   import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
   import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
-    import DueDate from "./due-date.svelte";
+  import TaskStatusToggle from './task-status-toggle.svelte';
+  import TaskContent from './task-content.svelte';
+  import SubTaskList from './sub-task-list.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -41,22 +41,21 @@
     TaskService.selectTask(task.id);
   }
 
-  function handleStatusToggle(event: Event) {
-    event.stopPropagation();
+  function handleStatusToggle() {
     TaskService.toggleTaskStatus(task.id);
   }
 
-  function handleSubTaskToggle(event: Event, subTaskId: string) {
+  function handleSubTaskToggle(event: MouseEvent, subTaskId: string) {
     event.stopPropagation();
     TaskService.toggleSubTaskStatus(task, subTaskId);
   }
 
-  function handleSubTaskClick(event: Event, subTaskId: string) {
+  function handleSubTaskClick(event: MouseEvent, subTaskId: string) {
     event.stopPropagation();
     TaskService.selectSubTask(subTaskId);
   }
 
-  function toggleSubTasksAccordion(event: Event) {
+  function toggleSubTasksAccordion(event: MouseEvent) {
     event.stopPropagation();
     showSubTasks = !showSubTasks;
   }
@@ -105,7 +104,7 @@
     contextMenuStore.open(event.clientX, event.clientY, menu);
   }
 
-  function handleSubTaskContextMenu(event: MouseEvent, subTask: any) {
+  function handleSubTaskContextMenu(event: MouseEvent, subTask: SubTask) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -191,7 +190,7 @@
   let subTaskDatePickerPosition = $state({ x: 0, y: 0 });
   let editingSubTaskId = $state<string | null>(null);
 
-  function handleSubTaskDueDateClick(event: MouseEvent, subTask: any) {
+  function handleSubTaskDueDateClick(event: MouseEvent, subTask: SubTask) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -299,121 +298,30 @@
     oncontextmenu={handleTaskContextMenu}
   >
     <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
-      <!-- Status Toggle -->
-      <Button
-        variant="ghost"
-        size="icon"
-        class="text-3xl hover:scale-110 transition h-12 w-12 min-h-[48px] min-w-[48px] "
-        onclick={(e) => e && handleStatusToggle(e)}
-        title="Toggle completion status"
-      >
-        {getStatusIcon(task.status)}
-      </Button>
-
-      <!-- Task Content -->
-      <div class="flex-1 min-w-0 overflow-hidden">
-        <!-- Title and Due Date Row -->
-        <div class="flex items-start gap-3 w-full min-w-0">
-          <h3
-            class="truncate font-medium text-base leading-tight flex-1 min-w-0 overflow-hidden"
-            class:line-through={task.status === "completed"}
-            class:text-muted-foreground={task.status === "completed"}
-            title={task.title}
-            style="text-overflow: ellipsis; white-space: nowrap;"
-          >
-            {task.title}
-          </h3>
-          <DueDate
-            task={task}
-            datePickerPosition={datePickerPosition}
-            showDatePicker={showDatePicker}
-            handleDueDateClick={handleDueDateClick}
-          />
-        </div>
-
-        {#if task.description}
-          <p
-            class="text-sm text-muted-foreground mt-1 block w-full min-w-0"
-            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
-          >
-            {task.description}
-          </p>
-        {/if}
-
-        <!-- Sub-tasks preview -->
-        {#if task.sub_tasks.length > 0}
-          <div class="mt-2">
-            <div class="text-xs text-muted-foreground">
-              {completedSubTasks} / {task.sub_tasks.length} subtasks completed
-            </div>
-            <div class="w-full bg-muted rounded-full h-1.5 mt-1">
-              <div
-                class="bg-primary h-1.5 rounded-full transition-all duration-300"
-                style="width: {subTaskProgress}%"
-              ></div>
-            </div>
-          </div>
-        {/if}
-
-        <!-- Tags -->
-        {#if task.tags.length > 0}
-          <div class="flex flex-wrap gap-1 mt-2">
-            {#each task.tags as tag}
-              <Badge
-                variant="outline"
-                class="text-xs"
-                style="border-color: {tag.color}; color: {tag.color};"
-              >
-                {tag.name}
-              </Badge>
-            {/each}
-          </div>
-        {/if}
-      </div>
+      <TaskStatusToggle status={task.status} on:toggle={handleStatusToggle} />
+      <TaskContent
+        {task}
+        {completedSubTasks}
+        {subTaskProgress}
+        {datePickerPosition}
+        {showDatePicker}
+        {handleDueDateClick}
+      />
     </div>
   </Button>
 </div>
 
 <!-- Sub-tasks Accordion -->
 {#if task.sub_tasks.length > 0 && showSubTasks}
-  <div class="ml-10 mt-2 space-y-2">
-    {#each task.sub_tasks as subTask (subTask.id)}
-      <Button
-        variant="ghost"
-        class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
-        subTask.id
-          ? 'bg-primary/10 border-primary'
-          : ''}"
-        onclick={(e) => e && handleSubTaskClick(e, subTask.id)}
-        oncontextmenu={(e) => handleSubTaskContextMenu(e, subTask)}
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="text-lg h-6 w-6 min-h-[24px] min-w-[24px]"
-          onclick={(e) => e && handleSubTaskToggle(e, subTask.id)}
-          title="Toggle subtask completion"
-        >
-          {subTask.status === "completed" ? "✅" : "⚪"}
-        </Button>
-        <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
-          <span
-            class="text-sm font-medium truncate"
-            class:line-through={subTask.status === "completed"}
-            class:text-muted-foreground={subTask.status === "completed"}
-          >
-            {subTask.title}
-          </span>
-          <DueDate
-            task={subTask}
-            datePickerPosition={subTaskDatePickerPosition}
-            showDatePicker={showSubTaskDatePicker}
-            handleDueDateClick={handleSubTaskDueDateClick}
-          />
-        </div>
-      </Button>
-    {/each}
-  </div>
+  <SubTaskList
+    {task}
+    {subTaskDatePickerPosition}
+    {showSubTaskDatePicker}
+    {handleSubTaskClick}
+    {handleSubTaskToggle}
+    {handleSubTaskContextMenu}
+    {handleSubTaskDueDateClick}
+  />
 {/if}
 
 <!-- Inline Date Picker -->
