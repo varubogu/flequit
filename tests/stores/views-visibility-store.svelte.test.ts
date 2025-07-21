@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { viewsVisibilityStore, type ViewItem } from '../../src/lib/stores/views-visibility.svelte.ts';
+import { viewsVisibilityStore, type ViewItem } from '../../src/lib/stores/views-visibility.svelte';
 
 // Mock localStorage
 const localStorageMock = {
