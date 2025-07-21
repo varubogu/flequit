@@ -3,12 +3,12 @@
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { themeStore } from '$lib/stores/theme.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
   import { ArrowLeft, Search, RotateCcw } from 'lucide-svelte';
   import SettingsDraggableItems from './settings-draggable-items.svelte';
   import ConfirmDialog from './confirm-dialog.svelte';
+  import { setMode, systemPrefersMode, userPrefersMode } from 'mode-watcher';
 
   interface Props {
     open?: boolean;
@@ -49,7 +49,6 @@
     customDueDays: [] as number[],
 
     // Appearance Settings
-    theme: themeStore.theme,
     font: 'default',
     fontSize: 13,
     fontColor: 'default',
@@ -97,11 +96,6 @@
     showResetConfirm = false;
   }
 
-  // Watch for theme changes and apply immediately
-  $effect(() => {
-    themeStore.setTheme(settings.theme);
-  });
-
   // Watch for timezone changes and apply immediately
   $effect(() => {
     settingsStore.setTimezone(settings.timezone);
@@ -110,7 +104,6 @@
   // Initialize settings from store when dialog opens
   $effect(() => {
     if (open) {
-      settings.theme = themeStore.theme;
       settings.timezone = settingsStore.timezone;
     }
   });
@@ -240,14 +233,16 @@
                   <!-- Theme -->
                   <div>
                     <label for="theme-select" class="text-sm font-medium">Theme</label>
-                    <select id="theme-select" bind:value={settings.theme} class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm">
-                      <option value="default">Default (System: {themeStore.systemTheme})</option>
+                    <select
+                      id="theme-select"
+                      class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+                      value={userPrefersMode.current}
+                      onchange={(e) => setMode(e.currentTarget.value as any)}
+                    >
+                      <option value="system">System ({systemPrefersMode.current})</option>
                       <option value="light">Light</option>
                       <option value="dark">Dark</option>
                     </select>
-                    <p class="mt-1 text-xs text-muted-foreground">
-                      Current: {themeStore.effectiveTheme}
-                    </p>
                   </div>
 
                   <!-- Font -->
