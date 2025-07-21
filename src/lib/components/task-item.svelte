@@ -7,9 +7,9 @@
   } from "$lib/utils/task-utils";
   import { TaskService } from "$lib/services/task-service";
   import Button from "$lib/components/ui/button.svelte";
-  import { contextMenuStore, type MenuItem } from "$lib/stores/context-menu.svelte";
+  import { contextMenuStore } from "$lib/stores/context-menu.svelte";
   import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
-  import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
+  import { ChevronDown, ChevronRight } from "lucide-svelte";
   import TaskStatusToggle from './task-status-toggle.svelte';
   import TaskContent from './task-content.svelte';
   import SubTaskList from './sub-task-list.svelte';
@@ -55,8 +55,8 @@
     TaskService.selectSubTask(subTaskId);
   }
 
-  function toggleSubTasksAccordion(event: MouseEvent) {
-    event.stopPropagation();
+  function toggleSubTasksAccordion(event?: Event) {
+    event?.stopPropagation();
     showSubTasks = !showSubTasks;
   }
 
@@ -81,13 +81,11 @@
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Task',
-        action: handleEdit,
-        icon: Pencil
+        action: handleEdit
       },
       {
         label: 'Set Priority',
-        action: () => setPriority,
-        icon: Flag
+        action: () => setPriority
       },
       {
         label: '',
@@ -96,8 +94,7 @@
       },
       {
         label: 'Delete Task',
-        action: handleDelete,
-        icon: Trash2
+        action: handleDelete
       }
     ]);
   }
@@ -109,17 +106,16 @@
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Subtask',
-        action: () => console.log('Edit subtask:', subTask.title),
-        icon: Pencil
+        action: () => console.log('Edit subtask:', subTask.title)
       },
       {
         label: '',
         action: () => console.log('Priority submenu would open'),
-        separator: true },
+        separator: true
+      },
       {
         label: 'Delete Subtask',
-        action: () => console.log('Delete subtask:', subTask.title),
-        icon: Trash2
+        action: () => console.log('Delete subtask:', subTask.title)
       }
     ]);
   }
@@ -201,61 +197,49 @@
     showSubTaskDatePicker = true;
   }
 
-  function handleSubTaskDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
+  function handleSubTaskDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
     if (!editingSubTaskId) return;
 
-    const { dateTime, range, isRangeDate } = event.detail;
+    const { dateTime, range, isRangeDate } = data;
     const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
-    const updatedSubTasks = [...task.sub_tasks];
     if (isRangeDate) {
       if (range) {
         // Range mode with both start and end dates
-        updatedSubTasks[subTaskIndex] = {
-          ...updatedSubTasks[subTaskIndex],
+        taskStore.updateSubTask(editingSubTaskId, {
           start_date: new Date(range.start),
           end_date: new Date(range.end),
           is_range_date: true
-        };
+        });
       } else {
         // Range mode switched on, but no range data yet - keep current end_date as both start and end
-        const currentEndDate = updatedSubTasks[subTaskIndex].end_date || new Date(dateTime);
-        updatedSubTasks[subTaskIndex] = {
-          ...updatedSubTasks[subTaskIndex],
+        const subTask = task.sub_tasks[subTaskIndex];
+        const currentEndDate = subTask.end_date || new Date(dateTime);
+        taskStore.updateSubTask(editingSubTaskId, {
           start_date: currentEndDate,
           end_date: currentEndDate,
           is_range_date: true
-        };
+        });
       }
     } else {
       // Single mode
-      updatedSubTasks[subTaskIndex] = {
-        ...updatedSubTasks[subTaskIndex],
+      taskStore.updateSubTask(editingSubTaskId, {
         end_date: new Date(dateTime),
         start_date: undefined,
         is_range_date: false
-      };
+      });
     }
-
-    taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
   }
 
   function handleSubTaskDateClear() {
     if (!editingSubTaskId) return;
 
-    const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
-    if (subTaskIndex === -1) return;
-
-    const updatedSubTasks = [...task.sub_tasks];
-    updatedSubTasks[subTaskIndex] = {
-      ...updatedSubTasks[subTaskIndex],
+    taskStore.updateSubTask(editingSubTaskId, {
       start_date: undefined,
       end_date: undefined,
       is_range_date: false
-    };
-
-    taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
+    });
   }
 
   function handleSubTaskDatePickerClose() {
@@ -285,28 +269,34 @@
   {/if}
 
   <!-- Main Task Button -->
-  <Button
-    variant="ghost"
-    class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
-      task.priority,
-    )} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask
-      ? 'selected'
-      : ''} min-w-0"
-    onclick={handleTaskClick}
+  <div
+    class="flex-1"
+    role="button"
+    tabindex="0"
     oncontextmenu={handleTaskContextMenu}
   >
-    <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
-      <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
-      <TaskContent
-        {task}
-        {completedSubTasks}
-        {subTaskProgress}
-        {datePickerPosition}
-        {showDatePicker}
-        {handleDueDateClick}
-      />
-    </div>
-  </Button>
+    <Button
+      variant="ghost"
+      class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
+        task.priority,
+      )} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask
+        ? 'selected'
+        : ''} min-w-0 w-full"
+      onclick={handleTaskClick}
+    >
+      <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
+        <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
+        <TaskContent
+          {task}
+          {completedSubTasks}
+          {subTaskProgress}
+          {datePickerPosition}
+          {showDatePicker}
+          {handleDueDateClick}
+        />
+      </div>
+    </Button>
+  </div>
 </div>
 
 <!-- Sub-tasks Accordion -->
