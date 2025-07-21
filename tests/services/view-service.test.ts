@@ -239,6 +239,152 @@ test("ViewService.handleViewChange: clears task selection", () => {
   expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
 });
 
+// Additional tests for better coverage
+test("ViewService.getTasksForView: returns tomorrow tasks for 'tomorrow' view", () => {
+  // Create a task for tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(12, 0, 0, 0);
+  
+  const tomorrowTask = {
+    ...mockTasks[0],
+    id: 'tomorrow-task',
+    end_date: tomorrow,
+    status: 'not_started' as const
+  };
+  
+  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, tomorrowTask]);
+  
+  const result = ViewService.getTasksForView('tomorrow');
+  
+  expect(Array.isArray(result)).toBe(true);
+});
+
+test("ViewService.getTasksForView: returns next 3 days tasks for 'next3days' view", () => {
+  const twoDaysLater = new Date();
+  twoDaysLater.setDate(twoDaysLater.getDate() + 2);
+  
+  const next3DaysTask = {
+    ...mockTasks[0],
+    id: 'next3days-task',
+    end_date: twoDaysLater,
+    status: 'not_started' as const
+  };
+  
+  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, next3DaysTask]);
+  
+  const result = ViewService.getTasksForView('next3days');
+  
+  expect(Array.isArray(result)).toBe(true);
+});
+
+test("ViewService.getTasksForView: returns next week tasks for 'nextweek' view", () => {
+  const fiveDaysLater = new Date();
+  fiveDaysLater.setDate(fiveDaysLater.getDate() + 5);
+  
+  const nextWeekTask = {
+    ...mockTasks[0],
+    id: 'nextweek-task',
+    end_date: fiveDaysLater,
+    status: 'not_started' as const
+  };
+  
+  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, nextWeekTask]);
+  
+  const result = ViewService.getTasksForView('nextweek');
+  
+  expect(Array.isArray(result)).toBe(true);
+});
+
+test("ViewService.getTasksForView: returns this month tasks for 'thismonth' view", () => {
+  const endOfMonth = new Date();
+  endOfMonth.setDate(endOfMonth.getDate() + 10);
+  
+  const thisMonthTask = {
+    ...mockTasks[0],
+    id: 'thismonth-task',
+    end_date: endOfMonth,
+    status: 'not_started' as const
+  };
+  
+  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, thisMonthTask]);
+  
+  const result = ViewService.getTasksForView('thismonth');
+  
+  expect(Array.isArray(result)).toBe(true);
+});
+
+test("ViewService.getTasksForView: returns project tasks when project selected", () => {
+  mockTaskStore.selectedProjectId = 'project-1';
+  mockTaskStore.selectedListId = null;
+  
+  const result = ViewService.getTasksForView('project');
+  
+  expect(Array.isArray(result)).toBe(true);
+  expect(result).toEqual([mockTasks[0], mockTasks[1], mockTasks[2]]);
+});
+
+test("ViewService.getTasksForView: returns list tasks when list selected", () => {
+  mockTaskStore.selectedProjectId = 'project-1';
+  mockTaskStore.selectedListId = 'list-1';
+  
+  const result = ViewService.getTasksForView('project');
+  
+  expect(result).toEqual([mockTasks[0], mockTasks[1]]);
+});
+
+test("ViewService.getTasksForView: returns empty array when no project selected for project view", () => {
+  mockTaskStore.selectedProjectId = null;
+  
+  const result = ViewService.getTasksForView('project');
+  
+  expect(result).toEqual([]);
+});
+
+test("ViewService.getViewTitle: returns list name when list selected in project view", () => {
+  mockTaskStore.selectedProjectId = 'project-1';
+  mockTaskStore.selectedListId = 'list-1';
+  
+  const result = ViewService.getViewTitle('project');
+  
+  expect(result).toBe('List A');
+});
+
+test("ViewService.getViewTitle: returns project name when only project selected", () => {
+  mockTaskStore.selectedProjectId = 'project-1';
+  mockTaskStore.selectedListId = null;
+  
+  const result = ViewService.getViewTitle('project');
+  
+  expect(result).toBe('Project Alpha');
+});
+
+test("ViewService.getViewTitle: returns 'Project' when no project selected", () => {
+  mockTaskStore.selectedProjectId = null;
+  
+  const result = ViewService.getViewTitle('project');
+  
+  expect(result).toBe('Project');
+});
+
+test("ViewService.handleViewChange: clears project/list selection for non-project views", () => {
+  ViewService.handleViewChange('today');
+  
+  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockTaskStore.selectProject).toHaveBeenCalledWith(null);
+  expect(mockTaskStore.selectList).toHaveBeenCalledWith(null);
+});
+
+test("ViewService.handleViewChange: does not clear project/list selection for project view", () => {
+  vi.clearAllMocks();
+  
+  ViewService.handleViewChange('project');
+  
+  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockTaskStore.selectProject).not.toHaveBeenCalled();
+  expect(mockTaskStore.selectList).not.toHaveBeenCalled();
+});
+
 test("ViewService.handleViewChange: clears project/list selection for non-project views", () => {
   ViewService.handleViewChange('all');
   expect(mockTaskStore.selectProject).toHaveBeenCalledWith(null);
