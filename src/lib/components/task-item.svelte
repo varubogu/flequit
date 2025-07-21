@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from "$lib/types/task";
   import { taskStore } from "$lib/stores/tasks.svelte";
-  import { formatDate, getDueDateClass } from "$lib/utils/date-utils";
   import {
     getStatusIcon,
     getPriorityColor,
@@ -10,7 +9,7 @@
   import { TaskService } from "$lib/services/task-service";
   import Badge from "$lib/components/ui/badge.svelte";
   import Button from "$lib/components/ui/button.svelte";
-  import { contextMenuStore } from "$lib/stores/context-menu.svelte";
+  import { contextMenuStore, type MenuItem } from "$lib/stores/context-menu.svelte";
   import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
   import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
     import DueDate from "./due-date.svelte";
@@ -62,10 +61,8 @@
     showSubTasks = !showSubTasks;
   }
 
-  // --- Context Menu Actions ---
   function handleEdit() {
     console.log(`Editing task: ${task.title}`);
-    // TODO: Implement edit logic
   }
 
   function handleDelete() {
@@ -82,7 +79,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    contextMenuStore.open(event.clientX, event.clientY, [
+    const menu: MenuItem[] = [
       {
         label: 'Edit Task',
         action: handleEdit,
@@ -90,16 +87,22 @@
       },
       {
         label: 'Set Priority',
-        action: () => console.log('Priority submenu would open'),
+        action: () => setPriority,
         icon: Flag
       },
-      { separator: true },
+      {
+        label: '',
+        action: () => console.log('Priority submenu would open'),
+        separator: true
+      },
       {
         label: 'Delete Task',
         action: handleDelete,
         icon: Trash2
       }
-    ]);
+    ];
+
+    contextMenuStore.open(event.clientX, event.clientY, menu);
   }
 
   function handleSubTaskContextMenu(event: MouseEvent, subTask: any) {
@@ -112,7 +115,10 @@
         action: () => console.log('Edit subtask:', subTask.title),
         icon: Pencil
       },
-      { separator: true },
+      {
+        label: '',
+        action: () => console.log('Priority submenu would open'),
+        separator: true },
       {
         label: 'Delete Subtask',
         action: () => console.log('Delete subtask:', subTask.title),
