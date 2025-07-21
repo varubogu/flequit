@@ -9,18 +9,16 @@
   }
 
   let { status, ontoggle }: Props = $props();
-
-  function handleClick(event: MouseEvent) {
-    event.stopPropagation();
-    ontoggle(event);
-  }
 </script>
 
 <Button
   variant="ghost"
   size="icon"
   class="text-3xl hover:scale-110 transition h-12 w-12 min-h-[48px] min-w-[48px]"
-  onclick={handleClick}
+  onclick={(e?: Event) => {
+    e?.stopPropagation();
+    ontoggle(e as MouseEvent);
+  }}
   title="Toggle completion status"
 >
   {getStatusIcon(status)}
