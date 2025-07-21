@@ -34,6 +34,7 @@ Tauri製のタスク管理アプリ。
 
 # ワークフロー
 - コード変更後は「bun check」を実行し、単体テストも実行する
+- `playwright test`と`bun run test:e2e`はAI側で終了を検知できないので使用禁止です。
 
 ## 使用コマンド
 - `bun check` bunのチェッカーを使用（コード変更後に実施）
