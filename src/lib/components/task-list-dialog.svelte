@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/ui/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
@@ -10,16 +9,13 @@
     mode: 'add' | 'edit';
     title?: string;
     initialName?: string;
+    onsave?: (data: { name: string }) => void;
+    onclose?: () => void;
   }
 
-  let { open = false, mode, title = '', initialName = '' }: Props = $props();
+  let { open = false, mode, title = '', initialName = '', onsave, onclose }: Props = $props();
 
   let name = $state(initialName);
-
-  const dispatch = createEventDispatcher<{
-    save: { name: string };
-    close: void;
-  }>();
 
   $effect(() => {
     if (open) {
@@ -29,13 +25,13 @@
 
   function handleSave() {
     if (name.trim()) {
-      dispatch('save', { name: name.trim() });
+      onsave?.({ name: name.trim() });
       handleClose();
     }
   }
 
   function handleClose() {
-    dispatch('close');
+    onclose?.();
   }
 
   function handleKeydown(event: KeyboardEvent) {

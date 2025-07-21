@@ -45,13 +45,13 @@
     TaskService.toggleTaskStatus(task.id);
   }
 
-  function handleSubTaskToggle(event: MouseEvent, subTaskId: string) {
-    event.stopPropagation();
+  function handleSubTaskToggle(event: Event | undefined, subTaskId: string) {
+    event?.stopPropagation();
     TaskService.toggleSubTaskStatus(task, subTaskId);
   }
 
-  function handleSubTaskClick(event: MouseEvent, subTaskId: string) {
-    event.stopPropagation();
+  function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
+    event?.stopPropagation();
     TaskService.selectSubTask(subTaskId);
   }
 
@@ -71,7 +71,13 @@
   function setPriority(priority: 'low' | 'medium' | 'high' | 'urgent') {
     console.log(`Setting priority to ${priority} for task: ${task.title}`);
     // TODO: Implement priority change logic
-    taskStore.updateTask(task.id, { ...task, priority });
+    const priorityMap: Record<'low' | 'medium' | 'high' | 'urgent', number> = {
+      'low': 1,
+      'medium': 2,
+      'high': 3,
+      'urgent': 4
+    };
+    taskStore.updateTask(task.id, { ...task, priority: priorityMap[priority] });
   }
 
   function handleTaskContextMenu(event: MouseEvent) {

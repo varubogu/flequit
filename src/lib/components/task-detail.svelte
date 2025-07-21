@@ -76,11 +76,11 @@
   }
 
   // Date picker handlers
-  function handleDueDateClick(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+  function handleDueDateClick(event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
     
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const rect = event?.target ? (event.target as HTMLElement).getBoundingClientRect() : { left: 0, bottom: 0 };
     datePickerPosition = {
       x: Math.min(rect.left, window.innerWidth - 300),
       y: rect.bottom + 8
@@ -88,8 +88,8 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
-    const { dateTime, range, isRangeDate } = event.detail;
+  function handleDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
+    const { dateTime, range, isRangeDate } = data;
     
     if (isRangeDate) {
       if (range) {
@@ -167,7 +167,7 @@
   }
   
   function handleGoToParentTask() {
-    if (isSubTask && currentItem) {
+    if (isSubTask && currentItem && 'task_id' in currentItem) {
       TaskService.selectTask(currentItem.task_id);
     }
   }
@@ -187,7 +187,6 @@
             class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
             bind:value={editForm.title}
             placeholder={isSubTask ? "Sub-task title" : "Task title"}
-            oninput={handleFormChange}
           />
         </div>
         <div class="flex gap-2 ml-4">
@@ -261,7 +260,6 @@
           class="w-full min-h-24"
           bind:value={editForm.description}
           placeholder={isSubTask ? "Sub-task description (optional)" : "Task description"}
-          oninput={handleFormChange}
         />
       </div>
 
@@ -281,7 +279,7 @@
                   size="icon"
                   class="text-lg h-8 w-8"
                   onclick={(e) => {
-                    e.stopPropagation();
+                    e?.stopPropagation();
                     handleSubTaskToggle(subTask.id);
                   }}
                   aria-label="Toggle subtask completion"
@@ -330,7 +328,7 @@
         <div>Created: {formatDateTime(currentItem.created_at)}</div>
         <div>Updated: {formatDateTime(currentItem.updated_at)}</div>
         <div>{isSubTask ? 'Sub-task' : 'Task'} ID: {currentItem.id}</div>
-        {#if isSubTask}
+        {#if isSubTask && 'task_id' in currentItem}
           <div>Parent Task ID: {currentItem.task_id}</div>
           <Button
             variant="outline"

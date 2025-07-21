@@ -224,8 +224,8 @@
     showTaskListDialog = true;
   }
 
-  function handleProjectSave(event: CustomEvent<{ name: string; color: string }>) {
-    const { name, color } = event.detail;
+  function handleProjectSave(data: { name: string; color: string }) {
+    const { name, color } = data;
     if (projectDialogMode === 'add') {
       console.log('Creating new project:', name, color);
       // TODO: Implement project creation
@@ -236,8 +236,8 @@
     showProjectDialog = false;
   }
 
-  function handleTaskListSave(event: CustomEvent<{ name: string }>) {
-    const { name } = event.detail;
+  function handleTaskListSave(data: { name: string }) {
+    const { name } = data;
     if (taskListDialogMode === 'add') {
       console.log('Creating new task list:', name, 'in project:', editingProject?.name);
       // TODO: Implement task list creation
@@ -328,7 +328,6 @@
                   variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
                   class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
                   onclick={() => handleProjectSelect(project)}
-                  oncontextmenu={(e) => handleProjectContextMenu(e, project)}
                 >
                   <div class="flex items-center gap-2 min-w-0">
                     <div

@@ -8,8 +8,8 @@
     task: TaskWithSubTasks;
     subTaskDatePickerPosition: { x: number; y: number };
     showSubTaskDatePicker: boolean;
-    handleSubTaskClick: (event: MouseEvent, subTaskId: string) => void;
-    handleSubTaskToggle: (event: MouseEvent, subTaskId: string) => void;
+    handleSubTaskClick: (event: Event | undefined, subTaskId: string) => void;
+    handleSubTaskToggle: (event: Event | undefined, subTaskId: string) => void;
     handleSubTaskContextMenu: (event: MouseEvent, subTask: SubTask) => void;
     handleSubTaskDueDateClick: (event: MouseEvent, subTask: SubTask) => void;
   }

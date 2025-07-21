@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/ui/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
@@ -11,17 +10,15 @@
     title?: string;
     initialName?: string;
     initialColor?: string;
+    onsave?: (data: { name: string; color: string }) => void;
+    onclose?: () => void;
   }
 
-  let { open = false, mode, title = '', initialName = '', initialColor = '#3b82f6' }: Props = $props();
+  let { open = false, mode, title = '', initialName = '', initialColor = '#3b82f6', onsave, onclose }: Props = $props();
 
   let name = $state(initialName);
   let color = $state(initialColor);
 
-  const dispatch = createEventDispatcher<{
-    save: { name: string; color: string };
-    close: void;
-  }>();
 
   $effect(() => {
     if (open) {
@@ -32,13 +29,13 @@
 
   function handleSave() {
     if (name.trim()) {
-      dispatch('save', { name: name.trim(), color });
+      onsave?.({ name: name.trim(), color });
       handleClose();
     }
   }
 
   function handleClose() {
-    dispatch('close');
+    onclose?.();
   }
 
   function handleKeydown(event: KeyboardEvent) {
