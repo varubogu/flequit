@@ -1,482 +1,173 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-
-// Mock UI dialog components
-vi.mock('$lib/components/ui/dialog/index.js', () => ({
-  Root: vi.fn(() => ({ $set: vi.fn(), $destroy: vi.fn() })),
-  Content: vi.fn(() => ({ $set: vi.fn(), $destroy: vi.fn() })),
-  Header: vi.fn(() => ({ $set: vi.fn(), $destroy: vi.fn() })),
-  Title: vi.fn(() => ({ $set: vi.fn(), $destroy: vi.fn() })),
-  Footer: vi.fn(() => ({ $set: vi.fn(), $destroy: vi.fn() }))
-}));
-
-// Import after mocks
 import ProjectDialog from '../../src/lib/components/project-dialog.svelte';
+import { tick } from 'svelte';
+
+vi.mock('$lib/components/ui/dialog/index.js', async () => {
+  const svelte = await import('svelte');
+
+  const createSvelte5Mock = () => {
+    return {
+      new: (options: any) => {
+        // Render the default slot if it exists
+        options.props?.$$slots?.default?.();
+        return {
+          $set: vi.fn(),
+          $destroy: vi.fn(),
+          // Add any other methods or properties your component expects
+        };
+      },
+    };
+  };
+
+  return {
+    Root: createSvelte5Mock(),
+    Content: createSvelte5Mock(),
+    Header: createSvelte5Mock(),
+    Title: createSvelte5Mock(),
+    Footer: createSvelte5Mock(),
+  };
+});
 
 describe('ProjectDialog Component', () => {
+  let onsave: ReturnType<typeof vi.fn>;
+  let onclose: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
+    onsave = vi.fn();
+    onclose = vi.fn();
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  const renderComponent = (props = {}) => {
+    const defaultProps = {
+      open: true,
+      mode: 'add',
+      onsave,
+      onclose,
+    };
+    return render(ProjectDialog, { ...defaultProps, ...props });
+  };
+
+  test('should render in add mode with correct title', () => {
+    renderComponent({ mode: 'add' });
+    expect(screen.getByText('New Project')).toBeInTheDocument();
   });
 
-  describe('Component Rendering', () => {
-    test('should render without errors', () => {
-      const { container } = render(ProjectDialog, { 
-        props: { 
-          open: false, 
-          mode: 'add' 
-        } 
-      });
-      expect(container).toBeDefined();
-    });
-
-    test('should render in add mode', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add' 
-        } 
-      });
-      
-      expect(screen.getByText('New Project')).toBeInTheDocument();
-    });
-
-    test('should render in edit mode', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'edit' 
-        } 
-      });
-      
-      expect(screen.getByText('Edit Project')).toBeInTheDocument();
-    });
+  test('should render in edit mode with correct title', () => {
+    renderComponent({ mode: 'edit' });
+    expect(screen.getByText('Edit Project')).toBeInTheDocument();
   });
 
-  describe('Form Fields', () => {
-    test('should display project name input field', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add' 
-        } 
-      });
-      
-      expect(screen.getByLabelText('Project Name')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('Enter project name')).toBeInTheDocument();
+  test('should bind initial values correctly', () => {
+    renderComponent({
+      mode: 'edit',
+      initialName: 'My Project',
+      initialColor: '#ff0000',
     });
-
-    test('should display project color input field', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add' 
-        } 
-      });
-      
-      expect(screen.getByLabelText('Project Color')).toBeInTheDocument();
-      const colorInput = screen.getByDisplayValue('#3b82f6'); // Default color
-      expect(colorInput).toBeInTheDocument();
-      expect(colorInput.getAttribute('type')).toBe('color');
-    });
-
-    test('should show Save and Cancel buttons', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add' 
-        } 
-      });
-      
-      expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-    });
+    const nameInput = screen.getByLabelText('Project Name');
+    const colorInput = screen.getByLabelText('Project Color');
+    expect((nameInput as HTMLInputElement).value).toBe('My Project');
+    expect((colorInput as HTMLInputElement).value).toBe('#ff0000');
   });
 
-  describe('Initial Values', () => {
-    test('should use provided initial name', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'edit',
-          initialName: 'My Project'
-        } 
-      });
-      
-      const nameInput = screen.getByDisplayValue('My Project');
-      expect(nameInput).toBeInTheDocument();
-    });
+  test('should update form values on input', async () => {
+    renderComponent();
+    const nameInput = screen.getByLabelText('Project Name');
+    const colorInput = screen.getByLabelText('Project Color');
 
-    test('should use provided initial color', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'edit',
-          initialColor: '#ff5733'
-        } 
-      });
-      
-      const colorInput = screen.getByDisplayValue('#ff5733');
-      expect(colorInput).toBeInTheDocument();
-    });
+    await fireEvent.input(nameInput, { target: { value: 'New Name' } });
+    await fireEvent.input(colorInput, { target: { value: '#00ff00' } });
 
-    test('should use default values when not provided', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      expect(nameInput.value).toBe('');
-      
-      const colorInput = screen.getByDisplayValue('#3b82f6');
-      expect(colorInput).toBeInTheDocument();
-    });
+    expect((nameInput as HTMLInputElement).value).toBe('New Name');
+    expect((colorInput as HTMLInputElement).value).toBe('#00ff00');
   });
 
-  describe('Form Interactions', () => {
-    test('should update name when typing', async () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.input(nameInput, { target: { value: 'New Project Name' } });
-      
-      expect(nameInput.value).toBe('New Project Name');
-    });
-
-    test('should update color when changed', async () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const colorInput = screen.getByLabelText('Project Color');
-      await fireEvent.input(colorInput, { target: { value: '#ff0000' } });
-      
-      expect(colorInput.value).toBe('#ff0000');
-    });
+  test('save button should be disabled if name is empty', () => {
+    renderComponent({ initialName: '' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
   });
 
-  describe('Save Functionality', () => {
-    test('should call onsave when Save button is clicked with valid data', async () => {
-      const onsave = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onsave
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.input(nameInput, { target: { value: 'Test Project' } });
-      
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await fireEvent.click(saveButton);
-      
-      expect(onsave).toHaveBeenCalledWith({
-        name: 'Test Project',
-        color: '#3b82f6'
-      });
-    });
+  test('save button should be enabled if name is not empty', async () => {
+    renderComponent({ initialName: '' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
 
-    test('should not call onsave when name is empty', async () => {
-      const onsave = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onsave
-        } 
-      });
-      
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await fireEvent.click(saveButton);
-      
-      expect(onsave).not.toHaveBeenCalled();
-    });
+    const nameInput = screen.getByLabelText('Project Name');
+    await fireEvent.input(nameInput, { target: { value: 'A valid name' } });
 
-    test('should trim whitespace from name before saving', async () => {
-      const onsave = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onsave
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.input(nameInput, { target: { value: '  Trimmed Project  ' } });
-      
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await fireEvent.click(saveButton);
-      
-      expect(onsave).toHaveBeenCalledWith({
-        name: 'Trimmed Project',
-        color: '#3b82f6'
-      });
-    });
-
-    test('should disable Save button when name is empty', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      expect(saveButton).toBeDisabled();
-    });
-
-    test('should enable Save button when name is provided', async () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.input(nameInput, { target: { value: 'Test Project' } });
-      
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      expect(saveButton).not.toBeDisabled();
-    });
+    expect(saveButton).not.toBeDisabled();
   });
 
-  describe('Cancel Functionality', () => {
-    test('should call onclose when Cancel button is clicked', async () => {
-      const onclose = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onclose
-        } 
-      });
-      
-      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
-      await fireEvent.click(cancelButton);
-      
-      expect(onclose).toHaveBeenCalled();
+  test('should call onsave with trimmed name and color on save button click', async () => {
+    renderComponent();
+    const nameInput = screen.getByLabelText('Project Name');
+    await fireEvent.input(nameInput, { target: { value: '  My Project  ' } });
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    await fireEvent.click(saveButton);
+
+    expect(onsave).toHaveBeenCalledWith({
+      name: 'My Project',
+      color: '#3b82f6', // default color
     });
+    expect(onclose).toHaveBeenCalledTimes(1);
   });
 
-  describe('Keyboard Interactions', () => {
-    test('should save when Enter key is pressed in name input', async () => {
-      const onsave = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onsave
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.input(nameInput, { target: { value: 'Keyboard Project' } });
-      await fireEvent.keyDown(nameInput, { key: 'Enter' });
-      
-      expect(onsave).toHaveBeenCalledWith({
-        name: 'Keyboard Project',
-        color: '#3b82f6'
-      });
-    });
+  test('should call onsave on Enter key press in name input', async () => {
+    renderComponent();
+    const nameInput = screen.getByLabelText('Project Name');
+    await fireEvent.input(nameInput, { target: { value: 'Enter Press' } });
+    await fireEvent.keyDown(nameInput, { key: 'Enter' });
 
-    test('should not save on Enter when name is empty', async () => {
-      const onsave = vi.fn();
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add',
-          onsave
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      await fireEvent.keyDown(nameInput, { key: 'Enter' });
-      
-      expect(onsave).not.toHaveBeenCalled();
+    expect(onsave).toHaveBeenCalledWith({
+      name: 'Enter Press',
+      color: '#3b82f6',
     });
+    expect(onclose).toHaveBeenCalledTimes(1);
   });
 
-  describe('Props Handling', () => {
-    test('should handle missing callback props gracefully', () => {
-      expect(() => {
-        render(ProjectDialog, { 
-          props: { 
-            open: true, 
-            mode: 'add'
-          } 
-        });
-      }).not.toThrow();
-    });
+  test('should not call onsave if name is empty on save', async () => {
+    renderComponent({ initialName: '' });
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    await fireEvent.click(saveButton);
 
-    test('should handle undefined props gracefully', () => {
-      expect(() => {
-        render(ProjectDialog, { 
-          props: { 
-            open: true, 
-            mode: 'add',
-            onsave: undefined,
-            onclose: undefined
-          } 
-        });
-      }).not.toThrow();
-    });
+    const nameInput = screen.getByLabelText('Project Name');
+    await fireEvent.keyDown(nameInput, { key: 'Enter' });
+
+    expect(onsave).not.toHaveBeenCalled();
   });
 
-  describe('State Reset on Open', () => {
-    test('should reset form when dialog opens', () => {
-      const { component } = render(ProjectDialog, { 
-        props: { 
-          open: false, 
-          mode: 'edit',
-          initialName: 'Initial Project',
-          initialColor: '#ff5733'
-        } 
-      });
-      
-      // Should reset form when opening
-      expect(component).toBeDefined();
-    });
+  test('should call onclose on cancel button click', async () => {
+    renderComponent();
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await fireEvent.click(cancelButton);
+    expect(onclose).toHaveBeenCalledTimes(1);
   });
 
-  describe('Dialog Integration', () => {
-    test('should integrate with Dialog.Root component', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      // Dialog components should be rendered
-      const dialog = vi.mocked(require('$lib/components/ui/dialog/index.js'));
-      expect(dialog.Root).toBeDefined();
-      expect(dialog.Content).toBeDefined();
-    });
-  });
-
-  describe('Accessibility', () => {
-    test('should have proper labels for form fields', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      expect(screen.getByLabelText('Project Name')).toBeInTheDocument();
-      expect(screen.getByLabelText('Project Color')).toBeInTheDocument();
+  test('should reset state when reopened', async () => {
+    const { rerender } = renderComponent({
+      open: false,
+      initialName: 'Old Name',
     });
 
-    test('should have proper button roles', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    // Rerender the component with `open: true` to simulate reopening
+    await rerender({
+      open: true,
+      mode: 'edit',
+      initialName: 'New Name',
+      initialColor: '#ffffff',
+      onsave,
+      onclose,
     });
 
-    test('should have proper input types', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const nameInput = screen.getByLabelText('Project Name');
-      expect(nameInput.getAttribute('type')).toBe('text');
-      
-      const colorInput = screen.getByLabelText('Project Color');
-      expect(colorInput.getAttribute('type')).toBe('color');
-    });
-  });
+    await tick(); // Wait for state updates
 
-  describe('Component State Management', () => {
-    test('should manage form state correctly', () => {
-      const { component } = render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      expect(component).toBeDefined();
-      expect(typeof component).toBe('object');
-    });
+    const newNameInput = screen.getByLabelText('Project Name');
+    const newColorInput = screen.getByLabelText('Project Color');
 
-    test('should handle state updates', async () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      const nameInput = screen.getByPlaceholderText('Enter project name');
-      
-      // State should update when input changes
-      await fireEvent.input(nameInput, { target: { value: 'Updated Name' } });
-      expect(nameInput.value).toBe('Updated Name');
-    });
-  });
-
-  describe('Visual States', () => {
-    test('should show correct title for add mode', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'add'
-        } 
-      });
-      
-      expect(screen.getByText('New Project')).toBeInTheDocument();
-    });
-
-    test('should show correct title for edit mode', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'edit'
-        } 
-      });
-      
-      expect(screen.getByText('Edit Project')).toBeInTheDocument();
-    });
-
-    test('should pre-populate fields in edit mode', () => {
-      render(ProjectDialog, { 
-        props: { 
-          open: true, 
-          mode: 'edit',
-          initialName: 'Existing Project',
-          initialColor: '#00ff00'
-        } 
-      });
-      
-      expect(screen.getByDisplayValue('Existing Project')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('#00ff00')).toBeInTheDocument();
-    });
+    expect((newNameInput as HTMLInputElement).value).toBe('New Name');
+    expect((newColorInput as HTMLInputElement).value).toBe('#ffffff');
   });
 });
