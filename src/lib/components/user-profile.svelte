@@ -66,7 +66,7 @@
 
   // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
-    if (showMenu && !event.target?.closest?.('.user-profile-container')) {
+    if (showMenu && event.target && (event.target as Element).closest && !(event.target as Element).closest('.user-profile-container')) {
       showMenu = false;
     }
   }

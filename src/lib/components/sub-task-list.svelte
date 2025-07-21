@@ -27,39 +27,44 @@
 
 <div class="ml-10 mt-2 space-y-2">
   {#each task.sub_tasks as subTask (subTask.id)}
-    <Button
-      variant="ghost"
-      class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
-      subTask.id
-        ? 'bg-primary/10 border-primary'
-        : ''}"
-      onclick={(e) => handleSubTaskClick(e, subTask.id)}
+    <div
+      role="button"
+      tabindex="0"
       oncontextmenu={(e) => handleSubTaskContextMenu(e, subTask)}
     >
       <Button
         variant="ghost"
-        size="icon"
-        class="text-lg h-6 w-6 min-h-[24px] min-w-[24px]"
-        onclick={(e) => handleSubTaskToggle(e, subTask.id)}
-        title="Toggle subtask completion"
+        class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
+        subTask.id
+          ? 'bg-primary/10 border-primary'
+          : ''}"
+        onclick={(e) => handleSubTaskClick(e, subTask.id)}
       >
-        {subTask.status === 'completed' ? '✅' : '⚪'}
-      </Button>
-      <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
-        <span
-          class="text-sm font-medium truncate"
-          class:line-through={subTask.status === 'completed'}
-          class:text-muted-foreground={subTask.status === 'completed'}
+        <Button
+          variant="ghost"
+          size="icon"
+          class="text-lg h-6 w-6 min-h-[24px] min-w-[24px]"
+          onclick={(e) => handleSubTaskToggle(e, subTask.id)}
+          title="Toggle subtask completion"
         >
-          {subTask.title}
-        </span>
-        <DueDate
-          task={subTask}
-          datePickerPosition={subTaskDatePickerPosition}
-          showDatePicker={showSubTaskDatePicker}
-          handleDueDateClick={(e) => handleSubTaskDueDateClick(e, subTask)}
-        />
-      </div>
-    </Button>
+          {subTask.status === 'completed' ? '✅' : '⚪'}
+        </Button>
+        <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
+          <span
+            class="text-sm font-medium truncate"
+            class:line-through={subTask.status === 'completed'}
+            class:text-muted-foreground={subTask.status === 'completed'}
+          >
+            {subTask.title}
+          </span>
+          <DueDate
+            task={subTask}
+            datePickerPosition={subTaskDatePickerPosition}
+            showDatePicker={showSubTaskDatePicker}
+            handleDueDateClick={(e) => handleSubTaskDueDateClick(e, subTask)}
+          />
+        </div>
+      </Button>
+    </div>
   {/each}
 </div>
