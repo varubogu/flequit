@@ -1,9 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import { Switch } from '$lib/components/ui/switch';
-  import { RangeCalendar } from '$lib/components/ui/range-calendar';
-  import { Calendar } from '$lib/components/ui/calendar';
-  import { CalendarDate, parseDate, now, getLocalTimeZone } from '@internationalized/date';
+  import { CalendarDate } from '@internationalized/date';
+  import { formatLocalDate, formatTimeForInput } from '$lib/utils/date-time';
+  import DateTimeInputs from './date-time-inputs.svelte';
+  import CalendarPicker from './calendar-picker.svelte';
 
   interface Props {
     show: boolean;
@@ -16,47 +17,21 @@
     onclear?: () => void;
   }
 
-  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose, onclear }: Props = $props();
+  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
-  // Common end date/time (used for both single mode and range end)
-  function formatLocalDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-  
-  function formatLocalTime(date: Date): string {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  }
-  
-  function formatTimeForInput(date: Date): string {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  }
   
   let endDate = $state(currentDate ? formatLocalDate(new Date(currentDate)) : '');
   let endTime = $state(currentDate ? formatTimeForInput(new Date(currentDate)) : '00:00:00');
 
   let useRangeMode = $state(isRangeDate);
+  let startDate = $state(currentStartDate ? formatLocalDate(new Date(currentStartDate)) : '');
+  let startTime = $state(currentStartDate ? formatTimeForInput(new Date(currentStartDate)) : '00:00:00');
   
   // Sync useRangeMode with isRangeDate prop changes
   $effect(() => {
     useRangeMode = isRangeDate;
   });
-  let startValue = $state<CalendarDate | undefined>(undefined);
-  let endValue = $state<CalendarDate | undefined>(undefined);
-  let rangeValue = $state<{start: CalendarDate | undefined, end: CalendarDate | undefined}>({start: undefined, end: undefined});
-  let calendarValue = $state<CalendarDate | undefined>(undefined);
-  let rangePlaceholder = $state<CalendarDate | undefined>(undefined);
-  let startDate = $state(currentStartDate ? formatLocalDate(new Date(currentStartDate)) : '');
-  let startTime = $state(currentStartDate ? formatTimeForInput(new Date(currentStartDate)) : '00:00:00');
 
   const dispatch = createEventDispatcher<{
     change: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean };
@@ -70,13 +45,6 @@
       endDate = formatLocalDate(date);
       endTime = formatTimeForInput(date);
 
-      // Update calendar value
-      try {
-        calendarValue = parseDate(endDate);
-      } catch {
-        const today = now(getLocalTimeZone());
-        calendarValue = new CalendarDate(today.year, today.month, today.day);
-      }
     }
   });
 
@@ -122,7 +90,19 @@
     };
   });
 
-  // Auto-save when date changes (single mode) - NO AUTO CLOSE
+  function handleDateTimeInputChange(data: {startDate?: string, startTime?: string, endDate?: string, endTime?: string}) {
+    if (data.startDate !== undefined) startDate = data.startDate;
+    if (data.startTime !== undefined) startTime = data.startTime;
+    if (data.endDate !== undefined) endDate = data.endDate;
+    if (data.endTime !== undefined) endTime = data.endTime;
+
+    if (useRangeMode) {
+      handleRangeInputChange();
+    } else {
+      handleDateChange();
+    }
+  }
+
   function handleDateChange() {
     if (endDate) {
       const date = endDate;
@@ -131,70 +111,11 @@
       const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
       onchange?.(changeEvent);
       dispatch('change', { date, dateTime, isRangeDate: false });
-
-      // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
   }
-
-
-  function handleRangeChange() {
-    if (startValue && endValue) {
-      const start = startValue.toString();
-      const end = endValue.toString();
-      const eventDetail = {
-        date: start,
-        dateTime: `${start}T${startTime}`,
-        range: {
-          start: `${start}T${startTime}`,
-          end: `${end}T${endTime}`
-        },
-        isRangeDate: true
-      };
-
-      const changeEvent = new CustomEvent('change', { detail: eventDetail });
-      onchange?.(changeEvent);
-      dispatch('change', eventDetail);
-
-      // CLOSE on range calendar selection (this is intentional)
-      onclose?.();
-      dispatch('close');
-    }
-  }
-
-  function handleCalendarChange() {
-    if (calendarValue) {
-      endDate = calendarValue.toString();
-
-      // Only close when selecting from calendar component
-      const date = endDate;
-      const dateTime = `${endDate}T${endTime}`;
-
-      const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
-      onchange?.(changeEvent);
-      dispatch('change', { date, dateTime, isRangeDate: false });
-
-      onclose?.();
-      dispatch('close');
-    }
-  }
-
-  // Sync calendar value when endDate changes
-  $effect(() => {
-    if (endDate && !useRangeMode) {
-      try {
-        const newCalendarValue = parseDate(endDate);
-        if (!calendarValue || calendarValue.toString() !== newCalendarValue.toString()) {
-          calendarValue = newCalendarValue;
-        }
-      } catch {
-        // Invalid date format, ignore
-      }
-    }
-  });
 
   function handleRangeInputChange() {
     if (startDate || endDate) {
-      // Just update the values, don't close
       const eventDetail = {
         date: startDate || endDate || '',
         dateTime: `${startDate || endDate || ''}T${startTime}`,
@@ -208,47 +129,42 @@
       const changeEvent = new CustomEvent('change', { detail: eventDetail });
       onchange?.(changeEvent);
       dispatch('change', eventDetail);
-
-      // REMOVED AUTO CLOSE - only close on Esc or click outside
     }
   }
 
-  // Initialize default values
-  let rangeInitialized = $state(false);
+  function handleCalendarChange(date: CalendarDate) {
+    endDate = date.toString();
+    const dateTime = `${endDate}T${endTime}`;
 
-  // Watch for range mode changes and initialize with current dates
-  $effect(() => {
-    if (useRangeMode && !rangeInitialized) {
-      const today = now(getLocalTimeZone());
-      const todayCalendar = new CalendarDate(today.year, today.month, today.day);
+    const changeEvent = new CustomEvent('change', { detail: { date: endDate, dateTime, isRangeDate: false } });
+    onchange?.(changeEvent);
+    dispatch('change', { date: endDate, dateTime, isRangeDate: false });
 
-      rangePlaceholder = todayCalendar;
-      
-      // Initialize with current start and end dates if available
-      let startCal: CalendarDate | undefined = undefined;
-      let endCal: CalendarDate | undefined = undefined;
-      
-      if (startDate) {
-        try {
-          startCal = parseDate(startDate);
-          startValue = startCal;
-        } catch {}
-      }
-      
-      if (endDate) {
-        try {
-          endCal = parseDate(endDate);
-          endValue = endCal;
-        } catch {}
-      }
-      
-      rangeValue = {start: startCal, end: endCal};
-      rangeInitialized = true;
-    } else if (!useRangeMode) {
-      rangeInitialized = false;
-      rangePlaceholder = undefined;
-    }
-  });
+    onclose?.();
+    dispatch('close');
+  }
+
+  function handleRangeChange(start: CalendarDate, end: CalendarDate) {
+    startDate = start.toString();
+    endDate = end.toString();
+    
+    const eventDetail = {
+      date: startDate,
+      dateTime: `${startDate}T${startTime}`,
+      range: {
+        start: `${startDate}T${startTime}`,
+        end: `${endDate}T${endTime}`
+      },
+      isRangeDate: true
+    };
+
+    const changeEvent = new CustomEvent('change', { detail: eventDetail });
+    onchange?.(changeEvent);
+    dispatch('change', eventDetail);
+
+    onclose?.();
+    dispatch('close');
+  }
 
 
 </script>
@@ -276,116 +192,23 @@
       <span class="text-sm text-muted-foreground"></span>
     </div>
 
-    {#if useRangeMode}
-      <!-- Start Date/Time (Range mode only) -->
-      <div class="grid grid-cols-2 gap-2">
-        <input
-          type="date"
-          bind:value={startDate}
-          oninput={handleRangeInputChange}
-          onkeydown={(e) => {
-            // Allow normal typing and navigation
-            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' ||
-                e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
-                /^[0-9/-]$/.test(e.key)) {
-              return;
-            }
-            // Block other keys that might trigger calendar
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-            }
-          }}
-          class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
-        />
-        <input
-          type="time"
-          step="1"
-          bind:value={startTime}
-          oninput={handleRangeInputChange}
-          class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-        />
-      </div>
-    {/if}
-    <!-- Date/Time Inputs (Always shown) -->
     <div class="space-y-3">
-      <!-- Due Date/Time (Always visible) -->
-      <div class="grid grid-cols-2 gap-2">
-        <input
-          type="date"
-          bind:value={endDate}
-          oninput={() => {
-            if (useRangeMode) {
-              handleRangeInputChange();
-            } else {
-              handleDateChange();
-            }
-          }}
-          onkeydown={(e) => {
-            // Allow normal typing and navigation
-            if (e.key === 'Tab' || e.key === 'Shift' || e.key === 'Backspace' || e.key === 'Delete' ||
-                e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End' ||
-                /^[0-9/-]$/.test(e.key)) {
-              return;
-            }
-            // Block other keys that might trigger calendar
-            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-            }
-          }}
-          class="px-3 py-2 text-sm border border-input rounded-md bg-background [&::-webkit-calendar-picker-indicator]:hidden"
-        />
-        <input
-          type="time"
-          step="1"
-          bind:value={endTime}
-          oninput={() => {
-            if (useRangeMode) {
-              handleRangeInputChange();
-            } else {
-              handleDateChange();
-            }
-          }}
-          class="px-3 py-2 text-sm border border-input rounded-md bg-background"
-        />
-      </div>
+      <DateTimeInputs
+        {startDate}
+        {startTime}
+        {endDate}
+        {endTime}
+        showStartInputs={useRangeMode}
+        onInput={handleDateTimeInputChange}
+      />
 
-
-      {#if useRangeMode}
-       <!-- Range Calendar -->
-        <RangeCalendar
-          bind:value={rangeValue}
-          bind:placeholder={rangePlaceholder}
-          onValueChange={(v: any) => {
-            if (v?.start) {
-              startValue = v.start;
-              startDate = v.start.toString();
-              rangeValue.start = v.start;
-            }
-            if (v?.end) {
-              endValue = v.end;
-              endDate = v.end.toString();
-              rangeValue.end = v.end;
-            }
-            if (v?.start && v?.end) {
-              handleRangeChange();
-            }
-          }}
-          class="w-full"
-        />
-      {:else}
-        <!-- Single Calendar -->
-        <Calendar
-          bind:value={calendarValue}
-          onValueChange={(v: any) => {
-            if (v) {
-              calendarValue = v;
-              endDate = v.toString();
-              handleCalendarChange();
-            }
-          }}
-          class="w-full"
-        />
-      {/if}
+      <CalendarPicker
+        isRangeMode={useRangeMode}
+        {startDate}
+        {endDate}
+        onCalendarChange={handleCalendarChange}
+        onRangeChange={handleRangeChange}
+      />
     </div>
   </div>
 {/if}
