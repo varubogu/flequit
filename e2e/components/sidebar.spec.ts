@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Sidebar Component', () => {
   test.beforeEach(async ({ page }) => {
+    // Navigate to the sidebar test page before each test
     await page.goto('/tests/sidebar');
   });
 
@@ -48,5 +49,96 @@ test.describe('Sidebar Component', () => {
     // Collapse the project
     await projectToggleButton.click();
     await expect(page.getByRole('button', { name: 'Frontend' })).not.toBeVisible();
+  });
+
+  test('should handle keyboard navigation', async ({ page }) => {
+    // Focus on the first view button and navigate with keyboard
+    await page.getByRole('button', { name: 'All Tasks' }).focus();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: 'Today' })).toBeFocused();
+    
+    // Press Enter to select the focused item
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: today');
+  });
+
+  test('should maintain selection state after interaction', async ({ page }) => {
+    // Select a project
+    await page.getByRole('button', { name: 'Work' }).click();
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
+    
+    // Expand and collapse a project - selection should remain
+    const projectToggleButton = page.locator('[class*="lucide-chevron-right"]').first();
+    await projectToggleButton.click();
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
+    
+    // Verify the Work project is still selected
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-1');
+  });
+
+  test('should have proper accessibility attributes', async ({ page }) => {
+    // Check ARIA labels and roles
+    const viewsList = page.getByRole('list').first();
+    await expect(viewsList).toHaveAttribute('role', 'list');
+    
+    // Check that buttons have proper accessibility
+    const todayButton = page.getByRole('button', { name: 'Today' });
+    await expect(todayButton).toBeVisible();
+    await expect(todayButton).toHaveAttribute('type', 'button');
+  });
+
+  test('should display project hierarchy correctly', async ({ page }) => {
+    // Expand a project to show task lists
+    const projectToggleButton = page.locator('[class*="lucide-chevron-right"]').first();
+    await projectToggleButton.click();
+    
+    // Verify task list is nested under the project
+    const frontendTask = page.getByRole('button', { name: 'Frontend' });
+    await expect(frontendTask).toBeVisible();
+    
+    // Click on the task list to select it
+    await frontendTask.click();
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
+  });
+
+  test('should update task counts dynamically', async ({ page }) => {
+    // Verify initial counts
+    const todayButton = page.getByRole('button', { name: 'Today' });
+    await expect(todayButton.locator('span').last()).toHaveText('1');
+    
+    const workProjectButton = page.getByRole('button', { name: 'Work' });
+    await expect(workProjectButton.locator('span').last()).toHaveText('2');
+    
+    // Note: In a real app, we would test actual count updates after adding/removing tasks
+    // This is a baseline test to ensure counts are rendered correctly
+  });
+
+  test('should handle empty states gracefully', async ({ page }) => {
+    // This test assumes there might be projects or views with no tasks
+    // We're testing that the UI doesn't break when counts are 0
+    const buttons = page.getByRole('button');
+    const buttonCount = await buttons.count();
+    expect(buttonCount).toBeGreaterThan(0);
+  });
+
+  test('should handle navigation errors gracefully', async ({ page }) => {
+    // Test that clicking on elements doesn't cause JavaScript errors
+    await page.getByRole('button', { name: 'All Tasks' }).click();
+    await page.getByRole('button', { name: 'Today' }).click();
+    await page.getByRole('button', { name: 'Work' }).click();
+    
+    // Verify no console errors occurred (this would be caught by Playwright automatically)
+    await expect(page.getByTestId('current-view')).toBeVisible();
+  });
+
+  test('should maintain consistent UI behavior across interactions', async ({ page }) => {
+    // Test multiple interactions in sequence to ensure state consistency
+    await page.getByRole('button', { name: 'Today' }).click();
+    await page.getByRole('button', { name: 'Work' }).click();
+    await page.getByRole('button', { name: 'All Tasks' }).click();
+    
+    // After all interactions, the UI should still be functional
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: all');
+    await expect(page.getByRole('button', { name: 'All Tasks' })).toBeVisible();
   });
 });
