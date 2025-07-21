@@ -3,11 +3,13 @@
 
   type Props = {
     class?: string;
-    value?: string;
+    value?: string | number;
     type?: string;
     placeholder?: string;
     onkeydown?: (event: KeyboardEvent) => void;
     id?: string;
+    min?: string | number;
+    max?: string | number;
   };
 
   let {

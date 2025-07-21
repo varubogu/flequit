@@ -8,9 +8,9 @@
     children?: Snippet;
   };
 
-  let { children, ...restProps }: Props = $props();
+  let { open = $bindable(), onOpenChange, children, ...restProps }: Props = $props();
 </script>
 
-<DialogPrimitive.Root {...restProps}>
+<DialogPrimitive.Root {open} {onOpenChange} {...restProps}>
   {@render children?.()}
 </DialogPrimitive.Root>
