@@ -27,7 +27,7 @@
   let useRangeMode = $state(isRangeDate);
   let startDate = $state(currentStartDate ? formatDate(new Date(currentStartDate)) : '');
   let startTime = $state(currentStartDate ? formatTime(new Date(currentStartDate)) : '00:00:00');
-  formatDate
+  
   // Sync useRangeMode with isRangeDate prop changes
   $effect(() => {
     useRangeMode = isRangeDate;
@@ -139,8 +139,8 @@
     onchange?.(changeEvent);
     dispatch('change', { date: endDate, dateTime, isRangeDate: false });
 
-    onclose?.();
-    dispatch('close');
+    // onclose?.();
+    // dispatch('close');
   }
 
   function handleRangeChange(start: CalendarDate, end: CalendarDate) {
@@ -161,8 +161,8 @@
     onchange?.(changeEvent);
     dispatch('change', eventDetail);
 
-    onclose?.();
-    dispatch('close');
+    // onclose?.();
+    // dispatch('close');
   }
 
 
