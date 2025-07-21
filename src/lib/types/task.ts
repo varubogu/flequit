@@ -1,3 +1,12 @@
+export type TaskStatus = 'not_started' | 'in_progress' | 'waiting' | 'completed' | 'cancelled';
+
+export interface TaskBase {
+  status: TaskStatus;
+  start_date?: Date;
+  end_date?: Date;
+  is_range_date?: boolean;
+}
+
 export interface Task {
   id: string;
   sub_task_id?: string;
@@ -16,7 +25,6 @@ export interface Task {
   updated_at: Date;
 }
 
-export type TaskStatus = 'not_started' | 'in_progress' | 'waiting' | 'completed' | 'cancelled';
 
 export interface TaskList {
   id: string;

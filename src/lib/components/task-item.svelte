@@ -13,6 +13,7 @@
   import { contextMenuStore } from "$lib/stores/context-menu.svelte";
   import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
   import { ChevronDown, ChevronRight, Pencil, Trash2, Flag } from "lucide-svelte";
+    import DueDate from "./due-date.svelte";
 
   interface Props {
     task: TaskWithSubTasks;
@@ -32,7 +33,7 @@
     calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length),
   );
   let showSubTasks = $state(false);
-  
+
   // Date picker state
   let showDatePicker = $state(false);
   let datePickerPosition = $state({ x: 0, y: 0 });
@@ -80,7 +81,7 @@
   function handleTaskContextMenu(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Task',
@@ -104,7 +105,7 @@
   function handleSubTaskContextMenu(event: MouseEvent, subTask: any) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Subtask',
@@ -124,7 +125,7 @@
   function handleDueDateClick(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     datePickerPosition = {
       x: Math.min(rect.left, window.innerWidth - 300), // Ensure it fits on screen
@@ -135,12 +136,12 @@
 
   function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     const { dateTime, range, isRangeDate } = event.detail;
-    
+
     if (isRangeDate) {
       if (range) {
         // Range mode with both start and end dates
-        taskStore.updateTask(task.id, { 
-          ...task, 
+        taskStore.updateTask(task.id, {
+          ...task,
           start_date: new Date(range.start),
           end_date: new Date(range.end),
           is_range_date: true
@@ -148,8 +149,8 @@
       } else {
         // Range mode switched on, but no range data yet - keep current end_date as both start and end
         const currentEndDate = task.end_date || new Date(dateTime);
-        taskStore.updateTask(task.id, { 
-          ...task, 
+        taskStore.updateTask(task.id, {
+          ...task,
           start_date: currentEndDate,
           end_date: currentEndDate,
           is_range_date: true
@@ -157,8 +158,8 @@
       }
     } else {
       // Single mode
-      taskStore.updateTask(task.id, { 
-        ...task, 
+      taskStore.updateTask(task.id, {
+        ...task,
         end_date: new Date(dateTime),
         start_date: undefined,
         is_range_date: false
@@ -167,8 +168,8 @@
   }
 
   function handleDateClear() {
-    taskStore.updateTask(task.id, { 
-      ...task, 
+    taskStore.updateTask(task.id, {
+      ...task,
       start_date: undefined,
       end_date: undefined,
       is_range_date: false
@@ -187,7 +188,7 @@
   function handleSubTaskDueDateClick(event: MouseEvent, subTask: any) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     subTaskDatePickerPosition = {
       x: Math.min(rect.left, window.innerWidth - 300),
@@ -199,7 +200,7 @@
 
   function handleSubTaskDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
     if (!editingSubTaskId) return;
-    
+
     const { dateTime, range, isRangeDate } = event.detail;
     const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
@@ -233,13 +234,13 @@
         is_range_date: false
       };
     }
-    
+
     taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
   }
 
   function handleSubTaskDateClear() {
     if (!editingSubTaskId) return;
-    
+
     const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
@@ -250,7 +251,7 @@
       end_date: undefined,
       is_range_date: false
     };
-    
+
     taskStore.updateTask(task.id, { ...task, sub_tasks: updatedSubTasks });
   }
 
@@ -316,27 +317,12 @@
           >
             {task.title}
           </h3>
-
-          {#if task.end_date}
-            <button
-              class="text-sm whitespace-nowrap flex-shrink-0 {getDueDateClass(
-                task.end_date,
-                task.status,
-              )} hover:bg-muted rounded px-1 py-0.5 transition-colors"
-              onclick={handleDueDateClick}
-              title="Click to change due date"
-            >
-              {formatDate(task.end_date)}
-            </button>
-          {:else}
-            <button
-              class="text-sm whitespace-nowrap flex-shrink-0 text-muted-foreground hover:bg-muted rounded px-1 py-0.5 transition-colors"
-              onclick={handleDueDateClick}
-              title="Click to set due date"
-            >
-              + Add date
-            </button>
-          {/if}
+          <DueDate
+            task={task}
+            datePickerPosition={datePickerPosition}
+            showDatePicker={showDatePicker}
+            handleDueDateClick={handleDueDateClick}
+          />
         </div>
 
         {#if task.description}
@@ -412,23 +398,12 @@
           >
             {subTask.title}
           </span>
-          {#if subTask.end_date}
-            <button
-              class="text-xs text-muted-foreground whitespace-nowrap hover:bg-muted rounded px-1 py-0.5 transition-colors"
-              onclick={(e) => handleSubTaskDueDateClick(e, subTask)}
-              title="Click to change due date"
-            >
-              {formatDate(subTask.end_date)}
-            </button>
-          {:else}
-            <button
-              class="text-xs text-muted-foreground whitespace-nowrap hover:bg-muted rounded px-1 py-0.5 transition-colors"
-              onclick={(e) => handleSubTaskDueDateClick(e, subTask)}
-              title="Click to set due date"
-            >
-              + Add date
-            </button>
-          {/if}
+          <DueDate
+            task={subTask}
+            datePickerPosition={subTaskDatePickerPosition}
+            showDatePicker={showSubTaskDatePicker}
+            handleDueDateClick={handleSubTaskDueDateClick}
+          />
         </div>
       </Button>
     {/each}
