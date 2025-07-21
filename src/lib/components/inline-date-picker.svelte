@@ -2,8 +2,8 @@
   import { createEventDispatcher } from 'svelte';
   import { Switch } from '$lib/components/ui/switch';
   import { CalendarDate } from '@internationalized/date';
-  import { formatLocalDate, formatTimeForInput } from '$lib/utils/date-time';
-  import DateTimeInputs from './date-time-inputs.svelte';
+  import { formatDate, formatTime } from '$lib/utils/date-time';
+  import DateTimeInputs from './date-time-inputs.svelte'
   import CalendarPicker from './calendar-picker.svelte';
 
   interface Props {
@@ -20,14 +20,14 @@
   let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
-  
-  let endDate = $state(currentDate ? formatLocalDate(new Date(currentDate)) : '');
-  let endTime = $state(currentDate ? formatTimeForInput(new Date(currentDate)) : '00:00:00');
+
+  let endDate = $state(currentDate ? formatDate(new Date(currentDate)) : '');
+  let endTime = $state(currentDate ? formatTime(new Date(currentDate)) : '00:00:00');
 
   let useRangeMode = $state(isRangeDate);
-  let startDate = $state(currentStartDate ? formatLocalDate(new Date(currentStartDate)) : '');
-  let startTime = $state(currentStartDate ? formatTimeForInput(new Date(currentStartDate)) : '00:00:00');
-  
+  let startDate = $state(currentStartDate ? formatDate(new Date(currentStartDate)) : '');
+  let startTime = $state(currentStartDate ? formatTime(new Date(currentStartDate)) : '00:00:00');
+  formatDate
   // Sync useRangeMode with isRangeDate prop changes
   $effect(() => {
     useRangeMode = isRangeDate;
@@ -42,9 +42,8 @@
   $effect(() => {
     if (show && currentDate && typeof currentDate === 'string') {
       const date = new Date(currentDate);
-      endDate = formatLocalDate(date);
-      endTime = formatTimeForInput(date);
-
+      endDate = formatDate(date);
+      endTime = formatTime(date);
     }
   });
 
@@ -52,8 +51,8 @@
   $effect(() => {
     if (currentStartDate && typeof currentStartDate === 'string') {
       const startDateObj = new Date(currentStartDate);
-      startDate = formatLocalDate(startDateObj);
-      startTime = formatTimeForInput(startDateObj);
+      startDate = formatDate(startDateObj);
+      startTime = formatTime(startDateObj);
     } else {
       startDate = '';
       startTime = '00:00:00';
@@ -147,7 +146,7 @@
   function handleRangeChange(start: CalendarDate, end: CalendarDate) {
     startDate = start.toString();
     endDate = end.toString();
-    
+
     const eventDetail = {
       date: startDate,
       dateTime: `${startDate}T${startTime}`,
