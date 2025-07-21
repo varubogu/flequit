@@ -1,22 +1,18 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import Button from '$lib/components/ui/button.svelte';
   import { getStatusIcon } from '$lib/utils/task-utils';
   import type { TaskStatus } from '$lib/types/task';
 
   interface Props {
     status: TaskStatus;
+    ontoggle: (event: MouseEvent) => void;
   }
 
-  let { status }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    toggle: void;
-  }>();
+  let { status, ontoggle }: Props = $props();
 
   function handleClick(event: MouseEvent) {
     event.stopPropagation();
-    dispatch('toggle');
+    ontoggle(event);
   }
 </script>
 
