@@ -6,6 +6,25 @@
 	import { isEqualMonth, type DateValue } from "@internationalized/date";
 	import type { Snippet } from "svelte";
 
+	interface CalendarProps {
+		ref?: any;
+		value?: any;
+		placeholder?: any;
+		class?: string;
+		weekdayFormat?: "long" | "short" | "narrow";
+		buttonVariant?: ButtonVariant;
+		captionLayout?: "dropdown" | "dropdown-months" | "dropdown-years" | "label";
+		locale?: string;
+		months?: any;
+		years?: any;
+		monthFormat?: any;
+		yearFormat?: any;
+		day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
+		disableDaysOutsideMonth?: boolean;
+		onValueChange?: any;
+		[key: string]: any;
+	}
+
 	let {
 		ref = $bindable(null),
 		value = $bindable(),
@@ -22,15 +41,7 @@
 		day,
 		disableDaysOutsideMonth = false,
 		...restProps
-	}: WithoutChildrenOrChild<CalendarPrimitive.RootProps> & {
-		buttonVariant?: ButtonVariant;
-		captionLayout?: "dropdown" | "dropdown-months" | "dropdown-years" | "label";
-		months?: CalendarPrimitive.MonthSelectProps["months"];
-		years?: CalendarPrimitive.YearSelectProps["years"];
-		monthFormat?: CalendarPrimitive.MonthSelectProps["monthFormat"];
-		yearFormat?: CalendarPrimitive.YearSelectProps["yearFormat"];
-		day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
-	} = $props();
+	}: CalendarProps = $props();
 
 	const monthFormat = $derived.by(() => {
 		if (monthFormatProp) return monthFormatProp;

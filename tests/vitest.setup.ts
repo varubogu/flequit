@@ -9,11 +9,16 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+  
   constructor() {}
   observe() {}
   unobserve() {}
   disconnect() {}
-};
+  takeRecords() { return []; }
+} as any;
 
 // Mock console methods to avoid noise in tests
 const originalConsole = console;

@@ -1,4 +1,4 @@
-import { test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, vi, beforeEach, describe } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 
@@ -41,9 +41,12 @@ import { contextMenuStore } from '$lib/stores/context-menu.svelte';
 
 const createMockTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({
   id: 'task-1',
+  list_id: 'list-1',
   title: 'Test Task',
   status: 'not_started',
   priority: 1,
+  order_index: 0,
+  is_archived: false,
   sub_tasks: [],
   tags: [],
   created_at: new Date(),
@@ -55,11 +58,9 @@ describe('TaskItem.svelte', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset store states if necessary
-    taskStore.set({
-        tasks: [],
-        selectedTaskId: null,
-        selectedSubTaskId: null,
-    });
+    taskStore.projects = [];
+    taskStore.selectedTaskId = null;
+    taskStore.selectedSubTaskId = null;
   });
 
   test('renders task title and status toggle', () => {
@@ -104,6 +105,7 @@ describe('TaskItem.svelte', () => {
         title: 'Sub task',
         status: 'not_started',
         task_id: 'task-1',
+        order_index: 0,
         created_at: new Date(),
         updated_at: new Date()
       }],
@@ -127,6 +129,7 @@ describe('TaskItem.svelte', () => {
         title: 'My Sub Task',
         status: 'not_started',
         task_id: 'task-1',
+        order_index: 0,
         created_at: new Date(),
         updated_at: new Date()
       }],

@@ -38,10 +38,19 @@ beforeEach(() => {
     {
       id: "project-1",
       name: "Project 1",
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       task_lists: [
         {
           id: "list-1",
+          project_id: "project-1",
           name: "First List",
+          order_index: 0,
+          is_archived: false,
+          created_at: new Date(),
+          updated_at: new Date(),
           tasks: []
         }
       ]
@@ -52,7 +61,7 @@ beforeEach(() => {
 test("TaskListService.addNewTask: creates task successfully", () => {
   const title = "New Task Title";
   const mockNewTask = { id: "task-123", title: "New Task Title" };
-  mockTaskService.addTask.mockReturnValue(mockNewTask);
+  (mockTaskService.addTask as any).mockImplementation(() => mockNewTask);
   
   const result = TaskListService.addNewTask(title);
   
@@ -65,7 +74,7 @@ test("TaskListService.addNewTask: creates task successfully", () => {
 test("TaskListService.addNewTask: trims whitespace from title", () => {
   const title = "  Task with spaces  ";
   const mockNewTask = { id: "task-123", title: "Task with spaces" };
-  mockTaskService.addTask.mockReturnValue(mockNewTask);
+  (mockTaskService.addTask as any).mockImplementation(() => mockNewTask);
   
   const result = TaskListService.addNewTask(title);
   
@@ -103,6 +112,10 @@ test("TaskListService.addNewTask: returns null when no task lists exist", () => 
     {
       id: "project-1",
       name: "Project 1",
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
       task_lists: []
     }
   ];
@@ -114,7 +127,7 @@ test("TaskListService.addNewTask: returns null when no task lists exist", () => 
 });
 
 test("TaskListService.addNewTask: returns null when TaskService.addTask returns null", () => {
-  mockTaskService.addTask.mockReturnValue(null);
+  (mockTaskService.addTask as any).mockImplementation(() => null);
   
   const result = TaskListService.addNewTask("Valid Title");
   

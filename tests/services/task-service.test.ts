@@ -132,7 +132,7 @@ test("TaskService.addTask: calls taskStore.addTask with correct parameters", () 
   };
   
   const mockReturnTask = { id: "new-task", title: "New Task" };
-  mockTaskStore.addTask.mockReturnValue(mockReturnTask);
+  (mockTaskStore.addTask as any).mockImplementation(() => mockReturnTask);
   
   const result = TaskService.addTask(listId, taskData);
   

@@ -65,7 +65,7 @@ test("task status update workflow", () => {
   
   expect(mockStore.updateTask).toHaveBeenCalledWith("task-1", { status: "completed" });
   expect(updatedTask?.status).toBe("completed");
-  expect(updatedTask?.updated_at > new Date('2024-01-01')).toBe(true);
+  expect(updatedTask?.updated_at && updatedTask.updated_at > new Date('2024-01-01')).toBe(true);
 });
 
 test("task deletion workflow", () => {

@@ -25,7 +25,7 @@
     is_range_date: false,
     priority: 0
   });
-  let saveTimeout: number | null = null;
+  let saveTimeout: ReturnType<typeof setTimeout> | null = null;
   
   // Date picker state
   let showDatePicker = $state(false);

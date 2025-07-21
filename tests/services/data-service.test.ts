@@ -33,7 +33,15 @@ beforeEach(() => {
 
 test("DataService.initializeSampleData: generates and sets sample data", () => {
   const sampleData = [
-    { id: "project-1", name: "Sample Project", task_lists: [] }
+    { 
+      id: "project-1", 
+      name: "Sample Project", 
+      task_lists: [],
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date()
+    }
   ];
   mockGenerateSampleData.mockReturnValue(sampleData);
   
@@ -45,7 +53,15 @@ test("DataService.initializeSampleData: generates and sets sample data", () => {
 
 test("DataService.loadUserData: calls initializeSampleData", () => {
   const sampleData = [
-    { id: "project-1", name: "Sample Project", task_lists: [] }
+    { 
+      id: "project-1", 
+      name: "Sample Project", 
+      task_lists: [],
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date()
+    }
   ];
   mockGenerateSampleData.mockReturnValue(sampleData);
   
@@ -56,7 +72,15 @@ test("DataService.loadUserData: calls initializeSampleData", () => {
 });
 
 test("DataService.saveUserData: logs saving message with projects", () => {
-  const projects = [{ id: "project-1", name: "Test Project" }];
+  const projects = [{ 
+    id: "project-1", 
+    name: "Test Project", 
+    task_lists: [],
+    order_index: 0,
+    is_archived: false,
+    created_at: new Date(),
+    updated_at: new Date()
+  }];
   mockTaskStore.projects = projects;
   
   DataService.saveUserData();

@@ -64,15 +64,29 @@ const mockProjects = [
   {
     id: "project-1",
     name: "Project Alpha",
+    order_index: 0,
+    is_archived: false,
+    created_at: new Date(),
+    updated_at: new Date(),
     task_lists: [
       {
         id: "list-1",
+        project_id: "project-1",
         name: "List A",
+        order_index: 0,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
         tasks: [mockTasks[0], mockTasks[1]]
       },
       {
         id: "list-2",
+        project_id: "project-1",
         name: "List B",
+        order_index: 1,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
         tasks: [mockTasks[2]]
       }
     ]
@@ -99,10 +113,12 @@ const mockTaskStore = vi.mocked(await import("../../src/lib/stores/tasks.svelte"
 
 beforeEach(() => {
   vi.clearAllMocks();
-	mockTaskStore.todayTasks = [mockTasks[0]];
-	mockTaskStore.overdueTasks = [];
-	mockTaskStore.allTasks = mockTasks;
-	mockTaskStore.projects = mockProjects;
+  // Mock getter properties using spyOn
+  vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue([mockTasks[0]]);
+  vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue([]);
+  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(mockTasks);
+  
+  mockTaskStore.projects = mockProjects;
   mockTaskStore.selectedProjectId = null;
   mockTaskStore.selectedListId = null;
 });
