@@ -37,7 +37,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'bun run test:e2e',
+    command: 'bun run dev:e2e',
     url: 'http://localhost:10000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 120 seconds
