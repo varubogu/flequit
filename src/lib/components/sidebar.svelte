@@ -9,7 +9,7 @@
   import SearchCommand from '$lib/components/search-command.svelte';
   import UserProfile from '$lib/components/user-profile.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search, ChevronDown, ChevronRight, Edit2, Trash2, Plus } from 'lucide-svelte';
+  import { Search, ChevronDown, ChevronRight } from 'lucide-svelte';
   import { contextMenuStore } from '$lib/stores/context-menu.svelte';
   import ProjectDialog from '$lib/components/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task-list-dialog.svelte';
@@ -27,7 +27,7 @@
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let showSearchDialog = $state(false);
   let expandedProjects = $state<Set<string>>(new Set());
-  
+
   // Modal states
   let showProjectDialog = $state(false);
   let showTaskListDialog = $state(false);
@@ -37,11 +37,15 @@
   let editingTaskList: any = $state(null);
 
   // Mock user data - replace with actual user store
-  let currentUser = $state({
+  let currentUser = $state<{
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+  } | null>({
     id: '1',
     name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatar: null
+    email: 'john.doe@example.com'
   });
 
   // グローバルキーボードショートカット
@@ -157,23 +161,24 @@
   function handleProjectContextMenu(event: MouseEvent, project: ProjectTree) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Project',
-        action: () => openProjectDialog('edit', project),
-        icon: Edit2
+        action: () => openProjectDialog('edit', project)
       },
       {
         label: 'Add Task List',
-        action: () => openTaskListDialog('add', null, project),
-        icon: Plus
+        action: () => openTaskListDialog('add', null, project)
       },
-      { separator: true },
+      {
+        label: '',
+        action: () => {},
+        separator: true
+      },
       {
         label: 'Delete Project',
         action: () => console.log('Delete project:', project.name),
-        icon: Trash2,
         disabled: project.task_lists.length > 0
       }
     ]);
@@ -182,23 +187,24 @@
   function handleTaskListContextMenu(event: MouseEvent, list: any, project: ProjectTree) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Task List',
-        action: () => openTaskListDialog('edit', list, project),
-        icon: Edit2
+        action: () => openTaskListDialog('edit', list, project)
       },
       {
         label: 'Add Task',
-        action: () => console.log('Add task to:', list.name),
-        icon: Plus
+        action: () => console.log('Add task to:', list.name)
       },
-      { separator: true },
+      {
+        label: '',
+        action: () => {},
+        separator: true
+      },
       {
         label: 'Delete Task List',
         action: () => console.log('Delete task list:', list.name),
-        icon: Trash2,
         disabled: list.tasks.length > 0
       }
     ]);
@@ -312,7 +318,12 @@
               {/if}
 
               <!-- Project Button -->
-              <div class="flex-1">
+              <div
+                class="flex-1"
+                role="button"
+                tabindex="0"
+                oncontextmenu={(e) => handleProjectContextMenu(e, project)}
+              >
                 <Button
                   variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
                   class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
@@ -330,27 +341,32 @@
                     {getProjectTaskCount(project)}
                   </span>
                 </Button>
+              </div>
 
                 <!-- Task Lists (when project is expanded) -->
                 {#if expandedProjects.has(project.id)}
                   <div class="ml-4 mt-1 space-y-1">
                     {#each project.task_lists as list (list.id)}
-                      <Button
-                        variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
-                        size="sm"
-                        class="flex items-center justify-between w-full h-auto p-2 text-xs"
-                        onclick={() => taskStore.selectList(list.id)}
+                      <div
+                        role="button"
+                        tabindex="0"
                         oncontextmenu={(e) => handleTaskListContextMenu(e, list, project)}
                       >
-                        <span class="truncate">{list.name}</span>
-                        <span class="text-muted-foreground">
-                          {list.tasks.length}
-                        </span>
-                      </Button>
+                        <Button
+                          variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+                          size="sm"
+                          class="flex items-center justify-between w-full h-auto p-2 text-xs"
+                          onclick={() => taskStore.selectList(list.id)}
+                        >
+                          <span class="truncate">{list.name}</span>
+                          <span class="text-muted-foreground">
+                            {list.tasks.length}
+                          </span>
+                        </Button>
+                      </div>
                     {/each}
                   </div>
                 {/if}
-              </div>
             </div>
           {/each}
         {/if}
