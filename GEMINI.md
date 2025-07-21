@@ -1,3 +1,7 @@
+## レスポンスについて
+
+日本語で
+
 ## 作ってるアプリ
 
 Tauri製のタスク管理アプリ。
@@ -8,8 +12,22 @@ Tauri製のタスク管理アプリ。
 
 ## 環境について
 
+### 開発ツール・言語
 - bun
 - typescript
 - vite
 - svelte5
 - tailwind v4
+
+### テストツール
+- vitest
+- playwright
+- @testing-library/svelte
+
+※テストコマンドは「bun run test」
+
+## コーディングについて
+
+- 200行超えるなら必ず分割する
+- 100行でも分割してよい
+- 何かを変更時、常にテストコードを書く
