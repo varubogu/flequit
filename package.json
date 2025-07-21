@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
+    "test:e2e": "vite dev --port 10000 --host",
     "tauri": "tauri",
     "tauri:dev": "tauri dev --host",
     "machine-translate": "inlang machine translate --project project.inlang"
