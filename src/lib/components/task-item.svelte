@@ -78,7 +78,7 @@
     event.preventDefault();
     event.stopPropagation();
 
-    const menu: MenuItem[] = [
+    contextMenuStore.open(event.clientX, event.clientY, [
       {
         label: 'Edit Task',
         action: handleEdit,
@@ -99,9 +99,7 @@
         action: handleDelete,
         icon: Trash2
       }
-    ];
-
-    contextMenuStore.open(event.clientX, event.clientY, menu);
+    ]);
   }
 
   function handleSubTaskContextMenu(event: MouseEvent, subTask: SubTask) {
@@ -139,8 +137,8 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(event: CustomEvent<{ date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }>) {
-    const { dateTime, range, isRangeDate } = event.detail;
+  function handleDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
+    const { dateTime, range, isRangeDate } = data;
 
     if (isRangeDate) {
       if (range) {

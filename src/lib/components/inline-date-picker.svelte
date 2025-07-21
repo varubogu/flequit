@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import { Switch } from '$lib/components/ui/switch';
   import { CalendarDate } from '@internationalized/date';
   import { formatDate, formatTime } from '$lib/utils/date-time';
@@ -12,7 +11,7 @@
     currentStartDate?: string;
     position?: { x: number; y: number };
     isRangeDate?: boolean;
-    onchange?: (event: CustomEvent) => void;
+    onchange?: (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void;
     onclose?: () => void;
     onclear?: () => void;
   }
@@ -27,17 +26,12 @@
   let useRangeMode = $state(isRangeDate);
   let startDate = $state(currentStartDate ? formatDate(new Date(currentStartDate)) : '');
   let startTime = $state(currentStartDate ? formatTime(new Date(currentStartDate)) : '00:00:00');
-  
+
   // Sync useRangeMode with isRangeDate prop changes
   $effect(() => {
     useRangeMode = isRangeDate;
   });
 
-  const dispatch = createEventDispatcher<{
-    change: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean };
-    close: void;
-    clear: void;
-  }>();
 
   $effect(() => {
     if (show && currentDate && typeof currentDate === 'string') {
@@ -66,14 +60,12 @@
     function handleClickOutside(event: MouseEvent) {
       if (pickerElement && !pickerElement.contains(event.target as Node)) {
         onclose?.();
-        dispatch('close');
       }
     }
 
     function handleKeydown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         onclose?.();
-        dispatch('close');
       }
     }
 
@@ -107,9 +99,7 @@
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
 
-      const changeEvent = new CustomEvent('change', { detail: { date, dateTime, isRangeDate: false } });
-      onchange?.(changeEvent);
-      dispatch('change', { date, dateTime, isRangeDate: false });
+      onchange?.({ date, dateTime, isRangeDate: false });
     }
   }
 
@@ -125,9 +115,7 @@
         isRangeDate: true
       };
 
-      const changeEvent = new CustomEvent('change', { detail: eventDetail });
-      onchange?.(changeEvent);
-      dispatch('change', eventDetail);
+      onchange?.(eventDetail);
     }
   }
 
@@ -135,12 +123,7 @@
     endDate = date.toString();
     const dateTime = `${endDate}T${endTime}`;
 
-    const changeEvent = new CustomEvent('change', { detail: { date: endDate, dateTime, isRangeDate: false } });
-    onchange?.(changeEvent);
-    dispatch('change', { date: endDate, dateTime, isRangeDate: false });
-
-    // onclose?.();
-    // dispatch('close');
+    onchange?.({ date: endDate, dateTime, isRangeDate: false });
   }
 
   function handleRangeChange(start: CalendarDate, end: CalendarDate) {
@@ -157,12 +140,7 @@
       isRangeDate: true
     };
 
-    const changeEvent = new CustomEvent('change', { detail: eventDetail });
-    onchange?.(changeEvent);
-    dispatch('change', eventDetail);
-
-    // onclose?.();
-    // dispatch('close');
+    onchange?.(eventDetail);
   }
 
 
@@ -184,9 +162,7 @@
           isRangeDate: checked
         };
 
-        const changeEvent = new CustomEvent('change', { detail: eventDetail });
-        onchange?.(changeEvent);
-        dispatch('change', eventDetail);
+        onchange?.(eventDetail);
       }} />
       <span class="text-sm text-muted-foreground"></span>
     </div>
