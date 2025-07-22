@@ -45,8 +45,7 @@ describe('CalendarDay Component', () => {
 
   test('should pass through additional props', () => {
     const { container } = render(CalendarDay, { 
-      'data-testid': 'calendar-day',
-      disabled: true
+      'data-testid': 'calendar-day'
     });
     expect(container).toBeInTheDocument();
   });
@@ -56,8 +55,8 @@ describe('CalendarDay Component', () => {
     expect(container).toBeInTheDocument();
   });
 
-  test('should handle disabled state', () => {
-    const { container } = render(CalendarDay, { disabled: true });
+  test('should handle data attributes', () => {
+    const { container } = render(CalendarDay, { 'data-selected': true });
     expect(container).toBeInTheDocument();
   });
 

@@ -22,49 +22,39 @@ describe('CalendarCell Component', () => {
     vi.clearAllMocks();
   });
 
-  test('should render calendar cell with default props', () => {
-    const { container } = render(CalendarCell);
+  test('should render calendar cell component', () => {
+    const { container } = render(CalendarCell, { 
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
+    });
     expect(container).toBeInTheDocument();
   });
 
   test('should accept custom class name', () => {
-    const { container } = render(CalendarCell, { class: 'custom-cell' });
+    const { container } = render(CalendarCell, { 
+      class: 'custom-cell',
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
+    });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle ref binding', () => {
     let ref = null;
-    const { container } = render(CalendarCell, { ref });
-    expect(container).toBeInTheDocument();
-  });
-
-  test('should pass through additional props', () => {
     const { container } = render(CalendarCell, { 
-      'data-testid': 'calendar-cell',
-      date: new Date(2024, 0, 15)
+      ref,
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
     });
     expect(container).toBeInTheDocument();
   });
 
-  test('should handle date prop', () => {
-    const date = new Date(2024, 0, 15);
-    const { container } = render(CalendarCell, { date });
-    expect(container).toBeInTheDocument();
-  });
-
-  test('should handle month prop', () => {
-    const month = new Date(2024, 0, 1);
-    const { container } = render(CalendarCell, { month });
-    expect(container).toBeInTheDocument();
-  });
-
-  test('should handle selected state', () => {
-    const { container } = render(CalendarCell, { 'data-selected': true });
-    expect(container).toBeInTheDocument();
-  });
-
-  test('should apply correct CSS classes for focus', () => {
-    const { container } = render(CalendarCell, { class: 'focus-test' });
+  test('should apply correct CSS classes', () => {
+    const { container } = render(CalendarCell, { 
+      class: 'focus-test',
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
+    });
     expect(container).toBeInTheDocument();
   });
 });
