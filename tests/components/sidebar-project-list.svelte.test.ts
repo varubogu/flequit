@@ -1,0 +1,178 @@
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import SidebarProjectList from '../../src/lib/components/sidebar-project-list.svelte';
+import { taskStore } from '../../src/lib/stores/tasks.svelte';
+import { contextMenuStore } from '$lib/stores/context-menu.svelte';
+import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
+import { writable, get } from 'svelte/store';
+
+// --- Store Mocks ---
+vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
+  const { writable, get } = await import('svelte/store');
+  const original = await importOriginal();
+  const tasksWritable = writable({
+    projects: [],
+    selectedProjectId: null,
+    selectedListId: null,
+  });
+
+  return {
+    ...original,
+    taskStore: {
+      ...original.taskStore,
+      subscribe: tasksWritable.subscribe,
+      set: tasksWritable.set,
+      update: tasksWritable.update,
+      selectProject: vi.fn(),
+      selectList: vi.fn(),
+      get projects() { return get(tasksWritable).projects },
+      get selectedProjectId() { return get(tasksWritable).selectedProjectId },
+      get selectedListId() { return get(tasksWritable).selectedListId },
+    }
+  };
+});
+
+vi.mock('$lib/stores/context-menu.svelte', async (importOriginal) => {
+    const { writable } = await import('svelte/store');
+    const original = await importOriginal();
+    const contextMenuWritable = writable({ isOpen: false, x: 0, y: 0, items: [] });
+    return {
+        ...original,
+        contextMenuStore: {
+            ...original.contextMenuStore,
+            subscribe: contextMenuWritable.subscribe,
+            open: vi.fn(),
+        }
+    };
+});
+
+const mockTaskStore = vi.mocked(taskStore);
+const mockContextMenuStore = vi.mocked(contextMenuStore);
+
+// --- Test Data ---
+const mockProjects: ProjectTree[] = [
+  {
+    id: 'project-1', name: 'Work', color: '#ff0000', order_index: 0, is_archived: false, created_at: new Date(), updated_at: new Date(),
+    task_lists: [
+      { id: 'list-1', project_id: 'project-1', name: 'Frontend', order_index: 0, is_archived: false, created_at: new Date(), updated_at: new Date(), tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks] },
+      { id: 'list-2', project_id: 'project-1', name: 'Backend', order_index: 1, is_archived: false, created_at: new Date(), updated_at: new Date(), tasks: [{ id: 'task-3' } as TaskWithSubTasks] }
+    ]
+  },
+  { id: 'project-2', name: 'Personal', color: '#00ff00', order_index: 1, is_archived: false, created_at: new Date(), updated_at: new Date(), task_lists: [] }
+];
+
+describe('SidebarProjectList Component', () => {
+  let onViewChange: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    onViewChange = vi.fn();
+    vi.clearAllMocks();
+    mockTaskStore.set({
+        projects: [],
+        selectedProjectId: null,
+        selectedListId: null,
+    });
+  });
+
+  const setTaskStoreData = (data: any) => {
+    mockTaskStore.update(current => ({ ...current, ...data }));
+  };
+
+  test('should render projects section header', () => {
+    render(SidebarProjectList, { onViewChange });
+    expect(screen.getByText('Projects')).toBeInTheDocument();
+  });
+
+  test('should render projects', () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    expect(screen.getByText('Work')).toBeInTheDocument();
+    expect(screen.getByText('Personal')).toBeInTheDocument();
+  });
+
+  test('should show "No projects yet" message when no projects', () => {
+    setTaskStoreData({ projects: [] });
+    render(SidebarProjectList, { onViewChange });
+    expect(screen.getByText('No projects yet')).toBeInTheDocument();
+  });
+
+  test('should select a project when clicked', async () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const projectButton = screen.getByText('Work');
+    await fireEvent.click(projectButton);
+
+    expect(mockTaskStore.selectProject).toHaveBeenCalledWith('project-1');
+    expect(onViewChange).toHaveBeenCalledWith('project');
+  });
+
+  test('should expand and collapse project task lists', async () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const toggleButton = screen.getAllByTitle('Toggle task lists')[0];
+    expect(screen.queryByText('Frontend')).not.toBeInTheDocument();
+
+    await fireEvent.click(toggleButton);
+    expect(await screen.findByText('Frontend')).toBeInTheDocument();
+    expect(screen.getByText('Backend')).toBeInTheDocument();
+
+    await fireEvent.click(toggleButton);
+    expect(screen.queryByText('Frontend')).not.toBeInTheDocument();
+  });
+
+  test('should select a task list when clicked', async () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const toggleButton = screen.getAllByTitle('Toggle task lists')[0];
+    await fireEvent.click(toggleButton);
+
+    const listButton = await screen.findByText('Frontend');
+    await fireEvent.click(listButton);
+
+    expect(mockTaskStore.selectList).toHaveBeenCalledWith('list-1');
+  });
+
+  test('should display correct project task counts', () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const workProjectCount = screen.getByText('Work').closest('button')?.querySelector('.ml-auto');
+    const personalProjectCount = screen.getByText('Personal').closest('button')?.querySelector('.ml-auto');
+
+    expect(workProjectCount?.textContent).toBe('3');
+    expect(personalProjectCount?.textContent).toBe('0');
+  });
+
+  test('should open context menu on project right-click', async () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const projectDiv = screen.getByText('Work').closest('[role="button"]');
+    await fireEvent.contextMenu(projectDiv!);
+
+    expect(mockContextMenuStore.open).toHaveBeenCalled();
+  });
+
+  test('should highlight selected project', () => {
+    setTaskStoreData({ 
+      projects: mockProjects,
+      selectedProjectId: 'project-1'
+    });
+    render(SidebarProjectList, { currentView: 'project', onViewChange });
+
+    const workButton = screen.getByText('Work').closest('button');
+    expect(workButton).toHaveClass('bg-secondary');
+  });
+
+  test('should not show toggle button for projects without task lists', () => {
+    setTaskStoreData({ projects: mockProjects });
+    render(SidebarProjectList, { onViewChange });
+
+    const toggleButtons = screen.queryAllByTitle('Toggle task lists');
+    expect(toggleButtons).toHaveLength(1);
+  });
+});
