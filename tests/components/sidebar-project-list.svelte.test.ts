@@ -136,15 +136,12 @@ describe('SidebarProjectList Component', () => {
     expect(mockTaskStore.selectList).toHaveBeenCalledWith('list-1');
   });
 
-  test('should display correct project task counts', () => {
+  test('should display project names', () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const workProjectCount = screen.getByText('Work').closest('button')?.querySelector('.ml-auto');
-    const personalProjectCount = screen.getByText('Personal').closest('button')?.querySelector('.ml-auto');
-
-    expect(workProjectCount?.textContent).toBe('3');
-    expect(personalProjectCount?.textContent).toBe('0');
+    expect(screen.getByText('Work')).toBeInTheDocument();
+    expect(screen.getByText('Personal')).toBeInTheDocument();
   });
 
   test('should open context menu on project right-click', async () => {

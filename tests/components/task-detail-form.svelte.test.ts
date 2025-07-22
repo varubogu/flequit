@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskDetailForm from '../../src/lib/components/task-detail-form.svelte';
-import type { TaskWithSubTasks, SubTask } from '../../src/lib/types/task';
+import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
 describe('TaskDetailForm Component', () => {
   const mockTask: TaskWithSubTasks = {

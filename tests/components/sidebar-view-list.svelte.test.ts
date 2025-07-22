@@ -108,12 +108,12 @@ describe('SidebarViewList Component', () => {
   test('should highlight active view', () => {
     render(SidebarViewList, { currentView: 'today', onViewChange });
     const todayButton = screen.getByText('Today').closest('button');
-    expect(todayButton).toHaveClass('bg-secondary');
+    expect(todayButton).toHaveClass('bg-muted');
   });
 
   test('should not highlight inactive views', () => {
     render(SidebarViewList, { currentView: 'today', onViewChange });
     const allTasksButton = screen.getByText('All Tasks').closest('button');
-    expect(allTasksButton).not.toHaveClass('bg-secondary');
+    expect(allTasksButton).not.toHaveClass('bg-muted');
   });
 });
