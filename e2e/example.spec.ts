@@ -1,18 +1,26 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+test('application loads correctly', async ({ page }) => {
+  await page.goto('/');
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
+  // Check that the main application elements are present
+  await expect(page.locator('body')).toBeVisible();
+  
+  // Wait for the app to fully load
+  await page.waitForLoadState('networkidle');
+  
+  // Verify basic layout components
+  await expect(page.locator('nav, aside, [role="navigation"]')).toBeVisible();
 });
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+test('basic navigation works', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  // Test basic view navigation
+  const allTasksButton = page.getByRole('button', { name: 'All Tasks' });
+  if (await allTasksButton.count() > 0) {
+    await allTasksButton.click();
+    await expect(page.locator('.task-list, [data-testid="task-list"]')).toBeVisible();
+  }
 });
