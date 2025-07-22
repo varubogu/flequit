@@ -21,24 +21,24 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should render pane group with default props', () => {
-    const { container } = render(ResizablePaneGroup);
+    const { container } = render(ResizablePaneGroup, { direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should accept custom class name', () => {
-    const { container } = render(ResizablePaneGroup, { class: 'custom-pane-group' });
+    const { container } = render(ResizablePaneGroup, { class: 'custom-pane-group', direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle ref binding', () => {
     let ref = null;
-    const { container } = render(ResizablePaneGroup, { ref });
+    const { container } = render(ResizablePaneGroup, { ref, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle this binding', () => {
-    let paneGroup = null;
-    const { container } = render(ResizablePaneGroup, { this: paneGroup });
+    let paneGroup: any = undefined;
+    const { container } = render(ResizablePaneGroup, { this: paneGroup, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
@@ -55,30 +55,31 @@ describe('ResizablePaneGroup Component', () => {
   test('should pass through additional props', () => {
     const { container } = render(ResizablePaneGroup, { 
       'data-testid': 'pane-group',
-      id: 'my-pane-group'
+      id: 'my-pane-group',
+      direction: 'horizontal'
     });
     expect(container).toBeInTheDocument();
   });
 
   test('should apply correct data attributes', () => {
-    const { container } = render(ResizablePaneGroup);
+    const { container } = render(ResizablePaneGroup, { direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
-  test('should handle onLayout callback', () => {
-    const onLayout = vi.fn();
-    const { container } = render(ResizablePaneGroup, { onLayout });
+  test('should handle onLayoutChange callback', () => {
+    const onLayoutChange = vi.fn();
+    const { container } = render(ResizablePaneGroup, { onLayoutChange, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle storage prop', () => {
     const storage = { getItem: vi.fn(), setItem: vi.fn() };
-    const { container } = render(ResizablePaneGroup, { storage });
+    const { container } = render(ResizablePaneGroup, { storage, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle autoSaveId prop', () => {
-    const { container } = render(ResizablePaneGroup, { autoSaveId: 'my-layout' });
+    const { container } = render(ResizablePaneGroup, { autoSaveId: 'my-layout', direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 });

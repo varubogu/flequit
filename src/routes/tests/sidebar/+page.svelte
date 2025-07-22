@@ -2,8 +2,9 @@
   import Sidebar from '$lib/components/sidebar.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
+  import type { ViewType } from '$lib/services/view-service';
 
-  let currentView = $state<string>('all');
+  let currentView = $state<ViewType>('all');
   let selectedProjectId = $derived(taskStore.selectedProjectId);
 
   // Mock data for the store
@@ -49,23 +50,18 @@
 
   // Set initial store state
   $effect(() => {
-    taskStore.set({
-      projects: mockProjects,
-      allTasks: mockTasks,
-      todayTasks: [mockTasks[0]],
-      overdueTasks: [],
-      selectedProjectId: null,
-      selectedListId: null,
-    });
+    taskStore.projects = mockProjects;
+    taskStore.selectedProjectId = null;
+    taskStore.selectedListId = null;
   });
 
-  function handleViewChange(view: string) {
+  function handleViewChange(view: ViewType) {
     currentView = view;
   }
 </script>
 
 <div class="flex">
-  <Sidebar {currentView} {handleViewChange} />
+  <Sidebar {currentView} onViewChange={handleViewChange} />
   <main class="p-4">
     <h1 class="text-xl font-bold">Sidebar Test Page</h1>
     <div data-testid="current-view">Current View: {currentView}</div>

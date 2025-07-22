@@ -27,7 +27,7 @@ describe('TaskContextMenu Component', () => {
     id: 'task-1',
     title: 'Test Task',
     description: '',
-    status: 'pending',
+    status: 'not_started',
     priority: 2,
     created_at: new Date(),
     updated_at: new Date(),
@@ -36,13 +36,15 @@ describe('TaskContextMenu Component', () => {
     end_date: undefined,
     start_date: undefined,
     is_range_date: false,
-    sub_tasks: []
+    is_archived: false,
+    sub_tasks: [],
+    tags: []
   };
 
   const mockSubTask: SubTask = {
     id: 'subtask-1',
     title: 'Test SubTask',
-    status: 'pending',
+    status: 'not_started',
     task_id: 'task-1',
     order_index: 0,
     created_at: new Date(),

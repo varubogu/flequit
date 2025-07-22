@@ -21,7 +21,7 @@ describe('TaskDatePicker Component', () => {
     id: 'task-1',
     title: 'Test Task',
     description: '',
-    status: 'pending',
+    status: 'not_started',
     priority: 2,
     created_at: new Date(),
     updated_at: new Date(),
@@ -30,11 +30,13 @@ describe('TaskDatePicker Component', () => {
     end_date: new Date('2024-01-15'),
     start_date: undefined,
     is_range_date: false,
+    is_archived: false,
+    tags: [],
     sub_tasks: [
       {
         id: 'subtask-1',
         title: 'Subtask 1',
-        status: 'pending',
+        status: 'not_started',
         task_id: 'task-1',
         order_index: 0,
         created_at: new Date(),

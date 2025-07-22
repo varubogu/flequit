@@ -5,7 +5,7 @@ import { settingsStore, AVAILABLE_TIMEZONES } from '../../../src/lib/stores/sett
 
 // Mock settings store
 vi.mock('../../../src/lib/stores/settings.svelte', async (importOriginal) => {
-  const original = await importOriginal();
+  const original = await importOriginal() as any;
   return {
     ...original,
     settingsStore: {

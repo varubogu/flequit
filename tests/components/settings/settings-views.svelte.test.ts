@@ -5,7 +5,7 @@ import { viewsVisibilityStore } from '../../../src/lib/stores/views-visibility.s
 
 // Mock views visibility store
 vi.mock('../../../src/lib/stores/views-visibility.svelte', async (importOriginal) => {
-  const original = await importOriginal();
+  const original = await importOriginal() as any;
   return {
     ...original,
     viewsVisibilityStore: {
