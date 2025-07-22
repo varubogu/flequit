@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TaskWithSubTasks, SubTask } from "$lib/types/task";
+  import type { TaskWithSubTasks } from "$lib/types/task";
   import { taskStore } from "$lib/stores/tasks.svelte";
   import {
     getPriorityColor,
@@ -60,13 +60,6 @@
     showSubTasks = !showSubTasks;
   }
 
-  function handleEdit() {
-    console.log(`Editing task: ${task.title}`);
-  }
-
-  function handleDelete() {
-    TaskService.deleteTask(task.id);
-  }
 
 
 </script>
@@ -83,7 +76,7 @@
     class="flex-1"
     role="button"
     tabindex="0"
-    oncontextmenu={(e) => taskContextMenu?.handleTaskContextMenu(e)}
+    oncontextmenu={(e) => taskContextMenu && taskContextMenu.handleTaskContextMenu(e)}
   >
     <Button
       variant="ghost"
@@ -100,9 +93,9 @@
           {task}
           {completedSubTasks}
           {subTaskProgress}
-          datePickerPosition={taskDatePicker?.datePickerPosition || { x: 0, y: 0 }}
-          showDatePicker={taskDatePicker?.showDatePicker || false}
-          handleDueDateClick={(e) => taskDatePicker?.handleDueDateClick(e)}
+          datePickerPosition={taskDatePicker ? taskDatePicker.datePickerPosition : { x: 0, y: 0 }}
+          showDatePicker={taskDatePicker ? taskDatePicker.showDatePicker : false}
+          handleDueDateClick={(e) => taskDatePicker && taskDatePicker.handleDueDateClick(e)}
         />
       </div>
     </Button>
@@ -117,8 +110,8 @@
     showSubTaskDatePicker={false}
     {handleSubTaskClick}
     {handleSubTaskToggle}
-    handleSubTaskContextMenu={(e, st) => taskContextMenu?.handleSubTaskContextMenu(e, st)}
-    handleSubTaskDueDateClick={(e, st) => taskDatePicker?.handleSubTaskDueDateClick(e, st)}
+    handleSubTaskContextMenu={(e, st) => taskContextMenu && taskContextMenu.handleSubTaskContextMenu(e, st)}
+    handleSubTaskDueDateClick={(e, st) => taskDatePicker && taskDatePicker.handleSubTaskDueDateClick(e, st)}
   />
 {/if}
 

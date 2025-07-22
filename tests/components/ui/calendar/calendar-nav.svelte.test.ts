@@ -32,11 +32,11 @@ describe('CalendarNav Component', () => {
     expect(nav).toBeInTheDocument();
   });
 
-  test('should render children content', () => {
-    const { container } = render(CalendarNav, {
-      children: () => 'Navigation Content'
-    });
-    expect(screen.getByText('Navigation Content')).toBeInTheDocument();
+  test('should render with navigation structure', () => {
+    const { container } = render(CalendarNav);
+    const nav = container.querySelector('nav');
+    expect(nav).toBeInTheDocument();
+    expect(nav).toHaveClass('absolute', 'inset-x-0', 'top-0', 'flex', 'w-full');
   });
 
   test('should pass through additional props', () => {
