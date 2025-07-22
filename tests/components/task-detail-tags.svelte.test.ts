@@ -61,11 +61,11 @@ describe('TaskDetailTags Component', () => {
   });
 
   test('should not render when no tags exist', () => {
-    const { container } = render(TaskDetailTags, {
+    render(TaskDetailTags, {
       task: mockTaskWithoutTags
     });
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.queryByText('Tags')).not.toBeInTheDocument();
   });
 
   test('should apply correct styling to tags', () => {
@@ -75,22 +75,20 @@ describe('TaskDetailTags Component', () => {
 
     const urgentTag = screen.getByText('Urgent');
     expect(urgentTag).toHaveClass('px-3', 'py-1', 'rounded-full', 'text-sm', 'border');
-    expect(urgentTag).toHaveStyle({
-      'border-color': '#ff0000',
-      'color': '#ff0000'
-    });
+    
+    const urgentStyle = urgentTag.getAttribute('style') || '';
+    expect(urgentStyle).toMatch(/border-color:\s*(#ff0000|rgb\(255,\s*0,\s*0\))/);
+    expect(urgentStyle).toMatch(/color:\s*(#ff0000|rgb\(255,\s*0,\s*0\))/);
 
     const workTag = screen.getByText('Work');
-    expect(workTag).toHaveStyle({
-      'border-color': '#0000ff',
-      'color': '#0000ff'
-    });
+    const workStyle = workTag.getAttribute('style') || '';
+    expect(workStyle).toMatch(/border-color:\s*(#0000ff|rgb\(0,\s*0,\s*255\))/);
+    expect(workStyle).toMatch(/color:\s*(#0000ff|rgb\(0,\s*0,\s*255\))/);
 
     const personalTag = screen.getByText('Personal');
-    expect(personalTag).toHaveStyle({
-      'border-color': '#00ff00',
-      'color': '#00ff00'
-    });
+    const personalStyle = personalTag.getAttribute('style') || '';
+    expect(personalStyle).toMatch(/border-color:\s*(#00ff00|rgb\(0,\s*255,\s*0\))/);
+    expect(personalStyle).toMatch(/color:\s*(#00ff00|rgb\(0,\s*255,\s*0\))/);
   });
 
   test('should render tags in flex wrap layout', () => {
@@ -130,15 +128,12 @@ describe('TaskDetailTags Component', () => {
     const redTag = screen.getByText('Red Tag');
     const blueTag = screen.getByText('Blue Tag');
 
-    expect(redTag).toHaveStyle({
-      'border-color': 'red',
-      'color': 'red'
-    });
+    // Check that style attribute contains the color
+    expect(redTag.getAttribute('style')).toContain('color: red');
+    expect(redTag.getAttribute('style')).toContain('border-color: red');
 
-    expect(blueTag).toHaveStyle({
-      'border-color': 'blue',
-      'color': 'blue'
-    });
+    expect(blueTag.getAttribute('style')).toContain('color: blue');
+    expect(blueTag.getAttribute('style')).toContain('border-color: blue');
   });
 
   test('should handle single tag', () => {

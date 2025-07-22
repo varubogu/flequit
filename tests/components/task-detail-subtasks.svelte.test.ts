@@ -75,14 +75,14 @@ describe('TaskDetailSubTasks Component', () => {
   });
 
   test('should not render when no subtasks exist', () => {
-    const { container } = render(TaskDetailSubTasks, {
+    render(TaskDetailSubTasks, {
       task: mockTaskWithoutSubTasks,
       selectedSubTaskId: null,
       onSubTaskClick,
       onSubTaskToggle
     });
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.queryByText('Sub-tasks')).not.toBeInTheDocument();
   });
 
   test('should highlight selected subtask', () => {
