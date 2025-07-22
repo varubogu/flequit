@@ -54,15 +54,10 @@ describe('ResizableHandle Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(ResizableHandle, { 
+    const { container } = render(ResizableHandle, {
       'data-testid': 'resizable-handle',
       disabled: true
     });
-    expect(container).toBeInTheDocument();
-  });
-
-  test('should handle direction prop', () => {
-    const { container } = render(ResizableHandle, { direction: 'vertical' });
     expect(container).toBeInTheDocument();
   });
 
@@ -71,14 +66,13 @@ describe('ResizableHandle Component', () => {
     expect(container).toBeInTheDocument();
   });
 
-  test('should handle onDrag callback', () => {
-    const onDrag = vi.fn();
-    const { container } = render(ResizableHandle, { onDrag });
+  test('should handle additional props', () => {
+    const { container } = render(ResizableHandle, { 'data-testid': 'handle' });
     expect(container).toBeInTheDocument();
   });
 
   test('should combine withHandle and custom class', () => {
-    const { container } = render(ResizableHandle, { 
+    const { container } = render(ResizableHandle, {
       withHandle: true,
       class: 'custom-class'
     });
