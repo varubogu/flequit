@@ -34,7 +34,7 @@
   let showSubTasks = $state(false);
 
   // Get handlers from child components
-  let taskDatePicker: TaskDatePicker;
+  let taskDatePicker: TaskDatePicker | undefined = $state();
   let taskContextMenu: TaskContextMenu;
 
   function handleTaskClick() {
@@ -65,7 +65,7 @@
 </script>
 
 <div class="flex items-start gap-1 w-full">
-  <TaskAccordionToggle 
+  <TaskAccordionToggle
     hasSubTasks={task.sub_tasks.length > 0}
     isExpanded={showSubTasks}
     onToggle={toggleSubTasksAccordion}
