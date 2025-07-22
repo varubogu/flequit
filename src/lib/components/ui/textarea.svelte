@@ -6,6 +6,7 @@
     value?: string;
     placeholder?: string;
     id?: string;
+    oninput?: (event: Event) => void;
   };
 
   let { 

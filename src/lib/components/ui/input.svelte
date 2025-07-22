@@ -7,6 +7,7 @@
     type?: string;
     placeholder?: string;
     onkeydown?: (event: KeyboardEvent) => void;
+    oninput?: (event: Event) => void;
     id?: string;
     min?: string | number;
     max?: string | number;

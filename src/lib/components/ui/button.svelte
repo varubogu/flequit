@@ -37,6 +37,7 @@
     disabled?: boolean;
     title?: string;
     "aria-label"?: string;
+    "data-testid"?: string;
   };
   
   let {

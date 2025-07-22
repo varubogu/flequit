@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import CalendarNav from '../../../../src/lib/components/ui/calendar/calendar-nav.svelte';
-import { ComponentProps } from 'svelte';
 
 // Mock cn utility
 vi.mock('../../../../src/lib/utils', () => ({
