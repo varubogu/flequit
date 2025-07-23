@@ -17,10 +17,9 @@ test('basic navigation works', async ({ page }) => {
   await page.goto('/');
   await page.waitForLoadState('networkidle');
 
-  // Test basic view navigation
-  const allTasksButton = page.getByRole('button', { name: /All Tasks/ });
-  if (await allTasksButton.count() > 0) {
-    await allTasksButton.first().click();
-    await expect(page.locator('.task-list-container, [class*="task"], main')).toBeVisible();
-  }
+  // Test basic sidebar navigation
+  await expect(page.locator('nav, aside, [role="navigation"]')).toBeVisible();
+  
+  // Test main content area
+  await expect(page.locator('[data-pane-group]')).toBeVisible();
 });

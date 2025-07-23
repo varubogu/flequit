@@ -86,6 +86,7 @@
         ? 'selected'
         : ''} min-w-0 w-full"
       onclick={handleTaskClick}
+      data-testid="task-{task.id}"
     >
       <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
         <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />

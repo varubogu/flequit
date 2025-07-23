@@ -8,6 +8,9 @@
   let selectedProjectId = $derived(taskStore.selectedProjectId);
 
   // Mock data for the store
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
   const mockProjects: ProjectTree[] = [
     {
       id: 'project-1',
@@ -26,7 +29,36 @@
           is_archived: false,
           created_at: new Date(),
           updated_at: new Date(),
-          tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks]
+          tasks: [
+            {
+              id: 'task-1',
+              list_id: 'list-1',
+              title: 'Task 1',
+              status: 'not_started',
+              priority: 2,
+              end_date: today,
+              order_index: 0,
+              is_archived: false,
+              created_at: new Date(),
+              updated_at: new Date(),
+              sub_tasks: [],
+              tags: []
+            } as TaskWithSubTasks,
+            {
+              id: 'task-2',
+              list_id: 'list-1',
+              title: 'Task 2',
+              status: 'in_progress',
+              priority: 2,
+              end_date: today,
+              order_index: 1,
+              is_archived: false,
+              created_at: new Date(),
+              updated_at: new Date(),
+              sub_tasks: [],
+              tags: []
+            } as TaskWithSubTasks
+          ]
         }
       ]
     },
@@ -40,12 +72,6 @@
       updated_at: new Date(),
       task_lists: []
     }
-  ];
-
-  const mockTasks = [
-    { id: 'task-1', list_id: 'list-1', title: 'Task 1', status: 'not_started', end_date: new Date() },
-    { id: 'task-2', list_id: 'list-1', title: 'Task 2', status: 'in_progress', end_date: new Date() },
-    { id: 'task-3', list_id: 'list-1', title: 'Task 3', status: 'completed' },
   ];
 
   // Set initial store state

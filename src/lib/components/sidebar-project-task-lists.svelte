@@ -8,9 +8,15 @@
   interface Props {
     project: ProjectTree;
     isExpanded: boolean;
+    onViewChange?: (view: any) => void;
   }
 
-  let { project, isExpanded }: Props = $props();
+  let { project, isExpanded, onViewChange }: Props = $props();
+  
+  function handleTaskListSelect(list: any) {
+    taskStore.selectList(list.id);
+    onViewChange?.('tasklist');
+  }
 
   let showTaskListDialog = $state(false);
   let taskListDialogMode: 'add' | 'edit' = $state('add');
@@ -73,7 +79,8 @@
           variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
           size="sm"
           class="flex items-center justify-between w-full h-auto p-2 text-xs"
-          onclick={() => taskStore.selectList(list.id)}
+          onclick={() => handleTaskListSelect(list)}
+          data-testid="tasklist-{list.id}"
         >
           <span class="truncate">{list.name}</span>
           <span class="text-muted-foreground">

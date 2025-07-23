@@ -105,6 +105,7 @@
             class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
             onclick={() => toggleProjectExpansion(project.id)}
             title="Toggle task lists"
+            data-testid="toggle-project-{project.id}"
           >
             {#if expandedProjects.has(project.id)}
               <ChevronDown class="h-4 w-4" />
@@ -126,6 +127,7 @@
             variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
             class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
             onclick={() => handleProjectSelect(project)}
+            data-testid="project-{project.id}"
           >
             <div class="flex items-center gap-2 min-w-0">
               <div
@@ -142,7 +144,8 @@
 
         <SidebarProjectTaskLists 
           {project} 
-          isExpanded={expandedProjects.has(project.id)} 
+          isExpanded={expandedProjects.has(project.id)}
+          {onViewChange}
         />
       </div>
     {/each}

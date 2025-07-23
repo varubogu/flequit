@@ -20,9 +20,10 @@
     isActive: boolean;
     onclick: () => void;
     contextMenuItems?: ContextMenuItem[];
+    testId?: string;
   }
 
-  let { icon, label, count, isActive, onclick, contextMenuItems = [] }: Props = $props();
+  let { icon, label, count, isActive, onclick, contextMenuItems = [], testId }: Props = $props();
 </script>
 
 {#if contextMenuItems.length > 0}
@@ -32,6 +33,7 @@
         variant={isActive ? "secondary" : "ghost"}
         class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''}"
         {onclick}
+        data-testid={testId}
       >
         <div class="flex items-center gap-2">
           <span class="text-lg">{icon}</span>
@@ -67,6 +69,7 @@
     variant={isActive ? "secondary" : "ghost"}
     class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''}"
     {onclick}
+    data-testid={testId}
   >
     <div class="flex items-center gap-2">
       <span class="text-lg">{icon}</span>

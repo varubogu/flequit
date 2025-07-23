@@ -83,6 +83,7 @@
       count={getTaskCountForView(view.id)}
       isActive={currentView === view.id}
       onclick={() => handleViewChange(view.id as ViewType)}
+      testId="view-{view.id}"
     />
   {/each}
 </div>

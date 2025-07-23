@@ -36,7 +36,7 @@
   }
 </script>
 
-<div class="flex flex-col h-full">
+<div class="flex flex-col h-full" data-testid="task-list">
   <!-- Header -->
   <div class="p-4 border-b bg-card">
     <div class="flex items-center justify-between">
@@ -50,6 +50,7 @@
             size="icon"
             onclick={toggleAddForm}
             title="Add Task"
+            data-testid="add-task"
           >
             <Plus class="h-4 w-4" />
           </Button>
@@ -83,7 +84,7 @@
         </p>
       </div>
     {:else}
-      <div class="space-y-3 min-w-0">
+      <div class="space-y-3 min-w-0" data-testid="task-items">
         {#each tasks as task (task.id)}
           <TaskItem {task} />
         {/each}
