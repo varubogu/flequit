@@ -2,6 +2,8 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import { formatDate } from '$lib/utils/date-utils';
+  import * as m from '$paraglide/messages';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -11,11 +13,17 @@
   }
 
   let { task, selectedSubTaskId, onSubTaskClick, onSubTaskToggle }: Props = $props();
+
+  // Reactive messages
+  const sub_tasks = reactiveMessage(m.sub_tasks);
+  const toggle_subtask_completion = reactiveMessage(m.toggle_subtask_completion);
+
+
 </script>
 
 {#if task.sub_tasks.length > 0}
   <div>
-    <h3 class="block text-sm font-medium mb-2">Sub-tasks</h3>
+    <h3 class="block text-sm font-medium mb-2">{sub_tasks()}</h3>
     <div class="space-y-2">
       {#each task.sub_tasks as subTask}
         <Button
@@ -31,7 +39,7 @@
               e?.stopPropagation();
               onSubTaskToggle(subTask.id);
             }}
-            aria-label="Toggle subtask completion"
+            aria-label={toggle_subtask_completion()}
           >
             {subTask.status === 'completed' ? '✅' : '⚪'}
           </Button>
