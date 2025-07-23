@@ -1,5 +1,7 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import * as m from '$paraglide/messages.js';
+import { reactiveMessage } from '$lib/stores/locale.svelte';
 
 export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth' | 'search';
 
@@ -32,29 +34,39 @@ export class ViewService {
   }
   
   static getViewTitle(view: ViewType, searchQuery: string = ''): string {
+    // Reactive messages
+    const allTasks = reactiveMessage(m.all_tasks);
+    const today = reactiveMessage(m.today);
+    const overdue = reactiveMessage(m.overdue);
+    const completed = reactiveMessage(m.completed);
+    const tomorrow = reactiveMessage(m.tomorrow);
+    const next3Days = reactiveMessage(m.next_3_days);
+    const nextWeek = reactiveMessage(m.next_week);
+    const thisMonth = reactiveMessage(m.this_month);
+    
     switch (view) {
       case 'today':
-        return 'Today';
+        return today();
       case 'overdue':
-        return 'Overdue';
+        return overdue();
       case 'completed':
-        return 'Completed';
+        return completed();
       case 'project':
         return this.getProjectViewTitle();
       case 'tasklist':
         return this.getProjectViewTitle();
       case 'tomorrow':
-        return 'Tomorrow';
+        return tomorrow();
       case 'next3days':
-        return 'Next 3 Days';
+        return next3Days();
       case 'nextweek':
-        return 'Next Week';
+        return nextWeek();
       case 'thismonth':
-        return 'This Month';
+        return thisMonth();
       case 'search':
-        return searchQuery ? `Search: "${searchQuery}"` : 'All Tasks';
+        return searchQuery ? `Search: "${searchQuery}"` : allTasks();
       default:
-        return 'All Tasks';
+        return allTasks();
     }
   }
   

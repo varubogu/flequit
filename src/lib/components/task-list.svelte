@@ -3,9 +3,10 @@
   import TaskAddForm from './task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
-  import { ViewService } from '$lib/services/view-service';
   import Button from '$lib/components/button.svelte';
   import { Plus } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
   
   interface Props {
     title?: string;
@@ -34,6 +35,14 @@
   function handleCancel() {
     showAddForm = false;
   }
+  
+  // Reactive messages
+  const addTask = reactiveMessage(m.add_task);
+  const noSearchResults = reactiveMessage(m.no_search_results);
+  const noTasksFound = reactiveMessage(m.no_tasks_found);
+  const tryDifferentSearch = reactiveMessage(m.try_different_search);
+  const clickAddTask = reactiveMessage(m.click_add_task);
+  const addSomeTasks = reactiveMessage(m.add_some_tasks);
 </script>
 
 <div class="flex flex-col h-full" data-testid="task-list">
@@ -49,7 +58,7 @@
           <Button 
             size="icon"
             onclick={toggleAddForm}
-            title="Add Task"
+            title={addTask()}
             data-testid="add-task"
           >
             <Plus class="h-4 w-4" />
@@ -72,14 +81,14 @@
     {#if tasks.length === 0}
       <div class="text-center text-muted-foreground py-8">
         <div class="text-4xl mb-2">{isSearchView ? '🔍' : '📝'}</div>
-        <p class="text-lg">{isSearchView ? 'No search results' : 'No tasks found'}</p>
+        <p class="text-lg">{isSearchView ? noSearchResults() : noTasksFound()}</p>
         <p class="text-sm">
           {#if isSearchView}
-            Try a different search term or check your spelling
+            {tryDifferentSearch()}
           {:else if showAddButton}
-            Click "Add Task" to create your first task
+            {clickAddTask()}
           {:else}
-            Add some tasks to get started
+            {addSomeTasks()}
           {/if}
         </p>
       </div>
