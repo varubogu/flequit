@@ -10,5 +10,18 @@
     "priority": "優先度",
     "due_date": "期限",
     "completed": "完了",
-    "incomplete": "未完了"
+    "incomplete": "未完了",
+    "projects": "プロジェクト",
+    "no_projects_yet": "プロジェクトがありません",
+    "edit_project": "プロジェクトを編集",
+    "add_task_list": "タスクリストを追加",
+    "delete_project": "プロジェクトを削除",
+    "edit_task_list": "タスクリストを編集",
+    "add_task": "タスクを追加",
+    "delete_task_list": "タスクリストを削除",
+    "toggle_task_lists": "タスクリストを切り替え",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "project": "プロジェクト",
+    "task_lists": "タスクリスト"
 }
