@@ -75,5 +75,11 @@
     "reset": "Reset",
     "visible_in_sidebar": "Visible in Sidebar",
     "hidden_from_sidebar": "Hidden from Sidebar",
-    "views_description_text": "Drag and drop to reorder views or move them between visible and hidden sections."
+    "views_description_text": "Drag and drop to reorder views or move them between visible and hidden sections.",
+    "no_search_results": "No search results",
+    "no_tasks_found": "No tasks found",
+    "try_different_search": "Try a different search term or check your spelling",
+    "click_add_task": "Click \"Add Task\" to create your first task",
+    "add_some_tasks": "Add some tasks to get started",
+    "tasks": "Tasks"
 }

@@ -75,5 +75,11 @@
     "reset": "リセット",
     "visible_in_sidebar": "サイドバーに表示",
     "hidden_from_sidebar": "サイドバーから非表示",
-    "views_description_text": "ドラッグ＆ドロップでビューの順序を変更したり、表示・非表示を切り替えることができます。"
+    "views_description_text": "ドラッグ＆ドロップでビューの順序を変更したり、表示・非表示を切り替えることができます。",
+    "no_search_results": "検索結果がありません",
+    "no_tasks_found": "タスクが見つかりません",
+    "try_different_search": "別の検索語を試すか、スペルを確認してください",
+    "click_add_task": "「タスクを追加」をクリックして最初のタスクを作成してください",
+    "add_some_tasks": "タスクを追加して始めましょう",
+    "tasks": "タスク"
 }
