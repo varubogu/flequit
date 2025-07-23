@@ -9,7 +9,14 @@ import { writable, get } from 'svelte/store';
 vi.mock('$paraglide/messages.js', () => ({
   edit_task_list: () => 'Edit Task List',
   add_task: () => 'Add Task',
-  delete_task_list: () => 'Delete Task List'
+  delete_task_list: () => 'Delete Task List',
+  cancel: () => 'Cancel',
+  save: () => 'Save'
+}));
+
+// --- Locale Store Mock ---
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: any) => fn
 }));
 
 // --- Store Mocks ---

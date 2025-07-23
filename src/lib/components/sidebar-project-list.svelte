@@ -8,6 +8,7 @@
   import SidebarProjectTaskLists from '$lib/components/sidebar-project-task-lists.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -15,8 +16,16 @@
   }
 
   let { currentView = 'all', onViewChange }: Props = $props();
+  
+  // Reactive message functions
+  const projects = reactiveMessage(m.projects);
+  const noProjectsYet = reactiveMessage(m.no_projects_yet);
+  const toggleTaskLists = reactiveMessage(m.toggle_task_lists);
+  const editProject = reactiveMessage(m.edit_project);
+  const addTaskList = reactiveMessage(m.add_task_list);
+  const deleteProject = reactiveMessage(m.delete_project);
 
-  let projects = $derived(taskStore.projects);
+  let projectsData = $derived(taskStore.projects);
   let expandedProjects = $state<Set<string>>(new Set());
 
   let showProjectDialog = $state(false);
@@ -64,15 +73,15 @@
 
 <div>
   <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-    {m.projects()}
+    {projects()}
   </h3>
 
-  {#if projects.length === 0}
+  {#if projectsData.length === 0}
     <div class="text-sm text-muted-foreground px-3 py-2">
-      {m.no_projects_yet()}
+      {noProjectsYet()}
     </div>
   {:else}
-    {#each projects as project (project.id)}
+    {#each projectsData as project (project.id)}
       <div class="w-full">
         <div class="flex items-start w-full">
           {#if project.task_lists.length > 0}
@@ -81,7 +90,7 @@
               size="icon"
               class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
               onclick={() => toggleProjectExpansion(project.id)}
-              title={m.toggle_task_lists()}
+              title={toggleTaskLists()}
               data-testid="toggle-project-{project.id}"
             >
               {#if expandedProjects.has(project.id)}
@@ -117,10 +126,10 @@
               </ContextMenu.Trigger>
               <ContextMenu.Content>
                 <ContextMenu.Item onclick={() => openProjectDialog('edit', project)}>
-                  {m.edit_project()}
+                  {editProject()}
                 </ContextMenu.Item>
                 <ContextMenu.Item onclick={() => console.log('Add task list to:', project.name)}>
-                  {m.add_task_list()}
+                  {addTaskList()}
                 </ContextMenu.Item>
                 <ContextMenu.Separator />
                 <ContextMenu.Item 
@@ -128,7 +137,7 @@
                   disabled={project.task_lists.length > 0}
                   onclick={() => console.log('Delete project:', project.name)}
                 >
-                  {m.delete_project()}
+                  {deleteProject()}
                 </ContextMenu.Item>
               </ContextMenu.Content>
             </ContextMenu.Root>

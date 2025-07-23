@@ -13,8 +13,16 @@ vi.mock('$paraglide/messages.js', () => ({
   add_task_list: () => 'Add Task List',
   delete_project: () => 'Delete Project',
   toggle_task_lists: () => 'Toggle task lists',
+  edit_task_list: () => 'Edit Task List',
+  add_task: () => 'Add Task',
+  delete_task_list: () => 'Delete Task List',
   cancel: () => 'Cancel',
   save: () => 'Save'
+}));
+
+// --- Locale Store Mock ---
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: any) => fn
 }));
 
 // --- Store Mocks ---

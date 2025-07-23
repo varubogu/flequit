@@ -5,6 +5,7 @@
   import TaskListDialog from '$lib/components/task-list-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     project: ProjectTree;
@@ -13,6 +14,11 @@
   }
 
   let { project, isExpanded, onViewChange }: Props = $props();
+  
+  // Reactive message functions
+  const editTaskList = reactiveMessage(m.edit_task_list);
+  const addTask = reactiveMessage(m.add_task);
+  const deleteTaskList = reactiveMessage(m.delete_task_list);
   
   function handleTaskListSelect(list: any) {
     taskStore.selectList(list.id);
@@ -63,10 +69,10 @@
         </ContextMenu.Trigger>
         <ContextMenu.Content>
           <ContextMenu.Item onclick={() => openTaskListDialog('edit', list, project)}>
-            {m.edit_task_list()}
+            {editTaskList()}
           </ContextMenu.Item>
           <ContextMenu.Item onclick={() => console.log('Add task to:', list.name)}>
-            {m.add_task()}
+            {addTask()}
           </ContextMenu.Item>
           <ContextMenu.Separator />
           <ContextMenu.Item 
@@ -74,7 +80,7 @@
             disabled={list.tasks.length > 0}
             onclick={() => console.log('Delete task list:', list.name)}
           >
-            {m.delete_task_list()}
+            {deleteTaskList()}
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Root>

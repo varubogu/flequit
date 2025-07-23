@@ -1,6 +1,9 @@
 <script lang="ts">
   import Button from '$lib/components/button.svelte';
+  import Select from '$lib/components/ui/select.svelte';
   import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
+  import { locales } from '$paraglide/runtime';
+  import { localeStore } from '$lib/stores/locale.svelte';
 
   interface Props {
     settings: {
@@ -12,8 +15,21 @@
 
   let { settings }: Props = $props();
 
+  const availableLanguages = [
+    { value: 'en', label: 'English' },
+    { value: 'ja', label: '日本語' }
+  ];
+
   function addCustomDueDay() {
     console.log('Add custom due day');
+  }
+
+  function handleLanguageChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newLocale = target.value;
+    if (locales.includes(newLocale as any)) {
+      localeStore.setLocale(newLocale);
+    }
   }
 
   $effect(() => {
@@ -27,6 +43,21 @@
       <h3 class="text-lg font-medium mb-4">General Settings</h3>
 
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <!-- Language -->
+        <div>
+          <label for="language-select" class="text-sm font-medium">Language</label>
+          <Select 
+            id="language-select"
+            value={localeStore.locale}
+            onchange={handleLanguageChange}
+            class="mt-1"
+          >
+            {#each availableLanguages as lang}
+              <option value={lang.value}>{lang.label}</option>
+            {/each}
+          </Select>
+        </div>
+
         <!-- Week Start -->
         <div>
           <label for="week-start" class="text-sm font-medium">Week starts on</label>

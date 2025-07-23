@@ -4,6 +4,7 @@
   import * as m from '$paraglide/messages.js';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     open: boolean;
@@ -19,6 +20,10 @@
 
   let name = $state(initialName);
   let color = $state(initialColor);
+  
+  // Reactiveメッセージ
+  const cancel = reactiveMessage(m.cancel);
+  const save = reactiveMessage(m.save);
 
 
   $effect(() => {
@@ -75,8 +80,8 @@
       </div>
     </div>
     <Dialog.Footer>
-      <Button variant="outline" onclick={handleClose}>{m.cancel()}</Button>
-      <Button onclick={handleSave} disabled={!name.trim()}>{m.save()}</Button>
+      <Button variant="outline" onclick={handleClose}>{cancel()}</Button>
+      <Button onclick={handleSave} disabled={!name.trim()}>{save()}</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

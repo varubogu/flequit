@@ -2,6 +2,24 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '../../../src/lib/components/settings/settings-basic.svelte';
 import { settingsStore, AVAILABLE_TIMEZONES } from '../../../src/lib/stores/settings.svelte';
+import { getLocale, setLocale } from '$paraglide/runtime';
+import { localeStore } from '$lib/stores/locale.svelte';
+
+// Mock Paraglide runtime
+vi.mock('$paraglide/runtime', () => ({
+  getLocale: vi.fn(() => 'en'),
+  setLocale: vi.fn(),
+  locales: ['en', 'ja']
+}));
+
+// Mock locale store
+vi.mock('$lib/stores/locale.svelte', () => ({
+  localeStore: {
+    locale: 'en',
+    setLocale: vi.fn()
+  },
+  reactiveMessage: (fn: any) => fn
+}));
 
 // Mock settings store
 vi.mock('../../../src/lib/stores/settings.svelte', async (importOriginal) => {
@@ -21,6 +39,9 @@ vi.mock('../../../src/lib/stores/settings.svelte', async (importOriginal) => {
 });
 
 const mockSettingsStore = vi.mocked(settingsStore);
+const mockGetLocale = vi.mocked(getLocale);
+const mockSetLocale = vi.mocked(setLocale);
+const mockLocaleStore = vi.mocked(localeStore);
 
 describe('SettingsBasic Component', () => {
   const defaultSettings = {
@@ -31,12 +52,14 @@ describe('SettingsBasic Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
   });
 
   test('should render general settings section', () => {
     render(SettingsBasic, { settings: defaultSettings });
     
     expect(screen.getByText('General Settings')).toBeInTheDocument();
+    expect(screen.getByLabelText('Language')).toBeInTheDocument();
     expect(screen.getByLabelText('Week starts on')).toBeInTheDocument();
     expect(screen.getByLabelText('Timezone')).toBeInTheDocument();
   });
@@ -118,5 +141,41 @@ describe('SettingsBasic Component', () => {
     
     expect(weekStartSelect.value).toBe('sunday');
     expect(timezoneSelect.value).toBe('UTC');
+  });
+
+  test('should display language options', () => {
+    render(SettingsBasic, { settings: defaultSettings });
+    
+    const languageSelect = screen.getByLabelText('Language');
+    expect(languageSelect).toBeInTheDocument();
+    
+    expect(screen.getByText('English')).toBeInTheDocument();
+    expect(screen.getByText('日本語')).toBeInTheDocument();
+  });
+
+  test('should render language select with current locale', () => {
+    mockLocaleStore.locale = 'ja';
+    render(SettingsBasic, { settings: defaultSettings });
+    
+    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    expect(languageSelect.value).toBe('ja');
+  });
+
+  test('should call localeStore.setLocale when language changes', async () => {
+    render(SettingsBasic, { settings: defaultSettings });
+    
+    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    await fireEvent.change(languageSelect, { target: { value: 'ja' } });
+    
+    expect(mockLocaleStore.setLocale).toHaveBeenCalledWith('ja');
+  });
+
+  test('should not call localeStore.setLocale for invalid locale', async () => {
+    render(SettingsBasic, { settings: defaultSettings });
+    
+    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    await fireEvent.change(languageSelect, { target: { value: 'invalid' } });
+    
+    expect(mockLocaleStore.setLocale).not.toHaveBeenCalled();
   });
 });
