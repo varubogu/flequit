@@ -24,6 +24,16 @@ Tauri製のタスク管理アプリ。
 - playwright  -> ユーザーが呼び出すので使用禁止
 - @testing-library/svelte
 
+## プロジェクト構造
+
+- flequit 全体、ワークスペース
+  - docs: 仕様書
+  - e2e: Playwrightを使ったE2Eテスト
+  - playwright-report: e2eテストの結果
+  - src: ソースコード
+  - src-tauri: Tauriのソースコード
+  - tests: vitestを使った単体・結合テストコード
+  - test-results: vitestの結果
 
 ## コーディングについて
 
@@ -31,11 +41,13 @@ Tauri製のタスク管理アプリ。
 - 200行超えるなら必ず分割する。100行でも分割してよい可能性が高い
 - 命名規則について、コンポーネントファイル名はケバブケース、他は一般的なTypeScriptの基準に従う
 
-# ワークフロー
-- コード変更後は「bun check」を実行し、単体テストも実行する
-- `playwright test`と`bun run test:e2e`はユーザーが実行します。AI側では使用禁止です。
+## ワークフロー
+- コードを編集した後、vitest作成、bun check、vitest（ファイル単位）、vitest（全体）、playwright（ファイル単位）を実行する
+- 実行過程でエラーが出た場合、そのエラーを解消して再度実行、解消されてから先に進む。
 
 
 ## 使用コマンド
 - `bun check` bunのチェッカーを使用（コード変更後に実施）
-- `bun run test` vitestを利用したテスト実行（`bun check`後に実施
+- `bun run test <ファイル名>` vitestを利用した単体・結合テストを1ファイルのみ実行
+- `bun run test` vitestを利用した単体・結合テスト全ファイルで実行
+- `bun run test:e2e <ファイル名>` playwrightを利用したE2Eテスト実行（全体のE2Eテスト実行は禁止、ヘッドレスモードのみOK、タイムアウトはそのファイルのテスト件数✕1分とします）
