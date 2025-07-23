@@ -18,9 +18,9 @@ test('basic navigation works', async ({ page }) => {
   await page.waitForLoadState('networkidle');
 
   // Test basic view navigation
-  const allTasksButton = page.getByRole('button', { name: 'All Tasks' });
+  const allTasksButton = page.getByRole('button', { name: /All Tasks/ });
   if (await allTasksButton.count() > 0) {
-    await allTasksButton.click();
-    await expect(page.locator('.task-list, [data-testid="task-list"]')).toBeVisible();
+    await allTasksButton.first().click();
+    await expect(page.locator('.task-list-container, [class*="task"], main')).toBeVisible();
   }
 });

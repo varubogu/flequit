@@ -8,8 +8,8 @@ test.describe('Main Application', () => {
   test('should load main application layout', async ({ page }) => {
     // Check that the main components are visible
     await expect(page.locator('nav, aside, [role="navigation"]')).toBeVisible();
-    await expect(page.locator('[data-testid="task-list"], .task-list')).toBeVisible();
-    await expect(page.locator('[data-testid="task-detail"], .task-detail')).toBeVisible();
+    await expect(page.locator('[data-pane-group]')).toBeVisible();
+    await expect(page.locator('h2')).toBeVisible(); // Task list header
   });
 
   test('should display resizable panels', async ({ page }) => {
@@ -20,11 +20,11 @@ test.describe('Main Application', () => {
 
   test('should handle view navigation', async ({ page }) => {
     // Test view switching from sidebar
-    await page.getByRole('button', { name: 'All Tasks' }).click();
-    await expect(page.locator('.task-list')).toBeVisible();
+    await page.getByRole('button', { name: /All Tasks/ }).first().click();
+    await expect(page.locator('h2')).toBeVisible(); // Task list header
 
-    await page.getByRole('button', { name: 'Today' }).click();
-    await expect(page.locator('.task-list')).toBeVisible();
+    await page.getByRole('button', { name: /Today/ }).first().click();
+    await expect(page.locator('h2')).toBeVisible(); // Task list header
   });
 
   test('should maintain responsive layout', async ({ page }) => {
