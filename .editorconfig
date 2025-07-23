@@ -11,6 +11,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 # JavaScriptとTypeScriptファイルに適用されるルール
-[*.{js,ts,jsx,tsx}]
+[*.{js,ts,jsx,tsx,html,svelte}]
 indent_style = space
 indent_size = 2
