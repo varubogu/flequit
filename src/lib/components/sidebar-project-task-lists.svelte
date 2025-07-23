@@ -4,6 +4,7 @@
   import Button from '$lib/components/button.svelte';
   import TaskListDialog from '$lib/components/task-list-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
+  import * as m from '$paraglide/messages.js';
 
   interface Props {
     project: ProjectTree;
@@ -62,10 +63,10 @@
         </ContextMenu.Trigger>
         <ContextMenu.Content>
           <ContextMenu.Item onclick={() => openTaskListDialog('edit', list, project)}>
-            Edit Task List
+            {m.edit_task_list()}
           </ContextMenu.Item>
           <ContextMenu.Item onclick={() => console.log('Add task to:', list.name)}>
-            Add Task
+            {m.add_task()}
           </ContextMenu.Item>
           <ContextMenu.Separator />
           <ContextMenu.Item 
@@ -73,7 +74,7 @@
             disabled={list.tasks.length > 0}
             onclick={() => console.log('Delete task list:', list.name)}
           >
-            Delete Task List
+            {m.delete_task_list()}
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Root>

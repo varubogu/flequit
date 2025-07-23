@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/button.svelte';
+  import * as m from '$paraglide/messages.js';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
 
@@ -74,8 +75,8 @@
       </div>
     </div>
     <Dialog.Footer>
-      <Button variant="outline" onclick={handleClose}>Cancel</Button>
-      <Button onclick={handleSave} disabled={!name.trim()}>Save</Button>
+      <Button variant="outline" onclick={handleClose}>{m.cancel()}</Button>
+      <Button onclick={handleSave} disabled={!name.trim()}>{m.save()}</Button>
     </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>

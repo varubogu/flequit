@@ -10,5 +10,18 @@
     "priority": "Priority",
     "due_date": "Due Date",
     "completed": "Completed",
-    "incomplete": "Incomplete"
+    "incomplete": "Incomplete",
+    "projects": "Projects",
+    "no_projects_yet": "No projects yet",
+    "edit_project": "Edit Project",
+    "add_task_list": "Add Task List",
+    "delete_project": "Delete Project",
+    "edit_task_list": "Edit Task List",
+    "add_task": "Add Task",
+    "delete_task_list": "Delete Task List",
+    "toggle_task_lists": "Toggle task lists",
+    "cancel": "Cancel",
+    "save": "Save",
+    "project": "Project",
+    "task_lists": "Task Lists"
 }

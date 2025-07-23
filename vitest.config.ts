@@ -4,6 +4,11 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 
 export default defineConfig({
   plugins: [sveltekit(), svelteTesting()],
+  resolve: {
+    alias: {
+      '$paraglide': '/src/paraglide'
+    }
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/vitest.setup.ts'],

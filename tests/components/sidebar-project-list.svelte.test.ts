@@ -5,6 +5,18 @@ import { taskStore } from '../../src/lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
 import { writable, get } from 'svelte/store';
 
+// --- Paraglide Mock ---
+vi.mock('$paraglide/messages.js', () => ({
+  projects: () => 'Projects',
+  no_projects_yet: () => 'No projects yet',
+  edit_project: () => 'Edit Project',
+  add_task_list: () => 'Add Task List',
+  delete_project: () => 'Delete Project',
+  toggle_task_lists: () => 'Toggle task lists',
+  cancel: () => 'Cancel',
+  save: () => 'Save'
+}));
+
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');

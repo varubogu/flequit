@@ -7,6 +7,7 @@
   import ProjectDialog from '$lib/components/project-dialog.svelte';
   import SidebarProjectTaskLists from '$lib/components/sidebar-project-task-lists.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
+  import * as m from '$paraglide/messages.js';
 
   interface Props {
     currentView?: ViewType;
@@ -63,12 +64,12 @@
 
 <div>
   <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-    Projects
+    {m.projects()}
   </h3>
 
   {#if projects.length === 0}
     <div class="text-sm text-muted-foreground px-3 py-2">
-      No projects yet
+      {m.no_projects_yet()}
     </div>
   {:else}
     {#each projects as project (project.id)}
@@ -80,7 +81,7 @@
               size="icon"
               class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
               onclick={() => toggleProjectExpansion(project.id)}
-              title="Toggle task lists"
+              title={m.toggle_task_lists()}
               data-testid="toggle-project-{project.id}"
             >
               {#if expandedProjects.has(project.id)}
@@ -116,10 +117,10 @@
               </ContextMenu.Trigger>
               <ContextMenu.Content>
                 <ContextMenu.Item onclick={() => openProjectDialog('edit', project)}>
-                  Edit Project
+                  {m.edit_project()}
                 </ContextMenu.Item>
                 <ContextMenu.Item onclick={() => console.log('Add task list to:', project.name)}>
-                  Add Task List
+                  {m.add_task_list()}
                 </ContextMenu.Item>
                 <ContextMenu.Separator />
                 <ContextMenu.Item 
@@ -127,7 +128,7 @@
                   disabled={project.task_lists.length > 0}
                   onclick={() => console.log('Delete project:', project.name)}
                 >
-                  Delete Project
+                  {m.delete_project()}
                 </ContextMenu.Item>
               </ContextMenu.Content>
             </ContextMenu.Root>
