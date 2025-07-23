@@ -31,9 +31,25 @@ Tauri製のタスク管理アプリ。
   - e2e: Playwrightを使ったE2Eテスト
   - playwright-report: e2eテストの結果
   - src: ソースコード
+    - lib: 共通のライブラリ
+      - components: svelte-kitのコンポーネント
+        - ui: shadcn-svelteコンポーネント（極力オリジナルを維持すること）
+        - shared: 共通コンポーネント
+        - ****: 特定用途のコンポーネント
+      - data: サンプルデータ、本番では使わない想定
+      - services: プロジェクト内で使うサービスロジックを定義
+      - stores: プロジェクトで使う状態管理ストア
+      - types: 型の定義
+      - utils: 汎用的な処理、プロジェクトに依存しない純粋ロジック
+      - utils.ts: 汎用的な処理、プロジェクトに依存しない純粋ロジック（svelte-kitにより定義されるためそのまま残す）
+    - paraglide: 翻訳処理のためのフォルダ、Git管理対象外
+    - routes: svelte-kitのルーティング
+    - app.css: 共通スタイルシート、Tailwindの定義もこのファイル
+    - app.html: ルートのHTML
   - src-tauri: Tauriのソースコード
-  - tests: vitestを使った単体・結合テストコード
+  - static: 画像ファイルなど静的ファイルを配置
   - test-results: vitestの結果
+  - tests: vitestを使った単体・結合テストコード
 
 ## コーディングについて
 
