@@ -1,3 +1,6 @@
+import * as m from '$paraglide/messages.js';
+import { reactiveMessage } from './locale.svelte';
+
 export interface ViewItem {
   id: string;
   label: string;
@@ -9,6 +12,39 @@ export interface ViewItem {
 export interface ViewsConfiguration {
   viewItems: ViewItem[];
 }
+
+// メッセージ関数をマップ
+const getViewLabel = (id: string): string => {
+  const reactiveAll = reactiveMessage(m.all_tasks);
+  const reactiveOverdue = reactiveMessage(m.overdue);
+  const reactiveToday = reactiveMessage(m.today);
+  const reactiveTomorrow = reactiveMessage(m.tomorrow);
+  const reactiveCompleted = reactiveMessage(m.completed);
+  const reactiveNext3Days = reactiveMessage(m.next_3_days);
+  const reactiveNextWeek = reactiveMessage(m.next_week);
+  const reactiveThisMonth = reactiveMessage(m.this_month);
+
+  switch (id) {
+    case 'allTasks':
+      return reactiveAll();
+    case 'overdue':
+      return reactiveOverdue();
+    case 'today':
+      return reactiveToday();
+    case 'tomorrow':
+      return reactiveTomorrow();
+    case 'completed':
+      return reactiveCompleted();
+    case 'next3days':
+      return reactiveNext3Days();
+    case 'nextweek':
+      return reactiveNextWeek();
+    case 'thismonth':
+      return reactiveThisMonth();
+    default:
+      return id;
+  }
+};
 
 const DEFAULT_VIEW_ITEMS: ViewItem[] = [
   { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
@@ -39,13 +75,15 @@ class ViewsVisibilityStore {
   get visibleViews(): ViewItem[] {
     return this._configuration.viewItems
       .filter(item => item.visible)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => a.order - b.order)
+      .map(item => ({ ...item, label: getViewLabel(item.id) }));
   }
 
   get hiddenViews(): ViewItem[] {
     return this._configuration.viewItems
       .filter(item => !item.visible)
-      .sort((a, b) => a.order - b.order);
+      .sort((a, b) => a.order - b.order)
+      .map(item => ({ ...item, label: getViewLabel(item.id) }));
   }
 
   setLists(visible: ViewItem[], hidden: ViewItem[]) {

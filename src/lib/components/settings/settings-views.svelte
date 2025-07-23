@@ -4,6 +4,8 @@
   import ConfirmDialog from '../confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   let showResetConfirm = $state(false);
 
@@ -11,20 +13,28 @@
     viewsVisibilityStore.resetToDefaults();
     showResetConfirm = false;
   }
+  
+  // Reactive messages
+  const viewsSettings = reactiveMessage(m.views_settings);
+  const resetToDefaults = reactiveMessage(m.reset_to_defaults);
+  const viewsDescriptionText = reactiveMessage(m.views_description_text);
+  const resetViewSettings = reactiveMessage(m.reset_view_settings);
+  const resetViewConfirmation = reactiveMessage(m.reset_view_confirmation);
+  const reset = reactiveMessage(m.reset);
 </script>
 
 <section id="settings-views">
   <div class="space-y-6">
     <div>
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-medium">Views Settings</h3>
+        <h3 class="text-lg font-medium">{viewsSettings()}</h3>
         <Button variant="outline" size="sm" onclick={() => showResetConfirm = true}>
           <RotateCcw class="h-3 w-3 mr-2" />
-          Reset to Defaults
+          {resetToDefaults()}
         </Button>
       </div>
       <p class="text-sm text-muted-foreground mb-4">
-        Drag and drop to reorder views or move them between visible and hidden sections.
+        {viewsDescriptionText()}
       </p>
       <SettingsDraggableItems />
     </div>
@@ -34,9 +44,9 @@
 {#if showResetConfirm}
   <ConfirmDialog
     show={showResetConfirm}
-    title="Reset View Settings"
-    message="Are you sure you want to reset the view visibility and order to the default settings?"
-    confirmText="Reset"
+    title={resetViewSettings()}
+    message={resetViewConfirmation()}
+    confirmText={reset()}
     onConfirm={handleResetViews}
     onCancel={() => showResetConfirm = false}
   />

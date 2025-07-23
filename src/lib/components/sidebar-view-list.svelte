@@ -3,6 +3,8 @@
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar-button.svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -14,6 +16,9 @@
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
+  
+  // Reactive messages
+  const viewsTitle = reactiveMessage(m.views_title);
 
   function getTaskCountForView(viewId: string): number {
     switch (viewId) {
@@ -73,7 +78,7 @@
 
 <div class="mb-4">
   <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-    Views
+    {viewsTitle()}
   </h3>
 
   {#each visibleViews as view (view.id)}

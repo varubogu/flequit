@@ -2,6 +2,8 @@
   import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
   import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
   import { GripVertical } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   let localVisibleItems = $state([...viewsVisibilityStore.visibleViews]);
   let localHiddenItems = $state([...viewsVisibilityStore.hiddenViews]);
@@ -13,6 +15,10 @@
     dropZone: null as string | null, // 'visible' | 'hidden' | null
     insertIndex: -1
   });
+  
+  // Reactive messages
+  const visibleInSidebar = reactiveMessage(m.visible_in_sidebar);
+  const hiddenFromSidebar = reactiveMessage(m.hidden_from_sidebar);
 
   $effect(() => {
     localVisibleItems = [...viewsVisibilityStore.visibleViews];
@@ -128,7 +134,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
   <!-- Visible Views -->
   <div>
-    <h4 class="text-base font-medium mb-3">Visible in Sidebar</h4>
+    <h4 class="text-base font-medium mb-3">{visibleInSidebar()}</h4>
     <div
       class="border rounded-lg p-2 min-h-[200px] bg-background space-y-1 relative {dragState.isDragging && dragState.dropZone === 'visible' ? 'border-primary bg-primary/5' : ''}"
       use:droppable={{
@@ -171,7 +177,7 @@
 
   <!-- Hidden Views -->
   <div>
-    <h4 class="text-base font-medium mb-3">Hidden from Sidebar</h4>
+    <h4 class="text-base font-medium mb-3">{hiddenFromSidebar()}</h4>
     <div
       class="border rounded-lg p-2 min-h-[200px] bg-muted/50 space-y-1 relative {dragState.isDragging && dragState.dropZone === 'hidden' ? 'border-primary bg-primary/5' : ''}"
       use:droppable={{
