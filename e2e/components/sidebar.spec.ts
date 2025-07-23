@@ -90,20 +90,84 @@ test.describe('Sidebar Component', () => {
     await expect(workButton).toBeVisible();
   });
 
-  // タスクリストクリックで絞り込み表示は未実装
-  // test('should display project hierarchy correctly', async ({ page }) => {
-  //   // Expand a project to show task lists
-  //   const projectToggleButton = page.getByTestId('toggle-project-project-1');
-  //   await projectToggleButton.click();
+  test('should display project hierarchy correctly', async ({ page }) => {
+    // Expand a project to show task lists
+    const projectToggleButton = page.getByTestId('toggle-project-project-1');
+    await projectToggleButton.click();
 
-  //   // Verify task list is nested under the project
-  //   const taskList = page.getByTestId('tasklist-list-1');
-  //   await expect(taskList).toBeVisible();
+    // Verify task list is nested under the project
+    const taskList = page.getByTestId('tasklist-list-1');
+    await expect(taskList).toBeVisible();
 
-  //   // Click on the task list to select it
-  //   await taskList.click();
-  //   await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
-  // });
+    // Click on the task list to select it
+    await taskList.click();
+
+    // First verify that the list was selected (this should work)
+    await expect(page.getByTestId('selected-list')).toHaveText('Selected List ID: list-1');
+
+    // Then check if the view changed to tasklist
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
+  });
+
+  test('should filter tasks by selected task list', async ({ page }) => {
+    // Expand a project to show task lists
+    const projectToggleButton = page.getByTestId('toggle-project-project-1');
+    await projectToggleButton.click();
+
+    // Select a specific task list
+    const taskList = page.getByTestId('tasklist-list-1');
+    await taskList.click({ force: true });
+
+    // Verify the view has changed to tasklist
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
+
+    // Verify the selected list ID is displayed (if available)
+    await expect(page.getByTestId('selected-list')).toHaveText('Selected List ID: list-1');
+  });
+
+  test('should clear project selection when task list is selected', async ({ page }) => {
+    // First select a project
+    await page.getByTestId('project-project-1').click();
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-1');
+
+    // Expand the project and select a task list
+    const projectToggleButton = page.getByTestId('toggle-project-project-1');
+    await projectToggleButton.click();
+
+    const taskList = page.getByTestId('tasklist-list-1');
+    await taskList.click({ force: true });
+
+    // Wait a bit for the state to update
+    await page.waitForTimeout(100);
+
+    // Project selection should be cleared, list should be selected
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: null');
+    await expect(page.getByTestId('selected-list')).toHaveText('Selected List ID: list-1');
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
+  });
+
+  test('should clear task list selection when project is selected', async ({ page }) => {
+    // First expand project and select a task list
+    const projectToggleButton = page.getByTestId('toggle-project-project-1');
+    await projectToggleButton.click();
+
+    const taskList = page.getByTestId('tasklist-list-1');
+    await taskList.click({ force: true });
+
+    // Wait a bit for the state to update
+    await page.waitForTimeout(100);
+
+    await expect(page.getByTestId('selected-list')).toHaveText('Selected List ID: list-1');
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: tasklist');
+
+    // Now select the project
+    await page.getByTestId('project-project-1').click();
+
+    // List selection should be cleared, project should be selected
+    await expect(page.getByTestId('selected-list')).toHaveText('Selected List ID: null');
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-1');
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
+  });
 
   test('should update task counts dynamically', async ({ page }) => {
     // Verify initial counts

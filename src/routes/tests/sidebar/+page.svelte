@@ -6,6 +6,14 @@
 
   let currentView = $state<ViewType>('all');
   let selectedProjectId = $derived(taskStore.selectedProjectId);
+  let selectedListId = $derived(taskStore.selectedListId);
+  
+  // Force reactivity update when store changes
+  $effect(() => {
+    // This effect will run whenever the store state changes
+    void taskStore.selectedProjectId;
+    void taskStore.selectedListId;
+  });
 
   // Mock data for the store
   const today = new Date();
@@ -74,11 +82,16 @@
     }
   ];
 
-  // Set initial store state
+  // Set initial store state only once when component mounts
   $effect(() => {
     taskStore.projects = mockProjects;
     taskStore.selectedProjectId = null;
     taskStore.selectedListId = null;
+    return () => {
+      // Cleanup on unmount - reset to initial state
+      taskStore.selectedProjectId = null;
+      taskStore.selectedListId = null;
+    };
   });
 
   function handleViewChange(view: ViewType) {
@@ -87,10 +100,13 @@
 </script>
 
 <div class="flex">
-  <Sidebar {currentView} onViewChange={handleViewChange} />
-  <main class="p-4">
+  <div class="flex-shrink-0">
+    <Sidebar {currentView} onViewChange={handleViewChange} />
+  </div>
+  <main class="flex-1 p-4">
     <h1 class="text-xl font-bold">Sidebar Test Page</h1>
     <div data-testid="current-view">Current View: {currentView}</div>
-    <div data-testid="selected-project">Selected Project ID: {selectedProjectId || 'none'}</div>
+    <div data-testid="selected-project">Selected Project ID: {selectedProjectId || 'null'}</div>
+    <div data-testid="selected-list">Selected List ID: {selectedListId || 'null'}</div>
   </main>
 </div>
