@@ -27,12 +27,12 @@ test.describe('Task Management Flow', () => {
     // Test All Tasks view
     await page.getByRole('button', { name: /All Tasks/ }).first().click();
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
     
     // Test Today view
     await page.getByRole('button', { name: /Today/ }).first().click();
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   });
 
   test('should handle project-based task filtering', async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Task Management Flow', () => {
       await page.waitForLoadState('networkidle');
       
       // Verify the UI updates
-      await expect(page.locator('h2')).toBeVisible();
+      await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
     }
   });
 

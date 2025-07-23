@@ -37,7 +37,7 @@ test.describe('Task List Component', () => {
     const taskCount = await taskItems.count();
     
     // Should always show the task list header regardless of empty state
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   });
 
   test('should display task list title correctly', async ({ page }) => {
@@ -52,12 +52,12 @@ test.describe('Task List Component', () => {
     // Test All Tasks view
     await page.getByRole('button', { name: /All Tasks/ }).first().click();
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
     
     // Test Today view
     await page.getByRole('button', { name: /Today/ }).first().click();
     await page.waitForLoadState('networkidle');
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   });
 
   test('should scroll properly with many tasks', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('Task List Component', () => {
     }
     
     // Always verify the header is visible
-    await expect(page.locator('h2')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   });
 
   test('should maintain selection state during list operations', async ({ page }) => {
