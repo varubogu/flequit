@@ -5,6 +5,8 @@
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
   import { ArrowLeft, Search } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import SettingsBasic from './settings/settings-basic.svelte';
   import SettingsViews from './settings/settings-views.svelte';
   import SettingsAppearance from './settings/settings-appearance.svelte';
@@ -17,13 +19,26 @@
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
 
-  // Settings categories
-  const categories = [
-    { id: 'basic', name: 'General', description: 'Week start, due date buttons' },
-    { id: 'views', name: 'Views', description: 'Control which views appear in sidebar' },
-    { id: 'appearance', name: 'Appearance', description: 'Theme, font, color settings' },
-    { id: 'account', name: 'Account', description: 'Account selection and settings' }
-  ];
+  // Reactive messages
+  const settingsTitle = reactiveMessage(m.settings);
+  const configurePreferences = reactiveMessage(m.configure_preferences);
+  const searchSettings = reactiveMessage(m.search_settings);
+  const general = reactiveMessage(m.general);
+  const views = reactiveMessage(m.views);
+  const appearance = reactiveMessage(m.appearance);
+  const account = reactiveMessage(m.account);
+  const generalDescription = reactiveMessage(m.general_description);
+  const viewsDescription = reactiveMessage(m.views_description);
+  const appearanceDescription = reactiveMessage(m.appearance_description);
+  const accountDescription = reactiveMessage(m.account_description);
+
+  // Settings categories with reactive messages
+  const categories = $derived([
+    { id: 'basic', name: general(), description: generalDescription() },
+    { id: 'views', name: views(), description: viewsDescription() },
+    { id: 'appearance', name: appearance(), description: appearanceDescription() },
+    { id: 'account', name: account(), description: accountDescription() }
+  ]);
 
   let selectedCategory = $state('basic');
   let searchQuery = $state('');
@@ -108,8 +123,8 @@
           <ArrowLeft class="h-4 w-4" />
         </Button>
         <div>
-          <h2 class="text-xl font-semibold">Settings</h2>
-          <p class="text-sm text-muted-foreground">Configure your application preferences</p>
+          <h2 class="text-xl font-semibold">{settingsTitle()}</h2>
+          <p class="text-sm text-muted-foreground">{configurePreferences()}</p>
         </div>
       </div>
     </div>
@@ -123,7 +138,7 @@
             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               class="pl-9"
-              placeholder="Search settings..."
+              placeholder={searchSettings()}
               bind:value={searchQuery}
             />
           </div>

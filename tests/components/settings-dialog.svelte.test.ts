@@ -40,7 +40,7 @@ describe('SettingsDialog Integration', () => {
     render(SettingsDialog, { open: true, onOpenChange });
     
     expect(screen.getByText('Settings')).toBeInTheDocument();
-    expect(screen.getByText('Configure your application preferences')).toBeInTheDocument();
+    expect(screen.getByText('Configure your preferences')).toBeInTheDocument();
   });
 
   test('should not render dialog content when closed', () => {
@@ -61,10 +61,10 @@ describe('SettingsDialog Integration', () => {
   test('should show category descriptions', () => {
     render(SettingsDialog, { open: true, onOpenChange });
     
-    expect(screen.getByText('Week start, due date buttons')).toBeInTheDocument();
-    expect(screen.getByText('Control which views appear in sidebar')).toBeInTheDocument();
-    expect(screen.getByText('Theme, font, color settings')).toBeInTheDocument();
-    expect(screen.getByText('Account selection and settings')).toBeInTheDocument();
+    expect(screen.getByText('General application settings')).toBeInTheDocument();
+    expect(screen.getByText('Customize how you view your tasks')).toBeInTheDocument();
+    expect(screen.getByText('Customize the appearance of the application')).toBeInTheDocument();
+    expect(screen.getByText('Manage your account settings')).toBeInTheDocument();
   });
 
   test('should render search input', () => {

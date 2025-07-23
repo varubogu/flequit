@@ -44,7 +44,7 @@ describe('SettingsAppearance Component', () => {
     
     const options = fontSelect.querySelectorAll('option');
     expect(options[0]).toHaveTextContent('Default');
-    expect(options[1]).toHaveTextContent('System Font');
+    expect(options[1]).toHaveTextContent('System');
     expect(options[2]).toHaveTextContent('Arial');
     expect(options[3]).toHaveTextContent('Helvetica');
   });
