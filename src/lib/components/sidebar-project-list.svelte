@@ -97,49 +97,51 @@
     </div>
   {:else}
     {#each projects as project (project.id)}
-      <div class="flex items-start w-full">
-        {#if project.task_lists.length > 0}
-          <Button
-            variant="ghost"
-            size="icon"
-            class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
-            onclick={() => toggleProjectExpansion(project.id)}
-            title="Toggle task lists"
-            data-testid="toggle-project-{project.id}"
-          >
-            {#if expandedProjects.has(project.id)}
-              <ChevronDown class="h-4 w-4" />
-            {:else}
-              <ChevronRight class="h-4 w-4" />
-            {/if}
-          </Button>
-        {:else}
-          <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
-        {/if}
+      <div class="w-full">
+        <div class="flex items-start w-full">
+          {#if project.task_lists.length > 0}
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
+              onclick={() => toggleProjectExpansion(project.id)}
+              title="Toggle task lists"
+              data-testid="toggle-project-{project.id}"
+            >
+              {#if expandedProjects.has(project.id)}
+                <ChevronDown class="h-4 w-4" />
+              {:else}
+                <ChevronRight class="h-4 w-4" />
+              {/if}
+            </Button>
+          {:else}
+            <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+          {/if}
 
-        <div
-          class="flex-1"
-          role="button"
-          tabindex="0"
-          oncontextmenu={(e) => handleProjectContextMenu(e, project)}
-        >
-          <Button
-            variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-            class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
-            onclick={() => handleProjectSelect(project)}
-            data-testid="project-{project.id}"
+          <div
+            class="flex-1"
+            role="button"
+            tabindex="0"
+            oncontextmenu={(e) => handleProjectContextMenu(e, project)}
           >
-            <div class="flex items-center gap-2 min-w-0">
-              <div
-                class="w-3 h-3 rounded-full flex-shrink-0"
-                style="background-color: {project.color || '#3b82f6'}"
-              ></div>
-              <span class="truncate">{project.name}</span>
-            </div>
-            <span class="text-xs text-muted-foreground flex-shrink-0">
-              {getProjectTaskCount(project)}
-            </span>
-          </Button>
+            <Button
+              variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+              class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
+              onclick={() => handleProjectSelect(project)}
+              data-testid="project-{project.id}"
+            >
+              <div class="flex items-center gap-2 min-w-0">
+                <div
+                  class="w-3 h-3 rounded-full flex-shrink-0"
+                  style="background-color: {project.color || '#3b82f6'}"
+                ></div>
+                <span class="truncate">{project.name}</span>
+              </div>
+              <span class="text-xs text-muted-foreground flex-shrink-0">
+                {getProjectTaskCount(project)}
+              </span>
+            </Button>
+          </div>
         </div>
 
         <SidebarProjectTaskLists 
