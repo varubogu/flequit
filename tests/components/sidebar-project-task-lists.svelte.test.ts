@@ -2,7 +2,6 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SidebarProjectTaskLists from '../../src/lib/components/sidebar-project-task-lists.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
-import { contextMenuStore } from '$lib/stores/context-menu.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
 import { writable, get } from 'svelte/store';
 
@@ -27,22 +26,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   };
 });
 
-vi.mock('$lib/stores/context-menu.svelte', async (importOriginal) => {
-    const { writable } = await import('svelte/store');
-    const original = await importOriginal() as any;
-    const contextMenuWritable = writable({ isOpen: false, x: 0, y: 0, items: [] });
-    return {
-        ...original,
-        contextMenuStore: {
-            ...(original.contextMenuStore || {}),
-            subscribe: contextMenuWritable.subscribe,
-            open: vi.fn(),
-        }
-    };
-});
-
 const mockTaskStore = vi.mocked(taskStore);
-const mockContextMenuStore = vi.mocked(contextMenuStore);
 
 // --- Test Data ---
 const mockProject: ProjectTree = {
@@ -158,10 +142,15 @@ describe('SidebarProjectTaskLists Component', () => {
       isExpanded: true 
     });
 
-    const frontendDiv = screen.getByText('Frontend').closest('[role="button"]');
-    await fireEvent.contextMenu(frontendDiv!);
+    // 現在の実装ではContextMenu.TriggerでButtonを囲んでいるため、Buttonに右クリックする
+    const frontendButton = screen.getByText('Frontend').closest('button');
+    await fireEvent.contextMenu(frontendButton!);
 
-    expect(mockContextMenuStore.open).toHaveBeenCalled();
+    // ContextMenuコンテンツが表示されることを確認
+    // bits-uiのContextMenuは右クリック時に自動的にメニューを表示する
+    await expect(screen.findByText('Edit Task List')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('Add Task')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('Delete Task List')).resolves.toBeInTheDocument();
   });
 
   test('should render empty list when project has no task lists', () => {

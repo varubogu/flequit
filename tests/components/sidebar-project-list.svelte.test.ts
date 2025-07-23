@@ -2,7 +2,6 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SidebarProjectList from '../../src/lib/components/sidebar-project-list.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
-import { contextMenuStore } from '$lib/stores/context-menu.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
 import { writable, get } from 'svelte/store';
 
@@ -35,22 +34,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   };
 });
 
-vi.mock('$lib/stores/context-menu.svelte', async (importOriginal) => {
-    const { writable } = await import('svelte/store');
-    const original = await importOriginal() as any;
-    const contextMenuWritable = writable({ isOpen: false, x: 0, y: 0, items: [] });
-    return {
-        ...original,
-        contextMenuStore: {
-            ...(original.contextMenuStore || {}),
-            subscribe: contextMenuWritable.subscribe,
-            open: vi.fn(),
-        }
-    };
-});
-
 const mockTaskStore = vi.mocked(taskStore);
-const mockContextMenuStore = vi.mocked(contextMenuStore);
 
 // --- Test Data ---
 const mockProjects: ProjectTree[] = [
@@ -152,10 +136,14 @@ describe('SidebarProjectList Component', () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const projectDiv = screen.getByText('Work').closest('[role="button"]');
-    await fireEvent.contextMenu(projectDiv!);
+    // 現在の実装ではContextMenu.TriggerでButtonを囲んでいるため、Buttonに右クリックする
+    const projectButton = screen.getByText('Work').closest('button');
+    await fireEvent.contextMenu(projectButton!);
 
-    expect(mockContextMenuStore.open).toHaveBeenCalled();
+    // ContextMenuコンテンツが表示されることを確認
+    await expect(screen.findByText('Edit Project')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('Add Task List')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('Delete Project')).resolves.toBeInTheDocument();
   });
 
   test('should highlight selected project', () => {
