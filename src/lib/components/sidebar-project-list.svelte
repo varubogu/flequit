@@ -124,7 +124,7 @@
           oncontextmenu={(e) => handleProjectContextMenu(e, project)}
         >
           <Button
-            variant={currentView === 'project' && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+            variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
             class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
             onclick={() => handleProjectSelect(project)}
             data-testid="project-{project.id}"

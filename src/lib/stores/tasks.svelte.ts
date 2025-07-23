@@ -82,10 +82,12 @@ export class TaskStore {
   
   selectProject(projectId: string | null) {
     this.selectedProjectId = projectId;
+    this.selectedListId = null; // Clear list selection when selecting a project
   }
   
   selectList(listId: string | null) {
     this.selectedListId = listId;
+    this.selectedProjectId = null; // Clear project selection when selecting a list
   }
   
   updateTask(taskId: string, updates: Partial<Task>) {

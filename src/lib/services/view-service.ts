@@ -1,7 +1,7 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth' | 'search';
+export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth' | 'search';
 
 export class ViewService {
   static getTasksForView(view: ViewType, searchQuery: string = ''): TaskWithSubTasks[] {
@@ -13,6 +13,8 @@ export class ViewService {
       case 'completed':
         return taskStore.allTasks.filter(task => task.status === 'completed');
       case 'project':
+        return this.getProjectTasks();
+      case 'tasklist':
         return this.getProjectTasks();
       case 'tomorrow':
         return this.getTomorrowTasks();
@@ -39,6 +41,8 @@ export class ViewService {
         return 'Completed';
       case 'project':
         return this.getProjectViewTitle();
+      case 'tasklist':
+        return this.getProjectViewTitle();
       case 'tomorrow':
         return 'Tomorrow';
       case 'next3days':
@@ -55,7 +59,7 @@ export class ViewService {
   }
   
   static shouldShowAddButton(view: ViewType): boolean {
-    return view === 'all' || view === 'project' || view === 'tomorrow' || view === 'next3days' || view === 'nextweek' || view === 'thismonth';
+    return view === 'all' || view === 'project' || view === 'tasklist' || view === 'tomorrow' || view === 'next3days' || view === 'nextweek' || view === 'thismonth';
   }
   
   
@@ -64,46 +68,58 @@ export class ViewService {
     taskStore.selectTask(null);
     
     // Clear project/list selection for non-project views
-    if (view !== 'project') {
+    if (view !== 'project' && view !== 'tasklist') {
       taskStore.selectProject(null);
       taskStore.selectList(null);
     }
   }
   
   private static getProjectTasks(): TaskWithSubTasks[] {
-    if (!taskStore.selectedProjectId) {
-      return [];
-    }
-    
-    const project = taskStore.projects.find(p => p.id === taskStore.selectedProjectId);
-    if (!project) {
-      return [];
-    }
-    
+    // If a specific list is selected, show only tasks from that list
     if (taskStore.selectedListId) {
-      const list = project.task_lists.find(l => l.id === taskStore.selectedListId);
-      return list ? list.tasks : [];
+      for (const project of taskStore.projects) {
+        const list = project.task_lists.find(l => l.id === taskStore.selectedListId);
+        if (list) {
+          return list.tasks;
+        }
+      }
+      return [];
     }
     
-    return project.task_lists.flatMap(l => l.tasks);
+    // If a project is selected, show all tasks from that project
+    if (taskStore.selectedProjectId) {
+      const project = taskStore.projects.find(p => p.id === taskStore.selectedProjectId);
+      if (!project) {
+        return [];
+      }
+      return project.task_lists.flatMap(l => l.tasks);
+    }
+    
+    return [];
   }
   
   private static getProjectViewTitle(): string {
-    if (!taskStore.selectedProjectId) {
-      return 'Project';
-    }
-    
-    const project = taskStore.projects.find(p => p.id === taskStore.selectedProjectId);
-    if (!project) {
-      return 'Project';
-    }
-    
+    // If a specific list is selected, show the list name
     if (taskStore.selectedListId) {
-      const list = project.task_lists.find(l => l.id === taskStore.selectedListId);
-      return list ? list.name : project.name;
+      for (const project of taskStore.projects) {
+        const list = project.task_lists.find(l => l.id === taskStore.selectedListId);
+        if (list) {
+          return list.name;
+        }
+      }
+      return 'Task List';
     }
     
-    return project.name;
+    // If a project is selected, show the project name
+    if (taskStore.selectedProjectId) {
+      const project = taskStore.projects.find(p => p.id === taskStore.selectedProjectId);
+      if (!project) {
+        return 'Project';
+      }
+      return project.name;
+    }
+    
+    return 'Project';
   }
 
   private static getTomorrowTasks(): TaskWithSubTasks[] {
