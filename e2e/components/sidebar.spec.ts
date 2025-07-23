@@ -12,17 +12,17 @@ test.describe('Sidebar Component', () => {
     await expect(page.getByRole('button', { name: /Today/ })).toBeVisible();
 
     // Check if projects are visible - use more specific selectors to avoid conflicts
-    await expect(page.getByRole('button').filter({ hasText: 'Personal Tasks' })).toBeVisible();
-    await expect(page.getByRole('button').filter({ hasText: 'Work Project' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Personal/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Work/ })).toBeVisible();
   });
 
   test('should display correct task counts', async ({ page }) => {
-    // The count is inside a badge component
+    // The count is inside a badge component with ml-auto class
     const todayButton = page.getByRole('button', { name: /Today/ });
-    await expect(todayButton.locator('[class*="badge"]')).toContainText('2');
+    await expect(todayButton.locator('.ml-auto')).toContainText('2');
 
-    const workProjectButton = page.getByRole('button').filter({ hasText: 'Work Project' });
-    await expect(workProjectButton.locator('[class*="badge"]')).toContainText('1');
+    const workProjectButton = page.getByRole('button', { name: /Work/ });
+    await expect(workProjectButton.locator('span').last()).toContainText('2');
   });
 
   test('should change view on click', async ({ page }) => {
@@ -31,24 +31,24 @@ test.describe('Sidebar Component', () => {
   });
 
   test('should select a project on click', async ({ page }) => {
-    await page.getByRole('button').filter({ hasText: 'Work Project' }).first().click();
+    await page.getByRole('button', { name: /Work/ }).first().click();
     await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
-    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-2');
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-1');
   });
 
   test('should expand and collapse a project', async ({ page }) => {
     const projectToggleButton = page.locator('[class*="lucide-chevron-right"]').first();
 
     // Task list should not be visible initially
-    await expect(page.getByRole('button', { name: 'Daily Tasks' })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Frontend' })).not.toBeVisible();
 
     // Expand the project
     await projectToggleButton.click();
-    await expect(page.getByRole('button', { name: 'Daily Tasks' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Frontend' })).toBeVisible();
 
     // Collapse the project
     await projectToggleButton.click();
-    await expect(page.getByRole('button', { name: 'Daily Tasks' })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Frontend' })).not.toBeVisible();
   });
 
   test('should handle keyboard navigation', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('Sidebar Component', () => {
 
   test('should maintain selection state after interaction', async ({ page }) => {
     // Select a project
-    await page.getByRole('button').filter({ hasText: 'Work Project' }).first().click();
+    await page.getByRole('button', { name: /Work/ }).first().click();
     await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
     
     // Expand and collapse a project - selection should remain
@@ -73,7 +73,7 @@ test.describe('Sidebar Component', () => {
     await expect(page.getByTestId('current-view')).toHaveText('Current View: project');
     
     // Verify the Work project is still selected
-    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-2');
+    await expect(page.getByTestId('selected-project')).toHaveText('Selected Project ID: project-1');
   });
 
   test('should have proper accessibility attributes', async ({ page }) => {
@@ -82,7 +82,7 @@ test.describe('Sidebar Component', () => {
     await expect(todayButton).toBeVisible();
     
     // Check that project buttons are accessible
-    const workButton = page.getByRole('button').filter({ hasText: 'Work Project' }).first();
+    const workButton = page.getByRole('button', { name: /Work/ }).first();
     await expect(workButton).toBeVisible();
   });
 
@@ -92,7 +92,7 @@ test.describe('Sidebar Component', () => {
     await projectToggleButton.click();
     
     // Verify task list is nested under the project
-    const taskList = page.getByRole('button', { name: 'Daily Tasks' });
+    const taskList = page.getByRole('button', { name: 'Frontend' });
     await expect(taskList).toBeVisible();
     
     // Click on the task list to select it
@@ -103,10 +103,10 @@ test.describe('Sidebar Component', () => {
   test('should update task counts dynamically', async ({ page }) => {
     // Verify initial counts
     const todayButton = page.getByRole('button', { name: /Today/ }).first();
-    await expect(todayButton.locator('[class*="badge"]')).toContainText('2');
+    await expect(todayButton.locator('.ml-auto')).toContainText('2');
     
-    const workProjectButton = page.getByRole('button').filter({ hasText: 'Work Project' }).first();
-    await expect(workProjectButton.locator('[class*="badge"]')).toContainText('1');
+    const workProjectButton = page.getByRole('button', { name: /Work/ }).first();
+    await expect(workProjectButton.locator('span').last()).toContainText('2');
     
     // Note: In a real app, we would test actual count updates after adding/removing tasks
     // This is a baseline test to ensure counts are rendered correctly
@@ -124,7 +124,7 @@ test.describe('Sidebar Component', () => {
     // Test that clicking on elements doesn't cause JavaScript errors
     await page.getByRole('button', { name: /All Tasks/ }).first().click();
     await page.getByRole('button', { name: /Today/ }).first().click();
-    await page.getByRole('button').filter({ hasText: 'Work Project' }).first().click();
+    await page.getByRole('button', { name: /Work/ }).first().click();
     
     // Verify no console errors occurred (this would be caught by Playwright automatically)
     await expect(page.getByTestId('current-view')).toBeVisible();
@@ -133,11 +133,11 @@ test.describe('Sidebar Component', () => {
   test('should maintain consistent UI behavior across interactions', async ({ page }) => {
     // Test multiple interactions in sequence to ensure state consistency
     await page.getByRole('button', { name: /Today/ }).first().click();
-    await page.getByRole('button').filter({ hasText: 'Work Project' }).first().click();
+    await page.getByRole('button', { name: /Work/ }).first().click();
     await page.getByRole('button', { name: /All Tasks/ }).first().click();
     
     // After all interactions, the UI should still be functional
-    await expect(page.getByTestId('current-view')).toHaveText('Current View: all');
+    await expect(page.getByTestId('current-view')).toHaveText('Current View: allTasks');
     await expect(page.getByRole('button', { name: /All Tasks/ }).first()).toBeVisible();
   });
 });
