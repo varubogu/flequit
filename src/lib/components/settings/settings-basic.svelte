@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
 
   interface Props {

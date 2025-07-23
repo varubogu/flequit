@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import type { Component } from 'svelte';
@@ -31,7 +31,7 @@
     <ContextMenu.Trigger>
       <Button
         variant={isActive ? "secondary" : "ghost"}
-        class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''}"
+        class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''} active:scale-100 active:brightness-[0.4] transition-all duration-100"
         {onclick}
         data-testid={testId}
       >
@@ -67,7 +67,7 @@
 {:else}
   <Button
     variant={isActive ? "secondary" : "ghost"}
-    class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''}"
+    class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''} active:scale-100 active:brightness-[0.4] transition-all duration-100"
     {onclick}
     data-testid={testId}
   >

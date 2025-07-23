@@ -2,11 +2,11 @@
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { contextMenuStore } from '$lib/stores/context-menu.svelte';
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import { ChevronDown, ChevronRight } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project-dialog.svelte';
   import SidebarProjectTaskLists from '$lib/components/sidebar-project-task-lists.svelte';
+  import * as ContextMenu from '$lib/components/ui/context-menu';
 
   interface Props {
     currentView?: ViewType;
@@ -40,31 +40,6 @@
     return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
   }
 
-  function handleProjectContextMenu(event: MouseEvent, project: ProjectTree) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    contextMenuStore.open(event.clientX, event.clientY, [
-      {
-        label: 'Edit Project',
-        action: () => openProjectDialog('edit', project)
-      },
-      {
-        label: 'Add Task List',
-        action: () => console.log('Add task list to:', project.name)
-      },
-      {
-        label: '',
-        action: () => {},
-        separator: true
-      },
-      {
-        label: 'Delete Project',
-        action: () => console.log('Delete project:', project.name),
-        disabled: project.task_lists.length > 0
-      }
-    ]);
-  }
 
 
   function openProjectDialog(mode: 'add' | 'edit', project?: any) {
@@ -103,7 +78,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
+              class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
               onclick={() => toggleProjectExpansion(project.id)}
               title="Toggle task lists"
               data-testid="toggle-project-{project.id}"
@@ -118,29 +93,44 @@
             <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
           {/if}
 
-          <div
-            class="flex-1"
-            role="button"
-            tabindex="0"
-            oncontextmenu={(e) => handleProjectContextMenu(e, project)}
-          >
-            <Button
-              variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-              class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm"
-              onclick={() => handleProjectSelect(project)}
-              data-testid="project-{project.id}"
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="w-3 h-3 rounded-full flex-shrink-0"
-                  style="background-color: {project.color || '#3b82f6'}"
-                ></div>
-                <span class="truncate">{project.name}</span>
-              </div>
-              <span class="text-xs text-muted-foreground flex-shrink-0">
-                {getProjectTaskCount(project)}
-              </span>
-            </Button>
+          <div class="flex-1">
+            <ContextMenu.Root>
+              <ContextMenu.Trigger class="block w-full">
+                <Button
+                  variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+                  class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
+                  onclick={() => handleProjectSelect(project)}
+                  data-testid="project-{project.id}"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div
+                      class="w-3 h-3 rounded-full flex-shrink-0"
+                      style="background-color: {project.color || '#3b82f6'}"
+                    ></div>
+                    <span class="truncate">{project.name}</span>
+                  </div>
+                  <span class="text-xs text-muted-foreground flex-shrink-0">
+                    {getProjectTaskCount(project)}
+                  </span>
+                </Button>
+              </ContextMenu.Trigger>
+              <ContextMenu.Content>
+                <ContextMenu.Item onclick={() => openProjectDialog('edit', project)}>
+                  Edit Project
+                </ContextMenu.Item>
+                <ContextMenu.Item onclick={() => console.log('Add task list to:', project.name)}>
+                  Add Task List
+                </ContextMenu.Item>
+                <ContextMenu.Separator />
+                <ContextMenu.Item 
+                  variant="destructive"
+                  disabled={project.task_lists.length > 0}
+                  onclick={() => console.log('Delete project:', project.name)}
+                >
+                  Delete Project
+                </ContextMenu.Item>
+              </ContextMenu.Content>
+            </ContextMenu.Root>
           </div>
         </div>
 

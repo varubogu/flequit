@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask, TaskStatus } from '$lib/types/task';
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import Select from '$lib/components/ui/select.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import { formatDate } from '$lib/utils/date-utils';

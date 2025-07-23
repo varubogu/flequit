@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import SettingsDraggableItems from '../settings-draggable-items.svelte';
   import ConfirmDialog from '../confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';

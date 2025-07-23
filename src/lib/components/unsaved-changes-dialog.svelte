@@ -5,7 +5,7 @@
   import DialogTitle from "$lib/components/ui/dialog-title.svelte";
   import DialogDescription from "$lib/components/ui/dialog-description.svelte";
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
-  import Button from "$lib/components/ui/button.svelte";
+  import Button from "$lib/components/button.svelte";
   import { Save, Trash2, X } from 'lucide-svelte';
 
   interface Props {

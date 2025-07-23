@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import SettingsDialog from '$lib/components/settings-dialog.svelte';
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';

@@ -4,7 +4,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import { ViewService } from '$lib/services/view-service';
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import { Plus } from 'lucide-svelte';
   
   interface Props {

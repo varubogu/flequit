@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import SearchCommand from '$lib/components/search-command.svelte';
   import { Search } from 'lucide-svelte';

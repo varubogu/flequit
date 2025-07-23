@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import { formatDate } from '$lib/utils/date-utils';
 
   interface Props {

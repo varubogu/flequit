@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { ProjectTree } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { contextMenuStore } from '$lib/stores/context-menu.svelte';
-  import Button from '$lib/components/ui/button.svelte';
+  import Button from '$lib/components/button.svelte';
   import TaskListDialog from '$lib/components/task-list-dialog.svelte';
+  import * as ContextMenu from '$lib/components/ui/context-menu';
 
   interface Props {
     project: ProjectTree;
@@ -23,31 +23,6 @@
   let editingTaskList: any = $state(null);
   let editingProject: any = $state(null);
 
-  function handleTaskListContextMenu(event: MouseEvent, list: any, project: ProjectTree) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    contextMenuStore.open(event.clientX, event.clientY, [
-      {
-        label: 'Edit Task List',
-        action: () => openTaskListDialog('edit', list, project)
-      },
-      {
-        label: 'Add Task',
-        action: () => console.log('Add task to:', list.name)
-      },
-      {
-        label: '',
-        action: () => {},
-        separator: true
-      },
-      {
-        label: 'Delete Task List',
-        action: () => console.log('Delete task list:', list.name),
-        disabled: list.tasks.length > 0
-      }
-    ]);
-  }
 
   function openTaskListDialog(mode: 'add' | 'edit', taskList?: any, project?: any) {
     taskListDialogMode = mode;
@@ -70,24 +45,38 @@
 {#if isExpanded}
   <div class="ml-4 mt-1 space-y-1">
     {#each project.task_lists as list (list.id)}
-      <div
-        role="button"
-        tabindex="0"
-        oncontextmenu={(e) => handleTaskListContextMenu(e, list, project)}
-      >
-        <Button
-          variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
-          size="sm"
-          class="flex items-center justify-between w-full h-auto p-2 text-xs"
-          onclick={() => handleTaskListSelect(list)}
-          data-testid="tasklist-{list.id}"
-        >
-          <span class="truncate">{list.name}</span>
-          <span class="text-muted-foreground">
-            {list.tasks.length}
-          </span>
-        </Button>
-      </div>
+      <ContextMenu.Root>
+        <ContextMenu.Trigger class="block w-full">
+          <Button
+            variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+            size="sm"
+            class="flex items-center justify-between w-full h-auto p-2 text-xs active:scale-100 active:brightness-[0.4] transition-all duration-100"
+            onclick={() => handleTaskListSelect(list)}
+            data-testid="tasklist-{list.id}"
+          >
+            <span class="truncate">{list.name}</span>
+            <span class="text-muted-foreground">
+              {list.tasks.length}
+            </span>
+          </Button>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item onclick={() => openTaskListDialog('edit', list, project)}>
+            Edit Task List
+          </ContextMenu.Item>
+          <ContextMenu.Item onclick={() => console.log('Add task to:', list.name)}>
+            Add Task
+          </ContextMenu.Item>
+          <ContextMenu.Separator />
+          <ContextMenu.Item 
+            variant="destructive"
+            disabled={list.tasks.length > 0}
+            onclick={() => console.log('Delete task list:', list.name)}
+          >
+            Delete Task List
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>
     {/each}
   </div>
 {/if}
