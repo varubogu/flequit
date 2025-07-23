@@ -135,7 +135,7 @@ test.describe('Sidebar Component', () => {
     await projectToggleButton.click();
 
     const taskList = page.getByTestId('tasklist-list-1');
-    await taskList.click({ force: true });
+    await taskList.click();
 
     // Wait a bit for the state to update
     await page.waitForTimeout(100);
@@ -152,7 +152,7 @@ test.describe('Sidebar Component', () => {
     await projectToggleButton.click();
 
     const taskList = page.getByTestId('tasklist-list-1');
-    await taskList.click({ force: true });
+    await taskList.click();
 
     // Wait a bit for the state to update
     await page.waitForTimeout(100);
