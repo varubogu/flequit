@@ -10,11 +10,14 @@ import { writable, get } from 'svelte/store';
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
   const original = await importOriginal() as any;
-  const tasksWritable = writable({
+  
+  let taskStoreData = {
     projects: [],
     selectedProjectId: null,
     selectedListId: null,
-  });
+  };
+  
+  const tasksWritable = writable(taskStoreData);
 
   return {
     ...original,
@@ -25,9 +28,9 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       update: tasksWritable.update,
       selectProject: vi.fn(),
       selectList: vi.fn(),
-      get projects() { return get(tasksWritable).projects },
-      get selectedProjectId() { return get(tasksWritable).selectedProjectId },
-      get selectedListId() { return get(tasksWritable).selectedListId },
+      projects: [],
+      selectedProjectId: null,
+      selectedListId: null,
     }
   };
 });
@@ -68,15 +71,15 @@ describe('SidebarProjectList Component', () => {
     onViewChange = vi.fn();
     vi.clearAllMocks();
     // Reset store state
-    (mockTaskStore as any).projects = [];
-    (mockTaskStore as any).selectedProjectId = null;
-    (mockTaskStore as any).selectedListId = null;
+    mockTaskStore.projects = [];
+    mockTaskStore.selectedProjectId = null;
+    mockTaskStore.selectedListId = null;
   });
 
   const setTaskStoreData = (data: { projects?: any[], selectedProjectId?: string | null, selectedListId?: string | null }) => {
-    if (data.projects !== undefined) (mockTaskStore as any).projects = data.projects;
-    if (data.selectedProjectId !== undefined) (mockTaskStore as any).selectedProjectId = data.selectedProjectId;
-    if (data.selectedListId !== undefined) (mockTaskStore as any).selectedListId = data.selectedListId;
+    if (data.projects !== undefined) mockTaskStore.projects = data.projects;
+    if (data.selectedProjectId !== undefined) mockTaskStore.selectedProjectId = data.selectedProjectId;
+    if (data.selectedListId !== undefined) mockTaskStore.selectedListId = data.selectedListId;
   };
 
   test('should render projects section header', () => {

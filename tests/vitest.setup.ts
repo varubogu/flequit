@@ -20,6 +20,12 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords() { return []; }
 } as any;
 
+// Mock scrollIntoView
+Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+  value: () => {},
+  writable: true
+});
+
 // Mock console methods to avoid noise in tests
 const originalConsole = console;
 global.console = {

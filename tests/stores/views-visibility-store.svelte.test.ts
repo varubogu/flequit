@@ -177,6 +177,10 @@ describe('ViewsVisibilityStore', () => {
     });
 
     test('should handle localStorage save errors gracefully', () => {
+      // Mock console.warn to suppress expected error messages
+      const originalWarn = console.warn;
+      console.warn = vi.fn();
+      
       localStorageMock.setItem.mockImplementationOnce(() => {
         throw new Error('Storage quota exceeded');
       });
@@ -185,6 +189,12 @@ describe('ViewsVisibilityStore', () => {
       expect(() => {
         viewsVisibilityStore.resetToDefaults();
       }).not.toThrow();
+      
+      // Verify that the error was logged
+      expect(console.warn).toHaveBeenCalledWith('Failed to save views configuration:', expect.any(Error));
+      
+      // Restore console.warn
+      console.warn = originalWarn;
     });
 
     test('should handle missing window during save gracefully', () => {

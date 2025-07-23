@@ -22,7 +22,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       set: tasksWritable.set,
       update: tasksWritable.update,
       selectList: vi.fn(),
-      get selectedListId() { return get(tasksWritable).selectedListId },
+      selectedListId: null,
     }
   };
 });
@@ -85,11 +85,11 @@ const mockProject: ProjectTree = {
 describe('SidebarProjectTaskLists Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (mockTaskStore as any).selectedListId = null;
+    mockTaskStore.selectedListId = null;
   });
 
   const setTaskStoreData = (data: { selectedListId?: string | null }) => {
-    if (data.selectedListId !== undefined) (mockTaskStore as any).selectedListId = data.selectedListId;
+    if (data.selectedListId !== undefined) mockTaskStore.selectedListId = data.selectedListId;
   };
 
   test('should not render anything when not expanded', () => {

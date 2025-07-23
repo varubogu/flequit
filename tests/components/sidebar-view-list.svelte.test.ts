@@ -22,9 +22,9 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       subscribe: tasksWritable.subscribe,
       set: tasksWritable.set,
       update: tasksWritable.update,
-      get todayTasks() { return get(tasksWritable).todayTasks },
-      get overdueTasks() { return get(tasksWritable).overdueTasks },
-      get allTasks() { return get(tasksWritable).allTasks },
+      todayTasks: [],
+      overdueTasks: [],
+      allTasks: [],
     }
   };
 });
@@ -57,15 +57,15 @@ describe('SidebarViewList Component', () => {
   beforeEach(() => {
     onViewChange = vi.fn();
     vi.clearAllMocks();
-    (mockTaskStore as any).todayTasks = [];
-    (mockTaskStore as any).overdueTasks = [];
-    (mockTaskStore as any).allTasks = [];
+    mockTaskStore.todayTasks = [];
+    mockTaskStore.overdueTasks = [];
+    mockTaskStore.allTasks = [];
   });
 
   const setTaskStoreData = (data: { todayTasks?: any[], overdueTasks?: any[], allTasks?: any[] }) => {
-    if (data.todayTasks !== undefined) (mockTaskStore as any).todayTasks = data.todayTasks;
-    if (data.overdueTasks !== undefined) (mockTaskStore as any).overdueTasks = data.overdueTasks;
-    if (data.allTasks !== undefined) (mockTaskStore as any).allTasks = data.allTasks;
+    if (data.todayTasks !== undefined) mockTaskStore.todayTasks = data.todayTasks;
+    if (data.overdueTasks !== undefined) mockTaskStore.overdueTasks = data.overdueTasks;
+    if (data.allTasks !== undefined) mockTaskStore.allTasks = data.allTasks;
   };
 
   test('should render views section header', () => {

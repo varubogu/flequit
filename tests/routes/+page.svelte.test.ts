@@ -34,18 +34,20 @@ vi.mock('../../src/lib/components/ui/resizable/index.js', () => ({
   }))
 }));
 
-// Mock view store
-const mockViewStore = {
-  currentView: 'all',
-  viewTitle: 'All Tasks',
-  tasks: [],
-  showAddButton: true,
-  changeView: vi.fn()
-};
-
-vi.mock('../../src/lib/stores/view-store.svelte', () => ({
-  viewStore: mockViewStore
-}));
+vi.mock('../../src/lib/stores/view-store.svelte', () => {
+  // Mock view store
+  const mockViewStore = {
+    currentView: 'all',
+    viewTitle: 'All Tasks',
+    tasks: [],
+    showAddButton: true,
+    changeView: vi.fn()
+  };
+  
+  return {
+    viewStore: mockViewStore
+  };
+});
 
 describe('Main Page Component', () => {
   beforeEach(() => {
