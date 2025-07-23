@@ -60,5 +60,20 @@
     "general_description": "一般的なアプリケーション設定",
     "views_description": "タスクの表示方法をカスタマイズ",
     "appearance_description": "アプリケーションの外観をカスタマイズ",
-    "account_description": "アカウント設定を管理"
+    "account_description": "アカウント設定を管理",
+    "views_title": "ビュー",
+    "all_tasks": "すべてのタスク",
+    "overdue": "期限切れ",
+    "today": "今日",
+    "tomorrow": "明日",
+    "next_3_days": "今後3日間",
+    "next_week": "来週",
+    "this_month": "今月",
+    "reset_to_defaults": "初期設定に戻す",
+    "reset_view_settings": "ビュー設定をリセット",
+    "reset_view_confirmation": "ビューの表示設定と順序を初期設定に戻してもよろしいですか？",
+    "reset": "リセット",
+    "visible_in_sidebar": "サイドバーに表示",
+    "hidden_from_sidebar": "サイドバーから非表示",
+    "views_description_text": "ドラッグ＆ドロップでビューの順序を変更したり、表示・非表示を切り替えることができます。"
 }

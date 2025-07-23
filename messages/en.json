@@ -60,5 +60,20 @@
     "general_description": "General application settings",
     "views_description": "Customize how you view your tasks",
     "appearance_description": "Customize the appearance of the application",
-    "account_description": "Manage your account settings"
+    "account_description": "Manage your account settings",
+    "views_title": "Views",
+    "all_tasks": "All Tasks",
+    "overdue": "Overdue",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "next_3_days": "Next 3 Days",
+    "next_week": "Next Week",
+    "this_month": "This Month",
+    "reset_to_defaults": "Reset to Defaults",
+    "reset_view_settings": "Reset View Settings",
+    "reset_view_confirmation": "Are you sure you want to reset the view visibility and order to the default settings?",
+    "reset": "Reset",
+    "visible_in_sidebar": "Visible in Sidebar",
+    "hidden_from_sidebar": "Hidden from Sidebar",
+    "views_description_text": "Drag and drop to reorder views or move them between visible and hidden sections."
 }
