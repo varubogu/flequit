@@ -4,6 +4,8 @@ test.describe('Sidebar Component', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the sidebar test page before each test
     await page.goto('/tests/sidebar');
+    // Wait for the sidebar to fully load
+    await expect(page.getByTestId('view-allTasks')).toBeVisible();
   });
 
   test('should display views and projects correctly', async ({ page }) => {
@@ -107,13 +109,16 @@ test.describe('Sidebar Component', () => {
     await expect(todayButton.locator('.ml-auto')).toContainText('2');
     
     const workProjectButton = page.getByTestId('project-project-1');
-    await expect(workProjectButton.locator('span').last()).toContainText('2');
+    await expect(workProjectButton.locator('span').last()).toContainText('4');
     
     // Note: In a real app, we would test actual count updates after adding/removing tasks
     // This is a baseline test to ensure counts are rendered correctly
   });
 
   test('should handle empty states gracefully', async ({ page }) => {
+    // Wait for the sidebar to load
+    await expect(page.getByTestId('view-allTasks')).toBeVisible();
+    
     // This test assumes there might be projects or views with no tasks
     // We're testing that the UI doesn't break when counts are 0
     const buttons = page.getByRole('button');

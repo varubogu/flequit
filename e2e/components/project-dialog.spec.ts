@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('ProjectDialog Component', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/tests/project-dialog');
+    // Wait for the page to fully load
+    await expect(page.getByTestId('open-add-dialog')).toBeVisible();
   });
 
   test('should open in add mode, fill form, and save', async ({ page }) => {
