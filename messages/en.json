@@ -128,5 +128,9 @@
     "view_all_tasks": "View All Tasks",
     "yesterday": "Yesterday",
     "add_date": "Add date",
-    "subtasks_completed": "{completed} / {total} subtasks completed"
+    "subtasks_completed": "{completed} / {total} subtasks completed",
+    "not_signed_in": "Not signed in",
+    "switch_account": "Switch Account",
+    "sign_out": "Sign Out",
+    "sign_in": "Sign In"
 }

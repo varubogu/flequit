@@ -128,5 +128,9 @@
     "view_all_tasks": "すべてのタスクを表示",
     "yesterday": "昨日",
     "add_date": "日付を追加",
-    "subtasks_completed": "{completed} / {total} サブタスク完了"
+    "subtasks_completed": "{completed} / {total} サブタスク完了",
+    "not_signed_in": "サインインしていません",
+    "switch_account": "アカウントを切り替え",
+    "sign_out": "サインアウト",
+    "sign_in": "サインイン"
 }
