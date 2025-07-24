@@ -125,5 +125,8 @@
     "show_all_tasks": "Show all tasks",
     "quick_actions": "Quick Actions",
     "add_new_task": "Add New Task",
-    "view_all_tasks": "View All Tasks"
+    "view_all_tasks": "View All Tasks",
+    "yesterday": "Yesterday",
+    "add_date": "Add date",
+    "subtasks_completed": "{completed} / {total} subtasks completed"
 }
