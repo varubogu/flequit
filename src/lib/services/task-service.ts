@@ -137,10 +137,7 @@ export class TaskService {
   }
 
   static deleteSubTask(subTaskId: string): boolean {
-    if (confirm('Are you sure you want to delete this subtask?')) {
-      taskStore.deleteSubTask(subTaskId);
-      return true;
-    }
-    return false;
+    taskStore.deleteSubTask(subTaskId);
+    return true;
   }
 }

@@ -19,11 +19,7 @@ vi.mock("../../src/lib/stores/tasks.svelte", () => ({
 // Get the mocked store for use in tests
 const mockTaskStore = vi.mocked(await import("../../src/lib/stores/tasks.svelte")).taskStore;
 
-// Mock window.confirm for deleteSubTask
-Object.defineProperty(window, 'confirm', {
-  writable: true,
-  value: vi.fn()
-});
+// Note: deleteSubTask no longer uses window.confirm, it's handled by UI dialog
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -264,24 +260,11 @@ test("TaskService.changeSubTaskStatus: calls updateSubTask with new status", () 
   expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, { status: newStatus });
 });
 
-test("TaskService.deleteSubTask: calls deleteSubTask when confirmed", () => {
+test("TaskService.deleteSubTask: calls deleteSubTask directly", () => {
   const subTaskId = "subtask-123";
-  window.confirm = vi.fn().mockReturnValue(true);
   
   const result = TaskService.deleteSubTask(subTaskId);
   
-  expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this subtask?');
   expect(mockTaskStore.deleteSubTask).toHaveBeenCalledWith(subTaskId);
   expect(result).toBe(true);
-});
-
-test("TaskService.deleteSubTask: does not delete when cancelled", () => {
-  const subTaskId = "subtask-123";
-  window.confirm = vi.fn().mockReturnValue(false);
-  
-  const result = TaskService.deleteSubTask(subTaskId);
-  
-  expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this subtask?');
-  expect(mockTaskStore.deleteSubTask).not.toHaveBeenCalled();
-  expect(result).toBe(false);
 });

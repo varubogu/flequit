@@ -4,6 +4,8 @@
   import { TaskService } from '$lib/services/task-service';
   import Card from '$lib/components/ui/card.svelte';
   import InlineDatePicker from '$lib/components/inline-date-picker.svelte';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import * as m from '$paraglide/messages.js';
   import TaskDetailHeader from './task-detail-header.svelte';
   import TaskDetailForm from './task-detail-form.svelte';
   import TaskDetailSubTasks from './task-detail-subtasks.svelte';
@@ -11,6 +13,7 @@
   import TaskDetailMetadata from './task-detail-metadata.svelte';
   import TaskDetailEmptyState from './task-detail-empty-state.svelte';
   import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
+  import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
@@ -35,6 +38,12 @@
   // Confirmation dialog state
   let showConfirmationDialog = $state(false);
   let pendingAction = $state<(() => void) | null>(null);
+  
+  // Delete confirmation dialog state
+  let showDeleteDialog = $state(false);
+  let deleteDialogTitle = $state('');
+  let deleteDialogMessage = $state('');
+  let pendingDeleteAction = $state<(() => void) | null>(null);
   
   // Watch for pending selections from taskStore
   $effect(() => {
@@ -183,11 +192,19 @@
       taskStore.cancelNewTaskMode();
       return;
     }
+    
+    // Show delete confirmation dialog
     if (isSubTask) {
-      TaskService.deleteSubTask(currentItem.id);
+      deleteDialogTitle = reactiveMessage(m.delete_subtask_title)();
+      deleteDialogMessage = reactiveMessage(m.delete_subtask_message)();
+      pendingDeleteAction = () => TaskService.deleteSubTask(currentItem.id);
     } else {
-      TaskService.deleteTask(currentItem.id);
+      deleteDialogTitle = reactiveMessage(m.delete_task_title)();
+      deleteDialogMessage = reactiveMessage(m.delete_task_message)();
+      pendingDeleteAction = () => TaskService.deleteTask(currentItem.id);
     }
+    
+    showDeleteDialog = true;
   }
 
   function handleSaveNewTask() {
@@ -250,6 +267,20 @@
     showConfirmationDialog = false;
     pendingAction = null;
     taskStore.clearPendingSelections();
+  }
+  
+  // Delete confirmation dialog handlers
+  function handleConfirmDelete() {
+    showDeleteDialog = false;
+    if (pendingDeleteAction) {
+      pendingDeleteAction();
+      pendingDeleteAction = null;
+    }
+  }
+  
+  function handleCancelDelete() {
+    showDeleteDialog = false;
+    pendingDeleteAction = null;
   }
   
   // Override task selection to show confirmation if needed
@@ -335,4 +366,13 @@
   open={showConfirmationDialog}
   onConfirm={handleConfirmDiscard}
   onCancel={handleCancelDiscard}
+/>
+
+<!-- Delete confirmation dialog -->
+<DeleteConfirmationDialog
+  open={showDeleteDialog}
+  title={deleteDialogTitle}
+  message={deleteDialogMessage}
+  onConfirm={handleConfirmDelete}
+  onCancel={handleCancelDelete}
 />

@@ -62,6 +62,10 @@ vi.mock('../../src/lib/components/new-task-confirmation-dialog.svelte', () => ({
   default: vi.fn()
 }));
 
+vi.mock('../../src/lib/components/delete-confirmation-dialog.svelte', () => ({
+  default: vi.fn()
+}));
+
 // Import after mocks
 import TaskDetail from '../../src/lib/components/task-detail.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
