@@ -8,9 +8,10 @@
     children: Snippet;
     ontagDetected?: (event: CustomEvent<{ tagName: string; position: number }>) => void;
     class?: string;
+    enableColorDisplay?: boolean;
   }
 
-  let { children, ontagDetected, class: className = '' }: Props = $props();
+  let { children, ontagDetected, class: className = '', enableColorDisplay = false }: Props = $props();
 
   // State for managing tag completion
   let showSuggestions = $state(false);
@@ -19,7 +20,8 @@
   let tagInputEnd = $state(-1);
   let currentTagInput = $state('');
   let suggestionsPosition = $state({ top: 0, left: 0 });
-  let activeElement: HTMLInputElement | HTMLTextAreaElement | null = null;
+  let activeElement = $state<HTMLInputElement | HTMLTextAreaElement | null>(null);
+  let coloredTags = $state<{ start: number; end: number; color: string; name: string }[]>([]);
 
   function cleanTagNameForDisplay(name: string): string {
     // For title/description: keep first #, remove other # and spaces
@@ -33,6 +35,48 @@
   function extractTagName(name: string): string {
     // Extract clean tag name for storage (remove all # and spaces)
     return name.replace(/[#\s]/g, '');
+  }
+
+  function updateColoredTags(element: HTMLInputElement | HTMLTextAreaElement, text: string) {
+    if (!enableColorDisplay) {
+      coloredTags = [];
+      return;
+    }
+
+    const newColoredTags: { start: number; end: number; color: string; name: string }[] = [];
+
+    // Find tag ranges: # followed by non-whitespace characters
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === '#') {
+        // Check if this # is at the start or preceded by whitespace
+        const isValidTagStart = i === 0 || /[\s\n\t]/.test(text[i - 1]);
+
+        if (isValidTagStart) {
+          // Find the end of this tag (until whitespace, newline, tab, or end of string)
+          let tagEnd = i + 1;
+          while (tagEnd < text.length && !/[\s\n\t]/.test(text[tagEnd])) {
+            tagEnd++;
+          }
+
+          // Only consider it a tag if there's content after #
+          if (tagEnd > i + 1) {
+            const tagName = text.slice(i + 1, tagEnd);
+            const existingTag = tagStore.findTagByName(tagName);
+            
+            if (existingTag && existingTag.color) {
+              newColoredTags.push({
+                start: i,
+                end: tagEnd,
+                color: existingTag.color,
+                name: tagName
+              });
+            }
+          }
+        }
+      }
+    }
+
+    coloredTags = newColoredTags;
   }
 
   function calculateSuggestionsPosition(element: HTMLInputElement | HTMLTextAreaElement, startPos: number) {
@@ -164,6 +208,8 @@
   }
 
   function checkForTagInput(element: HTMLInputElement | HTMLTextAreaElement, text: string, cursorPos: number) {
+    // Update colored tags
+    updateColoredTags(element, text);
 
     // Find tag ranges: # followed by non-whitespace characters
     const tagRanges: { start: number; end: number; content: string }[] = [];
@@ -391,6 +437,20 @@
 <div bind:this={containerElement} class="relative {className}">
   {@render children()}
 
+  <!-- Tag color overlay -->
+  {#if enableColorDisplay && coloredTags.length > 0 && activeElement}
+    <div class="absolute inset-0 pointer-events-none z-10">
+      {#each coloredTags as tag}
+        <span
+          class="absolute rounded px-1 text-transparent"
+          style="background-color: {tag.color}; opacity: 0.3;"
+        >
+          #{tag.name}
+        </span>
+      {/each}
+    </div>
+  {/if}
+
   <!-- Suggestions dropdown -->
   {#if showSuggestions}
     <div
@@ -404,7 +464,14 @@
           class="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
           onclick={() => selectSuggestion(suggestion)}
         >
-          <Hash class="h-3 w-3" />
+          {#if suggestion.color}
+            <div 
+              class="w-3 h-3 rounded-sm border"
+              style="background-color: {suggestion.color}"
+            ></div>
+          {:else}
+            <Hash class="h-3 w-3" />
+          {/if}
           {suggestion.name}
         </button>
       {/each}

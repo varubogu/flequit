@@ -136,7 +136,7 @@
   <label for="task-description" class="block text-sm font-medium mb-2">
     {description()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
   </label>
-  <TagCompletionProvider ontagDetected={handleTagDetected}>
+  <TagCompletionProvider ontagDetected={handleTagDetected} enableColorDisplay={true}>
     <Textarea
       id="task-description"
       class="w-full min-h-24"

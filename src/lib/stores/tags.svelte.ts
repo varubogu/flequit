@@ -91,7 +91,7 @@ export class TagStore {
 export const tagStore = new TagStore();
 
 // Add some sample tags for testing
-tagStore.addTag({ name: 'urgent' });
-tagStore.addTag({ name: 'important' });
-tagStore.addTag({ name: 'work' });
-tagStore.addTag({ name: 'personal' });
+tagStore.addTag({ name: 'urgent', color: '#ef4444' });
+tagStore.addTag({ name: 'important', color: '#f97316' });
+tagStore.addTag({ name: 'work', color: '#3b82f6' });
+tagStore.addTag({ name: 'personal', color: '#10b981' });
