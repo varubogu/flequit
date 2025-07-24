@@ -32,8 +32,13 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     selectedTask: null,
     selectedSubTask: null, 
     selectedSubTaskId: null,
+    isNewTaskMode: false,
+    newTaskData: null,
     updateTask: vi.fn(),
     updateSubTask: vi.fn(),
+    updateNewTaskData: vi.fn(),
+    saveNewTask: vi.fn(),
+    cancelNewTaskMode: vi.fn(),
   }
 }));
 
@@ -50,6 +55,10 @@ vi.mock('$lib/services/task-service', () => ({
 }));
 
 vi.mock('$lib/components/inline-date-picker.svelte', () => ({
+  default: vi.fn()
+}));
+
+vi.mock('../../src/lib/components/new-task-confirmation-dialog.svelte', () => ({
   default: vi.fn()
 }));
 
@@ -147,6 +156,43 @@ describe('TaskDetail Integration', () => {
     });
 
     test('should handle debounced save operations', () => {
+      const { container } = render(TaskDetail);
+      expect(container).toBeInTheDocument();
+    });
+  });
+
+  describe('New Task Mode', () => {
+    test('should render task detail when in new task mode', () => {
+      (taskStore as any).isNewTaskMode = true;
+      (taskStore as any).newTaskData = {
+        id: 'new-task',
+        title: 'New Task',
+        description: '',
+        status: 'not_started',
+        priority: 0,
+        list_id: 'list-1',
+        order_index: 0,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        sub_tasks: [],
+        tags: []
+      };
+      
+      const { container } = render(TaskDetail);
+      expect(container.querySelector('.flex.flex-col.h-full')).toBeInTheDocument();
+    });
+
+    test('should handle new task mode state correctly', () => {
+      (taskStore as any).isNewTaskMode = true;
+      (taskStore as any).newTaskData = {
+        id: 'new-task',
+        title: '',
+        status: 'not_started',
+        sub_tasks: [],
+        tags: []
+      };
+      
       const { container } = render(TaskDetail);
       expect(container).toBeInTheDocument();
     });

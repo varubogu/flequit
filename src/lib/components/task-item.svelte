@@ -13,12 +13,18 @@
   import TaskAccordionToggle from './task-accordion-toggle.svelte';
   import TaskDatePicker from './task-date-picker.svelte';
   import TaskContextMenu from './task-context-menu.svelte';
+  import { createEventDispatcher } from 'svelte';
 
   interface Props {
     task: TaskWithSubTasks;
   }
 
   let { task }: Props = $props();
+  
+  const dispatch = createEventDispatcher<{
+    taskSelectionRequested: { taskId: string };
+    subTaskSelectionRequested: { subTaskId: string };
+  }>();
 
   let isSelected = $derived(taskStore.selectedTaskId === task.id);
   let hasSelectedSubTask = $derived(
@@ -38,7 +44,11 @@
   let taskContextMenu: TaskContextMenu;
 
   function handleTaskClick() {
-    TaskService.selectTask(task.id);
+    // Try to select task, but if blocked due to new task mode, dispatch event for confirmation
+    const success = TaskService.selectTask(task.id);
+    if (!success) {
+      dispatch('taskSelectionRequested', { taskId: task.id });
+    }
   }
 
   function handleStatusToggle() {
@@ -52,7 +62,10 @@
 
   function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
     event?.stopPropagation();
-    TaskService.selectSubTask(subTaskId);
+    const success = TaskService.selectSubTask(subTaskId);
+    if (!success) {
+      dispatch('subTaskSelectionRequested', { subTaskId });
+    }
   }
 
   function toggleSubTasksAccordion(event?: Event) {

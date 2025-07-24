@@ -7,6 +7,10 @@ export class TaskStore {
   selectedSubTaskId = $state<string | null>(null);
   selectedProjectId = $state<string | null>(null);
   selectedListId = $state<string | null>(null);
+  isNewTaskMode = $state<boolean>(false);
+  newTaskData = $state<TaskWithSubTasks | null>(null);
+  pendingTaskSelection = $state<string | null>(null);
+  pendingSubTaskSelection = $state<string | null>(null);
   
   // Computed values
   get selectedTask(): TaskWithSubTasks | null {
@@ -181,6 +185,65 @@ export class TaskStore {
           }
         }
       }
+    }
+  }
+  
+  // New task mode methods
+  startNewTaskMode(listId: string) {
+    this.isNewTaskMode = true;
+    this.selectedTaskId = null;
+    this.selectedSubTaskId = null;
+    this.newTaskData = {
+      id: 'new-task',
+      title: '',
+      description: '',
+      status: 'not_started',
+      priority: 0,
+      list_id: listId,
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      sub_tasks: [],
+      tags: []
+    };
+  }
+  
+  cancelNewTaskMode() {
+    this.isNewTaskMode = false;
+    this.newTaskData = null;
+    this.pendingTaskSelection = null;
+    this.pendingSubTaskSelection = null;
+  }
+  
+  saveNewTask(): string | null {
+    if (!this.newTaskData || !this.newTaskData.list_id || !this.newTaskData.title?.trim()) {
+      return null;
+    }
+    
+    const taskData = this.newTaskData as Task;
+    const newTask = this.addTask(taskData.list_id, taskData);
+    
+    if (newTask) {
+      this.isNewTaskMode = false;
+      this.newTaskData = null;
+      this.pendingTaskSelection = null;
+      this.pendingSubTaskSelection = null;
+      this.selectedTaskId = newTask.id;
+      return newTask.id;
+    }
+    
+    return null;
+  }
+  
+  clearPendingSelections() {
+    this.pendingTaskSelection = null;
+    this.pendingSubTaskSelection = null;
+  }
+  
+  updateNewTaskData(updates: Partial<TaskWithSubTasks>) {
+    if (this.newTaskData) {
+      this.newTaskData = { ...this.newTaskData, ...updates };
     }
   }
 }

@@ -7,12 +7,18 @@
   import { Plus } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { createEventDispatcher } from 'svelte';
   
   interface Props {
     title?: string;
     tasks?: TaskWithSubTasks[];
     showAddButton?: boolean;
   }
+  
+  const dispatch = createEventDispatcher<{
+    taskSelectionRequested: { taskId: string };
+    subTaskSelectionRequested: { subTaskId: string };
+  }>();
   
   let { 
     title = 'Tasks', 
@@ -95,7 +101,11 @@
     {:else}
       <div class="space-y-3 min-w-0" data-testid="task-items">
         {#each tasks as task (task.id)}
-          <TaskItem {task} />
+          <TaskItem 
+            {task} 
+            on:taskSelectionRequested={(event) => dispatch('taskSelectionRequested', event.detail)}
+            on:subTaskSelectionRequested={(event) => dispatch('subTaskSelectionRequested', event.detail)}
+          />
         {/each}
       </div>
     {/if}

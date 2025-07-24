@@ -2,19 +2,29 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { Trash2 } from 'lucide-svelte';
+  import { Trash2, Save } from 'lucide-svelte';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
     isSubTask: boolean;
+    isNewTaskMode?: boolean;
     title: string;
     onTitleChange: (title: string) => void;
     onDelete: () => void;
+    onSaveNewTask?: () => void;
   }
 
-  let { currentItem, isSubTask, title, onTitleChange, onDelete }: Props = $props();
+  let { 
+    currentItem, 
+    isSubTask, 
+    isNewTaskMode = false, 
+    title, 
+    onTitleChange, 
+    onDelete, 
+    onSaveNewTask 
+  }: Props = $props();
 
   function handleTitleInput(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -26,6 +36,7 @@
   const sub_task = reactiveMessage(m.sub_task);
   const sub_task_title = reactiveMessage(m.sub_task_title);
   const task_title = reactiveMessage(m.task_title);
+  const save_task = reactiveMessage(m.save_task);
 
 
 </script>
@@ -45,6 +56,11 @@
       />
     </div>
     <div class="flex gap-2 ml-4">
+      {#if isNewTaskMode}
+        <Button variant="ghost" size="icon" onclick={onSaveNewTask} title={save_task()} disabled={!title.trim()}>
+          <Save class="h-4 w-4" />
+        </Button>
+      {/if}
       <Button variant="ghost" size="icon" class="text-destructive" onclick={onDelete} title={delete_task()}>
         <Trash2 class="h-4 w-4" />
       </Button>

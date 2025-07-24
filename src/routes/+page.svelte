@@ -9,6 +9,16 @@
   function handleViewChange(view: ViewType) {
     viewStore.changeView(view);
   }
+
+  function handleTaskSelectionRequested(event: CustomEvent<{ taskId: string }>) {
+    // This will be handled by TaskDetail component's confirmation dialog
+    // The event is triggered when a task selection is requested but blocked due to new task mode
+  }
+
+  function handleSubTaskSelectionRequested(event: CustomEvent<{ subTaskId: string }>) {
+    // This will be handled by TaskDetail component's confirmation dialog
+    // The event is triggered when a subtask selection is requested but blocked due to new task mode
+  }
 </script>
 
 <div class="h-screen flex bg-background">
@@ -22,6 +32,8 @@
         title={viewStore.viewTitle}
         tasks={viewStore.tasks}
         showAddButton={viewStore.showAddButton}
+        on:taskSelectionRequested={handleTaskSelectionRequested}
+        on:subTaskSelectionRequested={handleSubTaskSelectionRequested}
       />
     </Resizable.Pane>
 

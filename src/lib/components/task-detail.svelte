@@ -10,11 +10,13 @@
   import TaskDetailTags from './task-detail-tags.svelte';
   import TaskDetailMetadata from './task-detail-metadata.svelte';
   import TaskDetailEmptyState from './task-detail-empty-state.svelte';
+  import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
-  let currentItem = $derived(task || subTask);
+  let currentItem = $derived(task || subTask || (taskStore.isNewTaskMode ? taskStore.newTaskData : null));
   let isSubTask = $derived(!!subTask);
+  let isNewTaskMode = $derived(taskStore.isNewTaskMode);
   
   let editForm = $state({
     title: '',
@@ -29,6 +31,31 @@
   // Date picker state
   let showDatePicker = $state(false);
   let datePickerPosition = $state({ x: 0, y: 0 });
+  
+  // Confirmation dialog state
+  let showConfirmationDialog = $state(false);
+  let pendingAction = $state<(() => void) | null>(null);
+  
+  // Watch for pending selections from taskStore
+  $effect(() => {
+    if (taskStore.pendingTaskSelection) {
+      const taskId = taskStore.pendingTaskSelection;
+      showConfirmationIfNeeded(() => {
+        TaskService.forceSelectTask(taskId);
+        taskStore.clearPendingSelections();
+      });
+    }
+  });
+  
+  $effect(() => {
+    if (taskStore.pendingSubTaskSelection) {
+      const subTaskId = taskStore.pendingSubTaskSelection;
+      showConfirmationIfNeeded(() => {
+        TaskService.forceSelectSubTask(subTaskId);
+        taskStore.clearPendingSelections();
+      });
+    }
+  });
 
   $effect(() => {
     if (currentItem) {
@@ -59,9 +86,9 @@
           is_range_date: editForm.is_range_date
         };
         
-        // end_date is handled in the updates object above
-        
-        if (isSubTask) {
+        if (isNewTaskMode) {
+          taskStore.updateNewTaskData(updates);
+        } else if (isSubTask) {
           taskStore.updateSubTask(currentItem.id, updates);
         } else {
           taskStore.updateTask(currentItem.id, updates);
@@ -140,7 +167,10 @@
   function handleStatusChange(event: Event) {
     if (!currentItem) return;
     const target = event.target as HTMLSelectElement;
-    if (isSubTask) {
+    
+    if (isNewTaskMode) {
+      taskStore.updateNewTaskData({ status: target.value as TaskStatus });
+    } else if (isSubTask) {
       TaskService.changeSubTaskStatus(currentItem.id, target.value as TaskStatus);
     } else {
       TaskService.changeTaskStatus(currentItem.id, target.value as TaskStatus);
@@ -149,10 +179,22 @@
 
   function handleDelete() {
     if (!currentItem) return;
+    if (isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+      return;
+    }
     if (isSubTask) {
       TaskService.deleteSubTask(currentItem.id);
     } else {
       TaskService.deleteTask(currentItem.id);
+    }
+  }
+
+  function handleSaveNewTask() {
+    if (!isNewTaskMode) return;
+    const newTaskId = taskStore.saveNewTask();
+    if (newTaskId) {
+      TaskService.selectTask(newTaskId);
     }
   }
 
@@ -184,6 +226,44 @@
   function handlePriorityChange(priority: number) {
     editForm.priority = priority;
   }
+  
+  // Confirmation dialog handlers
+  function showConfirmationIfNeeded(action: () => void): boolean {
+    if (isNewTaskMode && editForm.title.trim()) {
+      pendingAction = action;
+      showConfirmationDialog = true;
+      return false;
+    }
+    action();
+    return true;
+  }
+  
+  function handleConfirmDiscard() {
+    showConfirmationDialog = false;
+    if (pendingAction) {
+      pendingAction();
+      pendingAction = null;
+    }
+  }
+  
+  function handleCancelDiscard() {
+    showConfirmationDialog = false;
+    pendingAction = null;
+    taskStore.clearPendingSelections();
+  }
+  
+  // Override task selection to show confirmation if needed
+  function handleTaskSelectionChange(taskId: string | null) {
+    if (!showConfirmationIfNeeded(() => TaskService.forceSelectTask(taskId))) {
+      // Confirmation dialog will handle the action
+    }
+  }
+  
+  function handleSubTaskSelectionChange(subTaskId: string | null) {
+    if (!showConfirmationIfNeeded(() => TaskService.forceSelectSubTask(subTaskId))) {
+      // Confirmation dialog will handle the action
+    }
+  }
 </script>
 
 <Card class="flex flex-col h-full">
@@ -191,9 +271,11 @@
     <TaskDetailHeader 
       {currentItem}
       {isSubTask}
+      {isNewTaskMode}
       title={editForm.title}
       onTitleChange={handleTitleChange}
       onDelete={handleDelete}
+      onSaveNewTask={handleSaveNewTask}
     />
 
     <!-- Content -->
@@ -209,8 +291,8 @@
         onPriorityChange={handlePriorityChange}
       />
 
-      <!-- Sub-tasks (only show for main tasks, not for sub-tasks) -->
-      {#if !isSubTask && task}
+      <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
+      {#if !isSubTask && !isNewTaskMode && task}
         <TaskDetailSubTasks 
           {task}
           selectedSubTaskId={taskStore.selectedSubTaskId}
@@ -219,14 +301,15 @@
         />
       {/if}
 
-      <!-- Tags (only for main tasks) -->
-      {#if !isSubTask && task}
+      <!-- Tags (only for main tasks, not in new task mode) -->
+      {#if !isSubTask && !isNewTaskMode && task}
         <TaskDetailTags {task} />
       {/if}
 
       <TaskDetailMetadata 
         {currentItem}
         {isSubTask}
+        {isNewTaskMode}
         onGoToParentTask={handleGoToParentTask}
       />
     </div>
@@ -245,4 +328,11 @@
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
+/>
+
+<!-- Confirmation dialog for new task mode -->
+<NewTaskConfirmationDialog
+  open={showConfirmationDialog}
+  onConfirm={handleConfirmDiscard}
+  onCancel={handleCancelDiscard}
 />

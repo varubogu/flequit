@@ -6,11 +6,43 @@ export class TaskService {
     taskStore.toggleTaskStatus(taskId);
   }
 
-  static selectTask(taskId: string | null): void {
+  static selectTask(taskId: string | null): boolean {
+    // Check if we need confirmation for new task mode
+    if (taskStore.isNewTaskMode && taskId !== null) {
+      taskStore.pendingTaskSelection = taskId;
+      return false; // Indicate that task selection needs confirmation
+    }
+    
     taskStore.selectTask(taskId);
+    return true;
   }
 
-  static selectSubTask(subTaskId: string | null): void {
+  static selectSubTask(subTaskId: string | null): boolean {
+    // Check if we need confirmation for new task mode
+    if (taskStore.isNewTaskMode && subTaskId !== null) {
+      taskStore.pendingSubTaskSelection = subTaskId;
+      return false; // Indicate that subtask selection needs confirmation
+    }
+    
+    taskStore.selectSubTask(subTaskId);
+    return true;
+  }
+  
+  static forceSelectTask(taskId: string | null): void {
+    // Cancel new task mode and force task selection
+    if (taskStore.isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+    }
+    
+    taskStore.selectTask(taskId);
+  }
+  
+  static forceSelectSubTask(subTaskId: string | null): void {
+    // Cancel new task mode and force subtask selection
+    if (taskStore.isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+    }
+    
     taskStore.selectSubTask(subTaskId);
   }
 

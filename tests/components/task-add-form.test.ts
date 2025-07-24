@@ -3,6 +3,7 @@ import { render, fireEvent, screen } from '@testing-library/svelte';
 import TaskAddForm from '../../src/lib/components/task-add-form.svelte';
 import { TaskListService } from '../../src/lib/services/task-list-service';
 import { TaskService } from '../../src/lib/services/task-service';
+import { taskStore } from '../../src/lib/stores/tasks.svelte';
 
 // Mock services
 vi.mock('../../src/lib/services/task-list-service', () => ({
@@ -17,8 +18,25 @@ vi.mock('../../src/lib/services/task-service', () => ({
   }
 }));
 
+vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+  taskStore: {
+    startNewTaskMode: vi.fn(),
+    updateNewTaskData: vi.fn(),
+    selectedListId: 'list-1',
+    projects: [{
+      id: 'project-1',
+      task_lists: [{ id: 'list-1', name: 'Test List' }]
+    }]
+  }
+}));
+
+vi.mock('../../src/lib/stores/view-store.svelte', () => ({
+  viewStore: {}
+}));
+
 const mockTaskListService = vi.mocked(TaskListService);
 const mockTaskService = vi.mocked(TaskService);
+const mockTaskStore = vi.mocked(taskStore);
 
 describe('TaskAddForm', () => {
   beforeEach(() => {
@@ -209,6 +227,44 @@ describe('TaskAddForm', () => {
       expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('Task without callback');
       expect(mockTaskService.selectTask).toHaveBeenCalledWith(taskId);
       // Should not throw error when onTaskAdded is not provided
+    });
+  });
+
+  describe('edit functionality', () => {
+    test('should render edit button', () => {
+      render(TaskAddForm);
+      
+      const editButton = screen.getByTitle('Edit Task Details');
+      expect(editButton).toBeInTheDocument();
+    });
+
+    test('should start new task mode when edit button is clicked', async () => {
+      const onTaskAdded = vi.fn();
+      
+      render(TaskAddForm, { props: { onTaskAdded } });
+      
+      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      const editButton = screen.getByTitle('Edit Task Details');
+      
+      await fireEvent.input(input, { target: { value: 'New task for editing' } });
+      await fireEvent.click(editButton);
+      
+      expect(mockTaskStore.startNewTaskMode).toHaveBeenCalledWith('list-1');
+      expect(mockTaskStore.updateNewTaskData).toHaveBeenCalledWith({ title: 'New task for editing' });
+      expect(input.value).toBe(''); // Should clear input
+      expect(onTaskAdded).toHaveBeenCalled();
+    });
+
+    test('should always enable edit button (allows creating task without title)', async () => {
+      render(TaskAddForm);
+      
+      const editButton = screen.getByTitle('Edit Task Details') as HTMLButtonElement;
+      expect(editButton.disabled).toBe(false);
+      
+      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      await fireEvent.input(input, { target: { value: 'Some text' } });
+      
+      expect(editButton.disabled).toBe(false);
     });
   });
 });

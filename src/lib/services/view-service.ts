@@ -75,7 +75,30 @@ export class ViewService {
   }
   
   
-  static handleViewChange(view: ViewType): void {
+  static handleViewChange(view: ViewType): boolean {
+    // Check if we need confirmation for new task mode
+    if (taskStore.isNewTaskMode) {
+      return false; // Indicate that view change needs confirmation
+    }
+    
+    // Clear task selection when changing views
+    taskStore.selectTask(null);
+    
+    // Clear project/list selection for non-project views
+    if (view !== 'project' && view !== 'tasklist') {
+      taskStore.selectProject(null);
+      taskStore.selectList(null);
+    }
+    
+    return true; // View change completed
+  }
+  
+  static forceViewChange(view: ViewType): void {
+    // Cancel new task mode and force view change
+    if (taskStore.isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+    }
+    
     // Clear task selection when changing views
     taskStore.selectTask(null);
     
