@@ -1,4 +1,4 @@
-import type { Task, TaskList, Project, ProjectTree, TaskWithSubTasks, SubTask, Tag } from '$lib/types/task';
+import type { Task, ProjectTree, TaskWithSubTasks, SubTask } from '$lib/types/task';
 import { tagStore } from './tags.svelte';
 
 // Global state using Svelte 5 runes
@@ -73,6 +73,24 @@ export class TaskStore {
   // Actions
   setProjects(projects: ProjectTree[]) {
     this.projects = projects;
+    
+    // Extract and register all tags from sample data to tag store
+    const allTags = new Set<{id: string, name: string, color?: string}>();
+    
+    projects.forEach(project => {
+      project.task_lists.forEach(list => {
+        list.tasks.forEach(task => {
+          task.tags.forEach(tag => {
+            allTags.add(tag);
+          });
+        });
+      });
+    });
+    
+    // Register tags in tag store
+    allTags.forEach(tag => {
+      tagStore.getOrCreateTag(tag.name, tag.color);
+    });
   }
   
   selectTask(taskId: string | null) {
@@ -257,8 +275,8 @@ export class TaskStore {
       for (const list of project.task_lists) {
         const task = list.tasks.find(t => t.id === taskId);
         if (task) {
-          // Check if tag already exists on this task
-          if (!task.tags.some(t => t.id === tag.id)) {
+          // Check if tag already exists on this task (by name, not ID)
+          if (!task.tags.some(t => t.name.toLowerCase() === tag.name.toLowerCase())) {
             task.tags.push(tag);
             task.updated_at = new Date();
           }
@@ -289,8 +307,8 @@ export class TaskStore {
       const tag = tagStore.getOrCreateTag(tagName);
       if (!tag) return;
       
-      // Check if tag already exists on this task
-      if (!this.newTaskData.tags.some(t => t.id === tag.id)) {
+      // Check if tag already exists on this task (by name, not ID)
+      if (!this.newTaskData.tags.some(t => t.name.toLowerCase() === tag.name.toLowerCase())) {
         this.newTaskData.tags.push(tag);
       }
     }
@@ -314,8 +332,8 @@ export class TaskStore {
         for (const task of list.tasks) {
           const subTask = task.sub_tasks.find(st => st.id === subTaskId);
           if (subTask) {
-            // Check if tag already exists on this subtask
-            if (!subTask.tags.some(t => t.id === tag.id)) {
+            // Check if tag already exists on this subtask (by name, not ID)
+            if (!subTask.tags.some(t => t.name.toLowerCase() === tag.name.toLowerCase())) {
               subTask.tags.push(tag);
               subTask.updated_at = new Date();
             }
