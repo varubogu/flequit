@@ -114,8 +114,7 @@
     div.style.padding = style.padding;
     div.style.border = style.border;
     div.style.whiteSpace = 'pre-wrap';
-    div.style.wordWrap = 'break-word';
-    div.style.overflowWrap = style.overflowWrap;
+    div.style.overflowWrap = 'break-word';
 
     // Add text up to # position
     const textBeforeCursor = textarea.value.slice(0, startPos);
@@ -263,11 +262,13 @@
       detail: { tagName: tag.name, position: tagInputStart }
     }));
 
-    hideSuggestions();
-
-    // Set cursor position after the tag
+    // Set cursor position after the tag before hiding suggestions
     const newCursorPos = beforeTag.length + displayTagName.length + 1;
-    activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    if (activeElement) {
+      activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    hideSuggestions();
   }
 
   function createNewTag() {
@@ -302,11 +303,13 @@
       detail: { tagName: storeTagName, position: tagInputStart }
     }));
 
-    hideSuggestions();
-
-    // Set cursor position after the tag
+    // Set cursor position after the tag before hiding suggestions
     const newCursorPos = beforeTag.length + displayTagName.length + 1;
-    activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    if (activeElement) {
+      activeElement.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    hideSuggestions();
   }
 
   function handleElementInput(event: Event) {
