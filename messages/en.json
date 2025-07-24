@@ -141,5 +141,10 @@
     "confirm_discard_changes": "Discard changes?",
     "unsaved_task_message": "You have unsaved changes to this task. Continuing will lose these changes.",
     "discard_changes": "Discard Changes",
-    "keep_editing": "Keep Editing"
+    "keep_editing": "Keep Editing",
+    "delete_item": "Delete",
+    "delete_task_title": "Delete Task",
+    "delete_task_message": "Are you sure you want to delete this task? This action cannot be undone.",
+    "delete_subtask_title": "Delete Subtask",
+    "delete_subtask_message": "Are you sure you want to delete this subtask? This action cannot be undone."
 }

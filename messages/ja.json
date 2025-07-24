@@ -141,5 +141,10 @@
     "confirm_discard_changes": "変更を破棄しますか？",
     "unsaved_task_message": "保存されていないタスクの変更があります。この操作を続行すると、変更は失われます。",
     "discard_changes": "変更を破棄",
-    "keep_editing": "編集を続ける"
+    "keep_editing": "編集を続ける",
+    "delete_item": "削除",
+    "delete_task_title": "タスクを削除",
+    "delete_task_message": "このタスクを削除してもよろしいですか？この操作は取り消せません。",
+    "delete_subtask_title": "サブタスクを削除",
+    "delete_subtask_message": "このサブタスクを削除してもよろしいですか？この操作は取り消せません。"
 }
