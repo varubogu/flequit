@@ -146,5 +146,17 @@
     "delete_task_title": "Delete Task",
     "delete_task_message": "Are you sure you want to delete this task? This action cannot be undone.",
     "delete_subtask_title": "Delete Subtask",
-    "delete_subtask_message": "Are you sure you want to delete this subtask? This action cannot be undone."
+    "delete_subtask_message": "Are you sure you want to delete this subtask? This action cannot be undone.",
+    "account_type": "Account Type",
+    "local_account": "Local Account",
+    "cloud_account": "Cloud Account",
+    "organization": "Organization",
+    "example_organization": "Example Organization",
+    "account_icon": "Account Icon",
+    "choose_file": "Choose File",
+    "account_name": "Account Name",
+    "email_address": "Email Address",
+    "password": "Password",
+    "server_url": "Server URL",
+    "local_account_description": "Using local account. To access cloud features, select a cloud account above."
 }

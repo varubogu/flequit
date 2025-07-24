@@ -146,5 +146,17 @@
     "delete_task_title": "タスクを削除",
     "delete_task_message": "このタスクを削除してもよろしいですか？この操作は取り消せません。",
     "delete_subtask_title": "サブタスクを削除",
-    "delete_subtask_message": "このサブタスクを削除してもよろしいですか？この操作は取り消せません。"
+    "delete_subtask_message": "このサブタスクを削除してもよろしいですか？この操作は取り消せません。",
+    "account_type": "アカウントの種類",
+    "local_account": "ローカルアカウント",
+    "cloud_account": "クラウドアカウント",
+    "organization": "組織",
+    "example_organization": "組織例",
+    "account_icon": "アカウントアイコン",
+    "choose_file": "ファイルを選択",
+    "account_name": "アカウント名",
+    "email_address": "電子メールアドレス",
+    "password": "パスワード",
+    "server_url": "サーバーURL",
+    "local_account_description": "ローカルアカウントを使用しています。クラウド機能にアクセスするには、上記のクラウドアカウントを選択してください。"
 }
