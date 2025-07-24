@@ -3,8 +3,13 @@
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import SearchCommand from '$lib/components/search-command.svelte';
   import { Search } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   let showSearchDialog = $state(false);
+
+  // Reactive messages
+  const searchLabel = reactiveMessage(m.search);
 
   $effect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -29,7 +34,7 @@
     onclick={() => showSearchDialog = true}
   >
     <Search class="h-4 w-4" />
-    <span class="text-sm">Search</span>
+    <span class="text-sm">{searchLabel()}</span>
     <div class="ml-auto">
       <KeyboardShortcut keys={['cmd', 'k']} />
     </div>

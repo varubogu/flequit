@@ -7,6 +7,8 @@
   import { TaskService } from '$lib/services/task-service';
   import { ViewService } from '$lib/services/view-service';
   import { viewStore } from '$lib/stores/view-store.svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     open?: boolean;
@@ -18,6 +20,24 @@
   let searchValue = $state('');
   let filteredTasks = $state<TaskWithSubTasks[]>([]);
   let isCommandMode = $derived(searchValue.startsWith('>'));
+
+  // Reactive messages
+  const searchTasks = reactiveMessage(m.search_tasks);
+  const typeACommand = reactiveMessage(m.type_a_command);
+  const noCommandsFound = reactiveMessage(m.no_commands_found);
+  const noTasksFound = reactiveMessage(m.no_tasks_found);
+  const commands = reactiveMessage(m.commands);
+  const settings = reactiveMessage(m.settings);
+  const help = reactiveMessage(m.help);
+  const search = reactiveMessage(m.search);
+  const showAllResultsFor = reactiveMessage(m.show_all_results_for);
+  const jumpToTask = reactiveMessage(m.jump_to_task);
+  const results = reactiveMessage(m.results);
+  const noMatchingTasksFound = reactiveMessage(m.no_matching_tasks_found);
+  const showAllTasks = reactiveMessage(m.show_all_tasks);
+  const quickActions = reactiveMessage(m.quick_actions);
+  const addNewTask = reactiveMessage(m.add_new_task);
+  const viewAllTasks = reactiveMessage(m.view_all_tasks);
 
   // 検索結果の更新
   $effect(() => {
@@ -71,7 +91,7 @@
   shouldFilter={false}
 >
   <Command.Input
-    placeholder={isCommandMode ? "Type a command..." : "Search tasks..."}
+    placeholder={isCommandMode ? typeACommand() : searchTasks()}
     bind:value={searchValue}
     onkeydown={handleKeyDown}
   />
@@ -79,36 +99,36 @@
     {#if !searchValue}
       <Command.Empty>
         {#if isCommandMode}
-          No commands found.
+          {noCommandsFound()}
         {:else}
-          No tasks found.
+          {noTasksFound()}
         {/if}
       </Command.Empty>
     {/if}
 
     {#if isCommandMode}
       <!-- コマンドモード -->
-      <Command.Group heading="Commands">
+      <Command.Group heading={commands()}>
         <Command.Item onSelect={() => handleCommandSelect('settings')}>
-          <span>Settings</span>
+          <span>{settings()}</span>
         </Command.Item>
         <Command.Item onSelect={() => handleCommandSelect('help')}>
-          <span>Help</span>
+          <span>{help()}</span>
         </Command.Item>
       </Command.Group>
     {/if}
 
     {#if searchValue}
       <!-- 検索モード -->
-      <Command.Group heading="Search">
+      <Command.Group heading={search()}>
         <Command.Item onSelect={handleSearchExecute}>
           <Search class="h-4 w-4 mr-2" />
-          <span>Show all results for "{searchValue}"</span>
+          <span>{showAllResultsFor({ searchValue })}</span>
         </Command.Item>
       </Command.Group>
 
       {#if filteredTasks.length > 0}
-        <Command.Group heading="Jump to Task">
+        <Command.Group heading={jumpToTask()}>
           {#each filteredTasks as task (task.id)}
             <Command.Item onSelect={() => handleTaskSelect(task)}>
               <span class="truncate font-medium">{task.title}</span>
@@ -122,9 +142,9 @@
         </Command.Group>
       {:else}
         <!-- 検索結果が0件の場合でも何か表示して Command.Empty を防ぐ -->
-        <Command.Group heading="Results">
+        <Command.Group heading={results()}>
           <div class="px-2 py-1.5 text-sm text-muted-foreground">
-            No matching tasks found
+            {noMatchingTasksFound()}
           </div>
         </Command.Group>
       {/if}
@@ -132,20 +152,20 @@
 
     {#if !searchValue && !isCommandMode}
       <!-- デフォルト表示（入力が空の場合） -->
-      <Command.Group heading="Search">
+      <Command.Group heading={search()}>
         <Command.Item onSelect={() => handleSearchExecute()}>
           <Search class="h-4 w-4 mr-2" />
-          <span>Show all tasks</span>
+          <span>{showAllTasks()}</span>
         </Command.Item>
       </Command.Group>
       <!-- デフォルト表示 -->
-      <Command.Group heading="Quick Actions">
+      <Command.Group heading={quickActions()}>
         <Command.Item onSelect={() => console.log('Add task')}>
-          <span>Add New Task</span>
+          <span>{addNewTask()}</span>
           <KeyboardShortcut keys={['cmd', 'n']} class="ml-auto" />
         </Command.Item>
         <Command.Item onSelect={() => console.log('View all')}>
-          <span>View All Tasks</span>
+          <span>{viewAllTasks()}</span>
           <KeyboardShortcut keys={['cmd', 'a']} class="ml-auto" />
         </Command.Item>
       </Command.Group>
