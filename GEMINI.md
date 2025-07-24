@@ -1,3 +1,6 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## レスポンスについて
 
@@ -88,13 +91,17 @@ src/
 ## 開発ワークフロー
 
 ### 推奨手順
+エラー発生時は解消後に次工程に進む
 1. コード編集
-2. Vitestテストケース作成
+2. vitest単体テストケース作成
 3. `bun check` - 型チェック実行
-4. `bun run test [ファイル名]` - 単体テスト実行
-5. `bun run test` - 全テスト実行
-6. `bun run test:e2e [ファイル名]` - E2Eテスト実行（個別ファイルのみ）
-7. エラー解消後に次工程進行
+4. `bun run test [単体テストファイル名]` - vitest単体テスト実行
+5. vitest結合テストケース作成
+6. `bun run test [結合テストファイル名]` - vitest結合テスト実行
+7. `bun run test` - vitest全テスト実行
+8. Playwright(E2E)テストケース作成
+9. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
+
 
 ### 重要な制約
 - **開発サーバー**: `bun run dev`は使用禁止（ユーザーが使用中）
@@ -115,4 +122,4 @@ src/
 - `bun run test:e2e [ファイル名]` - Playwright E2Eテスト（個別ファイルのみ、ヘッドレス）
 
 ### 国際化
-- `bun run machine-translate` - Inlang機械翻訳実行
+- `bun run build` - Inlang機械翻訳実行
