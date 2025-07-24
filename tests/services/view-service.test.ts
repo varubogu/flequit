@@ -53,7 +53,8 @@ const mockTasks: TaskWithSubTasks[] = [
         status: "not_started",
         order_index: 0,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        tags: []
       }
     ],
     tags: []

@@ -33,13 +33,15 @@
   }
 
   function handleTagDetected(event: CustomEvent<{ tagName: string; position: number }>) {
-    // Add tag to task when detected in title
-    if (!isSubTask && currentItem && 'list_id' in currentItem) {
-      if (isNewTaskMode) {
-        taskStore.addTagToNewTask(event.detail.tagName);
-      } else {
-        taskStore.addTagToTask(currentItem.id, event.detail.tagName);
-      }
+    // Add tag to task or subtask when detected in title
+    if (!currentItem) return;
+    
+    if (isNewTaskMode) {
+      taskStore.addTagToNewTask(event.detail.tagName);
+    } else if (isSubTask) {
+      taskStore.addTagToSubTask(currentItem.id, event.detail.tagName);
+    } else if ('list_id' in currentItem) {
+      taskStore.addTagToTask(currentItem.id, event.detail.tagName);
     }
   }
 

@@ -112,7 +112,8 @@ describe('TaskItem Integration', () => {
         task_id: 'task-1',
         order_index: 0,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        tags: []
       }],
     });
     

@@ -333,9 +333,13 @@
         />
       {/if}
 
-      <!-- Tags (only for main tasks) -->
-      {#if !isSubTask && (task || (isNewTaskMode && currentItem))}
-        <TaskDetailTags task={task || (currentItem as TaskWithSubTasks)} {isNewTaskMode} />
+      <!-- Tags -->
+      {#if task || subTask || (isNewTaskMode && currentItem)}
+        <TaskDetailTags 
+          task={isSubTask ? null : task} 
+          subTask={isSubTask ? subTask : null}
+          {isNewTaskMode} 
+        />
       {/if}
 
       <TaskDetailMetadata 

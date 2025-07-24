@@ -32,7 +32,8 @@ describe('TaskDetailMetadata Component', () => {
     updated_at: new Date('2024-01-02T15:30:00Z'),
     end_date: undefined,
     start_date: undefined,
-    is_range_date: false
+    is_range_date: false,
+    tags: []
   };
 
   let onGoToParentTask: ReturnType<typeof vi.fn>;

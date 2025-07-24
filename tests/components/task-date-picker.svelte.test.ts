@@ -43,7 +43,8 @@ describe('TaskDatePicker Component', () => {
         updated_at: new Date(),
         end_date: new Date('2024-01-16'),
         start_date: undefined,
-        is_range_date: false
+        is_range_date: false,
+        tags: []
       }
     ]
   };
@@ -134,7 +135,8 @@ describe('TaskDatePicker Component', () => {
           ...mockTask.sub_tasks[0],
           end_date: undefined,
           start_date: undefined,
-          is_range_date: false
+          is_range_date: false,
+          tags: []
         }
       ]
     };

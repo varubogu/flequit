@@ -61,7 +61,8 @@ describe('TaskDetailTags Component', () => {
 
   test('should render tags section with TagInput component', () => {
     render(TaskDetailTags, {
-      task: mockTaskWithTags
+      task: mockTaskWithTags,
+      subTask: null
     });
 
     expect(screen.getByText('Tags')).toBeInTheDocument();
@@ -72,7 +73,8 @@ describe('TaskDetailTags Component', () => {
 
   test('should render tags section even when no tags exist', () => {
     render(TaskDetailTags, {
-      task: mockTaskWithoutTags
+      task: mockTaskWithoutTags,
+      subTask: null
     });
 
     // The component always renders the "Tags" heading and TagInput
@@ -82,7 +84,8 @@ describe('TaskDetailTags Component', () => {
 
   test('should render TagInput with correct props', () => {
     render(TaskDetailTags, {
-      task: mockTaskWithTags
+      task: mockTaskWithTags,
+      subTask: null
     });
 
     // Check that the TagInput is rendered with placeholder
@@ -92,7 +95,8 @@ describe('TaskDetailTags Component', () => {
 
   test('should render tags with correct styling in TagInput', () => {
     render(TaskDetailTags, {
-      task: mockTaskWithTags
+      task: mockTaskWithTags,
+      subTask: null
     });
 
     // Check that tags are displayed within TagInput component
@@ -108,6 +112,7 @@ describe('TaskDetailTags Component', () => {
   test('should handle new task mode correctly', () => {
     render(TaskDetailTags, {
       task: mockTaskWithTags,
+      subTask: null,
       isNewTaskMode: true
     });
 
@@ -130,7 +135,8 @@ describe('TaskDetailTags Component', () => {
     };
 
     render(TaskDetailTags, {
-      task: taskWithSingleTag
+      task: taskWithSingleTag,
+      subTask: null
     });
 
     expect(screen.getByText('Tags')).toBeInTheDocument();

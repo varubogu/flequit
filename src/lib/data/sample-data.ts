@@ -55,6 +55,7 @@ export function generateSampleData(): ProjectTree[] {
                   // end_date is already set above
                   recurrence_rule: 'FREQ=DAILY',
                   order_index: 0,
+                  tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
                 },
@@ -64,6 +65,7 @@ export function generateSampleData(): ProjectTree[] {
                   title: 'Reply to urgent messages',
                   status: 'not_started',
                   order_index: 1,
+                  tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
                 }
@@ -197,6 +199,7 @@ export function generateSampleData(): ProjectTree[] {
                   priority: 2,
                   end_date: yesterday,
                   order_index: 0,
+                  tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
                 },
@@ -209,6 +212,7 @@ export function generateSampleData(): ProjectTree[] {
                   priority: 1,
                   end_date: today,
                   order_index: 1,
+                  tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
                 },
@@ -221,6 +225,7 @@ export function generateSampleData(): ProjectTree[] {
                   priority: 2,
                   end_date: tomorrow,
                   order_index: 2,
+                  tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
                 }

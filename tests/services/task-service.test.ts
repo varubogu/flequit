@@ -182,7 +182,8 @@ test("TaskService.toggleSubTaskStatus: toggles subtask status correctly", () => 
         status: "not_started",
         order_index: 0,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        tags: []
       },
       {
         id: "subtask-2", 
@@ -191,7 +192,8 @@ test("TaskService.toggleSubTaskStatus: toggles subtask status correctly", () => 
         status: "completed",
         order_index: 1,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
+        tags: []
       }
     ],
     tags: []

@@ -47,6 +47,7 @@ describe('TaskContextMenu Component', () => {
     status: 'not_started',
     task_id: 'task-1',
     order_index: 0,
+    tags: [],
     created_at: new Date(),
     updated_at: new Date(),
     end_date: undefined,

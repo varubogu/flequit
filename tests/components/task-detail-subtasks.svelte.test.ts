@@ -30,7 +30,8 @@ describe('TaskDetailSubTasks Component', () => {
         updated_at: new Date(),
         end_date: new Date('2024-01-15'),
         start_date: undefined,
-        is_range_date: false
+        is_range_date: false,
+        tags: []
       },
       {
         id: 'subtask-2',
@@ -42,7 +43,8 @@ describe('TaskDetailSubTasks Component', () => {
         updated_at: new Date(),
         end_date: undefined,
         start_date: undefined,
-        is_range_date: false
+        is_range_date: false,
+        tags: []
       }
     ]
   };

@@ -304,6 +304,45 @@ export class TaskStore {
       }
     }
   }
+
+  addTagToSubTask(subTaskId: string, tagName: string) {
+    const tag = tagStore.getOrCreateTag(tagName);
+    if (!tag) return;
+    
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTask = task.sub_tasks.find(st => st.id === subTaskId);
+          if (subTask) {
+            // Check if tag already exists on this subtask
+            if (!subTask.tags.some(t => t.id === tag.id)) {
+              subTask.tags.push(tag);
+              subTask.updated_at = new Date();
+            }
+            return;
+          }
+        }
+      }
+    }
+  }
+  
+  removeTagFromSubTask(subTaskId: string, tagId: string) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTask = task.sub_tasks.find(st => st.id === subTaskId);
+          if (subTask) {
+            const tagIndex = subTask.tags.findIndex(t => t.id === tagId);
+            if (tagIndex !== -1) {
+              subTask.tags.splice(tagIndex, 1);
+              subTask.updated_at = new Date();
+            }
+            return;
+          }
+        }
+      }
+    }
+  }
 }
 
 // Create global store instance

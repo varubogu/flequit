@@ -32,7 +32,8 @@ describe('TaskDetailHeader Component', () => {
     updated_at: new Date(),
     end_date: undefined,
     start_date: undefined,
-    is_range_date: false
+    is_range_date: false,
+    tags: []
   };
 
   let onTitleChange: ReturnType<typeof vi.fn>;

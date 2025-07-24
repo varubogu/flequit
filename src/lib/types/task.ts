@@ -61,6 +61,7 @@ export interface SubTask {
   is_range_date?: boolean;  // 期日が範囲選択かどうか
   recurrence_rule?: string;
   order_index: number;
+  tags: Tag[];
   created_at: Date;
   updated_at: Date;
 }
