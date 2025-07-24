@@ -10,6 +10,13 @@
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
+  // Reactive messages
+  const removeTagFromItem = reactiveMessage(m.remove_tag_from_item);
+  const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
+  const addTagToSidebar = reactiveMessage(m.add_tag_to_sidebar);
+  const editTag = reactiveMessage(m.edit_tag);
+  const deleteTag = reactiveMessage(m.delete_tag);
+
   interface Props {
     tag: Tag;
     showRemoveButton?: boolean;
@@ -103,7 +110,7 @@
     {#if enableTagRemoveFromContext && onTagRemoveFromItem}
       <ContextMenu.Item onclick={handleTagRemoveFromItem}>
         <Minus class="mr-2 h-4 w-4" />
-        タグ解除
+        {removeTagFromItem()}
       </ContextMenu.Item>
       
       <ContextMenu.Separator />
@@ -112,10 +119,10 @@
     <ContextMenu.Item onclick={handleToggleBookmark}>
       {#if isBookmarked}
         <Bookmark class="mr-2 h-4 w-4" />
-        タグをサイドバーから削除
+        {removeTagFromSidebar()}
       {:else}
         <BookmarkPlus class="mr-2 h-4 w-4" />
-        タグをサイドバーに表示
+        {addTagToSidebar()}
       {/if}
     </ContextMenu.Item>
     
@@ -123,14 +130,14 @@
     
     <ContextMenu.Item onclick={handleTagEdit}>
       <Edit class="mr-2 h-4 w-4" />
-      タグの編集
+      {editTag()}
     </ContextMenu.Item>
     
     <ContextMenu.Separator />
     
     <ContextMenu.Item onclick={handleTagDelete} class="text-destructive">
       <Trash2 class="mr-2 h-4 w-4" />
-      タグ削除
+      {deleteTag()}
     </ContextMenu.Item>
   </ContextMenu.Content>
 </ContextMenu.Root>

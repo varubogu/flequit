@@ -21,6 +21,9 @@
   
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);
+  const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
+  const editTag = reactiveMessage(m.edit_tag);
+  const deleteTag = reactiveMessage(m.delete_tag);
 
   // State for dialogs
   let selectedTag: any = $state(null);
@@ -121,13 +124,13 @@
         
         <ContextMenu.Content>
           <ContextMenu.Item onclick={(e) => handleRemoveFromBookmarks(tag, e)}>
-            タグをサイドバーから解除
+            {removeTagFromSidebar()}
           </ContextMenu.Item>
           <ContextMenu.Item onclick={(e) => handleEditTag(tag, e)}>
-            タグを編集
+            {editTag()}
           </ContextMenu.Item>
           <ContextMenu.Item onclick={(e) => handleDeleteTag(tag, e)}>
-            タグを削除
+            {deleteTag()}
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Root>
