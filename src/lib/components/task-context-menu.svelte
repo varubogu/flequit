@@ -20,7 +20,6 @@
   const deleteSubtask = reactiveMessage(m.delete_subtask);
 
   function handleEdit() {
-    console.log(`Editing task: ${task.title}`);
   }
 
   function handleDelete() {

@@ -80,7 +80,6 @@
   }
 
   function handleCommandSelect(command: string) {
-    console.log('Command selected:', command);
     closeDialog();
   }
 
