@@ -136,5 +136,10 @@
     "edit_task": "Edit Task",
     "set_priority": "Set Priority",
     "edit_subtask": "Edit Subtask",
-    "delete_subtask": "Delete Subtask"
+    "delete_subtask": "Delete Subtask",
+    "save_task": "Save Task",
+    "confirm_discard_changes": "Discard changes?",
+    "unsaved_task_message": "You have unsaved changes to this task. Continuing will lose these changes.",
+    "discard_changes": "Discard Changes",
+    "keep_editing": "Keep Editing"
 }

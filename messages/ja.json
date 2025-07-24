@@ -136,5 +136,10 @@
     "edit_task": "タスクを編集",
     "set_priority": "優先度を設定",
     "edit_subtask": "サブタスクを編集",
-    "delete_subtask": "サブタスクを削除"
+    "delete_subtask": "サブタスクを削除",
+    "save_task": "タスクを保存",
+    "confirm_discard_changes": "変更を破棄しますか？",
+    "unsaved_task_message": "保存されていないタスクの変更があります。この操作を続行すると、変更は失われます。",
+    "discard_changes": "変更を破棄",
+    "keep_editing": "編集を続ける"
 }
