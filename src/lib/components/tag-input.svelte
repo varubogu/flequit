@@ -1,37 +1,21 @@
 <script lang="ts">
-  import { tagStore } from '$lib/stores/tags.svelte';
   import type { Tag } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import { X, Hash } from 'lucide-svelte';
-  import { createEventDispatcher } from 'svelte';
+  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
 
   interface Props {
     tags: Tag[];
     placeholder?: string;
     class?: string;
+    ontagAdded?: (tagName: string) => void;
+    ontagRemoved?: (tagId: string) => void;
   }
 
-  let { tags = [], placeholder = "Add tags...", class: className = "" }: Props = $props();
-
-  const dispatch = createEventDispatcher<{
-    tagAdded: { tagName: string };
-    tagRemoved: { tagId: string };
-  }>();
+  let { tags = [], placeholder = "Add tags...", class: className = "", ontagAdded, ontagRemoved }: Props = $props();
 
   let inputValue = $state('');
   let inputElement: HTMLInputElement;
-
-  // Derived state for suggestions
-  let filteredSuggestions = $derived.by(() => {
-    if (inputValue.length >= 1) {
-      return tagStore.searchTags(inputValue);
-    }
-    return [];
-  });
-
-  let shouldShowSuggestions = $derived.by(() => {
-    return inputValue.length >= 1 && filteredSuggestions.length > 0;
-  });
 
   function cleanTagName(name: string): string {
     // Remove all # characters and spaces
@@ -48,10 +32,9 @@
       event.preventDefault();
       addTag();
     } else if (event.key === 'Escape') {
-      inputElement.blur();
-    } else if (event.key === 'ArrowDown' && showSuggestions) {
-      event.preventDefault();
-      // Focus first suggestion (to be implemented)
+      if (inputElement) {
+        inputElement.blur();
+      }
     }
   }
 
@@ -61,43 +44,26 @@
     
     if (!cleanedName) {
       inputValue = '';
-      showSuggestions = false;
       return;
     }
 
     // Check if tag already exists on this task
     if (tags.some(tag => tag.name.toLowerCase() === cleanedName.toLowerCase())) {
       inputValue = '';
-      showSuggestions = false;
       return;
     }
 
-    dispatch('tagAdded', { tagName: cleanedName });
+    ontagAdded?.(cleanedName);
     inputValue = '';
-    showSuggestions = false;
   }
 
-  function selectSuggestion(tag: Tag) {
-    addTag(tag.name);
+  function handleTagCompletion(event: CustomEvent<{ tagName: string; position: number }>) {
+    // When a tag is detected from completion, add it
+    addTag(event.detail.tagName);
   }
 
   function removeTag(tagId: string) {
-    dispatch('tagRemoved', { tagId });
-  }
-
-  let showSuggestions = $state(false);
-
-  function handleFocus() {
-    if (inputValue.length >= 1 && filteredSuggestions.length > 0) {
-      showSuggestions = true;
-    }
-  }
-
-  function handleBlur() {
-    // Delay hiding suggestions to allow clicking on them
-    setTimeout(() => {
-      showSuggestions = false;
-    }, 200);
+    ontagRemoved?.(tagId);
   }
 </script>
 
@@ -122,8 +88,8 @@
     </div>
   {/if}
 
-  <!-- Input field -->
-  <div class="relative">
+  <!-- Input field wrapped with TagCompletionProvider -->
+  <TagCompletionProvider ontagDetected={handleTagCompletion}>
     <input
       bind:this={inputElement}
       type="text"
@@ -132,36 +98,6 @@
       class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       oninput={handleInput}
       onkeydown={handleKeydown}
-      onfocus={handleFocus}
-      onblur={handleBlur}
     />
-
-    <!-- Suggestions dropdown -->
-    {#if showSuggestions && filteredSuggestions.length > 0}
-      <div class="absolute top-full left-0 right-0 z-50 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
-        {#each filteredSuggestions as suggestion (suggestion.id)}
-          <button
-            type="button"
-            class="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
-            onclick={() => selectSuggestion(suggestion)}
-          >
-            <Hash class="h-3 w-3" />
-            {suggestion.name}
-          </button>
-        {/each}
-        
-        <!-- Show "Create new tag" option if input doesn't match any existing tag -->
-        {#if inputValue && !filteredSuggestions.some(s => s.name.toLowerCase() === inputValue.toLowerCase())}
-          <button
-            type="button"
-            class="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2 border-t border-border"
-            onclick={() => addTag()}
-          >
-            <Hash class="h-3 w-3" />
-            Create "{inputValue}"
-          </button>
-        {/if}
-      </div>
-    {/if}
-  </div>
+  </TagCompletionProvider>
 </div>

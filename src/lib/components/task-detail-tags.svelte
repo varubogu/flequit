@@ -15,8 +15,7 @@
   // Reactive messages
   const tags = reactiveMessage(m.tags);
 
-  function handleTagAdded(event: CustomEvent<{ tagName: string }>) {
-    const { tagName } = event.detail;
+  function handleTagAdded(tagName: string) {
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(tagName);
     } else {
@@ -24,8 +23,7 @@
     }
   }
 
-  function handleTagRemoved(event: CustomEvent<{ tagId: string }>) {
-    const { tagId } = event.detail;
+  function handleTagRemoved(tagId: string) {
     if (isNewTaskMode) {
       taskStore.removeTagFromNewTask(tagId);
     } else {
@@ -39,7 +37,7 @@
   <TagInput
     tags={task.tags}
     placeholder="Add tags..."
-    on:tagAdded={handleTagAdded}
-    on:tagRemoved={handleTagRemoved}
+    ontagAdded={handleTagAdded}
+    ontagRemoved={handleTagRemoved}
   />
 </div>

@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import TagAwareInput from './tag-aware-input.svelte';
+  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
@@ -59,13 +59,17 @@
       {#if isSubTask}
         <div class="text-sm text-muted-foreground mb-1">{sub_task()}</div>
       {/if}
-      <TagAwareInput
-        class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
-        value={title}
-        oninput={handleTitleInput}
-        ontagDetected={handleTagDetected}
-        placeholder={isSubTask ? sub_task_title() : task_title()}
-      />
+      <TagCompletionProvider ontagDetected={handleTagDetected}>
+        <Input
+          class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
+          value={title}
+          oninput={(e) => {
+            const target = e.target as HTMLInputElement;
+            handleTitleInput(new CustomEvent('input', { detail: { value: target.value } }));
+          }}
+          placeholder={isSubTask ? sub_task_title() : task_title()}
+        />
+      </TagCompletionProvider>
     </div>
     <div class="flex gap-2 ml-4">
       {#if isNewTaskMode}

@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Select from '$lib/components/ui/select.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
-  import TagAwareTextarea from './tag-aware-textarea.svelte';
+  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
   import DueDate from '$lib/components/due-date.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
@@ -134,12 +134,16 @@
   <label for="task-description" class="block text-sm font-medium mb-2">
     {description()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
   </label>
-  <TagAwareTextarea
-    id="task-description"
-    class="w-full min-h-24"
-    value={formData.description}
-    oninput={handleDescriptionInput}
-    ontagDetected={handleTagDetected}
-    placeholder={isSubTask ? sub_task_description_optional() : task_description()}
-  />
+  <TagCompletionProvider ontagDetected={handleTagDetected}>
+    <Textarea
+      id="task-description"
+      class="w-full min-h-24"
+      value={formData.description}
+      oninput={(e) => {
+        const target = e.target as HTMLTextAreaElement;
+        handleDescriptionInput(new CustomEvent('input', { detail: { value: target.value } }));
+      }}
+      placeholder={isSubTask ? sub_task_description_optional() : task_description()}
+    />
+  </TagCompletionProvider>
 </div>

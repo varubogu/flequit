@@ -89,3 +89,9 @@ export class TagStore {
 
 // Create global store instance
 export const tagStore = new TagStore();
+
+// Add some sample tags for testing
+tagStore.addTag({ name: 'urgent' });
+tagStore.addTag({ name: 'important' });
+tagStore.addTag({ name: 'work' });
+tagStore.addTag({ name: 'personal' });
