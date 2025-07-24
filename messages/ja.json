@@ -158,5 +158,10 @@
     "email_address": "電子メールアドレス",
     "password": "パスワード",
     "server_url": "サーバーURL",
-    "local_account_description": "ローカルアカウントを使用しています。クラウド機能にアクセスするには、上記のクラウドアカウントを選択してください。"
+    "local_account_description": "ローカルアカウントを使用しています。クラウド機能にアクセスするには、上記のクラウドアカウントを選択してください。",
+    "remove_tag_from_sidebar": "タグをサイドバーから解除",
+    "edit_tag": "タグを編集",
+    "delete_tag": "タグを削除",
+    "remove_tag_from_item": "タグ解除",
+    "add_tag_to_sidebar": "タグをサイドバーに表示"
 }

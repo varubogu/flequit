@@ -158,5 +158,10 @@
     "email_address": "Email Address",
     "password": "Password",
     "server_url": "Server URL",
-    "local_account_description": "Using local account. To access cloud features, select a cloud account above."
+    "local_account_description": "Using local account. To access cloud features, select a cloud account above.",
+    "remove_tag_from_sidebar": "Remove tag from sidebar",
+    "edit_tag": "Edit tag",
+    "delete_tag": "Delete tag",
+    "remove_tag_from_item": "Remove tag",
+    "add_tag_to_sidebar": "Add tag to sidebar"
 }
