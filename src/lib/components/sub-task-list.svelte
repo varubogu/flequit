@@ -59,8 +59,6 @@
           </span>
           <DueDate
             task={subTask}
-            datePickerPosition={subTaskDatePickerPosition}
-            showDatePicker={showSubTaskDatePicker}
             handleDueDateClick={(e) => handleSubTaskDueDateClick(e as MouseEvent, subTask)}
           />
         </div>

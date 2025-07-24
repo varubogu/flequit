@@ -20,8 +20,6 @@ test("DueDate: renders formatted date when task has end_date", async () => {
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -43,8 +41,6 @@ test("DueDate: renders 'Add date' when task has no end_date", async () => {
   const { getByText, getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -65,8 +61,6 @@ test("DueDate: calls handleDueDateClick when clicked", async () => {
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -88,8 +82,6 @@ test("DueDate: calls handleDueDateClick when 'Add date' button is clicked", asyn
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -114,8 +106,6 @@ test("DueDate: applies correct CSS classes for overdue tasks", async () => {
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -138,8 +128,6 @@ test("DueDate: applies correct CSS classes for today's tasks", async () => {
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });
@@ -159,8 +147,6 @@ test("DueDate: applies muted styling for 'Add date' button", async () => {
   const { getByRole } = render(DueDate, {
     props: {
       task,
-      datePickerPosition: { x: 0, y: 0 },
-      showDatePicker: false,
       handleDueDateClick: mockClick
     }
   });

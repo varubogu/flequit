@@ -41,8 +41,6 @@
     </h3>
     <DueDate
       {task}
-      {datePickerPosition}
-      {showDatePicker}
       handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)}
     />
   </div>

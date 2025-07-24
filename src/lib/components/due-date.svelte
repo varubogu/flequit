@@ -6,8 +6,6 @@
 
   interface Props {
     task: TaskBase;
-    datePickerPosition?: { x: number; y: number };
-    showDatePicker?: boolean;
     handleDueDateClick: (event?: Event) => void;
     variant?: 'compact' | 'full';
     class?: string;
@@ -15,8 +13,6 @@
 
   let {
     task,
-    datePickerPosition,
-    showDatePicker,
     handleDueDateClick,
     variant = 'compact',
     class: className = ''

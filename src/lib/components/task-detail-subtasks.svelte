@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
-  import { formatDate } from '$lib/utils/date-utils';
+  import DueDate from '$lib/components/due-date.svelte';
   import * as m from '$paraglide/messages';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -52,9 +52,12 @@
               {subTask.title}
             </span>
             {#if subTask.end_date}
-              <span class="text-xs text-muted-foreground whitespace-nowrap">
-                {formatDate(subTask.end_date)}
-              </span>
+              <DueDate
+                task={subTask}
+                variant="full"
+                class="text-xs whitespace-nowrap"
+                handleDueDateClick={() => {}}
+              />
             {/if}
           </div>
         </Button>
