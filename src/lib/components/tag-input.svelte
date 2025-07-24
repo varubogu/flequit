@@ -75,6 +75,7 @@
           {tag} 
           showRemoveButton={true} 
           onRemove={removeTag}
+          onTagRemoveFromItem={removeTag}
         />
       {/each}
     </div>

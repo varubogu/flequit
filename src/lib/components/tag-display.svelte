@@ -4,7 +4,9 @@
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import { tagStore } from '$lib/stores/tags.svelte';
-  import { X, Bookmark, BookmarkPlus, Edit, Palette, Trash2 } from 'lucide-svelte';
+  import TagEditDialog from './tag-edit-dialog.svelte';
+  import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
+  import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -12,9 +14,8 @@
     tag: Tag;
     showRemoveButton?: boolean;
     onRemove?: (tagId: string) => void;
-    onTagEdit?: (tagId: string) => void;
-    onTagColorChange?: (tagId: string) => void;
-    onTagDelete?: (tagId: string) => void;
+    onTagRemoveFromItem?: (tagId: string) => void;
+    enableTagRemoveFromContext?: boolean;
     class?: string;
   }
 
@@ -22,17 +23,21 @@
     tag, 
     showRemoveButton = false, 
     onRemove, 
-    onTagEdit,
-    onTagColorChange,
-    onTagDelete,
+    onTagRemoveFromItem,
+    enableTagRemoveFromContext = true,
     class: className = '' 
   }: Props = $props();
 
-  // Reactive messages
-  const tags = reactiveMessage(m.tags);
+  // State for modals
+  let showEditDialog = $state(false);
+  let showDeleteDialog = $state(false);
 
   function handleRemove() {
     onRemove?.(tag.id);
+  }
+
+  function handleTagRemoveFromItem() {
+    onTagRemoveFromItem?.(tag.id);
   }
 
   function handleToggleBookmark() {
@@ -40,15 +45,24 @@
   }
 
   function handleTagEdit() {
-    onTagEdit?.(tag.id);
-  }
-
-  function handleTagColorChange() {
-    onTagColorChange?.(tag.id);
+    showEditDialog = true;
   }
   
   function handleTagDelete() {
-    onTagDelete?.(tag.id);
+    showDeleteDialog = true;
+  }
+
+  function handleEditSave(data: { name: string; color: string }) {
+    tagStore.updateTag(tag.id, {
+      name: data.name,
+      color: data.color,
+      updated_at: new Date()
+    });
+  }
+
+  function handleDeleteConfirm() {
+    tagStore.deleteTag(tag.id);
+    showDeleteDialog = false;
   }
 
   let isBookmarked = $derived(tagStore.isBookmarked(tag.id));
@@ -86,6 +100,15 @@
   </ContextMenu.Trigger>
   
   <ContextMenu.Content class="w-56">
+    {#if enableTagRemoveFromContext && onTagRemoveFromItem}
+      <ContextMenu.Item onclick={handleTagRemoveFromItem}>
+        <Minus class="mr-2 h-4 w-4" />
+        タグ解除
+      </ContextMenu.Item>
+      
+      <ContextMenu.Separator />
+    {/if}
+    
     <ContextMenu.Item onclick={handleToggleBookmark}>
       {#if isBookmarked}
         <Bookmark class="mr-2 h-4 w-4" />
@@ -100,12 +123,7 @@
     
     <ContextMenu.Item onclick={handleTagEdit}>
       <Edit class="mr-2 h-4 w-4" />
-      タグ名の変更
-    </ContextMenu.Item>
-    
-    <ContextMenu.Item onclick={handleTagColorChange}>
-      <Palette class="mr-2 h-4 w-4" />
-      タグ色の変更
+      タグの編集
     </ContextMenu.Item>
     
     <ContextMenu.Separator />
@@ -116,3 +134,20 @@
     </ContextMenu.Item>
   </ContextMenu.Content>
 </ContextMenu.Root>
+
+<!-- Edit Dialog -->
+<TagEditDialog 
+  open={showEditDialog} 
+  {tag}
+  onsave={handleEditSave}
+  onclose={() => showEditDialog = false}
+/>
+
+<!-- Delete Confirmation Dialog -->
+<DeleteConfirmationDialog
+  open={showDeleteDialog}
+  title="タグの削除"
+  message="「{tag.name}」タグを削除しますか？この操作は元に戻せません。"
+  onConfirm={handleDeleteConfirm}
+  onCancel={() => showDeleteDialog = false}
+/>

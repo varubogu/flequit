@@ -2,6 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from './tag-display.svelte';
   import DueDate from './due-date.svelte';
+  import { taskStore } from '$lib/stores/tasks.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -25,6 +26,10 @@
 
   // Reactive messages
   const subtasksCompleted = reactiveMessage(m.subtasks_completed);
+
+  function handleTagRemoveFromTask(tagId: string) {
+    taskStore.removeTagFromTask(task.id, tagId);
+  }
 </script>
 
 <div class="flex-1 min-w-0 overflow-hidden">
@@ -73,7 +78,10 @@
   {#if task.tags.length > 0}
     <div class="flex flex-wrap gap-1 mt-2">
       {#each task.tags as tag}
-        <TagDisplay {tag} />
+        <TagDisplay 
+          {tag} 
+          onTagRemoveFromItem={handleTagRemoveFromTask}
+        />
       {/each}
     </div>
   {/if}
