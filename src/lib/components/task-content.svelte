@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import Badge from '$lib/components/ui/badge.svelte';
+  import TagDisplay from './tag-display.svelte';
   import DueDate from './due-date.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -73,13 +73,7 @@
   {#if task.tags.length > 0}
     <div class="flex flex-wrap gap-1 mt-2">
       {#each task.tags as tag}
-        <Badge
-          variant="outline"
-          class="text-xs"
-          style="border-color: {tag.color}; color: {tag.color};"
-        >
-          {tag.name}
-        </Badge>
+        <TagDisplay {tag} />
       {/each}
     </div>
   {/if}
