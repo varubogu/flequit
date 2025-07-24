@@ -6,6 +6,9 @@
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { Hash, Bookmark } from 'lucide-svelte';
+  import TagEditDialog from '$lib/components/tag-edit-dialog.svelte';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 
   interface Props {
     currentView?: ViewType;
@@ -18,6 +21,11 @@
   
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);
+
+  // State for dialogs
+  let selectedTag: any = $state(null);
+  let showEditDialog = $state(false);
+  let showDeleteConfirm = $state(false);
 
   function getTaskCountForTag(tagName: string): number {
     return taskStore.getTaskCountByTag(tagName);
@@ -32,6 +40,41 @@
     event.stopPropagation();
     tagStore.toggleBookmark(tagId);
   }
+
+  function handleRemoveFromBookmarks(tag: any, event: Event) {
+    event.stopPropagation();
+    tagStore.removeBookmark(tag.id);
+  }
+
+  function handleEditTag(tag: any, event: Event) {
+    event.stopPropagation();
+    selectedTag = tag;
+    showEditDialog = true;
+  }
+
+  function handleDeleteTag(tag: any, event: Event) {
+    event.stopPropagation();
+    selectedTag = tag;
+    showDeleteConfirm = true;
+  }
+
+  function onEditComplete() {
+    showEditDialog = false;
+    selectedTag = null;
+  }
+
+  function onDeleteConfirm() {
+    if (selectedTag) {
+      tagStore.deleteTag(selectedTag.id);
+      showDeleteConfirm = false;
+      selectedTag = null;
+    }
+  }
+
+  function onDeleteCancel() {
+    showDeleteConfirm = false;
+    selectedTag = null;
+  }
 </script>
 
 <!-- タグカテゴリ -->
@@ -42,36 +85,83 @@
     </h3>
     
     {#each bookmarkedTags as tag (tag.id)}
-      <Button
-        variant="ghost"
-        class="w-full justify-between p-3 h-auto group hover:bg-accent"
-        onclick={handleTagClick}
-      >
-        <div class="flex items-center gap-3 flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-1 min-w-0">
-            <Hash 
-              class="h-4 w-4 flex-shrink-0" 
-              style="color: {tag.color || 'currentColor'}"
-            />
-            <span class="truncate text-sm font-medium">{tag.name}</span>
-          </div>
-          
-          <div class="flex items-center gap-1 flex-shrink-0">
-            <span class="text-xs text-muted-foreground">
-              {getTaskCountForTag(tag.name)}
-            </span>
-            
-            <button
-              type="button"
-              class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
-              onclick={(e) => toggleTagBookmark(tag.id, e)}
-              title="Remove from bookmarks"
-            >
-              <Bookmark class="h-3 w-3" />
-            </button>
-          </div>
-        </div>
-      </Button>
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <Button
+            variant="ghost"
+            class="w-full justify-between p-3 h-auto group hover:bg-accent"
+            onclick={handleTagClick}
+          >
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <Hash 
+                  class="h-4 w-4 flex-shrink-0" 
+                  style="color: {tag.color || 'currentColor'}"
+                />
+                <span class="truncate text-sm font-medium">{tag.name}</span>
+              </div>
+              
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <span class="text-xs text-muted-foreground">
+                  {getTaskCountForTag(tag.name)}
+                </span>
+                
+                <button
+                  type="button"
+                  class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
+                  onclick={(e) => toggleTagBookmark(tag.id, e)}
+                  title="Remove from bookmarks"
+                >
+                  <Bookmark class="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+          </Button>
+        </ContextMenu.Trigger>
+        
+        <ContextMenu.Content>
+          <ContextMenu.Item onclick={(e) => handleRemoveFromBookmarks(tag, e)}>
+            タグをサイドバーから解除
+          </ContextMenu.Item>
+          <ContextMenu.Item onclick={(e) => handleEditTag(tag, e)}>
+            タグを編集
+          </ContextMenu.Item>
+          <ContextMenu.Item onclick={(e) => handleDeleteTag(tag, e)}>
+            タグを削除
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>
     {/each}
   </div>
 {/if}
+
+<!-- Tag Edit Dialog -->
+<TagEditDialog
+  open={showEditDialog}
+  tag={selectedTag}
+  onclose={onEditComplete}
+  onsave={(data) => {
+    if (selectedTag) {
+      tagStore.updateTag(selectedTag.id, { name: data.name, color: data.color });
+    }
+    onEditComplete();
+  }}
+/>
+
+<!-- Delete Confirmation Dialog -->
+<AlertDialog.Root bind:open={showDeleteConfirm}>
+  <AlertDialog.Content>
+    <AlertDialog.Header>
+      <AlertDialog.Title>タグを削除</AlertDialog.Title>
+      <AlertDialog.Description>
+        「{selectedTag?.name || ''}」タグを削除しますか？
+        このタグが設定されているタスクからもタグが削除されます。
+        この操作は取り消せません。
+      </AlertDialog.Description>
+    </AlertDialog.Header>
+    <AlertDialog.Footer>
+      <AlertDialog.Cancel onclick={onDeleteCancel}>キャンセル</AlertDialog.Cancel>
+      <AlertDialog.Action onclick={onDeleteConfirm}>削除</AlertDialog.Action>
+    </AlertDialog.Footer>
+  </AlertDialog.Content>
+</AlertDialog.Root>
