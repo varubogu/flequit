@@ -64,7 +64,7 @@ export class TagStore {
   }
   
   searchTags(query: string): Tag[] {
-    if (!query.trim()) return [];
+    if (!query.trim()) return this.tags; // Return all tags for empty query
     
     const lowerQuery = query.toLowerCase();
     return this.tags.filter(tag => 

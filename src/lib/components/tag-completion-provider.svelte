@@ -172,54 +172,76 @@
   function checkForTagInput(element: HTMLInputElement | HTMLTextAreaElement, text: string, cursorPos: number) {
     console.log('TagCompletionProvider: checkForTagInput called', { text, cursorPos });
     
-    // Find the last # before cursor position
-    let hashPos = -1;
-    for (let i = cursorPos - 1; i >= 0; i--) {
+    // Find tag ranges: # followed by non-whitespace characters
+    const tagRanges: { start: number; end: number; content: string }[] = [];
+    
+    for (let i = 0; i < text.length; i++) {
       if (text[i] === '#') {
-        hashPos = i;
-        break;
+        // Check if this # is at the start or preceded by whitespace
+        const isValidTagStart = i === 0 || /[\s\n\t]/.test(text[i - 1]);
+        
+        if (isValidTagStart) {
+          // Find the end of this tag (until whitespace, newline, tab, or end of string)
+          let tagEnd = i + 1;
+          while (tagEnd < text.length && !/[\s\n\t]/.test(text[tagEnd])) {
+            tagEnd++;
+          }
+          
+          // Only consider it a tag if there's content after #
+          if (tagEnd > i + 1) {
+            tagRanges.push({
+              start: i,
+              end: tagEnd,
+              content: text.slice(i + 1, tagEnd)
+            });
+          }
+        }
       }
-      // Stop if we hit a space or newline
-      if (text[i] === ' ' || text[i] === '\n') {
+    }
+
+    console.log('TagCompletionProvider: found tag ranges', tagRanges);
+
+    // Check if cursor is within any tag range
+    let currentTagRange = null;
+    for (const range of tagRanges) {
+      if (cursorPos >= range.start && cursorPos <= range.end) {
+        currentTagRange = range;
         break;
       }
     }
 
-    console.log('TagCompletionProvider: hashPos =', hashPos);
-
-    if (hashPos === -1) {
+    if (!currentTagRange) {
+      console.log('TagCompletionProvider: cursor not in tag range');
       hideSuggestions();
       return;
     }
 
-    // Extract the tag input after #
-    let tagEnd = cursorPos;
-    for (let i = hashPos + 1; i < text.length; i++) {
-      if (text[i] === ' ' || text[i] === '\n' || text[i] === '#') {
-        tagEnd = i;
-        break;
-      }
-    }
+    console.log('TagCompletionProvider: cursor in tag range', currentTagRange);
 
-    tagInputStart = hashPos;
-    tagInputEnd = tagEnd;
-    currentTagInput = text.slice(hashPos + 1, tagEnd);
+    tagInputStart = currentTagRange.start;
+    tagInputEnd = currentTagRange.end;
+    currentTagInput = currentTagRange.content;
     activeElement = element;
 
-    console.log('TagCompletionProvider: tag input detected', { tagInputStart, tagInputEnd, currentTagInput });
-
-    // Show suggestions if we have at least 1 character after #
+    // Show suggestions if we have at least 1 character after # OR cursor is in tag range
     if (currentTagInput.length >= 1) {
       suggestions = tagStore.searchTags(currentTagInput);
-      showSuggestions = suggestions.length > 0;
+      // Always show suggestions when cursor is in tag range (for new tag creation)
+      showSuggestions = true;
       
       console.log('TagCompletionProvider: suggestions', { suggestions, showSuggestions });
       
       // Calculate position for suggestions
-      if (showSuggestions) {
-        suggestionsPosition = calculateSuggestionsPosition(element, hashPos);
-        console.log('TagCompletionProvider: suggestionsPosition', suggestionsPosition);
-      }
+      suggestionsPosition = calculateSuggestionsPosition(element, currentTagRange.start);
+      console.log('TagCompletionProvider: suggestionsPosition', suggestionsPosition);
+    } else if (currentTagInput.length === 0) {
+      // Show suggestions even for empty tag input (just after #)
+      suggestions = tagStore.searchTags('');
+      showSuggestions = true;
+      
+      // Calculate position for suggestions
+      suggestionsPosition = calculateSuggestionsPosition(element, currentTagRange.start);
+      console.log('TagCompletionProvider: showing empty suggestions');
     } else {
       hideSuggestions();
     }
@@ -384,7 +406,7 @@
   {@render children()}
   
   <!-- Suggestions dropdown -->
-  {#if showSuggestions && (suggestions.length > 0 || currentTagInput.trim())}
+  {#if showSuggestions}
     <div 
       class="fixed z-[9999] bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto min-w-48"
       style="top: {Math.max(0, suggestionsPosition.top)}px; left: {Math.max(0, suggestionsPosition.left)}px;"
