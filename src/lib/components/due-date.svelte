@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { TaskBase } from "$lib/types/task";
-  import { formatDate, getDueDateClass } from "$lib/utils/date-utils";
+  import { getDueDateClass } from "$lib/utils/date-utils";
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskBase;
@@ -15,6 +17,31 @@
     showDatePicker,
     handleDueDateClick
   }: Props = $props();
+
+  // Reactive messages
+  const todayLabel = reactiveMessage(m.today);
+  const tomorrowLabel = reactiveMessage(m.tomorrow);
+  const yesterdayLabel = reactiveMessage(m.yesterday);
+  const addDateLabel = reactiveMessage(m.add_date);
+
+  function formatDateI18n(date: Date | undefined): string {
+    if (!date) return '';
+    
+    const now = new Date();
+    const taskDate = new Date(date);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
+    
+    if (taskDay.getTime() === today.getTime()) {
+      return todayLabel();
+    } else if (taskDay.getTime() === today.getTime() + 24 * 60 * 60 * 1000) {
+      return tomorrowLabel();
+    } else if (taskDay.getTime() === today.getTime() - 24 * 60 * 60 * 1000) {
+      return yesterdayLabel();
+    } else {
+      return taskDate.toLocaleDateString();
+    }
+  }
 </script>
 
 {#if task.end_date}
@@ -26,7 +53,7 @@
     onclick={handleDueDateClick}
     title="Click to change due date"
   >
-    {formatDate(task.end_date)}
+    {formatDateI18n(task.end_date)}
   </button>
 {:else}
   <button
@@ -34,6 +61,6 @@
     onclick={handleDueDateClick}
     title="Click to set due date"
   >
-    + Add date
+    + {addDateLabel()}
   </button>
 {/if}
