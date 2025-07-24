@@ -1,9 +1,8 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
-  import Button from '$lib/components/button.svelte';
   import Select from '$lib/components/ui/select.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
-  import { formatDate } from '$lib/utils/date-utils';
+  import DueDate from '$lib/components/due-date.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 
@@ -57,7 +56,6 @@
   const completed = reactiveMessage(m.completed);
   const due_date = reactiveMessage(m.due_date);
   const optional = reactiveMessage(m.optional);
-  const select_date = reactiveMessage(m.select_date);
   const priority = reactiveMessage(m.priority);
   const cancelled = reactiveMessage(m.cancelled);
   const task_description = reactiveMessage(m.task_description);
@@ -94,17 +92,11 @@
     <label for="task-due-date" class="block text-sm font-medium mb-2">
       {due_date()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
     </label>
-    <Button
-      variant="outline"
-      class="w-full justify-start text-left h-10 px-3 py-2 font-normal"
-      onclick={onDueDateClick}
-    >
-      {#if formData.end_date}
-        {formatDate(formData.end_date)}
-      {:else}
-        <span class="text-muted-foreground">{select_date()}</span>
-      {/if}
-    </Button>
+    <DueDate
+      task={{ ...currentItem, end_date: formData.end_date }}
+      variant="full"
+      handleDueDateClick={onDueDateClick}
+    />
   </div>
 
   <div class="min-w-[120px] flex-1">

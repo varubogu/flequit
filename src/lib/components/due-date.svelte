@@ -6,16 +6,20 @@
 
   interface Props {
     task: TaskBase;
-    datePickerPosition: { x: number; y: number };
-    showDatePicker: boolean;
-    handleDueDateClick: (event: MouseEvent) => void;
+    datePickerPosition?: { x: number; y: number };
+    showDatePicker?: boolean;
+    handleDueDateClick: (event?: Event) => void;
+    variant?: 'compact' | 'full';
+    class?: string;
   }
 
   let {
     task,
     datePickerPosition,
     showDatePicker,
-    handleDueDateClick
+    handleDueDateClick,
+    variant = 'compact',
+    class: className = ''
   }: Props = $props();
 
   // Reactive messages
@@ -23,6 +27,11 @@
   const tomorrowLabel = reactiveMessage(m.tomorrow);
   const yesterdayLabel = reactiveMessage(m.yesterday);
   const addDateLabel = reactiveMessage(m.add_date);
+  const selectDate = reactiveMessage(m.select_date);
+
+  // Style classes based on variant
+  const baseClasses = 'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';
+  const colorClasses = task.end_date ? getDueDateClass(task.end_date, task.status) : 'text-muted-foreground';
 
   function formatDateI18n(date: Date | undefined): string {
     if (!date) return '';
@@ -44,23 +53,33 @@
   }
 </script>
 
-{#if task.end_date}
-  <button
-    class="text-sm whitespace-nowrap flex-shrink-0 {getDueDateClass(
-      task.end_date,
-      task.status,
-    )} hover:bg-muted rounded px-1 py-0.5 transition-colors"
-    onclick={handleDueDateClick}
-    title="Click to change due date"
-  >
-    {formatDateI18n(task.end_date)}
-  </button>
+{#if variant === 'compact'}
+  {#if task.end_date}
+    <button
+      class="{baseClasses} {colorClasses} {className}"
+      onclick={handleDueDateClick}
+      title="Click to change due date"
+    >
+      {formatDateI18n(task.end_date)}
+    </button>
+  {:else}
+    <button
+      class="{baseClasses} {colorClasses} {className}"
+      onclick={handleDueDateClick}
+      title="Click to set due date"
+    >
+      + {addDateLabel()}
+    </button>
+  {/if}
 {:else}
   <button
-    class="text-sm whitespace-nowrap flex-shrink-0 text-muted-foreground hover:bg-muted rounded px-1 py-0.5 transition-colors"
+    class="text-left p-0 border-0 bg-transparent {className} {task.end_date ? getDueDateClass(task.end_date, task.status) : 'text-muted-foreground'}"
     onclick={handleDueDateClick}
-    title="Click to set due date"
   >
-    + {addDateLabel()}
+    {#if task.end_date}
+      {formatDateI18n(task.end_date)}
+    {:else}
+      {selectDate()}
+    {/if}
   </button>
 {/if}

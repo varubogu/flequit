@@ -43,7 +43,7 @@
       {task}
       {datePickerPosition}
       {showDatePicker}
-      {handleDueDateClick}
+      handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)}
     />
   </div>
 
