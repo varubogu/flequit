@@ -3,12 +3,21 @@
   import { contextMenuStore } from "$lib/stores/context-menu.svelte";
   import { taskStore } from "$lib/stores/tasks.svelte";
   import { TaskService } from "$lib/services/task-service";
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
   }
 
   let { task }: Props = $props();
+
+  // Reactive messages
+  const editTask = reactiveMessage(m.edit_task);
+  const setPriorityLabel = reactiveMessage(m.set_priority);
+  const deleteTask = reactiveMessage(m.delete_task);
+  const editSubtask = reactiveMessage(m.edit_subtask);
+  const deleteSubtask = reactiveMessage(m.delete_subtask);
 
   function handleEdit() {
     console.log(`Editing task: ${task.title}`);
@@ -35,11 +44,11 @@
 
     contextMenuStore.open(event.clientX, event.clientY, [
       {
-        label: 'Edit Task',
+        label: editTask(),
         action: handleEdit
       },
       {
-        label: 'Set Priority',
+        label: setPriorityLabel(),
         action: () => setPriority
       },
       {
@@ -48,7 +57,7 @@
         separator: true
       },
       {
-        label: 'Delete Task',
+        label: deleteTask(),
         action: handleDelete
       }
     ]);
@@ -60,7 +69,7 @@
 
     contextMenuStore.open(event.clientX, event.clientY, [
       {
-        label: 'Edit Subtask',
+        label: editSubtask(),
         action: () => console.log('Edit subtask:', subTask.title)
       },
       {
@@ -69,7 +78,7 @@
         separator: true
       },
       {
-        label: 'Delete Subtask',
+        label: deleteSubtask(),
         action: () => console.log('Delete subtask:', subTask.title)
       }
     ]);
