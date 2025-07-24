@@ -2,9 +2,11 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
+  import TagAwareInput from './tag-aware-input.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
+  import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -26,9 +28,19 @@
     onSaveNewTask 
   }: Props = $props();
 
-  function handleTitleInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    onTitleChange(target.value);
+  function handleTitleInput(event: CustomEvent<{ value: string }>) {
+    onTitleChange(event.detail.value);
+  }
+
+  function handleTagDetected(event: CustomEvent<{ tagName: string; position: number }>) {
+    // Add tag to task when detected in title
+    if (!isSubTask && currentItem && 'list_id' in currentItem) {
+      if (isNewTaskMode) {
+        taskStore.addTagToNewTask(event.detail.tagName);
+      } else {
+        taskStore.addTagToTask(currentItem.id, event.detail.tagName);
+      }
+    }
   }
 
   // Reactive messages
@@ -47,11 +59,11 @@
       {#if isSubTask}
         <div class="text-sm text-muted-foreground mb-1">{sub_task()}</div>
       {/if}
-      <Input
-        type="text"
+      <TagAwareInput
         class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
         value={title}
         oninput={handleTitleInput}
+        ontagDetected={handleTagDetected}
         placeholder={isSubTask ? sub_task_title() : task_title()}
       />
     </div>

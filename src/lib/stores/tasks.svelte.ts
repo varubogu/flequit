@@ -1,4 +1,5 @@
-import type { Task, TaskList, Project, ProjectTree, TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { Task, TaskList, Project, ProjectTree, TaskWithSubTasks, SubTask, Tag } from '$lib/types/task';
+import { tagStore } from './tags.svelte';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -244,6 +245,63 @@ export class TaskStore {
   updateNewTaskData(updates: Partial<TaskWithSubTasks>) {
     if (this.newTaskData) {
       this.newTaskData = { ...this.newTaskData, ...updates };
+    }
+  }
+  
+  // Tag management methods
+  addTagToTask(taskId: string, tagName: string) {
+    const tag = tagStore.getOrCreateTag(tagName);
+    if (!tag) return;
+    
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        const task = list.tasks.find(t => t.id === taskId);
+        if (task) {
+          // Check if tag already exists on this task
+          if (!task.tags.some(t => t.id === tag.id)) {
+            task.tags.push(tag);
+            task.updated_at = new Date();
+          }
+          return;
+        }
+      }
+    }
+  }
+  
+  removeTagFromTask(taskId: string, tagId: string) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        const task = list.tasks.find(t => t.id === taskId);
+        if (task) {
+          const tagIndex = task.tags.findIndex(t => t.id === tagId);
+          if (tagIndex !== -1) {
+            task.tags.splice(tagIndex, 1);
+            task.updated_at = new Date();
+          }
+          return;
+        }
+      }
+    }
+  }
+  
+  addTagToNewTask(tagName: string) {
+    if (this.newTaskData) {
+      const tag = tagStore.getOrCreateTag(tagName);
+      if (!tag) return;
+      
+      // Check if tag already exists on this task
+      if (!this.newTaskData.tags.some(t => t.id === tag.id)) {
+        this.newTaskData.tags.push(tag);
+      }
+    }
+  }
+  
+  removeTagFromNewTask(tagId: string) {
+    if (this.newTaskData) {
+      const tagIndex = this.newTaskData.tags.findIndex(t => t.id === tagId);
+      if (tagIndex !== -1) {
+        this.newTaskData.tags.splice(tagIndex, 1);
+      }
     }
   }
 }

@@ -314,6 +314,7 @@
       <TaskDetailForm 
         {currentItem}
         {isSubTask}
+        {isNewTaskMode}
         formData={editForm}
         onStatusChange={handleStatusChange}
         onFormChange={handleFormChange}
@@ -332,9 +333,9 @@
         />
       {/if}
 
-      <!-- Tags (only for main tasks, not in new task mode) -->
-      {#if !isSubTask && !isNewTaskMode && task}
-        <TaskDetailTags {task} />
+      <!-- Tags (only for main tasks) -->
+      {#if !isSubTask && (task || (isNewTaskMode && currentItem))}
+        <TaskDetailTags task={task || (currentItem as TaskWithSubTasks)} {isNewTaskMode} />
       {/if}
 
       <TaskDetailMetadata 

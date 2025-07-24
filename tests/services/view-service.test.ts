@@ -191,6 +191,26 @@ test("ViewService.getTasksForView: searches in tags", () => {
   expect(result).toEqual([mockTasks[0]]);
 });
 
+test("ViewService.getTasksForView: searches in tags with # prefix", () => {
+  const result = ViewService.getTasksForView('search', '#urgent');
+  expect(result).toEqual([mockTasks[0]]);
+});
+
+test("ViewService.getTasksForView: returns tasks with any tags when searching with #", () => {
+  const result = ViewService.getTasksForView('search', '#');
+  expect(result).toEqual([mockTasks[0]]); // Only task-1 has tags
+});
+
+test("ViewService.getTasksForView: partial tag search with # prefix", () => {
+  const result = ViewService.getTasksForView('search', '#ur');
+  expect(result).toEqual([mockTasks[0]]);
+});
+
+test("ViewService.getTasksForView: case insensitive tag search with # prefix", () => {
+  const result = ViewService.getTasksForView('search', '#URGENT');
+  expect(result).toEqual([mockTasks[0]]);
+});
+
 test("ViewService.getViewTitle: returns correct titles for each view", () => {
   expect(ViewService.getViewTitle('all')).toBe('All Tasks');
   expect(ViewService.getViewTitle('today')).toBe('Today');

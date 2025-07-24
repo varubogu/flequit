@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Command from "$lib/components/ui/command/index.js";
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search } from "lucide-svelte";
+  import { Search, Hash } from "lucide-svelte";
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
@@ -20,6 +20,7 @@
   let searchValue = $state('');
   let filteredTasks = $state<TaskWithSubTasks[]>([]);
   let isCommandMode = $derived(searchValue.startsWith('>'));
+  let isTagSearch = $derived(searchValue.startsWith('#'));
 
   // Reactive messages
   const searchTasks = reactiveMessage(m.search_tasks);
@@ -42,11 +43,24 @@
   // 検索結果の更新
   $effect(() => {
     if (searchValue && !isCommandMode) {
-      // タスク検索
-      filteredTasks = taskStore.allTasks.filter(task =>
-        task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchValue.toLowerCase())
-      ).slice(0, 5); // 最大5件
+      if (isTagSearch) {
+        // タグ検索
+        const tagQuery = searchValue.slice(1).toLowerCase();
+        if (tagQuery) {
+          filteredTasks = taskStore.allTasks.filter(task =>
+            task.tags.some(tag => tag.name.toLowerCase().includes(tagQuery))
+          ).slice(0, 5); // 最大5件
+        } else {
+          // "#"のみの場合はタグ付きタスクを表示
+          filteredTasks = taskStore.allTasks.filter(task => task.tags.length > 0).slice(0, 5);
+        }
+      } else {
+        // 通常のタスク検索
+        filteredTasks = taskStore.allTasks.filter(task =>
+          task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+          task.description?.toLowerCase().includes(searchValue.toLowerCase())
+        ).slice(0, 5); // 最大5件
+      }
     } else {
       filteredTasks = [];
     }
@@ -91,7 +105,7 @@
   shouldFilter={false}
 >
   <Command.Input
-    placeholder={isCommandMode ? typeACommand() : searchTasks()}
+    placeholder={isCommandMode ? typeACommand() : isTagSearch ? "Search tags..." : searchTasks()}
     bind:value={searchValue}
     onkeydown={handleKeyDown}
   />
@@ -122,7 +136,11 @@
       <!-- 検索モード -->
       <Command.Group heading={search()}>
         <Command.Item onSelect={handleSearchExecute}>
-          <Search class="h-4 w-4 mr-2" />
+          {#if isTagSearch}
+            <Hash class="h-4 w-4 mr-2" />
+          {:else}
+            <Search class="h-4 w-4 mr-2" />
+          {/if}
           <span>{showAllResultsFor({ searchValue })}</span>
         </Command.Item>
       </Command.Group>
@@ -132,7 +150,15 @@
           {#each filteredTasks as task (task.id)}
             <Command.Item onSelect={() => handleTaskSelect(task)}>
               <span class="truncate font-medium">{task.title}</span>
-              {#if task.description}
+              {#if isTagSearch && task.tags.length > 0}
+                <div class="flex gap-1 ml-2">
+                  {#each task.tags as tag (tag.id)}
+                    <span class="inline-flex items-center px-1.5 py-0.5 text-xs bg-secondary text-secondary-foreground rounded">
+                      #{tag.name}
+                    </span>
+                  {/each}
+                </div>
+              {:else if task.description}
                 <span class="text-xs text-muted-foreground ml-2 truncate">
                   {task.description}
                 </span>

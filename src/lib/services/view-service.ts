@@ -215,7 +215,23 @@ export class ViewService {
       return taskStore.allTasks;
     }
     
-    const query = searchQuery.toLowerCase();
+    const trimmedQuery = searchQuery.trim();
+    
+    // Tag search with # prefix
+    if (trimmedQuery.startsWith('#')) {
+      const tagQuery = trimmedQuery.slice(1).toLowerCase();
+      if (!tagQuery) {
+        // Show all tasks with any tags if just "#" is entered
+        return taskStore.allTasks.filter(task => task.tags.length > 0);
+      }
+      
+      return taskStore.allTasks.filter(task =>
+        task.tags.some(tag => tag.name.toLowerCase().includes(tagQuery))
+      );
+    }
+    
+    // Regular search (all content including tags)
+    const query = trimmedQuery.toLowerCase();
     return taskStore.allTasks.filter(task =>
       task.title.toLowerCase().includes(query) ||
       task.description?.toLowerCase().includes(query) ||
