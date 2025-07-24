@@ -371,7 +371,7 @@
     
     textInputs.forEach((element) => {
       const inputElement = element as HTMLInputElement | HTMLTextAreaElement;
-      console.log('TagCompletionProvider: setting up listeners for', element.tagName, element.type);
+      console.log('TagCompletionProvider: setting up listeners for', element.tagName);
       
       inputElement.addEventListener('input', handleElementInput);
       inputElement.addEventListener('keydown', handleElementKeydown);
