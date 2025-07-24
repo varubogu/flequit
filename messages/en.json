@@ -111,5 +111,19 @@
     "go_to_parent_task": "Go to Parent Task",
     "sub_tasks": "Sub-tasks",
     "toggle_subtask_completion": "Toggle subtask completion",
-    "tags": "Tags"
+    "tags": "Tags",
+    "search": "Search",
+    "search_tasks": "Search tasks...",
+    "type_a_command": "Type a command...",
+    "no_commands_found": "No commands found.",
+    "commands": "Commands",
+    "help": "Help",
+    "show_all_results_for": "Show all results for \"{searchValue}\"",
+    "jump_to_task": "Jump to Task",
+    "no_matching_tasks_found": "No matching tasks found",
+    "results": "Results",
+    "show_all_tasks": "Show all tasks",
+    "quick_actions": "Quick Actions",
+    "add_new_task": "Add New Task",
+    "view_all_tasks": "View All Tasks"
 }

@@ -111,5 +111,19 @@
     "go_to_parent_task": "親タスクへ移動",
     "sub_tasks": "サブタスク",
     "toggle_subtask_completion": "サブタスクの完了を切り替え",
-    "tags": "タグ"
+    "tags": "タグ",
+    "search": "検索",
+    "search_tasks": "タスクを検索...",
+    "type_a_command": "コマンドを入力...",
+    "no_commands_found": "コマンドが見つかりません",
+    "commands": "コマンド",
+    "help": "ヘルプ",
+    "show_all_results_for": "「{searchValue}」のすべての結果を表示",
+    "jump_to_task": "タスクに移動",
+    "no_matching_tasks_found": "一致するタスクが見つかりません",
+    "results": "結果",
+    "show_all_tasks": "すべてのタスクを表示",
+    "quick_actions": "クイックアクション",
+    "add_new_task": "新しいタスクを追加",
+    "view_all_tasks": "すべてのタスクを表示"
 }
