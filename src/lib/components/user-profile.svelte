@@ -3,6 +3,8 @@
   import Card from '$lib/components/ui/card.svelte';
   import SettingsDialog from '$lib/components/settings-dialog.svelte';
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface User {
     id: string;
@@ -29,6 +31,13 @@
 
   let showMenu = $state(false);
   let showSettings = $state(false);
+
+  // Reactive messages
+  const notSignedIn = reactiveMessage(m.not_signed_in);
+  const settingsLabel = reactiveMessage(m.settings);
+  const switchAccount = reactiveMessage(m.switch_account);
+  const signOut = reactiveMessage(m.sign_out);
+  const signIn = reactiveMessage(m.sign_in);
 
   function getInitials(name: string): string {
     return name
@@ -111,7 +120,7 @@
           <Users class="h-4 w-4 text-muted-foreground" />
         </div>
         <div class="min-w-0 flex-1 text-left">
-          <div class="text-sm text-muted-foreground">Not signed in</div>
+          <div class="text-sm text-muted-foreground">{notSignedIn()}</div>
         </div>
       {/if}
     </div>
@@ -136,7 +145,7 @@
             onclick={handleSettings}
           >
             <Settings class="h-4 w-4" />
-            Settings
+            {settingsLabel()}
           </Button>
           
           <Button
@@ -146,7 +155,7 @@
             onclick={handleSwitchAccount}
           >
             <Users class="h-4 w-4" />
-            Switch Account
+            {switchAccount()}
           </Button>
           
           <div class="border-t my-1"></div>
@@ -158,7 +167,7 @@
             onclick={handleLogout}
           >
             <LogOut class="h-4 w-4" />
-            Sign Out
+            {signOut()}
           </Button>
         {:else}
           <!-- Not logged in -->
@@ -169,7 +178,7 @@
             onclick={handleLogin}
           >
             <LogIn class="h-4 w-4" />
-            Sign In
+            {signIn()}
           </Button>
           
           <Button
@@ -179,7 +188,7 @@
             onclick={handleSettings}
           >
             <Settings class="h-4 w-4" />
-            Settings
+            {settingsLabel()}
           </Button>
         {/if}
       </div>
