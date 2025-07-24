@@ -18,7 +18,7 @@
 
   let name = $state('');
   let color = $state('#3b82f6');
-  
+
   // Reactiveメッセージ
   const cancel = reactiveMessage(m.cancel);
   const save = reactiveMessage(m.save);
@@ -56,7 +56,18 @@
     <Dialog.Header>
       <Dialog.Title>タグの編集</Dialog.Title>
     </Dialog.Header>
-    
+    <!-- Preview -->
+    <div class="space-y-2">
+      <Label>プレビュー</Label>
+      <div class="p-3 border rounded-md bg-muted/50">
+        <span
+          class="inline-block px-2 py-1 text-xs rounded border"
+          style="border-color: {color}; color: {color};"
+        >
+          {name || 'タグ名'}
+        </span>
+      </div>
+    </div>
     <div class="space-y-4 py-4">
       <div class="space-y-2">
         <Label for="tag-name">タグ名</Label>
@@ -67,7 +78,7 @@
           onkeydown={handleKeydown}
         />
       </div>
-      
+
       <div class="space-y-2">
         <Label for="tag-color">タグ色</Label>
         <div class="flex items-center gap-2">
@@ -85,21 +96,8 @@
           />
         </div>
       </div>
-      
-      <!-- Preview -->
-      <div class="space-y-2">
-        <Label>プレビュー</Label>
-        <div class="p-3 border rounded-md bg-muted/50">
-          <span
-            class="inline-block px-2 py-1 text-xs rounded border"
-            style="border-color: {color}; color: {color};"
-          >
-            {name || 'タグ名'}
-          </span>
-        </div>
-      </div>
     </div>
-    
+
     <Dialog.Footer>
       <Button variant="outline" onclick={handleClose}>
         {cancel()}
