@@ -132,5 +132,9 @@
     "not_signed_in": "サインインしていません",
     "switch_account": "アカウントを切り替え",
     "sign_out": "サインアウト",
-    "sign_in": "サインイン"
+    "sign_in": "サインイン",
+    "edit_task": "タスクを編集",
+    "set_priority": "優先度を設定",
+    "edit_subtask": "サブタスクを編集",
+    "delete_subtask": "サブタスクを削除"
 }

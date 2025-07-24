@@ -132,5 +132,9 @@
     "not_signed_in": "Not signed in",
     "switch_account": "Switch Account",
     "sign_out": "Sign Out",
-    "sign_in": "Sign In"
+    "sign_in": "Sign In",
+    "edit_task": "Edit Task",
+    "set_priority": "Set Priority",
+    "edit_subtask": "Edit Subtask",
+    "delete_subtask": "Delete Subtask"
 }
