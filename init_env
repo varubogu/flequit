@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
 
+# Gemini CLI を使う場合に xdg-utils が必要
+sudo apt-get update \
+    && sudo apt-get install -y xdg-utils \
+    && sudo apt-get -y autoremove \
+    && sudo apt-get -y clean \
+    && sudo rm -rf /var/cache/apt /var/lib/apt/lists
+
 npm install -g @anthropic-ai/claude-code @google/gemini-cli
 npx playwright install --with-deps
