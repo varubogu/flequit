@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Tag } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
-  import { X, Hash } from 'lucide-svelte';
+  import Badge from '$lib/components/ui/badge.svelte';
+  import { X } from 'lucide-svelte';
   import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
 
   interface Props {
@@ -72,18 +73,23 @@
   {#if tags.length > 0}
     <div class="flex flex-wrap gap-1 mb-2">
       {#each tags as tag (tag.id)}
-        <span class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded-md">
-          <Hash class="h-3 w-3" />
-          {tag.name}
-          <Button
-            variant="ghost"
-            size="icon"
-            class="h-3 w-3 p-0 hover:bg-secondary-foreground/20"
-            onclick={() => removeTag(tag.id)}
+        <div class="inline-flex items-center gap-1">
+          <Badge
+            variant="outline"
+            class="text-xs pr-1"
+            style="border-color: {tag.color}; color: {tag.color};"
           >
-            <X class="h-2 w-2" />
-          </Button>
-        </span>
+            {tag.name}
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-3 w-3 p-0 ml-1 hover:bg-secondary-foreground/20"
+              onclick={() => removeTag(tag.id)}
+            >
+              <X class="h-2 w-2" />
+            </Button>
+          </Badge>
+        </div>
       {/each}
     </div>
   {/if}
