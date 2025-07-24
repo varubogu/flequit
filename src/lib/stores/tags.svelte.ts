@@ -3,6 +3,7 @@ import type { Tag } from '$lib/types/task';
 // Tag store using Svelte 5 runes
 export class TagStore {
   tags = $state<Tag[]>([]);
+  bookmarkedTags = $state<Set<string>>(new Set());
   
   // Computed values
   get allTags(): Tag[] {
@@ -11,6 +12,10 @@ export class TagStore {
   
   get tagNames(): string[] {
     return this.tags.map(tag => tag.name);
+  }
+  
+  get bookmarkedTagList(): Tag[] {
+    return this.tags.filter(tag => this.bookmarkedTags.has(tag.id));
   }
   
   // Actions
@@ -84,6 +89,27 @@ export class TagStore {
     }
     
     return this.addTag({ name: trimmedName, color });
+  }
+  
+  // Bookmark management methods
+  toggleBookmark(tagId: string) {
+    if (this.bookmarkedTags.has(tagId)) {
+      this.bookmarkedTags.delete(tagId);
+    } else {
+      this.bookmarkedTags.add(tagId);
+    }
+  }
+  
+  isBookmarked(tagId: string): boolean {
+    return this.bookmarkedTags.has(tagId);
+  }
+  
+  addBookmark(tagId: string) {
+    this.bookmarkedTags.add(tagId);
+  }
+  
+  removeBookmark(tagId: string) {
+    this.bookmarkedTags.delete(tagId);
   }
 }
 

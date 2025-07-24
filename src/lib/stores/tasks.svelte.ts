@@ -91,6 +91,17 @@ export class TaskStore {
     allTags.forEach(tag => {
       tagStore.getOrCreateTag(tag.name, tag.color);
     });
+    
+    // Add initial bookmarks for common tags
+    const workTag = tagStore.tags.find(tag => tag.name === 'work');
+    const personalTag = tagStore.tags.find(tag => tag.name === 'personal');
+    
+    if (workTag && !tagStore.isBookmarked(workTag.id)) {
+      tagStore.addBookmark(workTag.id);
+    }
+    if (personalTag && !tagStore.isBookmarked(personalTag.id)) {
+      tagStore.addBookmark(personalTag.id);
+    }
   }
   
   selectTask(taskId: string | null) {
@@ -360,6 +371,23 @@ export class TaskStore {
         }
       }
     }
+  }
+  
+  // Get task count for a specific tag
+  getTaskCountByTag(tagName: string): number {
+    let count = 0;
+    
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          if (task.tags.some(tag => tag.name.toLowerCase() === tagName.toLowerCase())) {
+            count++;
+          }
+        }
+      }
+    }
+    
+    return count;
   }
 }
 

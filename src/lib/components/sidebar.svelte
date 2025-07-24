@@ -4,6 +4,7 @@
   import SidebarSearchHeader from '$lib/components/sidebar-search-header.svelte';
   import SidebarViewList from '$lib/components/sidebar-view-list.svelte';
   import SidebarProjectList from '$lib/components/sidebar-project-list.svelte';
+  import SidebarTagList from '$lib/components/sidebar-tag-list.svelte';
   import UserProfile from '$lib/components/user-profile.svelte';
 
   interface Props {
@@ -49,6 +50,7 @@
     <div class="space-y-1">
       <SidebarViewList {currentView} {onViewChange} />
       <SidebarProjectList {currentView} {onViewChange} />
+      <SidebarTagList {currentView} {onViewChange} />
     </div>
   </nav>
 
@@ -62,4 +64,3 @@
     />
   </div>
 </Card>
-
