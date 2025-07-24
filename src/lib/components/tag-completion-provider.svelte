@@ -454,7 +454,7 @@
   <!-- Suggestions dropdown -->
   {#if showSuggestions}
     <div
-      class="fixed z-[9999] bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto min-w-48"
+      class="fixed z-[9999] bg-background border border-border rounded-md shadow-lg max-h-40 overflow-y-auto min-w-48"
       style="top: {Math.max(0, suggestionsPosition.top)}px; left: {Math.max(0, suggestionsPosition.left)}px;"
     >
       <div class="px-2 py-1 text-xs text-muted-foreground">Debug: showing {suggestions.length} suggestions</div>
