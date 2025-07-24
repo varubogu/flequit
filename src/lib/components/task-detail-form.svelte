@@ -51,7 +51,7 @@
 
   // Reactive messages
   const status = reactiveMessage(m.status);
-  const not_started = reactiveMessage(m.add_task);
+  const not_started = reactiveMessage(m.not_started);
   const in_progress = reactiveMessage(m.in_progress);
   const waiting = reactiveMessage(m.waiting);
   const completed = reactiveMessage(m.completed);
