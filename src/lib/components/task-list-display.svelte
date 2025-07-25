@@ -15,7 +15,6 @@
 
   let { project, isExpanded, onViewChange }: Props = $props();
   
-  // Reactive message functions
   const editTaskList = reactiveMessage(m.edit_task_list);
   const addTask = reactiveMessage(m.add_task);
   const deleteTaskList = reactiveMessage(m.delete_task_list);
@@ -30,7 +29,6 @@
   let editingTaskList: any = $state(null);
   let editingProject: any = $state(null);
 
-
   function openTaskListDialog(mode: 'add' | 'edit', taskList?: any, project?: any) {
     taskListDialogMode = mode;
     editingTaskList = taskList;
@@ -44,7 +42,6 @@
       if (editingProject) {
         const newTaskList = taskStore.addTaskList(editingProject.id, { name });
         if (newTaskList) {
-          // 新しく作成したタスクリストを選択
           taskStore.selectList(newTaskList.id);
           onViewChange?.('tasklist');
         }

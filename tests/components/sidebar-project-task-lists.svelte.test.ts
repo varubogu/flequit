@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SidebarProjectTaskLists from '../../src/lib/components/sidebar-project-task-lists.svelte';
+import TaskListDisplay from '../../src/lib/components/task-list-display.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
 import { writable, get } from 'svelte/store';
@@ -80,7 +80,7 @@ const mockProject: ProjectTree = {
   ]
 };
 
-describe('SidebarProjectTaskLists Component', () => {
+describe('TaskListDisplay Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockTaskStore.selectedListId = null;
@@ -91,7 +91,7 @@ describe('SidebarProjectTaskLists Component', () => {
   };
 
   test('should not render anything when not expanded', () => {
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: false 
     });
@@ -101,7 +101,7 @@ describe('SidebarProjectTaskLists Component', () => {
   });
 
   test('should render task lists when expanded', () => {
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: true 
     });
@@ -111,7 +111,7 @@ describe('SidebarProjectTaskLists Component', () => {
   });
 
   test('should display correct task counts for each list', () => {
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: true 
     });
@@ -124,7 +124,7 @@ describe('SidebarProjectTaskLists Component', () => {
   });
 
   test('should call selectList when task list is clicked', async () => {
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: true 
     });
@@ -138,7 +138,7 @@ describe('SidebarProjectTaskLists Component', () => {
   test('should highlight selected task list', () => {
     setTaskStoreData({ selectedListId: 'list-1' });
     
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: true 
     });
@@ -151,7 +151,7 @@ describe('SidebarProjectTaskLists Component', () => {
   });
 
   test('should open context menu on right-click', async () => {
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: mockProject, 
       isExpanded: true 
     });
@@ -170,7 +170,7 @@ describe('SidebarProjectTaskLists Component', () => {
   test('should render empty list when project has no task lists', () => {
     const emptyProject = { ...mockProject, task_lists: [] };
     
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: emptyProject, 
       isExpanded: true 
     });
@@ -194,7 +194,7 @@ describe('SidebarProjectTaskLists Component', () => {
       }]
     };
 
-    render(SidebarProjectTaskLists, { 
+    render(TaskListDisplay, { 
       project: projectWithEmptyList, 
       isExpanded: true 
     });
