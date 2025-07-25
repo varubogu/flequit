@@ -77,6 +77,10 @@
   }
 
   let isBookmarked = $derived(tagStore.bookmarkedTags.has(tag.id));
+  
+  // Default color for tags without a color
+  const DEFAULT_TAG_COLOR = '#6b7280'; // gray-500
+  let tagColor = $derived(tag.color || DEFAULT_TAG_COLOR);
 </script>
 
 <ContextMenu.Root>
@@ -86,7 +90,7 @@
         <Badge
           variant="outline"
           class="text-xs pr-1"
-          style="border-color: {tag.color}; color: {tag.color};"
+          style="border-color: {tagColor}; color: {tagColor};"
         >
           {tag.name}
           <Button
@@ -103,7 +107,7 @@
       <Badge
         variant="outline"
         class="text-xs {className}"
-        style="border-color: {tag.color}; color: {tag.color};"
+        style="border-color: {tagColor}; color: {tagColor};"
       >
         {tag.name}
       </Badge>

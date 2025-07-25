@@ -16,8 +16,11 @@
 
   let { open = false, tag, onsave, onclose }: Props = $props();
 
+  // Default color for tags without a color (same as tag-display.svelte)
+  const DEFAULT_TAG_COLOR = '#6b7280'; // gray-500
+
   let name = $state('');
-  let color = $state('#3b82f6');
+  let color = $state(DEFAULT_TAG_COLOR);
 
   // Reactiveメッセージ
   const cancel = reactiveMessage(m.cancel);
@@ -27,7 +30,7 @@
   $effect(() => {
     if (open && tag) {
       name = tag.name;
-      color = tag.color || '#3b82f6';
+      color = tag.color || DEFAULT_TAG_COLOR;
     }
   });
 
@@ -90,7 +93,7 @@
           />
           <Input
             bind:value={color}
-            placeholder="#3b82f6"
+            placeholder={DEFAULT_TAG_COLOR}
             class="flex-1"
             onkeydown={handleKeydown}
           />
