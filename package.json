@@ -7,7 +7,7 @@
     "dev": "vite dev --host",
     "dev:e2e": "vite dev --port 10000 --host",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --host",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",
