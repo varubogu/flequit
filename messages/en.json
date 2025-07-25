@@ -192,5 +192,6 @@
     "recurrence": "Recurrence",
     "recurrence_disabled": "Disabled",
     "recurrence_enabled": "Enabled",
-    "recurrence_advanced": "Enabled (Advanced)"
+    "recurrence_advanced": "Enabled (Advanced)",
+    "repeat_count": "Repeat count"
 }

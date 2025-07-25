@@ -16,6 +16,7 @@ vi.mock('$paraglide/messages.js', () => ({
   recurrence_disabled: () => '無効',
   recurrence_enabled: () => '有効',
   recurrence_advanced: () => '有効（高度）',
+  repeat_count: () => '繰り返し回数',
   repeat_every: () => '繰り返し間隔',
   save: () => '保存',
   cancel: () => 'キャンセル',
@@ -200,5 +201,56 @@ describe('RecurrenceDialogAdvanced', () => {
     fireEvent.click(saveButton);
 
     expect(mockOnSave).toHaveBeenCalledWith(null);
+  });
+
+  it('繰り返し回数フィールドが表示される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // 有効に変更
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'enabled' } });
+
+    // 繰り返し回数フィールドが表示される
+    expect(screen.getByRole('heading', { name: '繰り返し回数' })).toBeTruthy();
+    expect(screen.getByPlaceholderText('無制限の場合は空白')).toBeTruthy();
+  });
+
+  it('繰り返し回数設定時にmax_occurrencesが保存される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // 有効に変更
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'enabled' } });
+
+    // 繰り返し回数を設定
+    const countInput = screen.getByPlaceholderText('無制限の場合は空白') as HTMLInputElement;
+    fireEvent.input(countInput, { target: { value: '3' } });
+    
+    // 入力値が正しく反映されることを確認
+    expect(countInput.value).toBe('3');
+
+    // 保存ボタンをクリック
+    const saveButton = screen.getByText('保存');
+    fireEvent.click(saveButton);
+
+    expect(mockOnSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unit: 'day',
+        interval: 1,
+        max_occurrences: 3
+      })
+    );
   });
 });

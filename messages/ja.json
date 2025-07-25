@@ -192,5 +192,6 @@
     "recurrence": "繰り返し",
     "recurrence_disabled": "無効",
     "recurrence_enabled": "有効",
-    "recurrence_advanced": "有効（高度）"
+    "recurrence_advanced": "有効（高度）",
+    "repeat_count": "繰り返し回数"
 }

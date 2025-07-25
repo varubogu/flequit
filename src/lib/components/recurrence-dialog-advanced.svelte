@@ -49,6 +49,9 @@
   // 終了条件
   let endDate = $state<Date | undefined>(recurrenceRule?.end_date);
   let maxOccurrences = $state<number | undefined>(recurrenceRule?.max_occurrences);
+  
+  // 繰り返し回数の制御（プレビュー表示用）
+  let repeatCount = $state<number | undefined>(recurrenceRule?.max_occurrences);
 
   // プレビュー
   let previewDates = $state<Date[]>([]);
@@ -59,6 +62,7 @@
   const recurrenceDisabled = reactiveMessage(m.recurrence_disabled);
   const recurrenceEnabled = reactiveMessage(m.recurrence_enabled);
   const recurrenceAdvanced = reactiveMessage(m.recurrence_advanced);
+  const repeatCountLabel = reactiveMessage(m.repeat_count);
   const repeatEvery = reactiveMessage(m.repeat_every);
   const save = reactiveMessage(m.save);
   const cancel = reactiveMessage(m.cancel);
@@ -141,7 +145,9 @@
       const rule = buildRecurrenceRule();
       if (rule) {
         const baseDate = new Date();
-        previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, 5);
+        // 繰り返し回数が指定されている場合はその回数、そうでなければデフォルト5回
+        const previewLimit = repeatCount && repeatCount > 0 ? Math.min(repeatCount, 5) : 5;
+        previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
       } else {
         previewDates = [];
       }
@@ -213,7 +219,7 @@
         }
       }),
       ...(endDate && { end_date: endDate }),
-      ...(maxOccurrences && { max_occurrences: maxOccurrences })
+      ...(repeatCount && repeatCount > 0 && { max_occurrences: repeatCount })
     };
 
     return rule;
@@ -270,7 +276,23 @@
         </section>
 
         {#if showBasicSettings}
-          <!-- 2. 繰り返し間隔 -->
+          <!-- 2. 繰り返し回数 -->
+          <section class="space-y-3">
+            <h3 class="text-lg font-semibold">{repeatCountLabel()}</h3>
+            <div>
+              <input 
+                type="number" 
+                bind:value={repeatCount} 
+                min="1" 
+                class="w-full p-2 border border-border rounded bg-background text-foreground"
+                placeholder="無制限の場合は空白"
+                oninput={updatePreview}
+              />
+              <p class="text-sm text-muted-foreground mt-1">無制限の場合は空白にしてください</p>
+            </div>
+          </section>
+
+          <!-- 3. 繰り返し間隔 -->
           <section class="space-y-3">
             <h3 class="text-lg font-semibold">繰り返し間隔</h3>
             <div class="grid grid-cols-2 gap-4">
@@ -452,7 +474,9 @@
           <h3 class="text-lg font-semibold mb-3">プレビュー</h3>
           {#if showBasicSettings && previewDates.length > 0}
             <div class="space-y-2">
-              <p class="text-sm text-muted-foreground">次回以降の実行日（5回分）</p>
+              <p class="text-sm text-muted-foreground">
+                次回以降の実行日（{previewDates.length}回分{repeatCount && repeatCount <= 5 ? '' : '、最大5回まで表示'}）
+              </p>
               <div class="space-y-1">
                 {#each previewDates as date, index}
                   <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
