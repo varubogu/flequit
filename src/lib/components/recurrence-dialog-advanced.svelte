@@ -2,6 +2,7 @@
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { Repeat, Plus, X, Calendar } from "lucide-svelte";
+  import WeekdayConditionEditor from './weekday-condition-editor.svelte';
   import type { 
     RecurrenceRule, 
     RecurrenceUnit, 
@@ -407,76 +408,11 @@
               </div>
               
               {#each weekdayConditions as condition}
-                <div class="flex items-center gap-2 p-3 border border-border rounded bg-card">
-                  <select 
-                    value={condition.if_weekday}
-                    onchange={(e) => {
-                      const target = e.target as HTMLSelectElement;
-                      updateWeekdayCondition(condition.id, { if_weekday: target.value as DayOfWeek });
-                      updatePreview();
-                    }}
-                    class="p-1 border border-border rounded bg-background text-foreground"
-                  >
-                    {#each dayOfWeekOptions as option}
-                      <option value={option.value}>{option.label}</option>
-                    {/each}
-                  </select>
-                  
-                  <span>なら</span>
-                  
-                  <select 
-                    value={condition.then_direction}
-                    onchange={(e) => {
-                      updateWeekdayCondition(condition.id, { then_direction: e.target.value as AdjustmentDirection });
-                      updatePreview();
-                    }}
-                    class="p-1 border border-border rounded bg-background text-foreground"
-                  >
-                    {#each adjustmentDirectionOptions as option}
-                      <option value={option.value}>{option.label}</option>
-                    {/each}
-                  </select>
-                  
-                  <span>の</span>
-                  
-                  <select 
-                    value={condition.then_target}
-                    onchange={(e) => {
-                      updateWeekdayCondition(condition.id, { then_target: e.target.value as AdjustmentTarget });
-                      updatePreview();
-                    }}
-                    class="p-1 border border-border rounded bg-background text-foreground"
-                  >
-                    {#each adjustmentTargetOptions as option}
-                      <option value={option.value}>{option.label}</option>
-                    {/each}
-                  </select>
-                  
-                  {#if condition.then_target === 'specific_weekday'}
-                    <select 
-                      value={condition.then_weekday || 'monday'}
-                      onchange={(e) => {
-                        updateWeekdayCondition(condition.id, { then_weekday: e.target.value as DayOfWeek });
-                        updatePreview();
-                      }}
-                      class="p-1 border border-border rounded bg-background text-foreground"
-                    >
-                      {#each dayOfWeekOptions as option}
-                        <option value={option.value}>{option.label}</option>
-                      {/each}
-                    </select>
-                  {/if}
-                  
-                  <span>にずらす</span>
-                  
-                  <button 
-                    type="button"
-                    onclick={() => { removeWeekdayCondition(condition.id); updatePreview(); }}
-                    class="p-1 text-destructive hover:bg-destructive/10 rounded"
-                  >
-                    <X class="h-4 w-4" />
-                  </button>
-                </div>
+                <WeekdayConditionEditor
+                  {condition}
+                  onUpdate={(updates) => { updateWeekdayCondition(condition.id, updates); updatePreview(); }}
+                  onRemove={() => { removeWeekdayCondition(condition.id); updatePreview(); }}
+                />
               {/each}
             </div>
           </section>

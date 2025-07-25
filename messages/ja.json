@@ -175,5 +175,18 @@
     "repeat_on": "繰り返し対象",
     "end_recurrence": "繰り返し終了",
     "date_adjustment": "日付補正",
-    "no_recurrence": "繰り返しなし"
+    "no_recurrence": "繰り返しなし",
+    "tuesday": "火曜日",
+    "wednesday": "水曜日",
+    "thursday": "木曜日",
+    "friday": "金曜日",
+    "saturday": "土曜日",
+    "weekday": "平日",
+    "weekend": "休日",
+    "holiday": "祝日",
+    "non_holiday": "非祝日",
+    "previous": "前",
+    "next": "後",
+    "if_condition": "",
+    "move_to": "にずらす"
 }

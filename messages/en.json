@@ -175,5 +175,18 @@
     "repeat_on": "Repeat on",
     "end_recurrence": "End recurrence",
     "date_adjustment": "Date adjustment",
-    "no_recurrence": "No recurrence"
+    "no_recurrence": "No recurrence",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "weekday": "Weekday",
+    "weekend": "Weekend",
+    "holiday": "Holiday",
+    "non_holiday": "Non-holiday",
+    "previous": "Previous",
+    "next": "Next",
+    "if_condition": "If",
+    "move_to": "move to"
 }
