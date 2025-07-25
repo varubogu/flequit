@@ -414,6 +414,39 @@ export class TaskStore {
       }
     }
   }
+
+  // Update tag in all tasks and subtasks when tag is modified
+  updateTagInAllTasks(updatedTag: Tag) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          // Update in main task
+          const taskTagIndex = task.tags.findIndex(t => t.id === updatedTag.id);
+          if (taskTagIndex !== -1) {
+            task.tags[taskTagIndex] = { ...updatedTag };
+            task.updated_at = new Date();
+          }
+          
+          // Update in subtasks
+          for (const subTask of task.sub_tasks) {
+            const subTaskTagIndex = subTask.tags.findIndex(t => t.id === updatedTag.id);
+            if (subTaskTagIndex !== -1) {
+              subTask.tags[subTaskTagIndex] = { ...updatedTag };
+              subTask.updated_at = new Date();
+            }
+          }
+        }
+      }
+    }
+    
+    // Update in new task data if present
+    if (this.newTaskData) {
+      const newTaskTagIndex = this.newTaskData.tags.findIndex(t => t.id === updatedTag.id);
+      if (newTaskTagIndex !== -1) {
+        this.newTaskData.tags[newTaskTagIndex] = { ...updatedTag };
+      }
+    }
+  }
 }
 
 // Create global store instance
