@@ -7,7 +7,10 @@
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
   import TaskDetailHeader from './task-detail-header.svelte';
-  import TaskDetailForm from './task-detail-form.svelte';
+  import TaskStatusSelector from './task-status-selector.svelte';
+  import TaskDueDateSelector from './task-due-date-selector.svelte';
+  import TaskPrioritySelector from './task-priority-selector.svelte';
+  import TaskDescriptionEditor from './task-description-editor.svelte';
   import TaskDetailSubTasks from './task-detail-subtasks.svelte';
   import TaskDetailTags from './task-detail-tags.svelte';
   import TaskDetailMetadata from './task-detail-metadata.svelte';
@@ -337,16 +340,35 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6 space-y-6">
-      <TaskDetailForm 
+      <!-- Status, Due Date, Priority -->
+      <div class="flex flex-wrap gap-4">
+        <TaskStatusSelector
+          {currentItem}
+          onStatusChange={handleStatusChange}
+        />
+
+        <TaskDueDateSelector
+          {currentItem}
+          {isSubTask}
+          formData={editForm}
+          onDueDateClick={handleDueDateClick}
+        />
+
+        <TaskPrioritySelector
+          {isSubTask}
+          formData={editForm}
+          onPriorityChange={handlePriorityChange}
+          onFormChange={handleFormChange}
+        />
+      </div>
+
+      <!-- Description -->
+      <TaskDescriptionEditor
         {currentItem}
         {isSubTask}
         {isNewTaskMode}
         formData={editForm}
-        onStatusChange={handleStatusChange}
-        onFormChange={handleFormChange}
-        onDueDateClick={handleDueDateClick}
         onDescriptionChange={handleDescriptionChange}
-        onPriorityChange={handlePriorityChange}
       />
 
       <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
