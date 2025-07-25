@@ -1,5 +1,6 @@
 import type { Task, TaskWithSubTasks, SubTask, TaskStatus } from '$lib/types/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { RecurrenceService } from './recurrence-service';
 
 export class TaskService {
   static toggleTaskStatus(taskId: string): void {
@@ -71,7 +72,48 @@ export class TaskService {
   }
 
   static changeTaskStatus(taskId: string, newStatus: TaskStatus): void {
+    const currentTask = taskStore.getTaskById(taskId);
+    
+    // タスクが完了状態になった場合の繰り返し処理
+    if (newStatus === 'completed' && currentTask?.recurrence_rule) {
+      this.handleTaskCompletion(currentTask);
+    }
+    
     this.updateTask(taskId, { status: newStatus });
+  }
+  
+  /**
+   * タスク完了時の繰り返し処理
+   */
+  private static handleTaskCompletion(task: TaskWithSubTasks): void {
+    if (!task.recurrence_rule) return;
+    
+    // 基準日を決定（終了日があればそれを使用、なければ今日）
+    const baseDate = task.end_date || new Date();
+    
+    // 次回実行日を計算
+    const nextDate = RecurrenceService.calculateNextDate(baseDate, task.recurrence_rule);
+    if (!nextDate) return; // 繰り返し終了
+    
+    // 新しいタスクを作成
+    const newTaskData: Partial<Task> = {
+      list_id: task.list_id,
+      title: task.title,
+      description: task.description,
+      status: 'not_started',
+      priority: task.priority,
+      start_date: task.is_range_date && task.start_date ? 
+        new Date(nextDate.getTime() - (task.end_date!.getTime() - task.start_date.getTime())) : 
+        undefined,
+      end_date: nextDate,
+      is_range_date: task.is_range_date,
+      recurrence_rule: task.recurrence_rule,
+      order_index: 0,
+      is_archived: false
+    };
+    
+    // 新しいタスクをストアに追加
+    taskStore.createRecurringTask(newTaskData);
   }
 
   static deleteTask(taskId: string): boolean {

@@ -168,5 +168,12 @@
     "change": "変更",
     "select_project_and_task_list": "プロジェクトとタスクリストを選択",
     "remove_from_bookmarks": "ブックマークから削除",
-    "delete_tag_description": "「{tagName}」タグを削除しますか？このタグが設定されているタスクからもタグが削除されます。この操作は取り消せません。"
+    "delete_tag_description": "「{tagName}」タグを削除しますか？このタグが設定されているタスクからもタグが削除されます。この操作は取り消せません。",
+    "recurrence_settings": "繰り返し設定",
+    "enable_recurrence": "繰り返しを有効にする",
+    "repeat_every": "繰り返し間隔",
+    "repeat_on": "繰り返し対象",
+    "end_recurrence": "繰り返し終了",
+    "date_adjustment": "日付補正",
+    "no_recurrence": "繰り返しなし"
 }

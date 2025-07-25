@@ -168,5 +168,12 @@
     "change": "Change",
     "select_project_and_task_list": "Select Project and Task List",
     "remove_from_bookmarks": "Remove from bookmarks",
-    "delete_tag_description": "Are you sure you want to delete the tag \"{tagName}\"? This tag will be removed from all tasks that have it. This action cannot be undone."
+    "delete_tag_description": "Are you sure you want to delete the tag \"{tagName}\"? This tag will be removed from all tasks that have it. This action cannot be undone.",
+    "recurrence_settings": "Recurrence Settings",
+    "enable_recurrence": "Enable recurrence",
+    "repeat_every": "Repeat every",
+    "repeat_on": "Repeat on",
+    "end_recurrence": "End recurrence",
+    "date_adjustment": "Date adjustment",
+    "no_recurrence": "No recurrence"
 }

@@ -53,7 +53,10 @@ export function generateSampleData(): ProjectTree[] {
                   start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
                   end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
                   // end_date is already set above
-                  recurrence_rule: 'FREQ=DAILY',
+                  recurrence_rule: {
+                    unit: 'day',
+                    interval: 1
+                  },
                   order_index: 0,
                   tags: [],
                   created_at: new Date(),

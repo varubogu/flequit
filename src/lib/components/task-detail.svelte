@@ -1,6 +1,6 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import type { TaskWithSubTasks, TaskStatus, SubTask } from '$lib/types/task';
+  import type { TaskWithSubTasks, TaskStatus, SubTask, RecurrenceRule } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
   import Card from '$lib/components/ui/card.svelte';
   import InlineDatePicker from '$lib/components/inline-date-picker.svelte';
@@ -19,6 +19,8 @@
   import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
   import ProjectTaskListSelector from './project-task-list-selector.svelte';
   import ProjectTaskListSelectorDialog from './project-task-list-selector-dialog.svelte';
+  import RecurrenceDialog from './recurrence-dialog.svelte';
+  import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
@@ -52,6 +54,9 @@
   
   // Project task list selector dialog state
   let showProjectTaskListDialog = $state(false);
+  
+  // Recurrence dialog state
+  let showRecurrenceDialog = $state(false);
   
   // プロジェクト・タスクリスト情報の取得
   let projectInfo = $derived(() => {
@@ -324,6 +329,29 @@
     showDeleteDialog = false;
     pendingDeleteAction = null;
   }
+  
+  // Recurrence dialog handlers
+  function handleRecurrenceEdit() {
+    showRecurrenceDialog = true;
+  }
+  
+  function handleRecurrenceChange(rule: RecurrenceRule | null) {
+    if (!currentItem || isNewTaskMode) return;
+    
+    const updates = { recurrence_rule: rule || undefined };
+    
+    if (isSubTask) {
+      taskStore.updateSubTask(currentItem.id, updates);
+    } else {
+      taskStore.updateTask(currentItem.id, updates);
+    }
+    
+    showRecurrenceDialog = false;
+  }
+  
+  function handleRecurrenceDialogClose() {
+    showRecurrenceDialog = false;
+  }
 </script>
 
 <Card class="flex flex-col h-full">
@@ -360,6 +388,14 @@
           onPriorityChange={handlePriorityChange}
           onFormChange={handleFormChange}
         />
+
+        <!-- 繰り返し設定（新規タスクモード以外かつサブタスク以外） -->
+        {#if !isNewTaskMode && !isSubTask}
+          <TaskRecurrenceSelector
+            recurrenceRule={currentItem?.recurrence_rule}
+            onEdit={handleRecurrenceEdit}
+          />
+        {/if}
       </div>
 
       <!-- Description -->
@@ -445,4 +481,12 @@
   currentTaskListId={projectInfo()?.taskList.id || ''}
   onSave={handleProjectTaskListChange}
   onClose={handleProjectTaskListDialogClose}
+/>
+
+<!-- 繰り返し設定ダイアログ -->
+<RecurrenceDialog
+  open={showRecurrenceDialog}
+  recurrenceRule={currentItem?.recurrence_rule}
+  onSave={handleRecurrenceChange}
+  onOpenChange={handleRecurrenceDialogClose}
 />

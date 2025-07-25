@@ -46,6 +46,16 @@ export class TaskStore {
     );
   }
   
+  getTaskById(taskId: string): TaskWithSubTasks | null {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        const task = list.tasks.find(t => t.id === taskId);
+        if (task) return task;
+      }
+    }
+    return null;
+  }
+  
   getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
     for (const project of this.projects) {
       for (const list of project.task_lists) {
@@ -172,6 +182,39 @@ export class TaskStore {
     
     for (const project of this.projects) {
       const list = project.task_lists.find(l => l.id === listId);
+      if (list) {
+        list.tasks.push(newTask);
+        return newTask;
+      }
+    }
+    return null;
+  }
+  
+  createRecurringTask(taskData: Partial<Task>): TaskWithSubTasks | null {
+    if (!taskData.list_id) return null;
+    
+    const newTask: TaskWithSubTasks = {
+      id: crypto.randomUUID(),
+      sub_task_id: taskData.sub_task_id,
+      list_id: taskData.list_id,
+      title: taskData.title || '',
+      description: taskData.description,
+      status: taskData.status || 'not_started',
+      priority: taskData.priority || 0,
+      start_date: taskData.start_date,
+      end_date: taskData.end_date,
+      is_range_date: taskData.is_range_date || false,
+      recurrence_rule: taskData.recurrence_rule,
+      order_index: taskData.order_index || 0,
+      is_archived: taskData.is_archived || false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      sub_tasks: [],
+      tags: []
+    };
+    
+    for (const project of this.projects) {
+      const list = project.task_lists.find(l => l.id === taskData.list_id);
       if (list) {
         list.tasks.push(newTask);
         return newTask;
