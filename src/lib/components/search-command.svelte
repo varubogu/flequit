@@ -82,6 +82,30 @@
     closeDialog();
   }
 
+  function handleAddNewTask() {
+    // Get the current list ID or use the first available list
+    let listId = taskStore.selectedListId;
+    
+    if (!listId && taskStore.projects.length > 0) {
+      // Use the first list of the first project as default
+      const firstProject = taskStore.projects[0];
+      if (firstProject.task_lists.length > 0) {
+        listId = firstProject.task_lists[0].id;
+      }
+    }
+    
+    if (listId) {
+      taskStore.startNewTaskMode(listId);
+    }
+    
+    closeDialog();
+  }
+
+  function handleViewAllTasks() {
+    viewStore.changeView('all');
+    closeDialog();
+  }
+
   function closeDialog() {
     searchValue = '';
     onOpenChange?.(false);
@@ -182,11 +206,11 @@
       </Command.Group>
       <!-- デフォルト表示 -->
       <Command.Group heading={quickActions()}>
-        <Command.Item onSelect={() => console.log('Add task')}>
+        <Command.Item onSelect={handleAddNewTask}>
           <span>{addNewTask()}</span>
           <KeyboardShortcut keys={['cmd', 'n']} class="ml-auto" />
         </Command.Item>
-        <Command.Item onSelect={() => console.log('View all')}>
+        <Command.Item onSelect={handleViewAllTasks}>
           <span>{viewAllTasks()}</span>
           <KeyboardShortcut keys={['cmd', 'a']} class="ml-auto" />
         </Command.Item>

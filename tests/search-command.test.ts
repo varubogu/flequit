@@ -20,13 +20,24 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
         description: 'Another description',
         tags: []
       }
-    ]
+    ],
+    selectedListId: null,
+    projects: [
+      {
+        id: 'project-1',
+        task_lists: [
+          { id: 'list-1', name: 'Default List' }
+        ]
+      }
+    ],
+    startNewTaskMode: vi.fn()
   }
 }));
 
 vi.mock('$lib/stores/view-store.svelte', () => ({
   viewStore: {
-    performSearch: vi.fn()
+    performSearch: vi.fn(),
+    changeView: vi.fn()
   }
 }));
 
@@ -64,7 +75,7 @@ describe('SearchCommand', () => {
     vi.clearAllMocks();
   });
 
-  it('検索入力時にEnterキーを押しても検索が実行されないこと', async () => {
+  it('検索入力時にEnterキーを押すと検索が実行されること', async () => {
     render(SearchCommand, { open: true });
     
     const input = screen.getByRole('combobox');
@@ -74,8 +85,8 @@ describe('SearchCommand', () => {
     // 少し待機してから確認
     await new Promise(resolve => setTimeout(resolve, 100));
     
-    // viewStore.performSearchが呼ばれないことを確認
-    expect(viewStore.performSearch).not.toHaveBeenCalled();
+    // viewStore.performSearchが呼ばれることを確認
+    expect(viewStore.performSearch).toHaveBeenCalledWith('test');
   });
 
   it('「すべての結果を表示」項目をクリックすると検索が実行されること', async () => {
@@ -122,5 +133,57 @@ describe('SearchCommand', () => {
     await fireEvent.keyDown(input, { key: 'Escape' });
     
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('「新しいタスクを追加」をクリックするとstartNewTaskModeが呼ばれること', async () => {
+    render(SearchCommand, { open: true });
+    
+    // 入力が空の状態でクイックアクションが表示されることを確認
+    const addTaskItem = screen.getByText('Add new task');
+    expect(addTaskItem).toBeInTheDocument();
+    
+    // 項目をクリック
+    await fireEvent.click(addTaskItem);
+    
+    // startNewTaskModeが適切なlistIdで呼ばれることを確認
+    expect(taskStore.startNewTaskMode).toHaveBeenCalledWith('list-1');
+  });
+
+  it('「すべてのタスクを表示」をクリックするとchangeViewが呼ばれること', async () => {
+    render(SearchCommand, { open: true });
+    
+    // 入力が空の状態でクイックアクションが表示されることを確認
+    const viewAllItem = screen.getByText('View all tasks');
+    expect(viewAllItem).toBeInTheDocument();
+    
+    // 項目をクリック
+    await fireEvent.click(viewAllItem);
+    
+    // changeViewが'all'で呼ばれることを確認
+    expect(viewStore.changeView).toHaveBeenCalledWith('all');
+  });
+
+  it('クイックアクション実行後にダイアログが閉じること', async () => {
+    const onOpenChange = vi.fn();
+    render(SearchCommand, { open: true, onOpenChange });
+    
+    const addTaskItem = screen.getByText('Add new task');
+    await fireEvent.click(addTaskItem);
+    
+    // ダイアログが閉じられることを確認
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('selectedListIdがある場合はそれを使用すること', async () => {
+    // selectedListIdをモック
+    (taskStore as any).selectedListId = 'selected-list-id';
+    
+    render(SearchCommand, { open: true });
+    
+    const addTaskItem = screen.getByText('Add new task');
+    await fireEvent.click(addTaskItem);
+    
+    // selectedListIdが使用されることを確認
+    expect(taskStore.startNewTaskMode).toHaveBeenCalledWith('selected-list-id');
   });
 });
