@@ -188,5 +188,9 @@
     "previous": "Previous",
     "next": "Next",
     "if_condition": "If",
-    "move_to": "move to"
+    "move_to": "move to",
+    "recurrence": "Recurrence",
+    "recurrence_disabled": "Disabled",
+    "recurrence_enabled": "Enabled",
+    "recurrence_advanced": "Enabled (Advanced)"
 }

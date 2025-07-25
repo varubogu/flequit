@@ -1,0 +1,204 @@
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
+import type { RecurrenceRule } from '$lib/types/task';
+
+// Paraglideランタイムをモック
+vi.mock('$paraglide/runtime', () => ({
+  getLocale: vi.fn(() => 'ja'),
+  setLocale: vi.fn()
+}));
+
+// メッセージファイルをモック
+vi.mock('$paraglide/messages.js', () => ({
+  recurrence_settings: () => '繰り返し設定',
+  recurrence: () => '繰り返し',
+  recurrence_disabled: () => '無効',
+  recurrence_enabled: () => '有効',
+  recurrence_advanced: () => '有効（高度）',
+  repeat_every: () => '繰り返し間隔',
+  save: () => '保存',
+  cancel: () => 'キャンセル',
+  remove: () => '削除',
+  previous: () => '前',
+  next: () => '後',
+  if_condition: () => '',
+  move_to: () => 'にずらす',
+  monday: () => '月曜日',
+  tuesday: () => '火曜日',
+  wednesday: () => '水曜日',
+  thursday: () => '木曜日',
+  friday: () => '金曜日',
+  saturday: () => '土曜日',
+  sunday: () => '日曜日',
+  weekday: () => '平日',
+  weekend: () => '休日',
+  holiday: () => '祝日',
+  non_holiday: () => '非祝日'
+}));
+
+// ロケールストアをモック
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: () => string) => fn
+}));
+
+// RecurrenceServiceをモック
+vi.mock('$lib/services/recurrence-service', () => ({
+  RecurrenceService: {
+    generateRecurrenceDates: vi.fn(() => [
+      new Date('2024-01-01'),
+      new Date('2024-01-02'),
+      new Date('2024-01-03')
+    ])
+  }
+}));
+
+describe('RecurrenceDialogAdvanced', () => {
+  const mockOnSave = vi.fn();
+  const mockOnOpenChange = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('3段階の選択肢が表示される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    const select = screen.getByDisplayValue('無効');
+    expect(select).toBeTruthy();
+
+    // selectの選択肢を確認
+    const options = select.querySelectorAll('option');
+    const optionTexts = Array.from(options).map(opt => opt.textContent);
+    
+    expect(optionTexts).toContain('無効');
+    expect(optionTexts).toContain('有効');
+    expect(optionTexts).toContain('有効（高度）');
+  });
+
+  it('無効選択時は基本設定が表示されない', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // デフォルトで「無効」が選択されている
+    expect(() => screen.getByText('繰り返し間隔')).toThrow();
+  });
+
+  it('有効選択時は基本設定のみ表示される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'enabled' } });
+
+    // 基本設定が表示される（ヘッダーを確認）
+    expect(screen.getByRole('heading', { name: '繰り返し間隔' })).toBeTruthy();
+    
+    // 補正条件は表示されない
+    expect(() => screen.getByText('補正条件')).toThrow();
+  });
+
+  it('有効（高度）選択時は全設定が表示される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'advanced' } });
+
+    // 基本設定が表示される（ヘッダーを確認）
+    expect(screen.getByRole('heading', { name: '繰り返し間隔' })).toBeTruthy();
+    
+    // 補正条件も表示される
+    expect(screen.getByText('補正条件')).toBeTruthy();
+  });
+
+  it('既存のルールから正しいレベルを推定する', () => {
+    const existingRule: RecurrenceRule = {
+      unit: 'day',
+      interval: 1,
+      adjustment: {
+        date_conditions: [],
+        weekday_conditions: [{
+          id: 'test',
+          if_weekday: 'monday',
+          then_direction: 'next',
+          then_target: 'weekday'
+        }]
+      }
+    };
+
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        recurrenceRule: existingRule,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // 高度設定として認識される
+    expect(screen.getByDisplayValue('有効（高度）')).toBeTruthy();
+  });
+
+  it('保存時に正しいルールが生成される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // 有効に変更
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'enabled' } });
+
+    // 保存ボタンをクリック
+    const saveButton = screen.getByText('保存');
+    fireEvent.click(saveButton);
+
+    expect(mockOnSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        unit: 'day',
+        interval: 1
+      })
+    );
+  });
+
+  it('無効選択時はnullが保存される', () => {
+    render(RecurrenceDialogAdvanced, {
+      props: {
+        open: true,
+        onSave: mockOnSave,
+        onOpenChange: mockOnOpenChange
+      }
+    });
+
+    // デフォルトで無効、保存ボタンをクリック
+    const saveButton = screen.getByText('保存');
+    fireEvent.click(saveButton);
+
+    expect(mockOnSave).toHaveBeenCalledWith(null);
+  });
+});

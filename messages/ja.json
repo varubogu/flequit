@@ -188,5 +188,9 @@
     "previous": "前",
     "next": "後",
     "if_condition": "",
-    "move_to": "にずらす"
+    "move_to": "にずらす",
+    "recurrence": "繰り返し",
+    "recurrence_disabled": "無効",
+    "recurrence_enabled": "有効",
+    "recurrence_advanced": "有効（高度）"
 }

@@ -6,6 +6,7 @@
   import type { 
     RecurrenceRule, 
     RecurrenceUnit, 
+    RecurrenceLevel,
     DayOfWeek, 
     WeekOfMonth,
     DateCondition,
@@ -29,7 +30,11 @@
   let { open = $bindable(false), onOpenChange, recurrenceRule, onSave }: Props = $props();
 
   // 基本設定
-  let enabled = $state(!!recurrenceRule);
+  let recurrenceLevel = $state<RecurrenceLevel>(
+    !recurrenceRule ? 'disabled' : 
+    (recurrenceRule.adjustment && (recurrenceRule.adjustment.date_conditions.length > 0 || recurrenceRule.adjustment.weekday_conditions.length > 0)) || 
+    (recurrenceRule.details && Object.keys(recurrenceRule.details).length > 0) ? 'advanced' : 'enabled'
+  );
   let unit = $state<RecurrenceUnit>(recurrenceRule?.unit || 'day');
   let interval = $state(recurrenceRule?.interval || 1);
   let daysOfWeek = $state<DayOfWeek[]>(recurrenceRule?.days_of_week || []);
@@ -50,13 +55,22 @@
 
   // リアクティブメッセージ
   const recurrenceSettings = reactiveMessage(m.recurrence_settings);
-  const enableRecurrence = reactiveMessage(m.enable_recurrence);
+  const recurrence = reactiveMessage(m.recurrence);
+  const recurrenceDisabled = reactiveMessage(m.recurrence_disabled);
+  const recurrenceEnabled = reactiveMessage(m.recurrence_enabled);
+  const recurrenceAdvanced = reactiveMessage(m.recurrence_advanced);
   const repeatEvery = reactiveMessage(m.repeat_every);
   const save = reactiveMessage(m.save);
   const cancel = reactiveMessage(m.cancel);
   const remove = reactiveMessage(m.remove);
 
   // 選択肢
+  const recurrenceLevelOptions = [
+    { value: 'disabled', label: recurrenceDisabled },
+    { value: 'enabled', label: recurrenceEnabled },
+    { value: 'advanced', label: recurrenceAdvanced }
+  ];
+
   const unitOptions = [
     { value: 'minute', label: '分' },
     { value: 'hour', label: '時間' },
@@ -108,10 +122,14 @@
 
   // 複雑な単位かどうかの判定
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
+  
+  // 表示項目の制御
+  const showBasicSettings = $derived(recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced');
+  const showAdvancedSettings = $derived(recurrenceLevel === 'advanced');
 
   // プレビューを更新
   $effect(() => {
-    if (enabled) {
+    if (showBasicSettings) {
       updatePreview();
     } else {
       previewDates = [];
@@ -181,14 +199,14 @@
   }
 
   function buildRecurrenceRule(): RecurrenceRule | null {
-    if (!enabled) return null;
+    if (recurrenceLevel === 'disabled') return null;
 
     const rule: RecurrenceRule = {
       unit,
       interval,
       ...(unit === 'week' && daysOfWeek.length > 0 && { days_of_week: daysOfWeek }),
-      ...(isComplexUnit && Object.keys(details).length > 0 && { details }),
-      ...((dateConditions.length > 0 || weekdayConditions.length > 0) && {
+      ...(showAdvancedSettings && isComplexUnit && Object.keys(details).length > 0 && { details }),
+      ...(showAdvancedSettings && (dateConditions.length > 0 || weekdayConditions.length > 0) && {
         adjustment: {
           date_conditions: dateConditions,
           weekday_conditions: weekdayConditions
@@ -235,16 +253,23 @@
       <!-- 左側：設定パネル -->
       <div class="col-span-2 space-y-6">
         
-        <!-- 1. 繰り返しの有効/無効 -->
+        <!-- 1. 繰り返し設定レベル -->
         <section class="space-y-3">
-          <h3 class="text-lg font-semibold">基本設定</h3>
-          <div class="flex items-center space-x-2">
-            <input type="checkbox" bind:checked={enabled} id="enable-recurrence" />
-            <label for="enable-recurrence">{enableRecurrence()}</label>
+          <h3 class="text-lg font-semibold">{recurrence()}</h3>
+          <div>
+            <select 
+              bind:value={recurrenceLevel} 
+              class="w-full p-2 border border-border rounded bg-background text-foreground"
+              onchange={updatePreview}
+            >
+              {#each recurrenceLevelOptions as option}
+                <option value={option.value}>{option.label()}</option>
+              {/each}
+            </select>
           </div>
         </section>
 
-        {#if enabled}
+        {#if showBasicSettings}
           <!-- 2. 繰り返し間隔 -->
           <section class="space-y-3">
             <h3 class="text-lg font-semibold">繰り返し間隔</h3>
@@ -292,7 +317,7 @@
             {/if}
 
             <!-- 複雑な単位の詳細設定 -->
-            {#if isComplexUnit}
+            {#if showAdvancedSettings && isComplexUnit}
               <div class="space-y-3">
                 <h4 class="font-medium">詳細設定</h4>
                 
@@ -346,6 +371,7 @@
           </section>
 
           <!-- 3. 補正条件 -->
+          {#if showAdvancedSettings}
           <section class="space-y-3">
             <h3 class="text-lg font-semibold">補正条件</h3>
             
@@ -416,6 +442,7 @@
               {/each}
             </div>
           </section>
+          {/if}
         {/if}
       </div>
 
@@ -423,7 +450,7 @@
       <div class="space-y-4">
         <section>
           <h3 class="text-lg font-semibold mb-3">プレビュー</h3>
-          {#if enabled && previewDates.length > 0}
+          {#if showBasicSettings && previewDates.length > 0}
             <div class="space-y-2">
               <p class="text-sm text-muted-foreground">次回以降の実行日（5回分）</p>
               <div class="space-y-1">
@@ -436,7 +463,7 @@
                 {/each}
               </div>
             </div>
-          {:else if enabled}
+          {:else if showBasicSettings}
             <p class="text-sm text-muted-foreground">プレビューを生成中...</p>
           {:else}
             <p class="text-sm text-muted-foreground">繰り返しが無効です</p>

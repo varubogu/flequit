@@ -2,6 +2,7 @@ export type TaskStatus = 'not_started' | 'in_progress' | 'waiting' | 'completed'
 
 // 繰り返し機能の型定義
 export type RecurrenceUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'half_year' | 'year';
+export type RecurrenceLevel = 'disabled' | 'enabled' | 'advanced';
 export type DayOfWeek = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
 export type WeekOfMonth = 'first' | 'second' | 'third' | 'fourth' | 'last';
 export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';
