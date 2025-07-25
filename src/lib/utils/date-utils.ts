@@ -1,11 +1,11 @@
 export function formatDate(date: Date | undefined): string {
   if (!date) return '';
-  
+
   const now = new Date();
   const taskDate = new Date(date);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
-  
+
   if (taskDay.getTime() === today.getTime()) {
     return 'Today';
   } else if (taskDay.getTime() === today.getTime() + 24 * 60 * 60 * 1000) {
@@ -43,15 +43,15 @@ export function formatDetailedDate(date: Date | undefined): string {
 
 export function getDueDateClass(date: Date | undefined, status?: string): string {
   if (!date) return '';
-  
+
   const now = new Date();
   const taskDate = new Date(date);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
+
   if (taskDate < today && status !== 'completed') {
     return 'text-red-600 font-semibold'; // Overdue
   } else if (taskDate.getTime() === today.getTime()) {
-    return 'text-orange-600 font-medium'; // Due today
+    return 'text-orange-300 font-medium'; // Due today
   } else {
     return 'text-muted-foreground'; // Future
   }
