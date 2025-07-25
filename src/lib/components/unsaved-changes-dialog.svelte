@@ -7,6 +7,8 @@
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
   import Button from "$lib/components/button.svelte";
   import { Save, Trash2, X } from 'lucide-svelte';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import * as m from '$paraglide/messages';
 
   interface Props {
     show: boolean;
@@ -21,26 +23,32 @@
     onDiscardAndContinue,
     onCancel 
   }: Props = $props();
+
+  const save = reactiveMessage(m.save);
+  const cancel = reactiveMessage(m.cancel);
+  const discard_changes = reactiveMessage(m.discard_changes);
+  const confirm_discard_changes = reactiveMessage(m.confirm_discard_changes);
+  const unsaved_task_message = reactiveMessage(m.unsaved_task_message);
 </script>
 
 <Dialog open={show} onOpenChange={(open: boolean) => !open && onCancel()}>
   <DialogContent class="sm:max-w-[425px]">
     <DialogHeader>
-      <DialogTitle>未保存の変更があります</DialogTitle>
+      <DialogTitle>{confirm_discard_changes()}</DialogTitle>
       <DialogDescription>
-        編集中の内容が保存されていません。どうしますか？
+        {unsaved_task_message()}
       </DialogDescription>
     </DialogHeader>
     
     <DialogFooter class="flex flex-row gap-2 justify-center">
-      <Button size="icon" onclick={onSaveAndContinue} title="保存して移動">
+      <Button size="icon" onclick={onSaveAndContinue} title={save()}>
         <Save class="h-4 w-4" />
       </Button>
       <Button 
         variant="secondary" 
         size="icon"
         onclick={onDiscardAndContinue} 
-        title="破棄して移動"
+        title={discard_changes()}
       >
         <Trash2 class="h-4 w-4" />
       </Button>
@@ -48,7 +56,7 @@
         variant="ghost" 
         size="icon"
         onclick={onCancel} 
-        title="キャンセル"
+        title={cancel()}
       >
         <X class="h-4 w-4" />
       </Button>
