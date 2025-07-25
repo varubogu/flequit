@@ -20,7 +20,6 @@
   import ProjectTaskListSelector from './project-task-list-selector.svelte';
   import ProjectTaskListSelectorDialog from './project-task-list-selector-dialog.svelte';
   import RecurrenceDialogAdvanced from './recurrence-dialog-advanced.svelte';
-  import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
@@ -389,13 +388,6 @@
           onFormChange={handleFormChange}
         />
 
-        <!-- 繰り返し設定（新規タスクモード以外かつサブタスク以外） -->
-        {#if !isNewTaskMode && !isSubTask}
-          <TaskRecurrenceSelector
-            recurrenceRule={currentItem?.recurrence_rule}
-            onEdit={handleRecurrenceEdit}
-          />
-        {/if}
       </div>
 
       <!-- Description -->
