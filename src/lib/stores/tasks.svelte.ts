@@ -46,6 +46,18 @@ export class TaskStore {
     );
   }
   
+  getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        const task = list.tasks.find(t => t.id === taskId);
+        if (task) {
+          return { project, taskList: list };
+        }
+      }
+    }
+    return null;
+  }
+  
   get todayTasks(): TaskWithSubTasks[] {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -538,6 +550,37 @@ export class TaskStore {
         if (this.selectedListId === taskListId) {
           this.selectedListId = null;
         }
+        return;
+      }
+    }
+  }
+
+  moveTaskToList(taskId: string, newTaskListId: string) {
+    // タスクを現在の位置から探して削除
+    let taskToMove: TaskWithSubTasks | null = null;
+    
+    for (const project of this.projects) {
+      for (const taskList of project.task_lists) {
+        const taskIndex = taskList.tasks.findIndex(t => t.id === taskId);
+        if (taskIndex !== -1) {
+          taskToMove = taskList.tasks[taskIndex];
+          taskList.tasks.splice(taskIndex, 1);
+          taskList.updated_at = new Date();
+          break;
+        }
+      }
+      if (taskToMove) break;
+    }
+
+    if (!taskToMove) return;
+
+    // 新しいタスクリストに追加
+    for (const project of this.projects) {
+      const targetTaskList = project.task_lists.find(tl => tl.id === newTaskListId);
+      if (targetTaskList) {
+        targetTaskList.tasks.push(taskToMove);
+        targetTaskList.updated_at = new Date();
+        project.updated_at = new Date();
         return;
       }
     }

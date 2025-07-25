@@ -6,6 +6,11 @@
   import InlineDatePicker from '$lib/components/inline-date-picker.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
+  
+  // Reactive messages
+  const project = reactiveMessage(m.project);
+  const task_list = reactiveMessage(m.task_list);
+  const change = reactiveMessage(m.change);
   import TaskDetailHeader from './task-detail-header.svelte';
   import TaskDetailForm from './task-detail-form.svelte';
   import TaskDetailSubTasks from './task-detail-subtasks.svelte';
@@ -14,6 +19,9 @@
   import TaskDetailEmptyState from './task-detail-empty-state.svelte';
   import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
   import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
+  import Button from '$lib/components/button.svelte';
+  import { Edit3 } from 'lucide-svelte';
+  import ProjectTaskListSelectorDialog from './project-task-list-selector-dialog.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
@@ -44,6 +52,20 @@
   let deleteDialogTitle = $state('');
   let deleteDialogMessage = $state('');
   let pendingDeleteAction = $state<(() => void) | null>(null);
+  
+  // Project task list selector dialog state
+  let showProjectTaskListDialog = $state(false);
+  
+  // プロジェクト・タスクリスト情報の取得
+  let projectInfo = $derived(() => {
+    if (isNewTaskMode || !currentItem) return null;
+    if (isSubTask && 'task_id' in currentItem) {
+      // サブタスクの場合は親タスクの情報を取得
+      return taskStore.getTaskProjectAndList(currentItem.task_id);
+    } else {
+      return taskStore.getTaskProjectAndList(currentItem.id);
+    }
+  });
   
   // Watch for pending selections from taskStore
   $effect(() => {
@@ -243,6 +265,29 @@
   function handlePriorityChange(priority: number) {
     editForm.priority = priority;
   }
+
+  function handleProjectTaskListEdit() {
+    showProjectTaskListDialog = true;
+  }
+
+  function handleProjectTaskListChange(data: { projectId: string; taskListId: string }) {
+    if (!currentItem || isNewTaskMode) return;
+    
+    // タスクを新しいタスクリストに移動
+    if (isSubTask) {
+      // サブタスクの場合は親タスクを移動
+      if ('task_id' in currentItem) {
+        taskStore.moveTaskToList(currentItem.task_id, data.taskListId);
+      }
+    } else {
+      taskStore.moveTaskToList(currentItem.id, data.taskListId);
+    }
+    showProjectTaskListDialog = false;
+  }
+
+  function handleProjectTaskListDialogClose() {
+    showProjectTaskListDialog = false;
+  }
   
   // Confirmation dialog handlers
   function showConfirmationIfNeeded(action: () => void): boolean {
@@ -342,6 +387,41 @@
         />
       {/if}
 
+      <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
+      {#if !isNewTaskMode}
+        {@const info = projectInfo()}
+        {#if info}
+          <div class="border rounded-lg p-4 bg-muted/50">
+            <div class="flex items-center justify-between">
+              <div class="space-y-2">
+                <div class="text-sm">
+                  <span class="font-medium">{project()}:</span>
+                  <span class="ml-2 inline-flex items-center gap-1">
+                    <div
+                      class="w-2 h-2 rounded-full"
+                      style="background-color: {info.project.color || '#3b82f6'}"
+                    ></div>
+                    {info.project.name}
+                  </span>
+                </div>
+                <div class="text-sm">
+                  <span class="font-medium">{task_list()}:</span>
+                  <span class="ml-2">{info.taskList.name}</span>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onclick={handleProjectTaskListEdit}
+              >
+                <Edit3 class="h-4 w-4 mr-1" />
+                {change()}
+              </Button>
+            </div>
+          </div>
+        {/if}
+      {/if}
+
       <TaskDetailMetadata 
         {currentItem}
         {isSubTask}
@@ -380,4 +460,13 @@
   message={deleteDialogMessage}
   onConfirm={handleConfirmDelete}
   onCancel={handleCancelDelete}
+/>
+
+<!-- プロジェクト・タスクリスト選択モーダル -->
+<ProjectTaskListSelectorDialog
+  open={showProjectTaskListDialog}
+  currentProjectId={projectInfo()?.project.id || ''}
+  currentTaskListId={projectInfo()?.taskList.id || ''}
+  onSave={handleProjectTaskListChange}
+  onClose={handleProjectTaskListDialogClose}
 />
