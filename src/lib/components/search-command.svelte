@@ -5,7 +5,6 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
-  import { ViewService } from '$lib/services/view-service';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -79,7 +78,7 @@
     closeDialog();
   }
 
-  function handleCommandSelect(command: string) {
+  function handleCommandSelect() {
     closeDialog();
   }
 
@@ -91,8 +90,6 @@
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       closeDialog();
-    } else if (event.key === 'Enter' && searchValue && !isCommandMode) {
-      handleSearchExecute();
     }
   }
 </script>
@@ -122,10 +119,10 @@
     {#if isCommandMode}
       <!-- コマンドモード -->
       <Command.Group heading={commands()}>
-        <Command.Item onSelect={() => handleCommandSelect('settings')}>
+        <Command.Item onSelect={handleCommandSelect}>
           <span>{settings()}</span>
         </Command.Item>
-        <Command.Item onSelect={() => handleCommandSelect('help')}>
+        <Command.Item onSelect={handleCommandSelect}>
           <span>{help()}</span>
         </Command.Item>
       </Command.Group>
