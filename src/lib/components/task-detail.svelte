@@ -453,9 +453,11 @@
   currentStartDate={currentItem?.start_date ? currentItem.start_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
+  recurrenceRule={currentItem?.recurrence_rule}
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
+  onRecurrenceEdit={handleRecurrenceEdit}
 />
 
 <!-- Confirmation dialog for new task mode -->

@@ -97,12 +97,12 @@
     size="sm" 
     onclick={onEdit}
     {disabled}
-    class="flex items-center gap-2 text-left justify-start min-w-0"
+    class="flex items-center gap-1 text-left justify-start min-w-0 px-2 py-1 text-xs h-7"
   >
     {#if recurrenceRule}
-      <RotateCcw class="h-4 w-4 flex-shrink-0" />
+      <RotateCcw class="h-3 w-3 flex-shrink-0" />
     {:else}
-      <Repeat class="h-4 w-4 flex-shrink-0" />
+      <Repeat class="h-3 w-3 flex-shrink-0" />
     {/if}
     <span class="truncate">
       {getRecurrenceText(recurrenceRule)}

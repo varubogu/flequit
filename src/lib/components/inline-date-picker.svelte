@@ -4,6 +4,8 @@
   import { formatDate, formatTime } from '$lib/utils/date-time';
   import DateTimeInputs from './date-time-inputs.svelte'
   import CalendarPicker from './calendar-picker.svelte';
+  import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
+  import type { RecurrenceRule } from '$lib/types/task';
 
   interface Props {
     show: boolean;
@@ -11,12 +13,14 @@
     currentStartDate?: string;
     position?: { x: number; y: number };
     isRangeDate?: boolean;
+    recurrenceRule?: RecurrenceRule | null;
     onchange?: (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void;
     onclose?: () => void;
     onclear?: () => void;
+    onRecurrenceEdit?: () => void;
   }
 
-  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, onchange, onclose }: Props = $props();
+  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, recurrenceRule, onchange, onclose, onRecurrenceEdit }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
 
@@ -149,22 +153,35 @@
 {#if show}
   <div
     bind:this={pickerElement}
-    class="fixed bg-popover border border-border rounded-lg shadow-lg p-3 z-50 min-w-[320px]"
+    class="fixed bg-popover border border-border rounded-lg shadow-lg p-3 z-50 min-w-[400px]"
     style="left: {position.x}px; top: {position.y}px;"
   >
-    <!-- Range Mode Switch -->
-    <div class="flex items-center justify-between mb-3">
-      <span class="text-sm text-muted-foreground">範囲</span>
-      <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
-        const eventDetail = {
-          date: endDate || '',
-          dateTime: `${endDate || ''}T${endTime}`,
-          isRangeDate: checked
-        };
+    <!-- Range Mode and Recurrence - 2 Column Layout -->
+    <div class="grid grid-cols-2 gap-4 mb-3">
+      <!-- Left Column: Range Mode Switch -->
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-muted-foreground">範囲</span>
+        <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
+          const eventDetail = {
+            date: endDate || '',
+            dateTime: `${endDate || ''}T${endTime}`,
+            isRangeDate: checked
+          };
 
-        onchange?.(eventDetail);
-      }} />
-      <span class="text-sm text-muted-foreground"></span>
+          onchange?.(eventDetail);
+        }} />
+      </div>
+      
+      <!-- Right Column: Recurrence Display -->
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-muted-foreground">繰り返し</span>
+        <div class="min-w-0 flex-1 ml-2">
+          <TaskRecurrenceSelector
+            {recurrenceRule}
+            onEdit={onRecurrenceEdit}
+          />
+        </div>
+      </div>
     </div>
 
     <div class="space-y-3">
