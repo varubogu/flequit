@@ -6,7 +6,7 @@
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import TagEditDialog from './tag-edit-dialog.svelte';
-  import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
+  import TagDeleteDialog from './tag-delete-dialog.svelte';
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -159,10 +159,9 @@
 />
 
 <!-- Delete Confirmation Dialog -->
-<DeleteConfirmationDialog
+<TagDeleteDialog
   open={showDeleteDialog}
-  title="タグの削除"
-  message="「{tag.name}」タグを削除しますか？この操作は元に戻せません。"
+  tag={tag}
   onConfirm={handleDeleteConfirm}
   onCancel={() => showDeleteDialog = false}
 />

@@ -7,7 +7,7 @@
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { Hash, Bookmark } from 'lucide-svelte';
   import TagEditDialog from '$lib/components/tag-edit-dialog.svelte';
-  import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+  import TagDeleteDialog from '$lib/components/tag-delete-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 
   interface Props {
@@ -26,6 +26,7 @@
   const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
   const editTag = reactiveMessage(m.edit_tag);
   const deleteTag = reactiveMessage(m.delete_tag);
+  const removeFromBookmarks = reactiveMessage(m.remove_from_bookmarks);
 
   // State for dialogs
   let selectedTag: any = $state(null);
@@ -118,7 +119,7 @@
                   type="button"
                   class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
                   onclick={(e) => toggleTagBookmark(tag.id, e)}
-                  title="Remove from bookmarks"
+                  title={removeFromBookmarks()}
                 >
                   <Bookmark class="h-3 w-3" />
                 </button>
@@ -157,19 +158,9 @@
 />
 
 <!-- Delete Confirmation Dialog -->
-<AlertDialog.Root bind:open={showDeleteConfirm}>
-  <AlertDialog.Content>
-    <AlertDialog.Header>
-      <AlertDialog.Title>タグを削除</AlertDialog.Title>
-      <AlertDialog.Description>
-        「{selectedTag?.name || ''}」タグを削除しますか？
-        このタグが設定されているタスクからもタグが削除されます。
-        この操作は取り消せません。
-      </AlertDialog.Description>
-    </AlertDialog.Header>
-    <AlertDialog.Footer>
-      <AlertDialog.Cancel onclick={onDeleteCancel}>キャンセル</AlertDialog.Cancel>
-      <AlertDialog.Action onclick={onDeleteConfirm}>削除</AlertDialog.Action>
-    </AlertDialog.Footer>
-  </AlertDialog.Content>
-</AlertDialog.Root>
+<TagDeleteDialog
+  open={showDeleteConfirm}
+  tag={selectedTag}
+  onConfirm={onDeleteConfirm}
+  onCancel={onDeleteCancel}
+/>

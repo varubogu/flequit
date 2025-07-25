@@ -166,5 +166,7 @@
     "add_tag_to_sidebar": "タグをサイドバーに表示",
     "task_list": "タスクリスト",
     "change": "変更",
-    "select_project_and_task_list": "プロジェクトとタスクリストを選択"
+    "select_project_and_task_list": "プロジェクトとタスクリストを選択",
+    "remove_from_bookmarks": "ブックマークから削除",
+    "delete_tag_description": "「{tagName}」タグを削除しますか？このタグが設定されているタスクからもタグが削除されます。この操作は取り消せません。"
 }
