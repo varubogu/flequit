@@ -86,7 +86,6 @@
           <ContextMenu.Separator />
           <ContextMenu.Item 
             variant="destructive"
-            disabled={list.tasks.length > 0}
             onclick={() => taskStore.deleteTaskList(list.id)}
           >
             {deleteTaskList()}

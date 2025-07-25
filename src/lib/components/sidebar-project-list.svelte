@@ -171,7 +171,6 @@
                 <ContextMenu.Separator />
                 <ContextMenu.Item 
                   variant="destructive"
-                  disabled={project.task_lists.length > 0}
                   onclick={() => taskStore.deleteProject(project.id)}
                 >
                   {deleteProject()}
