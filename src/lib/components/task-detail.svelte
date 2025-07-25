@@ -19,7 +19,7 @@
   import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
   import ProjectTaskListSelector from './project-task-list-selector.svelte';
   import ProjectTaskListSelectorDialog from './project-task-list-selector-dialog.svelte';
-  import RecurrenceDialog from './recurrence-dialog.svelte';
+  import RecurrenceDialogAdvanced from './recurrence-dialog-advanced.svelte';
   import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
 
   let task = $derived(taskStore.selectedTask);
@@ -484,7 +484,7 @@
 />
 
 <!-- 繰り返し設定ダイアログ -->
-<RecurrenceDialog
+<RecurrenceDialogAdvanced
   open={showRecurrenceDialog}
   recurrenceRule={currentItem?.recurrence_rule}
   onSave={handleRecurrenceChange}

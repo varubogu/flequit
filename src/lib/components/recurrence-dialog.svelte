@@ -134,10 +134,10 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label>{repeatEvery()}</label>
-              <input type="number" bind:value={interval} min="1" class="w-full p-2 border rounded" />
+              <input type="number" bind:value={interval} min="1" class="w-full p-2 border border-border rounded bg-background text-foreground" />
             </div>
             <div>
-              <select bind:value={unit} class="w-full p-2 border rounded">
+              <select bind:value={unit} class="w-full p-2 border border-border rounded bg-background text-foreground">
                 {#each unitOptions as option}
                   <option value={option.value}>{option.label}</option>
                 {/each}

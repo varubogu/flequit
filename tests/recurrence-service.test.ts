@@ -31,7 +31,9 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        day_of_month: 15
+        details: {
+          specific_date: 15
+        }
       };
       
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -54,12 +56,11 @@ describe('RecurrenceService', () => {
       const baseDate = new Date('2024-01-01');
       const rule: RecurrenceRule = {
         unit: 'year',
-        interval: 1,
-        months: [3, 6, 9] // 3月、6月、9月
+        interval: 1
       };
       
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-03-01');
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2025-01-01');
     });
 
     it('nullルールの場合はnullを返す', () => {

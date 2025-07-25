@@ -34,10 +34,10 @@
     
     // 月単位の場合の詳細
     if (rule.unit === 'month') {
-      if (rule.day_of_month) {
-        text += ` (${rule.day_of_month}日)`;
-      } else if (rule.week_of_month) {
-        text += ` (${getWeekOfMonthText(rule.week_of_month)})`;
+      if (rule.details?.specific_date) {
+        text += ` (${rule.details.specific_date}日)`;
+      } else if (rule.details?.week_of_period && rule.details?.weekday_of_week) {
+        text += ` (${getWeekOfMonthText(rule.details.week_of_period)}${getDayOfWeekText(rule.details.weekday_of_week)})`;
       }
     }
     

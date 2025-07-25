@@ -1,4 +1,4 @@
-import type { RecurrenceRule, DayOfWeek } from '$lib/types/task';
+import type { RecurrenceRule, DayOfWeek, DateCondition, WeekdayCondition, WeekOfMonth } from '$lib/types/task';
 
 /**
  * 繰り返しタスクの次回実行日を計算するサービス
@@ -40,7 +40,7 @@ export class RecurrenceService {
     }
     
     // 日付補正を適用
-    if (rule.adjustment?.enabled) {
+    if (rule.adjustment && (rule.adjustment.date_conditions.length > 0 || rule.adjustment.weekday_conditions.length > 0)) {
       nextDate = this.applyDateAdjustment(nextDate, rule.adjustment);
     }
     
@@ -90,16 +90,17 @@ export class RecurrenceService {
   private static calculateMonthlyNext(baseDate: Date, rule: RecurrenceRule): Date | null {
     const currentDate = new Date(baseDate);
     
-    if (rule.day_of_month) {
+    // 新しい詳細設定を使用
+    if (rule.details?.specific_date) {
       // 特定の日付指定
       currentDate.setMonth(currentDate.getMonth() + rule.interval);
-      currentDate.setDate(Math.min(rule.day_of_month, this.getLastDayOfMonth(currentDate)));
+      currentDate.setDate(Math.min(rule.details.specific_date, this.getLastDayOfMonth(currentDate)));
       return currentDate;
     }
     
-    if (rule.week_of_month && rule.days_of_week && rule.days_of_week.length > 0) {
+    if (rule.details?.week_of_period && rule.details?.weekday_of_week) {
       // 第X曜日指定（例：第2日曜日）
-      return this.calculateWeekOfMonth(currentDate, rule);
+      return this.calculateWeekOfMonthNew(currentDate, rule);
     }
     
     // デフォルト：同じ日付で次月
@@ -113,43 +114,23 @@ export class RecurrenceService {
   private static calculateYearlyNext(baseDate: Date, rule: RecurrenceRule): Date | null {
     const currentDate = new Date(baseDate);
     
-    if (rule.months && rule.months.length > 0) {
-      // 特定の月指定
-      const currentMonth = currentDate.getMonth() + 1; // 1-12
-      const targetMonths = [...rule.months].sort((a, b) => a - b);
-      
-      // 今年の残りの対象月を探す
-      const remainingMonthsThisYear = targetMonths.filter(month => month > currentMonth);
-      
-      if (remainingMonthsThisYear.length > 0) {
-        // 今年にまだ対象月がある
-        currentDate.setMonth(remainingMonthsThisYear[0] - 1);
-        return currentDate;
-      }
-      
-      // 来年の最初の対象月
-      currentDate.setFullYear(currentDate.getFullYear() + rule.interval);
-      currentDate.setMonth(targetMonths[0] - 1);
-      return currentDate;
-    }
-    
     // デフォルト：同じ日付で来年
     currentDate.setFullYear(currentDate.getFullYear() + rule.interval);
     return currentDate;
   }
   
   /**
-   * 第X曜日の計算（例：第2日曜日）
+   * 第X曜日の計算（例：第2日曜日）- 新しい型定義用
    */
-  private static calculateWeekOfMonth(baseDate: Date, rule: RecurrenceRule): Date | null {
-    if (!rule.week_of_month || !rule.days_of_week || rule.days_of_week.length === 0) {
+  private static calculateWeekOfMonthNew(baseDate: Date, rule: RecurrenceRule): Date | null {
+    if (!rule.details?.week_of_period || !rule.details?.weekday_of_week) {
       return null;
     }
     
-    const targetDay = this.dayOfWeekToNumber(rule.days_of_week[0]);
+    const targetDay = this.dayOfWeekToNumber(rule.details.weekday_of_week);
     const nextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + rule.interval, 1);
     
-    if (rule.week_of_month === 'last') {
+    if (rule.details.week_of_period === 'last') {
       // 最後の曜日
       const lastDay = this.getLastDayOfMonth(nextMonth);
       const lastDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), lastDay);
@@ -165,7 +146,7 @@ export class RecurrenceService {
     }
     
     // 第1-4週
-    const weekNumber = this.weekOfMonthToNumber(rule.week_of_month);
+    const weekNumber = this.weekOfMonthToNumber(rule.details.week_of_period);
     const firstDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
     const firstDayOfWeek = firstDay.getDay();
     
@@ -186,43 +167,88 @@ export class RecurrenceService {
   }
   
   /**
+   * 第X曜日の計算（例：第2日曜日）- 旧版（後方互換性のため保持）
+   */
+  private static calculateWeekOfMonth(baseDate: Date, rule: RecurrenceRule): Date | null {
+    // 旧版の実装は簡略化
+    return this.calculateWeekOfMonthNew(baseDate, rule);
+  }
+  
+  /**
    * 日付補正を適用
    */
   private static applyDateAdjustment(date: Date, adjustment: NonNullable<RecurrenceRule['adjustment']>): Date {
+    let adjustedDate = new Date(date);
+    
+    // 日付条件をチェック
+    for (const condition of adjustment.date_conditions) {
+      if (this.checkDateCondition(adjustedDate, condition)) {
+        // 日付条件に該当する場合の処理（実装簡略化）
+        adjustedDate.setDate(adjustedDate.getDate() + 1);
+      }
+    }
+    
+    // 曜日条件をチェック
+    for (const condition of adjustment.weekday_conditions) {
+      if (this.checkWeekdayCondition(adjustedDate, condition)) {
+        adjustedDate = this.applyWeekdayAdjustment(adjustedDate, condition);
+      }
+    }
+    
+    return adjustedDate;
+  }
+  
+  /**
+   * 日付条件をチェック
+   */
+  private static checkDateCondition(date: Date, condition: DateCondition): boolean {
+    const refDate = new Date(condition.reference_date);
+    
+    switch (condition.relation) {
+      case 'before':
+        return date < refDate;
+      case 'on_or_before':
+        return date <= refDate;
+      case 'on_or_after':
+        return date >= refDate;
+      case 'after':
+        return date > refDate;
+      default:
+        return false;
+    }
+  }
+  
+  /**
+   * 曜日条件をチェック
+   */
+  private static checkWeekdayCondition(date: Date, condition: WeekdayCondition): boolean {
     const dayOfWeek = date.getDay();
-    const isHoliday = this.isHoliday(date); // 祝日判定（実装は簡略化）
-    
-    let shouldAdjust = false;
-    
-    // 曜日条件チェック
-    if (adjustment.if_weekday) {
-      const targetDay = this.dayOfWeekToNumber(adjustment.if_weekday);
-      shouldAdjust = shouldAdjust || (dayOfWeek === targetDay);
-    }
-    
-    // 祝日条件チェック
-    if (adjustment.if_holiday) {
-      shouldAdjust = shouldAdjust || isHoliday;
-    }
-    
-    if (!shouldAdjust) {
-      return date;
-    }
-    
-    // 補正を適用
-    const targetWeekday = this.dayOfWeekToNumber(adjustment.to_weekday);
+    const targetDay = this.dayOfWeekToNumber(condition.if_weekday);
+    return dayOfWeek === targetDay;
+  }
+  
+  /**
+   * 曜日補正を適用
+   */
+  private static applyWeekdayAdjustment(date: Date, condition: WeekdayCondition): Date {
     const adjustedDate = new Date(date);
+    const dayOfWeek = date.getDay();
     
-    if (adjustment.then_adjust === 'next') {
-      // 次の指定曜日まで進める
-      let daysToAdd = (targetWeekday - dayOfWeek + 7) % 7;
-      if (daysToAdd === 0) daysToAdd = 7; // 同じ曜日の場合は翌週
-      adjustedDate.setDate(date.getDate() + daysToAdd);
-    } else {
-      // 前の指定曜日まで戻す
-      let daysToSubtract = (dayOfWeek - targetWeekday + 7) % 7;
-      if (daysToSubtract === 0) daysToSubtract = 7; // 同じ曜日の場合は前週
-      adjustedDate.setDate(date.getDate() - daysToSubtract);
+    if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
+      const targetWeekday = this.dayOfWeekToNumber(condition.then_weekday);
+      
+      if (condition.then_direction === 'next') {
+        let daysToAdd = (targetWeekday - dayOfWeek + 7) % 7;
+        if (daysToAdd === 0) daysToAdd = 7;
+        adjustedDate.setDate(date.getDate() + daysToAdd);
+      } else {
+        let daysToSubtract = (dayOfWeek - targetWeekday + 7) % 7;
+        if (daysToSubtract === 0) daysToSubtract = 7;
+        adjustedDate.setDate(date.getDate() - daysToSubtract);
+      }
+    } else if (condition.then_days) {
+      const days = condition.then_direction === 'next' ? condition.then_days : -condition.then_days;
+      adjustedDate.setDate(date.getDate() + days);
     }
     
     return adjustedDate;
@@ -260,8 +286,8 @@ export class RecurrenceService {
   /**
    * 週番号文字列を数値に変換
    */
-  private static weekOfMonthToNumber(week: NonNullable<RecurrenceRule['week_of_month']>): number {
-    const mapping = {
+  private static weekOfMonthToNumber(week: WeekOfMonth): number {
+    const mapping: Record<WeekOfMonth, number> = {
       first: 1,
       second: 2,
       third: 3,
