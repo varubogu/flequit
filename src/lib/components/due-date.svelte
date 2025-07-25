@@ -31,12 +31,12 @@
 
   function formatDateI18n(date: Date | undefined): string {
     if (!date) return '';
-    
+
     const now = new Date();
     const taskDate = new Date(date);
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
-    
+
     if (taskDay.getTime() === today.getTime()) {
       return todayLabel();
     } else if (taskDay.getTime() === today.getTime() + 24 * 60 * 60 * 1000) {
@@ -49,7 +49,7 @@
   }
 </script>
 
-{#if variant === 'compact'}
+{#if variant === 'compact'} <!-- Compact variant -->
   {#if task.end_date}
     <button
       class="{baseClasses} {colorClasses} {className}"
@@ -67,9 +67,9 @@
       + {addDateLabel()}
     </button>
   {/if}
-{:else}
+{:else} <!-- Full variant -->
   <button
-    class="text-left p-0 border-0 bg-transparent {className} {task.end_date ? getDueDateClass(task.end_date, task.status) : 'text-muted-foreground'}"
+    class="{baseClasses} {colorClasses} {className}"
     onclick={handleDueDateClick}
   >
     {#if task.end_date}
