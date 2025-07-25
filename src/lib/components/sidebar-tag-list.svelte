@@ -17,7 +17,9 @@
 
   let { onViewChange }: Props = $props();
 
-  let bookmarkedTags = $derived(tagStore.bookmarkedTagList);
+  let bookmarkedTags = $derived(
+    tagStore.tags.filter(tag => tagStore.bookmarkedTags.has(tag.id))
+  );
   
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);

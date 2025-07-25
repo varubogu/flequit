@@ -72,7 +72,7 @@
     showDeleteDialog = false;
   }
 
-  let isBookmarked = $derived(tagStore.isBookmarked(tag.id));
+  let isBookmarked = $derived(tagStore.bookmarkedTags.has(tag.id));
 </script>
 
 <ContextMenu.Root>

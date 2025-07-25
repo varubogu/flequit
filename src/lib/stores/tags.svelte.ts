@@ -15,7 +15,10 @@ export class TagStore {
   }
   
   get bookmarkedTagList(): Tag[] {
-    return this.tags.filter(tag => this.bookmarkedTags.has(tag.id));
+    // Explicitly access both reactive properties to ensure reactivity
+    const tags = this.tags;
+    const bookmarked = this.bookmarkedTags;
+    return tags.filter(tag => bookmarked.has(tag.id));
   }
   
   // Actions
@@ -45,6 +48,20 @@ export class TagStore {
     this.tags.push(newTag);
     return newTag;
   }
+
+  // Add or update tag with existing ID (for sample data initialization)
+  addTagWithId(tag: Tag): Tag {
+    const existingTag = this.tags.find(t => t.id === tag.id);
+    if (existingTag) {
+      // Update existing tag
+      Object.assign(existingTag, tag);
+      return existingTag;
+    }
+    
+    // Add new tag
+    this.tags.push(tag);
+    return tag;
+  }
   
   updateTag(tagId: string, updates: Partial<Tag>) {
     const tagIndex = this.tags.findIndex(tag => tag.id === tagId);
@@ -61,6 +78,10 @@ export class TagStore {
     const tagIndex = this.tags.findIndex(tag => tag.id === tagId);
     if (tagIndex !== -1) {
       this.tags.splice(tagIndex, 1);
+      // Remove from bookmarks if exists
+      if (this.bookmarkedTags.has(tagId)) {
+        this.removeBookmark(tagId);
+      }
     }
   }
   
@@ -93,11 +114,13 @@ export class TagStore {
   
   // Bookmark management methods
   toggleBookmark(tagId: string) {
-    if (this.bookmarkedTags.has(tagId)) {
-      this.bookmarkedTags.delete(tagId);
+    const newBookmarks = new Set(this.bookmarkedTags);
+    if (newBookmarks.has(tagId)) {
+      newBookmarks.delete(tagId);
     } else {
-      this.bookmarkedTags.add(tagId);
+      newBookmarks.add(tagId);
     }
+    this.bookmarkedTags = newBookmarks;
   }
   
   isBookmarked(tagId: string): boolean {
@@ -105,11 +128,15 @@ export class TagStore {
   }
   
   addBookmark(tagId: string) {
-    this.bookmarkedTags.add(tagId);
+    const newBookmarks = new Set(this.bookmarkedTags);
+    newBookmarks.add(tagId);
+    this.bookmarkedTags = newBookmarks;
   }
   
   removeBookmark(tagId: string) {
-    this.bookmarkedTags.delete(tagId);
+    const newBookmarks = new Set(this.bookmarkedTags);
+    newBookmarks.delete(tagId);
+    this.bookmarkedTags = newBookmarks;
   }
 }
 

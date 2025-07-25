@@ -1,4 +1,4 @@
-import type { Task, ProjectTree, TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { Task, ProjectTree, TaskWithSubTasks, SubTask, Tag } from '$lib/types/task';
 import { tagStore } from './tags.svelte';
 
 // Global state using Svelte 5 runes
@@ -75,21 +75,21 @@ export class TaskStore {
     this.projects = projects;
     
     // Extract and register all tags from sample data to tag store
-    const allTags = new Set<{id: string, name: string, color?: string}>();
+    const allTags = new Map<string, Tag>();
     
     projects.forEach(project => {
       project.task_lists.forEach(list => {
         list.tasks.forEach(task => {
           task.tags.forEach(tag => {
-            allTags.add(tag);
+            allTags.set(tag.id, tag);
           });
         });
       });
     });
     
-    // Register tags in tag store
+    // Register tags in tag store with their original IDs
     allTags.forEach(tag => {
-      tagStore.getOrCreateTag(tag.name, tag.color);
+      tagStore.addTagWithId(tag);
     });
     
     // Add initial bookmarks for common tags
