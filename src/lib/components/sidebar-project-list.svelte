@@ -5,6 +5,7 @@
   import Button from '$lib/components/button.svelte';
   import { ChevronDown, ChevronRight } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project-dialog.svelte';
+  import TaskListDialog from '$lib/components/task-list-dialog.svelte';
   import SidebarProjectTaskLists from '$lib/components/sidebar-project-task-lists.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';
@@ -32,6 +33,9 @@
   let projectDialogMode: 'add' | 'edit' = $state('add');
   let editingProject: any = $state(null);
 
+  let showTaskListDialog = $state(false);
+  let taskListDialogProject: any = $state(null);
+
   function handleProjectSelect(project: ProjectTree) {
     taskStore.selectProject(project.id);
     onViewChange?.('project');
@@ -58,13 +62,35 @@
     showProjectDialog = true;
   }
 
+  function openTaskListDialog(mode: 'add', project: any) {
+    taskListDialogProject = project;
+    showTaskListDialog = true;
+  }
+
+  function handleTaskListSave(data: { name: string }) {
+    if (taskListDialogProject) {
+      const newTaskList = taskStore.addTaskList(taskListDialogProject.id, { name: data.name });
+      if (newTaskList) {
+        // 新しく作成したタスクリストを選択
+        taskStore.selectList(newTaskList.id);
+        onViewChange?.('tasklist');
+      }
+    }
+    showTaskListDialog = false;
+  }
+
 
   function handleProjectSave(data: { name: string; color: string }) {
     const { name, color } = data;
     if (projectDialogMode === 'add') {
-      console.log('Creating new project:', name, color);
-    } else {
-      console.log('Updating project:', editingProject?.name, 'to', name, color);
+      const newProject = taskStore.addProject({ name, color });
+      if (newProject) {
+        // 新しく作成したプロジェクトを選択
+        taskStore.selectProject(newProject.id);
+        onViewChange?.('project');
+      }
+    } else if (editingProject) {
+      taskStore.updateProject(editingProject.id, { name, color });
     }
     showProjectDialog = false;
   }
@@ -128,14 +154,14 @@
                 <ContextMenu.Item onclick={() => openProjectDialog('edit', project)}>
                   {editProject()}
                 </ContextMenu.Item>
-                <ContextMenu.Item onclick={() => console.log('Add task list to:', project.name)}>
+                <ContextMenu.Item onclick={() => openTaskListDialog('add', project)}>
                   {addTaskList()}
                 </ContextMenu.Item>
                 <ContextMenu.Separator />
                 <ContextMenu.Item 
                   variant="destructive"
                   disabled={project.task_lists.length > 0}
-                  onclick={() => console.log('Delete project:', project.name)}
+                  onclick={() => taskStore.deleteProject(project.id)}
                 >
                   {deleteProject()}
                 </ContextMenu.Item>
@@ -161,5 +187,13 @@
   initialColor={editingProject?.color || '#3b82f6'}
   onsave={handleProjectSave}
   onclose={() => showProjectDialog = false}
+/>
+
+<TaskListDialog
+  open={showTaskListDialog}
+  mode="add"
+  initialName=""
+  onsave={handleTaskListSave}
+  onclose={() => showTaskListDialog = false}
 />
 

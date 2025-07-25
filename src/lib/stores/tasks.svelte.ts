@@ -1,4 +1,4 @@
-import type { Task, ProjectTree, TaskWithSubTasks, SubTask, Tag } from '$lib/types/task';
+import type { Task, ProjectTree, TaskWithSubTasks, SubTask, Tag, TaskList, TaskListWithTasks, Project } from '$lib/types/task';
 import { tagStore } from './tags.svelte';
 
 // Global state using Svelte 5 runes
@@ -444,6 +444,101 @@ export class TaskStore {
       const newTaskTagIndex = this.newTaskData.tags.findIndex(t => t.id === updatedTag.id);
       if (newTaskTagIndex !== -1) {
         this.newTaskData.tags[newTaskTagIndex] = { ...updatedTag };
+      }
+    }
+  }
+
+  // Project management methods
+  addProject(projectData: { name: string; description?: string; color?: string }): ProjectTree | null {
+    const newProject: ProjectTree = {
+      id: crypto.randomUUID(),
+      name: projectData.name.trim(),
+      description: projectData.description || '',
+      color: projectData.color || '#3b82f6',
+      order_index: this.projects.length,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      task_lists: []
+    };
+
+    this.projects.push(newProject);
+    return newProject;
+  }
+
+  updateProject(projectId: string, updates: Partial<Project>) {
+    const projectIndex = this.projects.findIndex(p => p.id === projectId);
+    if (projectIndex !== -1) {
+      this.projects[projectIndex] = {
+        ...this.projects[projectIndex],
+        ...updates,
+        updated_at: new Date()
+      };
+    }
+  }
+
+  deleteProject(projectId: string) {
+    const projectIndex = this.projects.findIndex(p => p.id === projectId);
+    if (projectIndex !== -1) {
+      this.projects.splice(projectIndex, 1);
+      
+      // Clear selections if deleted project was selected
+      if (this.selectedProjectId === projectId) {
+        this.selectedProjectId = null;
+      }
+    }
+  }
+
+  // Task list management methods
+  addTaskList(projectId: string, taskListData: { name: string; description?: string; color?: string }): TaskListWithTasks | null {
+    const project = this.projects.find(p => p.id === projectId);
+    if (!project) return null;
+
+    const newTaskList: TaskListWithTasks = {
+      id: crypto.randomUUID(),
+      project_id: projectId,
+      name: taskListData.name.trim(),
+      description: taskListData.description || '',
+      color: taskListData.color,
+      order_index: project.task_lists.length,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      tasks: []
+    };
+
+    project.task_lists.push(newTaskList);
+    project.updated_at = new Date();
+    return newTaskList;
+  }
+
+  updateTaskList(taskListId: string, updates: Partial<TaskList>) {
+    for (const project of this.projects) {
+      const taskListIndex = project.task_lists.findIndex(tl => tl.id === taskListId);
+      if (taskListIndex !== -1) {
+        project.task_lists[taskListIndex] = {
+          ...project.task_lists[taskListIndex],
+          ...updates,
+          updated_at: new Date()
+        };
+        project.updated_at = new Date();
+        return;
+      }
+    }
+  }
+
+  deleteTaskList(taskListId: string) {
+    for (const project of this.projects) {
+      const taskListIndex = project.task_lists.findIndex(tl => tl.id === taskListId);
+      if (taskListIndex !== -1) {
+        project.task_lists.splice(taskListIndex, 1);
+        project.updated_at = new Date();
+        
+        // Clear selections if deleted task list was selected
+        if (this.selectedListId === taskListId) {
+          this.selectedListId = null;
+        }
+        return;
       }
     }
   }

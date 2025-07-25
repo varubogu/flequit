@@ -41,9 +41,18 @@
   function handleTaskListSave(data: { name: string }) {
     const { name } = data;
     if (taskListDialogMode === 'add') {
-      console.log('Creating new task list:', name, 'in project:', editingProject?.name);
+      if (editingProject) {
+        const newTaskList = taskStore.addTaskList(editingProject.id, { name });
+        if (newTaskList) {
+          // 新しく作成したタスクリストを選択
+          taskStore.selectList(newTaskList.id);
+          onViewChange?.('tasklist');
+        }
+      }
     } else {
-      console.log('Updating task list:', editingTaskList?.name, 'to', name);
+      if (editingTaskList) {
+        taskStore.updateTaskList(editingTaskList.id, { name });
+      }
     }
     showTaskListDialog = false;
   }
@@ -78,7 +87,7 @@
           <ContextMenu.Item 
             variant="destructive"
             disabled={list.tasks.length > 0}
-            onclick={() => console.log('Delete task list:', list.name)}
+            onclick={() => taskStore.deleteTaskList(list.id)}
           >
             {deleteTaskList()}
           </ContextMenu.Item>
