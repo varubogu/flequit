@@ -70,7 +70,10 @@
 
   function onDeleteConfirm() {
     if (selectedTag) {
-      tagStore.deleteTag(selectedTag.id);
+      tagStore.deleteTag(selectedTag.id, (tagId) => {
+        // Remove tag from all tasks and subtasks
+        taskStore.removeTagFromAllTasks(tagId);
+      });
       showDeleteConfirm = false;
       selectedTag = null;
     }

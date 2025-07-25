@@ -389,6 +389,31 @@ export class TaskStore {
     
     return count;
   }
+
+  // Remove tag from all tasks and subtasks by tag ID
+  removeTagFromAllTasks(tagId: string) {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          // Remove from main task
+          const taskTagIndex = task.tags.findIndex(t => t.id === tagId);
+          if (taskTagIndex !== -1) {
+            task.tags.splice(taskTagIndex, 1);
+            task.updated_at = new Date();
+          }
+
+          // Remove from all subtasks
+          for (const subTask of task.sub_tasks) {
+            const subTaskTagIndex = subTask.tags.findIndex(t => t.id === tagId);
+            if (subTaskTagIndex !== -1) {
+              subTask.tags.splice(subTaskTagIndex, 1);
+              subTask.updated_at = new Date();
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 // Create global store instance

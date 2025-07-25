@@ -4,6 +4,7 @@
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import { tagStore } from '$lib/stores/tags.svelte';
+  import { taskStore } from '$lib/stores/tasks.svelte';
   import TagEditDialog from './tag-edit-dialog.svelte';
   import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
@@ -68,7 +69,10 @@
   }
 
   function handleDeleteConfirm() {
-    tagStore.deleteTag(tag.id);
+    tagStore.deleteTag(tag.id, (tagId) => {
+      // Remove tag from all tasks and subtasks
+      taskStore.removeTagFromAllTasks(tagId);
+    });
     showDeleteDialog = false;
   }
 

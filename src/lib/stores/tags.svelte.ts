@@ -74,14 +74,18 @@ export class TagStore {
     }
   }
   
-  deleteTag(tagId: string) {
+  deleteTag(tagId: string, onDelete?: (tagId: string) => void) {
     const tagIndex = this.tags.findIndex(tag => tag.id === tagId);
     if (tagIndex !== -1) {
       this.tags.splice(tagIndex, 1);
+      
       // Remove from bookmarks if exists
       if (this.bookmarkedTags.has(tagId)) {
         this.removeBookmark(tagId);
       }
+      
+      // Call the deletion callback if provided
+      onDelete?.(tagId);
     }
   }
   
