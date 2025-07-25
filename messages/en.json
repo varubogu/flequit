@@ -163,5 +163,8 @@
     "edit_tag": "Edit tag",
     "delete_tag": "Delete tag",
     "remove_tag_from_item": "Remove tag",
-    "add_tag_to_sidebar": "Add tag to sidebar"
+    "add_tag_to_sidebar": "Add tag to sidebar",
+    "task_list": "Task List",
+    "change": "Change",
+    "select_project_and_task_list": "Select Project and Task List"
 }

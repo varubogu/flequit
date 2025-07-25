@@ -163,5 +163,8 @@
     "edit_tag": "タグを編集",
     "delete_tag": "タグを削除",
     "remove_tag_from_item": "タグ解除",
-    "add_tag_to_sidebar": "タグをサイドバーに表示"
+    "add_tag_to_sidebar": "タグをサイドバーに表示",
+    "task_list": "タスクリスト",
+    "change": "変更",
+    "select_project_and_task_list": "プロジェクトとタスクリストを選択"
 }
