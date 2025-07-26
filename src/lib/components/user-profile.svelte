@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
-  import SettingsDialog from '$lib/components/settings-dialog.svelte';
+  import SettingsDialog from '$lib/components/settings/settings-dialog.svelte';
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -21,12 +21,12 @@
     onSwitchAccount?: () => void;
   }
 
-  let { 
-    user = null, 
-    onLogin, 
-    onLogout, 
-    onSettings, 
-    onSwitchAccount 
+  let {
+    user = null,
+    onLogin,
+    onLogout,
+    onSettings,
+    onSwitchAccount
   }: Props = $props();
 
   let showMenu = $state(false);
@@ -136,7 +136,7 @@
             <div class="text-sm font-medium">{user.name}</div>
             <div class="text-xs text-muted-foreground">{user.email}</div>
           </div>
-          
+
           <!-- Menu Items -->
           <Button
             variant="ghost"
@@ -147,7 +147,7 @@
             <Settings class="h-4 w-4" />
             {settingsLabel()}
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -157,9 +157,9 @@
             <Users class="h-4 w-4" />
             {switchAccount()}
           </Button>
-          
+
           <div class="border-t my-1"></div>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -180,7 +180,7 @@
             <LogIn class="h-4 w-4" />
             {signIn()}
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import UserProfile from '../../src/lib/components/user-profile.svelte';
+import UserProfile from '$lib/components/user-profile.svelte';
 
 const mockUser = {
   id: '1',

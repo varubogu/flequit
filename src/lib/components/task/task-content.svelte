@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import TagDisplay from './tag-display.svelte';
-  import DueDate from './due-date.svelte';
+  import TagDisplay from '$lib/components/tag/tag-display.svelte';
+  import DueDate from '$lib/components/due-date.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -78,8 +78,8 @@
   {#if task.tags.length > 0}
     <div class="flex flex-wrap gap-1 mt-2">
       {#each task.tags as tag}
-        <TagDisplay 
-          {tag} 
+        <TagDisplay
+          {tag}
           onTagRemoveFromItem={handleTagRemoveFromTask}
         />
       {/each}

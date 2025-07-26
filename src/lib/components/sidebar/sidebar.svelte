@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { ViewType } from '$lib/services/view-service';
   import Card from '$lib/components/ui/card.svelte';
-  import SidebarSearchHeader from '$lib/components/sidebar-search-header.svelte';
-  import SidebarViewList from '$lib/components/sidebar-view-list.svelte';
-  import SidebarProjectList from '$lib/components/sidebar-project-list.svelte';
-  import SidebarTagList from '$lib/components/sidebar-tag-list.svelte';
+  import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
+  import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
+  import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
+  import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
   import UserProfile from '$lib/components/user-profile.svelte';
 
   interface Props {

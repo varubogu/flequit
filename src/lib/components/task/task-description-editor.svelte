@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Textarea from '$lib/components/ui/textarea.svelte';
-  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
+  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -36,7 +36,7 @@
   function handleTagDetected(event: CustomEvent<{ tagName: string; position: number }>) {
     // Add tag to task or subtask when detected in description
     if (!currentItem) return;
-    
+
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask) {

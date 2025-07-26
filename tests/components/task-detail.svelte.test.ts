@@ -2,27 +2,27 @@ import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 
 // Mock sub-components
-vi.mock('../../src/lib/components/task-detail-header.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-header.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('../../src/lib/components/task-detail-form.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-form.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('../../src/lib/components/task-detail-subtasks.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-subtasks.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('../../src/lib/components/task-detail-tags.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-tags.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('../../src/lib/components/task-detail-metadata.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-metadata.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('../../src/lib/components/task-detail-empty-state.svelte', () => ({
+vi.mock('$lib/components/task/task-detail-empty-state.svelte', () => ({
   default: () => null
 }));
 
@@ -39,6 +39,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     updateNewTaskData: vi.fn(),
     saveNewTask: vi.fn(),
     cancelNewTaskMode: vi.fn(),
+    getTaskProjectAndList: vi.fn(() => null),
   }
 }));
 
@@ -58,16 +59,16 @@ vi.mock('$lib/components/inline-date-picker.svelte', () => ({
   default: vi.fn()
 }));
 
-vi.mock('../../src/lib/components/new-task-confirmation-dialog.svelte', () => ({
+vi.mock('$lib/components/new-task-confirmation-dialog.svelte', () => ({
   default: vi.fn()
 }));
 
-vi.mock('../../src/lib/components/delete-confirmation-dialog.svelte', () => ({
+vi.mock('$lib/components/delete-confirmation-dialog.svelte', () => ({
   default: vi.fn()
 }));
 
 // Import after mocks
-import TaskDetail from '../../src/lib/components/task-detail.svelte';
+import TaskDetail from '$lib/components/task/task-detail.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
 import { TaskService } from '../../src/lib/services/task-service';
 

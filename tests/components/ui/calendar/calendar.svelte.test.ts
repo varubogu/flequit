@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import Calendar from '../../../../src/lib/components/ui/calendar/calendar.svelte';
+import Calendar from '$lib/components/ui/calendar/calendar.svelte';
 
 // Mock bits-ui Calendar primitive
 vi.mock('bits-ui', () => ({
@@ -26,7 +26,7 @@ vi.mock('bits-ui', () => ({
 }));
 
 // Mock calendar sub-components
-vi.mock('../../../../src/lib/components/ui/calendar/index.js', () => ({
+vi.mock('$lib/components/ui/calendar/index.js', () => ({
   Months: () => null,
   Nav: () => null,
   PrevButton: () => null,

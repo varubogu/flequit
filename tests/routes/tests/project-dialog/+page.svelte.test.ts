@@ -3,14 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import ProjectDialogTestPage from '../../../../src/routes/tests/project-dialog/+page.svelte';
 
 // Mock ProjectDialog component
-vi.mock('../../../../src/lib/components/project-dialog.svelte', () => ({
+vi.mock('$lib/components/project-dialog.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'ProjectDialog'
   }))
 }));
 
 // Mock Button component
-vi.mock('../../../../src/lib/components/ui/button.svelte', () => ({
+vi.mock('$lib/components/ui/button.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'Button'
   }))

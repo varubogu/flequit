@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Sidebar from '$lib/components/sidebar.svelte';
+  import Sidebar from '$lib/components/sidebar/sidebar.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
@@ -7,7 +7,7 @@
   let currentView = $state<ViewType>('all');
   let selectedProjectId = $derived(taskStore.selectedProjectId);
   let selectedListId = $derived(taskStore.selectedListId);
-  
+
   // Force reactivity update when store changes
   $effect(() => {
     // This effect will run whenever the store state changes
@@ -18,7 +18,7 @@
   // Mock data for the store
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const mockProjects: ProjectTree[] = [
     {
       id: 'project-1',

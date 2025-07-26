@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import * as m from '$paraglide/messages';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import TagInput from './tag-input.svelte';
+  import TagInput from '$lib/components/tag/tag-input.svelte';
 
   interface Props {
     task: TaskWithSubTasks | null;
@@ -12,7 +12,7 @@
   }
 
   let { task, subTask, isNewTaskMode = false }: Props = $props();
-  
+
   let currentItem = $derived(subTask || task);
   let isSubTask = $derived(!!subTask);
 
@@ -21,7 +21,7 @@
 
   function handleTagAdded(tagName: string) {
     if (!currentItem) return;
-    
+
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(tagName);
     } else if (isSubTask) {
@@ -33,7 +33,7 @@
 
   function handleTagRemoved(tagId: string) {
     if (!currentItem) return;
-    
+
     if (isNewTaskMode) {
       taskStore.removeTagFromNewTask(tagId);
     } else if (isSubTask) {

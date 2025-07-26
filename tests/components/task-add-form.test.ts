@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/svelte';
-import TaskAddForm from '../../src/lib/components/task-add-form.svelte';
+import TaskAddForm from '$lib/components/task/task-add-form.svelte';
 import { TaskListService } from '../../src/lib/services/task-list-service';
 import { TaskService } from '../../src/lib/services/task-service';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';

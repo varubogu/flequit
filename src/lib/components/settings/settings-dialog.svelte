@@ -7,10 +7,10 @@
   import { ArrowLeft, Search } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import SettingsBasic from './settings/settings-basic.svelte';
-  import SettingsViews from './settings/settings-views.svelte';
-  import SettingsAppearance from './settings/settings-appearance.svelte';
-  import SettingsAccount from './settings/settings-account.svelte';
+  import SettingsBasic from './settings-basic.svelte';
+  import SettingsViews from './settings-views.svelte';
+  import SettingsAppearance from './settings-appearance.svelte';
+  import SettingsAccount from './settings-account.svelte';
 
   interface Props {
     open?: boolean;
@@ -180,4 +180,3 @@
     </div>
   </DialogContent>
 </Dialog>
-

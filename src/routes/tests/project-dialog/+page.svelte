@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ProjectDialog from '$lib/components/project-dialog.svelte';
+  import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import Button from '$lib/components/button.svelte';
 
   let showAddDialog = $state(false);

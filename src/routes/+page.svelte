@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Sidebar from '$lib/components/sidebar.svelte';
-  import TaskList from '$lib/components/task-list.svelte';
-  import TaskDetail from '$lib/components/task-detail.svelte';
+  import Sidebar from '$lib/components/sidebar/sidebar.svelte';
+  import TaskList from '$lib/components/task/task-list.svelte';
+  import TaskDetail from '$lib/components/task/task-detail.svelte';
   import * as Resizable from '$lib/components/ui/resizable/index.js';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import type { ViewType } from '$lib/services/view-service';

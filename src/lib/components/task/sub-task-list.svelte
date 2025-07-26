@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/button.svelte';
-  import DueDate from './due-date.svelte';
+  import DueDate from '../due-date.svelte';
 
   interface Props {
     task: TaskWithSubTasks;

@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import TaskDetailTags from '../../src/lib/components/task-detail-tags.svelte';
+import TaskDetailTags from '$lib/components/task/task-detail-tags.svelte';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
 // Mock the task store

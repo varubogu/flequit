@@ -3,10 +3,10 @@
   import { CalendarDate } from '@internationalized/date';
     import { formatDate1 } from "$lib/utils/datetime-utils";
   import { formatTime1 } from "$lib/utils/datetime-utils";
-  import DateTimeInputs from './date-time-inputs.svelte'
-  import CalendarPicker from './calendar-picker.svelte';
-  import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
-  import RecurrenceDialogAdvanced from './recurrence-dialog-advanced.svelte';
+  import DateTimeInputs from '$lib/components/date-time-inputs.svelte';
+  import CalendarPicker from '$lib/components/calendar-picker.svelte';
+  import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
+  import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
   import type { RecurrenceRule } from '$lib/types/task';
 
   interface Props {

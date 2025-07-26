@@ -4,12 +4,12 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/button.svelte';
   import { ChevronDown, ChevronRight, Plus } from 'lucide-svelte';
-  import ProjectDialog from '$lib/components/project-dialog.svelte';
-  import TaskListDialog from '$lib/components/task-list-dialog.svelte';
+  import ProjectDialog from '$lib/components/project/project-dialog.svelte';
+  import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import TaskListDisplay from './task-list-display.svelte';
+  import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -17,7 +17,7 @@
   }
 
   let { currentView = 'all', onViewChange }: Props = $props();
-  
+
   const editProject = reactiveMessage(m.edit_project);
   const addTaskList = reactiveMessage(m.add_task_list);
   const deleteProject = reactiveMessage(m.delete_project);
@@ -139,7 +139,7 @@
               {addTaskList()}
             </ContextMenu.Item>
             <ContextMenu.Separator />
-            <ContextMenu.Item 
+            <ContextMenu.Item
               variant="destructive"
               onclick={() => taskStore.deleteProject(project.id)}
             >
@@ -150,8 +150,8 @@
       </div>
     </div>
 
-    <TaskListDisplay 
-      {project} 
+    <TaskListDisplay
+      {project}
       isExpanded={expandedProjects.has(project.id)}
       {onViewChange}
     />

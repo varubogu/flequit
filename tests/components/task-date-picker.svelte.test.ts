@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import TaskDatePicker from '../../src/lib/components/task-date-picker.svelte';
+import TaskDatePicker from '$lib/components/task/task-date-picker.svelte';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
 // Mock taskStore
@@ -12,7 +12,7 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
 }));
 
 // Mock InlineDatePicker component
-vi.mock('../../src/lib/components/inline-date-picker.svelte', () => ({
+vi.mock('$lib/components/inline-date-picker.svelte', () => ({
   default: () => null
 }));
 

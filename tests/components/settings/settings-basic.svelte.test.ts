@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SettingsBasic from '../../../src/lib/components/settings/settings-basic.svelte';
+import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
 import { settingsStore, AVAILABLE_TIMEZONES } from '../../../src/lib/stores/settings.svelte';
 import { getLocale, setLocale } from '$paraglide/runtime';
 import { localeStore } from '$lib/stores/locale.svelte';

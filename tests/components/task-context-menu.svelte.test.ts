@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import TaskContextMenu from '../../src/lib/components/task-context-menu.svelte';
+import TaskContextMenu from '$lib/components/task/task-context-menu.svelte';
 import type { TaskWithSubTasks, SubTask } from '../../src/lib/types/task';
 
 // Mock stores and services

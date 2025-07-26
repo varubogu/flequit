@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SettingsAppearance from '../../../src/lib/components/settings/settings-appearance.svelte';
+import SettingsAppearance from '$lib/components/settings/settings-appearance.svelte';
 
 // Mock mode-watcher
 vi.mock('mode-watcher', () => ({

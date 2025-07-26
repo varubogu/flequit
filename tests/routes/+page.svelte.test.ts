@@ -3,26 +3,26 @@ import { render } from '@testing-library/svelte';
 import Page from '../../src/routes/+page.svelte';
 
 // Mock all child components
-vi.mock('../../src/lib/components/sidebar.svelte', () => ({
+vi.mock('$lib/components/sidebar.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'Sidebar'
   }))
 }));
 
-vi.mock('../../src/lib/components/task-list.svelte', () => ({
+vi.mock('$lib/components/task-list.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'TaskList'
   }))
 }));
 
-vi.mock('../../src/lib/components/task-detail.svelte', () => ({
+vi.mock('$lib/components/task-detail.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'TaskDetail'
   }))
 }));
 
 // Mock resizable components
-vi.mock('../../src/lib/components/ui/resizable/index.js', () => ({
+vi.mock('$lib/components/ui/resizable/index.js', () => ({
   PaneGroup: vi.fn().mockImplementation(() => ({
     component: 'PaneGroup'
   })),

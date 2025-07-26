@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/svelte';
-import TaskList from '../../src/lib/components/task-list.svelte';
+import TaskList from '$lib/components/task/task-list.svelte';
 import { TaskListService } from '../../src/lib/services/task-list-service';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
@@ -12,7 +12,7 @@ vi.mock('../../src/lib/services/task-list-service', () => ({
 }));
 
 // Mock components
-vi.mock('../../src/lib/components/task-item.svelte', () => {
+vi.mock('$lib/components/task/task-item.svelte', () => {
   return {
     default: vi.fn(() => ({
       $$: { fragment: { create: vi.fn(), mount: vi.fn() } }
@@ -20,7 +20,7 @@ vi.mock('../../src/lib/components/task-item.svelte', () => {
   };
 });
 
-vi.mock('../../src/lib/components/task-add-form.svelte', () => {
+vi.mock('$lib/components/task/task-add-form.svelte', () => {
   return {
     default: vi.fn(() => ({
       $$: { fragment: { create: vi.fn(), mount: vi.fn() } }

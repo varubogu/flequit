@@ -29,7 +29,7 @@ vi.mock('mode-watcher', () => ({
 }));
 
 // Mock ContextMenu
-vi.mock('../../src/lib/components/context-menu.svelte', () => ({
+vi.mock('$lib/components/context-menu.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
     component: 'ContextMenu'
   }))

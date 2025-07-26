@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render } from '@testing-library/svelte';
-import ProjectDialog from '../../src/lib/components/project-dialog.svelte';
+import ProjectDialog from '$lib/components/project/project-dialog.svelte';
 
 vi.mock('$lib/components/ui/dialog/index.js', () => ({
   Root: () => null,

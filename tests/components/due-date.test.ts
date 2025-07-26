@@ -1,7 +1,7 @@
 import { test, expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/svelte";
-import DueDate from "../../src/lib/components/due-date.svelte";
-import type { TaskBase } from "../../src/lib/types/task";
+import DueDate from "$lib/components/due-date.svelte";
+import type { TaskBase } from "$lib/types/task";
 
 const createMockTask = (overrides: Partial<TaskBase> = {}): TaskBase => ({
   status: "not_started",

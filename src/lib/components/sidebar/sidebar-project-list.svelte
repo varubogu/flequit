@@ -3,8 +3,8 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/button.svelte';
   import { Plus } from 'lucide-svelte';
-  import ProjectDialog from '$lib/components/project-dialog.svelte';
-  import ProjectList from '$lib/components/project-list.svelte';
+  import ProjectDialog from '$lib/components/project/project-dialog.svelte';
+  import ProjectList from '$lib/components/project/project-list.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -14,7 +14,7 @@
   }
 
   let { currentView = 'all', onViewChange }: Props = $props();
-  
+
   const projects = reactiveMessage(m.projects);
   const noProjectsYet = reactiveMessage(m.no_projects_yet);
 
@@ -78,4 +78,3 @@
   onsave={handleProjectSave}
   onclose={() => showProjectDialog = false}
 />
-

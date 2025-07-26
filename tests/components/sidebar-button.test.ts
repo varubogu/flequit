@@ -1,6 +1,6 @@
 import { test, expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/svelte";
-import SidebarButton from "../../src/lib/components/sidebar-button.svelte";
+import SidebarButton from "$lib/components/sidebar/sidebar-button.svelte";
 
 test("SidebarButton: renders basic button without context menu", async () => {
   const mockClick = vi.fn();

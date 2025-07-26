@@ -1,30 +1,32 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SidebarViewList from '../../src/lib/components/sidebar-view-list.svelte';
+import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
 import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 import { writable, get } from 'svelte/store';
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
-  const { writable, get } = await import('svelte/store');
   const original = await importOriginal() as any;
-  const tasksWritable = writable({
-    todayTasks: [],
-    overdueTasks: [],
-    allTasks: [],
-  });
-
+  
   return {
     ...original,
     taskStore: {
-      ...(original.taskStore || {}),
-      subscribe: tasksWritable.subscribe,
-      set: tasksWritable.set,
-      update: tasksWritable.update,
-      todayTasks: [],
-      overdueTasks: [],
-      allTasks: [],
+      projects: [],
+      selectedTaskId: null,
+      selectedSubTaskId: null,
+      selectedProjectId: null,
+      selectedListId: null,
+      isNewTaskMode: false,
+      newTaskData: null,
+      pendingTaskSelection: null,
+      pendingSubTaskSelection: null,
+      get todayTasks() { return []; },
+      get overdueTasks() { return []; },
+      get allTasks() { return []; },
+      get selectedTask() { return null; },
+      get selectedSubTask() { return null; },
+      getTaskById: () => null,
     }
   };
 });
@@ -57,15 +59,18 @@ describe('SidebarViewList Component', () => {
   beforeEach(() => {
     onViewChange = vi.fn();
     vi.clearAllMocks();
-    mockTaskStore.todayTasks = [];
-    mockTaskStore.overdueTasks = [];
-    mockTaskStore.allTasks = [];
   });
 
   const setTaskStoreData = (data: { todayTasks?: any[], overdueTasks?: any[], allTasks?: any[] }) => {
-    if (data.todayTasks !== undefined) mockTaskStore.todayTasks = data.todayTasks;
-    if (data.overdueTasks !== undefined) mockTaskStore.overdueTasks = data.overdueTasks;
-    if (data.allTasks !== undefined) mockTaskStore.allTasks = data.allTasks;
+    if (data.todayTasks !== undefined) {
+      vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks);
+    }
+    if (data.overdueTasks !== undefined) {
+      vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue(data.overdueTasks);
+    }
+    if (data.allTasks !== undefined) {
+      vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(data.allTasks);
+    }
   };
 
   test('should render views section header', () => {

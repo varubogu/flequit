@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import Sidebar from '../../src/lib/components/sidebar.svelte';
+import Sidebar from '$lib/components/sidebar/sidebar.svelte';
 
 
 describe('Sidebar Component Integration', () => {

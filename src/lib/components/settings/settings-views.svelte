@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/button.svelte';
-  import SettingsDraggableItems from '../settings-draggable-items.svelte';
+  import SettingsDraggableItems from '$lib/components/settings/settings-draggable-items.svelte';
   import ConfirmDialog from '../confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
@@ -13,7 +13,7 @@
     viewsVisibilityStore.resetToDefaults();
     showResetConfirm = false;
   }
-  
+
   // Reactive messages
   const viewsSettings = reactiveMessage(m.views_settings);
   const resetToDefaults = reactiveMessage(m.reset_to_defaults);

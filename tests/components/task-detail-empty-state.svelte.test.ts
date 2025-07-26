@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import TaskDetailEmptyState from '../../src/lib/components/task-detail-empty-state.svelte';
+import TaskDetailEmptyState from '$lib/components/task/task-detail-empty-state.svelte';
 
 describe('TaskDetailEmptyState Component', () => {
   test('should render empty state message', () => {

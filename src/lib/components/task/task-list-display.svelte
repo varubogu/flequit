@@ -2,7 +2,7 @@
   import type { ProjectTree } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/button.svelte';
-  import TaskListDialog from '$lib/components/task-list-dialog.svelte';
+  import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -14,11 +14,11 @@
   }
 
   let { project, isExpanded, onViewChange }: Props = $props();
-  
+
   const editTaskList = reactiveMessage(m.edit_task_list);
   const addTask = reactiveMessage(m.add_task);
   const deleteTaskList = reactiveMessage(m.delete_task_list);
-  
+
   function handleTaskListSelect(list: any) {
     taskStore.selectList(list.id);
     onViewChange?.('tasklist');
@@ -81,7 +81,7 @@
             {addTask()}
           </ContextMenu.Item>
           <ContextMenu.Separator />
-          <ContextMenu.Item 
+          <ContextMenu.Item
             variant="destructive"
             onclick={() => taskStore.deleteTaskList(list.id)}
           >

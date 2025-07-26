@@ -7,9 +7,9 @@
   } from "$lib/utils/task-utils";
   import { TaskService } from "$lib/services/task-service";
   import Button from "$lib/components/button.svelte";
-  import TaskStatusToggle from './task-status-toggle.svelte';
-  import TaskContent from './task-content.svelte';
-  import SubTaskList from './sub-task-list.svelte';
+  import TaskStatusToggle from '$lib/components/task/task-status-toggle.svelte';
+  import TaskContent from '$lib/components/task/task-content.svelte';
+  import SubTaskList from '$lib/components/task/sub-task-list.svelte';
   import TaskAccordionToggle from './task-accordion-toggle.svelte';
   import TaskDatePicker from './task-date-picker.svelte';
   import TaskContextMenu from './task-context-menu.svelte';
@@ -20,7 +20,7 @@
   }
 
   let { task }: Props = $props();
-  
+
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
     subTaskSelectionRequested: { subTaskId: string };

@@ -15,18 +15,18 @@
   import TaskDetailTags from './task-detail-tags.svelte';
   import TaskDetailMetadata from './task-detail-metadata.svelte';
   import TaskDetailEmptyState from './task-detail-empty-state.svelte';
-  import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
-  import DeleteConfirmationDialog from './delete-confirmation-dialog.svelte';
-  import ProjectTaskListSelector from './project-task-list-selector.svelte';
-  import ProjectTaskListSelectorDialog from './project-task-list-selector-dialog.svelte';
-  import RecurrenceDialogAdvanced from './recurrence-dialog-advanced.svelte';
+  import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmation-dialog.svelte';
+  import DeleteConfirmationDialog from '$lib/components/delete-confirmation-dialog.svelte';
+  import ProjectTaskListSelector from '$lib/components/project/project-task-list-selector.svelte';
+  import ProjectTaskListSelectorDialog from '$lib/components/project/project-task-list-selector-dialog.svelte';
+  import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
   let currentItem = $derived(task || subTask || (taskStore.isNewTaskMode ? taskStore.newTaskData : null));
   let isSubTask = $derived(!!subTask);
   let isNewTaskMode = $derived(taskStore.isNewTaskMode);
-  
+
   let editForm = $state({
     title: '',
     description: '',
@@ -36,27 +36,27 @@
     priority: 0
   });
   let saveTimeout: ReturnType<typeof setTimeout> | null = null;
-  
+
   // Date picker state
   let showDatePicker = $state(false);
   let datePickerPosition = $state({ x: 0, y: 0 });
-  
+
   // Confirmation dialog state
   let showConfirmationDialog = $state(false);
   let pendingAction = $state<(() => void) | null>(null);
-  
+
   // Delete confirmation dialog state
   let showDeleteDialog = $state(false);
   let deleteDialogTitle = $state('');
   let deleteDialogMessage = $state('');
   let pendingDeleteAction = $state<(() => void) | null>(null);
-  
+
   // Project task list selector dialog state
   let showProjectTaskListDialog = $state(false);
-  
+
   // Recurrence dialog state
   let showRecurrenceDialog = $state(false);
-  
+
   // プロジェクト・タスクリスト情報の取得
   let projectInfo = $derived(() => {
     if (isNewTaskMode || !currentItem) return null;
@@ -67,7 +67,7 @@
       return taskStore.getTaskProjectAndList(currentItem.id);
     }
   });
-  
+
   // Watch for pending selections from taskStore
   $effect(() => {
     if (taskStore.pendingTaskSelection) {
@@ -78,7 +78,7 @@
       });
     }
   });
-  
+
   $effect(() => {
     if (taskStore.pendingSubTaskSelection) {
       const subTaskId = taskStore.pendingSubTaskSelection;
@@ -117,7 +117,7 @@
           end_date: editForm.end_date,
           is_range_date: editForm.is_range_date
         };
-        
+
         if (isNewTaskMode) {
           taskStore.updateNewTaskData(updates);
         } else if (isSubTask) {
@@ -137,7 +137,7 @@
   function handleDueDateClick(event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
-    
+
     const rect = event?.target ? (event.target as HTMLElement).getBoundingClientRect() : { left: 0, bottom: 0 };
     datePickerPosition = {
       x: Math.min(rect.left, window.innerWidth - 300),
@@ -148,7 +148,7 @@
 
   function handleDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
     const { dateTime, range, isRangeDate } = data;
-    
+
     if (isRangeDate) {
       if (range) {
         // Range mode with both start and end dates
@@ -177,7 +177,7 @@
         is_range_date: false
       };
     }
-    
+
     debouncedSave();
   }
 
@@ -199,7 +199,7 @@
   function handleStatusChange(event: Event) {
     if (!currentItem) return;
     const target = event.target as HTMLSelectElement;
-    
+
     if (isNewTaskMode) {
       taskStore.updateNewTaskData({ status: target.value as TaskStatus });
     } else if (isSubTask) {
@@ -215,7 +215,7 @@
       taskStore.cancelNewTaskMode();
       return;
     }
-    
+
     // Show delete confirmation dialog
     if (isSubTask) {
       deleteDialogTitle = reactiveMessage(m.delete_subtask_title)();
@@ -226,7 +226,7 @@
       deleteDialogMessage = reactiveMessage(m.delete_task_message)();
       pendingDeleteAction = () => TaskService.deleteTask(currentItem.id);
     }
-    
+
     showDeleteDialog = true;
   }
 
@@ -242,11 +242,11 @@
     if (!task) return;
     TaskService.toggleSubTaskStatus(task, subTaskId);
   }
-  
+
   function handleSubTaskClick(subTaskId: string) {
     TaskService.selectSubTask(subTaskId);
   }
-  
+
   function handleGoToParentTask() {
     if (isSubTask && currentItem && 'task_id' in currentItem) {
       TaskService.selectTask(currentItem.task_id);
@@ -273,7 +273,7 @@
 
   function handleProjectTaskListChange(data: { projectId: string; taskListId: string }) {
     if (!currentItem || isNewTaskMode) return;
-    
+
     // タスクを新しいタスクリストに移動
     if (isSubTask) {
       // サブタスクの場合は親タスクを移動
@@ -289,7 +289,7 @@
   function handleProjectTaskListDialogClose() {
     showProjectTaskListDialog = false;
   }
-  
+
   // Confirmation dialog handlers
   function showConfirmationIfNeeded(action: () => void): boolean {
     if (isNewTaskMode && editForm.title.trim()) {
@@ -300,7 +300,7 @@
     action();
     return true;
   }
-  
+
   function handleConfirmDiscard() {
     showConfirmationDialog = false;
     if (pendingAction) {
@@ -308,13 +308,13 @@
       pendingAction = null;
     }
   }
-  
+
   function handleCancelDiscard() {
     showConfirmationDialog = false;
     pendingAction = null;
     taskStore.clearPendingSelections();
   }
-  
+
   // Delete confirmation dialog handlers
   function handleConfirmDelete() {
     showDeleteDialog = false;
@@ -323,31 +323,31 @@
       pendingDeleteAction = null;
     }
   }
-  
+
   function handleCancelDelete() {
     showDeleteDialog = false;
     pendingDeleteAction = null;
   }
-  
+
   // Recurrence dialog handlers
   function handleRecurrenceEdit() {
     showRecurrenceDialog = true;
   }
-  
+
   function handleRecurrenceChange(rule: RecurrenceRule | null) {
     if (!currentItem || isNewTaskMode) return;
-    
+
     const updates = { recurrence_rule: rule || undefined };
-    
+
     if (isSubTask) {
       taskStore.updateSubTask(currentItem.id, updates);
     } else {
       taskStore.updateTask(currentItem.id, updates);
     }
-    
+
     showRecurrenceDialog = false;
   }
-  
+
   function handleRecurrenceDialogClose() {
     showRecurrenceDialog = false;
   }
@@ -355,7 +355,7 @@
 
 <Card class="flex flex-col h-full">
   {#if currentItem}
-    <TaskDetailHeader 
+    <TaskDetailHeader
       {currentItem}
       {isSubTask}
       {isNewTaskMode}
@@ -401,7 +401,7 @@
 
       <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
       {#if !isSubTask && !isNewTaskMode && task}
-        <TaskDetailSubTasks 
+        <TaskDetailSubTasks
           {task}
           selectedSubTaskId={taskStore.selectedSubTaskId}
           onSubTaskClick={handleSubTaskClick}
@@ -411,22 +411,22 @@
 
       <!-- Tags -->
       {#if task || subTask || (isNewTaskMode && currentItem)}
-        <TaskDetailTags 
-          task={isSubTask ? null : task} 
+        <TaskDetailTags
+          task={isSubTask ? null : task}
           subTask={isSubTask ? subTask : null}
-          {isNewTaskMode} 
+          {isNewTaskMode}
         />
       {/if}
 
       <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
       {#if !isNewTaskMode}
-        <ProjectTaskListSelector 
-          projectInfo={projectInfo()} 
+        <ProjectTaskListSelector
+          projectInfo={projectInfo()}
           onEdit={handleProjectTaskListEdit}
         />
       {/if}
 
-      <TaskDetailMetadata 
+      <TaskDetailMetadata
         {currentItem}
         {isSubTask}
         {isNewTaskMode}

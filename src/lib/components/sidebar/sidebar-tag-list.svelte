@@ -6,8 +6,8 @@
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { Hash, Bookmark } from 'lucide-svelte';
-  import TagEditDialog from '$lib/components/tag-edit-dialog.svelte';
-  import TagDeleteDialog from '$lib/components/tag-delete-dialog.svelte';
+  import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
+  import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
 
   interface Props {
@@ -20,7 +20,7 @@
   let bookmarkedTags = $derived(
     tagStore.tags.filter(tag => tagStore.bookmarkedTags.has(tag.id))
   );
-  
+
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);
   const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
@@ -92,7 +92,7 @@
     <h3 class="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
       {tagsTitle()}
     </h3>
-    
+
     {#each bookmarkedTags as tag (tag.id)}
       <ContextMenu.Root>
         <ContextMenu.Trigger>
@@ -103,18 +103,18 @@
           >
             <div class="flex items-center gap-3 flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-1 min-w-0">
-                <Hash 
-                  class="h-4 w-4 flex-shrink-0" 
+                <Hash
+                  class="h-4 w-4 flex-shrink-0"
                   style="color: {tag.color || 'currentColor'}"
                 />
                 <span class="truncate text-sm font-medium">{tag.name}</span>
               </div>
-              
+
               <div class="flex items-center gap-1 flex-shrink-0">
                 <span class="text-xs text-muted-foreground">
                   {getTaskCountForTag(tag.name)}
                 </span>
-                
+
                 <button
                   type="button"
                   class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
@@ -127,7 +127,7 @@
             </div>
           </Button>
         </ContextMenu.Trigger>
-        
+
         <ContextMenu.Content>
           <ContextMenu.Item onclick={(e) => handleRemoveFromBookmarks(tag, e)}>
             {removeTagFromSidebar()}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Tag } from '$lib/types/task';
   import TagDisplay from './tag-display.svelte';
-  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
+  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
 
   interface Props {
     tags: Tag[];
@@ -40,7 +40,7 @@
   function addTag(tagName?: string) {
     const rawName = (tagName || inputValue).trim();
     const cleanedName = cleanTagName(rawName);
-    
+
     if (!cleanedName) {
       inputValue = '';
       return;
@@ -71,9 +71,9 @@
   {#if tags.length > 0}
     <div class="flex flex-wrap gap-1 mb-2">
       {#each tags as tag (tag.id)}
-        <TagDisplay 
-          {tag} 
-          showRemoveButton={true} 
+        <TagDisplay
+          {tag}
+          showRemoveButton={true}
           onRemove={removeTag}
           onTagRemoveFromItem={removeTag}
         />

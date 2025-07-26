@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TaskListDisplay from '../../src/lib/components/task-list-display.svelte';
+import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
 import { taskStore } from '../../src/lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
 import { writable, get } from 'svelte/store';

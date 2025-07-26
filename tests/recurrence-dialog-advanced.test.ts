@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { tick } from 'svelte';
 import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
 import type { RecurrenceRule } from '$lib/types/task';
 
@@ -18,6 +19,27 @@ vi.mock('$paraglide/messages.js', () => ({
   recurrence_advanced: () => '有効（高度）',
   repeat_count: () => '繰り返し回数',
   repeat_every: () => '繰り返し間隔',
+  recurrence_interval: () => '繰り返し間隔',
+  repeat_weekdays: () => '繰り返し曜日',
+  advanced_settings: () => '高度な設定',
+  specific_date: () => '特定の日付',
+  specific_date_example: () => '例：毎月15日',
+  week_of_month: () => '月の第何週',
+  no_selection: () => '選択なし',
+  weekday_of_week: () => '週の何曜日',
+  first_week: () => '第1週',
+  second_week: () => '第2週',
+  third_week: () => '第3週',
+  fourth_week: () => '第4週',
+  last_week: () => '最終週',
+  minute: () => '分',
+  hour: () => '時間',
+  day: () => '日',
+  week: () => '週',
+  month: () => '月',
+  quarter: () => '四半期',
+  half_year: () => '半年',
+  year: () => '年',
   save: () => '保存',
   cancel: () => 'キャンセル',
   remove: () => '削除',
@@ -35,7 +57,8 @@ vi.mock('$paraglide/messages.js', () => ({
   weekday: () => '平日',
   weekend: () => '休日',
   holiday: () => '祝日',
-  non_holiday: () => '非祝日'
+  non_holiday: () => '非祝日',
+  adjustment_conditions: () => '補正条件'
 }));
 
 // ロケールストアをモック
@@ -96,7 +119,7 @@ describe('RecurrenceDialogAdvanced', () => {
     expect(() => screen.getByText('繰り返し間隔')).toThrow();
   });
 
-  it('有効選択時は基本設定のみ表示される', () => {
+  it('有効選択時は基本設定のみ表示される', async () => {
     render(RecurrenceDialogAdvanced, {
       props: {
         open: true,
@@ -108,6 +131,9 @@ describe('RecurrenceDialogAdvanced', () => {
     const select = screen.getByDisplayValue('無効');
     fireEvent.change(select, { target: { value: 'enabled' } });
 
+    // Svelteの更新を待つ
+    await tick();
+
     // 基本設定が表示される（ヘッダーを確認）
     expect(screen.getByRole('heading', { name: '繰り返し間隔' })).toBeTruthy();
     
@@ -115,7 +141,7 @@ describe('RecurrenceDialogAdvanced', () => {
     expect(() => screen.getByText('補正条件')).toThrow();
   });
 
-  it('有効（高度）選択時は全設定が表示される', () => {
+  it('有効（高度）選択時は全設定が表示される', async () => {
     render(RecurrenceDialogAdvanced, {
       props: {
         open: true,
@@ -126,6 +152,9 @@ describe('RecurrenceDialogAdvanced', () => {
 
     const select = screen.getByDisplayValue('無効');
     fireEvent.change(select, { target: { value: 'advanced' } });
+
+    // Svelteの更新を待つ
+    await tick();
 
     // 基本設定が表示される（ヘッダーを確認）
     expect(screen.getByRole('heading', { name: '繰り返し間隔' })).toBeTruthy();
@@ -301,5 +330,4 @@ describe('RecurrenceDialogAdvanced', () => {
       expect(countInput.value).toBe('58');
     });
   });
-});
 });

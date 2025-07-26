@@ -2,7 +2,7 @@
   import type { ViewType } from '$lib/services/view-service';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import SidebarButton from '$lib/components/sidebar-button.svelte';
+  import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -16,7 +16,7 @@
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
-  
+
   // Reactive messages
   const viewsTitle = reactiveMessage(m.views_title);
 

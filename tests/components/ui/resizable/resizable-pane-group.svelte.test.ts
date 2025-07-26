@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import ResizablePaneGroup from '../../../../src/lib/components/ui/resizable/resizable-pane-group.svelte';
+import ResizablePaneGroup from '$lib/components/ui/resizable/resizable-pane-group.svelte';
 
 // Mock paneforge
 vi.mock('paneforge', () => ({

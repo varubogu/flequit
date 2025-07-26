@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import TagCompletionProvider from '$lib/components/tag-completion-provider.svelte';
+  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
@@ -18,14 +18,14 @@
     onSaveNewTask?: () => void;
   }
 
-  let { 
-    currentItem, 
-    isSubTask, 
-    isNewTaskMode = false, 
-    title, 
-    onTitleChange, 
-    onDelete, 
-    onSaveNewTask 
+  let {
+    currentItem,
+    isSubTask,
+    isNewTaskMode = false,
+    title,
+    onTitleChange,
+    onDelete,
+    onSaveNewTask
   }: Props = $props();
 
   function handleTitleInput(event: CustomEvent<{ value: string }>) {
@@ -35,7 +35,7 @@
   function handleTagDetected(event: CustomEvent<{ tagName: string; position: number }>) {
     // Add tag to task or subtask when detected in title
     if (!currentItem) return;
-    
+
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask) {

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import CalendarCell from '../../../../src/lib/components/ui/calendar/calendar-cell.svelte';
+import CalendarCell from '$lib/components/ui/calendar/calendar-cell.svelte';
 
 // Mock bits-ui Calendar primitive
 vi.mock('bits-ui', () => ({

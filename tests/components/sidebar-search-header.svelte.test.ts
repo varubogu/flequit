@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SidebarSearchHeader from '../../src/lib/components/sidebar-search-header.svelte';
+import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
 
 describe('SidebarSearchHeader Component', () => {
   beforeEach(() => {
