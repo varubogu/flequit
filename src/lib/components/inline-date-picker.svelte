@@ -243,5 +243,8 @@
 <RecurrenceDialogAdvanced
   bind:open={recurrenceDialogOpen}
   recurrenceRule={currentRecurrenceRule}
+  startDateTime={useRangeMode && startDate && startTime ? new Date(`${startDate}T${startTime}`) : undefined}
+  endDateTime={endDate && endTime ? new Date(`${endDate}T${endTime}`) : undefined}
+  isRangeDate={useRangeMode}
   onSave={handleRecurrenceSave}
 />

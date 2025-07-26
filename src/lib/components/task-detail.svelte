@@ -481,6 +481,9 @@
 <RecurrenceDialogAdvanced
   open={showRecurrenceDialog}
   recurrenceRule={currentItem?.recurrence_rule}
+  startDateTime={currentItem?.start_date}
+  endDateTime={currentItem?.end_date}
+  isRangeDate={currentItem?.is_range_date}
   onSave={handleRecurrenceChange}
   onOpenChange={handleRecurrenceDialogClose}
 />

@@ -1,19 +1,16 @@
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
-  import { Repeat, Plus, X, Calendar } from "lucide-svelte";
+  import { Repeat, Plus, X } from "lucide-svelte";
   import WeekdayConditionEditor from './weekday-condition-editor.svelte';
-  import type { 
-    RecurrenceRule, 
-    RecurrenceUnit, 
+  import type {
+    RecurrenceRule,
+    RecurrenceUnit,
     RecurrenceLevel,
-    DayOfWeek, 
-    WeekOfMonth,
+    DayOfWeek,
     DateCondition,
     WeekdayCondition,
     DateRelation,
-    AdjustmentDirection,
-    AdjustmentTarget,
     RecurrenceDetails
   } from '$lib/types/task';
   import { RecurrenceService } from '$lib/services/recurrence-service';
@@ -25,31 +22,33 @@
     onOpenChange?: (open: boolean) => void;
     recurrenceRule?: RecurrenceRule | null;
     onSave?: (rule: RecurrenceRule | null) => void;
+    startDateTime?: Date;
+    endDateTime?: Date;
+    isRangeDate?: boolean;
   }
 
-  let { open = $bindable(false), onOpenChange, recurrenceRule, onSave }: Props = $props();
+  let { open = $bindable(false), onOpenChange, recurrenceRule, onSave, startDateTime, endDateTime, isRangeDate }: Props = $props();
 
   // 基本設定
   let recurrenceLevel = $state<RecurrenceLevel>(
-    !recurrenceRule ? 'disabled' : 
-    (recurrenceRule.adjustment && (recurrenceRule.adjustment.date_conditions.length > 0 || recurrenceRule.adjustment.weekday_conditions.length > 0)) || 
+    !recurrenceRule ? 'disabled' :
+    (recurrenceRule.adjustment && (recurrenceRule.adjustment.date_conditions.length > 0 || recurrenceRule.adjustment.weekday_conditions.length > 0)) ||
     (recurrenceRule.details && Object.keys(recurrenceRule.details).length > 0) ? 'advanced' : 'enabled'
   );
   let unit = $state<RecurrenceUnit>(recurrenceRule?.unit || 'day');
   let interval = $state(recurrenceRule?.interval || 1);
   let daysOfWeek = $state<DayOfWeek[]>(recurrenceRule?.days_of_week || []);
-  
+
   // 詳細設定
   let details = $state<RecurrenceDetails>(recurrenceRule?.details || {});
-  
+
   // 補正条件
   let dateConditions = $state<DateCondition[]>(recurrenceRule?.adjustment?.date_conditions || []);
   let weekdayConditions = $state<WeekdayCondition[]>(recurrenceRule?.adjustment?.weekday_conditions || []);
-  
+
   // 終了条件
   let endDate = $state<Date | undefined>(recurrenceRule?.end_date);
-  let maxOccurrences = $state<number | undefined>(recurrenceRule?.max_occurrences);
-  
+
   // 繰り返し回数の制御（プレビュー表示用）
   let repeatCount = $state<number | undefined>(recurrenceRule?.max_occurrences);
 
@@ -132,7 +131,7 @@
 
   // 複雑な単位かどうかの判定
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
-  
+
   // 表示項目の制御
   const showBasicSettings = $derived(recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced');
   const showAdvancedSettings = $derived(recurrenceLevel === 'advanced');
@@ -152,7 +151,7 @@
     try {
       const rule = buildRecurrenceRule();
       if (rule) {
-        const baseDate = new Date();
+        const baseDate = startDateTime || endDateTime || new Date();
         // 表示数の最大値（20回）でプレビューを生成
         const previewLimit = 20;
         previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
@@ -187,7 +186,7 @@
   }
 
   function updateDateCondition(id: string, updates: Partial<DateCondition>) {
-    dateConditions = dateConditions.map(c => 
+    dateConditions = dateConditions.map(c =>
       c.id === id ? { ...c, ...updates } : c
     );
   }
@@ -207,7 +206,7 @@
   }
 
   function updateWeekdayCondition(id: string, updates: Partial<WeekdayCondition>) {
-    weekdayConditions = weekdayConditions.map(c => 
+    weekdayConditions = weekdayConditions.map(c =>
       c.id === id ? { ...c, ...updates } : c
     );
   }
@@ -240,17 +239,125 @@
   }
 
   function formatDate(date: Date): string {
-    return date.toLocaleDateString('ja-JP', {
+    // 基本的な日付表示
+    const baseFormatted = date.toLocaleDateString('ja-JP', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       weekday: 'short'
     });
+    
+    // 時刻や範囲の情報があるかチェック
+    const hasStartTime = startDateTime && (startDateTime.getHours() !== 0 || startDateTime.getMinutes() !== 0);
+    const hasEndTime = endDateTime && (endDateTime.getHours() !== 0 || endDateTime.getMinutes() !== 0);
+    
+    if (isRangeDate && startDateTime && endDateTime) {
+      // 範囲タスクの場合
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      
+      // 元の開始・終了日時の日付差を計算
+      const originalDayDiff = Math.floor((endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // 終了日に日付差を適用
+      endDate.setDate(endDate.getDate() + originalDayDiff);
+      
+      // 時刻を設定
+      startDate.setHours(startDateTime.getHours(), startDateTime.getMinutes(), 0, 0);
+      endDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
+      
+      // 開始日と終了日が同じ日かチェック
+      const isSameDay = startDate.toDateString() === endDate.toDateString();
+      
+      if (isSameDay) {
+        // 同じ日の場合：「日付 開始時刻～終了時刻」
+        const startTime = hasStartTime ? ` ${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '';
+        const endTime = hasEndTime ? `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}` : '';
+        const result = `${baseFormatted}${startTime} 〜 ${endTime}`;
+        return result;
+      } else {
+        // 異なる日の場合：「開始日付 開始時刻～終了日付 終了時刻」
+        const startFormatted = startDate.toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          weekday: 'short'
+        });
+        const endFormatted = endDate.toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          weekday: 'short'
+        });
+        
+        const startTime = hasStartTime ? ` ${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '';
+        const endTime = hasEndTime ? ` ${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}` : '';
+        
+        const result = `${startFormatted}${startTime} 〜 ${endFormatted}${endTime}`;
+        return result;
+      }
+    } else if (endDateTime) {
+      // 単純タスクの場合
+      const targetDate = new Date(date);
+      targetDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
+      
+      let result = baseFormatted;
+      if (hasEndTime) {
+        result = `${baseFormatted} ${targetDate.getHours().toString().padStart(2, '0')}:${targetDate.getMinutes().toString().padStart(2, '0')}`;
+      }
+      
+      return result;
+    } else {
+      return baseFormatted;
+    }
   }
 </script>
 
+{#snippet PreviewSection()}
+  <section class="h-[240px] lg:h-[300px] flex flex-col">
+    <div class="mb-3 flex-shrink-0">
+      <h3 class="text-lg font-semibold">{preview()}</h3>
+    </div>
+    {#if showBasicSettings && previewDates.length > 0}
+      <div class="flex flex-col flex-1 min-h-0">
+        <p class="text-sm text-muted-foreground flex-shrink-0">
+          {nextExecutionDatesLabel()}
+        </p>
+        <div class="flex items-center gap-2 mb-2 flex-shrink-0">
+          <input
+            type="number"
+            bind:value={displayCount}
+            min="1"
+            max="20"
+            class="w-16 px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
+          />
+          <span class="text-sm text-muted-foreground">{timesSuffix()}</span>
+        </div>
+        <div class="flex-1 overflow-y-auto border border-border rounded bg-card/50 min-h-0">
+          <div class="space-y-1 p-2">
+            {#each previewDates.slice(0, displayCount) as date, index}
+              <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
+                <span class="font-mono flex-shrink-0 w-8">{index + 1}.</span>
+                <span class="flex-1">{formatDate(date)}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+    {:else if showBasicSettings}
+      <div class="flex-1 flex items-center justify-center min-h-0">
+        <p class="text-sm text-muted-foreground">{generatingPreview()}</p>
+      </div>
+    {:else}
+      <div class="flex-1 flex items-center justify-center min-h-0">
+        <p class="text-sm text-muted-foreground">{recurrenceDisabledPreview()}</p>
+      </div>
+    {/if}
+  </section>
+{/snippet}
+
 <Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="max-w-4xl max-h-[90vh] overflow-y-auto z-[60]">
+  <Dialog.Content class="!max-w-none !w-[1400px] max-h-[90vh] overflow-y-auto z-[60]">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />
@@ -258,16 +365,16 @@
       </Dialog.Title>
     </Dialog.Header>
 
-    <div class="grid grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <!-- 左側：設定パネル -->
-      <div class="col-span-2 space-y-6">
-        
+      <div class="lg:col-span-3 space-y-6">
+
         <!-- 1. 繰り返し設定レベル -->
         <section class="space-y-3">
           <h3 class="text-lg font-semibold">{recurrence()}</h3>
           <div>
-            <select 
-              bind:value={recurrenceLevel} 
+            <select
+              bind:value={recurrenceLevel}
               class="w-full p-2 border border-border rounded bg-background text-foreground"
               onchange={handleImmediateSave}
             >
@@ -283,10 +390,10 @@
           <section class="space-y-3">
             <h3 class="text-lg font-semibold">{repeatCountLabel()}</h3>
             <div>
-              <input 
-                type="number" 
-                bind:value={repeatCount} 
-                min="1" 
+              <input
+                type="number"
+                bind:value={repeatCount}
+                min="1"
                 class="w-full p-2 border border-border rounded bg-background text-foreground"
                 oninput={handleImmediateSave}
                 placeholder={infiniteRepeatPlaceholder()}
@@ -301,20 +408,20 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label for="interval-input">{repeatEvery()}</label>
-                <input 
+                <input
                   id="interval-input"
-                  type="number" 
-                  bind:value={interval} 
-                  min="1" 
+                  type="number"
+                  bind:value={interval}
+                  min="1"
                   class="w-full p-2 border border-border rounded bg-background text-foreground"
                   oninput={handleImmediateSave}
                 />
               </div>
               <div>
                 <label for="unit-select">{unitLabel()}</label>
-                <select 
+                <select
                   id="unit-select"
-                  bind:value={unit} 
+                  bind:value={unit}
                   class="w-full p-2 border border-border rounded bg-background text-foreground"
                   onchange={handleImmediateSave}
                 >
@@ -347,16 +454,16 @@
             {#if showAdvancedSettings && isComplexUnit}
               <div class="space-y-3">
                 <h4 class="font-medium">{advancedSettings()}</h4>
-                
+
                 <div class="grid grid-cols-2 gap-4">
                   <!-- 特定日付 -->
                   <div>
                     <label for="specific-date-input">{specificDate()}</label>
-                    <input 
+                    <input
                       id="specific-date-input"
-                      type="number" 
+                      type="number"
                       bind:value={details.specific_date}
-                      min="1" 
+                      min="1"
                       max="31"
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
                       placeholder={specificDateExample()}
@@ -367,7 +474,7 @@
                   <!-- 第◯週の指定 -->
                   <div>
                     <label for="week-of-period-select">{weekOfMonth()}</label>
-                    <select 
+                    <select
                       id="week-of-period-select"
                       bind:value={details.week_of_period}
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
@@ -384,7 +491,7 @@
                 {#if details.week_of_period}
                   <div>
                     <label for="weekday-of-week-select">{weekdayOfWeek()}</label>
-                    <select 
+                    <select
                       id="weekday-of-week-select"
                       bind:value={details.weekday_of_week}
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
@@ -404,7 +511,7 @@
           {#if showAdvancedSettings}
           <section class="space-y-3">
             <h3 class="text-lg font-semibold">{adjustmentConditions()}</h3>
-            
+
             <!-- 日付条件 -->
             <div class="space-y-2">
               <div class="flex items-center justify-between">
@@ -414,10 +521,10 @@
                   {add()}
                 </Button>
               </div>
-              
+
               {#each dateConditions as condition}
                 <div class="flex items-center gap-2 p-3 border border-border rounded bg-card">
-                  <select 
+                  <select
                     value={condition.relation}
                     onchange={(e) => {
                       const target = e.target as HTMLSelectElement;
@@ -430,8 +537,8 @@
                       <option value={option.value}>{option.label()}</option>
                     {/each}
                   </select>
-                  
-                  <input 
+
+                  <input
                     type="date"
                     value={condition.reference_date.toISOString().split('T')[0]}
                     onchange={(e) => {
@@ -441,8 +548,8 @@
                     }}
                     class="p-1 border border-border rounded bg-background text-foreground"
                   />
-                  
-                  <button 
+
+                  <button
                     type="button"
                     onclick={() => { removeDateCondition(condition.id); handleImmediateSave(); }}
                     class="p-1 text-destructive hover:bg-destructive/10 rounded"
@@ -462,7 +569,7 @@
                   {add()}
                 </Button>
               </div>
-              
+
               {#each weekdayConditions as condition}
                 <WeekdayConditionEditor
                   {condition}
@@ -474,51 +581,16 @@
           </section>
           {/if}
         {/if}
+
+        <!-- モバイル用プレビュー（左ペイン最下層） -->
+        <div class="lg:hidden">
+          {@render PreviewSection()}
+        </div>
       </div>
 
-      <!-- 右側：プレビューパネル -->
-      <div class="space-y-4">
-        <section class="h-[500px] flex flex-col">
-          <div class="mb-3 flex-shrink-0">
-            <h3 class="text-lg font-semibold">{preview()}</h3>
-          </div>
-          {#if showBasicSettings && previewDates.length > 0}
-            <div class="flex flex-col flex-1 min-h-0">
-              <p class="text-sm text-muted-foreground flex-shrink-0">
-                {nextExecutionDatesLabel()}
-              </p>
-              <div class="flex items-center gap-2 mb-2 flex-shrink-0">
-                <input
-                  type="number"
-                  bind:value={displayCount}
-                  min="1"
-                  max="20"
-                  class="w-16 px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
-                />
-                <span class="text-sm text-muted-foreground">{timesSuffix()}</span>
-              </div>
-              <div class="flex-1 overflow-y-auto border border-border rounded bg-card/50 min-h-0">
-                <div class="space-y-1 p-2">
-                  {#each previewDates.slice(0, displayCount) as date, index}
-                    <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
-                      <Calendar class="h-4 w-4 text-muted-foreground" />
-                      <span class="font-mono">{index + 1}.</span>
-                      <span>{formatDate(date)}</span>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            </div>
-          {:else if showBasicSettings}
-            <div class="flex-1 flex items-center justify-center min-h-0">
-              <p class="text-sm text-muted-foreground">{generatingPreview()}</p>
-            </div>
-          {:else}
-            <div class="flex-1 flex items-center justify-center min-h-0">
-              <p class="text-sm text-muted-foreground">{recurrenceDisabledPreview()}</p>
-            </div>
-          {/if}
-        </section>
+      <!-- デスクトップ用プレビュー（右側） -->
+      <div class="hidden lg:block lg:col-span-2 space-y-4">
+        {@render PreviewSection()}
       </div>
     </div>
 
