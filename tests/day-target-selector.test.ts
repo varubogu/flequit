@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import DayTargetSelector from '$lib/components/day-target-selector.svelte';
+import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
 import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
 // メッセージファイルをモック
@@ -44,7 +44,7 @@ describe('DayTargetSelector', () => {
     // すべての曜日オプションが存在することを確認
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map(opt => opt.textContent);
-    
+
     expect(optionTexts).toContain('月曜日');
     expect(optionTexts).toContain('火曜日');
     expect(optionTexts).toContain('水曜日');
@@ -65,7 +65,7 @@ describe('DayTargetSelector', () => {
     const select = screen.getByRole('combobox');
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map(opt => opt.textContent);
-    
+
     expect(optionTexts).toContain('平日');
     expect(optionTexts).toContain('休日');
     expect(optionTexts).toContain('祝日');
@@ -94,7 +94,7 @@ describe('DayTargetSelector', () => {
 
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'weekend' } });
-    
+
     expect(mockOnChange).toHaveBeenCalledWith('weekend');
   });
 
@@ -108,7 +108,7 @@ describe('DayTargetSelector', () => {
 
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'holiday' } });
-    
+
     expect(mockOnChange).toHaveBeenCalledWith('holiday');
   });
 
@@ -122,7 +122,7 @@ describe('DayTargetSelector', () => {
 
     const select = screen.getByRole('combobox');
     fireEvent.change(select, { target: { value: 'wednesday' } });
-    
+
     expect(mockOnChange).toHaveBeenCalledWith('wednesday');
   });
 

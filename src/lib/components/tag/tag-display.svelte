@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Tag } from '$lib/types/task';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import { tagStore } from '$lib/stores/tags.svelte';
@@ -27,13 +27,13 @@
     class?: string;
   }
 
-  let { 
-    tag, 
-    showRemoveButton = false, 
-    onRemove, 
+  let {
+    tag,
+    showRemoveButton = false,
+    onRemove,
     onTagRemoveFromItem,
     enableTagRemoveFromContext = true,
-    class: className = '' 
+    class: className = ''
   }: Props = $props();
 
   // State for modals
@@ -55,7 +55,7 @@
   function handleTagEdit() {
     showEditDialog = true;
   }
-  
+
   function handleTagDelete() {
     showDeleteDialog = true;
   }
@@ -77,7 +77,7 @@
   }
 
   let isBookmarked = $derived(tagStore.bookmarkedTags.has(tag.id));
-  
+
   // Default color for tags without a color
   const DEFAULT_TAG_COLOR = '#6b7280'; // gray-500
   let tagColor = $derived(tag.color || DEFAULT_TAG_COLOR);
@@ -113,17 +113,17 @@
       </Badge>
     {/if}
   </ContextMenu.Trigger>
-  
+
   <ContextMenu.Content class="w-56">
     {#if enableTagRemoveFromContext && onTagRemoveFromItem}
       <ContextMenu.Item onclick={handleTagRemoveFromItem}>
         <Minus class="mr-2 h-4 w-4" />
         {removeTagFromItem()}
       </ContextMenu.Item>
-      
+
       <ContextMenu.Separator />
     {/if}
-    
+
     <ContextMenu.Item onclick={handleToggleBookmark}>
       {#if isBookmarked}
         <Bookmark class="mr-2 h-4 w-4" />
@@ -133,16 +133,16 @@
         {addTagToSidebar()}
       {/if}
     </ContextMenu.Item>
-    
+
     <ContextMenu.Separator />
-    
+
     <ContextMenu.Item onclick={handleTagEdit}>
       <Edit class="mr-2 h-4 w-4" />
       {editTag()}
     </ContextMenu.Item>
-    
+
     <ContextMenu.Separator />
-    
+
     <ContextMenu.Item onclick={handleTagDelete} class="text-destructive">
       <Trash2 class="mr-2 h-4 w-4" />
       {deleteTag()}
@@ -151,8 +151,8 @@
 </ContextMenu.Root>
 
 <!-- Edit Dialog -->
-<TagEditDialog 
-  open={showEditDialog} 
+<TagEditDialog
+  open={showEditDialog}
   {tag}
   onsave={handleEditSave}
   onclose={() => showEditDialog = false}

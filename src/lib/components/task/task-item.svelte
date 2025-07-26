@@ -6,7 +6,7 @@
     calculateSubTaskProgress,
   } from "$lib/utils/task-utils";
   import { TaskService } from "$lib/services/task-service";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/shared/button.svelte";
   import TaskStatusToggle from '$lib/components/task/task-status-toggle.svelte';
   import TaskContent from '$lib/components/task/task-content.svelte';
   import SubTaskList from '$lib/components/task/sub-task-list.svelte';

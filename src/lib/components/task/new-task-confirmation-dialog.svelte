@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
 
@@ -24,11 +24,11 @@
     <Dialog.Header>
       <Dialog.Title>{confirm_discard_changes()}</Dialog.Title>
     </Dialog.Header>
-    
+
     <Dialog.Description>
       {unsaved_task_message()}
     </Dialog.Description>
-    
+
     <Dialog.Footer>
       <Button variant="secondary" onclick={onCancel}>
         {keep_editing()}

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
   import type { Component } from 'svelte';
@@ -49,8 +49,8 @@
         {#if item.separator}
           <ContextMenu.Separator />
         {:else}
-          <ContextMenu.Item 
-            onselect={item.action} 
+          <ContextMenu.Item
+            onselect={item.action}
             disabled={item.disabled}
             class={item.destructive ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : ""}
           >

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Input from '$lib/components/ui/input.svelte';

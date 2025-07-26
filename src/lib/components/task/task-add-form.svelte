@@ -1,7 +1,7 @@
 <script lang="ts">
   import { TaskListService } from '$lib/services/task-list-service';
   import { TaskService } from '$lib/services/task-service';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -29,7 +29,7 @@
     // Get current list ID for new task mode
     const currentListId = getCurrentListId();
     if (!currentListId) return;
-    
+
     taskStore.startNewTaskMode(currentListId);
     if (newTaskTitle.trim()) {
       taskStore.updateNewTaskData({ title: newTaskTitle });
@@ -43,14 +43,14 @@
     if (taskStore.selectedListId) {
       return taskStore.selectedListId;
     }
-    
+
     // If no specific list is selected, find the first available list
     for (const project of taskStore.projects) {
       if (project.task_lists.length > 0) {
         return project.task_lists[0].id;
       }
     }
-    
+
     return null;
   }
 

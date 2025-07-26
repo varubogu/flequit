@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from "$lib/types/task";
   import { taskStore } from "$lib/stores/tasks.svelte";
-  import InlineDatePicker from "$lib/components/inline-date-picker.svelte";
+  import InlineDatePicker from "$lib/components/datetime/inline-date-picker.svelte";
 
   interface Props {
     task: TaskWithSubTasks;

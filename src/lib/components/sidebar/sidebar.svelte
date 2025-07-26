@@ -5,7 +5,7 @@
   import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
   import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
   import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
-  import UserProfile from '$lib/components/user-profile.svelte';
+  import UserProfile from '$lib/components/user/user-profile.svelte';
 
   interface Props {
     currentView?: ViewType;

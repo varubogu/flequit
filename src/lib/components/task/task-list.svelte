@@ -3,45 +3,45 @@
   import TaskAddForm from './task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { createEventDispatcher } from 'svelte';
-  
+
   interface Props {
     title?: string;
     tasks?: TaskWithSubTasks[];
     showAddButton?: boolean;
   }
-  
+
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
     subTaskSelectionRequested: { subTaskId: string };
   }>();
-  
-  let { 
-    title = 'Tasks', 
+
+  let {
+    title = 'Tasks',
     tasks = [],
-    showAddButton = false 
+    showAddButton = false
   }: Props = $props();
-  
+
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');
-  
+
   function toggleAddForm() {
     showAddForm = !showAddForm;
   }
-  
+
   function handleTaskAdded() {
     showAddForm = false;
   }
-  
+
   function handleCancel() {
     showAddForm = false;
   }
-  
+
   // Reactive messages
   const addTask = reactiveMessage(m.add_task);
   const noSearchResults = reactiveMessage(m.no_search_results);
@@ -61,7 +61,7 @@
           {taskCountText}
         </span>
         {#if showAddButton}
-          <Button 
+          <Button
             size="icon"
             onclick={toggleAddForm}
             title={addTask()}
@@ -72,7 +72,7 @@
         {/if}
       </div>
     </div>
-    
+
     <!-- Add Task Form -->
     {#if showAddForm}
       <TaskAddForm
@@ -81,7 +81,7 @@
       />
     {/if}
   </div>
-  
+
   <!-- Task List -->
   <div class="flex-1 overflow-auto p-4 min-w-0">
     {#if tasks.length === 0}
@@ -101,8 +101,8 @@
     {:else}
       <div class="space-y-3 min-w-0" data-testid="task-items">
         {#each tasks as task (task.id)}
-          <TaskItem 
-            {task} 
+          <TaskItem
+            {task}
             on:taskSelectionRequested={(event) => dispatch('taskSelectionRequested', event.detail)}
             on:subTaskSelectionRequested={(event) => dispatch('subTaskSelectionRequested', event.detail)}
           />

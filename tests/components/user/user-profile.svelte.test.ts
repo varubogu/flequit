@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import UserProfile from '$lib/components/user-profile.svelte';
+import UserProfile from '$lib/components/user/user-profile.svelte';
 
 const mockUser = {
   id: '1',
@@ -149,11 +149,11 @@ describe('UserProfile Component', () => {
         renderComponent({ user: mockUser });
         const toggleButton = screen.getByRole('button', { name: /John Doe/ });
         await fireEvent.click(toggleButton);
-    
+
         // Get the settings button from the menu
         const settingsButton = screen.getByRole('button', { name: /Settings/ });
         await fireEvent.click(settingsButton);
-    
+
         expect(onSettings).toHaveBeenCalledTimes(1);
         // The menu should close, so the "Switch Account" button (another menu item) should disappear
         expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();

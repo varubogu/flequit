@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Plus, X } from 'lucide-svelte';
-	import WeekdayConditionEditor from '../weekday-condition-editor.svelte';
+	import WeekdayConditionEditor from '../datetime/weekday-condition-editor.svelte';
 	import type { DateCondition, WeekdayCondition, DateRelation } from '$lib/types/task';
 	import * as m from '$paraglide/messages.js';
 	import { reactiveMessage } from '$lib/stores/locale.svelte';

@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { tick } from 'svelte';
-import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
+import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
 import type { RecurrenceRule } from '$lib/types/task';
 
 // Paraglideランタイムをモック
@@ -118,7 +118,7 @@ describe('RecurrenceDialogAdvanced', () => {
     // selectの選択肢を確認
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map(opt => opt.textContent);
-    
+
     expect(optionTexts).toContain('無効');
     expect(optionTexts).toContain('有効');
     expect(optionTexts).toContain('有効（高度）');
@@ -154,7 +154,7 @@ describe('RecurrenceDialogAdvanced', () => {
 
     // 基本設定が表示される（ヘッダーを確認）
     expect(screen.getByText('繰り返し間隔')).toBeTruthy();
-    
+
     // 補正条件は表示されない
     expect(() => screen.getByText('補正条件')).toThrow();
   });
@@ -176,7 +176,7 @@ describe('RecurrenceDialogAdvanced', () => {
 
     // 基本設定が表示される（ヘッダーを確認）
     expect(screen.getByText('繰り返し間隔')).toBeTruthy();
-    
+
     // 補正条件も表示される
     expect(screen.getByText('補正条件')).toBeTruthy();
   });
@@ -281,7 +281,7 @@ describe('RecurrenceDialogAdvanced', () => {
     // 繰り返し回数を設定
     const countInput = screen.getByPlaceholderText('無制限の場合は空欄') as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
-    
+
     // 入力値が正しく反映されることを確認
     expect(countInput.value).toBe('3');
 
@@ -318,7 +318,7 @@ describe('RecurrenceDialogAdvanced', () => {
       // setTimeout内の処理を待つ
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(countInput.value).toBe('58'); // DOM上では"."が無視されるため
-      
+
       // 保存される値を確認（自動保存）
       expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ max_occurrences: 58 }));
     });

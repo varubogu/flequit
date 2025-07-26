@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import WeekdayConditionEditor from '$lib/components/weekday-condition-editor.svelte';
+import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
 
 // Paraglideランタイムをモック
@@ -60,7 +60,7 @@ describe('WeekdayConditionEditor', () => {
     // 日本語の順序: [条件]なら[方向]の[対象]にずらす
     const container = screen.getByRole('button', { name: /remove condition/i }).parentElement;
     expect(container).toBeTruthy();
-    
+
     // "なら"、"の"、"にずらす"のテキストが存在することを確認
     expect(screen.getByText('なら')).toBeTruthy();
     expect(screen.getByText('の')).toBeTruthy();
@@ -97,10 +97,10 @@ describe('WeekdayConditionEditor', () => {
     // 最初のDayTargetSelectorを見つけてクリックしてoptionを選択
     const selects = screen.getAllByRole('combobox');
     const conditionSelect = selects[0];
-    
+
     // selectの値を変更
     fireEvent.change(conditionSelect, { target: { value: 'tuesday' } });
-    
+
     expect(mockOnUpdate).toHaveBeenCalledWith({ if_weekday: 'tuesday' });
   });
 
@@ -119,11 +119,11 @@ describe('WeekdayConditionEditor', () => {
       const options = select.querySelectorAll('option');
       return Array.from(options).some(option => option.textContent === '前' || option.textContent === '後');
     });
-    
+
     expect(directionSelect).toBeTruthy();
-    
+
     fireEvent.change(directionSelect!, { target: { value: 'previous' } });
-    
+
     expect(mockOnUpdate).toHaveBeenCalledWith({ then_direction: 'previous' });
   });
 
@@ -138,7 +138,7 @@ describe('WeekdayConditionEditor', () => {
 
     const removeButton = screen.getByRole('button', { name: /remove condition/i });
     fireEvent.click(removeButton);
-    
+
     expect(mockOnRemove).toHaveBeenCalled();
   });
 
@@ -158,10 +158,10 @@ describe('WeekdayConditionEditor', () => {
     // 対象のDayTargetSelectorを見つけてクリック
     const selects = screen.getAllByRole('combobox');
     const targetSelect = selects[selects.length - 1]; // 最後のselect（対象用）
-    
+
     fireEvent.change(targetSelect, { target: { value: 'saturday' } });
-    
-    expect(mockOnUpdate).toHaveBeenCalledWith({ 
+
+    expect(mockOnUpdate).toHaveBeenCalledWith({
       then_target: 'specific_weekday',
       then_weekday: 'saturday'
     });

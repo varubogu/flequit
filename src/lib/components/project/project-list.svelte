@@ -2,7 +2,7 @@
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { ChevronDown, ChevronRight, Plus } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Select from '$lib/components/ui/select.svelte';
   import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
   import { locales } from '$paraglide/runtime';
@@ -58,7 +58,7 @@
         <!-- Language -->
         <div>
           <label for="language-select" class="text-sm font-medium">{language()}</label>
-          <Select 
+          <Select
             id="language-select"
             value={localeStore.locale}
             onchange={handleLanguageChange}
@@ -73,9 +73,9 @@
         <!-- Week Start -->
         <div>
           <label for="week-start" class="text-sm font-medium">{weekStartsOn()}</label>
-          <select 
-            id="week-start" 
-            bind:value={settings.weekStart} 
+          <select
+            id="week-start"
+            bind:value={settings.weekStart}
             class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
           >
             <option value="sunday">{sunday()}</option>
@@ -86,9 +86,9 @@
         <!-- Timezone -->
         <div>
           <label for="timezone-select" class="text-sm font-medium">{timezone()}</label>
-          <select 
-            id="timezone-select" 
-            bind:value={settings.timezone} 
+          <select
+            id="timezone-select"
+            bind:value={settings.timezone}
             class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
           >
             {#each AVAILABLE_TIMEZONES as tz}

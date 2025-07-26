@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ProjectTree } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu';
   import * as m from '$paraglide/messages.js';

@@ -2,7 +2,7 @@
   import type { Project, TaskList } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 
@@ -14,12 +14,12 @@
     onClose?: () => void;
   }
 
-  let { 
-    open = false, 
-    currentProjectId = '', 
-    currentTaskListId = '', 
-    onSave, 
-    onClose 
+  let {
+    open = false,
+    currentProjectId = '',
+    currentTaskListId = '',
+    onSave,
+    onClose
   }: Props = $props();
 
   // Reactive messages
@@ -32,7 +32,7 @@
   let selectedProjectId = $state(currentProjectId);
   let selectedTaskListId = $state(currentTaskListId);
   let availableTaskLists = $derived(
-    selectedProjectId 
+    selectedProjectId
       ? taskStore.projects.find(p => p.id === selectedProjectId)?.task_lists || []
       : []
   );
@@ -65,12 +65,12 @@
     <Dialog.Header>
       <Dialog.Title>{selectProjectAndTaskList()}</Dialog.Title>
     </Dialog.Header>
-    
+
     <div class="space-y-4">
       <!-- プロジェクト選択 -->
       <div>
         <label for="project-select" class="text-sm font-medium mb-2 block">{project()}</label>
-        <select 
+        <select
           id="project-select"
           bind:value={selectedProjectId}
           class="w-full px-3 py-2 border rounded-md text-sm"
@@ -85,7 +85,7 @@
       <!-- タスクリスト選択 -->
       <div>
         <label for="tasklist-select" class="text-sm font-medium mb-2 block">{taskList()}</label>
-        <select 
+        <select
           id="tasklist-select"
           bind:value={selectedTaskListId}
           disabled={!selectedProjectId}
@@ -103,7 +103,7 @@
       <Button variant="outline" onclick={handleClose}>
         {cancel()}
       </Button>
-      <Button 
+      <Button
         onclick={handleSave}
         disabled={!selectedProjectId || !selectedTaskListId}
       >

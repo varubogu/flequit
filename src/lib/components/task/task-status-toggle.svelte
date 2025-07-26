@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { getStatusIcon } from '$lib/utils/task-utils';
   import type { TaskStatus } from '$lib/types/task';
 

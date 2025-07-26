@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import SettingsDraggableItems from '$lib/components/settings/settings-draggable-items.svelte';
-  import ConfirmDialog from '../confirm-dialog.svelte';
+  import ConfirmDialog from '../dialog/confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';

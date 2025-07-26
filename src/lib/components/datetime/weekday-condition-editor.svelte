@@ -68,7 +68,7 @@
       holiday: () => '祝日',
       non_holiday: () => '非祝日'
     };
-    
+
     if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
       return dayLabels[condition.then_weekday]?.() || condition.then_weekday;
     }
@@ -86,12 +86,12 @@
 
   function handleTargetChange(value: DayOfWeek | AdjustmentTarget) {
     if (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(value)) {
-      onUpdate({ 
+      onUpdate({
         then_target: 'specific_weekday',
         then_weekday: value as DayOfWeek
       });
     } else {
-      onUpdate({ 
+      onUpdate({
         then_target: value as AdjustmentTarget,
         then_weekday: undefined
       });
@@ -102,13 +102,13 @@
 <div class="flex items-center gap-2 p-3 border border-border rounded bg-card flex-wrap">
   {#if isJapanese}
     <!-- 日本語順：{条件}なら{方向}の{対象}にずらす -->
-    <DayTargetSelector 
+    <DayTargetSelector
       value={condition.if_weekday}
       onchange={handleConditionChange}
     />
     <span class="text-sm">なら</span>
-    
-    <select 
+
+    <select
       value={condition.then_direction}
       onchange={handleDirectionChange}
       class="p-1 border border-border rounded bg-background text-foreground"
@@ -118,8 +118,8 @@
       {/each}
     </select>
     <span class="text-sm">の</span>
-    
-    <DayTargetSelector 
+
+    <DayTargetSelector
       value={condition.then_target === 'specific_weekday' && condition.then_weekday ? condition.then_weekday : condition.then_target}
       onchange={handleTargetChange}
     />
@@ -127,13 +127,13 @@
   {:else}
     <!-- 英語順：If {条件}, move to {方向} {対象} -->
     <span class="text-sm">If</span>
-    <DayTargetSelector 
+    <DayTargetSelector
       value={condition.if_weekday}
       onchange={handleConditionChange}
     />
     <span class="text-sm">, move to</span>
-    
-    <select 
+
+    <select
       value={condition.then_direction}
       onchange={handleDirectionChange}
       class="p-1 border border-border rounded bg-background text-foreground"
@@ -142,14 +142,14 @@
         <option value={option.value}>{option.label()}</option>
       {/each}
     </select>
-    
-    <DayTargetSelector 
+
+    <DayTargetSelector
       value={condition.then_target === 'specific_weekday' && condition.then_weekday ? condition.then_weekday : condition.then_target}
       onchange={handleTargetChange}
     />
   {/if}
-  
-  <button 
+
+  <button
     type="button"
     onclick={onRemove}
     class="p-1 text-destructive hover:bg-destructive/10 rounded ml-auto"

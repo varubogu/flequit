@@ -5,7 +5,7 @@
   import DialogTitle from "$lib/components/ui/dialog-title.svelte";
   import DialogDescription from "$lib/components/ui/dialog-description.svelte";
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
-  import Button from "$lib/components/button.svelte";
+  import Button from "$lib/components/shared/button.svelte";
   import { Save, Trash2, X } from 'lucide-svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
@@ -16,12 +16,12 @@
     onDiscardAndContinue: () => void;
     onCancel: () => void;
   }
-  
-  let { 
-    show, 
+
+  let {
+    show,
     onSaveAndContinue,
     onDiscardAndContinue,
-    onCancel 
+    onCancel
   }: Props = $props();
 
   const save = reactiveMessage(m.save);
@@ -39,23 +39,23 @@
         {unsaved_task_message()}
       </DialogDescription>
     </DialogHeader>
-    
+
     <DialogFooter class="flex flex-row gap-2 justify-center">
       <Button size="icon" onclick={onSaveAndContinue} title={save()}>
         <Save class="h-4 w-4" />
       </Button>
-      <Button 
-        variant="secondary" 
+      <Button
+        variant="secondary"
         size="icon"
-        onclick={onDiscardAndContinue} 
+        onclick={onDiscardAndContinue}
         title={discard_changes()}
       >
         <Trash2 class="h-4 w-4" />
       </Button>
-      <Button 
-        variant="ghost" 
+      <Button
+        variant="ghost"
         size="icon"
-        onclick={onCancel} 
+        onclick={onCancel}
         title={cancel()}
       >
         <X class="h-4 w-4" />

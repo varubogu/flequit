@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks, TaskStatus, SubTask, RecurrenceRule } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
   import Card from '$lib/components/ui/card.svelte';
-  import InlineDatePicker from '$lib/components/inline-date-picker.svelte';
+  import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
   import TaskDetailHeader from './task-detail-header.svelte';
@@ -16,10 +16,10 @@
   import TaskDetailMetadata from './task-detail-metadata.svelte';
   import TaskDetailEmptyState from './task-detail-empty-state.svelte';
   import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmation-dialog.svelte';
-  import DeleteConfirmationDialog from '$lib/components/delete-confirmation-dialog.svelte';
+  import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
   import ProjectTaskListSelector from '$lib/components/project/project-task-list-selector.svelte';
   import ProjectTaskListSelectorDialog from '$lib/components/project/project-task-list-selector-dialog.svelte';
-  import RecurrenceDialogAdvanced from '$lib/components/recurrence-dialog-advanced.svelte';
+  import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);

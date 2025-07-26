@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
-  import DueDate from '$lib/components/due-date.svelte';
+  import DueDate from '$lib/components/datetime/due-date.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 

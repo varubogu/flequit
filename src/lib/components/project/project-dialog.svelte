@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog/index.js';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
@@ -20,7 +20,7 @@
 
   let name = $state(initialName);
   let color = $state(initialColor);
-  
+
   // Reactiveメッセージ
   const cancel = reactiveMessage(m.cancel);
   const save = reactiveMessage(m.save);

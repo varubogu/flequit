@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';

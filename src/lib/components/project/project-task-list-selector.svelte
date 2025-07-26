@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { Edit3 } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -13,7 +13,7 @@
   }
 
   let { projectInfo, onEdit }: Props = $props();
-  
+
   const project = reactiveMessage(m.project);
   const task_list = reactiveMessage(m.task_list);
   const change = reactiveMessage(m.change);

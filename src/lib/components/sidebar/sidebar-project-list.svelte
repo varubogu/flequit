@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import ProjectList from '$lib/components/project/project-list.svelte';

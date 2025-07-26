@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { contextMenuStore } from '$lib/stores/context-menu.svelte';
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
 
   let menuElement: HTMLElement;
   let { state } = contextMenuStore;

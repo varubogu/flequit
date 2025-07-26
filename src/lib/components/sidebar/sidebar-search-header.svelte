@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Button from '$lib/components/button.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import SearchCommand from '$lib/components/search-command.svelte';
+  import SearchCommand from '$lib/components/command/search-command.svelte';
   import { Search } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';

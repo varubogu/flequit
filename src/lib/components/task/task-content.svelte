@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/tag-display.svelte';
-  import DueDate from '$lib/components/due-date.svelte';
+  import DueDate from '$lib/components/datetime/due-date.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';

@@ -14,12 +14,12 @@
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
-  import RecurrenceLevelSelector from './recurrence/recurrence-level-selector.svelte';
-  import RecurrenceCountInput from './recurrence/recurrence-count-input.svelte';
-  import RecurrenceIntervalEditor from './recurrence/recurrence-interval-editor.svelte';
-  import RecurrenceAdjustmentEditor from './recurrence/recurrence-adjustment-editor.svelte';
+  import RecurrenceLevelSelector from './recurrence-level-selector.svelte';
+  import RecurrenceCountInput from './recurrence-count-input.svelte';
+  import RecurrenceIntervalEditor from './recurrence-interval-editor.svelte';
+  import RecurrenceAdjustmentEditor from './recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime-utils';
-  import RecurrencePreview from './recurrence/recurrence-preview.svelte';
+  import RecurrencePreview from './recurrence-preview.svelte';
 
   interface Props {
     open?: boolean;
