@@ -16,8 +16,9 @@ export class TaskStore {
   constructor() {
     // Listen for tag update events to avoid circular dependency
     if (typeof window !== 'undefined') {
-      window.addEventListener('tag-updated', (event: CustomEvent) => {
-        this.updateTagInAllTasks(event.detail);
+      window.addEventListener('tag-updated', (event: Event) => {
+        const customEvent = event as CustomEvent<Tag>;
+        this.updateTagInAllTasks(customEvent.detail);
       });
     }
   }
