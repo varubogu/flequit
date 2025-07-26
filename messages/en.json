@@ -230,5 +230,6 @@
     "next_execution_dates": "Next execution dates ({count} times{maxNote})",
     "generating_preview": "Generating preview...",
     "recurrence_disabled_preview": "Recurrence is disabled",
-    "max_times_display": ", max {max} times displayed"
+    "max_times_display": ", max {max} times displayed",
+    "preview_count": "Display count"
 }
