@@ -1,4 +1,4 @@
-import { test, expect, describe } from "vitest";
+import { test, expect, describe, vi } from "vitest";
 import {
   formatDate,
   formatDateTime,
@@ -7,7 +7,12 @@ import {
   getDueDateClass,
   formatDateTimeRange,
   formatDate1,
-  formatTime1
+  formatTime1,
+  hasTime,
+  formatTime,
+  formatDateJapanese,
+  formatSingleDate,
+  formatDateDisplayRange
 } from "../../src/lib/utils/datetime-utils";
 
 
@@ -33,9 +38,15 @@ test("formatDate: formats yesterday as 'Yesterday'", () => {
 });
 
 test("formatDate: formats other dates as locale string", () => {
+  // Mocking date to avoid timezone issues in CI/CD
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2024-01-20T10:00:00'));
+
   const date = new Date('2024-01-15');
   const result = formatDate(date);
-  expect(result).toContain('2024');
+  expect(result).toBe(date.toLocaleDateString());
+
+  vi.useRealTimers();
 });
 
 test("formatDateTime: formats date as locale string with time", () => {
@@ -95,6 +106,80 @@ test("getDueDateClass: returns normal class for completed overdue tasks", () => 
   expect(getDueDateClass(pastDate, 'completed')).toBe('text-muted-foreground');
 });
 
+describe('Internal datetime utility functions', () => {
+  describe('hasTime', () => {
+    test('should return true if date has hours or minutes', () => {
+      expect(hasTime(new Date('2024-01-01T01:00:00'))).toBe(true);
+      expect(hasTime(new Date('2024-01-01T00:01:00'))).toBe(true);
+    });
+    test('should return false if date has no time (midnight)', () => {
+      expect(hasTime(new Date('2024-01-01T00:00:00'))).toBe(false);
+    });
+    test('should return false for undefined date', () => {
+      expect(hasTime(undefined)).toBe(false);
+    });
+  });
+
+  describe('formatTime', () => {
+    test('should format time as HH:MM', () => {
+      const date = new Date('2024-01-15T09:05:00');
+      expect(formatTime(date)).toBe('09:05');
+    });
+    test('should pad single digit hours and minutes', () => {
+      const date = new Date('2024-01-15T01:02:00');
+      expect(formatTime(date)).toBe('01:02');
+    });
+  });
+
+  describe('formatDateJapanese', () => {
+    test('should format date in Japanese locale', () => {
+      const date = new Date('2025-07-26T00:00:00'); // A Saturday
+      expect(formatDateJapanese(date)).toBe('2025年7月26日(土)');
+    });
+  });
+
+  describe('formatSingleDate', () => {
+    test('should format date only when no time is provided', () => {
+      const date = new Date('2025-07-26T00:00:00');
+      expect(formatSingleDate(date, undefined)).toBe('2025年7月26日(土)');
+    });
+    test('should format date and time when time is provided', () => {
+      const date = new Date('2025-07-26T00:00:00');
+      const time = new Date('2025-07-26T14:30:00');
+      expect(formatSingleDate(date, time)).toBe('2025年7月26日(土) 14:30');
+    });
+  });
+
+  describe('formatDateDisplayRange', () => {
+    test('should format a single day with no time', () => {
+      const start = new Date('2025-07-26T00:00:00');
+      const end = new Date('2025-07-26T00:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土)');
+    });
+    test('should format a single day with start and end time', () => {
+      const start = new Date('2025-07-26T10:00:00');
+      const end = new Date('2025-07-26T18:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 10:00 〜 18:00');
+    });
+    test('should format a single day with only end time', () => {
+      const start = new Date('2025-07-26T00:00:00');
+      const end = new Date('2025-07-26T18:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 〜 18:00');
+    });
+    test('should format a multi-day range with no time', () => {
+      const start = new Date('2025-07-26T00:00:00');
+      const end = new Date('2025-07-27T00:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 〜 2025年7月27日(日)');
+    });
+    test('should format a multi-day range with time', () => {
+      const start = new Date('2025-07-26T10:00:00');
+      const end = new Date('2025-07-28T18:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 10:00 〜 2025年7月28日(月) 18:00');
+    });
+  });
+});
+
+
 describe('formatDateTimeRange', () => {
   const baseDate = new Date('2025-07-26T00:00:00'); // A Saturday
 
@@ -136,6 +221,20 @@ describe('formatDateTimeRange', () => {
     const endDateTime = new Date('2025-07-27T00:00:00');
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
     expect(result).toBe('2025年7月26日(土) 〜 2025年7月27日(日)');
+  });
+
+  test('should handle range with only start time', () => {
+    const startDateTime = new Date('2025-07-26T10:00:00');
+    const endDateTime = new Date('2025-07-26T00:00:00'); // No end time
+    const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
+    expect(result).toBe('2025年7月26日(土) 10:00 〜');
+  });
+
+  test('should handle range with only end time', () => {
+    const startDateTime = new Date('2025-07-26T00:00:00'); // No start time
+    const endDateTime = new Date('2025-07-26T18:00:00');
+    const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
+    expect(result).toBe('2025年7月26日(土) 〜 18:00');
   });
 });
 
@@ -279,4 +378,18 @@ describe('date-time utils', () => {
       expect(formatTime1(futureDate)).toBe('23:59:59');
     });
   });
+});
+
+
+test('formatDateForInput should handle different timezones correctly', () => {
+  // A date that might shift if not handled as local
+  const date = new Date('2024-01-01T02:00:00');
+  expect(formatDateForInput(date)).toBe('2024-01-01');
+
+  const dateUTC = new Date('2023-12-31T23:00:00Z'); // This is 2024-01-01 in some timezones
+  const expectedYear = dateUTC.getFullYear();
+  const expectedMonth = String(dateUTC.getMonth() + 1).padStart(2, '0');
+  const expectedDay = String(dateUTC.getDate()).padStart(2, '0');
+
+  expect(formatDateForInput(dateUTC)).toBe(`${expectedYear}-${expectedMonth}-${expectedDay}`);
 });

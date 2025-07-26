@@ -57,15 +57,15 @@ export function getDueDateClass(date: Date | undefined, status?: string): string
   }
 }
 
-function hasTime(date?: Date): boolean {
+export function hasTime(date?: Date): boolean {
   return !!date && (date.getHours() !== 0 || date.getMinutes() !== 0);
 }
 
-function formatTime(date: Date): string {
+export function formatTime(date: Date): string {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-function formatDateJapanese(date: Date): string {
+export function formatDateJapanese(date: Date): string {
   return date.toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: 'short',
@@ -74,7 +74,7 @@ function formatDateJapanese(date: Date): string {
   });
 }
 
-function formatSingleDate(date: Date, time?: Date): string {
+export function formatSingleDate(date: Date, time?: Date): string {
   const baseFormatted = formatDateJapanese(date);
   if (hasTime(time)) {
     return `${baseFormatted} ${formatTime(time!)}`;
@@ -82,7 +82,7 @@ function formatSingleDate(date: Date, time?: Date): string {
   return baseFormatted;
 }
 
-function formatDateDisplayRange(start: Date, end: Date): string {
+export function formatDateDisplayRange(start: Date, end: Date): string {
   const startFormatted = formatDateJapanese(start);
   const endFormatted = formatDateJapanese(end);
 
@@ -111,7 +111,9 @@ export function formatDateTimeRange(
 
   if (isRangeDate && startDateTime && endDateTime) {
     const rangeStartDate = new Date(date);
-    const originalDayDiff = Math.floor((endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60 * 60 * 24));
+    const startDateOnly = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
+    const endDateOnly = new Date(endDateTime.getFullYear(), endDateTime.getMonth(), endDateTime.getDate());
+    const originalDayDiff = Math.round((endDateOnly.getTime() - startDateOnly.getTime()) / (1000 * 60 * 60 * 24));
     
     rangeStartDate.setHours(startDateTime.getHours(), startDateTime.getMinutes(), 0, 0);
 
