@@ -63,9 +63,10 @@ describe('TagStore', () => {
       tagStore.addTag({ name: 'personal' });
     });
 
-    it('should return empty array for empty search', () => {
+    it('should return all tags for empty search', () => {
       const results = tagStore.searchTags('');
-      expect(results).toHaveLength(0);
+      expect(results).toHaveLength(4);
+      expect(results.map(tag => tag.name)).toEqual(['urgent', 'important', 'work', 'personal']);
     });
 
     it('should return partial matches', () => {

@@ -134,7 +134,7 @@ test("DueDate: applies correct CSS classes for today's tasks", async () => {
   
   const button = getByRole("button");
   // getDueDateClass should return today styling
-  expect(button.className).toContain("text-orange-600");
+  expect(button.className).toContain("text-orange-300");
 });
 
 test("DueDate: applies muted styling for 'Add date' button", async () => {

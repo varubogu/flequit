@@ -96,7 +96,7 @@ describe('TaskDetailHeader Component', () => {
       onDelete
     });
 
-    const deleteButton = screen.getByTitle('Delete');
+    const deleteButton = screen.getByTitle('Delete Task');
     await fireEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);
@@ -125,7 +125,7 @@ describe('TaskDetailHeader Component', () => {
       onDelete
     });
 
-    const deleteButton = screen.getByTitle('Delete');
+    const deleteButton = screen.getByTitle('Delete Task');
     expect(deleteButton).toBeInTheDocument();
     expect(deleteButton.querySelector('.lucide-trash-2')).toBeInTheDocument();
   });

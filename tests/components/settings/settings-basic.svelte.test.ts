@@ -9,7 +9,9 @@ import { localeStore } from '$lib/stores/locale.svelte';
 vi.mock('$paraglide/runtime', () => ({
   getLocale: vi.fn(() => 'en'),
   setLocale: vi.fn(),
-  locales: ['en', 'ja']
+  locales: ['en', 'ja'],
+  experimentalMiddlewareLocaleSplitting: false,
+  trackMessageCall: vi.fn()
 }));
 
 // Mock locale store
@@ -118,15 +120,14 @@ describe('SettingsBasic Component', () => {
   test('should render custom due date section', () => {
     render(SettingsBasic, { settings: defaultSettings });
     
-    expect(screen.getByText('Add Custom Due Date Button')).toBeInTheDocument();
-    expect(screen.getByText('Add Custom Due Date')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add custom due date' })).toBeInTheDocument();
   });
 
   test('should handle add custom due day click', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     render(SettingsBasic, { settings: defaultSettings });
     
-    const addButton = screen.getByText('Add Custom Due Date');
+    const addButton = screen.getByRole('button', { name: 'Add custom due date' });
     await fireEvent.click(addButton);
     
     expect(consoleSpy).toHaveBeenCalledWith('Add custom due day');

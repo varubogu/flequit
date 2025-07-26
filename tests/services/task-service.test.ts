@@ -12,7 +12,13 @@ vi.mock("../../src/lib/stores/tasks.svelte", () => ({
     deleteTask: vi.fn(),
     addTask: vi.fn(),
     updateSubTask: vi.fn(),
-    deleteSubTask: vi.fn()
+    deleteSubTask: vi.fn(),
+    getTaskById: vi.fn(() => ({
+      id: 'task-123',
+      title: 'Test Task',
+      status: 'not_started',
+      recurrence_rule: null
+    }))
   }
 }));
 
