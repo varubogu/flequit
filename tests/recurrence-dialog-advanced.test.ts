@@ -253,4 +253,53 @@ describe('RecurrenceDialogAdvanced', () => {
       })
     );
   });
+
+  describe('Recurrence Count Input Validation', () => {
+    let countInput: HTMLInputElement;
+
+    beforeEach(() => {
+      render(RecurrenceDialogAdvanced, {
+        props: {
+          open: true,
+          onSave: mockOnSave,
+          onOpenChange: mockOnOpenChange
+        }
+      });
+      // 有効に変更
+      const select = screen.getByDisplayValue('無効');
+      fireEvent.change(select, { target: { value: 'enabled' } });
+      countInput = screen.getByPlaceholderText('無制限の場合は空白') as HTMLInputElement;
+    });
+
+    it('小数点を入力すると整数に丸められる', async () => {
+      await fireEvent.input(countInput, { target: { value: '5.8' } });
+      // setTimeout内の処理を待つ
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(countInput.value).toBe('58'); // DOM上では"."が無視されるため
+      
+      // 保存される値を確認
+      const saveButton = screen.getByText('保存');
+      await fireEvent.click(saveButton);
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ max_occurrences: 58 }));
+    });
+
+    it('0を入力するとフィールドがクリアされる', async () => {
+      await fireEvent.input(countInput, { target: { value: '0' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(countInput.value).toBe('');
+    });
+
+    it('負の数を入力するとフィールドがクリアされる', async () => {
+      await fireEvent.input(countInput, { target: { value: '-5' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(countInput.value).toBe('');
+    });
+
+    it('不正な文字を含む文字列を貼り付けると数字のみが残る', async () => {
+      await fireEvent.input(countInput, { target: { value: '+dfs/*=5f-8' } });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(countInput.value).toBe('58');
+    });
+  });
+});
 });
