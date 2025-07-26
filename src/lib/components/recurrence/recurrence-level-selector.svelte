@@ -22,9 +22,9 @@
   ];
 </script>
 
-<section class="space-y-3">
-  <h3 class="text-lg font-semibold">{recurrence()}</h3>
-  <div>
+<div class="flex items-center gap-4">
+  <h3 class="text-lg font-semibold w-32 flex-shrink-0">{recurrence()}</h3>
+  <div class="flex-1">
     <select
       bind:value
       class="w-full p-2 border border-border rounded bg-background text-foreground"
@@ -35,4 +35,4 @@
       {/each}
     </select>
   </div>
-</section>
+</div>

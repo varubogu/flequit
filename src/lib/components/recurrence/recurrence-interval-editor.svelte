@@ -23,9 +23,7 @@
 		ontoggleDayOfWeek
 	}: Props = $props();
 
-	const repeatEvery = reactiveMessage(m.repeat_every);
 	const recurrenceInterval = reactiveMessage(m.recurrence_interval);
-	const unitLabel = reactiveMessage(m.unit);
 	const repeatWeekdays = reactiveMessage(m.repeat_weekdays);
 	const advancedSettings = reactiveMessage(m.advanced_settings);
 	const specificDate = reactiveMessage(m.specific_date);
@@ -66,26 +64,21 @@
 	const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
 </script>
 
-<section class="space-y-3">
-	<h3 class="text-lg font-semibold">{recurrenceInterval()}</h3>
-	<div class="grid grid-cols-2 gap-4">
-		<div>
-			<label for="interval-input">{repeatEvery()}</label>
+<div class="space-y-3">
+	<div class="flex items-center gap-4">
+		<h3 class="text-lg font-semibold w-32 flex-shrink-0">{recurrenceInterval()}</h3>
+		<div class="flex-1 flex items-center gap-4">
 			<input
-				id="interval-input"
 				type="number"
 				bind:value={interval}
 				min="1"
-				class="w-full p-2 border border-border rounded bg-background text-foreground"
+				class="flex-1 p-2 border border-border rounded bg-background text-foreground"
 				oninput={onchange}
+				placeholder="1"
 			/>
-		</div>
-		<div>
-			<label for="unit-select">{unitLabel()}</label>
 			<select
-				id="unit-select"
 				bind:value={unit}
-				class="w-full p-2 border border-border rounded bg-background text-foreground"
+				class="w-32 p-2 border border-border rounded bg-background text-foreground"
 				onchange={onchange}
 			>
 				{#each unitOptions as option}
@@ -97,35 +90,41 @@
 
 	<!-- 週単位の曜日選択 -->
 	{#if unit === 'week'}
+		<div class="pl-36">
 			<div role="group" aria-labelledby="weekdays-label">
-		<span id="weekdays-label" class="block mb-2">{repeatWeekdays()}</span>
-		<div class="grid grid-cols-7 gap-2">
-			{#each dayOfWeekOptions as dayOption}
-				<button
-					type="button"
-					class="p-2 text-sm border border-border rounded {daysOfWeek.includes(
-						dayOption.value as DayOfWeek
-					)
-						? 'bg-primary text-primary-foreground'
-						: 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
-					onclick={() => ontoggleDayOfWeek?.(dayOption.value as DayOfWeek)}
-				>
-					{dayOption.label().slice(0, 1)}
-				</button>
-			{/each}
+				<span id="weekdays-label" class="block mb-2 text-sm text-muted-foreground">
+					{repeatWeekdays()}
+				</span>
+				<div class="grid grid-cols-7 gap-2">
+					{#each dayOfWeekOptions as dayOption}
+						<button
+							type="button"
+							class="p-2 text-sm border border-border rounded {daysOfWeek.includes(
+								dayOption.value as DayOfWeek
+							)
+								? 'bg-primary text-primary-foreground'
+								: 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
+							onclick={() => ontoggleDayOfWeek?.(dayOption.value as DayOfWeek)}
+						>
+							{dayOption.label().slice(0, 1)}
+						</button>
+					{/each}
+				</div>
+			</div>
 		</div>
-	</div>
 	{/if}
 
 	<!-- 複雑な単位の詳細設定 -->
 	{#if showAdvancedSettings && isComplexUnit}
-		<div class="space-y-3">
+		<div class="pl-36 space-y-3">
 			<h4 class="font-medium">{advancedSettings()}</h4>
 
 			<div class="grid grid-cols-2 gap-4">
 				<!-- 特定日付 -->
 				<div>
-					<label for="specific-date-input">{specificDate()}</label>
+					<label for="specific-date-input" class="text-sm text-muted-foreground">
+						{specificDate()}
+					</label>
 					<input
 						id="specific-date-input"
 						type="number"
@@ -140,7 +139,9 @@
 
 				<!-- 第◯週の指定 -->
 				<div>
-					<label for="week-of-period-select">{weekOfMonth()}</label>
+					<label for="week-of-period-select" class="text-sm text-muted-foreground">
+						{weekOfMonth()}
+					</label>
 					<select
 						id="week-of-period-select"
 						bind:value={details.week_of_period}
@@ -157,7 +158,9 @@
 
 			{#if details.week_of_period}
 				<div>
-					<label for="weekday-of-week-select">{weekdayOfWeek()}</label>
+					<label for="weekday-of-week-select" class="text-sm text-muted-foreground">
+						{weekdayOfWeek()}
+					</label>
 					<select
 						id="weekday-of-week-select"
 						bind:value={details.weekday_of_week}
@@ -172,4 +175,4 @@
 			{/if}
 		</div>
 	{/if}
-</section>
+</div>

@@ -90,9 +90,9 @@
   }
 </script>
 
-<section class="space-y-3">
-  <h3 class="text-lg font-semibold">{repeatCountLabel()}</h3>
-  <div>
+<div class="flex items-center gap-4">
+  <h3 class="text-lg font-semibold w-32 flex-shrink-0">{repeatCountLabel()}</h3>
+  <div class="flex-1">
     <input
       type="number"
       value={inputValue}
@@ -105,4 +105,4 @@
     />
     <p class="text-sm text-muted-foreground mt-1">{infiniteRepeatDescription()}</p>
   </div>
-</section>
+</div>
