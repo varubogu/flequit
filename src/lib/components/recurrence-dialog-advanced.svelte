@@ -314,7 +314,7 @@
 </script>
 
 {#snippet PreviewSection()}
-  <section class="h-[240px] lg:h-[300px] flex flex-col">
+  <section class="h-[280px] flex flex-col">
     <div class="mb-3 flex-shrink-0">
       <h3 class="text-lg font-semibold">{preview()}</h3>
     </div>
@@ -357,7 +357,7 @@
 {/snippet}
 
 <Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="!max-w-none !w-[1400px] max-h-[90vh] overflow-y-auto z-[60]">
+  <Dialog.Content class="!w-[90vw] !max-w-[1200px] max-h-[85vh] overflow-y-auto z-[60]">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />
@@ -365,9 +365,9 @@
       </Dialog.Title>
     </Dialog.Header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <!-- 左側：設定パネル -->
-      <div class="lg:col-span-3 space-y-6">
+    <div class="flex flex-wrap gap-6">
+      <!-- 設定パネル -->
+      <div class="flex-1 min-w-[480px] space-y-6">
 
         <!-- 1. 繰り返し設定レベル -->
         <section class="space-y-3">
@@ -582,16 +582,14 @@
           {/if}
         {/if}
 
-        <!-- モバイル用プレビュー（左ペイン最下層） -->
-        <div class="lg:hidden">
-          {@render PreviewSection()}
-        </div>
       </div>
 
-      <!-- デスクトップ用プレビュー（右側） -->
-      <div class="hidden lg:block lg:col-span-2 space-y-4">
-        {@render PreviewSection()}
-      </div>
+      <!-- プレビューパネル -->
+      {#if showBasicSettings}
+        <div class="w-[480px] min-w-[480px] flex-shrink-0">
+          {@render PreviewSection()}
+        </div>
+      {/if}
     </div>
 
   </Dialog.Content>
