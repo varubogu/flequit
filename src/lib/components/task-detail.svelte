@@ -449,7 +449,6 @@
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
-  onRecurrenceEdit={handleRecurrenceEdit}
 />
 
 <!-- Confirmation dialog for new task mode -->
