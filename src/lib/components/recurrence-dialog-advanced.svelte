@@ -188,6 +188,7 @@
             {showBasicSettings}
             {previewDates}
             bind:displayCount
+            {repeatCount}
             formatDate={(date) => formatDateTimeRange(date, { startDateTime, endDateTime, isRangeDate })}
           />
         </div>

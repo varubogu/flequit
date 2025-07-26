@@ -1,19 +1,22 @@
 <script lang="ts">
 	import * as m from '$paraglide/messages.js';
 	import { reactiveMessage } from '$lib/stores/locale.svelte';
+	import { cn } from '$lib/utils';
 
 	type Props = {
 		showBasicSettings: boolean;
 		previewDates: Date[];
 		displayCount: number;
 		formatDate: (date: Date) => string;
+		repeatCount?: number;
 	};
 
 	let {
 		showBasicSettings,
 		previewDates,
 		displayCount = $bindable(),
-		formatDate
+		formatDate,
+		repeatCount
 	}: Props = $props();
 
 	const preview = reactiveMessage(m.preview);
@@ -45,7 +48,12 @@
 			<div class="flex-1 overflow-y-auto border border-border rounded bg-card/50 min-h-0">
 				<div class="space-y-1 p-2">
 					{#each previewDates.slice(0, displayCount) as date, index}
-						<div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
+						<div
+							class={cn(
+								'flex items-center gap-2 p-2 bg-muted rounded text-sm',
+								repeatCount && index >= repeatCount && 'text-muted-foreground'
+							)}
+						>
 							<span class="font-mono flex-shrink-0 w-8">{index + 1}.</span>
 							<span class="flex-1">{formatDate(date)}</span>
 						</div>
