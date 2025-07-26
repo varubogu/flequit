@@ -23,6 +23,38 @@
 		ontoggleDayOfWeek
 	}: Props = $props();
 
+	let inputValue = $state(String(interval));
+
+	$effect(() => {
+		const parentValueStr = String(interval);
+		if (parentValueStr !== inputValue) {
+			inputValue = parentValueStr;
+		}
+	});
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+		if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) return;
+		if (!/^[0-9]$/.test(event.key)) event.preventDefault();
+	}
+
+	function handleInput(event: Event) {
+		const target = event.target as HTMLInputElement;
+		setTimeout(() => {
+			const sanitizedInput = target.value.replace(/[^0-9]/g, '');
+			if (target.value !== sanitizedInput) target.value = sanitizedInput;
+			
+			inputValue = sanitizedInput;
+
+			if (sanitizedInput === '' || parseInt(sanitizedInput, 10) < 1) {
+				interval = 1;
+			} else {
+				interval = parseInt(sanitizedInput, 10);
+			}
+			if (onchange) onchange(event);
+		}, 0);
+	}
+
 	const recurrenceInterval = reactiveMessage(m.recurrence_interval);
 	const repeatWeekdays = reactiveMessage(m.repeat_weekdays);
 	const advancedSettings = reactiveMessage(m.advanced_settings);
@@ -70,10 +102,12 @@
 		<div class="flex-1 flex items-center gap-4">
 			<input
 				type="number"
-				bind:value={interval}
+				value={inputValue}
+				onkeydown={handleKeyDown}
+				oninput={handleInput}
 				min="1"
+				step="1"
 				class="flex-1 p-2 border border-border rounded bg-background text-foreground"
-				oninput={onchange}
 				placeholder="1"
 			/>
 			<select

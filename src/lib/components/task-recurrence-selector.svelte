@@ -22,7 +22,7 @@
     if (!rule) return noRecurrence();
     
     const unit = getUnitText(rule.unit);
-    const interval = rule.interval;
+    const interval = rule.interval ?? '?';
     
     let text = `${interval}${unit}ごと`;
     
