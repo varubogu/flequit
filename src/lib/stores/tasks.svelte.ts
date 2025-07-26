@@ -13,6 +13,15 @@ export class TaskStore {
   pendingTaskSelection = $state<string | null>(null);
   pendingSubTaskSelection = $state<string | null>(null);
   
+  constructor() {
+    // Listen for tag update events to avoid circular dependency
+    if (typeof window !== 'undefined') {
+      window.addEventListener('tag-updated', (event: CustomEvent) => {
+        this.updateTagInAllTasks(event.detail);
+      });
+    }
+  }
+  
   // Computed values
   get selectedTask(): TaskWithSubTasks | null {
     if (!this.selectedTaskId) return null;

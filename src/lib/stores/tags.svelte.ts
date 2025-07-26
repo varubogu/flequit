@@ -72,10 +72,12 @@ export class TagStore {
         updated_at: new Date()
       };
       
-      // Import taskStore dynamically to avoid circular dependency
-      import('./tasks.svelte').then(({ taskStore }) => {
-        taskStore.updateTagInAllTasks(this.tags[tagIndex]);
-      });
+      // Dispatch custom event to notify task store about tag update
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tag-updated', { 
+          detail: this.tags[tagIndex] 
+        }));
+      }
     }
   }
   
