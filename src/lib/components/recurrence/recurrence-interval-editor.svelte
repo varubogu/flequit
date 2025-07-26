@@ -46,13 +46,13 @@
 	];
 
 	const dayOfWeekOptions = [
-		{ value: 'sunday', label: '日曜日' },
-		{ value: 'monday', label: '月曜日' },
-		{ value: 'tuesday', label: '火曜日' },
-		{ value: 'wednesday', label: '水曜日' },
-		{ value: 'thursday', label: '木曜日' },
-		{ value: 'friday', label: '金曜日' },
-		{ value: 'saturday', label: '土曜日' }
+		{ value: 'sunday', label: reactiveMessage(m.sunday) },
+		{ value: 'monday', label: reactiveMessage(m.monday) },
+		{ value: 'tuesday', label: reactiveMessage(m.tuesday) },
+		{ value: 'wednesday', label: reactiveMessage(m.wednesday) },
+		{ value: 'thursday', label: reactiveMessage(m.thursday) },
+		{ value: 'friday', label: reactiveMessage(m.friday) },
+		{ value: 'saturday', label: reactiveMessage(m.saturday) }
 	];
 
 	const weekOfMonthOptions = [
@@ -110,7 +110,7 @@
 						: 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
 					onclick={() => ontoggleDayOfWeek?.(dayOption.value as DayOfWeek)}
 				>
-					{dayOption.label.slice(0, 1)}
+					{dayOption.label().slice(0, 1)}
 				</button>
 			{/each}
 		</div>
@@ -165,7 +165,7 @@
 						onchange={onchange}
 					>
 						{#each dayOfWeekOptions as option}
-							<option value={option.value}>{option.label}</option>
+							<option value={option.value}>{option.label()}</option>
 						{/each}
 					</select>
 				</div>
