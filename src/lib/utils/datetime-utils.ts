@@ -57,6 +57,48 @@ export function getDueDateClass(date: Date | undefined, status?: string): string
   }
 }
 
+function hasTime(date?: Date): boolean {
+  return !!date && (date.getHours() !== 0 || date.getMinutes() !== 0);
+}
+
+function formatTime(date: Date): string {
+  return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+}
+
+function formatDateJapanese(date: Date): string {
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    weekday: 'short'
+  });
+}
+
+function formatSingleDate(date: Date, time?: Date): string {
+  const baseFormatted = formatDateJapanese(date);
+  if (hasTime(time)) {
+    return `${baseFormatted} ${formatTime(time!)}`;
+  }
+  return baseFormatted;
+}
+
+function formatDateDisplayRange(start: Date, end: Date): string {
+  const startFormatted = formatDateJapanese(start);
+  const endFormatted = formatDateJapanese(end);
+
+  const startTime = hasTime(start) ? ` ${formatTime(start)}` : '';
+  const endTime = hasTime(end) ? ` ${formatTime(end)}` : '';
+
+  if (start.toDateString() === end.toDateString()) {
+    if (startTime || endTime) {
+      return `${startFormatted}${startTime} 〜${endTime}`;
+    }
+    return startFormatted;
+  } else {
+    return `${startFormatted}${startTime} 〜 ${endFormatted}${endTime}`;
+  }
+}
+
 export function formatDateTimeRange(
   date: Date,
   options: {
@@ -67,50 +109,34 @@ export function formatDateTimeRange(
 ): string {
   const { startDateTime, endDateTime, isRangeDate } = options;
 
-  const baseFormatted = date.toLocaleDateString('ja-JP', {
-    year: 'numeric', month: 'short', day: 'numeric', weekday: 'short'
-  });
-  const hasStartTime = startDateTime && (startDateTime.getHours() !== 0 || startDateTime.getMinutes() !== 0);
-  const hasEndTime = endDateTime && (endDateTime.getHours() !== 0 || endDateTime.getMinutes() !== 0);
   if (isRangeDate && startDateTime && endDateTime) {
-    const startDate = new Date(date);
-    const endDate = new Date(date);
+    const rangeStartDate = new Date(date);
     const originalDayDiff = Math.floor((endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60 * 60 * 24));
-    endDate.setDate(endDate.getDate() + originalDayDiff);
-    startDate.setHours(startDateTime.getHours(), startDateTime.getMinutes(), 0, 0);
-    endDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
-    const isSameDay = startDate.toDateString() === endDate.toDateString();
-    if (isSameDay) {
-      const startTime = hasStartTime ? ` ${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '';
-      const endTime = hasEndTime ? `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}` : '';
-      if (startTime || endTime) {
-        return `${baseFormatted}${startTime} 〜 ${endTime}`;
-      }
-      return baseFormatted;
-    } else {
-      const startFormatted = startDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' });
-      const endFormatted = endDate.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' });
-      const startTime = hasStartTime ? ` ${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}` : '';
-      const endTime = hasEndTime ? ` ${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}` : '';
-      return `${startFormatted}${startTime} 〜 ${endFormatted}${endTime}`;
-    }
-  } else if (endDateTime) {
-    const targetDate = new Date(date);
-    targetDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
-    let result = baseFormatted;
-    if (hasEndTime) {
-      result = `${baseFormatted} ${targetDate.getHours().toString().padStart(2, '0')}:${targetDate.getMinutes().toString().padStart(2, '0')}`;
-    }
-    return result;
-  } else {
-    return baseFormatted;
+    
+    rangeStartDate.setHours(startDateTime.getHours(), startDateTime.getMinutes(), 0, 0);
+
+    const rangeEndDate = new Date(rangeStartDate);
+    rangeEndDate.setDate(rangeStartDate.getDate() + originalDayDiff);
+    rangeEndDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
+    
+    return formatDateDisplayRange(rangeStartDate, rangeEndDate);
   }
-}export function formatTime1(date: Date): string {
+
+  if (endDateTime) {
+    return formatSingleDate(date, endDateTime);
+  }
+
+  return formatDateJapanese(date);
+}
+
+export function formatTime1(date: Date): string {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
   return `${hours}:${minutes}:${seconds}`;
-}export function formatDate1(date: Date): string {
+}
+
+export function formatDate1(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
