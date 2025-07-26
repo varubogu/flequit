@@ -55,6 +55,7 @@
 
   // プレビュー
   let previewDates = $state<Date[]>([]);
+  const maxPreviewCount = 5;
 
   // リアクティブメッセージ
   const recurrenceSettings = reactiveMessage(m.recurrence_settings);
@@ -66,6 +67,22 @@
   const repeatEvery = reactiveMessage(m.repeat_every);
   const infiniteRepeatPlaceholder = reactiveMessage(m.infinite_repeat_placeholder);
   const infiniteRepeatDescription = reactiveMessage(m.infinite_repeat_description);
+  const recurrenceInterval = reactiveMessage(m.recurrence_interval);
+  const unitLabel = reactiveMessage(m.unit);
+  const repeatWeekdays = reactiveMessage(m.repeat_weekdays);
+  const advancedSettings = reactiveMessage(m.advanced_settings);
+  const specificDate = reactiveMessage(m.specific_date);
+  const specificDateExample = reactiveMessage(m.specific_date_example);
+  const weekOfMonth = reactiveMessage(m.week_of_month);
+  const noSelection = reactiveMessage(m.no_selection);
+  const weekdayOfWeek = reactiveMessage(m.weekday_of_week);
+  const adjustmentConditions = reactiveMessage(m.adjustment_conditions);
+  const dateConditionsLabel = reactiveMessage(m.date_conditions);
+  const weekdayConditionsLabel = reactiveMessage(m.weekday_conditions);
+  const add = reactiveMessage(m.add);
+  const preview = reactiveMessage(m.preview);
+  const generatingPreview = reactiveMessage(m.generating_preview);
+  const recurrenceDisabledPreview = reactiveMessage(m.recurrence_disabled_preview);
 
   // 選択肢
   const recurrenceLevelOptions = [
@@ -75,14 +92,14 @@
   ];
 
   const unitOptions = [
-    { value: 'minute', label: '分' },
-    { value: 'hour', label: '時間' },
-    { value: 'day', label: '日' },
-    { value: 'week', label: '週' },
-    { value: 'month', label: '月' },
-    { value: 'quarter', label: '四半期' },
-    { value: 'half_year', label: '半期' },
-    { value: 'year', label: '年' }
+    { value: 'minute', label: reactiveMessage(m.minute) },
+    { value: 'hour', label: reactiveMessage(m.hour) },
+    { value: 'day', label: reactiveMessage(m.day) },
+    { value: 'week', label: reactiveMessage(m.week) },
+    { value: 'month', label: reactiveMessage(m.month) },
+    { value: 'quarter', label: reactiveMessage(m.quarter) },
+    { value: 'half_year', label: reactiveMessage(m.half_year) },
+    { value: 'year', label: reactiveMessage(m.year) }
   ];
 
   const dayOfWeekOptions = [
@@ -96,18 +113,18 @@
   ];
 
   const weekOfMonthOptions = [
-    { value: 'first', label: '第1' },
-    { value: 'second', label: '第2' },
-    { value: 'third', label: '第3' },
-    { value: 'fourth', label: '第4' },
-    { value: 'last', label: '最後' }
+    { value: 'first', label: reactiveMessage(m.first_week) },
+    { value: 'second', label: reactiveMessage(m.second_week) },
+    { value: 'third', label: reactiveMessage(m.third_week) },
+    { value: 'fourth', label: reactiveMessage(m.fourth_week) },
+    { value: 'last', label: reactiveMessage(m.last_week) }
   ];
 
   const dateRelationOptions = [
-    { value: 'before', label:'より前' },
-    { value: 'on_or_before', label: '以前' },
-    { value: 'on_or_after', label: '以降' },
-    { value: 'after', label: 'より後' }
+    { value: 'before', label: reactiveMessage(m.before) },
+    { value: 'on_or_before', label: reactiveMessage(m.on_or_before) },
+    { value: 'on_or_after', label: reactiveMessage(m.on_or_after) },
+    { value: 'after', label: reactiveMessage(m.after) }
   ];
 
   const adjustmentDirectionOptions = [
@@ -146,8 +163,8 @@
       const rule = buildRecurrenceRule();
       if (rule) {
         const baseDate = new Date();
-        // 繰り返し回数が指定されている場合はその回数、そうでなければデフォルト5回
-        const previewLimit = repeatCount && repeatCount > 0 ? Math.min(repeatCount, 5) : 5;
+        // 繰り返し回数が指定されている場合はその回数、そうでなければデフォルトmaxPreviewCount回
+        const previewLimit = repeatCount && repeatCount > 0 ? Math.min(repeatCount, maxPreviewCount) : maxPreviewCount;
         previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
       } else {
         previewDates = [];
@@ -290,7 +307,7 @@
 
           <!-- 3. 繰り返し間隔 -->
           <section class="space-y-3">
-            <h3 class="text-lg font-semibold">繰り返し間隔</h3>
+            <h3 class="text-lg font-semibold">{recurrenceInterval()}</h3>
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label for="interval-input">{repeatEvery()}</label>
@@ -304,7 +321,7 @@
                 />
               </div>
               <div>
-                <label for="unit-select">単位</label>
+                <label for="unit-select">{unitLabel()}</label>
                 <select 
                   id="unit-select"
                   bind:value={unit} 
@@ -312,7 +329,7 @@
                   onchange={handleImmediateSave}
                 >
                   {#each unitOptions as option}
-                    <option value={option.value}>{option.label}</option>
+                    <option value={option.value}>{option.label()}</option>
                   {/each}
                 </select>
               </div>
@@ -321,7 +338,7 @@
             <!-- 週単位の曜日選択 -->
             {#if unit === 'week'}
               <div>
-                <label class="block mb-2">繰り返し曜日</label>
+                <label class="block mb-2">{repeatWeekdays()}</label>
                 <div class="grid grid-cols-7 gap-2">
                   {#each dayOfWeekOptions as dayOption}
                     <button
@@ -339,12 +356,12 @@
             <!-- 複雑な単位の詳細設定 -->
             {#if showAdvancedSettings && isComplexUnit}
               <div class="space-y-3">
-                <h4 class="font-medium">詳細設定</h4>
+                <h4 class="font-medium">{advancedSettings()}</h4>
                 
                 <div class="grid grid-cols-2 gap-4">
                   <!-- 特定日付 -->
                   <div>
-                    <label for="specific-date-input">特定日付</label>
+                    <label for="specific-date-input">{specificDate()}</label>
                     <input 
                       id="specific-date-input"
                       type="number" 
@@ -352,23 +369,23 @@
                       min="1" 
                       max="31"
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
-                      placeholder="例：15日"
+                      placeholder={specificDateExample()}
                       oninput={handleImmediateSave}
                     />
                   </div>
 
                   <!-- 第◯週の指定 -->
                   <div>
-                    <label for="week-of-period-select">第◯週</label>
+                    <label for="week-of-period-select">{weekOfMonth()}</label>
                     <select 
                       id="week-of-period-select"
                       bind:value={details.week_of_period}
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
                       onchange={handleImmediateSave}
                     >
-                      <option value="">選択なし</option>
+                      <option value="">{noSelection()}</option>
                       {#each weekOfMonthOptions as option}
-                        <option value={option.value}>{option.label}</option>
+                        <option value={option.value}>{option.label()}</option>
                       {/each}
                     </select>
                   </div>
@@ -376,7 +393,7 @@
 
                 {#if details.week_of_period}
                   <div>
-                    <label for="weekday-of-week-select">曜日</label>
+                    <label for="weekday-of-week-select">{weekdayOfWeek()}</label>
                     <select 
                       id="weekday-of-week-select"
                       bind:value={details.weekday_of_week}
@@ -396,15 +413,15 @@
           <!-- 3. 補正条件 -->
           {#if showAdvancedSettings}
           <section class="space-y-3">
-            <h3 class="text-lg font-semibold">補正条件</h3>
+            <h3 class="text-lg font-semibold">{adjustmentConditions()}</h3>
             
             <!-- 日付条件 -->
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <h4 class="font-medium">日付条件</h4>
+                <h4 class="font-medium">{dateConditionsLabel()}</h4>
                 <Button size="sm" onclick={() => { addDateCondition(); handleImmediateSave(); }}>
                   <Plus class="h-4 w-4 mr-1" />
-                  追加
+                  {add()}
                 </Button>
               </div>
               
@@ -420,7 +437,7 @@
                     class="p-1 border border-border rounded bg-background text-foreground"
                   >
                     {#each dateRelationOptions as option}
-                      <option value={option.value}>{option.label}</option>
+                      <option value={option.value}>{option.label()}</option>
                     {/each}
                   </select>
                   
@@ -449,10 +466,10 @@
             <!-- 曜日条件 -->
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <h4 class="font-medium">曜日条件</h4>
+                <h4 class="font-medium">{weekdayConditionsLabel()}</h4>
                 <Button size="sm" onclick={() => { addWeekdayCondition(); handleImmediateSave(); }}>
                   <Plus class="h-4 w-4 mr-1" />
-                  追加
+                  {add()}
                 </Button>
               </div>
               
@@ -472,11 +489,11 @@
       <!-- 右側：プレビューパネル -->
       <div class="space-y-4">
         <section>
-          <h3 class="text-lg font-semibold mb-3">プレビュー</h3>
+          <h3 class="text-lg font-semibold mb-3">{preview()}</h3>
           {#if showBasicSettings && previewDates.length > 0}
             <div class="space-y-2">
               <p class="text-sm text-muted-foreground">
-                次回以降の実行日（{previewDates.length}回分{repeatCount && repeatCount <= 5 ? '' : '、最大5回まで表示'}）
+                {m.next_execution_dates({count: previewDates.length, maxNote: repeatCount && repeatCount <= maxPreviewCount ? '' : m.max_times_display({max: maxPreviewCount})})}
               </p>
               <div class="space-y-1">
                 {#each previewDates as date, index}
@@ -489,9 +506,9 @@
               </div>
             </div>
           {:else if showBasicSettings}
-            <p class="text-sm text-muted-foreground">プレビューを生成中...</p>
+            <p class="text-sm text-muted-foreground">{generatingPreview()}</p>
           {:else}
-            <p class="text-sm text-muted-foreground">繰り返しが無効です</p>
+            <p class="text-sm text-muted-foreground">{recurrenceDisabledPreview()}</p>
           {/if}
         </section>
       </div>
