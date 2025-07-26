@@ -1,12 +1,12 @@
 import { test, expect, describe } from "vitest";
-import { 
-  formatDate, 
-  formatDateTime, 
-  formatDateForInput, 
-  formatDetailedDate, 
+import {
+  formatDate,
+  formatDateTime,
+  formatDateForInput,
+  formatDetailedDate,
   getDueDateClass,
   formatDateTimeRange
-} from "../../src/lib/utils/date-utils";
+} from "../../src/lib/utils/datetime-utils";
 
 test("formatDate: formats undefined as empty string", () => {
   expect(formatDate(undefined)).toBe('');
@@ -127,7 +127,7 @@ describe('formatDateTimeRange', () => {
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
     expect(result).toBe('2025年7月26日(土)');
   });
-  
+
   test('should format a multi-day range without time', () => {
     const startDateTime = new Date('2025-07-26T00:00:00');
     const endDateTime = new Date('2025-07-27T00:00:00');

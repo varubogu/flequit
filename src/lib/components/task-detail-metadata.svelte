@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/button.svelte';
-  import { formatDateTime } from '$lib/utils/date-utils';
+  import { formatDateTime } from '$lib/utils/datetime-utils';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 

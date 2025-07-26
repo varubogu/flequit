@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskBase } from "$lib/types/task";
-  import { getDueDateClass } from "$lib/utils/date-utils";
+  import { getDueDateClass } from "$lib/utils/datetime-utils";
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 

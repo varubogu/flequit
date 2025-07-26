@@ -18,7 +18,7 @@
   import RecurrenceCountInput from './recurrence/recurrence-count-input.svelte';
   import RecurrenceIntervalEditor from './recurrence/recurrence-interval-editor.svelte';
   import RecurrenceAdjustmentEditor from './recurrence/recurrence-adjustment-editor.svelte';
-  import { formatDateTimeRange } from '$lib/utils/date-utils';
+  import { formatDateTimeRange } from '$lib/utils/datetime-utils';
   import RecurrencePreview from './recurrence/recurrence-preview.svelte';
 
   interface Props {
