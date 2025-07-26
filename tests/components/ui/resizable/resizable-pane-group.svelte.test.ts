@@ -11,7 +11,7 @@ vi.mock('paneforge', () => ({
 }));
 
 // Mock cn utility
-vi.mock('../../../../src/lib/utils', () => ({
+vi.mock('$lib/utils', () => ({
   cn: vi.fn((...classes) => classes.filter(Boolean).join(' '))
 }));
 

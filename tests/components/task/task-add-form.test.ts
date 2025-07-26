@@ -1,24 +1,24 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import TaskAddForm from '$lib/components/task/task-add-form.svelte';
-import { TaskListService } from '../../src/lib/services/task-list-service';
-import { TaskService } from '../../src/lib/services/task-service';
-import { taskStore } from '../../src/lib/stores/tasks.svelte';
+import { TaskListService } from '$lib/services/task-list-service';
+import { TaskService } from '$lib/services/task-service';
+import { taskStore } from '$lib/stores/tasks.svelte';
 
 // Mock services
-vi.mock('../../src/lib/services/task-list-service', () => ({
+vi.mock('$lib/services/task-list-service', () => ({
   TaskListService: {
     addNewTask: vi.fn()
   }
 }));
 
-vi.mock('../../src/lib/services/task-service', () => ({
+vi.mock('$lib/services/task-service', () => ({
   TaskService: {
     selectTask: vi.fn()
   }
 }));
 
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     startNewTaskMode: vi.fn(),
     updateNewTaskData: vi.fn(),
@@ -30,7 +30,7 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
   }
 }));
 
-vi.mock('../../src/lib/stores/view-store.svelte', () => ({
+vi.mock('$lib/stores/view-store.svelte', () => ({
   viewStore: {}
 }));
 

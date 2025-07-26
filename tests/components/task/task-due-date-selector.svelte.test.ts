@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskDueDateSelector from '$lib/components/task/task-due-date-selector.svelte';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
+import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
 
 describe('TaskDueDateSelector Component', () => {
   const mockTask: TaskWithSubTasks = {

@@ -69,8 +69,8 @@ vi.mock('$lib/components/delete-confirmation-dialog.svelte', () => ({
 
 // Import after mocks
 import TaskDetail from '$lib/components/task/task-detail.svelte';
-import { taskStore } from '../../src/lib/stores/tasks.svelte';
-import { TaskService } from '../../src/lib/services/task-service';
+import { taskStore } from '$lib/stores/tasks.svelte';
+import { TaskService } from '$lib/services/task-service';
 
 const mockTaskStore = vi.mocked(taskStore);
 const mockTaskService = vi.mocked(TaskService);

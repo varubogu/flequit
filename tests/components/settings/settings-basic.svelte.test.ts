@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
-import { settingsStore, AVAILABLE_TIMEZONES } from '../../../src/lib/stores/settings.svelte';
+import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
 import { getLocale, setLocale } from '$paraglide/runtime';
 import { localeStore } from '$lib/stores/locale.svelte';
 
@@ -24,7 +24,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 }));
 
 // Mock settings store
-vi.mock('../../../src/lib/stores/settings.svelte', async (importOriginal) => {
+vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
   const original = await importOriginal() as any;
   return {
     ...original,

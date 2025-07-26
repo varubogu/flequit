@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
-import { taskStore } from '../../src/lib/stores/tasks.svelte';
-import type { ProjectTree, TaskWithSubTasks } from '../../src/lib/types/task';
+import { taskStore } from '$lib/stores/tasks.svelte';
+import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 import { writable, get } from 'svelte/store';
 
 // --- Paraglide Mock ---

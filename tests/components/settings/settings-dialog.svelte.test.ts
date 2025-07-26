@@ -20,7 +20,7 @@ vi.mock('$lib/components/settings/settings-account.svelte', () => ({
 }));
 
 // Mock settings store
-vi.mock('../../src/lib/stores/settings.svelte', () => ({
+vi.mock('$lib/stores/settings.svelte', () => ({
   settingsStore: {
     timezone: 'UTC',
     setTimezone: vi.fn(),

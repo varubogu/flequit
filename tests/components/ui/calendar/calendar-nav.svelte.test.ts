@@ -3,7 +3,7 @@ import { render } from '@testing-library/svelte';
 import CalendarNav from '$lib/components/ui/calendar/calendar-nav.svelte';
 
 // Mock cn utility
-vi.mock('../../../../src/lib/utils', () => ({
+vi.mock('$lib/utils', () => ({
   cn: vi.fn((...classes) => classes.filter(Boolean).join(' '))
 }));
 

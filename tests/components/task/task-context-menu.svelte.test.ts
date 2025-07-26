@@ -1,22 +1,22 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import TaskContextMenu from '$lib/components/task/task-context-menu.svelte';
-import type { TaskWithSubTasks, SubTask } from '../../src/lib/types/task';
+import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
 
 // Mock stores and services
-vi.mock('../../src/lib/stores/context-menu.svelte', () => ({
+vi.mock('$lib/stores/context-menu.svelte', () => ({
   contextMenuStore: {
     open: vi.fn()
   }
 }));
 
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     updateTask: vi.fn()
   }
 }));
 
-vi.mock('../../src/lib/services/task-service', () => ({
+vi.mock('$lib/services/task-service', () => ({
   TaskService: {
     deleteTask: vi.fn()
   }
@@ -72,7 +72,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle task context menu', async () => {
-    const { contextMenuStore } = await import('../../src/lib/stores/context-menu.svelte');
+    const { contextMenuStore } = await import('$lib/stores/context-menu.svelte');
     const { component } = render(TaskContextMenu, { task: mockTask });
 
     const mockEvent = new MouseEvent('contextmenu', {
@@ -96,7 +96,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle subtask context menu', async () => {
-    const { contextMenuStore } = await import('../../src/lib/stores/context-menu.svelte');
+    const { contextMenuStore } = await import('$lib/stores/context-menu.svelte');
     const { component } = render(TaskContextMenu, { task: mockTask });
 
     const mockEvent = new MouseEvent('contextmenu', {
@@ -118,7 +118,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle task deletion', async () => {
-    const { TaskService } = await import('../../src/lib/services/task-service');
+    const { TaskService } = await import('$lib/services/task-service');
     const { component } = render(TaskContextMenu, { task: mockTask });
 
     // Access the internal handleDelete function by triggering a context menu
@@ -133,7 +133,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle priority setting', async () => {
-    const { taskStore } = await import('../../src/lib/stores/tasks.svelte');
+    const { taskStore } = await import('$lib/stores/tasks.svelte');
     const { component } = render(TaskContextMenu, { task: mockTask });
 
     // Access the component to verify it has the priority setting capability
@@ -152,7 +152,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle context menu with custom coordinates', async () => {
-    const { contextMenuStore } = await import('../../src/lib/stores/context-menu.svelte');
+    const { contextMenuStore } = await import('$lib/stores/context-menu.svelte');
     const { component } = render(TaskContextMenu, { task: mockTask });
 
     const customEvent = new MouseEvent('contextmenu', {
@@ -169,7 +169,7 @@ describe('TaskContextMenu Component', () => {
   });
 
   test('should handle subtask with different properties', async () => {
-    const { contextMenuStore } = await import('../../src/lib/stores/context-menu.svelte');
+    const { contextMenuStore } = await import('$lib/stores/context-menu.svelte');
     const customSubTask: SubTask = {
       ...mockSubTask,
       id: 'custom-subtask',

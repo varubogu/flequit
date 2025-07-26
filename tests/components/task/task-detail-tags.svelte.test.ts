@@ -1,10 +1,10 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import TaskDetailTags from '$lib/components/task/task-detail-tags.svelte';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
+import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
 
 // Mock the task store
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     addTagToTask: vi.fn(),
     removeTagFromTask: vi.fn(),

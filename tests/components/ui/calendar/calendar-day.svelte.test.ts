@@ -18,7 +18,7 @@ vi.mock('$lib/components/ui/button/index.js', () => ({
 }));
 
 // Mock cn utility
-vi.mock('../../../../src/lib/utils', () => ({
+vi.mock('$lib/utils', () => ({
   cn: vi.fn((...classes) => classes.filter(Boolean).join(' '))
 }));
 

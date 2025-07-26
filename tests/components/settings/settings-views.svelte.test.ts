@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/settings-views.svelte';
-import { viewsVisibilityStore } from '../../../src/lib/stores/views-visibility.svelte';
+import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 
 // Mock views visibility store
-vi.mock('../../../src/lib/stores/views-visibility.svelte', async (importOriginal) => {
+vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
   const original = await importOriginal() as any;
   return {
     ...original,

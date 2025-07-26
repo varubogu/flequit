@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import TaskDatePicker from '$lib/components/task/task-date-picker.svelte';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
+import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
 
 // Mock taskStore
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     updateTask: vi.fn(),
     updateSubTask: vi.fn()
@@ -69,7 +69,7 @@ describe('TaskDatePicker Component', () => {
   });
 
   test('should handle task date change for single date', async () => {
-    const { taskStore } = await import('../../src/lib/stores/tasks.svelte');
+    const { taskStore } = await import('$lib/stores/tasks.svelte');
     const { component } = render(TaskDatePicker, { task: mockTask });
 
     // Simulate date change via the component's internal handler

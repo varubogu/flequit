@@ -13,7 +13,7 @@ vi.mock('bits-ui', () => ({
 }));
 
 // Mock cn utility
-vi.mock('../../../../src/lib/utils', () => ({
+vi.mock('$lib/utils', () => ({
   cn: vi.fn((...classes) => classes.filter(Boolean).join(' '))
 }));
 
