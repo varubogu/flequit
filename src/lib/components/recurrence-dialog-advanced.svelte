@@ -55,7 +55,7 @@
 
   // プレビュー
   let previewDates = $state<Date[]>([]);
-  const maxPreviewCount = 5;
+  let displayCount = $state(5);
 
   // リアクティブメッセージ
   const recurrenceSettings = reactiveMessage(m.recurrence_settings);
@@ -83,6 +83,8 @@
   const preview = reactiveMessage(m.preview);
   const generatingPreview = reactiveMessage(m.generating_preview);
   const recurrenceDisabledPreview = reactiveMessage(m.recurrence_disabled_preview);
+  const nextExecutionDatesLabel = reactiveMessage(m.next_execution_dates_label);
+  const timesSuffix = reactiveMessage(m.times_suffix);
 
   // 選択肢
   const recurrenceLevelOptions = [
@@ -127,18 +129,6 @@
     { value: 'after', label: reactiveMessage(m.after) }
   ];
 
-  const adjustmentDirectionOptions = [
-    { value: 'previous', label: '前' },
-    { value: 'next', label: '後' }
-  ];
-
-  const adjustmentTargetOptions = [
-    { value: 'weekday', label: '平日' },
-    { value: 'weekend', label: '休日' },
-    { value: 'holiday', label: '祝日' },
-    { value: 'non_holiday', label: '非祝日' },
-    { value: 'specific_weekday', label: '特定曜日' }
-  ];
 
   // 複雑な単位かどうかの判定
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
@@ -163,8 +153,8 @@
       const rule = buildRecurrenceRule();
       if (rule) {
         const baseDate = new Date();
-        // 繰り返し回数が指定されている場合はその回数、そうでなければデフォルトmaxPreviewCount回
-        const previewLimit = repeatCount && repeatCount > 0 ? Math.min(repeatCount, maxPreviewCount) : maxPreviewCount;
+        // 表示数の最大値（20回）でプレビューを生成
+        const previewLimit = 20;
         previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
       } else {
         previewDates = [];
@@ -260,7 +250,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="max-w-4xl max-h-[90vh] overflow-y-auto z-[60]" portalProps={{ class: "z-[60]" }}>
+  <Dialog.Content class="max-w-4xl max-h-[90vh] overflow-y-auto z-[60]">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />
@@ -489,14 +479,26 @@
       <!-- 右側：プレビューパネル -->
       <div class="space-y-4">
         <section>
-          <h3 class="text-lg font-semibold mb-3">{preview()}</h3>
+          <div class="mb-3">
+            <h3 class="text-lg font-semibold">{preview()}</h3>
+          </div>
           {#if showBasicSettings && previewDates.length > 0}
             <div class="space-y-2">
               <p class="text-sm text-muted-foreground">
-                {m.next_execution_dates({count: previewDates.length, maxNote: repeatCount && repeatCount <= maxPreviewCount ? '' : m.max_times_display({max: maxPreviewCount})})}
+                {nextExecutionDatesLabel()}
               </p>
+              <div class="flex items-center gap-2 mb-2">
+                <input
+                  type="number"
+                  bind:value={displayCount}
+                  min="1"
+                  max="20"
+                  class="w-16 px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
+                />
+                <span class="text-sm text-muted-foreground">{timesSuffix()}</span>
+              </div>
               <div class="space-y-1">
-                {#each previewDates as date, index}
+                {#each previewDates.slice(0, displayCount) as date, index}
                   <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
                     <Calendar class="h-4 w-4 text-muted-foreground" />
                     <span class="font-mono">{index + 1}.</span>

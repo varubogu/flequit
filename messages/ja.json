@@ -227,9 +227,8 @@
     "on_or_after": "以降",
     "after": "より後",
     "preview": "プレビュー",
-    "next_execution_dates": "次回以降の実行日（{count}回分{maxNote}）",
-    "max_times_display": "、最大{max}回まで表示",
     "generating_preview": "プレビューを生成中...",
     "recurrence_disabled_preview": "繰り返しが無効です",
-    "preview_count": "表示件数"
+    "next_execution_dates_label": "次回以降の実行日",
+    "times_suffix": "回分"
 }

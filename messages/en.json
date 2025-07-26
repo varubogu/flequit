@@ -227,9 +227,8 @@
     "on_or_after": "on or after",
     "after": "after",
     "preview": "Preview",
-    "next_execution_dates": "Next execution dates ({count} times{maxNote})",
     "generating_preview": "Generating preview...",
     "recurrence_disabled_preview": "Recurrence is disabled",
-    "max_times_display": ", max {max} times displayed",
-    "preview_count": "Display count"
+    "next_execution_dates_label": "Next execution dates",
+    "times_suffix": "times"
 }
