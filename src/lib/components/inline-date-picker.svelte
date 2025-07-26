@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Switch } from '$lib/components/ui/switch';
   import { CalendarDate } from '@internationalized/date';
-  import { formatDate, formatTime } from '$lib/utils/date-time';
+    import { formatDate1 } from "$lib/utils/datetime-utils";
+  import { formatTime1 } from "$lib/utils/datetime-utils";
   import DateTimeInputs from './date-time-inputs.svelte'
   import CalendarPicker from './calendar-picker.svelte';
   import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
@@ -24,13 +25,13 @@
 
   let pickerElement = $state<HTMLElement>();
 
-  let endDate = $state(currentDate ? formatDate(new Date(currentDate)) : '');
-  let endTime = $state(currentDate ? formatTime(new Date(currentDate)) : '00:00:00');
+  let endDate = $state(currentDate ? formatDate1(new Date(currentDate)) : '');
+  let endTime = $state(currentDate ? formatTime1(new Date(currentDate)) : '00:00:00');
 
   let useRangeMode = $state(isRangeDate);
-  let startDate = $state(currentStartDate ? formatDate(new Date(currentStartDate)) : '');
-  let startTime = $state(currentStartDate ? formatTime(new Date(currentStartDate)) : '00:00:00');
-  
+  let startDate = $state(currentStartDate ? formatDate1(new Date(currentStartDate)) : '');
+  let startTime = $state(currentStartDate ? formatTime1(new Date(currentStartDate)) : '00:00:00');
+
   // 繰り返しダイアログの状態管理
   let recurrenceDialogOpen = $state(false);
   let currentRecurrenceRule = $state<RecurrenceRule | null>(recurrenceRule || null);
@@ -39,7 +40,7 @@
   $effect(() => {
     useRangeMode = isRangeDate;
   });
-  
+
   // Sync currentRecurrenceRule with recurrenceRule prop changes
   $effect(() => {
     currentRecurrenceRule = recurrenceRule || null;
@@ -49,8 +50,8 @@
   $effect(() => {
     if (show && currentDate && typeof currentDate === 'string') {
       const date = new Date(currentDate);
-      endDate = formatDate(date);
-      endTime = formatTime(date);
+      endDate = formatDate1(date);
+      endTime = formatTime1(date);
     }
   });
 
@@ -58,8 +59,8 @@
   $effect(() => {
     if (currentStartDate && typeof currentStartDate === 'string') {
       const startDateObj = new Date(currentStartDate);
-      startDate = formatDate(startDateObj);
-      startTime = formatTime(startDateObj);
+      startDate = formatDate1(startDateObj);
+      startTime = formatTime1(startDateObj);
     } else {
       startDate = '';
       startTime = '00:00:00';
@@ -73,7 +74,7 @@
     function handleClickOutside(event: MouseEvent) {
       // 繰り返しダイアログが開いている場合は期日ダイアログを閉じない
       if (recurrenceDialogOpen) return;
-      
+
       if (pickerElement && !pickerElement.contains(event.target as Node)) {
         onclose?.();
       }
@@ -165,14 +166,14 @@
 
     onchange?.(eventDetail);
   }
-  
+
   function handleRecurrenceEdit() {
     recurrenceDialogOpen = true;
   }
-  
+
   function handleRecurrenceSave(rule: RecurrenceRule | null) {
     currentRecurrenceRule = rule;
-    
+
     // 現在の日付情報と一緒に繰り返し設定も通知
     if (useRangeMode) {
       handleRangeInputChange();
