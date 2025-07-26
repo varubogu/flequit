@@ -478,16 +478,16 @@
 
       <!-- 右側：プレビューパネル -->
       <div class="space-y-4">
-        <section>
-          <div class="mb-3">
+        <section class="h-[500px] flex flex-col">
+          <div class="mb-3 flex-shrink-0">
             <h3 class="text-lg font-semibold">{preview()}</h3>
           </div>
           {#if showBasicSettings && previewDates.length > 0}
-            <div class="space-y-2">
-              <p class="text-sm text-muted-foreground">
+            <div class="flex flex-col flex-1 min-h-0">
+              <p class="text-sm text-muted-foreground flex-shrink-0">
                 {nextExecutionDatesLabel()}
               </p>
-              <div class="flex items-center gap-2 mb-2">
+              <div class="flex items-center gap-2 mb-2 flex-shrink-0">
                 <input
                   type="number"
                   bind:value={displayCount}
@@ -497,20 +497,26 @@
                 />
                 <span class="text-sm text-muted-foreground">{timesSuffix()}</span>
               </div>
-              <div class="space-y-1">
-                {#each previewDates.slice(0, displayCount) as date, index}
-                  <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
-                    <Calendar class="h-4 w-4 text-muted-foreground" />
-                    <span class="font-mono">{index + 1}.</span>
-                    <span>{formatDate(date)}</span>
-                  </div>
-                {/each}
+              <div class="flex-1 overflow-y-auto border border-border rounded bg-card/50 min-h-0">
+                <div class="space-y-1 p-2">
+                  {#each previewDates.slice(0, displayCount) as date, index}
+                    <div class="flex items-center gap-2 p-2 bg-muted rounded text-sm">
+                      <Calendar class="h-4 w-4 text-muted-foreground" />
+                      <span class="font-mono">{index + 1}.</span>
+                      <span>{formatDate(date)}</span>
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
           {:else if showBasicSettings}
-            <p class="text-sm text-muted-foreground">{generatingPreview()}</p>
+            <div class="flex-1 flex items-center justify-center min-h-0">
+              <p class="text-sm text-muted-foreground">{generatingPreview()}</p>
+            </div>
           {:else}
-            <p class="text-sm text-muted-foreground">{recurrenceDisabledPreview()}</p>
+            <div class="flex-1 flex items-center justify-center min-h-0">
+              <p class="text-sm text-muted-foreground">{recurrenceDisabledPreview()}</p>
+            </div>
           {/if}
         </section>
       </div>
