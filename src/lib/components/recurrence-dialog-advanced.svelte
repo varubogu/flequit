@@ -247,7 +247,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="max-w-4xl max-h-[90vh] overflow-y-auto">
+  <Dialog.Content class="max-w-4xl max-h-[90vh] overflow-y-auto z-[60]" portalProps={{ class: "z-[60]" }}>
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />

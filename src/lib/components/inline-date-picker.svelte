@@ -5,6 +5,7 @@
   import DateTimeInputs from './date-time-inputs.svelte'
   import CalendarPicker from './calendar-picker.svelte';
   import TaskRecurrenceSelector from './task-recurrence-selector.svelte';
+  import RecurrenceDialogAdvanced from './recurrence-dialog-advanced.svelte';
   import type { RecurrenceRule } from '$lib/types/task';
 
   interface Props {
@@ -14,13 +15,12 @@
     position?: { x: number; y: number };
     isRangeDate?: boolean;
     recurrenceRule?: RecurrenceRule | null;
-    onchange?: (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void;
+    onchange?: (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean; recurrenceRule?: RecurrenceRule | null }) => void;
     onclose?: () => void;
     onclear?: () => void;
-    onRecurrenceEdit?: () => void;
   }
 
-  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, recurrenceRule, onchange, onclose, onRecurrenceEdit }: Props = $props();
+  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, recurrenceRule, onchange, onclose }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
 
@@ -30,10 +30,19 @@
   let useRangeMode = $state(isRangeDate);
   let startDate = $state(currentStartDate ? formatDate(new Date(currentStartDate)) : '');
   let startTime = $state(currentStartDate ? formatTime(new Date(currentStartDate)) : '00:00:00');
+  
+  // 繰り返しダイアログの状態管理
+  let recurrenceDialogOpen = $state(false);
+  let currentRecurrenceRule = $state<RecurrenceRule | null>(recurrenceRule || null);
 
   // Sync useRangeMode with isRangeDate prop changes
   $effect(() => {
     useRangeMode = isRangeDate;
+  });
+  
+  // Sync currentRecurrenceRule with recurrenceRule prop changes
+  $effect(() => {
+    currentRecurrenceRule = recurrenceRule || null;
   });
 
 
@@ -62,6 +71,9 @@
     if (!show) return;
 
     function handleClickOutside(event: MouseEvent) {
+      // 繰り返しダイアログが開いている場合は期日ダイアログを閉じない
+      if (recurrenceDialogOpen) return;
+      
       if (pickerElement && !pickerElement.contains(event.target as Node)) {
         onclose?.();
       }
@@ -69,6 +81,11 @@
 
     function handleKeydown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
+        // 繰り返しダイアログが開いている場合は、まず繰り返しダイアログを閉じる
+        if (recurrenceDialogOpen) {
+          recurrenceDialogOpen = false;
+          return;
+        }
         onclose?.();
       }
     }
@@ -103,7 +120,7 @@
       const date = endDate;
       const dateTime = `${endDate}T${endTime}`;
 
-      onchange?.({ date, dateTime, isRangeDate: false });
+      onchange?.({ date, dateTime, isRangeDate: false, recurrenceRule: currentRecurrenceRule });
     }
   }
 
@@ -116,7 +133,8 @@
           start: `${startDate}T${startTime}`,
           end: `${endDate}T${endTime}`
         } : undefined,
-        isRangeDate: true
+        isRangeDate: true,
+        recurrenceRule: currentRecurrenceRule
       };
 
       onchange?.(eventDetail);
@@ -127,7 +145,7 @@
     endDate = date.toString();
     const dateTime = `${endDate}T${endTime}`;
 
-    onchange?.({ date: endDate, dateTime, isRangeDate: false });
+    onchange?.({ date: endDate, dateTime, isRangeDate: false, recurrenceRule: currentRecurrenceRule });
   }
 
   function handleRangeChange(start: CalendarDate, end: CalendarDate) {
@@ -141,10 +159,26 @@
         start: `${startDate}T${startTime}`,
         end: `${endDate}T${endTime}`
       },
-      isRangeDate: true
+      isRangeDate: true,
+      recurrenceRule: currentRecurrenceRule
     };
 
     onchange?.(eventDetail);
+  }
+  
+  function handleRecurrenceEdit() {
+    recurrenceDialogOpen = true;
+  }
+  
+  function handleRecurrenceSave(rule: RecurrenceRule | null) {
+    currentRecurrenceRule = rule;
+    
+    // 現在の日付情報と一緒に繰り返し設定も通知
+    if (useRangeMode) {
+      handleRangeInputChange();
+    } else {
+      handleDateChange();
+    }
   }
 
 
@@ -165,7 +199,8 @@
           const eventDetail = {
             date: endDate || '',
             dateTime: `${endDate || ''}T${endTime}`,
-            isRangeDate: checked
+            isRangeDate: checked,
+            recurrenceRule: currentRecurrenceRule
           };
 
           onchange?.(eventDetail);
@@ -176,8 +211,8 @@
       <div class="flex items-center justify-end">
         <div class="min-w-0">
           <TaskRecurrenceSelector
-            {recurrenceRule}
-            onEdit={onRecurrenceEdit}
+            recurrenceRule={currentRecurrenceRule}
+            onEdit={handleRecurrenceEdit}
           />
         </div>
       </div>
@@ -203,3 +238,10 @@
     </div>
   </div>
 {/if}
+
+<!-- 繰り返しダイアログ - より高いZ-indexで独立して配置 -->
+<RecurrenceDialogAdvanced
+  bind:open={recurrenceDialogOpen}
+  recurrenceRule={currentRecurrenceRule}
+  onSave={handleRecurrenceSave}
+/>
