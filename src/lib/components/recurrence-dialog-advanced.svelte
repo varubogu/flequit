@@ -64,6 +64,8 @@
   const recurrenceAdvanced = reactiveMessage(m.recurrence_advanced);
   const repeatCountLabel = reactiveMessage(m.repeat_count);
   const repeatEvery = reactiveMessage(m.repeat_every);
+  const infiniteRepeatPlaceholder = reactiveMessage(m.infinite_repeat_placeholder);
+  const infiniteRepeatDescription = reactiveMessage(m.infinite_repeat_description);
 
   // 選択肢
   const recurrenceLevelOptions = [
@@ -280,9 +282,9 @@
                 min="1" 
                 class="w-full p-2 border border-border rounded bg-background text-foreground"
                 oninput={handleImmediateSave}
-                placeholder="無制限の場合は空白"
+                placeholder={infiniteRepeatPlaceholder()}
               />
-              <p class="text-sm text-muted-foreground mt-1">無制限の場合は空白にしてください</p>
+              <p class="text-sm text-muted-foreground mt-1">{infiniteRepeatDescription()}</p>
             </div>
           </section>
 

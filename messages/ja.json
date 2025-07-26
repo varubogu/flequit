@@ -193,5 +193,7 @@
     "recurrence_disabled": "無効",
     "recurrence_enabled": "有効",
     "recurrence_advanced": "有効（高度）",
-    "repeat_count": "繰り返し回数"
+    "repeat_count": "繰り返し回数",
+    "infinite_repeat_placeholder": "無限",
+    "infinite_repeat_description": "無限に繰り返す場合は空白にしてください"
 }

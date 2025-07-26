@@ -193,5 +193,7 @@
     "recurrence_disabled": "Disabled",
     "recurrence_enabled": "Enabled",
     "recurrence_advanced": "Enabled (Advanced)",
-    "repeat_count": "Repeat count"
+    "repeat_count": "Repeat count",
+    "infinite_repeat_placeholder": "Infinite",
+    "infinite_repeat_description": "Leave blank for infinite repetition"
 }
