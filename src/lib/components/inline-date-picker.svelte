@@ -153,13 +153,13 @@
 {#if show}
   <div
     bind:this={pickerElement}
-    class="fixed bg-popover border border-border rounded-lg shadow-lg p-3 z-50 min-w-[400px]"
-    style="left: {position.x}px; top: {position.y}px;"
+    class="fixed bg-popover border border-border rounded-lg shadow-lg p-3 z-50"
+    style="left: {position.x}px; top: {position.y}px; width: fit-content; max-width: 320px;"
   >
     <!-- Range Mode and Recurrence - 2 Column Layout -->
     <div class="grid grid-cols-2 gap-4 mb-3">
       <!-- Left Column: Range Mode Switch -->
-      <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
         <span class="text-sm text-muted-foreground">範囲</span>
         <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
           const eventDetail = {
@@ -171,11 +171,10 @@
           onchange?.(eventDetail);
         }} />
       </div>
-      
+
       <!-- Right Column: Recurrence Display -->
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-foreground">繰り返し</span>
-        <div class="min-w-0 flex-1 ml-2">
+      <div class="flex items-center justify-end">
+        <div class="min-w-0">
           <TaskRecurrenceSelector
             {recurrenceRule}
             onEdit={onRecurrenceEdit}
