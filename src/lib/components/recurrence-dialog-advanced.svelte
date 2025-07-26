@@ -64,9 +64,6 @@
   const recurrenceAdvanced = reactiveMessage(m.recurrence_advanced);
   const repeatCountLabel = reactiveMessage(m.repeat_count);
   const repeatEvery = reactiveMessage(m.repeat_every);
-  const save = reactiveMessage(m.save);
-  const cancel = reactiveMessage(m.cancel);
-  const remove = reactiveMessage(m.remove);
 
   // 選択肢
   const recurrenceLevelOptions = [
@@ -139,6 +136,8 @@
       previewDates = [];
     }
   });
+
+  // 即時保存は個別のイベントハンドラーで処理（$effectは使わない）
 
   function updatePreview() {
     try {
@@ -225,15 +224,10 @@
     return rule;
   }
 
-  function handleSave() {
+  // 即時反映：設定変更時に自動保存
+  function handleImmediateSave() {
     const rule = buildRecurrenceRule();
     onSave?.(rule);
-    onOpenChange?.(false);
-  }
-
-  function handleRemove() {
-    onSave?.(null);
-    onOpenChange?.(false);
   }
 
   function formatDate(date: Date): string {
@@ -266,7 +260,7 @@
             <select 
               bind:value={recurrenceLevel} 
               class="w-full p-2 border border-border rounded bg-background text-foreground"
-              onchange={updatePreview}
+              onchange={handleImmediateSave}
             >
               {#each recurrenceLevelOptions as option}
                 <option value={option.value}>{option.label()}</option>
@@ -285,8 +279,8 @@
                 bind:value={repeatCount} 
                 min="1" 
                 class="w-full p-2 border border-border rounded bg-background text-foreground"
+                oninput={handleImmediateSave}
                 placeholder="無制限の場合は空白"
-                oninput={updatePreview}
               />
               <p class="text-sm text-muted-foreground mt-1">無制限の場合は空白にしてください</p>
             </div>
@@ -297,21 +291,23 @@
             <h3 class="text-lg font-semibold">繰り返し間隔</h3>
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label>{repeatEvery()}</label>
+                <label for="interval-input">{repeatEvery()}</label>
                 <input 
+                  id="interval-input"
                   type="number" 
                   bind:value={interval} 
                   min="1" 
                   class="w-full p-2 border border-border rounded bg-background text-foreground"
-                  oninput={updatePreview}
+                  oninput={handleImmediateSave}
                 />
               </div>
               <div>
-                <label>単位</label>
+                <label for="unit-select">単位</label>
                 <select 
+                  id="unit-select"
                   bind:value={unit} 
                   class="w-full p-2 border border-border rounded bg-background text-foreground"
-                  onchange={updatePreview}
+                  onchange={handleImmediateSave}
                 >
                   {#each unitOptions as option}
                     <option value={option.value}>{option.label}</option>
@@ -329,7 +325,7 @@
                     <button
                       type="button"
                       class="p-2 text-sm border border-border rounded {daysOfWeek.includes(dayOption.value as DayOfWeek) ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
-                      onclick={() => { toggleDayOfWeek(dayOption.value as DayOfWeek); updatePreview(); }}
+                      onclick={() => { toggleDayOfWeek(dayOption.value as DayOfWeek); handleImmediateSave(); }}
                     >
                       {dayOption.label.slice(0, 1)}
                     </button>
@@ -346,25 +342,27 @@
                 <div class="grid grid-cols-2 gap-4">
                   <!-- 特定日付 -->
                   <div>
-                    <label>特定日付</label>
+                    <label for="specific-date-input">特定日付</label>
                     <input 
+                      id="specific-date-input"
                       type="number" 
                       bind:value={details.specific_date}
                       min="1" 
                       max="31"
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
                       placeholder="例：15日"
-                      oninput={updatePreview}
+                      oninput={handleImmediateSave}
                     />
                   </div>
 
                   <!-- 第◯週の指定 -->
                   <div>
-                    <label>第◯週</label>
+                    <label for="week-of-period-select">第◯週</label>
                     <select 
+                      id="week-of-period-select"
                       bind:value={details.week_of_period}
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
-                      onchange={updatePreview}
+                      onchange={handleImmediateSave}
                     >
                       <option value="">選択なし</option>
                       {#each weekOfMonthOptions as option}
@@ -376,11 +374,12 @@
 
                 {#if details.week_of_period}
                   <div>
-                    <label>曜日</label>
+                    <label for="weekday-of-week-select">曜日</label>
                     <select 
+                      id="weekday-of-week-select"
                       bind:value={details.weekday_of_week}
                       class="w-full p-2 border border-border rounded bg-background text-foreground"
-                      onchange={updatePreview}
+                      onchange={handleImmediateSave}
                     >
                       {#each dayOfWeekOptions as option}
                         <option value={option.value}>{option.label}</option>
@@ -401,7 +400,7 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <h4 class="font-medium">日付条件</h4>
-                <Button size="sm" onclick={addDateCondition}>
+                <Button size="sm" onclick={() => { addDateCondition(); handleImmediateSave(); }}>
                   <Plus class="h-4 w-4 mr-1" />
                   追加
                 </Button>
@@ -414,7 +413,7 @@
                     onchange={(e) => {
                       const target = e.target as HTMLSelectElement;
                       updateDateCondition(condition.id, { relation: target.value as DateRelation });
-                      updatePreview();
+                      handleImmediateSave();
                     }}
                     class="p-1 border border-border rounded bg-background text-foreground"
                   >
@@ -429,14 +428,14 @@
                     onchange={(e) => {
                       const target = e.target as HTMLInputElement;
                       updateDateCondition(condition.id, { reference_date: new Date(target.value) });
-                      updatePreview();
+                      handleImmediateSave();
                     }}
                     class="p-1 border border-border rounded bg-background text-foreground"
                   />
                   
                   <button 
                     type="button"
-                    onclick={() => { removeDateCondition(condition.id); updatePreview(); }}
+                    onclick={() => { removeDateCondition(condition.id); handleImmediateSave(); }}
                     class="p-1 text-destructive hover:bg-destructive/10 rounded"
                   >
                     <X class="h-4 w-4" />
@@ -449,7 +448,7 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between">
                 <h4 class="font-medium">曜日条件</h4>
-                <Button size="sm" onclick={addWeekdayCondition}>
+                <Button size="sm" onclick={() => { addWeekdayCondition(); handleImmediateSave(); }}>
                   <Plus class="h-4 w-4 mr-1" />
                   追加
                 </Button>
@@ -458,8 +457,8 @@
               {#each weekdayConditions as condition}
                 <WeekdayConditionEditor
                   {condition}
-                  onUpdate={(updates) => { updateWeekdayCondition(condition.id, updates); updatePreview(); }}
-                  onRemove={() => { removeWeekdayCondition(condition.id); updatePreview(); }}
+                  onUpdate={(updates) => { updateWeekdayCondition(condition.id, updates); handleImmediateSave(); }}
+                  onRemove={() => { removeWeekdayCondition(condition.id); handleImmediateSave(); }}
                 />
               {/each}
             </div>
@@ -496,22 +495,5 @@
       </div>
     </div>
 
-    <Dialog.Footer class="flex justify-between">
-      <div>
-        {#if recurrenceRule}
-          <Button variant="destructive" onclick={handleRemove}>
-            {remove()}
-          </Button>
-        {/if}
-      </div>
-      <div class="flex gap-2">
-        <Button variant="outline" onclick={() => onOpenChange?.(false)}>
-          {cancel()}
-        </Button>
-        <Button onclick={handleSave}>
-          {save()}
-        </Button>
-      </div>
-    </Dialog.Footer>
   </Dialog.Content>
 </Dialog.Root>
