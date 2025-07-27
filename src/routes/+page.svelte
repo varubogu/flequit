@@ -22,7 +22,7 @@
   }
 </script>
 
-<Sidebar.Provider class="h-screen flex bg-background">
+<Sidebar.Provider class="h-screen flex bg-background" style="--sidebar-width-icon: 4rem;">
   <!-- Collapsible Sidebar -->
   <CollapsibleSidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
 
