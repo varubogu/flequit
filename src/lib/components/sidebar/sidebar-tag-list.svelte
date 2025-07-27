@@ -2,6 +2,7 @@
   import type { ViewType } from '$lib/services/view-service';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
@@ -32,9 +33,10 @@
   let showEditDialog = $state(false);
   let showDeleteConfirm = $state(false);
 
-  function handleTagClick() {
-    // TODO: Implement tag view filtering
-    onViewChange?.('all'); // For now, just switch to all view
+  function handleTagClick(tag: Tag) {
+    // タグ検索を実行する（#tagName形式）
+    const searchQuery = `#${tag.name}`;
+    viewStore.performSearch(searchQuery);
   }
 
   function handleRemoveFromBookmarks(tag: Tag) {
@@ -88,7 +90,7 @@
         onRemoveFromBookmarks={handleRemoveFromBookmarks}
         onEditTag={handleEditTag}
         onDeleteTag={handleDeleteTag}
-        onTagClick={handleTagClick}
+        onTagClick={() => handleTagClick(tag)}
       />
     {/each}
   </div>
