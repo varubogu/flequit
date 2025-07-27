@@ -19,7 +19,9 @@ describe('TagEditDialog', () => {
   const mockTag: Tag = {
     id: 'test-tag',
     name: 'テストタグ',
-    color: '#ff0000'
+    color: '#ff0000',
+    created_at: new Date(),
+    updated_at: new Date()
   };
 
   const defaultProps = {
@@ -173,8 +175,8 @@ describe('TagEditDialog', () => {
     expect(colorPicker).toHaveValue('#0000ff');
   });
 
-  it('色がnullの場合はデフォルト色が使用される', () => {
-    const tagWithoutColor = { ...mockTag, color: null };
+  it('色がundefinedの場合はデフォルト色が使用される', () => {
+    const tagWithoutColor = { ...mockTag, color: undefined };
     const props = { ...defaultProps, tag: tagWithoutColor };
     render(TagEditDialog, { props });
     

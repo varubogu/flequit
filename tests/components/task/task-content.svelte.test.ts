@@ -23,15 +23,18 @@ describe('TaskContent', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test task description',
-    status: 'pending',
-    priority: 'medium',
-    due_date: new Date('2024-02-15'),
+    status: 'not_started',
+    priority: 1,
+    end_date: new Date('2024-02-15'),
+    list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     created_at: new Date(),
     updated_at: new Date(),
     tags: [mockTag],
     sub_tasks: [
-      { id: 'sub-1', title: 'Sub Task 1', status: 'completed', parent_task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-      { id: 'sub-2', title: 'Sub Task 2', status: 'pending', parent_task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
+      { id: 'sub-1', task_id: 'task-1', title: 'Sub Task 1', status: 'completed', order_index: 0, tags: [], created_at: new Date(), updated_at: new Date() },
+      { id: 'sub-2', task_id: 'task-1', title: 'Sub Task 2', status: 'not_started', order_index: 1, tags: [], created_at: new Date(), updated_at: new Date() }
     ]
   };
 
@@ -253,7 +256,7 @@ describe('TaskContent', () => {
   });
 
   it('異なる優先度のタスクが処理される', () => {
-    const priorities = ['low', 'medium', 'high', 'urgent'] as const;
+    const priorities = [0, 1, 2, 3] as const;
 
     priorities.forEach(priority => {
       const taskWithPriority = {
@@ -273,7 +276,7 @@ describe('TaskContent', () => {
   it('期限日がないタスクが処理される', () => {
     const taskWithoutDueDate = {
       ...mockTask,
-      due_date: undefined
+      end_date: undefined
     };
 
     const props = {
@@ -281,7 +284,7 @@ describe('TaskContent', () => {
       task: taskWithoutDueDate
     };
     
-    expect(props.task.due_date).toBeUndefined();
+    expect(props.task.end_date).toBeUndefined();
   });
 
   it('handleDueDateClickが呼び出し可能である', () => {
@@ -306,16 +309,21 @@ describe('TaskContent', () => {
       title: 'Complex Task with Multiple Features',
       description: 'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
       status: 'in_progress',
-      priority: 'high',
-      due_date: new Date('2024-03-01'),
+      priority: 3,
+      end_date: new Date('2024-03-01'),
+      list_id: 'list-1',
+      order_index: 0,
+      is_archived: false,
       created_at: new Date(),
       updated_at: new Date(),
       tags: [mockTag],
       sub_tasks: Array.from({ length: 5 }, (_, i) => ({
         id: `sub-${i}`,
         title: `Sub Task ${i + 1}`,
-        status: i < 2 ? 'completed' as const : 'pending' as const,
-        parent_task_id: 'complex-task',
+        status: i < 2 ? 'completed' as const : 'not_started' as const,
+        task_id: 'complex-task',
+        order_index: i,
+        tags: [],
         created_at: new Date(),
         updated_at: new Date()
       }))

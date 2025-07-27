@@ -12,10 +12,9 @@ describe('RecurrenceAdjustmentEditor', () => {
 
   const mockWeekdayCondition: WeekdayCondition = {
     id: 'weekday-1',
-    weekday: 1,
-    nth: 1,
-    invert: false,
-    month_relation: 'same'
+    if_weekday: 'monday',
+    then_direction: 'next',
+    then_target: 'weekday'
   };
 
   const defaultProps = {
@@ -125,10 +124,10 @@ describe('RecurrenceAdjustmentEditor', () => {
 
   it('WeekdayConditionの異なるプロパティが処理される', () => {
     const conditions = [
-      { weekday: 0, nth: 1, invert: false, month_relation: 'same' as const },
-      { weekday: 6, nth: -1, invert: true, month_relation: 'next' as const },
-      { weekday: 3, nth: 2, invert: false, month_relation: 'previous' as const }
-    ];
+      { if_weekday: 'monday', then_direction: 'next', then_target: 'weekday' },
+      { if_weekday: 'tuesday', then_direction: 'previous', then_target: 'weekend' },
+      { if_weekday: 'wednesday', then_direction: 'next', then_target: 'holiday' }
+    ] as const;
     
     conditions.forEach((conditionData, index) => {
       const condition: WeekdayCondition = {
@@ -136,10 +135,9 @@ describe('RecurrenceAdjustmentEditor', () => {
         ...conditionData
       };
       
-      expect(condition.weekday).toBe(conditionData.weekday);
-      expect(condition.nth).toBe(conditionData.nth);
-      expect(condition.invert).toBe(conditionData.invert);
-      expect(condition.month_relation).toBe(conditionData.month_relation);
+      expect(condition.if_weekday).toBe(conditionData.if_weekday);
+      expect(condition.then_direction).toBe(conditionData.then_direction);
+      expect(condition.then_target).toBe(conditionData.then_target);
     });
   });
 

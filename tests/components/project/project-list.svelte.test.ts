@@ -21,7 +21,7 @@ describe('ProjectList', () => {
   });
 
   it('ViewTypeの異なる値が正しく処理される', () => {
-    const viewTypes: ViewType[] = ['all', 'today', 'week', 'project', 'tasklist', 'search'];
+    const viewTypes: ViewType[] = ['all', 'today', 'nextweek', 'project', 'tasklist', 'search'];
     
     viewTypes.forEach(viewType => {
       const props = {
@@ -88,7 +88,7 @@ describe('ProjectList', () => {
   });
 
   it('ViewTypeの型安全性が保たれる', () => {
-    const validViewTypes: ViewType[] = ['all', 'today', 'week', 'project', 'tasklist', 'search'];
+    const validViewTypes: ViewType[] = ['all', 'today', 'nextweek', 'project', 'tasklist', 'search'];
     
     validViewTypes.forEach(viewType => {
       const props = {
@@ -123,7 +123,7 @@ describe('ProjectList', () => {
     const combinations = [
       { currentView: 'all' as ViewType, onViewChange: vi.fn() },
       { currentView: 'today' as ViewType, onViewChange: vi.fn() },
-      { currentView: 'week' as ViewType, onViewChange: vi.fn() },
+      { currentView: 'nextweek' as ViewType, onViewChange: vi.fn() },
       { currentView: 'project' as ViewType, onViewChange: vi.fn() },
       { currentView: 'tasklist' as ViewType, onViewChange: vi.fn() },
       { currentView: 'search' as ViewType, onViewChange: vi.fn() }

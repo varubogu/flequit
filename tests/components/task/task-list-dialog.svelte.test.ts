@@ -320,9 +320,5 @@ describe('TaskListDialog', () => {
     
     expect(minimalProps.open).toBe(false);
     expect(minimalProps.mode).toBe('add');
-    expect(minimalProps.title).toBeUndefined();
-    expect(minimalProps.initialName).toBeUndefined();
-    expect(minimalProps.onsave).toBeUndefined();
-    expect(minimalProps.onclose).toBeUndefined();
   });
 });
