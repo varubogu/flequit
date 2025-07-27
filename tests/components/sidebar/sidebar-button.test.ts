@@ -2,6 +2,17 @@ import { test, expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/svelte";
 import SidebarButton from "$lib/components/sidebar/sidebar-button.svelte";
 
+// --- Sidebar Context Mock ---
+vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
+  useSidebar: () => ({
+    state: 'expanded',
+    open: true,
+    isMobile: false,
+    toggleSidebar: vi.fn(),
+    setOpen: vi.fn(),
+  })
+}));
+
 test("SidebarButton: renders basic button without context menu", async () => {
   const mockClick = vi.fn();
   

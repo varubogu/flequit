@@ -20,6 +20,21 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords() { return []; }
 } as any;
 
+// Mock matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+  }),
+});
+
 // Mock scrollIntoView
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
   value: () => {},

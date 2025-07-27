@@ -2,6 +2,36 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import UserProfile from '$lib/components/user/user-profile.svelte';
 
+// --- Sidebar Context Mock ---
+vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
+  useSidebar: () => ({
+    state: 'expanded',
+    open: true,
+    isMobile: false,
+    toggleSidebar: vi.fn(),
+    setOpen: vi.fn(),
+  })
+}));
+
+// --- Paraglide Mock ---
+vi.mock('$paraglide/messages.js', () => ({
+  not_signed_in: () => 'Not signed in',
+  settings: () => 'Settings',
+  switch_account: () => 'Switch Account',
+  sign_out: () => 'Sign Out',
+  sign_in: () => 'Sign In'
+}));
+
+// --- Locale Store Mock ---
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: any) => fn
+}));
+
+// --- Settings Dialog Mock ---
+vi.mock('$lib/components/settings/settings-dialog.svelte', () => ({
+  default: vi.fn().mockImplementation(() => ({ component: 'SettingsDialog' }))
+}));
+
 const mockUser = {
   id: '1',
   name: 'John Doe',

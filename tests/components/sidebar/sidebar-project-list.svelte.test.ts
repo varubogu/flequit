@@ -25,6 +25,17 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: any) => fn
 }));
 
+// --- Sidebar Context Mock ---
+vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
+  useSidebar: () => ({
+    state: 'expanded',
+    open: true,
+    isMobile: false,
+    toggleSidebar: vi.fn(),
+    setOpen: vi.fn(),
+  })
+}));
+
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
