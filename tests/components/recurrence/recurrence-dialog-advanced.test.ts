@@ -234,9 +234,7 @@ describe('RecurrenceDialogAdvanced', () => {
     );
   });
 
-  it.skip('無効選択時はnullが保存される', () => {
-    // このテストは実装の動作と一致しないため一時的にスキップ
-    // 実装では初期状態で自動保存は行われない
+  it('無効選択時はnullが保存される', () => {
     render(RecurrenceDialogAdvanced, {
       props: {
         open: true,
@@ -245,7 +243,12 @@ describe('RecurrenceDialogAdvanced', () => {
       }
     });
 
-    // デフォルトで無効 - 初期状態でnullが保存される
+    // まず有効に変更してから無効に戻すことで、実際に変更イベントを発生させる
+    const select = screen.getByDisplayValue('無効');
+    fireEvent.change(select, { target: { value: 'enabled' } });
+    fireEvent.change(select, { target: { value: 'disabled' } });
+
+    // 無効に変更した時にnullが保存される
     expect(mockOnSave).toHaveBeenCalledWith(null);
   });
 
@@ -267,8 +270,7 @@ describe('RecurrenceDialogAdvanced', () => {
     expect(screen.getByPlaceholderText('無制限の場合は空欄')).toBeTruthy();
   });
 
-  it.skip('繰り返し回数設定時にmax_occurrencesが保存される', () => {
-    // このテストは実装の動作と一致しないため調査が必要
+  it('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
     render(RecurrenceDialogAdvanced, {
       props: {
         open: true,
@@ -281,16 +283,21 @@ describe('RecurrenceDialogAdvanced', () => {
     const select = screen.getByDisplayValue('無効');
     fireEvent.change(select, { target: { value: 'enabled' } });
 
+    // まずmockをクリアして、繰り返し回数の変更のみをテストする
+    mockOnSave.mockClear();
+
     // 繰り返し回数を設定
     const countInput = screen.getByPlaceholderText('無制限の場合は空欄') as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
 
+    // setTimeoutを考慮して少し待機
+    await new Promise(resolve => setTimeout(resolve, 10));
+
     // 入力値が正しく反映されることを確認
     expect(countInput.value).toBe('3');
 
-    // 自動保存により値が保存される
-
-    expect(mockOnSave).toHaveBeenCalledWith(
+    // 自動保存により値が保存される（最後の呼び出しを確認）
+    expect(mockOnSave).toHaveBeenLastCalledWith(
       expect.objectContaining({
         unit: 'day',
         interval: 1,
