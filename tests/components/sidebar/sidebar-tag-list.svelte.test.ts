@@ -32,19 +32,27 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 }));
 
 // --- Store Mocks ---
-vi.mock('$lib/stores/tags.svelte', () => ({
-  tagStore: {
-    tags: [
-      { id: 'tag-1', name: 'Work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
-      { id: 'tag-2', name: 'Personal', color: '#00ff00', created_at: new Date(), updated_at: new Date() },
-      { id: 'tag-3', name: 'Project', color: '#0000ff', created_at: new Date(), updated_at: new Date() }
-    ],
-    bookmarkedTags: new Set(['tag-1', 'tag-2']),
-    removeBookmark: vi.fn(),
-    updateTag: vi.fn(),
-    deleteTag: vi.fn()
-  }
-}));
+vi.mock('$lib/stores/tags.svelte', () => {
+  const mockTags = [
+    { id: 'tag-1', name: 'Work', color: '#ff0000', order_index: 0, created_at: new Date(), updated_at: new Date() },
+    { id: 'tag-2', name: 'Personal', color: '#00ff00', order_index: 1, created_at: new Date(), updated_at: new Date() },
+    { id: 'tag-3', name: 'Project', color: '#0000ff', order_index: 2, created_at: new Date(), updated_at: new Date() }
+  ];
+
+  return {
+    tagStore: {
+      tags: mockTags,
+      bookmarkedTags: new Set(['tag-1', 'tag-2']),
+      get bookmarkedTagList() {
+        return mockTags.filter(tag => this.bookmarkedTags.has(tag.id))
+          .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+      },
+      removeBookmark: vi.fn(),
+      updateTag: vi.fn(),
+      deleteTag: vi.fn()
+    }
+  };
+});
 
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {

@@ -10,6 +10,7 @@
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
+  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 
   interface Props {
     currentView?: ViewType;
@@ -87,6 +88,54 @@
     }
     showProjectDialog = false;
   }
+
+  // Drag & Drop handlers
+  function handleProjectDragStart(event: DragEvent, project: ProjectTree) {
+    const dragData: DragData = {
+      type: 'project',
+      id: project.id
+    };
+    DragDropManager.startDrag(event, dragData);
+  }
+
+  function handleProjectDragOver(event: DragEvent, project: ProjectTree) {
+    const target: DropTarget = {
+      type: 'project',
+      id: project.id
+    };
+    DragDropManager.handleDragOver(event, target);
+  }
+
+  function handleProjectDrop(event: DragEvent, targetProject: ProjectTree) {
+    const target: DropTarget = {
+      type: 'project',
+      id: targetProject.id
+    };
+    
+    const dragData = DragDropManager.handleDrop(event, target);
+    if (!dragData) return;
+
+    if (dragData.type === 'project') {
+      // プロジェクト同士の並び替え
+      const targetIndex = projectsData.findIndex(p => p.id === targetProject.id);
+      taskStore.moveProjectToPosition(dragData.id, targetIndex);
+    } else if (dragData.type === 'tasklist') {
+      // タスクリストをプロジェクトにドロップ（最後尾に配置）
+      taskStore.moveTaskListToProject(dragData.id, targetProject.id);
+    }
+  }
+
+  function handleProjectDragEnd(event: DragEvent) {
+    DragDropManager.handleDragEnd(event);
+  }
+
+  function handleProjectDragEnter(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragEnter(event, element);
+  }
+
+  function handleProjectDragLeave(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragLeave(event, element);
+  }
 </script>
 
 {#each projectsData as project (project.id)}
@@ -123,6 +172,13 @@
                 : "flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"}
               onclick={() => handleProjectSelect(project)}
               data-testid="project-{project.id}"
+              draggable="true"
+              ondragstart={(event) => handleProjectDragStart(event, project)}
+              ondragover={(event) => handleProjectDragOver(event, project)}
+              ondrop={(event) => handleProjectDrop(event, project)}
+              ondragend={handleProjectDragEnd}
+              ondragenter={(event) => event.currentTarget && handleProjectDragEnter(event, event.currentTarget as HTMLElement)}
+              ondragleave={(event) => event.currentTarget && handleProjectDragLeave(event, event.currentTarget as HTMLElement)}
             >
               <div class="flex items-center gap-2 min-w-0">
                 <div

@@ -321,3 +321,39 @@ body {
 .text-popover-foreground {
   color: hsl(var(--color-popover-foreground));
 }
+
+/* Drag & Drop styles */
+.drag-over {
+  @apply ring-2 ring-primary ring-offset-1 bg-primary/5;
+}
+
+.dragging {
+  @apply opacity-50;
+}
+
+.drop-zone {
+  @apply transition-colors duration-200;
+}
+
+.drop-zone.can-drop {
+  @apply border-primary/50 bg-primary/5;
+}
+
+.drop-zone.cannot-drop {
+  @apply border-destructive/50 bg-destructive/5;
+}
+
+.drag-handle {
+  @apply cursor-move;
+}
+
+.drag-handle:hover {
+  @apply opacity-70;
+}
+
+.drag-preview {
+  @apply bg-background border border-border rounded-md shadow-lg p-2 text-sm;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1000;
+}

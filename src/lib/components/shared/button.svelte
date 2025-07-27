@@ -16,6 +16,13 @@
     title?: string;
     "aria-label"?: string;
     "data-testid"?: string;
+    draggable?: boolean | string;
+    ondragstart?: (event: DragEvent) => void;
+    ondragover?: (event: DragEvent) => void;
+    ondrop?: (event: DragEvent) => void;
+    ondragend?: (event: DragEvent) => void;
+    ondragenter?: (event: DragEvent) => void;
+    ondragleave?: (event: DragEvent) => void;
   };
 
   let { class: className, ...restProps }: Props = $props();

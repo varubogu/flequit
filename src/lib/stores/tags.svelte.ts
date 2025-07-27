@@ -18,7 +18,9 @@ export class TagStore {
     // Explicitly access both reactive properties to ensure reactivity
     const tags = this.tags;
     const bookmarked = this.bookmarkedTags;
-    return tags.filter(tag => bookmarked.has(tag.id));
+    return tags
+      .filter(tag => bookmarked.has(tag.id))
+      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
   }
   
   // Actions
@@ -142,12 +144,57 @@ export class TagStore {
     const newBookmarks = new Set(this.bookmarkedTags);
     newBookmarks.add(tagId);
     this.bookmarkedTags = newBookmarks;
+    
+    // 新しくブックマークされたタグにorder_indexを設定
+    const tag = this.tags.find(t => t.id === tagId);
+    if (tag && tag.order_index === undefined) {
+      const currentBookmarkedTags = this.bookmarkedTagList;
+      this.updateTag(tagId, { order_index: currentBookmarkedTags.length - 1 });
+    }
   }
   
   removeBookmark(tagId: string) {
     const newBookmarks = new Set(this.bookmarkedTags);
     newBookmarks.delete(tagId);
     this.bookmarkedTags = newBookmarks;
+  }
+
+  // Drag & Drop methods for bookmarked tags
+  reorderBookmarkedTags(fromIndex: number, toIndex: number) {
+    const bookmarkedTags = this.bookmarkedTagList;
+    
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || 
+        fromIndex >= bookmarkedTags.length || toIndex >= bookmarkedTags.length) {
+      return;
+    }
+
+    // ブックマークされたタグの並び順を変更
+    const [movedTag] = bookmarkedTags.splice(fromIndex, 1);
+    bookmarkedTags.splice(toIndex, 0, movedTag);
+
+    // order_indexを更新
+    bookmarkedTags.forEach((tag, index) => {
+      this.updateTag(tag.id, { order_index: index });
+    });
+  }
+
+  moveBookmarkedTagToPosition(tagId: string, targetIndex: number) {
+    const bookmarkedTags = this.bookmarkedTagList;
+    const currentIndex = bookmarkedTags.findIndex(tag => tag.id === tagId);
+    
+    if (currentIndex === -1 || currentIndex === targetIndex) return;
+
+    this.reorderBookmarkedTags(currentIndex, targetIndex);
+  }
+
+  initializeTagOrderIndices() {
+    // 既存のブックマークされたタグにorder_indexを設定（まだ設定されていない場合）
+    const bookmarkedTags = this.tags.filter(tag => this.bookmarkedTags.has(tag.id));
+    bookmarkedTags.forEach((tag, index) => {
+      if (tag.order_index === undefined) {
+        this.updateTag(tag.id, { order_index: index });
+      }
+    });
   }
 }
 

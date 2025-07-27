@@ -14,9 +14,27 @@
     onEditTag?: (tag: Tag) => void;
     onDeleteTag?: (tag: Tag) => void;
     onTagClick?: () => void;
+    onDragStart?: (event: DragEvent) => void;
+    onDragOver?: (event: DragEvent) => void;
+    onDrop?: (event: DragEvent) => void;
+    onDragEnd?: (event: DragEvent) => void;
+    onDragEnter?: (event: DragEvent, element: HTMLElement) => void;
+    onDragLeave?: (event: DragEvent, element: HTMLElement) => void;
   }
 
-  let { tag, onRemoveFromBookmarks, onEditTag, onDeleteTag, onTagClick }: Props = $props();
+  let { 
+    tag, 
+    onRemoveFromBookmarks, 
+    onEditTag, 
+    onDeleteTag, 
+    onTagClick, 
+    onDragStart, 
+    onDragOver, 
+    onDrop, 
+    onDragEnd, 
+    onDragEnter, 
+    onDragLeave 
+  }: Props = $props();
 
   // Get sidebar state
   const sidebar = useSidebar();
@@ -58,6 +76,13 @@
         ? "w-full justify-center p-2 h-auto group hover:bg-accent"
         : "w-full justify-between p-3 h-auto group hover:bg-accent"}
       onclick={handleTagClick}
+      draggable="true"
+      ondragstart={onDragStart}
+      ondragover={onDragOver}
+      ondrop={onDrop}
+      ondragend={onDragEnd}
+      ondragenter={(event) => onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
+      ondragleave={(event) => onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
     >
       {#if sidebar.state === 'collapsed'}
         <Hash

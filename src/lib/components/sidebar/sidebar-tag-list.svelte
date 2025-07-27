@@ -10,6 +10,7 @@
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import SidebarTagItem from './sidebar-tag-item.svelte';
   import type { Tag } from '$lib/types/task';
+  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 
   interface Props {
     currentView?: ViewType;
@@ -21,9 +22,7 @@
   // Get sidebar state
   const sidebar = useSidebar();
 
-  let bookmarkedTags = $derived(
-    tagStore.tags.filter(tag => tagStore.bookmarkedTags.has(tag.id))
-  );
+  let bookmarkedTags = $derived(tagStore.bookmarkedTagList);
 
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);
@@ -73,6 +72,51 @@
     showDeleteConfirm = false;
     selectedTag = null;
   }
+
+  // Drag & Drop handlers
+  function handleTagDragStart(event: DragEvent, tag: Tag) {
+    const dragData: DragData = {
+      type: 'tag',
+      id: tag.id
+    };
+    DragDropManager.startDrag(event, dragData);
+  }
+
+  function handleTagDragOver(event: DragEvent, tag: Tag) {
+    const target: DropTarget = {
+      type: 'tag',
+      id: tag.id
+    };
+    DragDropManager.handleDragOver(event, target);
+  }
+
+  function handleTagDrop(event: DragEvent, targetTag: Tag) {
+    const target: DropTarget = {
+      type: 'tag',
+      id: targetTag.id
+    };
+    
+    const dragData = DragDropManager.handleDrop(event, target);
+    if (!dragData) return;
+
+    if (dragData.type === 'tag') {
+      // タグ同士の並び替え
+      const targetIndex = bookmarkedTags.findIndex(t => t.id === targetTag.id);
+      tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
+    }
+  }
+
+  function handleTagDragEnd(event: DragEvent) {
+    DragDropManager.handleDragEnd(event);
+  }
+
+  function handleTagDragEnter(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragEnter(event, element);
+  }
+
+  function handleTagDragLeave(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragLeave(event, element);
+  }
 </script>
 
 <!-- タグカテゴリ -->
@@ -91,6 +135,12 @@
         onEditTag={handleEditTag}
         onDeleteTag={handleDeleteTag}
         onTagClick={() => handleTagClick(tag)}
+        onDragStart={(event) => handleTagDragStart(event, tag)}
+        onDragOver={(event) => handleTagDragOver(event, tag)}
+        onDrop={(event) => handleTagDrop(event, tag)}
+        onDragEnd={handleTagDragEnd}
+        onDragEnter={handleTagDragEnter}
+        onDragLeave={handleTagDragLeave}
       />
     {/each}
   </div>

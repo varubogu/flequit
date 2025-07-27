@@ -638,6 +638,124 @@ export class TaskStore {
       }
     }
   }
+
+  // Drag & Drop methods
+  reorderProjects(fromIndex: number, toIndex: number) {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || 
+        fromIndex >= this.projects.length || toIndex >= this.projects.length) {
+      return;
+    }
+
+    const [movedProject] = this.projects.splice(fromIndex, 1);
+    this.projects.splice(toIndex, 0, movedProject);
+
+    // Update order indices
+    this.projects.forEach((project, index) => {
+      project.order_index = index;
+      project.updated_at = new Date();
+    });
+  }
+
+  moveProjectToPosition(projectId: string, targetIndex: number) {
+    const currentIndex = this.projects.findIndex(p => p.id === projectId);
+    if (currentIndex === -1 || currentIndex === targetIndex) return;
+
+    this.reorderProjects(currentIndex, targetIndex);
+  }
+
+  reorderTaskLists(projectId: string, fromIndex: number, toIndex: number) {
+    const project = this.projects.find(p => p.id === projectId);
+    if (!project || fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || 
+        fromIndex >= project.task_lists.length || toIndex >= project.task_lists.length) {
+      return;
+    }
+
+    const [movedTaskList] = project.task_lists.splice(fromIndex, 1);
+    project.task_lists.splice(toIndex, 0, movedTaskList);
+
+    // Update order indices
+    project.task_lists.forEach((taskList, index) => {
+      taskList.order_index = index;
+      taskList.updated_at = new Date();
+    });
+    project.updated_at = new Date();
+  }
+
+  moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number) {
+    // Find and remove the task list from its current project
+    let taskListToMove: TaskListWithTasks | null = null;
+    let sourceProject: ProjectTree | null = null;
+
+    for (const project of this.projects) {
+      const taskListIndex = project.task_lists.findIndex(tl => tl.id === taskListId);
+      if (taskListIndex !== -1) {
+        taskListToMove = project.task_lists[taskListIndex];
+        sourceProject = project;
+        project.task_lists.splice(taskListIndex, 1);
+        project.updated_at = new Date();
+        
+        // Update order indices in source project
+        project.task_lists.forEach((tl, index) => {
+          tl.order_index = index;
+          tl.updated_at = new Date();
+        });
+        break;
+      }
+    }
+
+    if (!taskListToMove || !sourceProject) return;
+
+    // Find target project and add the task list
+    const targetProject = this.projects.find(p => p.id === targetProjectId);
+    if (!targetProject) {
+      // Restore to original project if target not found
+      sourceProject.task_lists.push(taskListToMove);
+      return;
+    }
+
+    // Update task list's project reference
+    taskListToMove.project_id = targetProjectId;
+    taskListToMove.updated_at = new Date();
+
+    // Insert at specified position or at the end
+    if (targetIndex !== undefined && targetIndex >= 0 && targetIndex <= targetProject.task_lists.length) {
+      targetProject.task_lists.splice(targetIndex, 0, taskListToMove);
+    } else {
+      targetProject.task_lists.push(taskListToMove);
+    }
+
+    // Update order indices in target project
+    targetProject.task_lists.forEach((tl, index) => {
+      tl.order_index = index;
+      tl.updated_at = new Date();
+    });
+    targetProject.updated_at = new Date();
+  }
+
+  moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number) {
+    // Find current position
+    let currentProject: ProjectTree | null = null;
+    let currentIndex = -1;
+
+    for (const project of this.projects) {
+      const index = project.task_lists.findIndex(tl => tl.id === taskListId);
+      if (index !== -1) {
+        currentProject = project;
+        currentIndex = index;
+        break;
+      }
+    }
+
+    if (!currentProject || currentIndex === -1) return;
+
+    if (currentProject.id === targetProjectId) {
+      // Same project - just reorder
+      this.reorderTaskLists(targetProjectId, currentIndex, targetIndex);
+    } else {
+      // Different project - move
+      this.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
+    }
+  }
 }
 
 // Create global store instance
