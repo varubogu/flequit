@@ -5,9 +5,7 @@ import type { RecurrenceRule, DayOfWeek, WeekOfMonth } from '$lib/types/task';
 
 // モック設定
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: vi.fn((messageFn) => {
-    return vi.fn(() => 'Mocked message');
-  })
+  reactiveMessage: (fn: () => string) => () => fn()
 }));
 
 vi.mock('$paraglide/messages.js', () => ({
@@ -79,7 +77,7 @@ describe('TaskRecurrenceSelector', () => {
     render(TaskRecurrenceSelector, { props: defaultProps });
     
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('Mocked message')).toBeInTheDocument(); // no_recurrence
+    expect(screen.getByText('No recurrence')).toBeInTheDocument();
   });
 
   it('無効化状態でボタンが操作できない', () => {

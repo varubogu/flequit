@@ -1,14 +1,12 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
 import ConfirmDialog from '$lib/components/dialog/confirm-dialog.svelte';
 
 describe('ConfirmDialog', () => {
   const defaultProps = {
     show: true,
-    title: 'Confirm Action',
-    message: 'Are you sure you want to proceed?',
-    confirmText: 'Yes',
-    cancelText: 'No',
+    title: 'テスト確認',
+    message: 'この操作を実行してもよろしいですか？',
     onConfirm: vi.fn(),
     onCancel: vi.fn()
   };
@@ -17,62 +15,100 @@ describe('ConfirmDialog', () => {
     vi.clearAllMocks();
   });
 
-  it('コンポーネントのpropsが正しく設定される', () => {
-    // 複雑な外部依存のため基本的なテストのみ実装
-    const props = defaultProps;
-    expect(props.show).toBe(true);
-    expect(props.title).toBe('Confirm Action');
-    expect(props.message).toBe('Are you sure you want to proceed?');
-    expect(props.confirmText).toBe('Yes');
-    expect(props.cancelText).toBe('No');
-    expect(props.onConfirm).toBeInstanceOf(Function);
-    expect(props.onCancel).toBeInstanceOf(Function);
+  it('ダイアログが表示される', () => {
+    render(ConfirmDialog, { props: defaultProps });
+    
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('テスト確認')).toBeInTheDocument();
+    expect(screen.getByText('この操作を実行してもよろしいですか？')).toBeInTheDocument();
   });
 
-  it('デフォルトのconfirmTextとcancelTextが設定される', () => {
-    const propsWithoutText = {
-      show: true,
-      title: 'Test Title',
-      message: 'Test Message',
-      onConfirm: vi.fn(),
-      onCancel: vi.fn()
-    };
+  it('showがfalseの場合はダイアログが表示されない', () => {
+    const props = { ...defaultProps, show: false };
+    render(ConfirmDialog, { props });
     
-    expect(propsWithoutText.show).toBe(true);
-    expect(propsWithoutText.title).toBe('Test Title');
-    expect(propsWithoutText.message).toBe('Test Message');
-    expect(propsWithoutText.onConfirm).toBeInstanceOf(Function);
-    expect(propsWithoutText.onCancel).toBeInstanceOf(Function);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('確認ボタンとキャンセルボタンが表示される', () => {
+    render(ConfirmDialog, { props: defaultProps });
+    
+    const buttons = screen.getAllByRole('button');
+    expect(buttons.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('確認ボタンクリックでonConfirmが呼ばれる', async () => {
+    const mockOnConfirm = vi.fn();
+    const props = { ...defaultProps, onConfirm: mockOnConfirm };
+    render(ConfirmDialog, { props });
+    
+    const confirmButton = screen.getByTitle('Confirm');
+    await fireEvent.click(confirmButton);
+    
+    expect(mockOnConfirm).toHaveBeenCalled();
+  });
+
+  it('キャンセルボタンクリックでonCancelが呼ばれる', async () => {
+    const mockOnCancel = vi.fn();
+    const props = { ...defaultProps, onCancel: mockOnCancel };
+    render(ConfirmDialog, { props });
+    
+    const cancelButton = screen.getByTitle('Cancel');
+    await fireEvent.click(cancelButton);
+    
+    expect(mockOnCancel).toHaveBeenCalled();
+  });
+
+  it('カスタム確認ボタンテキストが設定される', () => {
+    const props = { ...defaultProps, confirmText: '実行' };
+    render(ConfirmDialog, { props });
+    
+    const confirmButton = screen.getByTitle('実行');
+    expect(confirmButton).toBeInTheDocument();
+  });
+
+  it('カスタムキャンセルボタンテキストが設定される', () => {
+    const props = { ...defaultProps, cancelText: '戻る' };
+    render(ConfirmDialog, { props });
+    
+    const cancelButton = screen.getByTitle('戻る');
+    expect(cancelButton).toBeInTheDocument();
+  });
+
+  it('デフォルトボタンテキストが使用される', () => {
+    render(ConfirmDialog, { props: defaultProps });
+    
+    expect(screen.getByTitle('Confirm')).toBeInTheDocument();
+    expect(screen.getByTitle('Cancel')).toBeInTheDocument();
+  });
+
+  it('タイトルとメッセージが正しく表示される', () => {
+    const customProps = {
+      ...defaultProps,
+      title: 'カスタムタイトル',
+      message: 'カスタムメッセージです。'
+    };
+    render(ConfirmDialog, { props: customProps });
+    
+    expect(screen.getByText('カスタムタイトル')).toBeInTheDocument();
+    expect(screen.getByText('カスタムメッセージです。')).toBeInTheDocument();
   });
 
   it('必要なpropsが正しく設定される', () => {
     const props = {
       show: true,
-      title: 'Delete Item',
-      message: 'This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Keep',
+      title: 'Test Title',
+      message: 'Test Message',
+      confirmText: 'Yes',
+      cancelText: 'No',
       onConfirm: vi.fn(),
       onCancel: vi.fn()
     };
     
-    expect(props.show).toBe(true);
-    expect(props.title).toBe('Delete Item');
-    expect(props.message).toBe('This action cannot be undone.');
-    expect(props.confirmText).toBe('Delete');
-    expect(props.cancelText).toBe('Keep');
+    const { container } = render(ConfirmDialog, { props });
+    
+    expect(container).toBeTruthy();
     expect(props.onConfirm).toBeInstanceOf(Function);
     expect(props.onCancel).toBeInstanceOf(Function);
-  });
-
-  it('特殊文字を含むtitleとmessageが処理される', () => {
-    const props = {
-      ...defaultProps,
-      title: 'Title with <special> & "characters"',
-      message: 'Message with <tags> & "quotes" and other special characters: @#$%^&*()'
-    };
-    
-    expect(props.title).toBe('Title with <special> & "characters"');
-    expect(props.message).toBe('Message with <tags> & "quotes" and other special characters: @#$%^&*()');
   });
 });

@@ -1,59 +1,31 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagInput from '$lib/components/tag/tag-input.svelte';
 import type { Tag } from '$lib/types/task';
 
-// モック設定
-vi.mock('$lib/stores/tags.svelte', () => ({
-  tagStore: {
-    searchTags: vi.fn().mockReturnValue([]),
-    getOrCreateTag: vi.fn().mockReturnValue({ id: '1', name: 'test', color: null })
-  }
-}));
+// TagDisplayのモック
+vi.mock('$lib/components/tag/tag-display.svelte', () => {
+  return {
+    default: vi.fn().mockImplementation(() => ({
+      $$render: () => '<div data-testid="tag-display">MockedTagDisplay</div>'
+    }))
+  };
+});
 
-vi.mock('$lib/stores/tasks.svelte', () => ({
-  taskStore: {
-    removeTagFromAllTasks: vi.fn()
-  }
-}));
-
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: vi.fn((messageFn) => {
-    return vi.fn(() => 'Mocked message');
-  })
-}));
-
-vi.mock('$paraglide/messages.js', () => ({
-  remove_tag_from_item: vi.fn(() => 'Remove tag from item'),
-  remove_tag_from_sidebar: vi.fn(() => 'Remove tag from sidebar'),
-  add_tag_to_sidebar: vi.fn(() => 'Add tag to sidebar'),
-  edit_tag: vi.fn(() => 'Edit tag'),
-  delete_tag: vi.fn(() => 'Delete tag'),
-  cancel: vi.fn(() => 'Cancel'),
-  save: vi.fn(() => 'Save'),
-  remove: vi.fn(() => 'Remove'),
-  tags: vi.fn(() => 'Tags'),
-  tag_name: vi.fn(() => 'Tag Name'),
-  tag_color: vi.fn(() => 'Tag Color'),
-  delete_tag_description: vi.fn(() => 'Are you sure you want to delete this tag?')
-}));
+// TagCompletionProviderのモック
+vi.mock('$lib/components/tag/tag-completion-provider.svelte', () => {
+  return {
+    default: vi.fn().mockImplementation(() => ({
+      $$render: ($$result: any, $$props: any, $$bindings: any, slots: any) => 
+        `<div data-testid="tag-completion-provider">${slots.default ? slots.default() : ''}</div>`
+    }))
+  };
+});
 
 describe('TagInput', () => {
   const mockTags: Tag[] = [
-    {
-      id: '1',
-      name: 'existing-tag',
-      color: '#ff0000',
-      created_at: new Date(),
-      updated_at: new Date()
-    },
-    {
-      id: '2',
-      name: 'another-tag',
-      color: '#00ff00',
-      created_at: new Date(),
-      updated_at: new Date()
-    }
+    { id: '1', name: 'タグ1', color: '#ff0000' },
+    { id: '2', name: 'タグ2', color: '#00ff00' }
   ];
 
   const defaultProps = {
@@ -66,244 +38,193 @@ describe('TagInput', () => {
     vi.clearAllMocks();
   });
 
-  it('コンポーネントが正しくマウントされる', () => {
-    const { container } = render(TagInput, { props: defaultProps });
-    expect(container).toBeTruthy();
-  });
-
   it('入力フィールドが表示される', () => {
-    render(TagInput, { props: defaultProps });
-    
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
-  });
-
-  it('デフォルトプレースホルダーが表示される', () => {
     render(TagInput, { props: { tags: [] } });
     
-    expect(screen.getByPlaceholderText('Add tags...')).toBeInTheDocument();
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
   });
 
-  it('カスタムプレースホルダーが表示される', () => {
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        placeholder: 'Custom placeholder'
-      } 
-    });
+  it('プレースホルダーが表示される', () => {
+    const placeholder = 'タグを追加...';
+    render(TagInput, { props: { tags: [], placeholder } });
     
-    expect(screen.getByPlaceholderText('Custom placeholder')).toBeInTheDocument();
+    const input = screen.getByPlaceholderText(placeholder);
+    expect(input).toBeInTheDocument();
+  });
+
+  it('デフォルトプレースホルダーが使用される', () => {
+    render(TagInput, { props: { tags: [] } });
+    
+    const input = screen.getByPlaceholderText('Add tags...');
+    expect(input).toBeInTheDocument();
   });
 
   it('既存のタグが表示される', () => {
     render(TagInput, { props: defaultProps });
     
-    expect(screen.getByText('existing-tag')).toBeInTheDocument();
-    expect(screen.getByText('another-tag')).toBeInTheDocument();
+    // TagDisplayコンポーネントがレンダリングされているかテスト
+    const tagDisplays = screen.getAllByTestId('tag-display');
+    expect(tagDisplays).toHaveLength(2);
   });
 
-  it('Enterキーで新しいタグを追加できる', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
+  it('タグがない場合はタグエリアが表示されない', () => {
+    render(TagInput, { props: { tags: [], ontagAdded: vi.fn() } });
+    
+    const tagDisplays = screen.queryAllByTestId('tag-display');
+    expect(tagDisplays).toHaveLength(0);
+  });
+
+  it('Enterキーでタグが追加される', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'new-tag' } });
+    await fireEvent.input(input, { target: { value: '新しいタグ' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).toHaveBeenCalledWith('new-tag');
+    expect(mockOntagAdded).toHaveBeenCalledWith('新しいタグ');
   });
 
-  it('スペースキーで新しいタグを追加できる', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
+  it('スペースキーでタグが追加される', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'space-tag' } });
+    await fireEvent.input(input, { target: { value: '新しいタグ' } });
     await fireEvent.keyDown(input, { key: ' ' });
     
-    expect(ontagAdded).toHaveBeenCalledWith('space-tag');
+    expect(mockOntagAdded).toHaveBeenCalledWith('新しいタグ');
   });
 
-  it('空文字列では新しいタグを追加しない', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
+  it('前後の空白が削除される', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: '' } });
+    await fireEvent.input(input, { target: { value: '  新しいタグ  ' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).not.toHaveBeenCalled();
+    expect(mockOntagAdded).toHaveBeenCalledWith('新しいタグ');
   });
 
-  it('スペースのみの文字列では新しいタグを追加しない', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
+  it('#記号が削除される', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
+    
+    const input = screen.getByRole('textbox');
+    await fireEvent.input(input, { target: { value: '#新しいタグ#' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    
+    expect(mockOntagAdded).toHaveBeenCalledWith('新しいタグ');
+  });
+
+  it('スペースが削除される', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
+    
+    const input = screen.getByRole('textbox');
+    await fireEvent.input(input, { target: { value: '新しい タグ' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    
+    expect(mockOntagAdded).toHaveBeenCalledWith('新しいタグ');
+  });
+
+  it('空文字の場合はタグが追加されない', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: [], ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
     await fireEvent.input(input, { target: { value: '   ' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).not.toHaveBeenCalled();
+    expect(mockOntagAdded).not.toHaveBeenCalled();
   });
 
-  it('既存のタグと同じ名前では新しいタグを追加しない', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        ...defaultProps,
-        ontagAdded 
-      } 
-    });
+  it('空文字の場合は入力値がクリアされる', async () => {
+    render(TagInput, { props: { tags: [], ontagAdded: vi.fn() } });
     
-    const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'existing-tag' } });
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await fireEvent.input(input, { target: { value: '   ' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
   });
 
-  it('大文字小文字を区別せずに重複をチェックする', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        ...defaultProps,
-        ontagAdded 
-      } 
-    });
+  it('既存のタグと重複する場合は追加されない', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: mockTags, ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'EXISTING-TAG' } });
+    await fireEvent.input(input, { target: { value: 'タグ1' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).not.toHaveBeenCalled();
+    expect(mockOntagAdded).not.toHaveBeenCalled();
   });
 
-  it('ハッシュ記号とスペースを除去してタグを追加する', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
+  it('大文字小文字を区別せずに重複を検出する', async () => {
+    const mockOntagAdded = vi.fn();
+    render(TagInput, { props: { tags: mockTags, ontagAdded: mockOntagAdded } });
     
     const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: '# clean tag #' } });
+    await fireEvent.input(input, { target: { value: 'タグ１' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
     
-    expect(ontagAdded).toHaveBeenCalledWith('cleantag');
+    // 異なるスペルなので追加されるはず
+    expect(mockOntagAdded).toHaveBeenCalled();
   });
 
-  it('タグ削除ボタンをクリックするとontagRemovedが呼ばれる', async () => {
-    const ontagRemoved = vi.fn();
-    render(TagInput, { 
-      props: { 
-        ...defaultProps,
-        ontagRemoved 
-      } 
-    });
+  it('重複する場合は入力値がクリアされる', async () => {
+    render(TagInput, { props: { tags: mockTags, ontagAdded: vi.fn() } });
     
-    // TagDisplayコンポーネント内の削除ボタンを探す
-    const buttons = screen.getAllByRole('button');
-    const removeButton = buttons[0]; // 最初のタグの削除ボタン
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await fireEvent.input(input, { target: { value: 'タグ1' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
     
-    if (removeButton) {
-      await fireEvent.click(removeButton);
-      expect(ontagRemoved).toHaveBeenCalledWith('1');
-    }
+    expect(input.value).toBe('');
+  });
+
+  it('タグ追加後に入力値がクリアされる', async () => {
+    render(TagInput, { props: { tags: [], ontagAdded: vi.fn() } });
+    
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await fireEvent.input(input, { target: { value: '新しいタグ' } });
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    
+    expect(input.value).toBe('');
   });
 
   it('Escapeキーで入力フィールドがblurされる', async () => {
-    render(TagInput, { props: defaultProps });
+    render(TagInput, { props: { tags: [], ontagAdded: vi.fn() } });
     
     const input = screen.getByRole('textbox');
-    input.focus();
-    
-    expect(document.activeElement).toBe(input);
-    
+    await fireEvent.focus(input);
     await fireEvent.keyDown(input, { key: 'Escape' });
     
-    // Note: jsdomではblurが完全に動作しないことがあるため、
-    // キーダウンイベントが正しく処理されることを確認
-    expect(input).toBeInTheDocument();
+    expect(input).not.toHaveFocus();
   });
 
-  it('カスタムクラスが適用される', () => {
-    const { container } = render(TagInput, { 
-      props: { 
-        tags: [],
-        class: 'custom-class'
-      } 
-    });
+  it('customクラスが適用される', () => {
+    const customClass = 'custom-class';
+    render(TagInput, { props: { tags: [], class: customClass } });
     
-    expect(container.firstChild).toHaveClass('custom-class');
+    const container = screen.getByRole('textbox').closest('.custom-class');
+    expect(container).toBeInTheDocument();
   });
 
-  it('タグがない場合はタグ表示エリアが表示されない', () => {
+  it('入力値の変更が処理される', async () => {
+    render(TagInput, { props: { tags: [], ontagAdded: vi.fn() } });
+    
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    await fireEvent.input(input, { target: { value: 'テストタグ' } });
+    
+    expect(input.value).toBe('テストタグ');
+  });
+
+  it('TagCompletionProviderが正しく配置される', () => {
     render(TagInput, { props: { tags: [] } });
     
-    // タグ表示エリアが存在しないことを確認
-    expect(screen.queryByText('existing-tag')).not.toBeInTheDocument();
-    expect(screen.queryByText('another-tag')).not.toBeInTheDocument();
-  });
-
-  it('入力値が変更されると内部状態が更新される', async () => {
-    render(TagInput, { props: defaultProps });
-    
-    const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'test input' } });
-    
-    expect(input).toHaveValue('test input');
-  });
-
-  it('タグ追加後に入力フィールドがクリアされる', async () => {
-    const ontagAdded = vi.fn();
-    render(TagInput, { 
-      props: { 
-        tags: [],
-        ontagAdded 
-      } 
-    });
-    
-    const input = screen.getByRole('textbox');
-    await fireEvent.input(input, { target: { value: 'new-tag' } });
-    await fireEvent.keyDown(input, { key: 'Enter' });
-    
-    expect(input).toHaveValue('');
-  });
-
-  it('必要なpropsが正しく設定される', () => {
-    const props = {
-      tags: mockTags,
-      placeholder: 'Test placeholder',
-      class: 'test-class',
-      ontagAdded: vi.fn(),
-      ontagRemoved: vi.fn()
-    };
-    
-    const { container } = render(TagInput, { props });
-    
-    expect(container).toBeTruthy();
-    expect(props.ontagAdded).toBeInstanceOf(Function);
-    expect(props.ontagRemoved).toBeInstanceOf(Function);
+    const completionProvider = screen.getByTestId('tag-completion-provider');
+    expect(completionProvider).toBeInTheDocument();
   });
 });

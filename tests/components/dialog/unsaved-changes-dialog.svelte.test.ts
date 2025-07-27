@@ -1,6 +1,20 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
 import UnsavedChangesDialog from '$lib/components/dialog/unsaved-changes-dialog.svelte';
+
+// Paraglideメッセージのモック
+vi.mock('$paraglide/messages', () => ({
+  save: () => '保存',
+  cancel: () => 'キャンセル',
+  discard_changes: () => '変更を破棄',
+  confirm_discard_changes: () => '変更を破棄してもよろしいですか？',
+  unsaved_task_message: () => '未保存の変更があります。保存するか破棄してください。'
+}));
+
+// locale storeのモック
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: () => string) => () => fn()
+}));
 
 describe('UnsavedChangesDialog', () => {
   const defaultProps = {
@@ -14,162 +28,103 @@ describe('UnsavedChangesDialog', () => {
     vi.clearAllMocks();
   });
 
-  it('コンポーネントのpropsが正しく設定される', () => {
-    // 複雑な外部依存のため基本的なテストのみ実装
-    const props = defaultProps;
-    expect(props.show).toBe(true);
-    expect(props.onSaveAndContinue).toBeInstanceOf(Function);
-    expect(props.onDiscardAndContinue).toBeInstanceOf(Function);
-    expect(props.onCancel).toBeInstanceOf(Function);
+  it('ダイアログが表示される', () => {
+    render(UnsavedChangesDialog, { props: defaultProps });
+    
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('変更を破棄してもよろしいですか？')).toBeInTheDocument();
+    expect(screen.getByText('未保存の変更があります。保存するか破棄してください。')).toBeInTheDocument();
   });
 
-  it('showがfalseの場合の状態が処理される', () => {
-    const props = {
-      ...defaultProps,
-      show: false
-    };
+  it('showがfalseの場合はダイアログが表示されない', () => {
+    const props = { ...defaultProps, show: false };
+    render(UnsavedChangesDialog, { props });
     
-    expect(props.show).toBe(false);
-    expect(props.onSaveAndContinue).toBeInstanceOf(Function);
-    expect(props.onDiscardAndContinue).toBeInstanceOf(Function);
-    expect(props.onCancel).toBeInstanceOf(Function);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('3つのコールバック関数が正しく設定される', () => {
-    const onSaveAndContinue = vi.fn();
-    const onDiscardAndContinue = vi.fn();
-    const onCancel = vi.fn();
+  it('3つのボタンが表示される', () => {
+    render(UnsavedChangesDialog, { props: defaultProps });
     
+    expect(screen.getByTitle('保存')).toBeInTheDocument();
+    expect(screen.getByTitle('変更を破棄')).toBeInTheDocument();
+    expect(screen.getByTitle('キャンセル')).toBeInTheDocument();
+  });
+
+  it('保存ボタンクリックでonSaveAndContinueが呼ばれる', async () => {
+    const mockOnSaveAndContinue = vi.fn();
+    const props = { ...defaultProps, onSaveAndContinue: mockOnSaveAndContinue };
+    render(UnsavedChangesDialog, { props });
+    
+    const saveButton = screen.getByTitle('保存');
+    await fireEvent.click(saveButton);
+    
+    expect(mockOnSaveAndContinue).toHaveBeenCalled();
+  });
+
+  it('破棄ボタンクリックでonDiscardAndContinueが呼ばれる', async () => {
+    const mockOnDiscardAndContinue = vi.fn();
+    const props = { ...defaultProps, onDiscardAndContinue: mockOnDiscardAndContinue };
+    render(UnsavedChangesDialog, { props });
+    
+    const discardButton = screen.getByTitle('変更を破棄');
+    await fireEvent.click(discardButton);
+    
+    expect(mockOnDiscardAndContinue).toHaveBeenCalled();
+  });
+
+  it('キャンセルボタンクリックでonCancelが呼ばれる', async () => {
+    const mockOnCancel = vi.fn();
+    const props = { ...defaultProps, onCancel: mockOnCancel };
+    render(UnsavedChangesDialog, { props });
+    
+    const cancelButton = screen.getByTitle('キャンセル');
+    await fireEvent.click(cancelButton);
+    
+    expect(mockOnCancel).toHaveBeenCalled();
+  });
+
+  it('必要なpropsが正しく設定される', () => {
     const props = {
       show: true,
-      onSaveAndContinue,
-      onDiscardAndContinue,
-      onCancel
-    };
-    
-    expect(props.onSaveAndContinue).toBe(onSaveAndContinue);
-    expect(props.onDiscardAndContinue).toBe(onDiscardAndContinue);
-    expect(props.onCancel).toBe(onCancel);
-    expect(props.onSaveAndContinue).toBeInstanceOf(Function);
-    expect(props.onDiscardAndContinue).toBeInstanceOf(Function);
-    expect(props.onCancel).toBeInstanceOf(Function);
-  });
-
-  it('異なるコールバック関数が設定される', () => {
-    const callback1 = vi.fn();
-    const callback2 = vi.fn();
-    const callback3 = vi.fn();
-    
-    const props = {
-      show: true,
-      onSaveAndContinue: callback1,
-      onDiscardAndContinue: callback2,
-      onCancel: callback3
-    };
-    
-    expect(props.onSaveAndContinue).not.toBe(props.onDiscardAndContinue);
-    expect(props.onDiscardAndContinue).not.toBe(props.onCancel);
-    expect(props.onCancel).not.toBe(props.onSaveAndContinue);
-  });
-
-  it('すべてのpropsが必須であることを確認', () => {
-    const props = {
-      show: false,
       onSaveAndContinue: vi.fn(),
       onDiscardAndContinue: vi.fn(),
       onCancel: vi.fn()
     };
     
-    // すべてのプロパティが定義されていることを確認
-    expect(props.show).toBeDefined();
-    expect(props.onSaveAndContinue).toBeDefined();
-    expect(props.onDiscardAndContinue).toBeDefined();
-    expect(props.onCancel).toBeDefined();
+    const { container } = render(UnsavedChangesDialog, { props });
+    
+    expect(container).toBeTruthy();
+    expect(props.onSaveAndContinue).toBeInstanceOf(Function);
+    expect(props.onDiscardAndContinue).toBeInstanceOf(Function);
+    expect(props.onCancel).toBeInstanceOf(Function);
   });
 
-  it('コールバック関数の型が正しい', () => {
-    const props = defaultProps;
+  it('アクセシビリティが適切に設定される', () => {
+    render(UnsavedChangesDialog, { props: defaultProps });
     
-    expect(typeof props.onSaveAndContinue).toBe('function');
-    expect(typeof props.onDiscardAndContinue).toBe('function');
-    expect(typeof props.onCancel).toBe('function');
+    // ダイアログがrole="dialog"を持つことを確認
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    
+    // タイトルが見出しとして認識されることを確認
+    expect(screen.getByRole('heading')).toBeInTheDocument();
   });
 
-  it('showプロパティの型が正しい', () => {
-    const propsTrue = { ...defaultProps, show: true };
-    const propsFalse = { ...defaultProps, show: false };
+  it('アイコンが正しいサイズクラスを持つ', () => {
+    render(UnsavedChangesDialog, { props: defaultProps });
     
-    expect(typeof propsTrue.show).toBe('boolean');
-    expect(typeof propsFalse.show).toBe('boolean');
-    expect(propsTrue.show).toBe(true);
-    expect(propsFalse.show).toBe(false);
+    const saveButton = screen.getByTitle('保存');
+    const discardButton = screen.getByTitle('変更を破棄');
+    const cancelButton = screen.getByTitle('キャンセル');
+    
+    // 各ボタン内のアイコンが適切なサイズクラスを持つことを確認
+    const saveIcon = saveButton.querySelector('svg.h-4.w-4');
+    const discardIcon = discardButton.querySelector('svg.h-4.w-4');
+    const cancelIcon = cancelButton.querySelector('svg.h-4.w-4');
+    
+    expect(saveIcon).toBeInTheDocument();
+    expect(discardIcon).toBeInTheDocument();
+    expect(cancelIcon).toBeInTheDocument();
   });
 
-  it('複数のダイアログインスタンスが処理される', () => {
-    const instances = [
-      {
-        show: true,
-        onSaveAndContinue: vi.fn(),
-        onDiscardAndContinue: vi.fn(),
-        onCancel: vi.fn()
-      },
-      {
-        show: false,
-        onSaveAndContinue: vi.fn(),
-        onDiscardAndContinue: vi.fn(),
-        onCancel: vi.fn()
-      },
-      {
-        show: true,
-        onSaveAndContinue: vi.fn(),
-        onDiscardAndContinue: vi.fn(),
-        onCancel: vi.fn()
-      }
-    ];
-    
-    instances.forEach((instance, index) => {
-      expect(instance.show).toBeDefined();
-      expect(instance.onSaveAndContinue).toBeInstanceOf(Function);
-      expect(instance.onDiscardAndContinue).toBeInstanceOf(Function);
-      expect(instance.onCancel).toBeInstanceOf(Function);
-    });
-  });
-
-  it('コールバック関数が一意である', () => {
-    const uniqueCallbacks = [vi.fn(), vi.fn(), vi.fn()];
-    
-    const props = {
-      show: true,
-      onSaveAndContinue: uniqueCallbacks[0],
-      onDiscardAndContinue: uniqueCallbacks[1],
-      onCancel: uniqueCallbacks[2]
-    };
-    
-    const callbackSet = new Set([
-      props.onSaveAndContinue,
-      props.onDiscardAndContinue,
-      props.onCancel
-    ]);
-    
-    expect(callbackSet.size).toBe(3); // 3つのユニークなコールバック
-  });
-
-  it('showプロパティの値の変更が反映される', () => {
-    let currentShow = true;
-    
-    const props = {
-      show: currentShow,
-      onSaveAndContinue: vi.fn(),
-      onDiscardAndContinue: vi.fn(),
-      onCancel: vi.fn()
-    };
-    
-    expect(props.show).toBe(true);
-    
-    // プロパティを変更
-    currentShow = false;
-    const updatedProps = { ...props, show: currentShow };
-    
-    expect(updatedProps.show).toBe(false);
-  });
 });

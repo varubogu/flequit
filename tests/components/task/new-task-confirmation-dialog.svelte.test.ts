@@ -4,16 +4,14 @@ import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmatio
 
 // モック設定
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: vi.fn((messageFn) => {
-    return vi.fn(() => 'Mocked message');
-  })
+  reactiveMessage: (fn: () => string) => () => fn()
 }));
 
 vi.mock('$paraglide/messages.js', () => ({
-  confirm_discard_changes: vi.fn(() => 'Confirm Discard Changes'),
-  unsaved_task_message: vi.fn(() => 'You have unsaved changes. Are you sure you want to discard them?'),
-  discard_changes: vi.fn(() => 'Discard Changes'),
-  keep_editing: vi.fn(() => 'Keep Editing')
+  confirm_discard_changes: vi.fn(() => '変更を破棄してもよろしいですか？'),
+  unsaved_task_message: vi.fn(() => '未保存のタスクがあります。変更を破棄しますか？'),
+  discard_changes: vi.fn(() => '変更を破棄'),
+  keep_editing: vi.fn(() => '編集を続ける')
 }));
 
 describe('NewTaskConfirmationDialog', () => {
@@ -52,30 +50,25 @@ describe('NewTaskConfirmationDialog', () => {
   it('タイトルが正しく表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
     
-    const title = screen.getByRole('heading');
-    expect(title).toHaveTextContent('Mocked message');
+    expect(screen.getByText('変更を破棄してもよろしいですか？')).toBeInTheDocument();
   });
 
   it('説明文が正しく表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
     
-    // 説明文は複数のMocked messageの中にある
-    const mockedMessages = screen.getAllByText('Mocked message');
-    expect(mockedMessages.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText('未保存のタスクがあります。変更を破棄しますか？')).toBeInTheDocument();
   });
 
   it('編集を続けるボタンが表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
     
-    const buttons = screen.getAllByText('Mocked message');
-    expect(buttons.length).toBeGreaterThanOrEqual(2); // 2つのボタンメッセージ
+    expect(screen.getByText('編集を続ける')).toBeInTheDocument();
   });
 
   it('変更を破棄するボタンが表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
     
-    const buttons = screen.getAllByText('Mocked message');
-    expect(buttons.length).toBeGreaterThanOrEqual(2); // 2つのボタンメッセージ
+    expect(screen.getByText('変更を破棄')).toBeInTheDocument();
   });
 
   it('編集を続けるボタンをクリックするとonCancelが呼ばれる', async () => {
@@ -87,8 +80,7 @@ describe('NewTaskConfirmationDialog', () => {
       } 
     });
     
-    const buttons = screen.getAllByRole('button');
-    const keepEditingButton = buttons[0]; // 最初のボタンが編集を続ける
+    const keepEditingButton = screen.getByText('編集を続ける');
     await fireEvent.click(keepEditingButton);
     
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -103,8 +95,7 @@ describe('NewTaskConfirmationDialog', () => {
       } 
     });
     
-    const buttons = screen.getAllByRole('button');
-    const discardButton = buttons[1]; // 2番目のボタンが破棄
+    const discardButton = screen.getByText('変更を破棄');
     await fireEvent.click(discardButton);
     
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -227,16 +218,13 @@ describe('NewTaskConfirmationDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     
     // タイトルが見出しとして認識されることを確認
-    expect(screen.getByRole('heading', { name: 'Mocked message' })).toBeInTheDocument();
+    expect(screen.getByRole('heading')).toBeInTheDocument();
   });
 
   it('両方のボタンが同時に表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
     
-    const mockedButtons = screen.getAllByText('Mocked message');
-    expect(mockedButtons).toHaveLength(4); // タイトル + 説明 + 2つのボタン
-    
-    const buttons = screen.getAllByRole('button');
-    expect(buttons).toHaveLength(3); // Keep Editing + Discard Changes + 閉じるボタン
+    expect(screen.getByText('編集を続ける')).toBeInTheDocument();
+    expect(screen.getByText('変更を破棄')).toBeInTheDocument();
   });
 });
