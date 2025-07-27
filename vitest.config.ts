@@ -14,6 +14,7 @@ export default defineConfig({
     setupFiles: ['./tests/vitest.setup.ts'],
     include: ['tests/**/*.{test,spec}.{js,ts}', 'tests/**/*.svelte.{test,spec}.{js,ts}'],
     globals: true,
+    maxWorkers: 4,
     // No need for alias, use /svelte5 directly in imports
   }
 });
