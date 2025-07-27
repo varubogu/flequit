@@ -17,7 +17,7 @@
   }
 
   let { onViewChange }: Props = $props();
-  
+
   // Get sidebar state
   const sidebar = useSidebar();
 
@@ -104,7 +104,7 @@
         <ContextMenu.Trigger>
           <Button
             variant="ghost"
-            class={sidebar.state === 'collapsed' 
+            class={sidebar.state === 'collapsed'
               ? "w-full justify-center p-2 h-auto group hover:bg-accent"
               : "w-full justify-between p-3 h-auto group hover:bg-accent"}
             onclick={handleTagClick}
@@ -128,15 +128,6 @@
                   <span class="text-xs text-muted-foreground">
                     {getTaskCountForTag(tag.name)}
                   </span>
-
-                  <button
-                    type="button"
-                    class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
-                    onclick={(e) => toggleTagBookmark(tag.id, e)}
-                    title={removeFromBookmarks()}
-                  >
-                    <Bookmark class="h-3 w-3" />
-                  </button>
                 </div>
               </div>
             {/if}
