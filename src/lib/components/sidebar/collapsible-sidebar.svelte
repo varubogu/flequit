@@ -43,7 +43,7 @@
   }
 </script>
 
-<Sidebar.Root collapsible="icon" class="border-r">
+<Sidebar.Root collapsible="icon" class="border-r" style="--sidebar-width-icon: 4rem;">
   <Sidebar.Header>
     <div class="flex items-center justify-between p-2">
       <Sidebar.Trigger />

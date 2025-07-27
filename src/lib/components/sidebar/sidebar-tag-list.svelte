@@ -9,6 +9,7 @@
   import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
   import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
     currentView?: ViewType;
@@ -16,6 +17,9 @@
   }
 
   let { onViewChange }: Props = $props();
+  
+  // Get sidebar state
+  const sidebar = useSidebar();
 
   let bookmarkedTags = $derived(
     tagStore.tags.filter(tag => tagStore.bookmarkedTags.has(tag.id))
@@ -89,42 +93,53 @@
 <!-- タグカテゴリ -->
 {#if bookmarkedTags.length > 0}
   <div class="space-y-1 mb-6">
-    <h3 class="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-      {tagsTitle()}
-    </h3>
+    {#if sidebar.state !== 'collapsed'}
+      <h3 class="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        {tagsTitle()}
+      </h3>
+    {/if}
 
     {#each bookmarkedTags as tag (tag.id)}
       <ContextMenu.Root>
         <ContextMenu.Trigger>
           <Button
             variant="ghost"
-            class="w-full justify-between p-3 h-auto group hover:bg-accent"
+            class={sidebar.state === 'collapsed' 
+              ? "w-full justify-center p-2 h-auto group hover:bg-accent"
+              : "w-full justify-between p-3 h-auto group hover:bg-accent"}
             onclick={handleTagClick}
           >
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <div class="flex items-center gap-2 flex-1 min-w-0">
-                <Hash
-                  class="h-4 w-4 flex-shrink-0"
-                  style="color: {tag.color || 'currentColor'}"
-                />
-                <span class="truncate text-sm font-medium">{tag.name}</span>
-              </div>
+            {#if sidebar.state === 'collapsed'}
+              <Hash
+                class="h-4 w-4"
+                style="color: {tag.color || 'currentColor'}"
+              />
+            {:else}
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-1 min-w-0">
+                  <Hash
+                    class="h-4 w-4 flex-shrink-0"
+                    style="color: {tag.color || 'currentColor'}"
+                  />
+                  <span class="truncate text-sm font-medium">{tag.name}</span>
+                </div>
 
-              <div class="flex items-center gap-1 flex-shrink-0">
-                <span class="text-xs text-muted-foreground">
-                  {getTaskCountForTag(tag.name)}
-                </span>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                  <span class="text-xs text-muted-foreground">
+                    {getTaskCountForTag(tag.name)}
+                  </span>
 
-                <button
-                  type="button"
-                  class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
-                  onclick={(e) => toggleTagBookmark(tag.id, e)}
-                  title={removeFromBookmarks()}
-                >
-                  <Bookmark class="h-3 w-3" />
-                </button>
+                  <button
+                    type="button"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded"
+                    onclick={(e) => toggleTagBookmark(tag.id, e)}
+                    title={removeFromBookmarks()}
+                  >
+                    <Bookmark class="h-3 w-3" />
+                  </button>
+                </div>
               </div>
-            </div>
+            {/if}
           </Button>
         </ContextMenu.Trigger>
 

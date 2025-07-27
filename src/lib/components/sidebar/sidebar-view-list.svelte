@@ -5,6 +5,7 @@
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
     currentView?: ViewType;
@@ -19,6 +20,9 @@
 
   // Reactive messages
   const viewsTitle = reactiveMessage(m.views_title);
+  
+  // Get sidebar state
+  const sidebar = useSidebar();
 
   function getTaskCountForView(viewId: string): number {
     switch (viewId) {
@@ -77,9 +81,11 @@
 </script>
 
 <div class="mb-4">
-  <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-    {viewsTitle()}
-  </h3>
+  {#if sidebar.state !== 'collapsed'}
+    <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+      {viewsTitle()}
+    </h3>
+  {/if}
 
   {#each visibleViews as view (view.id)}
     <SidebarButton
@@ -87,6 +93,7 @@
       label={view.label}
       count={getTaskCountForView(view.id)}
       isActive={currentView === view.id}
+      isCollapsed={sidebar.state === 'collapsed'}
       onclick={() => handleViewChange(view.id as ViewType)}
       testId="view-{view.id}"
     />

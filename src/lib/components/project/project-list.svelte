@@ -14,9 +14,10 @@
   interface Props {
     currentView?: ViewType;
     onViewChange?: (view: ViewType) => void;
+    isCollapsed?: boolean;
   }
 
-  let { currentView = 'all', onViewChange }: Props = $props();
+  let { currentView = 'all', onViewChange, isCollapsed = false }: Props = $props();
 
   const editProject = reactiveMessage(m.edit_project);
   const addTaskList = reactiveMessage(m.add_task_list);
@@ -91,23 +92,25 @@
 {#each projectsData as project (project.id)}
   <div class="w-full">
     <div class="flex items-start w-full">
-      {#if project.task_lists.length > 0}
-        <Button
-          variant="ghost"
-          size="icon"
-          class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
-          onclick={() => toggleProjectExpansion(project.id)}
-          title={toggleTaskLists()}
-          data-testid="toggle-project-{project.id}"
-        >
-          {#if expandedProjects.has(project.id)}
-            <ChevronDown class="h-4 w-4" />
-          {:else}
-            <ChevronRight class="h-4 w-4" />
-          {/if}
-        </Button>
-      {:else}
-        <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+      {#if !isCollapsed}
+        {#if project.task_lists.length > 0}
+          <Button
+            variant="ghost"
+            size="icon"
+            class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
+            onclick={() => toggleProjectExpansion(project.id)}
+            title={toggleTaskLists()}
+            data-testid="toggle-project-{project.id}"
+          >
+            {#if expandedProjects.has(project.id)}
+              <ChevronDown class="h-4 w-4" />
+            {:else}
+              <ChevronRight class="h-4 w-4" />
+            {/if}
+          </Button>
+        {:else}
+          <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+        {/if}
       {/if}
 
       <div class="flex-1">
@@ -115,7 +118,9 @@
           <ContextMenu.Trigger class="block w-full">
             <Button
               variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-              class="flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
+              class={isCollapsed 
+                ? "flex items-center justify-center w-full h-auto py-2 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
+                : "flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"}
               onclick={() => handleProjectSelect(project)}
               data-testid="project-{project.id}"
             >
@@ -124,11 +129,15 @@
                   class="w-3 h-3 rounded-full flex-shrink-0"
                   style="background-color: {project.color || '#3b82f6'}"
                 ></div>
-                <span class="truncate">{project.name}</span>
+                {#if !isCollapsed}
+                  <span class="truncate">{project.name}</span>
+                {/if}
               </div>
-              <span class="text-xs text-muted-foreground flex-shrink-0">
-                {getProjectTaskCount(project)}
-              </span>
+              {#if !isCollapsed}
+                <span class="text-xs text-muted-foreground flex-shrink-0">
+                  {getProjectTaskCount(project)}
+                </span>
+              {/if}
             </Button>
           </ContextMenu.Trigger>
           <ContextMenu.Content>
@@ -150,11 +159,13 @@
       </div>
     </div>
 
-    <TaskListDisplay
-      {project}
-      isExpanded={expandedProjects.has(project.id)}
-      {onViewChange}
-    />
+    {#if !isCollapsed}
+      <TaskListDisplay
+        {project}
+        isExpanded={expandedProjects.has(project.id)}
+        {onViewChange}
+      />
+    {/if}
   </div>
 {/each}
 

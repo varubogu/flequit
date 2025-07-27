@@ -7,6 +7,7 @@
   import ProjectList from '$lib/components/project/project-list.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
     currentView?: ViewType;
@@ -17,6 +18,9 @@
 
   const projects = reactiveMessage(m.projects);
   const noProjectsYet = reactiveMessage(m.no_projects_yet);
+  
+  // Get sidebar state
+  const sidebar = useSidebar();
 
   let projectsData = $derived(taskStore.projects);
 
@@ -46,27 +50,43 @@
 </script>
 
 <div>
-  <div class="flex items-center justify-between mb-2">
-    <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-      {projects()}
-    </h3>
-    <Button
-      variant="ghost"
-      size="icon"
-      class="h-6 w-6 text-muted-foreground hover:text-foreground"
-      onclick={() => openProjectDialog('add')}
-      title="プロジェクトを追加"
-    >
-      <Plus class="h-4 w-4" />
-    </Button>
-  </div>
-
-  {#if projectsData.length === 0}
-    <div class="text-sm text-muted-foreground px-3 py-2">
-      {noProjectsYet()}
+  {#if sidebar.state !== 'collapsed'}
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        {projects()}
+      </h3>
+      <Button
+        variant="ghost"
+        size="icon"
+        class="h-6 w-6 text-muted-foreground hover:text-foreground"
+        onclick={() => openProjectDialog('add')}
+        title="プロジェクトを追加"
+      >
+        <Plus class="h-4 w-4" />
+      </Button>
     </div>
   {:else}
-    <ProjectList {currentView} {onViewChange} />
+    <div class="flex justify-center mb-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        class="h-8 w-8 text-muted-foreground hover:text-foreground"
+        onclick={() => openProjectDialog('add')}
+        title="プロジェクトを追加"
+      >
+        <Plus class="h-4 w-4" />
+      </Button>
+    </div>
+  {/if}
+
+  {#if projectsData.length === 0}
+    {#if sidebar.state !== 'collapsed'}
+      <div class="text-sm text-muted-foreground px-3 py-2">
+        {noProjectsYet()}
+      </div>
+    {/if}
+  {:else}
+    <ProjectList {currentView} {onViewChange} isCollapsed={sidebar.state === 'collapsed'} />
   {/if}
 </div>
 

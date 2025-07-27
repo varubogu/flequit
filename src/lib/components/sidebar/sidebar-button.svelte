@@ -18,12 +18,13 @@
     label: string;
     count: number;
     isActive: boolean;
+    isCollapsed?: boolean;
     onclick: () => void;
     contextMenuItems?: ContextMenuItem[];
     testId?: string;
   }
 
-  let { icon, label, count, isActive, onclick, contextMenuItems = [], testId }: Props = $props();
+  let { icon, label, count, isActive, isCollapsed = false, onclick, contextMenuItems = [], testId }: Props = $props();
 </script>
 
 {#if contextMenuItems.length > 0}
@@ -31,17 +32,23 @@
     <ContextMenu.Trigger>
       <Button
         variant={isActive ? "secondary" : "ghost"}
-        class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''} active:scale-100 active:brightness-[0.4] transition-all duration-100"
+        class={isCollapsed 
+          ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
+          : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
         {onclick}
         data-testid={testId}
       >
-        <div class="flex items-center gap-2">
+        {#if isCollapsed}
           <span class="text-lg">{icon}</span>
-          <span class="font-medium">{label}</span>
-        </div>
-        <Badge variant="secondary" class="ml-auto">
-          {count}
-        </Badge>
+        {:else}
+          <div class="flex items-center gap-2">
+            <span class="text-lg">{icon}</span>
+            <span class="font-medium">{label}</span>
+          </div>
+          <Badge variant="secondary" class="ml-auto">
+            {count}
+          </Badge>
+        {/if}
       </Button>
     </ContextMenu.Trigger>
     <ContextMenu.Content class="w-48">
@@ -67,16 +74,22 @@
 {:else}
   <Button
     variant={isActive ? "secondary" : "ghost"}
-    class="w-full justify-between p-3 h-auto {isActive ? 'bg-muted' : ''} active:scale-100 active:brightness-[0.4] transition-all duration-100"
+    class={isCollapsed 
+      ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
+      : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
     {onclick}
     data-testid={testId}
   >
-    <div class="flex items-center gap-2">
+    {#if isCollapsed}
       <span class="text-lg">{icon}</span>
-      <span class="font-medium">{label}</span>
-    </div>
-    <Badge variant="secondary" class="ml-auto">
-      {count}
-    </Badge>
+    {:else}
+      <div class="flex items-center gap-2">
+        <span class="text-lg">{icon}</span>
+        <span class="font-medium">{label}</span>
+      </div>
+      <Badge variant="secondary" class="ml-auto">
+        {count}
+      </Badge>
+    {/if}
   </Button>
 {/if}

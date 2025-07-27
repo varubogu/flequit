@@ -5,6 +5,7 @@
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface User {
     id: string;
@@ -28,6 +29,9 @@
     onSettings,
     onSwitchAccount
   }: Props = $props();
+  
+  // Get sidebar state
+  const sidebar = useSidebar();
 
   let showMenu = $state(false);
   let showSettings = $state(false);
@@ -96,35 +100,55 @@
 <div class="user-profile-container relative">
   <Button
     variant="ghost"
-    class="w-full h-auto p-3 flex items-center gap-3 justify-between hover:bg-muted"
+    class={sidebar.state === 'collapsed' 
+      ? "w-full h-auto p-2 flex items-center justify-center hover:bg-muted"
+      : "w-full h-auto p-3 flex items-center gap-3 justify-between hover:bg-muted"}
     onclick={toggleMenu}
   >
-    <div class="flex items-center gap-3 min-w-0">
+    {#if sidebar.state === 'collapsed'}
+      <!-- Collapsed: Show only avatar -->
       {#if user}
-        <!-- User Avatar -->
-        <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium flex-shrink-0">
+        <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
           {#if user.avatar}
             <img src={user.avatar} alt={user.name} class="w-full h-full rounded-full object-cover" />
           {:else}
             {getInitials(user.name)}
           {/if}
         </div>
-        <!-- User Name -->
-        <div class="min-w-0 flex-1 text-left">
-          <div class="text-sm font-medium truncate">{user.name}</div>
-          <div class="text-xs text-muted-foreground truncate">{user.email}</div>
-        </div>
       {:else}
-        <!-- Not logged in -->
-        <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+        <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
           <Users class="h-4 w-4 text-muted-foreground" />
         </div>
-        <div class="min-w-0 flex-1 text-left">
-          <div class="text-sm text-muted-foreground">{notSignedIn()}</div>
-        </div>
       {/if}
-    </div>
-    <ChevronUp class="h-4 w-4 text-muted-foreground transition-transform {showMenu ? 'rotate-180' : ''}" />
+    {:else}
+      <!-- Expanded: Show full profile -->
+      <div class="flex items-center gap-3 min-w-0">
+        {#if user}
+          <!-- User Avatar -->
+          <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium flex-shrink-0">
+            {#if user.avatar}
+              <img src={user.avatar} alt={user.name} class="w-full h-full rounded-full object-cover" />
+            {:else}
+              {getInitials(user.name)}
+            {/if}
+          </div>
+          <!-- User Name -->
+          <div class="min-w-0 flex-1 text-left">
+            <div class="text-sm font-medium truncate">{user.name}</div>
+            <div class="text-xs text-muted-foreground truncate">{user.email}</div>
+          </div>
+        {:else}
+          <!-- Not logged in -->
+          <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+            <Users class="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div class="min-w-0 flex-1 text-left">
+            <div class="text-sm text-muted-foreground">{notSignedIn()}</div>
+          </div>
+        {/if}
+      </div>
+      <ChevronUp class="h-4 w-4 text-muted-foreground transition-transform {showMenu ? 'rotate-180' : ''}" />
+    {/if}
   </Button>
 
   {#if showMenu}
