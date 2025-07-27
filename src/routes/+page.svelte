@@ -1,8 +1,9 @@
 <script lang="ts">
-  import Sidebar from '$lib/components/sidebar/sidebar.svelte';
+  import CollapsibleSidebar from '$lib/components/sidebar/collapsible-sidebar.svelte';
   import TaskList from '$lib/components/task/task-list.svelte';
   import TaskDetail from '$lib/components/task/task-detail.svelte';
   import * as Resizable from '$lib/components/ui/resizable/index.js';
+  import * as Sidebar from '$lib/components/ui/sidebar';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import type { ViewType } from '$lib/services/view-service';
 
@@ -21,9 +22,9 @@
   }
 </script>
 
-<div class="h-screen flex bg-background">
-  <!-- Sidebar -->
-  <Sidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
+<Sidebar.Provider class="h-screen flex bg-background">
+  <!-- Collapsible Sidebar -->
+  <CollapsibleSidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
 
   <!-- Main Content with Resizable Panels -->
   <Resizable.PaneGroup direction="horizontal">
@@ -39,8 +40,8 @@
 
     <Resizable.Handle />
 
-    <Resizable.Pane defaultSize={50} minSize={20}>
+    <Resizable.Pane defaultSize={70} minSize={20}>
       <TaskDetail />
     </Resizable.Pane>
   </Resizable.PaneGroup>
-</div>
+</Sidebar.Provider>
