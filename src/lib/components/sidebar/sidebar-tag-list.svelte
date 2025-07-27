@@ -2,14 +2,13 @@
   import type { ViewType } from '$lib/services/view-service';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import { Hash, Bookmark } from 'lucide-svelte';
   import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
   import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
-  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
+  import SidebarTagItem from './sidebar-tag-item.svelte';
+  import type { Tag } from '$lib/types/task';
 
   interface Props {
     currentView?: ViewType;
@@ -27,43 +26,27 @@
 
   // Reactive messages
   const tagsTitle = reactiveMessage(m.tags);
-  const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
-  const editTag = reactiveMessage(m.edit_tag);
-  const deleteTag = reactiveMessage(m.delete_tag);
-  const removeFromBookmarks = reactiveMessage(m.remove_from_bookmarks);
 
   // State for dialogs
-  let selectedTag: any = $state(null);
+  let selectedTag: Tag | null = $state(null);
   let showEditDialog = $state(false);
   let showDeleteConfirm = $state(false);
-
-  function getTaskCountForTag(tagName: string): number {
-    return taskStore.getTaskCountByTag(tagName);
-  }
 
   function handleTagClick() {
     // TODO: Implement tag view filtering
     onViewChange?.('all'); // For now, just switch to all view
   }
 
-  function toggleTagBookmark(tagId: string, event: Event) {
-    event.stopPropagation();
-    tagStore.toggleBookmark(tagId);
-  }
-
-  function handleRemoveFromBookmarks(tag: any, event: Event) {
-    event.stopPropagation();
+  function handleRemoveFromBookmarks(tag: Tag) {
     tagStore.removeBookmark(tag.id);
   }
 
-  function handleEditTag(tag: any, event: Event) {
-    event.stopPropagation();
+  function handleEditTag(tag: Tag) {
     selectedTag = tag;
     showEditDialog = true;
   }
 
-  function handleDeleteTag(tag: any, event: Event) {
-    event.stopPropagation();
+  function handleDeleteTag(tag: Tag) {
     selectedTag = tag;
     showDeleteConfirm = true;
   }
@@ -100,52 +83,13 @@
     {/if}
 
     {#each bookmarkedTags as tag (tag.id)}
-      <ContextMenu.Root>
-        <ContextMenu.Trigger>
-          <Button
-            variant="ghost"
-            class={sidebar.state === 'collapsed'
-              ? "w-full justify-center p-2 h-auto group hover:bg-accent"
-              : "w-full justify-between p-3 h-auto group hover:bg-accent"}
-            onclick={handleTagClick}
-          >
-            {#if sidebar.state === 'collapsed'}
-              <Hash
-                class="h-4 w-4"
-                style="color: {tag.color || 'currentColor'}"
-              />
-            {:else}
-              <div class="flex items-center gap-3 flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                  <Hash
-                    class="h-4 w-4 flex-shrink-0"
-                    style="color: {tag.color || 'currentColor'}"
-                  />
-                  <span class="truncate text-sm font-medium">{tag.name}</span>
-                </div>
-
-                <div class="flex items-center gap-1 flex-shrink-0">
-                  <span class="text-xs text-muted-foreground">
-                    {getTaskCountForTag(tag.name)}
-                  </span>
-                </div>
-              </div>
-            {/if}
-          </Button>
-        </ContextMenu.Trigger>
-
-        <ContextMenu.Content>
-          <ContextMenu.Item onclick={(e) => handleRemoveFromBookmarks(tag, e)}>
-            {removeTagFromSidebar()}
-          </ContextMenu.Item>
-          <ContextMenu.Item onclick={(e) => handleEditTag(tag, e)}>
-            {editTag()}
-          </ContextMenu.Item>
-          <ContextMenu.Item onclick={(e) => handleDeleteTag(tag, e)}>
-            {deleteTag()}
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>
+      <SidebarTagItem
+        {tag}
+        onRemoveFromBookmarks={handleRemoveFromBookmarks}
+        onEditTag={handleEditTag}
+        onDeleteTag={handleDeleteTag}
+        onTagClick={handleTagClick}
+      />
     {/each}
   </div>
 {/if}
