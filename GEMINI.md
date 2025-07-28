@@ -34,20 +34,28 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 ## プロジェクト構造
 
 ```
-src/
-├── lib/
-│   ├── components/          # Svelteコンポーネント
-│   │   ├── ui/             # shadcn-svelte基本コンポーネント（オリジナル維持）
-│   │   ├── shared/         # 共通コンポーネント
-│   │   └── [機能別]/       # 特定用途のコンポーネント
-│   ├── services/           # ビジネスロジック（API通信、データ操作）
-│   ├── stores/             # Svelte 5 runesベースの状態管理
-│   ├── types/              # TypeScript型定義
-│   └── utils/              # 純粋なヘルパー関数
-├── routes/                 # SvelteKitルーティング
-├── paraglide/              # 国際化（自動生成、Git管理対象外）
-├── app.css                 # グローバルスタイル + Tailwind設定
-└── app.html               # HTMLテンプレート
+(root)
+├── e2e/           # E2Eテスト
+│   ├── components/  # SvelteコンポーネントのE2Eテスト
+├── src/          # ソースコード
+│   ├── lib/
+│   │   ├── components/          # Svelteコンポーネント
+│   │   │   ├── ui/             # shadcn-svelte基本コンポーネント（オリジナル維持）
+│   │   │   ├── shared/         # 共通コンポーネント
+│   │   │   └── [機能別]/       # 特定用途のコンポーネント
+│   │   ├── services/           # ビジネスロジック（API通信、データ操作）
+│   │   ├── stores/             # Svelte 5 runesベースの状態管理
+│   │   ├── types/              # TypeScript型定義
+│   │   └── utils/              # 純粋なヘルパー関数
+│   ├── routes/                 # SvelteKitルーティング
+│   ├── paraglide/              # 国際化（自動生成、Git管理対象外）
+│   ├── app.css                 # グローバルスタイル + Tailwind設定
+│   └── app.html               # HTMLテンプレート
+├── tests/         # 単体・結合テスト(vitest)
+│   ├── integration/          # 結合テスト
+│   ├── */                    # 単体テスト
+│   └── vitest.setup.ts       # Vitest設定
+
 ```
 
 ## Svelte 5 設計パターン
