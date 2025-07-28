@@ -91,6 +91,9 @@
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
       const targetIndex = project.task_lists.findIndex(tl => tl.id === targetList.id);
       taskStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
+    } else if (dragData.type === 'task') {
+      // タスクをタスクリストにドロップ
+      taskStore.moveTaskToList(dragData.id, targetList.id);
     }
   }
 

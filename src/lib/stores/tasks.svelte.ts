@@ -609,8 +609,25 @@ export class TaskStore {
   }
 
   moveTaskToList(taskId: string, newTaskListId: string) {
+    // 最初に移動先のタスクリストが存在するかチェック
+    let targetTaskList: any = null;
+    let targetProject: any = null;
+    
+    for (const project of this.projects) {
+      const foundTaskList = project.task_lists.find(tl => tl.id === newTaskListId);
+      if (foundTaskList) {
+        targetTaskList = foundTaskList;
+        targetProject = project;
+        break;
+      }
+    }
+    
+    // 移動先が存在しない場合は何もしない
+    if (!targetTaskList) return;
+    
     // タスクを現在の位置から探して削除
     let taskToMove: TaskWithSubTasks | null = null;
+    let sourceTaskList: any = null;
     
     for (const project of this.projects) {
       for (const taskList of project.task_lists) {
@@ -619,6 +636,7 @@ export class TaskStore {
           taskToMove = taskList.tasks[taskIndex];
           taskList.tasks.splice(taskIndex, 1);
           taskList.updated_at = new Date();
+          sourceTaskList = taskList;
           break;
         }
       }
@@ -628,15 +646,9 @@ export class TaskStore {
     if (!taskToMove) return;
 
     // 新しいタスクリストに追加
-    for (const project of this.projects) {
-      const targetTaskList = project.task_lists.find(tl => tl.id === newTaskListId);
-      if (targetTaskList) {
-        targetTaskList.tasks.push(taskToMove);
-        targetTaskList.updated_at = new Date();
-        project.updated_at = new Date();
-        return;
-      }
-    }
+    targetTaskList.tasks.push(taskToMove);
+    targetTaskList.updated_at = new Date();
+    targetProject.updated_at = new Date();
   }
 
   // Drag & Drop methods

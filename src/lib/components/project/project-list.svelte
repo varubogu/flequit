@@ -124,6 +124,12 @@
     } else if (dragData.type === 'tasklist') {
       // タスクリストをプロジェクトにドロップ（最後尾に配置）
       taskStore.moveTaskListToProject(dragData.id, targetProject.id);
+    } else if (dragData.type === 'task') {
+      // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
+      if (targetProject.task_lists.length > 0) {
+        const defaultTaskList = targetProject.task_lists[0];
+        taskStore.moveTaskToList(dragData.id, defaultTaskList.id);
+      }
     }
   }
 
