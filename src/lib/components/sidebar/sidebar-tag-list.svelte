@@ -107,6 +107,9 @@
     } else if (dragData.type === 'task') {
       // タスクをタグにドロップした場合、タスクにタグを付与
       TaskService.addTagToTask(dragData.id, targetTag.id);
+    } else if (dragData.type === 'subtask' && dragData.taskId) {
+      // サブタスクをタグにドロップした場合、サブタスクにタグを付与
+      TaskService.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
     }
   }
 

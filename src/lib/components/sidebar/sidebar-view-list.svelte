@@ -85,6 +85,9 @@
     if (dragData.type === 'task') {
       // タスクをビューにドロップした場合、期日を更新
       TaskService.updateTaskDueDateForView(dragData.id, viewId);
+    } else if (dragData.type === 'subtask' && dragData.taskId) {
+      // サブタスクをビューにドロップした場合、サブタスクの期日を更新
+      TaskService.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
     }
   }
 </script>

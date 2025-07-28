@@ -1,7 +1,8 @@
 export interface DragData {
-  type: 'project' | 'tasklist' | 'tag' | 'task';
+  type: 'project' | 'tasklist' | 'tag' | 'task' | 'subtask';
   id: string;
   projectId?: string; // タスクリストの場合は所属プロジェクトID
+  taskId?: string; // サブタスクの場合は所属タスクID
 }
 
 export interface DropTarget {
@@ -117,6 +118,11 @@ export class DragDropManager {
     if (dragData.type === 'task') {
       // タスクはビュー、プロジェクト、タスクリスト、タグにドロップ可能
       return target.type === 'view' || target.type === 'project' || target.type === 'tasklist' || target.type === 'tag';
+    }
+
+    if (dragData.type === 'subtask') {
+      // サブタスクはビューとタグにドロップ可能
+      return target.type === 'view' || target.type === 'tag';
     }
 
     return false;

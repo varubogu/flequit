@@ -224,4 +224,45 @@ export class TaskService {
       this.updateTask(taskId, { end_date: newDueDate });
     }
   }
+
+  static updateSubTaskDueDateForView(subTaskId: string, taskId: string, viewId: string): void {
+    const today = new Date();
+    let newDueDate: Date | undefined;
+
+    switch (viewId) {
+      case 'today':
+        newDueDate = new Date(today);
+        break;
+      case 'tomorrow':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 1);
+        break;
+      case 'next3days':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 3);
+        break;
+      case 'nextweek':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 7);
+        break;
+      case 'thismonth':
+        newDueDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        break;
+      default:
+        // Other views don't change the due date
+        return;
+    }
+
+    if (newDueDate) {
+      this.updateSubTask(subTaskId, { end_date: newDueDate });
+    }
+  }
+
+  static addTagToSubTask(subTaskId: string, taskId: string, tagId: string): void {
+    // IDからタグを取得してタグ名を渡す
+    const tag = tagStore.tags.find(t => t.id === tagId);
+    if (tag) {
+      taskStore.addTagToSubTask(subTaskId, tag.name);
+    }
+  }
 }

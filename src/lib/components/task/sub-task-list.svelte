@@ -5,6 +5,7 @@
   import DueDate from '../datetime/due-date.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
+  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -26,19 +27,40 @@
     createSubTaskContextMenu
   }: Props = $props();
 
+  // Drag & Drop handlers for subtasks
+  function handleSubTaskDragStart(event: DragEvent, subTask: SubTask) {
+    const dragData: DragData = {
+      type: 'subtask',
+      id: subTask.id,
+      taskId: task.id
+    };
+    DragDropManager.startDrag(event, dragData);
+  }
+
+  function handleSubTaskDragEnd(event: DragEvent) {
+    DragDropManager.handleDragEnd(event);
+  }
+
 </script>
 
 <div class="ml-10 mt-2 space-y-2">
   {#each task.sub_tasks as subTask (subTask.id)}
-    <ContextMenuWrapper items={createSubTaskContextMenu(subTask)}>
-      <Button
-        variant="ghost"
-        class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
-        subTask.id
-          ? 'bg-primary/10 border-primary'
-          : ''}"
-        onclick={(e) => handleSubTaskClick(e, subTask.id)}
-      >
+    <div
+      role="button"
+      tabindex="0"
+      draggable="true"
+      ondragstart={(e) => handleSubTaskDragStart(e, subTask)}
+      ondragend={handleSubTaskDragEnd}
+    >
+      <ContextMenuWrapper items={createSubTaskContextMenu(subTask)}>
+        <Button
+          variant="ghost"
+          class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
+          subTask.id
+            ? 'bg-primary/10 border-primary'
+            : ''}"
+          onclick={(e) => handleSubTaskClick(e, subTask.id)}
+        >
         <Button
           variant="ghost"
           size="icon"
@@ -63,5 +85,6 @@
         </div>
       </Button>
     </ContextMenuWrapper>
+    </div>
   {/each}
 </div>
