@@ -13,6 +13,7 @@
   import TaskAccordionToggle from './task-accordion-toggle.svelte';
   import TaskDatePicker from './task-date-picker.svelte';
   import TaskContextMenu from './task-context-menu.svelte';
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
 
@@ -144,8 +145,6 @@
   <!-- Main Task Button -->
   <div
     class="flex-1"
-    role="button"
-    tabindex="0"
     draggable="true"
     ondragstart={handleDragStart}
     ondragover={handleDragOver}
@@ -153,30 +152,31 @@
     ondragend={handleDragEnd}
     ondragenter={(e) => handleDragEnter(e, e.currentTarget as HTMLElement)}
     ondragleave={(e) => handleDragLeave(e, e.currentTarget as HTMLElement)}
-    oncontextmenu={(e) => taskContextMenu && taskContextMenu.handleTaskContextMenu(e)}
   >
-    <Button
-      variant="ghost"
-      class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
-        task.priority,
-      )} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask
-        ? 'selected'
-        : ''} min-w-0 w-full"
-      onclick={handleTaskClick}
-      data-testid="task-{task.id}"
-    >
-      <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
-        <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
-        <TaskContent
-          {task}
-          {completedSubTasks}
-          {subTaskProgress}
-          datePickerPosition={taskDatePicker ? taskDatePicker.datePickerPosition : { x: 0, y: 0 }}
-          showDatePicker={taskDatePicker ? taskDatePicker.showDatePicker : false}
-          handleDueDateClick={(e) => taskDatePicker && taskDatePicker.handleDueDateClick(e)}
-        />
-      </div>
-    </Button>
+    <ContextMenuWrapper items={taskContextMenu ? taskContextMenu.createTaskContextMenu() : []}>
+      <Button
+        variant="ghost"
+        class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
+          task.priority,
+        )} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask
+          ? 'selected'
+          : ''} min-w-0 w-full"
+        onclick={handleTaskClick}
+        data-testid="task-{task.id}"
+      >
+        <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
+          <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
+          <TaskContent
+            {task}
+            {completedSubTasks}
+            {subTaskProgress}
+            datePickerPosition={taskDatePicker ? taskDatePicker.datePickerPosition : { x: 0, y: 0 }}
+            showDatePicker={taskDatePicker ? taskDatePicker.showDatePicker : false}
+            handleDueDateClick={(e) => taskDatePicker && taskDatePicker.handleDueDateClick(e)}
+          />
+        </div>
+      </Button>
+    </ContextMenuWrapper>
   </div>
 </div>
 

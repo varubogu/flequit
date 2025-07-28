@@ -2,7 +2,7 @@
   import type { Tag } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
-  import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import TagEditDialog from './tag-edit-dialog.svelte';
@@ -10,6 +10,8 @@
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import type { ContextMenuList } from '$lib/types/context-menu';
+  import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 
   // Reactive messages
   const removeTagFromItem = reactiveMessage(m.remove_tag_from_item);
@@ -81,74 +83,71 @@
   // Default color for tags without a color
   const DEFAULT_TAG_COLOR = '#6b7280'; // gray-500
   let tagColor = $derived(tag.color || DEFAULT_TAG_COLOR);
+
+  // タグ用のコンテキストメニューリストを作成
+  const contextMenuItems: ContextMenuList = $derived(createContextMenu([
+    ...(enableTagRemoveFromContext && onTagRemoveFromItem ? [
+      {
+        id: 'remove-tag-from-item',
+        label: removeTagFromItem,
+        action: handleTagRemoveFromItem,
+        icon: Minus
+      },
+      createSeparator()
+    ] : []),
+    {
+      id: 'toggle-bookmark',
+      label: isBookmarked ? removeTagFromSidebar : addTagToSidebar,
+      action: handleToggleBookmark,
+      icon: isBookmarked ? Bookmark : BookmarkPlus
+    },
+    createSeparator(),
+    {
+      id: 'edit-tag',
+      label: editTag,
+      action: handleTagEdit,
+      icon: Edit
+    },
+    createSeparator(),
+    {
+      id: 'delete-tag',
+      label: deleteTag,
+      action: handleTagDelete,
+      icon: Trash2,
+      destructive: true
+    }
+  ]));
 </script>
 
-<ContextMenu.Root>
-  <ContextMenu.Trigger>
-    {#if showRemoveButton}
-      <div class="inline-flex items-center gap-1 {className}">
-        <Badge
-          variant="outline"
-          class="text-xs pr-1"
-          style="border-color: {tagColor}; color: {tagColor};"
-        >
-          {tag.name}
-          <Button
-            variant="ghost"
-            size="icon"
-            class="h-3 w-3 p-0 ml-1 hover:bg-secondary-foreground/20"
-            onclick={handleRemove}
-          >
-            <X class="h-2 w-2" />
-          </Button>
-        </Badge>
-      </div>
-    {:else}
+<ContextMenuWrapper items={contextMenuItems}>
+  {#if showRemoveButton}
+    <div class="inline-flex items-center gap-1 {className}">
       <Badge
         variant="outline"
-        class="text-xs {className}"
+        class="text-xs pr-1"
         style="border-color: {tagColor}; color: {tagColor};"
       >
         {tag.name}
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-3 w-3 p-0 ml-1 hover:bg-secondary-foreground/20"
+          onclick={handleRemove}
+        >
+          <X class="h-2 w-2" />
+        </Button>
       </Badge>
-    {/if}
-  </ContextMenu.Trigger>
-
-  <ContextMenu.Content class="w-56">
-    {#if enableTagRemoveFromContext && onTagRemoveFromItem}
-      <ContextMenu.Item onclick={handleTagRemoveFromItem}>
-        <Minus class="mr-2 h-4 w-4" />
-        {removeTagFromItem()}
-      </ContextMenu.Item>
-
-      <ContextMenu.Separator />
-    {/if}
-
-    <ContextMenu.Item onclick={handleToggleBookmark}>
-      {#if isBookmarked}
-        <Bookmark class="mr-2 h-4 w-4" />
-        {removeTagFromSidebar()}
-      {:else}
-        <BookmarkPlus class="mr-2 h-4 w-4" />
-        {addTagToSidebar()}
-      {/if}
-    </ContextMenu.Item>
-
-    <ContextMenu.Separator />
-
-    <ContextMenu.Item onclick={handleTagEdit}>
-      <Edit class="mr-2 h-4 w-4" />
-      {editTag()}
-    </ContextMenu.Item>
-
-    <ContextMenu.Separator />
-
-    <ContextMenu.Item onclick={handleTagDelete} class="text-destructive">
-      <Trash2 class="mr-2 h-4 w-4" />
-      {deleteTag()}
-    </ContextMenu.Item>
-  </ContextMenu.Content>
-</ContextMenu.Root>
+    </div>
+  {:else}
+    <Badge
+      variant="outline"
+      class="text-xs {className}"
+      style="border-color: {tagColor}; color: {tagColor};"
+    >
+      {tag.name}
+    </Badge>
+  {/if}
+</ContextMenuWrapper>
 
 <!-- Edit Dialog -->
 <TagEditDialog

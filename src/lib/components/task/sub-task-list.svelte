@@ -3,6 +3,8 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '../datetime/due-date.svelte';
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
+  import TaskContextMenu from './task-context-menu.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -23,15 +25,14 @@
     handleSubTaskContextMenu,
     handleSubTaskDueDateClick
   }: Props = $props();
+
+  // Get task context menu instance for creating subtask context menus
+  let taskContextMenu: TaskContextMenu;
 </script>
 
 <div class="ml-10 mt-2 space-y-2">
   {#each task.sub_tasks as subTask (subTask.id)}
-    <div
-      role="button"
-      tabindex="0"
-      oncontextmenu={(e) => handleSubTaskContextMenu(e, subTask)}
-    >
+    <ContextMenuWrapper items={taskContextMenu ? taskContextMenu.createSubTaskContextMenu(subTask) : []}>
       <Button
         variant="ghost"
         class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
@@ -63,6 +64,8 @@
           />
         </div>
       </Button>
-    </div>
+    </ContextMenuWrapper>
   {/each}
 </div>
+
+<TaskContextMenu bind:this={taskContextMenu} {task} />
