@@ -348,6 +348,16 @@ body {
   @apply ring-2 ring-primary ring-offset-1 bg-primary/5;
 }
 
+/* ドラッグ可能なホバー状態 - より強い詳細度 */
+/* TODO:将来的に!importantを外したい */
+.drop-target-hover,
+.drag-over.drop-target-hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  border: 2px solid rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
 .dragging {
   @apply opacity-50;
 }

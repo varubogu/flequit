@@ -40,15 +40,32 @@ export class DragDropManager {
     // ドロップ可能かどうかの判定
     if (this.canDrop(this.dragData, target)) {
       event.dataTransfer!.dropEffect = 'move';
+      
+      // ドラッグオーバー時のホバースタイルを適用
+      if (event.currentTarget instanceof HTMLElement) {
+        event.currentTarget.classList.add('drop-target-hover');
+      }
+      
       return true;
     }
     
     event.dataTransfer!.dropEffect = 'none';
+    
+    // ドロップできない場合はホバースタイルを削除
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.classList.remove('drop-target-hover');
+    }
+    
     return false;
   }
 
   static handleDrop(event: DragEvent, target: DropTarget): DragData | null {
     event.preventDefault();
+    
+    // ドロップ時にホバースタイルをクリア
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.classList.remove('drop-target-hover');
+    }
     
     if (!this.dragData) return null;
     
@@ -66,6 +83,10 @@ export class DragDropManager {
     if (event.target instanceof HTMLElement) {
       event.target.style.opacity = '1';
     }
+    
+    // 全ての要素からホバースタイルを削除
+    this.clearAllDropTargetHover();
+    
     this.dragData = null;
   }
 
@@ -82,6 +103,8 @@ export class DragDropManager {
     }
     
     element.classList.remove('drag-over');
+    element.classList.remove('drop-target-hover');
+    
     if (this.dropZoneElement === element) {
       this.dropZoneElement = null;
     }
@@ -135,7 +158,16 @@ export class DragDropManager {
   static clearDropZone() {
     if (this.dropZoneElement) {
       this.dropZoneElement.classList.remove('drag-over');
+      this.dropZoneElement.classList.remove('drop-target-hover');
       this.dropZoneElement = null;
     }
+  }
+
+  private static clearAllDropTargetHover() {
+    // 全ての要素からdrop-target-hoverクラスを削除
+    const elements = document.querySelectorAll('.drop-target-hover');
+    elements.forEach(element => {
+      element.classList.remove('drop-target-hover');
+    });
   }
 }
