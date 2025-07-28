@@ -134,12 +134,12 @@ export class ViewService {
   }
   
   private static getProjectViewTitle(): string {
-    // If a specific list is selected, show the list name
+    // If a specific list is selected, show "プロジェクト名 > タスクリスト名"
     if (taskStore.selectedListId) {
       for (const project of taskStore.projects) {
         const list = project.task_lists.find(l => l.id === taskStore.selectedListId);
         if (list) {
-          return list.name;
+          return `${project.name} > ${list.name}`;
         }
       }
       return 'Task List';
