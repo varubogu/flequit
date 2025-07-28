@@ -9,14 +9,20 @@
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { TaskService } from '$lib/services/task-service';
+  import { TaskDetailService } from '$lib/services/task-detail-service';
   import type { ViewType } from '$lib/services/view-service';
 
   // Use IsMobile directly instead of useSidebar
   const isMobile = new IsMobile();
   
-  // State for mobile task detail drawer
-  let showTaskDetailDrawer = $state(false);
-
+  // Reactive state for TaskDetailService
+  let drawerOpen = $state(false);
+  
+  // Subscribe to TaskDetailService state changes
+  TaskDetailService.subscribe(() => {
+    drawerOpen = TaskDetailService.drawerState.open;
+  });
+  
   function handleViewChange(view: ViewType) {
     viewStore.changeView(view);
   }
@@ -32,17 +38,11 @@
   }
 
   function handleTaskClick(taskId: string) {
-    // モバイル時はタスクを選択してからDrawerを開く
-    if (isMobile.current) {
-      // タスクを選択
-      TaskService.selectTask(taskId);
-      // Drawerを表示
-      showTaskDetailDrawer = true;
-    }
+    TaskDetailService.openTaskDetail(taskId);
   }
 
   function handleCloseTaskDetailDrawer() {
-    showTaskDetailDrawer = false;
+    TaskDetailService.closeTaskDetail();
   }
 </script>
 
@@ -66,7 +66,7 @@
     
     <!-- モバイル: Drawerでタスク詳細表示 -->
     <TaskDetailDrawer 
-      open={showTaskDetailDrawer} 
+      open={drawerOpen} 
       onClose={handleCloseTaskDetailDrawer}
     />
   {:else}

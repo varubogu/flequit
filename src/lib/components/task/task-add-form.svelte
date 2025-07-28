@@ -1,6 +1,7 @@
 <script lang="ts">
   import { TaskListService } from '$lib/services/task-list-service';
   import { TaskService } from '$lib/services/task-service';
+  import { TaskDetailService } from '$lib/services/task-detail-service';
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
@@ -35,6 +36,10 @@
       taskStore.updateNewTaskData({ title: newTaskTitle });
     }
     newTaskTitle = '';
+    
+    // タスク詳細を表示
+    TaskDetailService.openNewTaskDetail();
+    
     onTaskAdded?.();
   }
 
