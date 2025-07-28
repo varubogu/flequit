@@ -144,7 +144,8 @@ vi.mock('$paraglide/messages.js', () => ({
   status: () => 'Status',
   due_date: () => 'Due Date',
   remove: () => 'Remove',
-  remove_tag_from_sidebar: () => 'Remove Tag from Sidebar'
+  remove_tag_from_sidebar: () => 'Remove Tag from Sidebar',
+  add_tag_to_sidebar: () => 'Add Tag to Sidebar'
 }));
 
 describe('Task Drag & Drop Integration', () => {

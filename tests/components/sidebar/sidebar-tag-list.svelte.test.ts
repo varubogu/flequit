@@ -7,6 +7,7 @@ import type { Tag } from '$lib/types/task';
 vi.mock('$paraglide/messages.js', () => ({
   tags: () => 'Tags',
   remove_tag_from_sidebar: () => 'Remove tag from sidebar',
+  add_tag_to_sidebar: () => 'Add tag to sidebar',
   edit_tag: () => 'Edit tag',
   delete_tag: () => 'Delete tag',
   cancel: () => 'Cancel',
