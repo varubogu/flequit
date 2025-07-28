@@ -48,7 +48,7 @@
   let endDate = $state<Date | undefined>(recurrenceRule?.end_date);
   let repeatCount = $state<number | undefined>(recurrenceRule?.max_occurrences);
   let previewDates = $state<Date[]>([]);
-  let displayCount = $state(5);
+  let displayCount = $state(10);
 
   // --- Derived State ---
   const showBasicSettings = $derived(recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced');
