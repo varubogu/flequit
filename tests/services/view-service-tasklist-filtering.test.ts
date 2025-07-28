@@ -234,7 +234,7 @@ describe('ViewService - TaskList Filtering', () => {
       
       const title = ViewService.getViewTitle('tasklist');
       
-      expect(title).toBe('List 2');
+      expect(title).toBe('Project 1 > List 2');
     });
 
     it('should return default when no project selected', () => {
