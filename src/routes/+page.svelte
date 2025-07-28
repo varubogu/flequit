@@ -15,6 +15,9 @@
   // Use IsMobile directly instead of useSidebar
   const isMobile = new IsMobile();
   
+  // Set the mobile instance in TaskDetailService
+  TaskDetailService.setMobileInstance(isMobile);
+  
   // Reactive state for TaskDetailService
   let drawerOpen = $state(false);
   
@@ -27,18 +30,22 @@
     viewStore.changeView(view);
   }
 
-  function handleTaskSelectionRequested(event: CustomEvent<{ taskId: string }>) {
+  function handleTaskSelectionRequested() {
     // This will be handled by TaskDetail component's confirmation dialog
     // The event is triggered when a task selection is requested but blocked due to new task mode
   }
 
-  function handleSubTaskSelectionRequested(event: CustomEvent<{ subTaskId: string }>) {
+  function handleSubTaskSelectionRequested() {
     // This will be handled by TaskDetail component's confirmation dialog
     // The event is triggered when a subtask selection is requested but blocked due to new task mode
   }
 
   function handleTaskClick(taskId: string) {
     TaskDetailService.openTaskDetail(taskId);
+  }
+
+  function handleSubTaskClick(subTaskId: string) {
+    TaskDetailService.openSubTaskDetail(subTaskId);
   }
 
   function handleCloseTaskDetailDrawer() {
@@ -59,6 +66,7 @@
         tasks={viewStore.tasks}
         showAddButton={viewStore.showAddButton}
         onTaskClick={handleTaskClick}
+        onSubTaskClick={handleSubTaskClick}
         on:taskSelectionRequested={handleTaskSelectionRequested}
         on:subTaskSelectionRequested={handleSubTaskSelectionRequested}
       />
@@ -77,6 +85,8 @@
           title={viewStore.viewTitle}
           tasks={viewStore.tasks}
           showAddButton={viewStore.showAddButton}
+          onTaskClick={handleTaskClick}
+          onSubTaskClick={handleSubTaskClick}
           on:taskSelectionRequested={handleTaskSelectionRequested}
           on:subTaskSelectionRequested={handleSubTaskSelectionRequested}
         />

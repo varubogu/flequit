@@ -47,7 +47,6 @@
 
   // Reactive messages
   const delete_task = reactiveMessage(m.delete_task);
-  const sub_task = reactiveMessage(m.sub_task);
   const sub_task_title = reactiveMessage(m.sub_task_title);
   const task_title = reactiveMessage(m.task_title);
   const save_task = reactiveMessage(m.save_task);
@@ -58,9 +57,6 @@
 <div class="p-6 border-b">
   <div class="flex items-start justify-between">
     <div class="flex-1">
-      {#if isSubTask}
-        <div class="text-sm text-muted-foreground mb-1">{sub_task()}</div>
-      {/if}
       <TagCompletionProvider ontagDetected={handleTagDetected}>
         <Input
           class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"

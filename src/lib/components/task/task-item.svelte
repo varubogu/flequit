@@ -19,9 +19,10 @@
   interface Props {
     task: TaskWithSubTasks;
     onTaskClick?: (taskId: string) => void;
+    onSubTaskClick?: (subTaskId: string) => void;
   }
 
-  let { task, onTaskClick }: Props = $props();
+  let { task, onTaskClick, onSubTaskClick }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
@@ -70,9 +71,15 @@
 
   function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
     event?.stopPropagation();
-    const success = TaskService.selectSubTask(subTaskId);
-    if (!success) {
-      dispatch('subTaskSelectionRequested', { subTaskId });
+    
+    if (onSubTaskClick) {
+      onSubTaskClick(subTaskId);
+    } else {
+      // フォールバック: 統一的なアプローチを使わない場合
+      const success = TaskService.selectSubTask(subTaskId);
+      if (!success) {
+        dispatch('subTaskSelectionRequested', { subTaskId });
+      }
     }
   }
 

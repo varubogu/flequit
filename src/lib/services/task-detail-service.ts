@@ -1,10 +1,4 @@
 import { TaskService } from './task-service';
-import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-
-export interface TaskDetailDisplayOptions {
-  mode?: 'view' | 'edit';
-  isNewTask?: boolean;
-}
 
 interface TaskDetailDrawerState {
   open: boolean;
@@ -12,7 +6,7 @@ interface TaskDetailDrawerState {
 }
 
 export class TaskDetailService {
-  private static isMobile = new IsMobile();
+  private static isMobileInstance: any = null;
   
   private static taskDetailDrawerState: TaskDetailDrawerState = {
     open: false,
@@ -39,52 +33,46 @@ export class TaskDetailService {
     this.subscribers.forEach(callback => callback());
   }
 
-  static openTaskDetail(taskId: string | null, options: TaskDetailDisplayOptions = {}) {
-    const { mode = 'view', isNewTask = false } = options;
+  static setMobileInstance(isMobile: any) {
+    this.isMobileInstance = isMobile;
+  }
 
-    if (isNewTask) {
-      return this.openNewTaskDetail();
+  static openTaskDetail(taskId: string) {
+    // 1. ストアに選択状態を保存
+    TaskService.selectTask(taskId);
+    
+    // 2. デスクトップかモバイルかで表示方法を決定
+    if (this.isMobileInstance?.current) {
+      this.openDrawer();
     }
+    // デスクトップの場合は何もしない（右パネルに自動表示される）
+  }
 
-    if (!taskId) {
-      return;
+  static openSubTaskDetail(subTaskId: string) {
+    // 1. ストアに選択状態を保存
+    TaskService.selectSubTask(subTaskId);
+    
+    // 2. デスクトップかモバイルかで表示方法を決定
+    if (this.isMobileInstance?.current) {
+      this.openDrawer();
     }
-
-    if (this.isMobile.current) {
-      this.openTaskDetailMobile(taskId);
-    } else {
-      this.openTaskDetailDesktop(taskId);
-    }
+    // デスクトップの場合は何もしない（右パネルに自動表示される）
   }
 
   static openNewTaskDetail() {
-    if (this.isMobile.current) {
-      this.openNewTaskDetailMobile();
-    } else {
-      this.openNewTaskDetailDesktop();
+    // 新規タスクモードは既にストアで管理されているので、表示のみ制御
+    if (this.isMobileInstance?.current) {
+      this.openDrawer();
     }
   }
 
-  private static openTaskDetailMobile(taskId: string) {
-    TaskService.selectTask(taskId);
+  private static openDrawer() {
     this.taskDetailDrawerState.open = true;
     this.notifySubscribers();
-  }
-
-  private static openTaskDetailDesktop(taskId: string) {
-    TaskService.selectTask(taskId);
-  }
-
-  private static openNewTaskDetailMobile() {
-    this.taskDetailDrawerState.open = true;
-    this.notifySubscribers();
-  }
-
-  private static openNewTaskDetailDesktop() {
   }
 
   static closeTaskDetail() {
-    if (this.isMobile.current) {
+    if (this.isMobileInstance?.current) {
       this.taskDetailDrawerState.open = false;
       this.notifySubscribers();
     }

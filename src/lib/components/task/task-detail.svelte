@@ -250,11 +250,13 @@
   }
 
   function handleSubTaskClick(subTaskId: string) {
+    // TaskDetailは既に開いているので、ストアの選択状態のみ更新
     TaskService.selectSubTask(subTaskId);
   }
 
   function handleGoToParentTask() {
     if (isSubTask && currentItem && 'task_id' in currentItem) {
+      // TaskDetailは既に開いているので、ストアの選択状態のみ更新
       TaskService.selectTask(currentItem.task_id);
     }
   }
