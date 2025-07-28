@@ -11,6 +11,7 @@
   import SidebarTagItem from './sidebar-tag-item.svelte';
   import type { Tag } from '$lib/types/task';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
+  import { TaskService } from '$lib/services/task-service';
 
   interface Props {
     currentView?: ViewType;
@@ -103,6 +104,9 @@
       // タグ同士の並び替え
       const targetIndex = bookmarkedTags.findIndex(t => t.id === targetTag.id);
       tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
+    } else if (dragData.type === 'task') {
+      // タスクをタグにドロップした場合、タスクにタグを付与
+      TaskService.addTagToTask(dragData.id, targetTag.id);
     }
   }
 
