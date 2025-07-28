@@ -23,6 +23,9 @@
   --color-popover-foreground: 222.2 84% 4.9%;
   --color-card: 0 0% 100%;
   --color-card-foreground: 222.2 84% 4.9%;
+  --color-sidebar: 0 0% 98%;
+  --color-sidebar-foreground: 222.2 84% 4.9%;
+  --color-sidebar-border: 214.3 31.8% 91.4%;
   --radius: 0.5rem;
 }
 
@@ -47,6 +50,9 @@
   --color-popover-foreground: 210 40% 98%;
   --color-card: 222.2 84% 4.9%;
   --color-card-foreground: 210 40% 98%;
+  --color-sidebar: 222.2 84% 4.9%;
+  --color-sidebar-foreground: 210 40% 98%;
+  --color-sidebar-border: 217.2 32.6% 17.5%;
 }
 
 @theme {
@@ -70,6 +76,9 @@
   --color-popover-foreground: var(--color-popover-foreground);
   --color-card: var(--color-card);
   --color-card-foreground: var(--color-card-foreground);
+  --color-sidebar: var(--color-sidebar);
+  --color-sidebar-foreground: var(--color-sidebar-foreground);
+  --color-sidebar-border: var(--color-sidebar-border);
   --radius: var(--radius);
 }
 
@@ -320,6 +329,18 @@ body {
 
 .text-popover-foreground {
   color: hsl(var(--color-popover-foreground));
+}
+
+.bg-sidebar {
+  background-color: hsl(var(--color-sidebar));
+}
+
+.text-sidebar-foreground {
+  color: hsl(var(--color-sidebar-foreground));
+}
+
+.border-sidebar {
+  border-color: hsl(var(--color-sidebar-border));
 }
 
 /* Drag & Drop styles */

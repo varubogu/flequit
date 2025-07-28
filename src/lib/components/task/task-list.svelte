@@ -4,10 +4,11 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/shared/button.svelte';
-  import { Plus } from 'lucide-svelte';
+  import { Plus, PanelLeft } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { createEventDispatcher } from 'svelte';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
     title?: string;
@@ -29,6 +30,9 @@
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');
+  
+  // Get sidebar state for responsive toggle button
+  const sidebar = useSidebar();
 
   function toggleAddForm() {
     showAddForm = !showAddForm;
@@ -55,7 +59,22 @@
   <!-- Header -->
   <div class="p-4 border-b bg-card">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold">{title}</h2>
+      <div class="flex items-center gap-2">
+        <!-- レスポンシブ折りたたみボタン（モバイル時のみ表示） -->
+        {#if sidebar.isMobile}
+          <Button
+            size="icon"
+            variant="ghost"
+            onclick={sidebar.toggle}
+            title="Toggle Sidebar"
+            class="md:hidden"
+            data-testid="mobile-sidebar-toggle"
+          >
+            <PanelLeft class="h-4 w-4" />
+          </Button>
+        {/if}
+        <h2 class="text-xl font-semibold">{title}</h2>
+      </div>
       <div class="flex items-center gap-2">
         <span class="text-sm text-muted-foreground">
           {taskCountText}
