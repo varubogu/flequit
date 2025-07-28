@@ -5,7 +5,7 @@
   import DueDate from '../datetime/due-date.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
-  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
+  import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -19,7 +19,9 @@
 
   let {
     task,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     subTaskDatePickerPosition,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     showSubTaskDatePicker,
     handleSubTaskClick,
     handleSubTaskToggle,
@@ -55,9 +57,9 @@
       <ContextMenuWrapper items={createSubTaskContextMenu(subTask)}>
         <Button
           variant="ghost"
-          class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
+          class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground transition-all {taskStore.selectedSubTaskId ===
           subTask.id
-            ? 'bg-primary/10 border-primary'
+            ? 'selected'
             : ''}"
           onclick={(e) => handleSubTaskClick(e, subTask.id)}
         >

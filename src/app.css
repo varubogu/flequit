@@ -154,6 +154,13 @@
   box-shadow: 0 2px 8px -2px hsl(var(--color-primary) / 0.2);
 }
 
+/* Sub-task selection styles */
+.selected {
+  background-color: hsl(var(--color-accent)) !important;
+  border-color: hsl(var(--color-primary)) !important;
+  box-shadow: 0 2px 8px -2px hsl(var(--color-primary) / 0.2) !important;
+}
+
 /* Command Dialog fixes */
 [data-slot="command"] {
   background-color: hsl(var(--color-background)) !important;
