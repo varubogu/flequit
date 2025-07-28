@@ -68,7 +68,7 @@ describe('TaskDetailHeader Component', () => {
       onDelete
     });
 
-    expect(screen.getByText('Sub-task')).toBeInTheDocument();
+    // 「サブタスク」ラベルは削除されたため、このテストは不要
     const titleInput = screen.getByDisplayValue('Test SubTask Title');
     expect(titleInput).toHaveAttribute('placeholder', 'Sub-task title');
   });

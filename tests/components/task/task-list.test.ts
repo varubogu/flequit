@@ -28,6 +28,29 @@ vi.mock('$lib/components/task/task-add-form.svelte', () => {
   };
 });
 
+// Mock useSidebar
+vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
+  useSidebar: () => ({
+    state: 'expanded',
+    isMobile: false,
+    toggle: vi.fn()
+  })
+}));
+
+// Mock locale and messages
+vi.mock('$lib/stores/locale.svelte', () => ({
+  reactiveMessage: (fn: () => string) => fn
+}));
+
+vi.mock('$paraglide/messages.js', () => ({
+  add_task: () => 'Add Task',
+  no_search_results: () => 'No search results',
+  no_tasks_found: () => 'No tasks found',
+  try_different_search: () => 'Try different search',
+  click_add_task: () => 'Click add task',
+  add_some_tasks: () => 'Add some tasks'
+}));
+
 const mockTaskListService = vi.mocked(TaskListService);
 
 describe('TaskList', () => {
