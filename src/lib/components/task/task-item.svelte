@@ -12,10 +12,14 @@
   import SubTaskList from '$lib/components/task/sub-task-list.svelte';
   import TaskAccordionToggle from './task-accordion-toggle.svelte';
   import TaskDatePicker from './task-date-picker.svelte';
-  import TaskContextMenu from './task-context-menu.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
+  import { Edit, Trash2 } from 'lucide-svelte';
+  import type { ContextMenuList } from '$lib/types/context-menu';
+  import { createContextMenu, createSeparator } from '$lib/types/context-menu';
+  import * as m from '$paraglide/messages.js';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -45,7 +49,68 @@
 
   // Get handlers from child components
   let taskDatePicker: TaskDatePicker | undefined = $state();
-  let taskContextMenu: TaskContextMenu;
+
+  // Reactive messages
+  const editTask = reactiveMessage(m.edit_task);
+  const deleteTask = reactiveMessage(m.delete_task);
+  const editSubtask = reactiveMessage(m.edit_subtask);
+  const deleteSubtask = reactiveMessage(m.delete_subtask);
+
+  function handleEditTask() {
+    // TODO: タスク編集の実装
+  }
+
+  function handleDeleteTask() {
+    TaskService.deleteTask(task.id);
+  }
+
+  function handleEditSubTask(subTask: any) {
+    // TODO: サブタスク編集の実装
+    console.log('Edit subtask:', subTask.title);
+  }
+
+  function handleDeleteSubTask(subTask: any) {
+    // TODO: サブタスク削除の実装
+    console.log('Delete subtask:', subTask.title);
+  }
+
+  // タスク用のコンテキストメニューリストを作成
+  const taskContextMenuItems: ContextMenuList = $derived(createContextMenu([
+    {
+      id: 'edit-task',
+      label: editTask,
+      action: handleEditTask,
+      icon: Edit
+    },
+    createSeparator(),
+    {
+      id: 'delete-task',
+      label: deleteTask,
+      action: handleDeleteTask,
+      icon: Trash2,
+      destructive: true
+    }
+  ]));
+
+  // サブタスク用のコンテキストメニューリストを作成
+  function createSubTaskContextMenu(subTask: any): ContextMenuList {
+    return createContextMenu([
+      {
+        id: 'edit-subtask',
+        label: editSubtask,
+        action: () => handleEditSubTask(subTask),
+        icon: Edit
+      },
+      createSeparator(),
+      {
+        id: 'delete-subtask',
+        label: deleteSubtask,
+        action: () => handleDeleteSubTask(subTask),
+        icon: Trash2,
+        destructive: true
+      }
+    ]);
+  }
 
   function handleTaskClick() {
     // モバイル時のカスタムハンドラーがある場合は優先
@@ -53,7 +118,7 @@
       onTaskClick(task.id);
       return;
     }
-    
+
     // Try to select task, but if blocked due to new task mode, dispatch event for confirmation
     const success = TaskService.selectTask(task.id);
     if (!success) {
@@ -72,7 +137,7 @@
 
   function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
     event?.stopPropagation();
-    
+
     if (onSubTaskClick) {
       onSubTaskClick(subTaskId);
     } else {
@@ -111,7 +176,7 @@
       type: 'task',
       id: task.id
     };
-    
+
     const dragData = DragDropManager.handleDrop(event, target);
     if (!dragData) return;
 
@@ -153,7 +218,7 @@
     ondragenter={(e) => handleDragEnter(e, e.currentTarget as HTMLElement)}
     ondragleave={(e) => handleDragLeave(e, e.currentTarget as HTMLElement)}
   >
-    <ContextMenuWrapper items={taskContextMenu ? taskContextMenu.createTaskContextMenu() : []}>
+    <ContextMenuWrapper items={taskContextMenuItems}>
       <Button
         variant="ghost"
         class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
@@ -188,10 +253,9 @@
     showSubTaskDatePicker={false}
     {handleSubTaskClick}
     {handleSubTaskToggle}
-    handleSubTaskContextMenu={(e, st) => taskContextMenu && taskContextMenu.handleSubTaskContextMenu(e, st)}
     handleSubTaskDueDateClick={(e, st) => taskDatePicker && taskDatePicker.handleSubTaskDueDateClick(e, st)}
+    {createSubTaskContextMenu}
   />
 {/if}
 
 <TaskDatePicker bind:this={taskDatePicker} {task} />
-<TaskContextMenu bind:this={taskContextMenu} {task} />

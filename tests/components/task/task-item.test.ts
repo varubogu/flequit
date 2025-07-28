@@ -11,9 +11,6 @@ vi.mock('$lib/components/task/task-date-picker.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('$lib/components/task/task-context-menu.svelte', () => ({
-  default: () => null
-}));
 
 vi.mock('$lib/components/task/task-status-toggle.svelte', () => ({
   default: () => null
@@ -55,7 +52,6 @@ import TaskItem from '$lib/components/task/task-item.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { TaskService } from '$lib/services/task-service';
-import { contextMenuStore } from '$lib/stores/context-menu.svelte';
 
 const createMockTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({
   id: 'task-1',

@@ -4,7 +4,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '../datetime/due-date.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
-  import TaskContextMenu from './task-context-menu.svelte';
+  import type { ContextMenuList } from '$lib/types/context-menu';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -12,8 +12,8 @@
     showSubTaskDatePicker: boolean;
     handleSubTaskClick: (event: Event | undefined, subTaskId: string) => void;
     handleSubTaskToggle: (event: Event | undefined, subTaskId: string) => void;
-    handleSubTaskContextMenu: (event: MouseEvent, subTask: SubTask) => void;
     handleSubTaskDueDateClick: (event: MouseEvent, subTask: SubTask) => void;
+    createSubTaskContextMenu: (subTask: SubTask) => ContextMenuList;
   }
 
   let {
@@ -22,17 +22,15 @@
     showSubTaskDatePicker,
     handleSubTaskClick,
     handleSubTaskToggle,
-    handleSubTaskContextMenu,
-    handleSubTaskDueDateClick
+    handleSubTaskDueDateClick,
+    createSubTaskContextMenu
   }: Props = $props();
 
-  // Get task context menu instance for creating subtask context menus
-  let taskContextMenu: TaskContextMenu;
 </script>
 
 <div class="ml-10 mt-2 space-y-2">
   {#each task.sub_tasks as subTask (subTask.id)}
-    <ContextMenuWrapper items={taskContextMenu ? taskContextMenu.createSubTaskContextMenu(subTask) : []}>
+    <ContextMenuWrapper items={createSubTaskContextMenu(subTask)}>
       <Button
         variant="ghost"
         class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground {taskStore.selectedSubTaskId ===
@@ -67,5 +65,3 @@
     </ContextMenuWrapper>
   {/each}
 </div>
-
-<TaskContextMenu bind:this={taskContextMenu} {task} />
