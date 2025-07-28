@@ -83,6 +83,7 @@
       ondragend={onDragEnd}
       ondragenter={(event) => onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
       ondragleave={(event) => onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
+      data-testid="tag-{tag.id}"
     >
       {#if sidebar.state === 'collapsed'}
         <Hash
