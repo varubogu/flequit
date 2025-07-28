@@ -7,7 +7,7 @@ export type DayOfWeek = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursda
 export type WeekOfMonth = 'first' | 'second' | 'third' | 'fourth' | 'last';
 export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';
 export type AdjustmentDirection = 'previous' | 'next';
-export type AdjustmentTarget = 'weekday' | 'weekend' | 'holiday' | 'non_holiday' | 'specific_weekday';
+export type AdjustmentTarget = 'weekday' | 'weekend' | 'holiday' | 'non_holiday' | 'weekend_only' | 'non_weekend' | 'weekend_holiday' | 'non_weekend_holiday' | 'specific_weekday';
 
 // 日付条件（◯日より前/以前/以降/より後）
 export interface DateCondition {
@@ -19,7 +19,7 @@ export interface DateCondition {
 // 曜日条件（◯曜日なら～）
 export interface WeekdayCondition {
   id: string;
-  if_weekday: DayOfWeek; // この曜日なら
+  if_weekday: DayOfWeek | AdjustmentTarget; // この曜日・種別なら
   then_direction: AdjustmentDirection; // 前/後に
   then_target: AdjustmentTarget; // 平日/休日/祝日/特定曜日
   then_weekday?: DayOfWeek; // 特定曜日の場合

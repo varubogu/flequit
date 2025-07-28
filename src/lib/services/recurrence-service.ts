@@ -166,13 +166,6 @@ export class RecurrenceService {
     return resultDate;
   }
   
-  /**
-   * 第X曜日の計算（例：第2日曜日）- 旧版（後方互換性のため保持）
-   */
-  private static calculateWeekOfMonth(baseDate: Date, rule: RecurrenceRule): Date | null {
-    // 旧版の実装は簡略化
-    return this.calculateWeekOfMonthNew(baseDate, rule);
-  }
   
   /**
    * 日付補正を適用
@@ -183,8 +176,8 @@ export class RecurrenceService {
     // 日付条件をチェック
     for (const condition of adjustment.date_conditions) {
       if (this.checkDateCondition(adjustedDate, condition)) {
-        // 日付条件に該当する場合の処理（実装簡略化）
-        adjustedDate.setDate(adjustedDate.getDate() + 1);
+        // 日付条件に該当する場合、該当しないように調整
+        adjustedDate = this.adjustDateForCondition(adjustedDate, condition);
       }
     }
     
@@ -198,6 +191,43 @@ export class RecurrenceService {
     return adjustedDate;
   }
   
+  /**
+   * 日付条件に基づいて日付を調整
+   */
+  private static adjustDateForCondition(date: Date, condition: DateCondition): Date {
+    const refDate = new Date(condition.reference_date);
+    const adjustedDate = new Date(date);
+    
+    switch (condition.relation) {
+      case 'before':
+        // 参照日より前にする必要がある場合、参照日の前日に設定
+        if (date >= refDate) {
+          adjustedDate.setTime(refDate.getTime() - 24 * 60 * 60 * 1000);
+        }
+        break;
+      case 'on_or_before':
+        // 参照日以前にする必要がある場合、参照日に設定
+        if (date > refDate) {
+          adjustedDate.setTime(refDate.getTime());
+        }
+        break;
+      case 'on_or_after':
+        // 参照日以降にする必要がある場合、参照日に設定
+        if (date < refDate) {
+          adjustedDate.setTime(refDate.getTime());
+        }
+        break;
+      case 'after':
+        // 参照日より後にする必要がある場合、参照日の翌日に設定
+        if (date <= refDate) {
+          adjustedDate.setTime(refDate.getTime() + 24 * 60 * 60 * 1000);
+        }
+        break;
+    }
+    
+    return adjustedDate;
+  }
+
   /**
    * 日付条件をチェック
    */
@@ -223,15 +253,41 @@ export class RecurrenceService {
    */
   private static checkWeekdayCondition(date: Date, condition: WeekdayCondition): boolean {
     const dayOfWeek = date.getDay();
-    const targetDay = this.dayOfWeekToNumber(condition.if_weekday);
-    return dayOfWeek === targetDay;
+    
+    // 特定の曜日の場合
+    if (['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].includes(condition.if_weekday)) {
+      const targetDay = this.dayOfWeekToNumber(condition.if_weekday as any);
+      return dayOfWeek === targetDay;
+    }
+    
+    // その他の条件（平日、休日、祝日、非祝日など）の場合
+    switch (condition.if_weekday) {
+      case 'weekday':
+        return dayOfWeek >= 1 && dayOfWeek <= 5; // 月曜日〜金曜日
+      case 'weekend':
+        return dayOfWeek === 0 || dayOfWeek === 6; // 日曜日・土曜日
+      case 'holiday':
+        return this.isHoliday(date);
+      case 'non_holiday':
+        return !this.isHoliday(date);
+      case 'weekend_only':
+        return dayOfWeek === 0 || dayOfWeek === 6; // 土日のみ
+      case 'non_weekend':
+        return dayOfWeek >= 1 && dayOfWeek <= 5; // 土日以外（平日）
+      case 'weekend_holiday':
+        return (dayOfWeek === 0 || dayOfWeek === 6) || this.isHoliday(date); // 土日祝日
+      case 'non_weekend_holiday':
+        return (dayOfWeek >= 1 && dayOfWeek <= 5) && !this.isHoliday(date); // 土日祝日以外
+      default:
+        return false;
+    }
   }
   
   /**
    * 曜日補正を適用
    */
   private static applyWeekdayAdjustment(date: Date, condition: WeekdayCondition): Date {
-    const adjustedDate = new Date(date);
+    let adjustedDate = new Date(date);
     const dayOfWeek = date.getDay();
     
     if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
@@ -246,6 +302,30 @@ export class RecurrenceService {
         if (daysToSubtract === 0) daysToSubtract = 7;
         adjustedDate.setDate(date.getDate() - daysToSubtract);
       }
+    } else if (condition.then_target === 'weekday') {
+      // 平日への移動
+      adjustedDate = this.moveToWeekday(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'weekend') {
+      // 休日への移動
+      adjustedDate = this.moveToWeekend(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'holiday') {
+      // 祝日への移動
+      adjustedDate = this.moveToHoliday(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'non_holiday') {
+      // 非祝日への移動
+      adjustedDate = this.moveToNonHoliday(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'weekend_only') {
+      // 土日のみへの移動
+      adjustedDate = this.moveToWeekend(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'non_weekend') {
+      // 土日以外（平日）への移動
+      adjustedDate = this.moveToWeekday(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'weekend_holiday') {
+      // 土日祝日への移動
+      adjustedDate = this.moveToWeekendOrHoliday(adjustedDate, condition.then_direction);
+    } else if (condition.then_target === 'non_weekend_holiday') {
+      // 土日祝日以外への移動
+      adjustedDate = this.moveToNonWeekendHoliday(adjustedDate, condition.then_direction);
     } else if (condition.then_days) {
       const days = condition.then_direction === 'next' ? condition.then_days : -condition.then_days;
       adjustedDate.setDate(date.getDate() + days);
@@ -305,6 +385,112 @@ export class RecurrenceService {
   }
   
   /**
+   * 平日への移動
+   */
+  private static moveToWeekday(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      const dayOfWeek = adjustedDate.getDay();
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) { // 月曜日〜金曜日
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
+   * 休日（土日）への移動
+   */
+  private static moveToWeekend(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      const dayOfWeek = adjustedDate.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) { // 日曜日または土曜日
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
+   * 祝日への移動
+   */
+  private static moveToHoliday(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      if (this.isHoliday(adjustedDate)) {
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
+   * 非祝日への移動
+   */
+  private static moveToNonHoliday(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      if (!this.isHoliday(adjustedDate)) {
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
+   * 土日祝日への移動
+   */
+  private static moveToWeekendOrHoliday(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      const dayOfWeek = adjustedDate.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6 || this.isHoliday(adjustedDate)) {
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
+   * 土日祝日以外への移動
+   */
+  private static moveToNonWeekendHoliday(date: Date, direction: 'next' | 'previous'): Date {
+    const adjustedDate = new Date(date);
+    const increment = direction === 'next' ? 1 : -1;
+    
+    while (true) {
+      const dayOfWeek = adjustedDate.getDay();
+      if ((dayOfWeek >= 1 && dayOfWeek <= 5) && !this.isHoliday(adjustedDate)) {
+        break;
+      }
+      adjustedDate.setDate(adjustedDate.getDate() + increment);
+    }
+    
+    return adjustedDate;
+  }
+
+  /**
    * 祝日判定（簡略化実装）
    * 実際の実装では祝日カレンダーAPIやライブラリを使用
    */
@@ -320,6 +506,11 @@ export class RecurrenceService {
   static generateRecurrenceDates(startDate: Date, rule: RecurrenceRule, maxCount: number = 10): Date[] {
     const dates: Date[] = [];
     let currentDate = new Date(startDate);
+    
+    // 初回の日付にも補正条件を適用
+    if (rule.adjustment && (rule.adjustment.date_conditions.length > 0 || rule.adjustment.weekday_conditions.length > 0)) {
+      currentDate = this.applyDateAdjustment(currentDate, rule.adjustment);
+    }
     
     for (let i = 0; i < maxCount; i++) {
       const nextDate = this.calculateNextDate(currentDate, rule);

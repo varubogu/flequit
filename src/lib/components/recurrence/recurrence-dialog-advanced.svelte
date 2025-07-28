@@ -20,6 +20,7 @@
   import RecurrenceAdjustmentEditor from './recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime-utils';
   import RecurrencePreview from './recurrence-preview.svelte';
+  import { generateRandomId } from '$lib/utils/id-utils';
 
   interface Props {
     open?: boolean;
@@ -115,7 +116,7 @@
   }
 
   function addDateCondition() {
-    dateConditions = [...dateConditions, { id: crypto.randomUUID(), relation: 'before', reference_date: new Date() }];
+    dateConditions = [...dateConditions, { id: generateRandomId(), relation: 'before', reference_date: new Date() }];
     handleImmediateSave();
   }
   function removeDateCondition(id: string) {
@@ -128,7 +129,7 @@
   }
 
   function addWeekdayCondition() {
-    weekdayConditions = [...weekdayConditions, { id: crypto.randomUUID(), if_weekday: 'monday', then_direction: 'next', then_target: 'weekday' }];
+    weekdayConditions = [...weekdayConditions, { id: generateRandomId(), if_weekday: 'monday', then_direction: 'next', then_target: 'weekday' }];
     handleImmediateSave();
   }
   function removeWeekdayCondition(id: string) {

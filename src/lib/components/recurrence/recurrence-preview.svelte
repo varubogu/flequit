@@ -40,7 +40,7 @@
 					type="number"
 					bind:value={displayCount}
 					min="1"
-					max="20"
+					max="50"
 					class="w-16 px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
 				/>
 				<span class="text-sm text-muted-foreground">{timesSuffix()}</span>

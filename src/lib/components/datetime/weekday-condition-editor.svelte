@@ -44,8 +44,12 @@
       sunday: () => '日曜日',
       weekday: () => '平日',
       weekend: () => '休日',
+      weekend_only: () => '土日',
+      non_weekend: () => '土日以外',
       holiday: () => '祝日',
-      non_holiday: () => '非祝日'
+      non_holiday: () => '非祝日',
+      weekend_holiday: () => '土日祝日',
+      non_weekend_holiday: () => '土日祝日以外'
     };
     return dayLabels[condition.if_weekday]?.() || condition.if_weekday;
   });
@@ -65,8 +69,12 @@
       sunday: () => '日曜日',
       weekday: () => '平日',
       weekend: () => '休日',
+      weekend_only: () => '土日',
+      non_weekend: () => '土日以外',
       holiday: () => '祝日',
-      non_holiday: () => '非祝日'
+      non_holiday: () => '非祝日',
+      weekend_holiday: () => '土日祝日',
+      non_weekend_holiday: () => '土日祝日以外'
     };
 
     if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
@@ -76,7 +84,7 @@
   });
 
   function handleConditionChange(value: DayOfWeek | AdjustmentTarget) {
-    onUpdate({ if_weekday: value as DayOfWeek });
+    onUpdate({ if_weekday: value });
   }
 
   function handleDirectionChange(event: Event) {

@@ -23,6 +23,12 @@
   const weekend = reactiveMessage(m.weekend);
   const holiday = reactiveMessage(m.holiday);
   const nonHoliday = reactiveMessage(m.non_holiday);
+  
+  // 新しい選択肢のラベル（直接定義）
+  const weekendOnly = () => '土日';
+  const nonWeekend = () => '土日以外';
+  const weekendHoliday = () => '土日祝日';
+  const nonWeekendHoliday = () => '土日祝日以外';
 
   // 選択肢（曜日 + 平日/休日など）
   const options = [
@@ -35,8 +41,12 @@
     { value: 'sunday', label: sunday },
     { value: 'weekday', label: weekday },
     { value: 'weekend', label: weekend },
+    { value: 'weekend_only', label: weekendOnly },
+    { value: 'non_weekend', label: nonWeekend },
     { value: 'holiday', label: holiday },
-    { value: 'non_holiday', label: nonHoliday }
+    { value: 'non_holiday', label: nonHoliday },
+    { value: 'weekend_holiday', label: weekendHoliday },
+    { value: 'non_weekend_holiday', label: nonWeekendHoliday }
   ];
 
   function handleChange(event: Event) {
