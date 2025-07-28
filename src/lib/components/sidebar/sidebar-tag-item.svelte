@@ -3,10 +3,12 @@
   import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import { Hash } from 'lucide-svelte';
-  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
+  import { Hash, Edit, Trash2, Bookmark, BookmarkX } from 'lucide-svelte';
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import type { Tag } from '$lib/types/task';
+  import type { ContextMenuList } from '$lib/types/context-menu';
+  import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 
   interface Props {
     tag: Tag;
@@ -22,18 +24,18 @@
     onDragLeave?: (event: DragEvent, element: HTMLElement) => void;
   }
 
-  let { 
-    tag, 
-    onRemoveFromBookmarks, 
-    onEditTag, 
-    onDeleteTag, 
-    onTagClick, 
-    onDragStart, 
-    onDragOver, 
-    onDrop, 
-    onDragEnd, 
-    onDragEnter, 
-    onDragLeave 
+  let {
+    tag,
+    onRemoveFromBookmarks,
+    onEditTag,
+    onDeleteTag,
+    onTagClick,
+    onDragStart,
+    onDragOver,
+    onDrop,
+    onDragEnd,
+    onDragEnter,
+    onDragLeave
   }: Props = $props();
 
   // Get sidebar state
@@ -41,6 +43,7 @@
 
   // Reactive messages
   const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
+  const addTagToSidebar = reactiveMessage(m.add_tag_to_sidebar);
   const editTag = reactiveMessage(m.edit_tag);
   const deleteTag = reactiveMessage(m.delete_tag);
 
@@ -48,77 +51,99 @@
     return taskStore.getTaskCountByTag(tagName);
   }
 
-  function handleRemoveFromBookmarks(event: Event) {
-    event.stopPropagation();
-    onRemoveFromBookmarks?.(tag);
-  }
+  // コンテキストメニューリストを作成
+  const contextMenuItems: ContextMenuList = $derived(createContextMenu([
+    {
+      id: 'edit-tag',
+      label: editTag,
+      action: () => {
+        onEditTag?.(tag);
+      },
+      icon: Edit
+    },
+    createSeparator(),
+    {
+      id: 'add-to-sidebar',
+      label: addTagToSidebar,
+      action: () => {
+        console.log('Add to sidebar action called for:', tag.name);
+        // TODO: サイドバーに追加する処理（既にある場合の処理）
+      },
+      icon: Bookmark,
+      visible: () => {
+        // 既にサイドバーにある場合は非表示
+        // 実際の実装では、tagがbookmarkedかどうかをチェック
+        return false; // 仮実装
+      }
+    },
+    {
+      id: 'remove-from-sidebar',
+      label: removeTagFromSidebar,
+      action: () => {
+        onRemoveFromBookmarks?.(tag);
+      },
+      icon: BookmarkX,
+      visible: () => {
+        // サイドバーにある場合のみ表示
+        // 実際の実装では、tagがbookmarkedかどうかをチェック
+        return true; // 仮実装
+      }
+    },
+    createSeparator(),
+    {
+      id: 'delete-tag',
+      label: deleteTag,
+      action: () => {
+        onDeleteTag?.(tag);
+      },
+      icon: Trash2,
+      destructive: true
+    }
+  ]));
 
-  function handleEditTag(event: Event) {
-    event.stopPropagation();
-    onEditTag?.(tag);
-  }
-
-  function handleDeleteTag(event: Event) {
-    event.stopPropagation();
-    onDeleteTag?.(tag);
-  }
 
   function handleTagClick() {
     onTagClick?.();
   }
 </script>
 
-<ContextMenu.Root>
-  <ContextMenu.Trigger>
-    <Button
-      variant="ghost"
-      class={sidebar.state === 'collapsed' 
-        ? "w-full justify-center p-2 h-auto group hover:bg-accent"
-        : "w-full justify-between p-3 h-auto group hover:bg-accent"}
-      onclick={handleTagClick}
-      draggable="true"
-      ondragstart={onDragStart}
-      ondragover={onDragOver}
-      ondrop={onDrop}
-      ondragend={onDragEnd}
-      ondragenter={(event) => onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
-      ondragleave={(event) => onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
-      data-testid="tag-{tag.id}"
-    >
-      {#if sidebar.state === 'collapsed'}
-        <Hash
-          class="h-4 w-4"
-          style="color: {tag.color || 'currentColor'}"
-        />
-      {:else}
-        <div class="flex items-center gap-3 flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-1 min-w-0">
-            <Hash
-              class="h-4 w-4 flex-shrink-0"
-              style="color: {tag.color || 'currentColor'}"
-            />
-            <span class="truncate text-sm font-medium">{tag.name}</span>
-          </div>
-
-          <div class="flex items-center gap-1 flex-shrink-0">
-            <span class="text-xs text-muted-foreground">
-              {getTaskCountForTag(tag.name)}
-            </span>
-          </div>
+<ContextMenuWrapper items={contextMenuItems}>
+  <Button
+    variant="ghost"
+    class={sidebar.state === 'collapsed'
+      ? "w-full justify-center p-2 h-auto group hover:bg-accent"
+      : "w-full justify-between p-3 h-auto group hover:bg-accent"}
+    onclick={handleTagClick}
+    draggable="true"
+    ondragstart={onDragStart}
+    ondragover={onDragOver}
+    ondrop={onDrop}
+    ondragend={onDragEnd}
+    ondragenter={(event) => onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
+    ondragleave={(event) => onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
+    data-testid="tag-{tag.id}"
+  >
+    {#if sidebar.state === 'collapsed'}
+      <Hash
+        class="h-4 w-4"
+        style="color: {tag.color || 'currentColor'}"
+      />
+    {:else}
+      <div class="flex items-center gap-3 flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <Hash
+            class="h-4 w-4 flex-shrink-0"
+            style="color: {tag.color || 'currentColor'}"
+          />
+          <span class="truncate text-sm font-medium">{tag.name}</span>
         </div>
-      {/if}
-    </Button>
-  </ContextMenu.Trigger>
 
-  <ContextMenu.Content>
-    <ContextMenu.Item onclick={handleRemoveFromBookmarks}>
-      {removeTagFromSidebar()}
-    </ContextMenu.Item>
-    <ContextMenu.Item onclick={handleEditTag}>
-      {editTag()}
-    </ContextMenu.Item>
-    <ContextMenu.Item onclick={handleDeleteTag}>
-      {deleteTag()}
-    </ContextMenu.Item>
-  </ContextMenu.Content>
-</ContextMenu.Root>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <span class="text-xs text-muted-foreground">
+            {getTaskCountForTag(tag.name)}
+          </span>
+        </div>
+      </div>
+    {/if}
+  </Button>
+</ContextMenuWrapper>
