@@ -37,7 +37,7 @@
 
   function handleDrop(event: DragEvent) {
     if (!dropTarget || !onDrop) return;
-    
+
     const dragData = DragDropManager.handleDrop(event, dropTarget);
     if (dragData) {
       onDrop(dragData);
@@ -59,6 +59,7 @@
   <ContextMenu.Root>
     <ContextMenu.Trigger>
       <div
+        role="region"
         ondragover={dropTarget ? handleDragOver : undefined}
         ondrop={dropTarget ? handleDrop : undefined}
         ondragenter={dropTarget ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement) : undefined}
@@ -66,7 +67,7 @@
       >
         <Button
           variant={isActive ? "secondary" : "ghost"}
-          class={isCollapsed 
+          class={isCollapsed
             ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
             : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
           {onclick}
@@ -108,6 +109,7 @@
   </ContextMenu.Root>
 {:else}
   <div
+    role="region"
     ondragover={dropTarget ? handleDragOver : undefined}
     ondrop={dropTarget ? handleDrop : undefined}
     ondragenter={dropTarget ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement) : undefined}
@@ -115,7 +117,7 @@
   >
     <Button
       variant={isActive ? "secondary" : "ghost"}
-      class={isCollapsed 
+      class={isCollapsed
         ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
         : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
       {onclick}
