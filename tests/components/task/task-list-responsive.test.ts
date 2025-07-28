@@ -11,6 +11,8 @@ const mockSidebar = {
   toggle: vi.fn()
 };
 
+const mockOnTaskClick = vi.fn();
+
 vi.mock('$lib/components/ui/sidebar/context.svelte.ts', () => ({
   useSidebar: () => mockSidebar
 }));
@@ -68,7 +70,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         props: {
           title: 'Test Tasks',
           tasks: mockTasks,
-          showAddButton: true
+          showAddButton: true,
+          onTaskClick: mockOnTaskClick
         }
       });
 
@@ -85,7 +88,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         props: {
           title: 'Test Tasks',
           tasks: mockTasks,
-          showAddButton: true
+          showAddButton: true,
+          onTaskClick: mockOnTaskClick
         }
       });
 
@@ -101,7 +105,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         props: {
           title: 'Test Tasks',
           tasks: mockTasks,
-          showAddButton: true
+          showAddButton: true,
+          onTaskClick: mockOnTaskClick
         }
       });
 
@@ -121,7 +126,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         props: {
           title: 'Test Tasks',
           tasks: mockTasks,
-          showAddButton: true
+          showAddButton: true,
+          onTaskClick: mockOnTaskClick
         }
       });
 
@@ -145,7 +151,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         props: {
           title: 'Empty Tasks',
           tasks: [],
-          showAddButton: false
+          showAddButton: false,
+          onTaskClick: mockOnTaskClick
         }
       });
 
