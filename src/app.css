@@ -378,3 +378,32 @@ body {
   position: absolute;
   z-index: 1000;
 }
+
+/* Context Menu keyboard selection styling */
+[data-slot="context-menu-item"][data-selected="true"] {
+  background-color: hsl(var(--color-primary)) !important;
+  color: hsl(var(--color-primary-foreground)) !important;
+}
+
+/* Override bits-ui highlighted state when custom selected */
+[data-slot="context-menu-item"][data-selected="true"][data-highlighted] {
+  background-color: hsl(var(--color-primary)) !important;
+  color: hsl(var(--color-primary-foreground)) !important;
+}
+
+/* Additional context menu item styling to ensure proper visibility */
+[data-slot="context-menu-item"][data-selected="true"]:not([data-disabled]) {
+  background-color: hsl(var(--color-primary)) !important;
+  color: hsl(var(--color-primary-foreground)) !important;
+}
+
+/* Override any conflicting hover states when selected */
+[data-slot="context-menu-item"][data-selected="true"]:hover {
+  background-color: hsl(var(--color-primary)) !important;
+  color: hsl(var(--color-primary-foreground)) !important;
+}
+
+/* Ensure icon color matches when selected */
+[data-slot="context-menu-item"][data-selected="true"] svg {
+  color: hsl(var(--color-primary-foreground)) !important;
+}
