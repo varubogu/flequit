@@ -14,6 +14,7 @@
     title?: string;
     tasks?: TaskWithSubTasks[];
     showAddButton?: boolean;
+    onTaskClick?: (taskId: string) => void;
   }
 
   const dispatch = createEventDispatcher<{
@@ -24,7 +25,8 @@
   let {
     title = 'Tasks',
     tasks = [],
-    showAddButton = false
+    showAddButton = false,
+    onTaskClick
   }: Props = $props();
 
   let showAddForm = $state(false);
@@ -122,6 +124,7 @@
         {#each tasks as task (task.id)}
           <TaskItem
             {task}
+            {onTaskClick}
             on:taskSelectionRequested={(event) => dispatch('taskSelectionRequested', event.detail)}
             on:subTaskSelectionRequested={(event) => dispatch('subTaskSelectionRequested', event.detail)}
           />

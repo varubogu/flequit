@@ -18,9 +18,10 @@
 
   interface Props {
     task: TaskWithSubTasks;
+    onTaskClick?: (taskId: string) => void;
   }
 
-  let { task }: Props = $props();
+  let { task, onTaskClick }: Props = $props();
 
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
@@ -45,6 +46,12 @@
   let taskContextMenu: TaskContextMenu;
 
   function handleTaskClick() {
+    // モバイル時のカスタムハンドラーがある場合は優先
+    if (onTaskClick) {
+      onTaskClick(task.id);
+      return;
+    }
+    
     // Try to select task, but if blocked due to new task mode, dispatch event for confirmation
     const success = TaskService.selectTask(task.id);
     if (!success) {
