@@ -231,7 +231,7 @@ test("ViewService.getViewTitle: returns project name for 'project' view", () => 
 test("ViewService.getViewTitle: returns list name when list is selected", () => {
   mockTaskStore.selectedProjectId = "project-1";
   mockTaskStore.selectedListId = "list-1";
-  expect(ViewService.getViewTitle('project')).toBe('List A');
+  expect(ViewService.getViewTitle('project')).toBe('Project Alpha > List A');
 });
 
 test("ViewService.getViewTitle: returns search query for 'search' view", () => {
@@ -368,7 +368,7 @@ test("ViewService.getViewTitle: returns list name when list selected in project 
   
   const result = ViewService.getViewTitle('project');
   
-  expect(result).toBe('List A');
+  expect(result).toBe('Project Alpha > List A');
 });
 
 test("ViewService.getViewTitle: returns project name when only project selected", () => {
