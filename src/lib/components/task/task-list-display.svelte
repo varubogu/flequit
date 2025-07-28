@@ -3,10 +3,13 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
-  import * as ContextMenu from '$lib/components/ui/context-menu';
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
+  import { Edit, Plus, Trash2 } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
+  import type { ContextMenuList } from '$lib/types/context-menu';
+  import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 
   interface Props {
     project: ProjectTree;
@@ -102,49 +105,58 @@
   function handleTaskListDragLeave(event: DragEvent, element: HTMLElement) {
     DragDropManager.handleDragLeave(event, element);
   }
+
+  // タスクリスト用のコンテキストメニューリストを作成
+  function createTaskListContextMenu(list: any): ContextMenuList {
+    return createContextMenu([
+      {
+        id: 'edit-task-list',
+        label: editTaskList,
+        action: () => openTaskListDialog('edit', list, project),
+        icon: Edit
+      },
+      {
+        id: 'add-task',
+        label: addTask,
+        action: () => console.log('Add task to:', list.name),
+        icon: Plus
+      },
+      createSeparator(),
+      {
+        id: 'delete-task-list',
+        label: deleteTaskList,
+        action: () => taskStore.deleteTaskList(list.id),
+        icon: Trash2,
+        destructive: true
+      }
+    ]);
+  }
 </script>
 
 {#if isExpanded}
   <div class="ml-4 mt-1 space-y-1">
     {#each project.task_lists as list (list.id)}
-      <ContextMenu.Root>
-        <ContextMenu.Trigger class="block w-full">
-          <Button
-            variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
-            size="sm"
-            class="flex items-center justify-between w-full h-auto p-2 text-xs active:scale-100 active:brightness-[0.4] transition-all duration-100"
-            onclick={() => handleTaskListSelect(list)}
-            data-testid="tasklist-{list.id}"
-            draggable="true"
-            ondragstart={(event) => handleTaskListDragStart(event, list)}
-            ondragover={(event) => handleTaskListDragOver(event, list)}
-            ondrop={(event) => handleTaskListDrop(event, list)}
-            ondragend={handleTaskListDragEnd}
-            ondragenter={(event) => event.currentTarget && handleTaskListDragEnter(event, event.currentTarget as HTMLElement)}
-            ondragleave={(event) => event.currentTarget && handleTaskListDragLeave(event, event.currentTarget as HTMLElement)}
-          >
-            <span class="truncate">{list.name}</span>
-            <span class="text-muted-foreground">
-              {list.tasks.length}
-            </span>
-          </Button>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item onclick={() => openTaskListDialog('edit', list, project)}>
-            {editTaskList()}
-          </ContextMenu.Item>
-          <ContextMenu.Item onclick={() => console.log('Add task to:', list.name)}>
-            {addTask()}
-          </ContextMenu.Item>
-          <ContextMenu.Separator />
-          <ContextMenu.Item
-            variant="destructive"
-            onclick={() => taskStore.deleteTaskList(list.id)}
-          >
-            {deleteTaskList()}
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>
+      <ContextMenuWrapper items={createTaskListContextMenu(list)}>
+        <Button
+          variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+          size="sm"
+          class="flex items-center justify-between w-full h-auto p-2 text-xs active:scale-100 active:brightness-[0.4] transition-all duration-100"
+          onclick={() => handleTaskListSelect(list)}
+          data-testid="tasklist-{list.id}"
+          draggable="true"
+          ondragstart={(event) => handleTaskListDragStart(event, list)}
+          ondragover={(event) => handleTaskListDragOver(event, list)}
+          ondrop={(event) => handleTaskListDrop(event, list)}
+          ondragend={handleTaskListDragEnd}
+          ondragenter={(event) => event.currentTarget && handleTaskListDragEnter(event, event.currentTarget as HTMLElement)}
+          ondragleave={(event) => event.currentTarget && handleTaskListDragLeave(event, event.currentTarget as HTMLElement)}
+        >
+          <span class="truncate">{list.name}</span>
+          <span class="text-muted-foreground">
+            {list.tasks.length}
+          </span>
+        </Button>
+      </ContextMenuWrapper>
     {/each}
   </div>
 {/if}

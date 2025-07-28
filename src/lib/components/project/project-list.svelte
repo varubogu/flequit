@@ -3,14 +3,16 @@
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
-  import { ChevronDown, ChevronRight, Plus } from 'lucide-svelte';
+  import { ChevronDown, ChevronRight, Plus, Edit, Trash2 } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
-  import * as ContextMenu from '$lib/components/ui/context-menu';
+  import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
+  import type { ContextMenuList } from '$lib/types/context-menu';
+  import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 
   interface Props {
     currentView?: ViewType;
@@ -136,6 +138,32 @@
   function handleProjectDragLeave(event: DragEvent, element: HTMLElement) {
     DragDropManager.handleDragLeave(event, element);
   }
+
+  // プロジェクト用のコンテキストメニューリストを作成
+  function createProjectContextMenu(project: ProjectTree): ContextMenuList {
+    return createContextMenu([
+      {
+        id: 'edit-project',
+        label: editProject,
+        action: () => openProjectDialog('edit', project),
+        icon: Edit
+      },
+      {
+        id: 'add-task-list',
+        label: addTaskList,
+        action: () => openTaskListDialog('add', project),
+        icon: Plus
+      },
+      createSeparator(),
+      {
+        id: 'delete-project',
+        label: deleteProject,
+        action: () => taskStore.deleteProject(project.id),
+        icon: Trash2,
+        destructive: true
+      }
+    ]);
+  }
 </script>
 
 {#each projectsData as project (project.id)}
@@ -163,55 +191,38 @@
       {/if}
 
       <div class="flex-1">
-        <ContextMenu.Root>
-          <ContextMenu.Trigger class="block w-full">
-            <Button
-              variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-              class={isCollapsed 
-                ? "flex items-center justify-center w-full h-auto py-2 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
-                : "flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"}
-              onclick={() => handleProjectSelect(project)}
-              data-testid="project-{project.id}"
-              draggable="true"
-              ondragstart={(event) => handleProjectDragStart(event, project)}
-              ondragover={(event) => handleProjectDragOver(event, project)}
-              ondrop={(event) => handleProjectDrop(event, project)}
-              ondragend={handleProjectDragEnd}
-              ondragenter={(event) => event.currentTarget && handleProjectDragEnter(event, event.currentTarget as HTMLElement)}
-              ondragleave={(event) => event.currentTarget && handleProjectDragLeave(event, event.currentTarget as HTMLElement)}
-            >
-              <div class="flex items-center gap-2 min-w-0">
-                <div
-                  class="w-3 h-3 rounded-full flex-shrink-0"
-                  style="background-color: {project.color || '#3b82f6'}"
-                ></div>
-                {#if !isCollapsed}
-                  <span class="truncate">{project.name}</span>
-                {/if}
-              </div>
+        <ContextMenuWrapper items={createProjectContextMenu(project)}>
+          <Button
+            variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
+            class={isCollapsed 
+              ? "flex items-center justify-center w-full h-auto py-2 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
+              : "flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+            onclick={() => handleProjectSelect(project)}
+            data-testid="project-{project.id}"
+            draggable="true"
+            ondragstart={(event) => handleProjectDragStart(event, project)}
+            ondragover={(event) => handleProjectDragOver(event, project)}
+            ondrop={(event) => handleProjectDrop(event, project)}
+            ondragend={handleProjectDragEnd}
+            ondragenter={(event) => event.currentTarget && handleProjectDragEnter(event, event.currentTarget as HTMLElement)}
+            ondragleave={(event) => event.currentTarget && handleProjectDragLeave(event, event.currentTarget as HTMLElement)}
+          >
+            <div class="flex items-center gap-2 min-w-0">
+              <div
+                class="w-3 h-3 rounded-full flex-shrink-0"
+                style="background-color: {project.color || '#3b82f6'}"
+              ></div>
               {#if !isCollapsed}
-                <span class="text-xs text-muted-foreground flex-shrink-0">
-                  {getProjectTaskCount(project)}
-                </span>
+                <span class="truncate">{project.name}</span>
               {/if}
-            </Button>
-          </ContextMenu.Trigger>
-          <ContextMenu.Content>
-            <ContextMenu.Item onclick={() => openProjectDialog('edit', project)}>
-              {editProject()}
-            </ContextMenu.Item>
-            <ContextMenu.Item onclick={() => openTaskListDialog('add', project)}>
-              {addTaskList()}
-            </ContextMenu.Item>
-            <ContextMenu.Separator />
-            <ContextMenu.Item
-              variant="destructive"
-              onclick={() => taskStore.deleteProject(project.id)}
-            >
-              {deleteProject()}
-            </ContextMenu.Item>
-          </ContextMenu.Content>
-        </ContextMenu.Root>
+            </div>
+            {#if !isCollapsed}
+              <span class="text-xs text-muted-foreground flex-shrink-0">
+                {getProjectTaskCount(project)}
+              </span>
+            {/if}
+          </Button>
+        </ContextMenuWrapper>
       </div>
     </div>
 
