@@ -13,6 +13,7 @@
   import TaskAccordionToggle from './task-accordion-toggle.svelte';
   import TaskDatePicker from './task-date-picker.svelte';
   import TaskContextMenu from './task-context-menu.svelte';
+  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
 
   interface Props {
@@ -73,7 +74,49 @@
     showSubTasks = !showSubTasks;
   }
 
+  // Drag & Drop handlers
+  function handleDragStart(event: DragEvent) {
+    const dragData: DragData = {
+      type: 'task',
+      id: task.id
+    };
+    DragDropManager.startDrag(event, dragData);
+  }
 
+  function handleDragOver(event: DragEvent) {
+    const target: DropTarget = {
+      type: 'task',
+      id: task.id
+    };
+    DragDropManager.handleDragOver(event, target);
+  }
+
+  function handleDrop(event: DragEvent) {
+    const target: DropTarget = {
+      type: 'task',
+      id: task.id
+    };
+    
+    const dragData = DragDropManager.handleDrop(event, target);
+    if (!dragData) return;
+
+    if (dragData.type === 'tag') {
+      // タグをタスクにドロップした場合、タグを付与
+      TaskService.addTagToTask(task.id, dragData.id);
+    }
+  }
+
+  function handleDragEnd(event: DragEvent) {
+    DragDropManager.handleDragEnd(event);
+  }
+
+  function handleDragEnter(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragEnter(event, element);
+  }
+
+  function handleDragLeave(event: DragEvent, element: HTMLElement) {
+    DragDropManager.handleDragLeave(event, element);
+  }
 
 </script>
 
@@ -89,6 +132,13 @@
     class="flex-1"
     role="button"
     tabindex="0"
+    draggable="true"
+    ondragstart={handleDragStart}
+    ondragover={handleDragOver}
+    ondrop={handleDrop}
+    ondragend={handleDragEnd}
+    ondragenter={(e) => handleDragEnter(e, e.currentTarget as HTMLElement)}
+    ondragleave={(e) => handleDragLeave(e, e.currentTarget as HTMLElement)}
     oncontextmenu={(e) => taskContextMenu && taskContextMenu.handleTaskContextMenu(e)}
   >
     <Button

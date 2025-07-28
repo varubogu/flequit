@@ -1,5 +1,6 @@
 import type { Task, TaskWithSubTasks, SubTask, TaskStatus } from '$lib/types/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { tagStore } from '$lib/stores/tags.svelte';
 import { RecurrenceService } from './recurrence-service';
 
 export class TaskService {
@@ -181,5 +182,46 @@ export class TaskService {
   static deleteSubTask(subTaskId: string): boolean {
     taskStore.deleteSubTask(subTaskId);
     return true;
+  }
+
+  static addTagToTask(taskId: string, tagId: string): void {
+    // IDからタグを取得してタグ名を渡す
+    const tag = tagStore.tags.find(t => t.id === tagId);
+    if (tag) {
+      taskStore.addTagToTask(taskId, tag.name);
+    }
+  }
+
+  static updateTaskDueDateForView(taskId: string, viewId: string): void {
+    const today = new Date();
+    let newDueDate: Date | undefined;
+
+    switch (viewId) {
+      case 'today':
+        newDueDate = new Date(today);
+        break;
+      case 'tomorrow':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 1);
+        break;
+      case 'next3days':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 3);
+        break;
+      case 'nextweek':
+        newDueDate = new Date(today);
+        newDueDate.setDate(today.getDate() + 7);
+        break;
+      case 'thismonth':
+        newDueDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        break;
+      default:
+        // Other views don't change the due date
+        return;
+    }
+
+    if (newDueDate) {
+      this.updateTask(taskId, { end_date: newDueDate });
+    }
   }
 }

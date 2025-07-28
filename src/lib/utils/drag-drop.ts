@@ -1,11 +1,11 @@
 export interface DragData {
-  type: 'project' | 'tasklist' | 'tag';
+  type: 'project' | 'tasklist' | 'tag' | 'task';
   id: string;
   projectId?: string; // タスクリストの場合は所属プロジェクトID
 }
 
 export interface DropTarget {
-  type: 'project' | 'tasklist' | 'project-container' | 'tag';
+  type: 'project' | 'tasklist' | 'project-container' | 'tag' | 'view' | 'task';
   id: string;
   projectId?: string;
   position?: number;
@@ -110,8 +110,13 @@ export class DragDropManager {
     }
 
     if (dragData.type === 'tag') {
-      // タグ同士の並び替えのみ可能
-      return target.type === 'tag';
+      // タグは他のタグとタスクにドロップ可能
+      return target.type === 'tag' || target.type === 'task';
+    }
+
+    if (dragData.type === 'task') {
+      // タスクはビュー、プロジェクト、タスクリスト、タグにドロップ可能
+      return target.type === 'view' || target.type === 'project' || target.type === 'tasklist' || target.type === 'tag';
     }
 
     return false;

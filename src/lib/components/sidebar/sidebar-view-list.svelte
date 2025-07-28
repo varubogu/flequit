@@ -3,6 +3,8 @@
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
+  import { DragDropManager, type DropTarget } from '$lib/utils/drag-drop';
+  import { TaskService } from '$lib/services/task-service';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
@@ -78,6 +80,13 @@
   function handleViewChange(view: ViewType) {
     onViewChange?.(view);
   }
+
+  function handleViewDrop(viewId: string, dragData: any) {
+    if (dragData.type === 'task') {
+      // タスクをビューにドロップした場合、期日を更新
+      TaskService.updateTaskDueDateForView(dragData.id, viewId);
+    }
+  }
 </script>
 
 <div class="mb-4">
@@ -95,6 +104,8 @@
       isActive={currentView === view.id}
       isCollapsed={sidebar.state === 'collapsed'}
       onclick={() => handleViewChange(view.id as ViewType)}
+      dropTarget={{ type: 'view', id: view.id }}
+      onDrop={(dragData) => handleViewDrop(view.id, dragData)}
       testId="view-{view.id}"
     />
   {/each}

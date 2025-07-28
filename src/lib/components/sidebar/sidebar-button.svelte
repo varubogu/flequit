@@ -2,6 +2,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
   import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
+  import { DragDropManager, type DropTarget } from '$lib/utils/drag-drop';
   import type { Component } from 'svelte';
 
   export interface ContextMenuItem {
@@ -22,22 +23,55 @@
     onclick: () => void;
     contextMenuItems?: ContextMenuItem[];
     testId?: string;
+    dropTarget?: DropTarget;
+    onDrop?: (dragData: any) => void;
   }
 
-  let { icon, label, count, isActive, isCollapsed = false, onclick, contextMenuItems = [], testId }: Props = $props();
+  let { icon, label, count, isActive, isCollapsed = false, onclick, contextMenuItems = [], testId, dropTarget, onDrop }: Props = $props();
+
+  // Drag & Drop handlers
+  function handleDragOver(event: DragEvent) {
+    if (!dropTarget) return;
+    DragDropManager.handleDragOver(event, dropTarget);
+  }
+
+  function handleDrop(event: DragEvent) {
+    if (!dropTarget || !onDrop) return;
+    
+    const dragData = DragDropManager.handleDrop(event, dropTarget);
+    if (dragData) {
+      onDrop(dragData);
+    }
+  }
+
+  function handleDragEnter(event: DragEvent, element: HTMLElement) {
+    if (!dropTarget) return;
+    DragDropManager.handleDragEnter(event, element);
+  }
+
+  function handleDragLeave(event: DragEvent, element: HTMLElement) {
+    if (!dropTarget) return;
+    DragDropManager.handleDragLeave(event, element);
+  }
 </script>
 
 {#if contextMenuItems.length > 0}
   <ContextMenu.Root>
     <ContextMenu.Trigger>
-      <Button
-        variant={isActive ? "secondary" : "ghost"}
-        class={isCollapsed 
-          ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
-          : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
-        {onclick}
-        data-testid={testId}
+      <div
+        ondragover={dropTarget ? handleDragOver : undefined}
+        ondrop={dropTarget ? handleDrop : undefined}
+        ondragenter={dropTarget ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement) : undefined}
+        ondragleave={dropTarget ? (e) => handleDragLeave(e, e.currentTarget as HTMLElement) : undefined}
       >
+        <Button
+          variant={isActive ? "secondary" : "ghost"}
+          class={isCollapsed 
+            ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
+            : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+          {onclick}
+          data-testid={testId}
+        >
         {#if isCollapsed}
           <span class="text-lg">{icon}</span>
         {:else}
@@ -49,7 +83,8 @@
             {count}
           </Badge>
         {/if}
-      </Button>
+        </Button>
+      </div>
     </ContextMenu.Trigger>
     <ContextMenu.Content class="w-48">
       {#each contextMenuItems as item}
@@ -72,14 +107,20 @@
     </ContextMenu.Content>
   </ContextMenu.Root>
 {:else}
-  <Button
-    variant={isActive ? "secondary" : "ghost"}
-    class={isCollapsed 
-      ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
-      : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
-    {onclick}
-    data-testid={testId}
+  <div
+    ondragover={dropTarget ? handleDragOver : undefined}
+    ondrop={dropTarget ? handleDrop : undefined}
+    ondragenter={dropTarget ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement) : undefined}
+    ondragleave={dropTarget ? (e) => handleDragLeave(e, e.currentTarget as HTMLElement) : undefined}
   >
+    <Button
+      variant={isActive ? "secondary" : "ghost"}
+      class={isCollapsed 
+        ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
+        : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+      {onclick}
+      data-testid={testId}
+    >
     {#if isCollapsed}
       <span class="text-lg">{icon}</span>
     {:else}
@@ -91,5 +132,6 @@
         {count}
       </Badge>
     {/if}
-  </Button>
+    </Button>
+  </div>
 {/if}

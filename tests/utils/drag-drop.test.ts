@@ -279,6 +279,126 @@ describe('DragDropManager', () => {
       const result = DragDropManager.handleDragOver(mockEvent, target);
       expect(result).toBe(false);
     });
+
+    it('タグからタスクへのドロップを許可する', () => {
+      const dragEvent = {
+        dataTransfer: {
+          effectAllowed: '',
+          setData: vi.fn()
+        },
+        target: document.createElement('div')
+      } as unknown as DragEvent;
+
+      const dragData: DragData = {
+        type: 'tag',
+        id: 'tag-1'
+      };
+
+      DragDropManager.startDrag(dragEvent, dragData);
+
+      const target: DropTarget = {
+        type: 'task',
+        id: 'task-1'
+      };
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' }
+      } as unknown as DragEvent;
+
+      const result = DragDropManager.handleDragOver(mockEvent, target);
+      expect(result).toBe(true);
+    });
+
+    it('タスクからビューへのドロップを許可する', () => {
+      const dragEvent = {
+        dataTransfer: {
+          effectAllowed: '',
+          setData: vi.fn()
+        },
+        target: document.createElement('div')
+      } as unknown as DragEvent;
+
+      const dragData: DragData = {
+        type: 'task',
+        id: 'task-1'
+      };
+
+      DragDropManager.startDrag(dragEvent, dragData);
+
+      const target: DropTarget = {
+        type: 'view',
+        id: 'today'
+      };
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' }
+      } as unknown as DragEvent;
+
+      const result = DragDropManager.handleDragOver(mockEvent, target);
+      expect(result).toBe(true);
+    });
+
+    it('タスクからプロジェクトへのドロップを許可する', () => {
+      const dragEvent = {
+        dataTransfer: {
+          effectAllowed: '',
+          setData: vi.fn()
+        },
+        target: document.createElement('div')
+      } as unknown as DragEvent;
+
+      const dragData: DragData = {
+        type: 'task',
+        id: 'task-1'
+      };
+
+      DragDropManager.startDrag(dragEvent, dragData);
+
+      const target: DropTarget = {
+        type: 'project',
+        id: 'project-1'
+      };
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' }
+      } as unknown as DragEvent;
+
+      const result = DragDropManager.handleDragOver(mockEvent, target);
+      expect(result).toBe(true);
+    });
+
+    it('タスクからタスクリストへのドロップを許可する', () => {
+      const dragEvent = {
+        dataTransfer: {
+          effectAllowed: '',
+          setData: vi.fn()
+        },
+        target: document.createElement('div')
+      } as unknown as DragEvent;
+
+      const dragData: DragData = {
+        type: 'task',
+        id: 'task-1'
+      };
+
+      DragDropManager.startDrag(dragEvent, dragData);
+
+      const target: DropTarget = {
+        type: 'tasklist',
+        id: 'tasklist-1'
+      };
+
+      const mockEvent = {
+        preventDefault: vi.fn(),
+        dataTransfer: { dropEffect: '' }
+      } as unknown as DragEvent;
+
+      const result = DragDropManager.handleDragOver(mockEvent, target);
+      expect(result).toBe(true);
+    });
   });
 
   describe('handleDragEnd', () => {
