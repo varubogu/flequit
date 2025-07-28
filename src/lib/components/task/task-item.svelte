@@ -209,6 +209,8 @@
 
   <!-- Main Task Button -->
   <div
+    role="button"
+    tabindex="0"
     class="flex-1"
     draggable="true"
     ondragstart={handleDragStart}
