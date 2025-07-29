@@ -23,8 +23,8 @@
 
 <Drawer.Root {open} onOpenChange={handleOpenChange}>
   <Drawer.Content class="h-[85vh] flex flex-col">
-    <div class="flex flex-col h-full max-w-sm mx-auto w-full">
-      <div class="flex-1 overflow-auto px-4">
+    <div class="flex flex-col h-full max-w-lg mx-auto w-full">
+      <div class="flex-1 overflow-auto px-2">
         {#if hasSelectedTask || open}
           <TaskDetail isDrawerMode={true} />
         {:else}

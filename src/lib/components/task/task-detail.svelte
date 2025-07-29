@@ -372,7 +372,7 @@
       />
 
       <!-- Content -->
-      <div class="flex-1 overflow-auto py-6 space-y-6">
+      <div class="flex-1 overflow-auto py-4 space-y-4">
         <!-- Status, Due Date, Priority -->
       <div class="flex flex-wrap gap-4">
         <TaskStatusSelector
