@@ -23,12 +23,10 @@
   const weekend = reactiveMessage(m.weekend);
   const holiday = reactiveMessage(m.holiday);
   const nonHoliday = reactiveMessage(m.non_holiday);
-  
-  // 新しい選択肢のラベル（直接定義）
-  const weekendOnly = () => '土日';
-  const nonWeekend = () => '土日以外';
-  const weekendHoliday = () => '土日祝日';
-  const nonWeekendHoliday = () => '土日祝日以外';
+  const weekendOnly = reactiveMessage(m.weekend_only);
+  const nonWeekend = reactiveMessage(m.non_weekend);
+  const weekendHoliday = reactiveMessage(m.weekend_holiday);
+  const nonWeekendHoliday = reactiveMessage(m.non_weekend_holiday);
 
   // 選択肢（曜日 + 平日/休日など）
   const options = [

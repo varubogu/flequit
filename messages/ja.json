@@ -253,5 +253,9 @@
     "half_year_plural": "半期",
     "year_plural": "年",
     "add_tags_placeholder": "タグを追加...",
-    "os_timezone": "OSのタイムゾーン"
+    "os_timezone": "OSのタイムゾーン",
+    "weekend_only": "土日",
+    "non_weekend": "土日以外",
+    "weekend_holiday": "土日祝日",
+    "non_weekend_holiday": "土日祝日以外"
 }

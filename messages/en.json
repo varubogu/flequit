@@ -253,5 +253,9 @@
     "half_year_plural": "half years",
     "year_plural": "years",
     "add_tags_placeholder": "Add tags...",
-    "os_timezone": "OS Timezone"
+    "os_timezone": "OS Timezone",
+    "weekend_only": "Weekend only",
+    "non_weekend": "Non-weekend",
+    "weekend_holiday": "Weekend/Holiday",
+    "non_weekend_holiday": "Non-weekend/holiday"
 }
