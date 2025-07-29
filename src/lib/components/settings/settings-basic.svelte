@@ -29,7 +29,6 @@
   const timezone = reactiveMessage(m.timezone);
   const currentEffectiveTimezone = reactiveMessage(m.current_effective_timezone);
   const dateFormat = reactiveMessage(m.date_format);
-  const dateFormatHelp = reactiveMessage(m.date_format_help);
   const preview = reactiveMessage(m.preview);
   const editDateFormat = reactiveMessage(m.edit_date_format);
   const addCustomDueDateButton = reactiveMessage(m.add_custom_due_date_button);
@@ -150,7 +149,6 @@
                 oninput={handleDateFormatChange}
                 placeholder="yyyy年MM月dd日 HH:mm:ss"
               />
-              <p class="text-xs text-muted-foreground mt-1">{dateFormatHelp()}</p>
             </div>
             
             <!-- Setting Preview -->
