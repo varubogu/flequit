@@ -270,5 +270,8 @@
     "apply_to_setting": "Apply to Setting",
     "apply_to_test": "Apply to Test",
     "format_name": "Format Name",
-    "enter_format_name": "Enter format name"
+    "enter_format_name": "Enter format name",
+    "edit_date_format": "Edit Date Format",
+    "date_format_editor": "Date Format Editor",
+    "close": "Close"
 }

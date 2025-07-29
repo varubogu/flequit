@@ -270,5 +270,8 @@
     "apply_to_setting": "設定に適用",
     "apply_to_test": "テストに適用",
     "format_name": "フォーマット名",
-    "enter_format_name": "フォーマット名を入力"
+    "enter_format_name": "フォーマット名を入力",
+    "edit_date_format": "日時フォーマットを編集",
+    "date_format_editor": "日時フォーマット編集",
+    "close": "閉じる"
 }
