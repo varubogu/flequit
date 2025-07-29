@@ -49,6 +49,7 @@ describe('SettingsBasic Component', () => {
   const defaultSettings = {
     weekStart: 'sunday',
     timezone: 'UTC',
+    dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss',
     customDueDays: []
   };
 

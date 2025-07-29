@@ -257,5 +257,18 @@
     "weekend_only": "土日",
     "non_weekend": "土日以外",
     "weekend_holiday": "土日祝日",
-    "non_weekend_holiday": "土日祝日以外"
+    "non_weekend_holiday": "土日祝日以外",
+    "date_format": "日時フォーマット",
+    "date_format_help": "date-fnsフォーマットトークンを使用して日時フォーマットを入力 (例: yyyy年MM月dd日 HH:mm:ss)",
+    "reset_to_default": "デフォルトに戻す",
+    "test_format": "テストフォーマット",
+    "test_preview": "テストプレビュー",
+    "format_selection": "フォーマット選択",
+    "save_format": "フォーマットを保存",
+    "rename": "名前を変更",
+    "delete": "削除",
+    "apply_to_setting": "設定に適用",
+    "apply_to_test": "テストに適用",
+    "format_name": "フォーマット名",
+    "enter_format_name": "フォーマット名を入力"
 }

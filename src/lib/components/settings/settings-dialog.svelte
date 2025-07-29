@@ -54,6 +54,7 @@
     // Basic Settings
     weekStart: 'sunday',
     timezone: settingsStore.timezone,
+    dateFormat: settingsStore.dateFormat,
     dueDateButtons: {
       overdue: false,
       today: true,

@@ -1,3 +1,6 @@
+import { format } from 'date-fns';
+import { settingsStore } from '$lib/stores/settings.svelte';
+
 export function formatDate(date: Date | undefined): string {
   if (!date) return '';
 
@@ -66,12 +69,17 @@ export function formatTime(date: Date): string {
 }
 
 export function formatDateJapanese(date: Date): string {
-  return date.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    weekday: 'short'
-  });
+  try {
+    return format(date, settingsStore.dateFormat);
+  } catch (error) {
+    // Fallback to original format if user format is invalid
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      weekday: 'short'
+    });
+  }
 }
 
 export function formatSingleDate(date: Date, time?: Date): string {

@@ -257,5 +257,18 @@
     "weekend_only": "Weekend only",
     "non_weekend": "Non-weekend",
     "weekend_holiday": "Weekend/Holiday",
-    "non_weekend_holiday": "Non-weekend/holiday"
+    "non_weekend_holiday": "Non-weekend/holiday",
+    "date_format": "Date Format",
+    "date_format_help": "Enter date format using date-fns format tokens (e.g., yyyy-MM-dd HH:mm:ss)",
+    "reset_to_default": "Reset to Default",
+    "test_format": "Test Format",
+    "test_preview": "Test Preview",
+    "format_selection": "Format Selection",
+    "save_format": "Save Format",
+    "rename": "Rename",
+    "delete": "Delete",
+    "apply_to_setting": "Apply to Setting",
+    "apply_to_test": "Apply to Test",
+    "format_name": "Format Name",
+    "enter_format_name": "Enter format name"
 }
