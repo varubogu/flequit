@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import Select from '$lib/components/ui/select.svelte';
-  import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
+  import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
   import { locales } from '$paraglide/runtime';
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
@@ -31,6 +31,9 @@
     { value: 'en', label: 'English' },
     { value: 'ja', label: '日本語' }
   ];
+
+  // リアクティブなタイムゾーンリスト
+  const availableTimezones = $derived(getAvailableTimezones());
 
   function addCustomDueDay() {
     console.log('Add custom due day');
@@ -91,7 +94,7 @@
             bind:value={settings.timezone}
             class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
           >
-            {#each AVAILABLE_TIMEZONES as tz}
+            {#each availableTimezones as tz}
               <option value={tz.value}>{tz.label}</option>
             {/each}
           </select>

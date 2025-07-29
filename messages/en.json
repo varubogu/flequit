@@ -252,5 +252,6 @@
     "quarter_plural": "quarters",
     "half_year_plural": "half years",
     "year_plural": "years",
-    "add_tags_placeholder": "Add tags..."
+    "add_tags_placeholder": "Add tags...",
+    "os_timezone": "OS Timezone"
 }
