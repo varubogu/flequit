@@ -4,9 +4,10 @@
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
-  import { ArrowLeft, Search } from 'lucide-svelte';
+  import { ArrowLeft, Search, Menu } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import SettingsBasic from './settings-basic.svelte';
   import SettingsViews from './settings-views.svelte';
   import SettingsAppearance from './settings-appearance.svelte';
@@ -18,6 +19,10 @@
   }
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
+
+  // Mobile detection
+  const isMobile = new IsMobile();
+  let sidebarOpen = $state(false);
 
   // Reactive messages
   const settingsTitle = reactiveMessage(m.settings);
@@ -80,6 +85,14 @@
   function handleCategorySelect(categoryId: string) {
     selectedCategory = categoryId;
     scrollToCategory(categoryId);
+    // モバイルでカテゴリを選択したらサイドバーを閉じる
+    if (isMobile.current) {
+      sidebarOpen = false;
+    }
+  }
+
+  function toggleSidebar() {
+    sidebarOpen = !sidebarOpen;
   }
 
   function scrollToCategory(categoryId: string) {
@@ -110,6 +123,8 @@
   $effect(() => {
     if (open) {
       settings.timezone = settingsStore.timezone;
+      // デスクトップでは常にサイドバーを開く、モバイルでは閉じる
+      sidebarOpen = !isMobile.current;
     }
   });
 </script>
@@ -122,6 +137,11 @@
         <Button variant="ghost" size="icon" onclick={handleClose}>
           <ArrowLeft class="h-4 w-4" />
         </Button>
+        {#if isMobile.current}
+          <Button variant="ghost" size="icon" onclick={toggleSidebar}>
+            <Menu class="h-4 w-4" />
+          </Button>
+        {/if}
         <div>
           <h2 class="text-xl font-semibold">{settingsTitle()}</h2>
           <p class="text-sm text-muted-foreground">{configurePreferences()}</p>
@@ -129,9 +149,14 @@
       </div>
     </div>
 
-    <div class="flex flex-1 min-h-0">
-      <!-- Left Sidebar -->
-      <div class="w-80 border-r flex flex-col flex-shrink-0">
+    <div class="flex flex-1 min-h-0 relative">
+      <!-- Desktop Sidebar / Mobile Overlay Sidebar -->
+      <div class={`
+        ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} 
+        ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'} 
+        ${isMobile.current ? 'w-80' : 'w-80'} 
+        border-r flex flex-col flex-shrink-0 bg-background
+      `}>
         <!-- Search -->
         <div class="p-4 border-b">
           <div class="relative">
@@ -162,6 +187,17 @@
           </div>
         </nav>
       </div>
+
+      <!-- Mobile Backdrop -->
+      {#if isMobile.current && sidebarOpen}
+        <div 
+          class="fixed inset-0 bg-black/50 z-40" 
+          onclick={() => sidebarOpen = false}
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Escape' && (sidebarOpen = false)}
+        ></div>
+      {/if}
 
       <!-- Right Content -->
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
