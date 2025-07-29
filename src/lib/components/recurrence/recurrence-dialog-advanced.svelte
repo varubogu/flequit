@@ -49,7 +49,7 @@
   let endDate = $state<Date | undefined>(recurrenceRule?.end_date);
   let repeatCount = $state<number | undefined>(recurrenceRule?.max_occurrences);
   let previewDates = $state<Date[]>([]);
-  let displayCount = $state(10);
+  let displayCount = $state(15);
 
   // --- Derived State ---
   const showBasicSettings = $derived(recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced');
@@ -143,7 +143,7 @@
 </script>
 
 <Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="!w-[90vw] !max-w-[1200px] max-h-[85vh] overflow-y-auto z-[60]">
+  <Dialog.Content class="!w-[90vw] !max-w-[1200px] max-h-[85vh] overflow-hidden z-[60]">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />
@@ -151,9 +151,9 @@
       </Dialog.Title>
     </Dialog.Header>
 
-    <div class="flex flex-wrap gap-6">
+    <div class="flex flex-wrap gap-6 max-h-[calc(85vh-120px)] overflow-y-auto">
       <!-- 設定パネル -->
-      <div class="flex-1 min-w-[480px] space-y-6">
+      <div class="flex-1 min-w-[480px] space-y-6 overflow-y-auto">
         <RecurrenceLevelSelector bind:value={recurrenceLevel} onchange={handleImmediateSave} />
 
         {#if showBasicSettings}

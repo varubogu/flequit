@@ -2,7 +2,6 @@
   import { X } from "lucide-svelte";
   import DayTargetSelector from './day-target-selector.svelte';
   import type { WeekdayCondition, DayOfWeek, AdjustmentDirection, AdjustmentTarget } from '$lib/types/task';
-  import { LanguageOrderUtils } from '$lib/utils/language-order';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { getLocale } from '$paraglide/runtime';
@@ -18,8 +17,6 @@
   // リアクティブメッセージ
   const previous = reactiveMessage(m.previous);
   const next = reactiveMessage(m.next);
-  const ifCondition = reactiveMessage(m.if_condition);
-  const moveTo = reactiveMessage(m.move_to);
 
   // 方向選択肢
   const directionOptions = [
@@ -30,58 +27,6 @@
   // 現在の言語を取得
   const currentLanguage = $derived(getLocale());
   const isJapanese = $derived(currentLanguage.startsWith('ja'));
-
-  // 条件値を文字列として取得
-  const conditionText = $derived(() => {
-    // DayTargetSelectorで表示される内容を取得するためのダミー関数
-    const dayLabels: Record<string, () => string> = {
-      monday: () => '月曜日',
-      tuesday: () => '火曜日',
-      wednesday: () => '水曜日',
-      thursday: () => '木曜日',
-      friday: () => '金曜日',
-      saturday: () => '土曜日',
-      sunday: () => '日曜日',
-      weekday: () => '平日',
-      weekend: () => '休日',
-      weekend_only: () => '土日',
-      non_weekend: () => '土日以外',
-      holiday: () => '祝日',
-      non_holiday: () => '非祝日',
-      weekend_holiday: () => '土日祝日',
-      non_weekend_holiday: () => '土日祝日以外'
-    };
-    return dayLabels[condition.if_weekday]?.() || condition.if_weekday;
-  });
-
-  const directionText = $derived(() => {
-    return condition.then_direction === 'previous' ? previous() : next();
-  });
-
-  const targetText = $derived(() => {
-    const dayLabels: Record<string, () => string> = {
-      monday: () => '月曜日',
-      tuesday: () => '火曜日',
-      wednesday: () => '水曜日',
-      thursday: () => '木曜日',
-      friday: () => '金曜日',
-      saturday: () => '土曜日',
-      sunday: () => '日曜日',
-      weekday: () => '平日',
-      weekend: () => '休日',
-      weekend_only: () => '土日',
-      non_weekend: () => '土日以外',
-      holiday: () => '祝日',
-      non_holiday: () => '非祝日',
-      weekend_holiday: () => '土日祝日',
-      non_weekend_holiday: () => '土日祝日以外'
-    };
-
-    if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
-      return dayLabels[condition.then_weekday]?.() || condition.then_weekday;
-    }
-    return dayLabels[condition.then_target]?.() || condition.then_target;
-  });
 
   function handleConditionChange(value: DayOfWeek | AdjustmentTarget) {
     onUpdate({ if_weekday: value });

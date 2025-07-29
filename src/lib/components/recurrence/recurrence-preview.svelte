@@ -26,7 +26,7 @@
 	const timesSuffix = reactiveMessage(m.times_suffix);
 </script>
 
-<section class="h-[280px] flex flex-col">
+<section class="flex flex-col h-[500px]">
 	<div class="mb-3 flex-shrink-0">
 		<h3 class="text-lg font-semibold">{preview()}</h3>
 	</div>
