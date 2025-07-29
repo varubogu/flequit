@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
-import { settingsStore, AVAILABLE_TIMEZONES } from '$lib/stores/settings.svelte';
+import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
 import { getLocale, setLocale } from '$paraglide/runtime';
 import { localeStore } from '$lib/stores/locale.svelte';
 
@@ -32,11 +32,11 @@ vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
       setTimezone: vi.fn(),
       effectiveTimezone: 'UTC'
     },
-    AVAILABLE_TIMEZONES: [
+    getAvailableTimezones: vi.fn(() => [
       { value: 'UTC', label: 'UTC' },
       { value: 'America/New_York', label: 'Eastern Time' },
       { value: 'Asia/Tokyo', label: 'Japan Time' }
-    ]
+    ])
   };
 });
 

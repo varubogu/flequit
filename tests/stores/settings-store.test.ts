@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { settingsStore, AVAILABLE_TIMEZONES } from '../../src/lib/stores/settings.svelte';
+import { settingsStore, getAvailableTimezones } from '../../src/lib/stores/settings.svelte';
 
 // Mock localStorage
 const localStorageMock = {
@@ -141,10 +141,11 @@ describe('SettingsStore', () => {
     });
   });
   
-  describe('AVAILABLE_TIMEZONES constant', () => {
+  describe('getAvailableTimezones function', () => {
     test('should contain expected timezone options', () => {
-      expect(AVAILABLE_TIMEZONES).toEqual(expect.arrayContaining([
-        { value: 'system', label: 'OSのタイムゾーン' },
+      const timezones = getAvailableTimezones();
+      expect(timezones).toEqual(expect.arrayContaining([
+        { value: 'system', label: expect.any(String) },
         { value: 'UTC', label: 'UTC' },
         { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
         { value: 'America/New_York', label: 'New York (EST/EDT)' },
@@ -153,14 +154,16 @@ describe('SettingsStore', () => {
     });
     
     test('should have system timezone as first option', () => {
-      expect(AVAILABLE_TIMEZONES[0]).toEqual({
+      const timezones = getAvailableTimezones();
+      expect(timezones[0]).toEqual({
         value: 'system',
-        label: 'OSのタイムゾーン'
+        label: expect.any(String)
       });
     });
     
     test('should contain major timezones', () => {
-      const timezoneValues = AVAILABLE_TIMEZONES.map(tz => tz.value);
+      const timezones = getAvailableTimezones();
+      const timezoneValues = timezones.map(tz => tz.value);
       
       expect(timezoneValues).toContain('UTC');
       expect(timezoneValues).toContain('Asia/Tokyo');
