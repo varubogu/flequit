@@ -16,7 +16,7 @@
   --color-destructive: 0 84.2% 60.2%;
   --color-destructive-foreground: 210 40% 98%;
   --color-muted: 210 40% 96%;
-  --color-muted-foreground: 215.4 16.3% 46.9%;
+  --color-muted-foreground: 215.4 16.3% 35%;
   --color-accent: 210 40% 96%;
   --color-accent-foreground: 222.2 84% 4.9%;
   --color-popover: 0 0% 100%;
@@ -43,7 +43,7 @@
   --color-destructive: 0 62.8% 30.6%;
   --color-destructive-foreground: 210 40% 98%;
   --color-muted: 217.2 32.6% 17.5%;
-  --color-muted-foreground: 215 20.2% 65.1%;
+  --color-muted-foreground: 215 20.2% 55%;
   --color-accent: 217.2 32.6% 17.5%;
   --color-accent-foreground: 210 40% 98%;
   --color-popover: 222.2 84% 4.9%;
@@ -80,6 +80,11 @@
   --color-sidebar-foreground: var(--color-sidebar-foreground);
   --color-sidebar-border: var(--color-sidebar-border);
   --radius: var(--radius);
+}
+
+/* Explicit placeholder color utilities for Tailwind CSS v4 */
+.placeholder\:text-muted-foreground::placeholder {
+  color: hsl(var(--color-muted-foreground));
 }
 
 /* Button hover states for Tailwind CSS v4 compatibility */
@@ -282,6 +287,12 @@ body {
 
 .dark [data-slot="switch-thumb"][data-state="checked"] {
   background-color: hsl(var(--color-foreground)) !important;
+}
+
+/* Placeholder styles - Global application */
+input::placeholder,
+textarea::placeholder {
+  color: hsl(var(--color-muted-foreground));
 }
 
 /* Utility classes */
