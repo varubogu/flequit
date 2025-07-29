@@ -251,5 +251,6 @@
     "month_plural": "ヶ月",
     "quarter_plural": "四半期",
     "half_year_plural": "半期",
-    "year_plural": "年"
+    "year_plural": "年",
+    "add_tags_placeholder": "タグを追加..."
 }

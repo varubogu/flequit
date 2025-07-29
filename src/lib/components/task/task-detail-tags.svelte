@@ -49,7 +49,6 @@
     <h3 class="block text-sm font-medium mb-2">{tags()}</h3>
     <TagInput
       tags={currentItem.tags}
-      placeholder="Add tags..."
       ontagAdded={handleTagAdded}
       ontagRemoved={handleTagRemoved}
     />

@@ -251,5 +251,6 @@
     "month_plural": "months",
     "quarter_plural": "quarters",
     "half_year_plural": "half years",
-    "year_plural": "years"
+    "year_plural": "years",
+    "add_tags_placeholder": "Add tags..."
 }

@@ -2,6 +2,8 @@
   import type { Tag } from '$lib/types/task';
   import TagDisplay from './tag-display.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
+  import * as m from '$paraglide/messages';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     tags: Tag[];
@@ -11,7 +13,7 @@
     ontagRemoved?: (tagId: string) => void;
   }
 
-  let { tags = [], placeholder = "Add tags...", class: className = "", ontagAdded, ontagRemoved }: Props = $props();
+  let { tags = [], placeholder = reactiveMessage(m.add_tags_placeholder)(), class: className = "", ontagAdded, ontagRemoved }: Props = $props();
 
   let inputValue = $state('');
   let inputElement: HTMLInputElement;
