@@ -181,10 +181,5 @@
 {#if showDateFormatDialog}
   <DateFormatEditor 
     bind:open={showDateFormatDialog}
-    dateFormat={settings.dateFormat}
-    onDateFormatChange={(newFormat: string) => {
-      settings.dateFormat = newFormat;
-      settingsStore.setDateFormat(newFormat);
-    }}
   />
 {/if}
