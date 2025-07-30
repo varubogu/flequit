@@ -27,6 +27,8 @@
   let testDateTime = $state(new Date());
   let testFormat = $state('');
   let testFormatName = $state('');
+  let isEditMode = $state(false);
+  let editingFormatId = $state<string | null>(null);
 
   // ストア参照（リアクティブ）
   let currentFormat = $derived(dateTimeFormatStore.currentFormat);
@@ -34,37 +36,53 @@
   // 派生状態（自動更新）
   let selectedPreset = $derived(() => {
     const formats = dateTimeFormatStore.allFormats();
-    return formats.find((f: any) => f.format === testFormat) || null;
+    
+    // 編集モード時は、編集中のフォーマットを返す
+    if (isEditMode && editingFormatId) {
+      return formats.find((f: any) => f.id === editingFormatId) || null;
+    }
+    
+    const found = formats.find((f: any) => f.format === testFormat);
+    // 該当するフォーマットがない場合は「カスタム」を返す
+    if (!found) {
+      return formats.find((f: any) => f.group === 'カスタム') || null;
+    }
+    return found;
   });
 
-  let showCustomActions = $derived(() => {
+  // フォーマット名入力の活性状態
+  let formatNameEnabled = $derived(() => {
     const preset = selectedPreset();
-    return preset?.group === 'カスタム' || preset?.group === 'カスタムフォーマット';
+    return preset?.group === 'カスタム' || (preset?.group === 'カスタムフォーマット' && isEditMode);
   });
 
-  let showFormatName = $derived(() => {
-    const preset = selectedPreset();
-    return preset?.group === 'カスタム' || preset?.group === 'カスタムフォーマット';
-  });
+  // 新規追加ボタンは常に活性
+  let addButtonEnabled = $derived(() => true);
 
-  let showFormatNameLabel = $derived(() => {
-    const preset = selectedPreset();
-    return preset?.group === 'カスタムフォーマット';
-  });
-
-  let showAddButton = $derived(() => {
-    const preset = selectedPreset();
-    return preset?.group === 'カスタム' || preset?.group === 'カスタムフォーマット';
-  });
-
-  let showUpdateButton = $derived(() => {
-    const preset = selectedPreset();
-    return preset?.group === 'カスタムフォーマット';
-  });
-
-  let showDeleteButton = $derived(() => {
+  // 編集・削除ボタンはユーザーカスタムフォーマット選択時のみ活性
+  let editDeleteButtonEnabled = $derived(() => {
     const preset = selectedPreset();
     return preset?.group === 'カスタムフォーマット';
+  });
+
+  // 保存ボタンの活性状態
+  let saveButtonEnabled = $derived(() => {
+    const preset = selectedPreset();
+    
+    if (preset?.group === 'カスタム') {
+      // カスタム選択時：テストフォーマットとフォーマット名が入力済みの場合のみ活性
+      return testFormatName.trim() && testFormat.trim();
+    } else if (preset?.group === 'カスタムフォーマット') {
+      // ユーザー定義カスタムフォーマット選択時：編集モードの場合のみ活性
+      return isEditMode && testFormatName.trim() && testFormat.trim();
+    }
+    
+    return false;
+  });
+
+  // キャンセルボタンの活性状態（編集モード時のみ活性）
+  let cancelButtonEnabled = $derived(() => {
+    return isEditMode;
   });
 
   // プレビュー（派生状態）
@@ -106,6 +124,11 @@
 
   // テストフォーマット変更時（自動選択更新）
   function handleTestFormatChange() {
+    // 編集モード中は自動選択を無効にする
+    if (isEditMode) {
+      return;
+    }
+    
     // selectedPresetが$derivedで自動更新される
     const preset = selectedPreset();
     if (preset?.group === 'カスタムフォーマット') {
@@ -146,29 +169,62 @@
     dateTimeFormatStore.setCurrentFormat(testFormat);
   }
 
-  // フォーマット追加
-  function addCustomFormat() {
+  // 統一保存処理（新規作成 or 上書き）
+  function saveFormat() {
     if (testFormatName.trim() && testFormat.trim()) {
       try {
-        dateTimeFormatStore.addCustomFormat(testFormatName.trim(), testFormat);
-        // 追加したフォーマットを選択状態にする
-        // selectedPresetが自動更新される
+        if (isEditMode && editingFormatId) {
+          // 編集モード時は上書き
+          dateTimeFormatStore.updateCustomFormat(editingFormatId, {
+            name: testFormatName.trim(),
+            format: testFormat
+          });
+          // 編集モード終了
+          isEditMode = false;
+          editingFormatId = null;
+        } else {
+          // 通常時は新規作成
+          dateTimeFormatStore.addCustomFormat(testFormatName.trim(), testFormat);
+        }
+        testFormatName = ''; // 保存後にクリア
       } catch (error) {
-        console.error('Failed to add custom format:', error);
+        console.error('Failed to save format:', error);
       }
     }
   }
 
-  // フォーマット上書き
-  function updateCustomFormat() {
+  // 新規追加ボタン（新規フォーマット作成モードに設定）
+  function startAddMode() {
+    // 編集モードを終了（もしあれば）
+    isEditMode = false;
+    editingFormatId = null;
+    
+    // フィールドをクリアして新規作成準備
+    testFormat = '';
+    testFormatName = '';
+    
+    // カスタムを選択状態にする（新規作成用）
+    // selectedPresetは自動的にカスタムになる
+  }
+
+  // 編集ボタン（編集モードに入る）
+  function startEditMode() {
     const preset = selectedPreset();
-    if (preset?.group === 'カスタムフォーマット' && testFormatName.trim()) {
-      dateTimeFormatStore.updateCustomFormat(preset.id as string, {
-        name: testFormatName.trim(),
-        format: testFormat
-      });
+    if (preset?.group === 'カスタムフォーマット') {
+      isEditMode = true;
+      editingFormatId = preset.id as string;
+      testFormatName = preset.name;
+      testFormat = preset.format;
     }
   }
+
+  // キャンセルボタン（編集モードを終了）
+  function cancelEditMode() {
+    isEditMode = false;
+    editingFormatId = null;
+    testFormatName = '';
+  }
+
 
   // フォーマット削除
   function deleteCustomFormat() {
@@ -282,7 +338,8 @@
                 id="format-selection"
                 value={selectedPreset()?.id?.toString() || ''}
                 onchange={handleFormatSelection}
-                class="w-full p-2 border border-input rounded-md bg-background text-foreground"
+                disabled={isEditMode}
+                class="w-full p-2 border border-input rounded-md bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {#each dateTimeFormatStore.allFormats() as formatItem}
                   <option value={formatItem.id.toString()}>
@@ -292,58 +349,77 @@
               </select>
             </div>
 
-            <!-- フォーマット名・操作ボタン -->
+            <!-- フォーマット名・操作ボタン（常時表示） -->
             <div class="space-y-3">
-              {#if showCustomActions()}
-                {#if showFormatNameLabel()}
-                  <div class="text-sm font-medium">変更前ラベル</div>
-                {/if}
+              <!-- フォーマット名入力 -->
+              <div>
+                <label for="format-name" class="text-sm font-medium mb-2 block">{formatName()}</label>
+                <input
+                  id="format-name"
+                  bind:value={testFormatName}
+                  placeholder={enterFormatName()}
+                  disabled={!formatNameEnabled()}
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <!-- ボタン群（常時表示） -->
+              <div class="flex gap-2 flex-wrap">
+                <!-- 新規追加ボタン（常に活性） -->
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onclick={startAddMode}
+                  title="新規追加"
+                  disabled={!addButtonEnabled()}
+                >
+                  ➕
+                </Button>
                 
-                {#if showFormatName()}
-                  <div>
-                    <label for="format-name" class="text-sm font-medium mb-2 block">{formatName()}</label>
-                    <Input
-                      id="format-name"
-                      bind:value={testFormatName}
-                      placeholder={enterFormatName()}
-                    />
-                  </div>
-                {/if}
-
-                <div class="flex gap-2">
-                  {#if showAddButton()}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onclick={addCustomFormat}
-                      disabled={!testFormatName.trim() || !testFormat.trim()}
-                    >
-                      フォーマット追加
-                    </Button>
-                  {/if}
-
-                  {#if showUpdateButton()}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onclick={updateCustomFormat}
-                      disabled={!testFormatName.trim()}
-                    >
-                      フォーマット上書き
-                    </Button>
-                  {/if}
-
-                  {#if showDeleteButton()}
-                    <Button 
-                      variant="destructive" 
-                      size="sm" 
-                      onclick={deleteCustomFormat}
-                    >
-                      フォーマット削除
-                    </Button>
-                  {/if}
-                </div>
-              {/if}
+                <!-- 編集ボタン（ユーザーカスタムフォーマット選択時のみ活性） -->
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onclick={startEditMode}
+                  title="編集"
+                  disabled={!editDeleteButtonEnabled() || isEditMode}
+                >
+                  ✏️
+                </Button>
+                
+                <!-- 保存ボタン（統一：新規作成 or 上書き） -->
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onclick={saveFormat}
+                  title="保存"
+                  disabled={!saveButtonEnabled()}
+                >
+                  💾
+                </Button>
+                
+                <!-- キャンセルボタン（編集モード時のみ活性） -->
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onclick={cancelEditMode}
+                  title="キャンセル"
+                  disabled={!cancelButtonEnabled()}
+                >
+                  ❌
+                </Button>
+                
+                <!-- 削除ボタン（ユーザーカスタムフォーマット選択時のみ活性） -->
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onclick={deleteCustomFormat}
+                  title="削除"
+                  disabled={!editDeleteButtonEnabled() || isEditMode}
+                >
+                  🗑️
+                </Button>
+              </div>
             </div>
           </div>
         </div>
