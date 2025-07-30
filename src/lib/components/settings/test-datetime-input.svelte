@@ -39,28 +39,24 @@
   }
 </script>
 
-<div class="space-y-3">
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-    <div>
-      <label for="test-date" class="text-sm font-medium mb-2 block">テスト日付</label>
-      <input
-        id="test-date"
-        type="date"
-        bind:value={dateValue}
-        onchange={handleDateChange}
-        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      />
-    </div>
-    <div>
-      <label for="test-time" class="text-sm font-medium mb-2 block">テスト時刻</label>
-      <input
-        id="test-time"
-        type="time"
-        step="1"
-        bind:value={timeValue}
-        onchange={handleTimeChange}
-        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-      />
-    </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <div>
+    <input
+      id="test-date"
+      type="date"
+      bind:value={dateValue}
+      onchange={handleDateChange}
+      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    />
+  </div>
+  <div>
+    <input
+      id="test-time"
+      type="time"
+      step="1"
+      bind:value={timeValue}
+      onchange={handleTimeChange}
+      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    />
   </div>
 </div>

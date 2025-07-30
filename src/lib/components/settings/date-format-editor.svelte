@@ -18,7 +18,6 @@
   const dateFormatLabel = reactiveMessage(m.date_format);
   const preview = reactiveMessage(m.preview);
   const testFormatLabel = reactiveMessage(m.test_format);
-  const testPreview = reactiveMessage(m.test_preview);
   const formatSelection = reactiveMessage(m.format_selection);
   const formatName = reactiveMessage(m.format_name);
   const enterFormatName = reactiveMessage(m.enter_format_name);
@@ -201,13 +200,15 @@
 
       <div class="space-y-6">
         <!-- テスト日時入力 -->
-        <div class="space-y-3">
-          <h3 class="text-sm font-medium">テスト日時</h3>
-          <TestDateTimeInput bind:testDateTime />
+        <div>
+          <div class="flex items-center gap-4 mb-2">
+            <h3 class="text-sm font-medium">テスト日時</h3>
+            <TestDateTimeInput bind:testDateTime />
+          </div>
         </div>
 
         <!-- 日時フォーマット -->
-        <div class="space-y-3">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <label for="datetime-format" class="text-sm font-medium mb-2 block">{dateFormatLabel()}</label>
             <Input
@@ -217,7 +218,7 @@
               placeholder="yyyy年MM月dd日 HH:mm:ss"
             />
           </div>
-
+          
           <!-- 日時フォーマットプレビュー -->
           <div class="flex items-center gap-2 text-sm">
             <span class="font-medium">{preview()}:</span>
@@ -251,9 +252,10 @@
           </Button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- テストフォーマット -->
-          <div class="space-y-3">
+        <!-- テストフォーマットと選択 -->
+        <div class="space-y-4">
+          <!-- テストフォーマット入力とプレビュー -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div>
               <label for="test-format" class="text-sm font-medium mb-2 block">{testFormatLabel()}</label>
               <Input
@@ -266,13 +268,14 @@
 
             <!-- テストフォーマットプレビュー -->
             <div class="flex items-center gap-2 text-sm">
-              <span class="font-medium">{testPreview()}:</span>
+              <span class="font-medium">{preview()}:</span>
               <span class="px-2 py-1 bg-muted rounded">{testFormatPreview()}</span>
             </div>
           </div>
 
-          <!-- テストフォーマット選択 -->
-          <div class="space-y-3">
+          <!-- フォーマット選択行 -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- テストフォーマット選択 -->
             <div>
               <label for="format-selection" class="text-sm font-medium mb-2 block">{formatSelection()}</label>
               <select
@@ -288,62 +291,63 @@
                 {/each}
               </select>
             </div>
-          </div>
-        </div>
 
-        <!-- フォーマット名・操作ボタン -->
-        {#if showCustomActions()}
-          <div class="space-y-3 border-t pt-4">
-            {#if showFormatNameLabel()}
-              <div class="text-sm font-medium">変更前ラベル</div>
-            {/if}
-            
-            {#if showFormatName()}
-              <div>
-                <label for="format-name" class="text-sm font-medium mb-2 block">{formatName()}</label>
-                <Input
-                  id="format-name"
-                  bind:value={testFormatName}
-                  placeholder={enterFormatName()}
-                />
-              </div>
-            {/if}
+            <!-- フォーマット名・操作ボタン -->
+            <div class="space-y-3">
+              {#if showCustomActions()}
+                {#if showFormatNameLabel()}
+                  <div class="text-sm font-medium">変更前ラベル</div>
+                {/if}
+                
+                {#if showFormatName()}
+                  <div>
+                    <label for="format-name" class="text-sm font-medium mb-2 block">{formatName()}</label>
+                    <Input
+                      id="format-name"
+                      bind:value={testFormatName}
+                      placeholder={enterFormatName()}
+                    />
+                  </div>
+                {/if}
 
-            <div class="flex gap-2">
-              {#if showAddButton()}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onclick={addCustomFormat}
-                  disabled={!testFormatName.trim() || !testFormat.trim()}
-                >
-                  フォーマット追加
-                </Button>
-              {/if}
+                <div class="flex gap-2">
+                  {#if showAddButton()}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onclick={addCustomFormat}
+                      disabled={!testFormatName.trim() || !testFormat.trim()}
+                    >
+                      フォーマット追加
+                    </Button>
+                  {/if}
 
-              {#if showUpdateButton()}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onclick={updateCustomFormat}
-                  disabled={!testFormatName.trim()}
-                >
-                  フォーマット上書き
-                </Button>
-              {/if}
+                  {#if showUpdateButton()}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onclick={updateCustomFormat}
+                      disabled={!testFormatName.trim()}
+                    >
+                      フォーマット上書き
+                    </Button>
+                  {/if}
 
-              {#if showDeleteButton()}
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onclick={deleteCustomFormat}
-                >
-                  フォーマット削除
-                </Button>
+                  {#if showDeleteButton()}
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onclick={deleteCustomFormat}
+                    >
+                      フォーマット削除
+                    </Button>
+                  {/if}
+                </div>
               {/if}
             </div>
           </div>
-        {/if}
+        </div>
+
       </div>
     </div>  
   </div>
