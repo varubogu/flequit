@@ -6,6 +6,8 @@
   import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
+  import { toast } from 'svelte-sonner';
+  import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
   interface Props {
     open: boolean;
@@ -23,12 +25,16 @@
   const enterFormatName = reactiveMessage(m.enter_format_name);
   const close = reactiveMessage(m.close);
 
+  // 編集モード定義
+  type EditMode = 'manual' | 'new' | 'edit';
+  
   // 親コンポーネント管理状態
   let testDateTime = $state(new Date());
   let testFormat = $state('');
   let testFormatName = $state('');
-  let isEditMode = $state(false);
+  let editMode = $state<EditMode>('manual');
   let editingFormatId = $state<string | null>(null);
+  let deleteDialogOpen = $state(false);
 
   // ストア参照（リアクティブ）
   let currentFormat = $derived(dateTimeFormatStore.currentFormat);
@@ -38,51 +44,63 @@
     const formats = dateTimeFormatStore.allFormats();
     
     // 編集モード時は、編集中のフォーマットを返す
-    if (isEditMode && editingFormatId) {
+    if (editMode === 'edit' && editingFormatId) {
       return formats.find((f: any) => f.id === editingFormatId) || null;
     }
     
-    const found = formats.find((f: any) => f.format === testFormat);
-    // 該当するフォーマットがない場合は「カスタム」を返す
-    if (!found) {
+    // 新規追加モード時は、常にカスタムを返す
+    if (editMode === 'new') {
       return formats.find((f: any) => f.group === 'カスタム') || null;
     }
-    return found;
+    
+    // 手入力モード時のみ自動検索
+    if (editMode === 'manual') {
+      const found = formats.find((f: any) => f.format === testFormat);
+      // 該当するフォーマットがない場合は「カスタム」を返す
+      if (!found) {
+        return formats.find((f: any) => f.group === 'カスタム') || null;
+      }
+      return found;
+    }
+    
+    return null;
   });
 
   // フォーマット名入力の活性状態
   let formatNameEnabled = $derived(() => {
-    const preset = selectedPreset();
-    return preset?.group === 'カスタム' || (preset?.group === 'カスタムフォーマット' && isEditMode);
+    // 手入力モードでは常に読み込み専用
+    if (editMode === 'manual') {
+      return false;
+    }
+    
+    // 新規追加モードまたは編集モードでは活性
+    return editMode === 'new' || editMode === 'edit';
   });
 
-  // 新規追加ボタンは常に活性
-  let addButtonEnabled = $derived(() => true);
+  // 新規追加ボタンは手入力モード時のみ活性
+  let addButtonEnabled = $derived(() => editMode === 'manual');
 
-  // 編集・削除ボタンはユーザーカスタムフォーマット選択時のみ活性
+  // 編集・削除ボタンはユーザーカスタムフォーマット選択時かつ手入力モードのみ活性
   let editDeleteButtonEnabled = $derived(() => {
     const preset = selectedPreset();
-    return preset?.group === 'カスタムフォーマット';
+    return editMode === 'manual' && preset?.group === 'カスタムフォーマット';
   });
 
   // 保存ボタンの活性状態
   let saveButtonEnabled = $derived(() => {
-    const preset = selectedPreset();
-    
-    if (preset?.group === 'カスタム') {
-      // カスタム選択時：テストフォーマットとフォーマット名が入力済みの場合のみ活性
-      return testFormatName.trim() && testFormat.trim();
-    } else if (preset?.group === 'カスタムフォーマット') {
-      // ユーザー定義カスタムフォーマット選択時：編集モードの場合のみ活性
-      return isEditMode && testFormatName.trim() && testFormat.trim();
+    // 手入力モードでは無効
+    if (editMode === 'manual') {
+      return false;
     }
     
-    return false;
+    // 新規追加モードまたは編集モードで、必要項目が入力済みの場合のみ活性
+    return (editMode === 'new' || editMode === 'edit') && 
+           testFormatName.trim() && testFormat.trim();
   });
 
-  // キャンセルボタンの活性状態（編集モード時のみ活性）
+  // キャンセルボタンの活性状態（新規追加または編集モード時のみ活性）
   let cancelButtonEnabled = $derived(() => {
-    return isEditMode;
+    return editMode === 'new' || editMode === 'edit';
   });
 
   // プレビュー（派生状態）
@@ -124,8 +142,8 @@
 
   // テストフォーマット変更時（自動選択更新）
   function handleTestFormatChange() {
-    // 編集モード中は自動選択を無効にする
-    if (isEditMode) {
+    // 手入力モード以外では自動選択を無効にする
+    if (editMode !== 'manual') {
       return;
     }
     
@@ -169,41 +187,99 @@
     dateTimeFormatStore.setCurrentFormat(testFormat);
   }
 
+  // 重複チェック関数
+  function checkDuplicates(formatToCheck: string, nameToCheck: string, excludeId?: string) {
+    const formats = dateTimeFormatStore.allFormats();
+    
+    // 編集モード時は現在編集中のフォーマットを除外して重複チェック
+    const filteredFormats = excludeId 
+      ? formats.filter(f => f.id !== excludeId)
+      : formats;
+    
+    // フォーマット文字列の重複チェック
+    const duplicateByFormat = filteredFormats.find(f => f.format === formatToCheck);
+    if (duplicateByFormat) {
+      return {
+        isDuplicate: true,
+        type: 'format',
+        existingName: duplicateByFormat.name
+      };
+    }
+    
+    // フォーマット名の重複チェック
+    const duplicateByName = filteredFormats.find(f => f.name === nameToCheck);
+    if (duplicateByName) {
+      return {
+        isDuplicate: true,
+        type: 'name',
+        existingFormat: duplicateByName.format
+      };
+    }
+    
+    return { isDuplicate: false };
+  }
+
   // 統一保存処理（新規作成 or 上書き）
   function saveFormat() {
     if (testFormatName.trim() && testFormat.trim()) {
+      const trimmedName = testFormatName.trim();
+      const trimmedFormat = testFormat.trim();
+      
+      // 重複チェック（編集モード時は現在のフォーマットを除外）
+      const duplicateCheck = checkDuplicates(
+        trimmedFormat, 
+        trimmedName, 
+        editMode === 'edit' ? editingFormatId || undefined : undefined
+      );
+      
+      if (duplicateCheck.isDuplicate) {
+        if (duplicateCheck.type === 'format') {
+          toast.error(`同じフォーマット文字列が既に存在します`, {
+            description: `「${duplicateCheck.existingName}」で既に使用されています`
+          });
+        } else {
+          toast.error(`同じフォーマット名が既に存在します`, {
+            description: `フォーマット「${duplicateCheck.existingFormat}」で既に使用されています`
+          });
+        }
+        return; // 保存をキャンセル
+      }
+      
       try {
-        if (isEditMode && editingFormatId) {
+        if (editMode === 'edit' && editingFormatId) {
           // 編集モード時は上書き
           dateTimeFormatStore.updateCustomFormat(editingFormatId, {
-            name: testFormatName.trim(),
-            format: testFormat
+            name: trimmedName,
+            format: trimmedFormat
           });
           // 編集モード終了
-          isEditMode = false;
+          editMode = 'manual';
           editingFormatId = null;
+          toast.success('フォーマットを更新しました');
         } else {
-          // 通常時は新規作成
-          dateTimeFormatStore.addCustomFormat(testFormatName.trim(), testFormat);
+          // 新規追加時は新規作成
+          dateTimeFormatStore.addCustomFormat(trimmedName, trimmedFormat);
+          toast.success('新しいフォーマットを保存しました');
+          // 新規追加モード終了
+          editMode = 'manual';
         }
         testFormatName = ''; // 保存後にクリア
       } catch (error) {
         console.error('Failed to save format:', error);
+        toast.error('保存に失敗しました');
       }
     }
   }
 
   // 新規追加ボタン（新規フォーマット作成モードに設定）
   function startAddMode() {
-    // 編集モードを終了（もしあれば）
-    isEditMode = false;
+    // 新規追加モードに変更
+    editMode = 'new';
     editingFormatId = null;
     
-    // フィールドをクリアして新規作成準備
-    testFormat = '';
+    // テストフォーマットは現在の値を引き継ぎ、フォーマット名のみクリア
     testFormatName = '';
     
-    // カスタムを選択状態にする（新規作成用）
     // selectedPresetは自動的にカスタムになる
   }
 
@@ -211,7 +287,7 @@
   function startEditMode() {
     const preset = selectedPreset();
     if (preset?.group === 'カスタムフォーマット') {
-      isEditMode = true;
+      editMode = 'edit';
       editingFormatId = preset.id as string;
       testFormatName = preset.name;
       testFormat = preset.format;
@@ -220,26 +296,46 @@
 
   // キャンセルボタン（編集モードを終了）
   function cancelEditMode() {
-    isEditMode = false;
+    editMode = 'manual';
     editingFormatId = null;
-    testFormatName = '';
+    // テストフォーマット、フォーマット名はそのまま維持
+    // testFormatName = ''; // コメントアウト
+    // testFormat = ''; // コメントアウト
   }
 
 
-  // フォーマット削除
+  // フォーマット削除確認ダイアログを開く
+  function openDeleteDialog() {
+    const preset = selectedPreset();
+    if (preset?.group === 'カスタムフォーマット') {
+      deleteDialogOpen = true;
+    }
+  }
+
+  // フォーマット削除実行
   function deleteCustomFormat() {
     const preset = selectedPreset();
     if (preset?.group === 'カスタムフォーマット') {
-      if (confirm('削除しますか？')) {
+      try {
         dateTimeFormatStore.removeCustomFormat(preset.id as string);
         // 削除後はカスタムに戻る
         testFormat = '';
         testFormatName = '';
+        toast.success('フォーマットを削除しました');
+        deleteDialogOpen = false;
+      } catch (error) {
+        console.error('Failed to delete format:', error);
+        toast.error('削除に失敗しました');
+        deleteDialogOpen = false;
       }
     }
   }
 
   function closeDialog() {
+    // ダイアログを閉じる前にキャンセル処理を実行
+    if (editMode !== 'manual') {
+      cancelEditMode();
+    }
     open = false;
   }
 </script>
@@ -338,7 +434,7 @@
                 id="format-selection"
                 value={selectedPreset()?.id?.toString() || ''}
                 onchange={handleFormatSelection}
-                disabled={isEditMode}
+                disabled={editMode !== 'manual'}
                 class="w-full p-2 border border-input rounded-md bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {#each dateTimeFormatStore.allFormats() as formatItem}
@@ -365,7 +461,7 @@
 
               <!-- ボタン群（常時表示） -->
               <div class="flex gap-2 flex-wrap">
-                <!-- 新規追加ボタン（常に活性） -->
+                <!-- 新規追加ボタン -->
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -376,18 +472,29 @@
                   ➕
                 </Button>
                 
-                <!-- 編集ボタン（ユーザーカスタムフォーマット選択時のみ活性） -->
+                <!-- 編集ボタン -->
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onclick={startEditMode}
                   title="編集"
-                  disabled={!editDeleteButtonEnabled() || isEditMode}
+                  disabled={!editDeleteButtonEnabled()}
                 >
                   ✏️
                 </Button>
                 
-                <!-- 保存ボタン（統一：新規作成 or 上書き） -->
+                <!-- 削除ボタン -->
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onclick={openDeleteDialog}
+                  title="削除"
+                  disabled={!editDeleteButtonEnabled()}
+                >
+                  🗑️
+                </Button>
+                
+                <!-- 保存ボタン -->
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -398,7 +505,7 @@
                   💾
                 </Button>
                 
-                <!-- キャンセルボタン（編集モード時のみ活性） -->
+                <!-- キャンセルボタン -->
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -407,17 +514,6 @@
                   disabled={!cancelButtonEnabled()}
                 >
                   ❌
-                </Button>
-                
-                <!-- 削除ボタン（ユーザーカスタムフォーマット選択時のみ活性） -->
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onclick={deleteCustomFormat}
-                  title="削除"
-                  disabled={!editDeleteButtonEnabled() || isEditMode}
-                >
-                  🗑️
                 </Button>
               </div>
             </div>
@@ -428,3 +524,22 @@
     </div>  
   </div>
 {/if}
+
+<!-- 削除確認ダイアログ -->
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+  <AlertDialog.Portal>
+    <AlertDialog.Overlay />
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>フォーマット削除の確認</AlertDialog.Title>
+        <AlertDialog.Description>
+          このフォーマットを削除しますか？この操作は元に戻せません。
+        </AlertDialog.Description>
+      </AlertDialog.Header>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel>キャンセル</AlertDialog.Cancel>
+        <AlertDialog.Action onclick={deleteCustomFormat}>削除</AlertDialog.Action>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog.Portal>
+</AlertDialog.Root>
