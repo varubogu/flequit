@@ -7,6 +7,8 @@
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import * as m from '$paraglide/messages';
 
   interface Props {
     onTaskAdded?: () => void;
@@ -16,6 +18,12 @@
   let { onTaskAdded, onCancel }: Props = $props();
 
   let newTaskTitle = $state('');
+
+  // Reactive messages
+  const editTask = reactiveMessage(m.edit_task);
+  const addTask = reactiveMessage(m.add_task);
+  const cancel = reactiveMessage(m.cancel);
+  const taskTitle = reactiveMessage(m.task_title);
 
   function handleAddTask() {
     const newTaskId = TaskListService.addNewTask(newTaskTitle);
@@ -78,14 +86,14 @@
     <Input
       type="text"
       class="flex-1"
-      placeholder="Enter task title..."
+      placeholder={taskTitle()}
       bind:value={newTaskTitle}
       onkeydown={handleKeydown}
     />
     <Button
       size="icon"
       onclick={handleEditTask}
-      title="Edit Task Details"
+      title={editTask()}
     >
       <Edit3 class="h-4 w-4" />
     </Button>
@@ -93,7 +101,7 @@
       size="icon"
       onclick={handleAddTask}
       disabled={!newTaskTitle.trim()}
-      title="Add Task"
+      title={addTask()}
     >
       <Save class="h-4 w-4" />
     </Button>
@@ -101,7 +109,7 @@
       variant="secondary"
       size="icon"
       onclick={handleCancel}
-      title="Cancel"
+      title={cancel()}
     >
       <X class="h-4 w-4" />
     </Button>
