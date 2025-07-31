@@ -73,13 +73,25 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 
 ## 国際化システム
 
+全てのUIに関わるテキストは多言語対応を行う。
+設定画面でUI言語を選択可能で、選択後は即時反映される。（リアクティブ対応でリロード不要）
+
 - **Inlang Paraglide**: 翻訳管理（`project.inlang/`設定）
 - **対応言語**: 英語（ベース）、日本語
 - **使用方法**:
+  1. `paraglide/messages`からメッセージをインポート
+  2. `reactiveMessage`を使用してリアクティブにメッセージを取得
+  3. 実際に使用する
+
   ```typescript
   import * as m from '$paraglide/messages';
-  const message = m.task_title();
+  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  const msg_task_title = reactiveMessage(m.task_title());
   ```
+  ```svelte
+  <h1>{$msg_task_title}</h1>
+  ```
+
 - **ビルド**: `bun run build`で翻訳ファイル自動生成
 
 ## コーディング規約
@@ -95,6 +107,7 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 - shadcn-svelteコンポーネントは極力オリジナル維持
 - 機能別コンポーネントは適切なディレクトリに配置
 - 200行を超える場合は機能分割を検討
+- メッセージはInlang Paraglideを使用して常に国際化対応
 
 ## 開発ワークフロー
 
