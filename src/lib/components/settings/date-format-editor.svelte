@@ -21,9 +21,21 @@
   const preview = reactiveMessage(m.preview);
   const testFormatLabel = reactiveMessage(m.test_format);
   const formatSelection = reactiveMessage(m.format_selection);
+  const cancel = reactiveMessage(m.cancel);
+  const remove = reactiveMessage(m.remove);
   const formatName = reactiveMessage(m.format_name);
   const enterFormatName = reactiveMessage(m.enter_format_name);
   const close = reactiveMessage(m.close);
+  const testDateTimeLabel = reactiveMessage(m.test_datetime);
+  const deleteFormatTitle = reactiveMessage(m.delete_format_title);
+  const deleteFormatMessage = reactiveMessage(m.delete_format_message);
+  const applyDatetimeFormatToTestFormat = reactiveMessage(m.apply_datetime_format_to_test_format);
+  const applyTestFormatToDatetimeFormat = reactiveMessage(m.apply_test_format_to_datetime_format);
+  const addNewFormat = reactiveMessage(m.add_new_format);
+  const editFormat = reactiveMessage(m.edit_format);
+  const deleteFormat = reactiveMessage(m.delete);
+  const saveFormatLabel = reactiveMessage(m.save_format);
+  const cancelEdit = reactiveMessage(m.cancel_edit);
 
   // 編集モード定義
   type EditMode = 'manual' | 'new' | 'edit';
@@ -354,7 +366,7 @@
         <!-- テスト日時入力 -->
         <div>
           <div class="flex items-center gap-4 mb-2">
-            <h3 class="text-sm font-medium">テスト日時</h3>
+            <h3 class="text-sm font-medium">{testDateTimeLabel()}</h3>
             <TestDateTimeInput bind:testDateTime />
           </div>
         </div>
@@ -385,7 +397,7 @@
             size="sm"
             onclick={copyToTest}
             class="flex items-center justify-center w-8 h-8 p-0"
-            title="日時フォーマットをテストフォーマットに反映"
+            title={applyDatetimeFormatToTestFormat()}
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -396,7 +408,7 @@
             size="sm"
             onclick={copyToMain}
             class="flex items-center justify-center w-8 h-8 p-0"
-            title="テストフォーマットを日時フォーマットに反映"
+            title={applyTestFormatToDatetimeFormat()}
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
@@ -466,7 +478,7 @@
                   variant="outline" 
                   size="sm" 
                   onclick={startAddMode}
-                  title="新規追加"
+                  title={addNewFormat()}
                   disabled={!addButtonEnabled()}
                 >
                   ➕
@@ -477,7 +489,7 @@
                   variant="outline" 
                   size="sm" 
                   onclick={startEditMode}
-                  title="編集"
+                  title={editFormat()}
                   disabled={!editDeleteButtonEnabled()}
                 >
                   ✏️
@@ -488,7 +500,7 @@
                   variant="destructive" 
                   size="sm" 
                   onclick={openDeleteDialog}
-                  title="削除"
+                  title={deleteFormat()}
                   disabled={!editDeleteButtonEnabled()}
                 >
                   🗑️
@@ -499,7 +511,7 @@
                   variant="outline" 
                   size="sm" 
                   onclick={saveFormat}
-                  title="保存"
+                  title={saveFormatLabel()}
                   disabled={!saveButtonEnabled()}
                 >
                   💾
@@ -510,7 +522,7 @@
                   variant="outline" 
                   size="sm" 
                   onclick={cancelEditMode}
-                  title="キャンセル"
+                  title={cancelEdit()}
                   disabled={!cancelButtonEnabled()}
                 >
                   ❌
@@ -531,14 +543,14 @@
     <AlertDialog.Overlay />
     <AlertDialog.Content>
       <AlertDialog.Header>
-        <AlertDialog.Title>フォーマット削除の確認</AlertDialog.Title>
+        <AlertDialog.Title>{deleteFormatTitle()}</AlertDialog.Title>
         <AlertDialog.Description>
-          このフォーマットを削除しますか？この操作は元に戻せません。
+          {deleteFormatMessage()}
         </AlertDialog.Description>
       </AlertDialog.Header>
       <AlertDialog.Footer>
-        <AlertDialog.Cancel>キャンセル</AlertDialog.Cancel>
-        <AlertDialog.Action onclick={deleteCustomFormat}>削除</AlertDialog.Action>
+        <AlertDialog.Cancel>{cancel()}</AlertDialog.Cancel>
+        <AlertDialog.Action onclick={deleteCustomFormat}>{remove()}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Portal>

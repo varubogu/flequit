@@ -273,5 +273,13 @@
     "enter_format_name": "Enter format name",
     "edit_date_format": "Edit Date Format",
     "date_format_editor": "Date Format Editor",
-    "close": "Close"
+    "close": "Close",
+    "test_datetime": "Test Date & Time",
+    "delete_format_title": "Confirm Format Deletion",
+    "delete_format_message": "Are you sure you want to delete this format? This action cannot be undone.",
+    "apply_datetime_format_to_test_format": "Apply date format to test format",
+    "apply_test_format_to_datetime_format": "Apply test format to date format",
+    "add_new_format": "Add new format",
+    "edit_format": "Edit format",
+    "cancel_edit": "Cancel edit"
 }

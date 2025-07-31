@@ -273,5 +273,13 @@
     "enter_format_name": "フォーマット名を入力",
     "edit_date_format": "日時フォーマットを編集",
     "date_format_editor": "日時フォーマット編集",
-    "close": "閉じる"
+    "close": "閉じる",
+    "test_datetime": "テスト日時",
+    "delete_format_title": "フォーマット削除の確認",
+    "delete_format_message": "このフォーマットを削除しますか？この操作は元に戻せません。",
+    "apply_datetime_format_to_test_format": "日時フォーマットをテストフォーマットに反映",
+    "apply_test_format_to_datetime_format": "テストフォーマットを日時フォーマットに反映",
+    "add_new_format": "新規追加",
+    "edit_format": "編集",
+    "cancel_edit": "キャンセル"
 }
