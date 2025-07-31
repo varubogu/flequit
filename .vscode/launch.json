@@ -11,6 +11,12 @@
             "request": "launch"
         },
         {
+            "type": "node-terminal",
+            "name": "web tauri debug",
+            "command": "bun run tauri dev",
+            "request": "launch"
+        },
+        {
             "type": "lldb",
             "request": "launch",
             "name": "tauri debug",
@@ -33,7 +39,7 @@
             },
             // `beforeBuildCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
             "preLaunchTask": "ui:build"
-            }
+        },
         {
             "type": "bun",
             "internalConsoleOptions": "neverOpen",
