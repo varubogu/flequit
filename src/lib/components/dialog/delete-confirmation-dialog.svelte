@@ -15,7 +15,7 @@
   let { open, title, message, onConfirm, onCancel }: Props = $props();
 
   // Reactive messages
-  const delete_item = reactiveMessage(m.delete_item);
+  const delete_msg = reactiveMessage(m.delete);
   const cancel = reactiveMessage(m.cancel);
 </script>
 
@@ -34,7 +34,7 @@
         {cancel()}
       </Button>
       <Button variant="destructive" onclick={onConfirm}>
-        {delete_item()}
+        {delete_msg()}
       </Button>
     </Dialog.Footer>
   </Dialog.Content>

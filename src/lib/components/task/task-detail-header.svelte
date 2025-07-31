@@ -49,7 +49,7 @@
   const delete_task = reactiveMessage(m.delete_task);
   const sub_task_title = reactiveMessage(m.sub_task_title);
   const task_title = reactiveMessage(m.task_title);
-  const save_task = reactiveMessage(m.save_task);
+  const save_task = reactiveMessage(m.save);
 
 
 </script>

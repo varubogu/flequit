@@ -19,7 +19,7 @@
     m.delete_tag_description({ tagName: tag?.name || '' })
   );
   const cancel = reactiveMessage(m.cancel);
-  const remove = reactiveMessage(m.remove);
+  const delete_msg = reactiveMessage(m.delete);
 </script>
 
 <AlertDialog.Root bind:open>
@@ -32,7 +32,7 @@
     </AlertDialog.Header>
     <AlertDialog.Footer>
       <AlertDialog.Cancel onclick={onCancel}>{cancel()}</AlertDialog.Cancel>
-      <AlertDialog.Action onclick={onConfirm}>{remove()}</AlertDialog.Action>
+      <AlertDialog.Action onclick={onConfirm}>{delete_msg()}</AlertDialog.Action>
     </AlertDialog.Footer>
   </AlertDialog.Content>
 </AlertDialog.Root>

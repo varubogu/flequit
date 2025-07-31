@@ -22,7 +22,7 @@
   const testFormatLabel = reactiveMessage(m.test_format);
   const formatSelection = reactiveMessage(m.format_selection);
   const cancel = reactiveMessage(m.cancel);
-  const remove = reactiveMessage(m.remove);
+  const delete_msg = reactiveMessage(m.delete);
   const formatName = reactiveMessage(m.format_name);
   const enterFormatName = reactiveMessage(m.enter_format_name);
   const close = reactiveMessage(m.close);
@@ -31,11 +31,11 @@
   const deleteFormatMessage = reactiveMessage(m.delete_format_message);
   const applyDatetimeFormatToTestFormat = reactiveMessage(m.apply_datetime_format_to_test_format);
   const applyTestFormatToDatetimeFormat = reactiveMessage(m.apply_test_format_to_datetime_format);
-  const addNewFormat = reactiveMessage(m.add_new_format);
-  const editFormat = reactiveMessage(m.edit_format);
+  const addNewFormat = reactiveMessage(m.add_new);
+  const editFormat = reactiveMessage(m.edit);
   const deleteFormat = reactiveMessage(m.delete);
-  const saveFormatLabel = reactiveMessage(m.save_format);
-  const cancelEdit = reactiveMessage(m.cancel_edit);
+  const saveFormatLabel = reactiveMessage(m.save);
+  const cancelEdit = reactiveMessage(m.cancel);
 
   // 編集モード定義
   type EditMode = 'manual' | 'new' | 'edit';
@@ -550,7 +550,7 @@
       </AlertDialog.Header>
       <AlertDialog.Footer>
         <AlertDialog.Cancel>{cancel()}</AlertDialog.Cancel>
-        <AlertDialog.Action onclick={deleteCustomFormat}>{remove()}</AlertDialog.Action>
+        <AlertDialog.Action onclick={deleteCustomFormat}>{delete_msg()}</AlertDialog.Action>
       </AlertDialog.Footer>
     </AlertDialog.Content>
   </AlertDialog.Portal>
