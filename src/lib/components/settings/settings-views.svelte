@@ -5,7 +5,6 @@
   import ConfirmDialog from '../dialog/confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   const translationService = getTranslationService();
   let showResetConfirm = $state(false);

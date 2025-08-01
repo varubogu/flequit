@@ -24,7 +24,7 @@
     contextMenuItems?: ContextMenuItem[];
     testId?: string;
     dropTarget?: DropTarget;
-    onDrop?: (dragData: any) => void;
+    onDrop?: (dragData: unknown) => void;
   }
 
   let {
@@ -107,7 +107,7 @@
       </div>
     </ContextMenu.Trigger>
     <ContextMenu.Content class="w-48">
-      {#each contextMenuItems as item}
+      {#each contextMenuItems as item, index (index)}
         {#if item.separator}
           <ContextMenu.Separator />
         {:else}

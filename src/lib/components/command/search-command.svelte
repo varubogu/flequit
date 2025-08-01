@@ -7,8 +7,6 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     open?: boolean;

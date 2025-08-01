@@ -2,8 +2,6 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { Hash, Edit, Trash2, Bookmark, BookmarkX } from 'lucide-svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';

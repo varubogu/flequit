@@ -6,8 +6,6 @@
   import { Plus } from 'lucide-svelte';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import ProjectList from '$lib/components/project/project-list.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
@@ -28,9 +26,9 @@
 
   let showProjectDialog = $state(false);
   let projectDialogMode: 'add' | 'edit' = $state('add');
-  let editingProject: any = $state(null);
+  let editingProject: { id: string; name: string; color: string } | null = $state(null);
 
-  function openProjectDialog(mode: 'add' | 'edit', project?: any) {
+  function openProjectDialog(mode: 'add' | 'edit', project?: { id: string; name: string; color: string }) {
     projectDialogMode = mode;
     editingProject = project;
     showProjectDialog = true;

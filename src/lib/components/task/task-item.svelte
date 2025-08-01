@@ -16,8 +16,7 @@
   import { Edit, Trash2 } from 'lucide-svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import type { SubTask } from '$lib/types/task';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -61,12 +60,12 @@
     TaskService.deleteTask(task.id);
   }
 
-  function handleEditSubTask(subTask: any) {
+  function handleEditSubTask(subTask: SubTask) {
     // TODO: サブタスク編集の実装
     console.log('Edit subtask:', subTask.title);
   }
 
-  function handleDeleteSubTask(subTask: any) {
+  function handleDeleteSubTask(subTask: SubTask) {
     // TODO: サブタスク削除の実装
     console.log('Delete subtask:', subTask.title);
   }
@@ -92,7 +91,7 @@
   );
 
   // サブタスク用のコンテキストメニューリストを作成
-  function createSubTaskContextMenu(subTask: any): ContextMenuList {
+  function createSubTaskContextMenu(subTask: SubTask): ContextMenuList {
     return createContextMenu([
       {
         id: 'edit-subtask',

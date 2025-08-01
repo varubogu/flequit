@@ -33,7 +33,7 @@ describe('CalendarGrid Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(CalendarGrid, { ref });
     expect(container).toBeInTheDocument();
   });

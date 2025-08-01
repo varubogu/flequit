@@ -8,8 +8,6 @@
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
@@ -34,10 +32,10 @@
 
   let showProjectDialog = $state(false);
   let projectDialogMode: 'add' | 'edit' = $state('add');
-  let editingProject: any = $state(null);
+  let editingProject: ProjectTree | null = $state(null);
 
   let showTaskListDialog = $state(false);
-  let taskListDialogProject: any = $state(null);
+  let taskListDialogProject: ProjectTree | null = $state(null);
 
   function handleProjectSelect(project: ProjectTree) {
     taskStore.selectProject(project.id);
@@ -50,20 +48,20 @@
     } else {
       expandedProjects.add(projectId);
     }
-    expandedProjects = new Set(expandedProjects);
+    // Set を再代入する必要はありません（リアクティブ）
   }
 
   function getProjectTaskCount(project: ProjectTree): number {
     return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
   }
 
-  function openProjectDialog(mode: 'add' | 'edit', project?: any) {
+  function openProjectDialog(mode: 'add' | 'edit', project?: ProjectTree) {
     projectDialogMode = mode;
     editingProject = project;
     showProjectDialog = true;
   }
 
-  function openTaskListDialog(mode: 'add', project: any) {
+  function openTaskListDialog(mode: 'add', project: ProjectTree) {
     taskListDialogProject = project;
     showTaskListDialog = true;
   }

@@ -12,8 +12,6 @@
     RecurrenceDetails
   } from '$lib/types/task';
   import { RecurrenceService } from '$lib/services/recurrence-service';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   import RecurrenceLevelSelector from './recurrence-level-selector.svelte';
   import RecurrenceCountInput from './recurrence-count-input.svelte';

@@ -3,7 +3,6 @@
   import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
   import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
   import { GripVertical } from 'lucide-svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   const translationService = getTranslationService();
   let localVisibleItems = $state([...viewsVisibilityStore.visibleViews]);

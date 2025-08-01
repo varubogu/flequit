@@ -1,8 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     value: DayOfWeek | AdjustmentTarget;
@@ -60,7 +58,7 @@
   onchange={handleChange}
   class="border-border bg-background text-foreground rounded border p-1 {className}"
 >
-  {#each options as option}
+  {#each options as option (option.value)}
     <option value={option.value}>{option.label()}</option>
   {/each}
 </select>

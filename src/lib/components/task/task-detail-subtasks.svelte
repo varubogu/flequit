@@ -3,8 +3,6 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '$lib/components/datetime/due-date.svelte';
-  import * as m from '$paraglide/messages';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -25,7 +23,7 @@
   <div>
     <h3 class="mb-2 block text-sm font-medium">{sub_tasks()}</h3>
     <div class="space-y-2">
-      {#each task.sub_tasks as subTask}
+      {#each task.sub_tasks as subTask (subTask.id)}
         <Button
           variant="ghost"
           class="bg-card text-card-foreground flex h-auto w-full items-center justify-start gap-3 rounded border p-3 {selectedSubTaskId ===

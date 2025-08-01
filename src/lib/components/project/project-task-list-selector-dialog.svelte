@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Project, TaskList } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/shared/button.svelte';

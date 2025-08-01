@@ -28,7 +28,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
   const original = (await importOriginal()) as any;
 
-  let taskStoreData = {
+  const taskStoreData = {
     projects: [],
     selectedProjectId: null,
     selectedListId: null

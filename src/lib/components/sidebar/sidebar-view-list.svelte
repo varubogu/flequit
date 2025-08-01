@@ -4,10 +4,9 @@
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
-  import { DragDropManager, type DropTarget } from '$lib/utils/drag-drop';
   import { TaskService } from '$lib/services/task-service';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { SvelteDate } from 'svelte/reactivity';
+  import type { DragData } from '$lib/utils/drag-drop';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface Props {
@@ -41,14 +40,14 @@
       case 'tomorrow':
         return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
-          const tomorrow = new Date();
+          const tomorrow = new SvelteDate();
           tomorrow.setDate(tomorrow.getDate() + 1);
-          const tomorrowStart = new Date(
+          const tomorrowStart = new SvelteDate(
             tomorrow.getFullYear(),
             tomorrow.getMonth(),
             tomorrow.getDate()
           );
-          const tomorrowEnd = new Date(
+          const tomorrowEnd = new SvelteDate(
             tomorrow.getFullYear(),
             tomorrow.getMonth(),
             tomorrow.getDate() + 1
@@ -59,8 +58,8 @@
       case 'next3days':
         return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
-          const today = new Date();
-          const threeDaysLater = new Date();
+          const today = new SvelteDate();
+          const threeDaysLater = new SvelteDate();
           threeDaysLater.setDate(today.getDate() + 3);
           const dueDate = new Date(t.end_date);
           return dueDate > today && dueDate <= threeDaysLater;
@@ -68,8 +67,8 @@
       case 'nextweek':
         return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
-          const today = new Date();
-          const oneWeekLater = new Date();
+          const today = new SvelteDate();
+          const oneWeekLater = new SvelteDate();
           oneWeekLater.setDate(today.getDate() + 7);
           const dueDate = new Date(t.end_date);
           return dueDate > today && dueDate <= oneWeekLater;
@@ -77,8 +76,8 @@
       case 'thismonth':
         return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
-          const today = new Date();
-          const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          const today = new SvelteDate();
+          const endOfMonth = new SvelteDate(today.getFullYear(), today.getMonth() + 1, 0);
           const dueDate = new Date(t.end_date);
           return dueDate >= today && dueDate <= endOfMonth;
         }).length;
@@ -91,7 +90,7 @@
     onViewChange?.(view);
   }
 
-  function handleViewDrop(viewId: string, dragData: any) {
+  function handleViewDrop(viewId: string, dragData: DragData) {
     if (dragData.type === 'task') {
       // タスクをビューにドロップした場合、期日を更新
       TaskService.updateTaskDueDateForView(dragData.id, viewId);

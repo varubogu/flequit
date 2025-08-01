@@ -38,7 +38,7 @@ describe('ResizableHandle Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(ResizableHandle, { ref });
     expect(container).toBeInTheDocument();
   });

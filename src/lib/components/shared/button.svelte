@@ -1,6 +1,5 @@
 <script lang="ts">
   import UIButton from '$lib/components/ui/button.svelte';
-  import type { VariantProps } from 'tailwind-variants';
   import type { Snippet } from 'svelte';
 
   type ButtonVariants = {

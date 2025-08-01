@@ -38,7 +38,7 @@ describe('CalendarDay Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(CalendarDay, { ref });
     expect(container).toBeInTheDocument();
   });

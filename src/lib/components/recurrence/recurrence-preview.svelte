@@ -1,7 +1,5 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { cn } from '$lib/utils';
 
   type Props = {
@@ -49,7 +47,7 @@
       </div>
       <div class="border-border bg-card/50 min-h-0 flex-1 overflow-y-auto rounded border">
         <div class="space-y-1 p-2">
-          {#each previewDates.slice(0, displayCount) as date, index}
+          {#each previewDates.slice(0, displayCount) as date, index (index)}
             <div
               class={cn(
                 'bg-muted flex items-center gap-2 rounded p-2 text-sm',

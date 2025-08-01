@@ -79,7 +79,7 @@
   <!-- Tags -->
   {#if task.tags.length > 0}
     <div class="mt-2 flex flex-wrap gap-1">
-      {#each task.tags as tag}
+      {#each task.tags as tag (tag.id)}
         <TagDisplay {tag} onTagRemoveFromItem={handleTagRemoveFromTask} />
       {/each}
     </div>

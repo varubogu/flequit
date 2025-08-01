@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { Tag } from '$lib/types/task';
   import TagDisplay from './tag-display.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
@@ -22,7 +21,6 @@
     ontagRemoved
   }: Props = $props();
 
-  const translationService = getTranslationService();
   let inputValue = $state('');
   let inputElement: HTMLInputElement;
 

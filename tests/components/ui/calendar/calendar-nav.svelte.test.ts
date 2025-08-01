@@ -25,7 +25,7 @@ describe('CalendarNav Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(CalendarNav, { ref });
     const nav = container.querySelector('nav');
     expect(nav).toBeInTheDocument();

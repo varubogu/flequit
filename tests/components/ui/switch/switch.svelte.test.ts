@@ -37,13 +37,13 @@ describe('Switch Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(Switch, { ref });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle checked state binding', () => {
-    let checked = false;
+    const checked = false;
     const { container } = render(Switch, { checked });
     expect(container).toBeInTheDocument();
   });

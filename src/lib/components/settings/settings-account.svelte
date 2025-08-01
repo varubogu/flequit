@@ -2,8 +2,6 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
 
   interface Props {
     settings: {

@@ -37,7 +37,7 @@
   let testFormatPreview = $derived(() => {
     try {
       return testFormat ? format(testDateTime, testFormat) : '';
-    } catch (error) {
+    } catch {
       return 'Invalid format';
     }
   });
@@ -75,7 +75,7 @@
         disabled={editMode !== 'manual'}
         class="border-input bg-background text-foreground w-full rounded-md border p-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {#each allFormats() as formatItem}
+        {#each allFormats() as formatItem (formatItem.id)}
           <option value={formatItem.id.toString()}>
             {formatItem.name}{formatItem.format ? `: ${formatItem.format}` : ''}
           </option>

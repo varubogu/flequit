@@ -55,7 +55,7 @@
   const settingPreview = $derived(() => {
     try {
       return format(previewDate, settings.dateFormat);
-    } catch (error) {
+    } catch {
       return 'Invalid format';
     }
   });
@@ -102,7 +102,7 @@
             onchange={handleLanguageChange}
             class="mt-1"
           >
-            {#each availableLanguages as lang}
+            {#each availableLanguages as lang (lang.value)}
               <option value={lang.value}>{lang.label}</option>
             {/each}
           </Select>
@@ -129,7 +129,7 @@
             bind:value={settings.timezone}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
-            {#each availableTimezones as tz}
+            {#each availableTimezones as tz (tz.value)}
               <option value={tz.value}>{tz.label}</option>
             {/each}
           </select>

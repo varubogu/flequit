@@ -6,8 +6,6 @@
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
   import { ArrowLeft, Search, Menu } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import SettingsBasic from './settings-basic.svelte';
   import SettingsViews from './settings-views.svelte';

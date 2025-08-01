@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TagStore } from '$lib/stores/tags.svelte';
-import type { Tag } from '$lib/types/task';
 
 describe('TagStore', () => {
   let tagStore: TagStore;

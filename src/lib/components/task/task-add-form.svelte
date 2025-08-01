@@ -6,7 +6,6 @@
   import Input from '$lib/components/ui/input.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { viewStore } from '$lib/stores/view-store.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {

@@ -19,8 +19,6 @@
     onRangeChange
   }: Props = $props();
 
-  let startValue = $state<CalendarDate | undefined>(undefined);
-  let endValue = $state<CalendarDate | undefined>(undefined);
   let rangeValue = $state<{ start: CalendarDate | undefined; end: CalendarDate | undefined }>({
     start: undefined,
     end: undefined
@@ -43,15 +41,17 @@
       if (startDate) {
         try {
           startCal = parseDate(startDate);
-          startValue = startCal;
-        } catch {}
+        } catch {
+          // Invalid start date format, ignore
+        }
       }
 
       if (endDate) {
         try {
           endCal = parseDate(endDate);
-          endValue = endCal;
-        } catch {}
+        } catch {
+          // Invalid end date format, ignore
+        }
       }
 
       rangeValue = { start: startCal, end: endCal };
@@ -76,13 +76,11 @@
     }
   });
 
-  function handleRangeCalendarChange(v: any) {
+  function handleRangeCalendarChange(v: { start?: CalendarDate; end?: CalendarDate }) {
     if (v?.start) {
-      startValue = v.start;
       rangeValue.start = v.start;
     }
     if (v?.end) {
-      endValue = v.end;
       rangeValue.end = v.end;
     }
     if (v?.start && v?.end) {
@@ -90,7 +88,7 @@
     }
   }
 
-  function handleSingleCalendarChange(v: any) {
+  function handleSingleCalendarChange(v: CalendarDate) {
     if (v) {
       calendarValue = v;
       onCalendarChange?.(v);

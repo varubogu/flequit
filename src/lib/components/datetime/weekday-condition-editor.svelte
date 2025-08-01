@@ -8,7 +8,6 @@
     AdjustmentDirection,
     AdjustmentTarget
   } from '$lib/types/task';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     condition: WeekdayCondition;
@@ -70,7 +69,7 @@
       onchange={handleDirectionChange}
       class="border-border bg-background text-foreground rounded border p-1"
     >
-      {#each directionOptions as option}
+      {#each directionOptions as option (option.value)}
         <option value={option.value}>{option.label()}</option>
       {/each}
     </select>
@@ -94,7 +93,7 @@
       onchange={handleDirectionChange}
       class="border-border bg-background text-foreground rounded border p-1"
     >
-      {#each directionOptions as option}
+      {#each directionOptions as option (option.value)}
         <option value={option.value}>{option.label()}</option>
       {/each}
     </select>

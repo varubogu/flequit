@@ -18,7 +18,7 @@
   let dateTimeFormatPreview = $derived(() => {
     try {
       return format(testDateTime, currentFormat);
-    } catch (error) {
+    } catch {
       return 'Invalid format';
     }
   });

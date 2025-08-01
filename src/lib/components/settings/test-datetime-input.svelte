@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Input from '$lib/components/ui/input.svelte';
   import { format } from 'date-fns';
+  import { SvelteDate } from 'svelte/reactivity';
 
   interface Props {
     testDateTime: Date;
@@ -22,7 +22,7 @@
   function handleDateChange() {
     if (dateValue) {
       const [year, month, day] = dateValue.split('-').map(Number);
-      const newDate = new Date(testDateTime);
+      const newDate = new SvelteDate(testDateTime);
       newDate.setFullYear(year, month - 1, day);
       testDateTime = newDate;
     }
@@ -32,7 +32,7 @@
   function handleTimeChange() {
     if (timeValue) {
       const [hours, minutes, seconds] = timeValue.split(':').map(Number);
-      const newDate = new Date(testDateTime);
+      const newDate = new SvelteDate(testDateTime);
       newDate.setHours(hours, minutes, seconds || 0);
       testDateTime = newDate;
     }

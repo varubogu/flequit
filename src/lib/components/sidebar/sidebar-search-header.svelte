@@ -4,7 +4,6 @@
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import SearchCommand from '$lib/components/command/search-command.svelte';
   import { Search } from 'lucide-svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   const translationService = getTranslationService();

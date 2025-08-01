@@ -40,7 +40,7 @@ describe('CalendarCell Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(CalendarCell, {
       ref,
       date: { year: 2024, month: 1, day: 15 } as any,

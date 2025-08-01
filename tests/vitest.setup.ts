@@ -150,7 +150,7 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords() {
     return [];
   }
-} as any;
+} as unknown as ResizeObserver;
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {

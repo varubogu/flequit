@@ -70,9 +70,8 @@ test.describe('Mobile Sidebar Styling', () => {
     await expect(page.getByText('Views')).toBeVisible();
     await expect(page.getByText('All Tasks')).toBeVisible();
 
-    // サイドバーが背景の上に表示され、タスクリストと重ならないことを確認
+    // サイドバーが背景の上に表示されることを確認
     const sidebar = page.locator('[data-sidebar="sidebar"]');
-    const taskList = page.getByTestId('task-list');
 
     // z-indexやposition設定を確認
     const sidebarStyles = await sidebar.evaluate((el) => {

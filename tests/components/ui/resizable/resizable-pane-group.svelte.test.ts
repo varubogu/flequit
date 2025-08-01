@@ -34,13 +34,13 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should handle ref binding', () => {
-    let ref = null;
+    const ref = null;
     const { container } = render(ResizablePaneGroup, { ref, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle this binding', () => {
-    let paneGroup: any = undefined;
+    const paneGroup: any = undefined;
     const { container } = render(ResizablePaneGroup, { this: paneGroup, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });

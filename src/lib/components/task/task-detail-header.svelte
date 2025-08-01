@@ -5,8 +5,6 @@
   import Input from '$lib/components/ui/input.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
-  import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {

@@ -62,13 +62,13 @@ describe('Calendar Component', () => {
   });
 
   test('should handle value binding', () => {
-    let value = new Date(2024, 0, 15);
+    const value = new Date(2024, 0, 15);
     const { container } = render(Calendar, { value });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle placeholder binding', () => {
-    let placeholder = new Date(2024, 0, 1);
+    const placeholder = new Date(2024, 0, 1);
     const { container } = render(Calendar, { placeholder });
     expect(container).toBeInTheDocument();
   });

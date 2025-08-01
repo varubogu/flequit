@@ -2,8 +2,6 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskBase } from '$lib/types/task';
   import { getDueDateClass } from '$lib/utils/datetime-utils';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskBase;

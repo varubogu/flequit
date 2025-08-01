@@ -1,7 +1,5 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   type Props = {
     value: number | undefined;

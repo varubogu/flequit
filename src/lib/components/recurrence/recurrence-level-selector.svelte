@@ -1,8 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { RecurrenceLevel } from '$lib/types/task';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   type Props = {
     value: RecurrenceLevel;
@@ -32,7 +30,7 @@
       class="border-border bg-background text-foreground w-full rounded border p-2"
       {onchange}
     >
-      {#each recurrenceLevelOptions as option}
+      {#each recurrenceLevelOptions as option (option.value)}
         <option value={option.value}>{option.label()}</option>
       {/each}
     </select>

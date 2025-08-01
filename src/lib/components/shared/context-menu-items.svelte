@@ -2,7 +2,6 @@
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
   import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
   import { contextMenuStore } from '$lib/stores/context-menu.svelte.js';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     items: ContextMenuList;
@@ -11,7 +10,6 @@
 
   let { items, class: className = 'w-48' }: Props = $props();
 
-  const translationService = getTranslationService();
 
   // セパレーター以外のアイテムをカウント
   const menuItems = $derived(items.filter((item) => !('type' in item)) as ContextMenuItem[]);
@@ -30,13 +28,14 @@
         event.preventDefault();
         contextMenuStore.selectPrevious();
         break;
-      case 'Enter':
+      case 'Enter': {
         event.preventDefault();
         const selectedIndex = contextMenuStore.activateSelected();
         if (selectedIndex !== null && selectedIndex < menuItems.length) {
           menuItems[selectedIndex].action();
         }
         break;
+      }
       case 'Escape':
         contextMenuStore.close();
         break;
@@ -54,7 +53,7 @@
   }}
   onkeydown={handleKeyDown}
 >
-  {#each items as item, index}
+  {#each items as item, index (index)}
     {#if 'type' in item && item.type === 'separator'}
       <ContextMenu.Separator />
     {:else}

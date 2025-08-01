@@ -1,8 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { RecurrenceUnit, DayOfWeek, RecurrenceDetails } from '$lib/types/task';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   type Props = {
     unit: RecurrenceUnit;
@@ -81,32 +79,32 @@
   const weekdayOfWeek = translationService.getMessage('weekday_of_week');
 
   const unitOptions = [
-    { value: 'minute', label: reactiveMessage(m.minute) },
-    { value: 'hour', label: reactiveMessage(m.hour) },
-    { value: 'day', label: reactiveMessage(m.day) },
-    { value: 'week', label: reactiveMessage(m.week) },
-    { value: 'month', label: reactiveMessage(m.month) },
-    { value: 'quarter', label: reactiveMessage(m.quarter) },
-    { value: 'half_year', label: reactiveMessage(m.half_year) },
-    { value: 'year', label: reactiveMessage(m.year) }
+    { value: 'minute', label: translationService.getMessage('minute') },
+    { value: 'hour', label: translationService.getMessage('hour') },
+    { value: 'day', label: translationService.getMessage('day') },
+    { value: 'week', label: translationService.getMessage('week') },
+    { value: 'month', label: translationService.getMessage('month') },
+    { value: 'quarter', label: translationService.getMessage('quarter') },
+    { value: 'half_year', label: translationService.getMessage('half_year') },
+    { value: 'year', label: translationService.getMessage('year') }
   ];
 
   const dayOfWeekOptions = [
-    { value: 'sunday', label: reactiveMessage(m.sunday) },
-    { value: 'monday', label: reactiveMessage(m.monday) },
-    { value: 'tuesday', label: reactiveMessage(m.tuesday) },
-    { value: 'wednesday', label: reactiveMessage(m.wednesday) },
-    { value: 'thursday', label: reactiveMessage(m.thursday) },
-    { value: 'friday', label: reactiveMessage(m.friday) },
-    { value: 'saturday', label: reactiveMessage(m.saturday) }
+    { value: 'sunday', label: translationService.getMessage('sunday') },
+    { value: 'monday', label: translationService.getMessage('monday') },
+    { value: 'tuesday', label: translationService.getMessage('tuesday') },
+    { value: 'wednesday', label: translationService.getMessage('wednesday') },
+    { value: 'thursday', label: translationService.getMessage('thursday') },
+    { value: 'friday', label: translationService.getMessage('friday') },
+    { value: 'saturday', label: translationService.getMessage('saturday') }
   ];
 
   const weekOfMonthOptions = [
-    { value: 'first', label: reactiveMessage(m.first_week) },
-    { value: 'second', label: reactiveMessage(m.second_week) },
-    { value: 'third', label: reactiveMessage(m.third_week) },
-    { value: 'fourth', label: reactiveMessage(m.fourth_week) },
-    { value: 'last', label: reactiveMessage(m.last_week) }
+    { value: 'first', label: translationService.getMessage('first_week') },
+    { value: 'second', label: translationService.getMessage('second_week') },
+    { value: 'third', label: translationService.getMessage('third_week') },
+    { value: 'fourth', label: translationService.getMessage('fourth_week') },
+    { value: 'last', label: translationService.getMessage('last_week') }
   ];
 
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
@@ -131,7 +129,7 @@
         class="border-border bg-background text-foreground w-32 rounded border p-2"
         {onchange}
       >
-        {#each unitOptions as option}
+        {#each unitOptions as option (option.value)}
           <option value={option.value}>{option.label()}</option>
         {/each}
       </select>
@@ -146,7 +144,7 @@
           {repeatWeekdays()}
         </span>
         <div class="grid grid-cols-7 gap-2">
-          {#each dayOfWeekOptions as dayOption}
+          {#each dayOfWeekOptions as dayOption (dayOption.value)}
             <button
               type="button"
               class="border-border rounded border p-2 text-sm {daysOfWeek.includes(
@@ -199,7 +197,7 @@
             {onchange}
           >
             <option value="">{noSelection()}</option>
-            {#each weekOfMonthOptions as option}
+            {#each weekOfMonthOptions as option (option.value)}
               <option value={option.value}>{option.label()}</option>
             {/each}
           </select>
@@ -217,7 +215,7 @@
             class="border-border bg-background text-foreground w-full rounded border p-2"
             {onchange}
           >
-            {#each dayOfWeekOptions as option}
+            {#each dayOfWeekOptions as option (option.value)}
               <option value={option.value}>{option.label()}</option>
             {/each}
           </select>

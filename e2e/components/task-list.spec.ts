@@ -35,9 +35,6 @@ test.describe('Task List Component', () => {
     await page.getByRole('button', { name: /Today/ }).first().click();
     await page.waitForLoadState('networkidle');
 
-    const taskItems = page.locator('.task-item-button');
-    const taskCount = await taskItems.count();
-
     // Should always show the task list header regardless of empty state
     await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
   });
@@ -106,9 +103,9 @@ test.describe('Task List Component', () => {
     const taskCount = await taskItems.count();
 
     if (taskCount > 1) {
-      // Get initial order
-      const firstTaskText = await taskItems.first().textContent();
-      const secondTaskText = await taskItems.nth(1).textContent();
+      // Get initial order (stored for potential future use)
+      await taskItems.first().textContent();
+      await taskItems.nth(1).textContent();
 
       // Test if drag handles or reorder controls exist
       const dragHandles = page.locator('[draggable], .drag-handle, [data-testid="drag-handle"]');

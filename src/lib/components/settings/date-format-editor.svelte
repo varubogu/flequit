@@ -1,6 +1,5 @@
 <script lang="ts">
   import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
-  import type { DateTimeFormat } from '$lib/types/datetime-format';
   import { toast } from 'svelte-sonner';
   import DateFormatEditorHeader from './date-format-editor-header.svelte';
   import TestDatetimeSection from './test-datetime-section.svelte';

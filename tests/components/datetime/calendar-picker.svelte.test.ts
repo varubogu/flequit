@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import CalendarPicker from '$lib/components/datetime/calendar-picker.svelte';
 
 describe('CalendarPicker', () => {
   const defaultProps = {

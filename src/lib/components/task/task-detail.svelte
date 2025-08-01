@@ -118,7 +118,14 @@
     saveTimeout = setTimeout(() => {
       if (currentItem) {
         // Use the same update method as task-item for consistency
-        const updates: any = {
+        const updates: {
+          title: string;
+          description?: string;
+          priority: string;
+          start_date?: Date;
+          end_date?: Date;
+          is_range_date: boolean;
+        } = {
           title: editForm.title,
           description: editForm.description || undefined,
           priority: editForm.priority,

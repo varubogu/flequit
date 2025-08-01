@@ -4,8 +4,6 @@
   import { Plus, X } from 'lucide-svelte';
   import WeekdayConditionEditor from '../datetime/weekday-condition-editor.svelte';
   import type { DateCondition, WeekdayCondition, DateRelation } from '$lib/types/task';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   type Props = {
     dateConditions: DateCondition[];
@@ -36,10 +34,10 @@
   const add = translationService.getMessage('add');
 
   const dateRelationOptions = [
-    { value: 'before', label: reactiveMessage(m.before) },
-    { value: 'on_or_before', label: reactiveMessage(m.on_or_before) },
-    { value: 'on_or_after', label: reactiveMessage(m.on_or_after) },
-    { value: 'after', label: reactiveMessage(m.after) }
+    { value: 'before', label: translationService.getMessage('before') },
+    { value: 'on_or_before', label: translationService.getMessage('on_or_before') },
+    { value: 'on_or_after', label: translationService.getMessage('on_or_after') },
+    { value: 'after', label: translationService.getMessage('after') }
   ];
 </script>
 
@@ -56,7 +54,7 @@
       </Button>
     </div>
 
-    {#each dateConditions as condition}
+    {#each dateConditions as condition (condition.id)}
       <div class="border-border bg-card flex items-center gap-2 rounded border p-3">
         <select
           value={condition.relation}
@@ -66,7 +64,7 @@
           }}
           class="border-border bg-background text-foreground rounded border p-1"
         >
-          {#each dateRelationOptions as option}
+          {#each dateRelationOptions as option (option.value)}
             <option value={option.value}>{option.label()}</option>
           {/each}
         </select>
@@ -102,7 +100,7 @@
       </Button>
     </div>
 
-    {#each weekdayConditions as condition}
+    {#each weekdayConditions as condition (condition.id)}
       <WeekdayConditionEditor
         {condition}
         onUpdate={(updates) => onWeekdayConditionUpdate(condition.id, updates)}

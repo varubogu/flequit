@@ -2,10 +2,8 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/shared/button.svelte';
-  import * as m from '$paraglide/messages.js';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     open: boolean;
@@ -20,7 +18,6 @@
   let {
     open = false,
     mode,
-    title = '',
     initialName = '',
     initialColor = '#3b82f6',
     onsave,

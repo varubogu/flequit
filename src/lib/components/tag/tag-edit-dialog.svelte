@@ -2,10 +2,8 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/shared/button.svelte';
-  import * as m from '$paraglide/messages.js';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import type { Tag } from '$lib/types/task';
 
   interface Props {
@@ -27,7 +25,6 @@
   // Reactiveメッセージ
   const cancel = translationService.getMessage('cancel');
   const save = translationService.getMessage('save');
-  const tags = translationService.getMessage('tags');
 
   $effect(() => {
     if (open && tag) {
