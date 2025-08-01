@@ -3,6 +3,7 @@ build/
 .svelte-kit/
 dist/
 src/paraglide/
+src-tauri/
 
 # Ignore dependency directories:
 node_modules/
