@@ -1,6 +1,6 @@
 # table: tasks.lists
 
-| Column Name | Data Type | NULL |      Default      | Primary Key | Foreign Key  | Unique | Check Constraint |    Description     |
+| Column Name | Data Type | NULL | Default           | Primary Key | Foreign Key  | Unique | Check Constraint | Description        |
 | ----------- | --------- | ---- | ----------------- | ----------- | ------------ | ------ | ---------------- | ------------------ |
 | id          | TEXT      | NO   |                   | YES         |              | YES    |                  | List ID            |
 | project_id  | TEXT      | NO   |                   |             | projects(id) |        |                  | Parent project ID  |

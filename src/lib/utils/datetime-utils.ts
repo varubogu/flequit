@@ -119,16 +119,26 @@ export function formatDateTimeRange(
 
   if (isRangeDate && startDateTime && endDateTime) {
     const rangeStartDate = new Date(date);
-    const startDateOnly = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
-    const endDateOnly = new Date(endDateTime.getFullYear(), endDateTime.getMonth(), endDateTime.getDate());
-    const originalDayDiff = Math.round((endDateOnly.getTime() - startDateOnly.getTime()) / (1000 * 60 * 60 * 24));
-    
+    const startDateOnly = new Date(
+      startDateTime.getFullYear(),
+      startDateTime.getMonth(),
+      startDateTime.getDate()
+    );
+    const endDateOnly = new Date(
+      endDateTime.getFullYear(),
+      endDateTime.getMonth(),
+      endDateTime.getDate()
+    );
+    const originalDayDiff = Math.round(
+      (endDateOnly.getTime() - startDateOnly.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     rangeStartDate.setHours(startDateTime.getHours(), startDateTime.getMinutes(), 0, 0);
 
     const rangeEndDate = new Date(rangeStartDate);
     rangeEndDate.setDate(rangeStartDate.getDate() + originalDayDiff);
     rangeEndDate.setHours(endDateTime.getHours(), endDateTime.getMinutes(), 0, 0);
-    
+
     return formatDateDisplayRange(rangeStartDate, rangeEndDate);
   }
 

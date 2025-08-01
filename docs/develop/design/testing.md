@@ -36,33 +36,33 @@ tests/                 # 単体テスト、結合テスト（vitest）
 
 ```typescript
 // 基本テスト
-import { test, expect } from "vitest";
+import { test, expect } from 'vitest';
 
-test("example test", () => {
+test('example test', () => {
   expect(1 + 1).toBe(2);
 });
 
 // モックを使用
-import { test, expect, vi } from "vitest";
+import { test, expect, vi } from 'vitest';
 
-test("mock test", () => {
+test('mock test', () => {
   const mockFn = vi.fn();
-  mockFn("test");
-  expect(mockFn).toHaveBeenCalledWith("test");
+  mockFn('test');
+  expect(mockFn).toHaveBeenCalledWith('test');
 });
 
 // Svelteコンポーネントテスト
-import { test, expect, vi } from "vitest";
-import { render, fireEvent } from "@testing-library/svelte";
-import MyComponent from "../src/lib/components/MyComponent.svelte";
+import { test, expect, vi } from 'vitest';
+import { render, fireEvent } from '@testing-library/svelte';
+import MyComponent from '../src/lib/components/MyComponent.svelte';
 
-test("component test", async () => {
+test('component test', async () => {
   const mockCallback = vi.fn();
   const { getByRole } = render(MyComponent, {
     props: { onClick: mockCallback }
   });
 
-  await fireEvent.click(getByRole("button"));
+  await fireEvent.click(getByRole('button'));
   expect(mockCallback).toHaveBeenCalledTimes(1);
 });
 ```
@@ -72,6 +72,7 @@ test("component test", async () => {
 ✅ **完全対応**: Svelte 5のrune（`$state`, `$props`）を含むコンポーネントテストが正常動作
 
 ### テスト対応状況
+
 1. **ユーティリティ関数のテスト** ✅
 2. **ビジネスロジックのテスト** ✅
 3. **統合テスト** ✅

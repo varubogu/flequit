@@ -32,7 +32,7 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       open: false
     };
-    
+
     expect(props.open).toBe(false);
   });
 
@@ -41,7 +41,7 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       mode: 'edit' as const
     };
-    
+
     expect(props.mode).toBe('edit');
   });
 
@@ -50,7 +50,7 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       initialName: ''
     };
-    
+
     expect(props.initialName).toBe('');
   });
 
@@ -59,7 +59,7 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       initialName: undefined
     };
-    
+
     expect(props.initialName).toBeUndefined();
   });
 
@@ -68,7 +68,7 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       title: ''
     };
-    
+
     expect(props.title).toBe('');
   });
 
@@ -77,18 +77,18 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       title: undefined
     };
-    
+
     expect(props.title).toBeUndefined();
   });
 
   it('onsaveコールバックが設定される', () => {
     const onsave = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       onsave
     };
-    
+
     expect(props.onsave).toBe(onsave);
     expect(props.onsave).toBeInstanceOf(Function);
   });
@@ -98,18 +98,18 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       onsave: undefined
     };
-    
+
     expect(props.onsave).toBeUndefined();
   });
 
   it('oncloseコールバックが設定される', () => {
     const onclose = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       onclose
     };
-    
+
     expect(props.onclose).toBe(onclose);
     expect(props.onclose).toBeInstanceOf(Function);
   });
@@ -119,54 +119,55 @@ describe('TaskListDialog', () => {
       ...defaultProps,
       onclose: undefined
     };
-    
+
     expect(props.onclose).toBeUndefined();
   });
 
   it('異なるmodeの値が処理される', () => {
     const modes = ['add', 'edit'] as const;
-    
-    modes.forEach(mode => {
+
+    modes.forEach((mode) => {
       const props = {
         ...defaultProps,
         mode
       };
-      
+
       expect(props.mode).toBe(mode);
     });
   });
 
   it('長いinitialNameが処理される', () => {
-    const longName = 'This is a very long task list name that contains multiple words and should be handled properly by the component';
-    
+    const longName =
+      'This is a very long task list name that contains multiple words and should be handled properly by the component';
+
     const props = {
       ...defaultProps,
       initialName: longName
     };
-    
+
     expect(props.initialName).toBe(longName);
     expect(props.initialName.length).toBeGreaterThan(50);
   });
 
   it('特殊文字を含むinitialNameが処理される', () => {
     const specialName = 'Task List with "quotes" & <tags> 🚀 émojis';
-    
+
     const props = {
       ...defaultProps,
       initialName: specialName
     };
-    
+
     expect(props.initialName).toBe(specialName);
   });
 
   it('空白文字のみのinitialNameが処理される', () => {
     const whitespaceOnlyName = '   ';
-    
+
     const props = {
       ...defaultProps,
       initialName: whitespaceOnlyName
     };
-    
+
     expect(props.initialName).toBe(whitespaceOnlyName);
   });
 
@@ -192,12 +193,12 @@ describe('TaskListDialog', () => {
       }
     ];
 
-    combinations.forEach(combo => {
+    combinations.forEach((combo) => {
       const props = {
         ...defaultProps,
         ...combo
       };
-      
+
       expect(props.open).toBe(combo.open);
       expect(props.mode).toBe(combo.mode);
       expect(props.initialName).toBe(combo.initialName);
@@ -207,13 +208,13 @@ describe('TaskListDialog', () => {
 
   it('modeの型安全性が保たれる', () => {
     const validModes = ['add', 'edit'];
-    
-    validModes.forEach(mode => {
+
+    validModes.forEach((mode) => {
       const props = {
         ...defaultProps,
         mode: mode as any
       };
-      
+
       expect(validModes).toContain(props.mode);
     });
   });
@@ -221,33 +222,33 @@ describe('TaskListDialog', () => {
   it('コールバック関数が呼び出し可能である', () => {
     const mockSave = vi.fn();
     const mockClose = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       onsave: mockSave,
       onclose: mockClose
     };
-    
+
     // コールバックが関数として呼び出し可能であることを確認
     expect(() => props.onsave?.({ name: 'Test List' })).not.toThrow();
     expect(() => props.onclose?.()).not.toThrow();
-    
+
     // モック関数が実際に呼び出されたことを確認
     props.onsave?.({ name: 'Test List' });
     props.onclose?.();
-    
+
     expect(mockSave).toHaveBeenCalledWith({ name: 'Test List' });
     expect(mockClose).toHaveBeenCalledWith();
   });
 
   it('onsaveに異なるデータが渡される', () => {
     const mockSave = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       onsave: mockSave
     };
-    
+
     const testData = [
       { name: 'Simple List' },
       { name: 'List with spaces' },
@@ -256,30 +257,30 @@ describe('TaskListDialog', () => {
       { name: 'List with émojis 🎯' }
     ];
 
-    testData.forEach(data => {
+    testData.forEach((data) => {
       props.onsave?.(data);
       expect(mockSave).toHaveBeenCalledWith(data);
     });
-    
+
     expect(mockSave).toHaveBeenCalledTimes(testData.length);
   });
 
   it('異なるコールバック関数が正しく設定される', () => {
     const callback1 = vi.fn();
     const callback2 = vi.fn();
-    
+
     const props1 = {
       ...defaultProps,
       onsave: callback1,
       onclose: callback1
     };
-    
+
     const props2 = {
       ...defaultProps,
       onsave: callback2,
       onclose: callback2
     };
-    
+
     expect(props1.onsave).toBe(callback1);
     expect(props1.onclose).toBe(callback1);
     expect(props2.onsave).toBe(callback2);
@@ -290,12 +291,12 @@ describe('TaskListDialog', () => {
   it('openの真偽値が処理される', () => {
     const booleanValues = [true, false];
 
-    booleanValues.forEach(value => {
+    booleanValues.forEach((value) => {
       const props = {
         ...defaultProps,
         open: value
       };
-      
+
       expect(props.open).toBe(value);
       expect(typeof props.open).toBe('boolean');
     });
@@ -303,7 +304,7 @@ describe('TaskListDialog', () => {
 
   it('すべてのプロパティが定義されている場合', () => {
     const props = defaultProps;
-    
+
     expect(props.open).toBeDefined();
     expect(props.mode).toBeDefined();
     expect(props.title).toBeDefined();
@@ -317,7 +318,7 @@ describe('TaskListDialog', () => {
       open: false,
       mode: 'add' as const
     };
-    
+
     expect(minimalProps.open).toBe(false);
     expect(minimalProps.mode).toBe('add');
   });

@@ -24,7 +24,7 @@
 
   // Reactive messages
   const viewsTitle = translationService.getMessage('views_title');
-  
+
   // Get sidebar state
   const sidebar = useSidebar();
 
@@ -37,19 +37,27 @@
       case 'overdue':
         return overdueTasksCount;
       case 'completed':
-        return taskStore.allTasks.filter(t => t.status === 'completed').length;
+        return taskStore.allTasks.filter((t) => t.status === 'completed').length;
       case 'tomorrow':
-        return taskStore.allTasks.filter(t => {
+        return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
-          const tomorrowStart = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
-          const tomorrowEnd = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate() + 1);
+          const tomorrowStart = new Date(
+            tomorrow.getFullYear(),
+            tomorrow.getMonth(),
+            tomorrow.getDate()
+          );
+          const tomorrowEnd = new Date(
+            tomorrow.getFullYear(),
+            tomorrow.getMonth(),
+            tomorrow.getDate() + 1
+          );
           const dueDate = new Date(t.end_date);
           return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
         }).length;
       case 'next3days':
-        return taskStore.allTasks.filter(t => {
+        return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
           const today = new Date();
           const threeDaysLater = new Date();
@@ -58,7 +66,7 @@
           return dueDate > today && dueDate <= threeDaysLater;
         }).length;
       case 'nextweek':
-        return taskStore.allTasks.filter(t => {
+        return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
           const today = new Date();
           const oneWeekLater = new Date();
@@ -67,7 +75,7 @@
           return dueDate > today && dueDate <= oneWeekLater;
         }).length;
       case 'thismonth':
-        return taskStore.allTasks.filter(t => {
+        return taskStore.allTasks.filter((t) => {
           if (t.status === 'completed' || !t.end_date) return false;
           const today = new Date();
           const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -96,7 +104,7 @@
 
 <div class="mb-4">
   {#if sidebar.state !== 'collapsed'}
-    <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+    <h3 class="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
       {viewsTitle()}
     </h3>
   {/if}

@@ -1,4 +1,4 @@
-import { test, expect, describe, vi } from "vitest";
+import { test, expect, describe, vi } from 'vitest';
 import {
   formatDate,
   formatDateTime,
@@ -13,10 +13,9 @@ import {
   formatDateJapanese,
   formatSingleDate,
   formatDateDisplayRange
-} from "../../src/lib/utils/datetime-utils";
+} from '../../src/lib/utils/datetime-utils';
 
-
-test("formatDate: formats undefined as empty string", () => {
+test('formatDate: formats undefined as empty string', () => {
   expect(formatDate(undefined)).toBe('');
 });
 
@@ -37,7 +36,7 @@ test("formatDate: formats yesterday as 'Yesterday'", () => {
   expect(formatDate(yesterday)).toBe('Yesterday');
 });
 
-test("formatDate: formats other dates as locale string", () => {
+test('formatDate: formats other dates as locale string', () => {
   // Mocking date to avoid timezone issues in CI/CD
   vi.useFakeTimers();
   vi.setSystemTime(new Date('2024-01-20T10:00:00'));
@@ -49,18 +48,18 @@ test("formatDate: formats other dates as locale string", () => {
   vi.useRealTimers();
 });
 
-test("formatDateTime: formats date as locale string with time", () => {
+test('formatDateTime: formats date as locale string with time', () => {
   const date = new Date('2024-01-15T10:30:00');
   const result = formatDateTime(date);
   expect(result).toContain('2024');
   expect(result).toContain('10:30');
 });
 
-test("formatDateForInput: formats undefined as empty string", () => {
+test('formatDateForInput: formats undefined as empty string', () => {
   expect(formatDateForInput(undefined)).toBe('');
 });
 
-test("formatDateForInput: formats date as YYYY-MM-DD", () => {
+test('formatDateForInput: formats date as YYYY-MM-DD', () => {
   const date = new Date('2024-01-15');
   expect(formatDateForInput(date)).toBe('2024-01-15');
 });
@@ -69,7 +68,7 @@ test("formatDetailedDate: formats undefined as 'No due date'", () => {
   expect(formatDetailedDate(undefined)).toBe('No due date');
 });
 
-test("formatDetailedDate: formats date with full details", () => {
+test('formatDetailedDate: formats date with full details', () => {
   const date = new Date('2024-01-15');
   const result = formatDetailedDate(date);
   expect(result).toContain('Monday');
@@ -78,11 +77,11 @@ test("formatDetailedDate: formats date with full details", () => {
   expect(result).toContain('2024');
 });
 
-test("getDueDateClass: returns empty string for undefined date", () => {
+test('getDueDateClass: returns empty string for undefined date', () => {
   expect(getDueDateClass(undefined)).toBe('');
 });
 
-test("getDueDateClass: returns overdue class for past dates", () => {
+test('getDueDateClass: returns overdue class for past dates', () => {
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
   expect(getDueDateClass(pastDate, 'not_started')).toBe('text-red-600 font-semibold');
@@ -94,13 +93,13 @@ test("getDueDateClass: returns today class for today's date", () => {
   expect(getDueDateClass(today)).toBe('text-orange-300 font-medium');
 });
 
-test("getDueDateClass: returns normal class for future dates", () => {
+test('getDueDateClass: returns normal class for future dates', () => {
   const futureDate = new Date();
   futureDate.setDate(futureDate.getDate() + 1);
   expect(getDueDateClass(futureDate)).toBe('text-muted-foreground');
 });
 
-test("getDueDateClass: returns normal class for completed overdue tasks", () => {
+test('getDueDateClass: returns normal class for completed overdue tasks', () => {
   const pastDate = new Date();
   pastDate.setDate(pastDate.getDate() - 1);
   expect(getDueDateClass(pastDate, 'completed')).toBe('text-muted-foreground');
@@ -174,11 +173,12 @@ describe('Internal datetime utility functions', () => {
     test('should format a multi-day range with time', () => {
       const start = new Date('2025-07-26T10:00:00');
       const end = new Date('2025-07-28T18:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 10:00 〜 2025年7月28日(月) 18:00');
+      expect(formatDateDisplayRange(start, end)).toBe(
+        '2025年7月26日(土) 10:00 〜 2025年7月28日(月) 18:00'
+      );
     });
   });
 });
-
 
 describe('formatDateTimeRange', () => {
   const baseDate = new Date('2025-07-26T00:00:00'); // A Saturday
@@ -237,8 +237,6 @@ describe('formatDateTimeRange', () => {
     expect(result).toBe('2025年7月26日(土) 〜 18:00');
   });
 });
-
-
 
 describe('date-time utils', () => {
   describe('formatDate', () => {
@@ -379,7 +377,6 @@ describe('date-time utils', () => {
     });
   });
 });
-
 
 test('formatDateForInput should handle different timezones correctly', () => {
   // A date that might shift if not handled as local

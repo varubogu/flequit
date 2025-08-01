@@ -23,13 +23,7 @@
     onSwitchAccount?: () => void;
   }
 
-  let {
-    user = null,
-    onLogin,
-    onLogout,
-    onSettings,
-    onSwitchAccount
-  }: Props = $props();
+  let { user = null, onLogin, onLogout, onSettings, onSwitchAccount }: Props = $props();
 
   const translationService = getTranslationService();
   // Get sidebar state
@@ -48,7 +42,7 @@
   function getInitials(name: string): string {
     return name
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -81,7 +75,12 @@
 
   // Close menu when clicking outside
   function handleClickOutside(event: MouseEvent) {
-    if (showMenu && event.target && (event.target as Element).closest && !(event.target as Element).closest('.user-profile-container')) {
+    if (
+      showMenu &&
+      event.target &&
+      (event.target as Element).closest &&
+      !(event.target as Element).closest('.user-profile-container')
+    ) {
       showMenu = false;
     }
   }
@@ -102,72 +101,86 @@
 <div class="user-profile-container relative">
   <Button
     variant="ghost"
-    class={sidebar.state === 'collapsed' 
-      ? "w-full h-auto p-2 flex items-center justify-center hover:bg-muted"
-      : "w-full h-auto p-3 flex items-center gap-3 justify-between hover:bg-muted"}
+    class={sidebar.state === 'collapsed'
+      ? 'hover:bg-muted flex h-auto w-full items-center justify-center p-2'
+      : 'hover:bg-muted flex h-auto w-full items-center justify-between gap-3 p-3'}
     onclick={toggleMenu}
   >
     {#if sidebar.state === 'collapsed'}
       <!-- Collapsed: Show only avatar -->
       {#if user}
-        <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+        <div
+          class="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium"
+        >
           {#if user.avatar}
-            <img src={user.avatar} alt={user.name} class="w-full h-full rounded-full object-cover" />
+            <img
+              src={user.avatar}
+              alt={user.name}
+              class="h-full w-full rounded-full object-cover"
+            />
           {:else}
             {getInitials(user.name)}
           {/if}
         </div>
       {:else}
-        <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-          <Users class="h-4 w-4 text-muted-foreground" />
+        <div class="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+          <Users class="text-muted-foreground h-4 w-4" />
         </div>
       {/if}
     {:else}
       <!-- Expanded: Show full profile -->
-      <div class="flex items-center gap-3 min-w-0">
+      <div class="flex min-w-0 items-center gap-3">
         {#if user}
           <!-- User Avatar -->
-          <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium flex-shrink-0">
+          <div
+            class="bg-primary text-primary-foreground flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium"
+          >
             {#if user.avatar}
-              <img src={user.avatar} alt={user.name} class="w-full h-full rounded-full object-cover" />
+              <img
+                src={user.avatar}
+                alt={user.name}
+                class="h-full w-full rounded-full object-cover"
+              />
             {:else}
               {getInitials(user.name)}
             {/if}
           </div>
           <!-- User Name -->
           <div class="min-w-0 flex-1 text-left">
-            <div class="text-sm font-medium truncate">{user.name}</div>
-            <div class="text-xs text-muted-foreground truncate">{user.email}</div>
+            <div class="truncate text-sm font-medium">{user.name}</div>
+            <div class="text-muted-foreground truncate text-xs">{user.email}</div>
           </div>
         {:else}
           <!-- Not logged in -->
-          <div class="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-            <Users class="h-4 w-4 text-muted-foreground" />
+          <div class="bg-muted flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+            <Users class="text-muted-foreground h-4 w-4" />
           </div>
           <div class="min-w-0 flex-1 text-left">
-            <div class="text-sm text-muted-foreground">{notSignedIn()}</div>
+            <div class="text-muted-foreground text-sm">{notSignedIn()}</div>
           </div>
         {/if}
       </div>
-      <ChevronUp class="h-4 w-4 text-muted-foreground transition-transform {showMenu ? 'rotate-180' : ''}" />
+      <ChevronUp
+        class="text-muted-foreground h-4 w-4 transition-transform {showMenu ? 'rotate-180' : ''}"
+      />
     {/if}
   </Button>
 
   {#if showMenu}
-    <Card class="absolute bottom-full left-0 right-0 mb-2 shadow-lg border z-50">
+    <Card class="absolute right-0 bottom-full left-0 z-50 mb-2 border shadow-lg">
       <div class="p-1">
         {#if user}
           <!-- User Info Section -->
-          <div class="px-3 py-2 border-b">
+          <div class="border-b px-3 py-2">
             <div class="text-sm font-medium">{user.name}</div>
-            <div class="text-xs text-muted-foreground">{user.email}</div>
+            <div class="text-muted-foreground text-xs">{user.email}</div>
           </div>
 
           <!-- Menu Items -->
           <Button
             variant="ghost"
             size="sm"
-            class="w-full justify-start gap-2 h-8 text-sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={handleSettings}
           >
             <Settings class="h-4 w-4" />
@@ -177,19 +190,19 @@
           <Button
             variant="ghost"
             size="sm"
-            class="w-full justify-start gap-2 h-8 text-sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={handleSwitchAccount}
           >
             <Users class="h-4 w-4" />
             {switchAccount()}
           </Button>
 
-          <div class="border-t my-1"></div>
+          <div class="my-1 border-t"></div>
 
           <Button
             variant="ghost"
             size="sm"
-            class="w-full justify-start gap-2 h-8 text-sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={handleLogout}
           >
             <LogOut class="h-4 w-4" />
@@ -200,7 +213,7 @@
           <Button
             variant="ghost"
             size="sm"
-            class="w-full justify-start gap-2 h-8 text-sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={handleLogin}
           >
             <LogIn class="h-4 w-4" />
@@ -210,7 +223,7 @@
           <Button
             variant="ghost"
             size="sm"
-            class="w-full justify-start gap-2 h-8 text-sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={handleSettings}
           >
             <Settings class="h-4 w-4" />
@@ -223,7 +236,4 @@
 </div>
 
 <!-- Settings Dialog -->
-<SettingsDialog
-  bind:open={showSettings}
-  onOpenChange={(open) => showSettings = open}
-/>
+<SettingsDialog bind:open={showSettings} onOpenChange={(open) => (showSettings = open)} />

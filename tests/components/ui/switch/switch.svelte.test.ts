@@ -70,7 +70,7 @@ describe('Switch Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(Switch, { 
+    const { container } = render(Switch, {
       'data-testid': 'custom-switch',
       'aria-label': 'Toggle setting'
     });
@@ -98,7 +98,7 @@ describe('Switch Component', () => {
   });
 
   test('should handle accessibility props', () => {
-    const { container } = render(Switch, { 
+    const { container } = render(Switch, {
       'aria-describedby': 'switch-description',
       'aria-labelledby': 'switch-label'
     });

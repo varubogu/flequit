@@ -44,10 +44,10 @@
       taskStore.updateNewTaskData({ title: newTaskTitle });
     }
     newTaskTitle = '';
-    
+
     // タスク詳細を表示
     TaskDetailService.openNewTaskDetail();
-    
+
     onTaskAdded?.();
   }
 
@@ -90,27 +90,13 @@
       bind:value={newTaskTitle}
       onkeydown={handleKeydown}
     />
-    <Button
-      size="icon"
-      onclick={handleEditTask}
-      title={editTask()}
-    >
+    <Button size="icon" onclick={handleEditTask} title={editTask()}>
       <Edit3 class="h-4 w-4" />
     </Button>
-    <Button
-      size="icon"
-      onclick={handleAddTask}
-      disabled={!newTaskTitle.trim()}
-      title={addTask()}
-    >
+    <Button size="icon" onclick={handleAddTask} disabled={!newTaskTitle.trim()} title={addTask()}>
       <Save class="h-4 w-4" />
     </Button>
-    <Button
-      variant="secondary"
-      size="icon"
-      onclick={handleCancel}
-      title={cancel()}
-    >
+    <Button variant="secondary" size="icon" onclick={handleCancel} title={cancel()}>
       <X class="h-4 w-4" />
     </Button>
   </div>

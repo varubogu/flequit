@@ -115,13 +115,13 @@
       type: 'project',
       id: targetProject.id
     };
-    
+
     const dragData = DragDropManager.handleDrop(event, target);
     if (!dragData) return;
 
     if (dragData.type === 'project') {
       // プロジェクト同士の並び替え
-      const targetIndex = projectsData.findIndex(p => p.id === targetProject.id);
+      const targetIndex = projectsData.findIndex((p) => p.id === targetProject.id);
       taskStore.moveProjectToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'tasklist') {
       // タスクリストをプロジェクトにドロップ（最後尾に配置）
@@ -176,13 +176,13 @@
 
 {#each projectsData as project (project.id)}
   <div class="w-full">
-    <div class="flex items-start w-full">
+    <div class="flex w-full items-start">
       {#if !isCollapsed}
         {#if project.task_lists.length > 0}
           <Button
             variant="ghost"
             size="icon"
-            class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1 active:scale-100 active:brightness-[0.4] transition-all duration-100"
+            class="text-muted-foreground hover:text-foreground mt-1 h-8 min-h-[32px] w-8 min-w-[32px] transition-all duration-100 active:scale-100 active:brightness-[0.4]"
             onclick={() => toggleProjectExpansion(project.id)}
             title={toggleTaskLists()}
             data-testid="toggle-project-{project.id}"
@@ -194,17 +194,20 @@
             {/if}
           </Button>
         {:else}
-          <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+          <div class="mt-1 h-8 min-h-[32px] w-8 min-w-[32px]"></div>
         {/if}
       {/if}
 
       <div class="flex-1">
         <ContextMenuWrapper items={createProjectContextMenu(project)}>
           <Button
-            variant={(currentView === 'project' || currentView === 'tasklist') && taskStore.selectedProjectId === project.id ? 'secondary' : 'ghost'}
-            class={isCollapsed 
-              ? "flex items-center justify-center w-full h-auto py-2 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"
-              : "flex items-center justify-between w-full h-auto py-3 pr-3 pl-1 text-sm active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+            variant={(currentView === 'project' || currentView === 'tasklist') &&
+            taskStore.selectedProjectId === project.id
+              ? 'secondary'
+              : 'ghost'}
+            class={isCollapsed
+              ? 'flex h-auto w-full items-center justify-center py-2 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'
+              : 'flex h-auto w-full items-center justify-between py-3 pr-3 pl-1 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'}
             onclick={() => handleProjectSelect(project)}
             data-testid="project-{project.id}"
             draggable="true"
@@ -212,12 +215,16 @@
             ondragover={(event) => handleProjectDragOver(event, project)}
             ondrop={(event) => handleProjectDrop(event, project)}
             ondragend={handleProjectDragEnd}
-            ondragenter={(event) => event.currentTarget && handleProjectDragEnter(event, event.currentTarget as HTMLElement)}
-            ondragleave={(event) => event.currentTarget && handleProjectDragLeave(event, event.currentTarget as HTMLElement)}
+            ondragenter={(event) =>
+              event.currentTarget &&
+              handleProjectDragEnter(event, event.currentTarget as HTMLElement)}
+            ondragleave={(event) =>
+              event.currentTarget &&
+              handleProjectDragLeave(event, event.currentTarget as HTMLElement)}
           >
-            <div class="flex items-center gap-2 min-w-0">
+            <div class="flex min-w-0 items-center gap-2">
               <div
-                class="w-3 h-3 rounded-full flex-shrink-0"
+                class="h-3 w-3 flex-shrink-0 rounded-full"
                 style="background-color: {project.color || '#3b82f6'}"
               ></div>
               {#if !isCollapsed}
@@ -225,7 +232,7 @@
               {/if}
             </div>
             {#if !isCollapsed}
-              <span class="text-xs text-muted-foreground flex-shrink-0">
+              <span class="text-muted-foreground flex-shrink-0 text-xs">
                 {getProjectTaskCount(project)}
               </span>
             {/if}
@@ -235,11 +242,7 @@
     </div>
 
     {#if !isCollapsed}
-      <TaskListDisplay
-        {project}
-        isExpanded={expandedProjects.has(project.id)}
-        {onViewChange}
-      />
+      <TaskListDisplay {project} isExpanded={expandedProjects.has(project.id)} {onViewChange} />
     {/if}
   </div>
 {/each}
@@ -250,7 +253,7 @@
   initialName={editingProject?.name || ''}
   initialColor={editingProject?.color || '#3b82f6'}
   onsave={handleProjectSave}
-  onclose={() => showProjectDialog = false}
+  onclose={() => (showProjectDialog = false)}
 />
 
 <TaskListDialog
@@ -258,5 +261,5 @@
   mode="add"
   initialName=""
   onsave={handleTaskListSave}
-  onclose={() => showTaskListDialog = false}
+  onclose={() => (showTaskListDialog = false)}
 />

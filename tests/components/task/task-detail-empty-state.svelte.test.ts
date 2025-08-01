@@ -7,7 +7,9 @@ describe('TaskDetailEmptyState Component', () => {
     render(TaskDetailEmptyState);
 
     expect(screen.getByText('No task selected')).toBeInTheDocument();
-    expect(screen.getByText('Select a task or sub-task from the list to view its details')).toBeInTheDocument();
+    expect(
+      screen.getByText('Select a task or sub-task from the list to view its details')
+    ).toBeInTheDocument();
   });
 
   test('should render emoji icon', () => {

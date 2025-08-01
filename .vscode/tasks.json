@@ -1,29 +1,25 @@
 {
-    // tasks.json 形式に関するドキュメントについては
-    // https://go.microsoft.com/fwlink/?LinkId=733558 を参照してください。
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "ui:dev",
-            "type": "shell",
-            // `dev` はバックグラウンドで実行が継続します。
-            // 理想的には `problemMatcher` も設定する必要があります。
-            // https://code.visualstudio.com/docs/editor/tasks#_can-a-background-task-be-used-as-a-prelaunchtask-in-launchjson を参照してください。
-            "isBackground": true,
-            // この部分をあなたの `beforeDevCommand` に合わせて変更します：
-            "command": "yarn",
-            "args": [
-                "dev"
-            ]
-        },
-        {
-            "label": "ui:build",
-            "type": "shell",
-            // この部分をあなたの `beforeBuildCommand` に合わせて変更します：
-            "command": "yarn",
-            "args": [
-                "build"
-            ]
-        }
-    ]
+  // tasks.json 形式に関するドキュメントについては
+  // https://go.microsoft.com/fwlink/?LinkId=733558 を参照してください。
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "ui:dev",
+      "type": "shell",
+      // `dev` はバックグラウンドで実行が継続します。
+      // 理想的には `problemMatcher` も設定する必要があります。
+      // https://code.visualstudio.com/docs/editor/tasks#_can-a-background-task-be-used-as-a-prelaunchtask-in-launchjson を参照してください。
+      "isBackground": true,
+      // この部分をあなたの `beforeDevCommand` に合わせて変更します：
+      "command": "yarn",
+      "args": ["dev"]
+    },
+    {
+      "label": "ui:build",
+      "type": "shell",
+      // この部分をあなたの `beforeBuildCommand` に合わせて変更します：
+      "command": "yarn",
+      "args": ["build"]
+    }
+  ]
 }

@@ -42,10 +42,9 @@
   function handleSubTaskDragEnd(event: DragEvent) {
     DragDropManager.handleDragEnd(event);
   }
-
 </script>
 
-<div class="ml-10 mt-2 space-y-2">
+<div class="mt-2 ml-10 space-y-2">
   {#each task.sub_tasks as subTask (subTask.id)}
     <div
       role="button"
@@ -57,36 +56,36 @@
       <ContextMenuWrapper items={createSubTaskContextMenu(subTask)}>
         <Button
           variant="ghost"
-          class="flex items-center gap-2 p-2 rounded border w-full justify-start h-auto bg-card text-card-foreground transition-all {taskStore.selectedSubTaskId ===
+          class="bg-card text-card-foreground flex h-auto w-full items-center justify-start gap-2 rounded border p-2 transition-all {taskStore.selectedSubTaskId ===
           subTask.id
             ? 'selected'
             : ''}"
           onclick={(e) => handleSubTaskClick(e, subTask.id)}
         >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="text-lg h-6 w-6 min-h-[24px] min-w-[24px]"
-          onclick={(e) => handleSubTaskToggle(e, subTask.id)}
-          title="Toggle subtask completion"
-        >
-          {subTask.status === 'completed' ? '✅' : '⚪'}
-        </Button>
-        <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
-          <span
-            class="text-sm font-medium truncate"
-            class:line-through={subTask.status === 'completed'}
-            class:text-muted-foreground={subTask.status === 'completed'}
+          <Button
+            variant="ghost"
+            size="icon"
+            class="h-6 min-h-[24px] w-6 min-w-[24px] text-lg"
+            onclick={(e) => handleSubTaskToggle(e, subTask.id)}
+            title="Toggle subtask completion"
           >
-            {subTask.title}
-          </span>
-          <DueDate
-            task={subTask}
-            handleDueDateClick={(e) => handleSubTaskDueDateClick(e as MouseEvent, subTask)}
-          />
-        </div>
-      </Button>
-    </ContextMenuWrapper>
+            {subTask.status === 'completed' ? '✅' : '⚪'}
+          </Button>
+          <div class="flex min-w-0 flex-1 items-center justify-between gap-2">
+            <span
+              class="truncate text-sm font-medium"
+              class:line-through={subTask.status === 'completed'}
+              class:text-muted-foreground={subTask.status === 'completed'}
+            >
+              {subTask.title}
+            </span>
+            <DueDate
+              task={subTask}
+              handleDueDateClick={(e) => handleSubTaskDueDateClick(e as MouseEvent, subTask)}
+            />
+          </div>
+        </Button>
+      </ContextMenuWrapper>
     </div>
   {/each}
 </div>

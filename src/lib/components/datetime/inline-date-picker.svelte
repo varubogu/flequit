@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Switch } from '$lib/components/ui/switch';
   import { CalendarDate } from '@internationalized/date';
-    import { formatDate1 } from "$lib/utils/datetime-utils";
-  import { formatTime1 } from "$lib/utils/datetime-utils";
+  import { formatDate1 } from '$lib/utils/datetime-utils';
+  import { formatTime1 } from '$lib/utils/datetime-utils';
   import DateTimeInputs from '$lib/components/datetime/date-time-inputs.svelte';
   import CalendarPicker from '$lib/components/datetime/calendar-picker.svelte';
   import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
@@ -16,12 +16,27 @@
     position?: { x: number; y: number };
     isRangeDate?: boolean;
     recurrenceRule?: RecurrenceRule | null;
-    onchange?: (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean; recurrenceRule?: RecurrenceRule | null }) => void;
+    onchange?: (data: {
+      date: string;
+      dateTime: string;
+      range?: { start: string; end: string };
+      isRangeDate: boolean;
+      recurrenceRule?: RecurrenceRule | null;
+    }) => void;
     onclose?: () => void;
     onclear?: () => void;
   }
 
-  let { show = false, currentDate = '', currentStartDate = '', position = { x: 0, y: 0 }, isRangeDate = false, recurrenceRule, onchange, onclose }: Props = $props();
+  let {
+    show = false,
+    currentDate = '',
+    currentStartDate = '',
+    position = { x: 0, y: 0 },
+    isRangeDate = false,
+    recurrenceRule,
+    onchange,
+    onclose
+  }: Props = $props();
 
   let pickerElement = $state<HTMLElement>();
 
@@ -45,7 +60,6 @@
   $effect(() => {
     currentRecurrenceRule = recurrenceRule || null;
   });
-
 
   $effect(() => {
     if (show && currentDate && typeof currentDate === 'string') {
@@ -103,7 +117,12 @@
     };
   });
 
-  function handleDateTimeInputChange(data: {startDate?: string, startTime?: string, endDate?: string, endTime?: string}) {
+  function handleDateTimeInputChange(data: {
+    startDate?: string;
+    startTime?: string;
+    endDate?: string;
+    endTime?: string;
+  }) {
     if (data.startDate !== undefined) startDate = data.startDate;
     if (data.startTime !== undefined) startTime = data.startTime;
     if (data.endDate !== undefined) endDate = data.endDate;
@@ -130,10 +149,13 @@
       const eventDetail = {
         date: startDate || endDate || '',
         dateTime: `${startDate || endDate || ''}T${startTime}`,
-        range: startDate && endDate ? {
-          start: `${startDate}T${startTime}`,
-          end: `${endDate}T${endTime}`
-        } : undefined,
+        range:
+          startDate && endDate
+            ? {
+                start: `${startDate}T${startTime}`,
+                end: `${endDate}T${endTime}`
+              }
+            : undefined,
         isRangeDate: true,
         recurrenceRule: currentRecurrenceRule
       };
@@ -146,7 +168,12 @@
     endDate = date.toString();
     const dateTime = `${endDate}T${endTime}`;
 
-    onchange?.({ date: endDate, dateTime, isRangeDate: false, recurrenceRule: currentRecurrenceRule });
+    onchange?.({
+      date: endDate,
+      dateTime,
+      isRangeDate: false,
+      recurrenceRule: currentRecurrenceRule
+    });
   }
 
   function handleRangeChange(start: CalendarDate, end: CalendarDate) {
@@ -181,31 +208,32 @@
       handleDateChange();
     }
   }
-
-
 </script>
 
 {#if show}
   <div
     bind:this={pickerElement}
-    class="fixed bg-popover border border-border rounded-lg shadow-lg p-3 z-50"
+    class="bg-popover border-border fixed z-50 rounded-lg border p-3 shadow-lg"
     style="left: {position.x}px; top: {position.y}px; width: fit-content; max-width: 320px;"
   >
     <!-- Range Mode and Recurrence - 2 Column Layout -->
-    <div class="grid grid-cols-2 gap-4 mb-3">
+    <div class="mb-3 grid grid-cols-2 gap-4">
       <!-- Left Column: Range Mode Switch -->
       <div class="flex items-center gap-2">
-        <span class="text-sm text-muted-foreground">範囲</span>
-        <Switch bind:checked={useRangeMode} onCheckedChange={(checked: boolean) => {
-          const eventDetail = {
-            date: endDate || '',
-            dateTime: `${endDate || ''}T${endTime}`,
-            isRangeDate: checked,
-            recurrenceRule: currentRecurrenceRule
-          };
+        <span class="text-muted-foreground text-sm">範囲</span>
+        <Switch
+          bind:checked={useRangeMode}
+          onCheckedChange={(checked: boolean) => {
+            const eventDetail = {
+              date: endDate || '',
+              dateTime: `${endDate || ''}T${endTime}`,
+              isRangeDate: checked,
+              recurrenceRule: currentRecurrenceRule
+            };
 
-          onchange?.(eventDetail);
-        }} />
+            onchange?.(eventDetail);
+          }}
+        />
       </div>
 
       <!-- Right Column: Recurrence Display -->
@@ -244,7 +272,9 @@
 <RecurrenceDialogAdvanced
   bind:open={recurrenceDialogOpen}
   recurrenceRule={currentRecurrenceRule}
-  startDateTime={useRangeMode && startDate && startTime ? new Date(`${startDate}T${startTime}`) : undefined}
+  startDateTime={useRangeMode && startDate && startTime
+    ? new Date(`${startDate}T${startTime}`)
+    : undefined}
   endDateTime={endDate && endTime ? new Date(`${endDate}T${endTime}`) : undefined}
   isRangeDate={useRangeMode}
   onSave={handleRecurrenceSave}

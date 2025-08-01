@@ -24,9 +24,9 @@
   });
 </script>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
   <div>
-    <label for="datetime-format" class="text-sm font-medium mb-2 block">{dateFormatLabel()}</label>
+    <label for="datetime-format" class="mb-2 block text-sm font-medium">{dateFormatLabel()}</label>
     <Input
       id="datetime-format"
       value={currentFormat}
@@ -34,9 +34,9 @@
       placeholder="yyyy年MM月dd日 HH:mm:ss"
     />
   </div>
-  
+
   <div class="flex items-center gap-2 text-sm">
     <span class="font-medium">{preview()}:</span>
-    <span class="px-2 py-1 bg-muted rounded">{dateTimeFormatPreview}</span>
+    <span class="bg-muted rounded px-2 py-1">{dateTimeFormatPreview}</span>
   </div>
 </div>

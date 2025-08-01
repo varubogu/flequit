@@ -26,14 +26,14 @@ describe('Project Management', () => {
 
     it('プロジェクトを更新できる', () => {
       const project = taskStore.addProject({ name: '元の名前', color: '#ff0000' });
-      
+
       if (project) {
-        taskStore.updateProject(project.id, { 
-          name: '更新された名前', 
-          color: '#00ff00' 
+        taskStore.updateProject(project.id, {
+          name: '更新された名前',
+          color: '#00ff00'
         });
 
-        const updatedProject = taskStore.projects.find(p => p.id === project.id);
+        const updatedProject = taskStore.projects.find((p) => p.id === project.id);
         expect(updatedProject?.name).toBe('更新された名前');
         expect(updatedProject?.color).toBe('#00ff00');
       }
@@ -41,7 +41,7 @@ describe('Project Management', () => {
 
     it('プロジェクトを削除できる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         taskStore.deleteProject(project.id);
         expect(taskStore.projects).toHaveLength(0);
@@ -52,7 +52,7 @@ describe('Project Management', () => {
   describe('タスクリスト操作', () => {
     it('タスクリストを追加できる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         const taskList = taskStore.addTaskList(project.id, {
           name: 'テストタスクリスト',
@@ -61,25 +61,25 @@ describe('Project Management', () => {
 
         expect(taskList).toBeTruthy();
         expect(taskList?.name).toBe('テストタスクリスト');
-        
+
         // プロジェクトを再取得してリアクティブ更新を確認
-        const updatedProject = taskStore.projects.find(p => p.id === project.id);
+        const updatedProject = taskStore.projects.find((p) => p.id === project.id);
         expect(updatedProject?.task_lists).toHaveLength(1);
       }
     });
 
     it('タスクリストを更新できる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         const taskList = taskStore.addTaskList(project.id, { name: '元の名前' });
-        
+
         if (taskList) {
           taskStore.updateTaskList(taskList.id, { name: '更新された名前' });
 
           // プロジェクトを再取得してリアクティブ更新を確認
-          const updatedProject = taskStore.projects.find(p => p.id === project.id);
-          const updatedTaskList = updatedProject?.task_lists.find(tl => tl.id === taskList.id);
+          const updatedProject = taskStore.projects.find((p) => p.id === project.id);
+          const updatedTaskList = updatedProject?.task_lists.find((tl) => tl.id === taskList.id);
           expect(updatedTaskList?.name).toBe('更新された名前');
         }
       }
@@ -87,15 +87,15 @@ describe('Project Management', () => {
 
     it('タスクリストを削除できる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         const taskList = taskStore.addTaskList(project.id, { name: 'テストタスクリスト' });
-        
+
         if (taskList) {
           taskStore.deleteTaskList(taskList.id);
-          
+
           // プロジェクトを再取得してリアクティブ更新を確認
-          const updatedProject = taskStore.projects.find(p => p.id === project.id);
+          const updatedProject = taskStore.projects.find((p) => p.id === project.id);
           expect(updatedProject?.task_lists).toHaveLength(0);
         }
       }
@@ -105,7 +105,7 @@ describe('Project Management', () => {
   describe('選択状態の管理', () => {
     it('削除されたプロジェクトが選択されている場合、選択状態がクリアされる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         taskStore.selectProject(project.id);
         expect(taskStore.selectedProjectId).toBe(project.id);
@@ -117,10 +117,10 @@ describe('Project Management', () => {
 
     it('削除されたタスクリストが選択されている場合、選択状態がクリアされる', () => {
       const project = taskStore.addProject({ name: 'テストプロジェクト' });
-      
+
       if (project) {
         const taskList = taskStore.addTaskList(project.id, { name: 'テストタスクリスト' });
-        
+
         if (taskList) {
           taskStore.selectList(taskList.id);
           expect(taskStore.selectedListId).toBe(taskList.id);

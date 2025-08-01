@@ -36,7 +36,7 @@
   const addCustomDueDate = translationService.getMessage('add_custom_due_date');
 
   const availableLanguages = $derived(
-    translationService.getAvailableLocales().map(locale => ({
+    translationService.getAvailableLocales().map((locale) => ({
       value: locale,
       label: locale === 'en' ? 'English' : '日本語'
     }))
@@ -44,13 +44,13 @@
 
   // リアクティブなタイムゾーンリスト
   const availableTimezones = $derived(getAvailableTimezones());
-  
+
   // 状態変数
   let showDateFormatDialog = $state(false);
-  
+
   // プレビュー用の現在時刻
   let previewDate = new Date();
-  
+
   // 設定フォーマットプレビュー
   const settingPreview = $derived(() => {
     try {
@@ -82,7 +82,6 @@
     showDateFormatDialog = true;
   }
 
-
   $effect(() => {
     settingsStore.setTimezone(settings.timezone);
   });
@@ -91,9 +90,9 @@
 <section id="settings-basic">
   <div class="space-y-6">
     <div>
-      <h3 class="text-lg font-medium mb-4">{generalSettings()}</h3>
+      <h3 class="mb-4 text-lg font-medium">{generalSettings()}</h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
         <!-- Language -->
         <div>
           <label for="language-select" class="text-sm font-medium">{language()}</label>
@@ -115,7 +114,7 @@
           <select
             id="week-start"
             bind:value={settings.weekStart}
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="sunday">{sunday()}</option>
             <option value="monday">{monday()}</option>
@@ -128,24 +127,26 @@
           <select
             id="timezone-select"
             bind:value={settings.timezone}
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             {#each availableTimezones as tz}
               <option value={tz.value}>{tz.label}</option>
             {/each}
           </select>
-          <p class="mt-1 text-xs text-muted-foreground">
+          <p class="text-muted-foreground mt-1 text-xs">
             {currentEffectiveTimezone()}: {settingsStore.effectiveTimezone}
           </p>
         </div>
 
         <!-- Date Format -->
         <div class="xl:col-span-3">
-          <h4 class="text-lg font-medium mb-4">{dateFormat()}</h4>
-          
+          <h4 class="mb-4 text-lg font-medium">{dateFormat()}</h4>
+
           <div class="space-y-4">
             <div>
-              <label for="date-format-setting" class="text-sm font-medium mb-2 block">{dateFormat()}</label>
+              <label for="date-format-setting" class="mb-2 block text-sm font-medium"
+                >{dateFormat()}</label
+              >
               <Input
                 id="date-format-setting"
                 value={settings.dateFormat}
@@ -153,13 +154,13 @@
                 placeholder="yyyy年MM月dd日 HH:mm:ss"
               />
             </div>
-            
+
             <!-- Setting Preview -->
             <div class="flex items-center gap-2 text-sm">
               <span class="font-medium">{preview()}:</span>
-              <span class="px-2 py-1 bg-muted rounded">{settingPreview()}</span>
+              <span class="bg-muted rounded px-2 py-1">{settingPreview()}</span>
             </div>
-            
+
             <div class="flex gap-2">
               <Button variant="outline" size="sm" onclick={openDateFormatDialog}>
                 {editDateFormat()}
@@ -170,7 +171,7 @@
 
         <!-- Custom Due Days -->
         <div class="xl:col-span-3">
-          <div class="text-sm font-medium mb-3 block">{addCustomDueDateButton()}</div>
+          <div class="mb-3 block text-sm font-medium">{addCustomDueDateButton()}</div>
           <Button variant="outline" onclick={addCustomDueDay}>
             {addCustomDueDate()}
           </Button>
@@ -182,7 +183,5 @@
 
 <!-- Date Format Editor Dialog -->
 {#if showDateFormatDialog}
-  <DateFormatEditor 
-    bind:open={showDateFormatDialog}
-  />
+  <DateFormatEditor bind:open={showDateFormatDialog} />
 {/if}

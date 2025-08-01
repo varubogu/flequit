@@ -1,8 +1,13 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { X } from "lucide-svelte";
+  import { X } from 'lucide-svelte';
   import DayTargetSelector from './day-target-selector.svelte';
-  import type { WeekdayCondition, DayOfWeek, AdjustmentDirection, AdjustmentTarget } from '$lib/types/task';
+  import type {
+    WeekdayCondition,
+    DayOfWeek,
+    AdjustmentDirection,
+    AdjustmentTarget
+  } from '$lib/types/task';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { getLocale } from '$paraglide/runtime';
@@ -40,7 +45,9 @@
   }
 
   function handleTargetChange(value: DayOfWeek | AdjustmentTarget) {
-    if (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(value)) {
+    if (
+      ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(value)
+    ) {
       onUpdate({
         then_target: 'specific_weekday',
         then_weekday: value as DayOfWeek
@@ -54,19 +61,16 @@
   }
 </script>
 
-<div class="flex items-center gap-2 p-3 border border-border rounded bg-card flex-wrap">
+<div class="border-border bg-card flex flex-wrap items-center gap-2 rounded border p-3">
   {#if isJapanese}
     <!-- 日本語順：{条件}なら{方向}の{対象}にずらす -->
-    <DayTargetSelector
-      value={condition.if_weekday}
-      onchange={handleConditionChange}
-    />
+    <DayTargetSelector value={condition.if_weekday} onchange={handleConditionChange} />
     <span class="text-sm">なら</span>
 
     <select
       value={condition.then_direction}
       onchange={handleDirectionChange}
-      class="p-1 border border-border rounded bg-background text-foreground"
+      class="border-border bg-background text-foreground rounded border p-1"
     >
       {#each directionOptions as option}
         <option value={option.value}>{option.label()}</option>
@@ -75,23 +79,22 @@
     <span class="text-sm">の</span>
 
     <DayTargetSelector
-      value={condition.then_target === 'specific_weekday' && condition.then_weekday ? condition.then_weekday : condition.then_target}
+      value={condition.then_target === 'specific_weekday' && condition.then_weekday
+        ? condition.then_weekday
+        : condition.then_target}
       onchange={handleTargetChange}
     />
     <span class="text-sm">にずらす</span>
   {:else}
     <!-- 英語順：If {条件}, move to {方向} {対象} -->
     <span class="text-sm">If</span>
-    <DayTargetSelector
-      value={condition.if_weekday}
-      onchange={handleConditionChange}
-    />
+    <DayTargetSelector value={condition.if_weekday} onchange={handleConditionChange} />
     <span class="text-sm">, move to</span>
 
     <select
       value={condition.then_direction}
       onchange={handleDirectionChange}
-      class="p-1 border border-border rounded bg-background text-foreground"
+      class="border-border bg-background text-foreground rounded border p-1"
     >
       {#each directionOptions as option}
         <option value={option.value}>{option.label()}</option>
@@ -99,7 +102,9 @@
     </select>
 
     <DayTargetSelector
-      value={condition.then_target === 'specific_weekday' && condition.then_weekday ? condition.then_weekday : condition.then_target}
+      value={condition.then_target === 'specific_weekday' && condition.then_weekday
+        ? condition.then_weekday
+        : condition.then_target}
       onchange={handleTargetChange}
     />
   {/if}
@@ -107,7 +112,7 @@
   <button
     type="button"
     onclick={onRemove}
-    class="p-1 text-destructive hover:bg-destructive/10 rounded ml-auto"
+    class="text-destructive hover:bg-destructive/10 ml-auto rounded p-1"
     aria-label="Remove condition"
   >
     <X class="h-4 w-4" />

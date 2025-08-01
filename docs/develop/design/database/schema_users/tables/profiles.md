@@ -6,7 +6,7 @@ Table for storing user profile information.
 
 ## structure
 
-|   Column Name   |  Data Type   | NULL |      Default      | Primary Key | Foreign Key | Unique | Check Constraint |            Description            |
+| Column Name     | Data Type    | NULL | Default           | Primary Key | Foreign Key | Unique | Check Constraint | Description                       |
 | --------------- | ------------ | ---- | ----------------- | ----------- | ----------- | ------ | ---------------- | --------------------------------- |
 | id              | INTEGER      | NO   |                   | YES         |             | YES    |                  | Unique identifier for the profile |
 | user_id         | INTEGER      | NO   |                   |             | users(id)   |        |                  | User ID (foreign key)             |
@@ -28,5 +28,3 @@ Table for storing user profile information.
 
 - The display_name does not need to be unique, but a user cannot have multiple profiles.
 - The profile picture is optional, and if not specified, a default image will be used.
-
-

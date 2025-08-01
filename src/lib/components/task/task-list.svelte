@@ -36,7 +36,7 @@
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');
-  
+
   // Get sidebar state for responsive toggle button
   const sidebar = useSidebar();
 
@@ -61,9 +61,9 @@
   const addSomeTasks = translationService.getMessage('add_some_tasks');
 </script>
 
-<div class="flex flex-col h-full" data-testid="task-list">
+<div class="flex h-full flex-col" data-testid="task-list">
   <!-- Header -->
-  <div class="p-4 border-b bg-card">
+  <div class="bg-card border-b p-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <!-- レスポンシブ折りたたみボタン（モバイル時のみ表示） -->
@@ -82,16 +82,11 @@
         <h2 class="text-xl font-semibold">{title}</h2>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-sm text-muted-foreground">
+        <span class="text-muted-foreground text-sm">
           {taskCountText}
         </span>
         {#if showAddButton}
-          <Button
-            size="icon"
-            onclick={toggleAddForm}
-            title={addTask()}
-            data-testid="add-task"
-          >
+          <Button size="icon" onclick={toggleAddForm} title={addTask()} data-testid="add-task">
             <Plus class="h-4 w-4" />
           </Button>
         {/if}
@@ -100,18 +95,15 @@
 
     <!-- Add Task Form -->
     {#if showAddForm}
-      <TaskAddForm
-        onTaskAdded={handleTaskAdded}
-        onCancel={handleCancel}
-      />
+      <TaskAddForm onTaskAdded={handleTaskAdded} onCancel={handleCancel} />
     {/if}
   </div>
 
   <!-- Task List -->
-  <div class="flex-1 overflow-auto p-4 min-w-0">
+  <div class="min-w-0 flex-1 overflow-auto p-4">
     {#if tasks.length === 0}
-      <div class="text-center text-muted-foreground py-8">
-        <div class="text-4xl mb-2">{isSearchView ? '🔍' : '📝'}</div>
+      <div class="text-muted-foreground py-8 text-center">
+        <div class="mb-2 text-4xl">{isSearchView ? '🔍' : '📝'}</div>
         <p class="text-lg">{isSearchView ? noSearchResults() : noTasksFound()}</p>
         <p class="text-sm">
           {#if isSearchView}
@@ -124,14 +116,15 @@
         </p>
       </div>
     {:else}
-      <div class="space-y-3 min-w-0" data-testid="task-items">
+      <div class="min-w-0 space-y-3" data-testid="task-items">
         {#each tasks as task (task.id)}
           <TaskItem
             {task}
             {onTaskClick}
             {onSubTaskClick}
             on:taskSelectionRequested={(event) => dispatch('taskSelectionRequested', event.detail)}
-            on:subTaskSelectionRequested={(event) => dispatch('subTaskSelectionRequested', event.detail)}
+            on:subTaskSelectionRequested={(event) =>
+              dispatch('subTaskSelectionRequested', event.detail)}
           />
         {/each}
       </div>

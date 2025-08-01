@@ -9,12 +9,12 @@
     class?: string;
   }
 
-  let { items, class: className = "w-48" }: Props = $props();
-  
+  let { items, class: className = 'w-48' }: Props = $props();
+
   const translationService = getTranslationService();
 
   // セパレーター以外のアイテムをカウント
-  const menuItems = $derived(items.filter(item => !('type' in item)) as ContextMenuItem[]);
+  const menuItems = $derived(items.filter((item) => !('type' in item)) as ContextMenuItem[]);
   const itemCount = $derived(menuItems.length);
 
   // キーボードイベントハンドラ
@@ -44,7 +44,7 @@
   }
 </script>
 
-<ContextMenu.Content 
+<ContextMenu.Content
   class={className}
   onOpenAutoFocus={() => {
     contextMenuStore.open(itemCount);
@@ -59,14 +59,16 @@
       <ContextMenu.Separator />
     {:else}
       {@const menuItem = item as ContextMenuItem}
-      {@const menuItemIndex = items.slice(0, index).filter(i => !('type' in i)).length}
+      {@const menuItemIndex = items.slice(0, index).filter((i) => !('type' in i)).length}
       {@const isSelected = contextMenuStore.selectedIndex === menuItemIndex}
-      <ContextMenu.Item 
+      <ContextMenu.Item
         onSelect={() => {
           menuItem.action();
         }}
         disabled={typeof menuItem.disabled === 'function' ? menuItem.disabled() : menuItem.disabled}
-        class={menuItem.destructive ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : ""}
+        class={menuItem.destructive
+          ? 'text-destructive focus:bg-destructive/10 focus:text-destructive'
+          : ''}
         data-selected={isSelected}
         onmouseenter={() => {
           if (contextMenuStore.isOpen) {
@@ -76,11 +78,11 @@
       >
         {#if menuItem.icon}
           {@const IconComponent = menuItem.icon}
-          <IconComponent class="h-4 w-4 mr-2" />
+          <IconComponent class="mr-2 h-4 w-4" />
         {/if}
         <span>{typeof menuItem.label === 'function' ? menuItem.label() : menuItem.label}</span>
         {#if menuItem.keyboardShortcut}
-          <span class="ml-auto text-xs text-muted-foreground">{menuItem.keyboardShortcut}</span>
+          <span class="text-muted-foreground ml-auto text-xs">{menuItem.keyboardShortcut}</span>
         {/if}
       </ContextMenu.Item>
     {/if}

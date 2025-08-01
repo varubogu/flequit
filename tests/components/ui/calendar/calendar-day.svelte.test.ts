@@ -44,7 +44,7 @@ describe('CalendarDay Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(CalendarDay, { 
+    const { container } = render(CalendarDay, {
       'data-testid': 'calendar-day'
     });
     expect(container).toBeInTheDocument();

@@ -20,7 +20,7 @@
   const translationService = getTranslationService();
   const projects = translationService.getMessage('projects');
   const noProjectsYet = translationService.getMessage('no_projects_yet');
-  
+
   // Get sidebar state
   const sidebar = useSidebar();
 
@@ -53,14 +53,14 @@
 
 <div>
   {#if sidebar.state !== 'collapsed'}
-    <div class="flex items-center justify-between mb-2">
-      <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+    <div class="mb-2 flex items-center justify-between">
+      <h3 class="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
         {projects()}
       </h3>
       <Button
         variant="ghost"
         size="icon"
-        class="h-6 w-6 text-muted-foreground hover:text-foreground"
+        class="text-muted-foreground hover:text-foreground h-6 w-6"
         onclick={() => openProjectDialog('add')}
         title="プロジェクトを追加"
       >
@@ -68,11 +68,11 @@
       </Button>
     </div>
   {:else}
-    <div class="flex justify-center mb-2">
+    <div class="mb-2 flex justify-center">
       <Button
         variant="ghost"
         size="icon"
-        class="h-8 w-8 text-muted-foreground hover:text-foreground"
+        class="text-muted-foreground hover:text-foreground h-8 w-8"
         onclick={() => openProjectDialog('add')}
         title="プロジェクトを追加"
       >
@@ -83,7 +83,7 @@
 
   {#if projectsData.length === 0}
     {#if sidebar.state !== 'collapsed'}
-      <div class="text-sm text-muted-foreground px-3 py-2">
+      <div class="text-muted-foreground px-3 py-2 text-sm">
         {noProjectsYet()}
       </div>
     {/if}
@@ -98,5 +98,5 @@
   initialName={editingProject?.name || ''}
   initialColor={editingProject?.color || '#3b82f6'}
   onsave={handleProjectSave}
-  onclose={() => showProjectDialog = false}
+  onclose={() => (showProjectDialog = false)}
 />

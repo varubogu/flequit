@@ -14,7 +14,7 @@
 <Button
   variant="ghost"
   size="icon"
-  class="text-3xl hover:scale-110 transition h-12 w-12 min-h-[48px] min-w-[48px]"
+  class="h-12 min-h-[48px] w-12 min-w-[48px] text-3xl transition hover:scale-110"
   onclick={(e?: Event) => {
     e?.stopPropagation();
     ontoggle(e as MouseEvent);

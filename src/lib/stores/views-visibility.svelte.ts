@@ -75,16 +75,16 @@ class ViewsVisibilityStore {
 
   get visibleViews(): ViewItem[] {
     return this._configuration.viewItems
-      .filter(item => item.visible)
+      .filter((item) => item.visible)
       .sort((a, b) => a.order - b.order)
-      .map(item => ({ ...item, label: getViewLabel(item.id) }));
+      .map((item) => ({ ...item, label: getViewLabel(item.id) }));
   }
 
   get hiddenViews(): ViewItem[] {
     return this._configuration.viewItems
-      .filter(item => !item.visible)
+      .filter((item) => !item.visible)
       .sort((a, b) => a.order - b.order)
-      .map(item => ({ ...item, label: getViewLabel(item.id) }));
+      .map((item) => ({ ...item, label: getViewLabel(item.id) }));
   }
 
   setLists(visible: ViewItem[], hidden: ViewItem[]) {
@@ -92,15 +92,17 @@ class ViewsVisibilityStore {
       ...visible.map((item, index) => ({ ...item, visible: true, order: index })),
       ...hidden.map((item, index) => ({ ...item, visible: false, order: visible.length + index }))
     ];
-    const itemMap = new Map(allItemsFromUI.map(i => [i.id, i]));
+    const itemMap = new Map(allItemsFromUI.map((i) => [i.id, i]));
 
-    const newViewItems = this._configuration.viewItems.map(originalItem => {
-      const updatedItem = itemMap.get(originalItem.id);
-      if (updatedItem) {
-        return { ...originalItem, visible: updatedItem.visible, order: updatedItem.order };
-      }
-      return originalItem;
-    }).sort((a, b) => a.order - b.order);
+    const newViewItems = this._configuration.viewItems
+      .map((originalItem) => {
+        const updatedItem = itemMap.get(originalItem.id);
+        if (updatedItem) {
+          return { ...originalItem, visible: updatedItem.visible, order: updatedItem.order };
+        }
+        return originalItem;
+      })
+      .sort((a, b) => a.order - b.order);
 
     this._configuration.viewItems = newViewItems;
     this.saveConfiguration();
@@ -113,11 +115,13 @@ class ViewsVisibilityStore {
         if (stored) {
           const parsedConfig = JSON.parse(stored);
           // Merge with defaults to handle new view items
-          const existingIds = new Set(parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []);
+          const existingIds = new Set(
+            parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+          );
           const mergedItems = [
             ...(parsedConfig.viewItems || []),
-            ...DEFAULT_VIEW_ITEMS.filter(item => !existingIds.has(item.id))
-          ].map((item, index) => ({...item, order: item.order ?? index})); // Ensure order exists
+            ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
+          ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
 
           this._configuration = { viewItems: mergedItems };
         } else {

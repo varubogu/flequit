@@ -34,15 +34,15 @@
 <section id="settings-appearance">
   <div class="space-y-6">
     <div>
-      <h3 class="text-lg font-medium mb-4">{appearanceSettings()}</h3>
+      <h3 class="mb-4 text-lg font-medium">{appearanceSettings()}</h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         <!-- Theme -->
         <div>
           <label for="theme-select" class="text-sm font-medium">{theme()}</label>
           <select
             id="theme-select"
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
             value={userPrefersMode.current}
             onchange={(e) => setMode(e.currentTarget.value as any)}
           >
@@ -55,10 +55,10 @@
         <!-- Font -->
         <div>
           <label for="font-select" class="text-sm font-medium">{font()}</label>
-          <select 
-            id="font-select" 
-            bind:value={settings.font} 
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+          <select
+            id="font-select"
+            bind:value={settings.font}
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
             <option value="system">{systemFont()}</option>
@@ -83,10 +83,10 @@
         <!-- Font Color -->
         <div>
           <label for="font-color" class="text-sm font-medium">{fontColor()}</label>
-          <select 
-            id="font-color" 
-            bind:value={settings.fontColor} 
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+          <select
+            id="font-color"
+            bind:value={settings.fontColor}
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
             <option value="black">Black</option>
@@ -97,10 +97,10 @@
         <!-- Background Color -->
         <div>
           <label for="background-color" class="text-sm font-medium">{backgroundColor()}</label>
-          <select 
-            id="background-color" 
-            bind:value={settings.backgroundColor} 
-            class="mt-1 block w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm"
+          <select
+            id="background-color"
+            bind:value={settings.backgroundColor}
+            class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
             <option value="white">White</option>

@@ -50,7 +50,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       dateConditions: []
     };
-    
+
     expect(props.dateConditions).toHaveLength(0);
     expect(props.weekdayConditions).toHaveLength(1);
   });
@@ -60,7 +60,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       weekdayConditions: []
     };
-    
+
     expect(props.dateConditions).toHaveLength(1);
     expect(props.weekdayConditions).toHaveLength(0);
   });
@@ -79,7 +79,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       dateConditions: multipleConditions
     };
-    
+
     expect(props.dateConditions).toHaveLength(2);
     expect(props.dateConditions[0].id).toBe('date-1');
     expect(props.dateConditions[1].id).toBe('date-2');
@@ -101,7 +101,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       weekdayConditions: multipleConditions
     };
-    
+
     expect(props.weekdayConditions).toHaveLength(2);
     expect(props.weekdayConditions[0].id).toBe('weekday-1');
     expect(props.weekdayConditions[1].id).toBe('weekday-2');
@@ -109,14 +109,14 @@ describe('RecurrenceAdjustmentEditor', () => {
 
   it('DateConditionの異なるrelationが処理される', () => {
     const relations = ['before', 'on_or_before', 'on_or_after', 'after'] as const;
-    
-    relations.forEach(relation => {
+
+    relations.forEach((relation) => {
       const condition: DateCondition = {
         id: `date-${relation}`,
         relation,
         reference_date: new Date('2024-01-15')
       };
-      
+
       expect(condition.relation).toBe(relation);
       expect(condition.reference_date).toBeInstanceOf(Date);
     });
@@ -128,13 +128,13 @@ describe('RecurrenceAdjustmentEditor', () => {
       { if_weekday: 'tuesday', then_direction: 'previous', then_target: 'weekend' },
       { if_weekday: 'wednesday', then_direction: 'next', then_target: 'holiday' }
     ] as const;
-    
+
     conditions.forEach((conditionData, index) => {
       const condition: WeekdayCondition = {
         id: `weekday-${index}`,
         ...conditionData
       };
-      
+
       expect(condition.if_weekday).toBe(conditionData.if_weekday);
       expect(condition.then_direction).toBe(conditionData.then_direction);
       expect(condition.then_target).toBe(conditionData.then_target);
@@ -155,7 +155,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       ...callbacks
     };
-    
+
     Object.entries(callbacks).forEach(([key, callback]) => {
       expect(props[key as keyof typeof callbacks]).toBe(callback);
       expect(props[key as keyof typeof callbacks]).toBeInstanceOf(Function);
@@ -173,8 +173,8 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       dateConditions: conditions
     };
-    
-    const ids = props.dateConditions.map(c => c.id);
+
+    const ids = props.dateConditions.map((c) => c.id);
     const uniqueIds = new Set(ids);
     expect(uniqueIds.size).toBe(conditions.length);
   });
@@ -190,15 +190,15 @@ describe('RecurrenceAdjustmentEditor', () => {
       ...defaultProps,
       weekdayConditions: conditions
     };
-    
-    const ids = props.weekdayConditions.map(c => c.id);
+
+    const ids = props.weekdayConditions.map((c) => c.id);
     const uniqueIds = new Set(ids);
     expect(uniqueIds.size).toBe(conditions.length);
   });
 
   it('コールバック関数が正しく呼び出される', () => {
     const props = defaultProps;
-    
+
     // 各コールバックが呼び出し可能であることを確認
     expect(() => props.onDateConditionAdd()).not.toThrow();
     expect(() => props.onDateConditionRemove('test-id')).not.toThrow();
@@ -214,7 +214,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       dateConditions: [],
       weekdayConditions: []
     };
-    
+
     expect(props.dateConditions).toEqual([]);
     expect(props.weekdayConditions).toEqual([]);
     expect(props.onDateConditionAdd).toBeInstanceOf(Function);

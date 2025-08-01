@@ -6,37 +6,37 @@ import globals from 'globals';
 
 /** @type {import('typescript-eslint').Config} */
 export default tseslint.config(
-	eslint.configs.recommended,
-	...tseslint.configs.recommended,
-	...sveltePlugin.configs['flat/recommended'],
-	prettierConfig,
-	{
-		languageOptions: {
-			globals: {
-				...globals.browser,
-				...globals.node
-			}
-		}
-	},
-	{
-		files: ['**/*.svelte'],
-		languageOptions: {
-			parserOptions: {
-				parser: tseslint.parser
-			}
-		}
-	},
-	{
-		ignores: [
-			'build/',
-			'.svelte-kit/',
-			'dist/',
-			'src/paraglide/',
-			'node_modules/',
-			'playwright-report/',
-			'test-results/',
-			'package-lock.json',
-			'bun.lockb'
-		]
-	}
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...sveltePlugin.configs['flat/recommended'],
+  prettierConfig,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
+    }
+  },
+  {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser
+      }
+    }
+  },
+  {
+    ignores: [
+      'build/',
+      '.svelte-kit/',
+      'dist/',
+      'src/paraglide/',
+      'node_modules/',
+      'playwright-report/',
+      'test-results/',
+      'package-lock.json',
+      'bun.lockb'
+    ]
+  }
 );

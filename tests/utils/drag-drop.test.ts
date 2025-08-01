@@ -25,7 +25,10 @@ describe('DragDropManager', () => {
       DragDropManager.startDrag(mockEvent, dragData);
 
       expect(mockEvent.dataTransfer!.effectAllowed).toBe('move');
-      expect(mockEvent.dataTransfer!.setData).toHaveBeenCalledWith('text/plain', JSON.stringify(dragData));
+      expect(mockEvent.dataTransfer!.setData).toHaveBeenCalledWith(
+        'text/plain',
+        JSON.stringify(dragData)
+      );
       expect(DragDropManager.getDragData()).toEqual(dragData);
     });
 

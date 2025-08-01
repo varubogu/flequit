@@ -42,10 +42,10 @@ describe('ContextMenuItems', () => {
     contextMenuStore.open(3);
     expect(contextMenuStore.isOpen).toBe(true);
     expect(contextMenuStore.itemCount).toBe(3);
-    
+
     contextMenuStore.selectNext();
     expect(contextMenuStore.selectedIndex).toBe(0);
-    
+
     contextMenuStore.close();
     expect(contextMenuStore.isOpen).toBe(false);
   });
@@ -69,10 +69,8 @@ describe('ContextMenuItems', () => {
   });
 
   it('破壊的アクションのフラグが正しく設定される', () => {
-    const destructiveItem = testItems.find(item => 
-      'destructive' in item && item.destructive
-    );
-    
+    const destructiveItem = testItems.find((item) => 'destructive' in item && item.destructive);
+
     expect(destructiveItem).toBeDefined();
     expect(destructiveItem).toMatchObject({
       id: 'item3',
@@ -81,10 +79,8 @@ describe('ContextMenuItems', () => {
   });
 
   it('セパレーターアイテムが正しく識別される', () => {
-    const separatorItem = testItems.find(item => 
-      'type' in item && item.type === 'separator'
-    );
-    
+    const separatorItem = testItems.find((item) => 'type' in item && item.type === 'separator');
+
     expect(separatorItem).toEqual({ type: 'separator' });
   });
 

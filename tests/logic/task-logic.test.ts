@@ -1,4 +1,4 @@
-import { test, expect } from "vitest";
+import { test, expect } from 'vitest';
 
 // ビジネスロジックのテスト（コンポーネントに依存しない）
 
@@ -20,7 +20,7 @@ function getNextTaskStatus(currentStatus: string): string {
   }
 }
 
-test("task status transition logic", () => {
+test('task status transition logic', () => {
   expect(getNextTaskStatus('not_started')).toBe('completed');
   expect(getNextTaskStatus('completed')).toBe('not_started');
   expect(getNextTaskStatus('in_progress')).toBe('completed');
@@ -29,15 +29,15 @@ test("task status transition logic", () => {
 });
 
 // サブタスク完了率計算
-function calculateCompletionRate(subTasks: Array<{status: string}>): number {
+function calculateCompletionRate(subTasks: Array<{ status: string }>): number {
   if (subTasks.length === 0) return 0;
-  const completed = subTasks.filter(st => st.status === 'completed').length;
+  const completed = subTasks.filter((st) => st.status === 'completed').length;
   return Math.round((completed / subTasks.length) * 100);
 }
 
-test("subtask completion rate calculation", () => {
+test('subtask completion rate calculation', () => {
   expect(calculateCompletionRate([])).toBe(0);
-  
+
   const subTasks = [
     { status: 'completed' },
     { status: 'completed' },
@@ -45,27 +45,27 @@ test("subtask completion rate calculation", () => {
     { status: 'not_started' }
   ];
   expect(calculateCompletionRate(subTasks)).toBe(50);
-  
-  const allCompleted = [
-    { status: 'completed' },
-    { status: 'completed' }
-  ];
+
+  const allCompleted = [{ status: 'completed' }, { status: 'completed' }];
   expect(calculateCompletionRate(allCompleted)).toBe(100);
 });
 
 // タスクフィルタリングロジック
-function filterTasksByStatus(tasks: Array<{status: string}>, status: string): Array<{status: string}> {
-  return tasks.filter(task => task.status === status);
+function filterTasksByStatus(
+  tasks: Array<{ status: string }>,
+  status: string
+): Array<{ status: string }> {
+  return tasks.filter((task) => task.status === status);
 }
 
-test("task filtering by status", () => {
+test('task filtering by status', () => {
   const tasks = [
     { status: 'completed' },
     { status: 'not_started' },
     { status: 'completed' },
     { status: 'in_progress' }
   ];
-  
+
   expect(filterTasksByStatus(tasks, 'completed')).toHaveLength(2);
   expect(filterTasksByStatus(tasks, 'not_started')).toHaveLength(1);
   expect(filterTasksByStatus(tasks, 'in_progress')).toHaveLength(1);
@@ -80,11 +80,11 @@ function isOverdue(dueDate: Date | undefined, currentDate: Date = new Date()): b
   return taskDay < today;
 }
 
-test("overdue task detection", () => {
+test('overdue task detection', () => {
   const today = new Date('2024-01-15');
   const yesterday = new Date('2024-01-14');
   const tomorrow = new Date('2024-01-16');
-  
+
   expect(isOverdue(yesterday, today)).toBe(true);
   expect(isOverdue(today, today)).toBe(false);
   expect(isOverdue(tomorrow, today)).toBe(false);

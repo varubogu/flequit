@@ -15,7 +15,7 @@
 </script>
 
 <ModeWatcher />
-<div class="min-h-screen bg-background text-foreground">
+<div class="bg-background text-foreground min-h-screen">
   <slot />
 </div>
 <Toaster />

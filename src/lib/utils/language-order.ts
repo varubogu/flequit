@@ -21,7 +21,10 @@ export class LanguageOrderUtils {
     condition: string,
     direction: string,
     target: string
-  ): { template: string; parts: Array<{ type: 'text' | 'select'; content: string; key?: string }> } {
+  ): {
+    template: string;
+    parts: Array<{ type: 'text' | 'select'; content: string; key?: string }>;
+  } {
     return {
       template: '{condition}なら{direction}の{target}にずらす',
       parts: [
@@ -42,7 +45,10 @@ export class LanguageOrderUtils {
     condition: string,
     direction: string,
     target: string
-  ): { template: string; parts: Array<{ type: 'text' | 'select'; content: string; key?: string }> } {
+  ): {
+    template: string;
+    parts: Array<{ type: 'text' | 'select'; content: string; key?: string }>;
+  } {
     return {
       template: 'If {condition}, move to {direction} {target}',
       parts: [
@@ -65,7 +71,7 @@ export class LanguageOrderUtils {
     language?: string
   ) {
     const order = this.getWeekdayConditionOrder(language);
-    return order === 'ja' 
+    return order === 'ja'
       ? this.formatWeekdayConditionJa(condition, direction, target)
       : this.formatWeekdayConditionEn(condition, direction, target);
   }

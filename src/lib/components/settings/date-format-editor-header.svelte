@@ -13,7 +13,7 @@
   const close = translationService.getMessage('close');
 </script>
 
-<div class="flex items-center justify-between mb-6">
+<div class="mb-6 flex items-center justify-between">
   <h2 class="text-xl font-semibold">{dateFormatEditor()}</h2>
   <Button variant="ghost" size="sm" onclick={onClose}>
     {close()}

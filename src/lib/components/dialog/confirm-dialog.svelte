@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Dialog from "$lib/components/ui/dialog.svelte";
-  import DialogContent from "$lib/components/ui/dialog-content.svelte";
-  import DialogHeader from "$lib/components/ui/dialog-header.svelte";
-  import DialogTitle from "$lib/components/ui/dialog-title.svelte";
-  import DialogDescription from "$lib/components/ui/dialog-description.svelte";
-  import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
-  import Button from "$lib/components/shared/button.svelte";
+  import Dialog from '$lib/components/ui/dialog.svelte';
+  import DialogContent from '$lib/components/ui/dialog-content.svelte';
+  import DialogHeader from '$lib/components/ui/dialog-header.svelte';
+  import DialogTitle from '$lib/components/ui/dialog-title.svelte';
+  import DialogDescription from '$lib/components/ui/dialog-description.svelte';
+  import DialogFooter from '$lib/components/ui/dialog-footer.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { Check, X } from 'lucide-svelte';
 
   interface Props {

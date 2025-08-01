@@ -49,7 +49,10 @@
     const preset = selectedPreset();
     return editMode === 'manual' && preset?.group === 'カスタムフォーマット';
   });
-  let saveButtonEnabled = $derived(() => (editMode === 'new' || editMode === 'edit') && !!testFormatName.trim() && !!testFormat.trim());
+  let saveButtonEnabled = $derived(
+    () =>
+      (editMode === 'new' || editMode === 'edit') && !!testFormatName.trim() && !!testFormat.trim()
+  );
   let cancelButtonEnabled = $derived(() => editMode === 'new' || editMode === 'edit');
 
   let isInitialized = $state(false);
@@ -75,7 +78,7 @@
     if (editMode !== 'manual') return;
     // When test format is manually changed, find the corresponding preset
     const target = event.target as HTMLInputElement;
-    const preset = allFormats().find(f => f.format === target.value);
+    const preset = allFormats().find((f) => f.format === target.value);
     if (preset?.group === 'カスタムフォーマット') {
       testFormatName = preset.name;
     } else {
@@ -109,12 +112,16 @@
 
   function checkDuplicates(formatToCheck: string, nameToCheck: string, excludeId?: string) {
     const formats = allFormats();
-    const filteredFormats = excludeId ? formats.filter(f => f.id !== excludeId) : formats;
-    const duplicateByFormat = filteredFormats.find(f => f.format === formatToCheck && f.group === 'カスタムフォーマット');
+    const filteredFormats = excludeId ? formats.filter((f) => f.id !== excludeId) : formats;
+    const duplicateByFormat = filteredFormats.find(
+      (f) => f.format === formatToCheck && f.group === 'カスタムフォーマット'
+    );
     if (duplicateByFormat) {
       return { isDuplicate: true, type: 'format', existingName: duplicateByFormat.name };
     }
-    const duplicateByName = filteredFormats.find(f => f.name === nameToCheck && f.group === 'カスタムフォーマット');
+    const duplicateByName = filteredFormats.find(
+      (f) => f.name === nameToCheck && f.group === 'カスタムフォーマット'
+    );
     if (duplicateByName) {
       return { isDuplicate: true, type: 'name', existingFormat: duplicateByName.format };
     }
@@ -125,16 +132,26 @@
     if (testFormatName.trim() && testFormat.trim()) {
       const trimmedName = testFormatName.trim();
       const trimmedFormat = testFormat.trim();
-      const duplicateCheck = checkDuplicates(trimmedFormat, trimmedName, editMode === 'edit' ? editingFormatId || undefined : undefined);
+      const duplicateCheck = checkDuplicates(
+        trimmedFormat,
+        trimmedName,
+        editMode === 'edit' ? editingFormatId || undefined : undefined
+      );
       if (duplicateCheck.isDuplicate) {
-        toast.error(`同じ${duplicateCheck.type === 'format' ? 'フォーマット文字列' : 'フォーマット名'}が既に存在します`, {
-          description: `「${duplicateCheck.type === 'format' ? duplicateCheck.existingName : duplicateCheck.existingFormat}」で既に使用されています`
-        });
+        toast.error(
+          `同じ${duplicateCheck.type === 'format' ? 'フォーマット文字列' : 'フォーマット名'}が既に存在します`,
+          {
+            description: `「${duplicateCheck.type === 'format' ? duplicateCheck.existingName : duplicateCheck.existingFormat}」で既に使用されています`
+          }
+        );
         return;
       }
       try {
         if (editMode === 'edit' && editingFormatId) {
-          dateTimeFormatStore.updateCustomFormat(editingFormatId, { name: trimmedName, format: trimmedFormat });
+          dateTimeFormatStore.updateCustomFormat(editingFormatId, {
+            name: trimmedName,
+            format: trimmedFormat
+          });
           editMode = 'manual';
           editingFormatId = null;
           toast.success('フォーマットを更新しました');
@@ -143,7 +160,7 @@
           toast.success('新しいフォーマットを保存しました');
           editMode = 'manual';
           // Select the newly added format
-          const newFormat = allFormats().find(f => f.id === newId);
+          const newFormat = allFormats().find((f) => f.id === newId);
           if (newFormat) {
             testFormat = newFormat.format;
             testFormatName = newFormat.name;
@@ -179,8 +196,8 @@
     // Revert to the format of the currently selected preset
     const preset = selectedPreset();
     if (preset) {
-        testFormat = preset.format;
-        testFormatName = preset.group === 'カスタムフォーマット' ? preset.name : '';
+      testFormat = preset.format;
+      testFormatName = preset.group === 'カスタムフォーマット' ? preset.name : '';
     }
   }
 
@@ -216,19 +233,25 @@
 </script>
 
 {#if open}
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-background p-6 rounded-lg border max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+      class="bg-background mx-4 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg border p-6"
+    >
       <DateFormatEditorHeader onClose={closeDialog} />
 
       <div class="space-y-6">
         <TestDatetimeSection bind:testDateTime />
-        <MainDateFormatSection bind:currentFormat bind:testDateTime onFormatChange={handleDateTimeFormatChange} />
+        <MainDateFormatSection
+          bind:currentFormat
+          bind:testDateTime
+          onFormatChange={handleDateTimeFormatChange}
+        />
         <FormatCopyButtons onCopyToTest={copyToTest} onCopyToMain={copyToMain} />
-        <TestFormatSection 
-          bind:testFormat 
-          bind:testFormatName 
-          testDateTime={testDateTime}
-          editMode={editMode}
+        <TestFormatSection
+          bind:testFormat
+          bind:testFormatName
+          {testDateTime}
+          {editMode}
           selectedPreset={selectedPreset()}
           formatNameEnabled={formatNameEnabled()}
           onTestFormatChange={handleTestFormatChange}
@@ -246,7 +269,7 @@
           cancelEnabled={cancelButtonEnabled()}
         />
       </div>
-    </div>  
+    </div>
   </div>
 {/if}
 

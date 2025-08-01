@@ -12,19 +12,19 @@
 </script>
 
 <div class="p-4">
-  <h1 class="text-xl font-bold mb-4">ProjectDialog Test Page</h1>
+  <h1 class="mb-4 text-xl font-bold">ProjectDialog Test Page</h1>
 
-  <div class="flex gap-4 mb-4">
-    <Button onclick={() => showAddDialog = true} data-testid="open-add-dialog">
+  <div class="mb-4 flex gap-4">
+    <Button onclick={() => (showAddDialog = true)} data-testid="open-add-dialog">
       Open Add Dialog
     </Button>
-    <Button onclick={() => showEditDialog = true} data-testid="open-edit-dialog">
+    <Button onclick={() => (showEditDialog = true)} data-testid="open-edit-dialog">
       Open Edit Dialog
     </Button>
   </div>
 
   {#if savedData}
-    <div data-testid="saved-data" class="p-4 border rounded-md bg-muted">
+    <div data-testid="saved-data" class="bg-muted rounded-md border p-4">
       <h2 class="font-semibold">Last Saved Data:</h2>
       <pre>{JSON.stringify(savedData, null, 2)}</pre>
     </div>
@@ -35,7 +35,7 @@
   open={showAddDialog}
   mode="add"
   onsave={handleSave}
-  onclose={() => showAddDialog = false}
+  onclose={() => (showAddDialog = false)}
 />
 
 <ProjectDialog
@@ -44,5 +44,5 @@
   initialName="Existing Project"
   initialColor="#ff0000"
   onsave={handleSave}
-  onclose={() => showEditDialog = false}
+  onclose={() => (showEditDialog = false)}
 />

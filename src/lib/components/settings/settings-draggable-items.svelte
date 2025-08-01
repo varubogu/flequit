@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
+  import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
   import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
   import { GripVertical } from 'lucide-svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -8,7 +8,7 @@
   const translationService = getTranslationService();
   let localVisibleItems = $state([...viewsVisibilityStore.visibleViews]);
   let localHiddenItems = $state([...viewsVisibilityStore.hiddenViews]);
-  
+
   // Drag preview state
   let dragState = $state({
     isDragging: false,
@@ -16,7 +16,7 @@
     dropZone: null as string | null, // 'visible' | 'hidden' | null
     insertIndex: -1
   });
-  
+
   // Reactive messages
   const visibleInSidebar = translationService.getMessage('visible_in_sidebar');
   const hiddenFromSidebar = translationService.getMessage('hidden_from_sidebar');
@@ -33,13 +33,13 @@
 
   function handleDragOver(container: string, targetElement: HTMLElement | null) {
     if (!dragState.isDragging) return;
-    
+
     dragState.dropZone = container;
-    
+
     // Calculate insert index
     if (targetElement) {
       let targetItemId = targetElement.dataset?.itemId;
-      
+
       if (!targetItemId) {
         let parent = targetElement.parentElement;
         while (parent && !targetItemId) {
@@ -47,10 +47,10 @@
           parent = parent.parentElement;
         }
       }
-      
+
       if (targetItemId) {
         const items = container === 'visible' ? localVisibleItems : localHiddenItems;
-        dragState.insertIndex = items.findIndex(i => i.id === targetItemId);
+        dragState.insertIndex = items.findIndex((i) => i.id === targetItemId);
       } else {
         dragState.insertIndex = -1;
       }
@@ -75,18 +75,18 @@
 
     // Remove from source
     if (sourceContainer === 'visible') {
-      newVisibleItems = newVisibleItems.filter(i => i.id !== draggedItem.id);
+      newVisibleItems = newVisibleItems.filter((i) => i.id !== draggedItem.id);
     } else {
-      newHiddenItems = newHiddenItems.filter(i => i.id !== draggedItem.id);
+      newHiddenItems = newHiddenItems.filter((i) => i.id !== draggedItem.id);
     }
 
     // Find target index from targetElement
     let targetIndex = -1;
-    
+
     if (targetElement) {
       // Try multiple approaches to find the target item
       let targetItemId = targetElement.dataset?.itemId;
-      
+
       // If not found directly, try parent elements
       if (!targetItemId) {
         let parent = targetElement.parentElement;
@@ -95,12 +95,12 @@
           parent = parent.parentElement;
         }
       }
-      
+
       if (targetItemId) {
         if (targetContainer === 'visible') {
-          targetIndex = newVisibleItems.findIndex(i => i.id === targetItemId);
+          targetIndex = newVisibleItems.findIndex((i) => i.id === targetItemId);
         } else {
-          targetIndex = newHiddenItems.findIndex(i => i.id === targetItemId);
+          targetIndex = newHiddenItems.findIndex((i) => i.id === targetItemId);
         }
       }
     }
@@ -112,7 +112,8 @@
       } else {
         newVisibleItems.push(draggedItem);
       }
-    } else { // targetContainer === 'hidden'
+    } else {
+      // targetContainer === 'hidden'
       if (targetIndex >= 0) {
         newHiddenItems.splice(targetIndex, 0, draggedItem);
       } else {
@@ -123,98 +124,110 @@
     // Update local state
     localVisibleItems = newVisibleItems;
     localHiddenItems = newHiddenItems;
-    
+
     // Persist changes
     viewsVisibilityStore.setLists(newVisibleItems, newHiddenItems);
-    
+
     // Reset drag state
     handleDragEnd();
   }
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
   <!-- Visible Views -->
   <div>
-    <h4 class="text-base font-medium mb-3">{visibleInSidebar()}</h4>
+    <h4 class="mb-3 text-base font-medium">{visibleInSidebar()}</h4>
     <div
-      class="border rounded-lg p-2 min-h-[200px] bg-background space-y-1 relative {dragState.isDragging && dragState.dropZone === 'visible' ? 'border-primary bg-primary/5' : ''}"
+      class="bg-background relative min-h-[200px] space-y-1 rounded-lg border p-2 {dragState.isDragging &&
+      dragState.dropZone === 'visible'
+        ? 'border-primary bg-primary/5'
+        : ''}"
       use:droppable={{
-        container: "visible",
-        callbacks: { 
+        container: 'visible',
+        callbacks: {
           onDrop: handleDrop,
-          onDragOver: (state) => handleDragOver("visible", state.targetElement)
-        },
+          onDragOver: (state) => handleDragOver('visible', state.targetElement)
+        }
       }}
     >
       {#each localVisibleItems as item, index (item.id)}
         <!-- Drop indicator -->
         {#if dragState.isDragging && dragState.dropZone === 'visible' && dragState.insertIndex === index}
-          <div class="h-0.5 bg-primary rounded-full mx-2 my-1"></div>
+          <div class="bg-primary mx-2 my-1 h-0.5 rounded-full"></div>
         {/if}
-        
-        <div 
-          use:draggable={{ 
-            container: "visible", 
+
+        <div
+          use:draggable={{
+            container: 'visible',
             dragData: item,
             callbacks: {
-              onDragStart: () => handleDragStart("visible", item),
+              onDragStart: () => handleDragStart('visible', item),
               onDragEnd: handleDragEnd
             }
-          }} 
+          }}
           data-item-id={item.id}
-          class="flex items-center p-2 rounded-md bg-card hover:bg-muted cursor-grab border {dragState.draggedItem?.id === item.id ? 'opacity-50' : ''}"
+          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {dragState
+            .draggedItem?.id === item.id
+            ? 'opacity-50'
+            : ''}"
         >
-          <GripVertical class="h-5 w-5 mr-2 text-muted-foreground" />
+          <GripVertical class="text-muted-foreground mr-2 h-5 w-5" />
           <span class="flex-1 text-sm">{item.icon} {item.label}</span>
         </div>
       {/each}
-      
+
       <!-- Drop indicator at end -->
       {#if dragState.isDragging && dragState.dropZone === 'visible' && (dragState.insertIndex === -1 || dragState.insertIndex >= localVisibleItems.length)}
-        <div class="h-0.5 bg-primary rounded-full mx-2 my-1"></div>
+        <div class="bg-primary mx-2 my-1 h-0.5 rounded-full"></div>
       {/if}
     </div>
   </div>
 
   <!-- Hidden Views -->
   <div>
-    <h4 class="text-base font-medium mb-3">{hiddenFromSidebar()}</h4>
+    <h4 class="mb-3 text-base font-medium">{hiddenFromSidebar()}</h4>
     <div
-      class="border rounded-lg p-2 min-h-[200px] bg-muted/50 space-y-1 relative {dragState.isDragging && dragState.dropZone === 'hidden' ? 'border-primary bg-primary/5' : ''}"
+      class="bg-muted/50 relative min-h-[200px] space-y-1 rounded-lg border p-2 {dragState.isDragging &&
+      dragState.dropZone === 'hidden'
+        ? 'border-primary bg-primary/5'
+        : ''}"
       use:droppable={{
-        container: "hidden",
-        callbacks: { 
+        container: 'hidden',
+        callbacks: {
           onDrop: handleDrop,
-          onDragOver: (state) => handleDragOver("hidden", state.targetElement)
-        },
+          onDragOver: (state) => handleDragOver('hidden', state.targetElement)
+        }
       }}
     >
       {#each localHiddenItems as item, index (item.id)}
         <!-- Drop indicator -->
         {#if dragState.isDragging && dragState.dropZone === 'hidden' && dragState.insertIndex === index}
-          <div class="h-0.5 bg-primary rounded-full mx-2 my-1"></div>
+          <div class="bg-primary mx-2 my-1 h-0.5 rounded-full"></div>
         {/if}
-        
-        <div 
-          use:draggable={{ 
-            container: "hidden", 
+
+        <div
+          use:draggable={{
+            container: 'hidden',
             dragData: item,
             callbacks: {
-              onDragStart: () => handleDragStart("hidden", item),
+              onDragStart: () => handleDragStart('hidden', item),
               onDragEnd: handleDragEnd
             }
-          }} 
+          }}
           data-item-id={item.id}
-          class="flex items-center p-2 rounded-md bg-card hover:bg-muted cursor-grab border {dragState.draggedItem?.id === item.id ? 'opacity-50' : ''}"
+          class="bg-card hover:bg-muted flex cursor-grab items-center rounded-md border p-2 {dragState
+            .draggedItem?.id === item.id
+            ? 'opacity-50'
+            : ''}"
         >
-          <GripVertical class="h-5 w-5 mr-2 text-muted-foreground" />
+          <GripVertical class="text-muted-foreground mr-2 h-5 w-5" />
           <span class="flex-1 text-sm">{item.icon} {item.label}</span>
         </div>
       {/each}
-      
+
       <!-- Drop indicator at end -->
       {#if dragState.isDragging && dragState.dropZone === 'hidden' && (dragState.insertIndex === -1 || dragState.insertIndex >= localHiddenItems.length)}
-        <div class="h-0.5 bg-primary rounded-full mx-2 my-1"></div>
+        <div class="bg-primary mx-2 my-1 h-0.5 rounded-full"></div>
       {/if}
     </div>
   </div>

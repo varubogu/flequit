@@ -1,72 +1,68 @@
 {
-    // IntelliSense を使用して利用可能な属性を学べます。
-    // 既存の属性の説明をホバーして表示します。
-    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node-terminal",
-            "name": "web debug",
-            "command": "bun run dev",
-            "request": "launch"
-        },
-        {
-            "type": "node-terminal",
-            "name": "web tauri debug",
-            "command": "bun run tauri dev",
-            "request": "launch"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "tauri debug",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--manifest-path=./src-tauri/Cargo.toml",
-                    "--no-default-features"
-                ]
-            },
-            // `beforeDevCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
-            "preLaunchTask": "ui:dev"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Tauri prod debug",
-            "cargo": {
-                "args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
-            },
-            // `beforeBuildCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
-            "preLaunchTask": "ui:build"
-        },
-        {
-            "type": "bun",
-            "internalConsoleOptions": "neverOpen",
-            "request": "launch",
-            "name": "Debug File",
-            "program": "${file}",
-            "cwd": "${workspaceFolder}",
-            "stopOnEntry": false,
-            "watchMode": false
-        },
-        {
-            "type": "bun",
-            "internalConsoleOptions": "neverOpen",
-            "request": "launch",
-            "name": "Run File",
-            "program": "${file}",
-            "cwd": "${workspaceFolder}",
-            "noDebug": true,
-            "watchMode": false
-        },
-        {
-            "type": "bun",
-            "internalConsoleOptions": "neverOpen",
-            "request": "attach",
-            "name": "Attach Bun",
-            "url": "ws://localhost:6499/",
-            "stopOnEntry": false
-        }
-    ]
+  // IntelliSense を使用して利用可能な属性を学べます。
+  // 既存の属性の説明をホバーして表示します。
+  // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node-terminal",
+      "name": "web debug",
+      "command": "bun run dev",
+      "request": "launch"
+    },
+    {
+      "type": "node-terminal",
+      "name": "web tauri debug",
+      "command": "bun run tauri dev",
+      "request": "launch"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "tauri debug",
+      "cargo": {
+        "args": ["build", "--manifest-path=./src-tauri/Cargo.toml", "--no-default-features"]
+      },
+      // `beforeDevCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
+      "preLaunchTask": "ui:dev"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Tauri prod debug",
+      "cargo": {
+        "args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
+      },
+      // `beforeBuildCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
+      "preLaunchTask": "ui:build"
+    },
+    {
+      "type": "bun",
+      "internalConsoleOptions": "neverOpen",
+      "request": "launch",
+      "name": "Debug File",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "watchMode": false
+    },
+    {
+      "type": "bun",
+      "internalConsoleOptions": "neverOpen",
+      "request": "launch",
+      "name": "Run File",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "noDebug": true,
+      "watchMode": false
+    },
+    {
+      "type": "bun",
+      "internalConsoleOptions": "neverOpen",
+      "request": "attach",
+      "name": "Attach Bun",
+      "url": "ws://localhost:6499/",
+      "stopOnEntry": false
+    }
+  ]
 }

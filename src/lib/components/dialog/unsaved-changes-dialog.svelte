@@ -1,11 +1,11 @@
 <script lang="ts">
-  import Dialog from "$lib/components/ui/dialog.svelte";
-  import DialogContent from "$lib/components/ui/dialog-content.svelte";
-  import DialogHeader from "$lib/components/ui/dialog-header.svelte";
-  import DialogTitle from "$lib/components/ui/dialog-title.svelte";
-  import DialogDescription from "$lib/components/ui/dialog-description.svelte";
-  import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
-  import Button from "$lib/components/shared/button.svelte";
+  import Dialog from '$lib/components/ui/dialog.svelte';
+  import DialogContent from '$lib/components/ui/dialog-content.svelte';
+  import DialogHeader from '$lib/components/ui/dialog-header.svelte';
+  import DialogTitle from '$lib/components/ui/dialog-title.svelte';
+  import DialogDescription from '$lib/components/ui/dialog-description.svelte';
+  import DialogFooter from '$lib/components/ui/dialog-footer.svelte';
+  import Button from '$lib/components/shared/button.svelte';
   import { Save, Trash2, X } from 'lucide-svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
 
@@ -16,12 +16,7 @@
     onCancel: () => void;
   }
 
-  let {
-    show,
-    onSaveAndContinue,
-    onDiscardAndContinue,
-    onCancel
-  }: Props = $props();
+  let { show, onSaveAndContinue, onDiscardAndContinue, onCancel }: Props = $props();
 
   const translationService = getTranslationService();
   const save = translationService.getMessage('save');
@@ -40,7 +35,7 @@
       </DialogDescription>
     </DialogHeader>
 
-    <DialogFooter class="flex flex-row gap-2 justify-center">
+    <DialogFooter class="flex flex-row justify-center gap-2">
       <Button size="icon" onclick={onSaveAndContinue} title={save()}>
         <Save class="h-4 w-4" />
       </Button>
@@ -52,12 +47,7 @@
       >
         <Trash2 class="h-4 w-4" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onclick={onCancel}
-        title={cancel()}
-      >
+      <Button variant="ghost" size="icon" onclick={onCancel} title={cancel()}>
         <X class="h-4 w-4" />
       </Button>
     </DialogFooter>

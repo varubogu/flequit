@@ -43,7 +43,7 @@
   }
 </script>
 
-<Card class="w-64 border-r flex flex-col h-full">
+<Card class="flex h-full w-64 flex-col border-r">
   <SidebarSearchHeader />
 
   <nav class="flex-1 p-4">

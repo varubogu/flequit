@@ -44,7 +44,7 @@ describe('CalendarGrid Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(CalendarGrid, { 
+    const { container } = render(CalendarGrid, {
       'data-testid': 'calendar-grid',
       role: 'grid'
     });

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { TaskBase } from "$lib/types/task";
-  import { getDueDateClass } from "$lib/utils/datetime-utils";
+  import type { TaskBase } from '$lib/types/task';
+  import { getDueDateClass } from '$lib/utils/datetime-utils';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -12,12 +12,7 @@
     class?: string;
   }
 
-  let {
-    task,
-    handleDueDateClick,
-    variant = 'compact',
-    class: className = ''
-  }: Props = $props();
+  let { task, handleDueDateClick, variant = 'compact', class: className = '' }: Props = $props();
 
   const translationService = getTranslationService();
   // Reactive messages
@@ -28,8 +23,11 @@
   const selectDate = translationService.getMessage('select_date');
 
   // Style classes based on variant
-  const baseClasses = 'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';
-  const colorClasses = task.end_date ? getDueDateClass(task.end_date, task.status) : 'text-muted-foreground';
+  const baseClasses =
+    'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';
+  const colorClasses = task.end_date
+    ? getDueDateClass(task.end_date, task.status)
+    : 'text-muted-foreground';
 
   function formatDateI18n(date: Date | undefined): string {
     if (!date) return '';
@@ -51,7 +49,8 @@
   }
 </script>
 
-{#if variant === 'compact'} <!-- Compact variant -->
+{#if variant === 'compact'}
+  <!-- Compact variant -->
   {#if task.end_date}
     <button
       class="{baseClasses} {colorClasses} {className}"
@@ -69,11 +68,9 @@
       + {addDateLabel()}
     </button>
   {/if}
-{:else} <!-- Full variant -->
-  <button
-    class="{baseClasses} {colorClasses} {className}"
-    onclick={handleDueDateClick}
-  >
+{:else}
+  <!-- Full variant -->
+  <button class="{baseClasses} {colorClasses} {className}" onclick={handleDueDateClick}>
     {#if task.end_date}
       {formatDateI18n(task.end_date)}
     {:else}

@@ -6,7 +6,7 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn(),
+  clear: vi.fn()
 };
 
 // Mock console.warn
@@ -19,10 +19,10 @@ Object.defineProperty(globalThis, 'localStorage', {
   configurable: true
 });
 
-// Mock window with proper configuration  
+// Mock window with proper configuration
 Object.defineProperty(globalThis, 'window', {
   value: {
-    localStorage: localStorageMock,
+    localStorage: localStorageMock
   },
   writable: true,
   configurable: true
@@ -31,7 +31,7 @@ Object.defineProperty(globalThis, 'window', {
 // Mock document for Svelte
 Object.defineProperty(globalThis, 'document', {
   value: {
-    createElement: vi.fn(),
+    createElement: vi.fn()
   },
   writable: true,
   configurable: true
@@ -66,27 +66,27 @@ describe('ViewsVisibilityStore', () => {
   describe('computed properties', () => {
     test('should return visible views sorted by order', () => {
       const visibleViews = viewsVisibilityStore.visibleViews;
-      
+
       // Filter only visible items
-      const visibleItems = visibleViews.filter(item => item.visible);
+      const visibleItems = visibleViews.filter((item) => item.visible);
       expect(visibleItems).toEqual(visibleViews); // All returned should be visible
-      
+
       // Check if sorted by order
       for (let i = 1; i < visibleViews.length; i++) {
-        expect(visibleViews[i].order).toBeGreaterThanOrEqual(visibleViews[i-1].order);
+        expect(visibleViews[i].order).toBeGreaterThanOrEqual(visibleViews[i - 1].order);
       }
     });
 
     test('should return hidden views sorted by order', () => {
       const hiddenViews = viewsVisibilityStore.hiddenViews;
-      
+
       // Filter only hidden items
-      const hiddenItems = hiddenViews.filter(item => !item.visible);
+      const hiddenItems = hiddenViews.filter((item) => !item.visible);
       expect(hiddenItems).toEqual(hiddenViews); // All returned should be hidden
-      
+
       // Check if sorted by order
       for (let i = 1; i < hiddenViews.length; i++) {
-        expect(hiddenViews[i].order).toBeGreaterThanOrEqual(hiddenViews[i-1].order);
+        expect(hiddenViews[i].order).toBeGreaterThanOrEqual(hiddenViews[i - 1].order);
       }
     });
   });
@@ -97,25 +97,25 @@ describe('ViewsVisibilityStore', () => {
         { id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 },
         { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 1 }
       ];
-      
+
       const hidden: ViewItem[] = [
         { id: 'overdue', label: 'Overdue', icon: '🚨', visible: false, order: 2 }
       ];
-      
+
       viewsVisibilityStore.setLists(visible, hidden);
-      
+
       const config = viewsVisibilityStore.configuration;
-      const todayItem = config.viewItems.find(item => item.id === 'today');
-      const allTasksItem = config.viewItems.find(item => item.id === 'allTasks');
-      const overdueItem = config.viewItems.find(item => item.id === 'overdue');
-      
+      const todayItem = config.viewItems.find((item) => item.id === 'today');
+      const allTasksItem = config.viewItems.find((item) => item.id === 'allTasks');
+      const overdueItem = config.viewItems.find((item) => item.id === 'overdue');
+
       expect(todayItem?.visible).toBe(true);
       expect(todayItem?.order).toBe(0);
       expect(allTasksItem?.visible).toBe(true);
       expect(allTasksItem?.order).toBe(1);
       expect(overdueItem?.visible).toBe(false);
       expect(overdueItem?.order).toBe(2);
-      
+
       // localStorage setItem should be called
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
@@ -124,18 +124,18 @@ describe('ViewsVisibilityStore', () => {
       const visible: ViewItem[] = [
         { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 }
       ];
-      
+
       const hidden: ViewItem[] = [];
-      
+
       const originalItems = viewsVisibilityStore.configuration.viewItems;
       const originalCount = originalItems.length;
-      
+
       viewsVisibilityStore.setLists(visible, hidden);
-      
+
       const updatedItems = viewsVisibilityStore.configuration.viewItems;
       expect(updatedItems).toHaveLength(originalCount); // Should maintain all items
-      
-      const allTasksItem = updatedItems.find(item => item.id === 'allTasks');
+
+      const allTasksItem = updatedItems.find((item) => item.id === 'allTasks');
       expect(allTasksItem?.visible).toBe(true);
     });
   });
@@ -143,13 +143,14 @@ describe('ViewsVisibilityStore', () => {
   describe('resetToDefaults', () => {
     test('should reset configuration to default values', () => {
       // First modify the configuration
-      viewsVisibilityStore.setLists([
-        { id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 }
-      ], []);
-      
+      viewsVisibilityStore.setLists(
+        [{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 }],
+        []
+      );
+
       // Then reset
       viewsVisibilityStore.resetToDefaults();
-      
+
       const config = viewsVisibilityStore.configuration;
       expect(config.viewItems).toHaveLength(8);
       expect(config.viewItems[0]).toMatchObject({
@@ -159,7 +160,7 @@ describe('ViewsVisibilityStore', () => {
         visible: true,
         order: 0
       });
-      
+
       // localStorage setItem should be called
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
@@ -170,9 +171,9 @@ describe('ViewsVisibilityStore', () => {
       const visible: ViewItem[] = [
         { id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 }
       ];
-      
+
       viewsVisibilityStore.setLists(visible, []);
-      
+
       expect(localStorageMock.setItem).toHaveBeenCalled();
     });
 
@@ -180,19 +181,22 @@ describe('ViewsVisibilityStore', () => {
       // Mock console.warn to suppress expected error messages
       const originalWarn = console.warn;
       console.warn = vi.fn();
-      
+
       localStorageMock.setItem.mockImplementationOnce(() => {
         throw new Error('Storage quota exceeded');
       });
-      
+
       // This should not throw even if localStorage fails
       expect(() => {
         viewsVisibilityStore.resetToDefaults();
       }).not.toThrow();
-      
+
       // Verify that the error was logged
-      expect(console.warn).toHaveBeenCalledWith('Failed to save views configuration:', expect.any(Error));
-      
+      expect(console.warn).toHaveBeenCalledWith(
+        'Failed to save views configuration:',
+        expect.any(Error)
+      );
+
       // Restore console.warn
       console.warn = originalWarn;
     });
@@ -204,11 +208,11 @@ describe('ViewsVisibilityStore', () => {
         value: undefined,
         configurable: true
       });
-      
+
       expect(() => {
         viewsVisibilityStore.resetToDefaults();
       }).not.toThrow();
-      
+
       // Restore window
       Object.defineProperty(globalThis, 'window', {
         value: originalWindow,
@@ -220,26 +224,35 @@ describe('ViewsVisibilityStore', () => {
   describe('default view items', () => {
     test('should include all expected default view items', () => {
       const config = viewsVisibilityStore.configuration;
-      const expectedIds = ['allTasks', 'overdue', 'today', 'tomorrow', 'completed', 'next3days', 'nextweek', 'thismonth'];
-      
-      expectedIds.forEach(id => {
-        expect(config.viewItems.some(item => item.id === id)).toBe(true);
+      const expectedIds = [
+        'allTasks',
+        'overdue',
+        'today',
+        'tomorrow',
+        'completed',
+        'next3days',
+        'nextweek',
+        'thismonth'
+      ];
+
+      expectedIds.forEach((id) => {
+        expect(config.viewItems.some((item) => item.id === id)).toBe(true);
       });
     });
 
     test('should have correct default visibility settings', () => {
       const config = viewsVisibilityStore.configuration;
-      
+
       const visibleByDefault = ['allTasks', 'overdue', 'today', 'tomorrow', 'completed'];
       const hiddenByDefault = ['next3days', 'nextweek', 'thismonth'];
-      
-      visibleByDefault.forEach(id => {
-        const item = config.viewItems.find(item => item.id === id);
+
+      visibleByDefault.forEach((id) => {
+        const item = config.viewItems.find((item) => item.id === id);
         expect(item?.visible).toBe(true);
       });
-      
-      hiddenByDefault.forEach(id => {
-        const item = config.viewItems.find(item => item.id === id);
+
+      hiddenByDefault.forEach((id) => {
+        const item = config.viewItems.find((item) => item.id === id);
         expect(item?.visible).toBe(false);
       });
     });

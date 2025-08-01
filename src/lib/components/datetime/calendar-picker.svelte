@@ -11,7 +11,7 @@
     onRangeChange?: (start: CalendarDate, end: CalendarDate) => void;
   }
 
-  let { 
+  let {
     isRangeMode = false,
     startDate = '',
     endDate = '',
@@ -21,7 +21,10 @@
 
   let startValue = $state<CalendarDate | undefined>(undefined);
   let endValue = $state<CalendarDate | undefined>(undefined);
-  let rangeValue = $state<{start: CalendarDate | undefined, end: CalendarDate | undefined}>({start: undefined, end: undefined});
+  let rangeValue = $state<{ start: CalendarDate | undefined; end: CalendarDate | undefined }>({
+    start: undefined,
+    end: undefined
+  });
   let calendarValue = $state<CalendarDate | undefined>(undefined);
   let rangePlaceholder = $state<CalendarDate | undefined>(undefined);
   let rangeInitialized = $state(false);
@@ -33,25 +36,25 @@
       const todayCalendar = new CalendarDate(today.year, today.month, today.day);
 
       rangePlaceholder = todayCalendar;
-      
+
       let startCal: CalendarDate | undefined = undefined;
       let endCal: CalendarDate | undefined = undefined;
-      
+
       if (startDate) {
         try {
           startCal = parseDate(startDate);
           startValue = startCal;
         } catch {}
       }
-      
+
       if (endDate) {
         try {
           endCal = parseDate(endDate);
           endValue = endCal;
         } catch {}
       }
-      
-      rangeValue = {start: startCal, end: endCal};
+
+      rangeValue = { start: startCal, end: endCal };
       rangeInitialized = true;
     } else if (!isRangeMode) {
       rangeInitialized = false;
@@ -105,9 +108,5 @@
   />
 {:else}
   <!-- Single Calendar -->
-  <Calendar
-    bind:value={calendarValue}
-    onValueChange={handleSingleCalendarChange}
-    class="w-full"
-  />
+  <Calendar bind:value={calendarValue} onValueChange={handleSingleCalendarChange} class="w-full" />
 {/if}

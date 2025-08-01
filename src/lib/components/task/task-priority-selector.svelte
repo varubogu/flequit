@@ -36,10 +36,16 @@
 </script>
 
 <div class="min-w-[120px] flex-1">
-  <label for="task-priority" class="block text-sm font-medium mb-2">
-    {priority()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
+  <label for="task-priority" class="mb-2 block text-sm font-medium">
+    {priority()}
+    {#if isSubTask}<span class="text-muted-foreground text-xs">{optional()}</span>{/if}
   </label>
-  <Select id="task-priority" value={formData.priority} onchange={handlePriorityChange} class="w-full">
+  <Select
+    id="task-priority"
+    value={formData.priority}
+    onchange={handlePriorityChange}
+    class="w-full"
+  >
     {#if isSubTask}
       <option value={0}>{not_set()}</option>
     {/if}

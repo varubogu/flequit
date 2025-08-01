@@ -15,7 +15,6 @@
   const infiniteRepeatPlaceholder = translationService.getMessage('infinite_repeat_placeholder');
   const infiniteRepeatDescription = translationService.getMessage('infinite_repeat_description');
 
-
   // コンポーネントの入力フィールド用の内部状態（文字列として保持）
   let inputValue = $state(value === undefined ? '' : String(value));
 
@@ -47,7 +46,10 @@
     }
 
     // Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Command+A などを許可
-    if ((event.ctrlKey || event.metaKey) && ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())) {
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      ['a', 'c', 'v', 'x'].includes(event.key.toLowerCase())
+    ) {
       return;
     }
 
@@ -69,7 +71,7 @@
       if (target.value !== sanitizedInput) {
         target.value = sanitizedInput;
       }
-      
+
       inputValue = sanitizedInput;
 
       if (sanitizedInput === '') {
@@ -93,7 +95,7 @@
 </script>
 
 <div class="flex items-center gap-4">
-  <h3 class="text-lg font-semibold w-32 flex-shrink-0">{repeatCountLabel()}</h3>
+  <h3 class="w-32 flex-shrink-0 text-lg font-semibold">{repeatCountLabel()}</h3>
   <div class="flex-1">
     <input
       type="number"
@@ -102,9 +104,9 @@
       oninput={handleInput}
       min="0"
       step="1"
-      class="w-full p-2 border border-border rounded bg-background text-foreground"
+      class="border-border bg-background text-foreground w-full rounded border p-2"
       placeholder={infiniteRepeatPlaceholder()}
     />
-    <p class="text-sm text-muted-foreground mt-1">{infiniteRepeatDescription()}</p>
+    <p class="text-muted-foreground mt-1 text-sm">{infiniteRepeatDescription()}</p>
   </div>
 </div>

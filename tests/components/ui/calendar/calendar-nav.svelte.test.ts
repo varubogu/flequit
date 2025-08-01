@@ -39,7 +39,7 @@ describe('CalendarNav Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(CalendarNav, { 
+    const { container } = render(CalendarNav, {
       'data-testid': 'calendar-nav',
       role: 'navigation'
     });

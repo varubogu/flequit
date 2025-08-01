@@ -118,7 +118,9 @@ describe('TaskDetailMetadata Component', () => {
       onGoToParentTask
     });
 
-    expect(container.querySelector('.border-t.pt-4.space-y-2.text-sm.text-muted-foreground')).toBeInTheDocument();
+    expect(
+      container.querySelector('.border-t.pt-4.space-y-2.text-sm.text-muted-foreground')
+    ).toBeInTheDocument();
   });
 
   test('should format dates correctly', () => {

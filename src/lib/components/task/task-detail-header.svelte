@@ -52,16 +52,14 @@
   const sub_task_title = translationService.getMessage('sub_task_title');
   const task_title = translationService.getMessage('task_title');
   const save_task = translationService.getMessage('save');
-
-
 </script>
 
-<div class="p-6 border-b">
+<div class="border-b p-6">
   <div class="flex items-start justify-between">
     <div class="flex-1">
       <TagCompletionProvider ontagDetected={handleTagDetected}>
         <Input
-          class="w-full text-xl font-semibold border-none shadow-none px-0 focus-visible:ring-0"
+          class="w-full border-none px-0 text-xl font-semibold shadow-none focus-visible:ring-0"
           value={title}
           oninput={(e) => {
             const target = e.target as HTMLInputElement;
@@ -71,13 +69,25 @@
         />
       </TagCompletionProvider>
     </div>
-    <div class="flex gap-2 ml-4">
+    <div class="ml-4 flex gap-2">
       {#if isNewTaskMode}
-        <Button variant="ghost" size="icon" onclick={onSaveNewTask} title={save_task()} disabled={!title.trim()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={onSaveNewTask}
+          title={save_task()}
+          disabled={!title.trim()}
+        >
           <Save class="h-4 w-4" />
         </Button>
       {/if}
-      <Button variant="ghost" size="icon" class="text-destructive" onclick={onDelete} title={delete_task()}>
+      <Button
+        variant="ghost"
+        size="icon"
+        class="text-destructive"
+        onclick={onDelete}
+        title={delete_task()}
+      >
         <Trash2 class="h-4 w-4" />
       </Button>
     </div>

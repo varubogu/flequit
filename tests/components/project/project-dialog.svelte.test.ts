@@ -4,7 +4,7 @@ import ProjectDialog from '$lib/components/project/project-dialog.svelte';
 
 vi.mock('$lib/components/ui/dialog/index.js', () => ({
   Root: () => null,
-  Content: () => null, 
+  Content: () => null,
   Header: () => null,
   Title: () => null,
   Footer: () => null
@@ -25,11 +25,11 @@ describe('ProjectDialog Component', () => {
   });
 
   const renderComponent = (props: any = {}) => {
-    const defaultProps = { 
-      open: true, 
-      mode: 'add' as const, 
-      onsave, 
-      onclose 
+    const defaultProps = {
+      open: true,
+      mode: 'add' as const,
+      onsave,
+      onclose
     };
     return render(ProjectDialog, { ...defaultProps, ...props });
   };
@@ -48,7 +48,7 @@ describe('ProjectDialog Component', () => {
     const { container } = renderComponent({
       mode: 'edit',
       initialName: 'Test Project',
-      initialColor: '#ff0000',
+      initialColor: '#ff0000'
     });
     expect(container).toBeInTheDocument();
   });

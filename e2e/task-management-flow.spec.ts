@@ -10,15 +10,15 @@ test.describe('Task Management Flow', () => {
   test('should complete full task selection and detail view flow', async ({ page }) => {
     // Wait for tasks to load
     const taskItems = page.locator('.task-item-button');
-    if (await taskItems.count() > 0) {
+    if ((await taskItems.count()) > 0) {
       // Select first task
       const firstTask = taskItems.first();
       await firstTask.click();
-      
+
       // Verify task is selected
       await expect(firstTask).toHaveClass(/selected|active/);
     }
-    
+
     // Always verify the main layout is visible
     await expect(page.locator('[data-pane-group]')).toBeVisible();
   });
@@ -26,10 +26,10 @@ test.describe('Task Management Flow', () => {
   test('should navigate between different views', async ({ page }) => {
     // Ensure layout is visible
     await expect(page.locator('[data-pane-group]')).toBeVisible();
-    
+
     // Check if heading exists (task list header)
     const headings = page.getByRole('heading', { level: 2 });
-    if (await headings.count() > 0) {
+    if ((await headings.count()) > 0) {
       await expect(headings.first()).toBeVisible();
     }
   });
@@ -37,11 +37,11 @@ test.describe('Task Management Flow', () => {
   test('should handle project-based task filtering', async ({ page }) => {
     // Click on a project in sidebar
     const workProject = page.getByRole('button').filter({ hasText: 'Work Project' });
-    
-    if (await workProject.count() > 0) {
+
+    if ((await workProject.count()) > 0) {
       await workProject.first().click();
       await page.waitForLoadState('networkidle');
-      
+
       // Verify the UI updates
       await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
     }
@@ -66,7 +66,7 @@ test.describe('Task Management Flow', () => {
     // Test desktop layout
     await page.setViewportSize({ width: 1200, height: 800 });
     await expect(page.locator('[data-pane-group]')).toBeVisible();
-    
+
     // Test tablet layout
     await page.setViewportSize({ width: 768, height: 600 });
     await expect(page.locator('body')).toBeVisible();

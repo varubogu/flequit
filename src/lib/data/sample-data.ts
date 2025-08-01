@@ -63,7 +63,7 @@ export function generateSampleData(): ProjectTree[] {
                   updated_at: new Date()
                 },
                 {
-                  id: 'subtask-2', 
+                  id: 'subtask-2',
                   task_id: 'task-1',
                   title: 'Reply to urgent messages',
                   status: 'not_started',
@@ -85,7 +85,7 @@ export function generateSampleData(): ProjectTree[] {
             },
             {
               id: 'task-2',
-              list_id: 'list-1', 
+              list_id: 'list-1',
               title: 'Buy groceries',
               description: 'Get ingredients for dinner tonight',
               status: 'not_started',
@@ -161,7 +161,7 @@ export function generateSampleData(): ProjectTree[] {
       ]
     },
     {
-      id: 'project-2', 
+      id: 'project-2',
       name: 'Work Project',
       description: 'Tasks related to work projects',
       color: '#ef4444',
@@ -208,7 +208,7 @@ export function generateSampleData(): ProjectTree[] {
                 },
                 {
                   id: 'subtask-4',
-                  task_id: 'task-5', 
+                  task_id: 'task-5',
                   title: 'Implement backend API',
                   description: 'Create REST endpoints for authentication',
                   status: 'in_progress',

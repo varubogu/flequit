@@ -87,7 +87,6 @@ const mockViewStore: viewStore = {
   }),
 
   setSelectedProject: vi.fn((projectId: string) => {
-
     mockViewStore.selectedProjectId = projectId;
   }),
 
@@ -132,10 +131,12 @@ describe('プロジェクトワークフロー結合テスト', () => {
       name: '新しいプロジェクト',
       description: 'テスト用プロジェクトです'
     });
-    expect(project).toEqual(expect.objectContaining({
-      name: '新しいプロジェクト',
-      description: 'テスト用プロジェクトです'
-    }));
+    expect(project).toEqual(
+      expect.objectContaining({
+        name: '新しいプロジェクト',
+        description: 'テスト用プロジェクトです'
+      })
+    );
 
     // 2. リストビューに切り替え
     mockViewStore.setView('list');
@@ -150,10 +151,12 @@ describe('プロジェクトワークフロー結合テスト', () => {
     expect(mockTaskStore.addTaskList).toHaveBeenCalledWith(project.id, {
       name: '新しいタスクリスト'
     });
-    expect(taskList).toEqual(expect.objectContaining({
-      name: '新しいタスクリスト',
-      project_id: project.id
-    }));
+    expect(taskList).toEqual(
+      expect.objectContaining({
+        name: '新しいタスクリスト',
+        project_id: project.id
+      })
+    );
 
     // 4. タスクビューに切り替え
     mockViewStore.setView('task');
@@ -170,11 +173,13 @@ describe('プロジェクトワークフロー結合テスト', () => {
       title: '新しいタスク',
       status: 'not_started'
     });
-    expect(task).toEqual(expect.objectContaining({
-      title: '新しいタスク',
-      status: 'not_started',
-      list_id: taskList.id
-    }));
+    expect(task).toEqual(
+      expect.objectContaining({
+        title: '新しいタスク',
+        status: 'not_started',
+        list_id: taskList.id
+      })
+    );
 
     // 6. プロジェクトビューに戻る
     mockViewStore.setView('project');
@@ -283,7 +288,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
 
     expect(allProject1Lists).toHaveLength(2);
     expect(allProject2Lists).toHaveLength(1);
-    expect(allProject1Lists.every(list => list.project_id === project1.id)).toBe(true);
-    expect(allProject2Lists.every(list => list.project_id === project2.id)).toBe(true);
+    expect(allProject1Lists.every((list) => list.project_id === project1.id)).toBe(true);
+    expect(allProject2Lists.every((list) => list.project_id === project2.id)).toBe(true);
   });
 });

@@ -17,7 +17,7 @@ describe('ConfirmDialog', () => {
 
   it('ダイアログが表示される', () => {
     render(ConfirmDialog, { props: defaultProps });
-    
+
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('テスト確認')).toBeInTheDocument();
     expect(screen.getByText('この操作を実行してもよろしいですか？')).toBeInTheDocument();
@@ -26,13 +26,13 @@ describe('ConfirmDialog', () => {
   it('showがfalseの場合はダイアログが表示されない', () => {
     const props = { ...defaultProps, show: false };
     render(ConfirmDialog, { props });
-    
+
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('確認ボタンとキャンセルボタンが表示される', () => {
     render(ConfirmDialog, { props: defaultProps });
-    
+
     const buttons = screen.getAllByRole('button');
     expect(buttons.length).toBeGreaterThanOrEqual(2);
   });
@@ -41,10 +41,10 @@ describe('ConfirmDialog', () => {
     const mockOnConfirm = vi.fn();
     const props = { ...defaultProps, onConfirm: mockOnConfirm };
     render(ConfirmDialog, { props });
-    
+
     const confirmButton = screen.getByTitle('Confirm');
     await fireEvent.click(confirmButton);
-    
+
     expect(mockOnConfirm).toHaveBeenCalled();
   });
 
@@ -52,17 +52,17 @@ describe('ConfirmDialog', () => {
     const mockOnCancel = vi.fn();
     const props = { ...defaultProps, onCancel: mockOnCancel };
     render(ConfirmDialog, { props });
-    
+
     const cancelButton = screen.getByTitle('Cancel');
     await fireEvent.click(cancelButton);
-    
+
     expect(mockOnCancel).toHaveBeenCalled();
   });
 
   it('カスタム確認ボタンテキストが設定される', () => {
     const props = { ...defaultProps, confirmText: '実行' };
     render(ConfirmDialog, { props });
-    
+
     const confirmButton = screen.getByTitle('実行');
     expect(confirmButton).toBeInTheDocument();
   });
@@ -70,14 +70,14 @@ describe('ConfirmDialog', () => {
   it('カスタムキャンセルボタンテキストが設定される', () => {
     const props = { ...defaultProps, cancelText: '戻る' };
     render(ConfirmDialog, { props });
-    
+
     const cancelButton = screen.getByTitle('戻る');
     expect(cancelButton).toBeInTheDocument();
   });
 
   it('デフォルトボタンテキストが使用される', () => {
     render(ConfirmDialog, { props: defaultProps });
-    
+
     expect(screen.getByTitle('Confirm')).toBeInTheDocument();
     expect(screen.getByTitle('Cancel')).toBeInTheDocument();
   });
@@ -89,7 +89,7 @@ describe('ConfirmDialog', () => {
       message: 'カスタムメッセージです。'
     };
     render(ConfirmDialog, { props: customProps });
-    
+
     expect(screen.getByText('カスタムタイトル')).toBeInTheDocument();
     expect(screen.getByText('カスタムメッセージです。')).toBeInTheDocument();
   });
@@ -104,9 +104,9 @@ describe('ConfirmDialog', () => {
       onConfirm: vi.fn(),
       onCancel: vi.fn()
     };
-    
+
     const { container } = render(ConfirmDialog, { props });
-    
+
     expect(container).toBeTruthy();
     expect(props.onConfirm).toBeInstanceOf(Function);
     expect(props.onCancel).toBeInstanceOf(Function);

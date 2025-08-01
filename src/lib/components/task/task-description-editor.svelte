@@ -48,19 +48,22 @@
 
   // Reactive messages
   const task_description = translationService.getMessage('task_description');
-  const sub_task_description_optional = translationService.getMessage('sub_task_description_optional');
+  const sub_task_description_optional = translationService.getMessage(
+    'sub_task_description_optional'
+  );
   const description = translationService.getMessage('description');
   const optional = translationService.getMessage('optional');
 </script>
 
 <div>
-  <label for="task-description" class="block text-sm font-medium mb-2">
-    {description()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
+  <label for="task-description" class="mb-2 block text-sm font-medium">
+    {description()}
+    {#if isSubTask}<span class="text-muted-foreground text-xs">{optional()}</span>{/if}
   </label>
   <TagCompletionProvider ontagDetected={handleTagDetected}>
     <Textarea
       id="task-description"
-      class="w-full min-h-24"
+      class="min-h-24 w-full"
       value={formData.description}
       oninput={(e) => {
         const target = e.target as HTMLTextAreaElement;

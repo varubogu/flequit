@@ -29,7 +29,7 @@ describe('TaskAccordionToggle Component', () => {
     });
 
     expect(screen.queryByTitle('Toggle subtasks')).not.toBeInTheDocument();
-    
+
     const emptyDiv = container.querySelector('.h-8.w-8.min-h-\\[32px\\].min-w-\\[32px\\].mt-1');
     expect(emptyDiv).toBeInTheDocument();
   });
@@ -52,7 +52,9 @@ describe('TaskAccordionToggle Component', () => {
       onToggle
     });
 
-    const chevronRight = screen.getByTitle('Toggle subtasks').querySelector('.lucide-chevron-right');
+    const chevronRight = screen
+      .getByTitle('Toggle subtasks')
+      .querySelector('.lucide-chevron-right');
     expect(chevronRight).toBeInTheDocument();
   });
 
@@ -77,7 +79,15 @@ describe('TaskAccordionToggle Component', () => {
     });
 
     const toggleButton = screen.getByTitle('Toggle subtasks');
-    expect(toggleButton).toHaveClass('h-8', 'w-8', 'min-h-[32px]', 'min-w-[32px]', 'text-muted-foreground', 'hover:text-foreground', 'mt-1');
+    expect(toggleButton).toHaveClass(
+      'h-8',
+      'w-8',
+      'min-h-[32px]',
+      'min-w-[32px]',
+      'text-muted-foreground',
+      'hover:text-foreground',
+      'mt-1'
+    );
   });
 
   test('should have correct icon size', () => {
@@ -107,7 +117,7 @@ describe('TaskAccordionToggle Component', () => {
     // Both should have the same size container
     const buttonContainer = containerWithSubTasks.querySelector('.h-8.w-8');
     const emptyContainer = containerWithoutSubTasks.querySelector('.h-8.w-8');
-    
+
     expect(buttonContainer).toBeInTheDocument();
     expect(emptyContainer).toBeInTheDocument();
   });

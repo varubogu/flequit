@@ -30,7 +30,7 @@ vi.mock('$lib/components/task/task-detail-empty-state.svelte', () => ({
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     selectedTask: null,
-    selectedSubTask: null, 
+    selectedSubTask: null,
     selectedSubTaskId: null,
     isNewTaskMode: false,
     newTaskData: null,
@@ -39,7 +39,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     updateNewTaskData: vi.fn(),
     saveNewTask: vi.fn(),
     cancelNewTaskMode: vi.fn(),
-    getTaskProjectAndList: vi.fn(() => null),
+    getTaskProjectAndList: vi.fn(() => null)
   }
 }));
 
@@ -51,7 +51,7 @@ vi.mock('$lib/services/task-service', () => ({
     deleteSubTask: vi.fn(),
     selectTask: vi.fn(),
     selectSubTask: vi.fn(),
-    toggleSubTaskStatus: vi.fn(),
+    toggleSubTaskStatus: vi.fn()
   }
 }));
 
@@ -93,9 +93,9 @@ describe('TaskDetail Integration', () => {
     test('should show empty state when no task selected', () => {
       (taskStore as any).selectedTask = null;
       (taskStore as any).selectedSubTask = null;
-      
+
       const { container } = render(TaskDetail);
-      
+
       // Empty state should be rendered (mocked, so checking structure)
       expect(container).toBeInTheDocument();
     });
@@ -109,7 +109,7 @@ describe('TaskDetail Integration', () => {
         title: 'Test Task',
         status: 'not_started'
       };
-      
+
       const { container } = render(TaskDetail);
       expect(container.querySelector('.flex.flex-col.h-full')).toBeInTheDocument();
     });
@@ -183,7 +183,7 @@ describe('TaskDetail Integration', () => {
         sub_tasks: [],
         tags: []
       };
-      
+
       const { container } = render(TaskDetail);
       expect(container.querySelector('.flex.flex-col.h-full')).toBeInTheDocument();
     });
@@ -197,7 +197,7 @@ describe('TaskDetail Integration', () => {
         sub_tasks: [],
         tags: []
       };
-      
+
       const { container } = render(TaskDetail);
       expect(container).toBeInTheDocument();
     });

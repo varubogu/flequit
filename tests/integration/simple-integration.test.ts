@@ -9,7 +9,7 @@ describe('シンプルな結合テスト', () => {
     // モック関数のみを使用した結合テスト
     const mockTaskStore = {
       tasks: [] as any[],
-      
+
       addTask: (listId: string, taskData: any) => {
         const newTask = {
           id: `task-${Date.now()}`,
@@ -24,7 +24,7 @@ describe('シンプルな結合テスト', () => {
         mockTaskStore.tasks.push(newTask);
         return newTask;
       },
-      
+
       updateTask: (taskId: string, updates: any) => {
         const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
         if (taskIndex >= 0) {
@@ -37,7 +37,7 @@ describe('シンプルな結合テスト', () => {
         }
         return null;
       },
-      
+
       deleteTask: (taskId: string) => {
         const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
         if (taskIndex >= 0) {
@@ -55,11 +55,13 @@ describe('シンプルな結合テスト', () => {
       status: 'not_started'
     });
 
-    expect(newTask).toEqual(expect.objectContaining({
-      title: '新しいタスク',
-      status: 'not_started',
-      list_id: 'list-1'
-    }));
+    expect(newTask).toEqual(
+      expect.objectContaining({
+        title: '新しいタスク',
+        status: 'not_started',
+        list_id: 'list-1'
+      })
+    );
     expect(mockTaskStore.tasks).toHaveLength(1);
 
     // 2. タスク更新
@@ -68,10 +70,12 @@ describe('シンプルな結合テスト', () => {
       status: 'completed'
     });
 
-    expect(updatedTask).toEqual(expect.objectContaining({
-      title: '更新されたタスク',
-      status: 'completed'
-    }));
+    expect(updatedTask).toEqual(
+      expect.objectContaining({
+        title: '更新されたタスク',
+        status: 'completed'
+      })
+    );
     expect(mockTaskStore.tasks).toHaveLength(1);
     expect(mockTaskStore.tasks[0].status).toBe('completed');
 
@@ -88,7 +92,7 @@ describe('シンプルな結合テスト', () => {
       projects: [] as any[],
       taskLists: [] as any[],
       tasks: [] as any[],
-      
+
       addProject: (projectData: any) => {
         const project = {
           id: `project-${Date.now()}`,
@@ -100,7 +104,7 @@ describe('シンプルな結合テスト', () => {
         hierarchyStore.projects.push(project);
         return project;
       },
-      
+
       addTaskList: (projectId: string, listData: any) => {
         const list = {
           id: `list-${Date.now()}`,
@@ -112,7 +116,7 @@ describe('シンプルな結合テスト', () => {
         hierarchyStore.taskLists.push(list);
         return list;
       },
-      
+
       addTask: (listId: string, taskData: any) => {
         const task = {
           id: `task-${Date.now()}`,
@@ -133,10 +137,12 @@ describe('シンプルな結合テスト', () => {
       description: 'テスト用プロジェクト'
     });
 
-    expect(project).toEqual(expect.objectContaining({
-      name: '新プロジェクト',
-      description: 'テスト用プロジェクト'
-    }));
+    expect(project).toEqual(
+      expect.objectContaining({
+        name: '新プロジェクト',
+        description: 'テスト用プロジェクト'
+      })
+    );
     expect(hierarchyStore.projects).toHaveLength(1);
 
     // リスト作成
@@ -144,10 +150,12 @@ describe('シンプルな結合テスト', () => {
       name: '新リスト'
     });
 
-    expect(taskList).toEqual(expect.objectContaining({
-      name: '新リスト',
-      project_id: project.id
-    }));
+    expect(taskList).toEqual(
+      expect.objectContaining({
+        name: '新リスト',
+        project_id: project.id
+      })
+    );
     expect(hierarchyStore.taskLists).toHaveLength(1);
 
     // タスク作成
@@ -155,11 +163,13 @@ describe('シンプルな結合テスト', () => {
       title: '新タスク'
     });
 
-    expect(task).toEqual(expect.objectContaining({
-      title: '新タスク',
-      list_id: taskList.id,
-      status: 'not_started'
-    }));
+    expect(task).toEqual(
+      expect.objectContaining({
+        title: '新タスク',
+        list_id: taskList.id,
+        status: 'not_started'
+      })
+    );
     expect(hierarchyStore.tasks).toHaveLength(1);
 
     // 階層関係の確認
@@ -173,22 +183,22 @@ describe('シンプルな結合テスト', () => {
       theme: 'light',
       language: 'ja',
       sidebarCollapsed: false,
-      
+
       changeTheme: (newTheme: string) => {
         settingsStore.theme = newTheme;
         return settingsStore.theme;
       },
-      
+
       changeLanguage: (newLang: string) => {
         settingsStore.language = newLang;
         return settingsStore.language;
       },
-      
+
       toggleSidebar: () => {
         settingsStore.sidebarCollapsed = !settingsStore.sidebarCollapsed;
         return settingsStore.sidebarCollapsed;
       },
-      
+
       getMessage: (key: string) => {
         const messages = {
           ja: { title: 'タスク管理', settings: '設定' },
@@ -233,7 +243,7 @@ describe('シンプルな結合テスト', () => {
       selectedTaskId: null as string | null,
       tasks: [] as any[],
       filter: 'all',
-      
+
       addTask: (title: string) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
@@ -243,14 +253,14 @@ describe('シンプルな結合テスト', () => {
         globalStateStore.tasks.push(newTask);
         return newTask;
       },
-      
+
       selectTask: (taskId: string) => {
         globalStateStore.selectedTaskId = taskId;
         return globalStateStore.getSelectedTask();
       },
-      
+
       updateTaskStatus: (taskId: string, status: string) => {
-        const taskIndex = globalStateStore.tasks.findIndex(t => t.id === taskId);
+        const taskIndex = globalStateStore.tasks.findIndex((t) => t.id === taskId);
         if (taskIndex >= 0) {
           globalStateStore.tasks[taskIndex] = {
             ...globalStateStore.tasks[taskIndex],
@@ -260,29 +270,29 @@ describe('シンプルな結合テスト', () => {
         }
         return null;
       },
-      
+
       setFilter: (filter: string) => {
         globalStateStore.filter = filter;
         return globalStateStore.getFilteredTasks();
       },
-      
+
       getFilteredTasks: () => {
-        return globalStateStore.tasks.filter(task => {
+        return globalStateStore.tasks.filter((task) => {
           if (globalStateStore.filter === 'completed') return task.status === 'completed';
           if (globalStateStore.filter === 'pending') return task.status !== 'completed';
           return true;
         });
       },
-      
+
       getSelectedTask: () => {
-        return globalStateStore.tasks.find(t => t.id === globalStateStore.selectedTaskId) || null;
+        return globalStateStore.tasks.find((t) => t.id === globalStateStore.selectedTaskId) || null;
       }
     };
 
     // タスク追加
     const task1 = globalStateStore.addTask('タスク1');
     const task2 = globalStateStore.addTask('タスク2');
-    
+
     expect(globalStateStore.tasks).toHaveLength(2);
     expect(task1.title).toBe('タスク1');
     expect(task2.title).toBe('タスク2');

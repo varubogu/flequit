@@ -85,13 +85,13 @@
       id: targetList.id,
       projectId: project.id
     };
-    
+
     const dragData = DragDropManager.handleDrop(event, target);
     if (!dragData) return;
 
     if (dragData.type === 'tasklist') {
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
-      const targetIndex = project.task_lists.findIndex(tl => tl.id === targetList.id);
+      const targetIndex = project.task_lists.findIndex((tl) => tl.id === targetList.id);
       taskStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタスクリストにドロップ
@@ -139,13 +139,13 @@
 </script>
 
 {#if isExpanded}
-  <div class="ml-4 mt-1 space-y-1">
+  <div class="mt-1 ml-4 space-y-1">
     {#each project.task_lists as list (list.id)}
       <ContextMenuWrapper items={createTaskListContextMenu(list)}>
         <Button
           variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
           size="sm"
-          class="flex items-center justify-between w-full h-auto p-2 text-xs active:scale-100 active:brightness-[0.4] transition-all duration-100"
+          class="flex h-auto w-full items-center justify-between p-2 text-xs transition-all duration-100 active:scale-100 active:brightness-[0.4]"
           onclick={() => handleTaskListSelect(list)}
           data-testid="tasklist-{list.id}"
           draggable="true"
@@ -153,8 +153,12 @@
           ondragover={(event) => handleTaskListDragOver(event, list)}
           ondrop={(event) => handleTaskListDrop(event, list)}
           ondragend={handleTaskListDragEnd}
-          ondragenter={(event) => event.currentTarget && handleTaskListDragEnter(event, event.currentTarget as HTMLElement)}
-          ondragleave={(event) => event.currentTarget && handleTaskListDragLeave(event, event.currentTarget as HTMLElement)}
+          ondragenter={(event) =>
+            event.currentTarget &&
+            handleTaskListDragEnter(event, event.currentTarget as HTMLElement)}
+          ondragleave={(event) =>
+            event.currentTarget &&
+            handleTaskListDragLeave(event, event.currentTarget as HTMLElement)}
         >
           <span class="truncate">{list.name}</span>
           <span class="text-muted-foreground">
@@ -171,5 +175,5 @@
   mode={taskListDialogMode}
   initialName={editingTaskList?.name || ''}
   onsave={handleTaskListSave}
-  onclose={() => showTaskListDialog = false}
+  onclose={() => (showTaskListDialog = false)}
 />

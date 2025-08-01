@@ -1,5 +1,13 @@
-import { getLocale, setLocale as paraglidSetLocale, locales, type Locale } from '$paraglide/runtime';
-import type { ITranslationServiceWithNotification, LocaleChangeCallback } from './translation-service';
+import {
+  getLocale,
+  setLocale as paraglidSetLocale,
+  locales,
+  type Locale
+} from '$paraglide/runtime';
+import type {
+  ITranslationServiceWithNotification,
+  LocaleChangeCallback
+} from './translation-service';
 import * as m from '$paraglide/messages.js';
 
 /**
@@ -24,13 +32,13 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
   setLocale(locale: string): void {
     const oldLocale = getLocale();
     paraglidSetLocale(locale as Locale, { reload: false });
-    
+
     // カウンターを増やして、依存している全てのコンポーネントに再評価を促す
     this.localeChangeCounter++;
-    
+
     // 購読者に変更を通知
     if (oldLocale !== locale) {
-      this.subscribers.forEach(callback => callback(locale));
+      this.subscribers.forEach((callback) => callback(locale));
     }
   }
 
@@ -46,13 +54,13 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     return () => {
       // getCurrentLocaleを参照して依存関係を作成
       this.getCurrentLocale();
-      
+
       const messageFn = this.messageMap[key];
       if (!messageFn) {
         console.warn(`Translation key not found: ${key}`);
         return key;
       }
-      
+
       try {
         // Paraglidの関数はobjectを受け取る
         return messageFn(params || {});

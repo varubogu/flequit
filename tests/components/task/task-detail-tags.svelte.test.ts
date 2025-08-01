@@ -9,7 +9,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     addTagToTask: vi.fn(),
     removeTagFromTask: vi.fn(),
     addTagToNewTask: vi.fn(),
-    removeTagFromNewTask: vi.fn(),
+    removeTagFromNewTask: vi.fn()
   }
 }));
 
@@ -103,7 +103,7 @@ describe('TaskDetailTags Component', () => {
     expect(screen.getByText('Urgent')).toBeInTheDocument();
     expect(screen.getByText('Work')).toBeInTheDocument();
     expect(screen.getByText('Personal')).toBeInTheDocument();
-    
+
     // Verify tags are displayed correctly
     const urgentTag = screen.getByText('Urgent');
     expect(urgentTag).toBeInTheDocument();

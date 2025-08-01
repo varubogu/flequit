@@ -21,13 +21,8 @@
 </script>
 
 <div class="min-w-[120px] flex-1">
-  <label for="task-status" class="block text-sm font-medium mb-2">{status()}</label>
-  <Select
-    id="task-status"
-    value={currentItem.status}
-    onchange={onStatusChange}
-    class="w-full"
-  >
+  <label for="task-status" class="mb-2 block text-sm font-medium">{status()}</label>
+  <Select id="task-status" value={currentItem.status} onchange={onStatusChange} class="w-full">
     <option value="not_started">{not_started()}</option>
     <option value="in_progress">{in_progress()}</option>
     <option value="waiting">{waiting()}</option>

@@ -43,7 +43,7 @@ describe('InlineDatePicker', () => {
       onclose: vi.fn(),
       onclear: vi.fn()
     };
-    
+
     expect(props.show).toBe(true);
     expect(props.currentDate).toBe('2024-01-15T10:30:00');
     expect(props.currentStartDate).toBe('2024-01-10T08:00:00');

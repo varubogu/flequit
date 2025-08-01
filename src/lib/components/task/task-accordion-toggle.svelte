@@ -15,7 +15,7 @@
   <Button
     variant="ghost"
     size="icon"
-    class="h-8 w-8 min-h-[32px] min-w-[32px] text-muted-foreground hover:text-foreground mt-1"
+    class="text-muted-foreground hover:text-foreground mt-1 h-8 min-h-[32px] w-8 min-w-[32px]"
     onclick={onToggle}
     title="Toggle subtasks"
   >
@@ -26,5 +26,5 @@
     {/if}
   </Button>
 {:else}
-  <div class="h-8 w-8 min-h-[32px] min-w-[32px] mt-1"></div>
+  <div class="mt-1 h-8 min-h-[32px] w-8 min-w-[32px]"></div>
 {/if}

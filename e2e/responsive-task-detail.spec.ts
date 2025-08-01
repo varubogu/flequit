@@ -45,7 +45,7 @@ test.describe('Responsive Task Detail', () => {
 
     // サンプルタスクが存在する場合のテスト
     const firstTask = page.locator('[data-testid^="task-"]').first();
-    
+
     if (await firstTask.isVisible()) {
       // タスクをクリック
       await firstTask.click();
@@ -73,20 +73,20 @@ test.describe('Responsive Task Detail', () => {
   test('画面サイズ変更時にレスポンシブ表示が切り替わる', async ({ page }) => {
     // デスクトップサイズから開始
     await page.setViewportSize({ width: 1024, height: 768 });
-    
+
     // デスクトップ表示を確認
     let resizeHandle = page.locator('[data-pane-resizer]');
     await expect(resizeHandle).toBeVisible();
 
     // モバイルサイズに変更
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // モバイル表示に切り替わることを確認
     await expect(resizeHandle).not.toBeVisible();
 
     // デスクトップサイズに戻す
     await page.setViewportSize({ width: 1024, height: 768 });
-    
+
     // デスクトップ表示に戻ることを確認
     resizeHandle = page.locator('[data-pane-resizer]');
     await expect(resizeHandle).toBeVisible();
@@ -99,7 +99,7 @@ test.describe('Responsive Task Detail', () => {
     // モバイル用サイドバートグルボタンをクリック
     const toggleButton = page.getByTestId('mobile-sidebar-toggle');
     await expect(toggleButton).toBeVisible();
-    
+
     await toggleButton.click();
 
     // サイドバーが表示される

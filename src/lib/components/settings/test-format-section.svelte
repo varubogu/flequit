@@ -46,9 +46,9 @@
 </script>
 
 <div class="space-y-4">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
     <div>
-      <label for="test-format" class="text-sm font-medium mb-2 block">{testFormatLabel()}</label>
+      <label for="test-format" class="mb-2 block text-sm font-medium">{testFormatLabel()}</label>
       <Input
         id="test-format"
         bind:value={testFormat}
@@ -59,19 +59,21 @@
 
     <div class="flex items-center gap-2 text-sm">
       <span class="font-medium">{preview()}:</span>
-      <span class="px-2 py-1 bg-muted rounded">{testFormatPreview}</span>
+      <span class="bg-muted rounded px-2 py-1">{testFormatPreview}</span>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
     <div>
-      <label for="format-selection" class="text-sm font-medium mb-2 block">{formatSelection()}</label>
+      <label for="format-selection" class="mb-2 block text-sm font-medium"
+        >{formatSelection()}</label
+      >
       <select
         id="format-selection"
         value={selectedPreset?.id?.toString() || ''}
         onchange={onFormatSelectionChange}
         disabled={editMode !== 'manual'}
-        class="w-full p-2 border border-input rounded-md bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+        class="border-input bg-background text-foreground w-full rounded-md border p-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {#each allFormats() as formatItem}
           <option value={formatItem.id.toString()}>
@@ -83,13 +85,13 @@
 
     <div class="space-y-3">
       <div>
-        <label for="format-name" class="text-sm font-medium mb-2 block">{formatName()}</label>
+        <label for="format-name" class="mb-2 block text-sm font-medium">{formatName()}</label>
         <input
           id="format-name"
           bind:value={testFormatName}
           placeholder={enterFormatName()}
           disabled={!formatNameEnabled}
-          class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
     </div>

@@ -35,8 +35,10 @@
     return name.replace(/[#\s]/g, '');
   }
 
-
-  function calculateSuggestionsPosition(element: HTMLInputElement | HTMLTextAreaElement, startPos: number) {
+  function calculateSuggestionsPosition(
+    element: HTMLInputElement | HTMLTextAreaElement,
+    startPos: number
+  ) {
     if (element.tagName === 'TEXTAREA') {
       return calculateTextareaCharPosition(element as HTMLTextAreaElement, startPos);
     } else {
@@ -164,7 +166,11 @@
     return { top, left };
   }
 
-  function checkForTagInput(element: HTMLInputElement | HTMLTextAreaElement, text: string, cursorPos: number) {
+  function checkForTagInput(
+    element: HTMLInputElement | HTMLTextAreaElement,
+    text: string,
+    cursorPos: number
+  ) {
     // Find tag ranges: # followed by non-whitespace characters
     const tagRanges: { start: number; end: number; content: string }[] = [];
 
@@ -192,7 +198,6 @@
       }
     }
 
-
     // Check if cursor is within any tag range
     let currentTagRange = null;
     for (const range of tagRanges) {
@@ -207,7 +212,6 @@
       return;
     }
 
-
     tagInputStart = currentTagRange.start;
     tagInputEnd = currentTagRange.end;
     currentTagInput = currentTagRange.content;
@@ -218,7 +222,6 @@
       suggestions = tagStore.searchTags(currentTagInput);
       // Always show suggestions when cursor is in tag range (for new tag creation)
       showSuggestions = true;
-
 
       // Calculate position for suggestions
       suggestionsPosition = calculateSuggestionsPosition(element, currentTagRange.start);
@@ -258,9 +261,11 @@
     activeElement.dispatchEvent(inputEvent);
 
     // Notify about tag detection
-    ontagDetected?.(new CustomEvent('tagDetected', {
-      detail: { tagName: tag.name, position: tagInputStart }
-    }));
+    ontagDetected?.(
+      new CustomEvent('tagDetected', {
+        detail: { tagName: tag.name, position: tagInputStart }
+      })
+    );
 
     // Set cursor position after the tag before hiding suggestions
     const newCursorPos = beforeTag.length + displayTagName.length + 1;
@@ -299,9 +304,11 @@
     activeElement.dispatchEvent(inputEvent);
 
     // Notify about tag detection
-    ontagDetected?.(new CustomEvent('tagDetected', {
-      detail: { tagName: storeTagName, position: tagInputStart }
-    }));
+    ontagDetected?.(
+      new CustomEvent('tagDetected', {
+        detail: { tagName: storeTagName, position: tagInputStart }
+      })
+    );
 
     // Set cursor position after the tag before hiding suggestions
     const newCursorPos = beforeTag.length + displayTagName.length + 1;
@@ -354,7 +361,9 @@
       return;
     }
 
-    const textInputs = containerElement.querySelectorAll('input[type="text"], textarea, input[type="search"]');
+    const textInputs = containerElement.querySelectorAll(
+      'input[type="text"], textarea, input[type="search"]'
+    );
 
     textInputs.forEach((element) => {
       const inputElement = element as HTMLInputElement | HTMLTextAreaElement;
@@ -368,7 +377,9 @@
   function cleanupEventListeners() {
     if (!containerElement) return;
 
-    const textInputs = containerElement.querySelectorAll('input[type="text"], textarea, input[type="search"]');
+    const textInputs = containerElement.querySelectorAll(
+      'input[type="text"], textarea, input[type="search"]'
+    );
 
     textInputs.forEach((element) => {
       const inputElement = element as HTMLInputElement | HTMLTextAreaElement;
@@ -391,23 +402,27 @@
 <div bind:this={containerElement} class="relative {className}">
   {@render children()}
 
-
   <!-- Suggestions dropdown -->
   {#if showSuggestions}
     <div
-      class="fixed z-[9999] bg-background border border-border rounded-md shadow-lg max-h-40 overflow-y-auto min-w-48"
-      style="top: {Math.max(0, suggestionsPosition.top)}px; left: {Math.max(0, suggestionsPosition.left)}px;"
+      class="bg-background border-border fixed z-[9999] max-h-40 min-w-48 overflow-y-auto rounded-md border shadow-lg"
+      style="top: {Math.max(0, suggestionsPosition.top)}px; left: {Math.max(
+        0,
+        suggestionsPosition.left
+      )}px;"
     >
-      <div class="px-2 py-1 text-xs text-muted-foreground">Debug: showing {suggestions.length} suggestions</div>
+      <div class="text-muted-foreground px-2 py-1 text-xs">
+        Debug: showing {suggestions.length} suggestions
+      </div>
       {#each suggestions as suggestion (suggestion.id)}
         <button
           type="button"
-          class="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
+          class="hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
           onclick={() => selectSuggestion(suggestion)}
         >
           {#if suggestion.color}
-            <div 
-              class="w-3 h-3 rounded-sm border"
+            <div
+              class="h-3 w-3 rounded-sm border"
               style="background-color: {suggestion.color}"
             ></div>
           {:else}
@@ -418,10 +433,10 @@
       {/each}
 
       <!-- Show "Create new tag" option if input doesn't match any existing tag -->
-      {#if currentTagInput.trim() && !suggestions.some(s => s.name.toLowerCase() === currentTagInput.toLowerCase())}
+      {#if currentTagInput.trim() && !suggestions.some((s) => s.name.toLowerCase() === currentTagInput.toLowerCase())}
         <button
           type="button"
-          class="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2 border-t border-border"
+          class="hover:bg-accent hover:text-accent-foreground border-border flex w-full items-center gap-2 border-t px-3 py-2 text-left text-sm"
           onclick={createNewTag}
         >
           <Hash class="h-3 w-3" />

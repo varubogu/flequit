@@ -33,8 +33,26 @@ describe('TaskContent', () => {
     updated_at: new Date(),
     tags: [mockTag],
     sub_tasks: [
-      { id: 'sub-1', task_id: 'task-1', title: 'Sub Task 1', status: 'completed', order_index: 0, tags: [], created_at: new Date(), updated_at: new Date() },
-      { id: 'sub-2', task_id: 'task-1', title: 'Sub Task 2', status: 'not_started', order_index: 1, tags: [], created_at: new Date(), updated_at: new Date() }
+      {
+        id: 'sub-1',
+        task_id: 'task-1',
+        title: 'Sub Task 1',
+        status: 'completed',
+        order_index: 0,
+        tags: [],
+        created_at: new Date(),
+        updated_at: new Date()
+      },
+      {
+        id: 'sub-2',
+        task_id: 'task-1',
+        title: 'Sub Task 2',
+        status: 'not_started',
+        order_index: 1,
+        tags: [],
+        created_at: new Date(),
+        updated_at: new Date()
+      }
     ]
   };
 
@@ -72,7 +90,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: completedTask
     };
-    
+
     expect(props.task.status).toBe('completed');
   });
 
@@ -86,7 +104,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: taskWithoutDescription
     };
-    
+
     expect(props.task.description).toBeUndefined();
   });
 
@@ -100,7 +118,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: taskWithEmptyDescription
     };
-    
+
     expect(props.task.description).toBe('');
   });
 
@@ -116,7 +134,7 @@ describe('TaskContent', () => {
       completedSubTasks: 0,
       subTaskProgress: 0
     };
-    
+
     expect(props.task.sub_tasks).toEqual([]);
     expect(props.completedSubTasks).toBe(0);
     expect(props.subTaskProgress).toBe(0);
@@ -132,7 +150,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: taskWithoutTags
     };
-    
+
     expect(props.task.tags).toEqual([]);
   });
 
@@ -154,7 +172,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: taskWithMultipleTags
     };
-    
+
     expect(props.task.tags).toHaveLength(2);
     expect(props.task.tags[0].name).toBe('Test Tag');
     expect(props.task.tags[1].name).toBe('Second Tag');
@@ -168,12 +186,12 @@ describe('TaskContent', () => {
       { completedSubTasks: 3, subTaskProgress: 100 }
     ];
 
-    scenarios.forEach(scenario => {
+    scenarios.forEach((scenario) => {
       const props = {
         ...defaultProps,
         ...scenario
       };
-      
+
       expect(props.completedSubTasks).toBe(scenario.completedSubTasks);
       expect(props.subTaskProgress).toBe(scenario.subTaskProgress);
       expect(props.subTaskProgress).toBeGreaterThanOrEqual(0);
@@ -189,12 +207,12 @@ describe('TaskContent', () => {
       { x: 500, y: 800 }
     ];
 
-    positions.forEach(position => {
+    positions.forEach((position) => {
       const props = {
         ...defaultProps,
         datePickerPosition: position
       };
-      
+
       expect(props.datePickerPosition).toEqual(position);
       expect(props.datePickerPosition.x).toBeGreaterThanOrEqual(0);
       expect(props.datePickerPosition.y).toBeGreaterThanOrEqual(0);
@@ -204,12 +222,12 @@ describe('TaskContent', () => {
   it('showDatePickerの真偽値が処理される', () => {
     const booleanValues = [true, false];
 
-    booleanValues.forEach(value => {
+    booleanValues.forEach((value) => {
       const props = {
         ...defaultProps,
         showDatePicker: value
       };
-      
+
       expect(props.showDatePicker).toBe(value);
       expect(typeof props.showDatePicker).toBe('boolean');
     });
@@ -217,12 +235,12 @@ describe('TaskContent', () => {
 
   it('handleDueDateClickコールバックが設定される', () => {
     const handleDueDateClick = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       handleDueDateClick
     };
-    
+
     expect(props.handleDueDateClick).toBe(handleDueDateClick);
     expect(props.handleDueDateClick).toBeInstanceOf(Function);
   });
@@ -230,35 +248,37 @@ describe('TaskContent', () => {
   it('長いタイトルを持つタスクが処理される', () => {
     const taskWithLongTitle = {
       ...mockTask,
-      title: 'This is a very long task title that should be truncated when displayed in the UI to prevent layout issues'
+      title:
+        'This is a very long task title that should be truncated when displayed in the UI to prevent layout issues'
     };
 
     const props = {
       ...defaultProps,
       task: taskWithLongTitle
     };
-    
+
     expect(props.task.title.length).toBeGreaterThan(50);
   });
 
   it('長い説明を持つタスクが処理される', () => {
     const taskWithLongDescription = {
       ...mockTask,
-      description: 'This is a very long task description that contains multiple sentences and should be properly handled by the component when displaying. It might be truncated or shown with ellipsis depending on the UI implementation.'
+      description:
+        'This is a very long task description that contains multiple sentences and should be properly handled by the component when displaying. It might be truncated or shown with ellipsis depending on the UI implementation.'
     };
 
     const props = {
       ...defaultProps,
       task: taskWithLongDescription
     };
-    
+
     expect(props.task.description!.length).toBeGreaterThan(100);
   });
 
   it('異なる優先度のタスクが処理される', () => {
     const priorities = [0, 1, 2, 3] as const;
 
-    priorities.forEach(priority => {
+    priorities.forEach((priority) => {
       const taskWithPriority = {
         ...mockTask,
         priority
@@ -268,7 +288,7 @@ describe('TaskContent', () => {
         ...defaultProps,
         task: taskWithPriority
       };
-      
+
       expect(props.task.priority).toBe(priority);
     });
   });
@@ -283,7 +303,7 @@ describe('TaskContent', () => {
       ...defaultProps,
       task: taskWithoutDueDate
     };
-    
+
     expect(props.task.end_date).toBeUndefined();
   });
 
@@ -293,11 +313,11 @@ describe('TaskContent', () => {
       ...defaultProps,
       handleDueDateClick: mockCallback
     };
-    
+
     // コールバックが関数として呼び出し可能であることを確認
     const mockEvent = new MouseEvent('click');
     expect(() => props.handleDueDateClick(mockEvent)).not.toThrow();
-    
+
     // モック関数が実際に呼び出されたことを確認
     props.handleDueDateClick(mockEvent);
     expect(mockCallback).toHaveBeenCalledWith(mockEvent);
@@ -307,7 +327,8 @@ describe('TaskContent', () => {
     const complexTask: TaskWithSubTasks = {
       id: 'complex-task',
       title: 'Complex Task with Multiple Features',
-      description: 'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
+      description:
+        'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
       status: 'in_progress',
       priority: 3,
       end_date: new Date('2024-03-01'),
@@ -320,7 +341,7 @@ describe('TaskContent', () => {
       sub_tasks: Array.from({ length: 5 }, (_, i) => ({
         id: `sub-${i}`,
         title: `Sub Task ${i + 1}`,
-        status: i < 2 ? 'completed' as const : 'not_started' as const,
+        status: i < 2 ? ('completed' as const) : ('not_started' as const),
         task_id: 'complex-task',
         order_index: i,
         tags: [],
@@ -335,7 +356,7 @@ describe('TaskContent', () => {
       completedSubTasks: 2,
       subTaskProgress: 40
     };
-    
+
     expect(props.task.sub_tasks).toHaveLength(5);
     expect(props.completedSubTasks).toBe(2);
     expect(props.subTaskProgress).toBe(40);

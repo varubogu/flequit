@@ -15,7 +15,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
 // Mock DragEvent for test environment
 class MockDragEvent extends Event {
   dataTransfer: DataTransfer | null;
-  
+
   constructor(type: string, eventInitDict?: DragEventInit) {
     super(type, eventInitDict);
     this.dataTransfer = eventInitDict?.dataTransfer || null;
@@ -35,9 +35,11 @@ class MockDataTransfer {
   files: FileList = [] as any;
   items: DataTransferItemList = [] as any;
   types: readonly string[] = [];
-  
+
   clearData(): void {}
-  getData(): string { return ''; }
+  getData(): string {
+    return '';
+  }
   setData(): void {}
   setDragImage(): void {}
 }
@@ -104,7 +106,7 @@ describe('SubTaskList - Drag and Drop', () => {
 
   it('should render subtasks with draggable attribute', () => {
     const { getAllByTestId } = render(SubTaskList, mockProps);
-    
+
     // Find draggable containers
     const draggableElements = document.querySelectorAll('[draggable="true"]');
     expect(draggableElements).toHaveLength(2);
@@ -112,84 +114,75 @@ describe('SubTaskList - Drag and Drop', () => {
 
   it('should call DragDropManager.startDrag on dragstart with correct data', async () => {
     const { container } = render(SubTaskList, mockProps);
-    
+
     const draggableElement = container.querySelector('[draggable="true"]');
     expect(draggableElement).toBeTruthy();
-    
+
     const dragEvent = new DragEvent('dragstart', {
       bubbles: true,
       cancelable: true,
       dataTransfer: new DataTransfer()
     });
-    
+
     await fireEvent(draggableElement!, dragEvent);
-    
-    expect(DragDropManager.startDrag).toHaveBeenCalledWith(
-      dragEvent,
-      {
-        type: 'subtask',
-        id: 'subtask-1',
-        taskId: 'task-1'
-      }
-    );
+
+    expect(DragDropManager.startDrag).toHaveBeenCalledWith(dragEvent, {
+      type: 'subtask',
+      id: 'subtask-1',
+      taskId: 'task-1'
+    });
   });
 
   it('should call DragDropManager.handleDragEnd on dragend', async () => {
     const { container } = render(SubTaskList, mockProps);
-    
+
     const draggableElement = container.querySelector('[draggable="true"]');
     expect(draggableElement).toBeTruthy();
-    
+
     const dragEvent = new DragEvent('dragend', {
       bubbles: true,
       cancelable: true
     });
-    
+
     await fireEvent(draggableElement!, dragEvent);
-    
+
     expect(DragDropManager.handleDragEnd).toHaveBeenCalledWith(dragEvent);
   });
 
   it('should handle multiple subtasks drag and drop correctly', async () => {
     const { container } = render(SubTaskList, mockProps);
-    
+
     const draggableElements = container.querySelectorAll('[draggable="true"]');
     expect(draggableElements).toHaveLength(2);
-    
+
     // Test first subtask
     const dragEvent1 = new DragEvent('dragstart', {
       bubbles: true,
       cancelable: true,
       dataTransfer: new DataTransfer()
     });
-    
+
     await fireEvent(draggableElements[0], dragEvent1);
-    
-    expect(DragDropManager.startDrag).toHaveBeenCalledWith(
-      dragEvent1,
-      {
-        type: 'subtask',
-        id: 'subtask-1',
-        taskId: 'task-1'
-      }
-    );
-    
+
+    expect(DragDropManager.startDrag).toHaveBeenCalledWith(dragEvent1, {
+      type: 'subtask',
+      id: 'subtask-1',
+      taskId: 'task-1'
+    });
+
     // Test second subtask
     const dragEvent2 = new DragEvent('dragstart', {
       bubbles: true,
       cancelable: true,
       dataTransfer: new DataTransfer()
     });
-    
+
     await fireEvent(draggableElements[1], dragEvent2);
-    
-    expect(DragDropManager.startDrag).toHaveBeenCalledWith(
-      dragEvent2,
-      {
-        type: 'subtask',
-        id: 'subtask-2',
-        taskId: 'task-1'
-      }
-    );
+
+    expect(DragDropManager.startDrag).toHaveBeenCalledWith(dragEvent2, {
+      type: 'subtask',
+      id: 'subtask-2',
+      taskId: 'task-1'
+    });
   });
 });

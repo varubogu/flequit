@@ -48,11 +48,7 @@
 
 {#if currentItem}
   <div>
-    <h3 class="block text-sm font-medium mb-2">{tags()}</h3>
-    <TagInput
-      tags={currentItem.tags}
-      ontagAdded={handleTagAdded}
-      ontagRemoved={handleTagRemoved}
-    />
+    <h3 class="mb-2 block text-sm font-medium">{tags()}</h3>
+    <TagInput tags={currentItem.tags} ontagAdded={handleTagAdded} ontagRemoved={handleTagRemoved} />
   </div>
 {/if}

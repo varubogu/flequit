@@ -64,9 +64,9 @@
     <!-- Preview -->
     <div class="space-y-2">
       <Label>プレビュー</Label>
-      <div class="p-3 border rounded-md bg-muted/50">
+      <div class="bg-muted/50 rounded-md border p-3">
         <span
-          class="inline-block px-2 py-1 text-xs rounded border"
+          class="inline-block rounded border px-2 py-1 text-xs"
           style="border-color: {color}; color: {color};"
         >
           {name || 'タグ名'}
@@ -91,7 +91,7 @@
             id="tag-color"
             type="color"
             bind:value={color}
-            class="w-12 h-10 rounded border border-input cursor-pointer"
+            class="border-input h-10 w-12 cursor-pointer rounded border"
           />
           <Input
             bind:value={color}

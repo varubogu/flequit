@@ -98,13 +98,13 @@
       type: 'tag',
       id: targetTag.id
     };
-    
+
     const dragData = DragDropManager.handleDrop(event, target);
     if (!dragData) return;
 
     if (dragData.type === 'tag') {
       // タグ同士の並び替え
-      const targetIndex = bookmarkedTags.findIndex(t => t.id === targetTag.id);
+      const targetIndex = bookmarkedTags.findIndex((t) => t.id === targetTag.id);
       tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタグにドロップした場合、タスクにタグを付与
@@ -130,9 +130,9 @@
 
 <!-- タグカテゴリ -->
 {#if bookmarkedTags.length > 0}
-  <div class="space-y-1 mb-6">
+  <div class="mb-6 space-y-1">
     {#if sidebar.state !== 'collapsed'}
-      <h3 class="px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+      <h3 class="text-muted-foreground px-3 text-xs font-medium tracking-wider uppercase">
         {tagsTitle()}
       </h3>
     {/if}

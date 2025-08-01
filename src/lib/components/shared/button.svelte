@@ -1,11 +1,11 @@
 <script lang="ts">
   import UIButton from '$lib/components/ui/button.svelte';
-  import type { VariantProps } from "tailwind-variants";
-  import type { Snippet } from "svelte";
+  import type { VariantProps } from 'tailwind-variants';
+  import type { Snippet } from 'svelte';
 
   type ButtonVariants = {
-    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-    size?: "default" | "sm" | "lg" | "icon";
+    variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+    size?: 'default' | 'sm' | 'lg' | 'icon';
   };
 
   type Props = ButtonVariants & {
@@ -14,8 +14,8 @@
     onclick?: (event?: Event) => void;
     disabled?: boolean;
     title?: string;
-    "aria-label"?: string;
-    "data-testid"?: string;
+    'aria-label'?: string;
+    'data-testid'?: string;
     draggable?: boolean | string;
     ondragstart?: (event: DragEvent) => void;
     ondragover?: (event: DragEvent) => void;
@@ -29,6 +29,6 @@
 </script>
 
 <UIButton
-  class="active:scale-100 active:brightness-[0.4] transition-all duration-100 {className || ''}"
+  class="transition-all duration-100 active:scale-100 active:brightness-[0.4] {className || ''}"
   {...restProps}
 />

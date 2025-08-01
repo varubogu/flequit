@@ -68,9 +68,7 @@ describe('Layout Component', () => {
   });
 
   test('should render slot content', () => {
-    const { container } = render(Layout, {
-
-    });
+    const { container } = render(Layout, {});
     expect(container).toBeInTheDocument();
   });
 });

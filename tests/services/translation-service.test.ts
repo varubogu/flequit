@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MockTranslationService } from '$lib/services/mock-translation-service';
-import { setTranslationService, getTranslationService, localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
+import {
+  setTranslationService,
+  getTranslationService,
+  localeStore,
+  reactiveMessage
+} from '$lib/stores/locale.svelte';
 import { translationService } from '$lib/services/paraglide-translation-service.svelte';
 
 describe('Translation Service', () => {
@@ -11,12 +16,12 @@ describe('Translation Service', () => {
     originalService = getTranslationService();
     mockService = new MockTranslationService('en', {
       en: {
-        'test_message': 'Test Message',
-        'hello_world': 'Hello World'
+        test_message: 'Test Message',
+        hello_world: 'Hello World'
       },
       ja: {
-        'test_message': 'テストメッセージ',
-        'hello_world': 'こんにちは世界'
+        test_message: 'テストメッセージ',
+        hello_world: 'こんにちは世界'
       }
     });
     setTranslationService(mockService);
@@ -75,7 +80,7 @@ describe('Translation Service', () => {
   describe('locale store integration', () => {
     it('localeStoreがモックサービスを使用する', () => {
       expect(localeStore.locale).toBe('en');
-      
+
       localeStore.setLocale('ja');
       expect(localeStore.locale).toBe('ja');
       expect(mockService.getCurrentLocale()).toBe('ja');
@@ -84,7 +89,7 @@ describe('Translation Service', () => {
     it('reactiveMessageがモックサービスを使用する', () => {
       const testMessageFn = () => 'Test Message';
       const reactiveTestMessage = reactiveMessage(testMessageFn);
-      
+
       // モックでは単純に元の関数を返すので、元の結果と同じになる
       expect(reactiveTestMessage()).toBe('Test Message');
     });
@@ -93,8 +98,8 @@ describe('Translation Service', () => {
   describe('パラメータ付きメッセージ', () => {
     it('パラメータ付きメッセージが正しく動作する', () => {
       mockService.setMessages('en', {
-        'welcome_user': 'Welcome, {name}!',
-        'item_count': 'You have {count} items'
+        welcome_user: 'Welcome, {name}!',
+        item_count: 'You have {count} items'
       });
 
       const welcomeMessage = mockService.getMessage('welcome_user', { name: 'John' });
@@ -106,7 +111,7 @@ describe('Translation Service', () => {
 
     it('パラメータなしでパラメータ付きメッセージを呼んでも動作する', () => {
       mockService.setMessages('en', {
-        'welcome_user': 'Welcome, {name}!'
+        welcome_user: 'Welcome, {name}!'
       });
 
       const welcomeMessage = mockService.getMessage('welcome_user');
@@ -115,12 +120,12 @@ describe('Translation Service', () => {
 
     it('複数パラメータが正しく置換される', () => {
       mockService.setMessages('en', {
-        'greeting': 'Hello {name}, you have {count} new messages!'
+        greeting: 'Hello {name}, you have {count} new messages!'
       });
 
-      const greetingMessage = mockService.getMessage('greeting', { 
-        name: 'Alice', 
-        count: 3 
+      const greetingMessage = mockService.getMessage('greeting', {
+        name: 'Alice',
+        count: 3
       });
       expect(greetingMessage()).toBe('Hello Alice, you have 3 new messages!');
     });
@@ -130,7 +135,7 @@ describe('Translation Service', () => {
     it('翻訳サービスを差し替えられる', () => {
       const newMockService = new MockTranslationService('ja');
       setTranslationService(newMockService);
-      
+
       expect(getTranslationService()).toBe(newMockService);
       expect(localeStore.locale).toBe('ja');
     });

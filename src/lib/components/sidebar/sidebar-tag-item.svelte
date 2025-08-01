@@ -54,55 +54,56 @@
   }
 
   // コンテキストメニューリストを作成
-  const contextMenuItems: ContextMenuList = $derived(createContextMenu([
-    {
-      id: 'edit-tag',
-      label: editTag,
-      action: () => {
-        onEditTag?.(tag);
+  const contextMenuItems: ContextMenuList = $derived(
+    createContextMenu([
+      {
+        id: 'edit-tag',
+        label: editTag,
+        action: () => {
+          onEditTag?.(tag);
+        },
+        icon: Edit
       },
-      icon: Edit
-    },
-    createSeparator(),
-    {
-      id: 'add-to-sidebar',
-      label: addTagToSidebar,
-      action: () => {
-        console.log('Add to sidebar action called for:', tag.name);
-        // TODO: サイドバーに追加する処理（既にある場合の処理）
+      createSeparator(),
+      {
+        id: 'add-to-sidebar',
+        label: addTagToSidebar,
+        action: () => {
+          console.log('Add to sidebar action called for:', tag.name);
+          // TODO: サイドバーに追加する処理（既にある場合の処理）
+        },
+        icon: Bookmark,
+        visible: () => {
+          // 既にサイドバーにある場合は非表示
+          // 実際の実装では、tagがbookmarkedかどうかをチェック
+          return false; // 仮実装
+        }
       },
-      icon: Bookmark,
-      visible: () => {
-        // 既にサイドバーにある場合は非表示
-        // 実際の実装では、tagがbookmarkedかどうかをチェック
-        return false; // 仮実装
+      {
+        id: 'remove-from-sidebar',
+        label: removeTagFromSidebar,
+        action: () => {
+          onRemoveFromBookmarks?.(tag);
+        },
+        icon: BookmarkX,
+        visible: () => {
+          // サイドバーにある場合のみ表示
+          // 実際の実装では、tagがbookmarkedかどうかをチェック
+          return true; // 仮実装
+        }
+      },
+      createSeparator(),
+      {
+        id: 'delete-tag',
+        label: deleteTag,
+        action: () => {
+          onDeleteTag?.(tag);
+        },
+        icon: Trash2,
+        destructive: true
       }
-    },
-    {
-      id: 'remove-from-sidebar',
-      label: removeTagFromSidebar,
-      action: () => {
-        onRemoveFromBookmarks?.(tag);
-      },
-      icon: BookmarkX,
-      visible: () => {
-        // サイドバーにある場合のみ表示
-        // 実際の実装では、tagがbookmarkedかどうかをチェック
-        return true; // 仮実装
-      }
-    },
-    createSeparator(),
-    {
-      id: 'delete-tag',
-      label: deleteTag,
-      action: () => {
-        onDeleteTag?.(tag);
-      },
-      icon: Trash2,
-      destructive: true
-    }
-  ]));
-
+    ])
+  );
 
   function handleTagClick() {
     onTagClick?.();
@@ -113,35 +114,31 @@
   <Button
     variant="ghost"
     class={sidebar.state === 'collapsed'
-      ? "w-full justify-center p-2 h-auto group hover:bg-accent"
-      : "w-full justify-between p-3 h-auto group hover:bg-accent"}
+      ? 'group hover:bg-accent h-auto w-full justify-center p-2'
+      : 'group hover:bg-accent h-auto w-full justify-between p-3'}
     onclick={handleTagClick}
     draggable="true"
     ondragstart={onDragStart}
     ondragover={onDragOver}
     ondrop={onDrop}
     ondragend={onDragEnd}
-    ondragenter={(event) => onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
-    ondragleave={(event) => onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
+    ondragenter={(event) =>
+      onDragEnter && event.currentTarget && onDragEnter(event, event.currentTarget as HTMLElement)}
+    ondragleave={(event) =>
+      onDragLeave && event.currentTarget && onDragLeave(event, event.currentTarget as HTMLElement)}
     data-testid="tag-{tag.id}"
   >
     {#if sidebar.state === 'collapsed'}
-      <Hash
-        class="h-4 w-4"
-        style="color: {tag.color || 'currentColor'}"
-      />
+      <Hash class="h-4 w-4" style="color: {tag.color || 'currentColor'}" />
     {:else}
-      <div class="flex items-center gap-3 flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-1 min-w-0">
-          <Hash
-            class="h-4 w-4 flex-shrink-0"
-            style="color: {tag.color || 'currentColor'}"
-          />
+      <div class="flex min-w-0 flex-1 items-center gap-3">
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <Hash class="h-4 w-4 flex-shrink-0" style="color: {tag.color || 'currentColor'}" />
           <span class="truncate text-sm font-medium">{tag.name}</span>
         </div>
 
-        <div class="flex items-center gap-1 flex-shrink-0">
-          <span class="text-xs text-muted-foreground">
+        <div class="flex flex-shrink-0 items-center gap-1">
+          <span class="text-muted-foreground text-xs">
             {getTaskCountForTag(tag.name)}
           </span>
         </div>

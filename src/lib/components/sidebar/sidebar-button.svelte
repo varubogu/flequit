@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
-  import * as ContextMenu from "$lib/components/ui/context-menu/index.js";
+  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
   import { DragDropManager, type DropTarget } from '$lib/utils/drag-drop';
   import type { Component } from 'svelte';
 
@@ -27,7 +27,18 @@
     onDrop?: (dragData: any) => void;
   }
 
-  let { icon, label, count, isActive, isCollapsed = false, onclick, contextMenuItems = [], testId, dropTarget, onDrop }: Props = $props();
+  let {
+    icon,
+    label,
+    count,
+    isActive,
+    isCollapsed = false,
+    onclick,
+    contextMenuItems = [],
+    testId,
+    dropTarget,
+    onDrop
+  }: Props = $props();
 
   // Drag & Drop handlers
   function handleDragOver(event: DragEvent) {
@@ -62,28 +73,36 @@
         role="region"
         ondragover={dropTarget ? handleDragOver : undefined}
         ondrop={dropTarget ? handleDrop : undefined}
-        ondragenter={dropTarget ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement) : undefined}
-        ondragleave={dropTarget ? (e) => handleDragLeave(e, e.currentTarget as HTMLElement) : undefined}
+        ondragenter={dropTarget
+          ? (e) => handleDragEnter(e, e.currentTarget as HTMLElement)
+          : undefined}
+        ondragleave={dropTarget
+          ? (e) => handleDragLeave(e, e.currentTarget as HTMLElement)
+          : undefined}
       >
         <Button
-          variant={isActive ? "secondary" : "ghost"}
+          variant={isActive ? 'secondary' : 'ghost'}
           class={isCollapsed
-            ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
-            : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+            ? 'h-auto w-full justify-center p-2 ' +
+              (isActive ? 'bg-muted' : '') +
+              ' transition-all duration-100 active:scale-100 active:brightness-[0.4]'
+            : 'h-auto w-full justify-between p-3 ' +
+              (isActive ? 'bg-muted' : '') +
+              ' transition-all duration-100 active:scale-100 active:brightness-[0.4]'}
           {onclick}
           data-testid={testId}
         >
-        {#if isCollapsed}
-          <span class="text-lg">{icon}</span>
-        {:else}
-          <div class="flex items-center gap-2">
+          {#if isCollapsed}
             <span class="text-lg">{icon}</span>
-            <span class="font-medium">{label}</span>
-          </div>
-          <Badge variant="secondary" class="ml-auto">
-            {count}
-          </Badge>
-        {/if}
+          {:else}
+            <div class="flex items-center gap-2">
+              <span class="text-lg">{icon}</span>
+              <span class="font-medium">{label}</span>
+            </div>
+            <Badge variant="secondary" class="ml-auto">
+              {count}
+            </Badge>
+          {/if}
         </Button>
       </div>
     </ContextMenu.Trigger>
@@ -95,11 +114,13 @@
           <ContextMenu.Item
             onselect={item.action}
             disabled={item.disabled}
-            class={item.destructive ? "text-destructive focus:bg-destructive/10 focus:text-destructive" : ""}
+            class={item.destructive
+              ? 'text-destructive focus:bg-destructive/10 focus:text-destructive'
+              : ''}
           >
             {#if item.icon}
               {@const IconComponent = item.icon}
-              <IconComponent class="h-4 w-4 mr-2" />
+              <IconComponent class="mr-2 h-4 w-4" />
             {/if}
             <span>{item.label}</span>
           </ContextMenu.Item>
@@ -116,24 +137,28 @@
     ondragleave={dropTarget ? (e) => handleDragLeave(e, e.currentTarget as HTMLElement) : undefined}
   >
     <Button
-      variant={isActive ? "secondary" : "ghost"}
+      variant={isActive ? 'secondary' : 'ghost'}
       class={isCollapsed
-        ? "w-full justify-center p-2 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"
-        : "w-full justify-between p-3 h-auto " + (isActive ? 'bg-muted' : '') + " active:scale-100 active:brightness-[0.4] transition-all duration-100"}
+        ? 'h-auto w-full justify-center p-2 ' +
+          (isActive ? 'bg-muted' : '') +
+          ' transition-all duration-100 active:scale-100 active:brightness-[0.4]'
+        : 'h-auto w-full justify-between p-3 ' +
+          (isActive ? 'bg-muted' : '') +
+          ' transition-all duration-100 active:scale-100 active:brightness-[0.4]'}
       {onclick}
       data-testid={testId}
     >
-    {#if isCollapsed}
-      <span class="text-lg">{icon}</span>
-    {:else}
-      <div class="flex items-center gap-2">
+      {#if isCollapsed}
         <span class="text-lg">{icon}</span>
-        <span class="font-medium">{label}</span>
-      </div>
-      <Badge variant="secondary" class="ml-auto">
-        {count}
-      </Badge>
-    {/if}
+      {:else}
+        <div class="flex items-center gap-2">
+          <span class="text-lg">{icon}</span>
+          <span class="font-medium">{label}</span>
+        </div>
+        <Badge variant="secondary" class="ml-auto">
+          {count}
+        </Badge>
+      {/if}
     </Button>
   </div>
 {/if}

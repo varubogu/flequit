@@ -12,7 +12,7 @@ export class LayoutService {
       taskDetailPaneSize: 70
     };
   }
-  
+
   static loadPreferences(): LayoutPreferences {
     try {
       const stored = localStorage.getItem(LAYOUT_STORAGE_KEY);
@@ -28,7 +28,7 @@ export class LayoutService {
     }
     return this.getDefaultPreferences();
   }
-  
+
   static savePreferences(preferences: LayoutPreferences): void {
     try {
       localStorage.setItem(LAYOUT_STORAGE_KEY, JSON.stringify(preferences));
@@ -36,7 +36,7 @@ export class LayoutService {
       console.warn('Failed to save layout preferences:', error);
     }
   }
-  
+
   static updatePaneSizes(taskListSize: number, taskDetailSize: number): void {
     const preferences = {
       taskListPaneSize: taskListSize,

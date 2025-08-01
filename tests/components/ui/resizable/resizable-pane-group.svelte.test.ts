@@ -26,7 +26,10 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should accept custom class name', () => {
-    const { container } = render(ResizablePaneGroup, { class: 'custom-pane-group', direction: 'horizontal' });
+    const { container } = render(ResizablePaneGroup, {
+      class: 'custom-pane-group',
+      direction: 'horizontal'
+    });
     expect(container).toBeInTheDocument();
   });
 
@@ -53,7 +56,7 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(ResizablePaneGroup, { 
+    const { container } = render(ResizablePaneGroup, {
       'data-testid': 'pane-group',
       id: 'my-pane-group',
       direction: 'horizontal'
@@ -79,7 +82,10 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should handle autoSaveId prop', () => {
-    const { container } = render(ResizablePaneGroup, { autoSaveId: 'my-layout', direction: 'horizontal' });
+    const { container } = render(ResizablePaneGroup, {
+      autoSaveId: 'my-layout',
+      direction: 'horizontal'
+    });
     expect(container).toBeInTheDocument();
   });
 });

@@ -22,13 +22,13 @@ describe('ProjectList', () => {
 
   it('ViewTypeの異なる値が正しく処理される', () => {
     const viewTypes: ViewType[] = ['all', 'today', 'nextweek', 'project', 'tasklist', 'search'];
-    
-    viewTypes.forEach(viewType => {
+
+    viewTypes.forEach((viewType) => {
       const props = {
         currentView: viewType,
         onViewChange: vi.fn()
       };
-      
+
       expect(props.currentView).toBe(viewType);
       expect(props.onViewChange).toBeInstanceOf(Function);
     });
@@ -40,7 +40,7 @@ describe('ProjectList', () => {
       currentView: 'project' as ViewType,
       onViewChange
     };
-    
+
     expect(props.onViewChange).toBe(onViewChange);
     expect(props.onViewChange).toBeInstanceOf(Function);
   });
@@ -50,7 +50,7 @@ describe('ProjectList', () => {
       currentView: 'today' as ViewType,
       onViewChange: undefined
     };
-    
+
     expect(props.currentView).toBe('today');
     expect(props.onViewChange).toBeUndefined();
   });
@@ -59,7 +59,7 @@ describe('ProjectList', () => {
     const propsWithoutCurrentView = {
       onViewChange: vi.fn()
     };
-    
+
     // TypeScriptの型システムにより、currentViewは必須だが
     // コンポーネント内でデフォルト値'all'が設定される
     expect(propsWithoutCurrentView.onViewChange).toBeInstanceOf(Function);
@@ -80,7 +80,7 @@ describe('ProjectList', () => {
         onViewChange: vi.fn()
       }
     ];
-    
+
     instances.forEach((instance, index) => {
       expect(instance.currentView).toBeDefined();
       expect(instance.onViewChange).toBeInstanceOf(Function);
@@ -88,14 +88,21 @@ describe('ProjectList', () => {
   });
 
   it('ViewTypeの型安全性が保たれる', () => {
-    const validViewTypes: ViewType[] = ['all', 'today', 'nextweek', 'project', 'tasklist', 'search'];
-    
-    validViewTypes.forEach(viewType => {
+    const validViewTypes: ViewType[] = [
+      'all',
+      'today',
+      'nextweek',
+      'project',
+      'tasklist',
+      'search'
+    ];
+
+    validViewTypes.forEach((viewType) => {
       const props = {
         currentView: viewType,
         onViewChange: vi.fn()
       };
-      
+
       expect(validViewTypes).toContain(props.currentView);
     });
   });
@@ -103,17 +110,17 @@ describe('ProjectList', () => {
   it('異なるコールバック関数が正しく設定される', () => {
     const callback1 = vi.fn();
     const callback2 = vi.fn();
-    
+
     const props1 = {
       currentView: 'all' as ViewType,
       onViewChange: callback1
     };
-    
+
     const props2 = {
       currentView: 'project' as ViewType,
       onViewChange: callback2
     };
-    
+
     expect(props1.onViewChange).not.toBe(props2.onViewChange);
     expect(props1.onViewChange).toBe(callback1);
     expect(props2.onViewChange).toBe(callback2);
@@ -128,8 +135,8 @@ describe('ProjectList', () => {
       { currentView: 'tasklist' as ViewType, onViewChange: vi.fn() },
       { currentView: 'search' as ViewType, onViewChange: vi.fn() }
     ];
-    
-    combinations.forEach(combo => {
+
+    combinations.forEach((combo) => {
       expect(combo.currentView).toBeDefined();
       expect(combo.onViewChange).toBeInstanceOf(Function);
       expect(typeof combo.currentView).toBe('string');
@@ -142,10 +149,10 @@ describe('ProjectList', () => {
       currentView: 'project' as ViewType,
       onViewChange: mockCallback
     };
-    
+
     // コールバックが関数として呼び出し可能であることを確認
     expect(() => props.onViewChange?.('all')).not.toThrow();
-    
+
     // モック関数が実際に呼び出されたことを確認
     props.onViewChange?.('all');
     expect(mockCallback).toHaveBeenCalledWith('all');
@@ -153,18 +160,18 @@ describe('ProjectList', () => {
 
   it('ViewTypeの値の変更が反映される', () => {
     let currentViewType: ViewType = 'all';
-    
+
     const props = {
       currentView: currentViewType,
       onViewChange: vi.fn()
     };
-    
+
     expect(props.currentView).toBe('all');
-    
+
     // プロパティを変更
     currentViewType = 'project';
     const updatedProps = { ...props, currentView: currentViewType };
-    
+
     expect(updatedProps.currentView).toBe('project');
   });
 });

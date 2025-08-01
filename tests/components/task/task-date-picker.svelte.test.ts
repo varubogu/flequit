@@ -60,7 +60,7 @@ describe('TaskDatePicker Component', () => {
 
   test('should have exported handlers', () => {
     const { component } = render(TaskDatePicker, { task: mockTask });
-    
+
     // Check if exported functions are available
     expect(component.handleDueDateClick).toBeDefined();
     expect(component.handleSubTaskDueDateClick).toBeDefined();
@@ -93,14 +93,14 @@ describe('TaskDatePicker Component', () => {
 
   test('should handle subtask date changes', () => {
     const { component } = render(TaskDatePicker, { task: mockTask });
-    
+
     // Verify the component has the exported handler for subtask dates
     expect(component.handleSubTaskDueDateClick).toBeDefined();
   });
 
   test('should initialize with correct default state', () => {
     const { component } = render(TaskDatePicker, { task: mockTask });
-    
+
     expect(component.showDatePicker).toBe(false);
     expect(component.datePickerPosition).toEqual({ x: 0, y: 0 });
   });

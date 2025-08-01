@@ -23,13 +23,13 @@ describe('SettingsAppearance Component', () => {
 
   test('should render appearance settings section', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     expect(screen.getByText('Appearance Settings')).toBeInTheDocument();
   });
 
   test('should render theme selection', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     expect(screen.getByLabelText('Theme')).toBeInTheDocument();
     expect(screen.getByText('System (light)')).toBeInTheDocument();
     expect(screen.getByText('Light')).toBeInTheDocument();
@@ -38,10 +38,10 @@ describe('SettingsAppearance Component', () => {
 
   test('should render font selection', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const fontSelect = screen.getByLabelText('Font');
     expect(fontSelect).toBeInTheDocument();
-    
+
     const options = fontSelect.querySelectorAll('option');
     expect(options[0]).toHaveTextContent('Default');
     expect(options[1]).toHaveTextContent('System');
@@ -51,7 +51,7 @@ describe('SettingsAppearance Component', () => {
 
   test('should render font size input', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const fontSizeInput = screen.getByLabelText('Font Size');
     expect(fontSizeInput).toBeInTheDocument();
     expect(fontSizeInput).toHaveAttribute('type', 'number');
@@ -61,10 +61,10 @@ describe('SettingsAppearance Component', () => {
 
   test('should render font color selection', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const fontColorSelect = screen.getByLabelText('Font Color');
     expect(fontColorSelect).toBeInTheDocument();
-    
+
     const options = fontColorSelect.querySelectorAll('option');
     expect(options[0]).toHaveTextContent('Default');
     expect(options[1]).toHaveTextContent('Black');
@@ -73,10 +73,10 @@ describe('SettingsAppearance Component', () => {
 
   test('should render background color selection', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const backgroundColorSelect = screen.getByLabelText('Background Color');
     expect(backgroundColorSelect).toBeInTheDocument();
-    
+
     const options = backgroundColorSelect.querySelectorAll('option');
     expect(options[0]).toHaveTextContent('Default');
     expect(options[1]).toHaveTextContent('White');
@@ -86,7 +86,7 @@ describe('SettingsAppearance Component', () => {
   test('should render font select with correct value', () => {
     const settings = { ...defaultSettings, font: 'arial' };
     render(SettingsAppearance, { settings });
-    
+
     const fontSelect = screen.getByLabelText('Font') as HTMLSelectElement;
     expect(fontSelect.value).toBe('arial');
   });
@@ -94,7 +94,7 @@ describe('SettingsAppearance Component', () => {
   test('should render font size input with correct value', () => {
     const settings = { ...defaultSettings, fontSize: 16 };
     render(SettingsAppearance, { settings });
-    
+
     const fontSizeInput = screen.getByLabelText('Font Size') as HTMLInputElement;
     expect(fontSizeInput.value).toBe('16');
   });
@@ -102,7 +102,7 @@ describe('SettingsAppearance Component', () => {
   test('should render font color select with correct value', () => {
     const settings = { ...defaultSettings, fontColor: 'black' };
     render(SettingsAppearance, { settings });
-    
+
     const fontColorSelect = screen.getByLabelText('Font Color') as HTMLSelectElement;
     expect(fontColorSelect.value).toBe('black');
   });
@@ -110,7 +110,7 @@ describe('SettingsAppearance Component', () => {
   test('should render background color select with correct value', () => {
     const settings = { ...defaultSettings, backgroundColor: 'white' };
     render(SettingsAppearance, { settings });
-    
+
     const backgroundColorSelect = screen.getByLabelText('Background Color') as HTMLSelectElement;
     expect(backgroundColorSelect.value).toBe('white');
   });
@@ -118,21 +118,21 @@ describe('SettingsAppearance Component', () => {
   test('should call setMode when theme is changed', async () => {
     const { setMode } = await import('mode-watcher');
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const themeSelect = screen.getByLabelText('Theme');
     await fireEvent.change(themeSelect, { target: { value: 'dark' } });
-    
+
     expect(setMode).toHaveBeenCalledWith('dark');
   });
 
   test('should have correct default values', () => {
     render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const fontSelect = screen.getByLabelText('Font') as HTMLSelectElement;
     const fontSizeInput = screen.getByLabelText('Font Size') as HTMLInputElement;
     const fontColorSelect = screen.getByLabelText('Font Color') as HTMLSelectElement;
     const backgroundColorSelect = screen.getByLabelText('Background Color') as HTMLSelectElement;
-    
+
     expect(fontSelect.value).toBe('default');
     expect(fontSizeInput.value).toBe('13');
     expect(fontColorSelect.value).toBe('default');
@@ -141,14 +141,16 @@ describe('SettingsAppearance Component', () => {
 
   test('should have responsive grid layout', () => {
     const { container } = render(SettingsAppearance, { settings: defaultSettings });
-    
-    const gridContainer = container.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.xl\\:grid-cols-3');
+
+    const gridContainer = container.querySelector(
+      '.grid.grid-cols-1.md\\:grid-cols-2.xl\\:grid-cols-3'
+    );
     expect(gridContainer).toBeInTheDocument();
   });
 
   test('should render section with correct id', () => {
     const { container } = render(SettingsAppearance, { settings: defaultSettings });
-    
+
     const section = container.querySelector('#settings-appearance');
     expect(section).toBeInTheDocument();
   });

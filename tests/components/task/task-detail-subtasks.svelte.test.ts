@@ -175,6 +175,8 @@ describe('TaskDetailSubTasks Component', () => {
     });
 
     const subtaskWithoutDate = screen.getByText('SubTask 2').closest('button');
-    expect(subtaskWithoutDate?.querySelector('.text-xs.text-muted-foreground.whitespace-nowrap')).not.toBeInTheDocument();
+    expect(
+      subtaskWithoutDate?.querySelector('.text-xs.text-muted-foreground.whitespace-nowrap')
+    ).not.toBeInTheDocument();
   });
 });

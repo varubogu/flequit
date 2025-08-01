@@ -85,38 +85,42 @@
   let tagColor = $derived(tag.color || DEFAULT_TAG_COLOR);
 
   // タグ用のコンテキストメニューリストを作成
-  const contextMenuItems: ContextMenuList = $derived(createContextMenu([
-    ...(enableTagRemoveFromContext && onTagRemoveFromItem ? [
+  const contextMenuItems: ContextMenuList = $derived(
+    createContextMenu([
+      ...(enableTagRemoveFromContext && onTagRemoveFromItem
+        ? [
+            {
+              id: 'remove-tag-from-item',
+              label: removeTagFromItem,
+              action: handleTagRemoveFromItem,
+              icon: Minus
+            },
+            createSeparator()
+          ]
+        : []),
       {
-        id: 'remove-tag-from-item',
-        label: removeTagFromItem,
-        action: handleTagRemoveFromItem,
-        icon: Minus
+        id: 'toggle-bookmark',
+        label: isBookmarked ? removeTagFromSidebar : addTagToSidebar,
+        action: handleToggleBookmark,
+        icon: isBookmarked ? Bookmark : BookmarkPlus
       },
-      createSeparator()
-    ] : []),
-    {
-      id: 'toggle-bookmark',
-      label: isBookmarked ? removeTagFromSidebar : addTagToSidebar,
-      action: handleToggleBookmark,
-      icon: isBookmarked ? Bookmark : BookmarkPlus
-    },
-    createSeparator(),
-    {
-      id: 'edit-tag',
-      label: editTag,
-      action: handleTagEdit,
-      icon: Edit
-    },
-    createSeparator(),
-    {
-      id: 'delete-tag',
-      label: deleteTag,
-      action: handleTagDelete,
-      icon: Trash2,
-      destructive: true
-    }
-  ]));
+      createSeparator(),
+      {
+        id: 'edit-tag',
+        label: editTag,
+        action: handleTagEdit,
+        icon: Edit
+      },
+      createSeparator(),
+      {
+        id: 'delete-tag',
+        label: deleteTag,
+        action: handleTagDelete,
+        icon: Trash2,
+        destructive: true
+      }
+    ])
+  );
 </script>
 
 <ContextMenuWrapper items={contextMenuItems}>
@@ -124,14 +128,14 @@
     <div class="inline-flex items-center gap-1 {className}">
       <Badge
         variant="outline"
-        class="text-xs pr-1"
+        class="pr-1 text-xs"
         style="border-color: {tagColor}; color: {tagColor};"
       >
         {tag.name}
         <Button
           variant="ghost"
           size="icon"
-          class="h-3 w-3 p-0 ml-1 hover:bg-secondary-foreground/20"
+          class="hover:bg-secondary-foreground/20 ml-1 h-3 w-3 p-0"
           onclick={handleRemove}
         >
           <X class="h-2 w-2" />
@@ -154,13 +158,13 @@
   open={showEditDialog}
   {tag}
   onsave={handleEditSave}
-  onclose={() => showEditDialog = false}
+  onclose={() => (showEditDialog = false)}
 />
 
 <!-- Delete Confirmation Dialog -->
 <TagDeleteDialog
   open={showDeleteDialog}
-  tag={tag}
+  {tag}
   onConfirm={handleDeleteConfirm}
-  onCancel={() => showDeleteDialog = false}
+  onCancel={() => (showDeleteDialog = false)}
 />

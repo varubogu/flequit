@@ -13,38 +13,42 @@ export function localDateTimeToUTC(localDateTime: string): Date {
  */
 export function utcToLocalDateTime(utcDate: Date | null | undefined): string {
   if (!utcDate) return '';
-  
+
   const timezone = settingsStore.effectiveTimezone;
-  
+
   try {
     // UTCタイムスタンプを取得
     const utcTime = utcDate.getTime();
-    
+
     // 指定タイムゾーンでのローカル時刻を取得
     const localDate = new Date(utcTime);
     const offset = getTimezoneOffset(timezone, localDate);
-    
+
     // オフセットを適用してローカル時刻を計算
     const localTime = new Date(utcTime + offset);
-    
+
     // YYYY-MM-DDTHH:mm:ss形式で返す
     return localTime.toISOString().slice(0, 19);
   } catch (error) {
     console.error('Timezone conversion error:', error);
     // フォールバック: システムタイムゾーンを使用
     return new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000)
-      .toISOString().slice(0, 19);
+      .toISOString()
+      .slice(0, 19);
   }
 }
 
 /**
  * UTC Dateオブジェクトを指定タイムゾーンで表示用にフォーマット
  */
-export function formatDateTimeInTimezone(utcDate: Date | null | undefined, includeTime: boolean = true): string {
+export function formatDateTimeInTimezone(
+  utcDate: Date | null | undefined,
+  includeTime: boolean = true
+): string {
   if (!utcDate) return '';
-  
+
   const timezone = settingsStore.effectiveTimezone;
-  
+
   try {
     const formatter = new Intl.DateTimeFormat('ja-JP', {
       timeZone: timezone,
@@ -57,13 +61,15 @@ export function formatDateTimeInTimezone(utcDate: Date | null | undefined, inclu
         hour12: false
       })
     });
-    
+
     return formatter.format(utcDate);
   } catch (error) {
     console.error('Date formatting error:', error);
     // フォールバック
-    return utcDate.toLocaleDateString('ja-JP') + 
-           (includeTime ? ' ' + utcDate.toLocaleTimeString('ja-JP', { hour12: false }) : '');
+    return (
+      utcDate.toLocaleDateString('ja-JP') +
+      (includeTime ? ' ' + utcDate.toLocaleTimeString('ja-JP', { hour12: false }) : '')
+    );
   }
 }
 
@@ -75,7 +81,7 @@ function getTimezoneOffset(timezone: string, date: Date): number {
     // 指定タイムゾーンでの時刻を取得
     const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
     const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
-    
+
     return tzDate.getTime() - utcDate.getTime();
   } catch (error) {
     console.error('Timezone offset calculation error:', error);
@@ -88,7 +94,7 @@ function getTimezoneOffset(timezone: string, date: Date): number {
  */
 export function parseInputDateTime(dateTimeString: string): Date | null {
   if (!dateTimeString) return null;
-  
+
   try {
     // YYYY-MM-DD または YYYY-MM-DDTHH:mm:ss 形式
     if (dateTimeString.includes('T')) {

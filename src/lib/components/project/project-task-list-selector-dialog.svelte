@@ -33,7 +33,7 @@
   let selectedTaskListId = $state(currentTaskListId);
   let availableTaskLists = $derived(
     selectedProjectId
-      ? taskStore.projects.find(p => p.id === selectedProjectId)?.task_lists || []
+      ? taskStore.projects.find((p) => p.id === selectedProjectId)?.task_lists || []
       : []
   );
 
@@ -69,11 +69,11 @@
     <div class="space-y-4">
       <!-- プロジェクト選択 -->
       <div>
-        <label for="project-select" class="text-sm font-medium mb-2 block">{project()}</label>
+        <label for="project-select" class="mb-2 block text-sm font-medium">{project()}</label>
         <select
           id="project-select"
           bind:value={selectedProjectId}
-          class="w-full px-3 py-2 border rounded-md text-sm"
+          class="w-full rounded-md border px-3 py-2 text-sm"
         >
           <option value="">プロジェクトを選択</option>
           {#each taskStore.projects as proj (proj.id)}
@@ -84,12 +84,12 @@
 
       <!-- タスクリスト選択 -->
       <div>
-        <label for="tasklist-select" class="text-sm font-medium mb-2 block">{taskList()}</label>
+        <label for="tasklist-select" class="mb-2 block text-sm font-medium">{taskList()}</label>
         <select
           id="tasklist-select"
           bind:value={selectedTaskListId}
           disabled={!selectedProjectId}
-          class="w-full px-3 py-2 border rounded-md text-sm disabled:opacity-50"
+          class="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
         >
           <option value="">タスクリストを選択</option>
           {#each availableTaskLists as list (list.id)}
@@ -103,10 +103,7 @@
       <Button variant="outline" onclick={handleClose}>
         {cancel()}
       </Button>
-      <Button
-        onclick={handleSave}
-        disabled={!selectedProjectId || !selectedTaskListId}
-      >
+      <Button onclick={handleSave} disabled={!selectedProjectId || !selectedTaskListId}>
         {save()}
       </Button>
     </Dialog.Footer>

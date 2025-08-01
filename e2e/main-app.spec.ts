@@ -20,7 +20,10 @@ test.describe('Main Application', () => {
 
   test('should handle view navigation', async ({ page }) => {
     // Test view switching from sidebar
-    await page.getByRole('button', { name: /All Tasks/ }).first().click();
+    await page
+      .getByRole('button', { name: /All Tasks/ })
+      .first()
+      .click();
     await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible(); // Task list header
 
     await page.getByRole('button', { name: /Today/ }).first().click();

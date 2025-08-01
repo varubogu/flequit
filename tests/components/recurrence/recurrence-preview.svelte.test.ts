@@ -42,7 +42,7 @@ describe('RecurrencePreview', () => {
       ...defaultProps,
       showBasicSettings: false
     };
-    
+
     expect(props.showBasicSettings).toBe(false);
     expect(props.previewDates).toHaveLength(5);
   });
@@ -52,20 +52,20 @@ describe('RecurrencePreview', () => {
       ...defaultProps,
       previewDates: []
     };
-    
+
     expect(props.previewDates).toEqual([]);
     expect(props.showBasicSettings).toBe(true);
   });
 
   it('異なるdisplayCountが処理される', () => {
     const displayCounts = [1, 3, 10, 20];
-    
-    displayCounts.forEach(count => {
+
+    displayCounts.forEach((count) => {
       const props = {
         ...defaultProps,
         displayCount: count
       };
-      
+
       expect(props.displayCount).toBe(count);
       expect(props.displayCount).toBeGreaterThan(0);
       expect(props.displayCount).toBeLessThanOrEqual(20);
@@ -76,15 +76,15 @@ describe('RecurrencePreview', () => {
     const customFormatDate = (date: Date) => {
       return date.toISOString().split('T')[0];
     };
-    
+
     const props = {
       ...defaultProps,
       formatDate: customFormatDate
     };
-    
+
     expect(props.formatDate).toBe(customFormatDate);
     expect(props.formatDate).toBeInstanceOf(Function);
-    
+
     const testDate = new Date('2024-01-15');
     const formatted = props.formatDate(testDate);
     expect(formatted).toBe('2024-01-15');
@@ -95,20 +95,20 @@ describe('RecurrencePreview', () => {
       ...defaultProps,
       repeatCount: undefined
     };
-    
+
     expect(props.repeatCount).toBeUndefined();
     expect(props.previewDates).toHaveLength(5);
   });
 
   it('異なるrepeatCountが処理される', () => {
     const repeatCounts = [1, 5, 10, 50, 100];
-    
-    repeatCounts.forEach(count => {
+
+    repeatCounts.forEach((count) => {
       const props = {
         ...defaultProps,
         repeatCount: count
       };
-      
+
       expect(props.repeatCount).toBe(count);
       expect(props.repeatCount).toBeGreaterThan(0);
     });
@@ -125,7 +125,7 @@ describe('RecurrencePreview', () => {
       ...defaultProps,
       previewDates: largeDateArray
     };
-    
+
     expect(props.previewDates).toHaveLength(100);
     expect(props.previewDates[0]).toBeInstanceOf(Date);
     expect(props.previewDates[99]).toBeInstanceOf(Date);
@@ -139,15 +139,15 @@ describe('RecurrencePreview', () => {
       (date: Date) => `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
     ];
 
-    formatFunctions.forEach(formatFn => {
+    formatFunctions.forEach((formatFn) => {
       const props = {
         ...defaultProps,
         formatDate: formatFn
       };
-      
+
       expect(props.formatDate).toBe(formatFn);
       expect(props.formatDate).toBeInstanceOf(Function);
-      
+
       const testDate = new Date('2024-01-15');
       const result = props.formatDate(testDate);
       expect(typeof result).toBe('string');
@@ -160,7 +160,7 @@ describe('RecurrencePreview', () => {
       ...defaultProps,
       displayCount: 1
     };
-    
+
     expect(props.displayCount).toBe(1);
     expect(props.previewDates).toHaveLength(5);
   });
@@ -171,7 +171,7 @@ describe('RecurrencePreview', () => {
       displayCount: 20,
       previewDates: mockDates.slice(0, 3) // 3つのみ
     };
-    
+
     expect(props.displayCount).toBe(20);
     expect(props.previewDates).toHaveLength(3);
   });
@@ -201,7 +201,7 @@ describe('RecurrencePreview', () => {
       }
     ];
 
-    combinations.forEach(combo => {
+    combinations.forEach((combo) => {
       expect(typeof combo.showBasicSettings).toBe('boolean');
       expect(Array.isArray(combo.previewDates)).toBe(true);
       expect(typeof combo.displayCount).toBe('number');
@@ -214,8 +214,8 @@ describe('RecurrencePreview', () => {
 
   it('previewDatesの日付オブジェクトが有効である', () => {
     const props = defaultProps;
-    
-    props.previewDates.forEach(date => {
+
+    props.previewDates.forEach((date) => {
       expect(date).toBeInstanceOf(Date);
       expect(date.getTime()).not.toBeNaN();
     });
@@ -223,8 +223,8 @@ describe('RecurrencePreview', () => {
 
   it('formatDate関数がエラーを投げない', () => {
     const props = defaultProps;
-    
-    props.previewDates.forEach(date => {
+
+    props.previewDates.forEach((date) => {
       expect(() => props.formatDate(date)).not.toThrow();
       const result = props.formatDate(date);
       expect(typeof result).toBe('string');
@@ -233,13 +233,13 @@ describe('RecurrencePreview', () => {
 
   it('displayCountの範囲制限が適用される', () => {
     const boundaryValues = [0, 1, 10, 20, 21, 100];
-    
-    boundaryValues.forEach(value => {
+
+    boundaryValues.forEach((value) => {
       const props = {
         ...defaultProps,
         displayCount: value
       };
-      
+
       expect(props.displayCount).toBe(value);
       // 実際のコンポーネントでは1-20の制限があるが、propsレベルでは制限しない
     });
@@ -253,12 +253,12 @@ describe('RecurrencePreview', () => {
       { repeatCount: undefined, displayCount: 5 } // repeatCount undefined
     ];
 
-    scenarios.forEach(scenario => {
+    scenarios.forEach((scenario) => {
       const props = {
         ...defaultProps,
         ...scenario
       };
-      
+
       expect(props.displayCount).toBe(scenario.displayCount);
       expect(props.repeatCount).toBe(scenario.repeatCount);
     });

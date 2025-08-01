@@ -4,7 +4,7 @@ import { getLocale } from '$paraglide/runtime';
 
 // $paraglide/runtime をモック
 vi.mock('$paraglide/runtime', () => ({
-  getLocale: vi.fn(),
+  getLocale: vi.fn()
 }));
 
 describe('LanguageOrderUtils', () => {
@@ -64,12 +64,8 @@ describe('LanguageOrderUtils', () => {
 
   describe('formatWeekdayConditionJa', () => {
     it('日本語形式で条件表示テンプレートを生成', () => {
-      const result = LanguageOrderUtils.formatWeekdayConditionJa(
-        '土曜日',
-        '次',
-        '月曜日'
-      );
-      
+      const result = LanguageOrderUtils.formatWeekdayConditionJa('土曜日', '次', '月曜日');
+
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
       expect(result.parts).toEqual([
         { type: 'select', content: '土曜日', key: 'condition' },
@@ -83,7 +79,7 @@ describe('LanguageOrderUtils', () => {
 
     it('空文字列でも適切に処理される', () => {
       const result = LanguageOrderUtils.formatWeekdayConditionJa('', '', '');
-      
+
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
       expect(result.parts).toHaveLength(6);
       expect(result.parts[0]).toEqual({ type: 'select', content: '', key: 'condition' });
@@ -92,12 +88,8 @@ describe('LanguageOrderUtils', () => {
 
   describe('formatWeekdayConditionEn', () => {
     it('英語形式で条件表示テンプレートを生成', () => {
-      const result = LanguageOrderUtils.formatWeekdayConditionEn(
-        'Saturday',
-        'next',
-        'Monday'
-      );
-      
+      const result = LanguageOrderUtils.formatWeekdayConditionEn('Saturday', 'next', 'Monday');
+
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
       expect(result.parts).toEqual([
         { type: 'text', content: 'If' },
@@ -110,7 +102,7 @@ describe('LanguageOrderUtils', () => {
 
     it('空文字列でも適切に処理される', () => {
       const result = LanguageOrderUtils.formatWeekdayConditionEn('', '', '');
-      
+
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
       expect(result.parts).toHaveLength(5);
       expect(result.parts[1]).toEqual({ type: 'select', content: '', key: 'condition' });
@@ -120,50 +112,33 @@ describe('LanguageOrderUtils', () => {
   describe('formatWeekdayCondition', () => {
     it('日本語ロケールの場合は日本語フォーマットを返す', () => {
       mockGetLocale.mockReturnValue('ja');
-      
-      const result = LanguageOrderUtils.formatWeekdayCondition(
-        '土曜日',
-        '次',
-        '月曜日'
-      );
-      
+
+      const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日');
+
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
     });
 
     it('英語ロケールの場合は英語フォーマットを返す', () => {
       mockGetLocale.mockReturnValue('en');
-      
-      const result = LanguageOrderUtils.formatWeekdayCondition(
-        'Saturday',
-        'next',
-        'Monday'
-      );
-      
+
+      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
+
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
       mockGetLocale.mockReturnValue('en');
-      
-      const result = LanguageOrderUtils.formatWeekdayCondition(
-        '土曜日',
-        '次',
-        '月曜日',
-        'ja'
-      );
-      
+
+      const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日', 'ja');
+
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
     });
 
     it('未知の言語の場合は英語フォーマットを返す', () => {
       (mockGetLocale as any).mockReturnValue('fr');
-      
-      const result = LanguageOrderUtils.formatWeekdayCondition(
-        'Saturday',
-        'next',
-        'Monday'
-      );
-      
+
+      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
+
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
     });
   });

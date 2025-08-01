@@ -1,4 +1,7 @@
-import type { ITranslationServiceWithNotification, LocaleChangeCallback } from './translation-service';
+import type {
+  ITranslationServiceWithNotification,
+  LocaleChangeCallback
+} from './translation-service';
 
 /**
  * テスト用のモック翻訳サービス
@@ -8,12 +11,9 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
   private messages = new Map<string, Map<string, string>>();
   private subscribers = new Set<LocaleChangeCallback>();
 
-  constructor(
-    initialLocale = 'en',
-    messages: Record<string, Record<string, string>> = {}
-  ) {
+  constructor(initialLocale = 'en', messages: Record<string, Record<string, string>> = {}) {
     this.currentLocale = initialLocale;
-    
+
     // メッセージを設定
     Object.entries(messages).forEach(([locale, localeMessages]) => {
       const localeMap = new Map(Object.entries(localeMessages));
@@ -28,10 +28,10 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
   setLocale(locale: string): void {
     const oldLocale = this.currentLocale;
     this.currentLocale = locale;
-    
+
     // 購読者に変更を通知
     if (oldLocale !== locale) {
-      this.subscribers.forEach(callback => callback(locale));
+      this.subscribers.forEach((callback) => callback(locale));
     }
   }
 
@@ -44,7 +44,7 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
     return () => {
       const localeMessages = this.messages.get(this.currentLocale);
       let message = localeMessages?.get(key) || key;
-      
+
       // パラメータがある場合は置換を行う
       if (params && Object.keys(params).length > 0) {
         // {paramName} 形式の置換
@@ -52,7 +52,7 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
           return params[paramName] !== undefined ? String(params[paramName]) : match;
         });
       }
-      
+
       return message;
     };
   }
@@ -75,7 +75,6 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
     const localeMap = new Map(Object.entries(messages));
     this.messages.set(locale, localeMap);
   }
-
 
   /**
    * テスト用: 購読者の数を取得

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { TaskWithSubTasks, SubTask } from "$lib/types/task";
-  import { taskStore } from "$lib/stores/tasks.svelte";
-  import InlineDatePicker from "$lib/components/datetime/inline-date-picker.svelte";
+  import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+  import { taskStore } from '$lib/stores/tasks.svelte';
+  import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -31,7 +31,12 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
+  function handleDateChange(data: {
+    date: string;
+    dateTime: string;
+    range?: { start: string; end: string };
+    isRangeDate: boolean;
+  }) {
     const { dateTime, range, isRangeDate } = data;
 
     if (isRangeDate) {
@@ -88,11 +93,16 @@
     showSubTaskDatePicker = true;
   }
 
-  function handleSubTaskDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
+  function handleSubTaskDateChange(data: {
+    date: string;
+    dateTime: string;
+    range?: { start: string; end: string };
+    isRangeDate: boolean;
+  }) {
     if (!editingSubTaskId) return;
 
     const { dateTime, range, isRangeDate } = data;
-    const subTaskIndex = task.sub_tasks.findIndex(st => st.id === editingSubTaskId);
+    const subTaskIndex = task.sub_tasks.findIndex((st) => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
     if (isRangeDate) {
@@ -136,12 +146,7 @@
   }
 
   // Export handlers for parent component
-  export {
-    handleDueDateClick,
-    handleSubTaskDueDateClick,
-    datePickerPosition,
-    showDatePicker
-  };
+  export { handleDueDateClick, handleSubTaskDueDateClick, datePickerPosition, showDatePicker };
 </script>
 
 <!-- Main Task Date Picker -->
@@ -159,10 +164,16 @@
 <!-- SubTask Date Picker -->
 <InlineDatePicker
   show={showSubTaskDatePicker}
-  currentDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.end_date?.toISOString() || '') : ''}
-  currentStartDate={editingSubTaskId ? (task.sub_tasks.find(st => st.id === editingSubTaskId)?.start_date?.toISOString() || '') : ''}
+  currentDate={editingSubTaskId
+    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.end_date?.toISOString() || ''
+    : ''}
+  currentStartDate={editingSubTaskId
+    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.start_date?.toISOString() || ''
+    : ''}
   position={subTaskDatePickerPosition}
-  isRangeDate={editingSubTaskId ? task.sub_tasks.find(st => st.id === editingSubTaskId)?.is_range_date || false : false}
+  isRangeDate={editingSubTaskId
+    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.is_range_date || false
+    : false}
   onchange={handleSubTaskDateChange}
   onclear={handleSubTaskDateClear}
   onclose={handleSubTaskDatePickerClose}

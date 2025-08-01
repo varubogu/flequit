@@ -19,15 +19,15 @@ bun create tauri-app
 
 sudo apt update
 sudo apt install
-  #libwebkit2gtk-4.1-dev \  # まっさらな状態ではインストール不可
-  build-essential \
-  curl \
-  wget \
-  file \
-  libxdo-dev \
-  libssl-dev \
-  libayatana-appindicator3-dev \
-  librsvg2-dev
+#libwebkit2gtk-4.1-dev \ # まっさらな状態ではインストール不可
+build-essential \
+ curl \
+ wget \
+ file \
+ libxdo-dev \
+ libssl-dev \
+ libayatana-appindicator3-dev \
+ librsvg2-dev
 
 ## 翻訳機能を追加
 

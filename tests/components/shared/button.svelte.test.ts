@@ -31,26 +31,26 @@ describe('Button (shared)', () => {
 
   it('異なるvariantが処理される', () => {
     const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'] as const;
-    
-    variants.forEach(variant => {
+
+    variants.forEach((variant) => {
       const props = {
         ...defaultProps,
         variant
       };
-      
+
       expect(props.variant).toBe(variant);
     });
   });
 
   it('異なるsizeが処理される', () => {
     const sizes = ['default', 'sm', 'lg', 'icon'] as const;
-    
-    sizes.forEach(size => {
+
+    sizes.forEach((size) => {
       const props = {
         ...defaultProps,
         size
       };
-      
+
       expect(props.size).toBe(size);
     });
   });
@@ -60,7 +60,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       disabled: true
     };
-    
+
     expect(props.disabled).toBe(true);
   });
 
@@ -69,7 +69,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       class: 'custom-button-class bg-blue-500'
     };
-    
+
     expect(props.class).toBe('custom-button-class bg-blue-500');
   });
 
@@ -78,7 +78,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       class: ''
     };
-    
+
     expect(props.class).toBe('');
   });
 
@@ -87,18 +87,18 @@ describe('Button (shared)', () => {
       ...defaultProps,
       class: undefined
     };
-    
+
     expect(props.class).toBeUndefined();
   });
 
   it('onclickコールバックが設定される', () => {
     const onclick = vi.fn();
-    
+
     const props = {
       ...defaultProps,
       onclick
     };
-    
+
     expect(props.onclick).toBe(onclick);
     expect(props.onclick).toBeInstanceOf(Function);
   });
@@ -108,7 +108,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       onclick: undefined
     };
-    
+
     expect(props.onclick).toBeUndefined();
   });
 
@@ -117,7 +117,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       title: ''
     };
-    
+
     expect(props.title).toBe('');
   });
 
@@ -126,7 +126,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       title: undefined
     };
-    
+
     expect(props.title).toBeUndefined();
   });
 
@@ -135,7 +135,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       'aria-label': 'Accessible Button Label'
     };
-    
+
     expect(props['aria-label']).toBe('Accessible Button Label');
   });
 
@@ -144,7 +144,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       'aria-label': undefined
     };
-    
+
     expect(props['aria-label']).toBeUndefined();
   });
 
@@ -153,7 +153,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       'data-testid': 'custom-test-id'
     };
-    
+
     expect(props['data-testid']).toBe('custom-test-id');
   });
 
@@ -162,7 +162,7 @@ describe('Button (shared)', () => {
       ...defaultProps,
       'data-testid': undefined
     };
-    
+
     expect(props['data-testid']).toBeUndefined();
   });
 
@@ -188,12 +188,12 @@ describe('Button (shared)', () => {
       }
     ];
 
-    combinations.forEach(combo => {
+    combinations.forEach((combo) => {
       const props = {
         ...defaultProps,
         ...combo
       };
-      
+
       expect(props.variant).toBe(combo.variant);
       expect(props.size).toBe(combo.size);
       expect(props.disabled).toBe(combo.disabled);
@@ -204,35 +204,36 @@ describe('Button (shared)', () => {
   it('variantとsizeの型安全性が保たれる', () => {
     const validVariants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'];
     const validSizes = ['default', 'sm', 'lg', 'icon'];
-    
-    validVariants.forEach(variant => {
+
+    validVariants.forEach((variant) => {
       const props = {
         ...defaultProps,
         variant: variant as any
       };
-      
+
       expect(validVariants).toContain(props.variant);
     });
 
-    validSizes.forEach(size => {
+    validSizes.forEach((size) => {
       const props = {
         ...defaultProps,
         size: size as any
       };
-      
+
       expect(validSizes).toContain(props.size);
     });
   });
 
   it('長いtitleとaria-labelが処理される', () => {
-    const longText = 'This is a very long title and aria-label that contains multiple words and describes the button functionality in detail';
-    
+    const longText =
+      'This is a very long title and aria-label that contains multiple words and describes the button functionality in detail';
+
     const props = {
       ...defaultProps,
       title: longText,
       'aria-label': longText
     };
-    
+
     expect(props.title).toBe(longText);
     expect(props['aria-label']).toBe(longText);
   });
@@ -245,7 +246,7 @@ describe('Button (shared)', () => {
       class: 'class-with-special_chars-123',
       'data-testid': 'test-id_with-special.chars'
     };
-    
+
     expect(props.title).toBe('Title with "quotes" & <tags>');
     expect(props['aria-label']).toBe('Label with émojis 🚀 & ünïcöde');
     expect(props.class).toBe('class-with-special_chars-123');
@@ -258,11 +259,11 @@ describe('Button (shared)', () => {
       ...defaultProps,
       onclick: mockCallback
     };
-    
+
     // コールバックが関数として呼び出し可能であることを確認
     const mockEvent = new Event('click');
     expect(() => props.onclick?.(mockEvent)).not.toThrow();
-    
+
     // モック関数が実際に呼び出されたことを確認
     props.onclick?.(mockEvent);
     expect(mockCallback).toHaveBeenCalledWith(mockEvent);
@@ -274,10 +275,10 @@ describe('Button (shared)', () => {
       ...defaultProps,
       onclick: mockCallback
     };
-    
+
     // 引数なしでの呼び出し
     expect(() => props.onclick?.()).not.toThrow();
-    
+
     props.onclick?.();
     expect(mockCallback).toHaveBeenCalledWith();
   });

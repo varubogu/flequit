@@ -21,7 +21,12 @@
   const cancel = translationService.getMessage('cancel');
 </script>
 
-<Dialog.Root {open} onOpenChange={(open) => { if (!open) onCancel(); }}>
+<Dialog.Root
+  {open}
+  onOpenChange={(open) => {
+    if (!open) onCancel();
+  }}
+>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{title}</Dialog.Title>

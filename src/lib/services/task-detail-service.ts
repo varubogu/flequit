@@ -7,7 +7,7 @@ interface TaskDetailDrawerState {
 
 export class TaskDetailService {
   private static isMobileInstance: any = null;
-  
+
   private static taskDetailDrawerState: TaskDetailDrawerState = {
     open: false,
     onClose: () => {}
@@ -30,7 +30,7 @@ export class TaskDetailService {
   }
 
   private static notifySubscribers() {
-    this.subscribers.forEach(callback => callback());
+    this.subscribers.forEach((callback) => callback());
   }
 
   static setMobileInstance(isMobile: any) {
@@ -40,7 +40,7 @@ export class TaskDetailService {
   static openTaskDetail(taskId: string) {
     // 1. ストアに選択状態を保存
     TaskService.selectTask(taskId);
-    
+
     // 2. デスクトップかモバイルかで表示方法を決定
     if (this.isMobileInstance?.current) {
       this.openDrawer();
@@ -51,7 +51,7 @@ export class TaskDetailService {
   static openSubTaskDetail(subTaskId: string) {
     // 1. ストアに選択状態を保存
     TaskService.selectSubTask(subTaskId);
-    
+
     // 2. デスクトップかモバイルかで表示方法を決定
     if (this.isMobileInstance?.current) {
       this.openDrawer();

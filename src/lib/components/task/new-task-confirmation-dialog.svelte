@@ -19,7 +19,12 @@
   const keep_editing = translationService.getMessage('keep_editing');
 </script>
 
-<Dialog.Root {open} onOpenChange={(open) => { if (!open) onCancel(); }}>
+<Dialog.Root
+  {open}
+  onOpenChange={(open) => {
+    if (!open) onCancel();
+  }}
+>
   <Dialog.Content>
     <Dialog.Header>
       <Dialog.Title>{confirm_discard_changes()}</Dialog.Title>

@@ -14,18 +14,18 @@
 
   // Use IsMobile directly instead of useSidebar
   const isMobile = new IsMobile();
-  
+
   // Set the mobile instance in TaskDetailService
   TaskDetailService.setMobileInstance(isMobile);
-  
+
   // Reactive state for TaskDetailService
   let drawerOpen = $state(false);
-  
+
   // Subscribe to TaskDetailService state changes
   TaskDetailService.subscribe(() => {
     drawerOpen = TaskDetailService.drawerState.open;
   });
-  
+
   function handleViewChange(view: ViewType) {
     viewStore.changeView(view);
   }
@@ -53,7 +53,7 @@
   }
 </script>
 
-<Sidebar.Provider class="h-screen flex bg-background" style="--sidebar-width-icon: 4rem;">
+<Sidebar.Provider class="bg-background flex h-screen" style="--sidebar-width-icon: 4rem;">
   <!-- Collapsible Sidebar -->
   <CollapsibleSidebar currentView={viewStore.currentView} onViewChange={handleViewChange} />
 
@@ -71,12 +71,9 @@
         on:subTaskSelectionRequested={handleSubTaskSelectionRequested}
       />
     </div>
-    
+
     <!-- モバイル: Drawerでタスク詳細表示 -->
-    <TaskDetailDrawer 
-      open={drawerOpen} 
-      onClose={handleCloseTaskDetailDrawer}
-    />
+    <TaskDetailDrawer open={drawerOpen} onClose={handleCloseTaskDetailDrawer} />
   {:else}
     <!-- デスクトップ: リサイズ可能なパネル構成 -->
     <Resizable.PaneGroup direction="horizontal">

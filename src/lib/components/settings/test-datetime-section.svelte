@@ -12,7 +12,7 @@
 </script>
 
 <div>
-  <div class="flex items-center gap-4 mb-2">
+  <div class="mb-2 flex items-center gap-4">
     <h3 class="text-sm font-medium">{testDateTimeLabel()}</h3>
     <TestDateTimeInput bind:testDateTime />
   </div>

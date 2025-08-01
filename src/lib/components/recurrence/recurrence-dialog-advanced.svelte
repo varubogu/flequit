@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import * as Dialog from "$lib/components/ui/dialog/index.js";
-  import { Repeat } from "lucide-svelte";
+  import * as Dialog from '$lib/components/ui/dialog/index.js';
+  import { Repeat } from 'lucide-svelte';
   import type {
     RecurrenceRule,
     RecurrenceUnit,
@@ -33,28 +33,45 @@
     isRangeDate?: boolean;
   }
 
-  let { open = $bindable(false), onOpenChange, recurrenceRule, onSave, startDateTime, endDateTime, isRangeDate }: Props = $props();
+  let {
+    open = $bindable(false),
+    onOpenChange,
+    recurrenceRule,
+    onSave,
+    startDateTime,
+    endDateTime,
+    isRangeDate
+  }: Props = $props();
 
   const translationService = getTranslationService();
   // --- State ---
   let recurrenceLevel = $state<RecurrenceLevel>(
-    !recurrenceRule ? 'disabled' :
-    (recurrenceRule.adjustment && (recurrenceRule.adjustment.date_conditions.length > 0 || recurrenceRule.adjustment.weekday_conditions.length > 0)) ||
-    (recurrenceRule.details && Object.keys(recurrenceRule.details).length > 0) ? 'advanced' : 'enabled'
+    !recurrenceRule
+      ? 'disabled'
+      : (recurrenceRule.adjustment &&
+            (recurrenceRule.adjustment.date_conditions.length > 0 ||
+              recurrenceRule.adjustment.weekday_conditions.length > 0)) ||
+          (recurrenceRule.details && Object.keys(recurrenceRule.details).length > 0)
+        ? 'advanced'
+        : 'enabled'
   );
   let unit = $state<RecurrenceUnit>(recurrenceRule?.unit || 'day');
   let interval = $state(recurrenceRule?.interval || 1);
   let daysOfWeek = $state<DayOfWeek[]>(recurrenceRule?.days_of_week || []);
   let details = $state<RecurrenceDetails>(recurrenceRule?.details || {});
   let dateConditions = $state<DateCondition[]>(recurrenceRule?.adjustment?.date_conditions || []);
-  let weekdayConditions = $state<WeekdayCondition[]>(recurrenceRule?.adjustment?.weekday_conditions || []);
+  let weekdayConditions = $state<WeekdayCondition[]>(
+    recurrenceRule?.adjustment?.weekday_conditions || []
+  );
   let endDate = $state<Date | undefined>(recurrenceRule?.end_date);
   let repeatCount = $state<number | undefined>(recurrenceRule?.max_occurrences);
   let previewDates = $state<Date[]>([]);
   let displayCount = $state(15);
 
   // --- Derived State ---
-  const showBasicSettings = $derived(recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced');
+  const showBasicSettings = $derived(
+    recurrenceLevel === 'enabled' || recurrenceLevel === 'advanced'
+  );
   const showAdvancedSettings = $derived(recurrenceLevel === 'advanced');
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
 
@@ -78,12 +95,13 @@
       interval,
       ...(unit === 'week' && daysOfWeek.length > 0 && { days_of_week: daysOfWeek }),
       ...(showAdvancedSettings && isComplexUnit && Object.keys(details).length > 0 && { details }),
-      ...(showAdvancedSettings && (dateConditions.length > 0 || weekdayConditions.length > 0) && {
-        adjustment: {
-          date_conditions: dateConditions,
-          weekday_conditions: weekdayConditions
-        }
-      }),
+      ...(showAdvancedSettings &&
+        (dateConditions.length > 0 || weekdayConditions.length > 0) && {
+          adjustment: {
+            date_conditions: dateConditions,
+            weekday_conditions: weekdayConditions
+          }
+        }),
       ...(endDate && { end_date: endDate }),
       ...(repeatCount && repeatCount > 0 && { max_occurrences: repeatCount })
     };
@@ -113,39 +131,52 @@
 
   // --- Event Handlers ---
   function toggleDayOfWeek(day: DayOfWeek) {
-    daysOfWeek = daysOfWeek.includes(day) ? daysOfWeek.filter(d => d !== day) : [...daysOfWeek, day];
+    daysOfWeek = daysOfWeek.includes(day)
+      ? daysOfWeek.filter((d) => d !== day)
+      : [...daysOfWeek, day];
     handleImmediateSave();
   }
 
   function addDateCondition() {
-    dateConditions = [...dateConditions, { id: generateRandomId(), relation: 'before', reference_date: new Date() }];
+    dateConditions = [
+      ...dateConditions,
+      { id: generateRandomId(), relation: 'before', reference_date: new Date() }
+    ];
     handleImmediateSave();
   }
   function removeDateCondition(id: string) {
-    dateConditions = dateConditions.filter(c => c.id !== id);
+    dateConditions = dateConditions.filter((c) => c.id !== id);
     handleImmediateSave();
   }
   function updateDateCondition(id: string, updates: Partial<DateCondition>) {
-    dateConditions = dateConditions.map(c => c.id === id ? { ...c, ...updates } : c);
+    dateConditions = dateConditions.map((c) => (c.id === id ? { ...c, ...updates } : c));
     handleImmediateSave();
   }
 
   function addWeekdayCondition() {
-    weekdayConditions = [...weekdayConditions, { id: generateRandomId(), if_weekday: 'monday', then_direction: 'next', then_target: 'weekday' }];
+    weekdayConditions = [
+      ...weekdayConditions,
+      {
+        id: generateRandomId(),
+        if_weekday: 'monday',
+        then_direction: 'next',
+        then_target: 'weekday'
+      }
+    ];
     handleImmediateSave();
   }
   function removeWeekdayCondition(id: string) {
-    weekdayConditions = weekdayConditions.filter(c => c.id !== id);
+    weekdayConditions = weekdayConditions.filter((c) => c.id !== id);
     handleImmediateSave();
   }
   function updateWeekdayCondition(id: string, updates: Partial<WeekdayCondition>) {
-    weekdayConditions = weekdayConditions.map(c => c.id === id ? { ...c, ...updates } : c);
+    weekdayConditions = weekdayConditions.map((c) => (c.id === id ? { ...c, ...updates } : c));
     handleImmediateSave();
   }
 </script>
 
-<Dialog.Root bind:open onOpenChange={onOpenChange}>
-  <Dialog.Content class="!w-[90vw] !max-w-[1200px] max-h-[85vh] overflow-hidden z-[60]">
+<Dialog.Root bind:open {onOpenChange}>
+  <Dialog.Content class="z-[60] max-h-[85vh] !w-[90vw] !max-w-[1200px] overflow-hidden">
     <Dialog.Header>
       <Dialog.Title class="flex items-center gap-2">
         <Repeat class="h-5 w-5" />
@@ -153,9 +184,9 @@
       </Dialog.Title>
     </Dialog.Header>
 
-    <div class="flex flex-wrap gap-6 max-h-[calc(85vh-120px)] overflow-y-auto">
+    <div class="flex max-h-[calc(85vh-120px)] flex-wrap gap-6 overflow-y-auto">
       <!-- 設定パネル -->
-      <div class="flex-1 min-w-[480px] space-y-6 overflow-y-auto">
+      <div class="min-w-[480px] flex-1 space-y-6 overflow-y-auto">
         <RecurrenceLevelSelector bind:value={recurrenceLevel} onchange={handleImmediateSave} />
 
         {#if showBasicSettings}
@@ -192,7 +223,8 @@
             {previewDates}
             bind:displayCount
             {repeatCount}
-            formatDate={(date) => formatDateTimeRange(date, { startDateTime, endDateTime, isRangeDate })}
+            formatDate={(date) =>
+              formatDateTimeRange(date, { startDateTime, endDateTime, isRangeDate })}
           />
         </div>
       {/if}

@@ -14,7 +14,13 @@
     ontagRemoved?: (tagId: string) => void;
   }
 
-  let { tags = [], placeholder = reactiveMessage(m.add_tags_placeholder)(), class: className = "", ontagAdded, ontagRemoved }: Props = $props();
+  let {
+    tags = [],
+    placeholder = reactiveMessage(m.add_tags_placeholder)(),
+    class: className = '',
+    ontagAdded,
+    ontagRemoved
+  }: Props = $props();
 
   const translationService = getTranslationService();
   let inputValue = $state('');
@@ -51,7 +57,7 @@
     }
 
     // Check if tag already exists on this task
-    if (tags.some(tag => tag.name.toLowerCase() === cleanedName.toLowerCase())) {
+    if (tags.some((tag) => tag.name.toLowerCase() === cleanedName.toLowerCase())) {
       inputValue = '';
       return;
     }
@@ -73,7 +79,7 @@
 <div class="relative {className}">
   <!-- Tag display -->
   {#if tags.length > 0}
-    <div class="flex flex-wrap gap-1 mb-2">
+    <div class="mb-2 flex flex-wrap gap-1">
       {#each tags as tag (tag.id)}
         <TagDisplay
           {tag}
@@ -92,7 +98,7 @@
       type="text"
       value={inputValue}
       {placeholder}
-      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       oninput={handleInput}
       onkeydown={handleKeydown}
     />

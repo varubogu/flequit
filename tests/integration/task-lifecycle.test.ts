@@ -1,14 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-
 // モックストアの実装
 const mockTaskStore = {
   tasks: [] as any[],
-  
+
   clear: vi.fn(() => {
     mockTaskStore.tasks.length = 0;
   }),
-  
+
   addTask: vi.fn((listId: string, taskData: any) => {
     const newTask = {
       id: `task-${Date.now()}`,
@@ -24,7 +23,7 @@ const mockTaskStore = {
     mockTaskStore.tasks.push(newTask);
     return newTask;
   }),
-  
+
   updateTask: vi.fn((taskId: string, updates: any) => {
     const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
     if (taskIndex >= 0) {
@@ -37,7 +36,7 @@ const mockTaskStore = {
     }
     return null;
   }),
-  
+
   deleteTask: vi.fn((taskId: string) => {
     const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
     if (taskIndex >= 0) {
@@ -46,7 +45,7 @@ const mockTaskStore = {
     }
     return false;
   }),
-  
+
   getTasksByListId: vi.fn((listId: string) => {
     return mockTaskStore.tasks.filter((t: any) => t.list_id === listId);
   })
@@ -71,7 +70,6 @@ vi.mock('$lib/services/task-service', () => ({
   }
 }));
 
-
 describe('タスクライフサイクル結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -82,7 +80,7 @@ describe('タスクライフサイクル結合テスト', () => {
 
   it('タスクの作成→編集→削除の完全フローが正常に動作する', async () => {
     // モック関数のみを使用した結合テスト
-    
+
     // 1. タスク作成
     const newTask = mockTaskStore.addTask('test-list-1', {
       title: '新しいタスク',
@@ -95,11 +93,13 @@ describe('タスクライフサイクル結合テスト', () => {
       description: 'テスト用タスクです',
       status: 'not_started'
     });
-    expect(newTask).toEqual(expect.objectContaining({
-      title: '新しいタスク',
-      status: 'not_started',
-      list_id: 'test-list-1'
-    }));
+    expect(newTask).toEqual(
+      expect.objectContaining({
+        title: '新しいタスク',
+        status: 'not_started',
+        list_id: 'test-list-1'
+      })
+    );
 
     // タスクが正しく追加されたか確認
     const tasks = mockTaskStore.getTasksByListId('test-list-1');
@@ -116,11 +116,13 @@ describe('タスクライフサイクル結合テスト', () => {
       status: 'completed',
       title: '更新されたタスク'
     });
-    expect(updatedTask).toEqual(expect.objectContaining({
-      title: '更新されたタスク',
-      status: 'completed',
-      list_id: 'test-list-1'
-    }));
+    expect(updatedTask).toEqual(
+      expect.objectContaining({
+        title: '更新されたタスク',
+        status: 'completed',
+        list_id: 'test-list-1'
+      })
+    );
 
     // 3. タスク削除
     const deleteResult = mockTaskStore.deleteTask(newTask.id);
@@ -137,7 +139,7 @@ describe('タスクライフサイクル結合テスト', () => {
     // 独立したモックストアを作成
     const localTaskStore = {
       tasks: [] as any[],
-      
+
       addTask: (listId: string, taskData: any) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
@@ -153,7 +155,7 @@ describe('タスクライフサイクル結合テスト', () => {
         localTaskStore.tasks.push(newTask);
         return newTask;
       },
-      
+
       updateTask: (taskId: string, updates: any) => {
         const taskIndex = localTaskStore.tasks.findIndex((t: any) => t.id === taskId);
         if (taskIndex >= 0) {
@@ -166,7 +168,7 @@ describe('タスクライフサイクル結合テスト', () => {
         }
         return null;
       },
-      
+
       deleteTask: (taskId: string) => {
         const taskIndex = localTaskStore.tasks.findIndex((t: any) => t.id === taskId);
         if (taskIndex >= 0) {
@@ -175,17 +177,26 @@ describe('タスクライフサイクル結合テスト', () => {
         }
         return false;
       },
-      
+
       getTasksByListId: (listId: string) => {
         return localTaskStore.tasks.filter((t: any) => t.list_id === listId);
       }
     };
-    
+
     // 複数タスク作成
-    const task1 = localTaskStore.addTask('test-list-1', { title: 'タスク1', status: 'not_started' });
-    const task2 = localTaskStore.addTask('test-list-1', { title: 'タスク2', status: 'not_started' });
-    const task3 = localTaskStore.addTask('test-list-1', { title: 'タスク3', status: 'not_started' });
-    
+    const task1 = localTaskStore.addTask('test-list-1', {
+      title: 'タスク1',
+      status: 'not_started'
+    });
+    const task2 = localTaskStore.addTask('test-list-1', {
+      title: 'タスク2',
+      status: 'not_started'
+    });
+    const task3 = localTaskStore.addTask('test-list-1', {
+      title: 'タスク3',
+      status: 'not_started'
+    });
+
     // タスクが作成されたことを確認
     let tasks = localTaskStore.getTasksByListId('test-list-1');
     expect(tasks).toHaveLength(3);
@@ -194,7 +205,7 @@ describe('タスクライフサイクル結合テスト', () => {
     const result1 = localTaskStore.updateTask(task1.id, { status: 'completed' });
     const result2 = localTaskStore.updateTask(task2.id, { status: 'completed' });
     const result3 = localTaskStore.updateTask(task3.id, { status: 'completed' });
-    
+
     expect(result1).not.toBeNull();
     expect(result2).not.toBeNull();
     expect(result3).not.toBeNull();
@@ -205,19 +216,19 @@ describe('タスクライフサイクル結合テスト', () => {
     // 更新されたタスクを確認
     tasks = localTaskStore.getTasksByListId('test-list-1');
     expect(tasks).toHaveLength(3);
-    
-    const completedTasks = tasks.filter(t => t.status === 'completed');
+
+    const completedTasks = tasks.filter((t) => t.status === 'completed');
     expect(completedTasks).toHaveLength(3);
 
     // 完了済みタスク削除
     const deleteResult1 = localTaskStore.deleteTask(task1.id);
     const deleteResult2 = localTaskStore.deleteTask(task2.id);
     const deleteResult3 = localTaskStore.deleteTask(task3.id);
-    
+
     expect(deleteResult1).toBe(true);
     expect(deleteResult2).toBe(true);
     expect(deleteResult3).toBe(true);
-    
+
     // 全タスクが削除されたことを確認
     tasks = localTaskStore.getTasksByListId('test-list-1');
     expect(tasks).toHaveLength(0);

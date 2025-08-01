@@ -142,24 +142,24 @@ describe('ViewService - TaskList Filtering', () => {
   describe('Project Selection', () => {
     it('should return all tasks from selected project', () => {
       taskStore.selectProject('project-1');
-      
+
       const tasks = ViewService.getTasksForView('project');
-      
+
       expect(tasks).toHaveLength(3);
-      expect(tasks.map(t => t.id)).toEqual(['task-1', 'task-2', 'task-3']);
+      expect(tasks.map((t) => t.id)).toEqual(['task-1', 'task-2', 'task-3']);
     });
 
     it('should return empty array when project not found', () => {
       taskStore.selectProject('non-existent-project');
-      
+
       const tasks = ViewService.getTasksForView('project');
-      
+
       expect(tasks).toHaveLength(0);
     });
 
     it('should return empty array when no project selected', () => {
       const tasks = ViewService.getTasksForView('project');
-      
+
       expect(tasks).toHaveLength(0);
     });
   });
@@ -167,33 +167,33 @@ describe('ViewService - TaskList Filtering', () => {
   describe('TaskList Selection', () => {
     it('should return tasks only from selected list', () => {
       taskStore.selectList('list-1');
-      
+
       const tasks = ViewService.getTasksForView('tasklist');
-      
+
       expect(tasks).toHaveLength(2);
-      expect(tasks.map(t => t.id)).toEqual(['task-1', 'task-2']);
+      expect(tasks.map((t) => t.id)).toEqual(['task-1', 'task-2']);
     });
 
     it('should return tasks from different project list', () => {
       taskStore.selectList('list-3');
-      
+
       const tasks = ViewService.getTasksForView('tasklist');
-      
+
       expect(tasks).toHaveLength(1);
-      expect(tasks.map(t => t.id)).toEqual(['task-4']);
+      expect(tasks.map((t) => t.id)).toEqual(['task-4']);
     });
 
     it('should return empty array when list not found', () => {
       taskStore.selectList('non-existent-list');
-      
+
       const tasks = ViewService.getTasksForView('tasklist');
-      
+
       expect(tasks).toHaveLength(0);
     });
 
     it('should return empty array when no list selected', () => {
       const tasks = ViewService.getTasksForView('tasklist');
-      
+
       expect(tasks).toHaveLength(0);
     });
   });
@@ -202,9 +202,9 @@ describe('ViewService - TaskList Filtering', () => {
     it('should clear list selection when project is selected', () => {
       taskStore.selectList('list-1');
       expect(taskStore.selectedListId).toBe('list-1');
-      
+
       taskStore.selectProject('project-2');
-      
+
       expect(taskStore.selectedProjectId).toBe('project-2');
       expect(taskStore.selectedListId).toBeNull();
     });
@@ -212,9 +212,9 @@ describe('ViewService - TaskList Filtering', () => {
     it('should clear project selection when list is selected', () => {
       taskStore.selectProject('project-1');
       expect(taskStore.selectedProjectId).toBe('project-1');
-      
+
       taskStore.selectList('list-3');
-      
+
       expect(taskStore.selectedListId).toBe('list-3');
       expect(taskStore.selectedProjectId).toBeNull();
     });
@@ -223,29 +223,29 @@ describe('ViewService - TaskList Filtering', () => {
   describe('View Titles', () => {
     it('should return project name when project selected', () => {
       taskStore.selectProject('project-1');
-      
+
       const title = ViewService.getViewTitle('project');
-      
+
       expect(title).toBe('Project 1');
     });
 
     it('should return list name when list selected', () => {
       taskStore.selectList('list-2');
-      
+
       const title = ViewService.getViewTitle('tasklist');
-      
+
       expect(title).toBe('Project 1 > List 2');
     });
 
     it('should return default when no project selected', () => {
       const title = ViewService.getViewTitle('project');
-      
+
       expect(title).toBe('Project');
     });
 
     it('should return default when no list selected', () => {
       const title = ViewService.getViewTitle('tasklist');
-      
+
       expect(title).toBe('Project');
     });
   });
@@ -270,18 +270,18 @@ describe('ViewService - TaskList Filtering', () => {
   describe('View Change Handling', () => {
     it('should preserve project selection when changing to project view', () => {
       taskStore.selectProject('project-1');
-      
+
       ViewService.handleViewChange('project');
-      
+
       expect(taskStore.selectedProjectId).toBe('project-1');
       expect(taskStore.selectedListId).toBeNull();
     });
 
     it('should preserve list selection when changing to tasklist view', () => {
       taskStore.selectList('list-1');
-      
+
       ViewService.handleViewChange('tasklist');
-      
+
       expect(taskStore.selectedListId).toBe('list-1');
       expect(taskStore.selectedProjectId).toBeNull();
     });
@@ -289,9 +289,9 @@ describe('ViewService - TaskList Filtering', () => {
     it('should clear project and list selection for other views', () => {
       taskStore.selectProject('project-1');
       taskStore.selectList('list-1');
-      
+
       ViewService.handleViewChange('all');
-      
+
       expect(taskStore.selectedProjectId).toBeNull();
       expect(taskStore.selectedListId).toBeNull();
     });

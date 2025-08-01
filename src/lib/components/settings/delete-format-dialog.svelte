@@ -16,7 +16,7 @@
   const deleteFormatMessage = translationService.getMessage('delete_format_message');
 </script>
 
-<AlertDialog.Root bind:open={open}>
+<AlertDialog.Root bind:open>
   <AlertDialog.Portal>
     <AlertDialog.Overlay />
     <AlertDialog.Content>

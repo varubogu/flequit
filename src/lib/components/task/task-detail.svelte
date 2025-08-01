@@ -30,7 +30,9 @@
 
   let task = $derived(taskStore.selectedTask);
   let subTask = $derived(taskStore.selectedSubTask);
-  let currentItem = $derived(task || subTask || (taskStore.isNewTaskMode ? taskStore.newTaskData : null));
+  let currentItem = $derived(
+    task || subTask || (taskStore.isNewTaskMode ? taskStore.newTaskData : null)
+  );
   let isSubTask = $derived(!!subTask);
   let isNewTaskMode = $derived(taskStore.isNewTaskMode);
 
@@ -145,7 +147,9 @@
     event?.preventDefault();
     event?.stopPropagation();
 
-    const rect = event?.target ? (event.target as HTMLElement).getBoundingClientRect() : { left: 0, bottom: 0 };
+    const rect = event?.target
+      ? (event.target as HTMLElement).getBoundingClientRect()
+      : { left: 0, bottom: 0 };
     datePickerPosition = {
       x: Math.min(rect.left, window.innerWidth - 300),
       y: rect.bottom + 8
@@ -153,7 +157,12 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) {
+  function handleDateChange(data: {
+    date: string;
+    dateTime: string;
+    range?: { start: string; end: string };
+    isRangeDate: boolean;
+  }) {
     const { dateTime, range, isRangeDate } = data;
 
     if (isRangeDate) {
@@ -201,7 +210,6 @@
   function handleDatePickerClose() {
     showDatePicker = false;
   }
-
 
   function handleStatusChange(event: Event) {
     if (!currentItem) return;
@@ -360,7 +368,7 @@
 
 {#if isDrawerMode}
   <!-- Drawer mode: no Card wrapper, direct content -->
-  <div class="flex flex-col h-full">
+  <div class="flex h-full flex-col">
     {#if currentItem}
       <TaskDetailHeader
         {currentItem}
@@ -373,99 +381,10 @@
       />
 
       <!-- Content -->
-      <div class="flex-1 overflow-auto py-4 space-y-4">
-        <!-- Status, Due Date, Priority -->
-      <div class="flex flex-wrap gap-4">
-        <TaskStatusSelector
-          {currentItem}
-          onStatusChange={handleStatusChange}
-        />
-
-        <TaskDueDateSelector
-          {currentItem}
-          {isSubTask}
-          formData={editForm}
-          onDueDateClick={handleDueDateClick}
-        />
-
-        <TaskPrioritySelector
-          {isSubTask}
-          formData={editForm}
-          onPriorityChange={handlePriorityChange}
-          onFormChange={handleFormChange}
-        />
-
-      </div>
-
-      <!-- Description -->
-      <TaskDescriptionEditor
-        {currentItem}
-        {isSubTask}
-        {isNewTaskMode}
-        formData={editForm}
-        onDescriptionChange={handleDescriptionChange}
-      />
-
-      <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
-      {#if !isSubTask && !isNewTaskMode && task}
-        <TaskDetailSubTasks
-          {task}
-          selectedSubTaskId={taskStore.selectedSubTaskId}
-          onSubTaskClick={handleSubTaskClick}
-          onSubTaskToggle={handleSubTaskToggle}
-        />
-      {/if}
-
-      <!-- Tags -->
-      {#if task || subTask || (isNewTaskMode && currentItem)}
-        <TaskDetailTags
-          task={isSubTask ? null : task}
-          subTask={isSubTask ? subTask : null}
-          {isNewTaskMode}
-        />
-      {/if}
-
-      <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
-      {#if !isNewTaskMode}
-        <ProjectTaskListSelector
-          projectInfo={projectInfo()}
-          onEdit={handleProjectTaskListEdit}
-        />
-      {/if}
-
-      <TaskDetailMetadata
-        {currentItem}
-        {isSubTask}
-        {isNewTaskMode}
-        onGoToParentTask={handleGoToParentTask}
-      />
-      </div>
-    {:else}
-      <TaskDetailEmptyState />
-    {/if}
-  </div>
-{:else}
-  <!-- Desktop mode: Card wrapper -->
-  <Card class="flex flex-col h-full">
-    {#if currentItem}
-      <TaskDetailHeader
-        {currentItem}
-        {isSubTask}
-        {isNewTaskMode}
-        title={editForm.title}
-        onTitleChange={handleTitleChange}
-        onDelete={handleDelete}
-        onSaveNewTask={handleSaveNewTask}
-      />
-
-      <!-- Content -->
-      <div class="flex-1 overflow-auto p-6 space-y-6">
+      <div class="flex-1 space-y-4 overflow-auto py-4">
         <!-- Status, Due Date, Priority -->
         <div class="flex flex-wrap gap-4">
-          <TaskStatusSelector
-            {currentItem}
-            onStatusChange={handleStatusChange}
-          />
+          <TaskStatusSelector {currentItem} onStatusChange={handleStatusChange} />
 
           <TaskDueDateSelector
             {currentItem}
@@ -480,7 +399,6 @@
             onPriorityChange={handlePriorityChange}
             onFormChange={handleFormChange}
           />
-
         </div>
 
         <!-- Description -->
@@ -513,10 +431,86 @@
 
         <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
         {#if !isNewTaskMode}
-          <ProjectTaskListSelector
-            projectInfo={projectInfo()}
-            onEdit={handleProjectTaskListEdit}
+          <ProjectTaskListSelector projectInfo={projectInfo()} onEdit={handleProjectTaskListEdit} />
+        {/if}
+
+        <TaskDetailMetadata
+          {currentItem}
+          {isSubTask}
+          {isNewTaskMode}
+          onGoToParentTask={handleGoToParentTask}
+        />
+      </div>
+    {:else}
+      <TaskDetailEmptyState />
+    {/if}
+  </div>
+{:else}
+  <!-- Desktop mode: Card wrapper -->
+  <Card class="flex h-full flex-col">
+    {#if currentItem}
+      <TaskDetailHeader
+        {currentItem}
+        {isSubTask}
+        {isNewTaskMode}
+        title={editForm.title}
+        onTitleChange={handleTitleChange}
+        onDelete={handleDelete}
+        onSaveNewTask={handleSaveNewTask}
+      />
+
+      <!-- Content -->
+      <div class="flex-1 space-y-6 overflow-auto p-6">
+        <!-- Status, Due Date, Priority -->
+        <div class="flex flex-wrap gap-4">
+          <TaskStatusSelector {currentItem} onStatusChange={handleStatusChange} />
+
+          <TaskDueDateSelector
+            {currentItem}
+            {isSubTask}
+            formData={editForm}
+            onDueDateClick={handleDueDateClick}
           />
+
+          <TaskPrioritySelector
+            {isSubTask}
+            formData={editForm}
+            onPriorityChange={handlePriorityChange}
+            onFormChange={handleFormChange}
+          />
+        </div>
+
+        <!-- Description -->
+        <TaskDescriptionEditor
+          {currentItem}
+          {isSubTask}
+          {isNewTaskMode}
+          formData={editForm}
+          onDescriptionChange={handleDescriptionChange}
+        />
+
+        <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
+        {#if !isSubTask && !isNewTaskMode && task}
+          <TaskDetailSubTasks
+            {task}
+            selectedSubTaskId={taskStore.selectedSubTaskId}
+            onSubTaskClick={handleSubTaskClick}
+            onSubTaskToggle={handleSubTaskToggle}
+          />
+        {/if}
+
+        <!-- Tags -->
+        {#if task || subTask || (isNewTaskMode && currentItem)}
+          <TaskDetailTags
+            task={isSubTask ? null : task}
+            subTask={isSubTask ? subTask : null}
+            {isNewTaskMode}
+          />
+        {/if}
+
+        <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
+        {#if !isNewTaskMode}
+          <ProjectTaskListSelector projectInfo={projectInfo()} onEdit={handleProjectTaskListEdit} />
         {/if}
 
         <TaskDetailMetadata

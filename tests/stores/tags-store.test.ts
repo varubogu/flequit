@@ -13,7 +13,7 @@ describe('TagStore', () => {
     it('should add a new tag', () => {
       const tagName = 'urgent';
       const tag = tagStore.addTag({ name: tagName });
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe(tagName);
@@ -24,21 +24,21 @@ describe('TagStore', () => {
       const tagName = 'urgent';
       tagStore.addTag({ name: tagName });
       tagStore.addTag({ name: tagName });
-      
+
       expect(tagStore.tags).toHaveLength(1);
     });
 
     it('should be case insensitive for duplicates', () => {
       tagStore.addTag({ name: 'Urgent' });
       tagStore.addTag({ name: 'urgent' });
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tagStore.tags[0].name).toBe('Urgent');
     });
 
     it('should handle tag with color', () => {
       const tag = tagStore.addTag({ name: 'important', color: '#ff0000' });
-      
+
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('important');
       expect(tag!.color).toBe('#ff0000');
@@ -48,7 +48,7 @@ describe('TagStore', () => {
       const initialCount = tagStore.tags.length;
       const tag1 = tagStore.addTag({ name: '' });
       const tag2 = tagStore.addTag({ name: '   ' });
-      
+
       expect(tag1).toBeNull();
       expect(tag2).toBeNull();
       expect(tagStore.tags).toHaveLength(initialCount);
@@ -66,7 +66,7 @@ describe('TagStore', () => {
     it('should return all tags for empty search', () => {
       const results = tagStore.searchTags('');
       expect(results).toHaveLength(4);
-      expect(results.map(tag => tag.name)).toEqual(['urgent', 'important', 'work', 'personal']);
+      expect(results.map((tag) => tag.name)).toEqual(['urgent', 'important', 'work', 'personal']);
     });
 
     it('should return partial matches', () => {
@@ -84,9 +84,9 @@ describe('TagStore', () => {
     it('should return multiple matches', () => {
       const results = tagStore.searchTags('r');
       expect(results.length).toBeGreaterThan(1);
-      expect(results.some(tag => tag.name === 'urgent')).toBe(true);
-      expect(results.some(tag => tag.name === 'important')).toBe(true);
-      expect(results.some(tag => tag.name === 'personal')).toBe(true);
+      expect(results.some((tag) => tag.name === 'urgent')).toBe(true);
+      expect(results.some((tag) => tag.name === 'important')).toBe(true);
+      expect(results.some((tag) => tag.name === 'personal')).toBe(true);
     });
   });
 
@@ -94,7 +94,7 @@ describe('TagStore', () => {
     it('should return existing tag if found', () => {
       tagStore.addTag({ name: 'existing' });
       const tag = tagStore.getOrCreateTag('existing');
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('existing');
@@ -102,7 +102,7 @@ describe('TagStore', () => {
 
     it('should create new tag if not found', () => {
       const tag = tagStore.getOrCreateTag('new-tag');
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('new-tag');
@@ -111,7 +111,7 @@ describe('TagStore', () => {
     it('should be case insensitive when finding existing tags', () => {
       tagStore.addTag({ name: 'ExistingTag' });
       const tag = tagStore.getOrCreateTag('existingtag');
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('ExistingTag'); // Should return the original case
@@ -120,7 +120,7 @@ describe('TagStore', () => {
     it('should return null for empty tag names', () => {
       const tag1 = tagStore.getOrCreateTag('');
       const tag2 = tagStore.getOrCreateTag('   ');
-      
+
       expect(tag1).toBeNull();
       expect(tag2).toBeNull();
       expect(tagStore.tags).toHaveLength(0);
@@ -143,7 +143,7 @@ describe('TagStore', () => {
     it('should not affect other tags', () => {
       tagStore.addTag({ name: 'keep-this' });
       tagStore.deleteTag(tagId);
-      
+
       expect(tagStore.tags).toHaveLength(1);
       expect(tagStore.tags[0].name).toBe('keep-this');
     });
@@ -185,7 +185,7 @@ describe('TagStore', () => {
       const tag1 = tagStore.addTag({ name: 'normal' });
       const tag2 = tagStore.addTag({ name: 'with-dash' });
       const tag3 = tagStore.addTag({ name: 'with_underscore' });
-      
+
       expect(tag1).not.toBeNull();
       expect(tag2).not.toBeNull();
       expect(tag3).not.toBeNull();

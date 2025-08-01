@@ -25,12 +25,12 @@
 </script>
 
 <div class="flex items-center gap-4">
-  <h3 class="text-lg font-semibold w-32 flex-shrink-0">{recurrence()}</h3>
+  <h3 class="w-32 flex-shrink-0 text-lg font-semibold">{recurrence()}</h3>
   <div class="flex-1">
     <select
       bind:value
-      class="w-full p-2 border border-border rounded bg-background text-foreground"
-      onchange={onchange}
+      class="border-border bg-background text-foreground w-full rounded border p-2"
+      {onchange}
     >
       {#each recurrenceLevelOptions as option}
         <option value={option.value}>{option.label()}</option>

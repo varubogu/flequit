@@ -139,11 +139,7 @@ describe('SubTask Drag and Drop Integration', () => {
 
       handleTagDrop(targetTag, dragData);
 
-      expect(TaskService.addTagToSubTask).toHaveBeenCalledWith(
-        'subtask-1',
-        'task-1',
-        'tag-1'
-      );
+      expect(TaskService.addTagToSubTask).toHaveBeenCalledWith('subtask-1', 'task-1', 'tag-1');
     });
   });
 
@@ -153,7 +149,7 @@ describe('SubTask Drag and Drop Integration', () => {
       const taskId = 'task-1';
 
       // Test different view types
-      ['today', 'tomorrow', 'next3days', 'nextweek', 'thismonth'].forEach(viewId => {
+      ['today', 'tomorrow', 'next3days', 'nextweek', 'thismonth'].forEach((viewId) => {
         TaskService.updateSubTaskDueDateForView(subTaskId, taskId, viewId);
         expect(TaskService.updateSubTaskDueDateForView).toHaveBeenCalledWith(
           subTaskId,
@@ -169,11 +165,7 @@ describe('SubTask Drag and Drop Integration', () => {
       const tagId = 'tag-1';
 
       TaskService.addTagToSubTask(subTaskId, taskId, tagId);
-      expect(TaskService.addTagToSubTask).toHaveBeenCalledWith(
-        subTaskId,
-        taskId,
-        tagId
-      );
+      expect(TaskService.addTagToSubTask).toHaveBeenCalledWith(subTaskId, taskId, tagId);
     });
   });
 });

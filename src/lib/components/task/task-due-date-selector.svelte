@@ -26,8 +26,9 @@
 </script>
 
 <div class="min-w-[140px] flex-1">
-  <label for="task-due-date" class="block text-sm font-medium mb-2">
-    {due_date()} {#if isSubTask}<span class="text-xs text-muted-foreground">{optional()}</span>{/if}
+  <label for="task-due-date" class="mb-2 block text-sm font-medium">
+    {due_date()}
+    {#if isSubTask}<span class="text-muted-foreground text-xs">{optional()}</span>{/if}
   </label>
   <DueDate
     task={{ ...currentItem, end_date: formData.end_date }}

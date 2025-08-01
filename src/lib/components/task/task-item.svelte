@@ -1,13 +1,10 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { TaskWithSubTasks } from "$lib/types/task";
-  import { taskStore } from "$lib/stores/tasks.svelte";
-  import {
-    getPriorityColor,
-    calculateSubTaskProgress,
-  } from "$lib/utils/task-utils";
-  import { TaskService } from "$lib/services/task-service";
-  import Button from "$lib/components/shared/button.svelte";
+  import type { TaskWithSubTasks } from '$lib/types/task';
+  import { taskStore } from '$lib/stores/tasks.svelte';
+  import { getPriorityColor, calculateSubTaskProgress } from '$lib/utils/task-utils';
+  import { TaskService } from '$lib/services/task-service';
+  import Button from '$lib/components/shared/button.svelte';
   import TaskStatusToggle from '$lib/components/task/task-status-toggle.svelte';
   import TaskContent from '$lib/components/task/task-content.svelte';
   import SubTaskList from '$lib/components/task/sub-task-list.svelte';
@@ -38,14 +35,12 @@
 
   let isSelected = $derived(taskStore.selectedTaskId === task.id);
   let hasSelectedSubTask = $derived(
-    task.sub_tasks.some((st) => st.id === taskStore.selectedSubTaskId),
+    task.sub_tasks.some((st) => st.id === taskStore.selectedSubTaskId)
   );
   let isActiveTask = $derived(isSelected || hasSelectedSubTask);
-  let completedSubTasks = $derived(
-    task.sub_tasks.filter((st) => st.status === "completed").length,
-  );
+  let completedSubTasks = $derived(task.sub_tasks.filter((st) => st.status === 'completed').length);
   let subTaskProgress = $derived(
-    calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length),
+    calculateSubTaskProgress(completedSubTasks, task.sub_tasks.length)
   );
   let showSubTasks = $state(false);
 
@@ -77,22 +72,24 @@
   }
 
   // タスク用のコンテキストメニューリストを作成
-  const taskContextMenuItems: ContextMenuList = $derived(createContextMenu([
-    {
-      id: 'edit-task',
-      label: editTask,
-      action: handleEditTask,
-      icon: Edit
-    },
-    createSeparator(),
-    {
-      id: 'delete-task',
-      label: deleteTask,
-      action: handleDeleteTask,
-      icon: Trash2,
-      destructive: true
-    }
-  ]));
+  const taskContextMenuItems: ContextMenuList = $derived(
+    createContextMenu([
+      {
+        id: 'edit-task',
+        label: editTask,
+        action: handleEditTask,
+        icon: Edit
+      },
+      createSeparator(),
+      {
+        id: 'delete-task',
+        label: deleteTask,
+        action: handleDeleteTask,
+        icon: Trash2,
+        destructive: true
+      }
+    ])
+  );
 
   // サブタスク用のコンテキストメニューリストを作成
   function createSubTaskContextMenu(subTask: any): ContextMenuList {
@@ -199,10 +196,9 @@
   function handleDragLeave(event: DragEvent, element: HTMLElement) {
     DragDropManager.handleDragLeave(event, element);
   }
-
 </script>
 
-<div class="flex items-start gap-1 w-full">
+<div class="flex w-full items-start gap-1">
   <TaskAccordionToggle
     hasSubTasks={task.sub_tasks.length > 0}
     isExpanded={showSubTasks}
@@ -225,15 +221,15 @@
     <ContextMenuWrapper items={taskContextMenuItems}>
       <Button
         variant="ghost"
-        class="task-item-button rounded-lg border bg-card text-card-foreground shadow-sm border-l-4 {getPriorityColor(
-          task.priority,
-        )} p-4 h-auto flex-1 justify-start text-left transition-all {isActiveTask
+        class="task-item-button bg-card text-card-foreground rounded-lg border border-l-4 shadow-sm {getPriorityColor(
+          task.priority
+        )} h-auto flex-1 justify-start p-4 text-left transition-all {isActiveTask
           ? 'selected'
-          : ''} min-w-0 w-full"
+          : ''} w-full min-w-0"
         onclick={handleTaskClick}
         data-testid="task-{task.id}"
       >
-        <div class="flex items-start gap-3 w-full min-w-0 overflow-hidden">
+        <div class="flex w-full min-w-0 items-start gap-3 overflow-hidden">
           <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
           <TaskContent
             {task}
@@ -257,7 +253,8 @@
     showSubTaskDatePicker={false}
     {handleSubTaskClick}
     {handleSubTaskToggle}
-    handleSubTaskDueDateClick={(e, st) => taskDatePicker && taskDatePicker.handleSubTaskDueDateClick(e, st)}
+    handleSubTaskDueDateClick={(e, st) =>
+      taskDatePicker && taskDatePicker.handleSubTaskDueDateClick(e, st)}
     {createSubTaskContextMenu}
   />
 {/if}

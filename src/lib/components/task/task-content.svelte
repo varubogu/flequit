@@ -26,9 +26,9 @@
   const translationService = getTranslationService();
   // Reactive messages
   const subtasksCompleted = $derived(
-    translationService.getMessage('subtasks_completed', { 
-      completed: completedSubTasks, 
-      total: task.sub_tasks.length 
+    translationService.getMessage('subtasks_completed', {
+      completed: completedSubTasks,
+      total: task.sub_tasks.length
     })
   );
 
@@ -37,11 +37,11 @@
   }
 </script>
 
-<div class="flex-1 min-w-0 overflow-hidden">
+<div class="min-w-0 flex-1 overflow-hidden">
   <!-- Title and Due Date Row -->
-  <div class="flex items-start gap-3 w-full min-w-0">
+  <div class="flex w-full min-w-0 items-start gap-3">
     <h3
-      class="truncate font-medium text-base leading-tight flex-1 min-w-0 overflow-hidden"
+      class="min-w-0 flex-1 truncate overflow-hidden text-base leading-tight font-medium"
       class:line-through={task.status === 'completed'}
       class:text-muted-foreground={task.status === 'completed'}
       title={task.title}
@@ -49,15 +49,12 @@
     >
       {task.title}
     </h3>
-    <DueDate
-      {task}
-      handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)}
-    />
+    <DueDate {task} handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)} />
   </div>
 
   {#if task.description}
     <p
-      class="text-sm text-muted-foreground mt-1 block w-full min-w-0"
+      class="text-muted-foreground mt-1 block w-full min-w-0 text-sm"
       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
     >
       {task.description}
@@ -67,10 +64,10 @@
   <!-- Sub-tasks preview -->
   {#if task.sub_tasks.length > 0}
     <div class="mt-2">
-      <div class="text-xs text-muted-foreground">
+      <div class="text-muted-foreground text-xs">
         {subtasksCompleted()}
       </div>
-      <div class="w-full bg-muted rounded-full h-1.5 mt-1">
+      <div class="bg-muted mt-1 h-1.5 w-full rounded-full">
         <div
           class="bg-primary h-1.5 rounded-full transition-all duration-300"
           style="width: {subTaskProgress}%"
@@ -81,12 +78,9 @@
 
   <!-- Tags -->
   {#if task.tags.length > 0}
-    <div class="flex flex-wrap gap-1 mt-2">
+    <div class="mt-2 flex flex-wrap gap-1">
       {#each task.tags as tag}
-        <TagDisplay
-          {tag}
-          onTagRemoveFromItem={handleTagRemoveFromTask}
-        />
+        <TagDisplay {tag} onTagRemoveFromItem={handleTagRemoveFromTask} />
       {/each}
     </div>
   {/if}

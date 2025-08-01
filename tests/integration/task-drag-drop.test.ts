@@ -230,7 +230,7 @@ describe('Task Drag & Drop Integration', () => {
       expect(dropAreas.length).toBeGreaterThan(0);
 
       // 各ドロップエリアは region roleを持っていることを確認
-      dropAreas.forEach(area => {
+      dropAreas.forEach((area) => {
         expect(area.getAttribute('role')).toBe('region');
       });
     });

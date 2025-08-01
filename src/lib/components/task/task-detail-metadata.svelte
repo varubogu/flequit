@@ -6,8 +6,6 @@
   import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages';
 
-
-
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
     isSubTask: boolean;
@@ -25,23 +23,17 @@
   const go_to_parent_task = translationService.getMessage('go_to_parent_task');
   const sub_task = translationService.getMessage('sub_task');
   const task = translationService.getMessage('task');
-
 </script>
 
 {#if !isNewTaskMode}
-  <div class="border-t pt-4 space-y-2 text-sm text-muted-foreground">
+  <div class="text-muted-foreground space-y-2 border-t pt-4 text-sm">
     <div>{created()}: {formatDateTime(currentItem.created_at)}</div>
     <div>{updated()}: {formatDateTime(currentItem.updated_at)}</div>
     <div>{isSubTask ? sub_task() : task()} ID: {currentItem.id}</div>
     {#if isSubTask && 'task_id' in currentItem}
       <div>{parent_task_id()}: {currentItem.task_id}</div>
       {#if onGoToParentTask}
-        <Button
-          variant="outline"
-          size="sm"
-          onclick={onGoToParentTask}
-          class="mt-2"
-        >
+        <Button variant="outline" size="sm" onclick={onGoToParentTask} class="mt-2">
           {go_to_parent_task()}
         </Button>
       {/if}

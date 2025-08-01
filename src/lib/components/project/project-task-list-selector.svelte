@@ -22,14 +22,14 @@
 </script>
 
 {#if projectInfo}
-  <div class="border rounded-lg p-4 bg-muted/50">
+  <div class="bg-muted/50 rounded-lg border p-4">
     <div class="flex items-center justify-between">
       <div class="space-y-2">
         <div class="text-sm">
           <span class="font-medium">{project()}:</span>
           <span class="ml-2 inline-flex items-center gap-1">
             <div
-              class="w-2 h-2 rounded-full"
+              class="h-2 w-2 rounded-full"
               style="background-color: {projectInfo.project.color || '#3b82f6'}"
             ></div>
             {projectInfo.project.name}
@@ -40,12 +40,8 @@
           <span class="ml-2">{projectInfo.taskList.name}</span>
         </div>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        onclick={onEdit}
-      >
-        <Edit3 class="h-4 w-4 mr-1" />
+      <Button variant="outline" size="sm" onclick={onEdit}>
+        <Edit3 class="mr-1 h-4 w-4" />
         {change()}
       </Button>
     </div>

@@ -1,6 +1,6 @@
-import { paraglideVitePlugin } from '@inlang/paraglide-js'
-import { defineConfig } from "vite";
-import { sveltekit } from "@sveltejs/kit/vite";
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
+import { defineConfig } from 'vite';
+import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 
@@ -12,7 +12,7 @@ export default defineConfig(async () => ({
     paraglideVitePlugin({
       project: './project.inlang',
       outdir: './src/paraglide',
-      strategy: ["cookie", "preferredLanguage", "baseLocale"]
+      strategy: ['cookie', 'preferredLanguage', 'baseLocale']
     }),
     tailwindcss(),
     sveltekit(),
@@ -30,14 +30,14 @@ export default defineConfig(async () => ({
     host: host || false,
     hmr: host
       ? {
-          protocol: "ws",
+          protocol: 'ws',
           host,
-          port: 1421,
+          port: 1421
         }
       : undefined,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
-    },
-  },
+      ignored: ['**/src-tauri/**']
+    }
+  }
 }));

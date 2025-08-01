@@ -40,12 +40,12 @@ describe('WeekdayConditionEditor', () => {
       then_target: 'specific_weekday',
       then_weekday: 'friday'
     };
-    
+
     const props = {
       ...defaultProps,
       condition: conditionWithSpecificWeekday
     };
-    
+
     expect(props.condition.then_target).toBe('specific_weekday');
     expect(props.condition.then_weekday).toBe('friday');
   });
@@ -57,16 +57,24 @@ describe('WeekdayConditionEditor', () => {
       { ...mockCondition, then_target: 'holiday' as const },
       { ...mockCondition, then_target: 'non_holiday' as const }
     ];
-    
-    conditions.forEach(condition => {
+
+    conditions.forEach((condition) => {
       expect(condition.then_target).toBeDefined();
     });
   });
 
   it('異なる曜日条件が正しく処理される', () => {
-    const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
-    
-    weekdays.forEach(weekday => {
+    const weekdays = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ] as const;
+
+    weekdays.forEach((weekday) => {
       const condition = { ...mockCondition, if_weekday: weekday };
       expect(condition.if_weekday).toBe(weekday);
     });

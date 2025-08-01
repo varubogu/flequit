@@ -17,7 +17,15 @@
     onclose?: () => void;
   }
 
-  let { open = false, mode, title = '', initialName = '', initialColor = '#3b82f6', onsave, onclose }: Props = $props();
+  let {
+    open = false,
+    mode,
+    title = '',
+    initialName = '',
+    initialColor = '#3b82f6',
+    onsave,
+    onclose
+  }: Props = $props();
 
   const translationService = getTranslationService();
   let name = $state(initialName);
@@ -26,7 +34,6 @@
   // Reactiveメッセージ
   const cancel = translationService.getMessage('cancel');
   const save = translationService.getMessage('save');
-
 
   $effect(() => {
     if (open) {
@@ -77,7 +84,7 @@
           id="project-color"
           type="color"
           bind:value={color}
-          class="col-span-3 h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+          class="border-input bg-background col-span-3 h-10 w-full rounded-md border px-3 py-2"
         />
       </div>
     </div>

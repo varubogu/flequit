@@ -65,15 +65,18 @@ class SettingsStore {
   }
 
   updateCustomDateFormat(id: string, updates: Partial<Omit<CustomDateFormat, 'id'>>) {
-    const index = this.settings.customDateFormats.findIndex(f => f.id === id);
+    const index = this.settings.customDateFormats.findIndex((f) => f.id === id);
     if (index !== -1) {
-      this.settings.customDateFormats[index] = { ...this.settings.customDateFormats[index], ...updates };
+      this.settings.customDateFormats[index] = {
+        ...this.settings.customDateFormats[index],
+        ...updates
+      };
       this.saveSettings();
     }
   }
 
   removeCustomDateFormat(id: string) {
-    this.settings.customDateFormats = this.settings.customDateFormats.filter(f => f.id !== id);
+    this.settings.customDateFormats = this.settings.customDateFormats.filter((f) => f.id !== id);
     this.saveSettings();
   }
 
@@ -107,7 +110,7 @@ export const settingsStore = new SettingsStore();
 // 利用可能なタイムゾーンのリスト（リアクティブ関数として提供）
 export function getAvailableTimezones() {
   const osTimezone = translationService.getMessage('os_timezone');
-  
+
   return [
     { value: 'system', label: osTimezone() },
     { value: 'UTC', label: 'UTC' },
@@ -141,7 +144,7 @@ export function getDefaultDateFormat(locale: string): string {
 // 標準日時フォーマットテンプレート
 export function getStandardDateFormats() {
   const locale = getLocale();
-  
+
   if (locale.startsWith('ja')) {
     return [
       { id: 'standard', name: '標準形式', format: 'yyyy年MM月dd日(E) HH:mm:ss', isStandard: true },
@@ -152,7 +155,12 @@ export function getStandardDateFormats() {
     ];
   } else {
     return [
-      { id: 'standard', name: 'Standard format', format: 'EEEE, MMMM do, yyyy HH:mm:ss', isStandard: true },
+      {
+        id: 'standard',
+        name: 'Standard format',
+        format: 'EEEE, MMMM do, yyyy HH:mm:ss',
+        isStandard: true
+      },
       { id: 'short', name: 'Short format', format: 'MM/dd/yyyy HH:mm', isStandard: true },
       { id: 'date_only', name: 'Date only', format: 'MMMM do, yyyy', isStandard: true },
       { id: 'time_only', name: 'Time only', format: 'HH:mm:ss', isStandard: true },
@@ -165,10 +173,10 @@ export function getStandardDateFormats() {
 export function getAllDateFormats() {
   const locale = getLocale();
   const standardFormats = getStandardDateFormats();
-  const customFormats = settingsStore.customDateFormats.map(f => ({ ...f, isStandard: false }));
-  
+  const customFormats = settingsStore.customDateFormats.map((f) => ({ ...f, isStandard: false }));
+
   const customLabel = locale.startsWith('ja') ? 'カスタム' : 'Custom';
   const customFormat = { id: 'custom', name: customLabel, format: '', isStandard: false };
-  
+
   return [...standardFormats, ...customFormats, customFormat];
 }

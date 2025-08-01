@@ -50,7 +50,7 @@ vi.mock('../../src/lib/stores/view-store.svelte', () => {
     showAddButton: true,
     changeView: vi.fn()
   };
-  
+
   return {
     viewStore: mockViewStore
   };

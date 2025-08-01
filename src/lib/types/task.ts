@@ -1,13 +1,37 @@
 export type TaskStatus = 'not_started' | 'in_progress' | 'waiting' | 'completed' | 'cancelled';
 
 // 繰り返し機能の型定義
-export type RecurrenceUnit = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'half_year' | 'year';
+export type RecurrenceUnit =
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'half_year'
+  | 'year';
 export type RecurrenceLevel = 'disabled' | 'enabled' | 'advanced';
-export type DayOfWeek = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
+export type DayOfWeek =
+  | 'sunday'
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
 export type WeekOfMonth = 'first' | 'second' | 'third' | 'fourth' | 'last';
 export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';
 export type AdjustmentDirection = 'previous' | 'next';
-export type AdjustmentTarget = 'weekday' | 'weekend' | 'holiday' | 'non_holiday' | 'weekend_only' | 'non_weekend' | 'weekend_holiday' | 'non_weekend_holiday' | 'specific_weekday';
+export type AdjustmentTarget =
+  | 'weekday'
+  | 'weekend'
+  | 'holiday'
+  | 'non_holiday'
+  | 'weekend_only'
+  | 'non_weekend'
+  | 'weekend_holiday'
+  | 'non_weekend_holiday'
+  | 'specific_weekday';
 
 // 日付条件（◯日より前/以前/以降/より後）
 export interface DateCondition {
@@ -36,11 +60,11 @@ export interface RecurrenceAdjustment {
 export interface RecurrenceDetails {
   // 特定日付指定
   specific_date?: number; // 例：毎月15日
-  
+
   // 週指定（第◯✕曜日）
   week_of_period?: WeekOfMonth; // 第1、第2など
   weekday_of_week?: DayOfWeek; // 日曜日、月曜日など
-  
+
   // 日付範囲条件
   date_conditions?: DateCondition[];
 }
@@ -48,16 +72,16 @@ export interface RecurrenceDetails {
 export interface RecurrenceRule {
   unit: RecurrenceUnit;
   interval: number; // 間隔（例：2週間なら2）
-  
+
   // 週単位の特別設定
   days_of_week?: DayOfWeek[]; // 週単位の場合の曜日指定
-  
+
   // 単位別詳細設定
   details?: RecurrenceDetails;
-  
+
   // 補正条件
   adjustment?: RecurrenceAdjustment;
-  
+
   // 終了条件
   end_date?: Date; // 繰り返し終了日
   max_occurrences?: number; // 最大繰り返し回数
@@ -80,14 +104,13 @@ export interface Task {
   priority: number;
   start_date?: Date;
   end_date?: Date;
-  is_range_date?: boolean;  // 期日が範囲選択かどうか
+  is_range_date?: boolean; // 期日が範囲選択かどうか
   recurrence_rule?: RecurrenceRule;
   order_index: number;
   is_archived: boolean;
   created_at: Date;
   updated_at: Date;
 }
-
 
 export interface TaskList {
   id: string;
@@ -121,7 +144,7 @@ export interface SubTask {
   priority?: number;
   start_date?: Date;
   end_date?: Date;
-  is_range_date?: boolean;  // 期日が範囲選択かどうか
+  is_range_date?: boolean; // 期日が範囲選択かどうか
   recurrence_rule?: RecurrenceRule;
   order_index: number;
   tags: Tag[];

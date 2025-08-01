@@ -43,7 +43,7 @@ describe('TagCompletionProvider', () => {
   it('基本的なpropsタイプが正しく定義される', () => {
     const onTagDetected = vi.fn();
     const className = 'test-class';
-    
+
     // propsの型が正しいことを確認
     expect(onTagDetected).toBeInstanceOf(Function);
     expect(className).toBe('test-class');

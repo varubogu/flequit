@@ -11,7 +11,6 @@ vi.mock('$lib/components/task/task-date-picker.svelte', () => ({
   default: () => null
 }));
 
-
 vi.mock('$lib/components/task/task-status-toggle.svelte', () => ({
   default: () => null
 }));
@@ -30,11 +29,11 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     ...writable({
       tasks: [],
       selectedTaskId: null,
-      selectedSubTaskId: null,
+      selectedSubTaskId: null
     }),
     updateTask: vi.fn(),
     updateSubTask: vi.fn(),
-    deleteTask: vi.fn(),
+    deleteTask: vi.fn()
   }
 }));
 
@@ -44,7 +43,7 @@ vi.mock('$lib/services/task-service', () => ({
     selectSubTask: vi.fn(),
     toggleTaskStatus: vi.fn(),
     toggleSubTaskStatus: vi.fn(),
-    deleteTask: vi.fn(),
+    deleteTask: vi.fn()
   }
 }));
 
@@ -65,7 +64,7 @@ const createMockTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubT
   tags: [],
   created_at: new Date(),
   updated_at: new Date(),
-  ...overrides,
+  ...overrides
 });
 
 describe('TaskItem Integration', () => {
@@ -101,28 +100,30 @@ describe('TaskItem Integration', () => {
 
   test('should render with subtasks', () => {
     const task = createMockTask({
-      sub_tasks: [{
-        id: 'sub-1',
-        title: 'Sub task',
-        status: 'not_started',
-        task_id: 'task-1',
-        order_index: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
-        tags: []
-      }],
+      sub_tasks: [
+        {
+          id: 'sub-1',
+          title: 'Sub task',
+          status: 'not_started',
+          task_id: 'task-1',
+          order_index: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+          tags: []
+        }
+      ]
     });
-    
+
     const { container } = render(TaskItem, { props: { task } });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle task selection state', () => {
     const selectedTask = createMockTask({ id: 'selected-task' });
-    
+
     // Mock selected state
     taskStore.selectedTaskId = 'selected-task';
-    
+
     const { container } = render(TaskItem, { props: { task: selectedTask } });
     expect(container).toBeInTheDocument();
   });
@@ -132,14 +133,14 @@ describe('TaskItem Integration', () => {
       end_date: new Date('2024-01-15'),
       is_range_date: false
     });
-    
+
     const { container } = render(TaskItem, { props: { task: taskWithDate } });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle priority display', () => {
     const highPriorityTask = createMockTask({ priority: 3 });
-    
+
     const { container } = render(TaskItem, { props: { task: highPriorityTask } });
     expect(container).toBeInTheDocument();
   });

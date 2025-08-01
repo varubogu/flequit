@@ -6,7 +6,7 @@ Table design for linking project and other user IDs.
 
 ## structure
 
-| Column Name |  Data Type  | NULL |      Default      | Primary Key | Foreign Key  | Unique | Check Constraint |            Description            |
+| Column Name | Data Type   | NULL | Default           | Primary Key | Foreign Key  | Unique | Check Constraint | Description                       |
 | ----------- | ----------- | ---- | ----------------- | ----------- | ------------ | ------ | ---------------- | --------------------------------- |
 | id          | INTEGER     | NO   |                   | YES         |              | YES    |                  | Unique identifier for the user ID |
 | project_id  | INTEGER     | NO   |                   |             | projects(id) |        |                  | Project ID (foreign key)          |
@@ -29,4 +29,3 @@ Table design for linking project and other user IDs.
 
 - Each project can have multiple users associated with it.
 - The user's role is optional, and there may be users without a specific role.
-

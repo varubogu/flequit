@@ -1,49 +1,49 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/rust-postgres
 {
-	"name": "Rust and PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-	"features": {
-		"ghcr.io/shyim/devcontainers-features/bun:0": {},
-		"ghcr.io/devcontainers/features/node": {
-			"version": "latest"
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"oven.bun-vscode",
-				"tauri-apps.tauri-vscode",
-				"fill-labs.dependi",
-				"rust-lang.rust-analyzer",
-				"vadimcn.vscode-lldb",
-				"svelte.svelte-vscode",
-				"Anthropic.claude-code",
-				"google.geminicodeassist",
-				"EditorConfig.EditorConfig",
-				"vitest.explorer",
-				"ms-playwright.playwright",
-				"bradlc.vscode-tailwindcss",
-				"inlang.vs-code-extension"
-			]
-		}
-	},
+  "name": "Rust and PostgreSQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "features": {
+    "ghcr.io/shyim/devcontainers-features/bun:0": {},
+    "ghcr.io/devcontainers/features/node": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "oven.bun-vscode",
+        "tauri-apps.tauri-vscode",
+        "fill-labs.dependi",
+        "rust-lang.rust-analyzer",
+        "vadimcn.vscode-lldb",
+        "svelte.svelte-vscode",
+        "Anthropic.claude-code",
+        "google.geminicodeassist",
+        "EditorConfig.EditorConfig",
+        "vitest.explorer",
+        "ms-playwright.playwright",
+        "bradlc.vscode-tailwindcss",
+        "inlang.vs-code-extension"
+      ]
+    }
+  },
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5432],
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [5432],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "rustc --version",
-	"postCreateCommand": "/workspaces/${localWorkspaceFolderBasename}/init_env"
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "rustc --version",
+  "postCreateCommand": "/workspaces/${localWorkspaceFolderBasename}/init_env"
 
-	// Configure tool-specific properties.
-	// "customizations": {},
+  // Configure tool-specific properties.
+  // "customizations": {},
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
 }

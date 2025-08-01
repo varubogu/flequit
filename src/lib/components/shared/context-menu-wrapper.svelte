@@ -9,13 +9,13 @@
     contentClass?: string;
   }
 
-  let { items, children, contentClass = "w-48" }: Props = $props();
+  let { items, children, contentClass = 'w-48' }: Props = $props();
 </script>
 
 <ContextMenu.Root>
   <ContextMenu.Trigger>
     {@render children()}
   </ContextMenu.Trigger>
-  
+
   <ContextMenuItems {items} class={contentClass} />
 </ContextMenu.Root>

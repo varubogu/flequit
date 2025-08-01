@@ -24,7 +24,7 @@ export const localeStore = {
   get locale() {
     return currentTranslationService.getCurrentLocale();
   },
-  
+
   setLocale(newLocale: string) {
     currentTranslationService.setLocale(newLocale);
   }

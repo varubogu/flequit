@@ -11,7 +11,9 @@
   let { open, onClose }: Props = $props();
 
   // タスクが選択されているかどうか
-  let hasSelectedTask = $derived(!!taskStore.selectedTask || !!taskStore.selectedSubTask || taskStore.isNewTaskMode);
+  let hasSelectedTask = $derived(
+    !!taskStore.selectedTask || !!taskStore.selectedSubTask || taskStore.isNewTaskMode
+  );
 
   // Drawerが閉じられたときの処理
   function handleOpenChange(isOpen: boolean) {
@@ -22,13 +24,13 @@
 </script>
 
 <Drawer.Root {open} onOpenChange={handleOpenChange}>
-  <Drawer.Content class="h-[85vh] flex flex-col">
-    <div class="flex flex-col h-full max-w-lg mx-auto w-full">
+  <Drawer.Content class="flex h-[85vh] flex-col">
+    <div class="mx-auto flex h-full w-full max-w-lg flex-col">
       <div class="flex-1 overflow-auto px-2">
         {#if hasSelectedTask || open}
           <TaskDetail isDrawerMode={true} />
         {:else}
-          <div class="text-center text-muted-foreground py-8">
+          <div class="text-muted-foreground py-8 text-center">
             <p>タスクが選択されていません</p>
           </div>
         {/if}

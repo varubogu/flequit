@@ -17,17 +17,17 @@ describe('設定変更とUI反映の結合テスト', () => {
           taskListDensity: 'comfortable'
         }
       },
-      
+
       updateTheme: (theme: string) => {
         settingsStore.settings.theme = theme;
         return settingsStore.settings.theme;
       },
-      
+
       updateLanguage: (language: string) => {
         settingsStore.settings.language = language;
         return settingsStore.settings.language;
       },
-      
+
       updateUISettings: (uiUpdates: any) => {
         settingsStore.settings.ui = {
           ...settingsStore.settings.ui,
@@ -54,12 +54,12 @@ describe('設定変更とUI反映の結合テスト', () => {
   it('言語変更が設定ストアとローカライゼーションに正しく反映される', async () => {
     const localeStore = {
       locale: 'ja',
-      
+
       setLocale: (newLocale: string) => {
         localeStore.locale = newLocale;
         return localeStore.locale;
       },
-      
+
       getMessage: (key: string) => {
         const messages = {
           ja: { title: 'タスク管理', settings: '設定' },
@@ -92,22 +92,22 @@ describe('設定変更とUI反映の結合テスト', () => {
           sound: false
         }
       },
-      
+
       toggleSidebar: () => {
         uiStore.settings.sidebarCollapsed = !uiStore.settings.sidebarCollapsed;
         return uiStore.settings.sidebarCollapsed;
       },
-      
+
       updateTaskDisplay: (showCompleted: boolean) => {
         uiStore.settings.showCompletedTasks = showCompleted;
         return uiStore.settings.showCompletedTasks;
       },
-      
+
       updateDensity: (density: string) => {
         uiStore.settings.taskListDensity = density;
         return uiStore.settings.taskListDensity;
       },
-      
+
       updateNotifications: (notificationUpdates: any) => {
         uiStore.settings.notifications = {
           ...uiStore.settings.notifications,
@@ -149,7 +149,7 @@ describe('設定変更とUI反映の結合テスト', () => {
       theme: 'light',
       language: 'ja',
       sidebarCollapsed: false,
-      
+
       changeTheme: (theme: string) => {
         appStateStore.theme = theme;
         // テーマ変更に連動してUI要素も更新
@@ -158,7 +158,7 @@ describe('設定変更とUI反映の結合テスト', () => {
           appliedClasses: [`theme-${theme}`]
         };
       },
-      
+
       changeLanguage: (language: string) => {
         appStateStore.language = language;
         // 言語変更に連動してメッセージも更新
@@ -171,7 +171,7 @@ describe('設定変更とUI反映の結合テスト', () => {
           greeting: messages[language]?.greeting
         };
       },
-      
+
       toggleSidebarWithTheme: () => {
         appStateStore.sidebarCollapsed = !appStateStore.sidebarCollapsed;
         // サイドバー状態に応じてレイアウトクラスも変更

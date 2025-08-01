@@ -33,14 +33,14 @@ test.describe('Mobile Sidebar Styling', () => {
     // 背景色が透明ではないことを確認
     expect(sidebarStyles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     expect(sidebarStyles.backgroundColor).not.toBe('transparent');
-    
+
     // 内部のdiv要素も背景色を持っていることを確認
     const innerDiv = sidebar.locator('div').first();
     const innerStyles = await innerDiv.evaluate((el) => {
       const computedStyle = window.getComputedStyle(el);
       return computedStyle.backgroundColor;
     });
-    
+
     expect(innerStyles).not.toBe('rgba(0, 0, 0, 0)');
     expect(innerStyles).not.toBe('transparent');
   });
@@ -69,11 +69,11 @@ test.describe('Mobile Sidebar Styling', () => {
     // サイドバーのコンテンツ要素が表示されることを確認
     await expect(page.getByText('Views')).toBeVisible();
     await expect(page.getByText('All Tasks')).toBeVisible();
-    
+
     // サイドバーが背景の上に表示され、タスクリストと重ならないことを確認
     const sidebar = page.locator('[data-sidebar="sidebar"]');
     const taskList = page.getByTestId('task-list');
-    
+
     // z-indexやposition設定を確認
     const sidebarStyles = await sidebar.evaluate((el) => {
       const computedStyle = window.getComputedStyle(el);
@@ -82,7 +82,7 @@ test.describe('Mobile Sidebar Styling', () => {
         zIndex: computedStyle.zIndex
       };
     });
-    
+
     // サイドバーが適切にレイヤーされていることを確認
     expect(['fixed', 'absolute']).toContain(sidebarStyles.position);
     expect(parseInt(sidebarStyles.zIndex)).toBeGreaterThan(0);

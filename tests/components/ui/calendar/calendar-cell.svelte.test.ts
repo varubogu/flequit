@@ -23,7 +23,7 @@ describe('CalendarCell Component', () => {
   });
 
   test('should render calendar cell component', () => {
-    const { container } = render(CalendarCell, { 
+    const { container } = render(CalendarCell, {
       date: { year: 2024, month: 1, day: 15 } as any,
       month: { year: 2024, month: 1, day: 1 } as any
     });
@@ -31,7 +31,7 @@ describe('CalendarCell Component', () => {
   });
 
   test('should accept custom class name', () => {
-    const { container } = render(CalendarCell, { 
+    const { container } = render(CalendarCell, {
       class: 'custom-cell',
       date: { year: 2024, month: 1, day: 15 } as any,
       month: { year: 2024, month: 1, day: 1 } as any
@@ -41,7 +41,7 @@ describe('CalendarCell Component', () => {
 
   test('should handle ref binding', () => {
     let ref = null;
-    const { container } = render(CalendarCell, { 
+    const { container } = render(CalendarCell, {
       ref,
       date: { year: 2024, month: 1, day: 15 } as any,
       month: { year: 2024, month: 1, day: 1 } as any
@@ -50,7 +50,7 @@ describe('CalendarCell Component', () => {
   });
 
   test('should apply correct CSS classes', () => {
-    const { container } = render(CalendarCell, { 
+    const { container } = render(CalendarCell, {
       class: 'focus-test',
       date: { year: 2024, month: 1, day: 15 } as any,
       month: { year: 2024, month: 1, day: 1 } as any

@@ -17,22 +17,24 @@ describe('DeleteConfirmationDialog', () => {
 
   it('ダイアログが表示される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByText('削除の確認')).toBeInTheDocument();
-    expect(screen.getByText('このアイテムを削除してもよろしいですか？この操作は取り消せません。')).toBeInTheDocument();
+    expect(
+      screen.getByText('このアイテムを削除してもよろしいですか？この操作は取り消せません。')
+    ).toBeInTheDocument();
   });
 
   it('openがfalseの場合はダイアログが表示されない', () => {
     const props = { ...defaultProps, open: false };
     render(DeleteConfirmationDialog, { props });
-    
+
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('削除ボタンとキャンセルボタンが表示される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     expect(screen.getByText('Delete')).toBeInTheDocument();
     expect(screen.getByText('Cancel')).toBeInTheDocument();
   });
@@ -41,10 +43,10 @@ describe('DeleteConfirmationDialog', () => {
     const mockOnConfirm = vi.fn();
     const props = { ...defaultProps, onConfirm: mockOnConfirm };
     render(DeleteConfirmationDialog, { props });
-    
+
     const deleteButton = screen.getByText('Delete');
     await fireEvent.click(deleteButton);
-    
+
     expect(mockOnConfirm).toHaveBeenCalled();
   });
 
@@ -52,10 +54,10 @@ describe('DeleteConfirmationDialog', () => {
     const mockOnCancel = vi.fn();
     const props = { ...defaultProps, onCancel: mockOnCancel };
     render(DeleteConfirmationDialog, { props });
-    
+
     const cancelButton = screen.getByText('Cancel');
     await fireEvent.click(cancelButton);
-    
+
     expect(mockOnCancel).toHaveBeenCalled();
   });
 
@@ -66,14 +68,16 @@ describe('DeleteConfirmationDialog', () => {
       message: 'ファイル "example.txt" を完全に削除します。この操作は元に戻せません。'
     };
     render(DeleteConfirmationDialog, { props: customProps });
-    
+
     expect(screen.getByText('ファイルを削除')).toBeInTheDocument();
-    expect(screen.getByText('ファイル "example.txt" を完全に削除します。この操作は元に戻せません。')).toBeInTheDocument();
+    expect(
+      screen.getByText('ファイル "example.txt" を完全に削除します。この操作は元に戻せません。')
+    ).toBeInTheDocument();
   });
 
   it('削除ボタンにdestructiveバリアントが設定される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     const deleteButton = screen.getByText('Delete');
     expect(deleteButton).toBeInTheDocument();
     // destructiveバリアントのクラスが適用されているかチェック
@@ -82,7 +86,7 @@ describe('DeleteConfirmationDialog', () => {
 
   it('キャンセルボタンにsecondaryバリアントが設定される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     const cancelButton = screen.getByText('Cancel');
     expect(cancelButton).toBeInTheDocument();
     // secondaryバリアントのクラスが適用されているかチェック
@@ -97,9 +101,9 @@ describe('DeleteConfirmationDialog', () => {
       onConfirm: vi.fn(),
       onCancel: vi.fn()
     };
-    
+
     const { container } = render(DeleteConfirmationDialog, { props });
-    
+
     expect(container).toBeTruthy();
     expect(props.onConfirm).toBeInstanceOf(Function);
     expect(props.onCancel).toBeInstanceOf(Function);
@@ -107,24 +111,26 @@ describe('DeleteConfirmationDialog', () => {
 
   it('ダイアログタイトルが見出しとして認識される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     const titleElement = screen.getByRole('heading', { name: '削除の確認' });
     expect(titleElement).toBeInTheDocument();
   });
 
   it('説明テキストが正しく表示される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
-    const descriptionElement = screen.getByText('このアイテムを削除してもよろしいですか？この操作は取り消せません。');
+
+    const descriptionElement = screen.getByText(
+      'このアイテムを削除してもよろしいですか？この操作は取り消せません。'
+    );
     expect(descriptionElement).toBeInTheDocument();
   });
 
   it('ボタンが正しい順序で配置される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
-    
+
     const cancelButton = screen.getByText('Cancel');
     const deleteButton = screen.getByText('Delete');
-    
+
     // 両方のボタンが存在することを確認
     expect(cancelButton).toBeInTheDocument();
     expect(deleteButton).toBeInTheDocument();
@@ -137,10 +143,10 @@ describe('DeleteConfirmationDialog', () => {
       message: 'Are you sure you want to delete "<item>" & all its data?'
     };
     render(DeleteConfirmationDialog, { props });
-    
+
     expect(screen.getByText('Delete "Special" Item & More')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to delete "<item>" & all its data?')).toBeInTheDocument();
+    expect(
+      screen.getByText('Are you sure you want to delete "<item>" & all its data?')
+    ).toBeInTheDocument();
   });
-
-
 });

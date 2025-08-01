@@ -1,10 +1,10 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { 
-  TaskStatus, 
-  ProjectTree, 
-  TaskListWithTasks, 
-  TaskWithSubTasks, 
-  SubTask, 
+import type {
+  TaskStatus,
+  ProjectTree,
+  TaskListWithTasks,
+  TaskWithSubTasks,
+  SubTask,
   Tag,
   Task
 } from '$lib/types/task';
@@ -15,7 +15,12 @@ interface BackendService {
   createTask: (title: string, description: string) => Promise<Task>;
   getTask: (taskId: string) => Promise<Task | null>;
   getAllTasks: () => Promise<Task[]>;
-  updateTask: (taskId: string, title?: string, description?: string, completed?: boolean) => Promise<Task | null>;
+  updateTask: (
+    taskId: string,
+    title?: string,
+    description?: string,
+    completed?: boolean
+  ) => Promise<Task | null>;
   deleteTask: (taskId: string) => Promise<boolean>;
   getDocumentState: () => Promise<Uint8Array>;
   loadDocumentState: (data: Uint8Array) => Promise<void>;
@@ -108,7 +113,12 @@ export const backendService = (): BackendService => {
       getAllTasks: async () => {
         return await invoke('get_all_tasks');
       },
-      updateTask: async (taskId: string, title?: string, description?: string, completed?: boolean) => {
+      updateTask: async (
+        taskId: string,
+        title?: string,
+        description?: string,
+        completed?: boolean
+      ) => {
         return await invoke('update_task', { taskId, title, description, completed });
       },
       deleteTask: async (taskId: string) => {
@@ -172,7 +182,12 @@ export const backendService = (): BackendService => {
         console.log('getAllTasks called in web mode');
         throw new Error('Not implemented for web mode');
       },
-      updateTask: async (taskId: string, title?: string, description?: string, completed?: boolean) => {
+      updateTask: async (
+        taskId: string,
+        title?: string,
+        description?: string,
+        completed?: boolean
+      ) => {
         console.log('updateTask called in web mode', { taskId, title, description, completed });
         throw new Error('Not implemented for web mode');
       },
@@ -218,4 +233,4 @@ export const backendService = (): BackendService => {
       }
     };
   }
-}
+};

@@ -14,16 +14,16 @@
     cancelEnabled: boolean;
   }
 
-  let { 
-    onAdd, 
-    onEdit, 
-    onDelete, 
-    onSave, 
-    onCancel, 
-    addEnabled, 
-    editDeleteEnabled, 
-    saveEnabled, 
-    cancelEnabled 
+  let {
+    onAdd,
+    onEdit,
+    onDelete,
+    onSave,
+    onCancel,
+    addEnabled,
+    editDeleteEnabled,
+    saveEnabled,
+    cancelEnabled
   }: Props = $props();
 
   const translationService = getTranslationService();
@@ -34,50 +34,44 @@
   const cancelEdit = translationService.getMessage('cancel');
 </script>
 
-<div class="flex gap-2 flex-wrap">
-  <Button 
-    variant="outline" 
-    size="sm" 
-    onclick={onAdd}
-    title={addNewFormat()}
-    disabled={!addEnabled}
-  >
+<div class="flex flex-wrap gap-2">
+  <Button variant="outline" size="sm" onclick={onAdd} title={addNewFormat()} disabled={!addEnabled}>
     ➕
   </Button>
-  
-  <Button 
-    variant="outline" 
-    size="sm" 
+
+  <Button
+    variant="outline"
+    size="sm"
     onclick={onEdit}
     title={editFormat()}
     disabled={!editDeleteEnabled}
   >
     ✏️
   </Button>
-  
-  <Button 
-    variant="destructive" 
-    size="sm" 
+
+  <Button
+    variant="destructive"
+    size="sm"
     onclick={onDelete}
     title={deleteFormat()}
     disabled={!editDeleteEnabled}
   >
     🗑️
   </Button>
-  
-  <Button 
-    variant="outline" 
-    size="sm" 
+
+  <Button
+    variant="outline"
+    size="sm"
     onclick={onSave}
     title={saveFormatLabel()}
     disabled={!saveEnabled}
   >
     💾
   </Button>
-  
-  <Button 
-    variant="outline" 
-    size="sm" 
+
+  <Button
+    variant="outline"
+    size="sm"
     onclick={onCancel}
     title={cancelEdit()}
     disabled={!cancelEnabled}

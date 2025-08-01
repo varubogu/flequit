@@ -13,9 +13,7 @@ vi.mock('bits-ui', () => ({
           months: [
             {
               value: new Date(2024, 0, 1),
-              weeks: [
-                [new Date(2024, 0, 1), new Date(2024, 0, 2), new Date(2024, 0, 3)]
-              ]
+              weeks: [[new Date(2024, 0, 1), new Date(2024, 0, 2), new Date(2024, 0, 3)]]
             }
           ],
           weekdays: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -112,9 +110,9 @@ describe('Calendar Component', () => {
   });
 
   test('should use custom month format when provided', () => {
-    const { container } = render(Calendar, { 
+    const { container } = render(Calendar, {
       monthFormat: 'numeric',
-      captionLayout: 'dropdown' 
+      captionLayout: 'dropdown'
     });
     expect(container).toBeInTheDocument();
   });
@@ -133,7 +131,7 @@ describe('Calendar Component', () => {
   });
 
   test('should pass through additional props', () => {
-    const { container } = render(Calendar, { 
+    const { container } = render(Calendar, {
       'data-testid': 'custom-calendar',
       disabled: true
     });

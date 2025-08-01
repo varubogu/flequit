@@ -27,14 +27,14 @@
 <section id="settings-views">
   <div class="space-y-6">
     <div>
-      <div class="flex items-center justify-between mb-4">
+      <div class="mb-4 flex items-center justify-between">
         <h3 class="text-lg font-medium">{viewsSettings()}</h3>
-        <Button variant="outline" size="sm" onclick={() => showResetConfirm = true}>
-          <RotateCcw class="h-3 w-3 mr-2" />
+        <Button variant="outline" size="sm" onclick={() => (showResetConfirm = true)}>
+          <RotateCcw class="mr-2 h-3 w-3" />
           {resetToDefaults()}
         </Button>
       </div>
-      <p class="text-sm text-muted-foreground mb-4">
+      <p class="text-muted-foreground mb-4 text-sm">
         {viewsDescriptionText()}
       </p>
       <SettingsDraggableItems />
@@ -49,6 +49,6 @@
     message={resetViewConfirmation()}
     confirmText={reset()}
     onConfirm={handleResetViews}
-    onCancel={() => showResetConfirm = false}
+    onCancel={() => (showResetConfirm = false)}
   />
 {/if}

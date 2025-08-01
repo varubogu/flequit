@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Light theme (default) */
 :root,
@@ -110,7 +110,8 @@
 
 .focus-visible\:ring-2:focus-visible {
   --tw-ring-width: 2px;
-  box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width))
+    var(--tw-ring-color);
 }
 
 .focus-visible\:ring-offset-2:focus-visible {
@@ -167,16 +168,16 @@
 }
 
 /* Command Dialog fixes */
-[data-slot="command"] {
+[data-slot='command'] {
   background-color: hsl(var(--color-background)) !important;
   color: hsl(var(--color-foreground)) !important;
 }
 
-[data-slot="dialog-overlay"] {
+[data-slot='dialog-overlay'] {
   background-color: hsl(0 0% 0% / 0.5) !important;
 }
 
-[data-slot="dialog-content"] {
+[data-slot='dialog-content'] {
   background-color: hsl(var(--color-background)) !important;
   color: hsl(var(--color-foreground)) !important;
   border: 1px solid hsl(var(--color-border)) !important;
@@ -198,8 +199,8 @@
   color: hsl(var(--color-foreground)) !important;
 }
 
-[data-command-item][data-selected="true"],
-[data-command-item][aria-selected="true"] {
+[data-command-item][data-selected='true'],
+[data-command-item][aria-selected='true'] {
   background-color: hsl(var(--color-primary)) !important;
   color: hsl(var(--color-primary-foreground)) !important;
 }
@@ -217,7 +218,16 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -236,7 +246,7 @@ body {
   background-color: hsl(var(--color-primary));
 }
 
-[data-pane-resizer][data-active="pointer"] {
+[data-pane-resizer][data-active='pointer'] {
   background-color: hsl(var(--color-primary));
 }
 
@@ -256,36 +266,36 @@ body {
 }
 
 [data-pane-resizer]:hover:before,
-[data-pane-resizer][data-active="pointer"]:before {
+[data-pane-resizer][data-active='pointer']:before {
   opacity: 1;
   background-color: hsl(var(--color-primary-foreground));
 }
 
 /* Switch component data-state styling */
-[data-slot="switch"][data-state="checked"] {
+[data-slot='switch'][data-state='checked'] {
   background-color: hsl(var(--color-primary)) !important;
 }
 
-[data-slot="switch"][data-state="unchecked"] {
+[data-slot='switch'][data-state='unchecked'] {
   background-color: hsl(var(--color-input)) !important;
 }
 
-[data-slot="switch-thumb"][data-state="checked"] {
+[data-slot='switch-thumb'][data-state='checked'] {
   background-color: hsl(var(--color-primary-foreground)) !important;
   transform: translateX(calc(100% - 2px)) !important;
 }
 
-[data-slot="switch-thumb"][data-state="unchecked"] {
+[data-slot='switch-thumb'][data-state='unchecked'] {
   background-color: hsl(var(--color-background)) !important;
   transform: translateX(0) !important;
 }
 
 /* Dark theme Switch styling */
-.dark [data-slot="switch-thumb"][data-state="unchecked"] {
+.dark [data-slot='switch-thumb'][data-state='unchecked'] {
   background-color: hsl(var(--color-foreground)) !important;
 }
 
-.dark [data-slot="switch-thumb"][data-state="checked"] {
+.dark [data-slot='switch-thumb'][data-state='checked'] {
   background-color: hsl(var(--color-foreground)) !important;
 }
 
@@ -363,7 +373,7 @@ textarea::placeholder {
 
 /* Drag & Drop styles */
 .drag-over {
-  @apply ring-2 ring-primary ring-offset-1 bg-primary/5;
+  @apply ring-primary bg-primary/5 ring-2 ring-offset-1;
 }
 
 /* ドラッグ可能なホバー状態 - より強い詳細度 */
@@ -401,37 +411,37 @@ textarea::placeholder {
 }
 
 .drag-preview {
-  @apply bg-background border border-border rounded-md shadow-lg p-2 text-sm;
+  @apply bg-background border-border rounded-md border p-2 text-sm shadow-lg;
   pointer-events: none;
   position: absolute;
   z-index: 1000;
 }
 
 /* Context Menu keyboard selection styling */
-[data-slot="context-menu-item"][data-selected="true"] {
+[data-slot='context-menu-item'][data-selected='true'] {
   background-color: hsl(var(--color-primary)) !important;
   color: hsl(var(--color-primary-foreground)) !important;
 }
 
 /* Override bits-ui highlighted state when custom selected */
-[data-slot="context-menu-item"][data-selected="true"][data-highlighted] {
+[data-slot='context-menu-item'][data-selected='true'][data-highlighted] {
   background-color: hsl(var(--color-primary)) !important;
   color: hsl(var(--color-primary-foreground)) !important;
 }
 
 /* Additional context menu item styling to ensure proper visibility */
-[data-slot="context-menu-item"][data-selected="true"]:not([data-disabled]) {
+[data-slot='context-menu-item'][data-selected='true']:not([data-disabled]) {
   background-color: hsl(var(--color-primary)) !important;
   color: hsl(var(--color-primary-foreground)) !important;
 }
 
 /* Override any conflicting hover states when selected */
-[data-slot="context-menu-item"][data-selected="true"]:hover {
+[data-slot='context-menu-item'][data-selected='true']:hover {
   background-color: hsl(var(--color-primary)) !important;
   color: hsl(var(--color-primary-foreground)) !important;
 }
 
 /* Ensure icon color matches when selected */
-[data-slot="context-menu-item"][data-selected="true"] svg {
+[data-slot='context-menu-item'][data-selected='true'] svg {
   color: hsl(var(--color-primary-foreground)) !important;
 }

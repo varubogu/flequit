@@ -80,7 +80,7 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     taskStore.selectTask(null);
     taskStore.selectProject(null);
     taskStore.selectList(null);
-    
+
     // モックデータをセット
     taskStore.setProjects(mockProjects);
   });
@@ -88,19 +88,19 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   it('タスクをプロジェクトにドロップするとそのプロジェクトの最初のタスクリストに移動する', () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetProject = mockProjects[1];
-    
+
     // 初期状態を確認
     expect(task.list_id).toBe('tasklist-1');
     expect(mockProjects[0].task_lists[0].tasks.length).toBe(1);
     expect(mockProjects[1].task_lists[0].tasks.length).toBe(0);
-    
+
     // タスクを別プロジェクトに移動
     taskStore.moveTaskToList(task.id, targetProject.task_lists[0].id);
-    
+
     // 移動後の状態を確認
-    const updatedSourceProject = taskStore.projects.find(p => p.id === 'project-1');
-    const updatedTargetProject = taskStore.projects.find(p => p.id === 'project-2');
-    
+    const updatedSourceProject = taskStore.projects.find((p) => p.id === 'project-1');
+    const updatedTargetProject = taskStore.projects.find((p) => p.id === 'project-2');
+
     expect(updatedSourceProject?.task_lists[0].tasks.length).toBe(0);
     expect(updatedTargetProject?.task_lists[0].tasks.length).toBe(1);
     expect(updatedTargetProject?.task_lists[0].tasks[0].id).toBe('task-1');
@@ -109,18 +109,18 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   it('タスクをタスクリストにドロップすると指定されたタスクリストに移動する', () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetTaskList = mockProjects[1].task_lists[0];
-    
+
     // 初期状態を確認
     expect(task.list_id).toBe('tasklist-1');
-    
+
     // タスクを別タスクリストに移動
     taskStore.moveTaskToList(task.id, targetTaskList.id);
-    
+
     // 移動後の状態を確認
     const updatedProjects = taskStore.projects;
-    const sourceProject = updatedProjects.find(p => p.id === 'project-1');
-    const targetProject = updatedProjects.find(p => p.id === 'project-2');
-    
+    const sourceProject = updatedProjects.find((p) => p.id === 'project-1');
+    const targetProject = updatedProjects.find((p) => p.id === 'project-2');
+
     expect(sourceProject?.task_lists[0].tasks.length).toBe(0);
     expect(targetProject?.task_lists[0].tasks.length).toBe(1);
     expect(targetProject?.task_lists[0].tasks[0].id).toBe('task-1');
@@ -129,10 +129,10 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   it('存在しないタスクIDで移動を試みても何も起こらない', () => {
     const initialTasksLength = mockProjects[0].task_lists[0].tasks.length;
     const initialTargetTasksLength = mockProjects[1].task_lists[0].tasks.length;
-    
+
     // 存在しないタスクIDで移動を試行
     taskStore.moveTaskToList('non-existent-task', 'tasklist-2');
-    
+
     // タスクの数が変更されていないことを確認
     expect(taskStore.projects[0].task_lists[0].tasks.length).toBe(initialTasksLength);
     expect(taskStore.projects[1].task_lists[0].tasks.length).toBe(initialTargetTasksLength);
@@ -141,10 +141,10 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   it('存在しないタスクリストIDにタスクを移動しようとしても何も起こらない', () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const initialTasksLength = mockProjects[0].task_lists[0].tasks.length;
-    
+
     // 存在しないタスクリストIDに移動を試行
     taskStore.moveTaskToList(task.id, 'non-existent-tasklist');
-    
+
     // タスクが元の場所に残っていることを確認
     expect(taskStore.projects[0].task_lists[0].tasks.length).toBe(initialTasksLength);
     expect(taskStore.projects[0].task_lists[0].tasks[0].id).toBe(task.id);
@@ -155,21 +155,21 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
       type: 'task' as const,
       id: 'task-1'
     };
-    
+
     const projectDropTarget = {
       type: 'project' as const,
       id: 'project-2'
     };
-    
+
     const taskListDropTarget = {
       type: 'tasklist' as const,
       id: 'tasklist-2',
       projectId: 'project-2'
     };
-    
+
     // プライベートメソッドのテストのため、実際のドロップイベントをシミュレート
     // handleDragOverとhandleDropの結果を間接的にテスト
-    
+
     // これらのテストは実際のDOMイベントが必要なため、
     // ここでは基本的なロジックの検証のみ実行
     expect(taskDragData.type).toBe('task');
@@ -180,15 +180,15 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   it('タスクの所属プロジェクトとタスクリストが正しく更新される', () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetTaskListId = 'tasklist-2';
-    
+
     // タスクを移動
     taskStore.moveTaskToList(task.id, targetTaskListId);
-    
+
     // 移動後のタスクがコンテナ階層で正しい位置にあることを確認
-    const targetProject = taskStore.projects.find(p => p.id === 'project-2');
-    const targetTaskList = targetProject?.task_lists.find(tl => tl.id === targetTaskListId);
-    const movedTask = targetTaskList?.tasks.find(t => t.id === task.id);
-    
+    const targetProject = taskStore.projects.find((p) => p.id === 'project-2');
+    const targetTaskList = targetProject?.task_lists.find((tl) => tl.id === targetTaskListId);
+    const movedTask = targetTaskList?.tasks.find((t) => t.id === task.id);
+
     expect(movedTask).toBeDefined();
     expect(movedTask?.id).toBe(task.id);
     expect(movedTask?.title).toBe(task.title);

@@ -6,7 +6,7 @@ Table for storing synchronization logs
 
 ## structure
 
-| Column Name  | Data Type | NULL |      Default      | Primary Key | Foreign Key | Unique |            Check Constraint             |    Description     |
+| Column Name  | Data Type | NULL | Default           | Primary Key | Foreign Key | Unique | Check Constraint                        | Description        |
 | ------------ | --------- | ---- | ----------------- | ----------- | ----------- | ------ | --------------------------------------- | ------------------ |
 | id           | TEXT      | NO   |                   | YES         |             | YES    |                                         | Sync log ID        |
 | sync_type    | TEXT      | NO   |                   |             |             |        | IN ('full', 'incremental')              | Sync type          |

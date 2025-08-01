@@ -1,6 +1,6 @@
 # table: flequit_tasks.tasks
 
-|   Column Name   | Data Type | NULL |      Default      | Primary Key |  Foreign Key  | Unique |                            Check Constraint                            |    Description     |
+| Column Name     | Data Type | NULL | Default           | Primary Key | Foreign Key   | Unique | Check Constraint                                                       | Description        |
 | --------------- | --------- | ---- | ----------------- | ----------- | ------------- | ------ | ---------------------------------------------------------------------- | ------------------ |
 | id              | TEXT      | NO   |                   | YES         |               | YES    |                                                                        | Task ID            |
 | sub_task_id     | TEXT      | YES  |                   |             | sub_tasks(id) |        |                                                                        | Subtask ID         |

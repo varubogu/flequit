@@ -3,23 +3,34 @@ import { getTranslationService } from '$lib/stores/locale.svelte';
 
 export function getStatusIcon(status: TaskStatus): string {
   switch (status) {
-    case 'completed': return '✅';
-    case 'in_progress': return '🔄';
-    case 'waiting': return '⏸️';
-    case 'cancelled': return '❌';
-    default: return '⚪';
+    case 'completed':
+      return '✅';
+    case 'in_progress':
+      return '🔄';
+    case 'waiting':
+      return '⏸️';
+    case 'cancelled':
+      return '❌';
+    default:
+      return '⚪';
   }
 }
 
 export function getStatusLabel(status: TaskStatus): string {
   const translationService = getTranslationService();
   switch (status) {
-    case 'not_started': return translationService.getMessage('status_not_started')();
-    case 'in_progress': return translationService.getMessage('status_in_progress')();
-    case 'waiting': return translationService.getMessage('status_waiting')();
-    case 'completed': return translationService.getMessage('status_completed')();
-    case 'cancelled': return translationService.getMessage('status_cancelled')();
-    default: return status;
+    case 'not_started':
+      return translationService.getMessage('status_not_started')();
+    case 'in_progress':
+      return translationService.getMessage('status_in_progress')();
+    case 'waiting':
+      return translationService.getMessage('status_waiting')();
+    case 'completed':
+      return translationService.getMessage('status_completed')();
+    case 'cancelled':
+      return translationService.getMessage('status_cancelled')();
+    default:
+      return status;
   }
 }
 

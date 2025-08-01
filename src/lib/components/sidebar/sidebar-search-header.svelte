@@ -12,7 +12,7 @@
 
   // Reactive messages
   const searchLabel = translationService.getMessage('search');
-  
+
   // Get sidebar state
   const sidebar = useSidebar();
 
@@ -32,15 +32,15 @@
   });
 </script>
 
-<div class={sidebar.state === 'collapsed' ? "p-2 border-b" : "p-4 border-b"}>
+<div class={sidebar.state === 'collapsed' ? 'border-b p-2' : 'border-b p-4'}>
   <Button
     variant="ghost"
-    class={sidebar.state === 'collapsed' 
-      ? "w-full justify-center p-3 h-auto text-muted-foreground hover:text-foreground" 
-      : "w-full justify-start gap-2 px-3 py-2 h-auto text-muted-foreground"}
-    onclick={() => showSearchDialog = true}
+    class={sidebar.state === 'collapsed'
+      ? 'text-muted-foreground hover:text-foreground h-auto w-full justify-center p-3'
+      : 'text-muted-foreground h-auto w-full justify-start gap-2 px-3 py-2'}
+    onclick={() => (showSearchDialog = true)}
   >
-    <Search class={sidebar.state === 'collapsed' ? "h-4 w-4 flex-shrink-0" : "h-4 w-4"} />
+    <Search class={sidebar.state === 'collapsed' ? 'h-4 w-4 flex-shrink-0' : 'h-4 w-4'} />
     {#if sidebar.state !== 'collapsed'}
       <span class="text-sm">{searchLabel()}</span>
       <div class="ml-auto">
@@ -50,7 +50,4 @@
   </Button>
 </div>
 
-<SearchCommand
-  bind:open={showSearchDialog}
-  onOpenChange={(open) => showSearchDialog = open}
-/>
+<SearchCommand bind:open={showSearchDialog} onOpenChange={(open) => (showSearchDialog = open)} />

@@ -15,7 +15,7 @@
   const translationService = getTranslationService();
   // Reactive messages
   const deleteTag = translationService.getMessage('delete_tag');
-  const deleteTagDescription = $derived(() => 
+  const deleteTagDescription = $derived(() =>
     translationService.getMessage('delete_tag_description', { tagName: tag?.name || '' })()
   );
   const cancel = translationService.getMessage('cancel');

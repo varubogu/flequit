@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import * as Command from "$lib/components/ui/command/index.js";
+  import * as Command from '$lib/components/ui/command/index.js';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
-  import { Search, Hash } from "lucide-svelte";
+  import { Search, Hash } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskService } from '$lib/services/task-service';
@@ -50,19 +50,22 @@
         // タグ検索
         const tagQuery = searchValue.slice(1).toLowerCase();
         if (tagQuery) {
-          filteredTasks = taskStore.allTasks.filter(task =>
-            task.tags.some(tag => tag.name.toLowerCase().includes(tagQuery))
-          ).slice(0, 5); // 最大5件
+          filteredTasks = taskStore.allTasks
+            .filter((task) => task.tags.some((tag) => tag.name.toLowerCase().includes(tagQuery)))
+            .slice(0, 5); // 最大5件
         } else {
           // "#"のみの場合はタグ付きタスクを表示
-          filteredTasks = taskStore.allTasks.filter(task => task.tags.length > 0).slice(0, 5);
+          filteredTasks = taskStore.allTasks.filter((task) => task.tags.length > 0).slice(0, 5);
         }
       } else {
         // 通常のタスク検索
-        filteredTasks = taskStore.allTasks.filter(task =>
-          task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
-          task.description?.toLowerCase().includes(searchValue.toLowerCase())
-        ).slice(0, 5); // 最大5件
+        filteredTasks = taskStore.allTasks
+          .filter(
+            (task) =>
+              task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+              task.description?.toLowerCase().includes(searchValue.toLowerCase())
+          )
+          .slice(0, 5); // 最大5件
       }
     } else {
       filteredTasks = [];
@@ -89,7 +92,7 @@
   function handleAddNewTask() {
     // Get the current list ID or use the first available list
     let listId = taskStore.selectedListId;
-    
+
     if (!listId && taskStore.projects.length > 0) {
       // Use the first list of the first project as default
       const firstProject = taskStore.projects[0];
@@ -97,11 +100,11 @@
         listId = firstProject.task_lists[0].id;
       }
     }
-    
+
     if (listId) {
       taskStore.startNewTaskMode(listId);
     }
-    
+
     closeDialog();
   }
 
@@ -122,14 +125,9 @@
   }
 </script>
 
-<Command.Dialog
-  bind:open
-  onOpenChange={onOpenChange}
-  class="max-w-2xl"
-  shouldFilter={false}
->
+<Command.Dialog bind:open {onOpenChange} class="max-w-2xl" shouldFilter={false}>
   <Command.Input
-    placeholder={isCommandMode ? typeACommand() : isTagSearch ? "Search tags..." : searchTasks()}
+    placeholder={isCommandMode ? typeACommand() : isTagSearch ? 'Search tags...' : searchTasks()}
     bind:value={searchValue}
     onkeydown={handleKeyDown}
   />
@@ -161,9 +159,9 @@
       <Command.Group heading={search()}>
         <Command.Item onSelect={handleSearchExecute}>
           {#if isTagSearch}
-            <Hash class="h-4 w-4 mr-2" />
+            <Hash class="mr-2 h-4 w-4" />
           {:else}
-            <Search class="h-4 w-4 mr-2" />
+            <Search class="mr-2 h-4 w-4" />
           {/if}
           <span>{showAllResultsFor()}</span>
         </Command.Item>
@@ -175,15 +173,17 @@
             <Command.Item onSelect={() => handleTaskSelect(task)}>
               <span class="truncate font-medium">{task.title}</span>
               {#if isTagSearch && task.tags.length > 0}
-                <div class="flex gap-1 ml-2">
+                <div class="ml-2 flex gap-1">
                   {#each task.tags as tag (tag.id)}
-                    <span class="inline-flex items-center px-1.5 py-0.5 text-xs bg-secondary text-secondary-foreground rounded">
+                    <span
+                      class="bg-secondary text-secondary-foreground inline-flex items-center rounded px-1.5 py-0.5 text-xs"
+                    >
                       #{tag.name}
                     </span>
                   {/each}
                 </div>
               {:else if task.description}
-                <span class="text-xs text-muted-foreground ml-2 truncate">
+                <span class="text-muted-foreground ml-2 truncate text-xs">
                   {task.description}
                 </span>
               {/if}
@@ -193,7 +193,7 @@
       {:else}
         <!-- 検索結果が0件の場合でも何か表示して Command.Empty を防ぐ -->
         <Command.Group heading={results()}>
-          <div class="px-2 py-1.5 text-sm text-muted-foreground">
+          <div class="text-muted-foreground px-2 py-1.5 text-sm">
             {noMatchingTasksFound()}
           </div>
         </Command.Group>
@@ -204,7 +204,7 @@
       <!-- デフォルト表示（入力が空の場合） -->
       <Command.Group heading={search()}>
         <Command.Item onSelect={() => handleSearchExecute()}>
-          <Search class="h-4 w-4 mr-2" />
+          <Search class="mr-2 h-4 w-4" />
           <span>{showAllTasks()}</span>
         </Command.Item>
       </Command.Group>

@@ -55,10 +55,10 @@
   }
 </script>
 
-<select 
+<select
   {value}
   onchange={handleChange}
-  class="p-1 border border-border rounded bg-background text-foreground {className}"
+  class="border-border bg-background text-foreground rounded border p-1 {className}"
 >
   {#each options as option}
     <option value={option.value}>{option.label()}</option>

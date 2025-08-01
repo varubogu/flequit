@@ -30,7 +30,7 @@ describe('CalendarPicker', () => {
       onCalendarChange: vi.fn(),
       onRangeChange: vi.fn()
     };
-    
+
     expect(props.onCalendarChange).toBeInstanceOf(Function);
     expect(props.onRangeChange).toBeInstanceOf(Function);
     expect(props.isRangeMode).toBe(true);

@@ -19,24 +19,25 @@
   // Reactive messages
   const sub_tasks = translationService.getMessage('sub_tasks');
   const toggle_subtask_completion = translationService.getMessage('toggle_subtask_completion');
-
-
 </script>
 
 {#if task.sub_tasks.length > 0}
   <div>
-    <h3 class="block text-sm font-medium mb-2">{sub_tasks()}</h3>
+    <h3 class="mb-2 block text-sm font-medium">{sub_tasks()}</h3>
     <div class="space-y-2">
       {#each task.sub_tasks as subTask}
         <Button
           variant="ghost"
-          class="flex items-center gap-3 p-3 border rounded w-full justify-start h-auto bg-card text-card-foreground {selectedSubTaskId === subTask.id ? 'bg-primary/10 border-primary' : ''}"
+          class="bg-card text-card-foreground flex h-auto w-full items-center justify-start gap-3 rounded border p-3 {selectedSubTaskId ===
+          subTask.id
+            ? 'bg-primary/10 border-primary'
+            : ''}"
           onclick={() => onSubTaskClick(subTask.id)}
         >
           <Button
             variant="ghost"
             size="icon"
-            class="text-lg h-8 w-8"
+            class="h-8 w-8 text-lg"
             onclick={(e) => {
               e?.stopPropagation();
               onSubTaskToggle(subTask.id);
@@ -45,9 +46,9 @@
           >
             {subTask.status === 'completed' ? '✅' : '⚪'}
           </Button>
-          <div class="flex items-center justify-between gap-2 flex-1 min-w-0">
+          <div class="flex min-w-0 flex-1 items-center justify-between gap-2">
             <span
-              class="font-medium truncate"
+              class="truncate font-medium"
               class:line-through={subTask.status === 'completed'}
               class:text-muted-foreground={subTask.status === 'completed'}
             >

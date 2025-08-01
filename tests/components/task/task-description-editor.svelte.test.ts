@@ -89,7 +89,7 @@ describe('TaskDescriptionEditor Component', () => {
 
   test('should show correct placeholder for main task', () => {
     const formDataWithoutDescription = { ...mockFormData, description: '' };
-    
+
     render(TaskDescriptionEditor, {
       currentItem: mockTask,
       isSubTask: false,
@@ -103,7 +103,7 @@ describe('TaskDescriptionEditor Component', () => {
 
   test('should show correct placeholder for subtask', () => {
     const formDataWithoutDescription = { ...mockFormData, description: '' };
-    
+
     render(TaskDescriptionEditor, {
       currentItem: mockTask,
       isSubTask: true,

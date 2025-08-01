@@ -116,7 +116,6 @@
     onOpenChange?.(false);
   }
 
-
   // Watch for timezone changes and apply immediately
   $effect(() => {
     settingsStore.setTimezone(settings.timezone);
@@ -132,10 +131,13 @@
   });
 </script>
 
-<Dialog bind:open onOpenChange={onOpenChange}>
-  <DialogContent class="max-w-[98vw] w-[98vw] h-[98vh] p-0 sm:max-w-[98vw] flex flex-col" showCloseButton={false}>
+<Dialog bind:open {onOpenChange}>
+  <DialogContent
+    class="flex h-[98vh] w-[98vw] max-w-[98vw] flex-col p-0 sm:max-w-[98vw]"
+    showCloseButton={false}
+  >
     <!-- Header -->
-    <div class="flex items-center p-6 border-b flex-shrink-0">
+    <div class="flex flex-shrink-0 items-center border-b p-6">
       <div class="flex items-center gap-3">
         <Button variant="ghost" size="icon" onclick={handleClose}>
           <ArrowLeft class="h-4 w-4" />
@@ -147,28 +149,28 @@
         {/if}
         <div>
           <h2 class="text-xl font-semibold">{settingsTitle()}</h2>
-          <p class="text-sm text-muted-foreground">{configurePreferences()}</p>
+          <p class="text-muted-foreground text-sm">{configurePreferences()}</p>
         </div>
       </div>
     </div>
 
-    <div class="flex flex-1 min-h-0 relative">
+    <div class="relative flex min-h-0 flex-1">
       <!-- Desktop Sidebar / Mobile Overlay Sidebar -->
-      <div class={`
+      <div
+        class={`
         ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} 
         ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'} 
         ${isMobile.current ? 'w-80' : 'w-80'} 
-        border-r flex flex-col flex-shrink-0 bg-background
-      `}>
+        bg-background flex flex-shrink-0 flex-col border-r
+      `}
+      >
         <!-- Search -->
-        <div class="p-4 border-b">
+        <div class="border-b p-4">
           <div class="relative">
-            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              class="pl-9"
-              placeholder={searchSettings()}
-              bind:value={searchQuery}
+            <Search
+              class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform"
             />
+            <Input class="pl-9" placeholder={searchSettings()} bind:value={searchQuery} />
           </div>
         </div>
 
@@ -178,12 +180,12 @@
             {#each categories as category (category.id)}
               <Button
                 variant={selectedCategory === category.id ? 'secondary' : 'ghost'}
-                class="w-full justify-start h-auto p-3 text-left"
+                class="h-auto w-full justify-start p-3 text-left"
                 onclick={() => handleCategorySelect(category.id)}
               >
                 <div>
                   <div class="font-medium">{category.name}</div>
-                  <div class="text-xs text-muted-foreground">{category.description}</div>
+                  <div class="text-muted-foreground text-xs">{category.description}</div>
                 </div>
               </Button>
             {/each}
@@ -193,9 +195,9 @@
 
       <!-- Mobile Backdrop -->
       {#if isMobile.current && sidebarOpen}
-        <div 
-          class="fixed inset-0 bg-black/50 z-40" 
-          onclick={() => sidebarOpen = false}
+        <div
+          class="fixed inset-0 z-40 bg-black/50"
+          onclick={() => (sidebarOpen = false)}
           role="button"
           tabindex="0"
           onkeydown={(e) => e.key === 'Escape' && (sidebarOpen = false)}
@@ -203,17 +205,17 @@
       {/if}
 
       <!-- Right Content -->
-      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
         <div class="flex-1 overflow-auto" bind:this={settingsContentElement}>
-        <div class="p-8 space-y-12 max-w-none w-full">
-          <SettingsBasic {settings} />
+          <div class="w-full max-w-none space-y-12 p-8">
+            <SettingsBasic {settings} />
 
-          <SettingsViews />
+            <SettingsViews />
 
-          <SettingsAppearance {settings} />
+            <SettingsAppearance {settings} />
 
-          <SettingsAccount {settings} />
-        </div>
+            <SettingsAccount {settings} />
+          </div>
         </div>
       </div>
     </div>

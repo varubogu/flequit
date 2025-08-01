@@ -42,10 +42,8 @@ export class ContextMenuStore {
    */
   selectNext() {
     if (!this._isOpen || this._itemCount === 0) return;
-    
-    this._selectedIndex = this._selectedIndex < this._itemCount - 1 
-      ? this._selectedIndex + 1 
-      : 0; // ループして最初に戻る
+
+    this._selectedIndex = this._selectedIndex < this._itemCount - 1 ? this._selectedIndex + 1 : 0; // ループして最初に戻る
   }
 
   /**
@@ -53,10 +51,8 @@ export class ContextMenuStore {
    */
   selectPrevious() {
     if (!this._isOpen || this._itemCount === 0) return;
-    
-    this._selectedIndex = this._selectedIndex > 0 
-      ? this._selectedIndex - 1 
-      : this._itemCount - 1; // ループして最後に移動
+
+    this._selectedIndex = this._selectedIndex > 0 ? this._selectedIndex - 1 : this._itemCount - 1; // ループして最後に移動
   }
 
   /**
