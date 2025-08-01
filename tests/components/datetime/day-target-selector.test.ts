@@ -1,7 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
-import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
+// TODO: 将来の型チェック実装で使用予定
+// import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
 // ロケールストアをモック
 vi.mock('$lib/stores/locale.svelte', () => ({

@@ -43,12 +43,15 @@
   let endDate = $state(currentDate ? formatDate1(new Date(currentDate)) : '');
   let endTime = $state(currentDate ? formatTime1(new Date(currentDate)) : '00:00:00');
 
+  // ESLint suggests writable $derived, but complex state management requires $state + $effect
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let useRangeMode = $state(isRangeDate);
   let startDate = $state(currentStartDate ? formatDate1(new Date(currentStartDate)) : '');
   let startTime = $state(currentStartDate ? formatTime1(new Date(currentStartDate)) : '00:00:00');
 
   // 繰り返しダイアログの状態管理
   let recurrenceDialogOpen = $state(false);
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let currentRecurrenceRule = $state<RecurrenceRule | null>(recurrenceRule || null);
 
   // Sync useRangeMode with isRangeDate prop changes

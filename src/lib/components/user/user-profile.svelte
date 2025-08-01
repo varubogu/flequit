@@ -4,8 +4,6 @@
   import Card from '$lib/components/ui/card.svelte';
   import SettingsDialog from '$lib/components/settings/settings-dialog.svelte';
   import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   interface User {

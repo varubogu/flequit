@@ -155,7 +155,7 @@ describe('SearchCommand', () => {
 
   it('selectedListIdがある場合はそれを使用すること', async () => {
     // selectedListIdをモック
-    (taskStore as any).selectedListId = 'selected-list-id';
+    (taskStore as { selectedListId: string }).selectedListId = 'selected-list-id';
 
     render(SearchCommand, { open: true });
 

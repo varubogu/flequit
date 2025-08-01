@@ -136,7 +136,7 @@ export class TaskService {
     );
 
     // Note: This is a simplified update - in a real app you'd want proper subtask management
-    this.updateTask(task.id, { sub_tasks: updatedSubTasks } as any);
+    this.updateTask(task.id, { sub_tasks: updatedSubTasks } as Partial<Task>);
   }
 
   static addTask(

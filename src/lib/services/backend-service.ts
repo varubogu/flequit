@@ -39,65 +39,70 @@ function convertTimestampToDate(timestamp: number): Date {
 }
 
 // TauriからのProjectTreeデータをフロントエンド型に変換
-function convertProjectTree(project: any): ProjectTree {
+function convertProjectTree(project: unknown): ProjectTree {
+  const proj = project as Record<string, unknown>;
   return {
-    ...project,
-    created_at: convertTimestampToDate(project.created_at),
-    updated_at: convertTimestampToDate(project.updated_at),
-    task_lists: project.task_lists.map(convertTaskList)
+    ...proj,
+    created_at: convertTimestampToDate(proj.created_at),
+    updated_at: convertTimestampToDate(proj.updated_at),
+    task_lists: proj.task_lists.map(convertTaskList)
   };
 }
 
-function convertTaskList(list: any): TaskListWithTasks {
+function convertTaskList(list: unknown): TaskListWithTasks {
+  const taskList = list as Record<string, unknown>;
   return {
-    ...list,
-    created_at: convertTimestampToDate(list.created_at),
-    updated_at: convertTimestampToDate(list.updated_at),
-    tasks: list.tasks.map(convertTask)
+    ...taskList,
+    created_at: convertTimestampToDate(taskList.created_at),
+    updated_at: convertTimestampToDate(taskList.updated_at),
+    tasks: taskList.tasks.map(convertTask)
   };
 }
 
-function convertTask(task: any): TaskWithSubTasks {
+function convertTask(task: unknown): TaskWithSubTasks {
+  const taskData = task as Record<string, unknown>;
   return {
-    ...task,
-    status: task.status as TaskStatus,
-    start_date: task.start_date ? convertTimestampToDate(task.start_date) : undefined,
-    end_date: task.end_date ? convertTimestampToDate(task.end_date) : undefined,
-    created_at: convertTimestampToDate(task.created_at),
-    updated_at: convertTimestampToDate(task.updated_at),
-    sub_tasks: task.sub_tasks.map(convertSubTask),
-    tags: task.tags.map(convertTag)
+    ...taskData,
+    status: taskData.status as TaskStatus,
+    start_date: taskData.start_date ? convertTimestampToDate(taskData.start_date) : undefined,
+    end_date: taskData.end_date ? convertTimestampToDate(taskData.end_date) : undefined,
+    created_at: convertTimestampToDate(taskData.created_at),
+    updated_at: convertTimestampToDate(taskData.updated_at),
+    sub_tasks: taskData.sub_tasks.map(convertSubTask),
+    tags: taskData.tags.map(convertTag)
   };
 }
 
-function convertSubTask(subtask: any): SubTask {
+function convertSubTask(subtask: unknown): SubTask {
+  const subTaskData = subtask as Record<string, unknown>;
   return {
-    ...subtask,
-    status: subtask.status as TaskStatus,
-    start_date: subtask.start_date ? convertTimestampToDate(subtask.start_date) : undefined,
-    end_date: subtask.end_date ? convertTimestampToDate(subtask.end_date) : undefined,
-    created_at: convertTimestampToDate(subtask.created_at),
-    updated_at: convertTimestampToDate(subtask.updated_at),
-    tags: subtask.tags.map(convertTag)
+    ...subTaskData,
+    status: subTaskData.status as TaskStatus,
+    start_date: subTaskData.start_date ? convertTimestampToDate(subTaskData.start_date) : undefined,
+    end_date: subTaskData.end_date ? convertTimestampToDate(subTaskData.end_date) : undefined,
+    created_at: convertTimestampToDate(subTaskData.created_at),
+    updated_at: convertTimestampToDate(subTaskData.updated_at),
+    tags: subTaskData.tags.map(convertTag)
   };
 }
 
-function convertTag(tag: any): Tag {
+function convertTag(tag: unknown): Tag {
+  const tagData = tag as Record<string, unknown>;
   return {
-    ...tag,
-    created_at: convertTimestampToDate(tag.created_at),
-    updated_at: convertTimestampToDate(tag.updated_at)
+    ...tagData,
+    created_at: convertTimestampToDate(tagData.created_at),
+    updated_at: convertTimestampToDate(tagData.updated_at)
   };
 }
 
-async function isTauriEnvironment(): Promise<boolean> {
-  // @ts-ignore
-  return typeof window !== 'undefined' && window.__TAURI_INTERNALS__;
-}
+// isTauriEnvironment関数は未使用のためコメントアウト
+// async function isTauriEnvironment(): Promise<boolean> {
+//   return typeof window !== 'undefined' && (window as any).__TAURI_INTERNALS__;
+// }
 
 export const backendService = (): BackendService => {
   // TODO: より良い方法があれば改善
-  // @ts-ignore
+  // @ts-expect-error - Tauri環境でのみ利用可能
   if (window.__TAURI_INTERNALS__) {
     return {
       greet: async () => {
@@ -143,21 +148,21 @@ export const backendService = (): BackendService => {
         return await invoke('initialize_sample_data');
       },
       getProjectTrees: async () => {
-        const projects: any[] = await invoke('get_project_trees');
+        const projects = (await invoke('get_project_trees')) as unknown[];
         return projects.map(convertProjectTree);
       },
       loadProjectData: async () => {
         // Tauri版：ファイルから読み込み、なければサンプルデータを初期化
         try {
           await invoke('load_data_from_file', { filePath: './data/tasks.automerge' });
-          const rawProjects: any[] = await invoke('get_project_trees');
+          const rawProjects = (await invoke('get_project_trees')) as unknown[];
           return rawProjects.map(convertProjectTree);
         } catch (error) {
           // ファイルが存在しない場合はサンプルデータを初期化
           console.log('Creating sample data for Tauri:', error);
           await invoke('initialize_sample_data');
           await invoke('save_data_to_file', { filePath: './data/tasks.automerge' });
-          const rawProjects: any[] = await invoke('get_project_trees');
+          const rawProjects = (await invoke('get_project_trees')) as unknown[];
           return rawProjects.map(convertProjectTree);
         }
       },

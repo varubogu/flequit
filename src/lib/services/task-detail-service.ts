@@ -6,7 +6,7 @@ interface TaskDetailDrawerState {
 }
 
 export class TaskDetailService {
-  private static isMobileInstance: any = null;
+  private static isMobileInstance: { current: boolean } | null = null;
 
   private static taskDetailDrawerState: TaskDetailDrawerState = {
     open: false,
@@ -33,7 +33,7 @@ export class TaskDetailService {
     this.subscribers.forEach((callback) => callback());
   }
 
-  static setMobileInstance(isMobile: any) {
+  static setMobileInstance(isMobile: { current: boolean }) {
     this.isMobileInstance = isMobile;
   }
 

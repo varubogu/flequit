@@ -1,18 +1,16 @@
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { Component } from 'svelte';
-
-export function cn(...inputs: any[]) {
+export function cn(...inputs: unknown[]) {
   return twMerge(clsx(inputs));
 }
 
 // Type utilities for UI components
-export type WithElementRef<T = {}, U = HTMLElement> = T & {
+export type WithElementRef<T = object, U = HTMLElement> = T & {
   ref?: U | null;
 };
 
-export type WithoutChildrenOrChild<T = {}> = Omit<T, 'children' | 'child'>;
+export type WithoutChildrenOrChild<T = object> = Omit<T, 'children' | 'child'>;
 
-export type WithoutChild<T = {}> = Omit<T, 'child'>;
+export type WithoutChild<T = object> = Omit<T, 'child'>;
 
-export type WithoutChildren<T = {}> = Omit<T, 'children'>;
+export type WithoutChildren<T = object> = Omit<T, 'children'>;

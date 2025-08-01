@@ -16,11 +16,11 @@ import * as m from '$paraglide/messages.js';
 class ParaglideTranslationService implements ITranslationServiceWithNotification {
   private localeChangeCounter = $state(0);
   private subscribers = new Set<LocaleChangeCallback>();
-  private messageMap: Record<string, (...args: any[]) => string>;
+  private messageMap: Record<string, (...args: unknown[]) => string>;
 
   constructor() {
     // Paraglidのメッセージマップを作成
-    this.messageMap = m as any;
+    this.messageMap = m as Record<string, (...args: unknown[]) => string>;
   }
 
   getCurrentLocale(): string {
@@ -42,15 +42,15 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     }
   }
 
-  reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T {
-    return ((...args: any[]) => {
+  reactiveMessage<T extends (...args: unknown[]) => string>(messageFn: T): T {
+    return ((...args: unknown[]) => {
       // getCurrentLocaleを参照して依存関係を作成
       this.getCurrentLocale();
       return messageFn(...args);
     }) as T;
   }
 
-  getMessage(key: string, params?: Record<string, any>): () => string {
+  getMessage(key: string, params?: Record<string, unknown>): () => string {
     return () => {
       // getCurrentLocaleを参照して依存関係を作成
       this.getCurrentLocale();

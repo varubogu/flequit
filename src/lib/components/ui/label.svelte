@@ -4,7 +4,7 @@
   interface Props {
     class?: string;
     for?: string;
-    children?: any;
+    children?: import('svelte').Snippet;
   }
 
   let { class: className, for: htmlFor, children, ...restProps }: Props = $props();

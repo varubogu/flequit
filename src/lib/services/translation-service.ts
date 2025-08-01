@@ -19,7 +19,7 @@ export interface ITranslationService {
    * @param messageFn メッセージ関数
    * @returns リアクティブなメッセージ関数
    */
-  reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T;
+  reactiveMessage<T extends (...args: unknown[]) => string>(messageFn: T): T;
 
   /**
    * メッセージキーから翻訳メッセージを取得（リアクティブ）
@@ -27,7 +27,7 @@ export interface ITranslationService {
    * @param params パラメータ（オプション）
    * @returns リアクティブな翻訳メッセージ関数
    */
-  getMessage(key: string, params?: Record<string, any>): () => string;
+  getMessage(key: string, params?: Record<string, unknown>): () => string;
 
   /**
    * 利用可能なロケール一覧を取得

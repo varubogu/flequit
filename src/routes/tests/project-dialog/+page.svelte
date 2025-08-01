@@ -4,9 +4,9 @@
 
   let showAddDialog = $state(false);
   let showEditDialog = $state(false);
-  let savedData = $state<any>(null);
+  let savedData = $state<Record<string, unknown> | null>(null);
 
-  function handleSave(data: any) {
+  function handleSave(data: Record<string, unknown>) {
     savedData = data;
   }
 </script>

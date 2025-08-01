@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
+// TODO: 将来のDOM テスト実装時に使用予定
+// import { render } from '@testing-library/svelte';
+// import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
 
 describe('WeekdayConditionEditor', () => {

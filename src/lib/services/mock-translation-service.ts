@@ -35,12 +35,12 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
     }
   }
 
-  reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T {
+  reactiveMessage<T extends (...args: unknown[]) => string>(messageFn: T): T {
     // モックでは単純にそのまま返すか、設定されたメッセージを返す
     return messageFn;
   }
 
-  getMessage(key: string, params?: Record<string, any>): () => string {
+  getMessage(key: string, params?: Record<string, unknown>): () => string {
     return () => {
       const localeMessages = this.messages.get(this.currentLocale);
       let message = localeMessages?.get(key) || key;

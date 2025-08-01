@@ -2,7 +2,7 @@ export interface ContextMenuItem {
   id: string;
   label: string | (() => string);
   action: () => void;
-  icon?: any; // Lucide icons type
+  icon?: import('svelte').ComponentType; // Lucide icons type
   disabled?: boolean | (() => boolean);
   destructive?: boolean;
   keyboardShortcut?: string;

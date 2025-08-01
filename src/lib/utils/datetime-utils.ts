@@ -71,7 +71,7 @@ export function formatTime(date: Date): string {
 export function formatDateJapanese(date: Date): string {
   try {
     return format(date, settingsStore.dateFormat);
-  } catch (error) {
+  } catch {
     // Fallback to original format if user format is invalid
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',

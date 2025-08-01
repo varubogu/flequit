@@ -7,8 +7,6 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import { taskStore } from '$lib/stores/tasks.svelte';
-  import { TaskService } from '$lib/services/task-service';
   import { TaskDetailService } from '$lib/services/task-detail-service';
   import type { ViewType } from '$lib/services/view-service';
 

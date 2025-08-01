@@ -17,6 +17,8 @@
     onViewChange?: (view: ViewType) => void;
   }
 
+  // Props currently not used but kept for future implementations
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let { currentView, onViewChange }: Props = $props();
 
   const translationService = getTranslationService();

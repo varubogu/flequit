@@ -31,6 +31,6 @@ export const localeStore = {
 };
 
 // メッセージ関数をreactiveにラップするヘルパー関数
-export function reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T {
+export function reactiveMessage<T extends (...args: unknown[]) => string>(messageFn: T): T {
   return currentTranslationService.reactiveMessage(messageFn);
 }

@@ -272,7 +272,7 @@ export class RecurrenceService {
         condition.if_weekday
       )
     ) {
-      const targetDay = this.dayOfWeekToNumber(condition.if_weekday as any);
+      const targetDay = this.dayOfWeekToNumber(condition.if_weekday as DayOfWeek);
       return dayOfWeek === targetDay;
     }
 

@@ -7,22 +7,22 @@
   import type { Snippet } from 'svelte';
 
   interface CalendarProps {
-    ref?: any;
-    value?: any;
-    placeholder?: any;
+    ref?: HTMLElement | null;
+    value?: DateValue | undefined;
+    placeholder?: DateValue | undefined;
     class?: string;
     weekdayFormat?: 'long' | 'short' | 'narrow';
     buttonVariant?: ButtonVariant;
     captionLayout?: 'dropdown' | 'dropdown-months' | 'dropdown-years' | 'label';
     locale?: string;
-    months?: any;
-    years?: any;
-    monthFormat?: any;
-    yearFormat?: any;
+    months?: string[];
+    years?: number[];
+    monthFormat?: Intl.DateTimeFormatOptions;
+    yearFormat?: Intl.DateTimeFormatOptions;
     day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
     disableDaysOutsideMonth?: boolean;
-    onValueChange?: any;
-    [key: string]: any;
+    onValueChange?: (value: DateValue | undefined) => void;
+    [key: string]: unknown;
   }
 
   let {

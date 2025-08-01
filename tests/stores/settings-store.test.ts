@@ -6,9 +6,11 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn()
 };
-global.localStorage = localStorageMock as Storage;
+global.localStorage = localStorageMock as unknown as Storage;
 
 // Mock console.error
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -75,7 +77,7 @@ describe('SettingsStore', () => {
 
       global.Intl = {
         ...global.Intl,
-        DateTimeFormat: mockDateTimeFormat as any
+        DateTimeFormat: mockDateTimeFormat as unknown as typeof Intl.DateTimeFormat
       };
 
       const store = new (settingsStore.constructor as new () => typeof settingsStore)();

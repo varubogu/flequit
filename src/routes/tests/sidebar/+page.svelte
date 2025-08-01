@@ -16,7 +16,7 @@
   });
 
   // Mock data for the store
-  const today = new Date();
+  const today = $state(new Date());
   today.setHours(0, 0, 0, 0);
 
   const mockProjects: ProjectTree[] = [
