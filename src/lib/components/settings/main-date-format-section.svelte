@@ -37,6 +37,6 @@
 
   <div class="flex items-center gap-2 text-sm">
     <span class="font-medium">{preview()}:</span>
-    <span class="bg-muted rounded px-2 py-1">{dateTimeFormatPreview}</span>
+    <span class="bg-muted rounded px-2 py-1">{dateTimeFormatPreview()}</span>
   </div>
 </div>
