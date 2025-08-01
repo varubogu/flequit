@@ -1,27 +1,36 @@
-import { getLocale, setLocale as paraglidSetLocale, type Locale } from '$paraglide/runtime';
+import { translationService } from '$lib/services/paraglide-translation-service.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 
-// ロケール変更通知用のカウンター
-let localeChangeCounter = $state(0);
+// 翻訳サービスのインスタンス（テスト時に差し替え可能）
+let currentTranslationService: ITranslationService = translationService;
 
+/**
+ * テスト用に翻訳サービスを差し替える関数
+ * @param service 翻訳サービスのインスタンス
+ */
+export function setTranslationService(service: ITranslationService): void {
+  currentTranslationService = service;
+}
+
+/**
+ * 現在の翻訳サービスを取得
+ */
+export function getTranslationService(): ITranslationService {
+  return currentTranslationService;
+}
+
+// 既存のAPIとの互換性を保つためのラッパー
 export const localeStore = {
   get locale() {
-    // カウンターを参照することで、変更時に依存関係が更新される
-    localeChangeCounter;
-    return getLocale();
+    return currentTranslationService.getCurrentLocale();
   },
   
   setLocale(newLocale: string) {
-    paraglidSetLocale(newLocale as Locale, { reload: false });
-    // カウンターを増やして、依存している全てのコンポーネントに再評価を促す
-    localeChangeCounter++;
+    currentTranslationService.setLocale(newLocale);
   }
 };
 
 // メッセージ関数をreactiveにラップするヘルパー関数
 export function reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T {
-  return ((...args: any[]) => {
-    // localeStore.localeを参照して依存関係を作成
-    localeStore.locale;
-    return messageFn(...args);
-  }) as T;
+  return currentTranslationService.reactiveMessage(messageFn);
 }
