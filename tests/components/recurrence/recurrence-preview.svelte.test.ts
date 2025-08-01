@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import RecurrencePreview from '$lib/components/recurrence/recurrence-preview.svelte';
 
 describe('RecurrencePreview', () => {
   const mockDates = [

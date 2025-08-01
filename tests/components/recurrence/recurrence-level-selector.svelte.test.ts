@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import RecurrenceLevelSelector from '$lib/components/recurrence/recurrence-level-selector.svelte';
 import type { RecurrenceLevel } from '$lib/types/task';
 
 describe('RecurrenceLevelSelector', () => {
@@ -176,7 +174,7 @@ describe('RecurrenceLevelSelector', () => {
       }
     ];
 
-    instances.forEach((instance, index) => {
+    instances.forEach((instance) => {
       expect(instance.value).toBeDefined();
       expect(instance.onchange).toBeInstanceOf(Function);
       expect(['disabled', 'enabled', 'advanced']).toContain(instance.value);

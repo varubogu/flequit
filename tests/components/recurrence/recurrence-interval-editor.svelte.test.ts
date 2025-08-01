@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import RecurrenceIntervalEditor from '$lib/components/recurrence/recurrence-interval-editor.svelte';
 import type { RecurrenceUnit, DayOfWeek, RecurrenceDetails } from '$lib/types/task';
 
 describe('RecurrenceIntervalEditor', () => {

@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import Button from '$lib/components/shared/button.svelte';
 
 describe('Button (shared)', () => {
   const defaultProps = {

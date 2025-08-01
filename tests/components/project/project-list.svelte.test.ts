@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import ProjectList from '$lib/components/project/project-list.svelte';
 import type { ViewType } from '$lib/services/view-service';
 
 describe('ProjectList', () => {
@@ -81,7 +79,7 @@ describe('ProjectList', () => {
       }
     ];
 
-    instances.forEach((instance, index) => {
+    instances.forEach((instance) => {
       expect(instance.currentView).toBeDefined();
       expect(instance.onViewChange).toBeInstanceOf(Function);
     });

@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
 
 describe('TaskListDialog', () => {
   const defaultProps = {

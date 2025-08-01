@@ -115,7 +115,7 @@ describe('DayTargetSelector', () => {
   it('無効な値でもエラーが発生しない', () => {
     render(DayTargetSelector, {
       props: {
-        value: 'invalid_value' as any,
+        value: 'invalid_value' as unknown,
         onchange: mockOnChange
       }
     });

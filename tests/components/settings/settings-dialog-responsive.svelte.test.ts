@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import SettingsDialog from '../../../src/lib/components/settings/settings-dialog.svelte';
 
 // IsMobileクラスをモック

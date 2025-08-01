@@ -10,7 +10,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
     getCurrentLocale: vi.fn(() => 'ja'),
     setLocale: vi.fn(),
     getAvailableLocales: vi.fn(() => ['en', 'ja']),
-    reactiveMessage: (fn: any) => fn,
+    reactiveMessage: (fn: () => string) => fn,
     getMessage: vi.fn(() => () => 'mock message'),
     subscribe: vi.fn()
   })
@@ -58,7 +58,7 @@ describe('WeekdayConditionEditor', () => {
         getCurrentLocale: vi.fn(() => 'en'),
         setLocale: vi.fn(),
         getAvailableLocales: vi.fn(() => ['en', 'ja']),
-        reactiveMessage: (fn: any) => fn,
+        reactiveMessage: (fn: () => string) => fn,
         getMessage: vi.fn(() => () => 'mock message'),
         subscribe: vi.fn()
       })

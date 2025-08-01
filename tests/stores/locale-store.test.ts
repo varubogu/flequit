@@ -105,7 +105,7 @@ describe('localeStore', () => {
     });
 
     it('未定義のロケール設定', () => {
-      localeStore.setLocale(undefined as any);
+      localeStore.setLocale(undefined as unknown);
 
       expect(mockService.getCurrentLocale()).toBe(undefined);
     });

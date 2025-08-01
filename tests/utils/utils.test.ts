@@ -129,19 +129,19 @@ describe('utils', () => {
 
     test('should export WithElementRef type', () => {
       // This is more of a compilation test
-      const withRef: any = {};
+      const withRef: unknown = {};
       expect(typeof withRef).toBe('object');
     });
 
     test('should export WithoutChildrenOrChild type', () => {
       // This is more of a compilation test
-      const withoutChildren: any = {};
+      const withoutChildren: unknown = {};
       expect(typeof withoutChildren).toBe('object');
     });
 
     test('should export WithoutChild type', () => {
       // This is more of a compilation test
-      const withoutChild: any = {};
+      const withoutChild: unknown = {};
       expect(typeof withoutChild).toBe('object');
     });
   });

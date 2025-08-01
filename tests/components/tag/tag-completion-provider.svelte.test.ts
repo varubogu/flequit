@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
 
 // モック設定
@@ -10,25 +9,6 @@ vi.mock('$lib/stores/tags.svelte', () => ({
   }
 }));
 
-// テスト用のシンプルなコンポーネント
-const TestComponent = `
-<script lang="ts">
-  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
-  
-  let testValue = '';
-  let tagDetected = false;
-  
-  function handleTagDetected(event) {
-    tagDetected = true;
-  }
-</script>
-
-<TagCompletionProvider ontagDetected={handleTagDetected}>
-  <input type="text" bind:value={testValue} placeholder="Type here..." />
-</TagCompletionProvider>
-
-<div data-testid="tag-detected">{tagDetected}</div>
-`;
 
 describe('TagCompletionProvider', () => {
   beforeEach(() => {

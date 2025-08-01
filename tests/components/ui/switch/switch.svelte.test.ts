@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import Switch from '$lib/components/ui/switch/switch.svelte';
 
 // Mock bits-ui Switch primitive

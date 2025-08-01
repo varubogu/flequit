@@ -32,7 +32,7 @@ describe('ViewStore', () => {
   describe('computed properties', () => {
     test('tasks should call ViewService.getTasksForView with current view and search query', () => {
       const mockTasks = [{ id: 'task-1', title: 'Test Task' }];
-      mockViewService.getTasksForView.mockReturnValue(mockTasks as any);
+      mockViewService.getTasksForView.mockReturnValue(mockTasks as unknown[]);
 
       store.currentView = 'today';
       store.searchQuery = 'test query';

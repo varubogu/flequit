@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import ProjectList from '$lib/components/project/project-list.svelte';

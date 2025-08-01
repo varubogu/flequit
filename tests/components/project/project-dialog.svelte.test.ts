@@ -24,7 +24,7 @@ describe('ProjectDialog Component', () => {
     vi.restoreAllMocks();
   });
 
-  const renderComponent = (props: any = {}) => {
+  const renderComponent = (props: Record<string, unknown> = {}) => {
     const defaultProps = {
       open: true,
       mode: 'add' as const,

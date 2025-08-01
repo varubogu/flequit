@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
-import TaskContent from '$lib/components/task/task-content.svelte';
 import type { TaskWithSubTasks, Tag } from '$lib/types/task';
 
 // 必要なモジュールをモック

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
-import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
+import { settingsStore } from '$lib/stores/settings.svelte';
 import { translationService } from '$lib/services/paraglide-translation-service.svelte';
 import { localeStore } from '$lib/stores/locale.svelte';
 
@@ -11,7 +11,7 @@ vi.mock('$lib/services/paraglide-translation-service.svelte', () => ({
     getCurrentLocale: vi.fn(() => 'en'),
     setLocale: vi.fn(),
     getAvailableLocales: vi.fn(() => ['en', 'ja']),
-    reactiveMessage: (fn: any) => fn,
+    reactiveMessage: (fn: () => string) => fn,
     getMessage: vi.fn(),
     subscribe: vi.fn()
   }
@@ -28,7 +28,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
     getCurrentLocale: vi.fn(() => 'en'),
     setLocale: vi.fn(),
     getAvailableLocales: vi.fn(() => ['en', 'ja']),
-    reactiveMessage: (fn: any) => fn,
+    reactiveMessage: (fn: () => string) => fn,
     getMessage: vi.fn(() => () => 'mock message'),
     subscribe: vi.fn()
   })

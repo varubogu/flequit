@@ -10,7 +10,7 @@ import { translationService } from '$lib/services/paraglide-translation-service.
 
 describe('Translation Service', () => {
   let mockService: MockTranslationService;
-  let originalService: any;
+  let originalService: unknown;
 
   beforeEach(() => {
     originalService = getTranslationService();
