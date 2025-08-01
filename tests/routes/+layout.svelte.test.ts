@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Layout from '../../src/routes/+layout.svelte';
-import { DataService } from '../../src/lib/services/data-service';
+import { backendService } from '../../src/lib/services/backend-service';
 
 // Mock CSS import
 vi.mock('../../src/app.css', () => ({}));
@@ -15,10 +15,10 @@ vi.mock('svelte', () => ({
   tick: vi.fn(() => Promise.resolve())
 }));
 
-vi.mock('../../src/lib/services/data-service', () => ({
-  DataService: {
-    loadUserData: vi.fn()
-  }
+vi.mock('../../src/lib/services/backend-service', () => ({
+  backendService: vi.fn(() => ({
+    loadProjectData: vi.fn(async () => Promise.resolve([]))
+  }))
 }));
 
 // Mock ModeWatcher
