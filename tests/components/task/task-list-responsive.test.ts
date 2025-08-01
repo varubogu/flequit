@@ -27,8 +27,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-}));
-
 import TaskList from '$lib/components/task/task-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 

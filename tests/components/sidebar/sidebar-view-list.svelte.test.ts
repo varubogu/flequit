@@ -5,10 +5,6 @@ import { taskStore } from '$lib/stores/tasks.svelte';
 import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 import { writable, get } from 'svelte/store';
 
-// --- Paraglide Mock ---
-
-}));
-
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: any) => fn
@@ -21,14 +17,14 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
 }));
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
-  const original = await importOriginal() as any;
-  
+  const original = (await importOriginal()) as any;
+
   return {
     ...original,
     taskStore: {
@@ -41,34 +37,46 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       newTaskData: null,
       pendingTaskSelection: null,
       pendingSubTaskSelection: null,
-      get todayTasks() { return []; },
-      get overdueTasks() { return []; },
-      get allTasks() { return []; },
-      get selectedTask() { return null; },
-      get selectedSubTask() { return null; },
-      getTaskById: () => null,
+      get todayTasks() {
+        return [];
+      },
+      get overdueTasks() {
+        return [];
+      },
+      get allTasks() {
+        return [];
+      },
+      get selectedTask() {
+        return null;
+      },
+      get selectedSubTask() {
+        return null;
+      },
+      getTaskById: () => null
     }
   };
 });
 
 vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
-    const { writable, get } = await import('svelte/store');
-    const original = await importOriginal() as any;
-    const viewsWritable = writable({
-        visibleViews: [
-            { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
-            { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-            { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 },
-        ]
-    });
-    return {
-        ...original,
-        viewsVisibilityStore: {
-            ...(original.viewsVisibilityStore || {}),
-            subscribe: viewsWritable.subscribe,
-            get visibleViews() { return get(viewsWritable).visibleViews },
-        }
-    };
+  const { writable, get } = await import('svelte/store');
+  const original = (await importOriginal()) as any;
+  const viewsWritable = writable({
+    visibleViews: [
+      { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
+      { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
+      { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
+    ]
+  });
+  return {
+    ...original,
+    viewsVisibilityStore: {
+      ...(original.viewsVisibilityStore || {}),
+      subscribe: viewsWritable.subscribe,
+      get visibleViews() {
+        return get(viewsWritable).visibleViews;
+      }
+    }
+  };
 });
 
 const mockTaskStore = vi.mocked(taskStore);
@@ -81,7 +89,11 @@ describe('SidebarViewList Component', () => {
     vi.clearAllMocks();
   });
 
-  const setTaskStoreData = (data: { todayTasks?: any[], overdueTasks?: any[], allTasks?: any[] }) => {
+  const setTaskStoreData = (data: {
+    todayTasks?: any[];
+    overdueTasks?: any[];
+    allTasks?: any[];
+  }) => {
     if (data.todayTasks !== undefined) {
       vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks);
     }
@@ -114,14 +126,17 @@ describe('SidebarViewList Component', () => {
 
   test('should display correct task counts', () => {
     setTaskStoreData({
-        allTasks: [{id: '1'},{id: '2'}],
-        todayTasks: [{id: '1'}],
-        overdueTasks: [{id: '3'}]
+      allTasks: [{ id: '1' }, { id: '2' }],
+      todayTasks: [{ id: '1' }],
+      overdueTasks: [{ id: '3' }]
     });
 
     render(SidebarViewList, { onViewChange });
 
-    const allTasksCount = screen.getByText('All Tasks').closest('button')?.querySelector('.ml-auto');
+    const allTasksCount = screen
+      .getByText('All Tasks')
+      .closest('button')
+      ?.querySelector('.ml-auto');
     const todayCount = screen.getByText('Today').closest('button')?.querySelector('.ml-auto');
     const overdueCount = screen.getByText('Overdue').closest('button')?.querySelector('.ml-auto');
 

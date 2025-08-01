@@ -59,8 +59,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-}));
-
 describe('SidebarTagList - Drag & Drop', () => {
   const mockTags: Tag[] = [
     {
@@ -139,7 +137,7 @@ describe('SidebarTagList - Drag & Drop', () => {
       });
 
       const tagElements = container.querySelectorAll('[data-testid^="tag-"]');
-      
+
       if (tagElements[0]) {
         const dropEvent = new Event('drop') as DragEvent;
         Object.defineProperty(dropEvent, 'dataTransfer', {
@@ -170,7 +168,7 @@ describe('SidebarTagList - Drag & Drop', () => {
       });
 
       const tagElements = container.querySelectorAll('[data-testid^="tag-"]');
-      
+
       if (tagElements[0]) {
         const dropEvent = new Event('drop') as DragEvent;
         Object.defineProperty(dropEvent, 'dataTransfer', {

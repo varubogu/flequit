@@ -7,8 +7,6 @@ import { writable, get } from 'svelte/store';
 
 // --- Paraglide Mock ---
 
-}));
-
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: any) => fn
@@ -21,16 +19,16 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
 }));
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
-  const original = await importOriginal() as any;
+  const original = (await importOriginal()) as any;
   const tasksWritable = writable({
-    selectedListId: null,
+    selectedListId: null
   });
 
   return {
@@ -41,7 +39,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       set: tasksWritable.set,
       update: tasksWritable.update,
       selectList: vi.fn(),
-      selectedListId: null,
+      selectedListId: null
     }
   };
 });
@@ -50,38 +48,33 @@ const mockTaskStore = vi.mocked(taskStore);
 
 // --- Test Data ---
 const mockProject: ProjectTree = {
-  id: 'project-1', 
-  name: 'Work', 
-  color: '#ff0000', 
-  order_index: 0, 
-  is_archived: false, 
-  created_at: new Date(), 
+  id: 'project-1',
+  name: 'Work',
+  color: '#ff0000',
+  order_index: 0,
+  is_archived: false,
+  created_at: new Date(),
   updated_at: new Date(),
   task_lists: [
-    { 
-      id: 'list-1', 
-      project_id: 'project-1', 
-      name: 'Frontend', 
-      order_index: 0, 
-      is_archived: false, 
-      created_at: new Date(), 
-      updated_at: new Date(), 
-      tasks: [
-        { id: 'task-1' } as TaskWithSubTasks, 
-        { id: 'task-2' } as TaskWithSubTasks
-      ] 
+    {
+      id: 'list-1',
+      project_id: 'project-1',
+      name: 'Frontend',
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks]
     },
-    { 
-      id: 'list-2', 
-      project_id: 'project-1', 
-      name: 'Backend', 
-      order_index: 1, 
-      is_archived: false, 
-      created_at: new Date(), 
-      updated_at: new Date(), 
-      tasks: [
-        { id: 'task-3' } as TaskWithSubTasks
-      ] 
+    {
+      id: 'list-2',
+      project_id: 'project-1',
+      name: 'Backend',
+      order_index: 1,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      tasks: [{ id: 'task-3' } as TaskWithSubTasks]
     }
   ]
 };
@@ -97,29 +90,29 @@ describe('TaskListDisplay Component', () => {
   };
 
   test('should not render anything when not expanded', () => {
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: false 
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: false
     });
-    
+
     expect(screen.queryByText('Frontend')).not.toBeInTheDocument();
     expect(screen.queryByText('Backend')).not.toBeInTheDocument();
   });
 
   test('should render task lists when expanded', () => {
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: true 
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: true
     });
-    
+
     expect(screen.getByText('Frontend')).toBeInTheDocument();
     expect(screen.getByText('Backend')).toBeInTheDocument();
   });
 
   test('should display correct task counts for each list', () => {
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: true 
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: true
     });
 
     const frontendButton = screen.getByText('Frontend').closest('button');
@@ -130,9 +123,9 @@ describe('TaskListDisplay Component', () => {
   });
 
   test('should call selectList when task list is clicked', async () => {
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: true 
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: true
     });
 
     const frontendButton = screen.getByText('Frontend');
@@ -143,10 +136,10 @@ describe('TaskListDisplay Component', () => {
 
   test('should highlight selected task list', () => {
     setTaskStoreData({ selectedListId: 'list-1' });
-    
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: true 
+
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: true
     });
 
     const frontendButton = screen.getByText('Frontend').closest('button');
@@ -157,9 +150,9 @@ describe('TaskListDisplay Component', () => {
   });
 
   test('should open context menu on right-click', async () => {
-    render(TaskListDisplay, { 
-      project: mockProject, 
-      isExpanded: true 
+    render(TaskListDisplay, {
+      project: mockProject,
+      isExpanded: true
     });
 
     // 現在の実装ではContextMenu.TriggerでButtonを囲んでいるため、Buttonに右クリックする
@@ -175,10 +168,10 @@ describe('TaskListDisplay Component', () => {
 
   test('should render empty list when project has no task lists', () => {
     const emptyProject = { ...mockProject, task_lists: [] };
-    
-    render(TaskListDisplay, { 
-      project: emptyProject, 
-      isExpanded: true 
+
+    render(TaskListDisplay, {
+      project: emptyProject,
+      isExpanded: true
     });
 
     expect(screen.queryByText('Frontend')).not.toBeInTheDocument();
@@ -188,21 +181,23 @@ describe('TaskListDisplay Component', () => {
   test('should handle task list with zero tasks', () => {
     const projectWithEmptyList = {
       ...mockProject,
-      task_lists: [{
-        id: 'empty-list',
-        project_id: 'project-1',
-        name: 'Empty List',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        tasks: []
-      }]
+      task_lists: [
+        {
+          id: 'empty-list',
+          project_id: 'project-1',
+          name: 'Empty List',
+          order_index: 0,
+          is_archived: false,
+          created_at: new Date(),
+          updated_at: new Date(),
+          tasks: []
+        }
+      ]
     };
 
-    render(TaskListDisplay, { 
-      project: projectWithEmptyList, 
-      isExpanded: true 
+    render(TaskListDisplay, {
+      project: projectWithEmptyList,
+      isExpanded: true
     });
 
     const emptyListButton = screen.getByText('Empty List').closest('button');

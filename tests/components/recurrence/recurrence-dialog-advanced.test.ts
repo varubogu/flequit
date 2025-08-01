@@ -5,14 +5,12 @@ import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dial
 import type { RecurrenceRule } from '$lib/types/task';
 
 // Paraglideランタイムをモック
-
+vi.mock('$paraglide/runtime', () => ({
   getLocale: vi.fn(() => 'ja'),
   setLocale: vi.fn()
 }));
 
 // メッセージファイルをモック
-
-}));
 
 // ロケールストアをモック
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -52,7 +50,7 @@ describe('RecurrenceDialogAdvanced', () => {
 
     // selectの選択肢を確認
     const options = select.querySelectorAll('option');
-    const optionTexts = Array.from(options).map(opt => opt.textContent);
+    const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
     expect(optionTexts).toContain('無効');
     expect(optionTexts).toContain('有効');
@@ -122,12 +120,14 @@ describe('RecurrenceDialogAdvanced', () => {
       interval: 1,
       adjustment: {
         date_conditions: [],
-        weekday_conditions: [{
-          id: 'test',
-          if_weekday: 'monday',
-          then_direction: 'next',
-          then_target: 'weekday'
-        }]
+        weekday_conditions: [
+          {
+            id: 'test',
+            if_weekday: 'monday',
+            then_direction: 'next',
+            then_target: 'weekday'
+          }
+        ]
       }
     };
 
@@ -226,7 +226,7 @@ describe('RecurrenceDialogAdvanced', () => {
     fireEvent.input(countInput, { target: { value: '3' } });
 
     // setTimeoutを考慮して少し待機
-    await new Promise(resolve => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10));
 
     // 入力値が正しく反映されることを確認
     expect(countInput.value).toBe('3');
@@ -261,7 +261,7 @@ describe('RecurrenceDialogAdvanced', () => {
     it('小数点を入力すると整数に丸められる', async () => {
       await fireEvent.input(countInput, { target: { value: '5.8' } });
       // setTimeout内の処理を待つ
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(countInput.value).toBe('58'); // DOM上では"."が無視されるため
 
       // 保存される値を確認（自動保存）
@@ -270,14 +270,14 @@ describe('RecurrenceDialogAdvanced', () => {
 
     it('0を入力するとフィールドがクリアされる', async () => {
       await fireEvent.input(countInput, { target: { value: '0' } });
-      await new Promise(resolve => setTimeout(resolve, 10)); // 少し長めの待機時間
+      await new Promise((resolve) => setTimeout(resolve, 10)); // 少し長めの待機時間
       // 実装では0が入力されてもそのまま表示される（内部的にはundefinedに変換される）
       expect(countInput.value).toBe('0');
     });
 
     it('負の数を入力するとフィールドがクリアされる', async () => {
       await fireEvent.input(countInput, { target: { value: '-5' } });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       // 負号は除去されて数字のみが残る実装のようです
       expect(countInput.value).toBe('5');
     });
@@ -285,7 +285,7 @@ describe('RecurrenceDialogAdvanced', () => {
     it('不正な文字を含む文字列を貼り付けると数字のみが残る', async () => {
       // 不正な文字列を入力
       await fireEvent.input(countInput, { target: { value: '+dfs/*=5f-8' } });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       // 実装では空文字になることがある（サニタイズされて空になる）
       expect(countInput.value).toBe('');
     });

@@ -25,20 +25,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-  remove_tag_from_item: vi.fn(() => 'Remove tag from item'),
-  remove_tag_from_sidebar: vi.fn(() => 'Remove tag from sidebar'),
-  add_tag_to_sidebar: vi.fn(() => 'Add tag to sidebar'),
-  edit_tag: vi.fn(() => 'Edit tag'),
-  delete_tag: vi.fn(() => 'Delete tag'),
-  cancel: vi.fn(() => 'Cancel'),
-  save: vi.fn(() => 'Save'),
-  remove: vi.fn(() => 'Remove'),
-  tags: vi.fn(() => 'Tags'),
-  tag_name: vi.fn(() => 'Tag Name'),
-  tag_color: vi.fn(() => 'Tag Color'),
-  delete_tag_description: vi.fn(() => 'Are you sure you want to delete this tag?')
-}));
-
 describe('TagDisplay', () => {
   const mockTag: Tag = {
     id: '1',
@@ -63,60 +49,60 @@ describe('TagDisplay', () => {
 
   it('タグ名が正しく表示される', () => {
     render(TagDisplay, { props: defaultProps });
-    
+
     expect(screen.getByText('test-tag')).toBeInTheDocument();
   });
 
   it('タグ色が正しく適用される', () => {
     render(TagDisplay, { props: defaultProps });
-    
+
     const badge = screen.getByText('test-tag').closest('.border');
     expect(badge).toHaveAttribute('style', expect.stringContaining('rgb(255, 0, 0)'));
   });
 
   it('削除ボタンが非表示の場合、通常のバッジが表示される', () => {
     render(TagDisplay, { props: defaultProps });
-    
+
     expect(screen.getByText('test-tag')).toBeInTheDocument();
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('削除ボタンが表示される場合、Xボタンが表示される', () => {
-    render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
-        showRemoveButton: true 
-      } 
+    render(TagDisplay, {
+      props: {
+        ...defaultProps,
+        showRemoveButton: true
+      }
     });
-    
+
     expect(screen.getByText('test-tag')).toBeInTheDocument();
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('削除ボタンをクリックするとonRemoveが呼ばれる', async () => {
     const onRemove = vi.fn();
-    render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
+    render(TagDisplay, {
+      props: {
+        ...defaultProps,
         showRemoveButton: true,
         onRemove
-      } 
+      }
     });
-    
+
     const removeButton = screen.getByRole('button');
     await fireEvent.click(removeButton);
-    
+
     expect(onRemove).toHaveBeenCalledWith('1');
   });
 
   it('カスタムクラスが適用される', () => {
-    const { container } = render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
-        class: 'custom-class' 
-      } 
+    const { container } = render(TagDisplay, {
+      props: {
+        ...defaultProps,
+        class: 'custom-class'
+      }
     });
-    
+
     expect(container.querySelector('.custom-class')).toBeInTheDocument();
   });
 
@@ -128,46 +114,46 @@ describe('TagDisplay', () => {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
-    render(TagDisplay, { 
-      props: { 
-        tag: tagWithoutColor 
-      } 
+
+    render(TagDisplay, {
+      props: {
+        tag: tagWithoutColor
+      }
     });
-    
+
     const badge = screen.getByText('no-color-tag').closest('.border');
     expect(badge).toHaveAttribute('style', expect.stringContaining('rgb(107, 114, 128)'));
   });
 
   it('コンテキストメニューのトリガーが正しく設定される', () => {
     render(TagDisplay, { props: defaultProps });
-    
+
     // コンテキストメニュートリガーとしてバッジが存在することを確認
     expect(screen.getByText('test-tag')).toBeInTheDocument();
   });
 
   it('onTagRemoveFromItemが設定されている場合のコンポーネント動作', () => {
     const onTagRemoveFromItem = vi.fn();
-    
-    render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
+
+    render(TagDisplay, {
+      props: {
+        ...defaultProps,
         onTagRemoveFromItem,
         enableTagRemoveFromContext: true
-      } 
+      }
     });
-    
+
     expect(screen.getByText('test-tag')).toBeInTheDocument();
   });
 
   it('enableTagRemoveFromContextがfalseの場合', () => {
-    render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
+    render(TagDisplay, {
+      props: {
+        ...defaultProps,
         enableTagRemoveFromContext: false
-      } 
+      }
     });
-    
+
     expect(screen.getByText('test-tag')).toBeInTheDocument();
   });
 
@@ -179,13 +165,13 @@ describe('TagDisplay', () => {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
-    render(TagDisplay, { 
-      props: { 
-        tag: differentTag 
-      } 
+
+    render(TagDisplay, {
+      props: {
+        tag: differentTag
+      }
     });
-    
+
     expect(screen.getByText('different-tag')).toBeInTheDocument();
     const badge = screen.getByText('different-tag').closest('.border');
     expect(badge).toHaveAttribute('style', expect.stringContaining('rgb(0, 255, 0)'));
@@ -193,13 +179,13 @@ describe('TagDisplay', () => {
 
   it('showRemoveButtonプロパティの基本動作確認', () => {
     // 削除ボタンなしでのレンダリング
-    const { container } = render(TagDisplay, { 
-      props: { 
-        ...defaultProps, 
-        showRemoveButton: false 
-      } 
+    const { container } = render(TagDisplay, {
+      props: {
+        ...defaultProps,
+        showRemoveButton: false
+      }
     });
-    
+
     // コンポーネントが正しくマウントされることを確認
     expect(screen.getByText('test-tag')).toBeInTheDocument();
     expect(container).toBeTruthy();
@@ -214,9 +200,9 @@ describe('TagDisplay', () => {
       enableTagRemoveFromContext: true,
       class: 'test-class'
     };
-    
+
     const { container } = render(TagDisplay, { props });
-    
+
     expect(container).toBeTruthy();
     expect(props.onRemove).toBeInstanceOf(Function);
     expect(props.onTagRemoveFromItem).toBeInstanceOf(Function);

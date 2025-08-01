@@ -3,10 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
 import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
-// メッセージファイルをモック
-
-}));
-
 // ロケールストアをモック
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
@@ -32,7 +28,7 @@ describe('DayTargetSelector', () => {
 
     // すべての曜日オプションが存在することを確認
     const options = select.querySelectorAll('option');
-    const optionTexts = Array.from(options).map(opt => opt.textContent);
+    const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
     expect(optionTexts).toContain('月曜日');
     expect(optionTexts).toContain('火曜日');
@@ -53,7 +49,7 @@ describe('DayTargetSelector', () => {
 
     const select = screen.getByRole('combobox');
     const options = select.querySelectorAll('option');
-    const optionTexts = Array.from(options).map(opt => opt.textContent);
+    const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
     expect(optionTexts).toContain('平日');
     expect(optionTexts).toContain('休日');

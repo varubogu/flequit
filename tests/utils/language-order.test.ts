@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { LanguageOrderUtils } from '$lib/utils/language-order';
-import { getLocale } from '$paraglide/runtime';
+import { translationService } from '$lib/services/paraglide-translation-service.svelte';
 
-// $paraglide/runtime をモック
-vi.mock('$paraglide/runtime', () => ({
-  getLocale: vi.fn()
+// translation service をモック
+vi.mock('$lib/services/paraglide-translation-service.svelte', () => ({
+  translationService: {
+    getCurrentLocale: vi.fn()
+  }
 }));
 
 describe('LanguageOrderUtils', () => {
-  const mockGetLocale = vi.mocked(getLocale);
+  const mockTranslationService = vi.mocked(translationService);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -20,43 +22,43 @@ describe('LanguageOrderUtils', () => {
 
   describe('getWeekdayConditionOrder', () => {
     it('日本語ロケールの場合はjaを返す', () => {
-      mockGetLocale.mockReturnValue('ja');
+      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
 
     it('日本語ロケール（地域指定あり）の場合はjaを返す', () => {
-      (mockGetLocale as any).mockReturnValue('ja-JP');
+      mockTranslationService.getCurrentLocale.mockReturnValue('ja-JP');
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
 
     it('英語ロケールの場合はenを返す', () => {
-      (mockGetLocale as any).mockReturnValue('en');
+      mockTranslationService.getCurrentLocale.mockReturnValue('en');
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('英語ロケール（地域指定あり）の場合はenを返す', () => {
-      (mockGetLocale as any).mockReturnValue('en-US');
+      mockTranslationService.getCurrentLocale.mockReturnValue('en-US');
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('その他のロケールの場合はenを返す', () => {
-      (mockGetLocale as any).mockReturnValue('fr-FR');
+      mockTranslationService.getCurrentLocale.mockReturnValue('fr-FR');
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      mockGetLocale.mockReturnValue('en');
+      mockTranslationService.getCurrentLocale.mockReturnValue('en');
       const result = LanguageOrderUtils.getWeekdayConditionOrder('ja');
       expect(result).toBe('ja');
     });
 
     it('言語パラメータがnullの場合はgetLocaleの値を使用', () => {
-      mockGetLocale.mockReturnValue('ja');
+      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
       const result = LanguageOrderUtils.getWeekdayConditionOrder(undefined);
       expect(result).toBe('ja');
     });
@@ -111,7 +113,7 @@ describe('LanguageOrderUtils', () => {
 
   describe('formatWeekdayCondition', () => {
     it('日本語ロケールの場合は日本語フォーマットを返す', () => {
-      mockGetLocale.mockReturnValue('ja');
+      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
 
       const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日');
 
@@ -119,7 +121,7 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('英語ロケールの場合は英語フォーマットを返す', () => {
-      mockGetLocale.mockReturnValue('en');
+      mockTranslationService.getCurrentLocale.mockReturnValue('en');
 
       const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
 
@@ -127,7 +129,7 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      mockGetLocale.mockReturnValue('en');
+      mockTranslationService.getCurrentLocale.mockReturnValue('en');
 
       const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日', 'ja');
 
@@ -135,7 +137,7 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('未知の言語の場合は英語フォーマットを返す', () => {
-      (mockGetLocale as any).mockReturnValue('fr');
+      mockTranslationService.getCurrentLocale.mockReturnValue('fr');
 
       const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
 

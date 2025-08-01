@@ -25,9 +25,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     projects: [
       {
         id: 'project-1',
-        task_lists: [
-          { id: 'list-1', name: 'Default List' }
-        ]
+        task_lists: [{ id: 'list-1', name: 'Default List' }]
       }
     ],
     startNewTaskMode: vi.fn()
@@ -47,10 +45,6 @@ vi.mock('$lib/services/task-service', () => ({
   }
 }));
 
-  show_all_results_for: ({ searchValue }: { searchValue: string }) => `Show all results for "${searchValue}"`,
-
-}));
-
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
@@ -68,7 +62,7 @@ describe('SearchCommand', () => {
     await fireEvent.keyDown(input, { key: 'Enter' });
 
     // 少し待機してから確認
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // viewStore.performSearchが呼ばれることを確認
     expect(viewStore.performSearch).toHaveBeenCalledWith('test');

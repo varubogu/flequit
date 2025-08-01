@@ -8,9 +8,7 @@
     AdjustmentDirection,
     AdjustmentTarget
   } from '$lib/types/task';
-  import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import { getLocale } from '$paraglide/runtime';
 
   interface Props {
     condition: WeekdayCondition;
@@ -32,7 +30,7 @@
   ];
 
   // 現在の言語を取得
-  const currentLanguage = $derived(getLocale());
+  const currentLanguage = $derived(translationService.getCurrentLocale());
   const isJapanese = $derived(currentLanguage.startsWith('ja'));
 
   function handleConditionChange(value: DayOfWeek | AdjustmentTarget) {

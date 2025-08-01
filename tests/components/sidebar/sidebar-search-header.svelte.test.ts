@@ -4,8 +4,6 @@ import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.s
 
 // --- Paraglide Mock ---
 
-}));
-
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: any) => fn
@@ -18,7 +16,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
 }));
 

@@ -9,12 +9,8 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
-}));
-
-// --- Paraglide Mock ---
-
 }));
 
 // --- Locale Store Mock ---
@@ -31,19 +27,19 @@ const mockUser = {
   id: '1',
   name: 'John Doe',
   email: 'john.doe@example.com',
-  avatar: undefined,
+  avatar: undefined
 };
 
 const mockUserWithAvatar = {
   id: '2',
   name: 'Jane Smith',
   email: 'jane.smith@example.com',
-  avatar: 'https://example.com/avatar.jpg',
+  avatar: 'https://example.com/avatar.jpg'
 };
 
 // Mock SettingsDialog to prevent it from actually rendering
 vi.mock('$lib/components/settings-dialog.svelte', () => ({
-    default: vi.fn(),
+  default: vi.fn()
 }));
 
 describe('UserProfile Component', () => {
@@ -65,7 +61,7 @@ describe('UserProfile Component', () => {
       onLogin,
       onLogout,
       onSettings,
-      onSwitchAccount,
+      onSwitchAccount
     };
     return render(UserProfile, { ...defaultProps, ...props });
   };
@@ -170,18 +166,18 @@ describe('UserProfile Component', () => {
     });
 
     test('should call onSettings and close the menu', async () => {
-        renderComponent({ user: mockUser });
-        const toggleButton = screen.getByRole('button', { name: /John Doe/ });
-        await fireEvent.click(toggleButton);
+      renderComponent({ user: mockUser });
+      const toggleButton = screen.getByRole('button', { name: /John Doe/ });
+      await fireEvent.click(toggleButton);
 
-        // Get the settings button from the menu
-        const settingsButton = screen.getByRole('button', { name: /Settings/ });
-        await fireEvent.click(settingsButton);
+      // Get the settings button from the menu
+      const settingsButton = screen.getByRole('button', { name: /Settings/ });
+      await fireEvent.click(settingsButton);
 
-        expect(onSettings).toHaveBeenCalledTimes(1);
-        // The menu should close, so the "Switch Account" button (another menu item) should disappear
-        expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
-      });
+      expect(onSettings).toHaveBeenCalledTimes(1);
+      // The menu should close, so the "Switch Account" button (another menu item) should disappear
+      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+    });
 
     test('should call onSwitchAccount and close menu', async () => {
       renderComponent({ user: mockUser });

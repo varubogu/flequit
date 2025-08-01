@@ -9,14 +9,8 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
-}));
-
-// --- Paraglide Mock ---
-
-  next_3_days: () => 'Next 3 days',
-
 }));
 
 // --- Locale Store Mock ---
@@ -41,17 +35,27 @@ vi.mock('../../../../src/lib/stores/tasks.svelte', () => {
     newTaskData: null,
     pendingTaskSelection: null,
     pendingSubTaskSelection: null,
-    get todayTasks() { return []; },
-    get overdueTasks() { return []; },
-    get allTasks() { return []; },
-    get selectedTask() { return null; },
-    get selectedSubTask() { return null; },
+    get todayTasks() {
+      return [];
+    },
+    get overdueTasks() {
+      return [];
+    },
+    get allTasks() {
+      return [];
+    },
+    get selectedTask() {
+      return null;
+    },
+    get selectedSubTask() {
+      return null;
+    },
     getTaskById: () => null,
     set: vi.fn(),
     subscribe: vi.fn(() => () => {}),
     update: vi.fn()
   };
-  
+
   return {
     taskStore: mockTaskStore
   };
@@ -59,12 +63,12 @@ vi.mock('../../../../src/lib/stores/tasks.svelte', () => {
 
 vi.mock('$lib/stores/views-visibility.svelte', () => ({
   viewsVisibilityStore: {
-    get visibleViews() { 
+    get visibleViews() {
       return [
         { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
         { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-        { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 },
-      ]; 
+        { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
+      ];
     }
   }
 }));

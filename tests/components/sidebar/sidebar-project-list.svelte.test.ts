@@ -7,8 +7,6 @@ import { writable, get } from 'svelte/store';
 
 // --- Paraglide Mock ---
 
-}));
-
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: any) => fn
@@ -21,21 +19,21 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     open: true,
     isMobile: false,
     toggleSidebar: vi.fn(),
-    setOpen: vi.fn(),
+    setOpen: vi.fn()
   })
 }));
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
-  const original = await importOriginal() as any;
-  
+  const original = (await importOriginal()) as any;
+
   let taskStoreData = {
     projects: [],
     selectedProjectId: null,
-    selectedListId: null,
+    selectedListId: null
   };
-  
+
   const tasksWritable = writable(taskStoreData);
 
   return {
@@ -49,7 +47,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       selectList: vi.fn(),
       projects: [],
       selectedProjectId: null,
-      selectedListId: null,
+      selectedListId: null
     }
   };
 });
@@ -59,13 +57,46 @@ const mockTaskStore = vi.mocked(taskStore);
 // --- Test Data ---
 const mockProjects: ProjectTree[] = [
   {
-    id: 'project-1', name: 'Work', color: '#ff0000', order_index: 0, is_archived: false, created_at: new Date(), updated_at: new Date(),
+    id: 'project-1',
+    name: 'Work',
+    color: '#ff0000',
+    order_index: 0,
+    is_archived: false,
+    created_at: new Date(),
+    updated_at: new Date(),
     task_lists: [
-      { id: 'list-1', project_id: 'project-1', name: 'Frontend', order_index: 0, is_archived: false, created_at: new Date(), updated_at: new Date(), tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks] },
-      { id: 'list-2', project_id: 'project-1', name: 'Backend', order_index: 1, is_archived: false, created_at: new Date(), updated_at: new Date(), tasks: [{ id: 'task-3' } as TaskWithSubTasks] }
+      {
+        id: 'list-1',
+        project_id: 'project-1',
+        name: 'Frontend',
+        order_index: 0,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks]
+      },
+      {
+        id: 'list-2',
+        project_id: 'project-1',
+        name: 'Backend',
+        order_index: 1,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        tasks: [{ id: 'task-3' } as TaskWithSubTasks]
+      }
     ]
   },
-  { id: 'project-2', name: 'Personal', color: '#00ff00', order_index: 1, is_archived: false, created_at: new Date(), updated_at: new Date(), task_lists: [] }
+  {
+    id: 'project-2',
+    name: 'Personal',
+    color: '#00ff00',
+    order_index: 1,
+    is_archived: false,
+    created_at: new Date(),
+    updated_at: new Date(),
+    task_lists: []
+  }
 ];
 
 describe('SidebarProjectList Component', () => {
@@ -80,9 +111,14 @@ describe('SidebarProjectList Component', () => {
     mockTaskStore.selectedListId = null;
   });
 
-  const setTaskStoreData = (data: { projects?: any[], selectedProjectId?: string | null, selectedListId?: string | null }) => {
+  const setTaskStoreData = (data: {
+    projects?: any[];
+    selectedProjectId?: string | null;
+    selectedListId?: string | null;
+  }) => {
     if (data.projects !== undefined) mockTaskStore.projects = data.projects;
-    if (data.selectedProjectId !== undefined) mockTaskStore.selectedProjectId = data.selectedProjectId;
+    if (data.selectedProjectId !== undefined)
+      mockTaskStore.selectedProjectId = data.selectedProjectId;
     if (data.selectedListId !== undefined) mockTaskStore.selectedListId = data.selectedListId;
   };
 
@@ -167,7 +203,7 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should highlight selected project', () => {
-    setTaskStoreData({ 
+    setTaskStoreData({
       projects: mockProjects,
       selectedProjectId: 'project-1'
     });

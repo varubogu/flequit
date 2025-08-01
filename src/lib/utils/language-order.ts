@@ -1,4 +1,4 @@
-import { getLocale } from '$paraglide/runtime';
+import { translationService } from '$lib/services/paraglide-translation-service.svelte';
 
 /**
  * 言語に応じた曜日条件の表示順序を管理
@@ -10,7 +10,7 @@ export class LanguageOrderUtils {
    * 英語: If [条件], move to [方向] [対象]
    */
   static getWeekdayConditionOrder(language?: string): 'ja' | 'en' {
-    const lang = language || getLocale();
+    const lang = language || translationService.getCurrentLocale();
     return lang.startsWith('ja') ? 'ja' : 'en';
   }
 

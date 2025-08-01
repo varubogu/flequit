@@ -3,19 +3,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
 
-// Paraglideランタイムをモック
-
-  getLocale: vi.fn(() => 'ja'),
-  setLocale: vi.fn()
-}));
-
-// メッセージファイルをモック
-
-}));
-
 // ロケールストアをモック
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: (fn: () => string) => fn,
+  getTranslationService: () => ({
+    getCurrentLocale: vi.fn(() => 'ja'),
+    setLocale: vi.fn(),
+    getAvailableLocales: vi.fn(() => ['en', 'ja']),
+    reactiveMessage: (fn: any) => fn,
+    getMessage: vi.fn(() => () => 'mock message'),
+    subscribe: vi.fn()
+  })
 }));
 
 describe('WeekdayConditionEditor', () => {
@@ -53,9 +51,18 @@ describe('WeekdayConditionEditor', () => {
   });
 
   it('英語で正しい順序で表示される', async () => {
-    // 言語を英語に設定
-    const { getLocale } = await import('$paraglide/runtime');
-    vi.mocked(getLocale).mockReturnValue('en');
+    // 言語を英語に設定するためにモックを上書き
+    vi.doMock('$lib/stores/locale.svelte', () => ({
+      reactiveMessage: (fn: () => string) => fn,
+      getTranslationService: () => ({
+        getCurrentLocale: vi.fn(() => 'en'),
+        setLocale: vi.fn(),
+        getAvailableLocales: vi.fn(() => ['en', 'ja']),
+        reactiveMessage: (fn: any) => fn,
+        getMessage: vi.fn(() => () => 'mock message'),
+        subscribe: vi.fn()
+      })
+    }));
 
     render(WeekdayConditionEditor, {
       props: {
@@ -100,9 +107,11 @@ describe('WeekdayConditionEditor', () => {
 
     // 方向のselectを見つける
     const selects = screen.getAllByRole('combobox');
-    const directionSelect = selects.find(select => {
+    const directionSelect = selects.find((select) => {
       const options = select.querySelectorAll('option');
-      return Array.from(options).some(option => option.textContent === '前' || option.textContent === '後');
+      return Array.from(options).some(
+        (option) => option.textContent === '前' || option.textContent === '後'
+      );
     });
 
     expect(directionSelect).toBeTruthy();
