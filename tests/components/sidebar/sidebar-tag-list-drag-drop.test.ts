@@ -59,18 +59,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
-  tags: () => 'Tags',
-  remove_tag_from_sidebar: () => 'Remove from sidebar',
-  add_tag_to_sidebar: () => 'Add tag to sidebar',
-  edit_tag: () => 'Edit tag',
-  delete_tag: () => 'Delete tag',
-  cancel: () => 'Cancel',
-  save: () => 'Save',
-  tag_name: () => 'Tag name',
-  tag_color: () => 'Tag color',
-  remove: () => 'Remove',
-  delete_tag_confirmation: () => 'Are you sure you want to delete this tag?'
 }));
 
 describe('SidebarTagList - Drag & Drop', () => {

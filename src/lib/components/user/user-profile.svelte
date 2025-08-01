@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import SettingsDialog from '$lib/components/settings/settings-dialog.svelte';
@@ -29,7 +30,8 @@
     onSettings,
     onSwitchAccount
   }: Props = $props();
-  
+
+  const translationService = getTranslationService();
   // Get sidebar state
   const sidebar = useSidebar();
 
@@ -37,11 +39,11 @@
   let showSettings = $state(false);
 
   // Reactive messages
-  const notSignedIn = reactiveMessage(m.not_signed_in);
-  const settingsLabel = reactiveMessage(m.settings);
-  const switchAccount = reactiveMessage(m.switch_account);
-  const signOut = reactiveMessage(m.sign_out);
-  const signIn = reactiveMessage(m.sign_in);
+  const notSignedIn = translationService.getMessage('not_signed_in');
+  const settingsLabel = translationService.getMessage('settings');
+  const switchAccount = translationService.getMessage('switch_account');
+  const signOut = translationService.getMessage('sign_out');
+  const signIn = translationService.getMessage('sign_in');
 
   function getInitials(name: string): string {
     return name

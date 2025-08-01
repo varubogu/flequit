@@ -3,8 +3,7 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/shared/button.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     open?: boolean;
@@ -22,12 +21,13 @@
     onClose
   }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const selectProjectAndTaskList = reactiveMessage(m.select_project_and_task_list);
-  const project = reactiveMessage(m.project);
-  const taskList = reactiveMessage(m.task_list);
-  const save = reactiveMessage(m.save);
-  const cancel = reactiveMessage(m.cancel);
+  const selectProjectAndTaskList = translationService.getMessage('select_project_and_task_list');
+  const project = translationService.getMessage('project');
+  const taskList = translationService.getMessage('task_list');
+  const save = translationService.getMessage('save');
+  const cancel = translationService.getMessage('cancel');
 
   let selectedProjectId = $state(currentProjectId);
   let selectedTaskListId = $state(currentTaskListId);

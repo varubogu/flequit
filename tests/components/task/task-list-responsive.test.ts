@@ -27,13 +27,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
-  add_task: () => 'Add Task',
-  no_search_results: () => 'No search results',
-  no_tasks_found: () => 'No tasks found',
-  try_different_search: () => 'Try a different search',
-  click_add_task: () => 'Click to add a task',
-  add_some_tasks: () => 'Add some tasks'
 }));
 
 import TaskList from '$lib/components/task/task-list.svelte';

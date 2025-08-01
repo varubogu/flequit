@@ -23,6 +23,14 @@ export interface ITranslationService {
   reactiveMessage<T extends (...args: any[]) => string>(messageFn: T): T;
 
   /**
+   * メッセージキーから翻訳メッセージを取得（リアクティブ）
+   * @param key メッセージキー
+   * @param params パラメータ（オプション）
+   * @returns リアクティブな翻訳メッセージ関数
+   */
+  getMessage(key: string, params?: Record<string, any>): () => string;
+
+  /**
    * 利用可能なロケール一覧を取得
    */
   getAvailableLocales(): readonly string[];

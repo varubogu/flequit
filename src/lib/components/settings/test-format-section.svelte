@@ -1,7 +1,6 @@
 <script lang="ts">
   import Input from '$lib/components/ui/input.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { format } from 'date-fns';
   import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
   import type { DateTimeFormat } from '$lib/types/datetime-format';
@@ -28,11 +27,12 @@
     onFormatSelectionChange
   }: Props = $props();
 
-  const testFormatLabel = reactiveMessage(m.test_format);
-  const preview = reactiveMessage(m.preview);
-  const formatSelection = reactiveMessage(m.format_selection);
-  const formatName = reactiveMessage(m.format_name);
-  const enterFormatName = reactiveMessage(m.enter_format_name);
+  const translationService = getTranslationService();
+  const testFormatLabel = translationService.getMessage('test_format');
+  const preview = translationService.getMessage('preview');
+  const formatSelection = translationService.getMessage('format_selection');
+  const formatName = translationService.getMessage('format_name');
+  const enterFormatName = translationService.getMessage('enter_format_name');
 
   let testFormatPreview = $derived(() => {
     try {

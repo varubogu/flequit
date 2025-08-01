@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { reactiveMessage } from '$lib/stores/locale.svelte';
-	import * as m from '$paraglide/messages';
+	import { getTranslationService } from '$lib/stores/locale.svelte';
+
+  const translationService = getTranslationService();
 
   // Reactive messages
-  const no_task_selected = reactiveMessage(m.no_task_selected);
-  const select_task_to_view_details = reactiveMessage(m.select_task_to_view_details);
+  const no_task_selected = translationService.getMessage('no_task_selected');
+  const select_task_to_view_details = translationService.getMessage('select_task_to_view_details');
 
 </script>
 

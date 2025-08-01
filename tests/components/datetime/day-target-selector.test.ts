@@ -4,18 +4,7 @@ import DayTargetSelector from '$lib/components/datetime/day-target-selector.svel
 import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
 // メッセージファイルをモック
-vi.mock('$paraglide/messages.js', () => ({
-  monday: () => '月曜日',
-  tuesday: () => '火曜日',
-  wednesday: () => '水曜日',
-  thursday: () => '木曜日',
-  friday: () => '金曜日',
-  saturday: () => '土曜日',
-  sunday: () => '日曜日',
-  weekday: () => '平日',
-  weekend: () => '休日',
-  holiday: () => '祝日',
-  non_holiday: () => '非祝日'
+
 }));
 
 // ロケールストアをモック

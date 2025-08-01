@@ -6,12 +6,7 @@ import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 import { writable, get } from 'svelte/store';
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({
-  views_title: () => 'Views',
-  all_tasks: () => 'All Tasks',
-  today: () => 'Today',
-  scheduled: () => 'Scheduled',
-  overdue: () => 'Overdue'
+
 }));
 
 // --- Locale Store Mock ---

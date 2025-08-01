@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
@@ -9,9 +10,10 @@
 
   let { value = $bindable(), oninput }: Props = $props();
 
-  const repeatCountLabel = reactiveMessage(m.repeat_count);
-  const infiniteRepeatPlaceholder = reactiveMessage(m.infinite_repeat_placeholder);
-  const infiniteRepeatDescription = reactiveMessage(m.infinite_repeat_description);
+  const translationService = getTranslationService();
+  const repeatCountLabel = translationService.getMessage('repeat_count');
+  const infiniteRepeatPlaceholder = translationService.getMessage('infinite_repeat_placeholder');
+  const infiniteRepeatDescription = translationService.getMessage('infinite_repeat_description');
 
 
   // コンポーネントの入力フィールド用の内部状態（文字列として保持）

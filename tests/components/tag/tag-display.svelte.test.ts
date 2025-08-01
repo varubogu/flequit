@@ -25,7 +25,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
   remove_tag_from_item: vi.fn(() => 'Remove tag from item'),
   remove_tag_from_sidebar: vi.fn(() => 'Remove tag from sidebar'),
   add_tag_to_sidebar: vi.fn(() => 'Add tag to sidebar'),

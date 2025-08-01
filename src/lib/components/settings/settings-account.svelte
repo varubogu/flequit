@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from "$lib/components/shared/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
   import { reactiveMessage } from "$lib/stores/locale.svelte";
@@ -17,21 +18,22 @@
 
   let { settings }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive message functions
-  const account_settings = reactiveMessage(m.account_settings);
-  const account_type = reactiveMessage(m.account_type);
-  const local_account = reactiveMessage(m.local_account);
-  const cloud_account = reactiveMessage(m.cloud_account);
+  const account_settings = translationService.getMessage('account_settings');
+  const account_type = translationService.getMessage('account_type');
+  const local_account = translationService.getMessage('local_account');
+  const cloud_account = translationService.getMessage('cloud_account');
 
-  const organization = reactiveMessage(m.organization);
-  const example_organization = reactiveMessage(m.example_organization);
-  const account_icon = reactiveMessage(m.account_icon);
-  const choose_file = reactiveMessage(m.choose_file);
-  const account_name = reactiveMessage(m.account_name);
-  const email_address = reactiveMessage(m.email_address);
-  const server_url = reactiveMessage(m.server_url);
-  const local_account_description = reactiveMessage(m.local_account_description);
-  const password = reactiveMessage(m.password);
+  const organization = translationService.getMessage('organization');
+  const example_organization = translationService.getMessage('example_organization');
+  const account_icon = translationService.getMessage('account_icon');
+  const choose_file = translationService.getMessage('choose_file');
+  const account_name = translationService.getMessage('account_name');
+  const email_address = translationService.getMessage('email_address');
+  const server_url = translationService.getMessage('server_url');
+  const local_account_description = translationService.getMessage('local_account_description');
+  const password = translationService.getMessage('password');
 </script>
 
 <section id="settings-account">

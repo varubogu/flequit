@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
@@ -16,6 +17,7 @@
 
   let { open = false, tag, onsave, onclose }: Props = $props();
 
+  const translationService = getTranslationService();
   // Default color for tags without a color (same as tag-display.svelte)
   const DEFAULT_TAG_COLOR = '#6b7280'; // gray-500
 
@@ -23,9 +25,9 @@
   let color = $state(DEFAULT_TAG_COLOR);
 
   // Reactiveメッセージ
-  const cancel = reactiveMessage(m.cancel);
-  const save = reactiveMessage(m.save);
-  const tags = reactiveMessage(m.tags);
+  const cancel = translationService.getMessage('cancel');
+  const save = translationService.getMessage('save');
+  const tags = translationService.getMessage('tags');
 
   $effect(() => {
     if (open && tag) {

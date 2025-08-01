@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
@@ -38,14 +39,15 @@
     onDragLeave
   }: Props = $props();
 
+  const translationService = getTranslationService();
   // Get sidebar state
   const sidebar = useSidebar();
 
   // Reactive messages
-  const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
-  const addTagToSidebar = reactiveMessage(m.add_tag_to_sidebar);
-  const editTag = reactiveMessage(m.edit_tag);
-  const deleteTag = reactiveMessage(m.delete_tag);
+  const removeTagFromSidebar = translationService.getMessage('remove_tag_from_sidebar');
+  const addTagToSidebar = translationService.getMessage('add_tag_to_sidebar');
+  const editTag = translationService.getMessage('edit_tag');
+  const deleteTag = translationService.getMessage('delete_tag');
 
   function getTaskCountForTag(tagName: string): number {
     return taskStore.getTaskCountByTag(tagName);

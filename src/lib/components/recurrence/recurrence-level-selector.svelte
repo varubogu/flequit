@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { RecurrenceLevel } from '$lib/types/task';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -10,10 +11,11 @@
 
   let { value = $bindable(), onchange }: Props = $props();
 
-  const recurrence = reactiveMessage(m.recurrence);
-  const recurrenceDisabled = reactiveMessage(m.recurrence_disabled);
-  const recurrenceEnabled = reactiveMessage(m.recurrence_enabled);
-  const recurrenceAdvanced = reactiveMessage(m.recurrence_advanced);
+  const translationService = getTranslationService();
+  const recurrence = translationService.getMessage('recurrence');
+  const recurrenceDisabled = translationService.getMessage('recurrence_disabled');
+  const recurrenceEnabled = translationService.getMessage('recurrence_enabled');
+  const recurrenceAdvanced = translationService.getMessage('recurrence_advanced');
 
   const recurrenceLevelOptions = [
     { value: 'disabled', label: recurrenceDisabled },

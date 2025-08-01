@@ -1,33 +1,35 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
-
-// Paraglidのランタイムをモック
-vi.mock('$paraglide/runtime', () => ({
-  getLocale: vi.fn(() => 'en'),
-  setLocale: vi.fn(),
-  type: {}
-}));
-
-import { getLocale, setLocale } from '$paraglide/runtime';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { localeStore, setTranslationService, getTranslationService } from '$lib/stores/locale.svelte';
+import { MockTranslationService } from '$lib/services/mock-translation-service';
 
 describe('localeStore', () => {
+  let mockService: MockTranslationService;
+  let originalService: any;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    originalService = getTranslationService();
+    mockService = new MockTranslationService('en', {
+      en: { test_message: 'Test Message' },
+      ja: { test_message: 'テストメッセージ' }
+    });
+    setTranslationService(mockService);
+  });
+
+  afterEach(() => {
+    setTranslationService(originalService);
   });
 
   describe('locale getter', () => {
-    it('ParaglidのgetLocaleを呼び出して現在のロケールを取得', () => {
-      vi.mocked(getLocale).mockReturnValue('ja');
+    it('翻訳サービスから現在のロケールを取得', () => {
+      mockService.setLocale('ja');
       
       const locale = localeStore.locale;
       
-      expect(getLocale).toHaveBeenCalled();
       expect(locale).toBe('ja');
     });
 
     it('デフォルトロケールが英語の場合', () => {
-      vi.mocked(getLocale).mockReturnValue('en');
-      
       const locale = localeStore.locale;
       
       expect(locale).toBe('en');
@@ -38,16 +40,13 @@ describe('localeStore', () => {
     it('新しいロケールを設定できる', () => {
       localeStore.setLocale('ja');
       
-      expect(setLocale).toHaveBeenCalledWith('ja', { reload: false });
+      expect(mockService.getCurrentLocale()).toBe('ja');
     });
 
     it('ロケール変更後にlocaleプロパティが更新される', () => {
-      vi.mocked(getLocale).mockReturnValue('en');
       const initialLocale = localeStore.locale;
       
-      vi.mocked(getLocale).mockReturnValue('ja');
       localeStore.setLocale('ja');
-      
       const updatedLocale = localeStore.locale;
       
       expect(initialLocale).toBe('en');
@@ -56,74 +55,40 @@ describe('localeStore', () => {
 
     it('複数回のロケール変更を正しく処理', () => {
       localeStore.setLocale('ja');
-      localeStore.setLocale('en');
-      localeStore.setLocale('ja');
+      expect(localeStore.locale).toBe('ja');
       
-      expect(setLocale).toHaveBeenCalledTimes(3);
-      expect(setLocale).toHaveBeenNthCalledWith(1, 'ja', { reload: false });
-      expect(setLocale).toHaveBeenNthCalledWith(2, 'en', { reload: false });
-      expect(setLocale).toHaveBeenNthCalledWith(3, 'ja', { reload: false });
+      localeStore.setLocale('en');
+      expect(localeStore.locale).toBe('en');
+      
+      localeStore.setLocale('ja');
+      expect(localeStore.locale).toBe('ja');
     });
   });
 
-  describe('reactiveMessage', () => {
-    it('メッセージ関数をリアクティブにラップ', () => {
-      const mockMessage = vi.fn((name: string) => `Hello, ${name}!`);
-      vi.mocked(getLocale).mockReturnValue('en');
+  describe('translation service integration', () => {
+    it('翻訳サービスのgetMessageが使用される', () => {
+      const getMessage = mockService.getMessage('test_message');
+      const result = getMessage();
       
-      const reactiveMsg = reactiveMessage(mockMessage);
-      const result = reactiveMsg('World');
-      
-      expect(result).toBe('Hello, World!');
-      expect(mockMessage).toHaveBeenCalledWith('World');
-      expect(getLocale).toHaveBeenCalled();
+      expect(result).toBe('Test Message');
     });
 
-    it('引数なしのメッセージ関数も正しく動作', () => {
-      const mockMessage = vi.fn(() => 'Hello World');
-      vi.mocked(getLocale).mockReturnValue('en');
+    it('ロケール変更時にメッセージが更新される', () => {
+      const getMessage = mockService.getMessage('test_message');
       
-      const reactiveMsg = reactiveMessage(mockMessage);
-      const result = reactiveMsg();
+      // 英語の場合
+      expect(getMessage()).toBe('Test Message');
       
-      expect(result).toBe('Hello World');
-      expect(mockMessage).toHaveBeenCalled();
-      expect(getLocale).toHaveBeenCalled();
+      // 日本語に変更
+      mockService.setLocale('ja');
+      expect(getMessage()).toBe('テストメッセージ');
     });
 
-    it('複数の引数を持つメッセージ関数を正しく処理', () => {
-      const mockMessage = vi.fn((greeting: string, name: string, punctuation: string) => 
-        `${greeting}, ${name}${punctuation}`
-      );
-      vi.mocked(getLocale).mockReturnValue('en');
+    it('存在しないキーの場合はキー自体を返す', () => {
+      const getMessage = mockService.getMessage('non_existent_key');
+      const result = getMessage();
       
-      const reactiveMsg = reactiveMessage(mockMessage);
-      const result = reactiveMsg('Hello', 'World', '!');
-      
-      expect(result).toBe('Hello, World!');
-      expect(mockMessage).toHaveBeenCalledWith('Hello', 'World', '!');
-    });
-
-    it('ロケール変更時にメッセージ関数が再評価される', () => {
-      const mockMessage = vi.fn(() => 'test message');
-      vi.mocked(getLocale).mockReturnValue('en');
-      
-      const reactiveMsg = reactiveMessage(mockMessage);
-      const initialCallCount = vi.mocked(getLocale).mock.calls.length;
-      
-      // 最初の呼び出し
-      reactiveMsg();
-      const afterFirstCall = vi.mocked(getLocale).mock.calls.length;
-      expect(afterFirstCall).toBeGreaterThan(initialCallCount);
-      
-      // ロケール変更
-      vi.mocked(getLocale).mockReturnValue('ja');
-      localeStore.setLocale('ja');
-      
-      // 再度呼び出し
-      reactiveMsg();
-      const afterSecondCall = vi.mocked(getLocale).mock.calls.length;
-      expect(afterSecondCall).toBeGreaterThan(afterFirstCall);
+      expect(result).toBe('non_existent_key');
     });
   });
 
@@ -131,13 +96,13 @@ describe('localeStore', () => {
     it('空文字列のロケール設定', () => {
       localeStore.setLocale('');
       
-      expect(setLocale).toHaveBeenCalledWith('', { reload: false });
+      expect(mockService.getCurrentLocale()).toBe('');
     });
 
     it('未定義のロケール設定', () => {
       localeStore.setLocale(undefined as any);
       
-      expect(setLocale).toHaveBeenCalledWith(undefined, { reload: false });
+      expect(mockService.getCurrentLocale()).toBe(undefined);
     });
 
     it('同じロケールを連続設定', () => {
@@ -145,13 +110,7 @@ describe('localeStore', () => {
       localeStore.setLocale('en');
       localeStore.setLocale('en');
       
-      expect(setLocale).toHaveBeenCalledTimes(3);
-    });
-
-    it('reactiveMessageでnull関数を渡した場合', () => {
-      expect(() => {
-        reactiveMessage(null as any);
-      }).not.toThrow();
+      expect(mockService.getCurrentLocale()).toBe('en');
     });
   });
 
@@ -165,22 +124,20 @@ describe('localeStore', () => {
       
       const end = Date.now();
       expect(end - start).toBeLessThan(100); // 100ms以内で完了
-      expect(setLocale).toHaveBeenCalledTimes(100);
+      expect(mockService.getCurrentLocale()).toBe('ja'); // 最後は99(奇数)なのでja
     });
 
     it('リアクティブメッセージの大量呼び出し', () => {
-      const mockMessage = vi.fn(() => 'test');
-      const reactiveMsg = reactiveMessage(mockMessage);
+      const getMessage = mockService.getMessage('test_message');
       
       const start = Date.now();
       
       for (let i = 0; i < 100; i++) {
-        reactiveMsg();
+        getMessage();
       }
       
       const end = Date.now();
       expect(end - start).toBeLessThan(100); // 100ms以内で完了
-      expect(mockMessage).toHaveBeenCalledTimes(100);
     });
   });
 });

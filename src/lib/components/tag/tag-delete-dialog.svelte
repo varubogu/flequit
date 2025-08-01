@@ -1,8 +1,7 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { Tag } from '$lib/types/task';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     open: boolean;
@@ -13,13 +12,14 @@
 
   let { open, tag, onConfirm, onCancel }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const deleteTag = reactiveMessage(m.delete_tag);
-  const deleteTagDescription = reactiveMessage(() => 
-    m.delete_tag_description({ tagName: tag?.name || '' })
+  const deleteTag = translationService.getMessage('delete_tag');
+  const deleteTagDescription = $derived(() => 
+    translationService.getMessage('delete_tag_description', { tagName: tag?.name || '' })()
   );
-  const cancel = reactiveMessage(m.cancel);
-  const delete_msg = reactiveMessage(m.delete);
+  const cancel = translationService.getMessage('cancel');
+  const delete_msg = translationService.getMessage('delete');
 </script>
 
 <AlertDialog.Root bind:open>
@@ -27,7 +27,7 @@
     <AlertDialog.Header>
       <AlertDialog.Title>{deleteTag()}</AlertDialog.Title>
       <AlertDialog.Description>
-        {deleteTagDescription()}
+        {deleteTagDescription}
       </AlertDialog.Description>
     </AlertDialog.Header>
     <AlertDialog.Footer>

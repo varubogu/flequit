@@ -5,78 +5,13 @@ import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dial
 import type { RecurrenceRule } from '$lib/types/task';
 
 // Paraglideランタイムをモック
-vi.mock('$paraglide/runtime', () => ({
+
   getLocale: vi.fn(() => 'ja'),
   setLocale: vi.fn()
 }));
 
 // メッセージファイルをモック
-vi.mock('$paraglide/messages.js', () => ({
-  recurrence_settings: () => '繰り返し設定',
-  recurrence: () => '繰り返し',
-  recurrence_disabled: () => '無効',
-  recurrence_enabled: () => '有効',
-  recurrence_advanced: () => '有効（高度）',
-  repeat_count: () => '繰り返し回数',
-  repeat_every: () => '繰り返し間隔',
-  recurrence_interval: () => '繰り返し間隔',
-  repeat_weekdays: () => '繰り返し曜日',
-  advanced_settings: () => '高度な設定',
-  specific_date: () => '特定の日付',
-  specific_date_example: () => '例：毎月15日',
-  week_of_month: () => '月の第何週',
-  no_selection: () => '選択なし',
-  weekday_of_week: () => '週の何曜日',
-  first_week: () => '第1週',
-  second_week: () => '第2週',
-  third_week: () => '第3週',
-  fourth_week: () => '第4週',
-  last_week: () => '最終週',
-  minute: () => '分',
-  hour: () => '時間',
-  day: () => '日',
-  week: () => '週',
-  month: () => '月',
-  quarter: () => '四半期',
-  half_year: () => '半年',
-  year: () => '年',
-  save: () => '保存',
-  cancel: () => 'キャンセル',
-  remove: () => '削除',
-  previous: () => '前',
-  next: () => '後',
-  if_condition: () => '',
-  move_to: () => 'にずらす',
-  monday: () => '月曜日',
-  tuesday: () => '火曜日',
-  wednesday: () => '水曜日',
-  thursday: () => '木曜日',
-  friday: () => '金曜日',
-  saturday: () => '土曜日',
-  sunday: () => '日曜日',
-  weekday: () => '平日',
-  weekend: () => '休日',
-  holiday: () => '祝日',
-  non_holiday: () => '非祝日',
-  adjustment_conditions: () => '補正条件',
-  infinite_repeat_placeholder: () => '無制限の場合は空欄',
-  infinite_repeat_description: () => '無制限',
-  date_conditions: () => '日付条件',
-  weekday_conditions: () => '曜日条件',
-  add_date_condition: () => '日付条件を追加',
-  add_weekday_condition: () => '曜日条件を追加',
-  add: () => '追加',
-  before: () => '前',
-  on_or_before: () => '以前',
-  on_or_after: () => '以降',
-  after: () => '後',
-  preview: () => 'プレビュー',
-  generating_preview: () => 'プレビュー生成中',
-  recurrence_disabled_preview: () => '繰り返しなし',
-  preview_show_more: () => 'さらに表示',
-  preview_show_less: () => '表示を減らす',
-  next_execution_dates_label: () => '次回実行予定日',
-  times_suffix: () => '回分'
+
 }));
 
 // ロケールストアをモック

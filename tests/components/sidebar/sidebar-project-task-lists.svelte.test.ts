@@ -6,12 +6,7 @@ import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 import { writable, get } from 'svelte/store';
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({
-  edit_task_list: () => 'Edit Task List',
-  add_task: () => 'Add Task',
-  delete_task_list: () => 'Delete Task List',
-  cancel: () => 'Cancel',
-  save: () => 'Save'
+
 }));
 
 // --- Locale Store Mock ---

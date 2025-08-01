@@ -1,7 +1,6 @@
 <script lang="ts">
   import Select from '$lib/components/ui/select.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     isSubTask: boolean;
@@ -19,6 +18,7 @@
 
   let { isSubTask, formData, onPriorityChange, onFormChange }: Props = $props();
 
+  const translationService = getTranslationService();
   function handlePriorityChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     onPriorityChange(Number(target.value));
@@ -26,13 +26,13 @@
   }
 
   // Reactive messages
-  const priority = reactiveMessage(m.priority);
-  const optional = reactiveMessage(m.optional);
-  const not_set = reactiveMessage(m.not_set);
-  const high_priority = reactiveMessage(m.high_priority);
-  const medium_priority = reactiveMessage(m.medium_priority);
-  const low_priority = reactiveMessage(m.low_priority);
-  const lowest_priority = reactiveMessage(m.lowest_priority);
+  const priority = translationService.getMessage('priority');
+  const optional = translationService.getMessage('optional');
+  const not_set = translationService.getMessage('not_set');
+  const high_priority = translationService.getMessage('high_priority', { priority: 1 });
+  const medium_priority = translationService.getMessage('medium_priority', { priority: 2 });
+  const low_priority = translationService.getMessage('low_priority', { priority: 3 });
+  const lowest_priority = translationService.getMessage('lowest_priority', { priority: 4 });
 </script>
 
 <div class="min-w-[120px] flex-1">
@@ -43,9 +43,9 @@
     {#if isSubTask}
       <option value={0}>{not_set()}</option>
     {/if}
-    <option value={1}>{high_priority({ priority: 1 })}</option>
-    <option value={2}>{medium_priority({ priority: 2 })}</option>
-    <option value={3}>{low_priority({ priority: 3 })}</option>
-    <option value={4}>{lowest_priority({ priority: 4 })}</option>
+    <option value={1}>{high_priority()}</option>
+    <option value={2}>{medium_priority()}</option>
+    <option value={3}>{low_priority()}</option>
+    <option value={4}>{lowest_priority()}</option>
   </Select>
 </div>

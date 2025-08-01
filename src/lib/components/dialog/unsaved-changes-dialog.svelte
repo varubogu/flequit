@@ -7,8 +7,7 @@
   import DialogFooter from "$lib/components/ui/dialog-footer.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { Save, Trash2, X } from 'lucide-svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     show: boolean;
@@ -24,11 +23,12 @@
     onCancel
   }: Props = $props();
 
-  const save = reactiveMessage(m.save);
-  const cancel = reactiveMessage(m.cancel);
-  const discard_changes = reactiveMessage(m.discard_changes);
-  const confirm_discard_changes = reactiveMessage(m.confirm_discard_changes);
-  const unsaved_task_message = reactiveMessage(m.unsaved_task_message);
+  const translationService = getTranslationService();
+  const save = translationService.getMessage('save');
+  const cancel = translationService.getMessage('cancel');
+  const discard_changes = translationService.getMessage('discard_changes');
+  const confirm_discard_changes = translationService.getMessage('confirm_discard_changes');
+  const unsaved_task_message = translationService.getMessage('unsaved_task_message');
 </script>
 
 <Dialog open={show} onOpenChange={(open: boolean) => !open && onCancel()}>

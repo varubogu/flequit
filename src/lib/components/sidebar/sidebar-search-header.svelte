@@ -1,16 +1,17 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import SearchCommand from '$lib/components/command/search-command.svelte';
   import { Search } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
+  const translationService = getTranslationService();
   let showSearchDialog = $state(false);
 
   // Reactive messages
-  const searchLabel = reactiveMessage(m.search);
+  const searchLabel = translationService.getMessage('search');
   
   // Get sidebar state
   const sidebar = useSidebar();

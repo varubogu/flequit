@@ -75,79 +75,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
-  // Base messages
-  views_title: () => 'Views',
-  tags: () => 'Tags',
-  add_task: () => 'Add Task',
-  no_search_results: () => 'No search results',
-  no_tasks_found: () => 'No tasks found',
-  try_different_search: () => 'Try different search',
-  click_add_task: () => 'Click add task',
-  add_some_tasks: () => 'Add some tasks',
-  subtasks_completed: () => 'Subtasks completed',
-  
-  // Date messages
-  today: () => 'Today',
-  tomorrow: () => 'Tomorrow',
-  yesterday: () => 'Yesterday',
-  add_date: () => 'Add Date',
-  select_date: () => 'Select Date',
-  
-  // Actions
-  cancel: () => 'Cancel',
-  save: () => 'Save',
-  edit_task: () => 'Edit Task',
-  set_priority: () => 'Set Priority',
-  delete_task: () => 'Delete Task',
-  edit_subtask: () => 'Edit Subtask',
-  delete_subtask: () => 'Delete Subtask',
-  
-  // Confirmation dialogs
-  confirm_discard_changes: () => 'Confirm Discard Changes',
-  unsaved_task_message: () => 'Unsaved Task Message',
-  discard_changes: () => 'Discard Changes',
-  keep_editing: () => 'Keep Editing',
-  
-  // Metadata
-  created: () => 'Created',
-  updated: () => 'Updated',
-  parent_task_id: () => 'Parent Task ID',
-  go_to_parent_task: () => 'Go to Parent Task',
-  sub_task: () => 'Sub Task',
-  task: () => 'Task',
-  
-  // Recurrence messages
-  recurrence_settings: () => 'Recurrence Settings',
-  enable_recurrence: () => 'Enable Recurrence',
-  recurrence: () => 'Recurrence',
-  no_recurrence: () => 'No Recurrence',
-  
-  // Tag messages
-  delete_tag: () => 'Delete Tag',
-  delete_tag_description: ({ tagName }: { tagName: string }) => `Delete tag "${tagName || 'Unknown'}"?`,
-  edit_tag: () => 'Edit Tag',
-  
-  // Priority messages
-  high_priority: () => 'High Priority',
-  medium_priority: () => 'Medium Priority',
-  low_priority: () => 'Low Priority',
-  
-  // Status messages
-  not_started: () => 'Not Started',
-  in_progress: () => 'In Progress',
-  completed: () => 'Completed',
-  
-  // General
-  description: () => 'Description',
-  priority: () => 'Priority',
-  status: () => 'Status',
-  due_date: () => 'Due Date',
-  remove: () => 'Remove',
-  remove_tag_from_sidebar: () => 'Remove Tag from Sidebar',
-  add_tag_to_sidebar: () => 'Add Tag to Sidebar'
-}));
-
 describe('Task Drag & Drop Integration', () => {
   const mockTasks: TaskWithSubTasks[] = [
     {
@@ -179,7 +106,6 @@ describe('Task Drag & Drop Integration', () => {
       is_archived: false
     }
   ];
-
 
   beforeEach(() => {
     vi.clearAllMocks();

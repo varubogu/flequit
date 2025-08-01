@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { setMode, systemPrefersMode, userPrefersMode } from 'mode-watcher';
   import * as m from '$paraglide/messages.js';
@@ -15,18 +16,19 @@
 
   let { settings }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const appearanceSettings = reactiveMessage(m.appearance_settings);
-  const theme = reactiveMessage(m.theme);
-  const system = reactiveMessage(m.system);
-  const light = reactiveMessage(m.light);
-  const dark = reactiveMessage(m.dark);
-  const font = reactiveMessage(m.font);
-  const defaultFont = reactiveMessage(m.default_font);
-  const systemFont = reactiveMessage(m.system_font);
-  const fontSize = reactiveMessage(m.font_size);
-  const fontColor = reactiveMessage(m.font_color);
-  const backgroundColor = reactiveMessage(m.background_color);
+  const appearanceSettings = translationService.getMessage('appearance_settings');
+  const theme = translationService.getMessage('theme');
+  const system = translationService.getMessage('system');
+  const light = translationService.getMessage('light');
+  const dark = translationService.getMessage('dark');
+  const font = translationService.getMessage('font');
+  const defaultFont = translationService.getMessage('default_font');
+  const systemFont = translationService.getMessage('system_font');
+  const fontSize = translationService.getMessage('font_size');
+  const fontColor = translationService.getMessage('font_color');
+  const backgroundColor = translationService.getMessage('background_color');
 </script>
 
 <section id="settings-appearance">

@@ -1,10 +1,9 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/tag-display.svelte';
   import DueDate from '$lib/components/datetime/due-date.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -24,8 +23,14 @@
     handleDueDateClick
   }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const subtasksCompleted = reactiveMessage(m.subtasks_completed);
+  const subtasksCompleted = $derived(
+    translationService.getMessage('subtasks_completed', { 
+      completed: completedSubTasks, 
+      total: task.sub_tasks.length 
+    })
+  );
 
   function handleTagRemoveFromTask(tagId: string) {
     taskStore.removeTagFromTask(task.id, tagId);
@@ -63,7 +68,7 @@
   {#if task.sub_tasks.length > 0}
     <div class="mt-2">
       <div class="text-xs text-muted-foreground">
-        {subtasksCompleted({ completed: completedSubTasks, total: task.sub_tasks.length })}
+        {subtasksCompleted()}
       </div>
       <div class="w-full bg-muted rounded-full h-1.5 mt-1">
         <div

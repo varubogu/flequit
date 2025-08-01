@@ -24,7 +24,6 @@ vi.mock('$lib/components/user/user-profile.svelte', () => ({
 }));
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({}));
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -45,7 +44,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     setOpen: vi.fn(),
   })
 }));
-
 
 describe('Sidebar Component Integration', () => {
   let onViewChange: ReturnType<typeof vi.fn>;

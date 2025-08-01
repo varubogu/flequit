@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import * as m from '$paraglide/messages';
@@ -13,11 +14,12 @@
 
   let { task, subTask, isNewTaskMode = false }: Props = $props();
 
+  const translationService = getTranslationService();
   let currentItem = $derived(subTask || task);
   let isSubTask = $derived(!!subTask);
 
   // Reactive messages
-  const tags = reactiveMessage(m.tags);
+  const tags = translationService.getMessage('tags');
 
   function handleTagAdded(tagName: string) {
     if (!currentItem) return;

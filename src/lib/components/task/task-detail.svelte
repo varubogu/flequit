@@ -9,9 +9,10 @@
   }
 
   let { isDrawerMode = false }: Props = $props();
+
+  const translationService = getTranslationService();
   import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages.js';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import TaskDetailHeader from './task-detail-header.svelte';
   import TaskStatusSelector from './task-status-selector.svelte';
   import TaskDueDateSelector from './task-due-date-selector.svelte';
@@ -224,12 +225,12 @@
 
     // Show delete confirmation dialog
     if (isSubTask) {
-      deleteDialogTitle = reactiveMessage(m.delete_subtask_title)();
-      deleteDialogMessage = reactiveMessage(m.delete_subtask_message)();
+      deleteDialogTitle = translationService.getMessage('delete_subtask_title')();
+      deleteDialogMessage = translationService.getMessage('delete_subtask_message')();
       pendingDeleteAction = () => TaskService.deleteSubTask(currentItem.id);
     } else {
-      deleteDialogTitle = reactiveMessage(m.delete_task_title)();
-      deleteDialogMessage = reactiveMessage(m.delete_task_message)();
+      deleteDialogTitle = translationService.getMessage('delete_task_title')();
+      deleteDialogMessage = translationService.getMessage('delete_task_message')();
       pendingDeleteAction = () => TaskService.deleteTask(currentItem.id);
     }
 

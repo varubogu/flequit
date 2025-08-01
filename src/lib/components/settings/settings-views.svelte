@@ -1,12 +1,13 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import SettingsDraggableItems from '$lib/components/settings/settings-draggable-items.svelte';
   import ConfirmDialog from '../dialog/confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
+  const translationService = getTranslationService();
   let showResetConfirm = $state(false);
 
   function handleResetViews() {
@@ -15,12 +16,12 @@
   }
 
   // Reactive messages
-  const viewsSettings = reactiveMessage(m.views_settings);
-  const resetToDefaults = reactiveMessage(m.reset_to_defaults);
-  const viewsDescriptionText = reactiveMessage(m.views_description_text);
-  const resetViewSettings = reactiveMessage(m.reset_view_settings);
-  const resetViewConfirmation = reactiveMessage(m.reset_view_confirmation);
-  const reset = reactiveMessage(m.reset);
+  const viewsSettings = translationService.getMessage('views_settings');
+  const resetToDefaults = translationService.getMessage('reset_to_defaults');
+  const viewsDescriptionText = translationService.getMessage('views_description_text');
+  const resetViewSettings = translationService.getMessage('reset_view_settings');
+  const resetViewConfirmation = translationService.getMessage('reset_view_confirmation');
+  const reset = translationService.getMessage('reset');
 </script>
 
 <section id="settings-views">

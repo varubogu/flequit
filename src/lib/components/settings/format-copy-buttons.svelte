@@ -1,7 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     onCopyToTest: () => void;
@@ -10,8 +9,9 @@
 
   let { onCopyToTest, onCopyToMain }: Props = $props();
 
-  const applyDatetimeFormatToTestFormat = reactiveMessage(m.apply_datetime_format_to_test_format);
-  const applyTestFormatToDatetimeFormat = reactiveMessage(m.apply_test_format_to_datetime_format);
+  const translationService = getTranslationService();
+  const applyDatetimeFormatToTestFormat = translationService.getMessage('apply_datetime_format_to_test_format');
+  const applyTestFormatToDatetimeFormat = translationService.getMessage('apply_test_format_to_datetime_format');
 </script>
 
 <div class="flex items-center justify-center gap-2 py-2">

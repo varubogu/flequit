@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { draggable, droppable, type DragDropState } from "@thisux/sveltednd";
   import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
   import { GripVertical } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
+  const translationService = getTranslationService();
   let localVisibleItems = $state([...viewsVisibilityStore.visibleViews]);
   let localHiddenItems = $state([...viewsVisibilityStore.hiddenViews]);
   
@@ -17,8 +18,8 @@
   });
   
   // Reactive messages
-  const visibleInSidebar = reactiveMessage(m.visible_in_sidebar);
-  const hiddenFromSidebar = reactiveMessage(m.hidden_from_sidebar);
+  const visibleInSidebar = translationService.getMessage('visible_in_sidebar');
+  const hiddenFromSidebar = translationService.getMessage('hidden_from_sidebar');
 
   $effect(() => {
     localVisibleItems = [...viewsVisibilityStore.visibleViews];

@@ -1,7 +1,6 @@
 <script lang="ts">
   import Input from '$lib/components/ui/input.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { format } from 'date-fns';
 
   interface Props {
@@ -12,8 +11,9 @@
 
   let { currentFormat = $bindable(), testDateTime = $bindable(), onFormatChange }: Props = $props();
 
-  const dateFormatLabel = reactiveMessage(m.date_format);
-  const preview = reactiveMessage(m.preview);
+  const translationService = getTranslationService();
+  const dateFormatLabel = translationService.getMessage('date_format');
+  const preview = translationService.getMessage('preview');
 
   let dateTimeFormatPreview = $derived(() => {
     try {

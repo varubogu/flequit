@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ViewType } from '$lib/services/view-service';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -16,12 +17,13 @@
 
   let { currentView = 'all', onViewChange }: Props = $props();
 
+  const translationService = getTranslationService();
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
 
   // Reactive messages
-  const viewsTitle = reactiveMessage(m.views_title);
+  const viewsTitle = translationService.getMessage('views_title');
   
   // Get sidebar state
   const sidebar = useSidebar();

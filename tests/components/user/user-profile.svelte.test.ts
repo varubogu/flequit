@@ -14,12 +14,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 }));
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({
-  not_signed_in: () => 'Not signed in',
-  settings: () => 'Settings',
-  switch_account: () => 'Switch Account',
-  sign_out: () => 'Sign Out',
-  sign_in: () => 'Sign In'
+
 }));
 
 // --- Locale Store Mock ---
@@ -50,7 +45,6 @@ const mockUserWithAvatar = {
 vi.mock('$lib/components/settings-dialog.svelte', () => ({
     default: vi.fn(),
 }));
-
 
 describe('UserProfile Component', () => {
   let onLogin: ReturnType<typeof vi.fn>;

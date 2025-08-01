@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/shared/button.svelte';
   import * as m from '$paraglide/messages.js';
@@ -17,11 +18,12 @@
 
   let { open = false, mode, title = '', initialName = '', onsave, onclose }: Props = $props();
 
+  const translationService = getTranslationService();
   let name = $state(initialName);
 
   // Reactiveメッセージ
-  const cancel = reactiveMessage(m.cancel);
-  const save = reactiveMessage(m.save);
+  const cancel = translationService.getMessage('cancel');
+  const save = translationService.getMessage('save');
 
   $effect(() => {
     if (open) {

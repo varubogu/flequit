@@ -7,7 +7,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => () => fn()
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
   confirm_discard_changes: vi.fn(() => '変更を破棄してもよろしいですか？'),
   unsaved_task_message: vi.fn(() => '未保存のタスクがあります。変更を破棄しますか？'),
   discard_changes: vi.fn(() => '変更を破棄'),

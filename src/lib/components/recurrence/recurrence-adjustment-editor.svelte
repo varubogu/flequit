@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Plus, X } from 'lucide-svelte';
 	import WeekdayConditionEditor from '../datetime/weekday-condition-editor.svelte';
@@ -28,10 +29,11 @@
 		onWeekdayConditionUpdate
 	}: Props = $props();
 
-	const adjustmentConditions = reactiveMessage(m.adjustment_conditions);
-	const dateConditionsLabel = reactiveMessage(m.date_conditions);
-	const weekdayConditionsLabel = reactiveMessage(m.weekday_conditions);
-	const add = reactiveMessage(m.add);
+  const translationService = getTranslationService();
+	const adjustmentConditions = translationService.getMessage('adjustment_conditions');
+	const dateConditionsLabel = translationService.getMessage('date_conditions');
+	const weekdayConditionsLabel = translationService.getMessage('weekday_conditions');
+	const add = translationService.getMessage('add');
 
 	const dateRelationOptions = [
 		{ value: 'before', label: reactiveMessage(m.before) },

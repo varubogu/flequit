@@ -2,6 +2,7 @@
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
   import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
   import { contextMenuStore } from '$lib/stores/context-menu.svelte.js';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     items: ContextMenuList;
@@ -9,6 +10,8 @@
   }
 
   let { items, class: className = "w-48" }: Props = $props();
+  
+  const translationService = getTranslationService();
 
   // セパレーター以外のアイテムをカウント
   const menuItems = $derived(items.filter(item => !('type' in item)) as ContextMenuItem[]);

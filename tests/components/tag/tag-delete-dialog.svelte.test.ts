@@ -13,7 +13,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
   delete_tag: vi.fn(() => 'Delete Tag'),
   delete_tag_description: vi.fn(({ tagName }: { tagName: string }) => `Are you sure you want to delete the tag "${tagName}"?`),
   cancel: vi.fn(() => 'Cancel'),

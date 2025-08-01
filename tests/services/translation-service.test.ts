@@ -90,6 +90,42 @@ describe('Translation Service', () => {
     });
   });
 
+  describe('パラメータ付きメッセージ', () => {
+    it('パラメータ付きメッセージが正しく動作する', () => {
+      mockService.setMessages('en', {
+        'welcome_user': 'Welcome, {name}!',
+        'item_count': 'You have {count} items'
+      });
+
+      const welcomeMessage = mockService.getMessage('welcome_user', { name: 'John' });
+      expect(welcomeMessage()).toBe('Welcome, John!');
+
+      const countMessage = mockService.getMessage('item_count', { count: 5 });
+      expect(countMessage()).toBe('You have 5 items');
+    });
+
+    it('パラメータなしでパラメータ付きメッセージを呼んでも動作する', () => {
+      mockService.setMessages('en', {
+        'welcome_user': 'Welcome, {name}!'
+      });
+
+      const welcomeMessage = mockService.getMessage('welcome_user');
+      expect(welcomeMessage()).toBe('Welcome, {name}!');
+    });
+
+    it('複数パラメータが正しく置換される', () => {
+      mockService.setMessages('en', {
+        'greeting': 'Hello {name}, you have {count} new messages!'
+      });
+
+      const greetingMessage = mockService.getMessage('greeting', { 
+        name: 'Alice', 
+        count: 3 
+      });
+      expect(greetingMessage()).toBe('Hello Alice, you have 3 new messages!');
+    });
+  });
+
   describe('service replacement', () => {
     it('翻訳サービスを差し替えられる', () => {
       const newMockService = new MockTranslationService('ja');

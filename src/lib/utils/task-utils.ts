@@ -1,4 +1,5 @@
 import type { TaskStatus } from '$lib/types/task';
+import { getTranslationService } from '$lib/stores/locale.svelte';
 
 export function getStatusIcon(status: TaskStatus): string {
   switch (status) {
@@ -11,12 +12,13 @@ export function getStatusIcon(status: TaskStatus): string {
 }
 
 export function getStatusLabel(status: TaskStatus): string {
+  const translationService = getTranslationService();
   switch (status) {
-    case 'not_started': return 'Not Started';
-    case 'in_progress': return 'In Progress';
-    case 'waiting': return 'Waiting';
-    case 'completed': return 'Completed';
-    case 'cancelled': return 'Cancelled';
+    case 'not_started': return translationService.getMessage('status_not_started')();
+    case 'in_progress': return translationService.getMessage('status_in_progress')();
+    case 'waiting': return translationService.getMessage('status_waiting')();
+    case 'completed': return translationService.getMessage('status_completed')();
+    case 'cancelled': return translationService.getMessage('status_cancelled')();
     default: return status;
   }
 }
@@ -29,10 +31,11 @@ export function getPriorityColor(priority: number): string {
 }
 
 export function getPriorityLabel(priority: number): string {
-  if (priority <= 1) return 'High';
-  if (priority === 2) return 'Medium';
-  if (priority === 3) return 'Low';
-  return 'Lowest';
+  const translationService = getTranslationService();
+  if (priority <= 1) return translationService.getMessage('high_priority')();
+  if (priority === 2) return translationService.getMessage('medium_priority')();
+  if (priority === 3) return translationService.getMessage('low_priority')();
+  return translationService.getMessage('lowest_priority')();
 }
 
 export function getPriorityColorClass(priority: number): string {

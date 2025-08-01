@@ -1,14 +1,14 @@
 <script lang="ts">
   import TestDateTimeInput from './test-datetime-input.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     testDateTime: Date;
   }
   let { testDateTime = $bindable() }: Props = $props();
 
-  const testDateTimeLabel = reactiveMessage(m.test_datetime);
+  const translationService = getTranslationService();
+  const testDateTimeLabel = translationService.getMessage('test_datetime');
 </script>
 
 <div>

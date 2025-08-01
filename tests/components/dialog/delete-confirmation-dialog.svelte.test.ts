@@ -2,17 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
 
-// Paraglideメッセージのモック
-vi.mock('$paraglide/messages.js', () => ({
-  delete_item: () => '削除',
-  cancel: () => 'キャンセル'
-}));
-
-// locale storeのモック
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => () => fn()
-}));
-
 describe('DeleteConfirmationDialog', () => {
   const defaultProps = {
     open: true,
@@ -44,8 +33,8 @@ describe('DeleteConfirmationDialog', () => {
   it('削除ボタンとキャンセルボタンが表示される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
     
-    expect(screen.getByText('削除')).toBeInTheDocument();
-    expect(screen.getByText('キャンセル')).toBeInTheDocument();
+    expect(screen.getByText('Delete')).toBeInTheDocument();
+    expect(screen.getByText('Cancel')).toBeInTheDocument();
   });
 
   it('削除ボタンクリックでonConfirmが呼ばれる', async () => {
@@ -53,7 +42,7 @@ describe('DeleteConfirmationDialog', () => {
     const props = { ...defaultProps, onConfirm: mockOnConfirm };
     render(DeleteConfirmationDialog, { props });
     
-    const deleteButton = screen.getByText('削除');
+    const deleteButton = screen.getByText('Delete');
     await fireEvent.click(deleteButton);
     
     expect(mockOnConfirm).toHaveBeenCalled();
@@ -64,7 +53,7 @@ describe('DeleteConfirmationDialog', () => {
     const props = { ...defaultProps, onCancel: mockOnCancel };
     render(DeleteConfirmationDialog, { props });
     
-    const cancelButton = screen.getByText('キャンセル');
+    const cancelButton = screen.getByText('Cancel');
     await fireEvent.click(cancelButton);
     
     expect(mockOnCancel).toHaveBeenCalled();
@@ -85,7 +74,7 @@ describe('DeleteConfirmationDialog', () => {
   it('削除ボタンにdestructiveバリアントが設定される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
     
-    const deleteButton = screen.getByText('削除');
+    const deleteButton = screen.getByText('Delete');
     expect(deleteButton).toBeInTheDocument();
     // destructiveバリアントのクラスが適用されているかチェック
     expect(deleteButton.closest('button')).toHaveClass(/bg-destructive|text-destructive/);
@@ -94,7 +83,7 @@ describe('DeleteConfirmationDialog', () => {
   it('キャンセルボタンにsecondaryバリアントが設定される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
     
-    const cancelButton = screen.getByText('キャンセル');
+    const cancelButton = screen.getByText('Cancel');
     expect(cancelButton).toBeInTheDocument();
     // secondaryバリアントのクラスが適用されているかチェック
     expect(cancelButton.closest('button')).toHaveClass(/secondary/);
@@ -133,8 +122,8 @@ describe('DeleteConfirmationDialog', () => {
   it('ボタンが正しい順序で配置される', () => {
     render(DeleteConfirmationDialog, { props: defaultProps });
     
-    const cancelButton = screen.getByText('キャンセル');
-    const deleteButton = screen.getByText('削除');
+    const cancelButton = screen.getByText('Cancel');
+    const deleteButton = screen.getByText('Delete');
     
     // 両方のボタンが存在することを確認
     expect(cancelButton).toBeInTheDocument();

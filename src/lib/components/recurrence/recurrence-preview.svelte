@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 	import * as m from '$paraglide/messages.js';
 	import { reactiveMessage } from '$lib/stores/locale.svelte';
 	import { cn } from '$lib/utils';
@@ -19,11 +20,12 @@
 		repeatCount
 	}: Props = $props();
 
-	const preview = reactiveMessage(m.preview);
-	const generatingPreview = reactiveMessage(m.generating_preview);
-	const recurrenceDisabledPreview = reactiveMessage(m.recurrence_disabled_preview);
-	const nextExecutionDatesLabel = reactiveMessage(m.next_execution_dates_label);
-	const timesSuffix = reactiveMessage(m.times_suffix);
+  const translationService = getTranslationService();
+	const preview = translationService.getMessage('preview');
+	const generatingPreview = translationService.getMessage('generating_preview');
+	const recurrenceDisabledPreview = translationService.getMessage('recurrence_disabled_preview');
+	const nextExecutionDatesLabel = translationService.getMessage('next_execution_dates_label');
+	const timesSuffix = translationService.getMessage('times_suffix');
 </script>
 
 <section class="flex flex-col h-[500px]">

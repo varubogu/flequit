@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import { formatDateTime } from '$lib/utils/datetime-utils';
@@ -16,13 +17,14 @@
 
   let { currentItem, isSubTask, isNewTaskMode = false, onGoToParentTask }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const created = reactiveMessage(m.created);
-  const updated = reactiveMessage(m.updated);
-  const parent_task_id = reactiveMessage(m.parent_task_id);
-  const go_to_parent_task = reactiveMessage(m.go_to_parent_task);
-  const sub_task = reactiveMessage(m.sub_task);
-  const task = reactiveMessage(m.task);
+  const created = translationService.getMessage('created');
+  const updated = translationService.getMessage('updated');
+  const parent_task_id = translationService.getMessage('parent_task_id');
+  const go_to_parent_task = translationService.getMessage('go_to_parent_task');
+  const sub_task = translationService.getMessage('sub_task');
+  const task = translationService.getMessage('task');
 
 </script>
 

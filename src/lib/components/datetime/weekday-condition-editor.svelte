@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { X } from "lucide-svelte";
   import DayTargetSelector from './day-target-selector.svelte';
   import type { WeekdayCondition, DayOfWeek, AdjustmentDirection, AdjustmentTarget } from '$lib/types/task';
@@ -14,9 +15,10 @@
 
   let { condition, onUpdate, onRemove }: Props = $props();
 
+  const translationService = getTranslationService();
   // リアクティブメッセージ
-  const previous = reactiveMessage(m.previous);
-  const next = reactiveMessage(m.next);
+  const previous = translationService.getMessage('previous');
+  const next = translationService.getMessage('next');
 
   // 方向選択肢
   const directionOptions = [

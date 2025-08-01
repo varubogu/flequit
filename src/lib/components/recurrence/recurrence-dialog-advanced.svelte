@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Dialog from "$lib/components/ui/dialog/index.js";
   import { Repeat } from "lucide-svelte";
   import type {
@@ -34,6 +35,7 @@
 
   let { open = $bindable(false), onOpenChange, recurrenceRule, onSave, startDateTime, endDateTime, isRangeDate }: Props = $props();
 
+  const translationService = getTranslationService();
   // --- State ---
   let recurrenceLevel = $state<RecurrenceLevel>(
     !recurrenceRule ? 'disabled' :
@@ -57,7 +59,7 @@
   const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
 
   // --- Messages ---
-  const recurrenceSettings = reactiveMessage(m.recurrence_settings);
+  const recurrenceSettings = translationService.getMessage('recurrence_settings');
 
   // --- Effects ---
   $effect(() => {

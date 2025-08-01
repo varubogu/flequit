@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks } from "$lib/types/task";
   import { taskStore } from "$lib/stores/tasks.svelte";
   import {
@@ -29,6 +30,7 @@
 
   let { task, onTaskClick, onSubTaskClick }: Props = $props();
 
+  const translationService = getTranslationService();
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
     subTaskSelectionRequested: { subTaskId: string };
@@ -51,10 +53,10 @@
   let taskDatePicker: TaskDatePicker | undefined = $state();
 
   // Reactive messages
-  const editTask = reactiveMessage(m.edit_task);
-  const deleteTask = reactiveMessage(m.delete_task);
-  const editSubtask = reactiveMessage(m.edit_subtask);
-  const deleteSubtask = reactiveMessage(m.delete_subtask);
+  const editTask = translationService.getMessage('edit_task');
+  const deleteTask = translationService.getMessage('delete_task');
+  const editSubtask = translationService.getMessage('edit_subtask');
+  const deleteSubtask = translationService.getMessage('delete_subtask');
 
   function handleEditTask() {
     // TODO: タスク編集の実装

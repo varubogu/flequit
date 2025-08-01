@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Select from '$lib/components/ui/select.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -11,13 +10,14 @@
 
   let { currentItem, onStatusChange }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const status = reactiveMessage(m.status);
-  const not_started = reactiveMessage(m.not_started);
-  const in_progress = reactiveMessage(m.in_progress);
-  const waiting = reactiveMessage(m.waiting);
-  const completed = reactiveMessage(m.completed);
-  const cancelled = reactiveMessage(m.cancelled);
+  const status = translationService.getMessage('status');
+  const not_started = translationService.getMessage('not_started');
+  const in_progress = translationService.getMessage('in_progress');
+  const waiting = translationService.getMessage('waiting');
+  const completed = translationService.getMessage('completed');
+  const cancelled = translationService.getMessage('cancelled');
 </script>
 
 <div class="min-w-[120px] flex-1">

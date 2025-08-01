@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskBase } from "$lib/types/task";
   import { getDueDateClass } from "$lib/utils/datetime-utils";
   import * as m from '$paraglide/messages.js';
@@ -18,12 +19,13 @@
     class: className = ''
   }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const todayLabel = reactiveMessage(m.today);
-  const tomorrowLabel = reactiveMessage(m.tomorrow);
-  const yesterdayLabel = reactiveMessage(m.yesterday);
-  const addDateLabel = reactiveMessage(m.add_date);
-  const selectDate = reactiveMessage(m.select_date);
+  const todayLabel = translationService.getMessage('today');
+  const tomorrowLabel = translationService.getMessage('tomorrow');
+  const yesterdayLabel = translationService.getMessage('yesterday');
+  const addDateLabel = translationService.getMessage('add_date');
+  const selectDate = translationService.getMessage('select_date');
 
   // Style classes based on variant
   const baseClasses = 'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';

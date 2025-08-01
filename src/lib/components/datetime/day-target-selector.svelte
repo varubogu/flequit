@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
   import * as m from '$paraglide/messages.js';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -11,22 +12,23 @@
 
   let { value, onchange, class: className = '' }: Props = $props();
 
+  const translationService = getTranslationService();
   // リアクティブメッセージ
-  const monday = reactiveMessage(m.monday);
-  const tuesday = reactiveMessage(m.tuesday);
-  const wednesday = reactiveMessage(m.wednesday);
-  const thursday = reactiveMessage(m.thursday);
-  const friday = reactiveMessage(m.friday);
-  const saturday = reactiveMessage(m.saturday);
-  const sunday = reactiveMessage(m.sunday);
-  const weekday = reactiveMessage(m.weekday);
-  const weekend = reactiveMessage(m.weekend);
-  const holiday = reactiveMessage(m.holiday);
-  const nonHoliday = reactiveMessage(m.non_holiday);
-  const weekendOnly = reactiveMessage(m.weekend_only);
-  const nonWeekend = reactiveMessage(m.non_weekend);
-  const weekendHoliday = reactiveMessage(m.weekend_holiday);
-  const nonWeekendHoliday = reactiveMessage(m.non_weekend_holiday);
+  const monday = translationService.getMessage('monday');
+  const tuesday = translationService.getMessage('tuesday');
+  const wednesday = translationService.getMessage('wednesday');
+  const thursday = translationService.getMessage('thursday');
+  const friday = translationService.getMessage('friday');
+  const saturday = translationService.getMessage('saturday');
+  const sunday = translationService.getMessage('sunday');
+  const weekday = translationService.getMessage('weekday');
+  const weekend = translationService.getMessage('weekend');
+  const holiday = translationService.getMessage('holiday');
+  const nonHoliday = translationService.getMessage('non_holiday');
+  const weekendOnly = translationService.getMessage('weekend_only');
+  const nonWeekend = translationService.getMessage('non_weekend');
+  const weekendHoliday = translationService.getMessage('weekend_holiday');
+  const nonWeekendHoliday = translationService.getMessage('non_weekend_holiday');
 
   // 選択肢（曜日 + 平日/休日など）
   const options = [

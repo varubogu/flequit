@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Edit3 } from 'lucide-svelte';
   import * as m from '$paraglide/messages.js';
@@ -14,9 +15,10 @@
 
   let { projectInfo, onEdit }: Props = $props();
 
-  const project = reactiveMessage(m.project);
-  const task_list = reactiveMessage(m.task_list);
-  const change = reactiveMessage(m.change);
+  const translationService = getTranslationService();
+  const project = translationService.getMessage('project');
+  const task_list = translationService.getMessage('task_list');
+  const change = translationService.getMessage('change');
 </script>
 
 {#if projectInfo}

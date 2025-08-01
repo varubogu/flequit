@@ -4,15 +4,7 @@ import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import type { Tag } from '$lib/types/task';
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({
-  tags: () => 'Tags',
-  remove_tag_from_sidebar: () => 'Remove tag from sidebar',
-  add_tag_to_sidebar: () => 'Add tag to sidebar',
-  edit_tag: () => 'Edit tag',
-  delete_tag: () => 'Delete tag',
-  cancel: () => 'Cancel',
-  save: () => 'Save',
-  remove: () => 'Remove',
+
   delete_tag_description: ({ tagName }: { tagName: string }) => `Delete tag "${tagName}"`
 }));
 

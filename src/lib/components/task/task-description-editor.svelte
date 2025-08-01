@@ -2,8 +2,7 @@
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {
@@ -29,6 +28,7 @@
     onDescriptionChange
   }: Props = $props();
 
+  const translationService = getTranslationService();
   function handleDescriptionInput(event: CustomEvent<{ value: string }>) {
     onDescriptionChange(event.detail.value);
   }
@@ -47,10 +47,10 @@
   }
 
   // Reactive messages
-  const task_description = reactiveMessage(m.task_description);
-  const sub_task_description_optional = reactiveMessage(m.sub_task_description_optional);
-  const description = reactiveMessage(m.description);
-  const optional = reactiveMessage(m.optional);
+  const task_description = translationService.getMessage('task_description');
+  const sub_task_description_optional = translationService.getMessage('sub_task_description_optional');
+  const description = translationService.getMessage('description');
+  const optional = translationService.getMessage('optional');
 </script>
 
 <div>

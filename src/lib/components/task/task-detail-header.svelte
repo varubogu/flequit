@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
@@ -28,6 +29,7 @@
     onSaveNewTask
   }: Props = $props();
 
+  const translationService = getTranslationService();
   function handleTitleInput(event: CustomEvent<{ value: string }>) {
     onTitleChange(event.detail.value);
   }
@@ -46,10 +48,10 @@
   }
 
   // Reactive messages
-  const delete_task = reactiveMessage(m.delete_task);
-  const sub_task_title = reactiveMessage(m.sub_task_title);
-  const task_title = reactiveMessage(m.task_title);
-  const save_task = reactiveMessage(m.save);
+  const delete_task = translationService.getMessage('delete_task');
+  const sub_task_title = translationService.getMessage('sub_task_title');
+  const task_title = translationService.getMessage('task_title');
+  const save_task = translationService.getMessage('save');
 
 
 </script>

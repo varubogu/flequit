@@ -8,17 +8,17 @@
   import TagEditDialog from './tag-edit-dialog.svelte';
   import TagDeleteDialog from './tag-delete-dialog.svelte';
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 
-  // Reactive messages
-  const removeTagFromItem = reactiveMessage(m.remove_tag_from_item);
-  const removeTagFromSidebar = reactiveMessage(m.remove_tag_from_sidebar);
-  const addTagToSidebar = reactiveMessage(m.add_tag_to_sidebar);
-  const editTag = reactiveMessage(m.edit_tag);
-  const deleteTag = reactiveMessage(m.delete_tag);
+  // Translation service
+  const translationService = getTranslationService();
+  const removeTagFromItem = translationService.getMessage('remove_tag_from_item');
+  const removeTagFromSidebar = translationService.getMessage('remove_tag_from_sidebar');
+  const addTagToSidebar = translationService.getMessage('add_tag_to_sidebar');
+  const editTag = translationService.getMessage('edit_tag');
+  const deleteTag = translationService.getMessage('delete_tag');
 
   interface Props {
     tag: Tag;

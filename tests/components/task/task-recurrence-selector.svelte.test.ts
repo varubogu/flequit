@@ -8,7 +8,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => () => fn()
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
   no_recurrence: vi.fn(() => 'No recurrence'),
   every_interval_unit: vi.fn(({ interval, unit }) => `Every ${interval} ${unit}`),
   recurrence_weekly_days: vi.fn(({ days }) => `on ${days}`),
@@ -53,7 +52,6 @@ vi.mock('$paraglide/messages.js', () => ({
   last_week: vi.fn(() => 'last')
 }));
 
-vi.mock('$paraglide/runtime', () => ({
   getLocale: vi.fn(() => 'en')
 }));
 

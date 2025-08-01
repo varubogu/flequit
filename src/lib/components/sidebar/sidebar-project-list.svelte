@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -16,8 +17,9 @@
 
   let { currentView = 'all', onViewChange }: Props = $props();
 
-  const projects = reactiveMessage(m.projects);
-  const noProjectsYet = reactiveMessage(m.no_projects_yet);
+  const translationService = getTranslationService();
+  const projects = translationService.getMessage('projects');
+  const noProjectsYet = translationService.getMessage('no_projects_yet');
   
   // Get sidebar state
   const sidebar = useSidebar();

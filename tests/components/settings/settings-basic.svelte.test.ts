@@ -6,7 +6,7 @@ import { getLocale, setLocale } from '$paraglide/runtime';
 import { localeStore } from '$lib/stores/locale.svelte';
 
 // Mock Paraglide runtime
-vi.mock('$paraglide/runtime', () => ({
+
   getLocale: vi.fn(() => 'en'),
   setLocale: vi.fn(),
   locales: ['en', 'ja'],

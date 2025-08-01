@@ -3,12 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import UnsavedChangesDialog from '$lib/components/dialog/unsaved-changes-dialog.svelte';
 
 // Paraglideメッセージのモック
-vi.mock('$paraglide/messages', () => ({
-  save: () => '保存',
-  cancel: () => 'キャンセル',
-  discard_changes: () => '変更を破棄',
-  confirm_discard_changes: () => '変更を破棄してもよろしいですか？',
-  unsaved_task_message: () => '未保存の変更があります。保存するか破棄してください。'
+
 }));
 
 // locale storeのモック

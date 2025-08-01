@@ -1,7 +1,8 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import * as m from '$paraglide/messages.js';
-import { reactiveMessage } from '$lib/stores/locale.svelte';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+
+const translationService = getTranslationService();
 
 export type ViewType = 'all' | 'today' | 'overdue' | 'completed' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth' | 'search';
 
@@ -35,14 +36,14 @@ export class ViewService {
   
   static getViewTitle(view: ViewType, searchQuery: string = ''): string {
     // Reactive messages
-    const allTasks = reactiveMessage(m.all_tasks);
-    const today = reactiveMessage(m.today);
-    const overdue = reactiveMessage(m.overdue);
-    const completed = reactiveMessage(m.completed);
-    const tomorrow = reactiveMessage(m.tomorrow);
-    const next3Days = reactiveMessage(m.next_3_days);
-    const nextWeek = reactiveMessage(m.next_week);
-    const thisMonth = reactiveMessage(m.this_month);
+    const allTasks = translationService.getMessage('all_tasks');
+    const today = translationService.getMessage('today');
+    const overdue = translationService.getMessage('overdue');
+    const completed = translationService.getMessage('completed');
+    const tomorrow = translationService.getMessage('tomorrow');
+    const next3Days = translationService.getMessage('next_3_days');
+    const nextWeek = translationService.getMessage('next_week');
+    const thisMonth = translationService.getMessage('this_month');
     
     switch (view) {
       case 'today':

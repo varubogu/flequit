@@ -4,10 +4,7 @@ import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
 import type { Tag } from '$lib/types/task';
 
 // Paraglideメッセージのモック
-vi.mock('$paraglide/messages.js', () => ({
-  cancel: () => 'キャンセル',
-  save: () => '保存',
-  tags: () => 'タグ'
+
 }));
 
 // locale storeのモック

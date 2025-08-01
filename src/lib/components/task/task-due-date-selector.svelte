@@ -1,8 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
   import DueDate from '$lib/components/datetime/due-date.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -20,9 +19,10 @@
 
   let { currentItem, isSubTask, formData, onDueDateClick }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const due_date = reactiveMessage(m.due_date);
-  const optional = reactiveMessage(m.optional);
+  const due_date = translationService.getMessage('due_date');
+  const optional = translationService.getMessage('optional');
 </script>
 
 <div class="min-w-[140px] flex-1">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
@@ -20,22 +21,23 @@
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
 
+  const translationService = getTranslationService();
   // Mobile detection
   const isMobile = new IsMobile();
   let sidebarOpen = $state(false);
 
   // Reactive messages
-  const settingsTitle = reactiveMessage(m.settings);
-  const configurePreferences = reactiveMessage(m.configure_preferences);
-  const searchSettings = reactiveMessage(m.search_settings);
-  const general = reactiveMessage(m.general);
-  const views = reactiveMessage(m.views);
-  const appearance = reactiveMessage(m.appearance);
-  const account = reactiveMessage(m.account);
-  const generalDescription = reactiveMessage(m.general_description);
-  const viewsDescription = reactiveMessage(m.views_description);
-  const appearanceDescription = reactiveMessage(m.appearance_description);
-  const accountDescription = reactiveMessage(m.account_description);
+  const settingsTitle = translationService.getMessage('settings');
+  const configurePreferences = translationService.getMessage('configure_preferences');
+  const searchSettings = translationService.getMessage('search_settings');
+  const general = translationService.getMessage('general');
+  const views = translationService.getMessage('views');
+  const appearance = translationService.getMessage('appearance');
+  const account = translationService.getMessage('account');
+  const generalDescription = translationService.getMessage('general_description');
+  const viewsDescription = translationService.getMessage('views_description');
+  const appearanceDescription = translationService.getMessage('appearance_description');
+  const accountDescription = translationService.getMessage('account_description');
 
   // Settings categories with reactive messages
   const categories = $derived([

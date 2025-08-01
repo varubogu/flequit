@@ -1,7 +1,6 @@
 import { getLocale } from '$paraglide/runtime';
 import type { DateTimeFormat, AppPresetFormat, CustomDateTimeFormat } from '$lib/types/datetime-format';
-import { reactiveMessage } from '$lib/stores/locale.svelte';
-import * as m from '$paraglide/messages';
+import { getTranslationService } from '$lib/stores/locale.svelte';
 
 // デフォルトフォーマット（ID: -1）
 function getDefaultFormat(): AppPresetFormat {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 	import type { RecurrenceUnit, DayOfWeek, RecurrenceDetails } from '$lib/types/task';
 	import * as m from '$paraglide/messages.js';
 	import { reactiveMessage } from '$lib/stores/locale.svelte';
@@ -23,6 +24,7 @@
 		ontoggleDayOfWeek
 	}: Props = $props();
 
+  const translationService = getTranslationService();
 	let inputValue = $state(String(interval));
 
 	$effect(() => {
@@ -55,14 +57,14 @@
 		}, 0);
 	}
 
-	const recurrenceInterval = reactiveMessage(m.recurrence_interval);
-	const repeatWeekdays = reactiveMessage(m.repeat_weekdays);
-	const advancedSettings = reactiveMessage(m.advanced_settings);
-	const specificDate = reactiveMessage(m.specific_date);
-	const specificDateExample = reactiveMessage(m.specific_date_example);
-	const weekOfMonth = reactiveMessage(m.week_of_month);
-	const noSelection = reactiveMessage(m.no_selection);
-	const weekdayOfWeek = reactiveMessage(m.weekday_of_week);
+	const recurrenceInterval = translationService.getMessage('recurrence_interval');
+	const repeatWeekdays = translationService.getMessage('repeat_weekdays');
+	const advancedSettings = translationService.getMessage('advanced_settings');
+	const specificDate = translationService.getMessage('specific_date');
+	const specificDateExample = translationService.getMessage('specific_date_example');
+	const weekOfMonth = translationService.getMessage('week_of_month');
+	const noSelection = translationService.getMessage('no_selection');
+	const weekdayOfWeek = translationService.getMessage('weekday_of_week');
 
 	const unitOptions = [
 		{ value: 'minute', label: reactiveMessage(m.minute) },

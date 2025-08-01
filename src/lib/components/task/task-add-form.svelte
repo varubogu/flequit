@@ -7,8 +7,7 @@
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     onTaskAdded?: () => void;
@@ -17,13 +16,14 @@
 
   let { onTaskAdded, onCancel }: Props = $props();
 
+  const translationService = getTranslationService();
   let newTaskTitle = $state('');
 
   // Reactive messages
-  const editTask = reactiveMessage(m.edit_task);
-  const addTask = reactiveMessage(m.add_task);
-  const cancel = reactiveMessage(m.cancel);
-  const taskTitle = reactiveMessage(m.task_title);
+  const editTask = translationService.getMessage('edit_task');
+  const addTask = translationService.getMessage('add_task');
+  const cancel = translationService.getMessage('cancel');
+  const taskTitle = translationService.getMessage('task_title');
 
   function handleAddTask() {
     const newTaskId = TaskListService.addNewTask(newTaskTitle);

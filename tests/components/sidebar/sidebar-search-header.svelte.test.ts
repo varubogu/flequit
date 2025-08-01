@@ -3,23 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
 
 // --- Paraglide Mock ---
-vi.mock('$paraglide/messages.js', () => ({
-  search: () => 'Search',
-  search_tasks: () => 'Search tasks',
-  type_a_command: () => 'Type a command',
-  no_commands_found: () => 'No commands found',
-  no_tasks_found: () => 'No tasks found',
-  commands: () => 'Commands',
-  settings: () => 'Settings',
-  help: () => 'Help',
-  show_all_results_for: () => 'Show all results for',
-  jump_to_task: () => 'Jump to task',
-  results: () => 'Results',
-  no_matching_tasks_found: () => 'No matching tasks found',
-  show_all_tasks: () => 'Show all tasks',
-  quick_actions: () => 'Quick actions',
-  add_new_task: () => 'Add new task',
-  view_all_tasks: () => 'View all tasks'
+
 }));
 
 // --- Locale Store Mock ---

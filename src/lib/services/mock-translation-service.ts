@@ -40,6 +40,23 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
     return messageFn;
   }
 
+  getMessage(key: string, params?: Record<string, any>): () => string {
+    return () => {
+      const localeMessages = this.messages.get(this.currentLocale);
+      let message = localeMessages?.get(key) || key;
+      
+      // パラメータがある場合は置換を行う
+      if (params && Object.keys(params).length > 0) {
+        // {paramName} 形式の置換
+        message = message.replace(/\{(\w+)\}/g, (match, paramName) => {
+          return params[paramName] !== undefined ? String(params[paramName]) : match;
+        });
+      }
+      
+      return message;
+    };
+  }
+
   getAvailableLocales(): readonly string[] {
     return ['en', 'ja'];
   }
@@ -59,13 +76,6 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
     this.messages.set(locale, localeMap);
   }
 
-  /**
-   * テスト用: 特定のキーのメッセージを取得
-   */
-  getMessage(key: string): string {
-    const localeMessages = this.messages.get(this.currentLocale);
-    return localeMessages?.get(key) || key;
-  }
 
   /**
    * テスト用: 購読者の数を取得

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import TaskItem from './task-item.svelte';
   import TaskAddForm from './task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
@@ -31,6 +32,7 @@
     onSubTaskClick
   }: Props = $props();
 
+  const translationService = getTranslationService();
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');
@@ -51,12 +53,12 @@
   }
 
   // Reactive messages
-  const addTask = reactiveMessage(m.add_task);
-  const noSearchResults = reactiveMessage(m.no_search_results);
-  const noTasksFound = reactiveMessage(m.no_tasks_found);
-  const tryDifferentSearch = reactiveMessage(m.try_different_search);
-  const clickAddTask = reactiveMessage(m.click_add_task);
-  const addSomeTasks = reactiveMessage(m.add_some_tasks);
+  const addTask = translationService.getMessage('add_task');
+  const noSearchResults = translationService.getMessage('no_search_results');
+  const noTasksFound = translationService.getMessage('no_tasks_found');
+  const tryDifferentSearch = translationService.getMessage('try_different_search');
+  const clickAddTask = translationService.getMessage('click_add_task');
+  const addSomeTasks = translationService.getMessage('add_some_tasks');
 </script>
 
 <div class="flex flex-col h-full" data-testid="task-list">

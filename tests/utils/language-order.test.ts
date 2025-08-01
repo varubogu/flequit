@@ -4,7 +4,7 @@ import { getLocale } from '$paraglide/runtime';
 
 // $paraglide/runtime をモック
 vi.mock('$paraglide/runtime', () => ({
-  getLocale: vi.fn()
+  getLocale: vi.fn(),
 }));
 
 describe('LanguageOrderUtils', () => {

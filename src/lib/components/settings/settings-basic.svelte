@@ -5,9 +5,7 @@
   import { format } from 'date-fns';
   import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
   import DateFormatEditor from '$lib/components/settings/date-format-editor.svelte';
-  import { locales } from '$paraglide/runtime';
-  import { localeStore, reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages.js';
+  import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     settings: {
@@ -20,24 +18,29 @@
 
   let { settings }: Props = $props();
 
-  // Reactive messages
-  const generalSettings = reactiveMessage(m.general_settings);
-  const language = reactiveMessage(m.language);
-  const weekStartsOn = reactiveMessage(m.week_starts_on);
-  const sunday = reactiveMessage(m.sunday);
-  const monday = reactiveMessage(m.monday);
-  const timezone = reactiveMessage(m.timezone);
-  const currentEffectiveTimezone = reactiveMessage(m.current_effective_timezone);
-  const dateFormat = reactiveMessage(m.date_format);
-  const preview = reactiveMessage(m.preview);
-  const editDateFormat = reactiveMessage(m.edit_date_format);
-  const addCustomDueDateButton = reactiveMessage(m.add_custom_due_date_button);
-  const addCustomDueDate = reactiveMessage(m.add_custom_due_date);
+  // 翻訳サービスを取得
+  const translationService = getTranslationService();
 
-  const availableLanguages = [
-    { value: 'en', label: 'English' },
-    { value: 'ja', label: '日本語' }
-  ];
+  // Reactive messages
+  const generalSettings = translationService.getMessage('general_settings');
+  const language = translationService.getMessage('language');
+  const weekStartsOn = translationService.getMessage('week_starts_on');
+  const sunday = translationService.getMessage('sunday');
+  const monday = translationService.getMessage('monday');
+  const timezone = translationService.getMessage('timezone');
+  const currentEffectiveTimezone = translationService.getMessage('current_effective_timezone');
+  const dateFormat = translationService.getMessage('date_format');
+  const preview = translationService.getMessage('preview');
+  const editDateFormat = translationService.getMessage('edit_date_format');
+  const addCustomDueDateButton = translationService.getMessage('add_custom_due_date_button');
+  const addCustomDueDate = translationService.getMessage('add_custom_due_date');
+
+  const availableLanguages = $derived(
+    translationService.getAvailableLocales().map(locale => ({
+      value: locale,
+      label: locale === 'en' ? 'English' : '日本語'
+    }))
+  );
 
   // リアクティブなタイムゾーンリスト
   const availableTimezones = $derived(getAvailableTimezones());
@@ -64,7 +67,7 @@
   function handleLanguageChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newLocale = target.value;
-    if (locales.includes(newLocale as any)) {
+    if (translationService.getAvailableLocales().includes(newLocale)) {
       localeStore.setLocale(newLocale);
     }
   }

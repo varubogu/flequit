@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import * as Command from "$lib/components/ui/command/index.js";
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import { Search, Hash } from "lucide-svelte";
@@ -16,28 +17,31 @@
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
 
+  const translationService = getTranslationService();
   let searchValue = $state('');
   let filteredTasks = $state<TaskWithSubTasks[]>([]);
   let isCommandMode = $derived(searchValue.startsWith('>'));
   let isTagSearch = $derived(searchValue.startsWith('#'));
 
   // Reactive messages
-  const searchTasks = reactiveMessage(m.search_tasks);
-  const typeACommand = reactiveMessage(m.type_a_command);
-  const noCommandsFound = reactiveMessage(m.no_commands_found);
-  const noTasksFound = reactiveMessage(m.no_tasks_found);
-  const commands = reactiveMessage(m.commands);
-  const settings = reactiveMessage(m.settings);
-  const help = reactiveMessage(m.help);
-  const search = reactiveMessage(m.search);
-  const showAllResultsFor = reactiveMessage(m.show_all_results_for);
-  const jumpToTask = reactiveMessage(m.jump_to_task);
-  const results = reactiveMessage(m.results);
-  const noMatchingTasksFound = reactiveMessage(m.no_matching_tasks_found);
-  const showAllTasks = reactiveMessage(m.show_all_tasks);
-  const quickActions = reactiveMessage(m.quick_actions);
-  const addNewTask = reactiveMessage(m.add_new_task);
-  const viewAllTasks = reactiveMessage(m.view_all_tasks);
+  const searchTasks = translationService.getMessage('search_tasks');
+  const typeACommand = translationService.getMessage('type_a_command');
+  const noCommandsFound = translationService.getMessage('no_commands_found');
+  const noTasksFound = translationService.getMessage('no_tasks_found');
+  const commands = translationService.getMessage('commands');
+  const settings = translationService.getMessage('settings');
+  const help = translationService.getMessage('help');
+  const search = translationService.getMessage('search');
+  const showAllResultsFor = $derived(
+    translationService.getMessage('show_all_results_for', { searchValue })
+  );
+  const jumpToTask = translationService.getMessage('jump_to_task');
+  const results = translationService.getMessage('results');
+  const noMatchingTasksFound = translationService.getMessage('no_matching_tasks_found');
+  const showAllTasks = translationService.getMessage('show_all_tasks');
+  const quickActions = translationService.getMessage('quick_actions');
+  const addNewTask = translationService.getMessage('add_new_task');
+  const viewAllTasks = translationService.getMessage('view_all_tasks');
 
   // 検索結果の更新
   $effect(() => {
@@ -161,7 +165,7 @@
           {:else}
             <Search class="h-4 w-4 mr-2" />
           {/if}
-          <span>{showAllResultsFor({ searchValue })}</span>
+          <span>{showAllResultsFor()}</span>
         </Command.Item>
       </Command.Group>
 

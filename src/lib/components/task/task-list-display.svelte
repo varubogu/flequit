@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -19,9 +20,10 @@
 
   let { project, isExpanded, onViewChange }: Props = $props();
 
-  const editTaskList = reactiveMessage(m.edit_task_list);
-  const addTask = reactiveMessage(m.add_task);
-  const deleteTaskList = reactiveMessage(m.delete_task_list);
+  const translationService = getTranslationService();
+  const editTaskList = translationService.getMessage('edit_task_list');
+  const addTask = translationService.getMessage('add_task');
+  const deleteTaskList = translationService.getMessage('delete_task_list');
 
   function handleTaskListSelect(list: any) {
     taskStore.selectList(list.id);

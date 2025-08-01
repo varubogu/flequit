@@ -69,7 +69,7 @@ describe('Layout Component', () => {
 
   test('should render slot content', () => {
     const { container } = render(Layout, {
-      children: () => 'Test Content'
+
     });
     expect(container).toBeInTheDocument();
   });

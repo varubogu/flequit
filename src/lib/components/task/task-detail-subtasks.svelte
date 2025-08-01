@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '$lib/components/datetime/due-date.svelte';
@@ -14,9 +15,10 @@
 
   let { task, selectedSubTaskId, onSubTaskClick, onSubTaskToggle }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const sub_tasks = reactiveMessage(m.sub_tasks);
-  const toggle_subtask_completion = reactiveMessage(m.toggle_subtask_completion);
+  const sub_tasks = translationService.getMessage('sub_tasks');
+  const toggle_subtask_completion = translationService.getMessage('toggle_subtask_completion');
 
 
 </script>

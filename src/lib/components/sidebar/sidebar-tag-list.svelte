@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ViewType } from '$lib/services/view-service';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -20,13 +21,14 @@
 
   let { onViewChange }: Props = $props();
 
+  const translationService = getTranslationService();
   // Get sidebar state
   const sidebar = useSidebar();
 
   let bookmarkedTags = $derived(tagStore.bookmarkedTagList);
 
   // Reactive messages
-  const tagsTitle = reactiveMessage(m.tags);
+  const tagsTitle = translationService.getMessage('tags');
 
   // State for dialogs
   let selectedTag: Tag | null = $state(null);

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -22,10 +23,11 @@
 
   let { currentView = 'all', onViewChange, isCollapsed = false }: Props = $props();
 
-  const editProject = reactiveMessage(m.edit_project);
-  const addTaskList = reactiveMessage(m.add_task_list);
-  const deleteProject = reactiveMessage(m.delete_project);
-  const toggleTaskLists = reactiveMessage(m.toggle_task_lists);
+  const translationService = getTranslationService();
+  const editProject = translationService.getMessage('edit_project');
+  const addTaskList = translationService.getMessage('add_task_list');
+  const deleteProject = translationService.getMessage('delete_project');
+  const toggleTaskLists = translationService.getMessage('toggle_task_lists');
 
   let projectsData = $derived(taskStore.projects);
   let expandedProjects = $state<Set<string>>(new Set());

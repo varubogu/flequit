@@ -1,8 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/shared/button.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages.js';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     open: boolean;
@@ -12,11 +11,12 @@
 
   let { open, onConfirm, onCancel }: Props = $props();
 
+  const translationService = getTranslationService();
   // Reactive messages
-  const confirm_discard_changes = reactiveMessage(m.confirm_discard_changes);
-  const unsaved_task_message = reactiveMessage(m.unsaved_task_message);
-  const discard_changes = reactiveMessage(m.discard_changes);
-  const keep_editing = reactiveMessage(m.keep_editing);
+  const confirm_discard_changes = translationService.getMessage('confirm_discard_changes');
+  const unsaved_task_message = translationService.getMessage('unsaved_task_message');
+  const discard_changes = translationService.getMessage('discard_changes');
+  const keep_editing = translationService.getMessage('keep_editing');
 </script>
 
 <Dialog.Root {open} onOpenChange={(open) => { if (!open) onCancel(); }}>

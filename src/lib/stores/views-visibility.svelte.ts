@@ -1,5 +1,6 @@
-import * as m from '$paraglide/messages.js';
-import { reactiveMessage } from './locale.svelte';
+import { getTranslationService } from './locale.svelte';
+
+const translationService = getTranslationService();
 
 export interface ViewItem {
   id: string;
@@ -15,14 +16,14 @@ export interface ViewsConfiguration {
 
 // メッセージ関数をマップ
 const getViewLabel = (id: string): string => {
-  const reactiveAll = reactiveMessage(m.all_tasks);
-  const reactiveOverdue = reactiveMessage(m.overdue);
-  const reactiveToday = reactiveMessage(m.today);
-  const reactiveTomorrow = reactiveMessage(m.tomorrow);
-  const reactiveCompleted = reactiveMessage(m.completed);
-  const reactiveNext3Days = reactiveMessage(m.next_3_days);
-  const reactiveNextWeek = reactiveMessage(m.next_week);
-  const reactiveThisMonth = reactiveMessage(m.this_month);
+  const reactiveAll = translationService.getMessage('all_tasks');
+  const reactiveOverdue = translationService.getMessage('overdue');
+  const reactiveToday = translationService.getMessage('today');
+  const reactiveTomorrow = translationService.getMessage('tomorrow');
+  const reactiveCompleted = translationService.getMessage('completed');
+  const reactiveNext3Days = translationService.getMessage('next_3_days');
+  const reactiveNextWeek = translationService.getMessage('next_week');
+  const reactiveThisMonth = translationService.getMessage('this_month');
 
   switch (id) {
     case 'allTasks':

@@ -1,7 +1,6 @@
 <script lang="ts">
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     open: boolean;
@@ -10,10 +9,11 @@
 
   let { open = $bindable(), onConfirm }: Props = $props();
 
-  const cancel = reactiveMessage(m.cancel);
-  const delete_msg = reactiveMessage(m.delete);
-  const deleteFormatTitle = reactiveMessage(m.delete_format_title);
-  const deleteFormatMessage = reactiveMessage(m.delete_format_message);
+  const translationService = getTranslationService();
+  const cancel = translationService.getMessage('cancel');
+  const delete_msg = translationService.getMessage('delete');
+  const deleteFormatTitle = translationService.getMessage('delete_format_title');
+  const deleteFormatMessage = translationService.getMessage('delete_format_message');
 </script>
 
 <AlertDialog.Root bind:open={open}>

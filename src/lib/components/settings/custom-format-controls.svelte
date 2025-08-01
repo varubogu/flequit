@@ -1,7 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  import * as m from '$paraglide/messages';
+  import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
     onAdd: () => void;
@@ -27,11 +26,12 @@
     cancelEnabled 
   }: Props = $props();
 
-  const addNewFormat = reactiveMessage(m.add_new);
-  const editFormat = reactiveMessage(m.edit);
-  const deleteFormat = reactiveMessage(m.delete);
-  const saveFormatLabel = reactiveMessage(m.save);
-  const cancelEdit = reactiveMessage(m.cancel);
+  const translationService = getTranslationService();
+  const addNewFormat = translationService.getMessage('add_new');
+  const editFormat = translationService.getMessage('edit');
+  const deleteFormat = translationService.getMessage('delete');
+  const saveFormatLabel = translationService.getMessage('save');
+  const cancelEdit = translationService.getMessage('cancel');
 </script>
 
 <div class="flex gap-2 flex-wrap">

@@ -47,23 +47,8 @@ vi.mock('$lib/services/task-service', () => ({
   }
 }));
 
-vi.mock('$paraglide/messages.js', () => ({
-  search_tasks: () => 'Search tasks...',
   show_all_results_for: ({ searchValue }: { searchValue: string }) => `Show all results for "${searchValue}"`,
-  search: () => 'Search',
-  jump_to_task: () => 'Jump to task',
-  results: () => 'Results',
-  no_matching_tasks_found: () => 'No matching tasks found',
-  show_all_tasks: () => 'Show all tasks',
-  quick_actions: () => 'Quick actions',
-  add_new_task: () => 'Add new task',
-  view_all_tasks: () => 'View all tasks',
-  type_a_command: () => 'Type a command...',
-  no_commands_found: () => 'No commands found',
-  no_tasks_found: () => 'No tasks found',
-  commands: () => 'Commands',
-  settings: () => 'Settings',
-  help: () => 'Help'
+
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({

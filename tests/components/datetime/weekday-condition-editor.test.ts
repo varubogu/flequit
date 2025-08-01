@@ -4,28 +4,13 @@ import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-e
 import type { WeekdayCondition } from '$lib/types/task';
 
 // Paraglideランタイムをモック
-vi.mock('$paraglide/runtime', () => ({
+
   getLocale: vi.fn(() => 'ja'),
   setLocale: vi.fn()
 }));
 
 // メッセージファイルをモック
-vi.mock('$paraglide/messages.js', () => ({
-  previous: () => '前',
-  next: () => '後',
-  if_condition: () => '',
-  move_to: () => 'にずらす',
-  monday: () => '月曜日',
-  tuesday: () => '火曜日',
-  wednesday: () => '水曜日',
-  thursday: () => '木曜日',
-  friday: () => '金曜日',
-  saturday: () => '土曜日',
-  sunday: () => '日曜日',
-  weekday: () => '平日',
-  weekend: () => '休日',
-  holiday: () => '祝日',
-  non_holiday: () => '非祝日'
+
 }));
 
 // ロケールストアをモック

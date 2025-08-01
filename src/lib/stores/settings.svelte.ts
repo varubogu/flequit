@@ -1,5 +1,6 @@
-import * as m from '$paraglide/messages';
-import { reactiveMessage } from '$lib/stores/locale.svelte';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+
+const translationService = getTranslationService();
 import { getLocale } from '$paraglide/runtime';
 
 interface Settings {
@@ -105,7 +106,7 @@ export const settingsStore = new SettingsStore();
 
 // 利用可能なタイムゾーンのリスト（リアクティブ関数として提供）
 export function getAvailableTimezones() {
-  const osTimezone = reactiveMessage(m.os_timezone);
+  const osTimezone = translationService.getMessage('os_timezone');
   
   return [
     { value: 'system', label: osTimezone() },
