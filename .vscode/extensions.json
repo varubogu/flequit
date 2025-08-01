@@ -9,6 +9,8 @@
     "vitest.explorer",
     "ms-playwright.playwright",
     "inlang.vs-code-extension",
-    "bradlc.vscode-tailwindcss"
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
   ]
 }
