@@ -168,7 +168,7 @@ describe('RecurrenceService', () => {
     it('不正な単位の場合はnullを返す', () => {
       const baseDate = new Date('2024-01-01');
       const rule: RecurrenceRule = {
-        unit: 'invalid' as any,
+        unit: 'invalid' as RecurrenceUnit,
         interval: 1
       };
 
@@ -178,7 +178,10 @@ describe('RecurrenceService', () => {
 
     it('nullルールの場合はnullを返す', () => {
       const baseDate = new Date('2024-01-01');
-      const nextDate = RecurrenceService.calculateNextDate(baseDate, null as any);
+      const nextDate = RecurrenceService.calculateNextDate(
+        baseDate,
+        null as unknown as RecurrenceRule
+      );
       expect(nextDate).toBeNull();
     });
   });

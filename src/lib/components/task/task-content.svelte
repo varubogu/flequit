@@ -9,19 +9,10 @@
     task: TaskWithSubTasks;
     completedSubTasks: number;
     subTaskProgress: number;
-    datePickerPosition: { x: number; y: number };
-    showDatePicker: boolean;
     handleDueDateClick: (event: MouseEvent) => void;
   }
 
-  let {
-    task,
-    completedSubTasks,
-    subTaskProgress,
-    datePickerPosition,
-    showDatePicker,
-    handleDueDateClick
-  }: Props = $props();
+  let { task, completedSubTasks, subTaskProgress, handleDueDateClick }: Props = $props();
 
   const translationService = getTranslationService();
   // Reactive messages

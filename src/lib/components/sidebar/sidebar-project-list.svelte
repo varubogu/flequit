@@ -28,9 +28,12 @@
   let projectDialogMode: 'add' | 'edit' = $state('add');
   let editingProject: { id: string; name: string; color: string } | null = $state(null);
 
-  function openProjectDialog(mode: 'add' | 'edit', project?: { id: string; name: string; color: string }) {
+  function openProjectDialog(
+    mode: 'add' | 'edit',
+    project?: { id: string; name: string; color: string }
+  ) {
     projectDialogMode = mode;
-    editingProject = project;
+    editingProject = project ?? null;
     showProjectDialog = true;
   }
 

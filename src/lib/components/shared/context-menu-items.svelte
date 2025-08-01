@@ -10,7 +10,6 @@
 
   let { items, class: className = 'w-48' }: Props = $props();
 
-
   // セパレーター以外のアイテムをカウント
   const menuItems = $derived(items.filter((item) => !('type' in item)) as ContextMenuItem[]);
   const itemCount = $derived(menuItems.length);

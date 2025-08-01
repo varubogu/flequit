@@ -57,7 +57,7 @@
 
   function openProjectDialog(mode: 'add' | 'edit', project?: ProjectTree) {
     projectDialogMode = mode;
-    editingProject = project;
+    editingProject = project ?? null;
     showProjectDialog = true;
   }
 

@@ -1,7 +1,13 @@
 <script lang="ts">
   import { RangeCalendar } from '$lib/components/ui/range-calendar';
   import { Calendar } from '$lib/components/ui/calendar';
-  import { CalendarDate, parseDate, now, getLocalTimeZone } from '@internationalized/date';
+  import {
+    CalendarDate,
+    parseDate,
+    now,
+    getLocalTimeZone,
+    type DateValue
+  } from '@internationalized/date';
 
   interface Props {
     isRangeMode?: boolean;
@@ -19,7 +25,7 @@
     onRangeChange
   }: Props = $props();
 
-  let rangeValue = $state<{ start: CalendarDate | undefined; end: CalendarDate | undefined }>({
+  let rangeValue = $state<{ start: DateValue | undefined; end: DateValue | undefined }>({
     start: undefined,
     end: undefined
   });
@@ -76,14 +82,14 @@
     }
   });
 
-  function handleRangeCalendarChange(v: { start?: CalendarDate; end?: CalendarDate }) {
+  function handleRangeCalendarChange(v: { start?: DateValue; end?: DateValue }) {
     if (v?.start) {
       rangeValue.start = v.start;
     }
     if (v?.end) {
       rangeValue.end = v.end;
     }
-    if (v?.start && v?.end) {
+    if (v?.start && v?.end && v.start instanceof CalendarDate && v.end instanceof CalendarDate) {
       onRangeChange?.(v.start, v.end);
     }
   }

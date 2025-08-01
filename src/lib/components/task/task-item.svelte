@@ -234,8 +234,6 @@
             {task}
             {completedSubTasks}
             {subTaskProgress}
-            datePickerPosition={taskDatePicker ? taskDatePicker.datePickerPosition : { x: 0, y: 0 }}
-            showDatePicker={taskDatePicker ? taskDatePicker.showDatePicker : false}
             handleDueDateClick={(e) => taskDatePicker && taskDatePicker.handleDueDateClick(e)}
           />
         </div>

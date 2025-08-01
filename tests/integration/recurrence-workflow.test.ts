@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Task, RecurrenceRule } from '$lib/types/task';
 
 describe('繰り返しタスクワークフロー結合テスト', () => {
   beforeEach(() => {
@@ -8,7 +9,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
   it('繰り返しタスクの作成→インスタンス生成→更新フローが正常に動作する', async () => {
     // 繰り返しサービスのモック
     const mockRecurrenceService = {
-      generateRecurrenceDates: (baseDate: Date, rule: any, limit: number = 10) => {
+      generateRecurrenceDates: (baseDate: Date, rule: RecurrenceRule, limit: number = 10) => {
         const dates = [];
         const startDate = new Date(baseDate);
 
@@ -21,9 +22,9 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         return dates;
       },
 
-      createRecurrenceInstances: async (task: any, rule: any) => {
-        const instances: any[] = [];
-        const baseDate = task.due_date || new Date();
+      createRecurrenceInstances: async (task: Partial<Task>, rule: RecurrenceRule) => {
+        const instances: Partial<Task>[] = [];
+        const baseDate = task.end_date || new Date();
         const limit = rule.max_occurrences || 5;
         const dates = mockRecurrenceService.generateRecurrenceDates(baseDate, rule, limit);
 
@@ -32,45 +33,48 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
             id: `${task.id}-instance-${index}`,
             ...task,
             title: `${task.title} (${index + 1}回目)`,
-            due_date: date,
+            end_date: date,
             recurrence_parent_id: task.id,
-            status: 'not_started'
+            status: 'not_started' as const
           });
         });
 
         return instances;
       },
 
-      updateRecurrenceRule: async (taskId: string, newRule: any) => {
+      updateRecurrenceRule: async (taskId: string, newRule: RecurrenceRule) => {
         return { taskId, rule: newRule };
       }
     };
 
     // タスクストアのモック
     const mockTaskStore = {
-      tasks: [] as any[],
-      recurrenceTasks: [] as any[],
+      tasks: [] as Task[],
+      recurrenceTasks: [] as Task[],
 
-      addTask: (listId: string, taskData: any) => {
-        const newTask = {
+      addTask: (listId: string, taskData: Partial<Task>) => {
+        const newTask: Task = {
           id: `task-${Date.now()}`,
           list_id: listId,
-          title: taskData.title,
+          title: taskData.title || '',
           description: taskData.description || '',
           status: taskData.status || 'not_started',
           priority: taskData.priority || 1,
-          due_date: taskData.due_date,
+          start_date: taskData.start_date,
+          end_date: taskData.end_date,
+          is_range_date: taskData.is_range_date || false,
           recurrence_rule: taskData.recurrence_rule,
+          order_index: 0,
+          is_archived: false,
           created_at: new Date(),
-          updated_at: new Date(),
-          ...taskData
+          updated_at: new Date()
         };
         mockTaskStore.tasks.push(newTask);
         return newTask;
       },
 
-      updateTask: (taskId: string, updates: any) => {
-        const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+      updateTask: (taskId: string, updates: Partial<Task>) => {
+        const taskIndex = mockTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
         if (taskIndex >= 0) {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
@@ -82,14 +86,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         return null;
       },
 
-      addRecurrenceInstances: (instances: any[]) => {
+      addRecurrenceInstances: (instances: Task[]) => {
         mockTaskStore.recurrenceTasks.push(...instances);
         return instances;
       },
 
       getRecurrenceInstances: (parentTaskId: string) => {
         return mockTaskStore.recurrenceTasks.filter(
-          (t: any) => t.recurrence_parent_id === parentTaskId
+          (t: Task) => (t as any).recurrence_parent_id === parentTaskId
         );
       },
 
@@ -160,7 +164,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     firstInstance.status = 'completed';
 
     const completedInstances = mockTaskStore.recurrenceTasks.filter(
-      (i: any) => i.status === 'completed'
+      (i: Task) => i.status === 'completed'
     );
     expect(completedInstances).toHaveLength(1);
   });
@@ -170,7 +174,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       tasks: [] as any[],
       recurrenceTasks: [] as any[],
 
-      addTask: (listId: string, taskData: any) => {
+      addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
           list_id: listId,
@@ -188,21 +192,21 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         return newTask;
       },
 
-      addRecurrenceInstances: (instances: any[]) => {
+      addRecurrenceInstances: (instances: Task[]) => {
         mockTaskStore.recurrenceTasks.push(...instances);
         return instances;
       },
 
       getRecurrenceInstances: (parentTaskId: string) => {
         return mockTaskStore.recurrenceTasks.filter(
-          (t: any) => t.recurrence_parent_id === parentTaskId
+          (t: Task) => (t as any).recurrence_parent_id === parentTaskId
         );
       }
     };
 
     const mockRecurrenceService = {
-      createRecurrenceInstances: async (task: any, rule: any) => {
-        const instances: any[] = [];
+      createRecurrenceInstances: async (task: Partial<Task>, rule: RecurrenceRule) => {
+        const instances: Task[] = [];
         const count = rule.max_occurrences || 5;
 
         for (let i = 0; i < count; i++) {
@@ -301,7 +305,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     const mockTaskStore = {
       tasks: [] as any[],
 
-      addTask: (listId: string, taskData: any) => {
+      addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}`,
           list_id: listId,
@@ -355,7 +359,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       });
 
       await mockRecurrenceService.createRecurrenceInstances(task, invalidRule);
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorMessage = error.message || '無効な繰り返しルールです';
     }
 
@@ -381,7 +385,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       if (instances.length === 0) {
         errorMessage = '終了日が過去のため、インスタンスが生成されませんでした';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       errorMessage = error.message;
     }
 

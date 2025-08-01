@@ -32,6 +32,22 @@ const mockTranslationService = new MockTranslationService('en', {
     // 設定関連
     settings: 'Settings',
     general_settings: 'General Settings',
+    account_settings: 'Account Settings',
+    account_type: 'Account Type',
+    local_account: 'Local Account',
+    cloud_account: 'Cloud Account',
+    account_name: 'Account Name',
+    email: 'Email',
+    password: 'Password',
+    server_url: 'Server URL',
+    using_local_account: 'Using local account',
+    to_access_cloud_features: 'To access cloud features',
+    local_account_description:
+      'Using local account. To access cloud features, switch to cloud account.',
+    organization: 'Organization',
+    choose_file: 'Choose File',
+    email_address: 'Email',
+    account_icon: 'Account Icon',
     language: 'Language',
     timezone: 'Timezone',
     date_format: 'Date Format',
@@ -63,7 +79,35 @@ const mockTranslationService = new MockTranslationService('en', {
     today: 'Today',
     upcoming: 'Upcoming',
     completed: 'Completed',
-    all_tasks: 'All Tasks'
+    all_tasks: 'All Tasks',
+
+    // 外観・テーマ関連
+    appearance: 'Appearance',
+    appearance_description: 'Customize the app appearance',
+    appearance_settings: 'Appearance Settings',
+    background_color: 'Background Color',
+    dark: 'Dark',
+    light: 'Light',
+    system: 'System',
+    theme: 'Theme',
+    default_font: 'Default Font',
+
+    // 日付フォーマット関連
+    date_format_editor: 'Date Format Editor',
+    enter_format_name: 'Enter format name',
+    delete_format_title: 'Delete Format',
+    delete_format_message: 'Are you sure you want to delete this format?',
+    add_new: 'Add New',
+
+    // その他
+    configure_preferences: 'Configure your preferences',
+    account: 'Account',
+    account_description: 'Manage your account settings',
+    utc: 'UTC',
+    eastern_time: 'Eastern Time',
+    japan_time: 'Japan Time',
+    subtasks_completed: '{completed} of {total} subtasks completed',
+    example_organization: 'Example Organization'
   },
   ja: {
     // 共通メッセージ
@@ -93,6 +137,22 @@ const mockTranslationService = new MockTranslationService('en', {
     // 設定関連
     settings: '設定',
     general_settings: '一般設定',
+    account_settings: 'アカウント設定',
+    account_type: 'アカウントタイプ',
+    local_account: 'ローカルアカウント',
+    cloud_account: 'クラウドアカウント',
+    account_name: 'アカウント名',
+    email: 'メールアドレス',
+    password: 'パスワード',
+    server_url: 'サーバーURL',
+    using_local_account: 'ローカルアカウントを使用中',
+    to_access_cloud_features: 'クラウド機能にアクセスするには',
+    local_account_description:
+      'ローカルアカウントを使用中。クラウド機能にアクセスするには、クラウドアカウントに切り替えてください。',
+    organization: '組織',
+    choose_file: 'ファイルを選択',
+    email_address: 'メールアドレス',
+    account_icon: 'アカウントアイコン',
     language: '言語',
     timezone: 'タイムゾーン',
     date_format: '日付フォーマット',
@@ -124,7 +184,35 @@ const mockTranslationService = new MockTranslationService('en', {
     today: '今日',
     upcoming: '今後',
     completed: '完了',
-    all_tasks: '全てのタスク'
+    all_tasks: '全てのタスク',
+
+    // 外観・テーマ関連
+    appearance: '外観',
+    appearance_description: 'アプリの外観をカスタマイズ',
+    appearance_settings: '外観設定',
+    background_color: '背景色',
+    dark: 'ダーク',
+    light: 'ライト',
+    system: 'システム',
+    theme: 'テーマ',
+    default_font: 'デフォルトフォント',
+
+    // 日付フォーマット関連
+    date_format_editor: '日付フォーマットエディター',
+    enter_format_name: 'フォーマット名を入力',
+    delete_format_title: 'フォーマットを削除',
+    delete_format_message: 'このフォーマットを削除してもよろしいですか？',
+    add_new: '新規追加',
+
+    // その他
+    configure_preferences: '設定を構成',
+    account: 'アカウント',
+    account_description: 'アカウント設定を管理',
+    utc: 'UTC',
+    eastern_time: '東部時間',
+    japan_time: '日本時間',
+    subtasks_completed: '{total}個中{completed}個のサブタスクが完了',
+    example_organization: 'サンプル組織'
   }
 });
 

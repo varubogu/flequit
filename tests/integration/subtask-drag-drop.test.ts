@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskService } from '$lib/services/task-service';
-import { DragDropManager } from '$lib/utils/drag-drop';
+import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 
 // Mock TaskService
 vi.mock('$lib/services/task-service', () => ({
@@ -99,7 +99,7 @@ describe('SubTask Drag and Drop Integration', () => {
         };
 
         // Mock the view drop handler
-        const handleViewDrop = (viewId: string, dragData: any) => {
+        const handleViewDrop = (viewId: string, dragData: DragData) => {
           if (dragData.type === 'subtask') {
             TaskService.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
           }
@@ -131,7 +131,7 @@ describe('SubTask Drag and Drop Integration', () => {
       };
 
       // Mock the tag drop handler
-      const handleTagDrop = (targetTag: any, dragData: any) => {
+      const handleTagDrop = (targetTag: { id: string; name: string }, dragData: DragData) => {
         if (dragData.type === 'subtask') {
           TaskService.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
         }

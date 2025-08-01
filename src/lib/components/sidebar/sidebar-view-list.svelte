@@ -117,7 +117,7 @@
       isCollapsed={sidebar.state === 'collapsed'}
       onclick={() => handleViewChange(view.id as ViewType)}
       dropTarget={{ type: 'view', id: view.id }}
-      onDrop={(dragData) => handleViewDrop(view.id, dragData)}
+      onDrop={(dragData: unknown) => handleViewDrop(view.id, dragData as DragData)}
       testId="view-{view.id}"
     />
   {/each}

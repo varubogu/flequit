@@ -6,8 +6,6 @@
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/shared/button.svelte';
   import { Plus, PanelLeft } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { createEventDispatcher } from 'svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 

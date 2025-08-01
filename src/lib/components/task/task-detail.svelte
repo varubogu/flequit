@@ -121,7 +121,7 @@
         const updates: {
           title: string;
           description?: string;
-          priority: string;
+          priority: number;
           start_date?: Date;
           end_date?: Date;
           is_range_date: boolean;

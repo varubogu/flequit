@@ -5,10 +5,11 @@ import {
   getTranslationService
 } from '$lib/stores/locale.svelte';
 import { MockTranslationService } from '$lib/services/mock-translation-service';
+import type { TranslationService } from '$lib/services/translation-service';
 
 describe('localeStore', () => {
   let mockService: MockTranslationService;
-  let originalService: any;
+  let originalService: TranslationService;
 
   beforeEach(() => {
     vi.clearAllMocks();

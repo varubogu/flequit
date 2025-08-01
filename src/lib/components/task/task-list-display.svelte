@@ -1,13 +1,12 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/task';
+  import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { Edit, Plus, Trash2 } from 'lucide-svelte';
-  import * as m from '$paraglide/messages.js';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
@@ -15,7 +14,7 @@
   interface Props {
     project: ProjectTree;
     isExpanded: boolean;
-    onViewChange?: (view: any) => void;
+    onViewChange?: (view: ViewType) => void;
   }
 
   let { project, isExpanded, onViewChange }: Props = $props();
@@ -25,20 +24,24 @@
   const addTask = translationService.getMessage('add_task');
   const deleteTaskList = translationService.getMessage('delete_task_list');
 
-  function handleTaskListSelect(list: any) {
+  function handleTaskListSelect(list: { id: string }) {
     taskStore.selectList(list.id);
     onViewChange?.('tasklist');
   }
 
   let showTaskListDialog = $state(false);
   let taskListDialogMode: 'add' | 'edit' = $state('add');
-  let editingTaskList: any = $state(null);
-  let editingProject: any = $state(null);
+  let editingTaskList: { id: string; name: string } | null = $state(null);
+  let editingProject: ProjectTree | null = $state(null);
 
-  function openTaskListDialog(mode: 'add' | 'edit', taskList?: any, project?: any) {
+  function openTaskListDialog(
+    mode: 'add' | 'edit',
+    taskList?: { id: string; name: string },
+    project?: ProjectTree
+  ) {
     taskListDialogMode = mode;
-    editingTaskList = taskList;
-    editingProject = project;
+    editingTaskList = taskList ?? null;
+    editingProject = project ?? null;
     showTaskListDialog = true;
   }
 
@@ -61,7 +64,7 @@
   }
 
   // Drag & Drop handlers
-  function handleTaskListDragStart(event: DragEvent, list: any) {
+  function handleTaskListDragStart(event: DragEvent, list: { id: string }) {
     const dragData: DragData = {
       type: 'tasklist',
       id: list.id,
@@ -70,7 +73,7 @@
     DragDropManager.startDrag(event, dragData);
   }
 
-  function handleTaskListDragOver(event: DragEvent, list: any) {
+  function handleTaskListDragOver(event: DragEvent, list: { id: string }) {
     const target: DropTarget = {
       type: 'tasklist',
       id: list.id,
@@ -79,7 +82,7 @@
     DragDropManager.handleDragOver(event, target);
   }
 
-  function handleTaskListDrop(event: DragEvent, targetList: any) {
+  function handleTaskListDrop(event: DragEvent, targetList: { id: string }) {
     const target: DropTarget = {
       type: 'tasklist',
       id: targetList.id,
@@ -112,7 +115,7 @@
   }
 
   // タスクリスト用のコンテキストメニューリストを作成
-  function createTaskListContextMenu(list: any): ContextMenuList {
+  function createTaskListContextMenu(list: { id: string; name: string }): ContextMenuList {
     return createContextMenu([
       {
         id: 'edit-task-list',

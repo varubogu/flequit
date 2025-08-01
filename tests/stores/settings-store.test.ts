@@ -21,7 +21,7 @@ describe('SettingsStore', () => {
 
   describe('initialization', () => {
     test('should initialize with default timezone', () => {
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
 
       expect(store.timezone).toBe('system');
     });
@@ -30,7 +30,7 @@ describe('SettingsStore', () => {
       const savedSettings = { timezone: 'Asia/Tokyo' };
       localStorageMock.getItem.mockReturnValue(JSON.stringify(savedSettings));
 
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
 
       expect(localStorageMock.getItem).toHaveBeenCalledWith('flequit-settings');
       expect(store.timezone).toBe('Asia/Tokyo');
@@ -39,7 +39,7 @@ describe('SettingsStore', () => {
     test('should handle invalid JSON in localStorage', () => {
       localStorageMock.getItem.mockReturnValue('invalid json');
 
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
 
       expect(store.timezone).toBe('system'); // Should fallback to default
       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to parse settings:', expect.any(Error));
@@ -48,10 +48,10 @@ describe('SettingsStore', () => {
     test('should handle missing localStorage gracefully', () => {
       // Temporarily remove localStorage
       const originalLocalStorage = global.localStorage;
-      delete (global as any).localStorage;
+      delete (global as unknown as { localStorage?: Storage }).localStorage;
 
       expect(() => {
-        new (settingsStore.constructor as any)();
+        new (settingsStore.constructor as new () => typeof settingsStore)();
       }).not.toThrow();
 
       // Restore localStorage
@@ -78,14 +78,14 @@ describe('SettingsStore', () => {
         DateTimeFormat: mockDateTimeFormat as any
       };
 
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
 
       expect(store.effectiveTimezone).toBe('America/New_York');
       expect(mockDateTimeFormat).toHaveBeenCalled();
     });
 
     test('should return specific timezone when not set to system', () => {
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
       store.setTimezone('Asia/Tokyo');
 
       expect(store.effectiveTimezone).toBe('Asia/Tokyo');
@@ -94,7 +94,7 @@ describe('SettingsStore', () => {
 
   describe('setTimezone', () => {
     test('should update timezone and save to localStorage', () => {
-      const store = new (settingsStore.constructor as any)();
+      const store = new (settingsStore.constructor as new () => typeof settingsStore)();
 
       store.setTimezone('Europe/London');
 
@@ -108,7 +108,7 @@ describe('SettingsStore', () => {
     test('should handle localStorage unavailable during save', () => {
       // Temporarily remove localStorage
       const originalLocalStorage = global.localStorage;
-      delete (global as any).localStorage;
+      delete (global as unknown as { localStorage?: Storage }).localStorage;
 
       // Create a new settings store class for testing
       class TestSettingsStore {

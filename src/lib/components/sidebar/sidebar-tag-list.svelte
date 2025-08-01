@@ -17,7 +17,7 @@
     onViewChange?: (view: ViewType) => void;
   }
 
-  let { }: Props = $props();
+  let { currentView, onViewChange }: Props = $props();
 
   const translationService = getTranslationService();
   // Get sidebar state
