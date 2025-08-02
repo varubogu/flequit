@@ -34,7 +34,7 @@ describe('TaskRecurrenceSelector', () => {
     render(TaskRecurrenceSelector, { props: defaultProps });
 
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('No recurrence')).toBeInTheDocument();
+    expect(screen.getByText('no_recurrence')).toBeInTheDocument();
   });
 
   it('無効化状態でボタンが操作できない', () => {
