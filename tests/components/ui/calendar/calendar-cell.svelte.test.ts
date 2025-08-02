@@ -1,13 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
+import { CalendarDate } from '@internationalized/date';
 import CalendarCell from '$lib/components/ui/calendar/calendar-cell.svelte';
-
-// Calendar date type
-interface CalendarDate {
-  year: number;
-  month: number;
-  day: number;
-}
 
 // Mock bits-ui Calendar primitive
 vi.mock('bits-ui', () => ({
@@ -31,8 +25,8 @@ describe('CalendarCell Component', () => {
 
   test('should render calendar cell component', () => {
     const { container } = render(CalendarCell, {
-      date: { year: 2024, month: 1, day: 15 } as any,
-      month: { year: 2024, month: 1, day: 1 } as any
+      date: new CalendarDate(2024, 1, 15),
+      month: new CalendarDate(2024, 1, 1)
     });
     expect(container).toBeInTheDocument();
   });
@@ -40,8 +34,8 @@ describe('CalendarCell Component', () => {
   test('should accept custom class name', () => {
     const { container } = render(CalendarCell, {
       class: 'custom-cell',
-      date: { year: 2024, month: 1, day: 15 } as any,
-      month: { year: 2024, month: 1, day: 1 } as any
+      date: new CalendarDate(2024, 1, 15),
+      month: new CalendarDate(2024, 1, 1)
     });
     expect(container).toBeInTheDocument();
   });
@@ -50,8 +44,8 @@ describe('CalendarCell Component', () => {
     const ref = null;
     const { container } = render(CalendarCell, {
       ref,
-      date: { year: 2024, month: 1, day: 15 } as any,
-      month: { year: 2024, month: 1, day: 1 } as any
+      date: new CalendarDate(2024, 1, 15),
+      month: new CalendarDate(2024, 1, 1)
     });
     expect(container).toBeInTheDocument();
   });
@@ -59,8 +53,8 @@ describe('CalendarCell Component', () => {
   test('should apply correct CSS classes', () => {
     const { container } = render(CalendarCell, {
       class: 'focus-test',
-      date: { year: 2024, month: 1, day: 15 } as any,
-      month: { year: 2024, month: 1, day: 1 } as any
+      date: new CalendarDate(2024, 1, 15),
+      month: new CalendarDate(2024, 1, 1)
     });
     expect(container).toBeInTheDocument();
   });

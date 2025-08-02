@@ -2,6 +2,22 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Calendar from '$lib/components/ui/calendar/calendar.svelte';
 
+// Mock CalendarDate factory function for tests
+const mockCalendarDate = (year: number, month: number, day: number) => ({
+  year,
+  month,
+  day,
+  toString: () => `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
+});
+
+// Mock @internationalized/date module
+vi.mock('@internationalized/date', () => ({
+  CalendarDate: vi.fn().mockImplementation(mockCalendarDate)
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MockDateValue = any;
+
 // Mock bits-ui Calendar primitive
 vi.mock('bits-ui', () => ({
   Calendar: {
@@ -62,13 +78,13 @@ describe('Calendar Component', () => {
   });
 
   test('should handle value binding', () => {
-    const value = new Date(2024, 0, 15) as any;
+    const value = mockCalendarDate(2024, 1, 15) as MockDateValue;
     const { container } = render(Calendar, { value });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle placeholder binding', () => {
-    const placeholder = new Date(2024, 0, 1) as any;
+    const placeholder = mockCalendarDate(2024, 1, 1) as MockDateValue;
     const { container } = render(Calendar, { placeholder });
     expect(container).toBeInTheDocument();
   });
@@ -118,8 +134,8 @@ describe('Calendar Component', () => {
   });
 
   test('should handle years and months props', () => {
-    const years = [2023, 2024, 2025] as any;
-    const months = ['Jan', 'Feb', 'Mar'] as any;
+    const years = [2023, 2024, 2025];
+    const months = [1, 2, 3];
     const { container } = render(Calendar, { years, months });
     expect(container).toBeInTheDocument();
   });
