@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Layout from '../../src/routes/+layout.svelte';
-import { backendService } from '../../src/lib/services/backend-service';
 
 // Mock CSS import
 vi.mock('../../src/app.css', () => ({}));

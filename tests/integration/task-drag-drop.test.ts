@@ -1,11 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import TaskList from '$lib/components/task/task-list.svelte';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
-import { taskStore } from '$lib/stores/tasks.svelte';
-import { tagStore } from '$lib/stores/tags.svelte';
-import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 // 必要なモック

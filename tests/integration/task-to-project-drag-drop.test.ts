@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { DragDropManager } from '$lib/utils/drag-drop';
-import ProjectList from '$lib/components/project/project-list.svelte';
-import TaskItem from '$lib/components/task/task-item.svelte';
-import type { TaskWithSubTasks, ProjectTree } from '$lib/types/task';
+import type { ProjectTree } from '$lib/types/task';
 
 // モックプロジェクトデータ
 const mockProjects: ProjectTree[] = [

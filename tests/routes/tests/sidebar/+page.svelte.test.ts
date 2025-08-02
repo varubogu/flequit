@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import SidebarTestPage from '../../../../src/routes/tests/sidebar/+page.svelte';
 
 // --- Sidebar Context Mock ---

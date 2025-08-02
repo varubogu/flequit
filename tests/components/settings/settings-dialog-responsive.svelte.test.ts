@@ -22,7 +22,7 @@ describe('SettingsDialog Responsive Behavior', () => {
   });
 
   it('コンポーネントが正常にレンダリングされる', async () => {
-    const { component, container } = render(SettingsDialog, {
+    const { container } = render(SettingsDialog, {
       props: { open: true }
     });
 
@@ -34,14 +34,14 @@ describe('SettingsDialog Responsive Behavior', () => {
   it('デスクトップとモバイルでIsMobileが正しく動作する', async () => {
     // デスクトップテスト
     mockIsMobile.current = false;
-    const { component: desktopComponent } = render(SettingsDialog, {
+    render(SettingsDialog, {
       props: { open: true }
     });
     expect(mockIsMobile.current).toBe(false);
 
     // モバイルテスト
     mockIsMobile.current = true;
-    const { component: mobileComponent } = render(SettingsDialog, {
+    render(SettingsDialog, {
       props: { open: true }
     });
     expect(mockIsMobile.current).toBe(true);

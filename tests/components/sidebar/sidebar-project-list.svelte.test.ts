@@ -24,7 +24,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
-  const { writable, get } = await import('svelte/store');
+  const { writable } = await import('svelte/store');
   const original = (await importOriginal()) as any;
 
   const taskStoreData = {

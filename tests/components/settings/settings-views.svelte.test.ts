@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/settings-views.svelte';
-import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
 
 // Mock views visibility store
 vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
@@ -24,7 +23,6 @@ vi.mock('$lib/components/confirm-dialog.svelte', () => ({
   default: () => null
 }));
 
-const mockViewsVisibilityStore = vi.mocked(viewsVisibilityStore);
 
 describe('SettingsViews Component', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import ProjectDialogTestPage from '../../../../src/routes/tests/project-dialog/+page.svelte';
 
 // Mock ProjectDialog component
