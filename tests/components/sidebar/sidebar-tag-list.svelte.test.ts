@@ -1,17 +1,18 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -97,13 +98,13 @@ describe('SidebarTagList Component', () => {
 
   test('should render tags section header when expanded', () => {
     render(SidebarTagList, { onViewChange });
-    expect(screen.getByText('Tags')).toBeInTheDocument();
+    expect(screen.getByText('TEST_TAGS')).toBeInTheDocument();
   });
 
   test('should render tags section when expanded by default', () => {
     render(SidebarTagList, { onViewChange });
     // In expanded state, header should be visible
-    expect(screen.getByText('Tags')).toBeInTheDocument();
+    expect(screen.getByText('TEST_TAGS')).toBeInTheDocument();
   });
 
   test('should render bookmarked tags only', () => {

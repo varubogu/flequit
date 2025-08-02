@@ -13,16 +13,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
 // --- Sidebar Component Mock ---
 vi.mock('$lib/components/sidebar/sidebar.svelte', () => ({

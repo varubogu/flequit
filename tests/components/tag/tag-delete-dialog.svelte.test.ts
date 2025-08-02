@@ -3,16 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
 import type { Tag } from '$lib/types/task';
 
-// モック設定
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
 describe('TagDeleteDialog', () => {
   const mockTag: Tag = {

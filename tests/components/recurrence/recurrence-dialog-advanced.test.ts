@@ -12,16 +12,7 @@ vi.mock('$paraglide/runtime', () => ({
 
 // メッセージファイルをモック
 
-// ロケールストアをモック
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
 // RecurrenceServiceをモック
 vi.mock('$lib/services/recurrence-service', () => ({

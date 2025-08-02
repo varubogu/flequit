@@ -4,36 +4,7 @@ import UnsavedChangesDialog from '$lib/components/dialog/unsaved-changes-dialog.
 
 // Paraglideメッセージのモック
 
-// locale storeのモック
-vi.mock('$lib/stores/locale.svelte', () => {
-  const messages = {
-    confirm_discard_changes: '変更を破棄してもよろしいですか？',
-    unsaved_task_message: '未保存の変更があります。保存するか破棄してください。',
-    save: '保存',
-    discard_changes: '変更を破棄',
-    cancel: 'キャンセル'
-  };
-  
-  return {
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
-      return ((...args: unknown[]) => {
-        const result = fn(...args);
-        return messages[result as keyof typeof messages] || result;
-      }) as T;
-    },
-    getTranslationService: () => ({
-      getMessage: (key: string) => () => messages[key as keyof typeof messages] || key,
-      getCurrentLocale: () => 'ja',
-      setLocale: () => {},
-      reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
-        return ((...args: unknown[]) => {
-          const result = fn(...args);
-          return messages[result as keyof typeof messages] || result;
-        }) as T;
-      }
-    })
-  };
-});
+// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
 describe('UnsavedChangesDialog', () => {
   const defaultProps = {

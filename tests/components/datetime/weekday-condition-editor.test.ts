@@ -3,50 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
 
-// ロケールストアをモック
-vi.mock('$lib/stores/locale.svelte', () => {
-  const messages = {
-    if: 'もし',
-    is: 'が',
-    then: 'なら',
-    during: 'の',
-    set_time_to: 'にずらす',
-    monday: '月曜日',
-    tuesday: '火曜日',
-    wednesday: '水曜日',
-    thursday: '木曜日',
-    friday: '金曜日',
-    saturday: '土曜日',
-    sunday: '日曜日',
-    weekdays: '平日',
-    weekends: '休日',
-    holidays: '祝日',
-    next: '後',
-    previous: '前'
-  };
-  
-  return {
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
-      return ((...args: unknown[]) => {
-        const result = fn(...args);
-        return messages[result as keyof typeof messages] || result;
-      }) as T;
-    },
-    getTranslationService: () => ({
-      getCurrentLocale: vi.fn(() => 'ja'),
-      setLocale: vi.fn(),
-      getAvailableLocales: vi.fn(() => ['en', 'ja']),
-      reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
-        return ((...args: unknown[]) => {
-          const result = fn(...args);
-          return messages[result as keyof typeof messages] || result;
-        }) as T;
-      },
-      getMessage: (key: string) => () => messages[key as keyof typeof messages] || key,
-      subscribe: vi.fn()
-    })
-  };
-});
+// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {

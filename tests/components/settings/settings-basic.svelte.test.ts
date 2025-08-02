@@ -2,37 +2,18 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
-import { translationService } from '$lib/services/paraglide-translation-service.svelte';
-import { localeStore } from '$lib/stores/locale.svelte';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
-// Mock translation service
-vi.mock('$lib/services/paraglide-translation-service.svelte', () => ({
-  translationService: {
-    getCurrentLocale: vi.fn(() => 'en'),
-    setLocale: vi.fn(),
-    getAvailableLocales: vi.fn(() => ['en', 'ja']),
-    reactiveMessage: (fn: () => string) => fn,
-    getMessage: vi.fn(),
-    subscribe: vi.fn()
-  }
-}));
-
-// Mock locale store
-vi.mock('$lib/stores/locale.svelte', () => ({
-  localeStore: {
-    locale: 'en',
-    setLocale: vi.fn()
-  },
-  reactiveMessage: (fn: () => string) => fn,
-  getTranslationService: () => ({
-    getCurrentLocale: vi.fn(() => 'en'),
-    setLocale: vi.fn(),
-    getAvailableLocales: vi.fn(() => ['en', 'ja']),
-    reactiveMessage: (fn: () => string) => fn,
-    getMessage: vi.fn(() => () => 'mock message'),
-    subscribe: vi.fn()
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // Mock settings store
 vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
@@ -52,8 +33,14 @@ vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
 });
 
 const mockSettingsStore = vi.mocked(settingsStore);
-const mockTranslationService = vi.mocked(translationService);
-const mockLocaleStore = vi.mocked(localeStore);
+const mockedGetTranslationService = vi.mocked(getTranslationService);
+
+// モック関数として作成
+const mockSetLocale = vi.fn();
+const mockTranslationService = {
+  ...createUnitTestTranslationService(),
+  setLocale: mockSetLocale
+};
 
 describe('SettingsBasic Component', () => {
   const defaultSettings = {
@@ -65,16 +52,17 @@ describe('SettingsBasic Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTranslationService.getCurrentLocale.mockReturnValue('en');
+    mockSetLocale.mockClear();
+    mockedGetTranslationService.mockReturnValue(mockTranslationService);
   });
 
   test('should render general settings section', () => {
     render(SettingsBasic, { settings: defaultSettings });
 
-    expect(screen.getByText('General Settings')).toBeInTheDocument();
-    expect(screen.getByLabelText('Language')).toBeInTheDocument();
-    expect(screen.getByLabelText('Week starts on')).toBeInTheDocument();
-    expect(screen.getByLabelText('Timezone')).toBeInTheDocument();
+    expect(screen.getByText('TEST_GENERAL_SETTINGS')).toBeInTheDocument();
+    expect(screen.getByLabelText('TEST_LANGUAGE')).toBeInTheDocument();
+    expect(screen.getByLabelText('TEST_WEEK_STARTS_ON')).toBeInTheDocument();
+    expect(screen.getByLabelText('TEST_TIMEZONE')).toBeInTheDocument();
   });
 
   test('should display week start options', () => {
@@ -166,28 +154,33 @@ describe('SettingsBasic Component', () => {
   });
 
   test('should render language select with current locale', () => {
-    mockLocaleStore.locale = 'ja';
+    // Japanese locale用のモックサービスを作成
+    const jaTranslationService = {
+      ...mockTranslationService,
+      getCurrentLocale: () => 'ja'
+    };
+    mockedGetTranslationService.mockReturnValue(jaTranslationService);
     render(SettingsBasic, { settings: defaultSettings });
 
-    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
     expect(languageSelect.value).toBe('ja');
   });
 
-  test('should call localeStore.setLocale when language changes', async () => {
+  test('should call translationService.setLocale when language changes', async () => {
     render(SettingsBasic, { settings: defaultSettings });
 
-    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
     await fireEvent.change(languageSelect, { target: { value: 'ja' } });
 
-    expect(mockLocaleStore.setLocale).toHaveBeenCalledWith('ja');
+    expect(mockSetLocale).toHaveBeenCalledWith('ja');
   });
 
-  test('should not call localeStore.setLocale for invalid locale', async () => {
+  test('should not call translationService.setLocale for invalid locale', async () => {
     render(SettingsBasic, { settings: defaultSettings });
 
-    const languageSelect = screen.getByLabelText('Language') as HTMLSelectElement;
+    const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
     await fireEvent.change(languageSelect, { target: { value: 'invalid' } });
 
-    expect(mockLocaleStore.setLocale).not.toHaveBeenCalled();
+    expect(mockSetLocale).not.toHaveBeenCalled();
   });
 });
