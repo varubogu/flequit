@@ -147,7 +147,9 @@ describe('SidebarTagList - Drag & Drop', () => {
         await fireEvent(tagElements[0], dropEvent);
 
         expect(DragDropManager.handleDrop).toHaveBeenCalled();
-        expect((tagStore as Record<string, unknown>).moveBookmarkedTagToPosition).toHaveBeenCalledWith('tag-2', 0);
+        expect(
+          (tagStore as Record<string, unknown>).moveBookmarkedTagToPosition
+        ).toHaveBeenCalledWith('tag-2', 0);
         expect(TaskService.addTagToTask).not.toHaveBeenCalled();
       }
     });
@@ -179,7 +181,9 @@ describe('SidebarTagList - Drag & Drop', () => {
 
         expect(DragDropManager.handleDrop).toHaveBeenCalled();
         expect(TaskService.addTagToTask).not.toHaveBeenCalled();
-        expect((tagStore as Record<string, unknown>).moveBookmarkedTagToPosition).not.toHaveBeenCalled();
+        expect(
+          (tagStore as Record<string, unknown>).moveBookmarkedTagToPosition
+        ).not.toHaveBeenCalled();
       }
     });
   });

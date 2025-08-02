@@ -9,7 +9,6 @@ vi.mock('$lib/stores/tags.svelte', () => ({
   }
 }));
 
-
 describe('TagCompletionProvider', () => {
   beforeEach(() => {
     vi.clearAllMocks();

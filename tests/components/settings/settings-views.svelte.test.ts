@@ -23,7 +23,6 @@ vi.mock('$lib/components/confirm-dialog.svelte', () => ({
   default: () => null
 }));
 
-
 describe('SettingsViews Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();

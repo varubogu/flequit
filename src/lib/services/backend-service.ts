@@ -64,7 +64,9 @@ function convertTask(task: unknown): TaskWithSubTasks {
   return {
     ...taskData,
     status: taskData.status as TaskStatus,
-    start_date: taskData.start_date ? convertTimestampToDate(taskData.start_date as number) : undefined,
+    start_date: taskData.start_date
+      ? convertTimestampToDate(taskData.start_date as number)
+      : undefined,
     end_date: taskData.end_date ? convertTimestampToDate(taskData.end_date as number) : undefined,
     created_at: convertTimestampToDate(taskData.created_at as number),
     updated_at: convertTimestampToDate(taskData.updated_at as number),
@@ -78,8 +80,12 @@ function convertSubTask(subtask: unknown): SubTask {
   return {
     ...subTaskData,
     status: subTaskData.status as TaskStatus,
-    start_date: subTaskData.start_date ? convertTimestampToDate(subTaskData.start_date as number) : undefined,
-    end_date: subTaskData.end_date ? convertTimestampToDate(subTaskData.end_date as number) : undefined,
+    start_date: subTaskData.start_date
+      ? convertTimestampToDate(subTaskData.start_date as number)
+      : undefined,
+    end_date: subTaskData.end_date
+      ? convertTimestampToDate(subTaskData.end_date as number)
+      : undefined,
     created_at: convertTimestampToDate(subTaskData.created_at as number),
     updated_at: convertTimestampToDate(subTaskData.updated_at as number),
     tags: (subTaskData.tags as unknown[]).map(convertTag)
