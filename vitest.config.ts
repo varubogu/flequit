@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [sveltekit(), svelteTesting()],
   resolve: {
     alias: {
+      $lib: '/src/lib',
       $paraglide: '/src/paraglide'
     }
   },
