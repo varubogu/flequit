@@ -36,8 +36,15 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
   }
 
   reactiveMessage<T extends (...args: unknown[]) => string>(messageFn: T): T {
-    // モックでは単純にそのまま返すか、設定されたメッセージを返す
-    return messageFn;
+    // モックでは関数を実行してメッセージを取得し、それを返すファンクションを作成
+    const wrappedFn = ((...args: unknown[]) => {
+      const result = messageFn(...args);
+      // 関数の結果がmessageKeyの可能性があるので、登録されたメッセージから取得を試みる
+      const localeMessages = this.messages.get(this.currentLocale);
+      return localeMessages?.get(result) || result;
+    }) as T;
+    
+    return wrappedFn;
   }
 
   getMessage(key: string, params?: Record<string, unknown>): () => string {

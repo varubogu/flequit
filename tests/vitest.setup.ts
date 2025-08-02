@@ -121,8 +121,6 @@ const mockTranslationService = new MockTranslationService('en', {
     timezone: 'Timezone',
     date_format: 'Date Format',
     week_starts_on: 'Week starts on',
-    sunday: 'Sunday',
-    monday: 'Monday',
     preview: 'Preview',
     current_effective_timezone: 'Current Effective Timezone',
     edit_date_format: 'Edit Date Format',
@@ -182,7 +180,39 @@ const mockTranslationService = new MockTranslationService('en', {
     eastern_time: 'Eastern Time',
     japan_time: 'Japan Time',
     subtasks_completed: '{completed} of {total} subtasks completed',
-    example_organization: 'Example Organization'
+    example_organization: 'Example Organization',
+    
+    // 日付関連
+    add_date: 'Add date',
+    
+    // 曜日選択関連
+    weekdays: 'Weekdays',
+    weekends: 'Weekends',
+    holidays: 'Holidays',
+    
+    // 条件エディター関連
+    if: 'If',
+    is: 'is',
+    then: 'then',
+    during: 'during',
+    set_time_to: 'set time to',
+    
+    // ダイアログ関連
+    confirm_discard_changes: 'Confirm Discard Changes',
+    unsaved_task_message: 'You have unsaved changes. Are you sure you want to discard them?',
+    discard: 'Discard',
+    keep_editing: 'Keep Editing',
+    
+    // 方向関連
+    previous: 'Previous',
+    next: 'Next',
+    
+    // 時間関連
+    select_date: 'Select Date',
+    
+    // その他のメッセージ
+    search_results: 'Search results',
+    no_results: 'No results'
   },
   ja: {
     // 共通メッセージ
@@ -301,8 +331,6 @@ const mockTranslationService = new MockTranslationService('en', {
     timezone: 'タイムゾーン',
     date_format: '日付フォーマット',
     week_starts_on: '週の始まり',
-    sunday: '日曜日',
-    monday: '月曜日',
     preview: 'プレビュー',
     current_effective_timezone: '現在の有効なタイムゾーン',
     edit_date_format: '日付フォーマットを編集',
@@ -362,7 +390,39 @@ const mockTranslationService = new MockTranslationService('en', {
     eastern_time: '東部時間',
     japan_time: '日本時間',
     subtasks_completed: '{total}個中{completed}個のサブタスクが完了',
-    example_organization: 'サンプル組織'
+    example_organization: 'サンプル組織',
+    
+    // 日付関連
+    add_date: '日付を追加',
+    
+    // 曜日選択関連
+    weekdays: '平日',
+    weekends: '休日',
+    holidays: '祝日',
+    
+    // 条件エディター関連
+    if: 'もし',
+    is: 'が',
+    then: 'なら',
+    during: 'の間',
+    set_time_to: '時刻を設定',
+    
+    // ダイアログ関連
+    confirm_discard_changes: '変更を破棄してもよろしいですか？',
+    unsaved_task_message: '保存されていない変更があります。破棄してもよろしいですか？',
+    discard: '破棄',
+    keep_editing: '編集を続ける',
+    
+    // 方向関連
+    previous: '前',
+    next: '後',
+    
+    // 時間関連
+    select_date: '日付を選択',
+    
+    // その他のメッセージ
+    search_results: '検索結果',
+    no_results: '結果なし'
   }
 });
 

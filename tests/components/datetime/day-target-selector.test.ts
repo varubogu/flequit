@@ -5,15 +5,45 @@ import DayTargetSelector from '$lib/components/datetime/day-target-selector.svel
 // import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
 // ロケールストアをモック
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+vi.mock('$lib/stores/locale.svelte', () => {
+  const messages = {
+    monday: '月曜日',
+    tuesday: '火曜日',
+    wednesday: '水曜日',
+    thursday: '木曜日',
+    friday: '金曜日',
+    saturday: '土曜日',
+    sunday: '日曜日',
+    weekday: '平日',
+    weekend: '休日',
+    holiday: '祝日',
+    non_holiday: '非祝日',
+    weekend_only: '週末のみ',
+    non_weekend: '平日のみ',
+    weekend_holiday: '週末または祝日',
+    non_weekend_holiday: '平日または祝日'
+  };
+  
+  return {
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
+      return ((...args: unknown[]) => {
+        const result = fn(...args);
+        return messages[result as keyof typeof messages] || result;
+      }) as T;
+    },
+    getTranslationService: () => ({
+      getMessage: (key: string) => () => messages[key as keyof typeof messages] || key,
+      getCurrentLocale: () => 'ja',
+      setLocale: () => {},
+      reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => {
+        return ((...args: unknown[]) => {
+          const result = fn(...args);
+          return messages[result as keyof typeof messages] || result;
+        }) as T;
+      }
+    })
+  };
+});
 
 describe('DayTargetSelector', () => {
   const mockOnChange = vi.fn();
