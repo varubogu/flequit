@@ -25,6 +25,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
 
   getCurrentLocale(): string {
     // カウンターを参照することで、変更時に依存関係が更新される
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.localeChangeCounter;
     return getLocale();
   }

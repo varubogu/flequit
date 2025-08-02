@@ -9,6 +9,7 @@ import type {
   Project
 } from '$lib/types/task';
 import { tagStore } from './tags.svelte';
+import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -86,24 +87,26 @@ export class TaskStore {
   }
 
   get todayTasks(): TaskWithSubTasks[] {
-    const today = new Date();
+    const today = new SvelteDate();
     today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
+    const tomorrow = new SvelteDate(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     return this.allTasks.filter((task) => {
       if (!task.end_date) return false;
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const dueDate = new Date(task.end_date);
       return dueDate >= today && dueDate < tomorrow;
     });
   }
 
   get overdueTasks(): TaskWithSubTasks[] {
-    const today = new Date();
+    const today = new SvelteDate();
     today.setHours(0, 0, 0, 0);
 
     return this.allTasks.filter((task) => {
       if (!task.end_date || task.status === 'completed') return false;
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const dueDate = new Date(task.end_date);
       return dueDate < today;
     });
@@ -114,7 +117,7 @@ export class TaskStore {
     this.projects = projects;
 
     // Extract and register all tags from sample data to tag store
-    const allTags = new Map<string, Tag>();
+    const allTags = new SvelteMap<string, Tag>();
 
     projects.forEach((project) => {
       project.task_lists.forEach((list) => {
@@ -171,7 +174,7 @@ export class TaskStore {
           list.tasks[taskIndex] = {
             ...list.tasks[taskIndex],
             ...updates,
-            updated_at: new Date()
+            updated_at: new SvelteDate()
           };
           return;
         }
@@ -191,8 +194,8 @@ export class TaskStore {
     const newTask: TaskWithSubTasks = {
       ...task,
       id: crypto.randomUUID(),
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate(),
       sub_tasks: [],
       tags: []
     };
@@ -224,8 +227,8 @@ export class TaskStore {
       recurrence_rule: taskData.recurrence_rule,
       order_index: taskData.order_index || 0,
       is_archived: taskData.is_archived || false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate(),
       sub_tasks: [],
       tags: []
     };
@@ -264,7 +267,7 @@ export class TaskStore {
             task.sub_tasks[subTaskIndex] = {
               ...task.sub_tasks[subTaskIndex],
               ...updates,
-              updated_at: new Date()
+              updated_at: new SvelteDate()
             };
             return;
           }
@@ -304,8 +307,8 @@ export class TaskStore {
       list_id: listId,
       order_index: 0,
       is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate(),
       sub_tasks: [],
       tags: []
     };
@@ -361,7 +364,7 @@ export class TaskStore {
           // Check if tag already exists on this task (by name, not ID)
           if (!task.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
             task.tags.push(tag);
-            task.updated_at = new Date();
+            task.updated_at = new SvelteDate();
           }
           return;
         }
@@ -377,7 +380,7 @@ export class TaskStore {
           const tagIndex = task.tags.findIndex((t) => t.id === tagId);
           if (tagIndex !== -1) {
             task.tags.splice(tagIndex, 1);
-            task.updated_at = new Date();
+            task.updated_at = new SvelteDate();
           }
           return;
         }
@@ -418,7 +421,7 @@ export class TaskStore {
             // Check if tag already exists on this subtask (by name, not ID)
             if (!subTask.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
               subTask.tags.push(tag);
-              subTask.updated_at = new Date();
+              subTask.updated_at = new SvelteDate();
             }
             return;
           }
@@ -436,7 +439,7 @@ export class TaskStore {
             const tagIndex = subTask.tags.findIndex((t) => t.id === tagId);
             if (tagIndex !== -1) {
               subTask.tags.splice(tagIndex, 1);
-              subTask.updated_at = new Date();
+              subTask.updated_at = new SvelteDate();
             }
             return;
           }
@@ -471,7 +474,7 @@ export class TaskStore {
           const taskTagIndex = task.tags.findIndex((t) => t.id === tagId);
           if (taskTagIndex !== -1) {
             task.tags.splice(taskTagIndex, 1);
-            task.updated_at = new Date();
+            task.updated_at = new SvelteDate();
           }
 
           // Remove from all subtasks
@@ -479,7 +482,7 @@ export class TaskStore {
             const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === tagId);
             if (subTaskTagIndex !== -1) {
               subTask.tags.splice(subTaskTagIndex, 1);
-              subTask.updated_at = new Date();
+              subTask.updated_at = new SvelteDate();
             }
           }
         }
@@ -496,7 +499,7 @@ export class TaskStore {
           const taskTagIndex = task.tags.findIndex((t) => t.id === updatedTag.id);
           if (taskTagIndex !== -1) {
             task.tags[taskTagIndex] = { ...updatedTag };
-            task.updated_at = new Date();
+            task.updated_at = new SvelteDate();
           }
 
           // Update in subtasks
@@ -504,7 +507,7 @@ export class TaskStore {
             const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === updatedTag.id);
             if (subTaskTagIndex !== -1) {
               subTask.tags[subTaskTagIndex] = { ...updatedTag };
-              subTask.updated_at = new Date();
+              subTask.updated_at = new SvelteDate();
             }
           }
         }
@@ -533,8 +536,8 @@ export class TaskStore {
       color: projectData.color || '#3b82f6',
       order_index: this.projects.length,
       is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate(),
       task_lists: []
     };
 
@@ -548,7 +551,7 @@ export class TaskStore {
       this.projects[projectIndex] = {
         ...this.projects[projectIndex],
         ...updates,
-        updated_at: new Date()
+        updated_at: new SvelteDate()
       };
     }
   }
@@ -581,13 +584,13 @@ export class TaskStore {
       color: taskListData.color,
       order_index: project.task_lists.length,
       is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate(),
       tasks: []
     };
 
     project.task_lists.push(newTaskList);
-    project.updated_at = new Date();
+    project.updated_at = new SvelteDate();
     return newTaskList;
   }
 
@@ -598,9 +601,9 @@ export class TaskStore {
         project.task_lists[taskListIndex] = {
           ...project.task_lists[taskListIndex],
           ...updates,
-          updated_at: new Date()
+          updated_at: new SvelteDate()
         };
-        project.updated_at = new Date();
+        project.updated_at = new SvelteDate();
         return;
       }
     }
@@ -611,7 +614,7 @@ export class TaskStore {
       const taskListIndex = project.task_lists.findIndex((tl) => tl.id === taskListId);
       if (taskListIndex !== -1) {
         project.task_lists.splice(taskListIndex, 1);
-        project.updated_at = new Date();
+        project.updated_at = new SvelteDate();
 
         // Clear selections if deleted task list was selected
         if (this.selectedListId === taskListId) {
@@ -624,8 +627,8 @@ export class TaskStore {
 
   moveTaskToList(taskId: string, newTaskListId: string) {
     // 最初に移動先のタスクリストが存在するかチェック
-    let targetTaskList: any = null;
-    let targetProject: any = null;
+    let targetTaskList: TaskListWithTasks | null = null;
+    let targetProject: ProjectTree | null = null;
 
     for (const project of this.projects) {
       const foundTaskList = project.task_lists.find((tl) => tl.id === newTaskListId);
@@ -637,11 +640,10 @@ export class TaskStore {
     }
 
     // 移動先が存在しない場合は何もしない
-    if (!targetTaskList) return;
+    if (!targetTaskList || !targetProject) return;
 
     // タスクを現在の位置から探して削除
     let taskToMove: TaskWithSubTasks | null = null;
-    let sourceTaskList: any = null;
 
     for (const project of this.projects) {
       for (const taskList of project.task_lists) {
@@ -649,8 +651,7 @@ export class TaskStore {
         if (taskIndex !== -1) {
           taskToMove = taskList.tasks[taskIndex];
           taskList.tasks.splice(taskIndex, 1);
-          taskList.updated_at = new Date();
-          sourceTaskList = taskList;
+          taskList.updated_at = new SvelteDate();
           break;
         }
       }
@@ -661,8 +662,8 @@ export class TaskStore {
 
     // 新しいタスクリストに追加
     targetTaskList.tasks.push(taskToMove);
-    targetTaskList.updated_at = new Date();
-    targetProject.updated_at = new Date();
+    targetTaskList.updated_at = new SvelteDate();
+    targetProject.updated_at = new SvelteDate();
   }
 
   // Drag & Drop methods
@@ -683,7 +684,7 @@ export class TaskStore {
     // Update order indices
     this.projects.forEach((project, index) => {
       project.order_index = index;
-      project.updated_at = new Date();
+      project.updated_at = new SvelteDate();
     });
   }
 
@@ -713,9 +714,9 @@ export class TaskStore {
     // Update order indices
     project.task_lists.forEach((taskList, index) => {
       taskList.order_index = index;
-      taskList.updated_at = new Date();
+      taskList.updated_at = new SvelteDate();
     });
-    project.updated_at = new Date();
+    project.updated_at = new SvelteDate();
   }
 
   moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number) {
@@ -729,12 +730,12 @@ export class TaskStore {
         taskListToMove = project.task_lists[taskListIndex];
         sourceProject = project;
         project.task_lists.splice(taskListIndex, 1);
-        project.updated_at = new Date();
+        project.updated_at = new SvelteDate();
 
         // Update order indices in source project
         project.task_lists.forEach((tl, index) => {
           tl.order_index = index;
-          tl.updated_at = new Date();
+          tl.updated_at = new SvelteDate();
         });
         break;
       }
@@ -752,7 +753,7 @@ export class TaskStore {
 
     // Update task list's project reference
     taskListToMove.project_id = targetProjectId;
-    taskListToMove.updated_at = new Date();
+    taskListToMove.updated_at = new SvelteDate();
 
     // Insert at specified position or at the end
     if (
@@ -768,9 +769,9 @@ export class TaskStore {
     // Update order indices in target project
     targetProject.task_lists.forEach((tl, index) => {
       tl.order_index = index;
-      tl.updated_at = new Date();
+      tl.updated_at = new SvelteDate();
     });
-    targetProject.updated_at = new Date();
+    targetProject.updated_at = new SvelteDate();
   }
 
   moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number) {

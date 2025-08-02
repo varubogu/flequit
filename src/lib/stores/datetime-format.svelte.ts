@@ -4,7 +4,7 @@ import type {
   AppPresetFormat,
   CustomDateTimeFormat
 } from '$lib/types/datetime-format';
-import { getTranslationService } from '$lib/stores/locale.svelte';
+// import { getTranslationService } from '$lib/stores/locale.svelte';
 
 // デフォルトフォーマット（ID: -1）
 function getDefaultFormat(): AppPresetFormat {

@@ -1,9 +1,10 @@
 import type { Tag } from '$lib/types/task';
+import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 
 // Tag store using Svelte 5 runes
 export class TagStore {
   tags = $state<Tag[]>([]);
-  bookmarkedTags = $state<Set<string>>(new Set());
+  bookmarkedTags = $state<SvelteSet<string>>(new SvelteSet());
 
   // Computed values
   get allTags(): Tag[] {
@@ -45,8 +46,8 @@ export class TagStore {
       id: crypto.randomUUID(),
       name: trimmedName,
       color: tagData.color,
-      created_at: new Date(),
-      updated_at: new Date()
+      created_at: new SvelteDate(),
+      updated_at: new SvelteDate()
     };
 
     this.tags.push(newTag);
@@ -73,7 +74,7 @@ export class TagStore {
       this.tags[tagIndex] = {
         ...this.tags[tagIndex],
         ...updates,
-        updated_at: new Date()
+        updated_at: new SvelteDate()
       };
 
       // Dispatch custom event to notify task store about tag update
@@ -129,7 +130,7 @@ export class TagStore {
 
   // Bookmark management methods
   toggleBookmark(tagId: string) {
-    const newBookmarks = new Set(this.bookmarkedTags);
+    const newBookmarks = new SvelteSet(this.bookmarkedTags);
     if (newBookmarks.has(tagId)) {
       newBookmarks.delete(tagId);
     } else {
@@ -143,7 +144,7 @@ export class TagStore {
   }
 
   addBookmark(tagId: string) {
-    const newBookmarks = new Set(this.bookmarkedTags);
+    const newBookmarks = new SvelteSet(this.bookmarkedTags);
     newBookmarks.add(tagId);
     this.bookmarkedTags = newBookmarks;
 
@@ -156,7 +157,7 @@ export class TagStore {
   }
 
   removeBookmark(tagId: string) {
-    const newBookmarks = new Set(this.bookmarkedTags);
+    const newBookmarks = new SvelteSet(this.bookmarkedTags);
     newBookmarks.delete(tagId);
     this.bookmarkedTags = newBookmarks;
   }
