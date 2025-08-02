@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest';
-import type { Task, SubTask } from '$lib/types/task';
+import type { Task, SubTask, TaskWithSubTasks } from '$lib/types/task';
 
 // データフローのインテグレーションテスト（モック使用）
 
@@ -52,10 +52,10 @@ test('task status update workflow', () => {
       {
         id: 'task-1',
         title: 'テストタスク',
-        status: 'not_started',
+        status: 'not_started' as const,
         updated_at: new Date('2024-01-01')
-      }
-    ],
+      } as Partial<Task>
+    ] as Partial<Task>[],
     updateTask: vi.fn((taskId: string, updates: Partial<Task>) => {
       const taskIndex = mockStore.tasks.findIndex((t) => t.id === taskId);
       if (taskIndex >= 0) {
@@ -82,9 +82,9 @@ test('task deletion workflow', () => {
   // タスク削除のワークフローをシミュレート
   const mockStore = {
     tasks: [
-      { id: 'task-1', title: 'Task 1' },
-      { id: 'task-2', title: 'Task 2' }
-    ],
+      { id: 'task-1', title: 'Task 1' } as Partial<Task>,
+      { id: 'task-2', title: 'Task 2' } as Partial<Task>
+    ] as Partial<Task>[],
     deleteTask: vi.fn((taskId: string) => {
       const taskIndex = mockStore.tasks.findIndex((t) => t.id === taskId);
       if (taskIndex >= 0) {
@@ -112,14 +112,32 @@ test('subtask management workflow', () => {
         id: 'task-1',
         title: 'メインタスク',
         sub_tasks: [
-          { id: 'sub-1', title: 'サブタスク1', status: 'not_started' },
-          { id: 'sub-2', title: 'サブタスク2', status: 'completed' }
+          { 
+            id: 'sub-1', 
+            title: 'サブタスク1', 
+            status: 'not_started' as const,
+            task_id: 'task-1',
+            order_index: 0,
+            tags: [],
+            created_at: new Date(),
+            updated_at: new Date()
+          } as SubTask,
+          { 
+            id: 'sub-2', 
+            title: 'サブタスク2', 
+            status: 'completed' as const,
+            task_id: 'task-1',
+            order_index: 1,
+            tags: [],
+            created_at: new Date(),
+            updated_at: new Date()
+          } as SubTask
         ]
-      }
-    ],
+      } as TaskWithSubTasks
+    ] as TaskWithSubTasks[],
     updateSubTask: vi.fn((subTaskId: string, updates: Partial<SubTask>) => {
       for (const task of mockStore.tasks) {
-        const subTaskIndex = (task.sub_tasks as any[]).findIndex((st: any) => st.id === subTaskId);
+        const subTaskIndex = task.sub_tasks.findIndex((st) => st.id === subTaskId);
         if (subTaskIndex >= 0) {
           task.sub_tasks[subTaskIndex] = {
             ...task.sub_tasks[subTaskIndex],
@@ -140,6 +158,6 @@ test('subtask management workflow', () => {
 
   // 全サブタスクの完了確認
   const task = mockStore.tasks[0];
-  const allCompleted = (task.sub_tasks as any[]).every((st: any) => st.status === 'completed');
+  const allCompleted = task.sub_tasks.every((st) => st.status === 'completed');
   expect(allCompleted).toBe(true);
 });
