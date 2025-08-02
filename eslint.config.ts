@@ -34,16 +34,17 @@ export default tseslint.config(
   },
   {
     ignores: [
-      'build/',
       '.svelte-kit/',
+      'build/',
+      'bun.lockb',
       'dist/',
+      'node_modules/',
       'src/paraglide/',
       'src/lib/components/ui/',
-      'node_modules/',
+      'src-tauri/',
+      'package-lock.json',
       'playwright-report/',
       'test-results/',
-      'package-lock.json',
-      'bun.lockb'
     ]
   }
 );
