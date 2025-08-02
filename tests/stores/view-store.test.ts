@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { ViewStore } from '../../src/lib/stores/view-store.svelte';
 import { ViewService } from '../../src/lib/services/view-service';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock ViewService
 vi.mock('../../src/lib/services/view-service', () => ({
@@ -32,7 +33,7 @@ describe('ViewStore', () => {
   describe('computed properties', () => {
     test('tasks should call ViewService.getTasksForView with current view and search query', () => {
       const mockTasks = [{ id: 'task-1', title: 'Test Task' }];
-      mockViewService.getTasksForView.mockReturnValue(mockTasks as unknown[]);
+      mockViewService.getTasksForView.mockReturnValue(mockTasks as TaskWithSubTasks[]);
 
       store.currentView = 'today';
       store.searchQuery = 'test query';

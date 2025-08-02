@@ -5,11 +5,11 @@ import {
   getTranslationService
 } from '$lib/stores/locale.svelte';
 import { MockTranslationService } from '$lib/services/mock-translation-service';
-import type { TranslationService } from '$lib/services/translation-service';
+import type { ITranslationService } from '$lib/services/translation-service';
 
 describe('localeStore', () => {
   let mockService: MockTranslationService;
-  let originalService: TranslationService;
+  let originalService: ITranslationService;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -105,9 +105,14 @@ describe('localeStore', () => {
     });
 
     it('未定義のロケール設定', () => {
-      localeStore.setLocale(undefined as unknown);
-
+      // undefinedを渡す
+      // @ts-expect-error undefinedは本来設定する必要がないため
+      localeStore.setLocale(undefined);
       expect(mockService.getCurrentLocale()).toBe(undefined);
+
+      // Localeとして無効な値
+      localeStore.setLocale('abcdefgh');
+      expect(mockService.getCurrentLocale()).toBe('abcdefgh');
     });
 
     it('同じロケールを連続設定', () => {

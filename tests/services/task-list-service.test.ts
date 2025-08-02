@@ -1,5 +1,6 @@
 import { test, expect, vi, beforeEach } from 'vitest';
 import { TaskListService } from '../../src/lib/services/task-list-service';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock the imports
 vi.mock('../../src/lib/stores/tasks.svelte', () => ({
@@ -60,7 +61,7 @@ beforeEach(() => {
 
 test('TaskListService.addNewTask: creates task successfully', () => {
   const title = 'New Task Title';
-  const mockNewTask = { id: 'task-123', title: 'New Task Title' };
+  const mockNewTask = { id: 'task-123', title: 'New Task Title' } as TaskWithSubTasks;
   vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
 
   const result = TaskListService.addNewTask(title);
@@ -73,7 +74,7 @@ test('TaskListService.addNewTask: creates task successfully', () => {
 
 test('TaskListService.addNewTask: trims whitespace from title', () => {
   const title = '  Task with spaces  ';
-  const mockNewTask = { id: 'task-123', title: 'Task with spaces' };
+  const mockNewTask = { id: 'task-123', title: 'Task with spaces' } as TaskWithSubTasks;
   vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
 
   const result = TaskListService.addNewTask(title);

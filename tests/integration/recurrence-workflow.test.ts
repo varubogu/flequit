@@ -113,14 +113,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       unit: 'day',
       interval: 1,
       max_occurrences: 5
-    };
+    } as RecurrenceRule;
 
     const taskData = {
       title: '毎日のタスク',
       description: '毎日実行するテストタスク',
       due_date: new Date('2024-01-01'),
       recurrence_rule: recurrenceRule
-    };
+    } as Partial<Task>;
 
     const task = mockTaskStore.addTask('test-list-1', taskData);
 
@@ -187,12 +187,12 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           description: taskData.description || '',
           status: taskData.status || 'not_started',
           priority: taskData.priority || 1,
-          due_date: taskData.due_date,
+          end_date: taskData.end_date,
           recurrence_rule: taskData.recurrence_rule,
           created_at: new Date(),
           updated_at: new Date(),
           ...taskData
-        };
+        } as Task;
         mockTaskStore.tasks.push(newTask);
         return newTask;
       },
@@ -219,7 +219,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
             id: `${task.id}-instance-${i}`,
             ...task,
             title: `${task.title} (${i + 1}回目)`,
-            due_date: new Date(),
+            end_date: new Date(),
             recurrence_parent_id: task.id,
             status: 'not_started'
           });
@@ -235,12 +235,12 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       interval: 1,
       days_of_week: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
       max_occurrences: 10
-    };
+    } as RecurrenceRule;
 
     const weekdaysTask = mockTaskStore.addTask('test-list-1', {
       title: '平日タスク',
       recurrence_rule: weekdaysRule,
-      due_date: new Date('2024-01-01')
+      end_date: new Date('2024-01-01')
     });
 
     const weekdaysInstances = await mockRecurrenceService.createRecurrenceInstances(
@@ -267,12 +267,12 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       interval: 1,
       details: { day_of_month: 15 },
       max_occurrences: 6
-    };
+    } as RecurrenceRule;
 
     const monthlyTask = mockTaskStore.addTask('test-list-1', {
       title: '毎月15日タスク',
       recurrence_rule: monthlyRule,
-      due_date: new Date('2024-01-01')
+      end_date: new Date('2024-01-01')
     });
 
     const monthlyInstances = await mockRecurrenceService.createRecurrenceInstances(
@@ -319,7 +319,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           created_at: new Date(),
           updated_at: new Date(),
           ...taskData
-        };
+        } as Task;
         mockTaskStore.tasks.push(newTask);
         return newTask;
       }
@@ -356,7 +356,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       const invalidRule = {
         unit: 'invalid',
         interval: -1
-      };
+      } ;
 
       const task = mockTaskStore.addTask('test-list-1', {
         title: '無効なタスク',
@@ -365,7 +365,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
       await mockRecurrenceService.createRecurrenceInstances(task, invalidRule);
     } catch (error: unknown) {
-      errorMessage = error.message || '無効な繰り返しルールです';
+      if (error instanceof Error) {
+        errorMessage = error.message || '無効な繰り返しルールです';
+      } else {
+        // 予期しないエラーの場合
+        console.error('予期しないエラー:', error);
+        // エラーメッセージを設定
+        errorMessage = '予期しないエラーが発生しました';
+      }
     }
 
     expect(errorMessage).toBe('無効な繰り返しルールです');
@@ -377,12 +384,12 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         unit: 'day',
         interval: 1,
         end_date: new Date('2020-01-01') // 過去の日付
-      };
+      } as RecurrenceRule;
 
       const task = mockTaskStore.addTask('test-list-1', {
         title: '過去終了日タスク',
         recurrence_rule: pastRule,
-        due_date: new Date()
+        end_date: new Date()
       });
 
       const instances = await mockRecurrenceService.createRecurrenceInstances(task, pastRule);
@@ -390,8 +397,12 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       if (instances.length === 0) {
         errorMessage = '終了日が過去のため、インスタンスが生成されませんでした';
       }
-    } catch (error: unknown) {
-      errorMessage = error.message;
+    } catch (error) {
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = '予期しないエラーが発生しました';
+      }
     }
 
     expect(errorMessage).toBe('終了日が過去のため、インスタンスが生成されませんでした');

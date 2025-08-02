@@ -21,7 +21,7 @@ describe('シンプルな結合テスト', () => {
           created_at: new Date(),
           updated_at: new Date(),
           ...taskData
-        };
+        } as Task;
         mockTaskStore.tasks.push(newTask);
         return newTask;
       },
@@ -101,7 +101,7 @@ describe('シンプルな結合テスト', () => {
           description: projectData.description || '',
           created_at: new Date(),
           ...projectData
-        };
+        } as Project;
         hierarchyStore.projects.push(project);
         return project;
       },
@@ -113,7 +113,7 @@ describe('シンプルな結合テスト', () => {
           project_id: projectId,
           created_at: new Date(),
           ...listData
-        };
+        } as TaskList;
         hierarchyStore.taskLists.push(list);
         return list;
       },
@@ -126,7 +126,7 @@ describe('シンプルな結合テスト', () => {
           status: taskData.status || 'not_started',
           created_at: new Date(),
           ...taskData
-        };
+        } as Task;
         hierarchyStore.tasks.push(task);
         return task;
       }
@@ -250,7 +250,7 @@ describe('シンプルな結合テスト', () => {
           id: `task-${Date.now()}-${Math.random()}`,
           title,
           status: 'not_started'
-        };
+        } as Task;
         globalStateStore.tasks.push(newTask);
         return newTask;
       },

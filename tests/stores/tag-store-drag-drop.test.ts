@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { tagStore } from '$lib/stores/tags.svelte';
 import type { Tag } from '$lib/types/task';
+import { SvelteSet } from 'svelte/reactivity';
 
 describe('TagStore - ドラッグ&ドロップ機能', () => {
   beforeEach(() => {
     // テスト前にタグストアをリセット
     tagStore.tags = [];
-    tagStore.bookmarkedTags = new Set();
+    tagStore.bookmarkedTags = new SvelteSet<string>();
   });
 
   describe('ブックマークされたタグの並び替え', () => {

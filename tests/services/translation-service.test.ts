@@ -7,10 +7,11 @@ import {
   reactiveMessage
 } from '$lib/stores/locale.svelte';
 import { translationService } from '$lib/services/paraglide-translation-service.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 
 describe('Translation Service', () => {
   let mockService: MockTranslationService;
-  let originalService: unknown;
+  let originalService: ITranslationService;
 
   beforeEach(() => {
     originalService = getTranslationService();

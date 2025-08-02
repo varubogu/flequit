@@ -29,7 +29,7 @@ describe('SubTask Drag and Drop Integration', () => {
       };
 
       // Use private method for testing
-      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, viewTarget);
+      const canDrop = DragDropManager.canDrop(dragData, viewTarget);
       expect(canDrop).toBe(true);
     });
 
@@ -96,12 +96,12 @@ describe('SubTask Drag and Drop Integration', () => {
           type: 'subtask',
           id: 'subtask-1',
           taskId: 'task-1'
-        };
+        } as DragData;
 
         // Mock the view drop handler
         const handleViewDrop = (viewId: string, dragData: DragData) => {
           if (dragData.type === 'subtask') {
-            TaskService.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
+            TaskService.updateSubTaskDueDateForView(dragData.id, dragData?.taskId ?? "xxxxxx", viewId);
           }
         };
 
@@ -122,7 +122,7 @@ describe('SubTask Drag and Drop Integration', () => {
         type: 'subtask',
         id: 'subtask-1',
         taskId: 'task-1'
-      };
+      } as DragData;
 
       const targetTag = {
         id: 'tag-1',
@@ -133,7 +133,7 @@ describe('SubTask Drag and Drop Integration', () => {
       // Mock the tag drop handler
       const handleTagDrop = (targetTag: { id: string; name: string }, dragData: DragData) => {
         if (dragData.type === 'subtask') {
-          TaskService.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
+          TaskService.addTagToSubTask(dragData.id, dragData?.taskId ?? "xxxxxx", targetTag.id);
         }
       };
 

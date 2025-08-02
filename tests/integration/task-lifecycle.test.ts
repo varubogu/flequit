@@ -20,7 +20,7 @@ const mockTaskStore = {
       created_at: new Date(),
       updated_at: new Date(),
       ...taskData
-    };
+    } as Task;
     mockTaskStore.tasks.push(newTask);
     return newTask;
   }),
@@ -152,7 +152,7 @@ describe('タスクライフサイクル結合テスト', () => {
           created_at: new Date(),
           updated_at: new Date(),
           ...taskData
-        };
+        } as Task;
         localTaskStore.tasks.push(newTask);
         return newTask;
       },
@@ -210,9 +210,9 @@ describe('タスクライフサイクル結合テスト', () => {
     expect(result1).not.toBeNull();
     expect(result2).not.toBeNull();
     expect(result3).not.toBeNull();
-    expect(result1.status).toBe('completed');
-    expect(result2.status).toBe('completed');
-    expect(result3.status).toBe('completed');
+    expect(result1?.status).toBe('completed');
+    expect(result2?.status).toBe('completed');
+    expect(result3?.status).toBe('completed');
 
     // 更新されたタスクを確認
     tasks = localTaskStore.getTasksByListId('test-list-1');

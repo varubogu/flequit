@@ -262,6 +262,7 @@ describe('Task Drag & Drop Integration', () => {
         render(TaskList, {
           props: {
             title: '',
+            // @ts-expect-error 不正値を渡すため型チェック対象外
             tasks: undefined as unknown,
             showAddButton: false
           }
