@@ -8,7 +8,7 @@ import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: (fn: () => string) => fn
 }));
 
 // --- Sidebar Context Mock ---
@@ -25,7 +25,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable } = await import('svelte/store');
-  const original = (await importOriginal()) as any;
+  const original = (await importOriginal()) as Record<string, unknown>;
 
   const taskStoreData = {
     projects: [],
@@ -111,7 +111,7 @@ describe('SidebarProjectList Component', () => {
   });
 
   const setTaskStoreData = (data: {
-    projects?: any[];
+    projects?: ProjectTree[];
     selectedProjectId?: string | null;
     selectedListId?: string | null;
   }) => {

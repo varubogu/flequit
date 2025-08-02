@@ -23,7 +23,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
     locale: 'en',
     setLocale: vi.fn()
   },
-  reactiveMessage: (fn: any) => fn,
+  reactiveMessage: (fn: () => string) => fn,
   getTranslationService: () => ({
     getCurrentLocale: vi.fn(() => 'en'),
     setLocale: vi.fn(),
@@ -36,7 +36,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 // Mock settings store
 vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
-  const original = (await importOriginal()) as any;
+  const original = (await importOriginal()) as Record<string, unknown>;
   return {
     ...original,
     settingsStore: {

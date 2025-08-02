@@ -15,7 +15,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
 }));
 
 // --- Settings Dialog Mock ---

@@ -264,7 +264,7 @@ describe('Task Drag & Drop Integration', () => {
         render(TaskList, {
           props: {
             title: '',
-            tasks: undefined as any,
+            tasks: undefined as unknown,
             showAddButton: false
           }
         });

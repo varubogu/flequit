@@ -91,8 +91,8 @@ describe('TaskDetail Integration', () => {
     });
 
     test('should show empty state when no task selected', () => {
-      (taskStore as any).selectedTask = null;
-      (taskStore as any).selectedSubTask = null;
+      (taskStore as Record<string, unknown>).selectedTask = null;
+      (taskStore as Record<string, unknown>).selectedSubTask = null;
 
       const { container } = render(TaskDetail);
 
@@ -104,7 +104,7 @@ describe('TaskDetail Integration', () => {
   describe('Component Integration Structure', () => {
     test('should integrate all child components when task is selected', () => {
       // Mock having a selected task
-      (taskStore as any).selectedTask = {
+      (taskStore as Record<string, unknown>).selectedTask = {
         id: 'task-1',
         title: 'Test Task',
         status: 'not_started'
@@ -168,8 +168,8 @@ describe('TaskDetail Integration', () => {
 
   describe('New Task Mode', () => {
     test('should render task detail when in new task mode', () => {
-      (taskStore as any).isNewTaskMode = true;
-      (taskStore as any).newTaskData = {
+      (taskStore as Record<string, unknown>).isNewTaskMode = true;
+      (taskStore as Record<string, unknown>).newTaskData = {
         id: 'new-task',
         title: 'New Task',
         description: '',
@@ -189,8 +189,8 @@ describe('TaskDetail Integration', () => {
     });
 
     test('should handle new task mode state correctly', () => {
-      (taskStore as any).isNewTaskMode = true;
-      (taskStore as any).newTaskData = {
+      (taskStore as Record<string, unknown>).isNewTaskMode = true;
+      (taskStore as Record<string, unknown>).newTaskData = {
         id: 'new-task',
         title: '',
         status: 'not_started',

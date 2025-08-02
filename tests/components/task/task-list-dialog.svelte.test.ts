@@ -210,7 +210,7 @@ describe('TaskListDialog', () => {
     validModes.forEach((mode) => {
       const props = {
         ...defaultProps,
-        mode: mode as any
+        mode: mode as string
       };
 
       expect(validModes).toContain(props.mode);

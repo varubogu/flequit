@@ -1,12 +1,13 @@
 import { test, expect, vi } from 'vitest';
+import type { Task, SubTask } from '$lib/types/task';
 
 // データフローのインテグレーションテスト（モック使用）
 
 test('task creation workflow', () => {
   // タスク作成のワークフローをシミュレート
   const mockStore = {
-    tasks: [] as any[],
-    addTask: vi.fn((listId: string, taskData: any) => {
+    tasks: [] as Task[],
+    addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
       const newTask = {
         id: `task-${Date.now()}`,
         list_id: listId,
@@ -46,7 +47,7 @@ test('task status update workflow', () => {
         updated_at: new Date('2024-01-01')
       }
     ],
-    updateTask: vi.fn((taskId: string, updates: any) => {
+    updateTask: vi.fn((taskId: string, updates: Partial<Task>) => {
       const taskIndex = mockStore.tasks.findIndex((t) => t.id === taskId);
       if (taskIndex >= 0) {
         mockStore.tasks[taskIndex] = {
@@ -107,9 +108,9 @@ test('subtask management workflow', () => {
         ]
       }
     ],
-    updateSubTask: vi.fn((subTaskId: string, updates: any) => {
+    updateSubTask: vi.fn((subTaskId: string, updates: Partial<SubTask>) => {
       for (const task of mockStore.tasks) {
-        const subTaskIndex = task.sub_tasks.findIndex((st: any) => st.id === subTaskId);
+        const subTaskIndex = task.sub_tasks.findIndex((st: SubTask) => st.id === subTaskId);
         if (subTaskIndex >= 0) {
           task.sub_tasks[subTaskIndex] = {
             ...task.sub_tasks[subTaskIndex],
@@ -130,6 +131,6 @@ test('subtask management workflow', () => {
 
   // 全サブタスクの完了確認
   const task = mockStore.tasks[0];
-  const allCompleted = task.sub_tasks.every((st: any) => st.status === 'completed');
+  const allCompleted = task.sub_tasks.every((st: SubTask) => st.status === 'completed');
   expect(allCompleted).toBe(true);
 });

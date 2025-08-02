@@ -61,7 +61,7 @@ beforeEach(() => {
 test('TaskListService.addNewTask: creates task successfully', () => {
   const title = 'New Task Title';
   const mockNewTask = { id: 'task-123', title: 'New Task Title' };
-  (mockTaskService.addTask as any).mockImplementation(() => mockNewTask);
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
 
   const result = TaskListService.addNewTask(title);
 
@@ -74,7 +74,7 @@ test('TaskListService.addNewTask: creates task successfully', () => {
 test('TaskListService.addNewTask: trims whitespace from title', () => {
   const title = '  Task with spaces  ';
   const mockNewTask = { id: 'task-123', title: 'Task with spaces' };
-  (mockTaskService.addTask as any).mockImplementation(() => mockNewTask);
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
 
   const result = TaskListService.addNewTask(title);
 
@@ -127,7 +127,7 @@ test('TaskListService.addNewTask: returns null when no task lists exist', () => 
 });
 
 test('TaskListService.addNewTask: returns null when TaskService.addTask returns null', () => {
-  (mockTaskService.addTask as any).mockImplementation(() => null);
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => null);
 
   const result = TaskListService.addNewTask('Valid Title');
 

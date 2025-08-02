@@ -25,7 +25,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
 
 vi.mock('$lib/stores/tags.svelte', () => {
   const mockTagStore = {
-    bookmarkedTagList: [] as any,
+    bookmarkedTagList: [] as Tag[],
     removeBookmark: vi.fn(),
     deleteTag: vi.fn(),
     updateTag: vi.fn(),
@@ -91,7 +91,7 @@ describe('SidebarTagList - Drag & Drop', () => {
 
       // タグストアのモックを更新
       const { tagStore } = await import('$lib/stores/tags.svelte');
-      (tagStore as any).bookmarkedTagList = mockTags;
+      (tagStore as Record<string, unknown>).bookmarkedTagList = mockTags;
 
       const { container } = render(SidebarTagList, {
         props: {
@@ -127,7 +127,7 @@ describe('SidebarTagList - Drag & Drop', () => {
 
       // タグストアのモックを更新
       const { tagStore } = await import('$lib/stores/tags.svelte');
-      (tagStore as any).bookmarkedTagList = mockTags;
+      (tagStore as Record<string, unknown>).bookmarkedTagList = mockTags;
 
       const { container } = render(SidebarTagList, {
         props: {
@@ -147,7 +147,7 @@ describe('SidebarTagList - Drag & Drop', () => {
         await fireEvent(tagElements[0], dropEvent);
 
         expect(DragDropManager.handleDrop).toHaveBeenCalled();
-        expect((tagStore as any).moveBookmarkedTagToPosition).toHaveBeenCalledWith('tag-2', 0);
+        expect((tagStore as Record<string, unknown>).moveBookmarkedTagToPosition).toHaveBeenCalledWith('tag-2', 0);
         expect(TaskService.addTagToTask).not.toHaveBeenCalled();
       }
     });
@@ -158,7 +158,7 @@ describe('SidebarTagList - Drag & Drop', () => {
 
       // タグストアのモックを更新
       const { tagStore } = await import('$lib/stores/tags.svelte');
-      (tagStore as any).bookmarkedTagList = mockTags;
+      (tagStore as Record<string, unknown>).bookmarkedTagList = mockTags;
 
       const { container } = render(SidebarTagList, {
         props: {
@@ -179,7 +179,7 @@ describe('SidebarTagList - Drag & Drop', () => {
 
         expect(DragDropManager.handleDrop).toHaveBeenCalled();
         expect(TaskService.addTagToTask).not.toHaveBeenCalled();
-        expect((tagStore as any).moveBookmarkedTagToPosition).not.toHaveBeenCalled();
+        expect((tagStore as Record<string, unknown>).moveBookmarkedTagToPosition).not.toHaveBeenCalled();
       }
     });
   });
@@ -188,7 +188,7 @@ describe('SidebarTagList - Drag & Drop', () => {
     it('タグがない場合は何も表示されない', async () => {
       // 空のタグリストをモック
       const { tagStore } = await import('$lib/stores/tags.svelte');
-      (tagStore as any).bookmarkedTagList = [];
+      (tagStore as Record<string, unknown>).bookmarkedTagList = [];
 
       const { container } = render(SidebarTagList, {
         props: {

@@ -1,14 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Task } from '$lib/types/task';
 
 // モックストアの実装
 const mockTaskStore = {
-  tasks: [] as any[],
+  tasks: [] as Task[],
 
   clear: vi.fn(() => {
     mockTaskStore.tasks.length = 0;
   }),
 
-  addTask: vi.fn((listId: string, taskData: any) => {
+  addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
     const newTask = {
       id: `task-${Date.now()}`,
       list_id: listId,
@@ -24,8 +25,8 @@ const mockTaskStore = {
     return newTask;
   }),
 
-  updateTask: vi.fn((taskId: string, updates: any) => {
-    const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+  updateTask: vi.fn((taskId: string, updates: Partial<Task>) => {
+    const taskIndex = mockTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
     if (taskIndex >= 0) {
       mockTaskStore.tasks[taskIndex] = {
         ...mockTaskStore.tasks[taskIndex],
@@ -38,7 +39,7 @@ const mockTaskStore = {
   }),
 
   deleteTask: vi.fn((taskId: string) => {
-    const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+    const taskIndex = mockTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
     if (taskIndex >= 0) {
       mockTaskStore.tasks.splice(taskIndex, 1);
       return true;
@@ -47,7 +48,7 @@ const mockTaskStore = {
   }),
 
   getTasksByListId: vi.fn((listId: string) => {
-    return mockTaskStore.tasks.filter((t: any) => t.list_id === listId);
+    return mockTaskStore.tasks.filter((t: Task) => t.list_id === listId);
   })
 };
 
@@ -58,10 +59,10 @@ vi.mock('$lib/stores/task.svelte', () => ({
 
 vi.mock('$lib/services/task-service', () => ({
   taskService: {
-    createTask: vi.fn(async (listId: string, taskData: any) => {
+    createTask: vi.fn(async (listId: string, taskData: Partial<Task>) => {
       return mockTaskStore.addTask(listId, taskData);
     }),
-    updateTask: vi.fn(async (taskId: string, updates: any) => {
+    updateTask: vi.fn(async (taskId: string, updates: Partial<Task>) => {
       return mockTaskStore.updateTask(taskId, updates);
     }),
     deleteTask: vi.fn(async (taskId: string) => {
@@ -138,9 +139,9 @@ describe('タスクライフサイクル結合テスト', () => {
   it('複数タスクの管理フローが正常に動作する', async () => {
     // 独立したモックストアを作成
     const localTaskStore = {
-      tasks: [] as any[],
+      tasks: [] as Task[],
 
-      addTask: (listId: string, taskData: any) => {
+      addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
           list_id: listId,
@@ -156,8 +157,8 @@ describe('タスクライフサイクル結合テスト', () => {
         return newTask;
       },
 
-      updateTask: (taskId: string, updates: any) => {
-        const taskIndex = localTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+      updateTask: (taskId: string, updates: Partial<Task>) => {
+        const taskIndex = localTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
         if (taskIndex >= 0) {
           localTaskStore.tasks[taskIndex] = {
             ...localTaskStore.tasks[taskIndex],
@@ -170,7 +171,7 @@ describe('タスクライフサイクル結合テスト', () => {
       },
 
       deleteTask: (taskId: string) => {
-        const taskIndex = localTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+        const taskIndex = localTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
         if (taskIndex >= 0) {
           localTaskStore.tasks.splice(taskIndex, 1);
           return true;
@@ -179,7 +180,7 @@ describe('タスクライフサイクル結合テスト', () => {
       },
 
       getTasksByListId: (listId: string) => {
-        return localTaskStore.tasks.filter((t: any) => t.list_id === listId);
+        return localTaskStore.tasks.filter((t: Task) => t.list_id === listId);
       }
     };
 

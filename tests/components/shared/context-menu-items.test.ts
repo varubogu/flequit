@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { contextMenuStore } from '$lib/stores/context-menu.svelte.js';
-import type { ContextMenuList } from '$lib/types/context-menu';
+import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
 
 // モックアイコンコンポーネント
 const MockIcon = () => '<svg></svg>';
@@ -94,7 +94,7 @@ describe('ContextMenuItems', () => {
       }
     ];
 
-    const item = dynamicItem[0] as any;
+    const item = dynamicItem[0] as ContextMenuItem;
     expect(typeof item.label).toBe('function');
     expect(item.label()).toBe('Dynamic Label');
   });
@@ -110,7 +110,7 @@ describe('ContextMenuItems', () => {
       }
     ];
 
-    const item = dynamicDisabledItem[0] as any;
+    const item = dynamicDisabledItem[0] as ContextMenuItem;
     expect(typeof item.disabled).toBe('function');
     expect(item.disabled()).toBe(true);
   });

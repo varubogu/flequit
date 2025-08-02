@@ -7,7 +7,7 @@ import type { Tag } from '$lib/types/task';
 vi.mock('$lib/components/tag/tag-display.svelte', () => {
   return {
     default: vi.fn().mockImplementation(() => ({
-      $$render: ($$result: any, $$props: any) => {
+      $$render: ($$result: unknown, $$props: Record<string, unknown>) => {
         const tag = $$props.tag;
         return `<div data-testid="tag-display" data-tag-name="${tag?.name || 'mock-tag'}">MockedTagDisplay: ${tag?.name || 'Unknown'}</div>`;
       }

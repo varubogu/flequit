@@ -27,7 +27,7 @@ vi.mock('$lib/components/user/user-profile.svelte', () => ({
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
 }));
 
 // --- Store Mocks ---

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskService } from '$lib/services/task-service';
-import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
+import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 
 // Mock TaskService
 vi.mock('$lib/services/task-service', () => ({
@@ -29,7 +29,7 @@ describe('SubTask Drag and Drop Integration', () => {
       };
 
       // Use private method for testing
-      const canDrop = (DragDropManager as any).canDrop(dragData, viewTarget);
+      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, viewTarget);
       expect(canDrop).toBe(true);
     });
 
@@ -45,7 +45,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'tag-1'
       };
 
-      const canDrop = (DragDropManager as any).canDrop(dragData, tagTarget);
+      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, tagTarget);
       expect(canDrop).toBe(true);
     });
 
@@ -61,7 +61,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'task-2'
       };
 
-      const canDrop = (DragDropManager as any).canDrop(dragData, taskTarget);
+      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, taskTarget);
       expect(canDrop).toBe(false);
     });
 
@@ -77,7 +77,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'subtask-1'
       };
 
-      const canDrop = (DragDropManager as any).canDrop(dragData, subtaskTarget);
+      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, subtaskTarget);
       expect(canDrop).toBe(false);
     });
   });

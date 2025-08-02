@@ -206,7 +206,7 @@ describe('Button (shared)', () => {
     validVariants.forEach((variant) => {
       const props = {
         ...defaultProps,
-        variant: variant as any
+        variant: variant as 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
       };
 
       expect(validVariants).toContain(props.variant);
@@ -215,7 +215,7 @@ describe('Button (shared)', () => {
     validSizes.forEach((size) => {
       const props = {
         ...defaultProps,
-        size: size as any
+        size: size as 'default' | 'sm' | 'lg' | 'icon'
       };
 
       expect(validSizes).toContain(props.size);

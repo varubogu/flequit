@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Task, RecurrenceRule } from '$lib/types/task';
 
+// テスト用の拡張型（繰り返しの親タスクIDを持つ）
+interface TaskWithRecurrenceParent extends Task {
+  recurrence_parent_id?: string;
+}
+
 describe('繰り返しタスクワークフロー結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,7 +98,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
       getRecurrenceInstances: (parentTaskId: string) => {
         return mockTaskStore.recurrenceTasks.filter(
-          (t: Task) => (t as any).recurrence_parent_id === parentTaskId
+          (t: Task) => (t as TaskWithRecurrenceParent).recurrence_parent_id === parentTaskId
         );
       },
 
@@ -171,8 +176,8 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
   it('複雑な繰り返しルールの管理が正常に動作する', async () => {
     const mockTaskStore = {
-      tasks: [] as any[],
-      recurrenceTasks: [] as any[],
+      tasks: [] as Task[],
+      recurrenceTasks: [] as Task[],
 
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
@@ -199,7 +204,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
       getRecurrenceInstances: (parentTaskId: string) => {
         return mockTaskStore.recurrenceTasks.filter(
-          (t: Task) => (t as any).recurrence_parent_id === parentTaskId
+          (t: Task) => (t as TaskWithRecurrenceParent).recurrence_parent_id === parentTaskId
         );
       }
     };
@@ -303,7 +308,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
   it('繰り返しタスクの例外処理が正常に動作する', async () => {
     const mockTaskStore = {
-      tasks: [] as any[],
+      tasks: [] as Task[],
 
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
@@ -321,7 +326,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     };
 
     const mockRecurrenceService = {
-      createRecurrenceInstances: async (task: any, rule: any) => {
+      createRecurrenceInstances: async (task: Partial<Task>, rule: RecurrenceRule) => {
         // 無効なルールの検証
         if (rule.unit === 'invalid' || rule.interval < 0) {
           throw new Error('無効な繰り返しルールです');

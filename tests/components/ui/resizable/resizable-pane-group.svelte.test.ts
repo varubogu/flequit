@@ -40,7 +40,7 @@ describe('ResizablePaneGroup Component', () => {
   });
 
   test('should handle this binding', () => {
-    const paneGroup: any = undefined;
+    const paneGroup: unknown = undefined;
     const { container } = render(ResizablePaneGroup, { this: paneGroup, direction: 'horizontal' });
     expect(container).toBeInTheDocument();
   });

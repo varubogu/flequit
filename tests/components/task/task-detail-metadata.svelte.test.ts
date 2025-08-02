@@ -140,7 +140,7 @@ describe('TaskDetailMetadata Component', () => {
     const subTaskWithoutTaskId = {
       ...mockSubTask
     };
-    delete (subTaskWithoutTaskId as any).task_id;
+    delete (subTaskWithoutTaskId as Record<string, unknown>).task_id;
 
     render(TaskDetailMetadata, {
       currentItem: subTaskWithoutTaskId,

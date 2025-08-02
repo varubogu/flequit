@@ -1,5 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
+// テスト用の設定型定義
+interface UISettings {
+  sidebarCollapsed: boolean;
+  showCompletedTasks: boolean;
+  taskListDensity: string;
+}
+
+interface NotificationSettings {
+  enabled: boolean;
+  sound: boolean;
+}
+
+interface LocaleMessages {
+  [locale: string]: Record<string, string>;
+}
+
 describe('設定変更とUI反映の結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,7 +44,7 @@ describe('設定変更とUI反映の結合テスト', () => {
         return settingsStore.settings.language;
       },
 
-      updateUISettings: (uiUpdates: any) => {
+      updateUISettings: (uiUpdates: Partial<UISettings>) => {
         settingsStore.settings.ui = {
           ...settingsStore.settings.ui,
           ...uiUpdates
@@ -61,10 +77,10 @@ describe('設定変更とUI反映の結合テスト', () => {
       },
 
       getMessage: (key: string) => {
-        const messages = {
+        const messages: LocaleMessages = {
           ja: { title: 'タスク管理', settings: '設定' },
           en: { title: 'Task Management', settings: 'Settings' }
-        } as any;
+        };
         return messages[localeStore.locale]?.[key] || key;
       }
     };
@@ -108,7 +124,7 @@ describe('設定変更とUI反映の結合テスト', () => {
         return uiStore.settings.taskListDensity;
       },
 
-      updateNotifications: (notificationUpdates: any) => {
+      updateNotifications: (notificationUpdates: Partial<NotificationSettings>) => {
         uiStore.settings.notifications = {
           ...uiStore.settings.notifications,
           ...notificationUpdates
@@ -162,10 +178,10 @@ describe('設定変更とUI反映の結合テスト', () => {
       changeLanguage: (language: string) => {
         appStateStore.language = language;
         // 言語変更に連動してメッセージも更新
-        const messages = {
+        const messages: LocaleMessages = {
           ja: { greeting: 'こんにちは' },
           en: { greeting: 'Hello' }
-        } as any;
+        };
         return {
           language: appStateStore.language,
           greeting: messages[language]?.greeting

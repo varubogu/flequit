@@ -7,7 +7,7 @@ import { writable, get } from 'svelte/store';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
 }));
 
 // --- Sidebar Context Mock ---
@@ -23,7 +23,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
-  const original = (await importOriginal()) as any;
+  const original = (await importOriginal()) as Record<string, unknown>;
 
   return {
     ...original,
@@ -59,7 +59,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
 
 vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
   const { writable, get } = await import('svelte/store');
-  const original = (await importOriginal()) as any;
+  const original = (await importOriginal()) as Record<string, unknown>;
   const viewsWritable = writable({
     visibleViews: [
       { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
@@ -90,9 +90,9 @@ describe('SidebarViewList Component', () => {
   });
 
   const setTaskStoreData = (data: {
-    todayTasks?: any[];
-    overdueTasks?: any[];
-    allTasks?: any[];
+    todayTasks?: unknown[];
+    overdueTasks?: unknown[];
+    allTasks?: unknown[];
   }) => {
     if (data.todayTasks !== undefined) {
       vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks);

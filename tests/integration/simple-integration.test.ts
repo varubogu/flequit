@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Task, Project, TaskList } from '$lib/types/task';
 
 describe('シンプルな結合テスト', () => {
   beforeEach(() => {
@@ -8,9 +9,9 @@ describe('シンプルな結合テスト', () => {
   it('タスク作成→編集→削除の基本フローが動作する', async () => {
     // モック関数のみを使用した結合テスト
     const mockTaskStore = {
-      tasks: [] as any[],
+      tasks: [] as Task[],
 
-      addTask: (listId: string, taskData: any) => {
+      addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}`,
           list_id: listId,
@@ -25,8 +26,8 @@ describe('シンプルな結合テスト', () => {
         return newTask;
       },
 
-      updateTask: (taskId: string, updates: any) => {
-        const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+      updateTask: (taskId: string, updates: Partial<Task>) => {
+        const taskIndex = mockTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
         if (taskIndex >= 0) {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
@@ -39,7 +40,7 @@ describe('シンプルな結合テスト', () => {
       },
 
       deleteTask: (taskId: string) => {
-        const taskIndex = mockTaskStore.tasks.findIndex((t: any) => t.id === taskId);
+        const taskIndex = mockTaskStore.tasks.findIndex((t: Task) => t.id === taskId);
         if (taskIndex >= 0) {
           mockTaskStore.tasks.splice(taskIndex, 1);
           return true;
@@ -89,11 +90,11 @@ describe('シンプルな結合テスト', () => {
   it('プロジェクト→リスト→タスクの階層管理が動作する', async () => {
     // 階層管理用のモックストア
     const hierarchyStore = {
-      projects: [] as any[],
-      taskLists: [] as any[],
-      tasks: [] as any[],
+      projects: [] as Project[],
+      taskLists: [] as TaskList[],
+      tasks: [] as Task[],
 
-      addProject: (projectData: any) => {
+      addProject: (projectData: Partial<Project>) => {
         const project = {
           id: `project-${Date.now()}`,
           name: projectData.name,
@@ -105,7 +106,7 @@ describe('シンプルな結合テスト', () => {
         return project;
       },
 
-      addTaskList: (projectId: string, listData: any) => {
+      addTaskList: (projectId: string, listData: Partial<TaskList>) => {
         const list = {
           id: `list-${Date.now()}`,
           name: listData.name,
@@ -117,7 +118,7 @@ describe('シンプルな結合テスト', () => {
         return list;
       },
 
-      addTask: (listId: string, taskData: any) => {
+      addTask: (listId: string, taskData: Partial<Task>) => {
         const task = {
           id: `task-${Date.now()}`,
           title: taskData.title,
@@ -200,10 +201,10 @@ describe('シンプルな結合テスト', () => {
       },
 
       getMessage: (key: string) => {
-        const messages = {
+        const messages: Record<string, Record<string, string>> = {
           ja: { title: 'タスク管理', settings: '設定' },
           en: { title: 'Task Management', settings: 'Settings' }
-        } as any;
+        };
         return messages[settingsStore.language]?.[key] || key;
       }
     };
@@ -241,7 +242,7 @@ describe('シンプルな結合テスト', () => {
     // グローバル状態管理のモックストア
     const globalStateStore = {
       selectedTaskId: null as string | null,
-      tasks: [] as any[],
+      tasks: [] as Task[],
       filter: 'all',
 
       addTask: (title: string) => {

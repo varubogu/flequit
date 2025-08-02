@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { Project, TaskList, Task } from '$lib/types/task';
 
 // モックストアの実装
 const mockTaskStore = {
-  projects: [] as any[],
-  taskLists: [] as any[],
-  tasks: [] as any[],
+  projects: [] as Project[],
+  taskLists: [] as TaskList[],
+  tasks: [] as Task[],
 
-  addProject: vi.fn((projectData: any) => {
+  addProject: vi.fn((projectData: Partial<Project>) => {
     const newProject = {
       id: `project-${Date.now()}`,
       name: projectData.name,
@@ -19,7 +20,7 @@ const mockTaskStore = {
     return newProject;
   }),
 
-  addTaskList: vi.fn((projectId: string, listData: any) => {
+  addTaskList: vi.fn((projectId: string, listData: Partial<TaskList>) => {
     const newList = {
       id: `list-${Date.now()}`,
       project_id: projectId,
@@ -32,7 +33,7 @@ const mockTaskStore = {
     return newList;
   }),
 
-  addTask: vi.fn((listId: string, taskData: any) => {
+  addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
     const newTask = {
       id: `task-${Date.now()}`,
       list_id: listId,
@@ -49,15 +50,15 @@ const mockTaskStore = {
   }),
 
   getProjectById: vi.fn((projectId: string) => {
-    return mockTaskStore.projects.find((p: any) => p.id === projectId);
+    return mockTaskStore.projects.find((p: Project) => p.id === projectId);
   }),
 
   getTaskListsByProjectId: vi.fn((projectId: string) => {
-    return mockTaskStore.taskLists.filter((tl: any) => tl.project_id === projectId);
+    return mockTaskStore.taskLists.filter((tl: TaskList) => tl.project_id === projectId);
   }),
 
   getTasksByListId: vi.fn((listId: string) => {
-    return mockTaskStore.tasks.filter((t: any) => t.list_id === listId);
+    return mockTaskStore.tasks.filter((t: Task) => t.list_id === listId);
   }),
 
   clear: vi.fn(() => {
@@ -205,11 +206,11 @@ describe('プロジェクトワークフロー結合テスト', () => {
   it('複数プロジェクトでのビュー切り替えが正常に動作する', async () => {
     // 独立したモックストアを作成
     const localMockStore = {
-      projects: [] as any[],
-      taskLists: [] as any[],
-      tasks: [] as any[],
+      projects: [] as Project[],
+      taskLists: [] as TaskList[],
+      tasks: [] as Task[],
 
-      addProject: (projectData: any) => {
+      addProject: (projectData: Partial<Project>) => {
         const newProject = {
           id: `project-${Date.now()}-${Math.random()}`,
           name: projectData.name,
@@ -222,7 +223,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
         return newProject;
       },
 
-      addTaskList: (projectId: string, listData: any) => {
+      addTaskList: (projectId: string, listData: Partial<TaskList>) => {
         const newList = {
           id: `list-${Date.now()}-${Math.random()}`,
           project_id: projectId,
@@ -236,11 +237,11 @@ describe('プロジェクトワークフロー結合テスト', () => {
       },
 
       getProjectById: (projectId: string) => {
-        return localMockStore.projects.find((p: any) => p.id === projectId);
+        return localMockStore.projects.find((p: Project) => p.id === projectId);
       },
 
       getTaskListsByProjectId: (projectId: string) => {
-        return localMockStore.taskLists.filter((tl: any) => tl.project_id === projectId);
+        return localMockStore.taskLists.filter((tl: TaskList) => tl.project_id === projectId);
       }
     };
 

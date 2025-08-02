@@ -134,7 +134,7 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', () 
   };
 
   const mockReturnTask = { id: 'new-task', title: 'New Task' };
-  (mockTaskStore.addTask as any).mockImplementation(() => mockReturnTask);
+  vi.mocked(mockTaskStore.addTask).mockImplementation(() => mockReturnTask);
 
   const result = TaskService.addTask(listId, taskData);
 

@@ -6,7 +6,7 @@ import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.s
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
 }));
 
 // --- Sidebar Context Mock ---

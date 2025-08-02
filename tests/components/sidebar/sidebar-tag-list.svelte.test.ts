@@ -5,7 +5,7 @@ import type { Tag } from '$lib/types/task';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: any) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
 }));
 
 // --- Sidebar Context Mock ---

@@ -4,7 +4,7 @@ import SettingsViews from '$lib/components/settings/settings-views.svelte';
 
 // Mock views visibility store
 vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
-  const original = (await importOriginal()) as any;
+  const original = (await importOriginal()) as Record<string, unknown>;
   return {
     ...original,
     viewsVisibilityStore: {

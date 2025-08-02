@@ -32,8 +32,8 @@ Object.defineProperty(globalThis, 'DragEvent', {
 class MockDataTransfer {
   effectAllowed: string = 'uninitialized';
   dropEffect: string = 'none';
-  files: FileList = [] as any;
-  items: DataTransferItemList = [] as any;
+  files: FileList = [] as unknown as FileList;
+  items: DataTransferItemList = [] as unknown as DataTransferItemList;
   types: readonly string[] = [];
 
   clearData(): void {}
