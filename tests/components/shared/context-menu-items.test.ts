@@ -2,14 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { contextMenuStore } from '$lib/stores/context-menu.svelte.js';
 import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
 
-// モックアイコンコンポーネント
-const MockIcon = class {
-  constructor() {}
-  $$render() {
-    return '<svg></svg>';
-  }
-} as any;
-
 describe('ContextMenuItems', () => {
   const mockAction1 = vi.fn();
   const mockAction2 = vi.fn();
@@ -19,8 +11,7 @@ describe('ContextMenuItems', () => {
     {
       id: 'item1',
       label: 'アイテム1',
-      action: mockAction1,
-      icon: MockIcon
+      action: mockAction1
     },
     { type: 'separator' },
     {
