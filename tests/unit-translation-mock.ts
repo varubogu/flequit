@@ -245,7 +245,21 @@ export const unitTestTranslations = {
   
   // その他のメッセージ
   search_results: 'TEST_SEARCH_RESULTS',
-  no_results: 'TEST_NO_RESULTS'
+  no_results: 'TEST_NO_RESULTS',
+  
+  // コンテキストメニュー関連
+  remove_tag_from_sidebar: 'TEST_REMOVE_TAG_FROM_SIDEBAR',
+  add_task_list: 'TEST_ADD_TASK_LIST',
+  edit_task_list: 'TEST_EDIT_TASK_LIST',
+  delete_task_list: 'TEST_DELETE_TASK_LIST',
+  toggle_task_lists: 'TEST_TOGGLE_TASK_LISTS',
+  no_projects_yet: 'TEST_NO_PROJECTS_YET',
+  
+  // ビュー表示名
+  all_tasks_view: 'All Tasks',
+  today_view: 'Today',
+  overdue_view: 'Overdue',
+  views_title: 'TEST_VIEWS'
 };
 
 /**

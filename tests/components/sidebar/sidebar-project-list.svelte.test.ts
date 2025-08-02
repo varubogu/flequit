@@ -1,21 +1,21 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 
 // --- Paraglide Mock ---
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -129,7 +129,7 @@ describe('SidebarProjectList Component', () => {
 
   test('should render projects section header', () => {
     render(SidebarProjectList, { onViewChange });
-    expect(screen.getByText('Projects')).toBeInTheDocument();
+    expect(screen.getByText('TEST_PROJECTS')).toBeInTheDocument();
   });
 
   test('should render projects', () => {
@@ -143,7 +143,7 @@ describe('SidebarProjectList Component', () => {
   test('should show "No projects yet" message when no projects', () => {
     setTaskStoreData({ projects: [] });
     render(SidebarProjectList, { onViewChange });
-    expect(screen.getByText('No projects yet')).toBeInTheDocument();
+    expect(screen.getByText('TEST_NO_PROJECTS_YET')).toBeInTheDocument();
   });
 
   test('should select a project when clicked', async () => {
@@ -161,7 +161,7 @@ describe('SidebarProjectList Component', () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButton = screen.getAllByTitle('Toggle task lists')[0];
+    const toggleButton = screen.getAllByTitle('TEST_TOGGLE_TASK_LISTS')[0];
     expect(screen.queryByText('Frontend')).not.toBeInTheDocument();
 
     await fireEvent.click(toggleButton);
@@ -176,7 +176,7 @@ describe('SidebarProjectList Component', () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButton = screen.getAllByTitle('Toggle task lists')[0];
+    const toggleButton = screen.getAllByTitle('TEST_TOGGLE_TASK_LISTS')[0];
     await fireEvent.click(toggleButton);
 
     const listButton = await screen.findByText('Frontend');
@@ -202,9 +202,9 @@ describe('SidebarProjectList Component', () => {
     await fireEvent.contextMenu(projectButton!);
 
     // ContextMenuコンテンツが表示されることを確認
-    await expect(screen.findByText('Edit Project')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Add Task List')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Delete Project')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_EDIT_PROJECT')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_ADD_TASK_LIST')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_DELETE_PROJECT')).resolves.toBeInTheDocument();
   });
 
   test('should highlight selected project', () => {
@@ -222,7 +222,7 @@ describe('SidebarProjectList Component', () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButtons = screen.queryAllByTitle('Toggle task lists');
+    const toggleButtons = screen.queryAllByTitle('TEST_TOGGLE_TASK_LISTS');
     expect(toggleButtons).toHaveLength(1);
   });
 });

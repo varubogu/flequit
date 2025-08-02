@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagDisplay from '$lib/components/tag/tag-display.svelte';
 import type { Tag } from '$lib/types/task';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // モック設定
 vi.mock('$lib/stores/tags.svelte', () => ({
@@ -19,15 +21,15 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   }
 }));
 
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 describe('TagDisplay', () => {
   const mockTag: Tag = {

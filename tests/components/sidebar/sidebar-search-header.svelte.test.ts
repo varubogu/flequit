@@ -1,19 +1,19 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
 
 // --- Paraglide Mock ---
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -33,13 +33,13 @@ describe('SidebarSearchHeader Component', () => {
 
   test('should render search button', () => {
     render(SidebarSearchHeader);
-    expect(screen.getByText('search')).toBeInTheDocument();
-    expect(screen.getByText('search').closest('button')).toBeInTheDocument();
+    expect(screen.getByText('TEST_SEARCH')).toBeInTheDocument();
+    expect(screen.getByText('TEST_SEARCH').closest('button')).toBeInTheDocument();
   });
 
   test('should open search dialog on click', async () => {
     render(SidebarSearchHeader);
-    const searchButton = screen.getByText('search').closest('button');
+    const searchButton = screen.getByText('TEST_SEARCH').closest('button');
     await fireEvent.click(searchButton!);
     expect(true).toBe(true);
   });
@@ -58,6 +58,6 @@ describe('SidebarSearchHeader Component', () => {
 
   test('should show keyboard shortcut hint', () => {
     render(SidebarSearchHeader);
-    expect(screen.getByText('search').closest('button')).toBeInTheDocument();
+    expect(screen.getByText('TEST_SEARCH').closest('button')).toBeInTheDocument();
   });
 });

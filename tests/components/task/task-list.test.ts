@@ -3,6 +3,8 @@ import { render, fireEvent, screen } from '@testing-library/svelte';
 import TaskList from '$lib/components/task/task-list.svelte';
 import { TaskListService } from '$lib/services/task-list-service';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import { getTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // Mock services
 vi.mock('$lib/services/task-list-service', () => ({
@@ -37,16 +39,15 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-// Mock locale and messages
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 const mockTaskListService = vi.mocked(TaskListService);
 

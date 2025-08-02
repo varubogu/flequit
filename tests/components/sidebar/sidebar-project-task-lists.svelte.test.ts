@@ -1,21 +1,21 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 
 // --- Paraglide Mock ---
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -166,9 +166,9 @@ describe('TaskListDisplay Component', () => {
 
     // ContextMenuコンテンツが表示されることを確認
     // bits-uiのContextMenuは右クリック時に自動的にメニューを表示する
-    await expect(screen.findByText('Edit Task List')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Add Task')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Delete Task List')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_EDIT_TASK_LIST')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_ADD_TASK')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_DELETE_TASK_LIST')).resolves.toBeInTheDocument();
   });
 
   test('should render empty list when project has no task lists', () => {

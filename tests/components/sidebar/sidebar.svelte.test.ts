@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import Sidebar from '$lib/components/sidebar/sidebar.svelte';
 
 // Mock all child components to avoid deep rendering issues
@@ -25,16 +26,15 @@ vi.mock('$lib/components/user/user-profile.svelte', () => ({
 
 // --- Paraglide Mock ---
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', () => ({ taskStore: {} }));

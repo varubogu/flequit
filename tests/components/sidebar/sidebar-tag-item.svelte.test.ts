@@ -1,20 +1,20 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
 import type { Tag } from '$lib/types/task';
 
 // --- Paraglide Mock ---
 
-// --- Locale Store Mock ---
-vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
-  getTranslationService: () => ({
-    getMessage: (key: string) => () => key,
-    getCurrentLocale: () => 'en',
-    setLocale: () => {},
-    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
-  })
-}));
+// getTranslationServiceのモック化
+vi.mock('$lib/stores/locale.svelte', async () => {
+  const actual = await vi.importActual('$lib/stores/locale.svelte');
+  return {
+    ...actual,
+    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
+    reactiveMessage: (fn: () => string) => fn
+  };
+});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -118,9 +118,9 @@ describe('SidebarTagItem Component', () => {
     await fireEvent.contextMenu(button);
 
     // Check if context menu items appear
-    await expect(screen.findByText('Remove tag from sidebar')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Edit tag')).resolves.toBeInTheDocument();
-    await expect(screen.findByText('Delete tag')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_REMOVE_TAG_FROM_SIDEBAR')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_EDIT_TAG')).resolves.toBeInTheDocument();
+    await expect(screen.findByText('TEST_DELETE_TAG')).resolves.toBeInTheDocument();
   });
 
   test('should call onRemoveFromBookmarks when context menu item is clicked', async () => {
@@ -137,7 +137,7 @@ describe('SidebarTagItem Component', () => {
     const button = screen.getByRole('button');
     await fireEvent.contextMenu(button);
 
-    const removeItem = await screen.findByText('Remove tag from sidebar');
+    const removeItem = await screen.findByText('TEST_REMOVE_TAG_FROM_SIDEBAR');
     await fireEvent.click(removeItem);
 
     expect(onRemoveFromBookmarks).toHaveBeenCalledWith(mockTag);
@@ -157,7 +157,7 @@ describe('SidebarTagItem Component', () => {
     const button = screen.getByRole('button');
     await fireEvent.contextMenu(button);
 
-    const editItem = await screen.findByText('Edit tag');
+    const editItem = await screen.findByText('TEST_EDIT_TAG');
     await fireEvent.click(editItem);
 
     expect(onEditTag).toHaveBeenCalledWith(mockTag);
@@ -177,7 +177,7 @@ describe('SidebarTagItem Component', () => {
     const button = screen.getByRole('button');
     await fireEvent.contextMenu(button);
 
-    const deleteItem = await screen.findByText('Delete tag');
+    const deleteItem = await screen.findByText('TEST_DELETE_TAG');
     await fireEvent.click(deleteItem);
 
     expect(onDeleteTag).toHaveBeenCalledWith(mockTag);
