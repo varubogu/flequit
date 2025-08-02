@@ -201,7 +201,41 @@ const mockTranslationService = new MockTranslationService('en', {
     confirm_discard_changes: 'Confirm Discard Changes',
     unsaved_task_message: 'You have unsaved changes. Are you sure you want to discard them?',
     discard: 'Discard',
+    discard_changes: 'Discard Changes',
     keep_editing: 'Keep Editing',
+    
+    // アカウント・設定関連
+    switch_account: 'Switch Account',
+    sign_out: 'Sign Out',
+    
+    // 繰り返し関連
+    recurrence_level: 'Recurrence Level',
+    recurrence_interval: 'Recurrence Interval',
+    recurrence_adjustment: 'Recurrence Adjustment',
+    no_adjustment: 'No Adjustment',
+    weekday_adjustment: 'Weekday Adjustment',
+    
+    // プロジェクト・タスク関連
+    new_task: 'New Task',
+    task_list: 'Task List',
+    subtask: 'Subtask',
+    subtasks: 'Subtasks',
+    
+    // フォーム関連
+    title: 'Title',
+    description: 'Description',
+    priority: 'Priority',
+    status: 'Status',
+    due_date: 'Due Date',
+    
+    // その他のUI要素
+    menu: 'Menu',
+    more_options: 'More Options',
+    help: 'Help',
+    open: 'Open',
+    back: 'Back',
+    forward: 'Forward',
+    refresh: 'Refresh',
     
     // 方向関連
     previous: 'Previous',
@@ -411,7 +445,41 @@ const mockTranslationService = new MockTranslationService('en', {
     confirm_discard_changes: '変更を破棄してもよろしいですか？',
     unsaved_task_message: '保存されていない変更があります。破棄してもよろしいですか？',
     discard: '破棄',
+    discard_changes: '変更を破棄',
     keep_editing: '編集を続ける',
+    
+    // アカウント・設定関連
+    switch_account: 'アカウント切り替え',
+    sign_out: 'サインアウト',
+    
+    // 繰り返し関連
+    recurrence_level: '繰り返しレベル',
+    recurrence_interval: '繰り返し間隔',
+    recurrence_adjustment: '繰り返し調整',
+    no_adjustment: '調整なし',
+    weekday_adjustment: '曜日調整',
+    
+    // プロジェクト・タスク関連
+    new_task: '新しいタスク',
+    task_list: 'タスクリスト',
+    subtask: 'サブタスク',
+    subtasks: 'サブタスク',
+    
+    // フォーム関連
+    title: 'タイトル',
+    description: '説明',
+    priority: '優先度',
+    status: 'ステータス',
+    due_date: '期限',
+    
+    // その他のUI要素
+    menu: 'メニュー',
+    more_options: 'その他のオプション',
+    help: 'ヘルプ',
+    open: '開く',
+    back: '戻る',
+    forward: '進む',
+    refresh: '更新',
     
     // 方向関連
     previous: '前',
@@ -448,7 +516,7 @@ global.IntersectionObserver = class IntersectionObserver {
   takeRecords() {
     return [];
   }
-} as unknown as ResizeObserver;
+};
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
