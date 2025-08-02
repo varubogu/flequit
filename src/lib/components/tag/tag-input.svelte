@@ -15,7 +15,7 @@
 
   let {
     tags = [],
-    placeholder = reactiveMessage(m.add_tags_placeholder)(),
+    placeholder = reactiveMessage(m.add_tags_placeholder as (...args: unknown[]) => string)(),
     class: className = '',
     ontagAdded,
     ontagRemoved

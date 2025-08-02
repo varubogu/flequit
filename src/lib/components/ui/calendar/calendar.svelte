@@ -15,10 +15,10 @@
     buttonVariant?: ButtonVariant;
     captionLayout?: 'dropdown' | 'dropdown-months' | 'dropdown-years' | 'label';
     locale?: string;
-    months?: string[];
+    months?: number[];
     years?: number[];
-    monthFormat?: Intl.DateTimeFormatOptions;
-    yearFormat?: Intl.DateTimeFormatOptions;
+    monthFormat?: 'short' | 'long' | 'narrow' | 'numeric' | '2-digit' | ((month: number) => string);
+    yearFormat?: 'numeric' | '2-digit' | ((year: number) => string);
     day?: Snippet<[{ day: DateValue; outsideMonth: boolean }]>;
     disableDaysOutsideMonth?: boolean;
     onValueChange?: (value: DateValue | undefined) => void;
@@ -37,7 +37,7 @@
     months: monthsProp,
     years,
     monthFormat: monthFormatProp,
-    yearFormat = 'numeric',
+    yearFormat = 'numeric' as const,
     day,
     disableDaysOutsideMonth = false,
     ...restProps

@@ -94,8 +94,8 @@
     }
   }
 
-  function handleSingleCalendarChange(v: CalendarDate) {
-    if (v) {
+  function handleSingleCalendarChange(v: DateValue | undefined) {
+    if (v && v instanceof CalendarDate) {
       calendarValue = v;
       onCalendarChange?.(v);
     }

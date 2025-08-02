@@ -20,7 +20,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
 
   constructor() {
     // Paraglidのメッセージマップを作成
-    this.messageMap = m as Record<string, (...args: unknown[]) => string>;
+    this.messageMap = m as unknown as Record<string, (...args: unknown[]) => string>;
   }
 
   getCurrentLocale(): string {
