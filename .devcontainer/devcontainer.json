@@ -26,7 +26,9 @@
         "vitest.explorer",
         "ms-playwright.playwright",
         "bradlc.vscode-tailwindcss",
-        "inlang.vs-code-extension"
+        "inlang.vs-code-extension",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
       ]
     }
   },
