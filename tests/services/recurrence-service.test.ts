@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { RecurrenceService } from '$lib/services/recurrence-service';
-import type { RecurrenceRule, DateCondition, WeekdayCondition, RecurrenceUnit } from '$lib/types/task';
+import type {
+  RecurrenceRule,
+  DateCondition,
+  WeekdayCondition,
+  RecurrenceUnit
+} from '$lib/types/task';
 import { generateRandomId } from '$lib/utils/id-utils';
 
 describe('RecurrenceService', () => {

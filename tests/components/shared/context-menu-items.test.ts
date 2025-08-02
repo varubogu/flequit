@@ -5,7 +5,9 @@ import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
 // モックアイコンコンポーネント
 const MockIcon = class {
   constructor() {}
-  $$render() { return '<svg></svg>'; }
+  $$render() {
+    return '<svg></svg>';
+  }
 } as any;
 
 describe('ContextMenuItems', () => {

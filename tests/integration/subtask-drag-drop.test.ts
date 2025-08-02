@@ -101,7 +101,11 @@ describe('SubTask Drag and Drop Integration', () => {
         // Mock the view drop handler
         const handleViewDrop = (viewId: string, dragData: DragData) => {
           if (dragData.type === 'subtask') {
-            TaskService.updateSubTaskDueDateForView(dragData.id, dragData?.taskId ?? "xxxxxx", viewId);
+            TaskService.updateSubTaskDueDateForView(
+              dragData.id,
+              dragData?.taskId ?? 'xxxxxx',
+              viewId
+            );
           }
         };
 
@@ -133,7 +137,7 @@ describe('SubTask Drag and Drop Integration', () => {
       // Mock the tag drop handler
       const handleTagDrop = (targetTag: { id: string; name: string }, dragData: DragData) => {
         if (dragData.type === 'subtask') {
-          TaskService.addTagToSubTask(dragData.id, dragData?.taskId ?? "xxxxxx", targetTag.id);
+          TaskService.addTagToSubTask(dragData.id, dragData?.taskId ?? 'xxxxxx', targetTag.id);
         }
       };
 
