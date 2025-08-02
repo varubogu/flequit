@@ -180,53 +180,53 @@ export const unitTestTranslations = {
   japan_time: 'TEST_JAPAN_TIME',
   subtasks_completed: 'TEST_SUBTASKS_COMPLETED',
   example_organization: 'TEST_EXAMPLE_ORGANIZATION',
-  
+
   // 日付関連
   add_date: 'TEST_ADD_DATE',
-  
+
   // 曜日選択関連
   weekdays: 'TEST_WEEKDAYS',
   weekends: 'TEST_WEEKENDS',
   holidays: 'TEST_HOLIDAYS',
-  
+
   // 条件エディター関連
   if: 'TEST_IF',
   is: 'TEST_IS',
   then: 'TEST_THEN',
   during: 'TEST_DURING',
   set_time_to: 'TEST_SET_TIME_TO',
-  
+
   // ダイアログ関連
   confirm_discard_changes: 'TEST_CONFIRM_DISCARD_CHANGES',
   unsaved_task_message: 'TEST_UNSAVED_TASK_MESSAGE',
   discard: 'TEST_DISCARD',
   discard_changes: 'TEST_DISCARD_CHANGES',
   keep_editing: 'TEST_KEEP_EDITING',
-  
+
   // アカウント・設定関連
   switch_account: 'TEST_SWITCH_ACCOUNT',
   sign_out: 'TEST_SIGN_OUT',
-  
+
   // 繰り返し関連
   recurrence_level: 'TEST_RECURRENCE_LEVEL',
   recurrence_interval: 'TEST_RECURRENCE_INTERVAL',
   recurrence_adjustment: 'TEST_RECURRENCE_ADJUSTMENT',
   no_adjustment: 'TEST_NO_ADJUSTMENT',
   weekday_adjustment: 'TEST_WEEKDAY_ADJUSTMENT',
-  
+
   // プロジェクト・タスク関連
   new_task: 'TEST_NEW_TASK',
   task_list: 'TEST_TASK_LIST',
   subtask: 'TEST_SUBTASK',
   subtasks: 'TEST_SUBTASKS',
-  
+
   // フォーム関連
   title: 'TEST_TITLE',
   description: 'TEST_DESCRIPTION',
   priority: 'TEST_PRIORITY',
   status: 'TEST_STATUS',
   due_date: 'TEST_DUE_DATE',
-  
+
   // その他のUI要素
   menu: 'TEST_MENU',
   more_options: 'TEST_MORE_OPTIONS',
@@ -235,18 +235,18 @@ export const unitTestTranslations = {
   back: 'TEST_BACK',
   forward: 'TEST_FORWARD',
   refresh: 'TEST_REFRESH',
-  
+
   // 方向関連
   previous: 'TEST_PREVIOUS',
   next: 'TEST_NEXT',
-  
+
   // 時間関連
   select_date: 'TEST_SELECT_DATE',
-  
+
   // その他のメッセージ
   search_results: 'TEST_SEARCH_RESULTS',
   no_results: 'TEST_NO_RESULTS',
-  
+
   // コンテキストメニュー関連
   remove_tag_from_sidebar: 'TEST_REMOVE_TAG_FROM_SIDEBAR',
   add_task_list: 'TEST_ADD_TASK_LIST',
@@ -254,7 +254,7 @@ export const unitTestTranslations = {
   delete_task_list: 'TEST_DELETE_TASK_LIST',
   toggle_task_lists: 'TEST_TOGGLE_TASK_LISTS',
   no_projects_yet: 'TEST_NO_PROJECTS_YET',
-  
+
   // ビュー表示名
   all_tasks_view: 'All Tasks',
   today_view: 'Today',

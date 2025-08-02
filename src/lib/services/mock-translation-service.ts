@@ -43,7 +43,7 @@ export class MockTranslationService implements ITranslationServiceWithNotificati
       const localeMessages = this.messages.get(this.currentLocale);
       return localeMessages?.get(result) || result;
     }) as T;
-    
+
     return wrappedFn;
   }
 

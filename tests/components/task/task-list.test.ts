@@ -3,7 +3,6 @@ import { render, fireEvent, screen } from '@testing-library/svelte';
 import TaskList from '$lib/components/task/task-list.svelte';
 import { TaskListService } from '$lib/services/task-list-service';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import { getTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // Mock services

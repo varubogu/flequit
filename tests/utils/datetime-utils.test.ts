@@ -158,7 +158,9 @@ describe('Internal datetime utility functions', () => {
     test('should format a single day with start and end time', () => {
       const start = new Date('2025-07-26T10:00:00');
       const end = new Date('2025-07-26T18:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 10:00:00 10:00 〜 18:00');
+      expect(formatDateDisplayRange(start, end)).toBe(
+        '2025年07月26日(Sat) 10:00:00 10:00 〜 18:00'
+      );
     });
     test('should format a single day with only end time', () => {
       const start = new Date('2025-07-26T00:00:00');
@@ -168,7 +170,9 @@ describe('Internal datetime utility functions', () => {
     test('should format a multi-day range with no time', () => {
       const start = new Date('2025-07-26T00:00:00');
       const end = new Date('2025-07-27T00:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 00:00:00 〜 2025年07月27日(Sun) 00:00:00');
+      expect(formatDateDisplayRange(start, end)).toBe(
+        '2025年07月26日(Sat) 00:00:00 〜 2025年07月27日(Sun) 00:00:00'
+      );
     });
     test('should format a multi-day range with time', () => {
       const start = new Date('2025-07-26T10:00:00');

@@ -103,7 +103,7 @@ describe('SettingsStore', () => {
       expect(store.timezone).toBe('Europe/London');
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'flequit-settings',
-        JSON.stringify({ 
+        JSON.stringify({
           timezone: 'Europe/London',
           dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss',
           customDateFormats: []
