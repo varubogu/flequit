@@ -38,6 +38,7 @@ export default tseslint.config(
       '.svelte-kit/',
       'dist/',
       'src/paraglide/',
+      'src/lib/components/ui/',
       'node_modules/',
       'playwright-report/',
       'test-results/',
