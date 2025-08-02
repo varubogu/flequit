@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import type { ProjectTree } from '$lib/types/task';
 
 describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 
 // Mock sub-components
 vi.mock('$lib/components/task/task-detail-header.svelte', () => ({

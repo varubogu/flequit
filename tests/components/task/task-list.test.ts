@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/svelte';
 import TaskList from '$lib/components/task/task-list.svelte';
 import { TaskListService } from '$lib/services/task-list-service';
-import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock services
 vi.mock('$lib/services/task-list-service', () => ({

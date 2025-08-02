@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import SubTaskList from '$lib/components/task/sub-task-list.svelte';
-import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 import { DragDropManager } from '$lib/utils/drag-drop';
 
 // Mock DragDropManager
@@ -105,7 +105,7 @@ describe('SubTaskList - Drag and Drop', () => {
   });
 
   it('should render subtasks with draggable attribute', () => {
-    const { getAllByTestId } = render(SubTaskList, mockProps);
+    render(SubTaskList, mockProps);
 
     // Find draggable containers
     const draggableElements = document.querySelectorAll('[draggable="true"]');

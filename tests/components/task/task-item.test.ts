@@ -1,5 +1,5 @@
 import { test, expect, vi, beforeEach, describe } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/svelte';
+import { render, fireEvent } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 
 // Mock sub-components

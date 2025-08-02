@@ -20,7 +20,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: vi.fn((messageFn) => {
+  reactiveMessage: vi.fn(() => {
     return vi.fn(() => 'Mocked message');
   })
 }));

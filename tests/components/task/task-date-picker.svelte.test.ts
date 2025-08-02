@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import TaskDatePicker from '$lib/components/task/task-date-picker.svelte';
-import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock taskStore
 vi.mock('$lib/stores/tasks.svelte', () => ({

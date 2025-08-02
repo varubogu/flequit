@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskStatusSelector from '$lib/components/task/task-status-selector.svelte';
-import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 describe('TaskStatusSelector Component', () => {
   const mockTask: TaskWithSubTasks = {

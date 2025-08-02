@@ -223,7 +223,7 @@ describe('TagInput', () => {
   });
 
   it('TagCompletionProviderが正しく配置される', () => {
-    const { container } = render(TagInput, { props: { tags: [] } });
+    render(TagInput, { props: { tags: [] } });
 
     // inputフィールドが存在することで、TagCompletionProviderが動作していることを確認
     const input = screen.getByRole('textbox');

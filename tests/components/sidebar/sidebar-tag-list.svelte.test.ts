@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
-import type { Tag } from '$lib/types/task';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -161,18 +160,9 @@ describe('SidebarTagList Component', () => {
     // Import the viewStore mock to verify the performSearch method was called
     const { viewStore } = await import('$lib/stores/view-store.svelte');
 
-    // Create a tag for testing
-    const testTag: Tag = {
-      id: 'tag-1',
-      name: 'Work',
-      color: '#ff0000',
-      created_at: new Date(),
-      updated_at: new Date()
-    };
-
     // Call the handleTagClick function directly since we can't interact with mocked component
     // In a real scenario, this would be triggered by user interaction
-    const component = render(SidebarTagList, { onViewChange });
+    render(SidebarTagList, { onViewChange });
 
     // Verify the viewStore.performSearch function exists and is callable
     expect(viewStore.performSearch).toBeDefined();
@@ -203,16 +193,10 @@ describe('SidebarTagList Component', () => {
     const { viewStore } = await import('$lib/stores/view-store.svelte');
 
     // Test the tag search functionality
-    const testTag: Tag = {
-      id: 'tag-1',
-      name: 'Work',
-      color: '#ff0000',
-      created_at: new Date(),
-      updated_at: new Date()
-    };
+    const tagName = 'Work';
 
     // Simulate the handleTagClick logic
-    const expectedSearchQuery = `#${testTag.name}`;
+    const expectedSearchQuery = `#${tagName}`;
 
     // Verify that the expected search query format is correct
     expect(expectedSearchQuery).toBe('#Work');

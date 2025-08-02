@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskService } from '$lib/services/task-service';
-import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
+import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
 
 // Mock TaskService
 vi.mock('$lib/services/task-service', () => ({

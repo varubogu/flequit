@@ -2,8 +2,6 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
-import { writable, get } from 'svelte/store';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
