@@ -31,8 +31,8 @@ describe('CalendarCell Component', () => {
 
   test('should render calendar cell component', () => {
     const { container } = render(CalendarCell, {
-      date: { year: 2024, month: 1, day: 15 } as CalendarDate,
-      month: { year: 2024, month: 1, day: 1 } as CalendarDate
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
     });
     expect(container).toBeInTheDocument();
   });
@@ -40,8 +40,8 @@ describe('CalendarCell Component', () => {
   test('should accept custom class name', () => {
     const { container } = render(CalendarCell, {
       class: 'custom-cell',
-      date: { year: 2024, month: 1, day: 15 } as CalendarDate,
-      month: { year: 2024, month: 1, day: 1 } as CalendarDate
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
     });
     expect(container).toBeInTheDocument();
   });
@@ -50,8 +50,8 @@ describe('CalendarCell Component', () => {
     const ref = null;
     const { container } = render(CalendarCell, {
       ref,
-      date: { year: 2024, month: 1, day: 15 } as CalendarDate,
-      month: { year: 2024, month: 1, day: 1 } as CalendarDate
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
     });
     expect(container).toBeInTheDocument();
   });
@@ -59,8 +59,8 @@ describe('CalendarCell Component', () => {
   test('should apply correct CSS classes', () => {
     const { container } = render(CalendarCell, {
       class: 'focus-test',
-      date: { year: 2024, month: 1, day: 15 } as CalendarDate,
-      month: { year: 2024, month: 1, day: 1 } as CalendarDate
+      date: { year: 2024, month: 1, day: 15 } as any,
+      month: { year: 2024, month: 1, day: 1 } as any
     });
     expect(container).toBeInTheDocument();
   });

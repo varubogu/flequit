@@ -62,13 +62,13 @@ describe('Calendar Component', () => {
   });
 
   test('should handle value binding', () => {
-    const value = new Date(2024, 0, 15);
+    const value = new Date(2024, 0, 15) as any;
     const { container } = render(Calendar, { value });
     expect(container).toBeInTheDocument();
   });
 
   test('should handle placeholder binding', () => {
-    const placeholder = new Date(2024, 0, 1);
+    const placeholder = new Date(2024, 0, 1) as any;
     const { container } = render(Calendar, { placeholder });
     expect(container).toBeInTheDocument();
   });
@@ -118,8 +118,8 @@ describe('Calendar Component', () => {
   });
 
   test('should handle years and months props', () => {
-    const years = [2023, 2024, 2025];
-    const months = ['Jan', 'Feb', 'Mar'];
+    const years = [2023, 2024, 2025] as any;
+    const months = ['Jan', 'Feb', 'Mar'] as any;
     const { container } = render(Calendar, { years, months });
     expect(container).toBeInTheDocument();
   });

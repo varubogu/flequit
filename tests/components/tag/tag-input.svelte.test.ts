@@ -8,7 +8,7 @@ vi.mock('$lib/components/tag/tag-display.svelte', () => {
   return {
     default: vi.fn().mockImplementation(() => ({
       $$render: ($$result: unknown, $$props: Record<string, unknown>) => {
-        const tag = $$props.tag;
+        const tag = $$props.tag as { name?: string } | undefined;
         return `<div data-testid="tag-display" data-tag-name="${tag?.name || 'mock-tag'}">MockedTagDisplay: ${tag?.name || 'Unknown'}</div>`;
       }
     }))

@@ -1,8 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
-// TODO: 将来の型チェック実装で使用予定
-// import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
+import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 
 // vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
@@ -112,7 +111,7 @@ describe('DayTargetSelector', () => {
   it('無効な値でもエラーが発生しない', () => {
     render(DayTargetSelector, {
       props: {
-        value: 'invalid_value' as unknown,
+        value: 'invalid_value' as unknown as DayOfWeek | AdjustmentTarget,
         onchange: mockOnChange
       }
     });

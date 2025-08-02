@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Task, Project, TaskList } from '$lib/types/task';
+import type { Task, Project, TaskList, TaskStatus } from '$lib/types/task';
 
 describe('シンプルな結合テスト', () => {
   beforeEach(() => {
@@ -265,7 +265,7 @@ describe('シンプルな結合テスト', () => {
         if (taskIndex >= 0) {
           globalStateStore.tasks[taskIndex] = {
             ...globalStateStore.tasks[taskIndex],
-            status
+            status: status as TaskStatus
           };
           return globalStateStore.tasks[taskIndex];
         }

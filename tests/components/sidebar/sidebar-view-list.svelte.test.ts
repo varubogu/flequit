@@ -99,13 +99,13 @@ describe('SidebarViewList Component', () => {
     allTasks?: unknown[];
   }) => {
     if (data.todayTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks);
+      vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks as any);
     }
     if (data.overdueTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue(data.overdueTasks);
+      vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue(data.overdueTasks as any);
     }
     if (data.allTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(data.allTasks);
+      vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(data.allTasks as any);
     }
   };
 

@@ -3,7 +3,10 @@ import { contextMenuStore } from '$lib/stores/context-menu.svelte.js';
 import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
 
 // モックアイコンコンポーネント
-const MockIcon = () => '<svg></svg>';
+const MockIcon = class {
+  constructor() {}
+  $$render() { return '<svg></svg>'; }
+} as any;
 
 describe('ContextMenuItems', () => {
   const mockAction1 = vi.fn();
@@ -96,7 +99,7 @@ describe('ContextMenuItems', () => {
 
     const item = dynamicItem[0] as ContextMenuItem;
     expect(typeof item.label).toBe('function');
-    expect(item.label()).toBe('Dynamic Label');
+    expect((item.label as () => string)()).toBe('Dynamic Label');
   });
 
   it('disabledが関数の場合も対応される', () => {
@@ -112,6 +115,6 @@ describe('ContextMenuItems', () => {
 
     const item = dynamicDisabledItem[0] as ContextMenuItem;
     expect(typeof item.disabled).toBe('function');
-    expect(item.disabled()).toBe(true);
+    expect((item.disabled as () => boolean)()).toBe(true);
   });
 });

@@ -28,8 +28,8 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'today'
       };
 
-      // Use private method for testing
-      const canDrop = DragDropManager.canDrop(dragData, viewTarget);
+      // Test private method access via type assertion
+      const canDrop = (DragDropManager as any).canDrop(dragData, viewTarget);
       expect(canDrop).toBe(true);
     });
 
@@ -45,7 +45,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'tag-1'
       };
 
-      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, tagTarget);
+      const canDrop = (DragDropManager as any).canDrop(dragData, tagTarget);
       expect(canDrop).toBe(true);
     });
 
@@ -61,7 +61,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'task-2'
       };
 
-      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, taskTarget);
+      const canDrop = (DragDropManager as any).canDrop(dragData, taskTarget);
       expect(canDrop).toBe(false);
     });
 
@@ -77,7 +77,7 @@ describe('SubTask Drag and Drop Integration', () => {
         id: 'subtask-1'
       };
 
-      const canDrop = (DragDropManager as Record<string, unknown>).canDrop(dragData, subtaskTarget);
+      const canDrop = (DragDropManager as any).canDrop(dragData, subtaskTarget);
       expect(canDrop).toBe(false);
     });
   });
