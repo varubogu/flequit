@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { type TaskWithSubTasks } from '$lib/types/task';
 
 // getTranslationServiceのモック化
 vi.mock('$lib/stores/locale.svelte', async () => {
@@ -94,18 +95,18 @@ describe('SidebarViewList Component', () => {
   });
 
   const setTaskStoreData = (data: {
-    todayTasks?: unknown[];
-    overdueTasks?: unknown[];
-    allTasks?: unknown[];
+    todayTasks?: TaskWithSubTasks[];
+    overdueTasks?: TaskWithSubTasks[];
+    allTasks?: TaskWithSubTasks[];
   }) => {
     if (data.todayTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks as any);
+      vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue(data.todayTasks);
     }
     if (data.overdueTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue(data.overdueTasks as any);
+      vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue(data.overdueTasks);
     }
     if (data.allTasks !== undefined) {
-      vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(data.allTasks as any);
+      vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(data.allTasks);
     }
   };
 
@@ -130,9 +131,9 @@ describe('SidebarViewList Component', () => {
 
   test('should display correct task counts', () => {
     setTaskStoreData({
-      allTasks: [{ id: '1' }, { id: '2' }],
-      todayTasks: [{ id: '1' }],
-      overdueTasks: [{ id: '3' }]
+      allTasks: [{ id: '1' } as TaskWithSubTasks, { id: '2' } as TaskWithSubTasks],
+      todayTasks: [{ id: '1' } as TaskWithSubTasks],
+      overdueTasks: [{ id: '3' } as TaskWithSubTasks]
     });
 
     render(SidebarViewList, { onViewChange });
