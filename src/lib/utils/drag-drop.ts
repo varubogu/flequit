@@ -6,7 +6,7 @@ export interface DragData {
 }
 
 export interface DropTarget {
-  type: 'project' | 'tasklist' | 'project-container' | 'tag' | 'view' | 'task';
+  type: 'project' | 'tasklist' | 'project-container' | 'tag' | 'view' | 'task' | 'subtask';
   id: string;
   projectId?: string;
   position?: number;
@@ -110,7 +110,7 @@ export class DragDropManager {
     }
   }
 
-  private static canDrop(dragData: DragData, target: DropTarget): boolean {
+  static canDrop(dragData: DragData, target: DropTarget): boolean {
     // 自分自身にはドロップできない
     if (dragData.id === target.id && dragData.type === target.type) {
       return false;
@@ -151,6 +151,11 @@ export class DragDropManager {
     if (dragData.type === 'subtask') {
       // サブタスクはビューとタグにドロップ可能
       return target.type === 'view' || target.type === 'tag';
+    }
+
+    // subtaskタイプのターゲットには何もドロップできない
+    if (target.type === 'subtask') {
+      return false;
     }
 
     return false;
