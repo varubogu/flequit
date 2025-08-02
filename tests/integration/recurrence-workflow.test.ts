@@ -359,7 +359,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     let errorMessage = '';
     try {
       const invalidRule = {
-        unit: 'invalid' as any,
+        unit: 'invalid' as never,
         interval: -1
       } as RecurrenceRule;
 
