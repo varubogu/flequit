@@ -39,7 +39,13 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 
 // Mock locale and messages
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 const mockTaskListService = vi.mocked(TaskListService);

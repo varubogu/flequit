@@ -6,7 +6,13 @@ import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.s
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 // --- Sidebar Context Mock ---
@@ -27,13 +33,13 @@ describe('SidebarSearchHeader Component', () => {
 
   test('should render search button', () => {
     render(SidebarSearchHeader);
-    expect(screen.getByText('Search')).toBeInTheDocument();
-    expect(screen.getByText('Search').closest('button')).toBeInTheDocument();
+    expect(screen.getByText('search')).toBeInTheDocument();
+    expect(screen.getByText('search').closest('button')).toBeInTheDocument();
   });
 
   test('should open search dialog on click', async () => {
     render(SidebarSearchHeader);
-    const searchButton = screen.getByText('Search').closest('button');
+    const searchButton = screen.getByText('search').closest('button');
     await fireEvent.click(searchButton!);
     expect(true).toBe(true);
   });
@@ -52,6 +58,6 @@ describe('SidebarSearchHeader Component', () => {
 
   test('should show keyboard shortcut hint', () => {
     render(SidebarSearchHeader);
-    expect(screen.getByText('Search').closest('button')).toBeInTheDocument();
+    expect(screen.getByText('search').closest('button')).toBeInTheDocument();
   });
 });

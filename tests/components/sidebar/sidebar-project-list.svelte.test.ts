@@ -8,7 +8,13 @@ import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 
 // --- Locale Store Mock ---
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 // --- Sidebar Context Mock ---

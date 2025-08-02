@@ -46,7 +46,13 @@ vi.mock('$lib/services/task-service', () => ({
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 describe('SearchCommand', () => {
@@ -75,7 +81,7 @@ describe('SearchCommand', () => {
     await fireEvent.input(input, { target: { value: 'test' } });
 
     // 「すべての結果を表示」項目が表示されることを確認
-    const showAllItem = screen.getByText('Show all results for "test"');
+    const showAllItem = screen.getByText('show_all_results_for');
     expect(showAllItem).toBeInTheDocument();
 
     // 項目をクリックして選択
@@ -118,7 +124,7 @@ describe('SearchCommand', () => {
     render(SearchCommand, { open: true });
 
     // 入力が空の状態でクイックアクションが表示されることを確認
-    const addTaskItem = screen.getByText('Add new task');
+    const addTaskItem = screen.getByText('add_new_task');
     expect(addTaskItem).toBeInTheDocument();
 
     // 項目をクリック
@@ -132,7 +138,7 @@ describe('SearchCommand', () => {
     render(SearchCommand, { open: true });
 
     // 入力が空の状態でクイックアクションが表示されることを確認
-    const viewAllItem = screen.getByText('View all tasks');
+    const viewAllItem = screen.getByText('view_all_tasks');
     expect(viewAllItem).toBeInTheDocument();
 
     // 項目をクリック
@@ -146,7 +152,7 @@ describe('SearchCommand', () => {
     const onOpenChange = vi.fn();
     render(SearchCommand, { open: true, onOpenChange });
 
-    const addTaskItem = screen.getByText('Add new task');
+    const addTaskItem = screen.getByText('add_new_task');
     await fireEvent.click(addTaskItem);
 
     // ダイアログが閉じられることを確認
@@ -159,7 +165,7 @@ describe('SearchCommand', () => {
 
     render(SearchCommand, { open: true });
 
-    const addTaskItem = screen.getByText('Add new task');
+    const addTaskItem = screen.getByText('add_new_task');
     await fireEvent.click(addTaskItem);
 
     // selectedListIdが使用されることを確認

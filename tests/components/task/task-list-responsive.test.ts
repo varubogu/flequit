@@ -24,7 +24,13 @@ vi.mock('$lib/services/task-list-service', () => ({
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 import TaskList from '$lib/components/task/task-list.svelte';

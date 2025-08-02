@@ -29,6 +29,25 @@ const mockTranslationService = new MockTranslationService('en', {
     edit_task: 'Edit Task',
     delete_task: 'Delete Task',
 
+    // ステータス関連
+    status_not_started: 'Not Started',
+    status_in_progress: 'In Progress',
+    status_waiting: 'Waiting',
+    status_completed: 'Completed',
+    status_cancelled: 'Cancelled',
+
+    // 優先度関連
+    high_priority: 'High',
+    medium_priority: 'Medium',
+    low_priority: 'Low',
+    lowest_priority: 'Lowest',
+
+    // 検索関連
+    search_tasks: 'Search tasks',
+    search: 'Search',
+    show_all_results_for: 'Show all results for',
+    add_new_task: 'Add new task',
+
     // 設定関連
     settings: 'Settings',
     general_settings: 'General Settings',
@@ -80,6 +99,12 @@ const mockTranslationService = new MockTranslationService('en', {
     upcoming: 'Upcoming',
     completed: 'Completed',
     all_tasks: 'All Tasks',
+    overdue: 'Overdue',
+    tomorrow: 'Tomorrow',
+    next_3_days: 'Next 3 Days',
+    next_week: 'Next Week',
+    this_month: 'This Month',
+    os_timezone: 'OS Timezone',
 
     // 外観・テーマ関連
     appearance: 'Appearance',
@@ -134,6 +159,25 @@ const mockTranslationService = new MockTranslationService('en', {
     edit_task: 'タスクを編集',
     delete_task: 'タスクを削除',
 
+    // ステータス関連
+    status_not_started: '未開始',
+    status_in_progress: '進行中',
+    status_waiting: '待機中',
+    status_completed: '完了',
+    status_cancelled: 'キャンセル',
+
+    // 優先度関連
+    high_priority: '高',
+    medium_priority: '中',
+    low_priority: '低',
+    lowest_priority: '最低',
+
+    // 検索関連
+    search_tasks: 'タスクを検索',
+    search: '検索',
+    show_all_results_for: 'すべての結果を表示',
+    add_new_task: '新しいタスクを追加',
+
     // 設定関連
     settings: '設定',
     general_settings: '一般設定',
@@ -185,6 +229,12 @@ const mockTranslationService = new MockTranslationService('en', {
     upcoming: '今後',
     completed: '完了',
     all_tasks: '全てのタスク',
+    overdue: '期限切れ',
+    tomorrow: '明日',
+    next_3_days: '次の3日',
+    next_week: '来週',
+    this_month: '今月',
+    os_timezone: 'OSタイムゾーン',
 
     // 外観・テーマ関連
     appearance: '外観',

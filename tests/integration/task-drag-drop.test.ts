@@ -69,7 +69,13 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: (fn: () => string) => fn
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
+  })
 }));
 
 describe('Task Drag & Drop Integration', () => {
@@ -180,7 +186,7 @@ describe('Task Drag & Drop Integration', () => {
 
       // タグセクションが表示されていることを確認
       const tagsSection = container.querySelector('h3');
-      expect(tagsSection?.textContent).toBe('Tags');
+      expect(tagsSection?.textContent).toBe('tags');
     });
 
     it('タグアイテムがドラッグ可能である', () => {

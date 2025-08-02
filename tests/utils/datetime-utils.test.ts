@@ -133,19 +133,19 @@ describe('Internal datetime utility functions', () => {
   describe('formatDateJapanese', () => {
     test('should format date in Japanese locale', () => {
       const date = new Date('2025-07-26T00:00:00'); // A Saturday
-      expect(formatDateJapanese(date)).toBe('2025年7月26日(土)');
+      expect(formatDateJapanese(date)).toBe('2025年07月26日(Sat) 00:00:00');
     });
   });
 
   describe('formatSingleDate', () => {
     test('should format date only when no time is provided', () => {
       const date = new Date('2025-07-26T00:00:00');
-      expect(formatSingleDate(date, undefined)).toBe('2025年7月26日(土)');
+      expect(formatSingleDate(date, undefined)).toBe('2025年07月26日(Sat) 00:00:00');
     });
     test('should format date and time when time is provided', () => {
       const date = new Date('2025-07-26T00:00:00');
       const time = new Date('2025-07-26T14:30:00');
-      expect(formatSingleDate(date, time)).toBe('2025年7月26日(土) 14:30');
+      expect(formatSingleDate(date, time)).toBe('2025年07月26日(Sat) 00:00:00 14:30');
     });
   });
 
@@ -153,28 +153,28 @@ describe('Internal datetime utility functions', () => {
     test('should format a single day with no time', () => {
       const start = new Date('2025-07-26T00:00:00');
       const end = new Date('2025-07-26T00:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土)');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 00:00:00');
     });
     test('should format a single day with start and end time', () => {
       const start = new Date('2025-07-26T10:00:00');
       const end = new Date('2025-07-26T18:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 10:00 〜 18:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 10:00:00 10:00 〜 18:00');
     });
     test('should format a single day with only end time', () => {
       const start = new Date('2025-07-26T00:00:00');
       const end = new Date('2025-07-26T18:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 〜 18:00');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 00:00:00 〜 18:00');
     });
     test('should format a multi-day range with no time', () => {
       const start = new Date('2025-07-26T00:00:00');
       const end = new Date('2025-07-27T00:00:00');
-      expect(formatDateDisplayRange(start, end)).toBe('2025年7月26日(土) 〜 2025年7月27日(日)');
+      expect(formatDateDisplayRange(start, end)).toBe('2025年07月26日(Sat) 00:00:00 〜 2025年07月27日(Sun) 00:00:00');
     });
     test('should format a multi-day range with time', () => {
       const start = new Date('2025-07-26T10:00:00');
       const end = new Date('2025-07-28T18:00:00');
       expect(formatDateDisplayRange(start, end)).toBe(
-        '2025年7月26日(土) 10:00 〜 2025年7月28日(月) 18:00'
+        '2025年07月26日(Sat) 10:00:00 10:00 〜 2025年07月28日(Mon) 18:00:00 18:00'
       );
     });
   });
@@ -185,20 +185,20 @@ describe('formatDateTimeRange', () => {
 
   test('should format a simple date without time', () => {
     const result = formatDateTimeRange(baseDate, {});
-    expect(result).toBe('2025年7月26日(土)');
+    expect(result).toBe('2025年07月26日(Sat) 00:00:00');
   });
 
   test('should format a date with end time', () => {
     const endDateTime = new Date('2025-07-26T14:30:00');
     const result = formatDateTimeRange(baseDate, { endDateTime });
-    expect(result).toBe('2025年7月26日(土) 14:30');
+    expect(result).toBe('2025年07月26日(Sat) 00:00:00 14:30');
   });
 
   test('should format a same-day date range with time', () => {
     const startDateTime = new Date('2025-07-26T10:00:00');
     const endDateTime = new Date('2025-07-26T18:00:00');
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
-    expect(result).toBe('2025年7月26日(土) 10:00 〜 18:00');
+    expect(result).toBe('2025年07月26日(Sat) 10:00:00 10:00 〜 18:00');
   });
 
   test('should format a multi-day date range with time', () => {
@@ -206,35 +206,35 @@ describe('formatDateTimeRange', () => {
     const endDateTime = new Date('2025-07-28T18:00:00'); // 2 days difference
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
     // The baseDate is 26th, so the range will be 26th to 28th
-    expect(result).toBe('2025年7月26日(土) 10:00 〜 2025年7月28日(月) 18:00');
+    expect(result).toBe('2025年07月26日(Sat) 10:00:00 10:00 〜 2025年07月28日(Mon) 18:00:00 18:00');
   });
 
   test('should format a same-day range without time', () => {
     const startDateTime = new Date('2025-07-26T00:00:00');
     const endDateTime = new Date('2025-07-26T00:00:00');
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
-    expect(result).toBe('2025年7月26日(土)');
+    expect(result).toBe('2025年07月26日(Sat) 00:00:00');
   });
 
   test('should format a multi-day range without time', () => {
     const startDateTime = new Date('2025-07-26T00:00:00');
     const endDateTime = new Date('2025-07-27T00:00:00');
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
-    expect(result).toBe('2025年7月26日(土) 〜 2025年7月27日(日)');
+    expect(result).toBe('2025年07月26日(Sat) 00:00:00 〜 2025年07月27日(Sun) 00:00:00');
   });
 
   test('should handle range with only start time', () => {
     const startDateTime = new Date('2025-07-26T10:00:00');
     const endDateTime = new Date('2025-07-26T00:00:00'); // No end time
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
-    expect(result).toBe('2025年7月26日(土) 10:00 〜');
+    expect(result).toBe('2025年07月26日(Sat) 10:00:00 10:00 〜');
   });
 
   test('should handle range with only end time', () => {
     const startDateTime = new Date('2025-07-26T00:00:00'); // No start time
     const endDateTime = new Date('2025-07-26T18:00:00');
     const result = formatDateTimeRange(baseDate, { startDateTime, endDateTime, isRangeDate: true });
-    expect(result).toBe('2025年7月26日(土) 〜 18:00');
+    expect(result).toBe('2025年07月26日(Sat) 00:00:00 〜 18:00');
   });
 });
 

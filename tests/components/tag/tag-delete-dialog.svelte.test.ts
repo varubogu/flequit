@@ -5,11 +5,12 @@ import type { Tag } from '$lib/types/task';
 
 // モック設定
 vi.mock('$lib/stores/locale.svelte', () => ({
-  reactiveMessage: vi.fn((messageFn) => {
-    if (typeof messageFn === 'function') {
-      return vi.fn(() => messageFn());
-    }
-    return vi.fn(() => 'Mocked message');
+  reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn,
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => key,
+    getCurrentLocale: () => 'en',
+    setLocale: () => {},
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T): T => fn
   })
 }));
 

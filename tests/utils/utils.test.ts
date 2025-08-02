@@ -42,7 +42,7 @@ describe('utils', () => {
       // twMerge should handle conflicting Tailwind classes
       const result = cn('p-2 p-4', 'bg-blue-500 bg-red-500');
 
-      expect(result).toBe('p-2 bg-blue-500');
+      expect(result).toBe('p-4 bg-red-500');
     });
 
     test('should handle complex combinations', () => {
@@ -104,7 +104,7 @@ describe('utils', () => {
       // Later classes should override earlier ones
       const result = cn('text-base text-lg text-sm');
 
-      expect(result).toBe('text-lg');
+      expect(result).toBe('text-sm');
     });
 
     test('should handle margin and padding conflicts', () => {
@@ -119,7 +119,7 @@ describe('utils', () => {
     test('should handle color conflicts', () => {
       const result = cn('text-blue-500 text-green-500 text-red-500');
 
-      expect(result).toBe('text-green-500');
+      expect(result).toBe('text-red-500');
     });
   });
 
