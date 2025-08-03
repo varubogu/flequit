@@ -178,7 +178,7 @@ describe('Task Drag & Drop Integration', () => {
 
       // タグセクションが表示されていることを確認
       const tagsSection = container.querySelector('h3');
-      expect(tagsSection?.textContent).toBe('tags');
+      expect(tagsSection?.textContent).toBe('Tags');
     });
 
     it('タグアイテムがドラッグ可能である', () => {

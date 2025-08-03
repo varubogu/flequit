@@ -48,8 +48,9 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
             order_index: task.order_index || 0,
             is_archived: task.is_archived || false,
             created_at: new Date(),
-            updated_at: new Date()
-          } as Task);
+            updated_at: new Date(),
+            recurrence_parent_id: task.id
+          } as TaskWithRecurrenceParent);
         });
 
         return instances;
@@ -227,8 +228,9 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
             ...task,
             title: `${task.title} (${i + 1}回目)`,
             end_date: new Date(),
-            status: 'not_started'
-          } as Task);
+            status: 'not_started',
+            recurrence_parent_id: task.id
+          } as TaskWithRecurrenceParent);
         }
 
         return instances;
