@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/task';
   import type { ViewType } from '$lib/services/view-service';
@@ -43,12 +44,13 @@
   }
 
   function toggleProjectExpansion(projectId: string) {
-    if (expandedProjects.has(projectId)) {
-      expandedProjects.delete(projectId);
+    const newSet = new SvelteSet(expandedProjects);
+    if (newSet.has(projectId)) {
+      newSet.delete(projectId);
     } else {
-      expandedProjects.add(projectId);
+      newSet.add(projectId);
     }
-    // Set を再代入する必要はありません（リアクティブ）
+    expandedProjects = newSet;
   }
 
   function getProjectTaskCount(project: ProjectTree): number {

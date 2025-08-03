@@ -147,9 +147,7 @@ describe('SidebarProjectList Component', () => {
     expect(onViewChange).toHaveBeenCalledWith('project');
   });
 
-  test.skip('should expand and collapse project task lists', async () => {
-    // Svelte 5のリアクティブシステムとテスト環境の組み合わせで
-    // expandedProjectsのステート変更が適切に動作しないため、スキップ
+  test('should expand and collapse project task lists', async () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
@@ -173,9 +171,7 @@ describe('SidebarProjectList Component', () => {
     expect(screen.queryByTestId('tasklist-list-1')).not.toBeInTheDocument();
   });
 
-  test.skip('should select a task list when clicked', async () => {
-    // Svelte 5のリアクティブシステムとテスト環境の組み合わせで
-    // expandedProjectsのステート変更が適切に動作しないため、スキップ
+  test('should select a task list when clicked', async () => {
     setTaskStoreData({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 

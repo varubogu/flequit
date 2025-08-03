@@ -179,10 +179,10 @@ describe('RecurrenceDialogAdvanced', () => {
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
     await tick(); // Svelteの更新を待つ
-    
+
     // モックをクリアして、disabledに変更した時の呼び出しのみをテストする
     mockOnSave.mockClear();
-    
+
     fireEvent.change(select, { target: { value: 'disabled' } });
     await tick(); // Svelteの更新を待つ
 

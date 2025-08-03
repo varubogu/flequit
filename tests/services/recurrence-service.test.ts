@@ -796,11 +796,11 @@ describe('RecurrenceService', () => {
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-        
+
         // 現在の実装では設定に関係なく同じ結果になります
         // 2024年2月の第1月曜日は2月4日（実装の計算結果）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-04');
-        
+
         // TODO: 週の開始日設定を考慮する実装が必要
         // 実装では2/4を返すが、実際のカレンダーでは：
         // 日曜日始まり: 2月の第1週は 2/4(日)-2/10(土) → 第1月曜日は2/5
@@ -819,10 +819,10 @@ describe('RecurrenceService', () => {
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-        
+
         // 現在の実装結果（週の開始日設定に依存しない）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
-        
+
         // NOTE: この結果は実際のカレンダーでは2024年2月の第2日曜日（2月11日）と1日ずれています
         // 実装では0ベースの週計算を使用している可能性があります
       });
@@ -838,10 +838,10 @@ describe('RecurrenceService', () => {
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-        
+
         // 2024年2月1日（木）の次の月曜日は2月5日
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-05');
-        
+
         // 週の開始日設定に関係なく、「次の月曜日」の計算は一貫している必要があります
       });
 
@@ -854,7 +854,7 @@ describe('RecurrenceService', () => {
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-        
+
         // 2024年2月1日（木）の次の対象曜日は2月2日（金）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-02');
       });
@@ -881,10 +881,10 @@ describe('RecurrenceService', () => {
         };
 
         const nextDate = RecurrenceService.calculateNextDate(saturdayDate, rule);
-        
+
         // 土曜日 → 次の平日（月曜日：2月5日）
         expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-05');
-        
+
         // 週の開始日設定に関係なく、「平日」の定義は一貫している必要があります
       });
     });
@@ -895,7 +895,7 @@ describe('RecurrenceService', () => {
         // 1. settingsStoreから週の開始日設定を取得
         // 2. 「第X週」の計算で週の開始日を考慮
         // 3. 週単位繰り返しで週の境界を正しく計算
-        
+
         expect(true).toBe(true); // プレースホルダー
       });
     });
