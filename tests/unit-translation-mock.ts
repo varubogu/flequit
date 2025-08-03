@@ -19,6 +19,7 @@ export const unitTestTranslations = {
   error: 'TEST_ERROR',
   success: 'TEST_SUCCESS',
   warning: 'TEST_WARNING',
+  change: 'TEST_CHANGE',
 
   // タスク関連
   task_title: 'TEST_TASK_TITLE',
@@ -171,6 +172,7 @@ export const unitTestTranslations = {
   add_project: 'TEST_ADD_PROJECT',
   edit_project: 'TEST_EDIT_PROJECT',
   delete_project: 'TEST_DELETE_PROJECT',
+  select_project_and_task_list: 'TEST_SELECT_PROJECT_AND_TASK_LIST',
 
   // タグ関連
   tag: 'TEST_TAG',
