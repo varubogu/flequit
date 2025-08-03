@@ -4,7 +4,7 @@ import { tick } from 'svelte';
 import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
 import type { RecurrenceRule } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService } from '../../unit-translation-mock';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 // メッセージファイルをモック
 
@@ -39,16 +39,16 @@ describe('RecurrenceDialogAdvanced', () => {
       }
     });
 
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     expect(select).toBeTruthy();
 
     // selectの選択肢を確認
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
-    expect(optionTexts).toContain('無効');
-    expect(optionTexts).toContain('有効');
-    expect(optionTexts).toContain('有効（高度）');
+    expect(optionTexts).toContain(unitTestTranslations.recurrence_disabled);
+    expect(optionTexts).toContain(unitTestTranslations.recurrence_enabled);
+    expect(optionTexts).toContain(unitTestTranslations.recurrence_advanced);
   });
 
   it('無効選択時は基本設定が表示されない', () => {
@@ -61,7 +61,7 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // デフォルトで「無効」が選択されている
-    expect(() => screen.getByText('繰り返し間隔')).toThrow();
+    expect(() => screen.getByText(unitTestTranslations.recurrence_interval)).toThrow();
   });
 
   it('有効選択時は基本設定のみ表示される', async () => {
@@ -73,17 +73,17 @@ describe('RecurrenceDialogAdvanced', () => {
       }
     });
 
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
 
     // Svelteの更新を待つ
     await tick();
 
     // 基本設定が表示される（ヘッダーを確認）
-    expect(screen.getByText('繰り返し間隔')).toBeTruthy();
+    expect(screen.getByText(unitTestTranslations.recurrence_interval)).toBeTruthy();
 
     // 補正条件は表示されない
-    expect(() => screen.getByText('補正条件')).toThrow();
+    expect(() => screen.getByText(unitTestTranslations.adjustment_conditions)).toThrow();
   });
 
   it('有効（高度）選択時は全設定が表示される', async () => {
@@ -95,17 +95,17 @@ describe('RecurrenceDialogAdvanced', () => {
       }
     });
 
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'advanced' } });
 
     // Svelteの更新を待つ
     await tick();
 
     // 基本設定が表示される（ヘッダーを確認）
-    expect(screen.getByText('繰り返し間隔')).toBeTruthy();
+    expect(screen.getByText(unitTestTranslations.recurrence_interval)).toBeTruthy();
 
     // 補正条件も表示される
-    expect(screen.getByText('補正条件')).toBeTruthy();
+    expect(screen.getByText(unitTestTranslations.adjustment_conditions)).toBeTruthy();
   });
 
   it('既存のルールから正しいレベルを推定する', () => {
@@ -135,7 +135,7 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // 高度設定として認識される
-    expect(screen.getByDisplayValue('有効（高度）')).toBeTruthy();
+    expect(screen.getByDisplayValue(unitTestTranslations.recurrence_advanced)).toBeTruthy();
   });
 
   it('保存時に正しいルールが生成される', async () => {
@@ -148,7 +148,7 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // 有効に変更
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
 
     // Svelteの更新を待つ
@@ -173,7 +173,7 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // まず有効に変更してから無効に戻すことで、実際に変更イベントを発生させる
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
     fireEvent.change(select, { target: { value: 'disabled' } });
 
@@ -191,12 +191,12 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // 有効に変更
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
 
     // 繰り返し回数フィールドが表示される
-    expect(screen.getByText('繰り返し回数')).toBeTruthy();
-    expect(screen.getByPlaceholderText('無制限の場合は空欄')).toBeTruthy();
+    expect(screen.getByText(unitTestTranslations.recurrence_max_occurrences)).toBeTruthy();
+    expect(screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder)).toBeTruthy();
   });
 
   it('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
@@ -209,14 +209,14 @@ describe('RecurrenceDialogAdvanced', () => {
     });
 
     // 有効に変更
-    const select = screen.getByDisplayValue('無効');
+    const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
 
     // まずmockをクリアして、繰り返し回数の変更のみをテストする
     mockOnSave.mockClear();
 
     // 繰り返し回数を設定
-    const countInput = screen.getByPlaceholderText('無制限の場合は空欄') as HTMLInputElement;
+    const countInput = screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder) as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
 
     // setTimeoutを考慮して少し待機
@@ -247,9 +247,9 @@ describe('RecurrenceDialogAdvanced', () => {
         }
       });
       // 有効に変更
-      const select = screen.getByDisplayValue('無効');
+      const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
       fireEvent.change(select, { target: { value: 'enabled' } });
-      countInput = screen.getByPlaceholderText('無制限の場合は空欄') as HTMLInputElement;
+      countInput = screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder) as HTMLInputElement;
     });
 
     it('小数点を入力すると整数に丸められる', async () => {
