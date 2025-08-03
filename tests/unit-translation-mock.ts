@@ -29,6 +29,10 @@ export const unitTestTranslations = {
   add_task: 'TEST_ADD_TASK',
   edit_task: 'TEST_EDIT_TASK',
   delete_task: 'TEST_DELETE_TASK',
+  add_some_tasks: 'TEST_ADD_SOME_TASKS',
+  click_add_task: 'TEST_CLICK_ADD_TASK',
+  try_different_search: 'TEST_TRY_DIFFERENT_SEARCH',
+  no_search_results: 'TEST_NO_SEARCH_RESULTS',
 
   // ステータス関連
   status_not_started: 'TEST_STATUS_NOT_STARTED',

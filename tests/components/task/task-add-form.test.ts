@@ -4,6 +4,8 @@ import TaskAddForm from '$lib/components/task/task-add-form.svelte';
 import { TaskListService } from '$lib/services/task-list-service';
 import { TaskService } from '$lib/services/task-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 // Mock services
 vi.mock('$lib/services/task-list-service', () => ({
@@ -43,15 +45,16 @@ const mockTaskStore = vi.mocked(taskStore);
 describe('TaskAddForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   describe('rendering', () => {
     test('should render input field and buttons', () => {
       render(TaskAddForm);
 
-      const input = screen.getByPlaceholderText('Enter task title...');
-      const saveButton = screen.getByTitle('Add Task');
-      const cancelButton = screen.getByTitle('Cancel');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title);
+      const saveButton = screen.getByTitle(unitTestTranslations.add_task);
+      const cancelButton = screen.getByTitle(unitTestTranslations.cancel);
 
       expect(input).toBeInTheDocument();
       expect(saveButton).toBeInTheDocument();
@@ -61,7 +64,7 @@ describe('TaskAddForm', () => {
     test('should render with empty input initially', () => {
       render(TaskAddForm);
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
       expect(input.value).toBe('');
     });
   });
@@ -75,8 +78,8 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const saveButton = screen.getByTitle('Add Task');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const saveButton = screen.getByTitle(unitTestTranslations.add_task);
 
       // Type in the input
       await fireEvent.input(input, { target: { value: 'New task title' } });
@@ -98,7 +101,7 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
-      const saveButton = screen.getByTitle('Add Task');
+      const saveButton = screen.getByTitle(unitTestTranslations.add_task);
 
       await fireEvent.click(saveButton);
 
@@ -114,8 +117,8 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const saveButton = screen.getByTitle('Add Task');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const saveButton = screen.getByTitle(unitTestTranslations.add_task);
 
       await fireEvent.input(input, { target: { value: 'Failed task' } });
       await fireEvent.click(saveButton);
@@ -136,7 +139,7 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
 
       await fireEvent.input(input, { target: { value: 'Keyboard task' } });
       await fireEvent.keyDown(input, { key: 'Enter' });
@@ -151,7 +154,7 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onCancel } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
 
       await fireEvent.input(input, { target: { value: 'Cancel this task' } });
       await fireEvent.keyDown(input, { key: 'Escape' });
@@ -167,7 +170,7 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded, onCancel } });
 
-      const input = screen.getByPlaceholderText('Enter task title...');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title);
 
       await fireEvent.keyDown(input, { key: 'Tab' });
       await fireEvent.keyDown(input, { key: 'Space' });
@@ -185,8 +188,8 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onCancel } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const cancelButton = screen.getByTitle('Cancel');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const cancelButton = screen.getByTitle(unitTestTranslations.cancel);
 
       await fireEvent.input(input, { target: { value: 'Task to cancel' } });
       expect(input.value).toBe('Task to cancel');
@@ -201,8 +204,8 @@ describe('TaskAddForm', () => {
     test('should work without onCancel prop', async () => {
       render(TaskAddForm);
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const cancelButton = screen.getByTitle('Cancel');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const cancelButton = screen.getByTitle(unitTestTranslations.cancel);
 
       await fireEvent.input(input, { target: { value: 'Task to cancel' } });
       await fireEvent.click(cancelButton);
@@ -220,8 +223,8 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm);
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const saveButton = screen.getByTitle('Add Task');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const saveButton = screen.getByTitle(unitTestTranslations.add_task);
 
       await fireEvent.input(input, { target: { value: 'Task without callback' } });
       await fireEvent.click(saveButton);
@@ -236,7 +239,7 @@ describe('TaskAddForm', () => {
     test('should render edit button', () => {
       render(TaskAddForm);
 
-      const editButton = screen.getByTitle('Edit Task Details');
+      const editButton = screen.getByTitle(unitTestTranslations.edit_task);
       expect(editButton).toBeInTheDocument();
     });
 
@@ -245,8 +248,8 @@ describe('TaskAddForm', () => {
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
-      const editButton = screen.getByTitle('Edit Task Details');
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+      const editButton = screen.getByTitle(unitTestTranslations.edit_task);
 
       await fireEvent.input(input, { target: { value: 'New task for editing' } });
       await fireEvent.click(editButton);
@@ -262,10 +265,10 @@ describe('TaskAddForm', () => {
     test('should always enable edit button (allows creating task without title)', async () => {
       render(TaskAddForm);
 
-      const editButton = screen.getByTitle('Edit Task Details') as HTMLButtonElement;
+      const editButton = screen.getByTitle(unitTestTranslations.edit_task) as HTMLButtonElement;
       expect(editButton.disabled).toBe(false);
 
-      const input = screen.getByPlaceholderText('Enter task title...') as HTMLInputElement;
+      const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
       await fireEvent.input(input, { target: { value: 'Some text' } });
 
       expect(editButton.disabled).toBe(false);

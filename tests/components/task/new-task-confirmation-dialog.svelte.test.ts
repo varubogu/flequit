@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmation-dialog.svelte';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('NewTaskConfirmationDialog', () => {
   const defaultProps = {
@@ -13,6 +13,7 @@ describe('NewTaskConfirmationDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -40,25 +41,25 @@ describe('NewTaskConfirmationDialog', () => {
   it('タイトルが正しく表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
 
-    expect(screen.getByText('変更を破棄してもよろしいですか？')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.confirm_discard_changes)).toBeInTheDocument();
   });
 
   it('説明文が正しく表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
 
-    expect(screen.getByText('未保存のタスクがあります。変更を破棄しますか？')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.unsaved_task_message)).toBeInTheDocument();
   });
 
   it('編集を続けるボタンが表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
 
-    expect(screen.getByText('編集を続ける')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.keep_editing)).toBeInTheDocument();
   });
 
   it('変更を破棄するボタンが表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
 
-    expect(screen.getByText('変更を破棄')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.discard_changes)).toBeInTheDocument();
   });
 
   it('編集を続けるボタンをクリックするとonCancelが呼ばれる', async () => {
@@ -70,7 +71,7 @@ describe('NewTaskConfirmationDialog', () => {
       }
     });
 
-    const keepEditingButton = screen.getByText('編集を続ける');
+    const keepEditingButton = screen.getByText(unitTestTranslations.keep_editing);
     await fireEvent.click(keepEditingButton);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -85,7 +86,7 @@ describe('NewTaskConfirmationDialog', () => {
       }
     });
 
-    const discardButton = screen.getByText('変更を破棄');
+    const discardButton = screen.getByText(unitTestTranslations.discard_changes);
     await fireEvent.click(discardButton);
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -214,7 +215,7 @@ describe('NewTaskConfirmationDialog', () => {
   it('両方のボタンが同時に表示される', () => {
     render(NewTaskConfirmationDialog, { props: defaultProps });
 
-    expect(screen.getByText('編集を続ける')).toBeInTheDocument();
-    expect(screen.getByText('変更を破棄')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.keep_editing)).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.discard_changes)).toBeInTheDocument();
   });
 });

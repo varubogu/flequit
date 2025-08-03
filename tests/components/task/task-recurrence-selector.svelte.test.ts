@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
 import type { RecurrenceRule, DayOfWeek, WeekOfMonth } from '$lib/types/task';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('TaskRecurrenceSelector', () => {
   const defaultProps = {
@@ -14,6 +14,7 @@ describe('TaskRecurrenceSelector', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -25,7 +26,7 @@ describe('TaskRecurrenceSelector', () => {
     render(TaskRecurrenceSelector, { props: defaultProps });
 
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('no_recurrence')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.no_recurrence)).toBeInTheDocument();
   });
 
   it('無効化状態でボタンが操作できない', () => {
