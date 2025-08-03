@@ -308,9 +308,22 @@ export const createUnitTestTranslationService = (locale: string = 'en') => ({
   setLocale: () => {},
   getAvailableLocales: () => ['en', 'ja'] as const,
   reactiveMessage: <T extends (...args: unknown[]) => string>(messageFn: T): T => messageFn,
-  getMessage: (key: string) => () => {
-    // キーが存在する場合はテスト値を返し、存在しない場合はキー自体を返す
-    return unitTestTranslations[key as keyof typeof unitTestTranslations] || key;
+  getMessage: (key: string, params?: Record<string, string>) => () => {
+    // キーが存在しない場合はエラーを投げる
+    if (!(key in unitTestTranslations)) {
+      throw new Error(`Translation key "${key}" not found in unitTestTranslations. Please add this key to the mock translations.`);
+    }
+
+    let message = unitTestTranslations[key as keyof typeof unitTestTranslations];
+
+    // パラメータ置換を実行
+    if (params && typeof message === 'string') {
+      Object.entries(params).forEach(([param, value]) => {
+        message = message.replace(new RegExp(`{{${param}}}`, 'g'), value);
+      });
+    }
+
+    return message;
   },
   subscribe: () => () => {} // unsubscribe function
 });
