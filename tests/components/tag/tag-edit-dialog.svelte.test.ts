@@ -3,7 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
 import type { Tag } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 describe('TagEditDialog', () => {
   const mockTag: Tag = {

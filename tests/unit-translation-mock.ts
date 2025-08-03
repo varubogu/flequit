@@ -315,7 +315,9 @@ export const createUnitTestTranslationService = (locale: string = 'en') => ({
   getMessage: (key: string, params?: Record<string, string>) => () => {
     // キーが存在しない場合はエラーを投げる
     if (!(key in unitTestTranslations)) {
-      throw new Error(`Translation key "${key}" not found in unitTestTranslations. Please add this key to the mock translations.`);
+      throw new Error(
+        `Translation key "${key}" not found in unitTestTranslations. Please add this key to the mock translations.`
+      );
     }
 
     let message = unitTestTranslations[key as keyof typeof unitTestTranslations];

@@ -3,7 +3,10 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
 import type { Tag } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 describe('TagDeleteDialog', () => {
   const mockTag: Tag = {
@@ -60,7 +63,9 @@ describe('TagDeleteDialog', () => {
     render(TagDeleteDialog, { props: defaultProps });
 
     expect(
-      screen.getByText(unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'test-tag'))
+      screen.getByText(
+        unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'test-tag')
+      )
     ).toBeInTheDocument();
   });
 
@@ -151,7 +156,9 @@ describe('TagDeleteDialog', () => {
     });
 
     expect(
-      screen.getByText(unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'different-tag'))
+      screen.getByText(
+        unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'different-tag')
+      )
     ).toBeInTheDocument();
   });
 

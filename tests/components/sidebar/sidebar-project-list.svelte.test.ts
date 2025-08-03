@@ -25,7 +25,7 @@ vi.mock('$lib/stores/tasks.svelte', () => {
     projects = [];
     selectedProjectId = null;
     selectedListId = null;
-    
+
     selectProject = vi.fn();
     selectList = vi.fn();
     addProject = vi.fn();
@@ -154,7 +154,7 @@ describe('SidebarProjectList Component', () => {
     render(SidebarProjectList, { onViewChange });
 
     const toggleButton = screen.getAllByTitle('TEST_TOGGLE_TASK_LISTS')[0];
-    
+
     // 初期状態では TaskList が表示されていないことを確認
     expect(screen.queryByTestId('tasklist-list-1')).not.toBeInTheDocument();
 
@@ -162,7 +162,7 @@ describe('SidebarProjectList Component', () => {
     await fireEvent.click(toggleButton);
     // Svelteの更新サイクルを待つ
     await tick();
-    
+
     // TaskList が表示されることを確認（data-testidで検索）
     expect(await screen.findByTestId('tasklist-list-1')).toBeInTheDocument();
     expect(screen.getByTestId('tasklist-list-2')).toBeInTheDocument();
