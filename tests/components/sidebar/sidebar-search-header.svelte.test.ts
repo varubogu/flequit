@@ -4,9 +4,6 @@ import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
 
-// --- Paraglide Mock ---
-
-
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({

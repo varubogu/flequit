@@ -13,7 +13,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'ja';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
@@ -22,7 +22,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'ja-JP';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
@@ -31,7 +31,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'en';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
@@ -40,7 +40,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'en-US';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
@@ -49,7 +49,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'fr-FR';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
@@ -58,7 +58,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'en';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder('ja');
       expect(result).toBe('ja');
     });
@@ -67,7 +67,7 @@ describe('LanguageOrderUtils', () => {
       const mockService = createUnitTestTranslationService();
       mockService.getCurrentLocale = () => 'ja';
       setTranslationService(mockService);
-      
+
       const result = LanguageOrderUtils.getWeekdayConditionOrder(undefined);
       expect(result).toBe('ja');
     });

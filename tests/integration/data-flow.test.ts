@@ -112,9 +112,9 @@ test('subtask management workflow', () => {
         id: 'task-1',
         title: 'メインタスク',
         sub_tasks: [
-          { 
-            id: 'sub-1', 
-            title: 'サブタスク1', 
+          {
+            id: 'sub-1',
+            title: 'サブタスク1',
             status: 'not_started' as const,
             task_id: 'task-1',
             order_index: 0,
@@ -122,9 +122,9 @@ test('subtask management workflow', () => {
             created_at: new Date(),
             updated_at: new Date()
           } as SubTask,
-          { 
-            id: 'sub-2', 
-            title: 'サブタスク2', 
+          {
+            id: 'sub-2',
+            title: 'サブタスク2',
             status: 'completed' as const,
             task_id: 'task-1',
             order_index: 1,

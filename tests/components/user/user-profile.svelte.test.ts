@@ -2,7 +2,10 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import UserProfile from '$lib/components/user/user-profile.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -119,20 +122,30 @@ describe('UserProfile Component', () => {
   describe('Logged Out Actions', () => {
     test('should show Sign In and Settings options when logged out', async () => {
       renderComponent({ user: null });
-      const toggleButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.not_signed_in) });
+      const toggleButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.not_signed_in)
+      });
       await fireEvent.click(toggleButton);
 
-      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_in) })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_in) })
+      ).toBeInTheDocument();
       // There are two "Settings" buttons, one in the menu and one for the dialog
-      expect(screen.getAllByRole('button', { name: new RegExp(unitTestTranslations.settings) }).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByRole('button', { name: new RegExp(unitTestTranslations.settings) }).length
+      ).toBeGreaterThan(0);
     });
 
     test('should call onLogin and close menu when Sign In is clicked', async () => {
       renderComponent({ user: null });
-      const toggleButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.not_signed_in) });
+      const toggleButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.not_signed_in)
+      });
       await fireEvent.click(toggleButton);
 
-      const signInButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_in) });
+      const signInButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.sign_in)
+      });
       await fireEvent.click(signInButton);
 
       expect(onLogin).toHaveBeenCalledTimes(1);
@@ -146,9 +159,15 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.settings) })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.switch_account) })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_out) })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: new RegExp(unitTestTranslations.settings) })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: new RegExp(unitTestTranslations.switch_account) })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_out) })
+      ).toBeInTheDocument();
     });
 
     test('should call onLogout and close menu when Sign Out is clicked', async () => {
@@ -156,7 +175,9 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      const signOutButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_out) });
+      const signOutButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.sign_out)
+      });
       await fireEvent.click(signOutButton);
 
       expect(onLogout).toHaveBeenCalledTimes(1);
@@ -169,7 +190,9 @@ describe('UserProfile Component', () => {
       await fireEvent.click(toggleButton);
 
       // Get the settings button from the menu
-      const settingsButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.settings) });
+      const settingsButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.settings)
+      });
       await fireEvent.click(settingsButton);
 
       expect(onSettings).toHaveBeenCalledTimes(1);
@@ -182,7 +205,9 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      const switchAccountButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.switch_account) });
+      const switchAccountButton = screen.getByRole('button', {
+        name: new RegExp(unitTestTranslations.switch_account)
+      });
       await fireEvent.click(switchAccountButton);
 
       expect(onSwitchAccount).toHaveBeenCalledTimes(1);

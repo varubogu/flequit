@@ -39,7 +39,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-
 const mockTaskListService = vi.mocked(TaskListService);
 
 describe('TaskList', () => {

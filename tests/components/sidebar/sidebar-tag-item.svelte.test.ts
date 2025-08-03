@@ -5,9 +5,6 @@ import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
 import type { Tag } from '$lib/types/task';
 
-// --- Paraglide Mock ---
-
-
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({

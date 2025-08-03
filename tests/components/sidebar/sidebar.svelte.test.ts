@@ -25,9 +25,6 @@ vi.mock('$lib/components/user/user-profile.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({ component: 'UserProfile' }))
 }));
 
-// --- Paraglide Mock ---
-
-
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', () => ({ taskStore: {} }));
 vi.mock('$lib/stores/tags.svelte', () => ({ tagStore: {} }));

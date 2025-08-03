@@ -57,7 +57,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-
 describe('SidebarTagList - Drag & Drop', () => {
   const mockTags: Tag[] = [
     {

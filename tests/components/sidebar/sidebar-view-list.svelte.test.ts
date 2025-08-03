@@ -6,7 +6,6 @@ import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { type TaskWithSubTasks } from '$lib/types/task';
 
-
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({

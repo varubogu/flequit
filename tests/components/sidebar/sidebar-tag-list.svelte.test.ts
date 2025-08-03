@@ -4,7 +4,6 @@ import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
-
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({

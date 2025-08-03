@@ -21,7 +21,6 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   }
 }));
 
-
 describe('TagDisplay', () => {
   const mockTag: Tag = {
     id: '1',

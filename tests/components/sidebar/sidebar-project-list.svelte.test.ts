@@ -6,9 +6,6 @@ import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.sve
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
 
-// --- Paraglide Mock ---
-
-
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({
