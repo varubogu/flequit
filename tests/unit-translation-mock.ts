@@ -2,6 +2,7 @@
  * 単体テスト用の翻訳モック
  * 全ての翻訳キーに対して一意のテスト値を提供します
  * 本来の翻訳とは異なり、キーが違えば必ず異なる値になるため、テストでの区別が容易です
+ * テストキーの命名規則は「TEST_キー名」で、全て大文字です。
  */
 
 export const unitTestTranslations = {
@@ -170,6 +171,7 @@ export const unitTestTranslations = {
   add_tag: 'TEST_ADD_TAG',
   edit_tag: 'TEST_EDIT_TAG',
   delete_tag: 'TEST_DELETE_TAG',
+  delete_tag_description: 'TEST_DELETE_TAG_DESCRIPTION',
 
   // ビュー関連
   views: 'TEST_VIEWS',

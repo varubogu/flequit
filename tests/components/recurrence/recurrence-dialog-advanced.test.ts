@@ -198,9 +198,9 @@ describe('RecurrenceDialogAdvanced', () => {
     fireEvent.change(select, { target: { value: 'enabled' } });
 
     // 繰り返し回数フィールドが表示される
-    expect(screen.getByText(unitTestTranslations.recurrence_max_occurrences)).toBeTruthy();
+    expect(screen.getByText(unitTestTranslations.repeat_count)).toBeTruthy();
     expect(
-      screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder)
+      screen.getByPlaceholderText(unitTestTranslations.infinite_repeat_placeholder)
     ).toBeTruthy();
   });
 
@@ -222,7 +222,7 @@ describe('RecurrenceDialogAdvanced', () => {
 
     // 繰り返し回数を設定
     const countInput = screen.getByPlaceholderText(
-      unitTestTranslations.max_occurrences_placeholder
+      unitTestTranslations.infinite_repeat_placeholder
     ) as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
 
@@ -257,7 +257,7 @@ describe('RecurrenceDialogAdvanced', () => {
       const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
       fireEvent.change(select, { target: { value: 'enabled' } });
       countInput = screen.getByPlaceholderText(
-        unitTestTranslations.max_occurrences_placeholder
+        unitTestTranslations.infinite_repeat_placeholder
       ) as HTMLInputElement;
     });
 
