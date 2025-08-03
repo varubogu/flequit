@@ -99,7 +99,7 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
   ```
 
 - **ビルド**: `bun run build`で翻訳ファイル自動生成
-- **テスト時**: vitest（単体テスト）はgetTranslationService()をモック化して実行する。paraglideや「$lib/stores/locale.svelte」をモック化して使用するのは誤り
+- **テスト時**: vitest（単体テスト）は`getTranslationService()`をモック化して実行する。詳細は`@docs/develop/design/testing.md`の「翻訳システムのテスト」セクションを参照
 
 ## コーディング規約
 
