@@ -3,7 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
 import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 describe('DayTargetSelector', () => {
   const mockOnChange = vi.fn();

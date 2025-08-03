@@ -3,7 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createJapaneseTestTranslationService, createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createJapaneseTestTranslationService,
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {
@@ -44,7 +48,7 @@ describe('WeekdayConditionEditor', () => {
   it('英語で正しい順序で表示される', async () => {
     // 英語モードでテストを実行
     setTranslationService(createUnitTestTranslationService('en'));
-    
+
     render(WeekdayConditionEditor, {
       props: {
         condition: mockCondition,
@@ -91,7 +95,9 @@ describe('WeekdayConditionEditor', () => {
     const directionSelect = selects.find((select) => {
       const options = select.querySelectorAll('option');
       return Array.from(options).some(
-        (option) => option.textContent === unitTestTranslations.previous || option.textContent === unitTestTranslations.next
+        (option) =>
+          option.textContent === unitTestTranslations.previous ||
+          option.textContent === unitTestTranslations.next
       );
     });
 

@@ -4,7 +4,10 @@ import { tick } from 'svelte';
 import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
 import type { RecurrenceRule } from '$lib/types/task';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 // メッセージファイルをモック
 
@@ -196,7 +199,9 @@ describe('RecurrenceDialogAdvanced', () => {
 
     // 繰り返し回数フィールドが表示される
     expect(screen.getByText(unitTestTranslations.recurrence_max_occurrences)).toBeTruthy();
-    expect(screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder)).toBeTruthy();
+    expect(
+      screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder)
+    ).toBeTruthy();
   });
 
   it('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
@@ -216,7 +221,9 @@ describe('RecurrenceDialogAdvanced', () => {
     mockOnSave.mockClear();
 
     // 繰り返し回数を設定
-    const countInput = screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder) as HTMLInputElement;
+    const countInput = screen.getByPlaceholderText(
+      unitTestTranslations.max_occurrences_placeholder
+    ) as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
 
     // setTimeoutを考慮して少し待機
@@ -249,7 +256,9 @@ describe('RecurrenceDialogAdvanced', () => {
       // 有効に変更
       const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
       fireEvent.change(select, { target: { value: 'enabled' } });
-      countInput = screen.getByPlaceholderText(unitTestTranslations.max_occurrences_placeholder) as HTMLInputElement;
+      countInput = screen.getByPlaceholderText(
+        unitTestTranslations.max_occurrences_placeholder
+      ) as HTMLInputElement;
     });
 
     it('小数点を入力すると整数に丸められる', async () => {

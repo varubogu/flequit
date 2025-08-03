@@ -4,7 +4,10 @@ import SearchCommand from '$lib/components/command/search-command.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { viewStore } from '$lib/stores/view-store.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 // モック設定
 vi.mock('$lib/stores/tasks.svelte', () => ({

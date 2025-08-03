@@ -245,7 +245,6 @@ export const unitTestTranslations = {
   switch_account: 'TEST_SWITCH_ACCOUNT',
   sign_out: 'TEST_SIGN_OUT',
 
-
   // プロジェクト・タスク関連
   new_task: 'TEST_NEW_TASK',
   task_list: 'TEST_TASK_LIST',
