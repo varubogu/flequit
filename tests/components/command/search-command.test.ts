@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import SearchCommand from '$lib/components/command/search-command.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { viewStore } from '$lib/stores/view-store.svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 // モック設定
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -50,6 +52,7 @@ vi.mock('$lib/services/task-service', () => ({
 describe('SearchCommand', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('検索入力時にEnterキーを押すと検索が実行されること', async () => {
@@ -73,7 +76,7 @@ describe('SearchCommand', () => {
     await fireEvent.input(input, { target: { value: 'test' } });
 
     // 「すべての結果を表示」項目が表示されることを確認
-    const showAllItem = screen.getByText('show_all_results_for');
+    const showAllItem = screen.getByText(unitTestTranslations.show_all_results_for);
     expect(showAllItem).toBeInTheDocument();
 
     // 項目をクリックして選択
@@ -116,7 +119,7 @@ describe('SearchCommand', () => {
     render(SearchCommand, { open: true });
 
     // 入力が空の状態でクイックアクションが表示されることを確認
-    const addTaskItem = screen.getByText('add_new_task');
+    const addTaskItem = screen.getByText(unitTestTranslations.add_new_task);
     expect(addTaskItem).toBeInTheDocument();
 
     // 項目をクリック
@@ -130,7 +133,7 @@ describe('SearchCommand', () => {
     render(SearchCommand, { open: true });
 
     // 入力が空の状態でクイックアクションが表示されることを確認
-    const viewAllItem = screen.getByText('view_all_tasks');
+    const viewAllItem = screen.getByText(unitTestTranslations.view_all_tasks);
     expect(viewAllItem).toBeInTheDocument();
 
     // 項目をクリック
@@ -144,7 +147,7 @@ describe('SearchCommand', () => {
     const onOpenChange = vi.fn();
     render(SearchCommand, { open: true, onOpenChange });
 
-    const addTaskItem = screen.getByText('add_new_task');
+    const addTaskItem = screen.getByText(unitTestTranslations.add_new_task);
     await fireEvent.click(addTaskItem);
 
     // ダイアログが閉じられることを確認
@@ -157,7 +160,7 @@ describe('SearchCommand', () => {
 
     render(SearchCommand, { open: true });
 
-    const addTaskItem = screen.getByText('add_new_task');
+    const addTaskItem = screen.getByText(unitTestTranslations.add_new_task);
     await fireEvent.click(addTaskItem);
 
     // selectedListIdが使用されることを確認

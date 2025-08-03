@@ -48,6 +48,15 @@ export const unitTestTranslations = {
   show_all_results_for: 'TEST_SHOW_ALL_RESULTS_FOR',
   add_new_task: 'TEST_ADD_NEW_TASK',
   view_all_tasks: 'TEST_VIEW_ALL_TASKS',
+  type_a_command: 'TEST_TYPE_A_COMMAND',
+  no_commands_found: 'TEST_NO_COMMANDS_FOUND',
+  no_tasks_found: 'TEST_NO_TASKS_FOUND',
+  commands: 'TEST_COMMANDS',
+  jump_to_task: 'TEST_JUMP_TO_TASK',
+  results: 'TEST_RESULTS',
+  no_matching_tasks_found: 'TEST_NO_MATCHING_TASKS_FOUND',
+  show_all_tasks: 'TEST_SHOW_ALL_TASKS',
+  quick_actions: 'TEST_QUICK_ACTIONS',
 
   // 繰り返し関連
   no_recurrence: 'TEST_NO_RECURRENCE',
@@ -185,9 +194,14 @@ export const unitTestTranslations = {
   add_date: 'TEST_ADD_DATE',
 
   // 曜日選択関連
-  weekdays: 'TEST_WEEKDAYS',
-  weekends: 'TEST_WEEKENDS',
-  holidays: 'TEST_HOLIDAYS',
+  weekday: 'TEST_WEEKDAY',
+  weekend: 'TEST_WEEKEND',
+  holiday: 'TEST_HOLIDAY',
+  non_holiday: 'TEST_NON_HOLIDAY',
+  weekend_only: 'TEST_WEEKEND_ONLY',
+  non_weekend: 'TEST_NON_WEEKEND',
+  weekend_holiday: 'TEST_WEEKEND_HOLIDAY',
+  non_weekend_holiday: 'TEST_NON_WEEKEND_HOLIDAY',
 
   // 条件エディター関連
   if: 'TEST_IF',
@@ -268,8 +282,8 @@ export const unitTestTranslations = {
  * 単体テスト用のモック翻訳サービス
  * getTranslationService()のモック化で使用することを想定
  */
-export const createUnitTestTranslationService = () => ({
-  getCurrentLocale: () => 'en',
+export const createUnitTestTranslationService = (locale: string = 'en') => ({
+  getCurrentLocale: () => locale,
   setLocale: () => {},
   getAvailableLocales: () => ['en', 'ja'] as const,
   reactiveMessage: <T extends (...args: unknown[]) => string>(messageFn: T): T => messageFn,
@@ -279,3 +293,8 @@ export const createUnitTestTranslationService = () => ({
   },
   subscribe: () => () => {} // unsubscribe function
 });
+
+/**
+ * 日本語モード用のモック翻訳サービス
+ */
+export const createJapaneseTestTranslationService = () => createUnitTestTranslationService('ja');

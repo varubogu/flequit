@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from '$lib/types/task';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createJapaneseTestTranslationService, createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {
@@ -18,6 +18,8 @@ describe('WeekdayConditionEditor', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // 日本語モードでテストを実行
+    setTranslationService(createJapaneseTestTranslationService());
   });
 
   it('日本語で正しい順序で表示される', () => {
@@ -40,8 +42,9 @@ describe('WeekdayConditionEditor', () => {
   });
 
   it('英語で正しい順序で表示される', async () => {
-    // このテストは現在正しく動作しない（モックの再定義が困難）ため、スキップ
-    // 代わりに日本語モードで適切な要素が表示されることを確認
+    // 英語モードでテストを実行
+    setTranslationService(createUnitTestTranslationService('en'));
+    
     render(WeekdayConditionEditor, {
       props: {
         condition: mockCondition,
@@ -50,10 +53,9 @@ describe('WeekdayConditionEditor', () => {
       }
     });
 
-    // 日本語モードでは直接条件から始まる: [条件]なら[方向]の[対象]にずらす
-    expect(screen.getByText('なら')).toBeTruthy();
-    expect(screen.getByText('の')).toBeTruthy();
-    expect(screen.getByText('にずらす')).toBeTruthy();
+    // 英語モードでは: If [条件], move to [方向] [対象]
+    expect(screen.getByText('If')).toBeTruthy();
+    expect(screen.getByText(', move to')).toBeTruthy();
   });
 
   it('条件変更時にonUpdateが呼ばれる', async () => {
@@ -89,7 +91,7 @@ describe('WeekdayConditionEditor', () => {
     const directionSelect = selects.find((select) => {
       const options = select.querySelectorAll('option');
       return Array.from(options).some(
-        (option) => option.textContent === '前' || option.textContent === '後'
+        (option) => option.textContent === unitTestTranslations.previous || option.textContent === unitTestTranslations.next
       );
     });
 

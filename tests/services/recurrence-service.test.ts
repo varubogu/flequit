@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { RecurrenceService } from '$lib/services/recurrence-service';
 import type {
   RecurrenceRule,
@@ -7,8 +7,14 @@ import type {
   RecurrenceUnit
 } from '$lib/types/task';
 import { generateRandomId } from '$lib/utils/id-utils';
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../unit-translation-mock';
 
 describe('RecurrenceService', () => {
+  beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
+  });
+
   describe('calculateNextDate', () => {
     it('日単位の繰り返し計算', () => {
       const baseDate = new Date('2024-01-01');
@@ -127,8 +133,8 @@ describe('RecurrenceService', () => {
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-      // 2024年2月の第2日曜日は2月11日（実装では2月10日）
-      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-10');
+      // 2024年2月の第2日曜日は2月11日
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-11');
     });
 
     it('月の最後の曜日指定（最終金曜日）', () => {
@@ -143,8 +149,8 @@ describe('RecurrenceService', () => {
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
-      // 2024年2月の最終金曜日は2月23日（実装では2月22日）
-      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-22');
+      // 2024年2月の最終金曜日は2月23日
+      expect(nextDate?.toISOString().split('T')[0]).toBe('2024-02-23');
     });
 
     it('年単位の繰り返し計算', () => {

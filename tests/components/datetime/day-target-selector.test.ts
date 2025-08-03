@@ -2,14 +2,15 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/day-target-selector.svelte';
 import type { DayOfWeek, AdjustmentTarget } from '$lib/types/task';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('DayTargetSelector', () => {
   const mockOnChange = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('正しい曜日オプションが表示される', () => {
@@ -27,13 +28,13 @@ describe('DayTargetSelector', () => {
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
-    expect(optionTexts).toContain('月曜日');
-    expect(optionTexts).toContain('火曜日');
-    expect(optionTexts).toContain('水曜日');
-    expect(optionTexts).toContain('木曜日');
-    expect(optionTexts).toContain('金曜日');
-    expect(optionTexts).toContain('土曜日');
-    expect(optionTexts).toContain('日曜日');
+    expect(optionTexts).toContain(unitTestTranslations.monday);
+    expect(optionTexts).toContain(unitTestTranslations.tuesday);
+    expect(optionTexts).toContain(unitTestTranslations.wednesday);
+    expect(optionTexts).toContain(unitTestTranslations.thursday);
+    expect(optionTexts).toContain(unitTestTranslations.friday);
+    expect(optionTexts).toContain(unitTestTranslations.saturday);
+    expect(optionTexts).toContain(unitTestTranslations.sunday);
   });
 
   it('正しい特別オプションが表示される', () => {
@@ -48,10 +49,14 @@ describe('DayTargetSelector', () => {
     const options = select.querySelectorAll('option');
     const optionTexts = Array.from(options).map((opt) => opt.textContent);
 
-    expect(optionTexts).toContain('平日');
-    expect(optionTexts).toContain('休日');
-    expect(optionTexts).toContain('祝日');
-    expect(optionTexts).toContain('非祝日');
+    expect(optionTexts).toContain(unitTestTranslations.weekday);
+    expect(optionTexts).toContain(unitTestTranslations.weekend);
+    expect(optionTexts).toContain(unitTestTranslations.weekend_only);
+    expect(optionTexts).toContain(unitTestTranslations.non_weekend);
+    expect(optionTexts).toContain(unitTestTranslations.holiday);
+    expect(optionTexts).toContain(unitTestTranslations.non_holiday);
+    expect(optionTexts).toContain(unitTestTranslations.weekend_holiday);
+    expect(optionTexts).toContain(unitTestTranslations.non_weekend_holiday);
   });
 
   it('選択された値が正しく表示される', () => {
