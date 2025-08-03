@@ -1,17 +1,9 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
-// getTranslationServiceのモック化
-vi.mock('$lib/stores/locale.svelte', async () => {
-  const actual = await vi.importActual('$lib/stores/locale.svelte');
-  return {
-    ...actual,
-    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
-    reactiveMessage: (fn: () => string) => fn
-  };
-});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -91,6 +83,7 @@ describe('SidebarTagList Component', () => {
   let onViewChange: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
     onViewChange = vi.fn();
     vi.clearAllMocks();
   });

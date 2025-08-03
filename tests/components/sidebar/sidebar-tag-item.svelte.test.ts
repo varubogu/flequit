@@ -1,20 +1,12 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
 import type { Tag } from '$lib/types/task';
 
 // --- Paraglide Mock ---
 
-// getTranslationServiceのモック化
-vi.mock('$lib/stores/locale.svelte', async () => {
-  const actual = await vi.importActual('$lib/stores/locale.svelte');
-  return {
-    ...actual,
-    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
-    reactiveMessage: (fn: () => string) => fn
-  };
-});
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -49,6 +41,7 @@ describe('SidebarTagItem Component', () => {
   let onTagClick: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
     onRemoveFromBookmarks = vi.fn();
     onEditTag = vi.fn();
     onDeleteTag = vi.fn();

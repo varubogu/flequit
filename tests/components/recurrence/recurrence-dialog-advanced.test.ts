@@ -3,12 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { tick } from 'svelte';
 import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
 import type { RecurrenceRule } from '$lib/types/task';
-
-// Paraglideランタイムをモック
-vi.mock('$paraglide/runtime', () => ({
-  getLocale: vi.fn(() => 'ja'),
-  setLocale: vi.fn()
-}));
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // メッセージファイルをモック
 
@@ -30,6 +26,7 @@ describe('RecurrenceDialogAdvanced', () => {
   const mockOnOpenChange = vi.fn();
 
   beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
     vi.clearAllMocks();
   });
 

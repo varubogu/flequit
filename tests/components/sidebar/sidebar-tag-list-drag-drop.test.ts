@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import { TaskService } from '$lib/services/task-service';
@@ -56,15 +57,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-// getTranslationServiceのモック化
-vi.mock('$lib/stores/locale.svelte', async () => {
-  const actual = await vi.importActual('$lib/stores/locale.svelte');
-  return {
-    ...actual,
-    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
-    reactiveMessage: (fn: () => string) => fn
-  };
-});
 
 describe('SidebarTagList - Drag & Drop', () => {
   const mockTags: Tag[] = [
@@ -85,6 +77,7 @@ describe('SidebarTagList - Drag & Drop', () => {
   ];
 
   beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
     vi.clearAllMocks();
   });
 
