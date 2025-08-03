@@ -1,64 +1,73 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { LanguageOrderUtils } from '$lib/utils/language-order';
-import { translationService } from '$lib/services/paraglide-translation-service.svelte';
-
-// translation service をモック
-vi.mock('$lib/services/paraglide-translation-service.svelte', () => ({
-  translationService: {
-    getCurrentLocale: vi.fn()
-  }
-}));
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService } from '../unit-translation-mock';
 
 describe('LanguageOrderUtils', () => {
-  const mockTranslationService = vi.mocked(translationService);
-
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   describe('getWeekdayConditionOrder', () => {
     it('日本語ロケールの場合はjaを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'ja';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
 
     it('日本語ロケール（地域指定あり）の場合はjaを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('ja-JP');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'ja-JP';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('ja');
     });
 
     it('英語ロケールの場合はenを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('en');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'en';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('英語ロケール（地域指定あり）の場合はenを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('en-US');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'en-US';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('その他のロケールの場合はenを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('fr-FR');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'fr-FR';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder();
       expect(result).toBe('en');
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('en');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'en';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder('ja');
       expect(result).toBe('ja');
     });
 
     it('言語パラメータがnullの場合はgetLocaleの値を使用', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'ja';
+      setTranslationService(mockService);
+      
       const result = LanguageOrderUtils.getWeekdayConditionOrder(undefined);
       expect(result).toBe('ja');
     });
@@ -113,7 +122,9 @@ describe('LanguageOrderUtils', () => {
 
   describe('formatWeekdayCondition', () => {
     it('日本語ロケールの場合は日本語フォーマットを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('ja');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'ja';
+      setTranslationService(mockService);
 
       const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日');
 
@@ -121,7 +132,9 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('英語ロケールの場合は英語フォーマットを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('en');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'en';
+      setTranslationService(mockService);
 
       const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
 
@@ -129,7 +142,9 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('en');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'en';
+      setTranslationService(mockService);
 
       const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日', 'ja');
 
@@ -137,7 +152,9 @@ describe('LanguageOrderUtils', () => {
     });
 
     it('未知の言語の場合は英語フォーマットを返す', () => {
-      mockTranslationService.getCurrentLocale.mockReturnValue('fr');
+      const mockService = createUnitTestTranslationService();
+      mockService.getCurrentLocale = () => 'fr';
+      setTranslationService(mockService);
 
       const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
 

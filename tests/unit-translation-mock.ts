@@ -204,6 +204,8 @@ export const unitTestTranslations = {
   keep_editing: 'TEST_KEEP_EDITING',
 
   // アカウント・設定関連
+  not_signed_in: 'TEST_NOT_SIGNED_IN',
+  sign_in: 'TEST_SIGN_IN',
   switch_account: 'TEST_SWITCH_ACCOUNT',
   sign_out: 'TEST_SIGN_OUT',
 

@@ -1,7 +1,8 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import UserProfile from '$lib/components/user/user-profile.svelte';
-import { createUnitTestTranslationService } from '../../unit-translation-mock';
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -13,16 +14,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     setOpen: vi.fn()
   })
 }));
-
-// getTranslationServiceのモック化
-vi.mock('$lib/stores/locale.svelte', async () => {
-  const actual = await vi.importActual('$lib/stores/locale.svelte');
-  return {
-    ...actual,
-    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
-    reactiveMessage: (fn: () => string) => fn
-  };
-});
 
 // --- Settings Dialog Mock ---
 vi.mock('$lib/components/settings/settings-dialog.svelte', () => ({
@@ -55,6 +46,7 @@ describe('UserProfile Component', () => {
   let onSwitchAccount: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    setTranslationService(createUnitTestTranslationService());
     onLogin = vi.fn();
     onLogout = vi.fn();
     onSettings = vi.fn();
@@ -75,7 +67,7 @@ describe('UserProfile Component', () => {
   describe('Rendering and State', () => {
     test('should render "Not signed in" when no user is provided', () => {
       renderComponent({ user: null });
-      expect(screen.getByText('Not signed in')).toBeInTheDocument();
+      expect(screen.getByText(unitTestTranslations.not_signed_in)).toBeInTheDocument();
     });
 
     test('should render user name and email when user is provided', () => {
@@ -103,13 +95,13 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
 
       // The menu is identified by its content
-      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.switch_account)).not.toBeInTheDocument();
 
       await fireEvent.click(toggleButton);
-      expect(screen.getByText('Switch Account')).toBeInTheDocument();
+      expect(screen.getByText(unitTestTranslations.switch_account)).toBeInTheDocument();
 
       await fireEvent.click(toggleButton);
-      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.switch_account)).not.toBeInTheDocument();
     });
 
     test('should close menu when clicking outside', async () => {
@@ -117,34 +109,34 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
 
       await fireEvent.click(toggleButton);
-      expect(screen.getByText('Switch Account')).toBeInTheDocument();
+      expect(screen.getByText(unitTestTranslations.switch_account)).toBeInTheDocument();
 
       await fireEvent.click(document.body);
-      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.switch_account)).not.toBeInTheDocument();
     });
   });
 
   describe('Logged Out Actions', () => {
     test('should show Sign In and Settings options when logged out', async () => {
       renderComponent({ user: null });
-      const toggleButton = screen.getByRole('button', { name: /Not signed in/ });
+      const toggleButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.not_signed_in) });
       await fireEvent.click(toggleButton);
 
-      expect(screen.getByRole('button', { name: /Sign In/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_in) })).toBeInTheDocument();
       // There are two "Settings" buttons, one in the menu and one for the dialog
-      expect(screen.getAllByRole('button', { name: /Settings/ }).length).toBeGreaterThan(0);
+      expect(screen.getAllByRole('button', { name: new RegExp(unitTestTranslations.settings) }).length).toBeGreaterThan(0);
     });
 
     test('should call onLogin and close menu when Sign In is clicked', async () => {
       renderComponent({ user: null });
-      const toggleButton = screen.getByRole('button', { name: /Not signed in/ });
+      const toggleButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.not_signed_in) });
       await fireEvent.click(toggleButton);
 
-      const signInButton = screen.getByRole('button', { name: /Sign In/ });
+      const signInButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_in) });
       await fireEvent.click(signInButton);
 
       expect(onLogin).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Sign In')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.sign_in)).not.toBeInTheDocument();
     });
   });
 
@@ -154,9 +146,9 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      expect(screen.getByRole('button', { name: /Settings/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Switch Account/ })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Sign Out/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.settings) })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.switch_account) })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_out) })).toBeInTheDocument();
     });
 
     test('should call onLogout and close menu when Sign Out is clicked', async () => {
@@ -164,11 +156,11 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      const signOutButton = screen.getByRole('button', { name: /Sign Out/ });
+      const signOutButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.sign_out) });
       await fireEvent.click(signOutButton);
 
       expect(onLogout).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Sign Out')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.sign_out)).not.toBeInTheDocument();
     });
 
     test('should call onSettings and close the menu', async () => {
@@ -177,12 +169,12 @@ describe('UserProfile Component', () => {
       await fireEvent.click(toggleButton);
 
       // Get the settings button from the menu
-      const settingsButton = screen.getByRole('button', { name: /Settings/ });
+      const settingsButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.settings) });
       await fireEvent.click(settingsButton);
 
       expect(onSettings).toHaveBeenCalledTimes(1);
       // The menu should close, so the "Switch Account" button (another menu item) should disappear
-      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.switch_account)).not.toBeInTheDocument();
     });
 
     test('should call onSwitchAccount and close menu', async () => {
@@ -190,11 +182,11 @@ describe('UserProfile Component', () => {
       const toggleButton = screen.getByRole('button', { name: /John Doe/ });
       await fireEvent.click(toggleButton);
 
-      const switchAccountButton = screen.getByRole('button', { name: /Switch Account/ });
+      const switchAccountButton = screen.getByRole('button', { name: new RegExp(unitTestTranslations.switch_account) });
       await fireEvent.click(switchAccountButton);
 
       expect(onSwitchAccount).toHaveBeenCalledTimes(1);
-      expect(screen.queryByText('Switch Account')).not.toBeInTheDocument();
+      expect(screen.queryByText(unitTestTranslations.switch_account)).not.toBeInTheDocument();
     });
   });
 });
