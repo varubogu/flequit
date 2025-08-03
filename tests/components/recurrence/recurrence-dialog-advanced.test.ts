@@ -166,7 +166,7 @@ describe('RecurrenceDialogAdvanced', () => {
     );
   });
 
-  it('無効選択時はnullが保存される', () => {
+  it('無効選択時はnullが保存される', async () => {
     render(RecurrenceDialogAdvanced, {
       props: {
         open: true,
@@ -178,7 +178,13 @@ describe('RecurrenceDialogAdvanced', () => {
     // まず有効に変更してから無効に戻すことで、実際に変更イベントを発生させる
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
+    await tick(); // Svelteの更新を待つ
+    
+    // モックをクリアして、disabledに変更した時の呼び出しのみをテストする
+    mockOnSave.mockClear();
+    
     fireEvent.change(select, { target: { value: 'disabled' } });
+    await tick(); // Svelteの更新を待つ
 
     // 無効に変更した時にnullが保存される
     expect(mockOnSave).toHaveBeenCalledWith(null);
