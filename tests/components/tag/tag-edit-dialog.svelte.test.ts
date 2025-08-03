@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
 import type { Tag } from '$lib/types/task';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('TagEditDialog', () => {
   const mockTag: Tag = {
@@ -23,6 +23,7 @@ describe('TagEditDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('表示される', () => {
@@ -55,7 +56,7 @@ describe('TagEditDialog', () => {
     const props = { ...defaultProps, tag: null };
     render(TagEditDialog, { props });
 
-    const saveButton = screen.getByText('保存');
+    const saveButton = screen.getByText(unitTestTranslations.save);
     expect(saveButton).toBeDisabled();
 
     const nameInput = screen.getByLabelText('タグ名');
@@ -70,7 +71,7 @@ describe('TagEditDialog', () => {
     const nameInput = screen.getByDisplayValue('テストタグ');
     await fireEvent.input(nameInput, { target: { value: '   ' } });
 
-    const saveButton = screen.getByText('保存');
+    const saveButton = screen.getByText(unitTestTranslations.save);
     expect(saveButton).toBeDisabled();
   });
 
@@ -85,7 +86,7 @@ describe('TagEditDialog', () => {
     const colorInputs = screen.getAllByDisplayValue('#ff0000');
     await fireEvent.input(colorInputs[1], { target: { value: '#00ff00' } });
 
-    const saveButton = screen.getByText('保存');
+    const saveButton = screen.getByText(unitTestTranslations.save);
     await fireEvent.click(saveButton);
 
     expect(mockOnsave).toHaveBeenCalledWith({
@@ -102,7 +103,7 @@ describe('TagEditDialog', () => {
     const nameInput = screen.getByDisplayValue('テストタグ');
     await fireEvent.input(nameInput, { target: { value: '  タグ名  ' } });
 
-    const saveButton = screen.getByText('保存');
+    const saveButton = screen.getByText(unitTestTranslations.save);
     await fireEvent.click(saveButton);
 
     expect(mockOnsave).toHaveBeenCalledWith({
@@ -116,7 +117,7 @@ describe('TagEditDialog', () => {
     const props = { ...defaultProps, onclose: mockOnclose };
     render(TagEditDialog, { props });
 
-    const cancelButton = screen.getByText('キャンセル');
+    const cancelButton = screen.getByText(unitTestTranslations.cancel);
     await fireEvent.click(cancelButton);
 
     expect(mockOnclose).toHaveBeenCalled();

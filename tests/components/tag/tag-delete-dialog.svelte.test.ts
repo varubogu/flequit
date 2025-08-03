@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
 import type { Tag } from '$lib/types/task';
-
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import { createUnitTestTranslationService, unitTestTranslations } from '../../unit-translation-mock';
 
 describe('TagDeleteDialog', () => {
   const mockTag: Tag = {
@@ -23,6 +23,7 @@ describe('TagDeleteDialog', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -52,27 +53,27 @@ describe('TagDeleteDialog', () => {
   it('正しいタイトルが表示される', () => {
     render(TagDeleteDialog, { props: defaultProps });
 
-    expect(screen.getByText('Delete Tag')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.delete_tag)).toBeInTheDocument();
   });
 
   it('正しい説明文が表示される', () => {
     render(TagDeleteDialog, { props: defaultProps });
 
     expect(
-      screen.getByText(/Are you sure you want to delete the tag "test-tag"/)
+      screen.getByText(unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'test-tag'))
     ).toBeInTheDocument();
   });
 
   it('キャンセルボタンが表示される', () => {
     render(TagDeleteDialog, { props: defaultProps });
 
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.cancel)).toBeInTheDocument();
   });
 
   it('削除ボタンが表示される', () => {
     render(TagDeleteDialog, { props: defaultProps });
 
-    expect(screen.getByText('Remove')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.delete)).toBeInTheDocument();
   });
 
   it('キャンセルボタンをクリックするとonCancelが呼ばれる', async () => {
@@ -84,7 +85,7 @@ describe('TagDeleteDialog', () => {
       }
     });
 
-    const cancelButton = screen.getByText('Cancel');
+    const cancelButton = screen.getByText(unitTestTranslations.cancel);
     await fireEvent.click(cancelButton);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -99,7 +100,7 @@ describe('TagDeleteDialog', () => {
       }
     });
 
-    const removeButton = screen.getByText('Remove');
+    const removeButton = screen.getByText(unitTestTranslations.delete);
     await fireEvent.click(removeButton);
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -150,7 +151,7 @@ describe('TagDeleteDialog', () => {
     });
 
     expect(
-      screen.getByText(/Are you sure you want to delete the tag "different-tag"/)
+      screen.getByText(unitTestTranslations.delete_tag_description.replace('{{tagName}}', 'different-tag'))
     ).toBeInTheDocument();
   });
 

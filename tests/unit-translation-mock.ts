@@ -172,6 +172,10 @@ export const unitTestTranslations = {
   edit_tag: 'TEST_EDIT_TAG',
   delete_tag: 'TEST_DELETE_TAG',
   delete_tag_description: 'TEST_DELETE_TAG_DESCRIPTION',
+  tag_name: 'TEST_TAG_NAME',
+  tag_color: 'TEST_TAG_COLOR',
+  tag_name_placeholder: 'TEST_TAG_NAME_PLACEHOLDER',
+  tag_preview: 'TEST_TAG_PREVIEW',
 
   // ビュー関連
   views: 'TEST_VIEWS',
