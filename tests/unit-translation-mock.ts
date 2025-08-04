@@ -212,10 +212,15 @@ export const unitTestTranslations = {
 
   // 日付フォーマット関連
   date_format_editor: 'TEST_DATE_FORMAT_EDITOR',
+  apply_datetime_format_to_test_format: 'TEST_APPLY_DATETIME_FORMAT_TO_TEST_FORMAT',
+  apply_test_format_to_datetime_format: 'TEST_APPLY_TEST_FORMAT_TO_DATETIME_FORMAT',
   enter_format_name: 'TEST_ENTER_FORMAT_NAME',
   delete_format_title: 'TEST_DELETE_FORMAT_TITLE',
   delete_format_message: 'TEST_DELETE_FORMAT_MESSAGE',
   add_new: 'TEST_ADD_NEW',
+  visible_in_sidebar: 'TEST_VISIBLE_IN_SIDEBAR',
+  hidden_from_sidebar: 'TEST_HIDDEN_FROM_SIDEBAR',
+  test_datetime: 'TEST_DATETIME',
 
   // その他
   configure_preferences: 'TEST_CONFIGURE_PREFERENCES',
