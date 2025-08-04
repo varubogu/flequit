@@ -228,7 +228,7 @@ describe('Label', () => {
 
     const label = container.querySelector('label');
     if (label) {
-      await label.click();
+      label.click();
       expect(mockOnClick).toHaveBeenCalledTimes(1);
     }
   });
