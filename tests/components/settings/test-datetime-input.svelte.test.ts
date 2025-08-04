@@ -20,10 +20,10 @@ vi.mock('svelte/reactivity', () => ({
   SvelteDate: vi.fn().mockImplementation((date: Date) => {
     const mockDate = new Date(date);
     mockDate.setFullYear = vi.fn((year: number, month: number, day: number) => {
-      Date.prototype.setFullYear.call(mockDate, year, month, day);
+      return Date.prototype.setFullYear.call(mockDate, year, month, day);
     });
     mockDate.setHours = vi.fn((hours: number, minutes: number, seconds: number) => {
-      Date.prototype.setHours.call(mockDate, hours, minutes, seconds);
+      return Date.prototype.setHours.call(mockDate, hours, minutes, seconds);
     });
     return mockDate;
   })
