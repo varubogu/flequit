@@ -28,7 +28,7 @@
   }
 </script>
 
-<div class="min-w-0 flex-1 overflow-hidden w-full">
+<div class="w-full min-w-0 flex-1 overflow-hidden">
   <!-- Title and Due Date Row -->
   <div class="flex w-full min-w-0 items-start gap-3 overflow-hidden">
     <h3
@@ -46,7 +46,7 @@
 
   {#if task.description}
     <p
-      class="text-muted-foreground mt-1 text-sm w-full min-w-0 overflow-hidden"
+      class="text-muted-foreground mt-1 w-full min-w-0 overflow-hidden text-sm"
       style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word;"
       title={task.description}
     >
@@ -71,7 +71,7 @@
 
   <!-- Tags -->
   {#if task.tags.length > 0}
-    <div class="mt-2 flex flex-wrap gap-1 w-full min-w-0 overflow-hidden">
+    <div class="mt-2 flex w-full min-w-0 flex-wrap gap-1 overflow-hidden">
       {#each task.tags as tag (tag.id)}
         <TagDisplay {tag} onTagRemoveFromItem={handleTagRemoveFromTask} />
       {/each}

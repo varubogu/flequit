@@ -147,11 +147,12 @@ describe('TaskItem Integration', () => {
 
   test('should handle long task titles without horizontal overflow', () => {
     const longTitleTask = createMockTask({
-      title: 'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
+      title:
+        'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
     });
 
     const { container } = render(TaskItem, { props: { task: longTitleTask } });
-    
+
     // Container should have proper width constraints
     const mainContainer = container.querySelector('.flex.items-start.gap-1.w-full');
     expect(mainContainer).toBeInTheDocument();
@@ -161,7 +162,8 @@ describe('TaskItem Integration', () => {
   test('should handle long descriptions without layout issues', () => {
     const longDescriptionTask = createMockTask({
       title: 'Task with Long Description',
-      description: 'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。'
+      description:
+        'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。'
     });
 
     const { container } = render(TaskItem, { props: { task: longDescriptionTask } });
@@ -175,7 +177,7 @@ describe('TaskItem Integration', () => {
     // Main container should have proper flex constraints
     const mainContainer = container.querySelector('.flex.items-start.gap-1.w-full');
     expect(mainContainer).toBeInTheDocument();
-    
+
     // Task button container should be flexible
     const taskButtonContainer = container.querySelector('.flex-1.min-w-0.overflow-hidden');
     expect(taskButtonContainer).toBeInTheDocument();
@@ -183,7 +185,8 @@ describe('TaskItem Integration', () => {
 
   test('should handle japanese long title', () => {
     const japaneseTask = createMockTask({
-      title: '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認を実施します。'
+      title:
+        '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認を実施します。'
     });
 
     const { container } = render(TaskItem, { props: { task: japaneseTask } });
@@ -192,7 +195,8 @@ describe('TaskItem Integration', () => {
 
   test('should handle english long title', () => {
     const englishTask = createMockTask({
-      title: 'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths and various viewport sizes'
+      title:
+        'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths and various viewport sizes'
     });
 
     const { container } = render(TaskItem, { props: { task: englishTask } });

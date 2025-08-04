@@ -161,7 +161,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
 
       const { container } = render(TaskList, {
         props: {
-          title: 'これは非常に長いタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。',
+          title:
+            'これは非常に長いタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。',
           tasks: mockTasks,
           showAddButton: true,
           onTaskClick: mockOnTaskClick
@@ -183,8 +184,10 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
       const longTextTasks: TaskWithSubTasks[] = [
         {
           id: 'long-task-1',
-          title: 'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。',
-          description: 'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。',
+          title:
+            'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。',
+          description:
+            'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。',
           status: 'not_started',
           priority: 1,
           tags: [],
@@ -197,7 +200,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
         },
         {
           id: 'long-task-2',
-          title: 'Another very long task title that should be properly handled by the responsive layout system without causing horizontal scrollbar issues',
+          title:
+            'Another very long task title that should be properly handled by the responsive layout system without causing horizontal scrollbar issues',
           description: '',
           status: 'completed',
           priority: 2,
@@ -232,7 +236,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
       const mixedLanguageTasks: TaskWithSubTasks[] = [
         {
           id: 'mixed-1',
-          title: '日本語タイトル with English mixed content for testing responsive behavior レスポンシブ対応テスト',
+          title:
+            '日本語タイトル with English mixed content for testing responsive behavior レスポンシブ対応テスト',
           description: 'Mixed language description 日本語説明文 with various characters',
           status: 'not_started',
           priority: 1,
@@ -265,7 +270,8 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
 
       const { container } = render(TaskList, {
         props: {
-          title: 'This is an extremely long empty task list title that should be properly truncated and not cause any horizontal overflow issues in mobile responsive design',
+          title:
+            'This is an extremely long empty task list title that should be properly truncated and not cause any horizontal overflow issues in mobile responsive design',
           tasks: [],
           showAddButton: false,
           onTaskClick: mockOnTaskClick

@@ -363,7 +363,8 @@ describe('TaskContent', () => {
   it('極長タイトルでも横スクロールが発生しないプロパティ設定', () => {
     const taskWithVeryLongTitle = {
       ...mockTask,
-      title: 'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
+      title:
+        'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
     };
 
     const props = {
@@ -378,7 +379,8 @@ describe('TaskContent', () => {
   it('極長説明文でも適切に処理される', () => {
     const taskWithVeryLongDescription = {
       ...mockTask,
-      description: 'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。ホバー時には全文をtooltipで確認できるようになっています。'
+      description:
+        'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。ホバー時には全文をtooltipで確認できるようになっています。'
     };
 
     const props = {
@@ -393,7 +395,8 @@ describe('TaskContent', () => {
   it('日本語の長文タイトルが適切に処理される', () => {
     const taskWithJapaneseLongTitle = {
       ...mockTask,
-      title: '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認'
+      title:
+        '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認'
     };
 
     const props = {
@@ -409,7 +412,8 @@ describe('TaskContent', () => {
   it('英語の長文タイトルが適切に処理される', () => {
     const taskWithEnglishLongTitle = {
       ...mockTask,
-      title: 'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths'
+      title:
+        'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths'
     };
 
     const props = {

@@ -64,7 +64,7 @@
           </div>
 
           <!-- Account Details -->
-          <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
+          <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             <!-- Account Icon -->
             <div>
               <div class="mb-1 text-sm font-medium">{account_icon()}</div>

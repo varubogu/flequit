@@ -197,7 +197,7 @@
   }
 </script>
 
-<div class="flex w-full items-start gap-1 min-w-0 overflow-hidden">
+<div class="flex w-full min-w-0 items-start gap-1 overflow-hidden">
   <div class="flex-shrink-0">
     <TaskAccordionToggle
       hasSubTasks={task.sub_tasks.length > 0}
@@ -210,7 +210,7 @@
   <div
     role="button"
     tabindex="0"
-    class="flex-1 min-w-0 overflow-hidden"
+    class="min-w-0 flex-1 overflow-hidden"
     draggable="true"
     ondragstart={handleDragStart}
     ondragover={handleDragOver}

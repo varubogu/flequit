@@ -61,9 +61,9 @@
 
 <div class="flex h-full w-full flex-col overflow-hidden" data-testid="task-list">
   <!-- Header -->
-  <div class="bg-card border-b p-4 w-full min-w-0">
-    <div class="flex items-center justify-between min-w-0">
-      <div class="flex items-center gap-2 min-w-0 flex-1">
+  <div class="bg-card w-full min-w-0 border-b p-4">
+    <div class="flex min-w-0 items-center justify-between">
+      <div class="flex min-w-0 flex-1 items-center gap-2">
         <!-- レスポンシブ折りたたみボタン（モバイル時のみ表示） -->
         {#if sidebar.isMobile}
           <Button
@@ -71,15 +71,15 @@
             variant="ghost"
             onclick={sidebar.toggle}
             title="Toggle Sidebar"
-            class="md:hidden flex-shrink-0"
+            class="flex-shrink-0 md:hidden"
             data-testid="mobile-sidebar-toggle"
           >
             <PanelLeft class="h-4 w-4" />
           </Button>
         {/if}
-        <h2 class="text-xl font-semibold truncate">{title}</h2>
+        <h2 class="truncate text-xl font-semibold">{title}</h2>
       </div>
-      <div class="flex items-center gap-2 flex-shrink-0">
+      <div class="flex flex-shrink-0 items-center gap-2">
         <span class="text-muted-foreground text-sm">
           {taskCountText}
         </span>
@@ -98,7 +98,7 @@
   </div>
 
   <!-- Task List -->
-  <div class="min-w-0 flex-1 overflow-auto p-4 w-full">
+  <div class="w-full min-w-0 flex-1 overflow-auto p-4">
     {#if tasks.length === 0}
       <div class="text-muted-foreground py-8 text-center">
         <div class="mb-2 text-4xl">{isSearchView ? '🔍' : '📝'}</div>

@@ -7,7 +7,7 @@ const mockTaskDetailStore = {
   selectedSubTask: null as SubTask | null,
   isNewTaskMode: false,
   isEditMode: false,
-  
+
   newTaskData: {
     title: '',
     description: '',
@@ -151,7 +151,7 @@ const mockTagStore = {
   ] as Tag[],
 
   searchTags: vi.fn((query: string) => {
-    return mockTagStore.availableTags.filter(tag =>
+    return mockTagStore.availableTags.filter((tag) =>
       tag.name.toLowerCase().includes(query.toLowerCase())
     );
   }),
@@ -220,13 +220,13 @@ const sampleTask: TaskWithSubTasks = {
 describe('タスク詳細ダイアログ結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // 初期状態にリセット
     mockTaskDetailStore.selectedTask = null;
     mockTaskDetailStore.selectedSubTask = null;
     mockTaskDetailStore.isNewTaskMode = false;
     mockTaskDetailStore.isEditMode = false;
-    
+
     mockTaskDetailStore.editFormData = {
       title: '',
       description: '',
@@ -246,7 +246,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   it('タスク選択時に詳細情報が正しく表示される', () => {
     // タスクを選択
     const selectedTask = mockTaskDetailStore.selectTask(sampleTask);
-    
+
     expect(mockTaskDetailStore.selectTask).toHaveBeenCalledWith(sampleTask);
     expect(selectedTask).toEqual(sampleTask);
     expect(mockTaskDetailStore.selectedTask).toEqual(sampleTask);
@@ -256,10 +256,10 @@ describe('タスク詳細ダイアログ結合テスト', () => {
 
   it('サブタスク選択時に詳細情報が正しく表示される', () => {
     const subTask = sampleTask.sub_tasks[0];
-    
+
     // サブタスクを選択
     const selectedSubTask = mockTaskDetailStore.selectSubTask(subTask);
-    
+
     expect(mockTaskDetailStore.selectSubTask).toHaveBeenCalledWith(subTask);
     expect(selectedSubTask).toEqual(subTask);
     expect(mockTaskDetailStore.selectedSubTask).toEqual(subTask);
@@ -269,7 +269,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   it('新規タスクモードが正しく動作する', () => {
     // 新規タスクモードに入る
     const newTaskData = mockTaskDetailStore.enterNewTaskMode();
-    
+
     expect(mockTaskDetailStore.enterNewTaskMode).toHaveBeenCalled();
     expect(mockTaskDetailStore.isNewTaskMode).toBe(true);
     expect(newTaskData.title).toBe('');
@@ -287,12 +287,12 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   it('タスクのメタデータ編集が正しく動作する', async () => {
     // タスクを選択
     mockTaskDetailStore.selectTask(sampleTask);
-    
+
     // タスクのタイトルを更新
     const titleUpdate = await mockTaskService.updateTask('task-1', {
       title: '更新されたタスク'
     });
-    
+
     expect(mockTaskService.updateTask).toHaveBeenCalledWith('task-1', {
       title: '更新されたタスク'
     });
@@ -303,30 +303,30 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     const statusUpdate = await mockTaskService.updateTask('task-1', {
       status: 'completed'
     });
-    
+
     expect(statusUpdate.status).toBe('completed');
 
     // タスクの優先度を更新
     const priorityUpdate = await mockTaskService.updateTask('task-1', {
       priority: 3
     });
-    
+
     expect(priorityUpdate.priority).toBe(3);
   });
 
   it('タスクの日付設定が正しく動作する', async () => {
     mockTaskDetailStore.selectTask(sampleTask);
-    
+
     const newStartDate = new Date('2024-02-01');
     const newEndDate = new Date('2024-02-10');
-    
+
     // 日付範囲を設定
     const dateUpdate = await mockTaskService.updateTask('task-1', {
       start_date: newStartDate,
       end_date: newEndDate,
       is_range_date: true
     });
-    
+
     expect(mockTaskService.updateTask).toHaveBeenCalledWith('task-1', {
       start_date: newStartDate,
       end_date: newEndDate,
@@ -342,21 +342,21 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       end_date: newEndDate,
       is_range_date: false
     });
-    
+
     expect(singleDateUpdate.is_range_date).toBe(false);
   });
 
   it('サブタスクの追加・編集・削除が正しく動作する', async () => {
     mockTaskDetailStore.selectTask(sampleTask);
-    
+
     // サブタスクを追加
     const newSubTaskData = {
       title: '新しいサブタスク',
       status: 'not_started' as TaskStatus
     };
-    
+
     const addedSubTask = await mockTaskService.addSubTask('task-1', newSubTaskData);
-    
+
     expect(mockTaskService.addSubTask).toHaveBeenCalledWith('task-1', newSubTaskData);
     expect(addedSubTask.title).toBe('新しいサブタスク');
     expect(addedSubTask.task_id).toBe('task-1');
@@ -367,7 +367,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       title: '更新されたサブタスク',
       status: 'completed'
     });
-    
+
     expect(mockTaskService.updateSubTask).toHaveBeenCalledWith('subtask-1', 'task-1', {
       title: '更新されたサブタスク',
       status: 'completed'
@@ -377,43 +377,55 @@ describe('タスク詳細ダイアログ結合テスト', () => {
 
     // サブタスクを削除
     const deleteResult = await mockTaskService.deleteSubTask('subtask-1', 'task-1');
-    
+
     expect(mockTaskService.deleteSubTask).toHaveBeenCalledWith('subtask-1', 'task-1');
     expect(deleteResult).toBe(true);
   });
 
   it('タグの追加・削除が正しく動作する', async () => {
     mockTaskDetailStore.selectTask(sampleTask);
-    
+
     // タスクにタグを追加
     const addTagResult = await mockTaskService.addTagToTask('task-1', 'tag-2');
-    
+
     expect(mockTaskService.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-2');
     expect(addTagResult).toBe(true);
 
     // タスクからタグを削除
     const removeTagResult = await mockTaskService.removeTagFromTask('task-1', 'tag-1');
-    
+
     expect(mockTaskService.removeTagFromTask).toHaveBeenCalledWith('task-1', 'tag-1');
     expect(removeTagResult).toBe(true);
 
     // サブタスクにタグを追加
-    const addSubTaskTagResult = await mockTaskService.addTagToSubTask('subtask-1', 'task-1', 'tag-3');
-    
+    const addSubTaskTagResult = await mockTaskService.addTagToSubTask(
+      'subtask-1',
+      'task-1',
+      'tag-3'
+    );
+
     expect(mockTaskService.addTagToSubTask).toHaveBeenCalledWith('subtask-1', 'task-1', 'tag-3');
     expect(addSubTaskTagResult).toBe(true);
 
     // サブタスクからタグを削除
-    const removeSubTaskTagResult = await mockTaskService.removeTagFromSubTask('subtask-1', 'task-1', 'tag-3');
-    
-    expect(mockTaskService.removeTagFromSubTask).toHaveBeenCalledWith('subtask-1', 'task-1', 'tag-3');
+    const removeSubTaskTagResult = await mockTaskService.removeTagFromSubTask(
+      'subtask-1',
+      'task-1',
+      'tag-3'
+    );
+
+    expect(mockTaskService.removeTagFromSubTask).toHaveBeenCalledWith(
+      'subtask-1',
+      'task-1',
+      'tag-3'
+    );
     expect(removeSubTaskTagResult).toBe(true);
   });
 
   it('タグ検索と新規タグ作成が正しく動作する', async () => {
     // タグを検索
     const searchResults = mockTagStore.searchTags('重要');
-    
+
     expect(mockTagStore.searchTags).toHaveBeenCalledWith('重要');
     expect(searchResults).toHaveLength(1);
     expect(searchResults[0].name).toBe('重要');
@@ -428,7 +440,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       name: '新しいタグ',
       color: '#f59e0b'
     });
-    
+
     expect(mockTagStore.createTag).toHaveBeenCalledWith({
       name: '新しいタグ',
       color: '#f59e0b'
@@ -445,7 +457,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       description: 'テスト用の説明',
       priority: 2
     });
-    
+
     expect(mockTaskDetailStore.updateEditForm).toHaveBeenCalledWith({
       title: 'フォームテスト',
       description: 'テスト用の説明',
@@ -461,7 +473,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       end_date: new Date('2024-03-05'),
       is_range_date: true
     });
-    
+
     expect(dateForm.start_date).toEqual(new Date('2024-03-01'));
     expect(dateForm.end_date).toEqual(new Date('2024-03-05'));
     expect(dateForm.is_range_date).toBe(true);
@@ -492,7 +504,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       const totalSubTasks = task.sub_tasks.length;
       if (totalSubTasks === 0) return { progress: 0, allCompleted: false };
 
-      const completedSubTasks = task.sub_tasks.filter(st => st.status === 'completed').length;
+      const completedSubTasks = task.sub_tasks.filter((st) => st.status === 'completed').length;
       const progress = Math.round((completedSubTasks / totalSubTasks) * 100);
       const allCompleted = completedSubTasks === totalSubTasks;
 
@@ -500,7 +512,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     };
 
     const progress = calculateTaskProgress(sampleTask);
-    
+
     // サンプルタスクは2つのサブタスクがあり、1つが完了済み
     expect(progress.totalSubTasks).toBe(2);
     expect(progress.completedSubTasks).toBe(1);
@@ -510,7 +522,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 全サブタスクが完了した場合のシミュレーション
     const allCompletedTask = {
       ...sampleTask,
-      sub_tasks: sampleTask.sub_tasks.map(st => ({ ...st, status: 'completed' as TaskStatus }))
+      sub_tasks: sampleTask.sub_tasks.map((st) => ({ ...st, status: 'completed' as TaskStatus }))
     };
 
     const allCompletedProgress = calculateTaskProgress(allCompletedTask);

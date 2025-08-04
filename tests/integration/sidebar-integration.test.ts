@@ -100,7 +100,7 @@ const mockProjectStore = {
   ] as ProjectTree[],
 
   selectProject: vi.fn((projectId: string) => {
-    const project = mockProjectStore.projects.find(p => p.id === projectId);
+    const project = mockProjectStore.projects.find((p) => p.id === projectId);
     mockViewStore.setSelectedProject(projectId);
     return project;
   }),
@@ -134,7 +134,7 @@ const mockTagStore = {
   ] as Tag[],
 
   selectTag: vi.fn((tagId: string) => {
-    const tag = mockTagStore.bookmarkedTags.find(t => t.id === tagId);
+    const tag = mockTagStore.bookmarkedTags.find((t) => t.id === tagId);
     return tag;
   }),
 
@@ -156,9 +156,7 @@ const mockSearchStore = {
   performSearch: vi.fn((query: string) => {
     mockSearchStore.searchQuery = query;
     // 簡単な検索シミュレーション
-    const results = query ? [
-      { type: 'task', id: 'task-1', title: `検索結果: ${query}` }
-    ] : [];
+    const results = query ? [{ type: 'task', id: 'task-1', title: `検索結果: ${query}` }] : [];
     mockSearchStore.searchResults = results;
     return results;
   }),
@@ -173,12 +171,12 @@ const mockSearchStore = {
 describe('サイドバー結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // 初期状態にリセット
     mockSidebarStore.isCollapsed = false;
     mockSidebarStore.isMobile = false;
     mockSidebarStore.sidebarState = 'expanded';
-    
+
     mockViewStore.currentView = 'all';
     mockViewStore.selectedProjectId = null;
     mockViewStore.selectedListId = null;
@@ -245,7 +243,7 @@ describe('サイドバー結合テスト', () => {
   it('プロジェクト選択とビュー連携が正しく動作する', () => {
     // プロジェクト1を選択
     const project1 = mockProjectStore.selectProject('project-1');
-    
+
     expect(mockProjectStore.selectProject).toHaveBeenCalledWith('project-1');
     expect(mockViewStore.setSelectedProject).toHaveBeenCalledWith('project-1');
     expect(project1?.id).toBe('project-1');
@@ -281,7 +279,7 @@ describe('サイドバー結合テスト', () => {
     // タグ別タスク数取得
     const tag1Count = mockTagStore.getTaskCountByTag('tag-1');
     const tag2Count = mockTagStore.getTaskCountByTag('tag-2');
-    
+
     expect(mockTagStore.getTaskCountByTag).toHaveBeenCalledWith('tag-1');
     expect(mockTagStore.getTaskCountByTag).toHaveBeenCalledWith('tag-2');
     expect(tag1Count).toBe(5);
@@ -291,7 +289,7 @@ describe('サイドバー結合テスト', () => {
   it('サイドバー検索機能が正しく動作する', () => {
     // 検索実行
     const searchResults = mockSearchStore.performSearch('テスト');
-    
+
     expect(mockSearchStore.performSearch).toHaveBeenCalledWith('テスト');
     expect(mockSearchStore.searchQuery).toBe('テスト');
     expect(searchResults).toHaveLength(1);
@@ -309,11 +307,13 @@ describe('サイドバー結合テスト', () => {
     const calculateLayout = () => {
       const sidebarWidth = mockSidebarStore.isCollapsed ? 60 : 280;
       const mainContentMargin = mockSidebarStore.isMobile ? 0 : sidebarWidth;
-      
+
       return {
         sidebarWidth,
         mainContentMargin,
-        layoutClass: mockSidebarStore.isCollapsed ? 'layout-sidebar-collapsed' : 'layout-sidebar-expanded'
+        layoutClass: mockSidebarStore.isCollapsed
+          ? 'layout-sidebar-collapsed'
+          : 'layout-sidebar-expanded'
       };
     };
 
@@ -430,7 +430,7 @@ describe('サイドバー結合テスト', () => {
       responsiveState.screenWidth = width;
       const isMobile = width < responsiveState.breakpoints.mobile;
       mockSidebarStore.setMobileMode(isMobile);
-      
+
       return {
         screenWidth: width,
         isMobile,

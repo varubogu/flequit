@@ -19,7 +19,7 @@ const mockSearchStore = {
 
   performSearch: vi.fn((query: string) => {
     mockSearchStore.searchQuery = query;
-    
+
     // 簡単な検索ロジックシミュレーション
     const allTasks = mockTaskStore.getAllTasks();
     let results = allTasks;
@@ -28,8 +28,8 @@ const mockSearchStore = {
       // タグ検索
       if (query.startsWith('#')) {
         const tagQuery = query.slice(1).toLowerCase();
-        results = allTasks.filter(task => 
-          task.tags.some(tag => tag.name.toLowerCase().includes(tagQuery))
+        results = allTasks.filter((task) =>
+          task.tags.some((tag) => tag.name.toLowerCase().includes(tagQuery))
         );
       }
       // コマンド検索
@@ -38,15 +38,16 @@ const mockSearchStore = {
       }
       // 通常のテキスト検索
       else {
-        results = allTasks.filter(task =>
-          task.title.toLowerCase().includes(query.toLowerCase()) ||
-          task.description.toLowerCase().includes(query.toLowerCase())
+        results = allTasks.filter(
+          (task) =>
+            task.title.toLowerCase().includes(query.toLowerCase()) ||
+            task.description.toLowerCase().includes(query.toLowerCase())
         );
       }
     }
 
     mockSearchStore.searchResults = results;
-    
+
     // 検索履歴に追加（重複除外）
     if (query) {
       // 既存の履歴から同じクエリを削除
@@ -67,48 +68,48 @@ const mockSearchStore = {
 
   applyFilters: vi.fn((filters: typeof mockSearchStore.searchFilters) => {
     mockSearchStore.searchFilters = { ...filters };
-    
+
     let results = mockTaskStore.getAllTasks();
 
     // ステータスフィルター
     if (filters.status) {
-      results = results.filter(task => task.status === filters.status);
+      results = results.filter((task) => task.status === filters.status);
     }
 
     // 優先度フィルター
     if (filters.priority !== null) {
-      results = results.filter(task => task.priority === filters.priority);
+      results = results.filter((task) => task.priority === filters.priority);
     }
 
     // タグフィルター
     if (filters.tags.length > 0) {
-      results = results.filter(task =>
-        filters.tags.some(tagId => task.tags.some(tag => tag.id === tagId))
+      results = results.filter((task) =>
+        filters.tags.some((tagId) => task.tags.some((tag) => tag.id === tagId))
       );
     }
 
     // 日付範囲フィルター
     if (filters.dateRange.start || filters.dateRange.end) {
-      results = results.filter(task => {
+      results = results.filter((task) => {
         if (!task.end_date) return false;
-        
+
         const taskDate = new Date(task.end_date);
-        
+
         if (filters.dateRange.start && taskDate < filters.dateRange.start) {
           return false;
         }
-        
+
         if (filters.dateRange.end && taskDate > filters.dateRange.end) {
           return false;
         }
-        
+
         return true;
       });
     }
 
     // プロジェクトフィルター
     if (filters.projectId) {
-      results = results.filter(task => {
+      results = results.filter((task) => {
         // プロジェクトIDからタスクを特定する処理のシミュレーション
         return task.list_id.startsWith(filters.projectId!);
       });
@@ -151,8 +152,20 @@ const mockTaskStore = {
       updated_at: new Date(),
       sub_tasks: [],
       tags: [
-        { id: 'tag-1', name: '重要', color: '#ef4444', created_at: new Date(), updated_at: new Date() },
-        { id: 'tag-2', name: '作業', color: '#3b82f6', created_at: new Date(), updated_at: new Date() }
+        {
+          id: 'tag-1',
+          name: '重要',
+          color: '#ef4444',
+          created_at: new Date(),
+          updated_at: new Date()
+        },
+        {
+          id: 'tag-2',
+          name: '作業',
+          color: '#3b82f6',
+          created_at: new Date(),
+          updated_at: new Date()
+        }
       ],
       order_index: 0,
       is_archived: false
@@ -169,7 +182,13 @@ const mockTaskStore = {
       updated_at: new Date(),
       sub_tasks: [],
       tags: [
-        { id: 'tag-2', name: '作業', color: '#3b82f6', created_at: new Date(), updated_at: new Date() }
+        {
+          id: 'tag-2',
+          name: '作業',
+          color: '#3b82f6',
+          created_at: new Date(),
+          updated_at: new Date()
+        }
       ],
       order_index: 1,
       is_archived: false
@@ -186,7 +205,13 @@ const mockTaskStore = {
       updated_at: new Date(),
       sub_tasks: [],
       tags: [
-        { id: 'tag-3', name: '個人', color: '#10b981', created_at: new Date(), updated_at: new Date() }
+        {
+          id: 'tag-3',
+          name: '個人',
+          color: '#10b981',
+          created_at: new Date(),
+          updated_at: new Date()
+        }
       ],
       order_index: 0,
       is_archived: false
@@ -196,17 +221,15 @@ const mockTaskStore = {
   getAllTasks: vi.fn(() => mockTaskStore.tasks),
 
   getTasksByStatus: vi.fn((status: TaskStatus) => {
-    return mockTaskStore.tasks.filter(task => task.status === status);
+    return mockTaskStore.tasks.filter((task) => task.status === status);
   }),
 
   getTasksByPriority: vi.fn((priority: number) => {
-    return mockTaskStore.tasks.filter(task => task.priority === priority);
+    return mockTaskStore.tasks.filter((task) => task.priority === priority);
   }),
 
   getTasksByTag: vi.fn((tagId: string) => {
-    return mockTaskStore.tasks.filter(task =>
-      task.tags.some(tag => tag.id === tagId)
-    );
+    return mockTaskStore.tasks.filter((task) => task.tags.some((tag) => tag.id === tagId));
   })
 };
 
@@ -222,31 +245,31 @@ const mockViewStore = {
 
   applyView: vi.fn((viewId: string) => {
     mockViewStore.currentView = viewId;
-    
+
     let filteredTasks = mockTaskStore.getAllTasks();
-    
+
     switch (viewId) {
       case 'today':
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        filteredTasks = filteredTasks.filter(task => {
+
+        filteredTasks = filteredTasks.filter((task) => {
           if (!task.end_date) return false;
           const taskDate = new Date(task.end_date);
           return taskDate >= today && taskDate < tomorrow;
         });
         break;
-        
+
       case 'completed':
-        filteredTasks = filteredTasks.filter(task => task.status === 'completed');
+        filteredTasks = filteredTasks.filter((task) => task.status === 'completed');
         break;
-        
+
       case 'high-priority':
-        filteredTasks = filteredTasks.filter(task => task.priority >= 3);
+        filteredTasks = filteredTasks.filter((task) => task.priority >= 3);
         break;
-        
+
       default:
         // 'all' の場合はフィルターなし
         break;
@@ -283,7 +306,7 @@ const mockCommandStore = {
   }),
 
   searchCommands: vi.fn((query: string) => {
-    return mockCommandStore.availableCommands.filter(cmd =>
+    return mockCommandStore.availableCommands.filter((cmd) =>
       cmd.name.toLowerCase().includes(query.toLowerCase())
     );
   })
@@ -292,7 +315,7 @@ const mockCommandStore = {
 describe('検索・フィルタリング結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // 検索状態をリセット
     mockSearchStore.searchQuery = '';
     mockSearchStore.searchResults = [];
@@ -304,7 +327,7 @@ describe('検索・フィルタリング結合テスト', () => {
       dateRange: { start: null, end: null },
       projectId: null
     };
-    
+
     mockViewStore.currentView = 'all';
     mockCommandStore.isOpen = false;
     mockCommandStore.commandMode = false;
@@ -313,7 +336,7 @@ describe('検索・フィルタリング結合テスト', () => {
   it('基本的なテキスト検索が正しく動作する', () => {
     // テキスト検索実行
     const results = mockSearchStore.performSearch('重要');
-    
+
     expect(mockSearchStore.performSearch).toHaveBeenCalledWith('重要');
     expect(mockSearchStore.searchQuery).toBe('重要');
     expect(results).toHaveLength(1);
@@ -324,18 +347,16 @@ describe('検索・フィルタリング結合テスト', () => {
   it('タグ検索が正しく動作する', () => {
     // タグ検索実行（#記号付き）
     const results = mockSearchStore.performSearch('#作業');
-    
+
     expect(mockSearchStore.performSearch).toHaveBeenCalledWith('#作業');
     expect(results).toHaveLength(2); // '重要なタスク'と'日常タスク'に'作業'タグが付いている
-    expect(results.every(task => 
-      task.tags.some(tag => tag.name.includes('作業'))
-    )).toBe(true);
+    expect(results.every((task) => task.tags.some((tag) => tag.name.includes('作業')))).toBe(true);
   });
 
   it('コマンド検索が正しく動作する', () => {
     // コマンド検索
     const commandResults = mockCommandStore.searchCommands('新し');
-    
+
     expect(mockCommandStore.searchCommands).toHaveBeenCalledWith('新し');
     expect(commandResults).toHaveLength(1);
     expect(commandResults[0].name).toBe('新しいタスク');
@@ -358,7 +379,7 @@ describe('検索・フィルタリング結合テスト', () => {
     };
 
     const results = mockSearchStore.applyFilters(filters);
-    
+
     expect(mockSearchStore.applyFilters).toHaveBeenCalledWith(filters);
     expect(results).toHaveLength(1);
     expect(results[0].status).toBe('completed');
@@ -376,7 +397,7 @@ describe('検索・フィルタリング結合テスト', () => {
     };
 
     const results = mockSearchStore.applyFilters(filters);
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].priority).toBe(3);
     expect(results[0].title).toBe('重要なタスク');
@@ -393,11 +414,9 @@ describe('検索・フィルタリング結合テスト', () => {
     };
 
     const results = mockSearchStore.applyFilters(filters);
-    
+
     expect(results).toHaveLength(2);
-    expect(results.every(task => 
-      task.tags.some(tag => tag.id === 'tag-2')
-    )).toBe(true);
+    expect(results.every((task) => task.tags.some((tag) => tag.id === 'tag-2'))).toBe(true);
   });
 
   it('日付範囲フィルターが正しく動作する', () => {
@@ -414,7 +433,7 @@ describe('検索・フィルタリング結合テスト', () => {
     };
 
     const results = mockSearchStore.applyFilters(filters);
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].title).toBe('重要なタスク'); // end_date: 2024-01-15
   });
@@ -430,21 +449,21 @@ describe('検索・フィルタリング結合テスト', () => {
     };
 
     const results = mockSearchStore.applyFilters(filters);
-    
+
     expect(results).toHaveLength(1);
     expect(results[0].title).toBe('重要なタスク');
     expect(results[0].status).toBe('not_started');
     expect(results[0].priority).toBe(3);
-    expect(results[0].tags.some(tag => tag.id === 'tag-1')).toBe(true);
+    expect(results[0].tags.some((tag) => tag.id === 'tag-1')).toBe(true);
   });
 
   it('ビュー切り替えとフィルタリングの連携', () => {
     // 今日のビューを適用
     const todayTasks = mockViewStore.applyView('today');
-    
+
     expect(mockViewStore.applyView).toHaveBeenCalledWith('today');
     expect(mockViewStore.currentView).toBe('today');
-    
+
     // 完了済みビューを適用
     const completedTasks = mockViewStore.applyView('completed');
     expect(completedTasks).toHaveLength(1);
@@ -464,16 +483,16 @@ describe('検索・フィルタリング結合テスト', () => {
     // 検索結果に対してビューフィルターを適用
     const applyViewToSearchResults = (viewId: string, searchResults: TaskWithSubTasks[]) => {
       let filtered = [...searchResults];
-      
+
       switch (viewId) {
         case 'completed':
-          filtered = filtered.filter(task => task.status === 'completed');
+          filtered = filtered.filter((task) => task.status === 'completed');
           break;
         case 'high-priority':
-          filtered = filtered.filter(task => task.priority >= 3);
+          filtered = filtered.filter((task) => task.priority >= 3);
           break;
       }
-      
+
       return filtered;
     };
 
@@ -493,7 +512,7 @@ describe('検索・フィルタリング結合テスト', () => {
     mockSearchStore.performSearch('重要');
     mockSearchStore.performSearch('作業');
     mockSearchStore.performSearch('プロジェクト');
-    
+
     expect(mockSearchStore.searchHistory).toEqual(['プロジェクト', '作業', '重要']);
 
     // 同じクエリの重複を避ける
@@ -541,33 +560,35 @@ describe('検索・フィルタリング結合テスト', () => {
       let results = mockTaskStore.getAllTasks();
 
       if (options.textQuery) {
-        results = results.filter(task =>
-          task.title.toLowerCase().includes(options.textQuery!.toLowerCase()) ||
-          task.description.toLowerCase().includes(options.textQuery!.toLowerCase())
+        results = results.filter(
+          (task) =>
+            task.title.toLowerCase().includes(options.textQuery!.toLowerCase()) ||
+            task.description.toLowerCase().includes(options.textQuery!.toLowerCase())
         );
       }
 
       if (options.status) {
-        results = results.filter(task => task.status === options.status);
+        results = results.filter((task) => task.status === options.status);
       }
 
       if (options.priorityRange) {
-        results = results.filter(task =>
-          task.priority >= options.priorityRange!.min &&
-          task.priority <= options.priorityRange!.max
+        results = results.filter(
+          (task) =>
+            task.priority >= options.priorityRange!.min &&
+            task.priority <= options.priorityRange!.max
         );
       }
 
       if (options.hasSubTasks !== undefined) {
-        results = results.filter(task =>
+        results = results.filter((task) =>
           options.hasSubTasks ? task.sub_tasks.length > 0 : task.sub_tasks.length === 0
         );
       }
 
       if (options.tagCount) {
-        results = results.filter(task =>
-          task.tags.length >= options.tagCount!.min &&
-          task.tags.length <= options.tagCount!.max
+        results = results.filter(
+          (task) =>
+            task.tags.length >= options.tagCount!.min && task.tags.length <= options.tagCount!.max
         );
       }
 
@@ -581,8 +602,8 @@ describe('検索・フィルタリング結合テスト', () => {
     });
 
     expect(complexResults).toHaveLength(2); // '重要なタスク'と'プロジェクト2のタスク'
-    expect(complexResults.every(task => task.priority >= 2 && task.priority <= 3)).toBe(true);
-    expect(complexResults.every(task => task.tags.length >= 1)).toBe(true);
+    expect(complexResults.every((task) => task.priority >= 2 && task.priority <= 3)).toBe(true);
+    expect(complexResults.every((task) => task.tags.length >= 1)).toBe(true);
   });
 
   it('検索パフォーマンスの最適化確認', () => {
@@ -594,7 +615,15 @@ describe('検索・フィルタリング結合テスト', () => {
         description: `説明${i}`,
         status: 'not_started' as TaskStatus,
         priority: i % 5,
-        tags: [{ id: `tag-${i % 3}`, name: `タグ${i % 3}`, color: '#000000', created_at: new Date(), updated_at: new Date() }],
+        tags: [
+          {
+            id: `tag-${i % 3}`,
+            name: `タグ${i % 3}`,
+            color: '#000000',
+            created_at: new Date(),
+            updated_at: new Date()
+          }
+        ],
         list_id: `list-${i % 10}`,
         end_date: new Date(),
         created_at: new Date(),
@@ -605,12 +634,12 @@ describe('検索・フィルタリング結合テスト', () => {
       }));
 
       const startTime = Date.now();
-      
+
       // 検索実行
-      const results = largeTasks.filter(task =>
-        task.title.includes('500') || task.description.includes('500')
+      const results = largeTasks.filter(
+        (task) => task.title.includes('500') || task.description.includes('500')
       );
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
 
@@ -619,7 +648,7 @@ describe('検索・フィルタリング結合テスト', () => {
 
     // 1000件のタスクで検索性能テスト
     const performanceResult = performanceTest(1000);
-    
+
     expect(performanceResult.taskCount).toBe(1000);
     expect(performanceResult.duration).toBeLessThan(100); // 100ms以内で完了することを期待
     expect(typeof performanceResult.results).toBe('number');

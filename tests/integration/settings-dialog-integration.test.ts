@@ -128,7 +128,7 @@ const mockLocaleStore = {
 describe('設定ダイアログ結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // 設定を初期状態にリセット
     mockSettingsStore.settings = {
       theme: 'light',
@@ -401,9 +401,7 @@ describe('設定ダイアログ結合テスト', () => {
     ];
 
     const searchSettings = (query: string) => {
-      return settingsItems.filter(item => 
-        item.name.toLowerCase().includes(query.toLowerCase())
-      );
+      return settingsItems.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()));
     };
 
     // テーマを検索

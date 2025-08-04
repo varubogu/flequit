@@ -13,36 +13,38 @@ const mockDialogStore = {
     onCancel?: () => void;
   }>,
 
-  showDialog: vi.fn((dialog: {
-    type: 'confirm' | 'delete' | 'unsaved' | 'error' | 'info';
-    title: string;
-    message: string;
-    priority?: number;
-    onConfirm?: () => void;
-    onCancel?: () => void;
-  }) => {
-    const dialogData = {
-      id: `dialog-${Date.now()}`,
-      priority: dialog.priority || 1,
-      ...dialog
-    };
-    
-    // 優先度順でソート挿入
-    const insertIndex = mockDialogStore.activeDialogs.findIndex(
-      d => d.priority < dialogData.priority
-    );
-    
-    if (insertIndex === -1) {
-      mockDialogStore.activeDialogs.push(dialogData);
-    } else {
-      mockDialogStore.activeDialogs.splice(insertIndex, 0, dialogData);
+  showDialog: vi.fn(
+    (dialog: {
+      type: 'confirm' | 'delete' | 'unsaved' | 'error' | 'info';
+      title: string;
+      message: string;
+      priority?: number;
+      onConfirm?: () => void;
+      onCancel?: () => void;
+    }) => {
+      const dialogData = {
+        id: `dialog-${Date.now()}`,
+        priority: dialog.priority || 1,
+        ...dialog
+      };
+
+      // 優先度順でソート挿入
+      const insertIndex = mockDialogStore.activeDialogs.findIndex(
+        (d) => d.priority < dialogData.priority
+      );
+
+      if (insertIndex === -1) {
+        mockDialogStore.activeDialogs.push(dialogData);
+      } else {
+        mockDialogStore.activeDialogs.splice(insertIndex, 0, dialogData);
+      }
+
+      return dialogData.id;
     }
-    
-    return dialogData.id;
-  }),
+  ),
 
   closeDialog: vi.fn((dialogId: string) => {
-    const index = mockDialogStore.activeDialogs.findIndex(d => d.id === dialogId);
+    const index = mockDialogStore.activeDialogs.findIndex((d) => d.id === dialogId);
     if (index !== -1) {
       mockDialogStore.activeDialogs.splice(index, 1);
       return true;
@@ -51,7 +53,7 @@ const mockDialogStore = {
   }),
 
   confirmDialog: vi.fn((dialogId: string) => {
-    const dialog = mockDialogStore.activeDialogs.find(d => d.id === dialogId);
+    const dialog = mockDialogStore.activeDialogs.find((d) => d.id === dialogId);
     if (dialog && dialog.onConfirm) {
       dialog.onConfirm();
       mockDialogStore.closeDialog(dialogId);
@@ -61,7 +63,7 @@ const mockDialogStore = {
   }),
 
   cancelDialog: vi.fn((dialogId: string) => {
-    const dialog = mockDialogStore.activeDialogs.find(d => d.id === dialogId);
+    const dialog = mockDialogStore.activeDialogs.find((d) => d.id === dialogId);
     if (dialog && dialog.onCancel) {
       dialog.onCancel();
       mockDialogStore.closeDialog(dialogId);
@@ -86,39 +88,45 @@ const mockConfirmationStore = {
     confirmed: boolean;
   }>,
 
-  requestConfirmation: vi.fn((action: string, data: any, options?: {
-    title?: string;
-    message?: string;
-    confirmText?: string;
-    cancelText?: string;
-  }) => {
-    const actionId = `action-${Date.now()}`;
-    
-    mockConfirmationStore.pendingActions.push({
-      id: actionId,
-      action,
-      data,
-      confirmed: false
-    });
-
-    // 確認ダイアログを表示
-    const dialogId = mockDialogStore.showDialog({
-      type: 'confirm',
-      title: options?.title || '確認',
-      message: options?.message || 'この操作を実行しますか？',
-      onConfirm: () => {
-        mockConfirmationStore.confirmAction(actionId);
-      },
-      onCancel: () => {
-        mockConfirmationStore.cancelAction(actionId);
+  requestConfirmation: vi.fn(
+    (
+      action: string,
+      data: any,
+      options?: {
+        title?: string;
+        message?: string;
+        confirmText?: string;
+        cancelText?: string;
       }
-    });
+    ) => {
+      const actionId = `action-${Date.now()}`;
 
-    return { actionId, dialogId };
-  }),
+      mockConfirmationStore.pendingActions.push({
+        id: actionId,
+        action,
+        data,
+        confirmed: false
+      });
+
+      // 確認ダイアログを表示
+      const dialogId = mockDialogStore.showDialog({
+        type: 'confirm',
+        title: options?.title || '確認',
+        message: options?.message || 'この操作を実行しますか？',
+        onConfirm: () => {
+          mockConfirmationStore.confirmAction(actionId);
+        },
+        onCancel: () => {
+          mockConfirmationStore.cancelAction(actionId);
+        }
+      });
+
+      return { actionId, dialogId };
+    }
+  ),
 
   confirmAction: vi.fn((actionId: string) => {
-    const action = mockConfirmationStore.pendingActions.find(a => a.id === actionId);
+    const action = mockConfirmationStore.pendingActions.find((a) => a.id === actionId);
     if (action) {
       action.confirmed = true;
       return mockConfirmationStore.executeAction(actionId);
@@ -127,7 +135,7 @@ const mockConfirmationStore = {
   }),
 
   cancelAction: vi.fn((actionId: string) => {
-    const index = mockConfirmationStore.pendingActions.findIndex(a => a.id === actionId);
+    const index = mockConfirmationStore.pendingActions.findIndex((a) => a.id === actionId);
     if (index !== -1) {
       mockConfirmationStore.pendingActions.splice(index, 1);
       return true;
@@ -136,7 +144,7 @@ const mockConfirmationStore = {
   }),
 
   executeAction: vi.fn((actionId: string) => {
-    const action = mockConfirmationStore.pendingActions.find(a => a.id === actionId);
+    const action = mockConfirmationStore.pendingActions.find((a) => a.id === actionId);
     if (!action || !action.confirmed) {
       return false;
     }
@@ -159,7 +167,7 @@ const mockConfirmationStore = {
     }
 
     // 完了したアクションを削除
-    const index = mockConfirmationStore.pendingActions.findIndex(a => a.id === actionId);
+    const index = mockConfirmationStore.pendingActions.findIndex((a) => a.id === actionId);
     if (index !== -1) {
       mockConfirmationStore.pendingActions.splice(index, 1);
     }
@@ -176,7 +184,16 @@ const mockTaskService = {
       title: 'テストタスク1',
       status: 'not_started',
       sub_tasks: [
-        { id: 'subtask-1', title: 'サブタスク1', status: 'not_started', task_id: 'task-1', order_index: 0, created_at: new Date(), updated_at: new Date(), tags: [] }
+        {
+          id: 'subtask-1',
+          title: 'サブタスク1',
+          status: 'not_started',
+          task_id: 'task-1',
+          order_index: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+          tags: []
+        }
       ]
     },
     {
@@ -188,7 +205,7 @@ const mockTaskService = {
   ] as TaskWithSubTasks[],
 
   deleteTask: vi.fn((taskId: string) => {
-    const index = mockTaskService.tasks.findIndex(t => t.id === taskId);
+    const index = mockTaskService.tasks.findIndex((t) => t.id === taskId);
     if (index !== -1) {
       mockTaskService.tasks.splice(index, 1);
       return true;
@@ -197,9 +214,9 @@ const mockTaskService = {
   }),
 
   deleteSubTask: vi.fn((subTaskId: string, taskId: string) => {
-    const task = mockTaskService.tasks.find(t => t.id === taskId);
+    const task = mockTaskService.tasks.find((t) => t.id === taskId);
     if (task) {
-      const index = task.sub_tasks.findIndex(st => st.id === subTaskId);
+      const index = task.sub_tasks.findIndex((st) => st.id === subTaskId);
       if (index !== -1) {
         task.sub_tasks.splice(index, 1);
         return true;
@@ -209,7 +226,7 @@ const mockTaskService = {
   }),
 
   archiveTask: vi.fn((taskId: string) => {
-    const task = mockTaskService.tasks.find(t => t.id === taskId);
+    const task = mockTaskService.tasks.find((t) => t.id === taskId);
     if (task) {
       task.is_archived = true;
       return true;
@@ -229,37 +246,43 @@ const mockErrorHandler = {
     handled: boolean;
   }>,
 
-  handleError: vi.fn((error: Error | string, options?: {
-    type?: 'error' | 'warning' | 'info';
-    details?: any;
-    showDialog?: boolean;
-  }) => {
-    const errorData = {
-      id: `error-${Date.now()}`,
-      type: options?.type || 'error',
-      message: typeof error === 'string' ? error : error.message,
-      details: options?.details,
-      timestamp: new Date(),
-      handled: false
-    };
+  handleError: vi.fn(
+    (
+      error: Error | string,
+      options?: {
+        type?: 'error' | 'warning' | 'info';
+        details?: any;
+        showDialog?: boolean;
+      }
+    ) => {
+      const errorData = {
+        id: `error-${Date.now()}`,
+        type: options?.type || 'error',
+        message: typeof error === 'string' ? error : error.message,
+        details: options?.details,
+        timestamp: new Date(),
+        handled: false
+      };
 
-    mockErrorHandler.errors.push(errorData);
+      mockErrorHandler.errors.push(errorData);
 
-    // エラーダイアログを表示する場合
-    if (options?.showDialog !== false) {
-      mockDialogStore.showDialog({
-        type: errorData.type,
-        title: errorData.type === 'error' ? 'エラー' : errorData.type === 'warning' ? '警告' : '情報',
-        message: errorData.message,
-        priority: errorData.type === 'error' ? 3 : errorData.type === 'warning' ? 2 : 1
-      });
+      // エラーダイアログを表示する場合
+      if (options?.showDialog !== false) {
+        mockDialogStore.showDialog({
+          type: errorData.type,
+          title:
+            errorData.type === 'error' ? 'エラー' : errorData.type === 'warning' ? '警告' : '情報',
+          message: errorData.message,
+          priority: errorData.type === 'error' ? 3 : errorData.type === 'warning' ? 2 : 1
+        });
+      }
+
+      return errorData.id;
     }
-
-    return errorData.id;
-  }),
+  ),
 
   markAsHandled: vi.fn((errorId: string) => {
-    const error = mockErrorHandler.errors.find(e => e.id === errorId);
+    const error = mockErrorHandler.errors.find((e) => e.id === errorId);
     if (error) {
       error.handled = true;
       return true;
@@ -277,7 +300,7 @@ const mockErrorHandler = {
 // 未保存変更の検出モック
 const mockUnsavedChangesStore = {
   unsavedChanges: new Map<string, any>(),
-  
+
   trackChanges: vi.fn((entityId: string, changes: any) => {
     mockUnsavedChangesStore.unsavedChanges.set(entityId, changes);
     return changes;
@@ -299,16 +322,20 @@ const mockUnsavedChangesStore = {
   checkUnsavedBeforeAction: vi.fn(async (action: () => void) => {
     if (mockUnsavedChangesStore.hasUnsavedChanges()) {
       return new Promise<void>((resolve, reject) => {
-        const { actionId } = mockConfirmationStore.requestConfirmation('unsaved-changes', { action }, {
-          title: '未保存の変更',
-          message: '未保存の変更があります。破棄して続行しますか？',
-          confirmText: '破棄して続行',
-          cancelText: 'キャンセル'
-        });
+        const { actionId } = mockConfirmationStore.requestConfirmation(
+          'unsaved-changes',
+          { action },
+          {
+            title: '未保存の変更',
+            message: '未保存の変更があります。破棄して続行しますか？',
+            confirmText: '破棄して続行',
+            cancelText: 'キャンセル'
+          }
+        );
 
         // 確認結果を監視
         const checkConfirmation = () => {
-          const pendingAction = mockConfirmationStore.pendingActions.find(a => a.id === actionId);
+          const pendingAction = mockConfirmationStore.pendingActions.find((a) => a.id === actionId);
           if (!pendingAction) {
             // 確認済みまたはキャンセル済み
             if (mockUnsavedChangesStore.unsavedChanges.size === 0) {
@@ -322,7 +349,7 @@ const mockUnsavedChangesStore = {
             setTimeout(checkConfirmation, 10);
           }
         };
-        
+
         checkConfirmation();
       });
     } else {
@@ -335,13 +362,13 @@ const mockUnsavedChangesStore = {
 describe('通知・アラート結合テスト', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // 初期状態にリセット
     mockDialogStore.activeDialogs.splice(0);
     mockConfirmationStore.pendingActions.splice(0);
     mockErrorHandler.errors.splice(0);
     mockUnsavedChangesStore.unsavedChanges.clear();
-    
+
     // タスクデータをリセット
     mockTaskService.tasks = [
       {
@@ -349,7 +376,16 @@ describe('通知・アラート結合テスト', () => {
         title: 'テストタスク1',
         status: 'not_started',
         sub_tasks: [
-          { id: 'subtask-1', title: 'サブタスク1', status: 'not_started', task_id: 'task-1', order_index: 0, created_at: new Date(), updated_at: new Date(), tags: [] }
+          {
+            id: 'subtask-1',
+            title: 'サブタスク1',
+            status: 'not_started',
+            task_id: 'task-1',
+            order_index: 0,
+            created_at: new Date(),
+            updated_at: new Date(),
+            tags: []
+          }
         ]
       } as TaskWithSubTasks,
       {
@@ -413,7 +449,7 @@ describe('通知・アラート結合テスト', () => {
     // タスクが削除されたことを確認
     expect(mockTaskService.deleteTask).toHaveBeenCalledWith('task-1');
     expect(mockTaskService.tasks).toHaveLength(1);
-    expect(mockTaskService.tasks.find(t => t.id === 'task-1')).toBeUndefined();
+    expect(mockTaskService.tasks.find((t) => t.id === 'task-1')).toBeUndefined();
   });
 
   it('サブタスク削除確認ダイアログが正しく動作する', () => {
@@ -428,7 +464,7 @@ describe('通知・アラート結合テスト', () => {
     );
 
     // 初期状態確認
-    const initialTask = mockTaskService.tasks.find(t => t.id === 'task-1');
+    const initialTask = mockTaskService.tasks.find((t) => t.id === 'task-1');
     expect(initialTask?.sub_tasks).toHaveLength(1);
 
     // 削除を確認
@@ -436,16 +472,15 @@ describe('通知・アラート結合テスト', () => {
 
     // サブタスクが削除されたことを確認
     expect(mockTaskService.deleteSubTask).toHaveBeenCalledWith('subtask-1', 'task-1');
-    const updatedTask = mockTaskService.tasks.find(t => t.id === 'task-1');
+    const updatedTask = mockTaskService.tasks.find((t) => t.id === 'task-1');
     expect(updatedTask?.sub_tasks).toHaveLength(0);
   });
 
   it('削除のキャンセルが正しく動作する', () => {
     // タスク削除の確認を要求
-    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation(
-      'delete-task',
-      { taskId: 'task-1' }
-    );
+    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation('delete-task', {
+      taskId: 'task-1'
+    });
 
     const initialTaskCount = mockTaskService.tasks.length;
 
@@ -461,14 +496,11 @@ describe('通知・アラート結合テスト', () => {
 
   it('エラーハンドリングとエラーダイアログが正しく動作する', () => {
     // エラーを発生させる
-    const errorId = mockErrorHandler.handleError(
-      new Error('テストエラー'),
-      {
-        type: 'error',
-        details: { context: 'test' },
-        showDialog: true
-      }
-    );
+    const errorId = mockErrorHandler.handleError(new Error('テストエラー'), {
+      type: 'error',
+      details: { context: 'test' },
+      showDialog: true
+    });
 
     expect(mockErrorHandler.handleError).toHaveBeenCalled();
     expect(mockErrorHandler.errors).toHaveLength(1);
@@ -519,8 +551,10 @@ describe('通知・アラート結合テスト', () => {
   it('未保存変更の検出と確認が正しく動作する', async () => {
     // 変更を追跡
     mockUnsavedChangesStore.trackChanges('task-1', { title: '変更されたタイトル' });
-    
-    expect(mockUnsavedChangesStore.trackChanges).toHaveBeenCalledWith('task-1', { title: '変更されたタイトル' });
+
+    expect(mockUnsavedChangesStore.trackChanges).toHaveBeenCalledWith('task-1', {
+      title: '変更されたタイトル'
+    });
     expect(mockUnsavedChangesStore.hasUnsavedChanges()).toBe(true);
     expect(mockUnsavedChangesStore.hasUnsavedChanges('task-1')).toBe(true);
 
@@ -612,9 +646,9 @@ describe('通知・アラート結合テスト', () => {
     expect(mockDialogStore.activeDialogs).toHaveLength(3);
 
     // エラーの種類が正しく設定されていることを確認
-    const infoError = mockErrorHandler.errors.find(e => e.type === 'info');
-    const warningError = mockErrorHandler.errors.find(e => e.type === 'warning');
-    const errorError = mockErrorHandler.errors.find(e => e.type === 'error');
+    const infoError = mockErrorHandler.errors.find((e) => e.type === 'info');
+    const warningError = mockErrorHandler.errors.find((e) => e.type === 'warning');
+    const errorError = mockErrorHandler.errors.find((e) => e.type === 'error');
 
     expect(infoError).toBeDefined();
     expect(warningError).toBeDefined();
@@ -664,8 +698,8 @@ describe('通知・アラート結合テスト', () => {
     mockDialogStore.confirmDialog(dialogId);
 
     // タスクが削除され、未保存変更もクリアされることを確認
-    expect(mockTaskService.tasks.find(t => t.id === 'task-1')).toBeUndefined();
-    
+    expect(mockTaskService.tasks.find((t) => t.id === 'task-1')).toBeUndefined();
+
     // 削除されたタスクの未保存変更をクリア（実際のアプリケーションでは自動で行われる）
     mockUnsavedChangesStore.clearChanges('task-1');
     expect(mockUnsavedChangesStore.hasUnsavedChanges('task-1')).toBe(false);
