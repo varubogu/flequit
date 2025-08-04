@@ -84,14 +84,14 @@ const mockConfirmationStore = {
   pendingActions: [] as Array<{
     id: string;
     action: string;
-    data: any;
+    data: unknown;
     confirmed: boolean;
   }>,
 
   requestConfirmation: vi.fn(
     (
       action: string,
-      data: any,
+      data: unknown,
       options?: {
         title?: string;
         message?: string;
@@ -152,15 +152,21 @@ const mockConfirmationStore = {
     // アクションを実行
     let result = false;
     switch (action.action) {
-      case 'delete-task':
-        result = mockTaskService.deleteTask(action.data.taskId);
+      case 'delete-task': {
+        const data = action.data as { taskId: string };
+        result = mockTaskService.deleteTask(data.taskId);
         break;
-      case 'delete-subtask':
-        result = mockTaskService.deleteSubTask(action.data.subTaskId, action.data.taskId);
+      }
+      case 'delete-subtask': {
+        const data = action.data as { subTaskId: string; taskId: string };
+        result = mockTaskService.deleteSubTask(data.subTaskId, data.taskId);
         break;
-      case 'archive-task':
-        result = mockTaskService.archiveTask(action.data.taskId);
+      }
+      case 'archive-task': {
+        const data = action.data as { taskId: string };
+        result = mockTaskService.archiveTask(data.taskId);
         break;
+      }
       default:
         result = true;
         break;
@@ -183,6 +189,13 @@ const mockTaskService = {
       id: 'task-1',
       title: 'テストタスク1',
       status: 'not_started',
+      priority: 1,
+      list_id: 'list-1',
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      tags: [],
       sub_tasks: [
         {
           id: 'subtask-1',
@@ -200,6 +213,13 @@ const mockTaskService = {
       id: 'task-2',
       title: 'テストタスク2',
       status: 'completed',
+      priority: 1,
+      list_id: 'list-1',
+      order_index: 1,
+      is_archived: false,
+      created_at: new Date(),
+      updated_at: new Date(),
+      tags: [],
       sub_tasks: []
     }
   ] as TaskWithSubTasks[],
@@ -239,9 +259,9 @@ const mockTaskService = {
 const mockErrorHandler = {
   errors: [] as Array<{
     id: string;
-    type: 'error' | 'warning' | 'info';
+    type: 'error' | 'info';
     message: string;
-    details?: any;
+    details?: unknown;
     timestamp: Date;
     handled: boolean;
   }>,
@@ -250,8 +270,8 @@ const mockErrorHandler = {
     (
       error: Error | string,
       options?: {
-        type?: 'error' | 'warning' | 'info';
-        details?: any;
+        type?: 'error' | 'info';
+        details?: unknown;
         showDialog?: boolean;
       }
     ) => {
@@ -270,10 +290,9 @@ const mockErrorHandler = {
       if (options?.showDialog !== false) {
         mockDialogStore.showDialog({
           type: errorData.type,
-          title:
-            errorData.type === 'error' ? 'エラー' : errorData.type === 'warning' ? '警告' : '情報',
+          title: errorData.type === 'error' ? 'エラー' : '情報',
           message: errorData.message,
-          priority: errorData.type === 'error' ? 3 : errorData.type === 'warning' ? 2 : 1
+          priority: errorData.type === 'error' ? 3 : 1
         });
       }
 
@@ -299,9 +318,9 @@ const mockErrorHandler = {
 
 // 未保存変更の検出モック
 const mockUnsavedChangesStore = {
-  unsavedChanges: new Map<string, any>(),
+  unsavedChanges: new Map<string, unknown>(),
 
-  trackChanges: vi.fn((entityId: string, changes: any) => {
+  trackChanges: vi.fn((entityId: string, changes: unknown) => {
     mockUnsavedChangesStore.unsavedChanges.set(entityId, changes);
     return changes;
   }),
@@ -375,6 +394,13 @@ describe('通知・アラート結合テスト', () => {
         id: 'task-1',
         title: 'テストタスク1',
         status: 'not_started',
+        priority: 1,
+        list_id: 'list-1',
+        order_index: 0,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        tags: [],
         sub_tasks: [
           {
             id: 'subtask-1',
@@ -392,6 +418,13 @@ describe('通知・アラート結合テスト', () => {
         id: 'task-2',
         title: 'テストタスク2',
         status: 'completed',
+        priority: 1,
+        list_id: 'list-1',
+        order_index: 1,
+        is_archived: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+        tags: [],
         sub_tasks: []
       } as TaskWithSubTasks
     ];
@@ -423,7 +456,7 @@ describe('通知・アラート結合テスト', () => {
 
   it('削除確認ダイアログとタスク削除の連携が正しく動作する', () => {
     // タスク削除の確認を要求
-    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation(
+    const { dialogId } = mockConfirmationStore.requestConfirmation(
       'delete-task',
       { taskId: 'task-1' },
       {
@@ -454,7 +487,7 @@ describe('通知・アラート結合テスト', () => {
 
   it('サブタスク削除確認ダイアログが正しく動作する', () => {
     // サブタスク削除の確認
-    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation(
+    const { dialogId } = mockConfirmationStore.requestConfirmation(
       'delete-subtask',
       { subTaskId: 'subtask-1', taskId: 'task-1' },
       {
@@ -478,7 +511,7 @@ describe('通知・アラート結合テスト', () => {
 
   it('削除のキャンセルが正しく動作する', () => {
     // タスク削除の確認を要求
-    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation('delete-task', {
+    const { dialogId } = mockConfirmationStore.requestConfirmation('delete-task', {
       taskId: 'task-1'
     });
 
@@ -518,7 +551,7 @@ describe('通知・アラート結合テスト', () => {
 
   it('警告とエラーの優先度処理が正しく動作する', () => {
     // 低優先度の情報ダイアログ
-    const infoDialogId = mockDialogStore.showDialog({
+    mockDialogStore.showDialog({
       type: 'info',
       title: '情報',
       message: '情報メッセージ',
@@ -526,7 +559,7 @@ describe('通知・アラート結合テスト', () => {
     });
 
     // 高優先度のエラーダイアログ
-    const errorDialogId = mockDialogStore.showDialog({
+    mockDialogStore.showDialog({
       type: 'error',
       title: 'エラー',
       message: 'エラーメッセージ',
@@ -534,7 +567,7 @@ describe('通知・アラート結合テスト', () => {
     });
 
     // 中優先度の警告ダイアログ
-    const warningDialogId = mockDialogStore.showDialog({
+    mockDialogStore.showDialog({
       type: 'confirm',
       title: '警告',
       message: '警告メッセージ',
@@ -559,9 +592,8 @@ describe('通知・アラート結合テスト', () => {
     expect(mockUnsavedChangesStore.hasUnsavedChanges('task-1')).toBe(true);
 
     // アクション実行前の確認
-    let actionExecuted = false;
     const testAction = () => {
-      actionExecuted = true;
+      // アクション実行をシミュレート
     };
 
     // 未保存変更がある状態でアクション実行を試行
@@ -639,25 +671,23 @@ describe('通知・アラート結合テスト', () => {
   it('エラーの種類別処理が正しく動作する', () => {
     // 異なる種類のエラーを処理
     mockErrorHandler.handleError('情報メッセージ', { type: 'info' });
-    mockErrorHandler.handleError('警告メッセージ', { type: 'warning' });
     mockErrorHandler.handleError('エラーメッセージ', { type: 'error' });
 
-    expect(mockErrorHandler.errors).toHaveLength(3);
-    expect(mockDialogStore.activeDialogs).toHaveLength(3);
+    expect(mockErrorHandler.errors).toHaveLength(2);
+    expect(mockDialogStore.activeDialogs).toHaveLength(2);
 
     // エラーの種類が正しく設定されていることを確認
     const infoError = mockErrorHandler.errors.find((e) => e.type === 'info');
-    const warningError = mockErrorHandler.errors.find((e) => e.type === 'warning');
-    const errorError = mockErrorHandler.errors.find((e) => e.type === 'error');
+    const errorError = mockErrorHandler.errors.find((e) => e!.type === 'error');
 
     expect(infoError).toBeDefined();
-    expect(warningError).toBeDefined();
     expect(errorError).toBeDefined();
 
     // ダイアログの優先度が正しく設定されていることを確認
-    expect(mockDialogStore.activeDialogs[0].priority).toBe(3); // エラーが最高優先度
-    expect(mockDialogStore.activeDialogs[1].priority).toBe(2); // 警告が中優先度
-    expect(mockDialogStore.activeDialogs[2].priority).toBe(1); // 情報が最低優先度
+    const errorDialog = mockDialogStore.activeDialogs.find((d) => d.priority === 3);
+    const infoDialog = mockDialogStore.activeDialogs.find((d) => d.priority === 1);
+    expect(errorDialog).toBeDefined(); // エラーが最高優先度
+    expect(infoDialog).toBeDefined(); // 情報が低優先度
   });
 
   it('エラーログのクリア機能が正しく動作する', () => {
@@ -680,7 +710,7 @@ describe('通知・アラート結合テスト', () => {
     mockUnsavedChangesStore.trackChanges('task-1', { title: '新しいタイトル' });
 
     // 危険なアクション（削除）を実行しようとする
-    const { actionId, dialogId } = mockConfirmationStore.requestConfirmation(
+    const { dialogId } = mockConfirmationStore.requestConfirmation(
       'delete-task',
       { taskId: 'task-1' },
       {

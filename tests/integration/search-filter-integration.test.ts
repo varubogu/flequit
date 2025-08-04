@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { TaskWithSubTasks, Tag, TaskStatus } from '$lib/types/task';
+import type { TaskWithSubTasks, TaskStatus } from '$lib/types/task';
 
 // 検索・フィルタリング機能のモック
 const mockSearchStore = {
@@ -41,7 +41,7 @@ const mockSearchStore = {
         results = allTasks.filter(
           (task) =>
             task.title.toLowerCase().includes(query.toLowerCase()) ||
-            task.description.toLowerCase().includes(query.toLowerCase())
+            (task.description && task.description.toLowerCase().includes(query.toLowerCase()))
         );
       }
     }
@@ -249,7 +249,7 @@ const mockViewStore = {
     let filteredTasks = mockTaskStore.getAllTasks();
 
     switch (viewId) {
-      case 'today':
+      case 'today': {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -261,6 +261,7 @@ const mockViewStore = {
           return taskDate >= today && taskDate < tomorrow;
         });
         break;
+      }
 
       case 'completed':
         filteredTasks = filteredTasks.filter((task) => task.status === 'completed');
@@ -459,7 +460,7 @@ describe('検索・フィルタリング結合テスト', () => {
 
   it('ビュー切り替えとフィルタリングの連携', () => {
     // 今日のビューを適用
-    const todayTasks = mockViewStore.applyView('today');
+    mockViewStore.applyView('today');
 
     expect(mockViewStore.applyView).toHaveBeenCalledWith('today');
     expect(mockViewStore.currentView).toBe('today');
@@ -563,7 +564,8 @@ describe('検索・フィルタリング結合テスト', () => {
         results = results.filter(
           (task) =>
             task.title.toLowerCase().includes(options.textQuery!.toLowerCase()) ||
-            task.description.toLowerCase().includes(options.textQuery!.toLowerCase())
+            (task.description &&
+              task.description.toLowerCase().includes(options.textQuery!.toLowerCase()))
         );
       }
 

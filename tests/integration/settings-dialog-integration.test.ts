@@ -1,5 +1,25 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { SettingsData } from '$lib/types/settings';
+// import type { SettingsData } from '$lib/types/settings';
+
+// SettingsData型の簡易定義
+interface SettingsData {
+  theme: string;
+  language: string;
+  ui: {
+    sidebarCollapsed: boolean;
+    showCompletedTasks: boolean;
+    taskListDensity: string;
+  };
+  dateFormat: {
+    dateFormat: string;
+    timeFormat: string;
+    dateTimeFormat: string;
+  };
+  account: {
+    username: string;
+    email: string;
+  };
+}
 
 // 設定ストアのモック
 const mockSettingsStore = {

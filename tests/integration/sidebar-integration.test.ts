@@ -151,12 +151,14 @@ const mockTagStore = {
 // 検索機能のモック
 const mockSearchStore = {
   searchQuery: '',
-  searchResults: [],
+  searchResults: [] as Array<{ type: string; id: string; title: string }>,
 
   performSearch: vi.fn((query: string) => {
     mockSearchStore.searchQuery = query;
     // 簡単な検索シミュレーション
-    const results = query ? [{ type: 'task', id: 'task-1', title: `検索結果: ${query}` }] : [];
+    const results: Array<{ type: string; id: string; title: string }> = query
+      ? [{ type: 'task', id: 'task-1', title: `検索結果: ${query}` }]
+      : [];
     mockSearchStore.searchResults = results;
     return results;
   }),

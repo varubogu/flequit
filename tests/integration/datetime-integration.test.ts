@@ -37,16 +37,17 @@ const mockDateTimeStore = {
     switch (formatStr) {
       case 'HH:mm':
         return `${String(hours).padStart(2, '0')}:${minutes}`;
-      case 'hh:mm A':
+      case 'hh:mm A': {
         const hour12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
         const ampm = hours >= 12 ? 'PM' : 'AM';
         return `${String(hour12).padStart(2, '0')}:${minutes} ${ampm}`;
+      }
       default:
         return `${String(hours).padStart(2, '0')}:${minutes}`;
     }
   }),
 
-  formatDateTime: vi.fn((date: Date, format?: string) => {
+  formatDateTime: vi.fn((date: Date) => {
     const dateStr = mockDateTimeStore.formatDate(date);
     const timeStr = mockDateTimeStore.formatTime(date);
     return `${dateStr} ${timeStr}`;
@@ -480,7 +481,7 @@ describe('日付・時刻管理結合テスト', () => {
 
     // 無効なルール
     const invalidRule: RecurrenceRule = {
-      unit: 'invalid' as any,
+      unit: 'invalid' as 'day',
       interval: 0,
       max_occurrences: -1,
       end_date: new Date('2020-01-01') // 過去の日付

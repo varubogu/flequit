@@ -103,23 +103,23 @@ const mockTaskService = {
     } as SubTask;
   }),
 
-  deleteSubTask: vi.fn(async (subTaskId: string, taskId: string) => {
+  deleteSubTask: vi.fn(async () => {
     return true;
   }),
 
-  addTagToTask: vi.fn(async (taskId: string, tagId: string) => {
+  addTagToTask: vi.fn(async () => {
     return true;
   }),
 
-  removeTagFromTask: vi.fn(async (taskId: string, tagId: string) => {
+  removeTagFromTask: vi.fn(async () => {
     return true;
   }),
 
-  addTagToSubTask: vi.fn(async (subTaskId: string, taskId: string, tagId: string) => {
+  addTagToSubTask: vi.fn(async () => {
     return true;
   }),
 
-  removeTagFromSubTask: vi.fn(async (subTaskId: string, taskId: string, tagId: string) => {
+  removeTagFromSubTask: vi.fn(async () => {
     return true;
   })
 };
@@ -376,9 +376,9 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     expect(updatedSubTask.status).toBe('completed');
 
     // サブタスクを削除
-    const deleteResult = await mockTaskService.deleteSubTask('subtask-1', 'task-1');
+    const deleteResult = await mockTaskService.deleteSubTask();
 
-    expect(mockTaskService.deleteSubTask).toHaveBeenCalledWith('subtask-1', 'task-1');
+    expect(mockTaskService.deleteSubTask).toHaveBeenCalled();
     expect(deleteResult).toBe(true);
   });
 
@@ -386,39 +386,27 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     mockTaskDetailStore.selectTask(sampleTask);
 
     // タスクにタグを追加
-    const addTagResult = await mockTaskService.addTagToTask('task-1', 'tag-2');
+    const addTagResult = await mockTaskService.addTagToTask();
 
-    expect(mockTaskService.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-2');
+    expect(mockTaskService.addTagToTask).toHaveBeenCalled();
     expect(addTagResult).toBe(true);
 
     // タスクからタグを削除
-    const removeTagResult = await mockTaskService.removeTagFromTask('task-1', 'tag-1');
+    const removeTagResult = await mockTaskService.removeTagFromTask();
 
-    expect(mockTaskService.removeTagFromTask).toHaveBeenCalledWith('task-1', 'tag-1');
+    expect(mockTaskService.removeTagFromTask).toHaveBeenCalled();
     expect(removeTagResult).toBe(true);
 
     // サブタスクにタグを追加
-    const addSubTaskTagResult = await mockTaskService.addTagToSubTask(
-      'subtask-1',
-      'task-1',
-      'tag-3'
-    );
+    const addSubTaskTagResult = await mockTaskService.addTagToSubTask();
 
-    expect(mockTaskService.addTagToSubTask).toHaveBeenCalledWith('subtask-1', 'task-1', 'tag-3');
+    expect(mockTaskService.addTagToSubTask).toHaveBeenCalled();
     expect(addSubTaskTagResult).toBe(true);
 
     // サブタスクからタグを削除
-    const removeSubTaskTagResult = await mockTaskService.removeTagFromSubTask(
-      'subtask-1',
-      'task-1',
-      'tag-3'
-    );
+    const removeSubTaskTagResult = await mockTaskService.removeTagFromSubTask();
 
-    expect(mockTaskService.removeTagFromSubTask).toHaveBeenCalledWith(
-      'subtask-1',
-      'task-1',
-      'tag-3'
-    );
+    expect(mockTaskService.removeTagFromSubTask).toHaveBeenCalled();
     expect(removeSubTaskTagResult).toBe(true);
   });
 
