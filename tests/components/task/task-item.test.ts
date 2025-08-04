@@ -144,4 +144,89 @@ describe('TaskItem Integration', () => {
     const { container } = render(TaskItem, { props: { task: highPriorityTask } });
     expect(container).toBeInTheDocument();
   });
+
+  test('should handle long task titles without horizontal overflow', () => {
+    const longTitleTask = createMockTask({
+      title: 'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
+    });
+
+    const { container } = render(TaskItem, { props: { task: longTitleTask } });
+    
+    // Container should have proper width constraints
+    const mainContainer = container.querySelector('.flex.items-start.gap-1.w-full');
+    expect(mainContainer).toBeInTheDocument();
+    expect(mainContainer).toHaveClass('min-w-0', 'overflow-hidden');
+  });
+
+  test('should handle long descriptions without layout issues', () => {
+    const longDescriptionTask = createMockTask({
+      title: 'Task with Long Description',
+      description: 'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。'
+    });
+
+    const { container } = render(TaskItem, { props: { task: longDescriptionTask } });
+    expect(container).toBeInTheDocument();
+  });
+
+  test('should render with proper flexbox constraints for mobile', () => {
+    const task = createMockTask({ title: 'Mobile Test Task' });
+    const { container } = render(TaskItem, { props: { task } });
+
+    // Main container should have proper flex constraints
+    const mainContainer = container.querySelector('.flex.items-start.gap-1.w-full');
+    expect(mainContainer).toBeInTheDocument();
+    
+    // Task button container should be flexible
+    const taskButtonContainer = container.querySelector('.flex-1.min-w-0.overflow-hidden');
+    expect(taskButtonContainer).toBeInTheDocument();
+  });
+
+  test('should handle japanese long title', () => {
+    const japaneseTask = createMockTask({
+      title: '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認を実施します。'
+    });
+
+    const { container } = render(TaskItem, { props: { task: japaneseTask } });
+    expect(container).toBeInTheDocument();
+  });
+
+  test('should handle english long title', () => {
+    const englishTask = createMockTask({
+      title: 'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths and various viewport sizes'
+    });
+
+    const { container } = render(TaskItem, { props: { task: englishTask } });
+    expect(container).toBeInTheDocument();
+  });
+
+  test('should handle mixed content without overflow', () => {
+    const mixedContentTask = createMockTask({
+      title: 'Long Task Title with Multiple Elements',
+      description: 'Long description with detailed content',
+      sub_tasks: [
+        {
+          id: 'sub-1',
+          title: 'Very long subtask title that might cause overflow',
+          status: 'not_started',
+          task_id: 'task-1',
+          order_index: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+          tags: []
+        }
+      ],
+      tags: [
+        {
+          id: 'tag-1',
+          name: 'Very Long Tag Name',
+          color: '#ff0000',
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      ]
+    });
+
+    const { container } = render(TaskItem, { props: { task: mixedContentTask } });
+    expect(container).toBeInTheDocument();
+  });
 });

@@ -143,7 +143,7 @@ describe('SettingsAppearance Component', () => {
     const { container } = render(SettingsAppearance, { settings: defaultSettings });
 
     const gridContainer = container.querySelector(
-      '.grid.grid-cols-1.md\\:grid-cols-2.xl\\:grid-cols-3'
+      '.grid.grid-cols-1.gap-4.sm\\:gap-6.sm\\:grid-cols-2.lg\\:grid-cols-3.w-full'
     );
     expect(gridContainer).toBeInTheDocument();
   });

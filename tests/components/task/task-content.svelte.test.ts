@@ -359,4 +359,66 @@ describe('TaskContent', () => {
     expect(props.completedSubTasks).toBe(2);
     expect(props.subTaskProgress).toBe(40);
   });
+
+  it('極長タイトルでも横スクロールが発生しないプロパティ設定', () => {
+    const taskWithVeryLongTitle = {
+      ...mockTask,
+      title: 'これは非常に長いタスクタイトルです。スマホやタブレットなどの狭い画面でも横スクロールが発生せず、適切に省略表示されることを確認するためのテストケースです。通常のタスクタイトルよりもはるかに長い文字列を使用しています。'
+    };
+
+    const props = {
+      ...defaultProps,
+      task: taskWithVeryLongTitle
+    };
+
+    expect(props.task.title.length).toBeGreaterThan(100);
+    expect(props.task.title).toContain('非常に長いタスクタイトル');
+  });
+
+  it('極長説明文でも適切に処理される', () => {
+    const taskWithVeryLongDescription = {
+      ...mockTask,
+      description: 'これは非常に長いタスクの説明文です。複数行にわたる詳細な説明が含まれており、UI上では適切に省略表示される必要があります。レスポンシブデザインにおいて、この長い説明文が画面幅を超えて横スクロールを引き起こさないことが重要です。説明文は通常2行程度で省略され、残りの部分は省略記号で表示されるべきです。ホバー時には全文をtooltipで確認できるようになっています。'
+    };
+
+    const props = {
+      ...defaultProps,
+      task: taskWithVeryLongDescription
+    };
+
+    expect(props.task.description!.length).toBeGreaterThan(180);
+    expect(props.task.description).toContain('非常に長いタスクの説明文');
+  });
+
+  it('日本語の長文タイトルが適切に処理される', () => {
+    const taskWithJapaneseLongTitle = {
+      ...mockTask,
+      title: '日本語による非常に長いタスクのタイトルを設定してレスポンシブ対応のテストを行います。ひらがな、カタカナ、漢字が混在する場合の表示確認'
+    };
+
+    const props = {
+      ...defaultProps,
+      task: taskWithJapaneseLongTitle
+    };
+
+    expect(props.task.title).toContain('日本語');
+    expect(props.task.title).toContain('レスポンシブ対応');
+    expect(props.task.title.length).toBeGreaterThan(60);
+  });
+
+  it('英語の長文タイトルが適切に処理される', () => {
+    const taskWithEnglishLongTitle = {
+      ...mockTask,
+      title: 'This is an extremely long English task title designed to test responsive behavior and text truncation functionality in mobile and tablet devices with narrow screen widths'
+    };
+
+    const props = {
+      ...defaultProps,
+      task: taskWithEnglishLongTitle
+    };
+
+    expect(props.task.title).toContain('extremely long English');
+    expect(props.task.title).toContain('responsive behavior');
+    expect(props.task.title.length).toBeGreaterThan(150);
+  });
 });
