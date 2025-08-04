@@ -197,18 +197,20 @@
   }
 </script>
 
-<div class="flex w-full items-start gap-1">
-  <TaskAccordionToggle
-    hasSubTasks={task.sub_tasks.length > 0}
-    isExpanded={showSubTasks}
-    onToggle={toggleSubTasksAccordion}
-  />
+<div class="flex w-full items-start gap-1 min-w-0 overflow-hidden">
+  <div class="flex-shrink-0">
+    <TaskAccordionToggle
+      hasSubTasks={task.sub_tasks.length > 0}
+      isExpanded={showSubTasks}
+      onToggle={toggleSubTasksAccordion}
+    />
+  </div>
 
   <!-- Main Task Button -->
   <div
     role="button"
     tabindex="0"
-    class="flex-1"
+    class="flex-1 min-w-0 overflow-hidden"
     draggable="true"
     ondragstart={handleDragStart}
     ondragover={handleDragOver}
@@ -229,7 +231,9 @@
         data-testid="task-{task.id}"
       >
         <div class="flex w-full min-w-0 items-start gap-3 overflow-hidden">
-          <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
+          <div class="flex-shrink-0">
+            <TaskStatusToggle status={task.status} ontoggle={handleStatusToggle} />
+          </div>
           <TaskContent
             {task}
             {completedSubTasks}

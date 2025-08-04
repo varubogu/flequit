@@ -28,25 +28,27 @@
   }
 </script>
 
-<div class="min-w-0 flex-1 overflow-hidden">
+<div class="min-w-0 flex-1 overflow-hidden w-full">
   <!-- Title and Due Date Row -->
-  <div class="flex w-full min-w-0 items-start gap-3">
+  <div class="flex w-full min-w-0 items-start gap-3 overflow-hidden">
     <h3
-      class="min-w-0 flex-1 truncate overflow-hidden text-base leading-tight font-medium"
+      class="min-w-0 flex-1 truncate text-base leading-tight font-medium"
       class:line-through={task.status === 'completed'}
       class:text-muted-foreground={task.status === 'completed'}
       title={task.title}
-      style="text-overflow: ellipsis; white-space: nowrap;"
     >
       {task.title}
     </h3>
-    <DueDate {task} handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)} />
+    <div class="flex-shrink-0">
+      <DueDate {task} handleDueDateClick={(e) => handleDueDateClick(e as MouseEvent)} />
+    </div>
   </div>
 
   {#if task.description}
     <p
-      class="text-muted-foreground mt-1 block w-full min-w-0 text-sm"
-      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;"
+      class="text-muted-foreground mt-1 text-sm w-full min-w-0 overflow-hidden"
+      style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word;"
+      title={task.description}
     >
       {task.description}
     </p>
@@ -69,7 +71,7 @@
 
   <!-- Tags -->
   {#if task.tags.length > 0}
-    <div class="mt-2 flex flex-wrap gap-1">
+    <div class="mt-2 flex flex-wrap gap-1 w-full min-w-0 overflow-hidden">
       {#each task.tags as tag (tag.id)}
         <TagDisplay {tag} onTagRemoveFromItem={handleTagRemoveFromTask} />
       {/each}

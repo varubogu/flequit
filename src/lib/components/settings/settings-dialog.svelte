@@ -131,12 +131,12 @@
 
 <Dialog bind:open {onOpenChange}>
   <DialogContent
-    class="flex h-[98vh] w-[98vw] max-w-[98vw] flex-col p-0 sm:max-w-[98vw]"
+    class="flex h-[98vh] w-[98vw] max-w-[98vw] flex-col p-0 sm:max-w-[98vw] overflow-hidden"
     showCloseButton={false}
   >
     <!-- Header -->
-    <div class="flex flex-shrink-0 items-center border-b p-6">
-      <div class="flex items-center gap-3">
+    <div class="flex flex-shrink-0 items-center border-b p-6 w-full min-w-0">
+      <div class="flex items-center gap-3 min-w-0 flex-1">
         <Button variant="ghost" size="icon" onclick={handleClose}>
           <ArrowLeft class="h-4 w-4" />
         </Button>
@@ -145,21 +145,21 @@
             <Menu class="h-4 w-4" />
           </Button>
         {/if}
-        <div>
-          <h2 class="text-xl font-semibold">{settingsTitle()}</h2>
-          <p class="text-muted-foreground text-sm">{configurePreferences()}</p>
+        <div class="min-w-0 flex-1">
+          <h2 class="text-xl font-semibold truncate">{settingsTitle()}</h2>
+          <p class="text-muted-foreground text-sm truncate">{configurePreferences()}</p>
         </div>
       </div>
     </div>
 
-    <div class="relative flex min-h-0 flex-1">
+    <div class="relative flex min-h-0 flex-1 w-full overflow-hidden">
       <!-- Desktop Sidebar / Mobile Overlay Sidebar -->
       <div
         class={`
         ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} 
         ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'} 
-        ${isMobile.current ? 'w-80' : 'w-80'} 
-        bg-background flex flex-shrink-0 flex-col border-r
+        ${isMobile.current ? 'w-80 max-w-[80vw]' : 'w-80'} 
+        bg-background flex flex-shrink-0 flex-col border-r overflow-hidden
       `}
       >
         <!-- Search -->
@@ -203,9 +203,9 @@
       {/if}
 
       <!-- Right Content -->
-      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <div class="flex-1 overflow-auto" bind:this={settingsContentElement}>
-          <div class="w-full max-w-none space-y-12 p-8">
+      <div class="flex min-w-0 flex-1 flex-col overflow-hidden w-full">
+        <div class="flex-1 overflow-auto w-full" bind:this={settingsContentElement}>
+          <div class="w-full max-w-none space-y-12 p-4 sm:p-8">
             <SettingsBasic {settings} />
 
             <SettingsViews />

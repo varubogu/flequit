@@ -58,7 +58,7 @@
   <!-- Main Content with Responsive Layout -->
   {#if isMobile.current}
     <!-- モバイル: タスクリストのみ表示 -->
-    <div class="flex-1">
+    <div class="flex-1 min-w-0 overflow-hidden">
       <TaskList
         title={viewStore.viewTitle}
         tasks={viewStore.tasks}

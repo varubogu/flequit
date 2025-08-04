@@ -34,7 +34,7 @@
     <div>
       <h3 class="mb-4 text-lg font-medium">{appearanceSettings()}</h3>
 
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div class="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full">
         <!-- Theme -->
         <div>
           <label for="theme-select" class="text-sm font-medium">{theme()}</label>
