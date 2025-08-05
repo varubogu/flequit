@@ -347,4 +347,101 @@ describe('TaskStore', () => {
       expect(store.selectedSubTaskId).toBeNull();
     });
   });
+
+  describe('subtask tag management', () => {
+    beforeEach(() => {
+      store.setProjects([createMockProject()]);
+    });
+
+    test('addTagToSubTask should add tag to subtask with backend integration', async () => {
+      // First create a subtask
+      const newSubTask = await store.addSubTask('task-1', {
+        title: 'Tagged SubTask'
+      });
+
+      expect(newSubTask).not.toBeNull();
+
+      if (newSubTask) {
+        // Add tag to subtask
+        await store.addTagToSubTask(newSubTask.id, 'urgent');
+
+        const parentTask = store.allTasks.find((t) => t.id === 'task-1');
+        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+
+        expect(subTask?.tags).toHaveLength(1);
+        expect(subTask?.tags[0].name).toBe('urgent');
+        expect(subTask?.updated_at).toBeInstanceOf(Date);
+      }
+    });
+
+    test('addTagToSubTask should not add duplicate tags', async () => {
+      const newSubTask = await store.addSubTask('task-1', {
+        title: 'Duplicate Tag Test SubTask'
+      });
+
+      if (newSubTask) {
+        // Add same tag twice
+        await store.addTagToSubTask(newSubTask.id, 'important');
+        await store.addTagToSubTask(newSubTask.id, 'important');
+
+        const parentTask = store.allTasks.find((t) => t.id === 'task-1');
+        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+
+        expect(subTask?.tags).toHaveLength(1);
+        expect(subTask?.tags[0].name).toBe('important');
+      }
+    });
+
+    test('removeTagFromSubTask should remove tag from subtask with backend integration', async () => {
+      const newSubTask = await store.addSubTask('task-1', {
+        title: 'Remove Tag Test SubTask'
+      });
+
+      if (newSubTask) {
+        // Add tag first
+        await store.addTagToSubTask(newSubTask.id, 'temporary');
+
+        let parentTask = store.allTasks.find((t) => t.id === 'task-1');
+        let subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        expect(subTask?.tags).toHaveLength(1);
+
+        // Remove tag
+        const tagId = subTask?.tags[0].id;
+        if (tagId) {
+          await store.removeTagFromSubTask(newSubTask.id, tagId);
+
+          parentTask = store.allTasks.find((t) => t.id === 'task-1');
+          subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+
+          expect(subTask?.tags).toHaveLength(0);
+          expect(subTask?.updated_at).toBeInstanceOf(Date);
+        }
+      }
+    });
+
+    test('removeTagFromSubTask should handle non-existent tag gracefully', async () => {
+      const newSubTask = await store.addSubTask('task-1', {
+        title: 'Non-existent Tag Test SubTask'
+      });
+
+      if (newSubTask) {
+        // Try to remove non-existent tag
+        await store.removeTagFromSubTask(newSubTask.id, 'non-existent-tag-id');
+
+        const parentTask = store.allTasks.find((t) => t.id === 'task-1');
+        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+
+        expect(subTask?.tags).toHaveLength(0);
+      }
+    });
+
+    test('addTagToSubTask should handle non-existent subtask gracefully', async () => {
+      // Try to add tag to non-existent subtask
+      await store.addTagToSubTask('non-existent-subtask', 'test-tag');
+
+      // No error should be thrown, and existing data should remain unchanged
+      const allTasks = store.allTasks;
+      expect(allTasks).toHaveLength(3); // Original tasks should remain
+    });
+  });
 });

@@ -108,6 +108,16 @@ describe('BackendService (Simple Test)', () => {
       const result = await service.removeTagFromTask('task-1', 'tag-123');
       expect(result).toBe(true);
     });
+
+    test('addTagToSubTask should return true in web mode', async () => {
+      const result = await service.addTagToSubTask('subtask-123', 'tag-456');
+      expect(result).toBe(true);
+    });
+
+    test('removeTagFromSubTask should return true in web mode', async () => {
+      const result = await service.removeTagFromSubTask('subtask-123', 'tag-456');
+      expect(result).toBe(true);
+    });
   });
 
   describe('BackendServiceインターフェースの確認', () => {
@@ -132,6 +142,8 @@ describe('BackendService (Simple Test)', () => {
       expect(typeof service.getAllTags).toBe('function');
       expect(typeof service.addTagToTask).toBe('function');
       expect(typeof service.removeTagFromTask).toBe('function');
+      expect(typeof service.addTagToSubTask).toBe('function');
+      expect(typeof service.removeTagFromSubTask).toBe('function');
     });
 
     test('should have auto save method', () => {
