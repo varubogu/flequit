@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest';
 import { backendService } from '../../src/lib/services/backend-service';
 import type { BackendService } from '../../src/lib/services/backend-service';
 
@@ -9,17 +9,20 @@ vi.mock('@tauri-apps/api/core', () => ({
 
 describe('BackendService', () => {
   let service: BackendService;
-  const { invoke } = vi.hoisted(() => ({
-    invoke: vi.fn()
-  }));
+  let invoke: MockedFunction<typeof import('@tauri-apps/api/core').invoke>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     // Tauriフラグをモック
     Object.defineProperty(window, '__TAURI_INTERNALS__', {
       value: true,
       writable: true
     });
+
+    // invokeをモックから取得
+    const tauriCore = await import('@tauri-apps/api/core');
+    invoke = vi.mocked(tauriCore.invoke);
+
     service = backendService();
   });
 
@@ -32,6 +35,10 @@ describe('BackendService', () => {
         description: 'Test description',
         status: 'not_started',
         priority: 1,
+        order_index: 0,
+        is_archived: false,
+        start_date: undefined,
+        end_date: undefined,
         created_at: Date.now(),
         updated_at: Date.now(),
         tags: []
@@ -69,6 +76,10 @@ describe('BackendService', () => {
         description: 'Updated description',
         status: 'completed',
         priority: 2,
+        order_index: 0,
+        is_archived: false,
+        start_date: undefined,
+        end_date: undefined,
         created_at: Date.now(),
         updated_at: Date.now(),
         tags: []

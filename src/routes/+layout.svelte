@@ -13,7 +13,8 @@
     try {
       const service = backendService();
       const projects = await service.loadProjectData();
-      await taskStore.setProjects(projects);
+      // 初期化時は保存処理を行わない（loadProjectsDataを使用）
+      taskStore.loadProjectsData(projects);
     } catch (error) {
       console.error('Failed to load initial data:', error);
       errorHandler.addError({
