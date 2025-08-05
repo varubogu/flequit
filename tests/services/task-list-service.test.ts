@@ -59,12 +59,12 @@ beforeEach(() => {
   ];
 });
 
-test('TaskListService.addNewTask: creates task successfully', () => {
+test('TaskListService.addNewTask: creates task successfully', async () => {
   const title = 'New Task Title';
   const mockNewTask = { id: 'task-123', title: 'New Task Title' } as TaskWithSubTasks;
-  vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => Promise.resolve(mockNewTask));
 
-  const result = TaskListService.addNewTask(title);
+  const result = await TaskListService.addNewTask(title);
 
   expect(mockTaskService.addTask).toHaveBeenCalledWith('list-1', {
     title: 'New Task Title'
@@ -72,12 +72,12 @@ test('TaskListService.addNewTask: creates task successfully', () => {
   expect(result).toBe('task-123');
 });
 
-test('TaskListService.addNewTask: trims whitespace from title', () => {
+test('TaskListService.addNewTask: trims whitespace from title', async () => {
   const title = '  Task with spaces  ';
   const mockNewTask = { id: 'task-123', title: 'Task with spaces' } as TaskWithSubTasks;
-  vi.mocked(mockTaskService.addTask).mockImplementation(() => mockNewTask);
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => Promise.resolve(mockNewTask));
 
-  const result = TaskListService.addNewTask(title);
+  const result = await TaskListService.addNewTask(title);
 
   expect(mockTaskService.addTask).toHaveBeenCalledWith('list-1', {
     title: 'Task with spaces'
@@ -127,10 +127,10 @@ test('TaskListService.addNewTask: returns null when no task lists exist', () => 
   expect(result).toBeNull();
 });
 
-test('TaskListService.addNewTask: returns null when TaskService.addTask returns null', () => {
-  vi.mocked(mockTaskService.addTask).mockImplementation(() => null);
+test('TaskListService.addNewTask: returns null when TaskService.addTask returns null', async () => {
+  vi.mocked(mockTaskService.addTask).mockImplementation(() => Promise.resolve(null));
 
-  const result = TaskListService.addNewTask('Valid Title');
+  const result = await TaskListService.addNewTask('Valid Title');
 
   expect(mockTaskService.addTask).toHaveBeenCalled();
   expect(result).toBeNull();

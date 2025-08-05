@@ -31,6 +31,21 @@ interface BackendService {
   getProjectTrees: () => Promise<ProjectTree[]>;
   loadProjectData: () => Promise<ProjectTree[]>;
   saveUserData: () => void;
+  
+  // 拡張API
+  createProject: (project: { name: string; description?: string; color?: string }) => Promise<ProjectTree>;
+  updateProject: (projectId: string, updates: { name?: string; description?: string; color?: string }) => Promise<ProjectTree | null>;
+  deleteProject: (projectId: string) => Promise<boolean>;
+  
+  createTaskList: (projectId: string, taskList: { name: string; description?: string; color?: string }) => Promise<TaskListWithTasks>;
+  updateTaskList: (taskListId: string, updates: { name?: string; description?: string; color?: string }) => Promise<TaskListWithTasks | null>;
+  deleteTaskList: (taskListId: string) => Promise<boolean>;
+  
+  createTaskWithSubTasks: (listId: string, task: Partial<TaskWithSubTasks>) => Promise<TaskWithSubTasks>;
+  updateTaskWithSubTasks: (taskId: string, updates: Partial<TaskWithSubTasks>) => Promise<TaskWithSubTasks | null>;
+  deleteTaskWithSubTasks: (taskId: string) => Promise<boolean>;
+  
+  autoSave: () => Promise<void>;
 }
 
 // 型変換ヘルパー関数（timestamp -> Date）
@@ -174,6 +189,88 @@ export const backendService = (): BackendService => {
       },
       saveUserData: () => {
         console.log('Saving user data...', taskStore.projects);
+      },
+      
+      // 拡張API実装
+      createProject: async (project: { name: string; description?: string; color?: string }) => {
+        const result = await invoke('create_project', { 
+          name: project.name, 
+          description: project.description, 
+          color: project.color 
+        });
+        return convertProjectTree(result);
+      },
+      
+      updateProject: async (projectId: string, updates: { name?: string; description?: string; color?: string }) => {
+        const result = await invoke('update_project', { 
+          projectId, 
+          name: updates.name, 
+          description: updates.description, 
+          color: updates.color 
+        });
+        return result ? convertProjectTree(result) : null;
+      },
+      
+      deleteProject: async (projectId: string) => {
+        return await invoke('delete_project', { projectId });
+      },
+      
+      createTaskList: async (projectId: string, taskList: { name: string; description?: string; color?: string }) => {
+        const result = await invoke('create_task_list', { 
+          projectId, 
+          name: taskList.name, 
+          description: taskList.description, 
+          color: taskList.color 
+        });
+        return convertTaskList(result);
+      },
+      
+      updateTaskList: async (taskListId: string, updates: { name?: string; description?: string; color?: string }) => {
+        const result = await invoke('update_task_list', { 
+          taskListId, 
+          name: updates.name, 
+          description: updates.description, 
+          color: updates.color 
+        });
+        return result ? convertTaskList(result) : null;
+      },
+      
+      deleteTaskList: async (taskListId: string) => {
+        return await invoke('delete_task_list', { taskListId });
+      },
+      
+      createTaskWithSubTasks: async (listId: string, task: Partial<TaskWithSubTasks>) => {
+        const result = await invoke('create_task_with_subtasks', { 
+          listId, 
+          title: task.title || '', 
+          description: task.description, 
+          status: task.status, 
+          priority: task.priority,
+          startDate: task.start_date?.getTime(),
+          endDate: task.end_date?.getTime()
+        });
+        return convertTask(result);
+      },
+      
+      updateTaskWithSubTasks: async (taskId: string, updates: Partial<TaskWithSubTasks>) => {
+        const result = await invoke('update_task_with_subtasks', { 
+          taskId, 
+          title: updates.title, 
+          description: updates.description, 
+          status: updates.status, 
+          priority: updates.priority,
+          startDate: updates.start_date?.getTime(),
+          endDate: updates.end_date?.getTime()
+        });
+        return result ? convertTask(result) : null;
+      },
+      
+      deleteTaskWithSubTasks: async (taskId: string) => {
+        return await invoke('delete_task_with_subtasks', { taskId });
+      },
+      
+      autoSave: async () => {
+        return await invoke('auto_save');
       }
     };
   } else {
@@ -241,6 +338,57 @@ export const backendService = (): BackendService => {
       },
       saveUserData: () => {
         console.log('Saving user data...', taskStore.projects);
+      },
+      
+      // Web版用のスタブ実装
+      createProject: async (project: { name: string; description?: string; color?: string }) => {
+        console.log('createProject called in web mode', project);
+        throw new Error('Not implemented for web mode');
+      },
+      
+      updateProject: async (projectId: string, updates: { name?: string; description?: string; color?: string }) => {
+        console.log('updateProject called in web mode', { projectId, updates });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      deleteProject: async (projectId: string) => {
+        console.log('deleteProject called in web mode', { projectId });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      createTaskList: async (projectId: string, taskList: { name: string; description?: string; color?: string }) => {
+        console.log('createTaskList called in web mode', { projectId, taskList });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      updateTaskList: async (taskListId: string, updates: { name?: string; description?: string; color?: string }) => {
+        console.log('updateTaskList called in web mode', { taskListId, updates });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      deleteTaskList: async (taskListId: string) => {
+        console.log('deleteTaskList called in web mode', { taskListId });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      createTaskWithSubTasks: async (listId: string, task: Partial<TaskWithSubTasks>) => {
+        console.log('createTaskWithSubTasks called in web mode', { listId, task });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      updateTaskWithSubTasks: async (taskId: string, updates: Partial<TaskWithSubTasks>) => {
+        console.log('updateTaskWithSubTasks called in web mode', { taskId, updates });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      deleteTaskWithSubTasks: async (taskId: string) => {
+        console.log('deleteTaskWithSubTasks called in web mode', { taskId });
+        throw new Error('Not implemented for web mode');
+      },
+      
+      autoSave: async () => {
+        // Web版では何もしない（エラーも出さない）
+        console.log('Web backend: Auto-save skipped (not implemented)');
       }
     };
   }

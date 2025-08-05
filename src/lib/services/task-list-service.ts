@@ -2,7 +2,7 @@ import { taskStore } from '$lib/stores/tasks.svelte';
 import { TaskService } from './task-service';
 
 export class TaskListService {
-  static addNewTask(title: string): string | null {
+  static async addNewTask(title: string): Promise<string | null> {
     if (!title.trim() || taskStore.projects.length === 0) {
       return null;
     }
@@ -12,7 +12,7 @@ export class TaskListService {
       return null;
     }
 
-    const newTask = TaskService.addTask(firstList.id, {
+    const newTask = await TaskService.addTask(firstList.id, {
       title: title.trim()
     });
 

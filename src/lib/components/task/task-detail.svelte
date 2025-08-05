@@ -252,9 +252,9 @@
     showDeleteDialog = true;
   }
 
-  function handleSaveNewTask() {
+  async function handleSaveNewTask() {
     if (!isNewTaskMode) return;
-    const newTaskId = taskStore.saveNewTask();
+    const newTaskId = await taskStore.saveNewTask();
     if (newTaskId) {
       TaskService.selectTask(newTaskId);
     }

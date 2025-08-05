@@ -125,7 +125,7 @@ test('TaskService.deleteTask: calls taskStore.deleteTask and returns true', () =
   expect(result).toBe(true);
 });
 
-test('TaskService.addTask: calls taskStore.addTask with correct parameters', () => {
+test('TaskService.addTask: calls taskStore.addTask with correct parameters', async () => {
   const listId = 'list-123';
   const taskData = {
     title: 'New Task',
@@ -134,9 +134,9 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', () 
   };
 
   const mockReturnTask = { id: 'new-task', title: 'New Task' } as TaskWithSubTasks;
-  vi.mocked(mockTaskStore.addTask).mockImplementation(() => mockReturnTask);
+  vi.mocked(mockTaskStore.addTask).mockImplementation(() => Promise.resolve(mockReturnTask));
 
-  const result = TaskService.addTask(listId, taskData);
+  const result = await TaskService.addTask(listId, taskData);
 
   expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
     list_id: listId,
@@ -150,13 +150,13 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', () 
   expect(result).toBe(mockReturnTask);
 });
 
-test('TaskService.addTask: handles default priority', () => {
+test('TaskService.addTask: handles default priority', async () => {
   const listId = 'list-123';
   const taskData = {
     title: 'Task Without Priority'
   };
 
-  TaskService.addTask(listId, taskData);
+  await TaskService.addTask(listId, taskData);
 
   expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
     list_id: listId,

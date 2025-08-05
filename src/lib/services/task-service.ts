@@ -139,15 +139,15 @@ export class TaskService {
     this.updateTask(task.id, { sub_tasks: updatedSubTasks } as Partial<Task>);
   }
 
-  static addTask(
+  static async addTask(
     listId: string,
     taskData: {
       title: string;
       description?: string;
       priority?: number;
     }
-  ): TaskWithSubTasks | null {
-    return taskStore.addTask(listId, {
+  ): Promise<TaskWithSubTasks | null> {
+    return await taskStore.addTask(listId, {
       list_id: listId,
       title: taskData.title,
       description: taskData.description,

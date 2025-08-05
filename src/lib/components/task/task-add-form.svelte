@@ -24,8 +24,8 @@
   const cancel = translationService.getMessage('cancel');
   const taskTitle = translationService.getMessage('task_title');
 
-  function handleAddTask() {
-    const newTaskId = TaskListService.addNewTask(newTaskTitle);
+  async function handleAddTask() {
+    const newTaskId = await TaskListService.addNewTask(newTaskTitle);
     if (newTaskId) {
       newTaskTitle = '';
       TaskService.selectTask(newTaskId);

@@ -79,7 +79,7 @@ describe('TaskAddForm', () => {
       const taskId = 'new-task-id';
       const onTaskAdded = vi.fn();
 
-      mockTaskListService.addNewTask.mockReturnValue(taskId);
+      mockTaskListService.addNewTask.mockResolvedValue(taskId);
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
@@ -104,7 +104,7 @@ describe('TaskAddForm', () => {
     test('should not create task when input is empty', async () => {
       const onTaskAdded = vi.fn();
 
-      mockTaskListService.addNewTask.mockReturnValue(null);
+      mockTaskListService.addNewTask.mockResolvedValue(null);
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
@@ -120,7 +120,7 @@ describe('TaskAddForm', () => {
     test('should handle failed task creation', async () => {
       const onTaskAdded = vi.fn();
 
-      mockTaskListService.addNewTask.mockReturnValue(null);
+      mockTaskListService.addNewTask.mockResolvedValue(null);
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
@@ -144,7 +144,7 @@ describe('TaskAddForm', () => {
       const taskId = 'new-task-id';
       const onTaskAdded = vi.fn();
 
-      mockTaskListService.addNewTask.mockReturnValue(taskId);
+      mockTaskListService.addNewTask.mockResolvedValue(taskId);
 
       render(TaskAddForm, { props: { onTaskAdded } });
 
@@ -236,7 +236,7 @@ describe('TaskAddForm', () => {
     test('should work without onTaskAdded prop', async () => {
       const taskId = 'new-task-id';
 
-      mockTaskListService.addNewTask.mockReturnValue(taskId);
+      mockTaskListService.addNewTask.mockResolvedValue(taskId);
 
       render(TaskAddForm);
 

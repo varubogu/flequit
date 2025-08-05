@@ -228,7 +228,7 @@ describe('TaskStore', () => {
       expect(task?.status).toBe('not_started');
     });
 
-    test('addTask should add a new task to the specified list', () => {
+    test('addTask should add a new task to the specified list', async () => {
       const newTaskData = {
         list_id: 'list-1',
         title: 'New Task',
@@ -238,7 +238,7 @@ describe('TaskStore', () => {
         is_archived: false
       };
 
-      const newTask = store.addTask('list-1', newTaskData);
+      const newTask = await store.addTask('list-1', newTaskData);
 
       expect(newTask).not.toBeNull();
       expect(newTask?.title).toBe('New Task');
@@ -252,8 +252,8 @@ describe('TaskStore', () => {
       expect(allTasks).toHaveLength(4);
     });
 
-    test('addTask should return null for non-existent list', () => {
-      const result = store.addTask('non-existent-list', {
+    test('addTask should return null for non-existent list', async () => {
+      const result = await store.addTask('non-existent-list', {
         list_id: 'non-existent-list',
         title: 'New Task',
         status: 'not_started',
