@@ -428,6 +428,8 @@ export const backendService = (): BackendService => {
       // 一括操作API (Tauri版)
       bulkUpdateTasks: async (updates) => {
         const results = [];
+        const errors: Array<{ taskId: string; error: any }> = [];
+        
         for (const { taskId, updates: taskUpdates } of updates) {
           try {
             const result = await invoke('update_task_with_subtasks', {
@@ -444,22 +446,53 @@ export const backendService = (): BackendService => {
             }
           } catch (error) {
             console.error(`Failed to update task ${taskId}:`, error);
+            errors.push({ taskId, error });
           }
         }
+        
+        // エラーがある場合は統合エラーとして報告
+        if (errors.length > 0) {
+          const { errorHandler } = await import('$lib/stores/error-handler.svelte');
+          errorHandler.addSyncError(
+            '一括タスク更新', 
+            'bulk_operation', 
+            `${errors.length}/${updates.length} failed`,
+            new Error(`Failed to update ${errors.length} tasks`)
+          );
+        }
+        
         return results;
       },
 
       bulkDeleteTasks: async (taskIds) => {
         let allSucceeded = true;
+        const errors: Array<{ taskId: string; error: any }> = [];
+        
         for (const taskId of taskIds) {
           try {
             const success = await invoke('delete_task_with_subtasks', { taskId });
-            if (!success) allSucceeded = false;
+            if (!success) {
+              allSucceeded = false;
+              errors.push({ taskId, error: new Error('Delete operation returned false') });
+            }
           } catch (error) {
             console.error(`Failed to delete task ${taskId}:`, error);
             allSucceeded = false;
+            errors.push({ taskId, error });
           }
         }
+        
+        // エラーがある場合は統合エラーとして報告
+        if (errors.length > 0) {
+          const { errorHandler } = await import('$lib/stores/error-handler.svelte');
+          errorHandler.addSyncError(
+            '一括タスク削除', 
+            'bulk_operation', 
+            `${errors.length}/${taskIds.length} failed`,
+            new Error(`Failed to delete ${errors.length} tasks`)
+          );
+        }
+        
         return allSucceeded;
       },
 
