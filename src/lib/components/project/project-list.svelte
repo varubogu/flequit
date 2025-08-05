@@ -68,9 +68,11 @@
     showTaskListDialog = true;
   }
 
-  function handleTaskListSave(data: { name: string }) {
+  async function handleTaskListSave(data: { name: string }) {
     if (taskListDialogProject) {
-      const newTaskList = taskStore.addTaskList(taskListDialogProject.id, { name: data.name });
+      const newTaskList = await taskStore.addTaskList(taskListDialogProject.id, {
+        name: data.name
+      });
       if (newTaskList) {
         taskStore.selectList(newTaskList.id);
         onViewChange?.('tasklist');
@@ -79,16 +81,16 @@
     showTaskListDialog = false;
   }
 
-  function handleProjectSave(data: { name: string; color: string }) {
+  async function handleProjectSave(data: { name: string; color: string }) {
     const { name, color } = data;
     if (projectDialogMode === 'add') {
-      const newProject = taskStore.addProject({ name, color });
+      const newProject = await taskStore.addProject({ name, color });
       if (newProject) {
         taskStore.selectProject(newProject.id);
         onViewChange?.('project');
       }
     } else if (editingProject) {
-      taskStore.updateProject(editingProject.id, { name, color });
+      await taskStore.updateProject(editingProject.id, { name, color });
     }
     showProjectDialog = false;
   }

@@ -12,6 +12,7 @@ import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { backendService } from '$lib/services/backend-service';
 import { autoSaveManager } from './auto-save.svelte';
+import { errorHandler } from './error-handler.svelte';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -24,7 +25,7 @@ export class TaskStore {
   newTaskData = $state<TaskWithSubTasks | null>(null);
   pendingTaskSelection = $state<string | null>(null);
   pendingSubTaskSelection = $state<string | null>(null);
-  
+
   // バックエンドサービスのインスタンス
   private backend = backendService();
 
@@ -194,13 +195,14 @@ export class TaskStore {
             ...updates,
             updated_at: new SvelteDate()
           };
-          
+
           // バックエンドに同期
           try {
             await this.backend.updateTaskWithSubTasks(taskId, updates as Partial<TaskWithSubTasks>);
             await this.backend.autoSave();
           } catch (error) {
             console.error('Failed to sync task update to backend:', error);
+            errorHandler.addSyncError('タスク更新', 'task', taskId, error);
           }
           return;
         }
@@ -231,21 +233,22 @@ export class TaskStore {
       const list = project.task_lists.find((l) => l.id === listId);
       if (list) {
         list.tasks.push(newTask);
-        
+
         // バックエンドに同期
         try {
           await this.backend.createTaskWithSubTasks(listId, newTask);
           await this.backend.autoSave();
         } catch (error) {
           console.error('Failed to sync new task to backend:', error);
+          errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
           // エラーが発生した場合はローカル状態から削除
-          const taskIndex = list.tasks.findIndex(t => t.id === newTask.id);
+          const taskIndex = list.tasks.findIndex((t) => t.id === newTask.id);
           if (taskIndex !== -1) {
             list.tasks.splice(taskIndex, 1);
           }
           return null;
         }
-        
+
         return newTask;
       }
     }
@@ -292,19 +295,20 @@ export class TaskStore {
         if (taskIndex !== -1) {
           // バックアップとして削除するタスクを保持
           const deletedTask = list.tasks[taskIndex];
-          
+
           // まずローカル状態から削除
           list.tasks.splice(taskIndex, 1);
           if (this.selectedTaskId === taskId) {
             this.selectedTaskId = null;
           }
-          
+
           // バックエンドに同期
           try {
             await this.backend.deleteTaskWithSubTasks(taskId);
             await this.backend.autoSave();
           } catch (error) {
             console.error('Failed to sync task deletion to backend:', error);
+            errorHandler.addSyncError('タスク削除', 'task', taskId, error);
             // エラーが発生した場合はローカル状態を復元
             list.tasks.splice(taskIndex, 0, deletedTask);
           }
@@ -421,7 +425,7 @@ export class TaskStore {
           if (!task.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
             task.tags.push(tag);
             task.updated_at = new SvelteDate();
-            
+
             // バックエンドに同期
             try {
               await this.backend.updateTaskWithSubTasks(taskId, { tags: task.tags });
@@ -445,7 +449,7 @@ export class TaskStore {
           if (tagIndex !== -1) {
             task.tags.splice(tagIndex, 1);
             task.updated_at = new SvelteDate();
-            
+
             // バックエンドに同期
             try {
               await this.backend.updateTaskWithSubTasks(taskId, { tags: task.tags });
@@ -520,6 +524,133 @@ export class TaskStore {
     }
   }
 
+  // Project management methods
+  async addProject(project: { name: string; description?: string; color?: string }) {
+    try {
+      const newProject = await this.backend.createProject(project);
+      this.projects.push(newProject);
+      await this.backend.autoSave();
+      return newProject;
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      errorHandler.addSyncError('プロジェクト作成', 'project', 'new', error);
+      return null;
+    }
+  }
+
+  async updateProject(
+    projectId: string,
+    updates: { name?: string; description?: string; color?: string }
+  ) {
+    try {
+      const updatedProject = await this.backend.updateProject(projectId, updates);
+      if (updatedProject) {
+        const projectIndex = this.projects.findIndex((p) => p.id === projectId);
+        if (projectIndex !== -1) {
+          this.projects[projectIndex] = updatedProject;
+        }
+      }
+      await this.backend.autoSave();
+      return updatedProject;
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      errorHandler.addSyncError('プロジェクト更新', 'project', projectId, error);
+      return null;
+    }
+  }
+
+  async deleteProject(projectId: string) {
+    try {
+      const success = await this.backend.deleteProject(projectId);
+      if (success) {
+        const projectIndex = this.projects.findIndex((p) => p.id === projectId);
+        if (projectIndex !== -1) {
+          this.projects.splice(projectIndex, 1);
+          // 削除されたプロジェクトのタスクが選択されていた場合はクリア
+          if (this.selectedProjectId === projectId) {
+            this.selectedProjectId = null;
+            this.selectedTaskId = null;
+            this.selectedSubTaskId = null;
+          }
+        }
+      }
+      await this.backend.autoSave();
+      return success;
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      errorHandler.addSyncError('プロジェクト削除', 'project', projectId, error);
+      return false;
+    }
+  }
+
+  // Task list management methods
+  async addTaskList(
+    projectId: string,
+    taskList: { name: string; description?: string; color?: string }
+  ) {
+    try {
+      const newTaskList = await this.backend.createTaskList(projectId, taskList);
+      const project = this.projects.find((p) => p.id === projectId);
+      if (project) {
+        project.task_lists.push(newTaskList);
+      }
+      await this.backend.autoSave();
+      return newTaskList;
+    } catch (error) {
+      console.error('Failed to create task list:', error);
+      return null;
+    }
+  }
+
+  async updateTaskList(
+    taskListId: string,
+    updates: { name?: string; description?: string; color?: string }
+  ) {
+    try {
+      const updatedTaskList = await this.backend.updateTaskList(taskListId, updates);
+      if (updatedTaskList) {
+        for (const project of this.projects) {
+          const listIndex = project.task_lists.findIndex((l) => l.id === taskListId);
+          if (listIndex !== -1) {
+            project.task_lists[listIndex] = updatedTaskList;
+            break;
+          }
+        }
+      }
+      await this.backend.autoSave();
+      return updatedTaskList;
+    } catch (error) {
+      console.error('Failed to update task list:', error);
+      return null;
+    }
+  }
+
+  async deleteTaskList(taskListId: string) {
+    try {
+      const success = await this.backend.deleteTaskList(taskListId);
+      if (success) {
+        for (const project of this.projects) {
+          const listIndex = project.task_lists.findIndex((l) => l.id === taskListId);
+          if (listIndex !== -1) {
+            project.task_lists.splice(listIndex, 1);
+            // 削除されたタスクリストのタスクが選択されていた場合はクリア
+            if (this.selectedListId === taskListId) {
+              this.selectedListId = null;
+              this.selectedTaskId = null;
+              this.selectedSubTaskId = null;
+            }
+            break;
+          }
+        }
+      }
+      await this.backend.autoSave();
+      return success;
+    } catch (error) {
+      console.error('Failed to delete task list:', error);
+      return false;
+    }
+  }
+
   // Get task count for a specific tag
   getTaskCountByTag(tagName: string): number {
     let count = 0;
@@ -591,108 +722,6 @@ export class TaskStore {
       const newTaskTagIndex = this.newTaskData.tags.findIndex((t) => t.id === updatedTag.id);
       if (newTaskTagIndex !== -1) {
         this.newTaskData.tags[newTaskTagIndex] = { ...updatedTag };
-      }
-    }
-  }
-
-  // Project management methods
-  addProject(projectData: {
-    name: string;
-    description?: string;
-    color?: string;
-  }): ProjectTree | null {
-    const newProject: ProjectTree = {
-      id: crypto.randomUUID(),
-      name: projectData.name.trim(),
-      description: projectData.description || '',
-      color: projectData.color || '#3b82f6',
-      order_index: this.projects.length,
-      is_archived: false,
-      created_at: new SvelteDate(),
-      updated_at: new SvelteDate(),
-      task_lists: []
-    };
-
-    this.projects.push(newProject);
-    return newProject;
-  }
-
-  updateProject(projectId: string, updates: Partial<Project>) {
-    const projectIndex = this.projects.findIndex((p) => p.id === projectId);
-    if (projectIndex !== -1) {
-      this.projects[projectIndex] = {
-        ...this.projects[projectIndex],
-        ...updates,
-        updated_at: new SvelteDate()
-      };
-    }
-  }
-
-  deleteProject(projectId: string) {
-    const projectIndex = this.projects.findIndex((p) => p.id === projectId);
-    if (projectIndex !== -1) {
-      this.projects.splice(projectIndex, 1);
-
-      // Clear selections if deleted project was selected
-      if (this.selectedProjectId === projectId) {
-        this.selectedProjectId = null;
-      }
-    }
-  }
-
-  // Task list management methods
-  addTaskList(
-    projectId: string,
-    taskListData: { name: string; description?: string; color?: string }
-  ): TaskListWithTasks | null {
-    const project = this.projects.find((p) => p.id === projectId);
-    if (!project) return null;
-
-    const newTaskList: TaskListWithTasks = {
-      id: crypto.randomUUID(),
-      project_id: projectId,
-      name: taskListData.name.trim(),
-      description: taskListData.description || '',
-      color: taskListData.color,
-      order_index: project.task_lists.length,
-      is_archived: false,
-      created_at: new SvelteDate(),
-      updated_at: new SvelteDate(),
-      tasks: []
-    };
-
-    project.task_lists.push(newTaskList);
-    project.updated_at = new SvelteDate();
-    return newTaskList;
-  }
-
-  updateTaskList(taskListId: string, updates: Partial<TaskList>) {
-    for (const project of this.projects) {
-      const taskListIndex = project.task_lists.findIndex((tl) => tl.id === taskListId);
-      if (taskListIndex !== -1) {
-        project.task_lists[taskListIndex] = {
-          ...project.task_lists[taskListIndex],
-          ...updates,
-          updated_at: new SvelteDate()
-        };
-        project.updated_at = new SvelteDate();
-        return;
-      }
-    }
-  }
-
-  deleteTaskList(taskListId: string) {
-    for (const project of this.projects) {
-      const taskListIndex = project.task_lists.findIndex((tl) => tl.id === taskListId);
-      if (taskListIndex !== -1) {
-        project.task_lists.splice(taskListIndex, 1);
-        project.updated_at = new SvelteDate();
-
-        // Clear selections if deleted task list was selected
-        if (this.selectedListId === taskListId) {
-          this.selectedListId = null;
-        }
-        return;
       }
     }
   }

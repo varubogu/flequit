@@ -85,30 +85,30 @@ test('TaskListService.addNewTask: trims whitespace from title', async () => {
   expect(result).toBe('task-123');
 });
 
-test('TaskListService.addNewTask: returns null for empty title', () => {
-  const result = TaskListService.addNewTask('');
+test('TaskListService.addNewTask: returns null for empty title', async () => {
+  const result = await TaskListService.addNewTask('');
 
   expect(mockTaskService.addTask).not.toHaveBeenCalled();
   expect(result).toBeNull();
 });
 
-test('TaskListService.addNewTask: returns null for whitespace-only title', () => {
-  const result = TaskListService.addNewTask('   ');
+test('TaskListService.addNewTask: returns null for whitespace-only title', async () => {
+  const result = await TaskListService.addNewTask('   ');
 
   expect(mockTaskService.addTask).not.toHaveBeenCalled();
   expect(result).toBeNull();
 });
 
-test('TaskListService.addNewTask: returns null when no projects exist', () => {
+test('TaskListService.addNewTask: returns null when no projects exist', async () => {
   mockTaskStore.projects = [];
 
-  const result = TaskListService.addNewTask('Valid Title');
+  const result = await TaskListService.addNewTask('Valid Title');
 
   expect(mockTaskService.addTask).not.toHaveBeenCalled();
   expect(result).toBeNull();
 });
 
-test('TaskListService.addNewTask: returns null when no task lists exist', () => {
+test('TaskListService.addNewTask: returns null when no task lists exist', async () => {
   mockTaskStore.projects = [
     {
       id: 'project-1',
@@ -121,7 +121,7 @@ test('TaskListService.addNewTask: returns null when no task lists exist', () => 
     }
   ];
 
-  const result = TaskListService.addNewTask('Valid Title');
+  const result = await TaskListService.addNewTask('Valid Title');
 
   expect(mockTaskService.addTask).not.toHaveBeenCalled();
   expect(result).toBeNull();

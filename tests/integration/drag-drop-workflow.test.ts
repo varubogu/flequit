@@ -10,11 +10,11 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   });
 
   describe('プロジェクトの並び替え', () => {
-    it('プロジェクトの順序を正しく変更できる', () => {
+    it('プロジェクトの順序を正しく変更できる', async () => {
       // テストデータを設定
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
-      const project3 = taskStore.addProject({ name: 'プロジェクト3', color: '#0000ff' });
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project3 = await taskStore.addProject({ name: 'プロジェクト3', color: '#0000ff' });
 
       expect(project1).toBeTruthy();
       expect(project2).toBeTruthy();
@@ -42,11 +42,11 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(taskStore.projects[2].order_index).toBe(2);
     });
 
-    it('複数回の並び替えが正しく動作する', () => {
-      const project1 = taskStore.addProject({ name: 'A', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'B', color: '#00ff00' });
-      const project3 = taskStore.addProject({ name: 'C', color: '#0000ff' });
-      const project4 = taskStore.addProject({ name: 'D', color: '#ffff00' });
+    it('複数回の並び替えが正しく動作する', async () => {
+      const project1 = await taskStore.addProject({ name: 'A', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'B', color: '#00ff00' });
+      const project3 = await taskStore.addProject({ name: 'C', color: '#0000ff' });
+      const project4 = await taskStore.addProject({ name: 'D', color: '#ffff00' });
 
       expect(project1 && project2 && project3 && project4).toBeTruthy();
 
@@ -65,13 +65,13 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   });
 
   describe('タスクリストの並び替え', () => {
-    it('同一プロジェクト内でタスクリストを並び替えできる', () => {
-      const project = taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
+    it('同一プロジェクト内でタスクリストを並び替えできる', async () => {
+      const project = await taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
       expect(project).toBeTruthy();
 
-      const list1 = taskStore.addTaskList(project!.id, { name: 'リスト1' });
-      const list2 = taskStore.addTaskList(project!.id, { name: 'リスト2' });
-      const list3 = taskStore.addTaskList(project!.id, { name: 'リスト3' });
+      const list1 = await taskStore.addTaskList(project!.id, { name: 'リスト1' });
+      const list2 = await taskStore.addTaskList(project!.id, { name: 'リスト2' });
+      const list3 = await taskStore.addTaskList(project!.id, { name: 'リスト3' });
 
       expect(list1 && list2 && list3).toBeTruthy();
 
@@ -97,15 +97,15 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(taskStore.projects[0].task_lists[2].order_index).toBe(2);
     });
 
-    it('タスクリストを別プロジェクトに移動できる', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('タスクリストを別プロジェクトに移動できる', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 
-      const list1 = taskStore.addTaskList(project1!.id, { name: 'リスト1' });
-      const list2 = taskStore.addTaskList(project1!.id, { name: 'リスト2' });
-      const list3 = taskStore.addTaskList(project2!.id, { name: 'リスト3' });
+      const list1 = await taskStore.addTaskList(project1!.id, { name: 'リスト1' });
+      const list2 = await taskStore.addTaskList(project1!.id, { name: 'リスト2' });
+      const list3 = await taskStore.addTaskList(project2!.id, { name: 'リスト3' });
 
       expect(list1 && list2 && list3).toBeTruthy();
 
@@ -124,15 +124,15 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(movedList?.project_id).toBe(project2!.id);
     });
 
-    it('タスクリストを別プロジェクトの指定位置に移動できる', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('タスクリストを別プロジェクトの指定位置に移動できる', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 
-      const listA = taskStore.addTaskList(project1!.id, { name: 'リストA' });
-      const listB = taskStore.addTaskList(project2!.id, { name: 'リストB' });
-      const listC = taskStore.addTaskList(project2!.id, { name: 'リストC' });
+      const listA = await taskStore.addTaskList(project1!.id, { name: 'リストA' });
+      const listB = await taskStore.addTaskList(project2!.id, { name: 'リストB' });
+      const listC = await taskStore.addTaskList(project2!.id, { name: 'リストC' });
 
       expect(listA && listB && listC).toBeTruthy();
 
@@ -158,8 +158,8 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   });
 
   describe('エラーケース', () => {
-    it('存在しないプロジェクトIDで移動操作をしても例外が発生しない', () => {
-      const project = taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
+    it('存在しないプロジェクトIDで移動操作をしても例外が発生しない', async () => {
+      const project = await taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
       expect(project).toBeTruthy();
 
       expect(() => {
@@ -171,8 +171,8 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(taskStore.projects[0].name).toBe('テストプロジェクト');
     });
 
-    it('存在しないタスクリストIDで移動操作をしても例外が発生しない', () => {
-      const project = taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
+    it('存在しないタスクリストIDで移動操作をしても例外が発生しない', async () => {
+      const project = await taskStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
       expect(project).toBeTruthy();
 
       expect(() => {
@@ -183,9 +183,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(taskStore.projects[0].task_lists.length).toBe(0);
     });
 
-    it('範囲外のインデックスで移動しても安全に処理される', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('範囲外のインデックスで移動しても安全に処理される', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 
@@ -198,9 +198,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(taskStore.projects.map((p) => p.name)).toEqual(['プロジェクト1', 'プロジェクト2']);
     });
 
-    it('同じ位置への移動は状態を変更しない', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('同じ位置への移動は状態を変更しない', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 
@@ -216,16 +216,16 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   });
 
   describe('データ整合性', () => {
-    it('移動操作後もタスクデータが保持される', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('移動操作後もタスクデータが保持される', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 
-      const list1 = taskStore.addTaskList(project1!.id, { name: 'リスト1' });
+      const list1 = await taskStore.addTaskList(project1!.id, { name: 'リスト1' });
       expect(list1).toBeTruthy();
 
-      const task1 = taskStore.addTask(list1!.id, {
+      const task1 = await taskStore.addTask(list1!.id, {
         title: 'テストタスク',
         description: 'テスト用のタスク',
         priority: 2,
@@ -247,9 +247,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(movedList.tasks[0].description).toBe('テスト用のタスク');
     });
 
-    it('移動操作後にupdated_atが正しく更新される', () => {
-      const project1 = taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+    it('移動操作後にupdated_atが正しく更新される', async () => {
+      const project1 = await taskStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
+      const project2 = await taskStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
 
       expect(project1 && project2).toBeTruthy();
 

@@ -45,11 +45,11 @@
     showTaskListDialog = true;
   }
 
-  function handleTaskListSave(data: { name: string }) {
+  async function handleTaskListSave(data: { name: string }) {
     const { name } = data;
     if (taskListDialogMode === 'add') {
       if (editingProject) {
-        const newTaskList = taskStore.addTaskList(editingProject.id, { name });
+        const newTaskList = await taskStore.addTaskList(editingProject.id, { name });
         if (newTaskList) {
           taskStore.selectList(newTaskList.id);
           onViewChange?.('tasklist');
@@ -57,7 +57,7 @@
       }
     } else {
       if (editingTaskList) {
-        taskStore.updateTaskList(editingTaskList.id, { name });
+        await taskStore.updateTaskList(editingTaskList.id, { name });
       }
     }
     showTaskListDialog = false;

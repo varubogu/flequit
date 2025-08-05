@@ -1,4 +1,5 @@
 import { backendService } from '$lib/services/backend-service';
+import { SvelteDate } from 'svelte/reactivity';
 
 let autoSaveTimer: number | null = null;
 const AUTO_SAVE_INTERVAL = 30000; // 30秒間隔で自動保存
@@ -6,7 +7,7 @@ const AUTO_SAVE_INTERVAL = 30000; // 30秒間隔で自動保存
 export class AutoSaveManager {
   private backend = backendService();
   private isAutoSaveEnabled = $state(true);
-  private lastSaveTime = $state<Date | null>(null);
+  private lastSaveTime = $state<SvelteDate | null>(null);
   private isSaving = $state(false);
 
   get isEnabled() {
@@ -44,10 +45,10 @@ export class AutoSaveManager {
     }
 
     this.isSaving = true;
-    
+
     try {
       await this.backend.autoSave();
-      this.lastSaveTime = new Date();
+      this.lastSaveTime = new SvelteDate();
       console.log('Auto-save completed at:', this.lastSaveTime.toISOString());
     } catch (error) {
       console.error('Auto-save failed:', error);
