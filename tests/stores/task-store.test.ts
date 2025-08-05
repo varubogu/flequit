@@ -295,6 +295,48 @@ describe('TaskStore', () => {
       expect(updatedSubTask?.updated_at.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
     });
 
+    test('addSubTask should create new subtask with backend integration', async () => {
+      const initialSubTaskCount =
+        store.allTasks.find((t) => t.id === 'task-1')?.sub_tasks.length || 0;
+
+      const newSubTask = await store.addSubTask('task-1', {
+        title: 'New SubTask',
+        description: 'New subtask description',
+        status: 'in_progress',
+        priority: 2
+      });
+
+      expect(newSubTask).not.toBeNull();
+
+      const parentTask = store.allTasks.find((t) => t.id === 'task-1');
+      expect(parentTask?.sub_tasks).toHaveLength(initialSubTaskCount + 1);
+
+      const addedSubTask = parentTask?.sub_tasks.find((st) => st.title === 'New SubTask');
+      expect(addedSubTask?.title).toBe('New SubTask');
+      expect(addedSubTask?.description).toBe('New subtask description');
+      expect(addedSubTask?.status).toBe('in_progress');
+      expect(addedSubTask?.priority).toBe(2);
+      expect(addedSubTask?.id).toBeDefined();
+      expect(addedSubTask?.task_id).toBe('task-1');
+    });
+
+    test('addSubTask should handle creation failure gracefully', async () => {
+      const result = await store.addSubTask('non-existent-task', {
+        title: 'Failed SubTask'
+      });
+
+      // Web版ではダミーデータが返されるため、タスクが見つからなくてもnullではない
+      // しかし、ローカル状態には追加されない
+      expect(result).not.toBeNull(); // バックエンドからはダミーデータが返される
+
+      // しかし、実際のタスクリストには追加されていない
+      const allTasks = store.allTasks;
+      const hasSubTaskInAnyTask = allTasks.some((task) =>
+        task.sub_tasks.some((subTask) => subTask.title === 'Failed SubTask')
+      );
+      expect(hasSubTaskInAnyTask).toBe(false);
+    });
+
     test('deleteSubTask should remove the subtask and clear selection if selected', () => {
       store.selectSubTask('subtask-1');
 
