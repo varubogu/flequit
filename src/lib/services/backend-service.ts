@@ -8,9 +8,9 @@ import type {
   Tag,
   Task
 } from '$lib/types/task';
-import { taskStore } from '$lib/stores/tasks.svelte';
+// taskStore は遅延読み込みで使用
 
-interface BackendService {
+export interface BackendService {
   greet: () => Promise<void>;
   createTask: (title: string, description: string) => Promise<Task>;
   getTask: (taskId: string) => Promise<Task | null>;
@@ -30,7 +30,7 @@ interface BackendService {
   initializeSampleData: () => Promise<void>;
   getProjectTrees: () => Promise<ProjectTree[]>;
   loadProjectData: () => Promise<ProjectTree[]>;
-  saveUserData: () => void;
+  saveUserData: () => Promise<void>;
 
   // 拡張API
   createProject: (project: {
@@ -206,7 +206,8 @@ export const backendService = (): BackendService => {
           return rawProjects.map(convertProjectTree);
         }
       },
-      saveUserData: () => {
+      saveUserData: async () => {
+        const { taskStore } = await import('$lib/stores/tasks.svelte');
         console.log('Saving user data...', taskStore.projects);
       },
 
@@ -364,7 +365,8 @@ export const backendService = (): BackendService => {
         const { generateSampleData } = await import('$lib/data/sample-data');
         return generateSampleData();
       },
-      saveUserData: () => {
+      saveUserData: async () => {
+        const { taskStore } = await import('$lib/stores/tasks.svelte');
         console.log('Saving user data...', taskStore.projects);
       },
 

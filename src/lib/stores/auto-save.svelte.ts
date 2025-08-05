@@ -1,11 +1,11 @@
-import { backendService } from '$lib/services/backend-service';
 import { SvelteDate } from 'svelte/reactivity';
+import type { BackendService } from '$lib/services/backend-service';
 
 let autoSaveTimer: number | null = null;
 const AUTO_SAVE_INTERVAL = 30000; // 30秒間隔で自動保存
 
 export class AutoSaveManager {
-  private backend = backendService();
+  private backend: BackendService | null = null;
   private isAutoSaveEnabled = $state(true);
   private lastSaveTime = $state<SvelteDate | null>(null);
   private isSaving = $state(false);
@@ -39,6 +39,14 @@ export class AutoSaveManager {
     }
   }
 
+  private async getBackend(): Promise<BackendService> {
+    if (!this.backend) {
+      const { backendService } = await import('$lib/services/backend-service');
+      this.backend = backendService();
+    }
+    return this.backend;
+  }
+
   async performAutoSave() {
     if (!this.isAutoSaveEnabled || this.isSaving) {
       return;
@@ -47,7 +55,8 @@ export class AutoSaveManager {
     this.isSaving = true;
 
     try {
-      await this.backend.autoSave();
+      const backend = await this.getBackend();
+      await backend.autoSave();
       this.lastSaveTime = new SvelteDate();
       console.log('Auto-save completed at:', this.lastSaveTime.toISOString());
     } catch (error) {
