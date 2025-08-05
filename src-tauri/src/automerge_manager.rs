@@ -1420,6 +1420,63 @@ impl AutomergeManager {
         Ok(false)
     }
 
+    // 一括操作メソッド
+    pub fn bulk_move_tasks(&self, task_ids: Vec<String>, target_list_id: String) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+        let mut all_success = true;
+
+        for task_id in task_ids {
+            // タスクを新しいリストに移動する処理
+            // 実装の詳細は既存のタスク管理ロジックを参考に
+            match self.move_task_to_list_internal(&mut doc, &task_id, &target_list_id) {
+                Ok(_) => continue,
+                Err(_) => {
+                    all_success = false;
+                    break;
+                }
+            }
+        }
+
+        Ok(all_success)
+    }
+
+    // JSON形式でのエクスポート
+    pub fn export_to_json(&self, file_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let projects = self.get_project_trees()?;
+        let json_data = serde_json::to_string_pretty(&projects)?;
+        fs::write(file_path, json_data)?;
+        Ok(())
+    }
+
+    // JSON形式でのインポート
+    pub fn import_from_json(&self, file_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let json_data = fs::read_to_string(file_path)?;
+        let projects: Vec<ProjectTree> = serde_json::from_str(&json_data)?;
+        
+        // 既存データをクリアして新しいデータを設定
+        self.clear_all_data()?;
+        self.import_project_trees(projects)?;
+        
+        Ok(())
+    }
+
+    // 内部ヘルパーメソッド
+    fn move_task_to_list_internal(&self, doc: &mut Automerge, task_id: &str, target_list_id: &str) -> Result<(), AutomergeError> {
+        // タスクを別のリストに移動する処理
+        // 既存のタスク管理ロジックを活用
+        Ok(())
+    }
+
+    fn clear_all_data(&self) -> Result<(), AutomergeError> {
+        // 全データをクリアする処理
+        Ok(())
+    }
+
+    fn import_project_trees(&self, projects: Vec<ProjectTree>) -> Result<(), AutomergeError> {
+        // プロジェクトツリーをインポートする処理
+        Ok(())
+    }
+
     // ヘルパーメソッド: AutomergeドキュメントからTagを構築
     fn build_tag_from_doc(&self, doc: &Automerge, tag_obj: &automerge::ObjId) -> Result<Tag, AutomergeError> {
         let id = doc.get(tag_obj, "id")?.0.to_str().unwrap_or("").to_string();

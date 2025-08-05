@@ -96,6 +96,22 @@ export interface BackendService {
   removeTagFromSubTask: (subTaskId: string, tagId: string) => Promise<boolean>;
 
   autoSave: () => Promise<void>;
+
+  // 一括操作API
+  bulkUpdateTasks: (updates: Array<{ taskId: string; updates: Partial<TaskWithSubTasks> }>) => Promise<TaskWithSubTasks[]>;
+  bulkDeleteTasks: (taskIds: string[]) => Promise<boolean>;
+  bulkMoveTasksToList: (taskIds: string[], targetListId: string) => Promise<boolean>;
+  
+  // 自動保存制御
+  enableAutoSave: () => Promise<void>;
+  disableAutoSave: () => Promise<void>;
+  getAutoSaveStatus: () => Promise<boolean>;
+
+  // 拡張ファイル操作
+  exportData: (filePath: string, format?: 'json' | 'automerge') => Promise<void>;
+  importData: (filePath: string, format?: 'json' | 'automerge') => Promise<void>;
+  createBackup: (backupPath?: string) => Promise<string>;
+  restoreFromBackup: (backupPath: string) => Promise<void>;
 }
 
 // 型変換ヘルパー関数（timestamp -> Date）
@@ -407,6 +423,100 @@ export const backendService = (): BackendService => {
 
       autoSave: async () => {
         return await invoke('auto_save');
+      },
+
+      // 一括操作API (Tauri版)
+      bulkUpdateTasks: async (updates) => {
+        const results = [];
+        for (const { taskId, updates: taskUpdates } of updates) {
+          try {
+            const result = await invoke('update_task_with_subtasks', {
+              taskId,
+              title: taskUpdates.title,
+              description: taskUpdates.description,
+              status: taskUpdates.status,
+              priority: taskUpdates.priority,
+              startDate: taskUpdates.start_date?.getTime(),
+              endDate: taskUpdates.end_date?.getTime()
+            });
+            if (result) {
+              results.push(convertTask(result));
+            }
+          } catch (error) {
+            console.error(`Failed to update task ${taskId}:`, error);
+          }
+        }
+        return results;
+      },
+
+      bulkDeleteTasks: async (taskIds) => {
+        let allSucceeded = true;
+        for (const taskId of taskIds) {
+          try {
+            const success = await invoke('delete_task_with_subtasks', { taskId });
+            if (!success) allSucceeded = false;
+          } catch (error) {
+            console.error(`Failed to delete task ${taskId}:`, error);
+            allSucceeded = false;
+          }
+        }
+        return allSucceeded;
+      },
+
+      bulkMoveTasksToList: async (taskIds, targetListId) => {
+        // Tauri側でbulk_move_tasksコマンドを実装する必要がある
+        try {
+          return await invoke('bulk_move_tasks', { taskIds, targetListId });
+        } catch (error) {
+          console.error('Failed to bulk move tasks:', error);
+          return false;
+        }
+      },
+
+      // 自動保存制御 (Tauri版)
+      enableAutoSave: async () => {
+        // AutoSaveManagerを動的にインポート
+        const { autoSaveManager } = await import('$lib/stores/auto-save.svelte');
+        autoSaveManager.enable();
+      },
+
+      disableAutoSave: async () => {
+        // AutoSaveManagerを動的にインポート
+        const { autoSaveManager } = await import('$lib/stores/auto-save.svelte');
+        autoSaveManager.disable();
+      },
+
+      getAutoSaveStatus: async () => {
+        // AutoSaveManagerを動的にインポート
+        const { autoSaveManager } = await import('$lib/stores/auto-save.svelte');
+        return autoSaveManager.isEnabled;
+      },
+
+      // 拡張ファイル操作 (Tauri版)
+      exportData: async (filePath, format = 'automerge') => {
+        if (format === 'json') {
+          return await invoke('export_data_json', { filePath });
+        } else {
+          return await invoke('save_data_to_file', { filePath });
+        }
+      },
+
+      importData: async (filePath, format = 'automerge') => {
+        if (format === 'json') {
+          return await invoke('import_data_json', { filePath });
+        } else {
+          return await invoke('load_data_from_file', { filePath });
+        }
+      },
+
+      createBackup: async (backupPath) => {
+        const defaultPath = backupPath || `./backups/backup-${Date.now()}.automerge`;
+        await invoke('save_data_to_file', { filePath: defaultPath });
+        return defaultPath;
+      },
+
+      restoreFromBackup: async (backupPath) => {
+        return await invoke('load_data_from_file', { filePath: backupPath });
       }
     };
   } else {
@@ -702,6 +812,54 @@ export const backendService = (): BackendService => {
       autoSave: async () => {
         // Web版では何もしない（エラーも出さない）
         console.log('Web backend: Auto-save skipped (not implemented)');
+      },
+
+      // 一括操作API (Web版スタブ実装)
+      bulkUpdateTasks: async (updates) => {
+        console.log('Web backend: bulkUpdateTasks not implemented', updates);
+        return [];
+      },
+
+      bulkDeleteTasks: async (taskIds) => {
+        console.log('Web backend: bulkDeleteTasks not implemented', taskIds);
+        return false;
+      },
+
+      bulkMoveTasksToList: async (taskIds, targetListId) => {
+        console.log('Web backend: bulkMoveTasksToList not implemented', { taskIds, targetListId });
+        return false;
+      },
+
+      // 自動保存制御 (Web版)
+      enableAutoSave: async () => {
+        console.log('Web backend: enableAutoSave not implemented');
+      },
+
+      disableAutoSave: async () => {
+        console.log('Web backend: disableAutoSave not implemented');
+      },
+
+      getAutoSaveStatus: async () => {
+        console.log('Web backend: getAutoSaveStatus not implemented');
+        return false;
+      },
+
+      // 拡張ファイル操作 (Web版スタブ実装)
+      exportData: async (filePath, format) => {
+        console.log('Web backend: exportData not implemented', { filePath, format });
+      },
+
+      importData: async (filePath, format) => {
+        console.log('Web backend: importData not implemented', { filePath, format });
+      },
+
+      createBackup: async (backupPath) => {
+        console.log('Web backend: createBackup not implemented', backupPath);
+        return 'backup-not-implemented';
+      },
+
+      restoreFromBackup: async (backupPath) => {
+        console.log('Web backend: restoreFromBackup not implemented', backupPath);
       }
     };
   }
