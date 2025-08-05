@@ -1300,6 +1300,126 @@ impl AutomergeManager {
         Ok(false)
     }
 
+    pub fn add_tag_to_subtask(&self, subtask_id: &str, tag_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        // タグが存在するかチェック
+        let tags_obj = match doc.get(automerge::ROOT, "tags") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        if doc.get(&tags_obj, tag_id).is_err() {
+            return Ok(false); // タグが存在しない
+        }
+
+        // サブタスクを見つけてタグを追加
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                for (_, task_id_key) in doc.keys(&tasks_obj) {
+                                    if let Ok(task_obj) = doc.get(&tasks_obj, &task_id_key) {
+                                        if let Ok(sub_tasks_obj) = doc.get(&task_obj, "sub_tasks") {
+                                            if let Ok(subtask_obj) = doc.get(&sub_tasks_obj, subtask_id) {
+                                                // サブタスクのタグリストを取得または作成
+                                                let tags_obj = match doc.get(&subtask_obj, "tags") {
+                                                    Ok(obj) => obj,
+                                                    Err(_) => doc.put_object(&subtask_obj, "tags", ObjType::List)?,
+                                                };
+
+                                                // 既にタグが存在するかチェック
+                                                for (_, existing_tag_id) in doc.keys(&tags_obj) {
+                                                    if let Ok(tag_ref) = doc.get(&tags_obj, &existing_tag_id) {
+                                                        if let Ok((tag_id_str, _)) = doc.get(&tag_ref, "id") {
+                                                            if tag_id_str.to_str().unwrap_or("") == tag_id {
+                                                                return Ok(true); // 既に存在
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // タグの参照を追加
+                                                let tag_ref = doc.put_object(&tags_obj, doc.length(&tags_obj), ObjType::Map)?;
+                                                doc.put(&tag_ref, "id", tag_id)?;
+
+                                                // サブタスクの更新日時を更新
+                                                let now = chrono::Utc::now().timestamp_millis();
+                                                doc.put(&subtask_obj, "updated_at", now)?;
+
+                                                return Ok(true);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
+    pub fn remove_tag_from_subtask(&self, subtask_id: &str, tag_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                for (_, task_id_key) in doc.keys(&tasks_obj) {
+                                    if let Ok(task_obj) = doc.get(&tasks_obj, &task_id_key) {
+                                        if let Ok(sub_tasks_obj) = doc.get(&task_obj, "sub_tasks") {
+                                            if let Ok(subtask_obj) = doc.get(&sub_tasks_obj, subtask_id) {
+                                                if let Ok(tags_obj) = doc.get(&subtask_obj, "tags") {
+                                                    // タグを探して削除
+                                                    for (tag_index, _) in doc.keys(&tags_obj) {
+                                                        if let Ok(tag_ref) = doc.get(&tags_obj, &tag_index) {
+                                                            if let Ok((tag_id_str, _)) = doc.get(&tag_ref, "id") {
+                                                                if tag_id_str.to_str().unwrap_or("") == tag_id {
+                                                                    doc.delete(&tags_obj, &tag_index)?;
+                                                                    
+                                                                    // サブタスクの更新日時を更新
+                                                                    let now = chrono::Utc::now().timestamp_millis();
+                                                                    doc.put(&subtask_obj, "updated_at", now)?;
+                                                                    
+                                                                    return Ok(true);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                return Ok(false);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
     // ヘルパーメソッド: AutomergeドキュメントからTagを構築
     fn build_tag_from_doc(&self, doc: &Automerge, tag_obj: &automerge::ObjId) -> Result<Tag, AutomergeError> {
         let id = doc.get(tag_obj, "id")?.0.to_str().unwrap_or("").to_string();

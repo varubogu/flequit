@@ -92,6 +92,8 @@ export interface BackendService {
   getAllTags: () => Promise<Tag[]>;
   addTagToTask: (taskId: string, tagId: string) => Promise<boolean>;
   removeTagFromTask: (taskId: string, tagId: string) => Promise<boolean>;
+  addTagToSubTask: (subTaskId: string, tagId: string) => Promise<boolean>;
+  removeTagFromSubTask: (subTaskId: string, tagId: string) => Promise<boolean>;
 
   autoSave: () => Promise<void>;
 }
@@ -395,6 +397,14 @@ export const backendService = (): BackendService => {
         return await invoke('remove_tag_from_task', { taskId, tagId });
       },
 
+      addTagToSubTask: async (subTaskId: string, tagId: string) => {
+        return await invoke('add_tag_to_subtask', { subtaskId: subTaskId, tagId });
+      },
+
+      removeTagFromSubTask: async (subTaskId: string, tagId: string) => {
+        return await invoke('remove_tag_from_subtask', { subtaskId: subTaskId, tagId });
+      },
+
       autoSave: async () => {
         return await invoke('auto_save');
       }
@@ -676,6 +686,16 @@ export const backendService = (): BackendService => {
 
       removeTagFromTask: async (taskId: string, tagId: string) => {
         console.log('Web backend: removeTagFromTask not implemented', { taskId, tagId });
+        return true;
+      },
+
+      addTagToSubTask: async (subTaskId: string, tagId: string) => {
+        console.log('Web backend: addTagToSubTask not implemented', { subTaskId, tagId });
+        return true;
+      },
+
+      removeTagFromSubTask: async (subTaskId: string, tagId: string) => {
+        console.log('Web backend: removeTagFromSubTask not implemented', { subTaskId, tagId });
         return true;
       },
 

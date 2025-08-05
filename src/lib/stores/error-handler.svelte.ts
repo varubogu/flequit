@@ -10,7 +10,7 @@ export interface ErrorInfo {
   context?: {
     operation?: string;
     resourceId?: string;
-    resourceType?: 'project' | 'taskList' | 'task';
+    resourceType?: 'project' | 'taskList' | 'task' | 'subtask';
   };
 }
 
@@ -83,7 +83,7 @@ export class ErrorHandler {
       context: {
         operation,
         resourceId,
-        resourceType: resourceType as 'project' | 'taskList' | 'task'
+        resourceType: resourceType as 'project' | 'taskList' | 'task' | 'subtask'
       }
     });
   }
@@ -114,6 +114,49 @@ export class ErrorHandler {
       retryable: true,
       context: { operation }
     });
+  }
+
+  // リトライ機能
+  async retryOperation(errorId: string, retryFunction: () => Promise<void>): Promise<boolean> {
+    const error = this.errors.find((e) => e.id === errorId);
+    if (!error || !error.retryable) {
+      return false;
+    }
+
+    try {
+      await retryFunction();
+      this.removeError(errorId);
+      return true;
+    } catch (retryError) {
+      // リトライ失敗時は新しいエラーとして追加
+      if (error.context) {
+        this.addSyncError(
+          error.context.operation || 'リトライ操作',
+          error.context.resourceType || 'unknown',
+          error.context.resourceId || 'unknown',
+          retryError
+        );
+      }
+      return false;
+    }
+  }
+
+  // すべてのリトライ可能なエラーを再試行
+  async retryAllErrors(retryFunctions: Map<string, () => Promise<void>>): Promise<number> {
+    const retryableErrors = this.errors.filter((e) => e.retryable);
+    let successCount = 0;
+
+    for (const error of retryableErrors) {
+      const retryFunction = retryFunctions.get(error.id);
+      if (retryFunction) {
+        const success = await this.retryOperation(error.id, retryFunction);
+        if (success) {
+          successCount++;
+        }
+      }
+    }
+
+    return successCount;
   }
 }
 

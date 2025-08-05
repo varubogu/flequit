@@ -1,6 +1,6 @@
 mod automerge_manager;
 
-use automerge_manager::{AutomergeManager, Task, ProjectTree};
+use automerge_manager::{AutomergeManager, Task, ProjectTree, TaskListWithTasks, TaskWithSubTasks};
 use std::sync::{Arc, Mutex};
 use tauri::State;
 
@@ -363,6 +363,29 @@ fn remove_tag_from_task(
         .map_err(|e| e.to_string())
 }
 
+// サブタスクのタグ管理コマンド
+#[tauri::command]
+fn add_tag_to_subtask(
+    state: State<AutomergeState>,
+    subtask_id: String,
+    tag_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.add_tag_to_subtask(&subtask_id, &tag_id)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn remove_tag_from_subtask(
+    state: State<AutomergeState>,
+    subtask_id: String,
+    tag_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.remove_tag_from_subtask(&subtask_id, &tag_id)
+        .map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let automerge_manager = Arc::new(Mutex::new(AutomergeManager::new()));
@@ -402,7 +425,9 @@ pub fn run() {
             delete_tag,
             get_all_tags,
             add_tag_to_task,
-            remove_tag_from_task
+            remove_tag_from_task,
+            add_tag_to_subtask,
+            remove_tag_from_subtask
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

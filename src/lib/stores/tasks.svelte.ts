@@ -541,7 +541,7 @@ export class TaskStore {
     }
   }
 
-  addTagToSubTask(subTaskId: string, tagName: string) {
+  async addTagToSubTask(subTaskId: string, tagName: string) {
     const tag = tagStore.getOrCreateTag(tagName);
     if (!tag) return;
 
@@ -554,6 +554,15 @@ export class TaskStore {
             if (!subTask.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
               subTask.tags.push(tag);
               subTask.updated_at = new SvelteDate();
+
+              // バックエンドに同期
+              try {
+                await this.backend.addTagToSubTask(subTaskId, tag.id);
+                await this.backend.autoSave();
+              } catch (error) {
+                console.error('Failed to sync subtask tag addition to backend:', error);
+                errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
+              }
             }
             return;
           }
@@ -562,7 +571,7 @@ export class TaskStore {
     }
   }
 
-  removeTagFromSubTask(subTaskId: string, tagId: string) {
+  async removeTagFromSubTask(subTaskId: string, tagId: string) {
     for (const project of this.projects) {
       for (const list of project.task_lists) {
         for (const task of list.tasks) {
@@ -572,6 +581,15 @@ export class TaskStore {
             if (tagIndex !== -1) {
               subTask.tags.splice(tagIndex, 1);
               subTask.updated_at = new SvelteDate();
+
+              // バックエンドに同期
+              try {
+                await this.backend.removeTagFromSubTask(subTaskId, tagId);
+                await this.backend.autoSave();
+              } catch (error) {
+                console.error('Failed to sync subtask tag removal to backend:', error);
+                errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);
+              }
             }
             return;
           }
