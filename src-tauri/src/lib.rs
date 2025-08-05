@@ -259,6 +259,110 @@ fn auto_save(
         .map_err(|e| e.to_string())
 }
 
+// サブタスク管理コマンド
+#[tauri::command]
+fn create_subtask(
+    state: State<AutomergeState>,
+    task_id: String,
+    title: String,
+    description: Option<String>,
+    status: Option<String>,
+    priority: Option<i32>,
+) -> Result<automerge_manager::SubTask, String> {
+    let manager = state.lock().unwrap();
+    manager.create_subtask(&task_id, title, description, status, priority)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn update_subtask(
+    state: State<AutomergeState>,
+    subtask_id: String,
+    title: Option<String>,
+    description: Option<String>,
+    status: Option<String>,
+    priority: Option<i32>,
+) -> Result<Option<automerge_manager::SubTask>, String> {
+    let manager = state.lock().unwrap();
+    manager.update_subtask(&subtask_id, title, description, status, priority)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_subtask(
+    state: State<AutomergeState>,
+    subtask_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.delete_subtask(&subtask_id)
+        .map_err(|e| e.to_string())
+}
+
+// タグ管理コマンド
+#[tauri::command]
+fn create_tag(
+    state: State<AutomergeState>,
+    name: String,
+    color: Option<String>,
+) -> Result<automerge_manager::Tag, String> {
+    let manager = state.lock().unwrap();
+    manager.create_tag(name, color)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn update_tag(
+    state: State<AutomergeState>,
+    tag_id: String,
+    name: Option<String>,
+    color: Option<String>,
+) -> Result<Option<automerge_manager::Tag>, String> {
+    let manager = state.lock().unwrap();
+    manager.update_tag(&tag_id, name, color)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_tag(
+    state: State<AutomergeState>,
+    tag_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.delete_tag(&tag_id)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_all_tags(
+    state: State<AutomergeState>,
+) -> Result<Vec<automerge_manager::Tag>, String> {
+    let manager = state.lock().unwrap();
+    manager.get_all_tags()
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn add_tag_to_task(
+    state: State<AutomergeState>,
+    task_id: String,
+    tag_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.add_tag_to_task(&task_id, &tag_id)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn remove_tag_from_task(
+    state: State<AutomergeState>,
+    task_id: String,
+    tag_id: String,
+) -> Result<bool, String> {
+    let manager = state.lock().unwrap();
+    manager.remove_tag_from_task(&task_id, &tag_id)
+        .map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let automerge_manager = Arc::new(Mutex::new(AutomergeManager::new()));
@@ -289,7 +393,16 @@ pub fn run() {
             create_task_with_subtasks,
             update_task_with_subtasks,
             delete_task_with_subtasks,
-            auto_save
+            auto_save,
+            create_subtask,
+            update_subtask,
+            delete_subtask,
+            create_tag,
+            update_tag,
+            delete_tag,
+            get_all_tags,
+            add_tag_to_task,
+            remove_tag_from_task
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

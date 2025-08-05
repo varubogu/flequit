@@ -64,6 +64,35 @@ export interface BackendService {
   ) => Promise<TaskWithSubTasks | null>;
   deleteTaskWithSubTasks: (taskId: string) => Promise<boolean>;
 
+  // サブタスク管理
+  createSubTask: (
+    taskId: string,
+    subTask: {
+      title: string;
+      description?: string;
+      status?: string;
+      priority?: number;
+    }
+  ) => Promise<SubTask>;
+  updateSubTask: (
+    subTaskId: string,
+    updates: {
+      title?: string;
+      description?: string;
+      status?: string;
+      priority?: number;
+    }
+  ) => Promise<SubTask | null>;
+  deleteSubTask: (subTaskId: string) => Promise<boolean>;
+
+  // タグ管理
+  createTag: (tag: { name: string; color?: string }) => Promise<Tag>;
+  updateTag: (tagId: string, updates: { name?: string; color?: string }) => Promise<Tag | null>;
+  deleteTag: (tagId: string) => Promise<boolean>;
+  getAllTags: () => Promise<Tag[]>;
+  addTagToTask: (taskId: string, tagId: string) => Promise<boolean>;
+  removeTagFromTask: (taskId: string, tagId: string) => Promise<boolean>;
+
   autoSave: () => Promise<void>;
 }
 
@@ -298,6 +327,74 @@ export const backendService = (): BackendService => {
         return await invoke('delete_task_with_subtasks', { taskId });
       },
 
+      // サブタスク管理
+      createSubTask: async (
+        taskId: string,
+        subTask: { title: string; description?: string; status?: string; priority?: number }
+      ) => {
+        const result = await invoke('create_subtask', {
+          taskId,
+          title: subTask.title,
+          description: subTask.description,
+          status: subTask.status,
+          priority: subTask.priority
+        });
+        return convertSubTask(result);
+      },
+
+      updateSubTask: async (
+        subTaskId: string,
+        updates: { title?: string; description?: string; status?: string; priority?: number }
+      ) => {
+        const result = await invoke('update_subtask', {
+          subtaskId: subTaskId,
+          title: updates.title,
+          description: updates.description,
+          status: updates.status,
+          priority: updates.priority
+        });
+        return result ? convertSubTask(result) : null;
+      },
+
+      deleteSubTask: async (subTaskId: string) => {
+        return await invoke('delete_subtask', { subtaskId: subTaskId });
+      },
+
+      // タグ管理
+      createTag: async (tag: { name: string; color?: string }) => {
+        const result = await invoke('create_tag', {
+          name: tag.name,
+          color: tag.color
+        });
+        return convertTag(result);
+      },
+
+      updateTag: async (tagId: string, updates: { name?: string; color?: string }) => {
+        const result = await invoke('update_tag', {
+          tagId,
+          name: updates.name,
+          color: updates.color
+        });
+        return result ? convertTag(result) : null;
+      },
+
+      deleteTag: async (tagId: string) => {
+        return await invoke('delete_tag', { tagId });
+      },
+
+      getAllTags: async () => {
+        const result = await invoke('get_all_tags');
+        return (result as unknown[]).map(convertTag);
+      },
+
+      addTagToTask: async (taskId: string, tagId: string) => {
+        return await invoke('add_tag_to_task', { taskId, tagId });
+      },
+
+      removeTagFromTask: async (taskId: string, tagId: string) => {
+        return await invoke('remove_tag_from_task', { taskId, tagId });
+      },
+
       autoSave: async () => {
         return await invoke('auto_save');
       }
@@ -482,6 +579,103 @@ export const backendService = (): BackendService => {
 
       deleteTaskWithSubTasks: async (taskId: string) => {
         console.log('Web backend: deleteTaskWithSubTasks not implemented', { taskId });
+        return true;
+      },
+
+      // サブタスク管理（Web版スタブ実装）
+      createSubTask: async (
+        taskId: string,
+        subTask: { title: string; description?: string; status?: string; priority?: number }
+      ) => {
+        console.log('Web backend: createSubTask not implemented', { taskId, subTask });
+        // ダミーのサブタスクを返す（テスト用）
+        return {
+          id: crypto.randomUUID(),
+          task_id: taskId,
+          title: subTask.title,
+          description: subTask.description,
+          status: (subTask.status as TaskStatus) || 'not_started',
+          priority: subTask.priority,
+          start_date: undefined,
+          end_date: undefined,
+          order_index: 0,
+          is_archived: false,
+          tags: [],
+          created_at: new Date(),
+          updated_at: new Date()
+        };
+      },
+
+      updateSubTask: async (
+        subTaskId: string,
+        updates: { title?: string; description?: string; status?: string; priority?: number }
+      ) => {
+        console.log('Web backend: updateSubTask not implemented', { subTaskId, updates });
+        // ダミーの更新されたサブタスクを返す（テスト用）
+        return {
+          id: subTaskId,
+          task_id: 'dummy-task-id',
+          title: updates.title || 'Updated SubTask',
+          description: updates.description,
+          status: (updates.status as TaskStatus) || 'not_started',
+          priority: updates.priority,
+          start_date: undefined,
+          end_date: undefined,
+          order_index: 0,
+          is_archived: false,
+          tags: [],
+          created_at: new Date(),
+          updated_at: new Date()
+        };
+      },
+
+      deleteSubTask: async (subTaskId: string) => {
+        console.log('Web backend: deleteSubTask not implemented', { subTaskId });
+        return true;
+      },
+
+      // タグ管理（Web版スタブ実装）
+      createTag: async (tag: { name: string; color?: string }) => {
+        console.log('Web backend: createTag not implemented', tag);
+        // ダミーのタグを返す（テスト用）
+        return {
+          id: crypto.randomUUID(),
+          name: tag.name,
+          color: tag.color,
+          created_at: new Date(),
+          updated_at: new Date()
+        };
+      },
+
+      updateTag: async (tagId: string, updates: { name?: string; color?: string }) => {
+        console.log('Web backend: updateTag not implemented', { tagId, updates });
+        // ダミーの更新されたタグを返す（テスト用）
+        return {
+          id: tagId,
+          name: updates.name || 'Updated Tag',
+          color: updates.color,
+          created_at: new Date(),
+          updated_at: new Date()
+        };
+      },
+
+      deleteTag: async (tagId: string) => {
+        console.log('Web backend: deleteTag not implemented', { tagId });
+        return true;
+      },
+
+      getAllTags: async () => {
+        console.log('Web backend: getAllTags not implemented');
+        return [];
+      },
+
+      addTagToTask: async (taskId: string, tagId: string) => {
+        console.log('Web backend: addTagToTask not implemented', { taskId, tagId });
+        return true;
+      },
+
+      removeTagFromTask: async (taskId: string, tagId: string) => {
+        console.log('Web backend: removeTagFromTask not implemented', { taskId, tagId });
         return true;
       },
 

@@ -318,7 +318,8 @@ export class TaskStore {
     }
   }
 
-  updateSubTask(subTaskId: string, updates: Partial<SubTask>) {
+  async updateSubTask(subTaskId: string, updates: Partial<SubTask>) {
+    // まずローカル状態を更新
     for (const project of this.projects) {
       for (const list of project.task_lists) {
         for (const task of list.tasks) {
@@ -329,6 +330,20 @@ export class TaskStore {
               ...updates,
               updated_at: new SvelteDate()
             };
+
+            // バックエンドに同期
+            try {
+              await this.backend.updateSubTask(subTaskId, {
+                title: updates.title,
+                description: updates.description,
+                status: updates.status,
+                priority: updates.priority
+              });
+              await this.backend.autoSave();
+            } catch (error) {
+              console.error('Failed to sync subtask update to backend:', error);
+              errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
+            }
             return;
           }
         }
@@ -336,15 +351,56 @@ export class TaskStore {
     }
   }
 
-  deleteSubTask(subTaskId: string) {
+  async addSubTask(
+    taskId: string,
+    subTask: { title: string; description?: string; status?: string; priority?: number }
+  ) {
+    try {
+      const newSubTask = await this.backend.createSubTask(taskId, subTask);
+
+      // ローカル状態に追加
+      for (const project of this.projects) {
+        for (const list of project.task_lists) {
+          const task = list.tasks.find((t) => t.id === taskId);
+          if (task) {
+            task.sub_tasks.push(newSubTask);
+            await this.backend.autoSave();
+            return newSubTask;
+          }
+        }
+      }
+      return newSubTask;
+    } catch (error) {
+      console.error('Failed to create subtask:', error);
+      errorHandler.addSyncError('サブタスク作成', 'task', taskId, error);
+      return null;
+    }
+  }
+
+  async deleteSubTask(subTaskId: string) {
     for (const project of this.projects) {
       for (const list of project.task_lists) {
         for (const task of list.tasks) {
           const subTaskIndex = task.sub_tasks.findIndex((st) => st.id === subTaskId);
           if (subTaskIndex !== -1) {
+            // バックアップとして削除するサブタスクを保持
+            const deletedSubTask = task.sub_tasks[subTaskIndex];
+
+            // まずローカル状態から削除
             task.sub_tasks.splice(subTaskIndex, 1);
             if (this.selectedSubTaskId === subTaskId) {
               this.selectedSubTaskId = null;
+            }
+
+            // バックエンドに同期
+            try {
+              await this.backend.deleteSubTask(subTaskId);
+              await this.backend.autoSave();
+            } catch (error) {
+              console.error('Failed to sync subtask deletion to backend:', error);
+              errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
+              // エラーが発生した場合はローカル状態を復元
+              task.sub_tasks.splice(subTaskIndex, 0, deletedSubTask);
             }
             return;
           }

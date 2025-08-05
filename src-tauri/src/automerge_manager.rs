@@ -952,4 +952,368 @@ impl AutomergeManager {
             tasks,
         })
     }
+
+    // サブタスク専用のCRUD操作
+    pub fn create_subtask(&self, task_id: &str, title: String, description: Option<String>, status: Option<String>, priority: Option<i32>) -> Result<SubTask, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+        let subtask_id = Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().timestamp_millis();
+
+        // タスクを探して、サブタスクを追加
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Err(AutomergeError::InvalidObjId),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                if let Ok(task_obj) = doc.get(&tasks_obj, task_id) {
+                                    // サブタスクオブジェクトを追加
+                                    let sub_tasks_obj = match doc.get(&task_obj, "sub_tasks") {
+                                        Ok(obj) => obj,
+                                        Err(_) => doc.put_object(&task_obj, "sub_tasks", ObjType::Map)?,
+                                    };
+                                    
+                                    let subtask_obj = doc.put_object(&sub_tasks_obj, &subtask_id, ObjType::Map)?;
+                                    doc.put(&subtask_obj, "id", &subtask_id)?;
+                                    doc.put(&subtask_obj, "task_id", task_id)?;
+                                    doc.put(&subtask_obj, "title", &title)?;
+                                    if let Some(desc) = &description {
+                                        doc.put(&subtask_obj, "description", desc)?;
+                                    }
+                                    doc.put(&subtask_obj, "status", status.as_deref().unwrap_or("not_started"))?;
+                                    doc.put(&subtask_obj, "priority", priority.unwrap_or(0))?;
+                                    doc.put(&subtask_obj, "order_index", 0)?;
+                                    doc.put(&subtask_obj, "is_archived", false)?;
+                                    doc.put(&subtask_obj, "created_at", now)?;
+                                    doc.put(&subtask_obj, "updated_at", now)?;
+                                    doc.put_object(&subtask_obj, "tags", ObjType::Map)?;
+
+                                    return Ok(SubTask {
+                                        id: subtask_id,
+                                        task_id: task_id.to_string(),
+                                        title,
+                                        description,
+                                        status: status.unwrap_or_else(|| "not_started".to_string()),
+                                        priority,
+                                        start_date: None,
+                                        end_date: None,
+                                        order_index: 0,
+                                        is_archived: false,
+                                        tags: Vec::new(),
+                                        created_at: now,
+                                        updated_at: now,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Err(AutomergeError::InvalidObjId)
+    }
+
+    pub fn update_subtask(&self, subtask_id: &str, title: Option<String>, description: Option<String>, status: Option<String>, priority: Option<i32>) -> Result<Option<SubTask>, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+        let now = chrono::Utc::now().timestamp_millis();
+
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(None),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                for (_, task_id_key) in doc.keys(&tasks_obj) {
+                                    if let Ok(task_obj) = doc.get(&tasks_obj, &task_id_key) {
+                                        if let Ok(sub_tasks_obj) = doc.get(&task_obj, "sub_tasks") {
+                                            if let Ok(subtask_obj) = doc.get(&sub_tasks_obj, subtask_id) {
+                                                // サブタスクを更新
+                                                if let Some(t) = &title {
+                                                    doc.put(&subtask_obj, "title", t)?;
+                                                }
+                                                if let Some(d) = &description {
+                                                    doc.put(&subtask_obj, "description", d)?;
+                                                }
+                                                if let Some(s) = &status {
+                                                    doc.put(&subtask_obj, "status", s)?;
+                                                }
+                                                if let Some(p) = priority {
+                                                    doc.put(&subtask_obj, "priority", p)?;
+                                                }
+                                                doc.put(&subtask_obj, "updated_at", now)?;
+
+                                                // 更新されたサブタスクを返す
+                                                return Ok(Some(self.build_subtask_from_doc(&doc, &subtask_obj)?));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(None)
+    }
+
+    pub fn delete_subtask(&self, subtask_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                for (_, task_id_key) in doc.keys(&tasks_obj) {
+                                    if let Ok(task_obj) = doc.get(&tasks_obj, &task_id_key) {
+                                        if let Ok(sub_tasks_obj) = doc.get(&task_obj, "sub_tasks") {
+                                            if doc.get(&sub_tasks_obj, subtask_id).is_ok() {
+                                                return match doc.delete(&sub_tasks_obj, subtask_id) {
+                                                    Ok(_) => Ok(true),
+                                                    Err(_) => Ok(false),
+                                                };
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
+    // ヘルパーメソッド: AutomergeドキュメントからSubTaskを構築
+    fn build_subtask_from_doc(&self, doc: &Automerge, subtask_obj: &automerge::ObjId) -> Result<SubTask, AutomergeError> {
+        let id = doc.get(subtask_obj, "id")?.0.to_str().unwrap_or("").to_string();
+        let task_id = doc.get(subtask_obj, "task_id")?.0.to_str().unwrap_or("").to_string();
+        let title = doc.get(subtask_obj, "title")?.0.to_str().unwrap_or("").to_string();
+        let description = doc.get(subtask_obj, "description").ok().map(|(v, _)| v.to_str().unwrap_or("").to_string());
+        let status = doc.get(subtask_obj, "status")?.0.to_str().unwrap_or("not_started").to_string();
+        let priority = doc.get(subtask_obj, "priority").ok().map(|(v, _)| v.to_int().unwrap_or(0) as i32);
+        let start_date = doc.get(subtask_obj, "start_date").ok().map(|(v, _)| v.to_int().unwrap_or(0));
+        let end_date = doc.get(subtask_obj, "end_date").ok().map(|(v, _)| v.to_int().unwrap_or(0));
+        let order_index = doc.get(subtask_obj, "order_index")?.0.to_int().unwrap_or(0) as i32;
+        let is_archived = doc.get(subtask_obj, "is_archived")?.0.to_bool().unwrap_or(false);
+        let created_at = doc.get(subtask_obj, "created_at")?.0.to_int().unwrap_or(0);
+        let updated_at = doc.get(subtask_obj, "updated_at")?.0.to_int().unwrap_or(0);
+
+        // タグの取得（簡略化）
+        let tags = Vec::new(); // TODO: タグAPI実装後に詳細実装
+
+        Ok(SubTask {
+            id,
+            task_id,
+            title,
+            description,
+            status,
+            priority,
+            start_date,
+            end_date,
+            order_index,
+            is_archived,
+            tags,
+            created_at,
+            updated_at,
+        })
+    }
+
+    // タグ専用のCRUD操作
+    pub fn create_tag(&self, name: String, color: Option<String>) -> Result<Tag, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+        let tag_id = Uuid::new_v4().to_string();
+        let now = chrono::Utc::now().timestamp_millis();
+
+        // タグコレクションを初期化（存在しない場合）
+        let tags_obj = match doc.get(automerge::ROOT, "tags") {
+            Ok(obj) => obj,
+            Err(_) => doc.put_object(automerge::ROOT, "tags", ObjType::Map)?,
+        };
+
+        let tag_obj = doc.put_object(&tags_obj, &tag_id, ObjType::Map)?;
+        doc.put(&tag_obj, "id", &tag_id)?;
+        doc.put(&tag_obj, "name", &name)?;
+        if let Some(color_val) = &color {
+            doc.put(&tag_obj, "color", color_val)?;
+        }
+        doc.put(&tag_obj, "created_at", now)?;
+        doc.put(&tag_obj, "updated_at", now)?;
+
+        Ok(Tag {
+            id: tag_id,
+            name,
+            color,
+            created_at: now,
+            updated_at: now,
+        })
+    }
+
+    pub fn update_tag(&self, tag_id: &str, name: Option<String>, color: Option<String>) -> Result<Option<Tag>, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+        let now = chrono::Utc::now().timestamp_millis();
+
+        let tags_obj = match doc.get(automerge::ROOT, "tags") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(None),
+        };
+
+        if let Ok(tag_obj) = doc.get(&tags_obj, tag_id) {
+            if let Some(n) = &name {
+                doc.put(&tag_obj, "name", n)?;
+            }
+            if let Some(c) = &color {
+                doc.put(&tag_obj, "color", c)?;
+            }
+            doc.put(&tag_obj, "updated_at", now)?;
+
+            // 更新されたタグを返す
+            return Ok(Some(self.build_tag_from_doc(&doc, &tag_obj)?));
+        }
+
+        Ok(None)
+    }
+
+    pub fn delete_tag(&self, tag_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        let tags_obj = match doc.get(automerge::ROOT, "tags") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        if doc.get(&tags_obj, tag_id).is_ok() {
+            match doc.delete(&tags_obj, tag_id) {
+                Ok(_) => Ok(true),
+                Err(_) => Ok(false),
+            }
+        } else {
+            Ok(false)
+        }
+    }
+
+    pub fn get_all_tags(&self) -> Result<Vec<Tag>, AutomergeError> {
+        let doc = self.doc.lock().unwrap();
+        let mut tags = Vec::new();
+
+        if let Ok(tags_obj) = doc.get(automerge::ROOT, "tags") {
+            for (_, tag_id) in doc.keys(&tags_obj) {
+                if let Ok(tag_obj) = doc.get(&tags_obj, &tag_id) {
+                    let tag = self.build_tag_from_doc(&doc, &tag_obj)?;
+                    tags.push(tag);
+                }
+            }
+        }
+
+        Ok(tags)
+    }
+
+    // タスク-タグ関連付け管理
+    pub fn add_tag_to_task(&self, task_id: &str, tag_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        // タスクを探す
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                if let Ok(task_obj) = doc.get(&tasks_obj, task_id) {
+                                    let tags_obj = match doc.get(&task_obj, "tags") {
+                                        Ok(obj) => obj,
+                                        Err(_) => doc.put_object(&task_obj, "tags", ObjType::Map)?,
+                                    };
+                                    
+                                    // タグの参照を追加
+                                    let tag_ref_obj = doc.put_object(&tags_obj, tag_id, ObjType::Map)?;
+                                    doc.put(&tag_ref_obj, "id", tag_id)?;
+                                    return Ok(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
+    pub fn remove_tag_from_task(&self, task_id: &str, tag_id: &str) -> Result<bool, AutomergeError> {
+        let mut doc = self.doc.lock().unwrap();
+
+        let projects_obj = match doc.get(automerge::ROOT, "projects") {
+            Ok(obj) => obj,
+            Err(_) => return Ok(false),
+        };
+
+        for (_, project_id) in doc.keys(&projects_obj) {
+            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
+                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
+                    for (_, list_id) in doc.keys(&task_lists_obj) {
+                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
+                            if let Ok(tasks_obj) = doc.get(&list_obj, "tasks") {
+                                if let Ok(task_obj) = doc.get(&tasks_obj, task_id) {
+                                    if let Ok(tags_obj) = doc.get(&task_obj, "tags") {
+                                        if doc.get(&tags_obj, tag_id).is_ok() {
+                                            return match doc.delete(&tags_obj, tag_id) {
+                                                Ok(_) => Ok(true),
+                                                Err(_) => Ok(false),
+                                            };
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
+    // ヘルパーメソッド: AutomergeドキュメントからTagを構築
+    fn build_tag_from_doc(&self, doc: &Automerge, tag_obj: &automerge::ObjId) -> Result<Tag, AutomergeError> {
+        let id = doc.get(tag_obj, "id")?.0.to_str().unwrap_or("").to_string();
+        let name = doc.get(tag_obj, "name")?.0.to_str().unwrap_or("").to_string();
+        let color = doc.get(tag_obj, "color").ok().map(|(v, _)| v.to_str().unwrap_or("").to_string());
+        let created_at = doc.get(tag_obj, "created_at")?.0.to_int().unwrap_or(0);
+        let updated_at = doc.get(tag_obj, "updated_at")?.0.to_int().unwrap_or(0);
+
+        Ok(Tag {
+            id,
+            name,
+            color,
+            created_at,
+            updated_at,
+        })
+    }
 }
