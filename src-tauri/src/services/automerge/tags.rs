@@ -1,5 +1,5 @@
 use automerge::{AutomergeError, ObjType};
-use crate::types::task_types::Tag;
+use crate::types::{Tag, AutomergeInterface, ensure_collection, get_object_entry, get_keys};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -10,49 +10,46 @@ impl AutomergeManager {
         let now = chrono::Utc::now().timestamp_millis();
 
         // タグコレクションを初期化（存在しない場合）
-        let tags_obj = match doc.get(automerge::ROOT, "tags") {
-            Ok(obj) => obj,
-            Err(_) => doc.put_object(automerge::ROOT, "tags", ObjType::Map)?,
-        };
+        let (_, tags_obj) = ensure_collection(&mut doc, &automerge::ROOT, "tags")?;
 
-        let tag_obj = doc.put_object(&tags_obj, &tag_id, ObjType::Map)?;
-        doc.put(&tag_obj, "id", &tag_id)?;
-        doc.put(&tag_obj, "name", &name)?;
-        if let Some(color_val) = &color {
-            doc.put(&tag_obj, "color", color_val)?;
-        }
-        doc.put(&tag_obj, "created_at", now)?;
-        doc.put(&tag_obj, "updated_at", now)?;
-
-        Ok(Tag {
-            id: tag_id,
+        // 構造体を作成
+        let tag = Tag {
+            id: tag_id.clone(),
             name,
             color,
             created_at: now,
             updated_at: now,
-        })
+        };
+
+        // 新しいインターフェースで一括書き込み
+        doc.put_struct(&tags_obj, &tag_id, &tag)?;
+
+        Ok(tag)
     }
 
     pub fn update_tag(&self, tag_id: &str, name: Option<String>, color: Option<String>) -> Result<Option<Tag>, AutomergeError> {
         let mut doc = self.doc.lock().unwrap();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let tags_obj = match doc.get(automerge::ROOT, "tags") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(None),
-        };
+        if let Some((_, tags_obj)) = get_object_entry(&doc, &automerge::ROOT, "tags") {
+            if let Some((_, tag_obj)) = get_object_entry(&doc, &tags_obj, tag_id) {
+                // 既存のタグを読み込み
+                let mut existing_tag = doc.get_struct_safe::<Tag>(&tag_obj)?;
+                
+                // フィールドを更新
+                if let Some(n) = name {
+                    existing_tag.name = n;
+                }
+                if let Some(c) = color {
+                    existing_tag.color = c;
+                }
+                existing_tag.updated_at = now;
 
-        if let Ok(tag_obj) = doc.get(&tags_obj, tag_id) {
-            if let Some(n) = &name {
-                doc.put(&tag_obj, "name", n)?;
-            }
-            if let Some(c) = &color {
-                doc.put(&tag_obj, "color", c)?;
-            }
-            doc.put(&tag_obj, "updated_at", now)?;
+                // 構造体を一括で書き込み直し
+                doc.put_struct(&tags_obj, tag_id, &existing_tag)?;
 
-            // 更新されたタグを返す
-            return Ok(Some(self.build_tag_from_obj(&doc, &tag_obj)?));
+                return Ok(Some(existing_tag));
+            }
         }
 
         Ok(None)
@@ -61,15 +58,14 @@ impl AutomergeManager {
     pub fn delete_tag(&self, tag_id: &str) -> Result<bool, AutomergeError> {
         let mut doc = self.doc.lock().unwrap();
 
-        let tags_obj = match doc.get(automerge::ROOT, "tags") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(false),
-        };
-
-        if doc.get(&tags_obj, tag_id).is_ok() {
-            match doc.delete(&tags_obj, tag_id) {
-                Ok(_) => Ok(true),
-                Err(_) => Ok(false),
+        if let Some((_, tags_obj)) = get_object_entry(&doc, &automerge::ROOT, "tags") {
+            if get_object_entry(&doc, &tags_obj, tag_id).is_some() {
+                match doc.delete(&tags_obj, tag_id) {
+                    Ok(_) => Ok(true),
+                    Err(_) => Ok(false),
+                }
+            } else {
+                Ok(false)
             }
         } else {
             Ok(false)
@@ -80,10 +76,11 @@ impl AutomergeManager {
         let doc = self.doc.lock().unwrap();
         let mut tags = Vec::new();
 
-        if let Ok(tags_obj) = doc.get(automerge::ROOT, "tags") {
-            for (_, tag_id) in doc.keys(&tags_obj) {
-                if let Ok(tag_obj) = doc.get(&tags_obj, &tag_id) {
-                    let tag = self.build_tag_from_obj(&doc, &tag_obj)?;
+        if let Some((_, tags_obj)) = get_object_entry(&doc, &automerge::ROOT, "tags") {
+            for tag_id in get_keys(&doc, &tags_obj) {
+                if let Some((_, tag_obj)) = get_object_entry(&doc, &tags_obj, &tag_id) {
+                    // 新しいインターフェースでバージョン互換性を考慮して読み込み
+                    let tag = doc.get_struct_safe::<Tag>(&tag_obj)?;
                     tags.push(tag);
                 }
             }

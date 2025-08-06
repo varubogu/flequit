@@ -1,5 +1,5 @@
 use automerge::{Automerge, AutomergeError, ObjType};
-use crate::types::task_types::{ProjectTree, TaskListWithTasks, TaskWithSubTasks, SubTask, Tag};
+use crate::types::{ProjectTree, TaskListWithTasks, TaskWithSubTasks, SubTask, Tag, AutomergeInterface};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -15,15 +15,10 @@ impl AutomergeManager {
 
         for (_, project_id) in doc.keys(&projects_obj) {
             if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
-                let id: String = doc.get(&project_obj, "id")?.into();
-                let name: String = doc.get(&project_obj, "name")?.into();
-                let description: Option<String> = doc.get(&project_obj, "description").ok().map(|v| v.into());
-                let color: Option<String> = doc.get(&project_obj, "color").ok().map(|v| v.into());
-                let order_index: i32 = doc.get(&project_obj, "order_index")?.into();
-                let is_archived: bool = doc.get(&project_obj, "is_archived")?.into();
-                let created_at: i64 = doc.get(&project_obj, "created_at")?.into();
-                let updated_at: i64 = doc.get(&project_obj, "updated_at")?.into();
+                // 新しいインターフェースでバージョン互換性を考慮して読み込み
+                let mut project = doc.get_struct_safe::<ProjectTree>(&project_obj)?;
                 
+                // タスクリストを読み込み（ネストしたデータの場合は従来の方法を使用）
                 let mut task_lists = Vec::new();
                 if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
                     for (_, list_id) in doc.keys(&task_lists_obj) {
@@ -34,17 +29,8 @@ impl AutomergeManager {
                     }
                 }
                 
-                projects.push(ProjectTree {
-                    id,
-                    name,
-                    description,
-                    color,
-                    order_index,
-                    is_archived,
-                    created_at,
-                    updated_at,
-                    task_lists,
-                });
+                project.task_lists = task_lists;
+                projects.push(project);
             }
         }
 
@@ -62,31 +48,27 @@ impl AutomergeManager {
         }
 
         let projects_obj = doc.get(automerge::ROOT, "projects")?;
-        let project_obj = doc.put_object(&projects_obj, &project_id, ObjType::Map)?;
-
-        doc.put(&project_obj, "id", &project_id)?;
-        doc.put(&project_obj, "name", &name)?;
-        doc.put(&project_obj, "description", &description.unwrap_or_default())?;
-        doc.put(&project_obj, "color", &color.unwrap_or("#3b82f6".to_string()))?;
-        doc.put(&project_obj, "order_index", 0)?;
-        doc.put(&project_obj, "is_archived", false)?;
-        doc.put(&project_obj, "created_at", now)?;
-        doc.put(&project_obj, "updated_at", now)?;
-
-        // Initialize empty task_lists
-        doc.put_object(&project_obj, "task_lists", ObjType::Map)?;
-
-        Ok(ProjectTree {
-            id: project_id,
+        
+        // 構造体を作成
+        let project = ProjectTree {
+            id: project_id.clone(),
             name,
             description,
-            color,
+            color: Some(color.unwrap_or("#3b82f6".to_string())),
             order_index: 0,
             is_archived: false,
             created_at: now,
             updated_at: now,
             task_lists: vec![],
-        })
+        };
+
+        // 新しいインターフェースで一括書き込み
+        let project_obj = doc.put_struct(&projects_obj, &project_id, &project)?;
+
+        // Initialize empty task_lists
+        doc.put_object(&project_obj, "task_lists", ObjType::Map)?;
+
+        Ok(project)
     }
 
     pub fn update_project(&self, project_id: &str, name: Option<String>, description: Option<String>, color: Option<String>) -> Result<Option<ProjectTree>, AutomergeError> {
@@ -103,26 +85,29 @@ impl AutomergeManager {
             Err(_) => return Ok(None),
         };
 
-        if let Some(name) = name {
-            doc.put(&project_obj, "name", name)?;
+        // 既存のプロジェクトを読み込み
+        let mut existing_project = doc.get_struct_safe::<ProjectTree>(&project_obj)?;
+        
+        // フィールドを更新
+        if let Some(n) = name {
+            existing_project.name = n;
         }
-        if let Some(description) = description {
-            doc.put(&project_obj, "description", description)?;
+        if let Some(d) = description {
+            existing_project.description = d;
         }
-        if let Some(color) = color {
-            doc.put(&project_obj, "color", color)?;
+        if let Some(c) = color {
+            existing_project.color = Some(c);
         }
-        doc.put(&project_obj, "updated_at", now)?;
+        existing_project.updated_at = now;
 
-        // Return updated project
-        let id: String = doc.get(&project_obj, "id")?.into();
-        let name: String = doc.get(&project_obj, "name")?.into();
-        let description: Option<String> = doc.get(&project_obj, "description").ok().map(|v| v.into());
-        let color: Option<String> = doc.get(&project_obj, "color").ok().map(|v| v.into());
-        let order_index: i32 = doc.get(&project_obj, "order_index")?.into();
-        let is_archived: bool = doc.get(&project_obj, "is_archived")?.into();
-        let created_at: i64 = doc.get(&project_obj, "created_at")?.into();
+        // 構造体を一括で書き込み直し（ただしtask_listsは除外）
+        let temp_project = ProjectTree {
+            task_lists: vec![], // 空にして書き込み
+            ..existing_project.clone()
+        };
+        doc.put_struct(&projects_obj, project_id, &temp_project)?;
 
+        // タスクリストを再読み込み（ネストしたデータの場合は従来の方法を使用）
         let mut task_lists = Vec::new();
         if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
             for (_, list_id) in doc.keys(&task_lists_obj) {
@@ -132,18 +117,9 @@ impl AutomergeManager {
                 }
             }
         }
-
-        Ok(Some(ProjectTree {
-            id,
-            name,
-            description,
-            color,
-            order_index,
-            is_archived,
-            created_at,
-            updated_at: now,
-            task_lists,
-        }))
+        
+        existing_project.task_lists = task_lists;
+        Ok(Some(existing_project))
     }
 
     pub fn delete_project(&self, project_id: &str) -> Result<bool, AutomergeError> {
@@ -251,18 +227,10 @@ impl AutomergeManager {
 
     // ヘルパーメソッド: SubTaskを構築
     pub(crate) fn build_subtask_from_obj(&self, doc: &Automerge, subtask_obj: &automerge::ObjId) -> Result<SubTask, AutomergeError> {
-        let id: String = doc.get(subtask_obj, "id")?.into();
-        let task_id: String = doc.get(subtask_obj, "task_id")?.into();
-        let title: String = doc.get(subtask_obj, "title")?.into();
-        let description: Option<String> = doc.get(subtask_obj, "description").ok().map(|v| v.into());
-        let status: String = doc.get(subtask_obj, "status")?.into();
-        let priority: Option<i32> = doc.get(subtask_obj, "priority").ok().map(|v| v.into());
-        let start_date: Option<i64> = doc.get(subtask_obj, "start_date").ok().map(|v| v.into());
-        let end_date: Option<i64> = doc.get(subtask_obj, "end_date").ok().map(|v| v.into());
-        let order_index: i32 = doc.get(subtask_obj, "order_index")?.into();
-        let created_at: i64 = doc.get(subtask_obj, "created_at")?.into();
-        let updated_at: i64 = doc.get(subtask_obj, "updated_at")?.into();
+        // 新しいインターフェースでバージョン互換性を考慮して読み込み（基本フィールド）
+        let mut subtask = doc.get_struct_safe::<SubTask>(subtask_obj)?;
         
+        // タグは別途読み込み（ネストした構造）
         let mut tags = Vec::new();
         if let Ok(tags_obj) = doc.get(subtask_obj, "tags") {
             for (_, tag_id) in doc.keys(&tags_obj) {
@@ -273,36 +241,13 @@ impl AutomergeManager {
             }
         }
         
-        Ok(SubTask {
-            id,
-            task_id,
-            title,
-            description,
-            status,
-            priority,
-            start_date,
-            end_date,
-            order_index,
-            tags,
-            created_at,
-            updated_at,
-        })
+        subtask.tags = tags;
+        Ok(subtask)
     }
 
     // ヘルパーメソッド: Tagを構築
     pub(crate) fn build_tag_from_obj(&self, doc: &Automerge, tag_obj: &automerge::ObjId) -> Result<Tag, AutomergeError> {
-        let id: String = doc.get(tag_obj, "id")?.into();
-        let name: String = doc.get(tag_obj, "name")?.into();
-        let color: Option<String> = doc.get(tag_obj, "color").ok().map(|v| v.into());
-        let created_at: i64 = doc.get(tag_obj, "created_at")?.into();
-        let updated_at: i64 = doc.get(tag_obj, "updated_at")?.into();
-        
-        Ok(Tag {
-            id,
-            name,
-            color,
-            created_at,
-            updated_at,
-        })
+        // 新しいインターフェースでバージョン互換性を考慮して読み込み
+        doc.get_struct_safe::<Tag>(tag_obj)
     }
 }

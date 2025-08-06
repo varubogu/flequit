@@ -1,5 +1,5 @@
 use automerge::{AutomergeError, ObjType};
-use crate::types::task_types::SubTask;
+use crate::types::{SubTask, AutomergeInterface, ensure_collection, get_object_entry, get_keys};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -13,27 +13,11 @@ impl AutomergeManager {
             .ok_or(AutomergeError::InvalidObjectId)?;
 
         // サブタスクオブジェクトを追加
-        let sub_tasks_obj = match doc.get(&task_obj, "sub_tasks") {
-            Ok(obj) => obj,
-            Err(_) => doc.put_object(&task_obj, "sub_tasks", ObjType::Map)?,
-        };
+        let (_, sub_tasks_obj) = ensure_collection(&mut doc, &task_obj, "sub_tasks")?;
         
-        let subtask_obj = doc.put_object(&sub_tasks_obj, &subtask_id, ObjType::Map)?;
-        doc.put(&subtask_obj, "id", &subtask_id)?;
-        doc.put(&subtask_obj, "task_id", task_id)?;
-        doc.put(&subtask_obj, "title", &title)?;
-        if let Some(desc) = &description {
-            doc.put(&subtask_obj, "description", desc)?;
-        }
-        doc.put(&subtask_obj, "status", status.as_deref().unwrap_or("not_started"))?;
-        doc.put(&subtask_obj, "priority", priority.unwrap_or(0))?;
-        doc.put(&subtask_obj, "order_index", 0)?;
-        doc.put(&subtask_obj, "created_at", now)?;
-        doc.put(&subtask_obj, "updated_at", now)?;
-        doc.put_object(&subtask_obj, "tags", ObjType::Map)?;
-
-        Ok(SubTask {
-            id: subtask_id,
+        // 構造体を作成
+        let subtask = SubTask {
+            id: subtask_id.clone(),
             task_id: task_id.to_string(),
             title,
             description,
@@ -45,35 +29,45 @@ impl AutomergeManager {
             tags: Vec::new(),
             created_at: now,
             updated_at: now,
-        })
+        };
+
+        // 新しいインターフェースで一括書き込み
+        doc.put_struct(&sub_tasks_obj, &subtask_id, &subtask)?;
+
+        Ok(subtask)
     }
 
     pub fn update_subtask(&self, subtask_id: &str, title: Option<String>, description: Option<String>, status: Option<String>, priority: Option<i32>) -> Result<Option<SubTask>, AutomergeError> {
         let mut doc = self.doc.lock().unwrap();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let subtask_obj = match self.find_subtask_obj(&doc, subtask_id)? {
-            Some(obj) => obj,
+        let (sub_tasks_obj, subtask_obj) = match self.find_subtask_with_parent(&doc, subtask_id)? {
+            Some((parent, obj)) => (parent, obj),
             None => return Ok(None),
         };
 
-        // サブタスクを更新
-        if let Some(t) = &title {
-            doc.put(&subtask_obj, "title", t)?;
+        // 既存のサブタスクを読み込み
+        let mut existing_subtask = doc.get_struct_safe::<SubTask>(&subtask_obj)?;
+        
+        // フィールドを更新
+        if let Some(t) = title {
+            existing_subtask.title = t;
         }
-        if let Some(d) = &description {
-            doc.put(&subtask_obj, "description", d)?;
+        if let Some(d) = description {
+            existing_subtask.description = d;
         }
-        if let Some(s) = &status {
-            doc.put(&subtask_obj, "status", s)?;
+        if let Some(s) = status {
+            existing_subtask.status = s;
         }
         if let Some(p) = priority {
-            doc.put(&subtask_obj, "priority", p)?;
+            existing_subtask.priority = Some(p);
         }
-        doc.put(&subtask_obj, "updated_at", now)?;
+        existing_subtask.updated_at = now;
 
-        // 更新されたサブタスクを返す
-        Ok(Some(self.build_subtask_from_obj(&doc, &subtask_obj)?))
+        // 構造体を一括で書き込み直し
+        doc.put_struct(&sub_tasks_obj, subtask_id, &existing_subtask)?;
+
+        Ok(Some(existing_subtask))
     }
 
     pub fn delete_subtask(&self, subtask_id: &str) -> Result<bool, AutomergeError> {

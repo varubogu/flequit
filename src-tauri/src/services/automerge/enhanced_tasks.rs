@@ -1,5 +1,5 @@
 use automerge::{AutomergeError, ObjType};
-use crate::types::task_types::TaskWithSubTasks;
+use crate::types::{TaskWithSubTasks, AutomergeInterface};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -25,31 +25,10 @@ impl AutomergeManager {
         }
 
         let tasks_obj = tasks_obj.ok_or_else(|| AutomergeError::InvalidObjectId)?;
-        let task_obj = doc.put_object(&tasks_obj, &task_id, ObjType::Map)?;
-
-        doc.put(&task_obj, "id", &task_id)?;
-        doc.put(&task_obj, "list_id", &list_id)?;
-        doc.put(&task_obj, "title", &title)?;
-        doc.put(&task_obj, "description", &description.unwrap_or_default())?;
-        doc.put(&task_obj, "status", &status.unwrap_or("not_started".to_string()))?;
-        doc.put(&task_obj, "priority", priority.unwrap_or(0))?;
-        if let Some(start_date) = start_date {
-            doc.put(&task_obj, "start_date", start_date)?;
-        }
-        if let Some(end_date) = end_date {
-            doc.put(&task_obj, "end_date", end_date)?;
-        }
-        doc.put(&task_obj, "order_index", 0)?;
-        doc.put(&task_obj, "is_archived", false)?;
-        doc.put(&task_obj, "created_at", now)?;
-        doc.put(&task_obj, "updated_at", now)?;
-
-        // Initialize empty sub_tasks and tags
-        doc.put_object(&task_obj, "sub_tasks", ObjType::Map)?;
-        doc.put_object(&task_obj, "tags", ObjType::Map)?;
-
-        Ok(TaskWithSubTasks {
-            id: task_id,
+        
+        // 構造体を作成
+        let task = TaskWithSubTasks {
+            id: task_id.clone(),
             list_id,
             title,
             description,
@@ -63,7 +42,16 @@ impl AutomergeManager {
             updated_at: now,
             sub_tasks: vec![],
             tags: vec![],
-        })
+        };
+
+        // 新しいインターフェースで一括書き込み
+        let task_obj = doc.put_struct(&tasks_obj, &task_id, &task)?;
+
+        // Initialize empty sub_tasks and tags
+        doc.put_object(&task_obj, "sub_tasks", ObjType::Map)?;
+        doc.put_object(&task_obj, "tags", ObjType::Map)?;
+
+        Ok(task)
     }
 
     pub fn update_task_with_subtasks(&self, task_id: &str, title: Option<String>, description: Option<String>, status: Option<String>, priority: Option<i32>, start_date: Option<i64>, end_date: Option<i64>) -> Result<Option<TaskWithSubTasks>, AutomergeError> {
@@ -103,7 +91,9 @@ impl AutomergeManager {
                                     }
                                     doc.put(&task_obj, "updated_at", now)?;
 
-                                    return Ok(Some(self.build_task_from_obj(&doc, &task_obj)?));
+                                    // 更新後のタスクを新しいインターフェースで読み込み
+                                    let updated_task = doc.get_struct_safe::<TaskWithSubTasks>(&task_obj)?;
+                                    return Ok(Some(updated_task));
                                 }
                             }
                         }

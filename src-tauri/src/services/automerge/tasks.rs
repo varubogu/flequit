@@ -70,28 +70,13 @@ impl AutomergeManager {
         let doc = self.doc.lock().unwrap();
         let mut tasks = Vec::new();
 
-        let tasks_obj = match doc.get(automerge::ROOT, "tasks") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(tasks),
-        };
-
-        for (_, task_id) in doc.keys(&tasks_obj) {
-            if let Ok(task_obj) = doc.get(&tasks_obj, &task_id) {
-                let id: String = doc.get(&task_obj, "id")?.into();
-                let title: String = doc.get(&task_obj, "title")?.into();
-                let description: String = doc.get(&task_obj, "description")?.into();
-                let completed: bool = doc.get(&task_obj, "completed")?.into();
-                let created_at: i64 = doc.get(&task_obj, "created_at")?.into();
-                let updated_at: i64 = doc.get(&task_obj, "updated_at")?.into();
-
-                tasks.push(Task {
-                    id,
-                    title,
-                    description,
-                    completed,
-                    created_at,
-                    updated_at,
-                });
+        if let Some((_, tasks_obj)) = get_object_entry(&doc, &automerge::ROOT, "tasks") {
+            for task_id in get_keys(&doc, &tasks_obj) {
+                if let Some((_, task_obj)) = get_object_entry(&doc, &tasks_obj, &task_id) {
+                    if let Ok(task) = doc.get_struct_safe::<Task>(&task_obj) {
+                        tasks.push(task);
+                    }
+                }
             }
         }
 
@@ -102,56 +87,42 @@ impl AutomergeManager {
         let mut doc = self.doc.lock().unwrap();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let tasks_obj = match doc.get(automerge::ROOT, "tasks") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(None),
-        };
-
-        let task_obj = match doc.get(&tasks_obj, task_id) {
-            Ok(obj) => obj,
-            Err(_) => return Ok(None),
-        };
-
-        if let Some(title) = title {
-            doc.put(&task_obj, "title", title)?;
+        if let Some((_, tasks_obj)) = get_object_entry(&doc, &automerge::ROOT, "tasks") {
+            if let Some((_, task_obj)) = get_object_entry(&doc, &tasks_obj, task_id) {
+                // Get current task
+                let mut task = doc.get_struct_safe::<Task>(&task_obj)?;
+                
+                // Update fields if provided
+                if let Some(new_title) = title {
+                    task.title = new_title;
+                }
+                if let Some(new_description) = description {
+                    task.description = new_description;
+                }
+                if let Some(new_completed) = completed {
+                    task.completed = new_completed;
+                }
+                task.updated_at = now;
+                
+                // Save the updated task using put_struct
+                doc.put_struct(&tasks_obj, task_id, &task)?;
+                
+                return Ok(Some(task));
+            }
         }
-        if let Some(description) = description {
-            doc.put(&task_obj, "description", description)?;
-        }
-        if let Some(completed) = completed {
-            doc.put(&task_obj, "completed", completed)?;
-        }
-        doc.put(&task_obj, "updated_at", now)?;
-
-        // Return updated task
-        let id: String = doc.get(&task_obj, "id")?.into();
-        let title: String = doc.get(&task_obj, "title")?.into();
-        let description: String = doc.get(&task_obj, "description")?.into();
-        let completed: bool = doc.get(&task_obj, "completed")?.into();
-        let created_at: i64 = doc.get(&task_obj, "created_at")?.into();
-        let updated_at: i64 = doc.get(&task_obj, "updated_at")?.into();
-
-        Ok(Some(Task {
-            id,
-            title,
-            description,
-            completed,
-            created_at,
-            updated_at,
-        }))
+        Ok(None)
     }
 
     pub fn delete_task(&self, task_id: &str) -> Result<bool, AutomergeError> {
         let mut doc = self.doc.lock().unwrap();
 
-        let tasks_obj = match doc.get(automerge::ROOT, "tasks") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(false),
-        };
-
-        match doc.delete(&tasks_obj, task_id) {
-            Ok(_) => Ok(true),
-            Err(_) => Ok(false),
+        if let Some((_, tasks_obj)) = get_object_entry(&doc, &automerge::ROOT, "tasks") {
+            match doc.delete(&tasks_obj, task_id) {
+                Ok(_) => Ok(true),
+                Err(_) => Ok(false),
+            }
+        } else {
+            Ok(false)
         }
     }
 }
