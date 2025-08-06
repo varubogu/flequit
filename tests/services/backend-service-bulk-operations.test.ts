@@ -18,11 +18,11 @@ describe('BackendService - Bulk Operations', () => {
       value: true,
       writable: true
     });
-    
+
     // invokeをモックから取得
     const tauriCore = await import('@tauri-apps/api/core');
     invoke = vi.mocked(tauriCore.invoke);
-    
+
     service = backendService();
   });
 

@@ -1,8 +1,9 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import type { TaskStatus, RecurrenceRule } from '$lib/types/task';
-  import { TaskService } from '$lib/services/task-service';
   import Card from '$lib/components/ui/card.svelte';
+  import { TaskDetailLogic } from './task-detail-logic.svelte';
+  import TaskDetailContent from './task-detail-content.svelte';
+  import TaskDetailDialogs from './task-detail-dialogs.svelte';
 
   interface Props {
     isDrawerMode?: boolean;
@@ -10,574 +11,87 @@
 
   let { isDrawerMode = false }: Props = $props();
 
-  const translationService = getTranslationService();
-  import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
-  import TaskDetailHeader from './task-detail-header.svelte';
-  import TaskStatusSelector from './task-status-selector.svelte';
-  import TaskDueDateSelector from './task-due-date-selector.svelte';
-  import TaskPrioritySelector from './task-priority-selector.svelte';
-  import TaskDescriptionEditor from './task-description-editor.svelte';
-  import TaskDetailSubTasks from './task-detail-subtasks.svelte';
-  import TaskDetailTags from './task-detail-tags.svelte';
-  import TaskDetailMetadata from './task-detail-metadata.svelte';
-  import TaskDetailEmptyState from './task-detail-empty-state.svelte';
-  import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmation-dialog.svelte';
-  import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
-  import ProjectTaskListSelector from '$lib/components/project/project-task-list-selector.svelte';
-  import ProjectTaskListSelectorDialog from '$lib/components/project/project-task-list-selector-dialog.svelte';
-  import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
-
-  let task = $derived(taskStore.selectedTask);
-  let subTask = $derived(taskStore.selectedSubTask);
-  let currentItem = $derived(
-    task || subTask || (taskStore.isNewTaskMode ? taskStore.newTaskData : null)
-  );
-  let isSubTask = $derived(!!subTask);
-  let isNewTaskMode = $derived(taskStore.isNewTaskMode);
-
-  let editForm = $state({
-    title: '',
-    description: '',
-    start_date: undefined as Date | undefined,
-    end_date: undefined as Date | undefined,
-    is_range_date: false,
-    priority: 0
-  });
-  let saveTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  // Date picker state
-  let showDatePicker = $state(false);
-  let datePickerPosition = $state({ x: 0, y: 0 });
-
-  // Confirmation dialog state
-  let showConfirmationDialog = $state(false);
-  let pendingAction = $state<(() => void) | null>(null);
-
-  // Delete confirmation dialog state
-  let showDeleteDialog = $state(false);
-  let deleteDialogTitle = $state('');
-  let deleteDialogMessage = $state('');
-  let pendingDeleteAction = $state<(() => void) | null>(null);
-
-  // Project task list selector dialog state
-  let showProjectTaskListDialog = $state(false);
-
-  // Recurrence dialog state
-  let showRecurrenceDialog = $state(false);
-
-  // プロジェクト・タスクリスト情報の取得
-  let projectInfo = $derived(() => {
-    if (isNewTaskMode || !currentItem) return null;
-    if (isSubTask && 'task_id' in currentItem) {
-      // サブタスクの場合は親タスクの情報を取得
-      return taskStore.getTaskProjectAndList(currentItem.task_id);
-    } else {
-      return taskStore.getTaskProjectAndList(currentItem.id);
-    }
-  });
-
-  // Watch for pending selections from taskStore
-  $effect(() => {
-    if (taskStore.pendingTaskSelection) {
-      const taskId = taskStore.pendingTaskSelection;
-      showConfirmationIfNeeded(() => {
-        TaskService.forceSelectTask(taskId);
-        taskStore.clearPendingSelections();
-      });
-    }
-  });
-
-  $effect(() => {
-    if (taskStore.pendingSubTaskSelection) {
-      const subTaskId = taskStore.pendingSubTaskSelection;
-      showConfirmationIfNeeded(() => {
-        TaskService.forceSelectSubTask(subTaskId);
-        taskStore.clearPendingSelections();
-      });
-    }
-  });
-
-  $effect(() => {
-    if (currentItem) {
-      editForm = {
-        title: currentItem.title,
-        description: currentItem.description || '',
-        start_date: currentItem.start_date,
-        end_date: currentItem.end_date,
-        is_range_date: currentItem.is_range_date || false,
-        priority: currentItem.priority || 0
-      };
-    }
-  });
-
-  function debouncedSave() {
-    if (saveTimeout) {
-      clearTimeout(saveTimeout);
-    }
-    saveTimeout = setTimeout(() => {
-      if (currentItem) {
-        // Use the same update method as task-item for consistency
-        const updates: {
-          title: string;
-          description?: string;
-          priority: number;
-          start_date?: Date;
-          end_date?: Date;
-          is_range_date: boolean;
-        } = {
-          title: editForm.title,
-          description: editForm.description || undefined,
-          priority: editForm.priority,
-          start_date: editForm.start_date,
-          end_date: editForm.end_date,
-          is_range_date: editForm.is_range_date
-        };
-
-        if (isNewTaskMode) {
-          taskStore.updateNewTaskData(updates);
-        } else if (isSubTask) {
-          taskStore.updateSubTask(currentItem.id, updates);
-        } else {
-          taskStore.updateTask(currentItem.id, updates);
-        }
-      }
-    }, 500); // 500ms delay
-  }
-
-  function handleFormChange() {
-    debouncedSave();
-  }
-
-  // Date picker handlers
-  function handleDueDateClick(event?: Event) {
-    event?.preventDefault();
-    event?.stopPropagation();
-
-    const rect = event?.target
-      ? (event.target as HTMLElement).getBoundingClientRect()
-      : { left: 0, bottom: 0 };
-    datePickerPosition = {
-      x: Math.min(rect.left, window.innerWidth - 300),
-      y: rect.bottom + 8
-    };
-    showDatePicker = true;
-  }
-
-  function handleDateChange(data: {
-    date: string;
-    dateTime: string;
-    range?: { start: string; end: string };
-    isRangeDate: boolean;
-  }) {
-    const { dateTime, range, isRangeDate } = data;
-
-    if (isRangeDate) {
-      if (range) {
-        // Range mode with both start and end dates
-        editForm = {
-          ...editForm,
-          start_date: new Date(range.start),
-          end_date: new Date(range.end),
-          is_range_date: true
-        };
-      } else {
-        // Range mode switched on, but no range data yet - keep current end_date as both start and end
-        const currentEndDate = editForm.end_date || new Date(dateTime);
-        editForm = {
-          ...editForm,
-          start_date: currentEndDate,
-          end_date: currentEndDate,
-          is_range_date: true
-        };
-      }
-    } else {
-      // Single mode
-      editForm = {
-        ...editForm,
-        end_date: new Date(dateTime),
-        start_date: undefined,
-        is_range_date: false
-      };
-    }
-
-    debouncedSave();
-  }
-
-  function handleDateClear() {
-    editForm = {
-      ...editForm,
-      start_date: undefined,
-      end_date: undefined,
-      is_range_date: false
-    };
-    debouncedSave();
-  }
-
-  function handleDatePickerClose() {
-    showDatePicker = false;
-  }
-
-  function handleStatusChange(event: Event) {
-    if (!currentItem) return;
-    const target = event.target as HTMLSelectElement;
-
-    if (isNewTaskMode) {
-      taskStore.updateNewTaskData({ status: target.value as TaskStatus });
-    } else if (isSubTask) {
-      TaskService.changeSubTaskStatus(currentItem.id, target.value as TaskStatus);
-    } else {
-      TaskService.changeTaskStatus(currentItem.id, target.value as TaskStatus);
-    }
-  }
-
-  function handleDelete() {
-    if (!currentItem) return;
-    if (isNewTaskMode) {
-      taskStore.cancelNewTaskMode();
-      return;
-    }
-
-    // Show delete confirmation dialog
-    if (isSubTask) {
-      deleteDialogTitle = translationService.getMessage('delete_subtask_title')();
-      deleteDialogMessage = translationService.getMessage('delete_subtask_message')();
-      pendingDeleteAction = () => TaskService.deleteSubTask(currentItem.id);
-    } else {
-      deleteDialogTitle = translationService.getMessage('delete_task_title')();
-      deleteDialogMessage = translationService.getMessage('delete_task_message')();
-      pendingDeleteAction = () => TaskService.deleteTask(currentItem.id);
-    }
-
-    showDeleteDialog = true;
-  }
-
-  async function handleSaveNewTask() {
-    if (!isNewTaskMode) return;
-    const newTaskId = await taskStore.saveNewTask();
-    if (newTaskId) {
-      TaskService.selectTask(newTaskId);
-    }
-  }
-
-  function handleSubTaskToggle(subTaskId: string) {
-    if (!task) return;
-    TaskService.toggleSubTaskStatus(task, subTaskId);
-  }
-
-  function handleSubTaskClick(subTaskId: string) {
-    // TaskDetailは既に開いているので、ストアの選択状態のみ更新
-    TaskService.selectSubTask(subTaskId);
-  }
-
-  function handleGoToParentTask() {
-    if (isSubTask && currentItem && 'task_id' in currentItem) {
-      // TaskDetailは既に開いているので、ストアの選択状態のみ更新
-      TaskService.selectTask(currentItem.task_id);
-    }
-  }
-
-  function handleTitleChange(title: string) {
-    editForm.title = title;
-    handleFormChange();
-  }
-
-  function handleDescriptionChange(description: string) {
-    editForm.description = description;
-    handleFormChange();
-  }
-
-  function handlePriorityChange(priority: number) {
-    editForm.priority = priority;
-  }
-
-  function handleProjectTaskListEdit() {
-    showProjectTaskListDialog = true;
-  }
-
-  function handleProjectTaskListChange(data: { projectId: string; taskListId: string }) {
-    if (!currentItem || isNewTaskMode) return;
-
-    // タスクを新しいタスクリストに移動
-    if (isSubTask) {
-      // サブタスクの場合は親タスクを移動
-      if ('task_id' in currentItem) {
-        taskStore.moveTaskToList(currentItem.task_id, data.taskListId);
-      }
-    } else {
-      taskStore.moveTaskToList(currentItem.id, data.taskListId);
-    }
-    showProjectTaskListDialog = false;
-  }
-
-  function handleProjectTaskListDialogClose() {
-    showProjectTaskListDialog = false;
-  }
-
-  // Confirmation dialog handlers
-  function showConfirmationIfNeeded(action: () => void): boolean {
-    if (isNewTaskMode && editForm.title.trim()) {
-      pendingAction = action;
-      showConfirmationDialog = true;
-      return false;
-    }
-    action();
-    return true;
-  }
-
-  function handleConfirmDiscard() {
-    showConfirmationDialog = false;
-    if (pendingAction) {
-      pendingAction();
-      pendingAction = null;
-    }
-  }
-
-  function handleCancelDiscard() {
-    showConfirmationDialog = false;
-    pendingAction = null;
-    taskStore.clearPendingSelections();
-  }
-
-  // Delete confirmation dialog handlers
-  function handleConfirmDelete() {
-    showDeleteDialog = false;
-    if (pendingDeleteAction) {
-      pendingDeleteAction();
-      pendingDeleteAction = null;
-    }
-  }
-
-  function handleCancelDelete() {
-    showDeleteDialog = false;
-    pendingDeleteAction = null;
-  }
-
-  // Recurrence dialog handlers
-  function handleRecurrenceChange(rule: RecurrenceRule | null) {
-    if (!currentItem || isNewTaskMode) return;
-
-    const updates = { recurrence_rule: rule || undefined };
-
-    if (isSubTask) {
-      taskStore.updateSubTask(currentItem.id, updates);
-    } else {
-      taskStore.updateTask(currentItem.id, updates);
-    }
-
-    showRecurrenceDialog = false;
-  }
-
-  function handleRecurrenceDialogClose() {
-    showRecurrenceDialog = false;
-  }
+  const logic = new TaskDetailLogic();
 </script>
 
 {#if isDrawerMode}
   <!-- Drawer mode: no Card wrapper, direct content -->
   <div class="flex h-full flex-col">
-    {#if currentItem}
-      <TaskDetailHeader
-        {currentItem}
-        {isSubTask}
-        {isNewTaskMode}
-        title={editForm.title}
-        onTitleChange={handleTitleChange}
-        onDelete={handleDelete}
-        onSaveNewTask={handleSaveNewTask}
-      />
-
-      <!-- Content -->
-      <div class="flex-1 space-y-4 overflow-auto py-4">
-        <!-- Status, Due Date, Priority -->
-        <div class="flex flex-wrap gap-4">
-          <TaskStatusSelector {currentItem} onStatusChange={handleStatusChange} />
-
-          <TaskDueDateSelector
-            {currentItem}
-            {isSubTask}
-            formData={editForm}
-            onDueDateClick={handleDueDateClick}
-          />
-
-          <TaskPrioritySelector
-            {isSubTask}
-            formData={editForm}
-            onPriorityChange={handlePriorityChange}
-            onFormChange={handleFormChange}
-          />
-        </div>
-
-        <!-- Description -->
-        <TaskDescriptionEditor
-          {currentItem}
-          {isSubTask}
-          {isNewTaskMode}
-          formData={editForm}
-          onDescriptionChange={handleDescriptionChange}
-        />
-
-        <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
-        {#if !isSubTask && !isNewTaskMode && task}
-          <TaskDetailSubTasks
-            {task}
-            selectedSubTaskId={taskStore.selectedSubTaskId}
-            onSubTaskClick={handleSubTaskClick}
-            onSubTaskToggle={handleSubTaskToggle}
-          />
-        {/if}
-
-        <!-- Tags -->
-        {#if task || subTask || (isNewTaskMode && currentItem)}
-          <TaskDetailTags
-            task={isSubTask ? null : task}
-            subTask={isSubTask ? subTask : null}
-            {isNewTaskMode}
-          />
-        {/if}
-
-        <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
-        {#if !isNewTaskMode}
-          <ProjectTaskListSelector projectInfo={projectInfo()} onEdit={handleProjectTaskListEdit} />
-        {/if}
-
-        <TaskDetailMetadata
-          {currentItem}
-          {isSubTask}
-          {isNewTaskMode}
-          onGoToParentTask={handleGoToParentTask}
-        />
-      </div>
-    {:else}
-      <TaskDetailEmptyState />
-    {/if}
+    <TaskDetailContent
+      currentItem={logic.currentItem}
+      task={logic.task}
+      subTask={logic.subTask}
+      isSubTask={logic.isSubTask}
+      isNewTaskMode={logic.isNewTaskMode}
+      editForm={logic.editForm}
+      selectedSubTaskId={taskStore.selectedSubTaskId}
+      projectInfo={logic.getProjectInfo()}
+      {isDrawerMode}
+      onTitleChange={logic.handleTitleChange.bind(logic)}
+      onDescriptionChange={logic.handleDescriptionChange.bind(logic)}
+      onPriorityChange={logic.handlePriorityChange.bind(logic)}
+      onStatusChange={logic.handleStatusChange.bind(logic)}
+      onDueDateClick={logic.handleDueDateClick.bind(logic)}
+      onFormChange={logic.handleFormChange.bind(logic)}
+      onDelete={logic.handleDelete.bind(logic)}
+      onSaveNewTask={logic.handleSaveNewTask.bind(logic)}
+      onSubTaskClick={logic.handleSubTaskClick.bind(logic)}
+      onSubTaskToggle={logic.handleSubTaskToggle.bind(logic)}
+      onGoToParentTask={logic.handleGoToParentTask.bind(logic)}
+      onProjectTaskListEdit={logic.handleProjectTaskListEdit.bind(logic)}
+    />
   </div>
 {:else}
   <!-- Desktop mode: Card wrapper -->
   <Card class="flex h-full flex-col">
-    {#if currentItem}
-      <TaskDetailHeader
-        {currentItem}
-        {isSubTask}
-        {isNewTaskMode}
-        title={editForm.title}
-        onTitleChange={handleTitleChange}
-        onDelete={handleDelete}
-        onSaveNewTask={handleSaveNewTask}
-      />
-
-      <!-- Content -->
-      <div class="flex-1 space-y-6 overflow-auto p-6">
-        <!-- Status, Due Date, Priority -->
-        <div class="flex flex-wrap gap-4">
-          <TaskStatusSelector {currentItem} onStatusChange={handleStatusChange} />
-
-          <TaskDueDateSelector
-            {currentItem}
-            {isSubTask}
-            formData={editForm}
-            onDueDateClick={handleDueDateClick}
-          />
-
-          <TaskPrioritySelector
-            {isSubTask}
-            formData={editForm}
-            onPriorityChange={handlePriorityChange}
-            onFormChange={handleFormChange}
-          />
-        </div>
-
-        <!-- Description -->
-        <TaskDescriptionEditor
-          {currentItem}
-          {isSubTask}
-          {isNewTaskMode}
-          formData={editForm}
-          onDescriptionChange={handleDescriptionChange}
-        />
-
-        <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
-        {#if !isSubTask && !isNewTaskMode && task}
-          <TaskDetailSubTasks
-            {task}
-            selectedSubTaskId={taskStore.selectedSubTaskId}
-            onSubTaskClick={handleSubTaskClick}
-            onSubTaskToggle={handleSubTaskToggle}
-          />
-        {/if}
-
-        <!-- Tags -->
-        {#if task || subTask || (isNewTaskMode && currentItem)}
-          <TaskDetailTags
-            task={isSubTask ? null : task}
-            subTask={isSubTask ? subTask : null}
-            {isNewTaskMode}
-          />
-        {/if}
-
-        <!-- プロジェクト・タスクリスト表示（新規タスクモード以外） -->
-        {#if !isNewTaskMode}
-          <ProjectTaskListSelector projectInfo={projectInfo()} onEdit={handleProjectTaskListEdit} />
-        {/if}
-
-        <TaskDetailMetadata
-          {currentItem}
-          {isSubTask}
-          {isNewTaskMode}
-          onGoToParentTask={handleGoToParentTask}
-        />
-      </div>
-    {:else}
-      <TaskDetailEmptyState />
-    {/if}
+    <TaskDetailContent
+      currentItem={logic.currentItem}
+      task={logic.task}
+      subTask={logic.subTask}
+      isSubTask={logic.isSubTask}
+      isNewTaskMode={logic.isNewTaskMode}
+      editForm={logic.editForm}
+      selectedSubTaskId={taskStore.selectedSubTaskId}
+      projectInfo={logic.getProjectInfo()}
+      {isDrawerMode}
+      onTitleChange={logic.handleTitleChange.bind(logic)}
+      onDescriptionChange={logic.handleDescriptionChange.bind(logic)}
+      onPriorityChange={logic.handlePriorityChange.bind(logic)}
+      onStatusChange={logic.handleStatusChange.bind(logic)}
+      onDueDateClick={logic.handleDueDateClick.bind(logic)}
+      onFormChange={logic.handleFormChange.bind(logic)}
+      onDelete={logic.handleDelete.bind(logic)}
+      onSaveNewTask={logic.handleSaveNewTask.bind(logic)}
+      onSubTaskClick={logic.handleSubTaskClick.bind(logic)}
+      onSubTaskToggle={logic.handleSubTaskToggle.bind(logic)}
+      onGoToParentTask={logic.handleGoToParentTask.bind(logic)}
+      onProjectTaskListEdit={logic.handleProjectTaskListEdit.bind(logic)}
+    />
   </Card>
 {/if}
 
-<!-- Inline Date Picker -->
-<InlineDatePicker
-  show={showDatePicker}
-  currentDate={currentItem?.end_date ? currentItem.end_date.toISOString() : ''}
-  currentStartDate={currentItem?.start_date ? currentItem.start_date.toISOString() : ''}
-  position={datePickerPosition}
-  isRangeDate={editForm.is_range_date}
-  recurrenceRule={currentItem?.recurrence_rule}
-  onchange={handleDateChange}
-  onclear={handleDateClear}
-  onclose={handleDatePickerClose}
-/>
-
-<!-- Confirmation dialog for new task mode -->
-<NewTaskConfirmationDialog
-  open={showConfirmationDialog}
-  onConfirm={handleConfirmDiscard}
-  onCancel={handleCancelDiscard}
-/>
-
-<!-- Delete confirmation dialog -->
-<DeleteConfirmationDialog
-  open={showDeleteDialog}
-  title={deleteDialogTitle}
-  message={deleteDialogMessage}
-  onConfirm={handleConfirmDelete}
-  onCancel={handleCancelDelete}
-/>
-
-<!-- プロジェクト・タスクリスト選択モーダル -->
-<ProjectTaskListSelectorDialog
-  open={showProjectTaskListDialog}
-  currentProjectId={projectInfo()?.project.id || ''}
-  currentTaskListId={projectInfo()?.taskList.id || ''}
-  onSave={handleProjectTaskListChange}
-  onClose={handleProjectTaskListDialogClose}
-/>
-
-<!-- 繰り返し設定ダイアログ -->
-<RecurrenceDialogAdvanced
-  open={showRecurrenceDialog}
-  recurrenceRule={currentItem?.recurrence_rule}
-  startDateTime={currentItem?.start_date}
-  endDateTime={currentItem?.end_date}
-  isRangeDate={currentItem?.is_range_date}
-  onSave={handleRecurrenceChange}
-  onOpenChange={handleRecurrenceDialogClose}
+<!-- All Dialogs -->
+<TaskDetailDialogs
+  currentItem={logic.currentItem}
+  editForm={logic.editForm}
+  showDatePicker={logic.showDatePicker}
+  datePickerPosition={logic.datePickerPosition}
+  showConfirmationDialog={logic.showConfirmationDialog}
+  showDeleteDialog={logic.showDeleteDialog}
+  deleteDialogTitle={logic.deleteDialogTitle}
+  deleteDialogMessage={logic.deleteDialogMessage}
+  showProjectTaskListDialog={logic.showProjectTaskListDialog}
+  showRecurrenceDialog={logic.showRecurrenceDialog}
+  projectInfo={logic.getProjectInfo()}
+  onDateChange={logic.handleDateChange.bind(logic)}
+  onDateClear={logic.handleDateClear.bind(logic)}
+  onDatePickerClose={logic.handleDatePickerClose.bind(logic)}
+  onConfirmDiscard={logic.handleConfirmDiscard.bind(logic)}
+  onCancelDiscard={logic.handleCancelDiscard.bind(logic)}
+  onConfirmDelete={logic.handleConfirmDelete.bind(logic)}
+  onCancelDelete={logic.handleCancelDelete.bind(logic)}
+  onProjectTaskListChange={logic.handleProjectTaskListChange.bind(logic)}
+  onProjectTaskListDialogClose={logic.handleProjectTaskListDialogClose.bind(logic)}
+  onRecurrenceChange={logic.handleRecurrenceChange.bind(logic)}
+  onRecurrenceDialogClose={logic.handleRecurrenceDialogClose.bind(logic)}
 />
