@@ -133,14 +133,13 @@ describe('BackendService - Bulk Operations', () => {
     });
 
     test('createBackup should create backup with default path', async () => {
-      invoke.mockResolvedValue(undefined);
+      const mockBackupPath = '/backup/path/backup_20241201_123456.automerge';
+      invoke.mockResolvedValue(mockBackupPath);
 
       const backupPath = await service.createBackup();
 
-      expect(invoke).toHaveBeenCalledWith('save_data_to_file', {
-        filePath: expect.stringMatching(/^\.\/backups\/backup-\d+\.automerge$/)
-      });
-      expect(backupPath).toMatch(/^\.\/backups\/backup-\d+\.automerge$/);
+      expect(invoke).toHaveBeenCalledWith('create_backup');
+      expect(backupPath).toBe(mockBackupPath);
     });
 
     test('restoreFromBackup should restore from backup', async () => {
@@ -148,8 +147,8 @@ describe('BackendService - Bulk Operations', () => {
 
       await service.restoreFromBackup('/path/to/backup.automerge');
 
-      expect(invoke).toHaveBeenCalledWith('load_data_from_file', {
-        filePath: '/path/to/backup.automerge'
+      expect(invoke).toHaveBeenCalledWith('restore_from_backup', {
+        backupPath: '/path/to/backup.automerge'
       });
     });
   });

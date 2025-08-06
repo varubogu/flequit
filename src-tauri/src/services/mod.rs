@@ -1,4 +1,5 @@
 pub mod automerge_service;
+pub mod path_service;
 
 pub use automerge_service::AutomergeService;
 

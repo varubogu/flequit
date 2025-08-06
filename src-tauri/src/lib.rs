@@ -8,15 +8,28 @@ mod utils;
 use commands::*;
 use services::AutomergeService;
 use services::automerge_service::AutomergeManager;
+use services::path_service::PathService;
 use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Initialize services
     let automerge_manager = Arc::new(Mutex::new(AutomergeManager::new()));
+    let path_service = Arc::new(Mutex::new(
+        PathService::new().expect("Failed to initialize PathService")
+    ));
+    
+    // Ensure directories are created at startup
+    if let Ok(service) = path_service.lock() {
+        if let Err(e) = service.ensure_directories() {
+            eprintln!("Failed to create directories: {}", e);
+        }
+    }
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(automerge_manager)
+        .manage(path_service)
         .invoke_handler(tauri::generate_handler![
             // Basic commands
             greet,
@@ -67,11 +80,26 @@ pub fn run() {
             initialize_sample_data,
             export_data_json,
             import_data_json,
+            create_backup,
+            restore_from_backup,
+            list_backups,
             
             // AutoMerge document commands
             get_document_state,
             load_document_state,
-            merge_document
+            merge_document,
+            
+            // Path management commands
+            get_current_data_dir,
+            get_current_backup_dir,
+            get_current_export_dir,
+            get_system_default_data_dir,
+            get_path_config,
+            update_path_config,
+            set_custom_data_dir,
+            reset_to_system_default,
+            validate_path,
+            ensure_directories
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

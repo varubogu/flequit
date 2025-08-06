@@ -10,6 +10,13 @@ import type {
 } from '$lib/types/task';
 // taskStore は遅延読み込みで使用
 
+export interface PathConfig {
+  data_dir?: string;
+  backup_dir?: string;
+  export_dir?: string;
+  use_system_default: boolean;
+}
+
 export interface BackendService {
   greet: () => Promise<void>;
   createTask: (title: string, description: string) => Promise<Task>;
@@ -108,10 +115,23 @@ export interface BackendService {
   getAutoSaveStatus: () => Promise<boolean>;
 
   // 拡張ファイル操作
-  exportData: (filePath: string, format?: 'json' | 'automerge') => Promise<void>;
+  exportData: (filePath?: string, format?: 'json' | 'automerge') => Promise<void>;
   importData: (filePath: string, format?: 'json' | 'automerge') => Promise<void>;
   createBackup: (backupPath?: string) => Promise<string>;
   restoreFromBackup: (backupPath: string) => Promise<void>;
+  listBackups: () => Promise<string[]>;
+
+  // パス管理
+  getCurrentDataDir: () => Promise<string>;
+  getCurrentBackupDir: () => Promise<string>;
+  getCurrentExportDir: () => Promise<string>;
+  getSystemDefaultDataDir: () => Promise<string>;
+  getPathConfig: () => Promise<PathConfig>;
+  updatePathConfig: (config: PathConfig) => Promise<void>;
+  setCustomDataDir: (path: string) => Promise<void>;
+  resetToSystemDefault: () => Promise<void>;
+  validatePath: (path: string) => Promise<boolean>;
+  ensureDirectories: () => Promise<void>;
 }
 
 // 型変換ヘルパー関数（timestamp -> Date）
@@ -543,13 +563,63 @@ export const backendService = (): BackendService => {
       },
 
       createBackup: async (backupPath) => {
-        const defaultPath = backupPath || `./backups/backup-${Date.now()}.automerge`;
-        await invoke('save_data_to_file', { filePath: defaultPath });
-        return defaultPath;
+        if (backupPath) {
+          // カスタムパスでバックアップ作成
+          await invoke('save_data_to_file', { filePath: backupPath });
+          return backupPath;
+        } else {
+          // デフォルトパスでバックアップ作成
+          return await invoke('create_backup');
+        }
       },
 
       restoreFromBackup: async (backupPath) => {
-        return await invoke('load_data_from_file', { filePath: backupPath });
+        return await invoke('restore_from_backup', { backupPath });
+      },
+
+      listBackups: async () => {
+        return await invoke('list_backups');
+      },
+
+      // パス管理 (Tauri版)
+      getCurrentDataDir: async () => {
+        return await invoke('get_current_data_dir');
+      },
+
+      getCurrentBackupDir: async () => {
+        return await invoke('get_current_backup_dir');
+      },
+
+      getCurrentExportDir: async () => {
+        return await invoke('get_current_export_dir');
+      },
+
+      getSystemDefaultDataDir: async () => {
+        return await invoke('get_system_default_data_dir');
+      },
+
+      getPathConfig: async () => {
+        return await invoke('get_path_config');
+      },
+
+      updatePathConfig: async (config) => {
+        return await invoke('update_path_config', { newConfig: config });
+      },
+
+      setCustomDataDir: async (path) => {
+        return await invoke('set_custom_data_dir', { path });
+      },
+
+      resetToSystemDefault: async () => {
+        return await invoke('reset_to_system_default');
+      },
+
+      validatePath: async (path) => {
+        return await invoke('validate_path', { path });
+      },
+
+      ensureDirectories: async () => {
+        return await invoke('ensure_directories');
       }
     };
   } else {
@@ -893,6 +963,63 @@ export const backendService = (): BackendService => {
 
       restoreFromBackup: async (backupPath) => {
         console.log('Web backend: restoreFromBackup not implemented', backupPath);
+      },
+
+      listBackups: async () => {
+        console.log('Web backend: listBackups not implemented');
+        return [];
+      },
+
+      // パス管理 (Web版 - 未実装)
+      getCurrentDataDir: async () => {
+        console.log('Web backend: getCurrentDataDir not implemented');
+        return './data';
+      },
+
+      getCurrentBackupDir: async () => {
+        console.log('Web backend: getCurrentBackupDir not implemented');
+        return './backups';
+      },
+
+      getCurrentExportDir: async () => {
+        console.log('Web backend: getCurrentExportDir not implemented');
+        return './exports';
+      },
+
+      getSystemDefaultDataDir: async () => {
+        console.log('Web backend: getSystemDefaultDataDir not implemented');
+        return './data';
+      },
+
+      getPathConfig: async () => {
+        console.log('Web backend: getPathConfig not implemented');
+        return {
+          data_dir: './data',
+          backup_dir: './backups',
+          export_dir: './exports',
+          use_system_default: true
+        };
+      },
+
+      updatePathConfig: async (config) => {
+        console.log('Web backend: updatePathConfig not implemented', config);
+      },
+
+      setCustomDataDir: async (path) => {
+        console.log('Web backend: setCustomDataDir not implemented', path);
+      },
+
+      resetToSystemDefault: async () => {
+        console.log('Web backend: resetToSystemDefault not implemented');
+      },
+
+      validatePath: async (path) => {
+        console.log('Web backend: validatePath not implemented', path);
+        return true;
+      },
+
+      ensureDirectories: async () => {
+        console.log('Web backend: ensureDirectories not implemented');
       }
     };
   }

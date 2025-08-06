@@ -20,6 +20,9 @@ pub mod file_commands;
 // AutoMerge document commands
 pub mod document_commands;
 
+// Path management commands
+pub mod path_commands;
+
 // Re-export all command functions for easy access
 pub use greet::*;
 pub use auto_save::*;
@@ -31,3 +34,4 @@ pub use task_list_commands::*;
 pub use bulk_commands::*;
 pub use file_commands::*;
 pub use document_commands::*;
+pub use path_commands::*;
