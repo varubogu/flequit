@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { Switch } from '$lib/components/ui/switch';
-  import { CalendarDate } from '@internationalized/date';
-  import { formatDate1 } from '$lib/utils/datetime-utils';
-  import { formatTime1 } from '$lib/utils/datetime-utils';
-  import DateTimeInputs from '$lib/components/datetime/date-time-inputs.svelte';
-  import CalendarPicker from '$lib/components/datetime/calendar-picker.svelte';
-  import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
   import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
   import type { RecurrenceRule } from '$lib/types/task';
+  import { InlineDatePickerLogic, type DateChangeData } from './inline-date-picker-logic.svelte';
+  import InlineDatePickerUI from './inline-date-picker-ui.svelte';
+  import { SvelteDate } from 'svelte/reactivity';
 
   interface Props {
     show: boolean;
@@ -16,13 +12,7 @@
     position?: { x: number; y: number };
     isRangeDate?: boolean;
     recurrenceRule?: RecurrenceRule | null;
-    onchange?: (data: {
-      date: string;
-      dateTime: string;
-      range?: { start: string; end: string };
-      isRangeDate: boolean;
-      recurrenceRule?: RecurrenceRule | null;
-    }) => void;
+    onchange?: (data: DateChangeData) => void;
     onclose?: () => void;
     onclear?: () => void;
   }
@@ -38,247 +28,75 @@
     onclose
   }: Props = $props();
 
-  let pickerElement = $state<HTMLElement>();
+  // Initialize logic
+  const logic = new InlineDatePickerLogic(
+    currentDate,
+    currentStartDate,
+    isRangeDate,
+    recurrenceRule,
+    onchange,
+    onclose
+  );
 
-  let endDate = $state(currentDate ? formatDate1(new Date(currentDate)) : '');
-  let endTime = $state(currentDate ? formatTime1(new Date(currentDate)) : '00:00:00');
+  let uiComponent = $state<InlineDatePickerUI>();
 
-  // ESLint suggests writable $derived, but complex state management requires $state + $effect
-  // eslint-disable-next-line svelte/prefer-writable-derived
-  let useRangeMode = $state(isRangeDate);
-  let startDate = $state(currentStartDate ? formatDate1(new Date(currentStartDate)) : '');
-  let startTime = $state(currentStartDate ? formatTime1(new Date(currentStartDate)) : '00:00:00');
-
-  // 繰り返しダイアログの状態管理
-  let recurrenceDialogOpen = $state(false);
-  // eslint-disable-next-line svelte/prefer-writable-derived
-  let currentRecurrenceRule = $state<RecurrenceRule | null>(recurrenceRule || null);
-
-  // Sync useRangeMode with isRangeDate prop changes
+  // Sync with prop changes
   $effect(() => {
-    useRangeMode = isRangeDate;
-  });
-
-  // Sync currentRecurrenceRule with recurrenceRule prop changes
-  $effect(() => {
-    currentRecurrenceRule = recurrenceRule || null;
+    logic.updateIsRangeDate(isRangeDate);
   });
 
   $effect(() => {
-    if (show && currentDate && typeof currentDate === 'string') {
-      const date = new Date(currentDate);
-      endDate = formatDate1(date);
-      endTime = formatTime1(date);
+    logic.updateRecurrenceRule(recurrenceRule);
+  });
+
+  $effect(() => {
+    if (show && currentDate) {
+      logic.updateCurrentDate(currentDate);
     }
   });
 
-  // Update start date/time when currentStartDate changes
   $effect(() => {
-    if (currentStartDate && typeof currentStartDate === 'string') {
-      const startDateObj = new Date(currentStartDate);
-      startDate = formatDate1(startDateObj);
-      startTime = formatTime1(startDateObj);
-    } else {
-      startDate = '';
-      startTime = '00:00:00';
-    }
+    logic.updateCurrentStartDate(currentStartDate);
   });
 
   // Handle click outside and auto-close
   $effect(() => {
     if (!show) return;
 
-    function handleClickOutside(event: MouseEvent) {
-      // 繰り返しダイアログが開いている場合は期日ダイアログを閉じない
-      if (recurrenceDialogOpen) return;
-
-      if (pickerElement && !pickerElement.contains(event.target as Node)) {
-        onclose?.();
-      }
-    }
-
-    function handleKeydown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        // 繰り返しダイアログが開いている場合は、まず繰り返しダイアログを閉じる
-        if (recurrenceDialogOpen) {
-          recurrenceDialogOpen = false;
-          return;
-        }
-        onclose?.();
-      }
-    }
-
-    // Add a small delay to avoid immediate closing when opening
-    setTimeout(() => {
-      document.addEventListener('click', handleClickOutside, true);
-      document.addEventListener('keydown', handleKeydown, true);
-    }, 50);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-      document.removeEventListener('keydown', handleKeydown, true);
-    };
+    const pickerElement = uiComponent?.getPickerElement();
+    return logic.setupOutsideClickHandler(pickerElement, show);
   });
-
-  function handleDateTimeInputChange(data: {
-    startDate?: string;
-    startTime?: string;
-    endDate?: string;
-    endTime?: string;
-  }) {
-    if (data.startDate !== undefined) startDate = data.startDate;
-    if (data.startTime !== undefined) startTime = data.startTime;
-    if (data.endDate !== undefined) endDate = data.endDate;
-    if (data.endTime !== undefined) endTime = data.endTime;
-
-    if (useRangeMode) {
-      handleRangeInputChange();
-    } else {
-      handleDateChange();
-    }
-  }
-
-  function handleDateChange() {
-    if (endDate) {
-      const date = endDate;
-      const dateTime = `${endDate}T${endTime}`;
-
-      onchange?.({ date, dateTime, isRangeDate: false, recurrenceRule: currentRecurrenceRule });
-    }
-  }
-
-  function handleRangeInputChange() {
-    if (startDate || endDate) {
-      const eventDetail = {
-        date: startDate || endDate || '',
-        dateTime: `${startDate || endDate || ''}T${startTime}`,
-        range:
-          startDate && endDate
-            ? {
-                start: `${startDate}T${startTime}`,
-                end: `${endDate}T${endTime}`
-              }
-            : undefined,
-        isRangeDate: true,
-        recurrenceRule: currentRecurrenceRule
-      };
-
-      onchange?.(eventDetail);
-    }
-  }
-
-  function handleCalendarChange(date: CalendarDate) {
-    endDate = date.toString();
-    const dateTime = `${endDate}T${endTime}`;
-
-    onchange?.({
-      date: endDate,
-      dateTime,
-      isRangeDate: false,
-      recurrenceRule: currentRecurrenceRule
-    });
-  }
-
-  function handleRangeChange(start: CalendarDate, end: CalendarDate) {
-    startDate = start.toString();
-    endDate = end.toString();
-
-    const eventDetail = {
-      date: startDate,
-      dateTime: `${startDate}T${startTime}`,
-      range: {
-        start: `${startDate}T${startTime}`,
-        end: `${endDate}T${endTime}`
-      },
-      isRangeDate: true,
-      recurrenceRule: currentRecurrenceRule
-    };
-
-    onchange?.(eventDetail);
-  }
-
-  function handleRecurrenceEdit() {
-    recurrenceDialogOpen = true;
-  }
-
-  function handleRecurrenceSave(rule: RecurrenceRule | null) {
-    currentRecurrenceRule = rule;
-
-    // 現在の日付情報と一緒に繰り返し設定も通知
-    if (useRangeMode) {
-      handleRangeInputChange();
-    } else {
-      handleDateChange();
-    }
-  }
 </script>
 
 {#if show}
-  <div
-    bind:this={pickerElement}
-    class="bg-popover border-border fixed z-50 rounded-lg border p-3 shadow-lg"
-    style="left: {position.x}px; top: {position.y}px; width: fit-content; max-width: 320px;"
-  >
-    <!-- Range Mode and Recurrence - 2 Column Layout -->
-    <div class="mb-3 grid grid-cols-2 gap-4">
-      <!-- Left Column: Range Mode Switch -->
-      <div class="flex items-center gap-2">
-        <span class="text-muted-foreground text-sm">範囲</span>
-        <Switch
-          bind:checked={useRangeMode}
-          onCheckedChange={(checked: boolean) => {
-            const eventDetail = {
-              date: endDate || '',
-              dateTime: `${endDate || ''}T${endTime}`,
-              isRangeDate: checked,
-              recurrenceRule: currentRecurrenceRule
-            };
-
-            onchange?.(eventDetail);
-          }}
-        />
-      </div>
-
-      <!-- Right Column: Recurrence Display -->
-      <div class="flex items-center justify-end">
-        <div class="min-w-0">
-          <TaskRecurrenceSelector
-            recurrenceRule={currentRecurrenceRule}
-            onEdit={handleRecurrenceEdit}
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="space-y-3">
-      <DateTimeInputs
-        {startDate}
-        {startTime}
-        {endDate}
-        {endTime}
-        showStartInputs={useRangeMode}
-        onInput={handleDateTimeInputChange}
-      />
-
-      <CalendarPicker
-        isRangeMode={useRangeMode}
-        {startDate}
-        {endDate}
-        onCalendarChange={handleCalendarChange}
-        onRangeChange={handleRangeChange}
-      />
-    </div>
-  </div>
+  <InlineDatePickerUI
+    bind:this={uiComponent}
+    {position}
+    startDate={logic.startDate}
+    startTime={logic.startTime}
+    endDate={logic.endDate}
+    endTime={logic.endTime}
+    useRangeMode={logic.useRangeMode}
+    currentRecurrenceRule={logic.currentRecurrenceRule}
+    onDateTimeInputChange={logic.handleDateTimeInputChange.bind(logic)}
+    onCalendarChange={logic.handleCalendarChange.bind(logic)}
+    onRangeChange={logic.handleRangeChange.bind(logic)}
+    onRangeModeChange={logic.handleRangeModeChange.bind(logic)}
+    onRecurrenceEdit={logic.handleRecurrenceEdit.bind(logic)}
+  />
 {/if}
 
 <!-- 繰り返しダイアログ - より高いZ-indexで独立して配置 -->
 <RecurrenceDialogAdvanced
-  bind:open={recurrenceDialogOpen}
-  recurrenceRule={currentRecurrenceRule}
-  startDateTime={useRangeMode && startDate && startTime
-    ? new Date(`${startDate}T${startTime}`)
+  bind:open={logic.recurrenceDialogOpen}
+  recurrenceRule={logic.currentRecurrenceRule}
+  startDateTime={logic.useRangeMode && logic.startDate && logic.startTime
+    ? new SvelteDate(`${logic.startDate}T${logic.startTime}`)
     : undefined}
-  endDateTime={endDate && endTime ? new Date(`${endDate}T${endTime}`) : undefined}
-  isRangeDate={useRangeMode}
-  onSave={handleRecurrenceSave}
+  endDateTime={logic.endDate && logic.endTime
+    ? new SvelteDate(`${logic.endDate}T${logic.endTime}`)
+    : undefined}
+  isRangeDate={logic.useRangeMode}
+  onSave={logic.handleRecurrenceSave.bind(logic)}
+  onOpenChange={logic.handleRecurrenceDialogClose.bind(logic)}
 />
