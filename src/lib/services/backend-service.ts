@@ -448,7 +448,7 @@ export const backendService = (): BackendService => {
       // 一括操作API (Tauri版)
       bulkUpdateTasks: async (updates) => {
         const results = [];
-        const errors: Array<{ taskId: string; error: any }> = [];
+        const errors: Array<{ taskId: string; error: Error }> = [];
         
         for (const { taskId, updates: taskUpdates } of updates) {
           try {
@@ -466,7 +466,7 @@ export const backendService = (): BackendService => {
             }
           } catch (error) {
             console.error(`Failed to update task ${taskId}:`, error);
-            errors.push({ taskId, error });
+            errors.push({ taskId, error: error instanceof Error ? error : new Error(String(error)) });
           }
         }
         
@@ -486,7 +486,7 @@ export const backendService = (): BackendService => {
 
       bulkDeleteTasks: async (taskIds) => {
         let allSucceeded = true;
-        const errors: Array<{ taskId: string; error: any }> = [];
+        const errors: Array<{ taskId: string; error: Error }> = [];
         
         for (const taskId of taskIds) {
           try {
@@ -498,7 +498,7 @@ export const backendService = (): BackendService => {
           } catch (error) {
             console.error(`Failed to delete task ${taskId}:`, error);
             allSucceeded = false;
-            errors.push({ taskId, error });
+            errors.push({ taskId, error: error instanceof Error ? error : new Error(String(error)) });
           }
         }
         
