@@ -1,4 +1,5 @@
 use automerge::{AutomergeError, ObjType};
+use crate::types::{get_keys, get_object_entry};
 use crate::types::task_types::Task;
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
@@ -38,7 +39,7 @@ impl AutomergeManager {
 
     pub fn get_task(&self, task_id: &str) -> Result<Option<Task>, AutomergeError> {
         let doc = self.doc.lock().unwrap();
-        
+
         let tasks_obj = match doc.get(automerge::ROOT, "tasks") {
             Ok(obj) => obj,
             Err(_) => return Ok(None),
@@ -91,7 +92,7 @@ impl AutomergeManager {
             if let Some((_, task_obj)) = get_object_entry(&doc, &tasks_obj, task_id) {
                 // Get current task
                 let mut task = doc.get_struct_safe::<Task>(&task_obj)?;
-                
+
                 // Update fields if provided
                 if let Some(new_title) = title {
                     task.title = new_title;
@@ -103,10 +104,10 @@ impl AutomergeManager {
                     task.completed = new_completed;
                 }
                 task.updated_at = now;
-                
+
                 // Save the updated task using put_struct
                 doc.put_struct(&tasks_obj, task_id, &task)?;
-                
+
                 return Ok(Some(task));
             }
         }

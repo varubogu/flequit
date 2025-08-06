@@ -1,15 +1,14 @@
-use tauri::State;
 use std::sync::{Arc, Mutex};
 use std::path::PathBuf;
+use tauri::State;
 use crate::services::path_service::{PathService, PathConfig};
-use crate::types::Result as AppResult;
 
 type PathServiceState = Arc<Mutex<PathService>>;
 
 #[tauri::command]
 pub fn get_current_data_dir(
     path_service: State<PathServiceState>
-) -> AppResult<PathBuf> {
+) -> Result<PathBuf, String> {
     let service = path_service.lock().unwrap();
     match service.get_data_dir() {
         Ok(path) => Ok(path),
@@ -20,7 +19,7 @@ pub fn get_current_data_dir(
 #[tauri::command]
 pub fn get_current_backup_dir(
     path_service: State<PathServiceState>
-) -> AppResult<PathBuf> {
+) -> Result<PathBuf, String> {
     let service = path_service.lock().unwrap();
     match service.get_backup_dir() {
         Ok(path) => Ok(path),
@@ -31,7 +30,7 @@ pub fn get_current_backup_dir(
 #[tauri::command]
 pub fn get_current_export_dir(
     path_service: State<PathServiceState>
-) -> AppResult<PathBuf> {
+) -> Result<PathBuf, String> {
     let service = path_service.lock().unwrap();
     match service.get_export_dir() {
         Ok(path) => Ok(path),
@@ -40,7 +39,7 @@ pub fn get_current_export_dir(
 }
 
 #[tauri::command]
-pub fn get_system_default_data_dir() -> AppResult<PathBuf> {
+pub fn get_system_default_data_dir() -> Result<PathBuf, String> {
     match PathService::get_default_data_dir() {
         Ok(path) => Ok(path),
         Err(e) => Err(format!("システムデフォルトパスの取得に失敗: {}", e)),
@@ -50,7 +49,7 @@ pub fn get_system_default_data_dir() -> AppResult<PathBuf> {
 #[tauri::command]
 pub fn get_path_config(
     path_service: State<PathServiceState>
-) -> AppResult<PathConfig> {
+) -> Result<PathConfig, String> {
     let service = path_service.lock().unwrap();
     Ok(service.get_config().clone())
 }
@@ -59,7 +58,7 @@ pub fn get_path_config(
 pub fn update_path_config(
     path_service: State<PathServiceState>,
     new_config: PathConfig
-) -> AppResult<()> {
+) -> Result<(), String> {
     let mut service = path_service.lock().unwrap();
     match service.update_config(new_config) {
         Ok(_) => Ok(()),
@@ -71,7 +70,7 @@ pub fn update_path_config(
 pub fn set_custom_data_dir(
     path_service: State<PathServiceState>,
     path: PathBuf
-) -> AppResult<()> {
+) -> Result<(), String> {
     let mut service = path_service.lock().unwrap();
     match service.set_custom_data_dir(path) {
         Ok(_) => Ok(()),
@@ -82,7 +81,7 @@ pub fn set_custom_data_dir(
 #[tauri::command]
 pub fn reset_to_system_default(
     path_service: State<PathServiceState>
-) -> AppResult<()> {
+) -> Result<(), String> {
     let mut service = path_service.lock().unwrap();
     match service.reset_to_system_default() {
         Ok(_) => Ok(()),
@@ -94,7 +93,7 @@ pub fn reset_to_system_default(
 pub fn validate_path(
     path_service: State<PathServiceState>,
     path: PathBuf
-) -> AppResult<bool> {
+) -> Result<bool, String> {
     let service = path_service.lock().unwrap();
     match service.validate_path(&path) {
         Ok(is_valid) => Ok(is_valid),
@@ -105,7 +104,7 @@ pub fn validate_path(
 #[tauri::command]
 pub fn ensure_directories(
     path_service: State<PathServiceState>
-) -> AppResult<()> {
+) -> Result<(), String> {
     let service = path_service.lock().unwrap();
     match service.ensure_directories() {
         Ok(_) => Ok(()),

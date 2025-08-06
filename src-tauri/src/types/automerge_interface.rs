@@ -227,7 +227,7 @@ pub fn get_optional_field<T: ExtractFromAutomerge>(doc: &Automerge, obj: &ObjId,
 /// コレクション操作とオブジェクトアクセスを抽象化
 
 /// 指定されたパスのコレクションを取得またはオブジェクトを作成
-pub fn ensure_collection(doc: &mut Automerge, parent: &ObjId, key: &str) -> Result<(automerge::Value, automerge::ObjId), AutomergeError> {
+pub fn ensure_collection<'a>(doc: &'a mut Automerge, parent: &'a ObjId, key: &'a str) -> Result<(automerge::Value<'a>, automerge::ObjId), AutomergeError> {
     match doc.get(parent, key) {
         Ok(obj) => Ok(obj),
         Err(_) => {
@@ -246,11 +246,11 @@ pub fn find_task_object(doc: &Automerge, task_id: &str) -> Result<Option<automer
     for project_id in get_keys(doc, &projects_obj) {
         let Some((_, project_obj)) = get_object_entry(doc, &projects_obj, &project_id) else { continue; };
         let Some((_, task_lists_obj)) = get_object_entry(doc, &project_obj, "task_lists") else { continue; };
-        
+
         for list_id in get_keys(doc, &task_lists_obj) {
             let Some((_, list_obj)) = get_object_entry(doc, &task_lists_obj, &list_id) else { continue; };
             let Some((_, tasks_obj)) = get_object_entry(doc, &list_obj, "tasks") else { continue; };
-            
+
             if let Some((_, task_obj)) = get_object_entry(doc, &tasks_obj, task_id) {
                 return Ok(Some(task_obj));
             }
@@ -268,15 +268,15 @@ pub fn find_subtask_object(doc: &Automerge, subtask_id: &str) -> Result<Option<a
     for project_id in get_keys(doc, &projects_obj) {
         let Some((_, project_obj)) = get_object_entry(doc, &projects_obj, &project_id) else { continue; };
         let Some((_, task_lists_obj)) = get_object_entry(doc, &project_obj, "task_lists") else { continue; };
-        
+
         for list_id in get_keys(doc, &task_lists_obj) {
             let Some((_, list_obj)) = get_object_entry(doc, &task_lists_obj, &list_id) else { continue; };
             let Some((_, tasks_obj)) = get_object_entry(doc, &list_obj, "tasks") else { continue; };
-            
+
             for task_id_key in get_keys(doc, &tasks_obj) {
                 let Some((_, task_obj)) = get_object_entry(doc, &tasks_obj, &task_id_key) else { continue; };
                 let Some((_, sub_tasks_obj)) = get_object_entry(doc, &task_obj, "sub_tasks") else { continue; };
-                
+
                 if let Some((_, subtask_obj)) = get_object_entry(doc, &sub_tasks_obj, subtask_id) {
                     return Ok(Some(subtask_obj));
                 }
@@ -292,7 +292,7 @@ pub fn add_tag_to_object(doc: &mut Automerge, object_id: &ObjId, tag_id: &str) -
         Ok(obj) => obj.1,
         Err(_) => doc.put_object(object_id, "tags", ObjType::Map)?,
     };
-    
+
     let tag_ref_obj = doc.put_object(&tags_obj, tag_id, ObjType::Map)?;
     doc.put(&tag_ref_obj, "id", tag_id)?;
     Ok(true)
@@ -350,17 +350,17 @@ macro_rules! import_object_fields {
 
 /// プロジェクト、タスクリスト、タスクを一括でAutomergeドキュメントに書き込み
 pub fn import_project_data(
-    doc: &mut Automerge, 
+    doc: &mut Automerge,
     projects: Vec<crate::types::task_types::ProjectTree>
 ) -> Result<(), AutomergeError> {
     use crate::import_object_fields;
-    
+
     // プロジェクトマップを作成
     let projects_obj = doc.put_object(automerge::ROOT, "projects", ObjType::Map)?;
-    
+
     for project in projects {
         let project_obj = doc.put_object(&projects_obj, &project.id, ObjType::Map)?;
-        
+
         import_object_fields!(doc, &project_obj, {
             required id: project.id,
             required name: project.name,
@@ -371,12 +371,12 @@ pub fn import_project_data(
             optional description: project.description,
             optional color: project.color,
         });
-        
+
         // タスクリストを書き込み
         let task_lists_obj = doc.put_object(&project_obj, "task_lists", ObjType::Map)?;
         for task_list in project.task_lists {
             let list_obj = doc.put_object(&task_lists_obj, &task_list.id, ObjType::Map)?;
-            
+
             import_object_fields!(doc, &list_obj, {
                 required id: task_list.id,
                 required project_id: task_list.project_id,
@@ -388,12 +388,12 @@ pub fn import_project_data(
                 optional description: task_list.description,
                 optional color: task_list.color,
             });
-            
+
             // タスクを書き込み
             let tasks_obj = doc.put_object(&list_obj, "tasks", ObjType::Map)?;
             for task in task_list.tasks {
                 let task_obj = doc.put_object(&tasks_obj, &task.id, ObjType::Map)?;
-                
+
                 import_object_fields!(doc, &task_obj, {
                     required id: task.id,
                     required list_id: task.list_id,
@@ -408,14 +408,14 @@ pub fn import_project_data(
                     optional start_date: task.start_date,
                     optional end_date: task.end_date,
                 });
-                
+
                 // サブタスクとタグのマップを初期化
                 doc.put_object(&task_obj, "sub_tasks", ObjType::Map)?;
                 doc.put_object(&task_obj, "tags", ObjType::Map)?;
             }
         }
     }
-    
+
     Ok(())
 }
 
@@ -425,7 +425,7 @@ pub fn get_keys(doc: &Automerge, obj: &ObjId) -> Vec<String> {
 }
 
 /// オブジェクト内のエントリを安全に取得
-pub fn get_object_entry(doc: &Automerge, parent: &ObjId, key: &str) -> Option<(automerge::Value, automerge::ObjId)> {
+pub fn get_object_entry<'a>(doc: &'a Automerge, parent: &'a ObjId, key: &'a str) -> Option<(automerge::Value<'a>, automerge::ObjId)> {
     doc.get(parent, key).ok()
 }
 
