@@ -1,9 +1,8 @@
-pub mod automerge_service;
+pub mod automerge;
 pub mod path_service;
 
-pub use automerge_service::AutomergeService;
+pub use automerge::AutomergeManager;
 
-use std::sync::{Arc, Mutex};
-use crate::services::automerge_service::AutomergeManager;
+// Legacy alias for backward compatibility
+pub type AutomergeService = std::sync::Arc<std::sync::Mutex<AutomergeManager>>;
 
-pub type AutomergeService = Arc<Mutex<AutomergeManager>>;

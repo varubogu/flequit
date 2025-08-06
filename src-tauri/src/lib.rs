@@ -6,8 +6,7 @@ mod utils;
 
 // Re-exports for easy access
 use commands::*;
-use services::AutomergeService;
-use services::automerge_service::AutomergeManager;
+use services::{AutomergeService, AutomergeManager};
 use services::path_service::PathService;
 use std::sync::{Arc, Mutex};
 
