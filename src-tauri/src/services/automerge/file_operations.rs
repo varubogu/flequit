@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use crate::types::task_types::ProjectTree;
+use crate::types::{task_types::ProjectTree, import_project_data};
 use super::core::AutomergeManager;
 
 impl AutomergeManager {
@@ -129,76 +129,6 @@ impl AutomergeManager {
 
     fn import_project_trees(&self, projects: Vec<ProjectTree>) -> Result<(), automerge::AutomergeError> {
         let mut doc = self.doc.lock().unwrap();
-        
-        // プロジェクトマップを作成
-        let projects_obj = doc.put_object(automerge::ROOT, "projects", automerge::ObjType::Map)?;
-        
-        for project in projects {
-            let project_obj = doc.put_object(&projects_obj, &project.id, automerge::ObjType::Map)?;
-            
-            doc.put(&project_obj, "id", &project.id)?;
-            doc.put(&project_obj, "name", &project.name)?;
-            if let Some(desc) = project.description {
-                doc.put(&project_obj, "description", &desc)?;
-            }
-            if let Some(color) = project.color {
-                doc.put(&project_obj, "color", &color)?;
-            }
-            doc.put(&project_obj, "order_index", project.order_index)?;
-            doc.put(&project_obj, "is_archived", project.is_archived)?;
-            doc.put(&project_obj, "created_at", project.created_at)?;
-            doc.put(&project_obj, "updated_at", project.updated_at)?;
-            
-            // タスクリストをインポート
-            let task_lists_obj = doc.put_object(&project_obj, "task_lists", automerge::ObjType::Map)?;
-            for task_list in project.task_lists {
-                let list_obj = doc.put_object(&task_lists_obj, &task_list.id, automerge::ObjType::Map)?;
-                
-                doc.put(&list_obj, "id", &task_list.id)?;
-                doc.put(&list_obj, "project_id", &task_list.project_id)?;
-                doc.put(&list_obj, "name", &task_list.name)?;
-                if let Some(desc) = task_list.description {
-                    doc.put(&list_obj, "description", &desc)?;
-                }
-                if let Some(color) = task_list.color {
-                    doc.put(&list_obj, "color", &color)?;
-                }
-                doc.put(&list_obj, "order_index", task_list.order_index)?;
-                doc.put(&list_obj, "is_archived", task_list.is_archived)?;
-                doc.put(&list_obj, "created_at", task_list.created_at)?;
-                doc.put(&list_obj, "updated_at", task_list.updated_at)?;
-                
-                // タスクをインポート
-                let tasks_obj = doc.put_object(&list_obj, "tasks", automerge::ObjType::Map)?;
-                for task in task_list.tasks {
-                    let task_obj = doc.put_object(&tasks_obj, &task.id, automerge::ObjType::Map)?;
-                    
-                    doc.put(&task_obj, "id", &task.id)?;
-                    doc.put(&task_obj, "list_id", &task.list_id)?;
-                    doc.put(&task_obj, "title", &task.title)?;
-                    if let Some(desc) = task.description {
-                        doc.put(&task_obj, "description", &desc)?;
-                    }
-                    doc.put(&task_obj, "status", &task.status)?;
-                    doc.put(&task_obj, "priority", task.priority)?;
-                    if let Some(start) = task.start_date {
-                        doc.put(&task_obj, "start_date", start)?;
-                    }
-                    if let Some(end) = task.end_date {
-                        doc.put(&task_obj, "end_date", end)?;
-                    }
-                    doc.put(&task_obj, "order_index", task.order_index)?;
-                    doc.put(&task_obj, "is_archived", task.is_archived)?;
-                    doc.put(&task_obj, "created_at", task.created_at)?;
-                    doc.put(&task_obj, "updated_at", task.updated_at)?;
-                    
-                    // サブタスクとタグの初期化（簡略化）
-                    doc.put_object(&task_obj, "sub_tasks", automerge::ObjType::Map)?;
-                    doc.put_object(&task_obj, "tags", automerge::ObjType::Map)?;
-                }
-            }
-        }
-        
-        Ok(())
+        import_project_data(&mut doc, projects)
     }
 }

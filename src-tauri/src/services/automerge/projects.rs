@@ -1,5 +1,5 @@
 use automerge::{Automerge, AutomergeError, ObjType};
-use crate::types::{ProjectTree, TaskListWithTasks, TaskWithSubTasks, SubTask, Tag, AutomergeInterface};
+use crate::types::{ProjectTree, TaskListWithTasks, TaskWithSubTasks, SubTask, Tag, AutomergeInterface, get_object_entry, ensure_collection, get_keys};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -8,30 +8,29 @@ impl AutomergeManager {
         let doc = self.doc.lock().unwrap();
         let mut projects = Vec::new();
 
-        let projects_obj = match doc.get(automerge::ROOT, "projects") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(projects),
+        let Some((_, projects_obj)) = get_object_entry(&doc, &automerge::ROOT, "projects") else {
+            return Ok(projects);
         };
 
-        for (_, project_id) in doc.keys(&projects_obj) {
-            if let Ok(project_obj) = doc.get(&projects_obj, &project_id) {
-                // 新しいインターフェースでバージョン互換性を考慮して読み込み
-                let mut project = doc.get_struct_safe::<ProjectTree>(&project_obj)?;
-                
-                // タスクリストを読み込み（ネストしたデータの場合は従来の方法を使用）
-                let mut task_lists = Vec::new();
-                if let Ok(task_lists_obj) = doc.get(&project_obj, "task_lists") {
-                    for (_, list_id) in doc.keys(&task_lists_obj) {
-                        if let Ok(list_obj) = doc.get(&task_lists_obj, &list_id) {
-                            let task_list = self.build_task_list_from_obj(&doc, &list_obj)?;
-                            task_lists.push(task_list);
-                        }
+        for project_id in get_keys(&doc, &projects_obj) {
+            let Some((_, project_obj)) = get_object_entry(&doc, &projects_obj, &project_id) else { continue; };
+            
+            // 新しいインターフェースでバージョン互換性を考慮して読み込み
+            let mut project = doc.get_struct_safe::<ProjectTree>(&project_obj)?;
+            
+            // タスクリストを読み込み
+            let mut task_lists = Vec::new();
+            if let Some((_, task_lists_obj)) = get_object_entry(&doc, &project_obj, "task_lists") {
+                for list_id in get_keys(&doc, &task_lists_obj) {
+                    if let Some((_, list_obj)) = get_object_entry(&doc, &task_lists_obj, &list_id) {
+                        let task_list = self.build_task_list_from_obj(&doc, &list_obj)?;
+                        task_lists.push(task_list);
                     }
                 }
-                
-                project.task_lists = task_lists;
-                projects.push(project);
             }
+            
+            project.task_lists = task_lists;
+            projects.push(project);
         }
 
         Ok(projects)
@@ -43,11 +42,7 @@ impl AutomergeManager {
         let now = chrono::Utc::now().timestamp_millis();
 
         // Initialize projects map if it doesn't exist
-        if doc.get(automerge::ROOT, "projects").is_err() {
-            doc.put_object(automerge::ROOT, "projects", ObjType::Map)?;
-        }
-
-        let projects_obj = doc.get(automerge::ROOT, "projects")?;
+        let (_, projects_obj) = ensure_collection(&mut doc, &automerge::ROOT, "projects")?;
         
         // 構造体を作成
         let project = ProjectTree {
@@ -75,9 +70,8 @@ impl AutomergeManager {
         let mut doc = self.doc.lock().unwrap();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let projects_obj = match doc.get(automerge::ROOT, "projects") {
-            Ok(obj) => obj,
-            Err(_) => return Ok(None),
+        let Some((_, projects_obj)) = get_object_entry(&doc, &automerge::ROOT, "projects") else {
+            return Ok(None);
         };
 
         let project_obj = match doc.get(&projects_obj, project_id) {

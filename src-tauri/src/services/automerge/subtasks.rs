@@ -1,5 +1,5 @@
 use automerge::{AutomergeError, ObjType};
-use crate::types::{SubTask, AutomergeInterface, ensure_collection, get_object_entry, get_keys};
+use crate::types::{SubTask, AutomergeInterface, ensure_collection, get_object_entry, get_keys, find_task_object, find_subtask_object};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -9,7 +9,7 @@ impl AutomergeManager {
         let subtask_id = generate_id();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let task_obj = self.find_task_obj(&doc, task_id)?
+        let task_obj = find_task_object(&doc, task_id)?
             .ok_or(AutomergeError::InvalidObjectId)?;
 
         // サブタスクオブジェクトを追加
@@ -84,70 +84,26 @@ impl AutomergeManager {
         }
     }
 
-    // ヘルパー関数：タスクオブジェクトを検索
-    fn find_task_obj(&self, doc: &automerge::Automerge, task_id: &str) -> Result<Option<automerge::ObjId>, AutomergeError> {
-        let projects_obj = doc.get(automerge::ROOT, "projects").ok()?;
-        
-        for (_, project_id) in doc.keys(&projects_obj) {
-            let project_obj = doc.get(&projects_obj, &project_id).ok()?;
-            let task_lists_obj = doc.get(&project_obj, "task_lists").ok()?;
-            
-            for (_, list_id) in doc.keys(&task_lists_obj) {
-                let list_obj = doc.get(&task_lists_obj, &list_id).ok()?;
-                let tasks_obj = doc.get(&list_obj, "tasks").ok()?;
-                
-                if let Ok(task_obj) = doc.get(&tasks_obj, task_id) {
-                    return Ok(Some(task_obj));
-                }
-            }
-        }
-        
-        Ok(None)
-    }
-
-    // ヘルパー関数：サブタスクオブジェクトを検索
-    fn find_subtask_obj(&self, doc: &automerge::Automerge, subtask_id: &str) -> Result<Option<automerge::ObjId>, AutomergeError> {
-        let projects_obj = doc.get(automerge::ROOT, "projects").ok()?;
-        
-        for (_, project_id) in doc.keys(&projects_obj) {
-            let project_obj = doc.get(&projects_obj, &project_id).ok()?;
-            let task_lists_obj = doc.get(&project_obj, "task_lists").ok()?;
-            
-            for (_, list_id) in doc.keys(&task_lists_obj) {
-                let list_obj = doc.get(&task_lists_obj, &list_id).ok()?;
-                let tasks_obj = doc.get(&list_obj, "tasks").ok()?;
-                
-                for (_, task_id_key) in doc.keys(&tasks_obj) {
-                    let task_obj = doc.get(&tasks_obj, &task_id_key).ok()?;
-                    let sub_tasks_obj = doc.get(&task_obj, "sub_tasks").ok()?;
-                    
-                    if let Ok(subtask_obj) = doc.get(&sub_tasks_obj, subtask_id) {
-                        return Ok(Some(subtask_obj));
-                    }
-                }
-            }
-        }
-        
-        Ok(None)
-    }
 
     // ヘルパー関数：サブタスクオブジェクトとその親オブジェクトを検索
     fn find_subtask_with_parent(&self, doc: &automerge::Automerge, subtask_id: &str) -> Result<Option<(automerge::ObjId, automerge::ObjId)>, AutomergeError> {
-        let projects_obj = doc.get(automerge::ROOT, "projects").ok()?;
-        
-        for (_, project_id) in doc.keys(&projects_obj) {
-            let project_obj = doc.get(&projects_obj, &project_id).ok()?;
-            let task_lists_obj = doc.get(&project_obj, "task_lists").ok()?;
+        let Some((_, projects_obj)) = get_object_entry(doc, &automerge::ROOT, "projects") else {
+            return Ok(None);
+        };
+
+        for project_id in get_keys(doc, &projects_obj) {
+            let Some((_, project_obj)) = get_object_entry(doc, &projects_obj, &project_id) else { continue; };
+            let Some((_, task_lists_obj)) = get_object_entry(doc, &project_obj, "task_lists") else { continue; };
             
-            for (_, list_id) in doc.keys(&task_lists_obj) {
-                let list_obj = doc.get(&task_lists_obj, &list_id).ok()?;
-                let tasks_obj = doc.get(&list_obj, "tasks").ok()?;
+            for list_id in get_keys(doc, &task_lists_obj) {
+                let Some((_, list_obj)) = get_object_entry(doc, &task_lists_obj, &list_id) else { continue; };
+                let Some((_, tasks_obj)) = get_object_entry(doc, &list_obj, "tasks") else { continue; };
                 
-                for (_, task_id_key) in doc.keys(&tasks_obj) {
-                    let task_obj = doc.get(&tasks_obj, &task_id_key).ok()?;
-                    let sub_tasks_obj = doc.get(&task_obj, "sub_tasks").ok()?;
+                for task_id_key in get_keys(doc, &tasks_obj) {
+                    let Some((_, task_obj)) = get_object_entry(doc, &tasks_obj, &task_id_key) else { continue; };
+                    let Some((_, sub_tasks_obj)) = get_object_entry(doc, &task_obj, "sub_tasks") else { continue; };
                     
-                    if let Ok(subtask_obj) = doc.get(&sub_tasks_obj, subtask_id) {
+                    if let Some((_, subtask_obj)) = get_object_entry(doc, &sub_tasks_obj, subtask_id) {
                         return Ok(Some((sub_tasks_obj, subtask_obj)));
                     }
                 }

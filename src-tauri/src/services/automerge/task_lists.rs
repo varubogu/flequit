@@ -1,5 +1,5 @@
 use automerge::{AutomergeError, ObjType};
-use crate::types::{TaskListWithTasks, AutomergeInterface};
+use crate::types::{TaskListWithTasks, AutomergeInterface, get_object_entry, get_keys};
 use crate::utils::generate_id;
 use super::core::AutomergeManager;
 
@@ -9,9 +9,15 @@ impl AutomergeManager {
         let task_list_id = generate_id();
         let now = chrono::Utc::now().timestamp_millis();
 
-        let projects_obj = doc.get(automerge::ROOT, "projects")?;
-        let project_obj = doc.get(&projects_obj, &project_id)?;
-        let task_lists_obj = doc.get(&project_obj, "task_lists")?;
+        let Some((_, projects_obj)) = get_object_entry(&doc, &automerge::ROOT, "projects") else {
+            return Err(AutomergeError::InvalidObjectId);
+        };
+        let Some((_, project_obj)) = get_object_entry(&doc, &projects_obj, &project_id) else {
+            return Err(AutomergeError::InvalidObjectId);
+        };
+        let Some((_, task_lists_obj)) = get_object_entry(&doc, &project_obj, "task_lists") else {
+            return Err(AutomergeError::InvalidObjectId);
+        };
         
         // 構造体を作成
         let task_list = TaskListWithTasks {
@@ -83,13 +89,15 @@ impl AutomergeManager {
 
     // ヘルパー関数：タスクリストオブジェクトとその親オブジェクトを検索
     fn find_task_list_with_parent(&self, doc: &automerge::Automerge, task_list_id: &str) -> Result<Option<(automerge::ObjId, automerge::ObjId)>, AutomergeError> {
-        let projects_obj = doc.get(automerge::ROOT, "projects").ok()?;
+        let Some((_, projects_obj)) = get_object_entry(doc, &automerge::ROOT, "projects") else {
+            return Ok(None);
+        };
         
-        for (_, project_id) in doc.keys(&projects_obj) {
-            let project_obj = doc.get(&projects_obj, &project_id).ok()?;
-            let task_lists_obj = doc.get(&project_obj, "task_lists").ok()?;
+        for project_id in get_keys(doc, &projects_obj) {
+            let Some((_, project_obj)) = get_object_entry(doc, &projects_obj, &project_id) else { continue; };
+            let Some((_, task_lists_obj)) = get_object_entry(doc, &project_obj, "task_lists") else { continue; };
             
-            if let Ok(task_list_obj) = doc.get(&task_lists_obj, task_list_id) {
+            if let Some((_, task_list_obj)) = get_object_entry(doc, &task_lists_obj, task_list_id) {
                 return Ok(Some((task_lists_obj, task_list_obj)));
             }
         }
