@@ -105,10 +105,12 @@ export interface BackendService {
   autoSave: () => Promise<void>;
 
   // 一括操作API
-  bulkUpdateTasks: (updates: Array<{ taskId: string; updates: Partial<TaskWithSubTasks> }>) => Promise<TaskWithSubTasks[]>;
+  bulkUpdateTasks: (
+    updates: Array<{ taskId: string; updates: Partial<TaskWithSubTasks> }>
+  ) => Promise<TaskWithSubTasks[]>;
   bulkDeleteTasks: (taskIds: string[]) => Promise<boolean>;
   bulkMoveTasksToList: (taskIds: string[], targetListId: string) => Promise<boolean>;
-  
+
   // 自動保存制御
   enableAutoSave: () => Promise<void>;
   disableAutoSave: () => Promise<void>;
@@ -449,7 +451,7 @@ export const backendService = (): BackendService => {
       bulkUpdateTasks: async (updates) => {
         const results = [];
         const errors: Array<{ taskId: string; error: Error }> = [];
-        
+
         for (const { taskId, updates: taskUpdates } of updates) {
           try {
             const result = await invoke('update_task_with_subtasks', {
@@ -466,28 +468,31 @@ export const backendService = (): BackendService => {
             }
           } catch (error) {
             console.error(`Failed to update task ${taskId}:`, error);
-            errors.push({ taskId, error: error instanceof Error ? error : new Error(String(error)) });
+            errors.push({
+              taskId,
+              error: error instanceof Error ? error : new Error(String(error))
+            });
           }
         }
-        
+
         // エラーがある場合は統合エラーとして報告
         if (errors.length > 0) {
           const { errorHandler } = await import('$lib/stores/error-handler.svelte');
           errorHandler.addSyncError(
-            '一括タスク更新', 
-            'bulk_operation', 
+            '一括タスク更新',
+            'bulk_operation',
             `${errors.length}/${updates.length} failed`,
             new Error(`Failed to update ${errors.length} tasks`)
           );
         }
-        
+
         return results;
       },
 
       bulkDeleteTasks: async (taskIds) => {
         let allSucceeded = true;
         const errors: Array<{ taskId: string; error: Error }> = [];
-        
+
         for (const taskId of taskIds) {
           try {
             const success = await invoke('delete_task_with_subtasks', { taskId });
@@ -498,21 +503,24 @@ export const backendService = (): BackendService => {
           } catch (error) {
             console.error(`Failed to delete task ${taskId}:`, error);
             allSucceeded = false;
-            errors.push({ taskId, error: error instanceof Error ? error : new Error(String(error)) });
+            errors.push({
+              taskId,
+              error: error instanceof Error ? error : new Error(String(error))
+            });
           }
         }
-        
+
         // エラーがある場合は統合エラーとして報告
         if (errors.length > 0) {
           const { errorHandler } = await import('$lib/stores/error-handler.svelte');
           errorHandler.addSyncError(
-            '一括タスク削除', 
-            'bulk_operation', 
+            '一括タスク削除',
+            'bulk_operation',
             `${errors.length}/${taskIds.length} failed`,
             new Error(`Failed to delete ${errors.length} tasks`)
           );
         }
-        
+
         return allSucceeded;
       },
 

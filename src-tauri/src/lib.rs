@@ -1,14 +1,13 @@
 // Module declarations
 mod commands;
 mod services;
+mod repositories;
+mod infrastructure;
 mod types;
-mod utils;
+mod errors;
 
 // Re-exports for easy access
-use commands::*;
-use services::{AutomergeService, AutomergeManager};
-use services::path_service::PathService;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
