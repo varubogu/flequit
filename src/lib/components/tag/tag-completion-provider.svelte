@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import {
-    TagCompletionCoreLogic,
+    TagCompletionLogic,
     type TagDetectionData
-  } from './tag-completion-core-logic.svelte';
+  } from './tag-completion-logic.svelte';
   import TagCompletionUI from './tag-completion-ui.svelte';
 
   interface Props {
@@ -15,7 +15,7 @@
   let { children, ontagDetected, class: className = '' }: Props = $props();
 
   // Initialize logic with tag detection callback
-  const logic = new TagCompletionCoreLogic(ontagDetected);
+  const logic = new TagCompletionLogic(ontagDetected);
 
   // Set up event listeners on child elements
   let containerElement: HTMLDivElement;
