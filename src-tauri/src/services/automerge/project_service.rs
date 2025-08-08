@@ -1,5 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::project_types::{Project, ProjectMember};
+use crate::repositories::automerge::ProjectRepository;
+use tauri::State;
 
 pub struct ProjectService;
 
@@ -9,41 +11,41 @@ impl ProjectService {
     }
 
     // プロジェクト操作
-    pub async fn create_project(&self, project: &Project) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn create_project(&self, project_repository: State<'_, ProjectRepository>, project: &Project) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, ServiceError> {
-        todo!("Implementation pending")
+    pub async fn get_project(&self, project_repository: State<'_, ProjectRepository>, project_id: &str) -> Result<Option<Project>, ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn update_project(&self, project: &Project) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn update_project(&self, project_repository: State<'_, ProjectRepository>, project: &Project) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn delete_project(&self, project_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn delete_project(&self, project_repository: State<'_, ProjectRepository>, project_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn list_projects(&self) -> Result<Vec<Project>, ServiceError> {
-        todo!("Implementation pending")
+    pub async fn list_projects(&self, project_repository: State<'_, ProjectRepository>) -> Result<Vec<Project>, ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
     // プロジェクトメンバー操作
-    pub async fn add_member(&self, member: &ProjectMember) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn add_member(&self, project_repository: State<'_, ProjectRepository>, member: &ProjectMember) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn remove_member(&self, project_id: &str, user_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn remove_member(&self, project_repository: State<'_, ProjectRepository>, project_id: &str, user_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn list_members(&self, project_id: &str) -> Result<Vec<ProjectMember>, ServiceError> {
-        todo!("Implementation pending")
+    pub async fn list_members(&self, project_repository: State<'_, ProjectRepository>, project_id: &str) -> Result<Vec<ProjectMember>, ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
-    pub async fn update_member_role(&self, member: &ProjectMember) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn update_member_role(&self, project_repository: State<'_, ProjectRepository>, member: &ProjectMember) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use project_repository")
     }
 
     // ビジネスロジック
@@ -59,7 +61,7 @@ impl ProjectService {
         Ok(())
     }
 
-    pub async fn can_modify_project(&self, project_id: &str, user_id: &str) -> Result<bool, ServiceError> {
-        todo!("Implementation pending - check user permissions")
+    pub async fn can_modify_project(&self, project_repository: State<'_, ProjectRepository>, project_id: &str, user_id: &str) -> Result<bool, ServiceError> {
+        todo!("Implementation pending - check user permissions using project_repository")
     }
 }

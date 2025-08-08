@@ -1,6 +1,7 @@
 use crate::errors::RepositoryError;
 use crate::types::{project_types::*, task_types::*, user_types::*};
 
+#[derive(Clone)]
 pub struct AutomergeStorage;
 
 impl AutomergeStorage {

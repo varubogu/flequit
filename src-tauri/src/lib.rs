@@ -78,13 +78,34 @@ use commands::{
 
 
 
+use repositories::automerge::{ProjectRepository, TaskRepository, SubtaskRepository, TagRepository, UserRepository, SqliteStorage, AutomergeStorage};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
 
     // Ensure directories are created at startup
 
+    // インフラストラクチャ層の初期化
+    let sqlite_storage = SqliteStorage::new();
+    let automerge_storage = AutomergeStorage::new();
+
+    // Repository層の初期化
+    let project_repository = ProjectRepository::new(sqlite_storage.clone(), automerge_storage.clone());
+    let task_repository = TaskRepository::new(sqlite_storage.clone(), automerge_storage.clone());
+    let subtask_repository = SubtaskRepository::new(sqlite_storage.clone(), automerge_storage.clone());
+    let tag_repository = TagRepository::new(sqlite_storage.clone(), automerge_storage.clone());
+    let user_repository = UserRepository::new(sqlite_storage.clone(), automerge_storage.clone());
 
     tauri::Builder::default()
+        // Storage層をState管理
+        .manage(sqlite_storage)
+        .manage(automerge_storage)
+        // Repository層をState管理
+        .manage(project_repository)
+        .manage(task_repository)
+        .manage(subtask_repository)
+        .manage(tag_repository)
+        .manage(user_repository)
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             // Basic commands

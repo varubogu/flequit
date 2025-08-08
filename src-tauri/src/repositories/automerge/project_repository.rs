@@ -1,11 +1,18 @@
 use crate::errors::RepositoryError;
 use crate::types::project_types::{Project, ProjectMember};
+use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
-pub struct ProjectRepository;
+pub struct ProjectRepository {
+    sqlite_storage: SqliteStorage,
+    automerge_storage: AutomergeStorage,
+}
 
 impl ProjectRepository {
-    pub fn new() -> Self {
-        Self
+    pub fn new(sqlite_storage: SqliteStorage, automerge_storage: AutomergeStorage) -> Self {
+        Self {
+            sqlite_storage,
+            automerge_storage,
+        }
     }
 
     // プロジェクト基本操作（レベル1: ルート直下）

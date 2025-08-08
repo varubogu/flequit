@@ -1,11 +1,18 @@
 use crate::errors::RepositoryError;
 use crate::types::task_types::{Task, TaskStatus, Priority};
+use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
-pub struct TaskRepository;
+pub struct TaskRepository {
+    sqlite_storage: SqliteStorage,
+    automerge_storage: AutomergeStorage,
+}
 
 impl TaskRepository {
-    pub fn new() -> Self {
-        Self
+    pub fn new(sqlite_storage: SqliteStorage, automerge_storage: AutomergeStorage) -> Self {
+        Self {
+            sqlite_storage,
+            automerge_storage,
+        }
     }
 
     // タスク基本操作（レベル2: プロジェクト内）

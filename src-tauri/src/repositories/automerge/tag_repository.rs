@@ -1,11 +1,18 @@
 use crate::errors::RepositoryError;
 use crate::types::user_types::Tag;
+use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
-pub struct TagRepository;
+pub struct TagRepository {
+    sqlite_storage: SqliteStorage,
+    automerge_storage: AutomergeStorage,
+}
 
 impl TagRepository {
-    pub fn new() -> Self {
-        Self
+    pub fn new(sqlite_storage: SqliteStorage, automerge_storage: AutomergeStorage) -> Self {
+        Self {
+            sqlite_storage,
+            automerge_storage,
+        }
     }
 
     // グローバルタグ操作（レベル1: ルート直下）

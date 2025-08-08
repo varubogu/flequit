@@ -1,11 +1,18 @@
 use crate::errors::RepositoryError;
 use crate::types::task_types::Subtask;
+use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
-pub struct SubtaskRepository;
+pub struct SubtaskRepository {
+    sqlite_storage: SqliteStorage,
+    automerge_storage: AutomergeStorage,
+}
 
 impl SubtaskRepository {
-    pub fn new() -> Self {
-        Self
+    pub fn new(sqlite_storage: SqliteStorage, automerge_storage: AutomergeStorage) -> Self {
+        Self {
+            sqlite_storage,
+            automerge_storage,
+        }
     }
 
     // サブタスク基本操作（レベル3: タスク内）

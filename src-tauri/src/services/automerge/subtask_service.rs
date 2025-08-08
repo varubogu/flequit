@@ -1,5 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::task_types::Subtask;
+use crate::repositories::automerge::SubtaskRepository;
+use tauri::{AppHandle, State};
 
 pub struct SubtaskService;
 
@@ -9,24 +11,24 @@ impl SubtaskService {
     }
 
     // サブタスク操作
-    pub async fn create_subtask(&self, subtask: &Subtask) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn create_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, subtask: &Subtask) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn get_subtask(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, ServiceError> {
-        todo!("Implementation pending")
+    pub async fn get_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn update_subtask(&self, project_id: &str, subtask: &Subtask) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn update_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, subtask: &Subtask) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn delete_subtask(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn delete_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn list_subtasks(&self, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, ServiceError> {
-        todo!("Implementation pending")
+    pub async fn list_subtasks(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
     // ビジネスロジック
@@ -46,19 +48,19 @@ impl SubtaskService {
         Ok(())
     }
 
-    pub async fn toggle_completion(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn toggle_completion(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn mark_completed(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn mark_completed(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn mark_incomplete(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending")
+    pub async fn mark_incomplete(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+        todo!("Implementation pending - use subtask_repository")
     }
 
-    pub async fn get_completion_rate(&self, project_id: &str, task_id: &str) -> Result<f32, ServiceError> {
-        todo!("Implementation pending - calculate subtask completion percentage")
+    pub async fn get_completion_rate(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<f32, ServiceError> {
+        todo!("Implementation pending - calculate subtask completion percentage using subtask_repository")
     }
 }

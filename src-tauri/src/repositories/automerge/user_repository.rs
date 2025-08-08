@@ -1,11 +1,18 @@
 use crate::errors::RepositoryError;
 use crate::types::user_types::User;
+use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
-pub struct UserRepository;
+pub struct UserRepository {
+    sqlite_storage: SqliteStorage,
+    automerge_storage: AutomergeStorage,
+}
 
 impl UserRepository {
-    pub fn new() -> Self {
-        Self
+    pub fn new(sqlite_storage: SqliteStorage, automerge_storage: AutomergeStorage) -> Self {
+        Self {
+            sqlite_storage,
+            automerge_storage,
+        }
     }
 
     // ユーザー基本操作（レベル1: ルート直下）

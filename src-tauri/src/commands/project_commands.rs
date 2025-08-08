@@ -1,5 +1,8 @@
 use serde::{Serialize, Deserialize};
+use tauri::State;
 use crate::types::{Project, ProjectStatus};
+use crate::services::automerge::ProjectService;
+use crate::repositories::automerge::ProjectRepository;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateProjectRequest {
@@ -18,13 +21,18 @@ pub struct ProjectResponse {
 #[tauri::command]
 pub async fn create_project(
     request: CreateProjectRequest,
+    project_service: State<'_, ProjectService>,
 ) -> Result<ProjectResponse, String> {
-    println!("bulk_commands called");
+    println!("create_project called");
     println!("request: {:?}", request);
+
+    // let result = project_service.create_project(project_repository, &project).await;
+
+    // TODO: サービスを使用してプロジェクト作成処理を実装
     let res = ProjectResponse {
-        success: todo!(),
-        data: todo!(),
-        message: todo!()
+        success: true,
+        data: None,
+        message: Some("Tauri State with Repository DI - implementation pending".to_string())
     };
     Ok(res)
 }
@@ -33,13 +41,17 @@ pub async fn create_project(
 #[tauri::command]
 pub async fn get_project(
     project_id: String,
+    project_service: State<'_, ProjectService>,
 ) -> Result<ProjectResponse, String> {
-    println!("bulk_commands called");
+    println!("get_project called");
     println!("project_id: {:?}", project_id);
+
+    // let result = project_service.get_project(project_repository, &project_id).await;
+
     let res = ProjectResponse {
-        success: todo!(),
-        data: todo!(),
-        message: todo!()
+        success: true,
+        data: None,
+        message: Some("Tauri State with Repository DI - implementation pending".to_string())
     };
     Ok(res)
 }
@@ -47,8 +59,13 @@ pub async fn get_project(
 // プロジェクト一覧取得
 #[tauri::command]
 pub async fn list_projects(
+    project_service: State<'_, ProjectService>,
 ) -> Result<Vec<Project>, String> {
-    println!("bulk_commands called");
+    println!("list_projects called");
+
+    // let result = project_service.list_projects(project_repository).await;
+
+    // TODO: サービスを使用してプロジェクト一覧取得処理を実装
     Ok(vec![])
 }
 
@@ -56,16 +73,20 @@ pub async fn list_projects(
 #[tauri::command]
 pub async fn update_project(
     project_id: String,
-    name: Option<String>,
-    description: Option<String>,
-    status: Option<ProjectStatus>,
+    _name: Option<String>,
+    _description: Option<String>,
+    _status: Option<ProjectStatus>,
+    project_service: State<'_, ProjectService>,
 ) -> Result<ProjectResponse, String> {
-    println!("bulk_commands called");
+    println!("update_project called");
     println!("project_id: {:?}", project_id);
+
+    // let result = project_service.update_project(project_repository, &updated_project).await;
+
     let res = ProjectResponse {
-        success: todo!(),
-        data: todo!(),
-        message: todo!()
+        success: true,
+        data: None,
+        message: Some("Tauri State with Repository DI - implementation pending".to_string())
     };
     Ok(res)
 }
@@ -74,8 +95,13 @@ pub async fn update_project(
 #[tauri::command]
 pub async fn delete_project(
     project_id: String,
+    project_service: State<'_, ProjectService>,
 ) -> Result<bool, String> {
-    println!("bulk_commands called");
+    println!("delete_project called");
     println!("project_id: {:?}", project_id);
+
+    // let result = project_service.delete_project(project_repository, &project_id).await;
+
+    // TODO: サービスを使用してプロジェクト削除処理を実装
     Ok(true)
 }
