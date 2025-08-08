@@ -1,47 +1,106 @@
 use tauri::State;
-use crate::services::AutomergeService;
-use crate::types::ProjectTree;
+use serde::{Serialize, Deserialize};
+use crate::services::automerge::project_service::ProjectService;
+use crate::types::{Project, ProjectStatus};
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateProjectRequest {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectResponse {
+    pub success: bool,
+    pub data: Option<Project>,
+    pub message: Option<String>,
+}
+
+// プロジェクト作成
 #[tauri::command]
-pub fn create_project(
-    state: State<AutomergeService>,
-    name: String,
-    description: Option<String>,
-    color: Option<String>,
-) -> Result<ProjectTree, String> {
-    let manager = state.lock().unwrap();
-    manager.create_project(name, description, color)
+pub async fn create_project(
+    request: CreateProjectRequest,
+    service: State<'_, ProjectService>
+) -> Result<ProjectResponse, String> {
+    match service.create_project(request.name, request.description).await {
+        Ok(project) => Ok(ProjectResponse {
+            success: true,
+            data: Some(project),
+            message: None,
+        }),
+        Err(e) => Ok(ProjectResponse {
+            success: false,
+            data: None,
+            message: Some(e.to_string()),
+        }),
+    }
+}
+
+// プロジェクト取得
+#[tauri::command]
+pub async fn get_project(
+    project_id: String,
+    service: State<'_, ProjectService>
+) -> Result<ProjectResponse, String> {
+    match service.get_project(&project_id).await {
+        Ok(Some(project)) => Ok(ProjectResponse {
+            success: true,
+            data: Some(project),
+            message: None,
+        }),
+        Ok(None) => Ok(ProjectResponse {
+            success: false,
+            data: None,
+            message: Some("Project not found".to_string()),
+        }),
+        Err(e) => Ok(ProjectResponse {
+            success: false,
+            data: None,
+            message: Some(e.to_string()),
+        }),
+    }
+}
+
+// プロジェクト一覧取得
+#[tauri::command]
+pub async fn list_projects(
+    service: State<'_, ProjectService>
+) -> Result<Vec<Project>, String> {
+    service.list_projects().await
         .map_err(|e| e.to_string())
 }
 
+// プロジェクト更新
 #[tauri::command]
-pub fn update_project(
-    state: State<AutomergeService>,
+pub async fn update_project(
     project_id: String,
     name: Option<String>,
     description: Option<String>,
-    color: Option<String>,
-) -> Result<Option<ProjectTree>, String> {
-    let manager = state.lock().unwrap();
-    manager.update_project(&project_id, name, description, color)
-        .map_err(|e| e.to_string())
+    status: Option<ProjectStatus>,
+    service: State<'_, ProjectService>
+) -> Result<ProjectResponse, String> {
+    match service.update_project(&project_id, name, description, status).await {
+        Ok(project) => Ok(ProjectResponse {
+            success: true,
+            data: Some(project),
+            message: None,
+        }),
+        Err(e) => Ok(ProjectResponse {
+            success: false,
+            data: None,
+            message: Some(e.to_string()),
+        }),
+    }
 }
 
+// プロジェクト削除
 #[tauri::command]
-pub fn delete_project(
-    state: State<AutomergeService>,
+pub async fn delete_project(
     project_id: String,
+    service: State<'_, ProjectService>
 ) -> Result<bool, String> {
-    let manager = state.lock().unwrap();
-    manager.delete_project(&project_id)
-        .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub fn get_project_trees(
-    state: State<AutomergeService>,
-) -> Result<Vec<ProjectTree>, String> {
-    let manager = state.lock().unwrap();
-    manager.get_project_trees()
-        .map_err(|e| e.to_string())
+    match service.delete_project(&project_id).await {
+        Ok(()) => Ok(true),
+        Err(e) => Err(e.to_string()),
+    }
 }
