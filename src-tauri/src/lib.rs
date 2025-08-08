@@ -7,7 +7,14 @@ mod errors;
 
 use commands::{
     auto_save::auto_save,
-    // bulk_commands::bulk_move_tasks,
+    bulk_commands::{
+        bulk_update_tasks,
+        bulk_delete_tasks,
+        bulk_update_task_status,
+        bulk_assign_tasks,
+        bulk_delete_subtasks,
+        bulk_toggle_subtasks_completion,
+    },
     document_commands::{
         get_document_state,
         load_document_state,
