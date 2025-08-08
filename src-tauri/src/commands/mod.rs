@@ -9,3 +9,4 @@ pub mod subtask_commands;
 pub mod tag_commands;
 pub mod task_commands;
 pub mod task_list_commands;
+pub mod user_commands;

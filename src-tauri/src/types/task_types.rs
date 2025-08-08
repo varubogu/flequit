@@ -1,42 +1,188 @@
 use serde::{Deserialize, Serialize};
 
+// TaskStatusをSvelte側に合わせて修正
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TaskStatus {
+    NotStarted,
+    InProgress,
+    Waiting,
+    Completed,
+    Cancelled,
+}
+
+// 繰り返し機能の型定義
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RecurrenceUnit {
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Quarter,
+    HalfYear,
+    Year,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RecurrenceLevel {
+    Disabled,
+    Enabled,
+    Advanced,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DayOfWeek {
+    Sunday,
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum WeekOfMonth {
+    First,
+    Second,
+    Third,
+    Fourth,
+    Last,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DateRelation {
+    Before,
+    OnOrBefore,
+    OnOrAfter,
+    After,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AdjustmentDirection {
+    Previous,
+    Next,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AdjustmentTarget {
+    Weekday,
+    Weekend,
+    Holiday,
+    NonHoliday,
+    WeekendOnly,
+    NonWeekend,
+    WeekendHoliday,
+    NonWeekendHoliday,
+    SpecificWeekday,
+}
+
+// 日付条件
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DateCondition {
+    pub id: String,
+    pub relation: DateRelation,
+    pub reference_date: i64, // Unix timestamp
+}
+
+// 曜日条件
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WeekdayCondition {
+    pub id: String,
+    pub if_weekday: DayOfWeek,
+    pub then_direction: AdjustmentDirection,
+    pub then_target: AdjustmentTarget,
+    pub then_weekday: Option<DayOfWeek>,
+    pub then_days: Option<i32>,
+}
+
+// 補正条件
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecurrenceAdjustment {
+    pub date_conditions: Vec<DateCondition>,
+    pub weekday_conditions: Vec<WeekdayCondition>,
+}
+
+// 繰り返し詳細設定
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecurrenceDetails {
+    pub specific_date: Option<i32>,
+    pub week_of_period: Option<WeekOfMonth>,
+    pub weekday_of_week: Option<DayOfWeek>,
+    pub date_conditions: Option<Vec<DateCondition>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecurrenceRule {
+    pub unit: RecurrenceUnit,
+    pub interval: i32,
+    pub days_of_week: Option<Vec<DayOfWeek>>,
+    pub details: Option<RecurrenceDetails>,
+    pub adjustment: Option<RecurrenceAdjustment>,
+    pub end_date: Option<i64>, // Unix timestamp
+    pub max_occurrences: Option<i32>,
+}
+
+// Task構造体をSvelte側に合わせて修正
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
     pub id: String,
-    pub project_id: String,
+    pub sub_task_id: Option<String>,
+    pub list_id: String,
     pub title: String,
     pub description: Option<String>,
     pub status: TaskStatus,
-    pub priority: Priority,
-    pub assigned_to: Option<String>,
-    pub tags: Vec<String>,
-    pub due_date: Option<i64>,
+    pub priority: i32,
+    pub start_date: Option<i64>,
+    pub end_date: Option<i64>,
+    pub is_range_date: Option<bool>,
+    pub recurrence_rule: Option<RecurrenceRule>,
+    pub order_index: i32,
+    pub is_archived: bool,
     pub created_at: i64,
     pub updated_at: i64,
 }
 
+// TaskList構造体を追加
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum TaskStatus {
-    Todo,
-    InProgress,
-    Review,
-    Done,
+pub struct TaskList {
+    pub id: String,
+    pub project_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub color: Option<String>,
+    pub order_index: i32,
+    pub is_archived: bool,
+    pub created_at: i64,
+    pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Priority {
-    Low,
-    Medium,
-    High,
-    Urgent,
-}
+// SubtaskStatusを追加（診断エラーを修正）
+pub type SubtaskStatus = TaskStatus;
 
+// Subtask構造体をSvelte側に合わせて修正
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Subtask {
     pub id: String,
     pub task_id: String,
     pub title: String,
-    pub completed: bool,
+    pub description: Option<String>,
+    pub status: TaskStatus,
+    pub priority: Option<i32>,
+    pub start_date: Option<i64>,
+    pub end_date: Option<i64>,
+    pub is_range_date: Option<bool>,
+    pub recurrence_rule: Option<RecurrenceRule>,
+    pub order_index: i32,
+    pub completed: bool, // 既存のcompletedフィールドも保持
     pub created_at: i64,
     pub updated_at: i64,
 }
@@ -71,13 +217,16 @@ pub struct TaskListWithTasks {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskWithSubTasks {
     pub id: String,
+    pub sub_task_id: Option<String>, // 追加
     pub list_id: String,
     pub title: String,
     pub description: Option<String>,
-    pub status: String,
+    pub status: TaskStatus, // StringからTaskStatusに修正
     pub priority: i32,
     pub start_date: Option<i64>,
     pub end_date: Option<i64>,
+    pub is_range_date: Option<bool>, // 追加
+    pub recurrence_rule: Option<RecurrenceRule>, // 追加
     pub order_index: i32,
     pub is_archived: bool,
     pub created_at: i64,
@@ -92,10 +241,12 @@ pub struct SubTask {
     pub task_id: String,
     pub title: String,
     pub description: Option<String>,
-    pub status: String,
+    pub status: TaskStatus, // StringからTaskStatusに修正
     pub priority: Option<i32>,
     pub start_date: Option<i64>,
     pub end_date: Option<i64>,
+    pub is_range_date: Option<bool>, // 追加
+    pub recurrence_rule: Option<RecurrenceRule>, // 追加
     pub order_index: i32,
     pub tags: Vec<crate::types::user_types::Tag>,
     pub created_at: i64,

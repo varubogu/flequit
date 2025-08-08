@@ -36,7 +36,7 @@ impl TagService {
         todo!("Implementation pending - count tasks using this tag with tag_repository")
     }
 
-    pub async fn list_popular_tags(&self, tag_repository: State<'_, TagRepository>, limit: u32) -> Result<Vec<(Tag, u32)>, ServiceError> {
+    pub async fn list_popular_tags(&self, tag_repository: State<'_, TagRepository>, limit: u32) -> Result<Vec<Tag>, ServiceError> {
         todo!("Implementation pending - return tags sorted by usage count using tag_repository")
     }
 
@@ -56,6 +56,10 @@ impl TagService {
         }
 
         Ok(())
+    }
+
+    pub async fn search_tags_by_name(&self, tag_repository: State<'_, TagRepository>, name: &str, limit: usize) -> Result<Vec<Tag>, ServiceError> {
+        todo!("Implementation pending - search tags by name using tag_repository")
     }
 
     pub async fn is_tag_name_exists(&self, tag_repository: State<'_, TagRepository>, name: &str, exclude_id: Option<&str>) -> Result<bool, ServiceError> {

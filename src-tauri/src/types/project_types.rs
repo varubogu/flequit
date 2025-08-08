@@ -5,7 +5,10 @@ pub struct Project {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
-    pub status: ProjectStatus,
+    pub color: Option<String>, // Svelte側に合わせて追加
+    pub order_index: i32, // Svelte側に合わせて追加
+    pub is_archived: bool, // Svelte側に合わせて追加
+    pub status: Option<ProjectStatus>, // Optionalに変更（Svelte側にはないが既存機能保持）
     pub created_at: i64,
     pub updated_at: i64,
 }

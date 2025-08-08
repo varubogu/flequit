@@ -7,7 +7,7 @@ mod errors;
 
 use commands::{
     auto_save::auto_save,
-    bulk_commands::bulk_move_tasks,
+    // bulk_commands::bulk_move_tasks,
     document_commands::{
         get_document_state,
         load_document_state,
@@ -53,21 +53,21 @@ use commands::{
         create_tag,
         update_tag,
         delete_tag,
-        get_all_tags,
-        add_tag_to_task,
-        remove_tag_from_task,
-        add_tag_to_subtask,
-        remove_tag_from_subtask,
+        // get_all_tags,
+        // add_tag_to_task,
+        // remove_tag_from_task,
+        // add_tag_to_subtask,
+        // remove_tag_from_subtask,
     },
     task_commands::{
         create_task,
         get_task,
-        get_all_tasks,
+        // get_all_tasks,
         update_task,
         delete_task,
-        create_task_with_subtasks,
-        update_task_with_subtasks,
-        delete_task_with_subtasks,
+        // create_task_with_subtasks,
+        // update_task_with_subtasks,
+        // delete_task_with_subtasks,
     },
     task_list_commands::{
         create_task_list,
@@ -115,12 +115,12 @@ pub fn run() {
             // Task management commands
             create_task,
             get_task,
-            get_all_tasks,
+            // get_all_tasks,
             update_task,
             delete_task,
-            create_task_with_subtasks,
-            update_task_with_subtasks,
-            delete_task_with_subtasks,
+            // create_task_with_subtasks,
+            // update_task_with_subtasks,
+            // delete_task_with_subtasks,
 
             // Project management commands
             get_project,
@@ -138,14 +138,14 @@ pub fn run() {
             create_tag,
             update_tag,
             delete_tag,
-            get_all_tags,
-            add_tag_to_task,
-            remove_tag_from_task,
-            add_tag_to_subtask,
-            remove_tag_from_subtask,
+            // get_all_tags,
+            // add_tag_to_task,
+            // remove_tag_from_task,
+            // add_tag_to_subtask,
+            // remove_tag_from_subtask,
 
             // Bulk operation commands
-            bulk_move_tasks,
+            // bulk_move_tasks,
 
             // File operation commands
             save_data_to_file,

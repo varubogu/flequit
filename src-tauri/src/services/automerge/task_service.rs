@@ -1,7 +1,7 @@
 use crate::errors::ServiceError;
-use crate::types::task_types::{Task, TaskStatus, Priority};
+use crate::types::task_types::{Task, TaskStatus};
 use crate::repositories::automerge::TaskRepository;
-use tauri::{AppHandle, State};
+use tauri::{State};
 
 pub struct TaskService;
 
@@ -53,9 +53,9 @@ impl TaskService {
             return Err(ServiceError::ValidationError("Task title too long".to_string()));
         }
 
-        if task.project_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
-        }
+        // if task.project_id.trim().is_empty() {
+        //     return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
+        // }
 
         Ok(())
     }
@@ -68,7 +68,7 @@ impl TaskService {
         todo!("Implementation pending - use task_repository")
     }
 
-    pub async fn update_task_priority(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, priority: Priority) -> Result<(), ServiceError> {
+    pub async fn update_task_priority(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, priority: i32) -> Result<(), ServiceError> {
         todo!("Implementation pending - use task_repository")
     }
 

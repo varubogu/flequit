@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::types::task_types::{Task, TaskStatus, Priority};
+use crate::types::task_types::{Task, TaskStatus};
 use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
 pub struct TaskRepository {
@@ -42,7 +42,7 @@ impl TaskRepository {
         todo!("Implementation pending - SQLiteクエリ")
     }
 
-    pub async fn find_tasks_by_priority(&self, project_id: &str, priority: Priority) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn find_tasks_by_priority(&self, project_id: &str, priority: i32) -> Result<Vec<Task>, RepositoryError> {
         todo!("Implementation pending - SQLiteクエリ")
     }
 
@@ -59,7 +59,7 @@ impl TaskRepository {
         todo!("Implementation pending - 部分更新")
     }
 
-    pub async fn update_task_priority(&self, project_id: &str, task_id: &str, priority: Priority) -> Result<(), RepositoryError> {
+    pub async fn update_task_priority(&self, project_id: &str, task_id: &str, priority: i32) -> Result<(), RepositoryError> {
         todo!("Implementation pending - 部分更新")
     }
 
