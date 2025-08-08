@@ -1,6 +1,4 @@
-use tauri::State;
 use serde::{Serialize, Deserialize};
-use crate::services::automerge::project_service::ProjectService;
 use crate::types::{Project, ProjectStatus};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -20,54 +18,38 @@ pub struct ProjectResponse {
 #[tauri::command]
 pub async fn create_project(
     request: CreateProjectRequest,
-    service: State<'_, ProjectService>
 ) -> Result<ProjectResponse, String> {
-    match service.create_project(request.name, request.description).await {
-        Ok(project) => Ok(ProjectResponse {
-            success: true,
-            data: Some(project),
-            message: None,
-        }),
-        Err(e) => Ok(ProjectResponse {
-            success: false,
-            data: None,
-            message: Some(e.to_string()),
-        }),
-    }
+    println!("bulk_commands called");
+    println!("request: {:?}", request);
+    let res = ProjectResponse {
+        success: todo!(),
+        data: todo!(),
+        message: todo!()
+    };
+    Ok(res)
 }
 
 // プロジェクト取得
 #[tauri::command]
 pub async fn get_project(
     project_id: String,
-    service: State<'_, ProjectService>
 ) -> Result<ProjectResponse, String> {
-    match service.get_project(&project_id).await {
-        Ok(Some(project)) => Ok(ProjectResponse {
-            success: true,
-            data: Some(project),
-            message: None,
-        }),
-        Ok(None) => Ok(ProjectResponse {
-            success: false,
-            data: None,
-            message: Some("Project not found".to_string()),
-        }),
-        Err(e) => Ok(ProjectResponse {
-            success: false,
-            data: None,
-            message: Some(e.to_string()),
-        }),
-    }
+    println!("bulk_commands called");
+    println!("project_id: {:?}", project_id);
+    let res = ProjectResponse {
+        success: todo!(),
+        data: todo!(),
+        message: todo!()
+    };
+    Ok(res)
 }
 
 // プロジェクト一覧取得
 #[tauri::command]
 pub async fn list_projects(
-    service: State<'_, ProjectService>
 ) -> Result<Vec<Project>, String> {
-    service.list_projects().await
-        .map_err(|e| e.to_string())
+    println!("bulk_commands called");
+    Ok(vec![])
 }
 
 // プロジェクト更新
@@ -77,30 +59,23 @@ pub async fn update_project(
     name: Option<String>,
     description: Option<String>,
     status: Option<ProjectStatus>,
-    service: State<'_, ProjectService>
 ) -> Result<ProjectResponse, String> {
-    match service.update_project(&project_id, name, description, status).await {
-        Ok(project) => Ok(ProjectResponse {
-            success: true,
-            data: Some(project),
-            message: None,
-        }),
-        Err(e) => Ok(ProjectResponse {
-            success: false,
-            data: None,
-            message: Some(e.to_string()),
-        }),
-    }
+    println!("bulk_commands called");
+    println!("project_id: {:?}", project_id);
+    let res = ProjectResponse {
+        success: todo!(),
+        data: todo!(),
+        message: todo!()
+    };
+    Ok(res)
 }
 
 // プロジェクト削除
 #[tauri::command]
 pub async fn delete_project(
     project_id: String,
-    service: State<'_, ProjectService>
 ) -> Result<bool, String> {
-    match service.delete_project(&project_id).await {
-        Ok(()) => Ok(true),
-        Err(e) => Err(e.to_string()),
-    }
+    println!("bulk_commands called");
+    println!("project_id: {:?}", project_id);
+    Ok(true)
 }

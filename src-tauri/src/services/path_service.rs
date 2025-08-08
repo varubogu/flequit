@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 use std::fs;
 use serde::{Deserialize, Serialize};
-use crate::types::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PathConfig {
