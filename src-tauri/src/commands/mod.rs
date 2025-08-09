@@ -5,6 +5,7 @@ pub mod file_commands;
 pub mod greet;
 pub mod path_commands;
 pub mod project_commands;
+pub mod project_member_commands;
 pub mod subtask_commands;
 pub mod tag_commands;
 pub mod task_commands;

@@ -1,7 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::task_types::Subtask;
 use crate::repositories::automerge::SubtaskRepository;
-use tauri::{AppHandle, State};
+use tauri::State;
 
 pub struct SubtaskService;
 

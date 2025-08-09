@@ -53,6 +53,14 @@ use commands::{
         search_projects,
         delete_project_by_request,
     },
+    project_member_commands::{
+        add_project_member,
+        remove_project_member,
+        list_project_members,
+        update_member_role,
+        get_project_statistics,
+        can_manage_members,
+    },
     subtask_commands::{
         create_subtask,
         get_subtask,
@@ -124,7 +132,7 @@ use commands::{
 
 
 use repositories::automerge::{ProjectRepository, TaskRepository, SubtaskRepository, TagRepository, UserRepository, SqliteStorage, AutomergeStorage};
-use services::automerge::{ProjectService, TaskService, SubtaskService, TagService, UserService};
+use services::automerge::{ProjectService, ProjectMemberService, TaskService, SubtaskService, TagService, UserService};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -144,6 +152,7 @@ pub fn run() {
 
     // Service層の初期化
     let project_service = ProjectService::new();
+    let project_member_service = ProjectMemberService::new();
     let task_service = TaskService::new();
     let subtask_service = SubtaskService::new();
     let tag_service = TagService::new();
@@ -161,6 +170,7 @@ pub fn run() {
         .manage(user_repository)
         // Service層をState管理
         .manage(project_service)
+        .manage(project_member_service)
         .manage(task_service)
         .manage(subtask_service)
         .manage(tag_service)
@@ -196,6 +206,14 @@ pub fn run() {
             delete_project,
             search_projects,
             delete_project_by_request,
+
+            // Project member management commands
+            add_project_member,
+            remove_project_member,
+            list_project_members,
+            update_member_role,
+            get_project_statistics,
+            can_manage_members,
 
             // Subtask management commands
             create_subtask,
