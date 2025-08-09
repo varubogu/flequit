@@ -1,7 +1,7 @@
 use crate::errors::ServiceError;
-use crate::types::user_types::Tag;
+use crate::types::task_types::Tag;
 use crate::repositories::automerge::TagRepository;
-use tauri::{AppHandle, State};
+use tauri::State;
 
 pub struct TagService;
 

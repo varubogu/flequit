@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::types::user_types::Tag;
+use crate::types::task_types::Tag;
 use crate::repositories::automerge::{SqliteStorage, AutomergeStorage};
 
 pub struct TagRepository {

@@ -14,7 +14,7 @@ pub trait AutomergeBulkSerializable: Serialize + for<'de> Deserialize<'de> {
             Err(AutomergeError::InvalidValue("Not an object".to_string()))
         }
     }
-    
+
     /// HashMapから構造体に変換（JSONを経由）
     fn from_value_map(map: HashMap<String, serde_json::Value>) -> Result<Self, AutomergeError> {
         let json_obj: serde_json::Map<String, serde_json::Value> = map.into_iter().collect();
@@ -22,18 +22,18 @@ pub trait AutomergeBulkSerializable: Serialize + for<'de> Deserialize<'de> {
         serde_json::from_value(json)
             .map_err(|e| AutomergeError::DeserializationError(e.to_string()))
     }
-    
+
     /// スキーマバージョン
     fn schema_version() -> &'static str { "1.0" }
-    
+
     /// JSON Schema定義（オプション）
     fn json_schema() -> Option<serde_json::Value> { None }
 }
 
 // 基本型の自動実装（既存の型に適用）
 use crate::types::project_types::{Project, ProjectMember};
-use crate::types::task_types::{Task, Subtask};
-use crate::types::user_types::{User, Tag};
+use crate::types::task_types::{Task, Subtask, Tag};
+use crate::types::user_types::{User};
 
 impl AutomergeBulkSerializable for Project {}
 impl AutomergeBulkSerializable for Task {}

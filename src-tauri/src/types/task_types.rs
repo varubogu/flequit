@@ -165,9 +165,6 @@ pub struct TaskList {
     pub updated_at: i64,
 }
 
-// SubtaskStatusを追加（診断エラーを修正）
-pub type SubtaskStatus = TaskStatus;
-
 // Subtask構造体をSvelte側に合わせて修正
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Subtask {
@@ -232,7 +229,7 @@ pub struct TaskWithSubTasks {
     pub created_at: i64,
     pub updated_at: i64,
     pub sub_tasks: Vec<SubTask>,
-    pub tags: Vec<crate::types::user_types::Tag>,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -248,7 +245,17 @@ pub struct SubTask {
     pub is_range_date: Option<bool>, // 追加
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
     pub order_index: i32,
-    pub tags: Vec<crate::types::user_types::Tag>,
+    pub tags: Vec<Tag>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Tag {
+    pub id: String,
+    pub name: String,
+    pub color: Option<String>,
+    pub order_index: Option<i32>, // Svelte側に合わせて追加
     pub created_at: i64,
     pub updated_at: i64,
 }

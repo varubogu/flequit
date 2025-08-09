@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use tauri::State;
-use crate::types::user_types::Tag;
+use crate::types::task_types::Tag;
 use crate::services::automerge::TagService;
 use crate::repositories::automerge::TagRepository;
 use uuid::Uuid;

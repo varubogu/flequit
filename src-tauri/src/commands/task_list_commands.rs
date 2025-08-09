@@ -1,4 +1,4 @@
-use crate::types::TaskListWithTasks;
+use crate::types::task_types::TaskListWithTasks;
 
 #[tauri::command]
 pub fn create_task_list(
