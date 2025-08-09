@@ -3,8 +3,6 @@ use tauri::State;
 use crate::types::project_types::{Project, ProjectStatus};
 use crate::services::automerge::ProjectService;
 use crate::repositories::automerge::ProjectRepository;
-use uuid::Uuid;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectResponse {
@@ -196,7 +194,7 @@ pub async fn search_projects(
                 });
             }
             if let Some(status) = request.status {
-                projects.retain(|project| project.status == status);
+                projects.retain(|project| project.status.as_ref() == Some(&status));
             }
             if let Some(ref owner_id) = request.owner_id {
                 projects.retain(|project| project.owner_id.as_ref() == Some(owner_id));
@@ -206,7 +204,7 @@ pub async fn search_projects(
             let total_count = projects.len();
             let offset = request.offset.unwrap_or(0);
             let limit = request.limit.unwrap_or(50);
-            
+
             if offset < projects.len() {
                 projects = projects.into_iter().skip(offset).take(limit).collect();
             } else {

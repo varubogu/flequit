@@ -3,8 +3,6 @@ use tauri::State;
 use crate::types::task_types::Tag;
 use crate::services::automerge::TagService;
 use crate::repositories::automerge::TagRepository;
-use uuid::Uuid;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -278,7 +276,13 @@ pub async fn search_tags(
         tags.retain(|tag| tag.name.to_lowercase().contains(&name.to_lowercase()));
     }
     if let Some(ref color) = request.color {
-        tags.retain(|tag| tag.color.to_lowercase().contains(&color.to_lowercase()));
+        tags.retain(|tag| {
+            if let Some(ref tag_color) = tag.color {
+                tag_color.to_lowercase().contains(&color.to_lowercase())
+            } else {
+                false
+            }
+        });
     }
 
     // ページネーション（人気順検索でない場合のみ適用）
@@ -286,7 +290,7 @@ pub async fn search_tags(
     if !request.order_by_popularity.unwrap_or(false) {
         let offset = request.offset.unwrap_or(0);
         let limit = request.limit.unwrap_or(50);
-        
+
         if offset < tags.len() {
             tags = tags.into_iter().skip(offset).take(limit).collect();
         } else {

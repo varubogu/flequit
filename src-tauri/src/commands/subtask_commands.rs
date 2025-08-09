@@ -86,6 +86,7 @@ pub async fn create_subtask(
         end_date: todo!(),
         is_range_date: todo!(),
         recurrence_rule: todo!(),
+        assigned_user_ids: vec![], // アサインされたユーザーIDの配列
         order_index: todo!()
     };
 

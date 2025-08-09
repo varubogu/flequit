@@ -3,9 +3,6 @@ use tauri::State;
 use crate::types::task_types::{Task, TaskStatus};
 use crate::services::automerge::TaskService;
 use crate::repositories::automerge::TaskRepository;
-use uuid::Uuid;
-use std::time::{SystemTime, UNIX_EPOCH};
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TaskResponse {
@@ -308,14 +305,14 @@ pub async fn search_tasks(
                     tasks.retain(|task| task.status == status);
                 }
                 if let Some(ref assignee_id) = request.assignee_id {
-                    tasks.retain(|task| task.assignee_id.as_ref() == Some(assignee_id));
+                    tasks.retain(|task| task.assigned_user_ids.contains(assignee_id));
                 }
 
                 // ページネーション
                 let total_count = tasks.len();
                 let offset = request.offset.unwrap_or(0);
                 let limit = request.limit.unwrap_or(50);
-                
+
                 if offset < tasks.len() {
                     tasks = tasks.into_iter().skip(offset).take(limit).collect();
                 } else {

@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use crate::types::task_types::{TaskList, TaskListWithTasks};
+use crate::types::task_types::TaskList;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TaskListSearchRequest {
