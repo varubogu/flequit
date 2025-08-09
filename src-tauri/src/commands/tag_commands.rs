@@ -6,12 +6,6 @@ use crate::repositories::automerge::TagRepository;
 use uuid::Uuid;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CreateTagRequest {
-    pub name: String,
-    pub color: Option<String>,
-    pub description: Option<String>,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TagResponse {
@@ -23,27 +17,12 @@ pub struct TagResponse {
 // タグ作成
 #[tauri::command]
 pub async fn create_tag(
-    request: CreateTagRequest,
+    tag: Tag,
     tag_service: State<'_, TagService>,
     tag_repository: State<'_, TagRepository>,
 ) -> Result<TagResponse, String> {
     println!("create_tag called");
-    println!("request: {:?}", request);
-
-    // コマンド引数をservice形式に変換
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
-
-    let tag = Tag {
-        id:Uuid::new_v4().to_string(),
-        name: request.name,
-        color: request.color,
-        created_at: now,
-        updated_at: now,
-        order_index: todo!()
-    };
+    println!("tag: {:?}", tag);
 
     // サービス層を呼び出し
     match tag_service.create_tag(tag_repository, &tag).await {
@@ -115,57 +94,20 @@ pub async fn list_tags(
 // タグ更新
 #[tauri::command]
 pub async fn update_tag(
-    tag_id: String,
-    name: Option<String>,
-    color: Option<String>,
+    tag: Tag,
     tag_service: State<'_, TagService>,
     tag_repository: State<'_, TagRepository>,
 ) -> Result<TagResponse, String> {
     println!("update_tag called");
-    println!("tag_id: {:?}", tag_id);
+    println!("tag: {:?}", tag);
 
-    // 既存のタグを取得
-    match tag_service.get_tag(tag_repository.clone(), &tag_id).await {
-        Ok(Some(mut existing_tag)) => {
-            // コマンド引数をservice形式に変換
-            if let Some(name) = name {
-                existing_tag.name = name;
-            }
-            if let Some(color) = color {
-                existing_tag.color = Some(color);
-            }
-
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            existing_tag.updated_at = now;
-
-            // サービス層を呼び出し
-            match tag_service.update_tag(tag_repository, &existing_tag).await {
-                Ok(_) => {
-                    let res = TagResponse {
-                        success: true,
-                        data: Some(existing_tag),
-                        message: Some("Tag updated successfully".to_string()),
-                    };
-                    Ok(res)
-                }
-                Err(service_error) => {
-                    let res = TagResponse {
-                        success: false,
-                        data: None,
-                        message: Some(service_error.to_string()),
-                    };
-                    Ok(res)
-                }
-            }
-        }
-        Ok(None) => {
+    // サービス層を呼び出し
+    match tag_service.update_tag(tag_repository, &tag).await {
+        Ok(_) => {
             let res = TagResponse {
-                success: false,
-                data: None,
-                message: Some("Tag not found".to_string()),
+                success: true,
+                data: Some(tag),
+                message: Some("Tag updated successfully".to_string()),
             };
             Ok(res)
         }

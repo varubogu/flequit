@@ -6,11 +6,6 @@ use crate::repositories::automerge::ProjectRepository;
 use uuid::Uuid;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CreateProjectRequest {
-    pub name: String,
-    pub description: Option<String>,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectResponse {
@@ -22,30 +17,12 @@ pub struct ProjectResponse {
 // プロジェクト作成
 #[tauri::command]
 pub async fn create_project(
-    request: CreateProjectRequest,
+    project: Project,
     project_service: State<'_, ProjectService>,
     project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectResponse, String> {
     println!("create_project called");
-    println!("request: {:?}", request);
-
-    // コマンド引数をservice形式に変換
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
-
-    let project = Project {
-        id: Uuid::new_v4().to_string(),
-        name: request.name,
-        description: request.description,
-        status: Option::from(ProjectStatus::Planning),
-        created_at: now,
-        updated_at: now,
-        color: todo!(),
-        order_index: todo!(),
-        is_archived: todo!()
-    };
+    println!("project: {:?}", project);
 
     // サービス層を呼び出し
     match project_service.create_project(project_repository, &project).await {
@@ -117,61 +94,20 @@ pub async fn list_projects(
 // プロジェクト更新
 #[tauri::command]
 pub async fn update_project(
-    project_id: String,
-    name: Option<String>,
-    description: Option<String>,
-    status: Option<ProjectStatus>,
+    project: Project,
     project_service: State<'_, ProjectService>,
     project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectResponse, String> {
     println!("update_project called");
-    println!("project_id: {:?}", project_id);
+    println!("project: {:?}", project);
 
-    // 既存のプロジェクトを取得
-    match project_service.get_project(project_repository.clone(), &project_id).await {
-        Ok(Some(mut existing_project)) => {
-            // コマンド引数をservice形式に変換
-            if let Some(name) = name {
-                existing_project.name = name;
-            }
-            if let Some(description) = description {
-                existing_project.description = Some(description);
-            }
-            if let Some(status) = status {
-                existing_project.status = Option::from(status);
-            }
-
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            existing_project.updated_at = now;
-
-            // サービス層を呼び出し
-            match project_service.update_project(project_repository, &existing_project).await {
-                Ok(_) => {
-                    let res = ProjectResponse {
-                        success: true,
-                        data: Some(existing_project),
-                        message: Some("Project updated successfully".to_string()),
-                    };
-                    Ok(res)
-                }
-                Err(service_error) => {
-                    let res = ProjectResponse {
-                        success: false,
-                        data: None,
-                        message: Some(service_error.to_string()),
-                    };
-                    Ok(res)
-                }
-            }
-        }
-        Ok(None) => {
+    // サービス層を呼び出し
+    match project_service.update_project(project_repository, &project).await {
+        Ok(_) => {
             let res = ProjectResponse {
-                success: false,
-                data: None,
-                message: Some("Project not found".to_string()),
+                success: true,
+                data: Some(project),
+                message: Some("Project updated successfully".to_string()),
             };
             Ok(res)
         }
