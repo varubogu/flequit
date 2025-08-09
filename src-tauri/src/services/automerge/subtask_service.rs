@@ -11,24 +11,42 @@ impl SubtaskService {
     }
 
     // サブタスク操作
-    pub async fn create_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, subtask: &Subtask) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+    pub async fn create_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, subtask: &Subtask) -> Result<(), ServiceError> {
+        // サブタスクの妥当性を検証
+        self.validate_subtask(subtask).await?;
+
+        // repositoryを使用してサブタスクを作成
+        subtask_repository.set_subtask(project_id, &subtask.task_id, subtask)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn get_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.get_subtask(project_id, task_id, subtask_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn update_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, subtask: &Subtask) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        // サブタスクの妥当性を検証
+        self.validate_subtask(subtask).await?;
+
+        // repositoryを使用してサブタスクを更新
+        subtask_repository.set_subtask(project_id, &subtask.task_id, subtask)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn delete_subtask(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.delete_subtask(project_id, task_id, subtask_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn list_subtasks(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.list_subtasks(project_id, task_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     // ビジネスロジック
@@ -49,18 +67,26 @@ impl SubtaskService {
     }
 
     pub async fn toggle_completion(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.toggle_completion(project_id, task_id, subtask_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn mark_completed(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.mark_completed(project_id, task_id, subtask_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn mark_incomplete(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        todo!("Implementation pending - use subtask_repository")
+        subtask_repository.mark_incomplete(project_id, task_id, subtask_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 
     pub async fn get_completion_rate(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<f32, ServiceError> {
-        todo!("Implementation pending - calculate subtask completion percentage using subtask_repository")
+        subtask_repository.get_completion_rate(project_id, task_id)
+            .await
+            .map_err(ServiceError::Repository)
     }
 }

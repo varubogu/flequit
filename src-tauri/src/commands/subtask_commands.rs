@@ -51,6 +51,7 @@ pub struct SubtaskDeleteResponse {
 // サブタスク作成
 #[tauri::command]
 pub async fn create_subtask(
+    project_id: String,
     subtask: Subtask,
     subtask_service: State<'_, SubtaskService>,
     subtask_repository: State<'_, SubtaskRepository>,
@@ -59,7 +60,7 @@ pub async fn create_subtask(
     println!("subtask: {:?}", subtask);
 
     // サービス層を呼び出し
-    match subtask_service.create_subtask(subtask_repository, &subtask).await {
+    match subtask_service.create_subtask(subtask_repository, &project_id, &subtask).await {
         Ok(_) => {
             let res = SubtaskResponse {
                 success: true,
