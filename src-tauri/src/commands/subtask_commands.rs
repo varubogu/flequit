@@ -232,7 +232,22 @@ pub async fn update_subtask_status(
     println!("update_subtask_status called");
     println!("project_id: {:?}, task_id: {:?}, subtask_id: {:?}, status: {:?}", project_id, task_id, subtask_id, status);
 
-    Ok(true)
+    // 既存のサブタスクを取得
+    match subtask_service.get_subtask(subtask_repository.clone(), &project_id, &task_id, &subtask_id).await {
+        Ok(Some(mut existing_subtask)) => {
+            // ステータスを更新
+            existing_subtask.status = status;
+            existing_subtask.updated_at = Utc::now();
+
+            // サービス層を呼び出してステータスを更新
+            match subtask_service.update_subtask(subtask_repository, &project_id, &existing_subtask).await {
+                Ok(_) => Ok(true),
+                Err(service_error) => Err(service_error.to_string()),
+            }
+        }
+        Ok(None) => Err("Subtask not found".to_string()),
+        Err(service_error) => Err(service_error.to_string()),
+    }
 }
 
 // サブタスクの完了/未完了切り替え
