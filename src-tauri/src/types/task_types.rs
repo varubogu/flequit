@@ -3,7 +3,6 @@ use chrono::{DateTime, Utc};
 
 // TaskStatusをSvelte側に合わせて修正
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
 pub enum TaskStatus {
     NotStarted,
     InProgress,
@@ -14,7 +13,6 @@ pub enum TaskStatus {
 
 // 繰り返し機能の型定義
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum RecurrenceUnit {
     Minute,
     Hour,
@@ -27,7 +25,6 @@ pub enum RecurrenceUnit {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum RecurrenceLevel {
     Disabled,
     Enabled,
@@ -35,7 +32,6 @@ pub enum RecurrenceLevel {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum DayOfWeek {
     Sunday,
     Monday,
@@ -47,7 +43,6 @@ pub enum DayOfWeek {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum WeekOfMonth {
     First,
     Second,
@@ -57,7 +52,6 @@ pub enum WeekOfMonth {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum DateRelation {
     Before,
     OnOrBefore,
@@ -66,14 +60,12 @@ pub enum DateRelation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum AdjustmentDirection {
     Previous,
     Next,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub enum AdjustmentTarget {
     Weekday,
     Weekend,

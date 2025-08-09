@@ -1,15 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
 pub enum DateTimeFormatGroup {
-    #[serde(rename = "デフォルト")]
     Default,
-    #[serde(rename = "プリセット")]  
     Preset,
-    #[serde(rename = "カスタム")]
     Custom,
-    #[serde(rename = "カスタムフォーマット")]
     CustomFormat,
 }
 
