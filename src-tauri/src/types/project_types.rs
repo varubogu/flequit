@@ -9,11 +9,12 @@ pub struct Project {
     pub order_index: i32, // Svelte側に合わせて追加
     pub is_archived: bool, // Svelte側に合わせて追加
     pub status: Option<ProjectStatus>, // Optionalに変更（Svelte側にはないが既存機能保持）
+    pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
     pub created_at: i64,
     pub updated_at: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ProjectStatus {
     Planning,
     Active,

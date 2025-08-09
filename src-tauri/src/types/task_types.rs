@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 // TaskStatusをSvelte側に合わせて修正
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum TaskStatus {
     NotStarted,
@@ -145,6 +145,7 @@ pub struct Task {
     pub end_date: Option<i64>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
+    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub is_archived: bool,
     pub created_at: i64,
@@ -178,6 +179,7 @@ pub struct Subtask {
     pub end_date: Option<i64>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
+    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub completed: bool, // 既存のcompletedフィールドも保持
     pub created_at: i64,
@@ -192,6 +194,7 @@ pub struct ProjectTree {
     pub color: Option<String>,
     pub order_index: i32,
     pub is_archived: bool,
+    pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
     pub created_at: i64,
     pub updated_at: i64,
     pub task_lists: Vec<TaskListWithTasks>,
@@ -224,6 +227,7 @@ pub struct TaskWithSubTasks {
     pub end_date: Option<i64>,
     pub is_range_date: Option<bool>, // 追加
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
+    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub is_archived: bool,
     pub created_at: i64,
@@ -244,6 +248,7 @@ pub struct SubTask {
     pub end_date: Option<i64>,
     pub is_range_date: Option<bool>, // 追加
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
+    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub tags: Vec<Tag>,
     pub created_at: i64,
