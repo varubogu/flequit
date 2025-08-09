@@ -7,14 +7,14 @@ mod errors;
 
 use commands::{
     auto_save::auto_save,
-    bulk_commands::{
-        bulk_update_tasks,
-        bulk_delete_tasks,
-        bulk_update_task_status,
-        bulk_assign_tasks,
-        bulk_delete_subtasks,
-        bulk_toggle_subtasks_completion,
-    },
+    // bulk_commands::{
+    //     bulk_update_tasks,
+    //     bulk_delete_tasks,
+    //     bulk_update_task_status,
+    //     bulk_assign_tasks,
+    //     bulk_delete_subtasks,
+    //     bulk_toggle_subtasks_completion,
+    // },
     document_commands::{
         get_document_state,
         load_document_state,
@@ -55,13 +55,23 @@ use commands::{
     },
     subtask_commands::{
         create_subtask,
+        get_subtask,
+        list_subtasks,
         update_subtask,
+        update_subtask_status,
+        toggle_subtask_completion,
         delete_subtask,
         search_subtasks,
         delete_subtask_by_request,
     },
     tag_commands::{
         create_tag,
+        get_tag,
+        list_tags,
+        search_tags_by_name,
+        get_tag_usage_count,
+        check_tag_name_exists,
+        list_popular_tags,
         update_tag,
         delete_tag,
         search_tags,
@@ -75,8 +85,13 @@ use commands::{
     task_commands::{
         create_task,
         get_task,
-        // get_all_tasks,
+        list_tasks,
+        list_tasks_by_assignee,
+        list_tasks_by_status,
+        assign_task,
         update_task,
+        update_task_status,
+        update_task_priority,
         delete_task,
         search_tasks,
         delete_task_by_request,
@@ -90,12 +105,26 @@ use commands::{
         delete_task_list,
         search_task_lists,
         delete_task_list_by_request,
+    },
+    user_commands::{
+        create_user,
+        get_user,
+        get_user_by_email,
+        list_users,
+        update_user,
+        delete_user,
+        search_users,
+        search_project_members,
+        check_email_exists,
+        update_user_profile,
+        change_password,
     }
 };
 
 
 
 use repositories::automerge::{ProjectRepository, TaskRepository, SubtaskRepository, TagRepository, UserRepository, SqliteStorage, AutomergeStorage};
+use services::automerge::{ProjectService, TaskService, SubtaskService, TagService, UserService};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -113,6 +142,13 @@ pub fn run() {
     let tag_repository = TagRepository::new(sqlite_storage.clone(), automerge_storage.clone());
     let user_repository = UserRepository::new(sqlite_storage.clone(), automerge_storage.clone());
 
+    // Service層の初期化
+    let project_service = ProjectService::new();
+    let task_service = TaskService::new();
+    let subtask_service = SubtaskService::new();
+    let tag_service = TagService::new();
+    let user_service = UserService::new();
+
     tauri::Builder::default()
         // Storage層をState管理
         .manage(sqlite_storage)
@@ -123,6 +159,12 @@ pub fn run() {
         .manage(subtask_repository)
         .manage(tag_repository)
         .manage(user_repository)
+        // Service層をState管理
+        .manage(project_service)
+        .manage(task_service)
+        .manage(subtask_service)
+        .manage(tag_service)
+        .manage(user_service)
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             // Basic commands
@@ -132,8 +174,13 @@ pub fn run() {
             // Task management commands
             create_task,
             get_task,
-            // get_all_tasks,
+            list_tasks,
+            list_tasks_by_assignee,
+            list_tasks_by_status,
+            assign_task,
             update_task,
+            update_task_status,
+            update_task_priority,
             delete_task,
             search_tasks,
             delete_task_by_request,
@@ -152,13 +199,23 @@ pub fn run() {
 
             // Subtask management commands
             create_subtask,
+            get_subtask,
+            list_subtasks,
             update_subtask,
+            update_subtask_status,
+            toggle_subtask_completion,
             delete_subtask,
             search_subtasks,
             delete_subtask_by_request,
 
             // Tag management commands
             create_tag,
+            get_tag,
+            list_tags,
+            search_tags_by_name,
+            get_tag_usage_count,
+            check_tag_name_exists,
+            list_popular_tags,
             update_tag,
             delete_tag,
             search_tags,
@@ -205,6 +262,19 @@ pub fn run() {
             delete_task_list,
             search_task_lists,
             delete_task_list_by_request,
+
+            // User management commands
+            create_user,
+            get_user,
+            get_user_by_email,
+            list_users,
+            update_user,
+            delete_user,
+            search_users,
+            search_project_members,
+            check_email_exists,
+            update_user_profile,
+            change_password,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
