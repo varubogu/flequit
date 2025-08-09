@@ -1,6 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::task_types::{Task, TaskStatus};
 use crate::repositories::automerge::TaskRepository;
+use crate::repositories::core::TaskRepositoryTrait;
 use crate::commands::task_commands::TaskSearchRequest;
 use tauri::{State};
 use chrono::{DateTime, Utc};

@@ -1,6 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::project_types::Project;
 use crate::repositories::automerge::ProjectRepository;
+use crate::repositories::core::ProjectRepositoryTrait;
 use tauri::State;
 use chrono::Utc;
 use std::future::Future;

@@ -1,6 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::project_types::{ProjectMember, MemberRole};
 use crate::repositories::automerge::ProjectRepository;
+use crate::repositories::core::ProjectRepositoryTrait;
 use crate::services::automerge::project_service::ProjectService;
 use tauri::State;
 use chrono::Utc;

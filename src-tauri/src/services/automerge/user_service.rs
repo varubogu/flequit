@@ -1,6 +1,7 @@
 use crate::errors::ServiceError;
 use crate::types::user_types::User;
 use crate::repositories::automerge::UserRepository;
+use crate::repositories::core::UserRepositoryTrait;
 use tauri::State;
 
 pub struct UserService;
