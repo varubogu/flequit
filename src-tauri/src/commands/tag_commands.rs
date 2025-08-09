@@ -14,6 +14,37 @@ pub struct TagResponse {
     pub message: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TagSearchRequest {
+    pub name: Option<String>,
+    pub color: Option<String>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub usage_count_min: Option<u32>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+    pub order_by_popularity: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TagDeleteRequest {
+    pub tag_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TagSearchResponse {
+    pub success: bool,
+    pub data: Vec<Tag>,
+    pub total_count: Option<usize>,
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TagDeleteResponse {
+    pub success: bool,
+    pub message: Option<String>,
+}
+
 // タグ作成
 #[tauri::command]
 pub async fn create_tag(
@@ -206,5 +237,90 @@ pub async fn list_popular_tags(
     match tag_service.list_popular_tags(tag_repository, limit.unwrap_or(20)).await {
         Ok(tags) => Ok(tags),
         Err(service_error) => Err(service_error.to_string()),
+    }
+}
+
+// タグ検索（構造体版）
+#[tauri::command]
+pub async fn search_tags(
+    request: TagSearchRequest,
+    tag_service: State<'_, TagService>,
+    tag_repository: State<'_, TagRepository>,
+) -> Result<TagSearchResponse, String> {
+    println!("search_tags called");
+    println!("request: {:?}", request);
+
+    // 人気順検索か通常検索かで分岐
+    let mut tags = if request.order_by_popularity.unwrap_or(false) {
+        match tag_service.list_popular_tags(tag_repository, request.limit.unwrap_or(50) as u32).await {
+            Ok(tags) => tags,
+            Err(service_error) => return Ok(TagSearchResponse {
+                success: false,
+                data: vec![],
+                total_count: Some(0),
+                message: Some(service_error.to_string()),
+            })
+        }
+    } else {
+        match tag_service.list_tags(tag_repository).await {
+            Ok(tags) => tags,
+            Err(service_error) => return Ok(TagSearchResponse {
+                success: false,
+                data: vec![],
+                total_count: Some(0),
+                message: Some(service_error.to_string()),
+            })
+        }
+    };
+
+    // フィルタリング処理
+    if let Some(ref name) = request.name {
+        tags.retain(|tag| tag.name.to_lowercase().contains(&name.to_lowercase()));
+    }
+    if let Some(ref color) = request.color {
+        tags.retain(|tag| tag.color.to_lowercase().contains(&color.to_lowercase()));
+    }
+
+    // ページネーション（人気順検索でない場合のみ適用）
+    let total_count = tags.len();
+    if !request.order_by_popularity.unwrap_or(false) {
+        let offset = request.offset.unwrap_or(0);
+        let limit = request.limit.unwrap_or(50);
+        
+        if offset < tags.len() {
+            tags = tags.into_iter().skip(offset).take(limit).collect();
+        } else {
+            tags = vec![];
+        }
+    }
+
+    Ok(TagSearchResponse {
+        success: true,
+        data: tags,
+        total_count: Some(total_count),
+        message: Some("Tags retrieved successfully".to_string()),
+    })
+}
+
+// タグ削除（構造体版）
+#[tauri::command]
+pub async fn delete_tag_by_request(
+    request: TagDeleteRequest,
+    tag_service: State<'_, TagService>,
+    tag_repository: State<'_, TagRepository>,
+) -> Result<TagDeleteResponse, String> {
+    println!("delete_tag_by_request called");
+    println!("request: {:?}", request);
+
+    // サービス層を呼び出し
+    match tag_service.delete_tag(tag_repository, &request.tag_id).await {
+        Ok(_) => Ok(TagDeleteResponse {
+            success: true,
+            message: Some("Tag deleted successfully".to_string()),
+        }),
+        Err(service_error) => Ok(TagDeleteResponse {
+            success: false,
+            message: Some(service_error.to_string()),
+        })
     }
 }

@@ -50,16 +50,22 @@ use commands::{
         list_projects,
         update_project,
         delete_project,
+        search_projects,
+        delete_project_by_request,
     },
     subtask_commands::{
         create_subtask,
         update_subtask,
         delete_subtask,
+        search_subtasks,
+        delete_subtask_by_request,
     },
     tag_commands::{
         create_tag,
         update_tag,
         delete_tag,
+        search_tags,
+        delete_tag_by_request,
         // get_all_tags,
         // add_tag_to_task,
         // remove_tag_from_task,
@@ -72,6 +78,8 @@ use commands::{
         // get_all_tasks,
         update_task,
         delete_task,
+        search_tasks,
+        delete_task_by_request,
         // create_task_with_subtasks,
         // update_task_with_subtasks,
         // delete_task_with_subtasks,
@@ -80,6 +88,8 @@ use commands::{
         create_task_list,
         update_task_list,
         delete_task_list,
+        search_task_lists,
+        delete_task_list_by_request,
     }
 };
 
@@ -125,6 +135,8 @@ pub fn run() {
             // get_all_tasks,
             update_task,
             delete_task,
+            search_tasks,
+            delete_task_by_request,
             // create_task_with_subtasks,
             // update_task_with_subtasks,
             // delete_task_with_subtasks,
@@ -135,16 +147,22 @@ pub fn run() {
             create_project,
             update_project,
             delete_project,
+            search_projects,
+            delete_project_by_request,
 
             // Subtask management commands
             create_subtask,
             update_subtask,
             delete_subtask,
+            search_subtasks,
+            delete_subtask_by_request,
 
             // Tag management commands
             create_tag,
             update_tag,
             delete_tag,
+            search_tags,
+            delete_tag_by_request,
             // get_all_tags,
             // add_tag_to_task,
             // remove_tag_from_task,
@@ -185,6 +203,8 @@ pub fn run() {
             create_task_list,
             update_task_list,
             delete_task_list,
+            search_task_lists,
+            delete_task_list_by_request,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

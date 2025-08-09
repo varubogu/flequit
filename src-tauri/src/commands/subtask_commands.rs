@@ -21,6 +21,41 @@ pub struct SubtaskResponse {
     pub message: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubtaskSearchRequest {
+    pub project_id: String,
+    pub task_id: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<TaskStatus>,
+    pub completed: Option<bool>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubtaskDeleteRequest {
+    pub project_id: String,
+    pub task_id: String,
+    pub subtask_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubtaskSearchResponse {
+    pub success: bool,
+    pub data: Vec<Subtask>,
+    pub total_count: Option<usize>,
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubtaskDeleteResponse {
+    pub success: bool,
+    pub message: Option<String>,
+}
+
 // サブタスク作成
 #[tauri::command]
 pub async fn create_subtask(
@@ -251,5 +286,99 @@ pub async fn toggle_subtask_completion(
     match subtask_service.toggle_completion(subtask_repository, &project_id, &task_id, &subtask_id).await {
         Ok(_) => Ok(true),
         Err(service_error) => Err(service_error.to_string()),
+    }
+}
+
+// サブタスク検索（構造体版）
+#[tauri::command]
+pub async fn search_subtasks(
+    request: SubtaskSearchRequest,
+    subtask_service: State<'_, SubtaskService>,
+    subtask_repository: State<'_, SubtaskRepository>,
+) -> Result<SubtaskSearchResponse, String> {
+    println!("search_subtasks called");
+    println!("request: {:?}", request);
+
+    // 特定のタスクのサブタスクを検索するか、プロジェクト全体を検索するかで分岐
+    if let Some(task_id) = request.task_id {
+        // 特定のタスクのサブタスク検索
+        match subtask_service.list_subtasks(subtask_repository, &request.project_id, &task_id).await {
+            Ok(mut subtasks) => {
+                // フィルタリング処理
+                if let Some(ref title) = request.title {
+                    subtasks.retain(|subtask| subtask.title.to_lowercase().contains(&title.to_lowercase()));
+                }
+                if let Some(ref description) = request.description {
+                    subtasks.retain(|subtask| {
+                        if let Some(ref desc) = subtask.description {
+                            desc.to_lowercase().contains(&description.to_lowercase())
+                        } else {
+                            false
+                        }
+                    });
+                }
+                if let Some(status) = request.status {
+                    subtasks.retain(|subtask| subtask.status == status);
+                }
+                if let Some(completed) = request.completed {
+                    subtasks.retain(|subtask| subtask.completed == completed);
+                }
+
+                // ページネーション
+                let total_count = subtasks.len();
+                let offset = request.offset.unwrap_or(0);
+                let limit = request.limit.unwrap_or(50);
+                
+                if offset < subtasks.len() {
+                    subtasks = subtasks.into_iter().skip(offset).take(limit).collect();
+                } else {
+                    subtasks = vec![];
+                }
+
+                Ok(SubtaskSearchResponse {
+                    success: true,
+                    data: subtasks,
+                    total_count: Some(total_count),
+                    message: Some("Subtasks retrieved successfully".to_string()),
+                })
+            }
+            Err(service_error) => Ok(SubtaskSearchResponse {
+                success: false,
+                data: vec![],
+                total_count: Some(0),
+                message: Some(service_error.to_string()),
+            })
+        }
+    } else {
+        // プロジェクト全体のサブタスク検索は現在未実装
+        Ok(SubtaskSearchResponse {
+            success: false,
+            data: vec![],
+            total_count: Some(0),
+            message: Some("Task ID is required for subtask search".to_string()),
+        })
+    }
+}
+
+// サブタスク削除（構造体版）
+#[tauri::command]
+pub async fn delete_subtask_by_request(
+    request: SubtaskDeleteRequest,
+    subtask_service: State<'_, SubtaskService>,
+    subtask_repository: State<'_, SubtaskRepository>,
+) -> Result<SubtaskDeleteResponse, String> {
+    println!("delete_subtask_by_request called");
+    println!("request: {:?}", request);
+
+    // サービス層を呼び出し
+    match subtask_service.delete_subtask(subtask_repository, &request.project_id, &request.task_id, &request.subtask_id).await {
+        Ok(_) => Ok(SubtaskDeleteResponse {
+            success: true,
+            message: Some("Subtask deleted successfully".to_string()),
+        }),
+        Err(service_error) => Ok(SubtaskDeleteResponse {
+            success: false,
+            message: Some(service_error.to_string()),
+        })
     }
 }
