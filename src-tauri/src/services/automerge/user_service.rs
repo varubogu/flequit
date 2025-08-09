@@ -58,11 +58,11 @@ impl UserService {
             .map_err(ServiceError::Repository)
     }
 
-    pub async fn list_users_by_project(&self, user_repository: State<'_, UserRepository>, project_id: &str) -> Result<Vec<User>, ServiceError> {
-        user_repository.find_users_by_project(project_id)
-            .await
-            .map_err(ServiceError::Repository)
-    }
+    // pub async fn list_users_by_project(&self, user_repository: State<'_, UserRepository>, project_id: &str) -> Result<Vec<User>, ServiceError> {
+    //     user_repository.find_users_by_project(project_id)
+    //         .await
+    //         .map_err(ServiceError::Repository)
+    // }
 
     // ビジネスロジック
     pub async fn validate_user(&self, user_repository: State<'_, UserRepository>, user: &User) -> Result<(), ServiceError> {

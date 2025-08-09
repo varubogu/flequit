@@ -182,47 +182,47 @@ impl TaskService {
         }
     }
 
-    pub async fn list_overdue_tasks(&self, task_repository: State<'_, TaskRepository>, project_id: &str) -> Result<Vec<Task>, ServiceError> {
-        // バリデーション
-        if project_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
-        }
+    // pub async fn list_overdue_tasks(&self, task_repository: State<'_, TaskRepository>, project_id: &str) -> Result<Vec<Task>, ServiceError> {
+    //     // バリデーション
+    //     if project_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
+    //     }
 
-        let now = Utc::now();
-        let current_timestamp = now.timestamp();
+    //     let now = Utc::now();
+    //     let current_timestamp = now.timestamp();
 
-        // Repository呼び出し（フォールバックとして全タスク取得後フィルタリング）
-        match self.safe_repository_call(async move {
-            match task_repository.find_overdue_tasks(project_id, current_timestamp).await {
-                Ok(tasks) => Ok(tasks),
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    let all_tasks = task_repository.list_tasks(project_id).await?;
-                    let overdue_tasks = all_tasks.into_iter()
-                        .filter(|task| {
-                            if let Some(end_date) = &task.end_date {
-                                end_date.timestamp() < current_timestamp &&
-                                task.status != TaskStatus::Completed &&
-                                task.status != TaskStatus::Cancelled
-                            } else {
-                                false
-                            }
-                        })
-                        .collect();
-                    Ok(overdue_tasks)
-                }
-            }
-        }).await {
-            Ok(tasks) => {
-                // アーカイブされていないタスクのみ返す
-                let active_tasks = tasks.into_iter()
-                    .filter(|task| !task.is_archived)
-                    .collect();
-                Ok(active_tasks)
-            },
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    //     // Repository呼び出し（フォールバックとして全タスク取得後フィルタリング）
+    //     match self.safe_repository_call(async move {
+    //         match task_repository.find_overdue_tasks(project_id, current_timestamp).await {
+    //             Ok(tasks) => Ok(tasks),
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 let all_tasks = task_repository.list_tasks(project_id).await?;
+    //                 let overdue_tasks = all_tasks.into_iter()
+    //                     .filter(|task| {
+    //                         if let Some(end_date) = &task.end_date {
+    //                             end_date.timestamp() < current_timestamp &&
+    //                             task.status != TaskStatus::Completed &&
+    //                             task.status != TaskStatus::Cancelled
+    //                         } else {
+    //                             false
+    //                         }
+    //                     })
+    //                     .collect();
+    //                 Ok(overdue_tasks)
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(tasks) => {
+    //             // アーカイブされていないタスクのみ返す
+    //             let active_tasks = tasks.into_iter()
+    //                 .filter(|task| !task.is_archived)
+    //                 .collect();
+    //             Ok(active_tasks)
+    //         },
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
     // ビジネスロジック
     pub async fn validate_task(&self, task: &Task) -> Result<(), ServiceError> {
@@ -530,99 +530,99 @@ impl TaskService {
         }
     }
 
-    // 追加のヘルパーメソッド
-    pub async fn get_task_statistics(&self, task_repository: State<'_, TaskRepository>, project_id: &str) -> Result<TaskStatistics, ServiceError> {
-        let tasks = self.list_tasks(task_repository, project_id).await?;
+    // // 追加のヘルパーメソッド
+    // pub async fn get_task_statistics(&self, task_repository: State<'_, TaskRepository>, project_id: &str) -> Result<TaskStatistics, ServiceError> {
+    //     let tasks = self.list_tasks(task_repository, project_id).await?;
 
-        let total = tasks.len();
-        let completed = tasks.iter().filter(|t| t.status == TaskStatus::Completed).count();
-        let in_progress = tasks.iter().filter(|t| t.status == TaskStatus::InProgress).count();
-        let not_started = tasks.iter().filter(|t| t.status == TaskStatus::NotStarted).count();
-        let cancelled = tasks.iter().filter(|t| t.status == TaskStatus::Cancelled).count();
-        let waiting = tasks.iter().filter(|t| t.status == TaskStatus::Waiting).count();
+    //     let total = tasks.len();
+    //     let completed = tasks.iter().filter(|t| t.status == TaskStatus::Completed).count();
+    //     let in_progress = tasks.iter().filter(|t| t.status == TaskStatus::InProgress).count();
+    //     let not_started = tasks.iter().filter(|t| t.status == TaskStatus::NotStarted).count();
+    //     let cancelled = tasks.iter().filter(|t| t.status == TaskStatus::Cancelled).count();
+    //     let waiting = tasks.iter().filter(|t| t.status == TaskStatus::Waiting).count();
 
-        let completion_rate = if total > 0 {
-            (completed as f32 / total as f32) * 100.0
-        } else {
-            0.0
-        };
+    //     let completion_rate = if total > 0 {
+    //         (completed as f32 / total as f32) * 100.0
+    //     } else {
+    //         0.0
+    //     };
 
-        Ok(TaskStatistics {
-            total_tasks: total,
-            completed_tasks: completed,
-            in_progress_tasks: in_progress,
-            not_started_tasks: not_started,
-            cancelled_tasks: cancelled,
-            waiting_tasks: waiting,
-            completion_rate,
-        })
-    }
+    //     Ok(TaskStatistics {
+    //         total_tasks: total,
+    //         completed_tasks: completed,
+    //         in_progress_tasks: in_progress,
+    //         not_started_tasks: not_started,
+    //         cancelled_tasks: cancelled,
+    //         waiting_tasks: waiting,
+    //         completion_rate,
+    //     })
+    // }
 
-    pub async fn add_tag_to_task(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, tag_id: &str) -> Result<(), ServiceError> {
-        // バリデーション
-        if project_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
-        }
-        if task_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Task ID cannot be empty".to_string()));
-        }
-        if tag_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
-        }
+    // pub async fn add_tag_to_task(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, tag_id: &str) -> Result<(), ServiceError> {
+    //     // バリデーション
+    //     if project_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
+    //     }
+    //     if task_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Task ID cannot be empty".to_string()));
+    //     }
+    //     if tag_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
+    //     }
 
-        // Repository呼び出し（フォールバックとして全体更新）
-        match self.safe_repository_call(async move {
-            match task_repository.add_tag_to_task(project_id, task_id, tag_id).await {
-                Ok(_) => Ok(()),
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    if let Ok(Some(mut task)) = task_repository.get_task(project_id, task_id).await {
-                        if !task.tag_ids.contains(&tag_id.to_string()) {
-                            task.tag_ids.push(tag_id.to_string());
-                            task.updated_at = Utc::now();
-                            task_repository.set_task(project_id, &task).await?;
-                        }
-                    }
-                    Ok(())
-                }
-            }
-        }).await {
-            Ok(_) => Ok(()),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    //     // Repository呼び出し（フォールバックとして全体更新）
+    //     match self.safe_repository_call(async move {
+    //         match task_repository.add_tag_to_task(project_id, task_id, tag_id).await {
+    //             Ok(_) => Ok(()),
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 if let Ok(Some(mut task)) = task_repository.get_task(project_id, task_id).await {
+    //                     if !task.tag_ids.contains(&tag_id.to_string()) {
+    //                         task.tag_ids.push(tag_id.to_string());
+    //                         task.updated_at = Utc::now();
+    //                         task_repository.set_task(project_id, &task).await?;
+    //                     }
+    //                 }
+    //                 Ok(())
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(_) => Ok(()),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
-    pub async fn remove_tag_from_task(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, tag_id: &str) -> Result<(), ServiceError> {
-        // バリデーション
-        if project_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
-        }
-        if task_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Task ID cannot be empty".to_string()));
-        }
-        if tag_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
-        }
+    // pub async fn remove_tag_from_task(&self, task_repository: State<'_, TaskRepository>, project_id: &str, task_id: &str, tag_id: &str) -> Result<(), ServiceError> {
+    //     // バリデーション
+    //     if project_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
+    //     }
+    //     if task_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Task ID cannot be empty".to_string()));
+    //     }
+    //     if tag_id.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
+    //     }
 
-        // Repository呼び出し（フォールバックとして全体更新）
-        match self.safe_repository_call(async move {
-            match task_repository.remove_tag_from_task(project_id, task_id, tag_id).await {
-                Ok(_) => Ok(()),
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    if let Ok(Some(mut task)) = task_repository.get_task(project_id, task_id).await {
-                        task.tag_ids.retain(|id| id != tag_id);
-                        task.updated_at = Utc::now();
-                        task_repository.set_task(project_id, &task).await?;
-                    }
-                    Ok(())
-                }
-            }
-        }).await {
-            Ok(_) => Ok(()),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    //     // Repository呼び出し（フォールバックとして全体更新）
+    //     match self.safe_repository_call(async move {
+    //         match task_repository.remove_tag_from_task(project_id, task_id, tag_id).await {
+    //             Ok(_) => Ok(()),
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 if let Ok(Some(mut task)) = task_repository.get_task(project_id, task_id).await {
+    //                     task.tag_ids.retain(|id| id != tag_id);
+    //                     task.updated_at = Utc::now();
+    //                     task_repository.set_task(project_id, &task).await?;
+    //                 }
+    //                 Ok(())
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(_) => Ok(()),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 }
 
 // タスク統計情報の構造体

@@ -72,21 +72,21 @@ impl SubtaskService {
             .map_err(ServiceError::Repository)
     }
 
-    pub async fn mark_completed(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        subtask_repository.mark_completed(project_id, task_id, subtask_id)
-            .await
-            .map_err(ServiceError::Repository)
-    }
+    // pub async fn mark_completed(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+    //     subtask_repository.mark_completed(project_id, task_id, subtask_id)
+    //         .await
+    //         .map_err(ServiceError::Repository)
+    // }
 
-    pub async fn mark_incomplete(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
-        subtask_repository.mark_incomplete(project_id, task_id, subtask_id)
-            .await
-            .map_err(ServiceError::Repository)
-    }
+    // pub async fn mark_incomplete(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), ServiceError> {
+    //     subtask_repository.mark_incomplete(project_id, task_id, subtask_id)
+    //         .await
+    //         .map_err(ServiceError::Repository)
+    // }
 
-    pub async fn get_completion_rate(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<f32, ServiceError> {
-        subtask_repository.get_completion_rate(project_id, task_id)
-            .await
-            .map_err(ServiceError::Repository)
-    }
+    // pub async fn get_completion_rate(&self, subtask_repository: State<'_, SubtaskRepository>, project_id: &str, task_id: &str) -> Result<f32, ServiceError> {
+    //     subtask_repository.get_completion_rate(project_id, task_id)
+    //         .await
+    //         .map_err(ServiceError::Repository)
+    // }
 }

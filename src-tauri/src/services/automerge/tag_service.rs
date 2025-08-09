@@ -16,18 +16,18 @@ impl TagService {
     pub async fn create_tag(&self, tag_repository: State<'_, TagRepository>, tag: &Tag) -> Result<(), ServiceError> {
         // バリデーション実行
         self.validate_tag(tag_repository.clone(), tag).await?;
-        
+
         // タグの作成日時・更新日時設定
         let mut new_tag = tag.clone();
         let now = Utc::now();
         new_tag.created_at = now;
         new_tag.updated_at = now;
-        
+
         // タグIDが空の場合はタイムスタンプベースのIDを生成
         if new_tag.id.trim().is_empty() {
             new_tag.id = format!("tag_{}", now.timestamp_nanos_opt().unwrap_or(now.timestamp() * 1_000_000_000));
         }
-        
+
         // Repository呼び出し（todo!実装の場合はエラー処理）
         match self.safe_repository_call(async move {
             tag_repository.set_tag(&new_tag).await
@@ -42,7 +42,7 @@ impl TagService {
         if tag_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
         }
-        
+
         // Repository呼び出し
         match self.safe_repository_call(async move {
             tag_repository.get_tag(tag_id).await
@@ -55,13 +55,13 @@ impl TagService {
     pub async fn update_tag(&self, tag_repository: State<'_, TagRepository>, tag: &Tag) -> Result<(), ServiceError> {
         // バリデーション実行
         self.validate_tag(tag_repository.clone(), tag).await?;
-        
+
         // 既存タグの存在確認
         let existing_tag = self.get_tag(tag_repository.clone(), &tag.id).await?;
         if existing_tag.is_none() {
             return Err(ServiceError::ValidationError("Tag not found".to_string()));
         }
-        
+
         // 更新日時設定
         let mut updated_tag = tag.clone();
         updated_tag.updated_at = Utc::now();
@@ -69,7 +69,7 @@ impl TagService {
         if let Some(existing) = existing_tag {
             updated_tag.created_at = existing.created_at;
         }
-        
+
         // Repository呼び出し
         match self.safe_repository_call(async move {
             tag_repository.set_tag(&updated_tag).await
@@ -84,13 +84,13 @@ impl TagService {
         if tag_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
         }
-        
+
         // 削除可能かどうかチェック（使用されていないかどうか）
         let can_delete = self.can_delete_tag(tag_repository.clone(), tag_id).await?;
         if !can_delete {
             return Err(ServiceError::ValidationError("Cannot delete tag: tag is in use by tasks".to_string()));
         }
-        
+
         // Repository呼び出し（論理削除）
         match self.safe_repository_call(async move {
             tag_repository.delete_tag(tag_id).await
@@ -116,7 +116,7 @@ impl TagService {
         if tag_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
         }
-        
+
         // Repository呼び出し
         match self.safe_repository_call(async move {
             tag_repository.get_tag_usage_count(tag_id).await
@@ -134,7 +134,7 @@ impl TagService {
         if limit == 0 {
             return Err(ServiceError::ValidationError("Limit must be greater than 0".to_string()));
         }
-        
+
         // Repository呼び出し（フォールバック戦略）
         match self.safe_repository_call(async move {
             match tag_repository.get_popular_tags(limit).await {
@@ -221,7 +221,7 @@ impl TagService {
         if limit == 0 {
             return Err(ServiceError::ValidationError("Limit must be greater than 0".to_string()));
         }
-        
+
         // Repository呼び出し（フォールバック戦略）
         match self.safe_repository_call(async move {
             match tag_repository.find_tags_by_name(name).await {
@@ -251,12 +251,12 @@ impl TagService {
         if color.trim().is_empty() {
             return Err(ServiceError::ValidationError("Color cannot be empty".to_string()));
         }
-        
+
         // 色フォーマットの簡易チェック
         if !color.starts_with('#') || color.len() != 7 {
             return Err(ServiceError::ValidationError("Invalid color format. Use #RRGGBB format".to_string()));
         }
-        
+
         // Repository呼び出し（フォールバック戦略）
         match self.safe_repository_call(async move {
             match tag_repository.find_tags_by_color(color).await {
@@ -331,7 +331,7 @@ impl TagService {
         if name.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag name cannot be empty".to_string()));
         }
-        
+
         // Repository呼び出し（フォールバック戦略）
         match self.safe_repository_call(async move {
             match tag_repository.is_tag_name_unique(name, exclude_id).await {
@@ -360,7 +360,7 @@ impl TagService {
         if tag_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
         }
-        
+
         // Repository呼び出し（フォールバック戦略）
         match self.safe_repository_call(async move {
             match tag_repository.can_delete_tag(tag_id).await {
@@ -423,12 +423,12 @@ impl TagService {
                     // Repository実装が未完了の場合のフォールバック
                     let all_tags = tag_repository.list_tags().await?;
                     let mut color_map = std::collections::HashMap::new();
-                    
+
                     for tag in all_tags {
                         let color_key = tag.color.clone();
                         *color_map.entry(color_key).or_insert(0) += 1;
                     }
-                    
+
                     let result: Vec<ColorDistribution> = color_map.into_iter()
                         .map(|(color, count)| ColorDistribution { color, count })
                         .collect();
