@@ -21,15 +21,14 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-automerge = "0.5"
+serde_json = "1.0.142"
+automerge = "0.6.1"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-dirs = "5.0"
+dirs = "6.0.0"
 log = "0.4"
-env_logger = "0.10"
+env_logger = "0.11.8"
 automerge_repo = "0.2.2"
 async-trait = "0.1.88"
 tokio = { version = "1.47.1", features = ["full"] }
 thiserror = "2.0.12"
-
