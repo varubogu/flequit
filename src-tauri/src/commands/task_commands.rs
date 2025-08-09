@@ -281,64 +281,19 @@ pub async fn search_tasks(
     println!("search_tasks called");
     println!("request: {:?}", request);
 
-    // 基本的な検索処理の実装（サービス層に詳細なロジックを移譲すべき）
-    // ここでは既存のlist_tasksベースで実装
-    if let Some(project_id) = request.project_id {
-        match task_service.list_tasks(task_repository, &project_id).await {
-            Ok(mut tasks) => {
-                // フィルタリング処理
-                if let Some(ref title) = request.title {
-                    tasks.retain(|task| task.title.to_lowercase().contains(&title.to_lowercase()));
-                }
-                if let Some(ref description) = request.description {
-                    if let Some(ref task_desc) = tasks.iter().find(|t| t.description.is_some()) {
-                        tasks.retain(|task| {
-                            if let Some(ref desc) = task.description {
-                                desc.to_lowercase().contains(&description.to_lowercase())
-                            } else {
-                                false
-                            }
-                        });
-                    }
-                }
-                if let Some(status) = request.status {
-                    tasks.retain(|task| task.status == status);
-                }
-                if let Some(ref assignee_id) = request.assignee_id {
-                    tasks.retain(|task| task.assigned_user_ids.contains(assignee_id));
-                }
-
-                // ページネーション
-                let total_count = tasks.len();
-                let offset = request.offset.unwrap_or(0);
-                let limit = request.limit.unwrap_or(50);
-
-                if offset < tasks.len() {
-                    tasks = tasks.into_iter().skip(offset).take(limit).collect();
-                } else {
-                    tasks = vec![];
-                }
-
-                Ok(TaskSearchResponse {
-                    success: true,
-                    data: tasks,
-                    total_count: Some(total_count),
-                    message: Some("Tasks retrieved successfully".to_string()),
-                })
-            }
-            Err(service_error) => Ok(TaskSearchResponse {
-                success: false,
-                data: vec![],
-                total_count: Some(0),
-                message: Some(service_error.to_string()),
-            })
-        }
-    } else {
-        Ok(TaskSearchResponse {
+    // サービス層を呼び出し
+    match task_service.search_tasks(task_repository, &request).await {
+        Ok((tasks, total_count)) => Ok(TaskSearchResponse {
+            success: true,
+            data: tasks,
+            total_count: Some(total_count),
+            message: Some("Tasks retrieved successfully".to_string()),
+        }),
+        Err(service_error) => Ok(TaskSearchResponse {
             success: false,
             data: vec![],
             total_count: Some(0),
-            message: Some("Project ID is required".to_string()),
+            message: Some(service_error.to_string()),
         })
     }
 }
