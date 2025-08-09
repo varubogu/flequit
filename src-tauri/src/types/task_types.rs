@@ -147,6 +147,7 @@ pub struct Task {
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub tag_ids: Vec<String>, // 付与されたタグIDの配列
     pub order_index: i32,
     pub is_archived: bool,
     pub created_at: DateTime<Utc>,
@@ -181,6 +182,7 @@ pub struct Subtask {
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub tag_ids: Vec<String>, // 付与されたタグIDの配列
     pub order_index: i32,
     pub completed: bool, // 既存のcompletedフィールドも保持
     pub created_at: DateTime<Utc>,
