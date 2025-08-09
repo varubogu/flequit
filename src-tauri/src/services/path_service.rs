@@ -26,14 +26,14 @@ pub struct PathService {
 }
 
 impl PathService {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
-        let config = Self::load_config().unwrap_or_default();
-        Ok(Self { config })
-    }
+    // pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    //     let config = Self::load_config().unwrap_or_default();
+    //     Ok(Self { config })
+    // }
 
-    pub fn with_config(config: PathConfig) -> Self {
-        Self { config }
-    }
+    // pub fn with_config(config: PathConfig) -> Self {
+    //     Self { config }
+    // }
 
     /// OS別のデフォルトデータディレクトリを取得
     pub fn get_default_data_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
@@ -118,10 +118,10 @@ impl PathService {
         }
     }
 
-    /// メインデータファイルのパスを取得
-    pub fn get_main_data_file(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
-        Ok(self.get_data_dir()?.join("tasks.automerge"))
-    }
+    // /// メインデータファイルのパスを取得
+    // pub fn get_main_data_file(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    //     Ok(self.get_data_dir()?.join("tasks.automerge"))
+    // }
 
     /// 設定ファイルのパスを取得
     pub fn get_config_file() -> Result<PathBuf, Box<dyn std::error::Error>> {
@@ -159,19 +159,19 @@ impl PathService {
         Ok(())
     }
 
-    /// 設定をファイルから読み込み
-    pub fn load_config() -> Result<PathConfig, Box<dyn std::error::Error>> {
-        let config_file = Self::get_config_file()?;
-        if config_file.exists() {
-            let content = fs::read_to_string(&config_file)?;
-            let config: PathConfig = serde_json::from_str(&content)?;
-            log::info!("Loaded path configuration from: {:?}", config_file);
-            Ok(config)
-        } else {
-            log::info!("No path configuration found, using defaults");
-            Ok(PathConfig::default())
-        }
-    }
+    // /// 設定をファイルから読み込み
+    // pub fn load_config() -> Result<PathConfig, Box<dyn std::error::Error>> {
+    //     let config_file = Self::get_config_file()?;
+    //     if config_file.exists() {
+    //         let content = fs::read_to_string(&config_file)?;
+    //         let config: PathConfig = serde_json::from_str(&content)?;
+    //         log::info!("Loaded path configuration from: {:?}", config_file);
+    //         Ok(config)
+    //     } else {
+    //         log::info!("No path configuration found, using defaults");
+    //         Ok(PathConfig::default())
+    //     }
+    // }
 
     /// 設定を更新
     pub fn update_config(&mut self, new_config: PathConfig) -> Result<(), Box<dyn std::error::Error>> {

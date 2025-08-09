@@ -12,14 +12,14 @@ pub enum AutomergeError {
     // #[error("Automerge operation failed: {0}")]
     // OperationError(String),
 
-    #[error("Serialization error: {0}")]
-    SerializationError(String),
+    // #[error("Serialization error: {0}")]
+    // SerializationError(String),
 
-    #[error("Deserialization error: {0}")]
-    DeserializationError(String),
+    // #[error("Deserialization error: {0}")]
+    // DeserializationError(String),
 
-    #[error("Invalid value: {0}")]
-    InvalidValue(String),
+    // #[error("Invalid value: {0}")]
+    // InvalidValue(String),
 
     // #[error("Document not found: {0}")]
     // DocumentNotFound(String),
