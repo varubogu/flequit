@@ -3,8 +3,7 @@ use tauri::State;
 use crate::types::user_types::User;
 use crate::services::automerge::UserService;
 use crate::repositories::automerge::UserRepository;
-use uuid::Uuid;
-use std::time::{SystemTime, UNIX_EPOCH};
+use chrono::Utc;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -245,11 +244,7 @@ pub async fn update_user_profile(
                 existing_user.avatar_url = Some(avatar_url);
             }
 
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            existing_user.updated_at = now;
+            existing_user.updated_at = Utc::now();
 
             // サービス層を呼び出し
             match user_service.update_avatar(user_repository, &user_id, Option::from(existing_user.avatar_url.clone())).await {

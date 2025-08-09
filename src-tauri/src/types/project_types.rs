@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
@@ -10,8 +11,8 @@ pub struct Project {
     pub is_archived: bool, // Svelte側に合わせて追加
     pub status: Option<ProjectStatus>, // Optionalに変更（Svelte側にはないが既存機能保持）
     pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -28,7 +29,7 @@ pub struct ProjectMember {
     pub user_id: String,
     pub project_id: String,
     pub role: MemberRole,
-    pub joined_at: i64,
+    pub joined_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

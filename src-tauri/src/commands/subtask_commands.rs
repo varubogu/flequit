@@ -3,8 +3,7 @@ use tauri::State;
 use crate::types::task_types::{Subtask, TaskStatus};
 use crate::services::automerge::SubtaskService;
 use crate::repositories::automerge::SubtaskRepository;
-use uuid::Uuid;
-use std::time::{SystemTime, UNIX_EPOCH};
+use chrono::Utc;
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -160,11 +159,7 @@ pub async fn update_subtask(
                 existing_subtask.status = status;
             }
 
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            existing_subtask.updated_at = now;
+            existing_subtask.updated_at = Utc::now();
 
             // サービス層を呼び出し
             match subtask_service.update_subtask(subtask_repository, &project_id, &existing_subtask).await {

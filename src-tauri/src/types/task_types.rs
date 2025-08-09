@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Utc};
 
 // TaskStatusをSvelte側に合わせて修正
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -90,7 +91,7 @@ pub enum AdjustmentTarget {
 pub struct DateCondition {
     pub id: String,
     pub relation: DateRelation,
-    pub reference_date: i64, // Unix timestamp
+    pub reference_date: DateTime<Utc>,
 }
 
 // 曜日条件
@@ -127,7 +128,7 @@ pub struct RecurrenceRule {
     pub days_of_week: Option<Vec<DayOfWeek>>,
     pub details: Option<RecurrenceDetails>,
     pub adjustment: Option<RecurrenceAdjustment>,
-    pub end_date: Option<i64>, // Unix timestamp
+    pub end_date: Option<DateTime<Utc>>,
     pub max_occurrences: Option<i32>,
 }
 
@@ -141,15 +142,15 @@ pub struct Task {
     pub description: Option<String>,
     pub status: TaskStatus,
     pub priority: i32,
-    pub start_date: Option<i64>,
-    pub end_date: Option<i64>,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub is_archived: bool,
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 // TaskList構造体を追加
@@ -162,8 +163,8 @@ pub struct TaskList {
     pub color: Option<String>,
     pub order_index: i32,
     pub is_archived: bool,
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 // Subtask構造体をSvelte側に合わせて修正
@@ -175,15 +176,15 @@ pub struct Subtask {
     pub description: Option<String>,
     pub status: TaskStatus,
     pub priority: Option<i32>,
-    pub start_date: Option<i64>,
-    pub end_date: Option<i64>,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub completed: bool, // 既存のcompletedフィールドも保持
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -195,8 +196,8 @@ pub struct ProjectTree {
     pub order_index: i32,
     pub is_archived: bool,
     pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub task_lists: Vec<TaskListWithTasks>,
 }
 
@@ -209,8 +210,8 @@ pub struct TaskListWithTasks {
     pub color: Option<String>,
     pub order_index: i32,
     pub is_archived: bool,
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub tasks: Vec<TaskWithSubTasks>,
 }
 
@@ -223,15 +224,15 @@ pub struct TaskWithSubTasks {
     pub description: Option<String>,
     pub status: TaskStatus, // StringからTaskStatusに修正
     pub priority: i32,
-    pub start_date: Option<i64>,
-    pub end_date: Option<i64>,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
     pub is_range_date: Option<bool>, // 追加
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub is_archived: bool,
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub sub_tasks: Vec<SubTask>,
     pub tags: Vec<Tag>,
 }
@@ -244,15 +245,15 @@ pub struct SubTask {
     pub description: Option<String>,
     pub status: TaskStatus, // StringからTaskStatusに修正
     pub priority: Option<i32>,
-    pub start_date: Option<i64>,
-    pub end_date: Option<i64>,
+    pub start_date: Option<DateTime<Utc>>,
+    pub end_date: Option<DateTime<Utc>>,
     pub is_range_date: Option<bool>, // 追加
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
     pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
     pub order_index: i32,
     pub tags: Vec<Tag>,
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -261,6 +262,6 @@ pub struct Tag {
     pub name: String,
     pub color: Option<String>,
     pub order_index: Option<i32>, // Svelte側に合わせて追加
-    pub created_at: i64,
-    pub updated_at: i64,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
