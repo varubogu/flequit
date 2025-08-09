@@ -155,62 +155,62 @@ impl TagService {
         }
     }
 
-    pub async fn get_tags_with_usage(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<TagWithUsage>, ServiceError> {
-        // Repository呼び出し（フォールバック戦略）
-        match self.safe_repository_call(async move {
-            match tag_repository.get_tags_with_usage_count().await {
-                Ok(tags_with_count) => {
-                    let result: Vec<TagWithUsage> = tags_with_count.into_iter()
-                        .map(|(tag, usage_count)| TagWithUsage { tag, usage_count })
-                        .collect();
-                    Ok(result)
-                },
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    let all_tags = tag_repository.list_tags().await?;
-                    let mut result = Vec::new();
-                    for tag in all_tags {
-                        let usage_count = match tag_repository.get_tag_usage_count(&tag.id).await {
-                            Ok(count) => count,
-                            Err(_) => 0, // エラーの場合は使用数0とする
-                        };
-                        result.push(TagWithUsage { tag, usage_count });
-                    }
-                    Ok(result)
-                }
-            }
-        }).await {
-            Ok(tags) => Ok(tags),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    // pub async fn get_tags_with_usage(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<TagWithUsage>, ServiceError> {
+    //     // Repository呼び出し（フォールバック戦略）
+    //     match self.safe_repository_call(async move {
+    //         match tag_repository.get_tags_with_usage_count().await {
+    //             Ok(tags_with_count) => {
+    //                 let result: Vec<TagWithUsage> = tags_with_count.into_iter()
+    //                     .map(|(tag, usage_count)| TagWithUsage { tag, usage_count })
+    //                     .collect();
+    //                 Ok(result)
+    //             },
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 let all_tags = tag_repository.list_tags().await?;
+    //                 let mut result = Vec::new();
+    //                 for tag in all_tags {
+    //                     let usage_count = match tag_repository.get_tag_usage_count(&tag.id).await {
+    //                         Ok(count) => count,
+    //                         Err(_) => 0, // エラーの場合は使用数0とする
+    //                     };
+    //                     result.push(TagWithUsage { tag, usage_count });
+    //                 }
+    //                 Ok(result)
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(tags) => Ok(tags),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
-    pub async fn get_unused_tags(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<Tag>, ServiceError> {
-        // Repository呼び出し（フォールバック戦略）
-        match self.safe_repository_call(async move {
-            match tag_repository.get_unused_tags().await {
-                Ok(tags) => Ok(tags),
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    let all_tags = tag_repository.list_tags().await?;
-                    let mut unused_tags = Vec::new();
-                    for tag in all_tags {
-                        let usage_count = match tag_repository.get_tag_usage_count(&tag.id).await {
-                            Ok(count) => count,
-                            Err(_) => 1, // エラーの場合は使用中とみなす
-                        };
-                        if usage_count == 0 {
-                            unused_tags.push(tag);
-                        }
-                    }
-                    Ok(unused_tags)
-                }
-            }
-        }).await {
-            Ok(tags) => Ok(tags),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    // pub async fn get_unused_tags(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<Tag>, ServiceError> {
+    //     // Repository呼び出し（フォールバック戦略）
+    //     match self.safe_repository_call(async move {
+    //         match tag_repository.get_unused_tags().await {
+    //             Ok(tags) => Ok(tags),
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 let all_tags = tag_repository.list_tags().await?;
+    //                 let mut unused_tags = Vec::new();
+    //                 for tag in all_tags {
+    //                     let usage_count = match tag_repository.get_tag_usage_count(&tag.id).await {
+    //                         Ok(count) => count,
+    //                         Err(_) => 1, // エラーの場合は使用中とみなす
+    //                     };
+    //                     if usage_count == 0 {
+    //                         unused_tags.push(tag);
+    //                     }
+    //                 }
+    //                 Ok(unused_tags)
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(tags) => Ok(tags),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
     // 検索・フィルタリング機能
     pub async fn search_tags_by_name(&self, tag_repository: State<'_, TagRepository>, name: &str, limit: usize) -> Result<Vec<Tag>, ServiceError> {
@@ -246,41 +246,41 @@ impl TagService {
         }
     }
 
-    pub async fn search_tags_by_color(&self, tag_repository: State<'_, TagRepository>, color: &str) -> Result<Vec<Tag>, ServiceError> {
-        // バリデーション
-        if color.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Color cannot be empty".to_string()));
-        }
+    // pub async fn search_tags_by_color(&self, tag_repository: State<'_, TagRepository>, color: &str) -> Result<Vec<Tag>, ServiceError> {
+    //     // バリデーション
+    //     if color.trim().is_empty() {
+    //         return Err(ServiceError::ValidationError("Color cannot be empty".to_string()));
+    //     }
 
-        // 色フォーマットの簡易チェック
-        if !color.starts_with('#') || color.len() != 7 {
-            return Err(ServiceError::ValidationError("Invalid color format. Use #RRGGBB format".to_string()));
-        }
+    //     // 色フォーマットの簡易チェック
+    //     if !color.starts_with('#') || color.len() != 7 {
+    //         return Err(ServiceError::ValidationError("Invalid color format. Use #RRGGBB format".to_string()));
+    //     }
 
-        // Repository呼び出し（フォールバック戦略）
-        match self.safe_repository_call(async move {
-            match tag_repository.find_tags_by_color(color).await {
-                Ok(tags) => Ok(tags),
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    let all_tags = tag_repository.list_tags().await?;
-                    let filtered_tags: Vec<Tag> = all_tags.into_iter()
-                        .filter(|tag| {
-                            if let Some(tag_color) = &tag.color {
-                                tag_color.eq_ignore_ascii_case(color)
-                            } else {
-                                false
-                            }
-                        })
-                        .collect();
-                    Ok(filtered_tags)
-                }
-            }
-        }).await {
-            Ok(tags) => Ok(tags),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    //     // Repository呼び出し（フォールバック戦略）
+    //     match self.safe_repository_call(async move {
+    //         match tag_repository.find_tags_by_color(color).await {
+    //             Ok(tags) => Ok(tags),
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 let all_tags = tag_repository.list_tags().await?;
+    //                 let filtered_tags: Vec<Tag> = all_tags.into_iter()
+    //                     .filter(|tag| {
+    //                         if let Some(tag_color) = &tag.color {
+    //                             tag_color.eq_ignore_ascii_case(color)
+    //                         } else {
+    //                             false
+    //                         }
+    //                     })
+    //                     .collect();
+    //                 Ok(filtered_tags)
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(tags) => Ok(tags),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
     // ビジネスロジック
     pub async fn validate_tag(&self, tag_repository: State<'_, TagRepository>, tag: &Tag) -> Result<(), ServiceError> {
@@ -380,153 +380,153 @@ impl TagService {
         }
     }
 
-    // 統計情報
-    pub async fn get_tag_statistics(&self, tag_repository: State<'_, TagRepository>) -> Result<TagStatistics, ServiceError> {
-        // 使用されているタグ、未使用タグの計算（最初にcloneを作成）
-        let tags_with_usage = self.get_tags_with_usage(tag_repository.clone()).await.unwrap_or_default();
-        let used_tags_count = tags_with_usage.iter().filter(|tag_usage| tag_usage.usage_count > 0).count();
-        let unused_tags_count = tags_with_usage.iter().filter(|tag_usage| tag_usage.usage_count == 0).count();
+    // // 統計情報
+    // pub async fn get_tag_statistics(&self, tag_repository: State<'_, TagRepository>) -> Result<TagStatistics, ServiceError> {
+    //     // 使用されているタグ、未使用タグの計算（最初にcloneを作成）
+    //     let tags_with_usage = self.get_tags_with_usage(tag_repository.clone()).await.unwrap_or_default();
+    //     let used_tags_count = tags_with_usage.iter().filter(|tag_usage| tag_usage.usage_count > 0).count();
+    //     let unused_tags_count = tags_with_usage.iter().filter(|tag_usage| tag_usage.usage_count == 0).count();
 
-        // 色分布の計算
-        let color_distribution = self.get_color_distribution(tag_repository.clone()).await.unwrap_or_default();
+    //     // 色分布の計算
+    //     let color_distribution = self.get_color_distribution(tag_repository.clone()).await.unwrap_or_default();
 
-        // タグ総数取得
-        let total_tags = match self.safe_repository_call(async move {
-            tag_repository.get_tag_count().await
-        }).await {
-            Ok(count) => count as usize,
-            Err(_) => {
-                // Repository実装が未完了の場合のフォールバック
-                tags_with_usage.len()
-            }
-        };
+    //     // タグ総数取得
+    //     let total_tags = match self.safe_repository_call(async move {
+    //         tag_repository.get_tag_count().await
+    //     }).await {
+    //         Ok(count) => count as usize,
+    //         Err(_) => {
+    //             // Repository実装が未完了の場合のフォールバック
+    //             tags_with_usage.len()
+    //         }
+    //     };
 
-        Ok(TagStatistics {
-            total_tags,
-            used_tags_count,
-            unused_tags_count,
-            color_distribution,
-        })
-    }
+    //     Ok(TagStatistics {
+    //         total_tags,
+    //         used_tags_count,
+    //         unused_tags_count,
+    //         color_distribution,
+    //     })
+    // }
 
-    pub async fn get_color_distribution(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<ColorDistribution>, ServiceError> {
-        // Repository呼び出し（フォールバック戦略）
-        match self.safe_repository_call(async move {
-            match tag_repository.get_color_distribution().await {
-                Ok(distribution) => {
-                    let result: Vec<ColorDistribution> = distribution.into_iter()
-                        .map(|(color, count)| ColorDistribution { color, count })
-                        .collect();
-                    Ok(result)
-                },
-                Err(_) => {
-                    // Repository実装が未完了の場合のフォールバック
-                    let all_tags = tag_repository.list_tags().await?;
-                    let mut color_map = std::collections::HashMap::new();
+    // pub async fn get_color_distribution(&self, tag_repository: State<'_, TagRepository>) -> Result<Vec<ColorDistribution>, ServiceError> {
+    //     // Repository呼び出し（フォールバック戦略）
+    //     match self.safe_repository_call(async move {
+    //         match tag_repository.get_color_distribution().await {
+    //             Ok(distribution) => {
+    //                 let result: Vec<ColorDistribution> = distribution.into_iter()
+    //                     .map(|(color, count)| ColorDistribution { color, count })
+    //                     .collect();
+    //                 Ok(result)
+    //             },
+    //             Err(_) => {
+    //                 // Repository実装が未完了の場合のフォールバック
+    //                 let all_tags = tag_repository.list_tags().await?;
+    //                 let mut color_map = std::collections::HashMap::new();
 
-                    for tag in all_tags {
-                        let color_key = tag.color.clone();
-                        *color_map.entry(color_key).or_insert(0) += 1;
-                    }
+    //                 for tag in all_tags {
+    //                     let color_key = tag.color.clone();
+    //                     *color_map.entry(color_key).or_insert(0) += 1;
+    //                 }
 
-                    let result: Vec<ColorDistribution> = color_map.into_iter()
-                        .map(|(color, count)| ColorDistribution { color, count })
-                        .collect();
-                    Ok(result)
-                }
-            }
-        }).await {
-            Ok(distribution) => Ok(distribution),
-            Err(e) => Err(ServiceError::Repository(e))
-        }
-    }
+    //                 let result: Vec<ColorDistribution> = color_map.into_iter()
+    //                     .map(|(color, count)| ColorDistribution { color, count })
+    //                     .collect();
+    //                 Ok(result)
+    //             }
+    //         }
+    //     }).await {
+    //         Ok(distribution) => Ok(distribution),
+    //         Err(e) => Err(ServiceError::Repository(e))
+    //     }
+    // }
 
-    // 高度なフィルタリング機能
-    pub async fn filter_tags(&self, tag_repository: State<'_, TagRepository>, filter: &TagFilter) -> Result<Vec<Tag>, ServiceError> {
-        // 基本的なタグリストを取得
-        let mut tags = self.list_tags(tag_repository.clone()).await?;
+    // // 高度なフィルタリング機能
+    // pub async fn filter_tags(&self, tag_repository: State<'_, TagRepository>, filter: &TagFilter) -> Result<Vec<Tag>, ServiceError> {
+    //     // 基本的なタグリストを取得
+    //     let mut tags = self.list_tags(tag_repository.clone()).await?;
 
-        // 名前フィルター
-        if let Some(ref name_pattern) = filter.name_pattern {
-            if !name_pattern.trim().is_empty() {
-                let pattern_lower = name_pattern.to_lowercase();
-                tags.retain(|tag| tag.name.to_lowercase().contains(&pattern_lower));
-            }
-        }
+    //     // 名前フィルター
+    //     if let Some(ref name_pattern) = filter.name_pattern {
+    //         if !name_pattern.trim().is_empty() {
+    //             let pattern_lower = name_pattern.to_lowercase();
+    //             tags.retain(|tag| tag.name.to_lowercase().contains(&pattern_lower));
+    //         }
+    //     }
 
-        // 色フィルター
-        if let Some(ref colors) = filter.colors {
-            if !colors.is_empty() {
-                tags.retain(|tag| {
-                    if let Some(tag_color) = &tag.color {
-                        colors.iter().any(|color| tag_color.eq_ignore_ascii_case(color))
-                    } else {
-                        colors.iter().any(|color| color.is_empty()) // 色なしタグをフィルター
-                    }
-                });
-            }
-        }
+    //     // 色フィルター
+    //     if let Some(ref colors) = filter.colors {
+    //         if !colors.is_empty() {
+    //             tags.retain(|tag| {
+    //                 if let Some(tag_color) = &tag.color {
+    //                     colors.iter().any(|color| tag_color.eq_ignore_ascii_case(color))
+    //                 } else {
+    //                     colors.iter().any(|color| color.is_empty()) // 色なしタグをフィルター
+    //                 }
+    //             });
+    //         }
+    //     }
 
-        // 使用状況フィルター
-        if let Some(usage_filter) = &filter.usage_filter {
-            let mut filtered_tags = Vec::new();
-            for tag in tags {
-                let usage_count = self.get_tag_usage_count(tag_repository.clone(), &tag.id).await?;
-                let should_include = match usage_filter {
-                    UsageFilter::Used => usage_count > 0,
-                    UsageFilter::Unused => usage_count == 0,
-                    UsageFilter::All => true,
-                    UsageFilter::MinUsage(min) => usage_count >= *min,
-                };
-                if should_include {
-                    filtered_tags.push(tag);
-                }
-            }
-            tags = filtered_tags;
-        }
+    //     // 使用状況フィルター
+    //     if let Some(usage_filter) = &filter.usage_filter {
+    //         let mut filtered_tags = Vec::new();
+    //         for tag in tags {
+    //             let usage_count = self.get_tag_usage_count(tag_repository.clone(), &tag.id).await?;
+    //             let should_include = match usage_filter {
+    //                 UsageFilter::Used => usage_count > 0,
+    //                 UsageFilter::Unused => usage_count == 0,
+    //                 UsageFilter::All => true,
+    //                 UsageFilter::MinUsage(min) => usage_count >= *min,
+    //             };
+    //             if should_include {
+    //                 filtered_tags.push(tag);
+    //             }
+    //         }
+    //         tags = filtered_tags;
+    //     }
 
-        // 作成日フィルター
-        if let Some(ref created_from) = filter.created_from {
-            tags.retain(|tag| tag.created_at >= *created_from);
-        }
-        if let Some(ref created_to) = filter.created_to {
-            tags.retain(|tag| tag.created_at <= *created_to);
-        }
+    //     // 作成日フィルター
+    //     if let Some(ref created_from) = filter.created_from {
+    //         tags.retain(|tag| tag.created_at >= *created_from);
+    //     }
+    //     if let Some(ref created_to) = filter.created_to {
+    //         tags.retain(|tag| tag.created_at <= *created_to);
+    //     }
 
-        // ソート
-        if let Some(ref sort_by) = filter.sort_by {
-            match sort_by {
-                TagSortBy::Name => {
-                    tags.sort_by(|a, b| a.name.cmp(&b.name));
-                },
-                TagSortBy::CreatedAt => {
-                    tags.sort_by(|a, b| b.created_at.cmp(&a.created_at)); // 新しい順
-                },
-                TagSortBy::UpdatedAt => {
-                    tags.sort_by(|a, b| b.updated_at.cmp(&a.updated_at)); // 新しい順
-                },
-                TagSortBy::Usage => {
-                    // 使用数での並び替え（重い処理なので注意）
-                    let mut tags_with_usage = Vec::new();
-                    for tag in tags {
-                        let usage_count = self.get_tag_usage_count(tag_repository.clone(), &tag.id).await.unwrap_or(0);
-                        tags_with_usage.push((tag, usage_count));
-                    }
-                    tags_with_usage.sort_by(|a, b| b.1.cmp(&a.1)); // 使用数の多い順
-                    tags = tags_with_usage.into_iter().map(|(tag, _)| tag).collect();
-                },
-            }
-        }
+    //     // ソート
+    //     if let Some(ref sort_by) = filter.sort_by {
+    //         match sort_by {
+    //             TagSortBy::Name => {
+    //                 tags.sort_by(|a, b| a.name.cmp(&b.name));
+    //             },
+    //             TagSortBy::CreatedAt => {
+    //                 tags.sort_by(|a, b| b.created_at.cmp(&a.created_at)); // 新しい順
+    //             },
+    //             TagSortBy::UpdatedAt => {
+    //                 tags.sort_by(|a, b| b.updated_at.cmp(&a.updated_at)); // 新しい順
+    //             },
+    //             TagSortBy::Usage => {
+    //                 // 使用数での並び替え（重い処理なので注意）
+    //                 let mut tags_with_usage = Vec::new();
+    //                 for tag in tags {
+    //                     let usage_count = self.get_tag_usage_count(tag_repository.clone(), &tag.id).await.unwrap_or(0);
+    //                     tags_with_usage.push((tag, usage_count));
+    //                 }
+    //                 tags_with_usage.sort_by(|a, b| b.1.cmp(&a.1)); // 使用数の多い順
+    //                 tags = tags_with_usage.into_iter().map(|(tag, _)| tag).collect();
+    //             },
+    //         }
+    //     }
 
-        // 制限
-        if let Some(limit) = filter.limit {
-            if limit > 0 {
-                tags = tags.into_iter().take(limit).collect();
-            }
-        }
+    //     // 制限
+    //     if let Some(limit) = filter.limit {
+    //         if limit > 0 {
+    //             tags = tags.into_iter().take(limit).collect();
+    //         }
+    //     }
 
-        Ok(tags)
-    }
+    //     Ok(tags)
+    // }
 
     // Repository呼び出しの安全実行（todo!()パニック対応）
     async fn safe_repository_call<T, F>(&self, future: F) -> Result<T, crate::errors::RepositoryError>
