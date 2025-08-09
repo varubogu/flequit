@@ -6,12 +6,6 @@ use crate::repositories::automerge::UserRepository;
 use uuid::Uuid;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CreateUserRequest {
-    pub username: String,
-    pub email: String,
-    pub display_name: Option<String>,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserResponse {
@@ -23,30 +17,12 @@ pub struct UserResponse {
 // ユーザー作成
 #[tauri::command]
 pub async fn create_user(
-    request: CreateUserRequest,
+    user: User,
     user_service: State<'_, UserService>,
     user_repository: State<'_, UserRepository>,
 ) -> Result<UserResponse, String> {
     println!("create_user called");
-    println!("request: {:?}", request);
-
-    // コマンド引数をservice形式に変換
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
-
-    let user = User {
-        id:Uuid::new_v4().to_string(),
-        username: Option::from(request.username),
-        email: request.email,
-        display_name: request.display_name,
-        avatar_url: None,
-        created_at: now,
-        updated_at: now,
-        name: todo!(),
-        avatar: todo!()
-    };
+    println!("user: {:?}", user);
 
     // サービス層を呼び出し
     match user_service.create_user(user_repository, &user).await {
@@ -149,61 +125,20 @@ pub async fn list_users(
 // ユーザー更新
 #[tauri::command]
 pub async fn update_user(
-    user_id: String,
-    username: Option<String>,
-    email: Option<String>,
-    display_name: Option<String>,
+    user: User,
     user_service: State<'_, UserService>,
     user_repository: State<'_, UserRepository>,
 ) -> Result<UserResponse, String> {
     println!("update_user called");
-    println!("user_id: {:?}", user_id);
+    println!("user: {:?}", user);
 
-    // 既存のユーザーを取得
-    match user_service.get_user(user_repository.clone(), &user_id).await {
-        Ok(Some(mut existing_user)) => {
-            // コマンド引数をservice形式に変換
-            if let Some(username) = username {
-                existing_user.username = Option::from(username);
-            }
-            if let Some(email) = email {
-                existing_user.email = email;
-            }
-            if let Some(display_name) = display_name {
-                existing_user.display_name = Some(display_name);
-            }
-
-            let now = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
-            existing_user.updated_at = now;
-
-            // サービス層を呼び出し
-            match user_service.update_user(user_repository, &existing_user).await {
-                Ok(_) => {
-                    let res = UserResponse {
-                        success: true,
-                        data: Some(existing_user),
-                        message: Some("User updated successfully".to_string()),
-                    };
-                    Ok(res)
-                }
-                Err(service_error) => {
-                    let res = UserResponse {
-                        success: false,
-                        data: None,
-                        message: Some(service_error.to_string()),
-                    };
-                    Ok(res)
-                }
-            }
-        }
-        Ok(None) => {
+    // サービス層を呼び出し
+    match user_service.update_user(user_repository, &user).await {
+        Ok(_) => {
             let res = UserResponse {
-                success: false,
-                data: None,
-                message: Some("User not found".to_string()),
+                success: true,
+                data: Some(user),
+                message: Some("User updated successfully".to_string()),
             };
             Ok(res)
         }

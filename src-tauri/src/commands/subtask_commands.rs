@@ -6,13 +6,6 @@ use crate::repositories::automerge::SubtaskRepository;
 use uuid::Uuid;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CreateSubtaskRequest {
-    pub project_id: String,
-    pub task_id: String,
-    pub title: String,
-    pub description: Option<String>,
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SubtaskResponse {
@@ -59,36 +52,12 @@ pub struct SubtaskDeleteResponse {
 // サブタスク作成
 #[tauri::command]
 pub async fn create_subtask(
-    request: CreateSubtaskRequest,
+    subtask: Subtask,
     subtask_service: State<'_, SubtaskService>,
     subtask_repository: State<'_, SubtaskRepository>,
 ) -> Result<SubtaskResponse, String> {
     println!("create_subtask called");
-    println!("request: {:?}", request);
-
-    // コマンド引数をservice形式に変換
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as i64;
-
-    let subtask = Subtask {
-        id:Uuid::new_v4().to_string(),
-        task_id:request.task_id,
-        title:request.title,
-        created_at:now,
-        updated_at:now,
-        completed:todo!(),
-        description: todo!(),
-        status: todo!(),
-        priority: todo!(),
-        start_date: todo!(),
-        end_date: todo!(),
-        is_range_date: todo!(),
-        recurrence_rule: todo!(),
-        assigned_user_ids: vec![], // アサインされたユーザーIDの配列
-        order_index: todo!()
-    };
+    println!("subtask: {:?}", subtask);
 
     // サービス層を呼び出し
     match subtask_service.create_subtask(subtask_repository, &subtask).await {
@@ -329,7 +298,7 @@ pub async fn search_subtasks(
                 let total_count = subtasks.len();
                 let offset = request.offset.unwrap_or(0);
                 let limit = request.limit.unwrap_or(50);
-                
+
                 if offset < subtasks.len() {
                     subtasks = subtasks.into_iter().skip(offset).take(limit).collect();
                 } else {
