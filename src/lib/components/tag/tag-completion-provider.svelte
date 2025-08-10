@@ -1,9 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import {
-    TagCompletionLogic,
-    type TagDetectionData
-  } from './tag-completion-logic.svelte';
+  import { TagCompletionLogic, type TagDetectionData } from './tag-completion-logic.svelte';
   import TagCompletionUI from './tag-completion-ui.svelte';
 
   interface Props {

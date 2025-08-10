@@ -7,10 +7,7 @@ import {
 } from './tag-completion-keyhandler.svelte';
 import { TagNameUtils } from './tag-name-utils.svelte';
 import { TagParser } from './tag-parser.svelte';
-import {
-  TagElementUpdater,
-  type TagDetectionData
-} from './tag-element-updater.svelte';
+import { TagElementUpdater, type TagDetectionData } from './tag-element-updater.svelte';
 
 export { type TagDetectionData } from './tag-element-updater.svelte';
 
@@ -114,7 +111,7 @@ export class TagCompletionLogic implements KeyHandlerCallbacks {
     if (this.tagInputStart === -1 || !this.activeElement) return;
 
     const displayTagName = '#' + tag.name;
-    
+
     TagElementUpdater.updateElementWithTag(
       this.activeElement,
       this.tagInputStart,
@@ -122,11 +119,7 @@ export class TagCompletionLogic implements KeyHandlerCallbacks {
       displayTagName
     );
 
-    TagElementUpdater.notifyTagDetection(
-      this.onTagDetected,
-      tag.name,
-      this.tagInputStart
-    );
+    TagElementUpdater.notifyTagDetection(this.onTagDetected, tag.name, this.tagInputStart);
 
     this.hideSuggestions();
   }
@@ -154,11 +147,7 @@ export class TagCompletionLogic implements KeyHandlerCallbacks {
       displayTagName
     );
 
-    TagElementUpdater.notifyTagDetection(
-      this.onTagDetected,
-      storeTagName,
-      this.tagInputStart
-    );
+    TagElementUpdater.notifyTagDetection(this.onTagDetected, storeTagName, this.tagInputStart);
 
     this.hideSuggestions();
   }

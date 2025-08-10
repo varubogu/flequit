@@ -6,6 +6,7 @@ Tauri → Commands → Service → Repository の3階層呼び出し構造で、
 ## 設計概要
 
 ### アーキテクチャ
+
 ```
 Frontend (SvelteKit)
     ↓ Tauri Invoke
@@ -31,6 +32,7 @@ Repository Layer (Data Access + CRDT操作)
 ```
 
 ### レイヤー責務
+
 - **Commands Layer**:
   - Tauri invoke関数の公開
   - 入力検証、結果変換
@@ -52,6 +54,7 @@ Repository Layer (Data Access + CRDT操作)
   - **automerge_storage.rs**: Automerge履歴・同期管理
 
 ### データフロー
+
 ```
 Frontend Request → Commands Layer → Service Layer → Repository Layer
                                                         ↓
@@ -66,9 +69,11 @@ Frontend Request → Commands Layer → Service Layer → Repository Layer
 ### Automerge Document操作フロー
 
 Repository Layer内での基本操作パターン:
+
 1. Document取得 → 2. 型変換 → 3. 構造体操作 → 4. Document更新 → 5. 保存・同期
 
 CRDT操作の種類:
+
 - Insert: 新規エンティティ追加
 - Update: 既存データ部分更新
 - Delete: **論理削除のみ**（物理削除は行わない）
@@ -122,6 +127,7 @@ src-tauri/src/
 ## データ階層構造
 
 ### Automergeドキュメント分割
+
 ```
 global_document/                    # グローバル情報ドキュメント
 ├── global_tags/
@@ -143,6 +149,7 @@ project_document_{project_id}/      # プロジェクト別ドキュメント
 ## 階層的データアクセス API設計
 
 ### 基本パターン
+
 ```
 // レベル1: ルート直下 (projects, global_tags, users)
 set_project(project: &Project) -> Result<(), RepositoryError>
@@ -163,11 +170,13 @@ list_subtasks(project_id: &str, task_id: &str) -> Result<Vec<Subtask>, Repositor
 ## エラーハンドリング
 
 ### エラー変換フロー
+
 ```
 Repository Error → Service Error → Command Error → Frontend
 ```
 
 ### 各層の役割
+
 - **RepositoryError**: データアクセスエラー
 - **ServiceError**: ビジネスロジックエラー（RepositoryErrorからの自動変換含む）
 - **CommandError**: UI表示用エラー（SerializationError等）
@@ -175,35 +184,42 @@ Repository Error → Service Error → Command Error → Frontend
 ### データ整合性エラー
 
 **削除済みエンティティへの操作**:
+
 - 論理削除済み・物理削除済みエンティティへの操作は失敗
 - RepositoryErrorとしてエラーを返却
 
 **バリデーションエラー**:
+
 - 必須フィールド不足、型制約違反等
 - 入力値検証はService Layer、データ制約はRepository Layerで実施
 
 **エラー通知**:
+
 - 全てのエラーはCommand戻り値としてフロントエンドに通知
 - フロントエンドでユーザーへの表示を実装
 
 ### 同期エラー
 
 **リトライ戦略**:
+
 - 周期的同期：次回同期時に再実行
 - 手動同期：ユーザーが再度実行
 
 **オフライン対応**:
+
 - ローカル動作が基本、同期はオプション機能
 - ネットワーク切断時も通常動作継続
 
 ## 主要機能
 
 ### Automerge-Repo統合
+
 - CRDT操作による自動マージ
 - 競合解決の自動化
 - 履歴管理機能
 
 ### 同期機能
+
 - ローカルファースト設計（SQLiteベース）
 - 増分同期：Automergeが自動処理
 - 競合検知：同期実行時に自動解決
@@ -211,11 +227,13 @@ Repository Error → Service Error → Command Error → Frontend
 - オフライン動作：標準機能
 
 ### データ管理
+
 - 型安全な構造体操作
 - 階層的データアクセス
 - トランザクション管理
 
 ### 型安全性
+
 - Rust厳格型システムによる型保証
 - 必須フィールド：id、作成日時、更新日時
 - その他フィールド：全てOptional（将来の拡張性考慮）
@@ -224,18 +242,21 @@ Repository Error → Service Error → Command Error → Frontend
 ## パフォーマンス最適化
 
 ### 2層ストレージアーキテクチャ
+
 - **SQLite**: 最新データの高速アクセス、インデックス・クエリ最適化
 - **Automerge**: 履歴管理・同期機能に特化
 - **メモリ効率**: 必要な最新データのみメモリ展開
 - **スケーラビリティ**: データ量増加時も実行時パフォーマンス維持
 
 ### データアクセスパターン
+
 - **読み込み**: SQLiteから最新データを取得（高速）
 - **書き込み**: SQLite + Automerge両方更新（整合性保証）
 - **同期**: Automergeから変更をSQLiteに反映
 - **履歴**: Automergeから過去データアクセス
 
 ### Automergeドキュメント粒度
+
 - **粒度単位**: プロジェクト1つ = Automergeドキュメント1つ
 - **含有データ**: プロジェクト情報、全タスク、全サブタスク、メンバー情報
 - **設計根拠**:

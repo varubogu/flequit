@@ -43,7 +43,7 @@ export class ProjectsService {
     try {
       const backendProjectTree = await backendService().updateProject(projectId, updates);
       if (!backendProjectTree) return null;
-      
+
       // ローカルストアも更新
       const updatedProject = await taskStore.updateProject(projectId, updates);
       return updatedProject;
@@ -75,24 +75,24 @@ export class ProjectsService {
 
   // プロジェクトID取得（名前で検索）
   static getProjectIdByName(name: string): string | null {
-    const project = taskStore.projects.find(p => p.name === name);
+    const project = taskStore.projects.find((p) => p.name === name);
     return project?.id || null;
   }
 
   // プロジェクト取得（ID指定）
   static getProjectById(projectId: string): Project | null {
-    const project = taskStore.projects.find(p => p.id === projectId);
+    const project = taskStore.projects.find((p) => p.id === projectId);
     return project || null;
   }
 
   // プロジェクト取得（タスクリスト付き）
   static getProjectWithListsById(projectId: string): ProjectWithLists | null {
-    const project = taskStore.projects.find(p => p.id === projectId);
+    const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return null;
 
     return {
       ...project,
-      task_lists: project.task_lists.map(list => ({
+      task_lists: project.task_lists.map((list) => ({
         id: list.id,
         project_id: list.project_id,
         name: list.name,
@@ -108,7 +108,7 @@ export class ProjectsService {
 
   // 全プロジェクト取得
   static getAllProjects(): Project[] {
-    return taskStore.projects.map(project => ({
+    return taskStore.projects.map((project) => ({
       id: project.id,
       name: project.name,
       description: project.description,
@@ -123,9 +123,10 @@ export class ProjectsService {
   // プロジェクト検索（名前による部分一致）
   static searchProjectsByName(searchTerm: string): Project[] {
     const lowercaseSearch = searchTerm.toLowerCase();
-    return this.getAllProjects().filter(project =>
-      project.name.toLowerCase().includes(lowercaseSearch) ||
-      (project.description && project.description.toLowerCase().includes(lowercaseSearch))
+    return this.getAllProjects().filter(
+      (project) =>
+        project.name.toLowerCase().includes(lowercaseSearch) ||
+        (project.description && project.description.toLowerCase().includes(lowercaseSearch))
     );
   }
 
@@ -183,7 +184,7 @@ export class ProjectsService {
     try {
       const backendTaskList = await backendService().updateTaskList(taskListId, updates);
       if (!backendTaskList) return null;
-      
+
       // ローカルストアも更新
       const updatedTaskList = await taskStore.updateTaskList(taskListId, updates);
       return updatedTaskList;
@@ -215,17 +216,17 @@ export class ProjectsService {
 
   // タスクリストID取得（名前で検索）
   static getTaskListIdByName(projectId: string, name: string): string | null {
-    const project = taskStore.projects.find(p => p.id === projectId);
+    const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return null;
 
-    const taskList = project.task_lists.find(list => list.name === name);
+    const taskList = project.task_lists.find((list) => list.name === name);
     return taskList?.id || null;
   }
 
   // タスクリスト取得（ID指定）
   static getTaskListById(taskListId: string): TaskList | null {
     for (const project of taskStore.projects) {
-      const taskList = project.task_lists.find(list => list.id === taskListId);
+      const taskList = project.task_lists.find((list) => list.id === taskListId);
       if (taskList) {
         return {
           id: taskList.id,
@@ -245,10 +246,10 @@ export class ProjectsService {
 
   // プロジェクト内の全タスクリスト取得
   static getTaskListsByProjectId(projectId: string): TaskList[] {
-    const project = taskStore.projects.find(p => p.id === projectId);
+    const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return [];
 
-    return project.task_lists.map(list => ({
+    return project.task_lists.map((list) => ({
       id: list.id,
       project_id: list.project_id,
       name: list.name,
@@ -264,29 +265,32 @@ export class ProjectsService {
   // タスクリスト検索（名前による部分一致）
   static searchTaskListsByName(searchTerm: string, projectId?: string): TaskList[] {
     const lowercaseSearch = searchTerm.toLowerCase();
-    const projects = projectId ?
-      taskStore.projects.filter(p => p.id === projectId) :
-      taskStore.projects;
+    const projects = projectId
+      ? taskStore.projects.filter((p) => p.id === projectId)
+      : taskStore.projects;
 
     const foundTaskLists: TaskList[] = [];
 
     for (const project of projects) {
-      const matchingLists = project.task_lists.filter(list =>
-        list.name.toLowerCase().includes(lowercaseSearch) ||
-        (list.description && list.description.toLowerCase().includes(lowercaseSearch))
+      const matchingLists = project.task_lists.filter(
+        (list) =>
+          list.name.toLowerCase().includes(lowercaseSearch) ||
+          (list.description && list.description.toLowerCase().includes(lowercaseSearch))
       );
 
-      foundTaskLists.push(...matchingLists.map(list => ({
-        id: list.id,
-        project_id: list.project_id,
-        name: list.name,
-        description: list.description,
-        color: list.color,
-        order_index: list.order_index,
-        is_archived: list.is_archived,
-        created_at: list.created_at,
-        updated_at: list.updated_at
-      })));
+      foundTaskLists.push(
+        ...matchingLists.map((list) => ({
+          id: list.id,
+          project_id: list.project_id,
+          name: list.name,
+          description: list.description,
+          color: list.color,
+          order_index: list.order_index,
+          is_archived: list.is_archived,
+          created_at: list.created_at,
+          updated_at: list.updated_at
+        }))
+      );
     }
 
     return foundTaskLists;
@@ -298,19 +302,27 @@ export class ProjectsService {
   }
 
   // タスクリストをプロジェクト間移動
-  static moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number): void {
+  static moveTaskListToProject(
+    taskListId: string,
+    targetProjectId: string,
+    targetIndex?: number
+  ): void {
     taskStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリスト位置移動
-  static moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number): void {
+  static moveTaskListToPosition(
+    taskListId: string,
+    targetProjectId: string,
+    targetIndex: number
+  ): void {
     taskStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリストのタスク数取得
   static getTaskCountByListId(taskListId: string): number {
     for (const project of taskStore.projects) {
-      const taskList = project.task_lists.find(list => list.id === taskListId);
+      const taskList = project.task_lists.find((list) => list.id === taskListId);
       if (taskList) {
         return taskList.tasks.length;
       }
@@ -320,7 +332,7 @@ export class ProjectsService {
 
   // プロジェクトのタスク数取得
   static getTaskCountByProjectId(projectId: string): number {
-    const project = taskStore.projects.find(p => p.id === projectId);
+    const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return 0;
 
     return project.task_lists.reduce((total, list) => total + list.tasks.length, 0);
@@ -337,7 +349,9 @@ export class ProjectsService {
   }
 
   // プロジェクトとタスクリストのペア検索
-  static findProjectAndTaskListByTaskId(taskId: string): { project: Project; taskList: TaskList } | null {
+  static findProjectAndTaskListByTaskId(
+    taskId: string
+  ): { project: Project; taskList: TaskList } | null {
     const result = taskStore.getTaskProjectAndList(taskId);
     if (!result) return null;
 
@@ -368,23 +382,33 @@ export class ProjectsService {
 
   // アーカイブ済みプロジェクトのフィルタリング
   static getActiveProjects(): Project[] {
-    return this.getAllProjects().filter(project => !project.is_archived);
+    return this.getAllProjects().filter((project) => !project.is_archived);
   }
 
   // アーカイブ済みタスクリストのフィルタリング
   static getActiveTaskListsByProjectId(projectId: string): TaskList[] {
-    return this.getTaskListsByProjectId(projectId).filter(list => !list.is_archived);
+    return this.getTaskListsByProjectId(projectId).filter((list) => !list.is_archived);
   }
 
   // プロジェクトのアーカイブ状態変更
   static async archiveProject(projectId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateProject(projectId, { is_archived: isArchived } as { name?: string; description?: string; color?: string; is_archived?: boolean });
+    const result = await this.updateProject(projectId, { is_archived: isArchived } as {
+      name?: string;
+      description?: string;
+      color?: string;
+      is_archived?: boolean;
+    });
     return result !== null;
   }
 
   // タスクリストのアーカイブ状態変更
   static async archiveTaskList(taskListId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateTaskList(taskListId, { is_archived: isArchived } as { name?: string; description?: string; color?: string; is_archived?: boolean });
+    const result = await this.updateTaskList(taskListId, { is_archived: isArchived } as {
+      name?: string;
+      description?: string;
+      color?: string;
+      is_archived?: boolean;
+    });
     return result !== null;
   }
 }
