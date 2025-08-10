@@ -1,4 +1,5 @@
-import type { Project, ProjectWithLists, TaskList, TaskListWithTasks } from '$lib/types/task';
+import type { Project, ProjectWithLists, TaskList } from '$lib/types/task';
+import { backendService } from '$lib/services/backend/backend-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
 export class ProjectsService {
@@ -8,8 +9,26 @@ export class ProjectsService {
     description?: string;
     color?: string;
   }): Promise<Project | null> {
-    const newProject = await taskStore.addProject(projectData);
-    return newProject;
+    try {
+      const backendProjectTree = await backendService().createProject(projectData);
+      // backendから返されたProjectTreeをProjectに変換
+      const newProject: Project = {
+        id: backendProjectTree.id,
+        name: backendProjectTree.name,
+        description: backendProjectTree.description,
+        color: backendProjectTree.color,
+        order_index: backendProjectTree.order_index,
+        is_archived: backendProjectTree.is_archived,
+        created_at: backendProjectTree.created_at,
+        updated_at: backendProjectTree.updated_at
+      };
+      // ローカルストアも更新
+      await taskStore.addProject(projectData);
+      return newProject;
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      return null;
+    }
   }
 
   // プロジェクト更新
@@ -21,13 +40,32 @@ export class ProjectsService {
       color?: string;
     }
   ): Promise<Project | null> {
-    const updatedProject = await taskStore.updateProject(projectId, updates);
-    return updatedProject;
+    try {
+      const backendProjectTree = await backendService().updateProject(projectId, updates);
+      if (!backendProjectTree) return null;
+      
+      // ローカルストアも更新
+      const updatedProject = await taskStore.updateProject(projectId, updates);
+      return updatedProject;
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      return null;
+    }
   }
 
   // プロジェクト削除
   static async deleteProject(projectId: string): Promise<boolean> {
-    return await taskStore.deleteProject(projectId);
+    try {
+      const success = await backendService().deleteProject(projectId);
+      if (success) {
+        // ローカルストアからも削除
+        await taskStore.deleteProject(projectId);
+      }
+      return success;
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      return false;
+    }
   }
 
   // プロジェクト選択
@@ -110,8 +148,27 @@ export class ProjectsService {
       color?: string;
     }
   ): Promise<TaskList | null> {
-    const newTaskList = await taskStore.addTaskList(projectId, taskListData);
-    return newTaskList;
+    try {
+      const backendTaskList = await backendService().createTaskList(projectId, taskListData);
+      // TaskListWithTasksからTaskListに変換
+      const newTaskList: TaskList = {
+        id: backendTaskList.id,
+        project_id: backendTaskList.project_id,
+        name: backendTaskList.name,
+        description: backendTaskList.description,
+        color: backendTaskList.color,
+        order_index: backendTaskList.order_index,
+        is_archived: backendTaskList.is_archived,
+        created_at: backendTaskList.created_at,
+        updated_at: backendTaskList.updated_at
+      };
+      // ローカルストアも更新
+      await taskStore.addTaskList(projectId, taskListData);
+      return newTaskList;
+    } catch (error) {
+      console.error('Failed to create task list:', error);
+      return null;
+    }
   }
 
   // タスクリスト更新
@@ -123,13 +180,32 @@ export class ProjectsService {
       color?: string;
     }
   ): Promise<TaskList | null> {
-    const updatedTaskList = await taskStore.updateTaskList(taskListId, updates);
-    return updatedTaskList;
+    try {
+      const backendTaskList = await backendService().updateTaskList(taskListId, updates);
+      if (!backendTaskList) return null;
+      
+      // ローカルストアも更新
+      const updatedTaskList = await taskStore.updateTaskList(taskListId, updates);
+      return updatedTaskList;
+    } catch (error) {
+      console.error('Failed to update task list:', error);
+      return null;
+    }
   }
 
   // タスクリスト削除
   static async deleteTaskList(taskListId: string): Promise<boolean> {
-    return await taskStore.deleteTaskList(taskListId);
+    try {
+      const success = await backendService().deleteTaskList(taskListId);
+      if (success) {
+        // ローカルストアからも削除
+        await taskStore.deleteTaskList(taskListId);
+      }
+      return success;
+    } catch (error) {
+      console.error('Failed to delete task list:', error);
+      return false;
+    }
   }
 
   // タスクリスト選択
@@ -302,13 +378,13 @@ export class ProjectsService {
 
   // プロジェクトのアーカイブ状態変更
   static async archiveProject(projectId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateProject(projectId, { is_archived: isArchived } as any);
+    const result = await this.updateProject(projectId, { is_archived: isArchived } as { name?: string; description?: string; color?: string; is_archived?: boolean });
     return result !== null;
   }
 
   // タスクリストのアーカイブ状態変更
   static async archiveTaskList(taskListId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateTaskList(taskListId, { is_archived: isArchived } as any);
+    const result = await this.updateTaskList(taskListId, { is_archived: isArchived } as { name?: string; description?: string; color?: string; is_archived?: boolean });
     return result !== null;
   }
 }

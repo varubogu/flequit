@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { backendService } from '../../src/lib/services/backend-service';
-import type { BackendService } from '../../src/lib/services/backend-service';
+import { backendService } from '../../src/lib/services/backend/backend-service';
+import type { BackendService } from '../../src/lib/services/backend/backend-service';
 
 describe('BackendService (Simple Test)', () => {
   let service: BackendService;

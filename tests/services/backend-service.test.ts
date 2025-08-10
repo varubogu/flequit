@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi, type MockedFunction } from 'vitest';
-import { backendService } from '../../src/lib/services/backend-service';
-import type { BackendService } from '../../src/lib/services/backend-service';
+import { backendService } from '../../src/lib/services/backend/backend-service';
+import type { BackendService } from '../../src/lib/services/backend/backend-service';
 
 // Tauriのモック
 vi.mock('@tauri-apps/api/core', () => ({

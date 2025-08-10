@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
-  import { backendService } from '$lib/services/backend-service';
+  import { backendService } from '$lib/services/backend/backend-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import { ModeWatcher } from 'mode-watcher';

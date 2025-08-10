@@ -10,7 +10,8 @@ import type {
 } from '$lib/types/task';
 import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
-import { backendService } from '$lib/services/backend-service';
+// TODO: 将来的にはservices層経由でアクセスするようにリファクタリング予定
+import { backendService } from '$lib/services/backend/backend-service';
 import { autoSaveManager } from './auto-save.svelte';
 import { errorHandler } from './error-handler.svelte';
 
