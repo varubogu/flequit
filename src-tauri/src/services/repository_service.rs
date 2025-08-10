@@ -14,7 +14,7 @@ pub fn get_repositories() -> Vec<Box<dyn CoreRepositoryTrait>> {
 
     let mut repositories: Vec<Box<dyn CoreRepositoryTrait>> = Vec::new();
     let is_sqlite = true;
-    let is_local_automerge = true;
+    // let is_local_automerge = true;
     let is_cloud_automerge = false;
     let is_web = false;
     if is_sqlite {
