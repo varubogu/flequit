@@ -1,8 +1,10 @@
 use serde::{Serialize, Deserialize};
-use tauri::State;
 use crate::types::project_types::{Project, ProjectStatus};
-use crate::services::automerge::ProjectService;
-use crate::repositories::automerge::ProjectRepository;
+use crate::services::project_service::ProjectService;
+use crate::services::repository_service::{get_repositories, get_repository_searcher};
+
+// HACK: コマンドとレスポンスの構造体は一旦コマンドファイル内に残す
+// TODO: 将来的には types に移動する
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectResponse {
@@ -46,29 +48,27 @@ pub struct ProjectDeleteResponse {
 #[tauri::command]
 pub async fn create_project(
     project: Project,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectResponse, String> {
     println!("create_project called");
     println!("project: {:?}", project);
 
-    // サービス層を呼び出し
-    match project_service.create_project(project_repository, &project).await {
-        Ok(_) => {
-            let res = ProjectResponse {
+    let project_service = ProjectService;
+    let mut repositories = get_repositories();
+
+    match project_service.create_project(&mut repositories, &project).await {
+        Ok(created_project) => {
+            Ok(ProjectResponse {
                 success: true,
-                data: Some(project),
+                data: Some(created_project),
                 message: Some("Project created successfully".to_string()),
-            };
-            Ok(res)
+            })
         }
         Err(service_error) => {
-            let res = ProjectResponse {
+            Ok(ProjectResponse {
                 success: false,
                 data: None,
                 message: Some(service_error.to_string()),
-            };
-            Ok(res)
+            })
         }
     }
 }
@@ -77,45 +77,57 @@ pub async fn create_project(
 #[tauri::command]
 pub async fn get_project(
     project_id: String,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectResponse, String> {
     println!("get_project called");
     println!("project_id: {:?}", project_id);
 
-    // サービス層を呼び出し
-    match project_service.get_project(project_repository, &project_id).await {
+    let project_service = ProjectService;
+    let repository = get_repository_searcher();
+
+    match project_service.get_project(&*repository, &project_id).await {
         Ok(project) => {
-            let res = ProjectResponse {
+            Ok(ProjectResponse {
                 success: true,
                 data: project,
                 message: Some("Project retrieved successfully".to_string()),
-            };
-            Ok(res)
+            })
         }
         Err(service_error) => {
-            let res = ProjectResponse {
+            Ok(ProjectResponse {
                 success: false,
                 data: None,
                 message: Some(service_error.to_string()),
-            };
-            Ok(res)
+            })
         }
     }
 }
 
 // プロジェクト一覧取得
 #[tauri::command]
-pub async fn list_projects(
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
-) -> Result<Vec<Project>, String> {
+pub async fn list_projects() -> Result<ProjectSearchResponse, String> {
     println!("list_projects called");
 
-    // サービス層を呼び出し
-    match project_service.list_projects(project_repository).await {
-        Ok(projects) => Ok(projects),
-        Err(service_error) => Err(service_error.to_string()),
+    let project_service = ProjectService;
+    let repository = get_repository_searcher();
+
+    match project_service.list_projects(&*repository).await {
+        Ok(projects) => {
+            let total_count = projects.len();
+            Ok(ProjectSearchResponse {
+                success: true,
+                data: projects,
+                total_count: Some(total_count),
+                message: Some("Projects retrieved successfully".to_string()),
+            })
+        }
+        Err(service_error) => {
+            Ok(ProjectSearchResponse {
+                success: false,
+                data: vec![],
+                total_count: Some(0),
+                message: Some(service_error.to_string()),
+            })
+        },
     }
 }
 
@@ -123,29 +135,27 @@ pub async fn list_projects(
 #[tauri::command]
 pub async fn update_project(
     project: Project,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectResponse, String> {
     println!("update_project called");
     println!("project: {:?}", project);
 
-    // サービス層を呼び出し
-    match project_service.update_project(project_repository, &project).await {
-        Ok(_) => {
-            let res = ProjectResponse {
+    let project_service = ProjectService;
+    let mut repositories = get_repositories();
+
+    match project_service.update_project(&mut repositories, &project).await {
+        Ok(updated_project) => {
+            Ok(ProjectResponse {
                 success: true,
-                data: Some(project),
+                data: Some(updated_project),
                 message: Some("Project updated successfully".to_string()),
-            };
-            Ok(res)
+            })
         }
         Err(service_error) => {
-            let res = ProjectResponse {
+            Ok(ProjectResponse {
                 success: false,
                 data: None,
                 message: Some(service_error.to_string()),
-            };
-            Ok(res)
+            })
         }
     }
 }
@@ -154,16 +164,22 @@ pub async fn update_project(
 #[tauri::command]
 pub async fn delete_project(
     project_id: String,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
-) -> Result<bool, String> {
+) -> Result<ProjectDeleteResponse, String> {
     println!("delete_project called");
     println!("project_id: {:?}", project_id);
 
-    // サービス層を呼び出し
-    match project_service.delete_project(project_repository, &project_id).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
+    let project_service = ProjectService;
+    let mut repositories = get_repositories();
+
+    match project_service.delete_project(&mut repositories, &project_id).await {
+        Ok(_) => Ok(ProjectDeleteResponse {
+            success: true,
+            message: Some("Project deleted successfully".to_string()),
+        }),
+        Err(service_error) => Ok(ProjectDeleteResponse {
+            success: false,
+            message: Some(service_error.to_string()),
+        }),
     }
 }
 
@@ -171,46 +187,15 @@ pub async fn delete_project(
 #[tauri::command]
 pub async fn search_projects(
     request: ProjectSearchRequest,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectSearchResponse, String> {
     println!("search_projects called");
     println!("request: {:?}", request);
 
-    // 既存のlist_projectsベースで実装
-    match project_service.list_projects(project_repository).await {
-        Ok(mut projects) => {
-            // フィルタリング処理
-            if let Some(ref name) = request.name {
-                projects.retain(|project| project.name.to_lowercase().contains(&name.to_lowercase()));
-            }
-            if let Some(ref description) = request.description {
-                projects.retain(|project| {
-                    if let Some(ref desc) = project.description {
-                        desc.to_lowercase().contains(&description.to_lowercase())
-                    } else {
-                        false
-                    }
-                });
-            }
-            if let Some(status) = request.status {
-                projects.retain(|project| project.status.as_ref() == Some(&status));
-            }
-            if let Some(ref owner_id) = request.owner_id {
-                projects.retain(|project| project.owner_id.as_ref() == Some(owner_id));
-            }
+    let project_service = ProjectService;
+    let repository = get_repository_searcher();
 
-            // ページネーション
-            let total_count = projects.len();
-            let offset = request.offset.unwrap_or(0);
-            let limit = request.limit.unwrap_or(50);
-
-            if offset < projects.len() {
-                projects = projects.into_iter().skip(offset).take(limit).collect();
-            } else {
-                projects = vec![];
-            }
-
+    match project_service.search_projects(&*repository, &request).await {
+        Ok((projects, total_count)) => {
             Ok(ProjectSearchResponse {
                 success: true,
                 data: projects,
@@ -231,21 +216,9 @@ pub async fn search_projects(
 #[tauri::command]
 pub async fn delete_project_by_request(
     request: ProjectDeleteRequest,
-    project_service: State<'_, ProjectService>,
-    project_repository: State<'_, ProjectRepository>,
 ) -> Result<ProjectDeleteResponse, String> {
     println!("delete_project_by_request called");
     println!("request: {:?}", request);
-
-    // サービス層を呼び出し
-    match project_service.delete_project(project_repository, &request.project_id).await {
-        Ok(_) => Ok(ProjectDeleteResponse {
-            success: true,
-            message: Some("Project deleted successfully".to_string()),
-        }),
-        Err(service_error) => Ok(ProjectDeleteResponse {
-            success: false,
-            message: Some(service_error.to_string()),
-        })
-    }
+    
+    delete_project(request.project_id).await
 }

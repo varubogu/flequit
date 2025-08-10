@@ -3,6 +3,7 @@ use crate::types::user_types::User;
 use async_trait::async_trait;
 
 #[async_trait]
+#[allow(dead_code)]
 pub trait UserRepositoryTrait {
     async fn set_user(&self, user: &User) -> Result<(), RepositoryError>;
     

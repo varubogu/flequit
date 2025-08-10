@@ -53,20 +53,20 @@ use commands::{
         search_projects,
         delete_project_by_request,
     },
-    project_member_commands::{
-        add_project_member,
-        remove_project_member,
-        list_project_members,
-        update_member_role,
-        get_project_statistics,
-        can_manage_members,
-    },
+    // project_member_commands::{
+    //     add_project_member,
+    //     remove_project_member,
+    //     list_project_members,
+    //     update_member_role,
+    //     get_project_statistics,
+    //     can_manage_members,
+    // },
     subtask_commands::{
         create_subtask,
         get_subtask,
         list_subtasks,
         update_subtask,
-        update_subtask_status,
+        // update_subtask_status,
         toggle_subtask_completion,
         delete_subtask,
         search_subtasks,
@@ -122,7 +122,7 @@ use commands::{
         update_user,
         delete_user,
         search_users,
-        search_project_members,
+        // search_project_members,
         check_email_exists,
         update_user_profile,
         change_password,
@@ -130,51 +130,14 @@ use commands::{
 };
 
 
-
-use repositories::automerge::{ProjectRepository, TaskRepository, SubtaskRepository, TagRepository, UserRepository, SqliteStorage, AutomergeStorage};
-use services::automerge::{ProjectService, ProjectMemberService, TaskService, SubtaskService, TagService, UserService};
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
 
     // Ensure directories are created at startup
 
-    // インフラストラクチャ層の初期化
-    let sqlite_storage = SqliteStorage::new();
-    let automerge_storage = AutomergeStorage::new();
 
-    // Repository層の初期化
-    let project_repository = ProjectRepository::new(sqlite_storage.clone(), automerge_storage.clone());
-    let task_repository = TaskRepository::new(sqlite_storage.clone(), automerge_storage.clone());
-    let subtask_repository = SubtaskRepository::new(sqlite_storage.clone(), automerge_storage.clone());
-    let tag_repository = TagRepository::new(sqlite_storage.clone(), automerge_storage.clone());
-    let user_repository = UserRepository::new(sqlite_storage.clone(), automerge_storage.clone());
-
-    // Service層の初期化
-    let project_service = ProjectService::new();
-    let project_member_service = ProjectMemberService::new();
-    let task_service = TaskService::new();
-    let subtask_service = SubtaskService::new();
-    let tag_service = TagService::new();
-    let user_service = UserService::new();
 
     tauri::Builder::default()
-        // Storage層をState管理
-        .manage(sqlite_storage)
-        .manage(automerge_storage)
-        // Repository層をState管理
-        .manage(project_repository)
-        .manage(task_repository)
-        .manage(subtask_repository)
-        .manage(tag_repository)
-        .manage(user_repository)
-        // Service層をState管理
-        .manage(project_service)
-        .manage(project_member_service)
-        .manage(task_service)
-        .manage(subtask_service)
-        .manage(tag_service)
-        .manage(user_service)
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             // Basic commands
@@ -207,20 +170,20 @@ pub fn run() {
             search_projects,
             delete_project_by_request,
 
-            // Project member management commands
-            add_project_member,
-            remove_project_member,
-            list_project_members,
-            update_member_role,
-            get_project_statistics,
-            can_manage_members,
+            // // Project member management commands
+            // add_project_member,
+            // remove_project_member,
+            // list_project_members,
+            // update_member_role,
+            // get_project_statistics,
+            // can_manage_members,
 
             // Subtask management commands
             create_subtask,
             get_subtask,
             list_subtasks,
             update_subtask,
-            update_subtask_status,
+            // update_subtask_status,
             toggle_subtask_completion,
             delete_subtask,
             search_subtasks,
@@ -289,7 +252,7 @@ pub fn run() {
             update_user,
             delete_user,
             search_users,
-            search_project_members,
+            // search_project_members,
             check_email_exists,
             update_user_profile,
             change_password,

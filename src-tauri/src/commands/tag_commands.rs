@@ -1,9 +1,7 @@
 use serde::{Serialize, Deserialize};
-use tauri::State;
 use crate::types::task_types::Tag;
-use crate::services::automerge::TagService;
-use crate::repositories::automerge::TagRepository;
-
+use crate::services::tag_service::TagService;
+use crate::services::repository_service::{get_repositories, get_repository_searcher};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TagResponse {
@@ -43,288 +41,102 @@ pub struct TagDeleteResponse {
     pub message: Option<String>,
 }
 
-// タグ作成
 #[tauri::command]
-pub async fn create_tag(
-    tag: Tag,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<TagResponse, String> {
-    println!("create_tag called");
-    println!("tag: {:?}", tag);
-
-    // サービス層を呼び出し
-    match tag_service.create_tag(tag_repository, &tag).await {
-        Ok(_) => {
-            let res = TagResponse {
-                success: true,
-                data: Some(tag),
-                message: Some("Tag created successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TagResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
+pub async fn create_tag(tag: Tag) -> Result<TagResponse, String> {
+    let tag_service = TagService;
+    let mut repos = get_repositories();
+    match tag_service.create_tag(&mut repos, &tag).await {
+        Ok(_) => Ok(TagResponse { success: true, data: Some(tag), message: Some("Tag created".to_string()) }),
+        Err(e) => Ok(TagResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// タグ取得
 #[tauri::command]
-pub async fn get_tag(
-    tag_id: String,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<TagResponse, String> {
-    println!("get_tag called");
-    println!("tag_id: {:?}", tag_id);
-
-    // サービス層を呼び出し
-    match tag_service.get_tag(tag_repository, &tag_id).await {
-        Ok(tag) => {
-            let res = TagResponse {
-                success: true,
-                data: tag,
-                message: Some("Tag retrieved successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TagResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
+pub async fn get_tag(tag_id: String) -> Result<TagResponse, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    match tag_service.get_tag(&*repo, &tag_id).await {
+        Ok(tag) => Ok(TagResponse { success: true, data: tag, message: Some("Tag found".to_string()) }),
+        Err(e) => Ok(TagResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// タグ一覧取得
 #[tauri::command]
-pub async fn list_tags(
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<Vec<Tag>, String> {
-    println!("list_tags called");
+pub async fn list_tags() -> Result<Vec<Tag>, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    tag_service.list_tags(&*repo).await.map_err(|e| e.to_string())
+}
 
-    // サービス層を呼び出し
-    match tag_service.list_tags(tag_repository).await {
-        Ok(tags) => Ok(tags),
-        Err(service_error) => Err(service_error.to_string()),
+#[tauri::command]
+pub async fn update_tag(tag: Tag) -> Result<TagResponse, String> {
+    let tag_service = TagService;
+    let mut repos = get_repositories();
+    match tag_service.update_tag(&mut repos, &tag).await {
+        Ok(_) => Ok(TagResponse { success: true, data: Some(tag), message: Some("Tag updated".to_string()) }),
+        Err(e) => Ok(TagResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// タグ更新
 #[tauri::command]
-pub async fn update_tag(
-    tag: Tag,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<TagResponse, String> {
-    println!("update_tag called");
-    println!("tag: {:?}", tag);
-
-    // サービス層を呼び出し
-    match tag_service.update_tag(tag_repository, &tag).await {
-        Ok(_) => {
-            let res = TagResponse {
-                success: true,
-                data: Some(tag),
-                message: Some("Tag updated successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TagResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
-    }
+pub async fn delete_tag(tag_id: String) -> Result<bool, String> {
+    let tag_service = TagService;
+    let mut repos = get_repositories();
+    tag_service.delete_tag(&mut repos, &tag_id).await.map(|_| true).map_err(|e| e.to_string())
 }
 
-// タグ削除
 #[tauri::command]
-pub async fn delete_tag(
-    tag_id: String,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<bool, String> {
-    println!("delete_tag called");
-    println!("tag_id: {:?}", tag_id);
-
-    // サービス層を呼び出し
-    match tag_service.delete_tag(tag_repository, &tag_id).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
-    }
+pub async fn search_tags_by_name(name: String) -> Result<Vec<Tag>, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    tag_service.search_tags_by_name(&*repo, &name).await.map_err(|e| e.to_string())
 }
 
-// タグ検索（名前による）
 #[tauri::command]
-pub async fn search_tags_by_name(
-    name: String,
-    limit: Option<usize>,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<Vec<Tag>, String> {
-    println!("search_tags_by_name called");
-    println!("name: {:?}, limit: {:?}", name, limit);
-
-    // サービス層を呼び出し
-    match tag_service.search_tags_by_name(tag_repository, &name, limit.unwrap_or(50)).await {
-        Ok(tags) => Ok(tags),
-        Err(service_error) => Err(service_error.to_string()),
-    }
+pub async fn get_tag_usage_count(tag_id: String) -> Result<u32, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    tag_service.get_tag_usage_count(&*repo, &tag_id).await.map_err(|e| e.to_string())
 }
 
-// タグの使用頻度取得
 #[tauri::command]
-pub async fn get_tag_usage_count(
-    tag_id: String,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<usize, String> {
-    println!("get_tag_usage_count called");
-    println!("tag_id: {:?}", tag_id);
-
-    // サービス層を呼び出し
-    match tag_service.get_tag_usage_count(tag_repository, &tag_id).await {
-        Ok(count) => Ok(count.try_into().unwrap()),
-        Err(service_error) => Err(service_error.to_string()),
-    }
+pub async fn check_tag_name_exists(name: String, exclude_id: Option<String>) -> Result<bool, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    tag_service.is_tag_name_exists(&*repo, &name, exclude_id.as_deref()).await.map_err(|e| e.to_string())
 }
 
-// タグ名の重複チェック
 #[tauri::command]
-pub async fn check_tag_name_exists(
-    name: String,
-    exclude_id: Option<String>,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<bool, String> {
-    println!("check_tag_name_exists called");
-    println!("name: {:?}, exclude_id: {:?}", name, exclude_id);
-
-    // サービス層を呼び出し
-    match tag_service.is_tag_name_exists(tag_repository, &name, exclude_id.as_deref()).await {
-        Ok(exists) => Ok(exists),
-        Err(service_error) => Err(service_error.to_string()),
-    }
+pub async fn list_popular_tags(limit: Option<u32>) -> Result<Vec<Tag>, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    tag_service.list_popular_tags(&*repo, limit.unwrap_or(10)).await.map_err(|e| e.to_string())
 }
 
-// 人気タグ一覧取得（使用頻度順）
 #[tauri::command]
-pub async fn list_popular_tags(
-    limit: Option<u32>,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<Vec<Tag>, String> {
-    println!("list_popular_tags called");
-    println!("limit: {:?}", limit);
-
-    // サービス層を呼び出し
-    match tag_service.list_popular_tags(tag_repository, limit.unwrap_or(20)).await {
-        Ok(tags) => Ok(tags),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// タグ検索（構造体版）
-#[tauri::command]
-pub async fn search_tags(
-    request: TagSearchRequest,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<TagSearchResponse, String> {
-    println!("search_tags called");
-    println!("request: {:?}", request);
-
-    // 人気順検索か通常検索かで分岐
-    let mut tags = if request.order_by_popularity.unwrap_or(false) {
-        match tag_service.list_popular_tags(tag_repository, request.limit.unwrap_or(50) as u32).await {
-            Ok(tags) => tags,
-            Err(service_error) => return Ok(TagSearchResponse {
-                success: false,
-                data: vec![],
-                total_count: Some(0),
-                message: Some(service_error.to_string()),
-            })
-        }
-    } else {
-        match tag_service.list_tags(tag_repository).await {
-            Ok(tags) => tags,
-            Err(service_error) => return Ok(TagSearchResponse {
-                success: false,
-                data: vec![],
-                total_count: Some(0),
-                message: Some(service_error.to_string()),
-            })
-        }
-    };
-
-    // フィルタリング処理
-    if let Some(ref name) = request.name {
-        tags.retain(|tag| tag.name.to_lowercase().contains(&name.to_lowercase()));
-    }
-    if let Some(ref color) = request.color {
-        tags.retain(|tag| {
-            if let Some(ref tag_color) = tag.color {
-                tag_color.to_lowercase().contains(&color.to_lowercase())
-            } else {
-                false
-            }
-        });
-    }
-
-    // ページネーション（人気順検索でない場合のみ適用）
-    let total_count = tags.len();
-    if !request.order_by_popularity.unwrap_or(false) {
-        let offset = request.offset.unwrap_or(0);
-        let limit = request.limit.unwrap_or(50);
-
-        if offset < tags.len() {
-            tags = tags.into_iter().skip(offset).take(limit).collect();
-        } else {
-            tags = vec![];
-        }
-    }
+pub async fn search_tags(request: TagSearchRequest) -> Result<TagSearchResponse, String> {
+    let tag_service = TagService;
+    let repo = get_repository_searcher();
+    let tags = tag_service.list_tags(&*repo).await.map_err(|e| e.to_string())?;
+    // Manual filtering for now
+    let filtered_tags: Vec<Tag> = tags.into_iter().filter(|tag|{
+        let name_match = request.name.as_ref().map_or(true, |n| tag.name.contains(n));
+        let color_match = request.color.as_ref().map_or(true, |c| tag.color.as_ref().map_or(false, |tc| tc.contains(c)));
+        name_match && color_match
+    }).collect();
 
     Ok(TagSearchResponse {
         success: true,
-        data: tags,
-        total_count: Some(total_count),
-        message: Some("Tags retrieved successfully".to_string()),
+        data: filtered_tags,
+        total_count: None,
+        message: Some("Tags searched".to_string()),
     })
 }
 
-// タグ削除（構造体版）
 #[tauri::command]
-pub async fn delete_tag_by_request(
-    request: TagDeleteRequest,
-    tag_service: State<'_, TagService>,
-    tag_repository: State<'_, TagRepository>,
-) -> Result<TagDeleteResponse, String> {
-    println!("delete_tag_by_request called");
-    println!("request: {:?}", request);
-
-    // サービス層を呼び出し
-    match tag_service.delete_tag(tag_repository, &request.tag_id).await {
-        Ok(_) => Ok(TagDeleteResponse {
-            success: true,
-            message: Some("Tag deleted successfully".to_string()),
-        }),
-        Err(service_error) => Ok(TagDeleteResponse {
-            success: false,
-            message: Some(service_error.to_string()),
-        })
+pub async fn delete_tag_by_request(request: TagDeleteRequest) -> Result<TagDeleteResponse, String> {
+    match delete_tag(request.tag_id).await {
+        Ok(_) => Ok(TagDeleteResponse { success: true, message: Some("Tag deleted".to_string()) }),
+        Err(e) => Ok(TagDeleteResponse { success: false, message: Some(e) }),
     }
 }

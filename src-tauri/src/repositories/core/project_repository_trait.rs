@@ -3,6 +3,7 @@ use crate::types::project_types::{Project, ProjectMember, ProjectStatus};
 use async_trait::async_trait;
 
 #[async_trait]
+#[allow(dead_code)]
 pub trait ProjectRepositoryTrait {
     async fn set_project(&self, project: &Project) -> Result<(), RepositoryError>;
     

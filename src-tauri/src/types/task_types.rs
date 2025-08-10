@@ -129,6 +129,7 @@ pub struct RecurrenceRule {
 pub struct Task {
     pub id: String,
     pub sub_task_id: Option<String>,
+    pub project_id: String,
     pub list_id: String,
     pub title: String,
     pub description: Option<String>,
@@ -213,6 +214,7 @@ pub struct TaskListWithTasks {
 pub struct TaskWithSubTasks {
     pub id: String,
     pub sub_task_id: Option<String>, // 追加
+    pub project_id: String,
     pub list_id: String,
     pub title: String,
     pub description: Option<String>,

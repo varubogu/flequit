@@ -3,6 +3,7 @@ use crate::types::task_types::Subtask;
 use async_trait::async_trait;
 
 #[async_trait]
+#[allow(dead_code)]
 pub trait SubtaskRepositoryTrait {
     async fn set_subtask(&self, project_id: &str, task_id: &str, subtask: &Subtask) -> Result<(), RepositoryError>;
     

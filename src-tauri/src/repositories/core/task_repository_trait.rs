@@ -3,6 +3,7 @@ use crate::types::task_types::{Task, TaskStatus};
 use async_trait::async_trait;
 
 #[async_trait]
+#[allow(dead_code)]
 pub trait TaskRepositoryTrait {
     async fn set_task(&self, project_id: &str, task: &Task) -> Result<(), RepositoryError>;
     

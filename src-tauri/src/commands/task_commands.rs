@@ -1,8 +1,7 @@
 use serde::{Serialize, Deserialize};
-use tauri::State;
 use crate::types::task_types::{Task, TaskStatus};
-use crate::services::automerge::TaskService;
-use crate::repositories::automerge::TaskRepository;
+use crate::services::task_service::TaskService;
+use crate::services::repository_service::{get_repositories, get_repository_searcher};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TaskResponse {
@@ -49,274 +48,99 @@ pub struct TaskDeleteResponse {
     pub message: Option<String>,
 }
 
-// タスク作成
 #[tauri::command]
-pub async fn create_task(
-    task: Task,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<TaskResponse, String> {
-    println!("create_task called");
-    println!("task: {:?}", task);
-
-    // サービス層を呼び出し
-    match task_service.create_task(task_repository, &task).await {
-        Ok(_) => {
-            let res = TaskResponse {
-                success: true,
-                data: Some(task),
-                message: Some("Task created successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TaskResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
+pub async fn create_task(task: Task) -> Result<TaskResponse, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    match task_service.create_task(&mut repos, &task).await {
+        Ok(_) => Ok(TaskResponse { success: true, data: Some(task), message: Some("Task created".to_string()) }),
+        Err(e) => Ok(TaskResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// タスク取得
 #[tauri::command]
-pub async fn get_task(
-    project_id: String,
-    task_id: String,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<TaskResponse, String> {
-    println!("get_task called");
-    println!("project_id: {:?}, task_id: {:?}", project_id, task_id);
-
-    // サービス層を呼び出し
-    match task_service.get_task(task_repository, &project_id, &task_id).await {
-        Ok(task) => {
-            let res = TaskResponse {
-                success: true,
-                data: task,
-                message: Some("Task retrieved successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TaskResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
+pub async fn get_task(project_id: String, task_id: String) -> Result<TaskResponse, String> {
+    let task_service = TaskService;
+    let repo = get_repository_searcher();
+    match task_service.get_task(&*repo, &project_id, &task_id).await {
+        Ok(task) => Ok(TaskResponse { success: true, data: task, message: Some("Task found".to_string()) }),
+        Err(e) => Ok(TaskResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// プロジェクト内のタスク一覧取得
 #[tauri::command]
-pub async fn list_tasks(
-    project_id: String,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<Vec<Task>, String> {
-    println!("list_tasks called");
-    println!("project_id: {:?}", project_id);
+pub async fn list_tasks(project_id: String) -> Result<Vec<Task>, String> {
+    let task_service = TaskService;
+    let repo = get_repository_searcher();
+    task_service.list_tasks(&*repo, &project_id).await.map_err(|e| e.to_string())
+}
 
-    // サービス層を呼び出し
-    match task_service.list_tasks(task_repository, &project_id).await {
-        Ok(tasks) => Ok(tasks),
-        Err(service_error) => Err(service_error.to_string()),
+#[tauri::command]
+pub async fn update_task(task: Task) -> Result<TaskResponse, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    match task_service.update_task(&mut repos, &task).await {
+        Ok(_) => Ok(TaskResponse { success: true, data: Some(task), message: Some("Task updated".to_string()) }),
+        Err(e) => Ok(TaskResponse { success: false, data: None, message: Some(e.to_string()) }),
     }
 }
 
-// タスク更新
 #[tauri::command]
-pub async fn update_task(
-    task: Task,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<TaskResponse, String> {
-    println!("update_task called");
-    println!("task: {:?}", task);
+pub async fn delete_task(project_id: String, task_id: String) -> Result<bool, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    task_service.delete_task(&mut repos, &project_id, &task_id).await.map(|_| true).map_err(|e| e.to_string())
+}
 
-    // サービス層を呼び出し
-    match task_service.update_task(task_repository, &task).await {
-        Ok(_) => {
-            let res = TaskResponse {
-                success: true,
-                data: Some(task),
-                message: Some("Task updated successfully".to_string()),
-            };
-            Ok(res)
-        }
-        Err(service_error) => {
-            let res = TaskResponse {
-                success: false,
-                data: None,
-                message: Some(service_error.to_string()),
-            };
-            Ok(res)
-        }
+#[tauri::command]
+pub async fn list_tasks_by_assignee(project_id: String, user_id: String) -> Result<Vec<Task>, String> {
+    let task_service = TaskService;
+    let repo = get_repository_searcher();
+    task_service.list_tasks_by_assignee(&*repo, &project_id, &user_id).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn list_tasks_by_status(project_id: String, status: TaskStatus) -> Result<Vec<Task>, String> {
+    let task_service = TaskService;
+    let repo = get_repository_searcher();
+    task_service.list_tasks_by_status(&*repo, &project_id, &status).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn assign_task(project_id: String, task_id: String, assignee_id: String) -> Result<bool, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    task_service.assign_task(&mut repos, &project_id, &task_id, Some(assignee_id)).await.map(|_| true).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn update_task_status(project_id: String, task_id: String, status: TaskStatus) -> Result<bool, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    task_service.update_task_status(&mut repos, &project_id, &task_id, &status).await.map(|_| true).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn update_task_priority(project_id: String, task_id: String, priority: i32) -> Result<bool, String> {
+    let task_service = TaskService;
+    let mut repos = get_repositories();
+    task_service.update_task_priority(&mut repos, &project_id, &task_id, priority).await.map(|_| true).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn search_tasks(request: TaskSearchRequest) -> Result<TaskSearchResponse, String> {
+    let task_service = TaskService;
+    let repo = get_repository_searcher();
+    match task_service.search_tasks(&*repo, &request).await {
+        Ok((tasks, total_count)) => Ok(TaskSearchResponse { success: true, data: tasks, total_count: Some(total_count), message: Some("Tasks found".to_string()) }),
+        Err(e) => Ok(TaskSearchResponse { success: false, data: vec![], total_count: Some(0), message: Some(e.to_string()) }),
     }
 }
 
-// タスク削除
 #[tauri::command]
-pub async fn delete_task(
-    project_id: String,
-    task_id: String,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<bool, String> {
-    println!("delete_task called");
-    println!("project_id: {:?}, task_id: {:?}", project_id, task_id);
-
-    // サービス層を呼び出し
-    match task_service.delete_task(task_repository, &project_id, &task_id).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// ユーザーにアサインされたタスク一覧取得
-#[tauri::command]
-pub async fn list_tasks_by_assignee(
-    project_id: String,
-    user_id: String,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<Vec<Task>, String> {
-    println!("list_tasks_by_assignee called");
-    println!("project_id: {:?}, user_id: {:?}", project_id, user_id);
-
-    // サービス層を呼び出し
-    match task_service.list_tasks_by_assignee(task_repository, &project_id, &user_id).await {
-        Ok(tasks) => Ok(tasks),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// ステータス別タスク一覧取得
-#[tauri::command]
-pub async fn list_tasks_by_status(
-    project_id: String,
-    status: TaskStatus,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<Vec<Task>, String> {
-    println!("list_tasks_by_status called");
-    println!("project_id: {:?}, status: {:?}", project_id, status);
-
-    // サービス層を呼び出し
-    match task_service.list_tasks_by_status(task_repository, &project_id, status).await {
-        Ok(tasks) => Ok(tasks),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// タスクのアサイン
-#[tauri::command]
-pub async fn assign_task(
-    project_id: String,
-    task_id: String,
-    assignee_id: String,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<bool, String> {
-    println!("assign_task called");
-    println!("project_id: {:?}, task_id: {:?}, assignee_id: {:?}", project_id, task_id, assignee_id);
-
-    // サービス層を呼び出し
-    match task_service.assign_task(task_repository, &project_id, &task_id, Option::from(assignee_id)).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// タスクのステータス変更
-#[tauri::command]
-pub async fn update_task_status(
-    project_id: String,
-    task_id: String,
-    status: TaskStatus,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<bool, String> {
-    println!("update_task_status called");
-    println!("project_id: {:?}, task_id: {:?}, status: {:?}", project_id, task_id, status);
-
-    // サービス層を呼び出し
-    match task_service.update_task_status(task_repository, &project_id, &task_id, status).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// タスクの優先度変更
-#[tauri::command]
-pub async fn update_task_priority(
-    project_id: String,
-    task_id: String,
-    priority: i32,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<bool, String> {
-    println!("update_task_priority called");
-    println!("project_id: {:?}, task_id: {:?}, priority: {:?}", project_id, task_id, priority);
-
-    // サービス層を呼び出し
-    match task_service.update_task_priority(task_repository, &project_id, &task_id, priority).await {
-        Ok(_) => Ok(true),
-        Err(service_error) => Err(service_error.to_string()),
-    }
-}
-
-// タスク検索（構造体版）
-#[tauri::command]
-pub async fn search_tasks(
-    request: TaskSearchRequest,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<TaskSearchResponse, String> {
-    println!("search_tasks called");
-    println!("request: {:?}", request);
-
-    // サービス層を呼び出し
-    match task_service.search_tasks(task_repository, &request).await {
-        Ok((tasks, total_count)) => Ok(TaskSearchResponse {
-            success: true,
-            data: tasks,
-            total_count: Some(total_count),
-            message: Some("Tasks retrieved successfully".to_string()),
-        }),
-        Err(service_error) => Ok(TaskSearchResponse {
-            success: false,
-            data: vec![],
-            total_count: Some(0),
-            message: Some(service_error.to_string()),
-        })
-    }
-}
-
-// タスク削除（構造体版）
-#[tauri::command]
-pub async fn delete_task_by_request(
-    request: TaskDeleteRequest,
-    task_service: State<'_, TaskService>,
-    task_repository: State<'_, TaskRepository>,
-) -> Result<TaskDeleteResponse, String> {
-    println!("delete_task_by_request called");
-    println!("request: {:?}", request);
-
-    // サービス層を呼び出し
-    match task_service.delete_task(task_repository, &request.project_id, &request.task_id).await {
-        Ok(_) => Ok(TaskDeleteResponse {
-            success: true,
-            message: Some("Task deleted successfully".to_string()),
-        }),
-        Err(service_error) => Ok(TaskDeleteResponse {
-            success: false,
-            message: Some(service_error.to_string()),
-        })
+pub async fn delete_task_by_request(request: TaskDeleteRequest) -> Result<TaskDeleteResponse, String> {
+    match delete_task(request.project_id, request.task_id).await {
+        Ok(_) => Ok(TaskDeleteResponse { success: true, message: Some("Task deleted".to_string()) }),
+        Err(e) => Ok(TaskDeleteResponse { success: false, message: Some(e) }),
     }
 }

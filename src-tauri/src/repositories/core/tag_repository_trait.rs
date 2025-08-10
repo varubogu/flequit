@@ -3,6 +3,7 @@ use crate::types::task_types::Tag;
 use async_trait::async_trait;
 
 #[async_trait]
+#[allow(dead_code)]
 pub trait TagRepositoryTrait {
     async fn set_tag(&self, tag: &Tag) -> Result<(), RepositoryError>;
     
