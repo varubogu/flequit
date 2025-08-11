@@ -74,11 +74,11 @@ function isTauriEnvironment(): boolean {
  */
 export async function getBackendService(): Promise<BackendService> {
   if (isTauriEnvironment()) {
-    const { TauriBackendService } = await import('./tauri/tauri-backend-service');
-    return new TauriBackendService();
+    const { BackendTauriService } = await import('./tauri/backend-tauri-service');
+    return new BackendTauriService();
   } else {
-    const { WebBackendService } = await import('./web/web-backend-service');
-    return new WebBackendService();
+    const { BackendWebService } = await import('./web/backend-web-service');
+    return new BackendWebService();
   }
 }
 

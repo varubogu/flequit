@@ -6,7 +6,7 @@ import type {
 /**
  * Web環境用のデータ更新通知サービス
  */
-export class WebAutoFetchService implements AutoFetchService {
+export class AutoFetchWebService implements AutoFetchService {
   private listeners: Array<(notification: DataChangeNotification) => void> = [];
   private typeListeners: Map<string, Array<(notification: DataChangeNotification) => void>> =
     new Map();

@@ -1,7 +1,7 @@
 import type { Tag, TagSearchCondition } from '$lib/types/task';
 import type { TagService } from '$lib/services/backend/tag-service';
 
-export class WebTagService implements TagService {
+export class TagWebService implements TagService {
   async create(tag: Tag): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: createTag not implemented', tag);

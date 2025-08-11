@@ -1,7 +1,7 @@
 import type { Task, TaskSearchCondition } from '$lib/types/task';
 import type { TaskService } from '$lib/services/backend/task-service';
 
-export class WebTaskService implements TaskService {
+export class TaskWebService implements TaskService {
   async create(task: Task): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: createTask not implemented', task);

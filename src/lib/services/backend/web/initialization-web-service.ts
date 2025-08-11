@@ -11,7 +11,7 @@ import { generateSampleData } from '$lib/data/sample-data';
  * Web版初期化サービス
  * ローカルストレージとサンプルデータを使用した仮実装
  */
-export class WebInitializationService implements InitializationService {
+export class InitializationWebService implements InitializationService {
   /**
    * 段階1: ローカル設定読み込み
    * Web版では空のデフォルト設定を返す（ローカルファイル読み込みは使用しない）

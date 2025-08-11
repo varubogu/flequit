@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { TaskList, TaskListSearchCondition } from '$lib/types/task';
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
-export class TauriTaskListService implements TaskListService {
+export class TasklistTauriService implements TaskListService {
   async create(taskList: TaskList): Promise<boolean> {
     try {
       await invoke('create_task_list', { taskList });

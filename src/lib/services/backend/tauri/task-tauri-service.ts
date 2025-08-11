@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { Task, TaskSearchCondition } from '$lib/types/task';
 import type { TaskService } from '$lib/services/backend/task-service';
 
-export class TauriTaskService implements TaskService {
+export class TaskTauriService implements TaskService {
   async create(task: Task): Promise<boolean> {
     try {
       await invoke('create_task', { task });

@@ -11,7 +11,7 @@ import type { ProjectTree } from '$lib/types/task';
  * Tauri版初期化サービス
  * ローカルファイルシステムとデータベースから初期データを読み込む
  */
-export class TauriInitializationService implements InitializationService {
+export class InitializationTauriService implements InitializationService {
   /**
    * 段階1: ローカル設定読み込み
    * Tauriのローカルファイルから設定を読み込む

@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { Tag, TagSearchCondition } from '$lib/types/task';
 import type { TagService } from '$lib/services/backend/tag-service';
 
-export class TauriTagService implements TagService {
+export class TagTauriService implements TagService {
   async create(tag: Tag): Promise<boolean> {
     try {
       await invoke('create_tag', { tag });

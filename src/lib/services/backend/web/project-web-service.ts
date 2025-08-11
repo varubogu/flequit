@@ -1,7 +1,7 @@
 import type { Project, ProjectSearchCondition } from '$lib/types/task';
 import type { ProjectService } from '$lib/services/backend/project-service';
 
-export class WebProjectService implements ProjectService {
+export class ProjectWebService implements ProjectService {
   async create(project: Project): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: createProject not implemented', project);

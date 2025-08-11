@@ -6,7 +6,7 @@ import type {
 /**
  * Tauri環境用のデータ更新通知サービス
  */
-export class TauriAutoFetchService implements AutoFetchService {
+export class AutoFetchTauriService implements AutoFetchService {
   private listeners: Array<(notification: DataChangeNotification) => void> = [];
   private typeListeners: Map<string, Array<(notification: DataChangeNotification) => void>> =
     new Map();

@@ -1,7 +1,7 @@
 import type { SubTask, SubTaskSearchCondition } from '$lib/types/task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
-export class WebSubTaskService implements SubTaskService {
+export class SubtaskWebService implements SubTaskService {
   async create(subTask: SubTask): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: createSubTask not implemented', subTask);

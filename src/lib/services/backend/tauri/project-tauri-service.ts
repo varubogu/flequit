@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { Project, ProjectSearchCondition } from '$lib/types/task';
 import type { ProjectService } from '$lib/services/backend/project-service';
 
-export class TauriProjectService implements ProjectService {
+export class ProjectTauriService implements ProjectService {
   async create(project: Project): Promise<boolean> {
     try {
       await invoke('create_project', { project });

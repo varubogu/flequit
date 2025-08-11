@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import type { Setting } from '$lib/types/task';
 import type { SettingService } from '$lib/services/backend/setting-service';
 
-export class TauriSettingService implements SettingService {
+export class SettingTauriService implements SettingService {
   async get(key: string): Promise<Setting | null> {
     try {
       const result = (await invoke('get_setting', { key })) as Setting | null;
