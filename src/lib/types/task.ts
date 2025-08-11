@@ -161,26 +161,6 @@ export interface Tag {
   updated_at: Date;
 }
 
-export interface Setting {
-  id: string;
-  key: string;
-  value: string;
-  data_type: 'string' | 'number' | 'boolean' | 'json';
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface Account {
-  id: string;
-  email?: string;
-  display_name?: string;
-  avatar_url?: string;
-  provider: 'local' | 'google' | 'github' | 'microsoft';
-  provider_id?: string;
-  is_active: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
 
 // View models for UI components
 export interface TaskWithSubTasks extends Task {

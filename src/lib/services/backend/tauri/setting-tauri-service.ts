@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Setting } from '$lib/types/task';
+import type { Setting } from '$lib/types/settings';
 import type { SettingService } from '$lib/services/backend/setting-service';
 
 export class SettingTauriService implements SettingService {

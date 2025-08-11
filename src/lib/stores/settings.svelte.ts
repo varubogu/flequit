@@ -1,6 +1,6 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { getBackendService } from '$lib/services/backend';
-import type { Setting } from '$lib/types/task';
+import type { Setting } from '$lib/types/settings';
 
 const translationService = getTranslationService();
 import { getLocale } from '$paraglide/runtime';

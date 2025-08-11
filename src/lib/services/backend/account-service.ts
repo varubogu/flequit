@@ -1,4 +1,4 @@
-import type { Account } from '$lib/types/task';
+import type { Account } from '$lib/types/settings';
 import type { AccountInterface } from '$lib/types/crud-interface';
 
 /**

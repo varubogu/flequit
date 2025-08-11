@@ -1,4 +1,4 @@
-import type { Account } from '$lib/types/task';
+import type { Account } from '$lib/types/settings';
 import type { AccountService } from '$lib/services/backend/account-service';
 
 export class AccountWebService implements AccountService {

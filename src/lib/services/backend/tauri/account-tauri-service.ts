@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Account } from '$lib/types/task';
+import type { Account } from '$lib/types/settings';
 import type { AccountService } from '$lib/services/backend/account-service';
 
 export class AccountTauriService implements AccountService {
