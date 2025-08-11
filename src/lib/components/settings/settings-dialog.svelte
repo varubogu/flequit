@@ -112,20 +112,17 @@
 
   function handleWeekStartChange(weekStart: string) {
     settings.weekStart = weekStart;
+    settingsStore.setWeekStart(weekStart);
   }
 
   function handleTimezoneChange(timezone: string) {
     settings.timezone = timezone;
+    settingsStore.setTimezone(timezone);
   }
 
   function handleClose() {
     onOpenChange?.(false);
   }
-
-  // Watch for timezone changes and apply immediately
-  $effect(() => {
-    settingsStore.setTimezone(settings.timezone);
-  });
 
   // Initialize settings from store when dialog opens
   $effect(() => {

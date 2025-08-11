@@ -79,14 +79,12 @@
     const target = event.target as HTMLSelectElement;
     const newWeekStart = target.value;
     onWeekStartChange?.(newWeekStart);
-    settingsStore.setWeekStart(newWeekStart);
   }
 
   function handleTimezoneChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newTimezone = target.value;
     onTimezoneChange?.(newTimezone);
-    settingsStore.setTimezone(newTimezone);
   }
 
   function handleDateFormatChange(event: Event) {
@@ -97,14 +95,6 @@
   function openDateFormatDialog() {
     showDateFormatDialog = true;
   }
-
-  // 初期化後のみタイムゾーンを同期（効果的でない同期を避ける）
-  $effect(() => {
-    // settingsStoreの値がpropsと異なる場合のみ更新
-    if (settingsStore.timezone !== settings.timezone) {
-      settingsStore.setTimezone(settings.timezone);
-    }
-  });
 </script>
 
 <section id="settings-basic">
