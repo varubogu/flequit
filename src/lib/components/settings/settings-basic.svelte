@@ -5,6 +5,7 @@
   import { format } from 'date-fns';
   import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
   import DateFormatEditor from '$lib/components/settings/date-format-editor.svelte';
+  import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
   import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
@@ -167,6 +168,11 @@
               </Button>
             </div>
           </div>
+        </div>
+
+        <!-- Time Labels -->
+        <div class="xl:col-span-3">
+          <TimeLabelsEditor />
         </div>
 
         <!-- Custom Due Days -->

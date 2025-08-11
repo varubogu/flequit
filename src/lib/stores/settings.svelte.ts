@@ -7,6 +7,7 @@ interface Settings {
   timezone: string; // 'system' または IANA timezone identifier
   dateFormat: string; // date-fns format string
   customDateFormats: CustomDateFormat[]; // ユーザー定義フォーマット
+  timeLabels: TimeLabel[]; // 時刻ラベル
 }
 
 export interface CustomDateFormat {
@@ -15,11 +16,18 @@ export interface CustomDateFormat {
   format: string;
 }
 
+export interface TimeLabel {
+  id: string;
+  name: string;
+  time: string; // HH:mm format
+}
+
 class SettingsStore {
   private settings = $state<Settings>({
     timezone: 'system',
     dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss', // デフォルトは日本式
-    customDateFormats: []
+    customDateFormats: [],
+    timeLabels: []
   });
 
   get timezone() {
@@ -39,6 +47,10 @@ class SettingsStore {
 
   get customDateFormats() {
     return this.settings.customDateFormats;
+  }
+
+  get timeLabels() {
+    return this.settings.timeLabels;
   }
 
   setTimezone(timezone: string) {
@@ -78,6 +90,33 @@ class SettingsStore {
   removeCustomDateFormat(id: string) {
     this.settings.customDateFormats = this.settings.customDateFormats.filter((f) => f.id !== id);
     this.saveSettings();
+  }
+
+  addTimeLabel(name: string, time: string): string {
+    const id = `time_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    this.settings.timeLabels.push({ id, name, time });
+    this.saveSettings();
+    return id;
+  }
+
+  updateTimeLabel(id: string, updates: Partial<Omit<TimeLabel, 'id'>>) {
+    const index = this.settings.timeLabels.findIndex((t) => t.id === id);
+    if (index !== -1) {
+      this.settings.timeLabels[index] = {
+        ...this.settings.timeLabels[index],
+        ...updates
+      };
+      this.saveSettings();
+    }
+  }
+
+  removeTimeLabel(id: string) {
+    this.settings.timeLabels = this.settings.timeLabels.filter((t) => t.id !== id);
+    this.saveSettings();
+  }
+
+  getTimeLabelsByTime(time: string): TimeLabel[] {
+    return this.settings.timeLabels.filter((t) => t.time === time);
   }
 
   private saveSettings() {
