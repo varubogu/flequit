@@ -6,6 +6,7 @@ import type { TagService } from './tag-service';
 import type { SettingService } from './setting-service';
 import type { AccountService } from './account-service';
 import type { AutoFetchService } from './auto-fetch-service';
+import type { InitializationService } from './initialization-service';
 
 /**
  * 統合BackendServiceインターフェース
@@ -51,6 +52,11 @@ export interface BackendService {
    * データ更新通知サービス
    */
   autoFetch: AutoFetchService;
+
+  /**
+   * 初期化サービス
+   */
+  initialization: InitializationService;
 }
 
 /**
@@ -86,3 +92,4 @@ export type * from './tag-service';
 export type * from './setting-service';
 export type * from './account-service';
 export type * from './auto-fetch-service';
+export type * from './initialization-service';

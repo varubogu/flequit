@@ -7,6 +7,7 @@ import { TauriTagService } from './tag-tauri-service';
 import { TauriSettingService } from './setting-tauri-service';
 import { TauriAccountService } from './account-tauri-service';
 import { TauriAutoFetchService } from './tauri-auto-fetch-service';
+import { TauriInitializationService } from './tauri-initialization-service';
 
 /**
  * Tauri環境用のBackendService統合実装
@@ -20,4 +21,5 @@ export class TauriBackendService implements BackendService {
   public readonly setting = new TauriSettingService();
   public readonly account = new TauriAccountService();
   public readonly autoFetch = new TauriAutoFetchService();
+  public readonly initialization = new TauriInitializationService();
 }

@@ -26,9 +26,14 @@ export class DataService {
 
   // プロジェクトデータの読み込み
   async loadProjectData(): Promise<ProjectTree[]> {
-    // TODO: バックエンドサービスにloadProjectDataメソッドを実装後、適切に呼び出す
-    // 現在は空配列を返す
-    return [];
+    const backend = await this.getBackend();
+    return await backend.initialization.loadProjectData();
+  }
+
+  // 完全な初期化実行
+  async initializeAll() {
+    const backend = await this.getBackend();
+    return await backend.initialization.initializeAll();
   }
 
   // 自動保存
