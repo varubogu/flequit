@@ -4,4 +4,6 @@ import type { CrudInterface, SearchInterface } from '../../types/crud-interface'
 /**
  * タスク管理用のバックエンドサービスインターフェース
  */
-export interface TaskService extends CrudInterface<Task>, SearchInterface<Task, TaskSearchCondition> {}
+export interface TaskService
+  extends CrudInterface<Task>,
+    SearchInterface<Task, TaskSearchCondition> {}

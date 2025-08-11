@@ -8,16 +8,18 @@ vi.mock('../../src/lib/services/data-service');
 describe('AutoSaveService', () => {
   beforeEach(() => {
     // AutoSaveServiceの状態をリセット
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (autoSaveService as any).lastSaveTime = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (autoSaveService as any).isSaving = false;
-    
+
     // モックの設定
     vi.mocked(dataService.autoSave).mockResolvedValue();
-    
+
     // コンソールをモック化
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     // 自動保存を有効にリセット
     autoSaveService.enable();
   });
@@ -56,9 +58,9 @@ describe('AutoSaveService', () => {
   describe('performAutoSave', () => {
     test('正常に自動保存が実行される', async () => {
       const beforeSave = new Date();
-      
+
       await autoSaveService.performAutoSave();
-      
+
       const afterSave = new Date();
 
       expect(dataService.autoSave).toHaveBeenCalledOnce();
@@ -86,7 +88,7 @@ describe('AutoSaveService', () => {
       const firstSavePromise = new Promise<void>((resolve) => {
         resolveFirstSave = resolve;
       });
-      
+
       vi.mocked(dataService.autoSave).mockReturnValue(firstSavePromise);
 
       // 最初の保存を開始
@@ -102,7 +104,7 @@ describe('AutoSaveService', () => {
       // 最初の保存を完了
       resolveFirstSave!();
       await firstSave;
-      
+
       expect(autoSaveService.saving).toBe(false);
     });
 
@@ -111,7 +113,7 @@ describe('AutoSaveService', () => {
       vi.mocked(dataService.autoSave).mockRejectedValue(error);
 
       await expect(autoSaveService.performAutoSave()).rejects.toThrow('Save failed');
-      
+
       expect(console.error).toHaveBeenCalledWith('Auto-save failed:', error);
       expect(autoSaveService.saving).toBe(false);
       expect(autoSaveService.lastSave).toBeNull();

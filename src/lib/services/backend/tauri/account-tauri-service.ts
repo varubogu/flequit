@@ -5,7 +5,7 @@ import type { AccountService } from '$lib/services/backend/account-service';
 export class TauriAccountService implements AccountService {
   async get(id: string): Promise<Account | null> {
     try {
-      const result = await invoke('get_account', { id }) as Account | null;
+      const result = (await invoke('get_account', { id })) as Account | null;
       return result;
     } catch (error) {
       console.error('Failed to get account:', error);

@@ -57,7 +57,10 @@ export interface BackendService {
  * Tauriアプリケーション環境かどうかを判定
  */
 function isTauriEnvironment(): boolean {
-  return typeof window !== 'undefined' && (window as unknown as { __TAURI__?: unknown }).__TAURI__ !== undefined;
+  return (
+    typeof window !== 'undefined' &&
+    (window as unknown as { __TAURI__?: unknown }).__TAURI__ !== undefined
+  );
 }
 
 /**

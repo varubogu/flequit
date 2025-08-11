@@ -1,19 +1,23 @@
-import type { AutoFetchService, DataChangeNotification } from '$lib/services/backend/auto-fetch-service';
+import type {
+  AutoFetchService,
+  DataChangeNotification
+} from '$lib/services/backend/auto-fetch-service';
 
 /**
  * Web環境用のデータ更新通知サービス
  */
 export class WebAutoFetchService implements AutoFetchService {
   private listeners: Array<(notification: DataChangeNotification) => void> = [];
-  private typeListeners: Map<string, Array<(notification: DataChangeNotification) => void>> = new Map();
+  private typeListeners: Map<string, Array<(notification: DataChangeNotification) => void>> =
+    new Map();
 
   async notifyDataChange(notification: DataChangeNotification): Promise<void> {
     // TODO: Web環境では将来的にWebSocketやSSEを使用した実装に変更予定
     console.log('Web backend: notifyDataChange not fully implemented', notification);
-    
+
     // 現在はローカル通知のみ
     // 全体のリスナーに通知
-    this.listeners.forEach(callback => {
+    this.listeners.forEach((callback) => {
       try {
         callback(notification);
       } catch (error) {
@@ -24,7 +28,7 @@ export class WebAutoFetchService implements AutoFetchService {
     // 特定データタイプのリスナーに通知
     const typeListeners = this.typeListeners.get(notification.dataType);
     if (typeListeners) {
-      typeListeners.forEach(callback => {
+      typeListeners.forEach((callback) => {
         try {
           callback(notification);
         } catch (error) {
@@ -36,7 +40,7 @@ export class WebAutoFetchService implements AutoFetchService {
 
   subscribe(callback: (notification: DataChangeNotification) => void): () => void {
     this.listeners.push(callback);
-    
+
     // unsubscribe関数を返す
     return () => {
       const index = this.listeners.indexOf(callback);
@@ -53,9 +57,9 @@ export class WebAutoFetchService implements AutoFetchService {
     if (!this.typeListeners.has(dataType)) {
       this.typeListeners.set(dataType, []);
     }
-    
+
     this.typeListeners.get(dataType)!.push(callback);
-    
+
     // unsubscribe関数を返す
     return () => {
       const listeners = this.typeListeners.get(dataType);
@@ -64,7 +68,7 @@ export class WebAutoFetchService implements AutoFetchService {
         if (index > -1) {
           listeners.splice(index, 1);
         }
-        
+
         // リスナーが空になったらMapから削除
         if (listeners.length === 0) {
           this.typeListeners.delete(dataType);

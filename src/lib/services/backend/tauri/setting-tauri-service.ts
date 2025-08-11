@@ -5,7 +5,7 @@ import type { SettingService } from '$lib/services/backend/setting-service';
 export class TauriSettingService implements SettingService {
   async get(key: string): Promise<Setting | null> {
     try {
-      const result = await invoke('get_setting', { key }) as Setting | null;
+      const result = (await invoke('get_setting', { key })) as Setting | null;
       return result;
     } catch (error) {
       console.error('Failed to get setting:', error);

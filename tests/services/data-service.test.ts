@@ -8,10 +8,12 @@ vi.mock('../../src/lib/services/backend/index', () => ({
 }));
 
 describe('DataService', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockBackendService: any;
 
   beforeEach(() => {
     // DataServiceのbackendキャッシュをリセット
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dataService as any).backend = null;
 
     // モックバックエンドサービスの設定

@@ -35,7 +35,7 @@ export class TauriTaskListService implements TaskListService {
 
   async get(id: string): Promise<TaskList | null> {
     try {
-      const result = await invoke('get_task_list', { id }) as TaskList | null;
+      const result = (await invoke('get_task_list', { id })) as TaskList | null;
       return result;
     } catch (error) {
       console.error('Failed to get task list:', error);
@@ -45,7 +45,7 @@ export class TauriTaskListService implements TaskListService {
 
   async search(condition: TaskListSearchCondition): Promise<TaskList[]> {
     try {
-      const results = await invoke('search_task_lists', { condition }) as TaskList[];
+      const results = (await invoke('search_task_lists', { condition })) as TaskList[];
       return results;
     } catch (error) {
       console.error('Failed to search task lists:', error);

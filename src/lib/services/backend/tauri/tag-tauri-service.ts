@@ -35,7 +35,7 @@ export class TauriTagService implements TagService {
 
   async get(id: string): Promise<Tag | null> {
     try {
-      const result = await invoke('get_tag', { id }) as Tag | null;
+      const result = (await invoke('get_tag', { id })) as Tag | null;
       return result;
     } catch (error) {
       console.error('Failed to get tag:', error);
@@ -45,7 +45,7 @@ export class TauriTagService implements TagService {
 
   async search(condition: TagSearchCondition): Promise<Tag[]> {
     try {
-      const results = await invoke('search_tags', { condition }) as Tag[];
+      const results = (await invoke('search_tags', { condition })) as Tag[];
       return results;
     } catch (error) {
       console.error('Failed to search tags:', error);

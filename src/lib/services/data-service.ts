@@ -1,4 +1,12 @@
-import type { ProjectTree, Task, SubTask, Project, TaskList, TaskListWithTasks, Tag } from '$lib/types/task';
+import type {
+  ProjectTree,
+  Task,
+  SubTask,
+  Project,
+  TaskList,
+  TaskListWithTasks,
+  Tag
+} from '$lib/types/task';
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
 
@@ -181,7 +189,13 @@ export class DataService {
       task_id: taskId,
       title: subTaskData.title,
       description: subTaskData.description,
-      status: (subTaskData.status as 'not_started' | 'in_progress' | 'waiting' | 'completed' | 'cancelled') || 'not_started',
+      status:
+        (subTaskData.status as
+          | 'not_started'
+          | 'in_progress'
+          | 'waiting'
+          | 'completed'
+          | 'cancelled') || 'not_started',
       priority: subTaskData.priority,
       order_index: 0,
       tags: [],
@@ -213,11 +227,7 @@ export class DataService {
   }
 
   // タグ管理
-  async createTag(tagData: {
-    name: string;
-    color?: string;
-    order_index?: number;
-  }): Promise<Tag> {
+  async createTag(tagData: { name: string; color?: string; order_index?: number }): Promise<Tag> {
     const backend = await this.getBackend();
     const newTag: Tag = {
       id: crypto.randomUUID(),

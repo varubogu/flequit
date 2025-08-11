@@ -43,7 +43,6 @@ export class TaskStore {
     }
   }
 
-
   // Computed values
   get selectedTask(): TaskWithSubTasks | null {
     if (!this.selectedTaskId) return null;
@@ -685,7 +684,10 @@ export class TaskStore {
         for (const project of this.projects) {
           const listIndex = project.task_lists.findIndex((l) => l.id === taskListId);
           if (listIndex !== -1) {
-            project.task_lists[listIndex] = { ...project.task_lists[listIndex], ...updatedTaskList };
+            project.task_lists[listIndex] = {
+              ...project.task_lists[listIndex],
+              ...updatedTaskList
+            };
             break;
           }
         }

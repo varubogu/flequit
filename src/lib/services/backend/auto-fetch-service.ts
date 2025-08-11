@@ -18,14 +18,17 @@ export interface AutoFetchService {
    * データ変更の通知を送信
    */
   notifyDataChange(notification: DataChangeNotification): Promise<void>;
-  
+
   /**
    * データ変更通知のリスナーを登録
    */
   subscribe(callback: (notification: DataChangeNotification) => void): () => void;
-  
+
   /**
    * 特定のデータタイプのリスナーを登録
    */
-  subscribeToDataType(dataType: DataType, callback: (notification: DataChangeNotification) => void): () => void;
+  subscribeToDataType(
+    dataType: DataType,
+    callback: (notification: DataChangeNotification) => void
+  ): () => void;
 }

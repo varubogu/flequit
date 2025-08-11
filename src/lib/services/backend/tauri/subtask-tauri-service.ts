@@ -35,7 +35,7 @@ export class TauriSubTaskService implements SubTaskService {
 
   async get(id: string): Promise<SubTask | null> {
     try {
-      const result = await invoke('get_sub_task', { id }) as SubTask | null;
+      const result = (await invoke('get_sub_task', { id })) as SubTask | null;
       return result;
     } catch (error) {
       console.error('Failed to get sub task:', error);
@@ -45,7 +45,7 @@ export class TauriSubTaskService implements SubTaskService {
 
   async search(condition: SubTaskSearchCondition): Promise<SubTask[]> {
     try {
-      const results = await invoke('search_sub_tasks', { condition }) as SubTask[];
+      const results = (await invoke('search_sub_tasks', { condition })) as SubTask[];
       return results;
     } catch (error) {
       console.error('Failed to search sub tasks:', error);

@@ -35,7 +35,7 @@ export class TauriProjectService implements ProjectService {
 
   async get(id: string): Promise<Project | null> {
     try {
-      const result = await invoke('get_project', { id }) as Project | null;
+      const result = (await invoke('get_project', { id })) as Project | null;
       return result;
     } catch (error) {
       console.error('Failed to get project:', error);
@@ -45,7 +45,7 @@ export class TauriProjectService implements ProjectService {
 
   async search(condition: ProjectSearchCondition): Promise<Project[]> {
     try {
-      const results = await invoke('search_projects', { condition }) as Project[];
+      const results = (await invoke('search_projects', { condition })) as Project[];
       return results;
     } catch (error) {
       console.error('Failed to search projects:', error);
