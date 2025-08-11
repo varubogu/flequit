@@ -160,16 +160,23 @@ export class DataService {
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const backend = await this.getBackend();
+    console.log('DataService: updateTask called with backend:', backend.constructor.name);
     const task = await backend.task.get(taskId);
-    if (!task) return null;
-
-    const updatedTask = {
+    
+    // Web環境では既存データが取得できないため、更新データのみでTaskオブジェクトを構築
+    const updatedTask = task ? {
       ...task,
       ...updates,
       updated_at: new Date()
-    };
+    } : {
+      id: taskId,
+      ...updates,
+      updated_at: new Date()
+    } as Task;
 
+    console.log('DataService: calling backend.task.update');
     const success = await backend.task.update(updatedTask);
+    console.log('DataService: backend.task.update result:', success);
     return success ? updatedTask : null;
   }
 
@@ -213,16 +220,23 @@ export class DataService {
 
   async updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<SubTask | null> {
     const backend = await this.getBackend();
+    console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
     const subTask = await backend.subtask.get(subTaskId);
-    if (!subTask) return null;
-
-    const updatedSubTask = {
+    
+    // Web環境では既存データが取得できないため、更新データのみでSubTaskオブジェクトを構築
+    const updatedSubTask = subTask ? {
       ...subTask,
       ...updates,
       updated_at: new Date()
-    };
+    } : {
+      id: subTaskId,
+      ...updates,
+      updated_at: new Date()
+    } as SubTask;
 
+    console.log('DataService: calling backend.subtask.update');
     const success = await backend.subtask.update(updatedSubTask);
+    console.log('DataService: backend.subtask.update result:', success);
     return success ? updatedSubTask : null;
   }
 

@@ -22,7 +22,7 @@ export class SubtaskWebService implements SubTaskService {
 
   async get(id: string): Promise<SubTask | null> {
     // TODO: Web API実装を追加
-    console.warn('Web backend: getSubTask not implemented', id);
+    console.warn('Web backend: getSubTask not implemented (called for data retrieval)', id);
     return null; // 仮実装としてnullを返す
   }
 

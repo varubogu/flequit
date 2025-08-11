@@ -22,7 +22,7 @@ export class TaskWebService implements TaskService {
 
   async get(id: string): Promise<Task | null> {
     // TODO: Web API実装を追加
-    console.warn('Web backend: getTask not implemented', id);
+    console.warn('Web backend: getTask not implemented (called for data retrieval)', id);
     return null; // 仮実装としてnullを返す
   }
 
