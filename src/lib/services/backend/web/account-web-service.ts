@@ -4,13 +4,13 @@ import type { AccountService } from '$lib/services/backend/account-service';
 export class WebAccountService implements AccountService {
   async get(id: string): Promise<Account | null> {
     // TODO: Web API実装を追加
-    console.log('Web backend: getAccount not implemented', id);
-    throw new Error('Not implemented for web mode');
+    console.warn('Web backend: getAccount not implemented', id);
+    return null; // 仮実装としてnullを返す
   }
 
   async update(account: Account): Promise<boolean> {
     // TODO: Web API実装を追加
-    console.log('Web backend: updateAccount not implemented', account);
-    throw new Error('Not implemented for web mode');
+    console.warn('Web backend: updateAccount not implemented', account);
+    return false; // 仮実装として失敗を返す
   }
 }

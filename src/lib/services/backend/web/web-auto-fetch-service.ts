@@ -13,7 +13,7 @@ export class WebAutoFetchService implements AutoFetchService {
 
   async notifyDataChange(notification: DataChangeNotification): Promise<void> {
     // TODO: Web環境では将来的にWebSocketやSSEを使用した実装に変更予定
-    console.log('Web backend: notifyDataChange not fully implemented', notification);
+    console.warn('Web backend: notifyDataChange not fully implemented', notification);
 
     // 現在はローカル通知のみ
     // 全体のリスナーに通知
