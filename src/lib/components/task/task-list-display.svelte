@@ -10,6 +10,7 @@
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
+  import { TaskDetailService } from '$lib/services/task-detail-service';
 
   interface Props {
     project: ProjectTree;
@@ -114,6 +115,15 @@
     DragDropManager.handleDragLeave(event, element);
   }
 
+  // タスク追加処理
+  function handleAddTaskToList(list: { id: string; name: string }) {
+    // 新規タスクモードを開始
+    taskStore.startNewTaskMode(list.id);
+    
+    // タスク詳細を表示
+    TaskDetailService.openNewTaskDetail();
+  }
+
   // タスクリスト用のコンテキストメニューリストを作成
   function createTaskListContextMenu(list: { id: string; name: string }): ContextMenuList {
     return createContextMenu([
@@ -126,7 +136,7 @@
       {
         id: 'add-task',
         label: addTask,
-        action: () => console.log('Add task to:', list.name),
+        action: () => handleAddTaskToList(list),
         icon: Plus
       },
       createSeparator(),
