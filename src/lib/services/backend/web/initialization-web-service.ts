@@ -17,6 +17,7 @@ export class InitializationWebService implements InitializationService {
    * Web版では空のデフォルト設定を返す（ローカルファイル読み込みは使用しない）
    */
   async loadLocalSettings(): Promise<LocalSettings> {
+    console.warn('Web backend: loadLocalSettings - localStorage-based implementation (not fully implemented)');
     try {
       // Web版ではlocalStorageから設定を読み込む
       const savedSettings = localStorage.getItem('flequit_local_settings');
@@ -36,6 +37,7 @@ export class InitializationWebService implements InitializationService {
    * Web版では仮のアカウント情報を返す
    */
   async loadAccount(): Promise<Account | null> {
+    console.warn('Web backend: loadAccount - localStorage-based mock implementation (not fully implemented)');
     try {
       // Web版では仮のアカウントデータを返す
       const savedAccount = localStorage.getItem('flequit_account');
@@ -72,6 +74,7 @@ export class InitializationWebService implements InitializationService {
    * Web版ではsample-dataからサンプルプロジェクトデータを返す
    */
   async loadProjectData(): Promise<ProjectTree[]> {
+    console.warn('Web backend: loadProjectData - localStorage with sample data (not fully implemented)');
     try {
       // localStorageに保存されたプロジェクトデータがあればそれを使用
       const savedProjects = localStorage.getItem('flequit_projects');
@@ -99,6 +102,7 @@ export class InitializationWebService implements InitializationService {
    * 3段階を順次実行
    */
   async initializeAll(): Promise<InitializationResult> {
+    console.warn('Web backend: initializeAll - combined initialization with localStorage (not fully implemented)');
     const localSettings = await this.loadLocalSettings();
     const account = await this.loadAccount();
     const projects = await this.loadProjectData();
