@@ -60,24 +60,24 @@ class SettingsStore {
 
   setTimezone(timezone: string) {
     this.settings.timezone = timezone;
-    this.saveSettings();
+    this.saveSingleSetting('timezone', timezone, 'string');
   }
 
   setDateFormat(format: string) {
     this.settings.dateFormat = format;
-    this.saveSettings();
+    this.saveSingleSetting('dateFormat', format, 'string');
   }
 
   resetDateFormatToDefault() {
     const locale = getLocale();
     this.settings.dateFormat = getDefaultDateFormat(locale);
-    this.saveSettings();
+    this.saveSingleSetting('dateFormat', this.settings.dateFormat, 'string');
   }
 
   addCustomDateFormat(name: string, format: string): string {
     const id = `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.settings.customDateFormats.push({ id, name, format });
-    this.saveSettings();
+    this.saveSingleSetting('customDateFormats', JSON.stringify(this.settings.customDateFormats), 'json');
     return id;
   }
 
@@ -88,19 +88,19 @@ class SettingsStore {
         ...this.settings.customDateFormats[index],
         ...updates
       };
-      this.saveSettings();
+      this.saveSingleSetting('customDateFormats', JSON.stringify(this.settings.customDateFormats), 'json');
     }
   }
 
   removeCustomDateFormat(id: string) {
     this.settings.customDateFormats = this.settings.customDateFormats.filter((f) => f.id !== id);
-    this.saveSettings();
+    this.saveSingleSetting('customDateFormats', JSON.stringify(this.settings.customDateFormats), 'json');
   }
 
   addTimeLabel(name: string, time: string): string {
     const id = `time_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.settings.timeLabels.push({ id, name, time });
-    this.saveSettings();
+    this.saveSingleSetting('timeLabels', JSON.stringify(this.settings.timeLabels), 'json');
     return id;
   }
 
@@ -111,13 +111,13 @@ class SettingsStore {
         ...this.settings.timeLabels[index],
         ...updates
       };
-      this.saveSettings();
+      this.saveSingleSetting('timeLabels', JSON.stringify(this.settings.timeLabels), 'json');
     }
   }
 
   removeTimeLabel(id: string) {
     this.settings.timeLabels = this.settings.timeLabels.filter((t) => t.id !== id);
-    this.saveSettings();
+    this.saveSingleSetting('timeLabels', JSON.stringify(this.settings.timeLabels), 'json');
   }
 
   getTimeLabelsByTime(time: string): TimeLabel[] {
@@ -129,6 +129,24 @@ class SettingsStore {
       this.backendService = await getBackendService();
     }
     return this.backendService;
+  }
+
+  private async saveSingleSetting(key: string, value: string, dataType: Setting['data_type']) {
+    // 初期化が完了していない場合は保存しない
+    if (!this.isInitialized) {
+      return;
+    }
+
+    try {
+      await this.saveSetting(key, value, dataType);
+      console.log(`Setting '${key}' saved successfully`);
+    } catch (error) {
+      console.error(`Failed to save setting '${key}':`, error);
+      // フォールバックとしてlocalStorageに保存
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('flequit-settings', JSON.stringify(this.settings));
+      }
+    }
   }
 
   private async saveSettings() {
