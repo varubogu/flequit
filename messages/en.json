@@ -274,5 +274,10 @@
   "delete_format_message": "Are you sure you want to delete this format? This action cannot be undone.",
   "apply_datetime_format_to_test_format": "Apply date format to test format",
   "apply_test_format_to_datetime_format": "Apply test format to date format",
-  "add_new": "Add new"
+  "add_new": "Add new",
+  "time_labels": "Time Labels",
+  "add_time_label": "Add Time Label",
+  "time_label_name": "Label Name",
+  "time_label_time": "Time",
+  "no_time_labels": "No time labels configured yet"
 }

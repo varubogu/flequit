@@ -274,5 +274,10 @@
   "delete_format_message": "このフォーマットを削除しますか？この操作は元に戻せません。",
   "apply_datetime_format_to_test_format": "日時フォーマットをテストフォーマットに反映",
   "apply_test_format_to_datetime_format": "テストフォーマットを日時フォーマットに反映",
-  "add_new": "新規追加"
+  "add_new": "新規追加",
+  "time_labels": "時刻ラベル",
+  "add_time_label": "時刻ラベルを追加",
+  "time_label_name": "ラベル名",
+  "time_label_time": "時刻",
+  "no_time_labels": "時刻ラベルはまだ設定されていません"
 }
