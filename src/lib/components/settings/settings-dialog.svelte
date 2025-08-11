@@ -52,7 +52,7 @@
   // Mock settings state
   let settings = $state({
     // Basic Settings
-    weekStart: 'sunday',
+    weekStart: settingsStore.weekStart,
     timezone: settingsStore.timezone,
     dateFormat: settingsStore.dateFormat,
     dueDateButtons: {
@@ -110,6 +110,14 @@
     }
   }
 
+  function handleWeekStartChange(weekStart: string) {
+    settings.weekStart = weekStart;
+  }
+
+  function handleTimezoneChange(timezone: string) {
+    settings.timezone = timezone;
+  }
+
   function handleClose() {
     onOpenChange?.(false);
   }
@@ -122,6 +130,7 @@
   // Initialize settings from store when dialog opens
   $effect(() => {
     if (open) {
+      settings.weekStart = settingsStore.weekStart;
       settings.timezone = settingsStore.timezone;
       // デスクトップでは常にサイドバーを開く、モバイルでは閉じる
       sidebarOpen = !isMobile.current;
@@ -206,7 +215,7 @@
       <div class="flex w-full min-w-0 flex-1 flex-col overflow-hidden">
         <div class="w-full flex-1 overflow-auto" bind:this={settingsContentElement}>
           <div class="w-full max-w-none space-y-12 p-4 sm:p-8">
-            <SettingsBasic {settings} />
+            <SettingsBasic {settings} onWeekStartChange={handleWeekStartChange} onTimezoneChange={handleTimezoneChange} />
 
             <SettingsViews />
 

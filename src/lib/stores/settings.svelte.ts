@@ -6,6 +6,7 @@ const translationService = getTranslationService();
 import { getLocale } from '$paraglide/runtime';
 
 interface Settings {
+  weekStart: string; // 'sunday' または 'monday'
   timezone: string; // 'system' または IANA timezone identifier
   dateFormat: string; // date-fns format string
   customDateFormats: CustomDateFormat[]; // ユーザー定義フォーマット
@@ -26,6 +27,7 @@ export interface TimeLabel {
 
 class SettingsStore {
   private settings = $state<Settings>({
+    weekStart: 'sunday', // デフォルトは日曜日
     timezone: 'system',
     dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss', // デフォルトは日本式
     customDateFormats: [],
@@ -34,6 +36,10 @@ class SettingsStore {
 
   private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
   private isInitialized = false;
+
+  get weekStart() {
+    return this.settings.weekStart;
+  }
 
   get timezone() {
     return this.settings.timezone;
@@ -56,6 +62,11 @@ class SettingsStore {
 
   get timeLabels() {
     return this.settings.timeLabels;
+  }
+
+  setWeekStart(weekStart: string) {
+    this.settings.weekStart = weekStart;
+    this.saveSingleSetting('weekStart', weekStart, 'string');
   }
 
   setTimezone(timezone: string) {
@@ -160,6 +171,7 @@ class SettingsStore {
       
       // 各設定をバックエンドサービスに保存
       await Promise.all([
+        this.saveSetting('weekStart', this.settings.weekStart, 'string'),
         this.saveSetting('timezone', this.settings.timezone, 'string'),
         this.saveSetting('dateFormat', this.settings.dateFormat, 'string'),
         this.saveSetting('customDateFormats', JSON.stringify(this.settings.customDateFormats), 'json'),
@@ -209,6 +221,11 @@ class SettingsStore {
       // 各設定を適用
       for (const setting of allSettings) {
         switch (setting.key) {
+          case 'weekStart':
+            this.settings.weekStart = setting.value;
+            loadedCount++;
+            break;
+            
           case 'timezone':
             this.settings.timezone = setting.value;
             loadedCount++;

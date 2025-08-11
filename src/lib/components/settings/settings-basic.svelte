@@ -15,9 +15,11 @@
       dateFormat: string;
       customDueDays: number[];
     };
+    onWeekStartChange?: (weekStart: string) => void;
+    onTimezoneChange?: (timezone: string) => void;
   }
 
-  let { settings }: Props = $props();
+  let { settings, onWeekStartChange, onTimezoneChange }: Props = $props();
 
   // 翻訳サービスを取得
   const translationService = getTranslationService();
@@ -73,9 +75,22 @@
     }
   }
 
+  function handleWeekStartChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newWeekStart = target.value;
+    onWeekStartChange?.(newWeekStart);
+    settingsStore.setWeekStart(newWeekStart);
+  }
+
+  function handleTimezoneChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const newTimezone = target.value;
+    onTimezoneChange?.(newTimezone);
+    settingsStore.setTimezone(newTimezone);
+  }
+
   function handleDateFormatChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    settings.dateFormat = target.value;
     settingsStore.setDateFormat(target.value);
   }
 
@@ -118,7 +133,8 @@
           <label for="week-start" class="text-sm font-medium">{weekStartsOn()}</label>
           <select
             id="week-start"
-            bind:value={settings.weekStart}
+            value={settings.weekStart}
+            onchange={handleWeekStartChange}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="sunday">{sunday()}</option>
@@ -131,7 +147,8 @@
           <label for="timezone-select" class="text-sm font-medium">{timezone()}</label>
           <select
             id="timezone-select"
-            bind:value={settings.timezone}
+            value={settings.timezone}
+            onchange={handleTimezoneChange}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             {#each availableTimezones as tz (tz.value)}
