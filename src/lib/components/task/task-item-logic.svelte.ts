@@ -3,6 +3,7 @@ import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { calculateSubTaskProgress } from '$lib/utils/task-utils';
 import { TaskService } from '$lib/services/task-service';
+import { TaskDetailService } from '$lib/services/task-detail-service';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 import { createEventDispatcher } from 'svelte';
 import { Edit, Trash2 } from 'lucide-svelte';
@@ -69,7 +70,8 @@ export class TaskItemLogic {
 
   // Task handlers
   handleEditTask() {
-    // TODO: タスク編集の実装
+    // タスク詳細画面を開いて編集モードにする
+    TaskDetailService.openTaskDetail(this.task.id);
   }
 
   handleDeleteTask() {
@@ -77,13 +79,13 @@ export class TaskItemLogic {
   }
 
   handleEditSubTask(subTask: SubTask) {
-    // TODO: サブタスク編集の実装
-    console.log('Edit subtask:', subTask.title);
+    // サブタスク詳細画面を開いて編集モードにする
+    TaskDetailService.openSubTaskDetail(subTask.id);
   }
 
   handleDeleteSubTask(subTask: SubTask) {
-    // TODO: サブタスク削除の実装
-    console.log('Delete subtask:', subTask.title);
+    // サブタスクを削除
+    TaskService.deleteSubTask(subTask.id);
   }
 
   // Context menus
