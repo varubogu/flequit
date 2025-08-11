@@ -71,16 +71,23 @@ export class DataService {
     }
   ): Promise<Project | null> {
     const backend = await this.getBackend();
+    console.log('DataService: updateProject called with backend:', backend.constructor.name);
     const project = await backend.project.get(projectId);
-    if (!project) return null;
-
-    const updatedProject = {
+    
+    // Web環境では既存データが取得できないため、更新データのみでProjectオブジェクトを構築
+    const updatedProject = project ? {
       ...project,
       ...updates,
       updated_at: new Date()
-    };
+    } : {
+      id: projectId,
+      ...updates,
+      updated_at: new Date()
+    } as Project;
 
+    console.log('DataService: calling backend.project.update');
     const success = await backend.project.update(updatedProject);
+    console.log('DataService: backend.project.update result:', success);
     return success ? updatedProject : null;
   }
 
@@ -123,16 +130,23 @@ export class DataService {
     }
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
+    console.log('DataService: updateTaskList called with backend:', backend.constructor.name);
     const taskList = await backend.tasklist.get(taskListId);
-    if (!taskList) return null;
-
-    const updatedTaskList = {
+    
+    // Web環境では既存データが取得できないため、更新データのみでTaskListオブジェクトを構築
+    const updatedTaskList = taskList ? {
       ...taskList,
       ...updates,
       updated_at: new Date()
-    };
+    } : {
+      id: taskListId,
+      ...updates,
+      updated_at: new Date()
+    } as TaskList;
 
+    console.log('DataService: calling backend.tasklist.update');
     const success = await backend.tasklist.update(updatedTaskList);
+    console.log('DataService: backend.tasklist.update result:', success);
     return success ? updatedTaskList : null;
   }
 
@@ -262,16 +276,23 @@ export class DataService {
 
   async updateTag(tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
     const backend = await this.getBackend();
+    console.log('DataService: updateTag called with backend:', backend.constructor.name);
     const tag = await backend.tag.get(tagId);
-    if (!tag) return null;
-
-    const updatedTag = {
+    
+    // Web環境では既存データが取得できないため、更新データのみでTagオブジェクトを構築
+    const updatedTag = tag ? {
       ...tag,
       ...updates,
       updated_at: new Date()
-    };
+    } : {
+      id: tagId,
+      ...updates,
+      updated_at: new Date()
+    } as Tag;
 
+    console.log('DataService: calling backend.tag.update');
     const success = await backend.tag.update(updatedTag);
+    console.log('DataService: backend.tag.update result:', success);
     return success ? updatedTag : null;
   }
 
@@ -294,14 +315,63 @@ export class DataService {
     await this.deleteTask(taskId);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async addTagToSubTask(_subTaskId: string, _tagId: string): Promise<void> {
-    // TODO: バックエンドサービスにaddTagToSubTaskメソッドを実装後、適切に呼び出す
+  async addTagToSubTask(subTaskId: string, tagId: string): Promise<void> {
+    const backend = await this.getBackend();
+    console.log('DataService: addTagToSubTask called', { subTaskId, tagId });
+    
+    // 既存のサブタスクを取得
+    const subTask = await backend.subtask.get(subTaskId);
+    
+    // タグオブジェクトを取得
+    const tag = await backend.tag.get(tagId);
+    
+    // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
+    if (!subTask) {
+      console.log('DataService: SubTask not found in backend (Web environment), updating with tag');
+      const tagToUse = tag || {
+        id: tagId,
+        name: `Tag-${tagId}`, // 仮の名前
+        created_at: new Date(),
+        updated_at: new Date()
+      } as Tag;
+      await this.updateSubTask(subTaskId, { tags: [tagToUse] });
+      return;
+    }
+
+    if (!tag) {
+      console.warn('DataService: Tag not found for addTagToSubTask', tagId);
+      return;
+    }
+
+    // タグが既に存在しない場合のみ追加
+    const currentTags = subTask.tags || [];
+    const tagExists = currentTags.some(t => t.id === tagId);
+    if (!tagExists) {
+      const updatedTags = [...currentTags, tag];
+      await this.updateSubTask(subTaskId, { tags: updatedTags });
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async removeTagFromSubTask(_subTaskId: string, _tagId: string): Promise<void> {
-    // TODO: バックエンドサービスにremoveTagFromSubTaskメソッドを実装後、適切に呼び出す
+  async removeTagFromSubTask(subTaskId: string, tagId: string): Promise<void> {
+    const backend = await this.getBackend();
+    console.log('DataService: removeTagFromSubTask called', { subTaskId, tagId });
+    
+    // 既存のサブタスクを取得
+    const subTask = await backend.subtask.get(subTaskId);
+    
+    // Web環境では既存データが取得できないため、空のタグ配列で更新
+    if (!subTask) {
+      console.log('DataService: SubTask not found in backend (Web environment), attempting tag removal');
+      await this.updateSubTask(subTaskId, { tags: [] });
+      return;
+    }
+
+    // タグIDが存在する場合のみ削除
+    const currentTags = subTask.tags || [];
+    const filteredTags = currentTags.filter(tag => tag.id !== tagId);
+    if (filteredTags.length !== currentTags.length) {
+      await this.updateSubTask(subTaskId, { tags: filteredTags });
+    }
   }
 
   // TaskStore向けの型変換メソッド

@@ -156,15 +156,15 @@ export class TaskStore {
       tagStore.addTagWithId(tag);
     });
 
-    // Add initial bookmarks for common tags
+    // Add initial bookmarks for common tags (initialization only, no backend sync)
     const workTag = tagStore.tags.find((tag) => tag.name === 'work');
     const personalTag = tagStore.tags.find((tag) => tag.name === 'personal');
 
     if (workTag && !tagStore.isBookmarked(workTag.id)) {
-      tagStore.addBookmark(workTag.id);
+      tagStore.setBookmarkForInitialization(workTag.id);
     }
     if (personalTag && !tagStore.isBookmarked(personalTag.id)) {
-      tagStore.addBookmark(personalTag.id);
+      tagStore.setBookmarkForInitialization(personalTag.id);
     }
   }
 

@@ -318,6 +318,20 @@ export class TagStore {
     }
   }
 
+  // 初期化専用：ストア状態の設定のみでバックエンド更新は行わない
+  setBookmarkForInitialization(tagId: string) {
+    const newBookmarks = new SvelteSet(this.bookmarkedTags);
+    newBookmarks.add(tagId);
+    this.bookmarkedTags = newBookmarks;
+
+    // 初期化時はorder_indexもローカルで設定するのみ
+    const tag = this.tags.find((t) => t.id === tagId);
+    if (tag && tag.order_index === undefined) {
+      const currentBookmarkedTags = this.tags.filter((t) => newBookmarks.has(t.id));
+      tag.order_index = currentBookmarkedTags.length - 1;
+    }
+  }
+
   removeBookmark(tagId: string) {
     const newBookmarks = new SvelteSet(this.bookmarkedTags);
     newBookmarks.delete(tagId);
