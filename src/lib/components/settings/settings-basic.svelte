@@ -83,8 +83,12 @@
     showDateFormatDialog = true;
   }
 
+  // 初期化後のみタイムゾーンを同期（効果的でない同期を避ける）
   $effect(() => {
-    settingsStore.setTimezone(settings.timezone);
+    // settingsStoreの値がpropsと異なる場合のみ更新
+    if (settingsStore.timezone !== settings.timezone) {
+      settingsStore.setTimezone(settings.timezone);
+    }
   });
 </script>
 

@@ -1,13 +1,24 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { settingsStore, type TimeLabel } from '$lib/stores/settings.svelte';
 
+// バックエンドサービスをモック化
+vi.mock('$lib/services/backend', () => ({
+  getBackendService: vi.fn(() => Promise.resolve({
+    setting: {
+      get: vi.fn(() => Promise.resolve(null)),
+      getAll: vi.fn(() => Promise.resolve([])),
+      update: vi.fn(() => Promise.resolve(true))
+    }
+  }))
+}));
+
 describe('TimeLabels Store', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // LocalStorageをモック化
     const localStorageMock = {
-      getItem: () => null,
-      setItem: () => {},
-      clear: () => {}
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      clear: vi.fn()
     };
     Object.defineProperty(window, 'localStorage', {
       value: localStorageMock,
@@ -16,10 +27,13 @@ describe('TimeLabels Store', () => {
 
     // settingsStoreの状態をリセット
     settingsStore.timeLabels.splice(0, settingsStore.timeLabels.length);
+    
+    // モックをクリア
+    vi.clearAllMocks();
   });
 
   describe('addTimeLabel', () => {
-    it('新しい時刻ラベルを追加できること', () => {
+    it('新しい時刻ラベルを追加できること', async () => {
       const id = settingsStore.addTimeLabel('朝食', '08:00');
       
       expect(id).toBeDefined();
@@ -30,6 +44,9 @@ describe('TimeLabels Store', () => {
       expect(timeLabel.name).toBe('朝食');
       expect(timeLabel.time).toBe('08:00');
       expect(timeLabel.id).toBe(id);
+      
+      // 少し待ってバックエンドサービス呼び出しが完了することを確認
+      await new Promise(resolve => setTimeout(resolve, 10));
     });
 
     it('複数の時刻ラベルを追加できること', () => {

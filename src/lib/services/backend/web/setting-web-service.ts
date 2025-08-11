@@ -8,6 +8,14 @@ export class WebSettingService implements SettingService {
     return null; // 仮実装としてnullを返す
   }
 
+  async getAll(): Promise<Setting[]> {
+    // TODO: Web API実装を追加
+    console.warn('Web backend: getAllSettings not implemented');
+    
+    // 仮実装として空の設定配列を返す（他のサービスと同様の仮実装パターン）
+    return []; // 実際のWeb APIが実装されるまでの仮実装
+  }
+
   async update(setting: Setting): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: updateSetting not implemented', setting);

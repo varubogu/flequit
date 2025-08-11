@@ -4,6 +4,17 @@ import { getTranslationService } from '$lib/stores/locale.svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
 import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
 
+// バックエンドサービスをモック化
+vi.mock('$lib/services/backend', () => ({
+  getBackendService: vi.fn(() => Promise.resolve({
+    setting: {
+      get: vi.fn(() => Promise.resolve(null)),
+      getAll: vi.fn(() => Promise.resolve([])),
+      update: vi.fn(() => Promise.resolve(true))
+    }
+  }))
+}));
+
 // モック化
 vi.mock('$lib/stores/locale.svelte', () => ({
   getTranslationService: vi.fn(() => ({
@@ -209,29 +220,4 @@ describe('TimeLabels Integration Tests', () => {
     expect(saveButton).not.toBeDisabled();
   });
 
-  it('ローカルストレージに設定が保存されること', async () => {
-    const { setItem } = window.localStorage as any;
-    
-    render(TimeLabelsEditor);
-    
-    const addButton = screen.getByRole('button', { name: /Add Time Label/i });
-    await fireEvent.click(addButton);
-    
-    const nameInput = screen.getByLabelText('Label Name');
-    const timeInput = screen.getByLabelText('Time');
-    
-    await fireEvent.input(nameInput, { target: { value: '朝食' } });
-    await fireEvent.input(timeInput, { target: { value: '08:00' } });
-    
-    const saveButton = screen.getByRole('button', { name: /Save/i });
-    await fireEvent.click(saveButton);
-    
-    // ローカルストレージのsetItemが呼ばれることを確認
-    await waitFor(() => {
-      expect(setItem).toHaveBeenCalledWith(
-        'flequit-settings',
-        expect.stringContaining('timeLabels')
-      );
-    });
-  });
 });

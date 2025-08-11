@@ -3,7 +3,7 @@
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore, type TimeLabel } from '$lib/stores/settings.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { Trash2, Plus, Edit3 } from 'lucide-svelte';
+  import { Trash2, Plus, Edit2 } from 'lucide-svelte';
 
   // 翻訳サービスを取得
   const translationService = getTranslationService();
@@ -15,7 +15,6 @@
   const timeLabelTime = translationService.getMessage('time_label_time');
   const add = translationService.getMessage('add');
   const edit = translationService.getMessage('edit');
-  const delete_button = translationService.getMessage('delete');
   const cancel = translationService.getMessage('cancel');
   const save = translationService.getMessage('save');
   const noTimeLabels = translationService.getMessage('no_time_labels');
@@ -102,7 +101,7 @@
               size="sm"
               onclick={() => showEditDialog(timeLabel)}
             >
-              <Edit3 class="h-4 w-4" />
+              <Edit2 class="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"

@@ -1,4 +1,6 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
+import { getBackendService } from '$lib/services/backend';
+import type { Setting } from '$lib/types/task';
 
 const translationService = getTranslationService();
 import { getLocale } from '$paraglide/runtime';
@@ -29,6 +31,9 @@ class SettingsStore {
     customDateFormats: [],
     timeLabels: []
   });
+
+  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
+  private isInitialized = false;
 
   get timezone() {
     return this.settings.timezone;
@@ -119,32 +124,148 @@ class SettingsStore {
     return this.settings.timeLabels.filter((t) => t.time === time);
   }
 
-  private saveSettings() {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('flequit-settings', JSON.stringify(this.settings));
+  private async initBackendService() {
+    if (!this.backendService) {
+      this.backendService = await getBackendService();
+    }
+    return this.backendService;
+  }
+
+  private async saveSettings() {
+    // 初期化が完了していない場合は保存しない
+    if (!this.isInitialized) {
+      return;
+    }
+
+    try {
+      const backend = await this.initBackendService();
+      
+      // 各設定をバックエンドサービスに保存
+      await Promise.all([
+        this.saveSetting('timezone', this.settings.timezone, 'string'),
+        this.saveSetting('dateFormat', this.settings.dateFormat, 'string'),
+        this.saveSetting('customDateFormats', JSON.stringify(this.settings.customDateFormats), 'json'),
+        this.saveSetting('timeLabels', JSON.stringify(this.settings.timeLabels), 'json')
+      ]);
+
+      console.log('Settings saved successfully');
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      // フォールバックとしてlocalStorageに保存
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('flequit-settings', JSON.stringify(this.settings));
+      }
     }
   }
 
-  private loadSettings() {
-    if (typeof localStorage !== 'undefined') {
-      const stored = localStorage.getItem('flequit-settings');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          this.settings = { ...this.settings, ...parsed };
-        } catch (error) {
-          console.error('Failed to parse settings:', error);
+  private async saveSetting(key: string, value: string, dataType: Setting['data_type']) {
+    const backend = await this.initBackendService();
+    if (!backend) {
+      throw new Error('Backend service not available');
+    }
+    
+    const setting: Setting = {
+      id: `setting_${key}`,
+      key,
+      value,
+      data_type: dataType,
+      created_at: new Date(),
+      updated_at: new Date()
+    };
+    
+    await backend.setting.update(setting);
+  }
+
+  private async loadSettings() {
+    try {
+      const backend = await this.initBackendService();
+      if (!backend) {
+        throw new Error('Backend service not available');
+      }
+      
+      // バックエンドから全設定を一括読み込み
+      const allSettings = await backend.setting.getAll();
+      
+      let loadedCount = 0;
+
+      // 各設定を適用
+      for (const setting of allSettings) {
+        switch (setting.key) {
+          case 'timezone':
+            this.settings.timezone = setting.value;
+            loadedCount++;
+            break;
+            
+          case 'dateFormat':
+            this.settings.dateFormat = setting.value;
+            loadedCount++;
+            break;
+            
+          case 'customDateFormats':
+            if (setting.data_type === 'json') {
+              try {
+                this.settings.customDateFormats = JSON.parse(setting.value);
+                loadedCount++;
+              } catch (error) {
+                console.error('Failed to parse customDateFormats:', error);
+              }
+            }
+            break;
+            
+          case 'timeLabels':
+            if (setting.data_type === 'json') {
+              try {
+                this.settings.timeLabels = JSON.parse(setting.value);
+                loadedCount++;
+              } catch (error) {
+                console.error('Failed to parse timeLabels:', error);
+              }
+            }
+            break;
+        }
+      }
+
+      if (loadedCount > 0) {
+        console.log(`Settings loaded successfully from backend (${loadedCount} settings)`);
+      } else {
+        console.log('No settings found in backend, using defaults');
+      }
+    } catch (error) {
+      console.error('Failed to load settings from backend:', error);
+      
+      // フォールバックとしてlocalStorageから読み込み
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('flequit-settings');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            this.settings = { ...this.settings, ...parsed };
+            console.log('Settings loaded from localStorage fallback');
+          } catch (error) {
+            console.error('Failed to parse settings:', error);
+          }
         }
       }
     }
   }
 
+  async init() {
+    await this.loadSettings();
+    this.isInitialized = true;
+  }
+
   constructor() {
-    this.loadSettings();
+    // 非同期初期化は外部で実行
+    // this.init() は別途呼び出す必要がある
   }
 }
 
 export const settingsStore = new SettingsStore();
+
+// 初期化の実行
+settingsStore.init().catch(error => {
+  console.error('Failed to initialize settings store:', error);
+});
 
 // 利用可能なタイムゾーンのリスト（リアクティブ関数として提供）
 export function getAvailableTimezones() {

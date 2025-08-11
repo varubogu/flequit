@@ -43,6 +43,11 @@ export interface SettingInterface<T> {
   get(key: string): Promise<T | null>;
 
   /**
+   * 全ての設定を一括取得
+   */
+  getAll(): Promise<T[]>;
+
+  /**
    * 設定を更新
    */
   update(item: T): Promise<boolean>;

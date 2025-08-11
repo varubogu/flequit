@@ -13,6 +13,16 @@ export class TauriSettingService implements SettingService {
     }
   }
 
+  async getAll(): Promise<Setting[]> {
+    try {
+      const result = (await invoke('get_all_settings')) as Setting[];
+      return result;
+    } catch (error) {
+      console.error('Failed to get all settings:', error);
+      return [];
+    }
+  }
+
   async update(setting: Setting): Promise<boolean> {
     try {
       await invoke('update_setting', { setting });
