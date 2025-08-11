@@ -1,5 +1,5 @@
 import type { Project, ProjectWithLists, TaskList } from '$lib/types/task';
-import { backendService } from '$lib/services/backend/backend-service';
+import { dataService } from '$lib/services/data-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
 export class ProjectsService {
@@ -10,18 +10,7 @@ export class ProjectsService {
     color?: string;
   }): Promise<Project | null> {
     try {
-      const backendProjectTree = await backendService().createProject(projectData);
-      // backendから返されたProjectTreeをProjectに変換
-      const newProject: Project = {
-        id: backendProjectTree.id,
-        name: backendProjectTree.name,
-        description: backendProjectTree.description,
-        color: backendProjectTree.color,
-        order_index: backendProjectTree.order_index,
-        is_archived: backendProjectTree.is_archived,
-        created_at: backendProjectTree.created_at,
-        updated_at: backendProjectTree.updated_at
-      };
+      const newProject = await dataService.createProject(projectData);
       // ローカルストアも更新
       await taskStore.addProject(projectData);
       return newProject;
@@ -41,11 +30,11 @@ export class ProjectsService {
     }
   ): Promise<Project | null> {
     try {
-      const backendProjectTree = await backendService().updateProject(projectId, updates);
-      if (!backendProjectTree) return null;
+      const updatedProject = await dataService.updateProject(projectId, updates);
+      if (!updatedProject) return null;
 
       // ローカルストアも更新
-      const updatedProject = await taskStore.updateProject(projectId, updates);
+      await taskStore.updateProject(projectId, updates);
       return updatedProject;
     } catch (error) {
       console.error('Failed to update project:', error);
@@ -56,7 +45,7 @@ export class ProjectsService {
   // プロジェクト削除
   static async deleteProject(projectId: string): Promise<boolean> {
     try {
-      const success = await backendService().deleteProject(projectId);
+      const success = await dataService.deleteProject(projectId);
       if (success) {
         // ローカルストアからも削除
         await taskStore.deleteProject(projectId);
@@ -150,19 +139,7 @@ export class ProjectsService {
     }
   ): Promise<TaskList | null> {
     try {
-      const backendTaskList = await backendService().createTaskList(projectId, taskListData);
-      // TaskListWithTasksからTaskListに変換
-      const newTaskList: TaskList = {
-        id: backendTaskList.id,
-        project_id: backendTaskList.project_id,
-        name: backendTaskList.name,
-        description: backendTaskList.description,
-        color: backendTaskList.color,
-        order_index: backendTaskList.order_index,
-        is_archived: backendTaskList.is_archived,
-        created_at: backendTaskList.created_at,
-        updated_at: backendTaskList.updated_at
-      };
+      const newTaskList = await dataService.createTaskList(projectId, taskListData);
       // ローカルストアも更新
       await taskStore.addTaskList(projectId, taskListData);
       return newTaskList;
@@ -182,11 +159,11 @@ export class ProjectsService {
     }
   ): Promise<TaskList | null> {
     try {
-      const backendTaskList = await backendService().updateTaskList(taskListId, updates);
-      if (!backendTaskList) return null;
+      const updatedTaskList = await dataService.updateTaskList(taskListId, updates);
+      if (!updatedTaskList) return null;
 
       // ローカルストアも更新
-      const updatedTaskList = await taskStore.updateTaskList(taskListId, updates);
+      await taskStore.updateTaskList(taskListId, updates);
       return updatedTaskList;
     } catch (error) {
       console.error('Failed to update task list:', error);
@@ -197,7 +174,7 @@ export class ProjectsService {
   // タスクリスト削除
   static async deleteTaskList(taskListId: string): Promise<boolean> {
     try {
-      const success = await backendService().deleteTaskList(taskListId);
+      const success = await dataService.deleteTaskList(taskListId);
       if (success) {
         // ローカルストアからも削除
         await taskStore.deleteTaskList(taskListId);

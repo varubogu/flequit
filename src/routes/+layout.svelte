@@ -1,7 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
-  import { backendService } from '$lib/services/backend/backend-service';
+  import { dataService } from '$lib/services/data-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import { ModeWatcher } from 'mode-watcher';
@@ -11,8 +11,7 @@
   // Initialize data on mount
   onMount(async () => {
     try {
-      const service = backendService();
-      const projects = await service.loadProjectData();
+      const projects = await dataService.loadProjectData();
       // 初期化時は保存処理を行わない（loadProjectsDataを使用）
       taskStore.loadProjectsData(projects);
     } catch (error) {

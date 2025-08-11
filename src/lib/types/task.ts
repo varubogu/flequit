@@ -161,6 +161,27 @@ export interface Tag {
   updated_at: Date;
 }
 
+export interface Setting {
+  id: string;
+  key: string;
+  value: string;
+  data_type: 'string' | 'number' | 'boolean' | 'json';
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Account {
+  id: string;
+  email?: string;
+  display_name?: string;
+  avatar_url?: string;
+  provider: 'local' | 'google' | 'github' | 'microsoft';
+  provider_id?: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
 // View models for UI components
 export interface TaskWithSubTasks extends Task {
   sub_tasks: SubTask[];
@@ -177,4 +198,37 @@ export interface TaskListWithTasks extends TaskList {
 
 export interface ProjectTree extends Project {
   task_lists: TaskListWithTasks[];
+}
+
+// 検索条件用の型定義
+export interface ProjectSearchCondition {
+  name?: string;
+  is_archived?: boolean;
+  order_index?: number;
+}
+
+export interface TaskListSearchCondition {
+  project_id?: string;
+  name?: string;
+  is_archived?: boolean;
+  order_index?: number;
+}
+
+export interface TaskSearchCondition {
+  list_id?: string;
+  title?: string;
+  status?: TaskStatus;
+  priority?: number;
+  is_archived?: boolean;
+}
+
+export interface SubTaskSearchCondition {
+  task_id?: string;
+  title?: string;
+  status?: TaskStatus;
+  priority?: number;
+}
+
+export interface TagSearchCondition {
+  name?: string;
 }
