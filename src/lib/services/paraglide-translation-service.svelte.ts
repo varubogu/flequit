@@ -9,6 +9,8 @@ import type {
   LocaleChangeCallback
 } from './translation-service';
 import * as m from '$paraglide/messages.js';
+import { getBackendService } from './backend';
+import type { Setting } from '$lib/types/settings';
 
 /**
  * Paraglideを使用した翻訳サービスの実装
@@ -17,6 +19,8 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
   private localeChangeCounter = $state(0);
   private subscribers = new Set<LocaleChangeCallback>();
   private messageMap: Record<string, (...args: unknown[]) => string>;
+  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
+  private isInitialized = false;
 
   constructor() {
     // Paraglidのメッセージマップを作成
@@ -40,6 +44,9 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     // 購読者に変更を通知
     if (oldLocale !== locale) {
       this.subscribers.forEach((callback) => callback(locale));
+      
+      // バックエンドに保存
+      this.saveLocale(locale);
     }
   }
 
@@ -82,7 +89,89 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       this.subscribers.delete(callback);
     };
   }
+
+  private async initBackendService() {
+    if (!this.backendService) {
+      this.backendService = await getBackendService();
+    }
+    return this.backendService;
+  }
+
+  private async saveLocale(locale: string) {
+    // 初期化が完了していない場合は保存しない
+    if (!this.isInitialized) {
+      return;
+    }
+
+    try {
+      const backend = await this.initBackendService();
+      if (!backend) {
+        throw new Error('Backend service not available');
+      }
+      
+      const setting: Setting = {
+        id: 'setting_locale',
+        key: 'locale',
+        value: locale,
+        data_type: 'string',
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      
+      await backend.setting.update(setting);
+      console.log(`Locale '${locale}' saved successfully`);
+    } catch (error) {
+      console.error('Failed to save locale:', error);
+      // フォールバックとしてlocalStorageに保存
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('flequit-locale', locale);
+      }
+    }
+  }
+
+  private async loadLocale() {
+    try {
+      const backend = await this.initBackendService();
+      if (!backend) {
+        throw new Error('Backend service not available');
+      }
+      
+      // バックエンドから言語設定を読み込み
+      const allSettings = await backend.setting.getAll();
+      const localeSetting = allSettings.find(s => s.key === 'locale');
+      
+      if (localeSetting) {
+        paraglidSetLocale(localeSetting.value as Locale, { reload: false });
+        this.localeChangeCounter++;
+        console.log(`Locale loaded from backend: ${localeSetting.value}`);
+      } else {
+        console.log('No locale setting found in backend, using default');
+      }
+    } catch (error) {
+      console.error('Failed to load locale from backend:', error);
+      
+      // フォールバックとしてlocalStorageから読み込み
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('flequit-locale');
+        if (stored && locales.includes(stored as Locale)) {
+          paraglidSetLocale(stored as Locale, { reload: false });
+          this.localeChangeCounter++;
+          console.log('Locale loaded from localStorage fallback');
+        }
+      }
+    }
+  }
+
+  async init() {
+    await this.loadLocale();
+    this.isInitialized = true;
+  }
 }
 
 // シングルトンインスタンスを作成・エクスポート
 export const translationService = new ParaglideTranslationService();
+
+// 初期化の実行
+translationService.init().catch(error => {
+  console.error('Failed to initialize translation service:', error);
+});

@@ -1,4 +1,6 @@
 import { getTranslationService } from './locale.svelte';
+import { getBackendService } from '$lib/services/backend';
+import type { Setting } from '$lib/types/settings';
 
 const translationService = getTranslationService();
 
@@ -64,9 +66,12 @@ class ViewsVisibilityStore {
   private _configuration = $state<ViewsConfiguration>({
     viewItems: [...DEFAULT_VIEW_ITEMS]
   });
+  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
+  private isInitialized = false;
 
   constructor() {
-    this.loadConfiguration();
+    // 非同期初期化は外部で実行
+    // this.init() は別途呼び出す必要がある
   }
 
   get configuration(): ViewsConfiguration {
@@ -108,38 +113,105 @@ class ViewsVisibilityStore {
     this.saveConfiguration();
   }
 
-  private loadConfiguration() {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsedConfig = JSON.parse(stored);
-          // Merge with defaults to handle new view items
-          const existingIds = new Set(
-            parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
-          );
-          const mergedItems = [
-            ...(parsedConfig.viewItems || []),
-            ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
-          ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
+  private async loadConfiguration() {
+    try {
+      const backend = await this.initBackendService();
+      if (!backend) {
+        throw new Error('Backend service not available');
+      }
+      
+      // バックエンドからビュー設定を読み込み
+      const allSettings = await backend.setting.getAll();
+      const viewsSetting = allSettings.find(s => s.key === 'views_visibility');
+      
+      if (viewsSetting) {
+        const parsedConfig = JSON.parse(viewsSetting.value);
+        // Merge with defaults to handle new view items
+        const existingIds = new Set(
+          parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+        );
+        const mergedItems = [
+          ...(parsedConfig.viewItems || []),
+          ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
+        ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
 
-          this._configuration = { viewItems: mergedItems };
-        } else {
+        this._configuration = { viewItems: mergedItems };
+        console.log('Views configuration loaded from backend');
+      } else {
+        console.log('No views setting found in backend, using defaults');
+        this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
+      }
+    } catch (error) {
+      console.error('Failed to load views configuration from backend:', error);
+      
+      // フォールバックとしてlocalStorageから読み込み
+      if (typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const parsedConfig = JSON.parse(stored);
+            // Merge with defaults to handle new view items
+            const existingIds = new Set(
+              parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+            );
+            const mergedItems = [
+              ...(parsedConfig.viewItems || []),
+              ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
+            ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
+
+            this._configuration = { viewItems: mergedItems };
+            console.log('Views configuration loaded from localStorage fallback');
+          } else {
+            this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
+          }
+        } catch (localError) {
+          console.warn('Failed to load views configuration from localStorage:', localError);
           this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
         }
-      } catch (error) {
-        console.warn('Failed to load views configuration:', error);
-        this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
       }
     }
   }
 
-  private saveConfiguration() {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this._configuration));
-      } catch (error) {
-        console.warn('Failed to save views configuration:', error);
+  private async saveConfiguration() {
+    // 初期化が完了していない場合は保存しない
+    if (!this.isInitialized) {
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this._configuration));
+        } catch (error) {
+          console.warn('Failed to save views configuration to localStorage:', error);
+        }
+      }
+      return;
+    }
+
+    try {
+      const backend = await this.initBackendService();
+      if (!backend) {
+        throw new Error('Backend service not available');
+      }
+      
+      const setting: Setting = {
+        id: 'setting_views_visibility',
+        key: 'views_visibility',
+        value: JSON.stringify(this._configuration),
+        data_type: 'json',
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      
+      await backend.setting.update(setting);
+      console.log('Views visibility configuration saved successfully');
+    } catch (error) {
+      console.error('Failed to save views visibility to backend:', error);
+      
+      // フォールバックとしてlocalStorageに保存
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this._configuration));
+        } catch (localError) {
+          console.warn('Failed to save views configuration to localStorage:', localError);
+        }
       }
     }
   }
@@ -148,6 +220,23 @@ class ViewsVisibilityStore {
     this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
     this.saveConfiguration();
   }
+
+  private async initBackendService() {
+    if (!this.backendService) {
+      this.backendService = await getBackendService();
+    }
+    return this.backendService;
+  }
+
+  async init() {
+    await this.loadConfiguration();
+    this.isInitialized = true;
+  }
 }
 
 export const viewsVisibilityStore = new ViewsVisibilityStore();
+
+// 初期化の実行
+viewsVisibilityStore.init().catch(error => {
+  console.error('Failed to initialize views visibility store:', error);
+});

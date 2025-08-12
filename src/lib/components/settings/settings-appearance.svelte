@@ -1,7 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { setMode, systemPrefersMode, userPrefersMode } from 'mode-watcher';
+  import { systemPrefersMode, userPrefersMode } from 'mode-watcher';
+  import { themeStore } from '$lib/stores/theme-store.svelte';
 
   interface Props {
     settings: {
@@ -42,7 +43,7 @@
             id="theme-select"
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
             value={userPrefersMode.current}
-            onchange={(e) => setMode(e.currentTarget.value as 'system' | 'light' | 'dark')}
+            onchange={(e) => themeStore.setTheme(e.currentTarget.value as 'system' | 'light' | 'dark')}
           >
             <option value="system">{system()} ({systemPrefersMode.current})</option>
             <option value="light">{light()}</option>
