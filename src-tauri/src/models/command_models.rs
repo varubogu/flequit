@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use super::{project_types::ProjectStatus, task_types::TaskStatus};
+use super::super::types::{project_types::ProjectStatus, task_types::TaskStatus};
 
 // Initialization command types
 #[derive(Debug, Clone, Serialize, Deserialize)]

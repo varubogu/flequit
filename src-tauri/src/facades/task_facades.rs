@@ -1,4 +1,5 @@
-use crate::types::task_types::{Task, TaskStatus};
+use crate::models::task_models::Task;
+use crate::types::task_types::TaskStatus;
 
 #[derive(Debug)]
 pub struct TaskSearchRequest {

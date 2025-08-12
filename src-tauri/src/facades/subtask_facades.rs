@@ -1,4 +1,4 @@
-use crate::types::sub_task_types::Subtask;
+use crate::models::sub_task_models::Subtask;
 use crate::types::task_types::TaskStatus;
 
 #[derive(Debug)]

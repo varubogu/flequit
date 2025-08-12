@@ -2,6 +2,7 @@
 mod commands;
 mod services;
 mod repositories;
+mod models;
 mod types;
 mod errors;
 

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::types::tag_types::Tag;
+use crate::models::tag_models::Tag;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
 use crate::repositories::core::tag_repository_trait::TagRepositoryTrait;
 

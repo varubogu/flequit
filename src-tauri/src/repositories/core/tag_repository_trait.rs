@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::types::tag_types::Tag;
+use crate::models::tag_models::Tag;
 use async_trait::async_trait;
 
 #[async_trait]

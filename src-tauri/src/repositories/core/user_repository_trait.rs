@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::types::user_types::User;
+use crate::models::user_models::User;
 use async_trait::async_trait;
 
 #[async_trait]

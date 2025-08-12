@@ -1,4 +1,5 @@
-use crate::types::project_types::{Project, ProjectStatus};
+use crate::models::project_models::Project;
+use crate::types::project_types::ProjectStatus;
 
 #[derive(Debug)]
 pub struct ProjectSearchRequest {

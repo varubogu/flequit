@@ -1,4 +1,4 @@
-use crate::types::task_list_types::TaskList;
+use crate::models::task_list_models::TaskList;
 
 #[derive(Debug)]
 pub struct TaskListSearchRequest {

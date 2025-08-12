@@ -1,7 +1,8 @@
 #[allow(dead_code)]
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::types::project_types::{Project, ProjectMember, ProjectStatus};
+use crate::models::project_models::{Project, ProjectMember};
+use crate::types::project_types::ProjectStatus;
 use crate::repositories::sqlite::SqliteRepository;
 use crate::repositories::core::project_repository_trait::ProjectRepositoryTrait;
 

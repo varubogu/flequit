@@ -1,7 +1,7 @@
-use crate::types::project_types::{Project};
+use crate::models::project_models::{Project};
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
-use crate::types::command_types::ProjectSearchRequest;
+use crate::models::command_models::ProjectSearchRequest;
 use chrono::Utc;
 
 #[allow(dead_code)]

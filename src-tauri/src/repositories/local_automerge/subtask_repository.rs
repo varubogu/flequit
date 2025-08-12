@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::types::sub_task_types::Subtask;
+use crate::models::sub_task_models::Subtask;
 use crate::repositories::local_automerge::LocalAutomergeRepository;
 use crate::repositories::core::subtask_repository_trait::SubtaskRepositoryTrait;
 

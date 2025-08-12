@@ -1,5 +1,5 @@
-use crate::types::tag_types::Tag;
-use crate::types::command_types::TagSearchRequest;
+use crate::models::tag_models::Tag;
+use crate::models::command_models::TagSearchRequest;
 
 #[tauri::command]
 pub async fn create_tag(tag: Tag) -> Result<bool, String> {

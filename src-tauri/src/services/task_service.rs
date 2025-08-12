@@ -1,7 +1,8 @@
-use crate::types::task_types::{Task, TaskStatus};
+use crate::models::task_models::Task;
+use crate::types::task_types::TaskStatus;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
-use crate::types::command_types::TaskSearchRequest;
+use crate::models::command_models::TaskSearchRequest;
 
 #[allow(dead_code)]
 pub struct TaskService;

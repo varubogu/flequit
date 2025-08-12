@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use super::{
-    task_types::TaskWithSubTasks
-};
 
 // TaskList構造体を追加
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,5 +26,5 @@ pub struct TaskListWithTasks {
     pub is_archived: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub tasks: Vec<TaskWithSubTasks>,
+    pub tasks: Vec<super::task_models::TaskWithSubTasks>,
 }

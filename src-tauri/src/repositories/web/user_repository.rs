@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::types::user_types::User;
+use crate::models::user_models::User;
 use crate::repositories::web::WebRepository;
 use crate::repositories::core::user_repository_trait::UserRepositoryTrait;
 

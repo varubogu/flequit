@@ -1,4 +1,4 @@
-use crate::types::user_types::User;
+use crate::models::user_models::User;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 

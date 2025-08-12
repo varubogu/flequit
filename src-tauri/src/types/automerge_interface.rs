@@ -31,9 +31,9 @@
 // }
 
 // // 基本型の自動実装（既存の型に適用）
-// use crate::types::project_types::{Project, ProjectMember};
-// use crate::types::task_types::{Task, Subtask, Tag};
-// use crate::types::user_types::{User};
+// use crate::models::project_models::{Project, ProjectMember};
+// use crate::models::task_models::{Task, Subtask, Tag};
+// use crate::models::user_models::{User};
 
 // impl AutomergeBulkSerializable for Project {}
 // impl AutomergeBulkSerializable for Task {}

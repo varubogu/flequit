@@ -1,5 +1,6 @@
 use crate::errors::RepositoryError;
-use crate::types::project_types::{Project, ProjectMember, ProjectStatus};
+use crate::models::project_models::{Project, ProjectMember};
+use crate::types::project_types::ProjectStatus;
 use async_trait::async_trait;
 
 #[async_trait]

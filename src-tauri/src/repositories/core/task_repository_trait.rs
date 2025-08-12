@@ -1,5 +1,6 @@
 use crate::errors::RepositoryError;
-use crate::types::task_types::{Task, TaskStatus};
+use crate::models::task_models::Task;
+use crate::types::task_types::TaskStatus;
 use async_trait::async_trait;
 
 #[async_trait]

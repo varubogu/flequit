@@ -1,5 +1,5 @@
-use crate::types::task_types::Task;
-use crate::types::command_types::TaskSearchRequest;
+use crate::models::task_models::Task;
+use crate::models::command_models::TaskSearchRequest;
 
 #[tauri::command]
 pub async fn create_task(task: Task) -> Result<bool, String> {
