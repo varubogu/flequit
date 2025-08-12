@@ -279,5 +279,6 @@
   "add_time_label": "Add Time Label",
   "time_label_name": "Label Name",
   "time_label_time": "Time",
-  "no_time_labels": "No time labels configured yet"
+  "no_time_labels": "No time labels configured yet",
+  "add_subtask": "Add Subtask"
 }

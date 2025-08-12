@@ -279,5 +279,6 @@
   "add_time_label": "時刻ラベルを追加",
   "time_label_name": "ラベル名",
   "time_label_time": "時刻",
-  "no_time_labels": "時刻ラベルはまだ設定されていません"
+  "no_time_labels": "時刻ラベルはまだ設定されていません",
+  "add_subtask": "サブタスクを追加"
 }
