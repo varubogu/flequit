@@ -1,6 +1,10 @@
 pub mod automerge_interface;
 pub mod command_types;
+pub mod datetime_calendar_types;
 pub mod datetime_format_types;
 pub mod project_types;
+pub mod sub_task_types;
+pub mod tag_types;
+pub mod task_list_types;
 pub mod task_types;
 pub mod user_types;

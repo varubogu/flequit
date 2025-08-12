@@ -1,4 +1,5 @@
-use crate::types::task_types::{Subtask, TaskStatus};
+use crate::types::sub_task_types::Subtask;
+use crate::types::task_types::TaskStatus;
 
 #[derive(Debug)]
 pub struct SubtaskSearchRequest {

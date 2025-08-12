@@ -1,4 +1,4 @@
-use crate::types::task_types::TaskList;
+use crate::types::task_list_types::TaskList;
 use crate::types::command_types::TaskListSearchRequest;
 
 #[tauri::command]

@@ -1,4 +1,4 @@
-use crate::types::task_types::Tag;
+use crate::types::tag_types::Tag;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 

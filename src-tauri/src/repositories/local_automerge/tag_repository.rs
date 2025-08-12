@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::repositories::local_automerge::LocalAutomergeRepository;
-use crate::types::task_types::Tag;
+use crate::types::tag_types::Tag;
 use crate::repositories::core::tag_repository_trait::TagRepositoryTrait;
 
 

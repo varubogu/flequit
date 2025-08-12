@@ -1,4 +1,4 @@
-use crate::types::task_types::Subtask;
+use crate::types::sub_task_types::Subtask;
 use crate::types::command_types::SubtaskSearchRequest;
 
 // Frontend compatibility aliases only

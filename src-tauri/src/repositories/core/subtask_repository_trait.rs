@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::types::task_types::Subtask;
+use crate::types::sub_task_types::Subtask;
 use async_trait::async_trait;
 
 #[async_trait]

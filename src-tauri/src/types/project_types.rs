@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use super::{task_list_types::TaskListWithTasks};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
@@ -38,4 +39,18 @@ pub enum MemberRole {
     Admin,
     Member,
     Viewer,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectTree {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub color: Option<String>,
+    pub order_index: i32,
+    pub is_archived: bool,
+    pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub task_lists: Vec<TaskListWithTasks>,
 }

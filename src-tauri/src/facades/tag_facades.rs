@@ -1,4 +1,4 @@
-use crate::types::task_types::Tag;
+use crate::types::tag_types::Tag;
 
 #[derive(Debug)]
 pub struct TagSearchRequest {
