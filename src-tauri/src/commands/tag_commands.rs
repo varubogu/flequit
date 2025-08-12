@@ -1,17 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::types::task_types::Tag;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TagSearchRequest {
-    pub name: Option<String>,
-    pub color: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub usage_count_min: Option<u32>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-    pub order_by_popularity: Option<bool>,
-}
+use crate::types::command_types::TagSearchRequest;
 
 #[tauri::command]
 pub async fn create_tag(tag: Tag) -> Result<bool, String> {

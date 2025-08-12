@@ -1,23 +1,5 @@
-use serde::{Serialize, Deserialize};
-use crate::types::task_types::{Task, TaskStatus};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TaskSearchRequest {
-    pub project_id: Option<String>,
-    pub title: Option<String>,
-    pub description: Option<String>,
-    pub status: Option<TaskStatus>,
-    pub assignee_id: Option<String>,
-    pub priority_min: Option<i32>,
-    pub priority_max: Option<i32>,
-    pub tag_ids: Option<Vec<String>>,
-    pub due_date_from: Option<String>,
-    pub due_date_to: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
+use crate::types::task_types::Task;
+use crate::types::command_types::TaskSearchRequest;
 
 #[tauri::command]
 pub async fn create_task(task: Task) -> Result<bool, String> {

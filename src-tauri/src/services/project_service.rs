@@ -1,7 +1,7 @@
 use crate::types::project_types::{Project};
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
-use crate::commands::project_commands::ProjectSearchRequest;
+use crate::types::command_types::ProjectSearchRequest;
 use chrono::Utc;
 
 pub struct ProjectService;
@@ -91,10 +91,10 @@ impl ProjectService {
         // NOTE: Ideally, filtering should be done in the repository layer.
         let mut projects = repository.list_projects().await?;
 
-        if let Some(ref name) = request.name {
+        if let Some(name) = &request.name {
             projects.retain(|project| project.name.to_lowercase().contains(&name.to_lowercase()));
         }
-        if let Some(ref description) = request.description {
+        if let Some(description) = &request.description {
             projects.retain(|project| {
                 project.description.as_ref().map_or(false, |d| d.to_lowercase().contains(&description.to_lowercase()))
             });

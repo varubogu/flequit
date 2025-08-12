@@ -1,17 +1,5 @@
-use serde::{Serialize, Deserialize};
-use crate::types::project_types::{Project, ProjectStatus};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ProjectSearchRequest {
-    pub name: Option<String>,
-    pub description: Option<String>,
-    pub status: Option<ProjectStatus>,
-    pub owner_id: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
+use crate::types::project_types::Project;
+use crate::types::command_types::ProjectSearchRequest;
 
 #[tauri::command]
 pub async fn create_project(project: Project) -> Result<bool, String> {

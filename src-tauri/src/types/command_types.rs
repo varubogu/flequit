@@ -1,0 +1,120 @@
+use serde::{Serialize, Deserialize};
+use super::{project_types::ProjectStatus, task_types::TaskStatus};
+
+// Initialization command types
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LocalSettings {
+    pub theme: String,
+    pub language: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Account {
+    pub id: String,
+    pub email: Option<String>,
+    pub display_name: Option<String>,
+    pub avatar_url: Option<String>,
+    pub provider: String,
+    pub provider_id: Option<String>,
+    pub is_active: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectTree {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+// Project command types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectSearchRequest {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<ProjectStatus>,
+    pub owner_id: Option<String>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}
+
+// Setting command types
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Setting {
+    pub id: String,
+    pub key: String,
+    pub value: String,
+    pub data_type: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SettingResponse {
+    pub success: bool,
+    pub data: Option<Setting>,
+    pub message: Option<String>,
+}
+
+// Task command types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TaskSearchRequest {
+    pub project_id: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<TaskStatus>,
+    pub assignee_id: Option<String>,
+    pub priority_min: Option<i32>,
+    pub priority_max: Option<i32>,
+    pub tag_ids: Option<Vec<String>>,
+    pub due_date_from: Option<String>,
+    pub due_date_to: Option<String>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}
+
+// Subtask command types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubtaskSearchRequest {
+    pub project_id: String,
+    pub task_id: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<TaskStatus>,
+    pub completed: Option<bool>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}
+
+// Tag command types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TagSearchRequest {
+    pub name: Option<String>,
+    pub color: Option<String>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub usage_count_min: Option<u32>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+    pub order_by_popularity: Option<bool>,
+}
+
+// Task list command types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TaskListSearchRequest {
+    pub project_id: Option<String>,
+    pub name: Option<String>,
+    pub created_from: Option<String>,
+    pub created_to: Option<String>,
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
+}

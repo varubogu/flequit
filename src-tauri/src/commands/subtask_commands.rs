@@ -1,19 +1,5 @@
-use serde::{Serialize, Deserialize};
-use crate::types::task_types::{Subtask, TaskStatus};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SubtaskSearchRequest {
-    pub project_id: String,
-    pub task_id: Option<String>,
-    pub title: Option<String>,
-    pub description: Option<String>,
-    pub status: Option<TaskStatus>,
-    pub completed: Option<bool>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
+use crate::types::task_types::Subtask;
+use crate::types::command_types::SubtaskSearchRequest;
 
 // Frontend compatibility aliases only
 #[tauri::command]

@@ -1,7 +1,7 @@
 use crate::types::task_types::{Task, TaskStatus};
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
-use crate::commands::task_commands::TaskSearchRequest;
+use crate::types::command_types::TaskSearchRequest;
 
 pub struct TaskService;
 
@@ -123,7 +123,7 @@ impl TaskService {
         // NOTE: Ideally, filtering should be done in the repository layer with a dedicated method.
         let mut tasks = repository.list_tasks(project_id).await?;
 
-        if let Some(ref title) = request.title {
+        if let Some(title) = &request.title {
             tasks.retain(|task| task.title.to_lowercase().contains(&title.to_lowercase()));
         }
 

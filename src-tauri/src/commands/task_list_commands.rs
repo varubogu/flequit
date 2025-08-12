@@ -1,15 +1,5 @@
-use serde::{Serialize, Deserialize};
 use crate::types::task_types::TaskList;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TaskListSearchRequest {
-    pub project_id: Option<String>,
-    pub name: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
+use crate::types::command_types::TaskListSearchRequest;
 
 #[tauri::command]
 pub fn create_task_list(task_list: TaskList) -> Result<bool, String> {
