@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { settingsStore, type TimeLabel } from '$lib/stores/settings.svelte';
+import { settingsStore } from '$lib/stores/settings.svelte';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/services/backend', () => ({
@@ -59,8 +59,8 @@ describe('TimeLabels Store', () => {
     });
 
     it('同じ時刻に複数のラベルを設定できること', () => {
-      const id1 = settingsStore.addTimeLabel('朝食', '08:00');
-      const id2 = settingsStore.addTimeLabel('出勤準備', '08:00');
+      settingsStore.addTimeLabel('朝食', '08:00');
+      settingsStore.addTimeLabel('出勤準備', '08:00');
       
       expect(settingsStore.timeLabels).toHaveLength(2);
       expect(settingsStore.getTimeLabelsByTime('08:00')).toHaveLength(2);
@@ -131,7 +131,7 @@ describe('TimeLabels Store', () => {
     it('指定した時刻のラベルを取得できること', () => {
       const id1 = settingsStore.addTimeLabel('朝食', '08:00');
       const id2 = settingsStore.addTimeLabel('出勤準備', '08:00');
-      const id3 = settingsStore.addTimeLabel('昼食', '12:00');
+      settingsStore.addTimeLabel('昼食', '12:00');
       
       const timeLabels = settingsStore.getTimeLabelsByTime('08:00');
       

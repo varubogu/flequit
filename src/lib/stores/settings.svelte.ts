@@ -167,7 +167,7 @@ class SettingsStore {
     }
 
     try {
-      const backend = await this.initBackendService();
+      await this.initBackendService();
       
       // 各設定をバックエンドサービスに保存
       await Promise.all([

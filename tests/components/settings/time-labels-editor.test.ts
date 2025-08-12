@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { getTranslationService } from '$lib/stores/locale.svelte';
 import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
+import { settingsStore } from '$lib/stores/settings.svelte';
 
 // モック化
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -37,7 +37,7 @@ describe('TimeLabelsEditor', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // モックされたsettingsStoreのtimeLabelsをリセット
-    const settingsStoreMock = vi.mocked(require('$lib/stores/settings.svelte').settingsStore);
+    const settingsStoreMock = vi.mocked(settingsStore);
     settingsStoreMock.timeLabels.splice(0);
   });
 
@@ -50,7 +50,7 @@ describe('TimeLabelsEditor', () => {
   });
 
   it('時刻ラベルが存在する場合、リストが表示されること', () => {
-    const settingsStoreMock = vi.mocked(require('$lib/stores/settings.svelte').settingsStore);
+    const settingsStoreMock = vi.mocked(settingsStore);
     settingsStoreMock.timeLabels.push(
       { id: '1', name: '朝食', time: '08:00' },
       { id: '2', name: '昼食', time: '12:00' }
@@ -78,7 +78,7 @@ describe('TimeLabelsEditor', () => {
   });
 
   it('フォームに入力して保存すると時刻ラベルが追加されること', async () => {
-    const settingsStoreMock = vi.mocked(require('$lib/stores/settings.svelte').settingsStore);
+    const settingsStoreMock = vi.mocked(settingsStore);
     render(TimeLabelsEditor);
     
     // 追加フォームを開く
@@ -100,7 +100,7 @@ describe('TimeLabelsEditor', () => {
   });
 
   it('編集ボタンをクリックすると編集フォームが表示されること', async () => {
-    const settingsStoreMock = vi.mocked(require('$lib/stores/settings.svelte').settingsStore);
+    const settingsStoreMock = vi.mocked(settingsStore);
     settingsStoreMock.timeLabels.push({ id: '1', name: '朝食', time: '08:00' });
     
     render(TimeLabelsEditor);
@@ -117,7 +117,7 @@ describe('TimeLabelsEditor', () => {
   });
 
   it('削除ボタンをクリックすると時刻ラベルが削除されること', async () => {
-    const settingsStoreMock = vi.mocked(require('$lib/stores/settings.svelte').settingsStore);
+    const settingsStoreMock = vi.mocked(settingsStore);
     settingsStoreMock.timeLabels.push({ id: '1', name: '朝食', time: '08:00' });
     
     render(TimeLabelsEditor);
