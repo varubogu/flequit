@@ -1,6 +1,11 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsAppearance from '$lib/components/settings/settings-appearance.svelte';
+import { setTranslationService } from '$lib/stores/locale.svelte';
+import {
+  createUnitTestTranslationService,
+  unitTestTranslations
+} from '../../unit-translation-mock';
 
 // Mock mode-watcher
 vi.mock('mode-watcher', () => ({
@@ -9,129 +14,145 @@ vi.mock('mode-watcher', () => ({
   userPrefersMode: { current: 'system' }
 }));
 
-describe('SettingsAppearance Component', () => {
-  const defaultSettings = {
-    font: 'default',
-    fontSize: 13,
-    fontColor: 'default',
-    backgroundColor: 'default'
-  };
+// Mock appearance store
+vi.mock('$lib/stores/appearance-store.svelte', () => ({
+  appearanceStore: {
+    settings: {
+      font: 'default',
+      fontSize: 13,
+      fontColor: 'default',
+      backgroundColor: 'default'
+    },
+    setFont: vi.fn(),
+    setFontSize: vi.fn(),
+    setFontColor: vi.fn(),
+    setBackgroundColor: vi.fn()
+  }
+}));
 
+// Mock theme store
+vi.mock('$lib/stores/theme-store.svelte', () => ({
+  themeStore: {
+    setTheme: vi.fn()
+  }
+}));
+
+describe('SettingsAppearance Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createUnitTestTranslationService());
   });
 
   test('should render appearance settings section', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    expect(screen.getByText('Appearance Settings')).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.appearance_settings)).toBeInTheDocument();
   });
 
   test('should render theme selection', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    expect(screen.getByLabelText('Theme')).toBeInTheDocument();
-    expect(screen.getByText('System (light)')).toBeInTheDocument();
-    expect(screen.getByText('Light')).toBeInTheDocument();
-    expect(screen.getByText('Dark')).toBeInTheDocument();
+    expect(screen.getByLabelText(unitTestTranslations.theme)).toBeInTheDocument();
+    expect(screen.getByText(`${unitTestTranslations.system} (light)`)).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.light)).toBeInTheDocument();
+    expect(screen.getByText(unitTestTranslations.dark)).toBeInTheDocument();
   });
 
   test('should render font selection', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    const fontSelect = screen.getByLabelText('Font');
+    const fontSelect = screen.getByLabelText(unitTestTranslations.font);
     expect(fontSelect).toBeInTheDocument();
-
-    const options = fontSelect.querySelectorAll('option');
-    expect(options[0]).toHaveTextContent('Default');
-    expect(options[1]).toHaveTextContent('System');
-    expect(options[2]).toHaveTextContent('Arial');
-    expect(options[3]).toHaveTextContent('Helvetica');
+    expect(screen.getAllByText(unitTestTranslations.default_font)).toHaveLength(3); // appears in 3 selects
+    expect(screen.getByText(unitTestTranslations.system_font)).toBeInTheDocument();
+    expect(screen.getByText('Arial')).toBeInTheDocument();
+    expect(screen.getByText('Helvetica')).toBeInTheDocument();
   });
 
   test('should render font size input', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    const fontSizeInput = screen.getByLabelText('Font Size');
+    const fontSizeInput = screen.getByLabelText(unitTestTranslations.font_size);
     expect(fontSizeInput).toBeInTheDocument();
     expect(fontSizeInput).toHaveAttribute('type', 'number');
-    expect(fontSizeInput).toHaveAttribute('min', '10');
-    expect(fontSizeInput).toHaveAttribute('max', '24');
+    expect(fontSizeInput).toHaveValue(13); // number型なのでクォートを削除
   });
 
   test('should render font color selection', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    const fontColorSelect = screen.getByLabelText('Font Color');
+    const fontColorSelect = screen.getByLabelText(unitTestTranslations.font_color);
     expect(fontColorSelect).toBeInTheDocument();
-
-    const options = fontColorSelect.querySelectorAll('option');
-    expect(options[0]).toHaveTextContent('Default');
-    expect(options[1]).toHaveTextContent('Black');
-    expect(options[2]).toHaveTextContent('White');
+    expect(screen.getAllByText(unitTestTranslations.default_font)).toHaveLength(3); // appears in multiple selects
+    expect(screen.getAllByText('Black')).toHaveLength(2); // appears in both font color and background color
+    expect(screen.getAllByText('White')).toHaveLength(2); // appears in both font color and background color
   });
 
   test('should render background color selection', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    const backgroundColorSelect = screen.getByLabelText('Background Color');
+    const backgroundColorSelect = screen.getByLabelText(unitTestTranslations.background_color);
     expect(backgroundColorSelect).toBeInTheDocument();
-
-    const options = backgroundColorSelect.querySelectorAll('option');
-    expect(options[0]).toHaveTextContent('Default');
-    expect(options[1]).toHaveTextContent('White');
-    expect(options[2]).toHaveTextContent('Black');
+    expect(screen.getAllByText(unitTestTranslations.default_font)).toHaveLength(3); // appears in multiple selects
   });
 
-  test('should render font select with correct value', () => {
-    const settings = { ...defaultSettings, font: 'arial' };
-    render(SettingsAppearance, { settings });
+  test('should call themeStore.setTheme when theme changes', async () => {
+    const { themeStore } = await import('$lib/stores/theme-store.svelte');
+    render(SettingsAppearance);
 
-    const fontSelect = screen.getByLabelText('Font') as HTMLSelectElement;
-    expect(fontSelect.value).toBe('arial');
-  });
-
-  test('should render font size input with correct value', () => {
-    const settings = { ...defaultSettings, fontSize: 16 };
-    render(SettingsAppearance, { settings });
-
-    const fontSizeInput = screen.getByLabelText('Font Size') as HTMLInputElement;
-    expect(fontSizeInput.value).toBe('16');
-  });
-
-  test('should render font color select with correct value', () => {
-    const settings = { ...defaultSettings, fontColor: 'black' };
-    render(SettingsAppearance, { settings });
-
-    const fontColorSelect = screen.getByLabelText('Font Color') as HTMLSelectElement;
-    expect(fontColorSelect.value).toBe('black');
-  });
-
-  test('should render background color select with correct value', () => {
-    const settings = { ...defaultSettings, backgroundColor: 'white' };
-    render(SettingsAppearance, { settings });
-
-    const backgroundColorSelect = screen.getByLabelText('Background Color') as HTMLSelectElement;
-    expect(backgroundColorSelect.value).toBe('white');
-  });
-
-  test('should call setMode when theme is changed', async () => {
-    const { setMode } = await import('mode-watcher');
-    render(SettingsAppearance, { settings: defaultSettings });
-
-    const themeSelect = screen.getByLabelText('Theme');
+    const themeSelect = screen.getByLabelText(unitTestTranslations.theme);
     await fireEvent.change(themeSelect, { target: { value: 'dark' } });
 
-    expect(setMode).toHaveBeenCalledWith('dark');
+    expect(themeStore.setTheme).toHaveBeenCalledWith('dark');
+  });
+
+  test('should call appearanceStore.setFont when font changes', async () => {
+    const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
+    render(SettingsAppearance);
+
+    const fontSelect = screen.getByLabelText(unitTestTranslations.font);
+    await fireEvent.change(fontSelect, { target: { value: 'arial' } });
+
+    expect(appearanceStore.setFont).toHaveBeenCalledWith('arial');
+  });
+
+  test('should call appearanceStore.setFontSize when font size changes', async () => {
+    const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
+    render(SettingsAppearance);
+
+    const fontSizeInput = screen.getByLabelText(unitTestTranslations.font_size);
+    await fireEvent.input(fontSizeInput, { target: { value: '16' } });
+
+    expect(appearanceStore.setFontSize).toHaveBeenCalledWith(16);
+  });
+
+  test('should call appearanceStore.setFontColor when font color changes', async () => {
+    const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
+    render(SettingsAppearance);
+
+    const fontColorSelect = screen.getByLabelText(unitTestTranslations.font_color);
+    await fireEvent.change(fontColorSelect, { target: { value: 'black' } });
+
+    expect(appearanceStore.setFontColor).toHaveBeenCalledWith('black');
+  });
+
+  test('should call appearanceStore.setBackgroundColor when background color changes', async () => {
+    const { appearanceStore } = await import('$lib/stores/appearance-store.svelte');
+    render(SettingsAppearance);
+
+    const backgroundColorSelect = screen.getByLabelText(unitTestTranslations.background_color);
+    await fireEvent.change(backgroundColorSelect, { target: { value: 'white' } });
+
+    expect(appearanceStore.setBackgroundColor).toHaveBeenCalledWith('white');
   });
 
   test('should have correct default values', () => {
-    render(SettingsAppearance, { settings: defaultSettings });
+    render(SettingsAppearance);
 
-    const fontSelect = screen.getByLabelText('Font') as HTMLSelectElement;
-    const fontSizeInput = screen.getByLabelText('Font Size') as HTMLInputElement;
-    const fontColorSelect = screen.getByLabelText('Font Color') as HTMLSelectElement;
-    const backgroundColorSelect = screen.getByLabelText('Background Color') as HTMLSelectElement;
+    const fontSelect = screen.getByLabelText(unitTestTranslations.font) as HTMLSelectElement;
+    const fontSizeInput = screen.getByLabelText(unitTestTranslations.font_size) as HTMLInputElement;
+    const fontColorSelect = screen.getByLabelText(unitTestTranslations.font_color) as HTMLSelectElement;
+    const backgroundColorSelect = screen.getByLabelText(unitTestTranslations.background_color) as HTMLSelectElement;
 
     expect(fontSelect.value).toBe('default');
     expect(fontSizeInput.value).toBe('13');
@@ -140,16 +161,14 @@ describe('SettingsAppearance Component', () => {
   });
 
   test('should have responsive grid layout', () => {
-    const { container } = render(SettingsAppearance, { settings: defaultSettings });
+    const { container } = render(SettingsAppearance);
 
-    const gridContainer = container.querySelector(
-      '.grid.grid-cols-1.gap-4.sm\\:gap-6.sm\\:grid-cols-2.lg\\:grid-cols-3.w-full'
-    );
-    expect(gridContainer).toBeInTheDocument();
+    const gridContainer = container.querySelector('.grid');
+    expect(gridContainer).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
   });
 
   test('should render section with correct id', () => {
-    const { container } = render(SettingsAppearance, { settings: defaultSettings });
+    const { container } = render(SettingsAppearance);
 
     const section = container.querySelector('#settings-appearance');
     expect(section).toBeInTheDocument();

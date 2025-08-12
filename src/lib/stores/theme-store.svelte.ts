@@ -1,5 +1,6 @@
 import { setMode, userPrefersMode } from 'mode-watcher';
 import { getBackendService } from '$lib/services/backend';
+import { settingsInitService } from '$lib/services/settings-init-service';
 import type { Setting } from '$lib/types/settings';
 
 type Theme = 'system' | 'light' | 'dark';
@@ -59,14 +60,9 @@ class ThemeStore {
 
   private async loadTheme() {
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
-      }
-      
-      // バックエンドからテーマ設定を読み込み
-      const allSettings = await backend.setting.getAll();
-      const themeSetting = allSettings.find(s => s.key === 'theme');
+      // 統合初期化サービスから全設定を取得
+      const allSettings = await settingsInitService.getAllSettings();
+      const themeSetting = settingsInitService.getSettingByKey(allSettings, 'theme');
       
       if (themeSetting && (themeSetting.value === 'system' || themeSetting.value === 'light' || themeSetting.value === 'dark')) {
         setMode(themeSetting.value as Theme);

@@ -1,5 +1,6 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { getBackendService } from '$lib/services/backend';
+import { settingsInitService } from '$lib/services/settings-init-service';
 import type { Setting } from '$lib/types/settings';
 
 const translationService = getTranslationService();
@@ -208,13 +209,8 @@ class SettingsStore {
 
   private async loadSettings() {
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
-      }
-      
-      // バックエンドから全設定を一括読み込み
-      const allSettings = await backend.setting.getAll();
+      // 統合初期化サービスから全設定を取得
+      const allSettings = await settingsInitService.getAllSettings();
       
       let loadedCount = 0;
 

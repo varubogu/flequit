@@ -209,6 +209,10 @@ export const unitTestTranslations = {
   system: 'TEST_SYSTEM',
   theme: 'TEST_THEME',
   default_font: 'TEST_DEFAULT_FONT',
+  font: 'TEST_FONT',
+  font_size: 'TEST_FONT_SIZE',
+  font_color: 'TEST_FONT_COLOR',
+  system_font: 'TEST_SYSTEM_FONT',
 
   // 日付フォーマット関連
   date_format_editor: 'TEST_DATE_FORMAT_EDITOR',

@@ -1,5 +1,6 @@
 import { getTranslationService } from './locale.svelte';
 import { getBackendService } from '$lib/services/backend';
+import { settingsInitService } from '$lib/services/settings-init-service';
 import type { Setting } from '$lib/types/settings';
 
 const translationService = getTranslationService();
@@ -115,14 +116,9 @@ class ViewsVisibilityStore {
 
   private async loadConfiguration() {
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
-      }
-      
-      // バックエンドからビュー設定を読み込み
-      const allSettings = await backend.setting.getAll();
-      const viewsSetting = allSettings.find(s => s.key === 'views_visibility');
+      // 統合初期化サービスから全設定を取得
+      const allSettings = await settingsInitService.getAllSettings();
+      const viewsSetting = settingsInitService.getSettingByKey(allSettings, 'views_visibility');
       
       if (viewsSetting) {
         const parsedConfig = JSON.parse(viewsSetting.value);

@@ -216,7 +216,7 @@
 
             <SettingsViews />
 
-            <SettingsAppearance {settings} />
+            <SettingsAppearance />
 
             <SettingsAccount {settings} />
           </div>

@@ -10,6 +10,7 @@ import type {
 } from './translation-service';
 import * as m from '$paraglide/messages.js';
 import { getBackendService } from './backend';
+import { settingsInitService } from './settings-init-service';
 import type { Setting } from '$lib/types/settings';
 
 /**
@@ -131,14 +132,9 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
 
   private async loadLocale() {
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
-      }
-      
-      // バックエンドから言語設定を読み込み
-      const allSettings = await backend.setting.getAll();
-      const localeSetting = allSettings.find(s => s.key === 'locale');
+      // 統合初期化サービスから全設定を取得
+      const allSettings = await settingsInitService.getAllSettings();
+      const localeSetting = settingsInitService.getSettingByKey(allSettings, 'locale');
       
       if (localeSetting) {
         paraglidSetLocale(localeSetting.value as Locale, { reload: false });

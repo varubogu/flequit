@@ -3,17 +3,7 @@
   import Input from '$lib/components/ui/input.svelte';
   import { systemPrefersMode, userPrefersMode } from 'mode-watcher';
   import { themeStore } from '$lib/stores/theme-store.svelte';
-
-  interface Props {
-    settings: {
-      font: string;
-      fontSize: number;
-      fontColor: string;
-      backgroundColor: string;
-    };
-  }
-
-  let { settings }: Props = $props();
+  import { appearanceStore } from '$lib/stores/appearance-store.svelte';
 
   const translationService = getTranslationService();
   // Reactive messages
@@ -56,7 +46,8 @@
           <label for="font-select" class="text-sm font-medium">{font()}</label>
           <select
             id="font-select"
-            bind:value={settings.font}
+            value={appearanceStore.settings.font}
+            onchange={(e) => appearanceStore.setFont(e.currentTarget.value)}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
@@ -72,7 +63,16 @@
           <Input
             id="font-size"
             type="number"
-            bind:value={settings.fontSize}
+            value={appearanceStore.settings.fontSize}
+            oninput={(e) => {
+              const target = e.currentTarget as HTMLInputElement;
+              if (target) {
+                const value = parseInt(target.value, 10);
+                if (!isNaN(value)) {
+                  appearanceStore.setFontSize(value);
+                }
+              }
+            }}
             min="10"
             max="24"
             class="mt-1"
@@ -84,7 +84,8 @@
           <label for="font-color" class="text-sm font-medium">{fontColor()}</label>
           <select
             id="font-color"
-            bind:value={settings.fontColor}
+            value={appearanceStore.settings.fontColor}
+            onchange={(e) => appearanceStore.setFontColor(e.currentTarget.value)}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
@@ -98,7 +99,8 @@
           <label for="background-color" class="text-sm font-medium">{backgroundColor()}</label>
           <select
             id="background-color"
-            bind:value={settings.backgroundColor}
+            value={appearanceStore.settings.backgroundColor}
+            onchange={(e) => appearanceStore.setBackgroundColor(e.currentTarget.value)}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="default">{defaultFont()}</option>
