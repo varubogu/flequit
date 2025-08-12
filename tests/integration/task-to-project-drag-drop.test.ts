@@ -81,7 +81,7 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     taskStore.setProjects(mockProjects);
   });
 
-  it('タスクをプロジェクトにドロップするとそのプロジェクトの最初のタスクリストに移動する', () => {
+  it('タスクをプロジェクトにドロップするとそのプロジェクトの最初のタスクリストに移動する', async () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetProject = mockProjects[1];
 
@@ -91,7 +91,7 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(mockProjects[1].task_lists[0].tasks.length).toBe(0);
 
     // タスクを別プロジェクトに移動
-    taskStore.moveTaskToList(task.id, targetProject.task_lists[0].id);
+    await taskStore.moveTaskToList(task.id, targetProject.task_lists[0].id);
 
     // 移動後の状態を確認
     const updatedSourceProject = taskStore.projects.find((p) => p.id === 'project-1');
@@ -102,7 +102,7 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(updatedTargetProject?.task_lists[0].tasks[0].id).toBe('task-1');
   });
 
-  it('タスクをタスクリストにドロップすると指定されたタスクリストに移動する', () => {
+  it('タスクをタスクリストにドロップすると指定されたタスクリストに移動する', async () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetTaskList = mockProjects[1].task_lists[0];
 
@@ -110,7 +110,7 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(task.list_id).toBe('tasklist-1');
 
     // タスクを別タスクリストに移動
-    taskStore.moveTaskToList(task.id, targetTaskList.id);
+    await taskStore.moveTaskToList(task.id, targetTaskList.id);
 
     // 移動後の状態を確認
     const updatedProjects = taskStore.projects;
@@ -122,24 +122,24 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(targetProject?.task_lists[0].tasks[0].id).toBe('task-1');
   });
 
-  it('存在しないタスクIDで移動を試みても何も起こらない', () => {
+  it('存在しないタスクIDで移動を試みても何も起こらない', async () => {
     const initialTasksLength = mockProjects[0].task_lists[0].tasks.length;
     const initialTargetTasksLength = mockProjects[1].task_lists[0].tasks.length;
 
     // 存在しないタスクIDで移動を試行
-    taskStore.moveTaskToList('non-existent-task', 'tasklist-2');
+    await taskStore.moveTaskToList('non-existent-task', 'tasklist-2');
 
     // タスクの数が変更されていないことを確認
     expect(taskStore.projects[0].task_lists[0].tasks.length).toBe(initialTasksLength);
     expect(taskStore.projects[1].task_lists[0].tasks.length).toBe(initialTargetTasksLength);
   });
 
-  it('存在しないタスクリストIDにタスクを移動しようとしても何も起こらない', () => {
+  it('存在しないタスクリストIDにタスクを移動しようとしても何も起こらない', async () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const initialTasksLength = mockProjects[0].task_lists[0].tasks.length;
 
     // 存在しないタスクリストIDに移動を試行
-    taskStore.moveTaskToList(task.id, 'non-existent-tasklist');
+    await taskStore.moveTaskToList(task.id, 'non-existent-tasklist');
 
     // タスクが元の場所に残っていることを確認
     expect(taskStore.projects[0].task_lists[0].tasks.length).toBe(initialTasksLength);
@@ -173,12 +173,12 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(taskListDropTarget.type).toBe('tasklist');
   });
 
-  it('タスクの所属プロジェクトとタスクリストが正しく更新される', () => {
+  it('タスクの所属プロジェクトとタスクリストが正しく更新される', async () => {
     const task = mockProjects[0].task_lists[0].tasks[0];
     const targetTaskListId = 'tasklist-2';
 
     // タスクを移動
-    taskStore.moveTaskToList(task.id, targetTaskListId);
+    await taskStore.moveTaskToList(task.id, targetTaskListId);
 
     // 移動後のタスクがコンテナ階層で正しい位置にあることを確認
     const targetProject = taskStore.projects.find((p) => p.id === 'project-2');

@@ -41,6 +41,7 @@ export class DataService {
     name: string;
     description?: string;
     color?: string;
+    order_index?: number;
   }): Promise<Project> {
     const backend = await this.getBackend();
     const newProject: Project = {
@@ -48,7 +49,7 @@ export class DataService {
       name: projectData.name,
       description: projectData.description,
       color: projectData.color,
-      order_index: 0,
+      order_index: projectData.order_index ?? 0,
       is_archived: false,
       created_at: new Date(),
       updated_at: new Date()
@@ -63,10 +64,11 @@ export class DataService {
       name?: string;
       description?: string;
       color?: string;
+      order_index?: number;
+      is_archived?: boolean;
     }
   ): Promise<Project | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateProject called with backend:', backend.constructor.name);
     const project = await backend.project.get(projectId);
 
     // Web環境では既存データが取得できないため、更新データのみでProjectオブジェクトを構築
@@ -80,9 +82,7 @@ export class DataService {
       updated_at: new Date()
     } as Project;
 
-    console.log('DataService: calling backend.project.update');
     const success = await backend.project.update(updatedProject);
-    console.log('DataService: backend.project.update result:', success);
     return success ? updatedProject : null;
   }
 
@@ -98,6 +98,7 @@ export class DataService {
       name: string;
       description?: string;
       color?: string;
+      order_index?: number;
     }
   ): Promise<TaskList> {
     const backend = await this.getBackend();
@@ -107,7 +108,7 @@ export class DataService {
       name: taskListData.name,
       description: taskListData.description,
       color: taskListData.color,
-      order_index: 0,
+      order_index: taskListData.order_index ?? 0,
       is_archived: false,
       created_at: new Date(),
       updated_at: new Date()
@@ -122,10 +123,12 @@ export class DataService {
       name?: string;
       description?: string;
       color?: string;
+      order_index?: number;
+      is_archived?: boolean;
+      project_id?: string;
     }
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateTaskList called with backend:', backend.constructor.name);
     const taskList = await backend.tasklist.get(taskListId);
 
     // Web環境では既存データが取得できないため、更新データのみでTaskListオブジェクトを構築
@@ -139,9 +142,7 @@ export class DataService {
       updated_at: new Date()
     } as TaskList;
 
-    console.log('DataService: calling backend.tasklist.update');
     const success = await backend.tasklist.update(updatedTaskList);
-    console.log('DataService: backend.tasklist.update result:', success);
     return success ? updatedTaskList : null;
   }
 
@@ -374,6 +375,7 @@ export class DataService {
     name: string;
     description?: string;
     color?: string;
+    order_index?: number;
   }): Promise<ProjectTree> {
     const project = await this.createProject(projectData);
     return {
@@ -388,6 +390,7 @@ export class DataService {
       name: string;
       description?: string;
       color?: string;
+      order_index?: number;
     }
   ): Promise<TaskListWithTasks> {
     const taskList = await this.createTaskList(projectId, taskListData);

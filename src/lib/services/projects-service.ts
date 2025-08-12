@@ -10,6 +10,7 @@ export class ProjectsService {
     name: string;
     description?: string;
     color?: string;
+    order_index?: number;
   }): Promise<Project | null> {
     try {
       const newProject = await dataService.createProject(projectData);
@@ -29,6 +30,8 @@ export class ProjectsService {
       name?: string;
       description?: string;
       color?: string;
+      order_index?: number;
+      is_archived?: boolean;
     }
   ): Promise<Project | null> {
     try {
@@ -122,13 +125,13 @@ export class ProjectsService {
   }
 
   // プロジェクト並べ替え
-  static reorderProjects(fromIndex: number, toIndex: number): void {
-    taskStore.reorderProjects(fromIndex, toIndex);
+  static async reorderProjects(fromIndex: number, toIndex: number): Promise<void> {
+    await taskStore.reorderProjects(fromIndex, toIndex);
   }
 
   // プロジェクト位置移動
-  static moveProjectToPosition(projectId: string, targetIndex: number): void {
-    taskStore.moveProjectToPosition(projectId, targetIndex);
+  static async moveProjectToPosition(projectId: string, targetIndex: number): Promise<void> {
+    await taskStore.moveProjectToPosition(projectId, targetIndex);
   }
 
   // タスクリスト作成
@@ -138,6 +141,7 @@ export class ProjectsService {
       name: string;
       description?: string;
       color?: string;
+      order_index?: number;
     }
   ): Promise<TaskList | null> {
     try {
@@ -158,6 +162,9 @@ export class ProjectsService {
       name?: string;
       description?: string;
       color?: string;
+      order_index?: number;
+      is_archived?: boolean;
+      project_id?: string;
     }
   ): Promise<TaskList | null> {
     try {
@@ -276,26 +283,26 @@ export class ProjectsService {
   }
 
   // タスクリスト並べ替え
-  static reorderTaskLists(projectId: string, fromIndex: number, toIndex: number): void {
-    taskStore.reorderTaskLists(projectId, fromIndex, toIndex);
+  static async reorderTaskLists(projectId: string, fromIndex: number, toIndex: number): Promise<void> {
+    await taskStore.reorderTaskLists(projectId, fromIndex, toIndex);
   }
 
   // タスクリストをプロジェクト間移動
-  static moveTaskListToProject(
+  static async moveTaskListToProject(
     taskListId: string,
     targetProjectId: string,
     targetIndex?: number
-  ): void {
-    taskStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
+  ): Promise<void> {
+    await taskStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリスト位置移動
-  static moveTaskListToPosition(
+  static async moveTaskListToPosition(
     taskListId: string,
     targetProjectId: string,
     targetIndex: number
-  ): void {
-    taskStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
+  ): Promise<void> {
+    await taskStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリストのタスク数取得
@@ -371,23 +378,13 @@ export class ProjectsService {
 
   // プロジェクトのアーカイブ状態変更
   static async archiveProject(projectId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateProject(projectId, { is_archived: isArchived } as {
-      name?: string;
-      description?: string;
-      color?: string;
-      is_archived?: boolean;
-    });
+    const result = await this.updateProject(projectId, { is_archived: isArchived });
     return result !== null;
   }
 
   // タスクリストのアーカイブ状態変更
   static async archiveTaskList(taskListId: string, isArchived: boolean): Promise<boolean> {
-    const result = await this.updateTaskList(taskListId, { is_archived: isArchived } as {
-      name?: string;
-      description?: string;
-      color?: string;
-      is_archived?: boolean;
-    });
+    const result = await this.updateTaskList(taskListId, { is_archived: isArchived });
     return result !== null;
   }
 }

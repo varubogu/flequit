@@ -584,7 +584,11 @@ export class TaskStore {
   // Project management methods
   async addProject(project: { name: string; description?: string; color?: string }) {
     try {
-      const newProject = await dataService.createProjectTree(project);
+      const projectWithOrderIndex = {
+        ...project,
+        order_index: this.projects.length
+      };
+      const newProject = await dataService.createProjectTree(projectWithOrderIndex);
       this.projects.push(newProject);
       return newProject;
     } catch (error) {
@@ -596,7 +600,7 @@ export class TaskStore {
 
   async updateProject(
     projectId: string,
-    updates: { name?: string; description?: string; color?: string }
+    updates: { name?: string; description?: string; color?: string; order_index?: number; is_archived?: boolean }
   ) {
     try {
       const updatedProject = await dataService.updateProject(projectId, updates);
@@ -644,8 +648,12 @@ export class TaskStore {
     taskList: { name: string; description?: string; color?: string }
   ) {
     try {
-      const newTaskList = await dataService.createTaskListWithTasks(projectId, taskList);
       const project = this.projects.find((p) => p.id === projectId);
+      const taskListWithOrderIndex = {
+        ...taskList,
+        order_index: project ? project.task_lists.length : 0
+      };
+      const newTaskList = await dataService.createTaskListWithTasks(projectId, taskListWithOrderIndex);
       if (project) {
         project.task_lists.push(newTaskList);
       }
@@ -782,7 +790,7 @@ export class TaskStore {
     }
   }
 
-  moveTaskToList(taskId: string, newTaskListId: string) {
+  async moveTaskToList(taskId: string, newTaskListId: string) {
     // 最初に移動先のタスクリストが存在するかチェック
     let targetTaskList: TaskListWithTasks | null = null;
     let targetProject: ProjectTree | null = null;
@@ -817,14 +825,26 @@ export class TaskStore {
 
     if (!taskToMove) return;
 
+    // タスクのlist_idを更新
+    taskToMove.list_id = newTaskListId;
+    taskToMove.updated_at = new SvelteDate();
+
     // 新しいタスクリストに追加
     targetTaskList.tasks.push(taskToMove);
     targetTaskList.updated_at = new SvelteDate();
     targetProject.updated_at = new SvelteDate();
+
+    // バックエンドに同期
+    try {
+      await dataService.updateTask(taskId, { list_id: newTaskListId });
+    } catch (error) {
+      console.error('Failed to sync task move to backend:', error);
+      errorHandler.addSyncError('タスク移動', 'task', taskId, error);
+    }
   }
 
   // Drag & Drop methods
-  reorderProjects(fromIndex: number, toIndex: number) {
+  async reorderProjects(fromIndex: number, toIndex: number) {
     if (
       fromIndex === toIndex ||
       fromIndex < 0 ||
@@ -838,21 +858,30 @@ export class TaskStore {
     const [movedProject] = this.projects.splice(fromIndex, 1);
     this.projects.splice(toIndex, 0, movedProject);
 
-    // Update order indices
-    this.projects.forEach((project, index) => {
+    // Update order indices and sync to backend
+    for (let index = 0; index < this.projects.length; index++) {
+      const project = this.projects[index];
       project.order_index = index;
       project.updated_at = new SvelteDate();
-    });
+      
+      try {
+        // Use dataService directly to avoid circular dependency and double update
+        await dataService.updateProject(project.id, { order_index: index });
+      } catch (error) {
+        console.error('Failed to sync project order to backend:', error);
+        errorHandler.addSyncError('プロジェクト順序更新', 'project', project.id, error);
+      }
+    }
   }
 
-  moveProjectToPosition(projectId: string, targetIndex: number) {
+  async moveProjectToPosition(projectId: string, targetIndex: number) {
     const currentIndex = this.projects.findIndex((p) => p.id === projectId);
     if (currentIndex === -1 || currentIndex === targetIndex) return;
 
-    this.reorderProjects(currentIndex, targetIndex);
+    await this.reorderProjects(currentIndex, targetIndex);
   }
 
-  reorderTaskLists(projectId: string, fromIndex: number, toIndex: number) {
+  async reorderTaskLists(projectId: string, fromIndex: number, toIndex: number) {
     const project = this.projects.find((p) => p.id === projectId);
     if (
       !project ||
@@ -868,15 +897,23 @@ export class TaskStore {
     const [movedTaskList] = project.task_lists.splice(fromIndex, 1);
     project.task_lists.splice(toIndex, 0, movedTaskList);
 
-    // Update order indices
-    project.task_lists.forEach((taskList, index) => {
+    // Update order indices and sync to backend
+    project.updated_at = new SvelteDate();
+    for (let index = 0; index < project.task_lists.length; index++) {
+      const taskList = project.task_lists[index];
       taskList.order_index = index;
       taskList.updated_at = new SvelteDate();
-    });
-    project.updated_at = new SvelteDate();
+      
+      try {
+        await dataService.updateTaskList(taskList.id, { order_index: index });
+      } catch (error) {
+        console.error('Failed to sync task list order to backend:', error);
+        errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
+      }
+    }
   }
 
-  moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number) {
+  async moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number) {
     // Find and remove the task list from its current project
     let taskListToMove: TaskListWithTasks | null = null;
     let sourceProject: ProjectTree | null = null;
@@ -889,11 +926,19 @@ export class TaskStore {
         project.task_lists.splice(taskListIndex, 1);
         project.updated_at = new SvelteDate();
 
-        // Update order indices in source project
-        project.task_lists.forEach((tl, index) => {
+        // Update order indices in source project and sync to backend
+        for (let index = 0; index < project.task_lists.length; index++) {
+          const tl = project.task_lists[index];
           tl.order_index = index;
           tl.updated_at = new SvelteDate();
-        });
+          
+          try {
+            await dataService.updateTaskList(tl.id, { order_index: index });
+          } catch (error) {
+            console.error('Failed to sync source project task list order to backend:', error);
+            errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
+          }
+        }
         break;
       }
     }
@@ -923,15 +968,26 @@ export class TaskStore {
       targetProject.task_lists.push(taskListToMove);
     }
 
-    // Update order indices in target project
-    targetProject.task_lists.forEach((tl, index) => {
+    // Update order indices in target project and sync to backend
+    targetProject.updated_at = new SvelteDate();
+    for (let index = 0; index < targetProject.task_lists.length; index++) {
+      const tl = targetProject.task_lists[index];
       tl.order_index = index;
       tl.updated_at = new SvelteDate();
-    });
-    targetProject.updated_at = new SvelteDate();
+      
+      try {
+        await dataService.updateTaskList(tl.id, { 
+          order_index: index,
+          project_id: tl.project_id
+        });
+      } catch (error) {
+        console.error('Failed to sync target project task list order to backend:', error);
+        errorHandler.addSyncError('タスクリスト順序更新（移動先）', 'tasklist', tl.id, error);
+      }
+    }
   }
 
-  moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number) {
+  async moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number) {
     // Find current position
     let currentProject: ProjectTree | null = null;
     let currentIndex = -1;
@@ -949,10 +1005,10 @@ export class TaskStore {
 
     if (currentProject.id === targetProjectId) {
       // Same project - just reorder
-      this.reorderTaskLists(targetProjectId, currentIndex, targetIndex);
+      await this.reorderTaskLists(targetProjectId, currentIndex, targetIndex);
     } else {
       // Different project - move
-      this.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
+      await this.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
     }
   }
 }

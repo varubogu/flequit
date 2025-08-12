@@ -110,7 +110,7 @@ export class ProjectListLogic {
     DragDropManager.handleDragOver(event, target);
   }
 
-  handleProjectDrop(event: DragEvent, targetProject: ProjectTree) {
+  async handleProjectDrop(event: DragEvent, targetProject: ProjectTree) {
     const target: DropTarget = {
       type: 'project',
       id: targetProject.id
@@ -122,15 +122,15 @@ export class ProjectListLogic {
     if (dragData.type === 'project') {
       // プロジェクト同士の並び替え
       const targetIndex = this.projectsData.findIndex((p) => p.id === targetProject.id);
-      taskStore.moveProjectToPosition(dragData.id, targetIndex);
+      await taskStore.moveProjectToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'tasklist') {
       // タスクリストをプロジェクトにドロップ（最後尾に配置）
-      taskStore.moveTaskListToProject(dragData.id, targetProject.id);
+      await taskStore.moveTaskListToProject(dragData.id, targetProject.id);
     } else if (dragData.type === 'task') {
       // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
       if (targetProject.task_lists.length > 0) {
         const defaultTaskList = targetProject.task_lists[0];
-        taskStore.moveTaskToList(dragData.id, defaultTaskList.id);
+        await taskStore.moveTaskToList(dragData.id, defaultTaskList.id);
       }
     }
   }

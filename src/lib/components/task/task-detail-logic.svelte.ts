@@ -265,15 +265,15 @@ export class TaskDetailLogic {
     this.showProjectTaskListDialog = true;
   }
 
-  handleProjectTaskListChange(data: { projectId: string; taskListId: string }) {
+  async handleProjectTaskListChange(data: { projectId: string; taskListId: string }) {
     if (!this.currentItem || this.isNewTaskMode) return;
 
     if (this.isSubTask) {
       if ('task_id' in this.currentItem) {
-        taskStore.moveTaskToList(this.currentItem.task_id, data.taskListId);
+        await taskStore.moveTaskToList(this.currentItem.task_id, data.taskListId);
       }
     } else {
-      taskStore.moveTaskToList(this.currentItem.id, data.taskListId);
+      await taskStore.moveTaskToList(this.currentItem.id, data.taskListId);
     }
     this.showProjectTaskListDialog = false;
   }
