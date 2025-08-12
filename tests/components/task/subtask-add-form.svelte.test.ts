@@ -128,4 +128,21 @@ describe('SubTaskAddForm Component', () => {
 
     expect(input.value).toBe('');
   });
+
+  test.skip('should auto-focus input on mount', async () => {
+    render(SubTaskAddForm, {
+      onSubTaskAdded,
+      onCancel
+    });
+
+    // Note: フォーカスのテストはJSDOM環境では不安定なため、
+    // 実際のブラウザ環境でのE2Eテストで確認することを推奨
+    await waitFor(
+      () => {
+        const input = screen.getByPlaceholderText('Sub-task title') as HTMLInputElement;
+        expect(input).toHaveFocus();
+      },
+      { timeout: 500 }
+    );
+  });
 });

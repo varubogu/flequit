@@ -3,10 +3,11 @@
   import { TaskService } from '$lib/services/task-service';
   import { TaskDetailService } from '$lib/services/task-detail-service';
   import Button from '$lib/components/shared/button.svelte';
-  import Input from '$lib/components/ui/input.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { tick } from 'svelte';
+  import { cn } from '$lib/utils';
 
   interface Props {
     onTaskAdded?: () => void;
@@ -17,12 +18,27 @@
 
   const translationService = getTranslationService();
   let newTaskTitle = $state('');
+  let inputElement: HTMLInputElement;
 
   // Reactive messages
   const editTask = translationService.getMessage('edit_task');
   const addTask = translationService.getMessage('add_task');
   const cancel = translationService.getMessage('cancel');
   const taskTitle = translationService.getMessage('task_title');
+
+  // 自動フォーカス
+  $effect(() => {
+    const focusInput = async () => {
+      await tick();
+      await tick(); // ダブルtickで確実にDOM更新を待つ
+      
+      if (inputElement && inputElement.focus) {
+        inputElement.focus();
+      }
+    };
+    
+    focusInput();
+  });
 
   async function handleAddTask() {
     const newTaskId = await TaskListService.addNewTask(newTaskTitle);
@@ -82,9 +98,13 @@
 
 <div class="mt-3">
   <div class="flex gap-2">
-    <Input
+    <input
+      bind:this={inputElement}
       type="text"
-      class="flex-1"
+      class={cn(
+        'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        'flex-1'
+      )}
       placeholder={taskTitle()}
       bind:value={newTaskTitle}
       onkeydown={handleKeydown}

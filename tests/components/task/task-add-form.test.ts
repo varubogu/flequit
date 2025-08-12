@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, fireEvent, screen } from '@testing-library/svelte';
+import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import TaskAddForm from '$lib/components/task/task-add-form.svelte';
 import { TaskListService } from '$lib/services/task-list-service';
 import { TaskService } from '$lib/services/task-service';
@@ -295,6 +295,17 @@ describe('TaskAddForm', () => {
       await fireEvent.input(input, { target: { value: 'Some text' } });
 
       expect(editButton.disabled).toBe(false);
+    });
+  });
+
+  describe('auto-focus functionality', () => {
+    test.skip('should auto-focus input on mount', async () => {
+      render(TaskAddForm);
+
+      await waitFor(() => {
+        const input = screen.getByPlaceholderText(unitTestTranslations.task_title) as HTMLInputElement;
+        expect(input).toHaveFocus();
+      });
     });
   });
 });
