@@ -1,4 +1,7 @@
 
+/**
+ * 曜日の列挙型
+ */
 export type DayOfWeek = 'sunday' |
   'monday' |
   'tuesday' |
@@ -7,14 +10,23 @@ export type DayOfWeek = 'sunday' |
   'friday' |
   'saturday';
 
+/**
+ * 月内の週指定（第1週、第2週など）
+ */
 export type WeekOfMonth = 'first' |
   'second' |
   'third' |
   'fourth' |
   'last';
 
+/**
+ * 調整方向（前または後）
+ */
 export type AdjustmentDirection = 'previous' | 'next';
 
+/**
+ * 調整対象の種別
+ */
 export type AdjustmentTarget = 'weekday' |
   'weekend' |
   'holiday' |
@@ -25,7 +37,9 @@ export type AdjustmentTarget = 'weekday' |
   'non_weekend_holiday' |
   'specific_weekday';
 
-// 繰り返し機能の型定義
+/**
+ * 繰り返し単位
+ */
 export type RecurrenceUnit = 'minute' |
   'hour' |
   'day' |
@@ -35,64 +49,94 @@ export type RecurrenceUnit = 'minute' |
   'half_year' |
   'year';
 
+/**
+ * 繰り返し機能のレベル
+ */
 export type RecurrenceLevel = 'disabled' |
   'enabled' |
   'advanced';
 
-// 日付条件（◯日より前/以前/以降/より後）
+/**
+ * 日付条件（◯日より前/以前/以降/より後）
+ */
 export interface DateCondition {
+  /** 条件ID */
   id: string;
-  relation: DateRelation; // より前/以前/以降/より後
-  reference_date: Date; // 基準日
+  /** 日付の関係（より前/以前/以降/より後） */
+  relation: DateRelation;
+  /** 基準日 */
+  reference_date: Date;
 }
 
-// 曜日条件（◯曜日なら～）
+/**
+ * 曜日条件（◯曜日なら～）
+ */
 export interface WeekdayCondition {
+  /** 条件ID */
   id: string;
-  if_weekday: DayOfWeek | AdjustmentTarget; // この曜日・種別なら
-  then_direction: AdjustmentDirection; // 前/後に
-  then_target: AdjustmentTarget; // 平日/休日/祝日/特定曜日
-  then_weekday?: DayOfWeek; // 特定曜日の場合
-  then_days?: number; // ◯日の場合
+  /** この曜日・種別なら */
+  if_weekday: DayOfWeek | AdjustmentTarget;
+  /** 前/後に移動する方向 */
+  then_direction: AdjustmentDirection;
+  /** 移動先の種別（平日/休日/祝日/特定曜日） */
+  then_target: AdjustmentTarget;
+  /** 特定曜日を指定する場合の曜日 */
+  then_weekday?: DayOfWeek;
+  /** 日数を指定する場合の日数 */
+  then_days?: number;
 }
 
-// 補正条件
+/**
+ * 繰り返しの補正条件
+ */
 export interface RecurrenceAdjustment {
+  /** 日付条件のリスト */
   date_conditions: DateCondition[];
+  /** 曜日条件のリスト */
   weekday_conditions: WeekdayCondition[];
 }
 
-// 繰り返し詳細設定
+/**
+ * 繰り返し詳細設定
+ */
 export interface RecurrenceDetails {
-  // 特定日付指定
-  specific_date?: number; // 例：毎月15日
+  /** 特定日付指定（例：毎月15日） */
+  specific_date?: number;
 
-  // 週指定（第◯✕曜日）
-  week_of_period?: WeekOfMonth; // 第1、第2など
-  weekday_of_week?: DayOfWeek; // 日曜日、月曜日など
+  /** 週指定（第◯週） */
+  week_of_period?: WeekOfMonth;
+  /** 週指定の曜日（第◯✕曜日） */
+  weekday_of_week?: DayOfWeek;
 
-  // 日付範囲条件
+  /** 日付範囲条件 */
   date_conditions?: DateCondition[];
 }
 
+/**
+ * 繰り返しルール
+ */
 export interface RecurrenceRule {
+  /** 繰り返し単位 */
   unit: RecurrenceUnit;
-  interval: number; // 間隔（例：2週間なら2）
+  /** 繰り返し間隔（例：2週間なら2） */
+  interval: number;
 
+  /** 週単位の場合の曜日指定 */
+  days_of_week?: DayOfWeek[];
 
-  // 週単位の特別設定
-  days_of_week?: DayOfWeek[]; // 週単位の場合の曜日指定
-
-
-  // 単位別詳細設定
+  /** 単位別詳細設定 */
   details?: RecurrenceDetails;
 
-  // 補正条件
+  /** 補正条件 */
   adjustment?: RecurrenceAdjustment;
 
-  // 終了条件
-  end_date?: Date; // 繰り返し終了日
-  max_occurrences?: number; // 最大繰り返し回数
+  /** 繰り返し終了日 */
+  end_date?: Date;
+  /** 最大繰り返し回数 */
+  max_occurrences?: number;
 }
 
+/**
+ * 日付の関係性
+ */
 export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';
