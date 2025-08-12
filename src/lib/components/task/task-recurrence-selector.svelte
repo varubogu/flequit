@@ -2,7 +2,10 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Repeat, RotateCcw } from 'lucide-svelte';
-  import type { RecurrenceRule, RecurrenceUnit, DayOfWeek, WeekOfMonth } from '$lib/types/task';
+    import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+    import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
+  import type { WeekOfMonth } from "$lib/types/datetime-calendar";
+  import type { DayOfWeek } from "$lib/types/datetime-calendar";
   import { getLocale } from '$paraglide/runtime';
 
   interface Props {

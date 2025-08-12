@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Project, TaskList, Task } from '$lib/types/task';
+import type { Task } from '$lib/types/task';
+import type { TaskList } from "$lib/types/task-list";
+import type { Project } from "$lib/types/project";
 
 // モックストアの実装
 const mockTaskStore = {

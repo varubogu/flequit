@@ -1,6 +1,6 @@
 import { CalendarDate } from '@internationalized/date';
 import { formatDate1, formatTime1 } from '$lib/utils/datetime-utils';
-import type { RecurrenceRule } from '$lib/types/task';
+import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import { SvelteDate } from 'svelte/reactivity';
 
 export interface DateChangeData {

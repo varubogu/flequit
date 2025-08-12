@@ -1,6 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { RecurrenceUnit, DayOfWeek, RecurrenceDetails } from '$lib/types/task';
+    import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
+    import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
+  import type { DayOfWeek } from "$lib/types/datetime-calendar";
 
   type Props = {
     unit: RecurrenceUnit;

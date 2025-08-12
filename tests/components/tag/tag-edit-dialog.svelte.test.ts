@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
-import type { Tag } from '$lib/types/task';
+import type { Tag } from "$lib/types/tag";
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,

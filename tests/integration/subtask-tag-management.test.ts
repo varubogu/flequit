@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
 import { tagStore } from '../../src/lib/stores/tags.svelte';
-import type { ProjectTree } from '../../src/lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 describe('サブタスクとタグ管理の結合テスト', () => {
   let store: TaskStore;

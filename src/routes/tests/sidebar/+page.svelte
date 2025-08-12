@@ -1,7 +1,8 @@
 <script lang="ts">
   import Sidebar from '$lib/components/sidebar/sidebar.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
+  import type { TaskWithSubTasks } from '$lib/types/task';
+  import type { ProjectTree } from "$lib/types/project";
   import type { ViewType } from '$lib/services/view-service';
 
   let currentView = $state<ViewType>('all');

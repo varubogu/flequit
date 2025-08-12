@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { RecurrenceLevel } from '$lib/types/task';
+      import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
 
   type Props = {
     value: RecurrenceLevel;

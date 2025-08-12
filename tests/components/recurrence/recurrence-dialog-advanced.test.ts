@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { tick } from 'svelte';
 import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
-import type { RecurrenceRule } from '$lib/types/task';
+import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,

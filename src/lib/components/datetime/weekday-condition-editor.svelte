@@ -2,12 +2,10 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { X } from 'lucide-svelte';
   import DayTargetSelector from './day-target-selector.svelte';
-  import type {
-    WeekdayCondition,
-    DayOfWeek,
-    AdjustmentDirection,
-    AdjustmentTarget
-  } from '$lib/types/task';
+    import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+  import type { AdjustmentTarget } from "$lib/types/datetime-calendar";
+  import type { AdjustmentDirection } from "$lib/types/datetime-calendar";
+  import type { DayOfWeek } from "$lib/types/datetime-calendar";
 
   interface Props {
     condition: WeekdayCondition;

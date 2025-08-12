@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { ProjectTree } from '$lib/types/task';
+    import type { ProjectTree } from "$lib/types/project";
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -119,7 +119,7 @@
   function handleAddTaskToList(list: { id: string; name: string }) {
     // 新規タスクモードを開始
     taskStore.startNewTaskMode(list.id);
-    
+
     // タスク詳細を表示
     TaskDetailService.openNewTaskDetail();
   }

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { DateCondition, WeekdayCondition } from '$lib/types/task';
+import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+import type { DateCondition } from "$lib/types/datetime-calendar";
 
 describe('RecurrenceAdjustmentEditor', () => {
   const mockDateCondition: DateCondition = {

@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { TaskWithSubTasks, SubTask, Tag, TaskStatus } from '$lib/types/task';
+import type { TaskWithSubTasks, TaskStatus } from '$lib/types/task';
+import type { SubTask } from "$lib/types/sub-task";
+import type { Tag } from "$lib/types/tag";
 
 // タスク詳細ストアのモック
 const mockTaskDetailStore = {

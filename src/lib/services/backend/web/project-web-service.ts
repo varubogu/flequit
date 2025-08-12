@@ -1,4 +1,5 @@
-import type { Project, ProjectSearchCondition } from '$lib/types/task';
+import type { ProjectSearchCondition } from "$lib/types/project";
+import type { Project } from "$lib/types/project";
 import type { ProjectService } from '$lib/services/backend/project-service';
 
 export class ProjectWebService implements ProjectService {

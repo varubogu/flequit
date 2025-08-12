@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RecurrenceService } from '$lib/services/recurrence-service';
-import type {
-  RecurrenceRule,
-  DateCondition,
-  WeekdayCondition,
-  RecurrenceUnit
-} from '$lib/types/task';
+import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+import type { DateCondition } from "$lib/types/datetime-calendar";
+import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
 import { generateRandomId } from '$lib/utils/id-utils';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../unit-translation-mock';

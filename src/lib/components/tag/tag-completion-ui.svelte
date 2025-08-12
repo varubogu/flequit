@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Tag } from '$lib/types/task';
+    import type { Tag } from "$lib/types/tag";
   import { Hash } from 'lucide-svelte';
 
   interface Props {

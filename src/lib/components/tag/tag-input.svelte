@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Tag } from '$lib/types/task';
+    import type { Tag } from "$lib/types/tag";
   import TagDisplay from './tag-display.svelte';
   import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
   import * as m from '$paraglide/messages';

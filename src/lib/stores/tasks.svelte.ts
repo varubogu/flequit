@@ -1,13 +1,12 @@
 import type {
   Task,
-  ProjectTree,
-  TaskWithSubTasks,
-  SubTask,
-  Tag,
-  TaskList,
-  TaskListWithTasks,
-  Project
-} from '$lib/types/task';
+  TaskWithSubTasks} from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
+import type { SubTask } from "$lib/types/sub-task";
+import type { TaskListWithTasks } from "$lib/types/task-list";
+import type { TaskList } from "$lib/types/task-list";
+import type { Project } from "$lib/types/project";
+import type { Tag } from "$lib/types/tag";
 import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';

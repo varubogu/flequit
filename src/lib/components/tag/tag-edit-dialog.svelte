@@ -4,7 +4,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
-  import type { Tag } from '$lib/types/task';
+    import type { Tag } from "$lib/types/tag";
 
   interface Props {
     open: boolean;

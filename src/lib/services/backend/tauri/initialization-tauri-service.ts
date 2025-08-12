@@ -5,7 +5,7 @@ import type {
   Account,
   InitializationResult
 } from '../initialization-service';
-import type { ProjectTree } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 /**
  * Tauri版初期化サービス
@@ -19,7 +19,7 @@ export class InitializationTauriService implements InitializationService {
   async loadLocalSettings(): Promise<LocalSettings> {
     try {
       const settings = await invoke('load_local_settings') as LocalSettings | null;
-      
+
       if (!settings) {
         // デフォルト設定を返す
         return this.getDefaultSettings();

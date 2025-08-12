@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+  import type { TaskWithSubTasks } from '$lib/types/task';
+  import type { SubTask } from "$lib/types/sub-task";
   import TaskDetailHeader from './task-detail-header.svelte';
   import TaskStatusSelector from './task-status-selector.svelte';
   import TaskDueDateSelector from './task-due-date-selector.svelte';

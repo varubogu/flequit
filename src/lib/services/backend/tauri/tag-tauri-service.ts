@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Tag, TagSearchCondition } from '$lib/types/task';
+import type { TagSearchCondition } from "$lib/types/tag";
+import type { Tag } from "$lib/types/tag";
 import type { TagService } from '$lib/services/backend/tag-service';
 
 export class TagTauriService implements TagService {

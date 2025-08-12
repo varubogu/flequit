@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { TaskWithSubTasks, SubTask } from '$lib/types/task';
+  import type { TaskWithSubTasks } from '$lib/types/task';
+  import type { SubTask } from "$lib/types/sub-task";
   import Select from '$lib/components/ui/select.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
 

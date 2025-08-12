@@ -1,4 +1,6 @@
-import type { Project, ProjectWithLists, TaskList } from '$lib/types/task';
+import type { TaskList } from "$lib/types/task-list";
+import type { ProjectWithLists } from "$lib/types/project";
+import type { Project } from "$lib/types/project";
 import { dataService } from '$lib/services/data-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 

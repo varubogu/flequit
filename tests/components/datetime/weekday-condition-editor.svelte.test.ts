@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // TODO: 将来のDOM テスト実装時に使用予定
 // import { render } from '@testing-library/svelte';
 // import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
-import type { WeekdayCondition } from '$lib/types/task';
+import type { WeekdayCondition } from "$lib/types/datetime-calendar";
 
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {

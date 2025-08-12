@@ -5,7 +5,7 @@ import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import { TaskService } from '$lib/services/task-service';
 import { DragDropManager } from '$lib/utils/drag-drop';
-import type { Tag } from '$lib/types/task';
+import type { Tag } from "$lib/types/tag";
 
 // モック
 vi.mock('$lib/services/task-service', () => ({

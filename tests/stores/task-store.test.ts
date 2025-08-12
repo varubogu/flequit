@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
-import type { ProjectTree } from '../../src/lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 describe('TaskStore', () => {
   let store: TaskStore;

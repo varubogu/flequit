@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { Task, RecurrenceRule } from '$lib/types/task';
+import type { Task } from '$lib/types/task';
+import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 
 // テスト用の拡張型（繰り返しの親タスクIDを持つ）
 interface TaskWithRecurrenceParent extends Task {

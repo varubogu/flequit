@@ -1,4 +1,4 @@
-import type { Tag } from '$lib/types/task';
+import type { Tag } from "$lib/types/tag";
 import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';

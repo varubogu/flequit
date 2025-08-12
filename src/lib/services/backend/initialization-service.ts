@@ -1,4 +1,4 @@
-import type { ProjectTree } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 /**
  * ローカル設定データ

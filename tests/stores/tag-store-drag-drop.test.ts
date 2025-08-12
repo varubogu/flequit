@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { tagStore } from '$lib/stores/tags.svelte';
-import type { Tag } from '$lib/types/task';
+import type { Tag } from "$lib/types/tag";
 import { SvelteSet } from 'svelte/reactivity';
 
 describe('TagStore - ドラッグ&ドロップ機能', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ViewService } from '$lib/services/view-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import type { ProjectTree } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 describe('ViewService - TaskList Filtering', () => {
   // Mock data

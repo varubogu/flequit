@@ -1,12 +1,11 @@
 import type {
-  ProjectTree,
-  Task,
-  SubTask,
-  Project,
-  TaskList,
-  TaskListWithTasks,
-  Tag
-} from '$lib/types/task';
+  Task} from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
+import type { SubTask } from "$lib/types/sub-task";
+import type { TaskListWithTasks } from "$lib/types/task-list";
+import type { TaskList } from "$lib/types/task-list";
+import type { Project } from "$lib/types/project";
+import type { Tag } from "$lib/types/tag";
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
 
@@ -73,7 +72,7 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateProject called with backend:', backend.constructor.name);
     const project = await backend.project.get(projectId);
-    
+
     // Web環境では既存データが取得できないため、更新データのみでProjectオブジェクトを構築
     const updatedProject = project ? {
       ...project,
@@ -132,7 +131,7 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateTaskList called with backend:', backend.constructor.name);
     const taskList = await backend.tasklist.get(taskListId);
-    
+
     // Web環境では既存データが取得できないため、更新データのみでTaskListオブジェクトを構築
     const updatedTaskList = taskList ? {
       ...taskList,
@@ -176,7 +175,7 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
     const task = await backend.task.get(taskId);
-    
+
     // Web環境では既存データが取得できないため、更新データのみでTaskオブジェクトを構築
     const updatedTask = task ? {
       ...task,
@@ -236,7 +235,7 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
     const subTask = await backend.subtask.get(subTaskId);
-    
+
     // Web環境では既存データが取得できないため、更新データのみでSubTaskオブジェクトを構築
     const updatedSubTask = subTask ? {
       ...subTask,
@@ -278,7 +277,7 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateTag called with backend:', backend.constructor.name);
     const tag = await backend.tag.get(tagId);
-    
+
     // Web環境では既存データが取得できないため、更新データのみでTagオブジェクトを構築
     const updatedTag = tag ? {
       ...tag,
@@ -318,13 +317,13 @@ export class DataService {
   async addTagToSubTask(subTaskId: string, tagId: string): Promise<void> {
     const backend = await this.getBackend();
     console.log('DataService: addTagToSubTask called', { subTaskId, tagId });
-    
+
     // 既存のサブタスクを取得
     const subTask = await backend.subtask.get(subTaskId);
-    
+
     // タグオブジェクトを取得
     const tag = await backend.tag.get(tagId);
-    
+
     // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
     if (!subTask) {
       console.log('DataService: SubTask not found in backend (Web environment), updating with tag');
@@ -355,10 +354,10 @@ export class DataService {
   async removeTagFromSubTask(subTaskId: string, tagId: string): Promise<void> {
     const backend = await this.getBackend();
     console.log('DataService: removeTagFromSubTask called', { subTaskId, tagId });
-    
+
     // 既存のサブタスクを取得
     const subTask = await backend.subtask.get(subTaskId);
-    
+
     // Web環境では既存データが取得できないため、空のタグ配列で更新
     if (!subTask) {
       console.log('DataService: SubTask not found in backend (Web environment), attempting tag removal');

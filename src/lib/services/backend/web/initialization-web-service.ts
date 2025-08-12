@@ -4,7 +4,7 @@ import type {
   Account,
   InitializationResult
 } from '../initialization-service';
-import type { ProjectTree } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 import { generateSampleData } from '$lib/data/sample-data';
 
 /**
@@ -61,7 +61,7 @@ export class InitializationWebService implements InitializationService {
 
       // localStorageに保存
       localStorage.setItem('flequit_account', JSON.stringify(defaultAccount));
-      
+
       return defaultAccount;
     } catch (error) {
       console.warn('Failed to load account:', error);
@@ -85,10 +85,10 @@ export class InitializationWebService implements InitializationService {
 
       // サンプルデータを生成
       const sampleData = generateSampleData();
-      
+
       // localStorageに保存
       localStorage.setItem('flequit_projects', JSON.stringify(sampleData));
-      
+
       return sampleData;
     } catch (error) {
       console.error('Failed to load project data:', error);

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
-import type { Tag } from '$lib/types/task';
+import type { Tag } from "$lib/types/tag";
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({

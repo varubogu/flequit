@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { Tag } from '$lib/types/task';
+    import type { Tag } from "$lib/types/tag";
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 
   interface Props {

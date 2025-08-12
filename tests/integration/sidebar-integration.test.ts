@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { ProjectTree, Tag } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
+import type { Tag } from "$lib/types/tag";
 
 // サイドバー状態管理のモック
 const mockSidebarStore = {

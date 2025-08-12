@@ -1,4 +1,5 @@
-import type { TaskList, TaskListSearchCondition } from '$lib/types/task';
+import type { TaskListSearchCondition } from "$lib/types/task-list";
+import type { TaskList } from "$lib/types/task-list";
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
 export class TasklistWebService implements TaskListService {

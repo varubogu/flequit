@@ -1,13 +1,11 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import type {
-  RecurrenceRule,
-  RecurrenceUnit,
-  RecurrenceLevel,
-  DayOfWeek,
-  DateCondition,
-  WeekdayCondition,
-  RecurrenceDetails
-} from '$lib/types/task';
+import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
+import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+import type { DateCondition } from "$lib/types/datetime-calendar";
+import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
+import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
+import type { DayOfWeek } from "$lib/types/datetime-calendar";
 import { RecurrenceService } from '$lib/services/recurrence-service';
 import { generateRandomId } from '$lib/utils/id-utils';
 import { SvelteDate } from 'svelte/reactivity';

@@ -5,7 +5,8 @@ import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import type { ProjectTree, TaskWithSubTasks } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
+import type { ProjectTree } from "$lib/types/project";
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
