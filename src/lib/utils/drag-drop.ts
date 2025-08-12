@@ -1,3 +1,6 @@
+/**
+ * ドラッグされている要素の情報を表すインターフェース
+ */
 export interface DragData {
   type: 'project' | 'tasklist' | 'tag' | 'task' | 'subtask';
   id: string;
@@ -5,6 +8,9 @@ export interface DragData {
   taskId?: string; // サブタスクの場合は所属タスクID
 }
 
+/**
+ * ドロップ対象となる要素の情報を表すインターフェース
+ */
 export interface DropTarget {
   type: 'project' | 'tasklist' | 'project-container' | 'tag' | 'view' | 'task' | 'subtask';
   id: string;
@@ -12,10 +18,18 @@ export interface DropTarget {
   position?: number;
 }
 
+/**
+ * ドラッグ&ドロップ操作を管理するクラス
+ */
 export class DragDropManager {
   private static dragData: DragData | null = null;
   private static dropZoneElement: HTMLElement | null = null;
 
+  /**
+   * ドラッグ操作を開始する
+   * @param event ドラッグイベント
+   * @param data ドラッグされる要素の情報
+   */
   static startDrag(event: DragEvent, data: DragData) {
     if (!event.dataTransfer) {
       this.dragData = null; // dataTransferがnullの場合はdragDataもnullにする
@@ -32,6 +46,12 @@ export class DragDropManager {
     }
   }
 
+  /**
+   * ドラッグオーバーイベントを処理し、ドロップ可能かどうかを判定する
+   * @param event ドラッグオーバーイベント
+   * @param target ドロップ対象の情報
+   * @returns ドロップ可能な場合true
+   */
   static handleDragOver(event: DragEvent, target: DropTarget): boolean {
     event.preventDefault();
 
@@ -59,6 +79,12 @@ export class DragDropManager {
     return false;
   }
 
+  /**
+   * ドロップイベントを処理し、ドラッグされた要素の情報を返す
+   * @param event ドロップイベント
+   * @param target ドロップ対象の情報
+   * @returns ドロップされた要素の情報（ドロップ失敗時はnull）
+   */
   static handleDrop(event: DragEvent, target: DropTarget): DragData | null {
     event.preventDefault();
 
@@ -78,6 +104,10 @@ export class DragDropManager {
     return null;
   }
 
+  /**
+   * ドラッグ終了イベントを処理し、状態をクリアする
+   * @param event ドラッグ終了イベント
+   */
   static handleDragEnd(event: DragEvent) {
     // ドラッグ終了時の見た目をリセット
     if (event.target instanceof HTMLElement) {
@@ -90,12 +120,22 @@ export class DragDropManager {
     this.dragData = null;
   }
 
+  /**
+   * ドラッグエンターイベントを処理し、要素にドラッグ中スタイルを適用する
+   * @param event ドラッグエンターイベント
+   * @param element ドロップゾーン要素
+   */
   static handleDragEnter(event: DragEvent, element: HTMLElement) {
     event.preventDefault();
     this.dropZoneElement = element;
     element.classList.add('drag-over');
   }
 
+  /**
+   * ドラッグリーブイベントを処理し、要素からドラッグ中スタイルを削除する
+   * @param event ドラッグリーブイベント
+   * @param element ドロップゾーン要素
+   */
   static handleDragLeave(event: DragEvent, element: HTMLElement) {
     // 子要素に移った場合は無視
     if (event.relatedTarget instanceof Node && element.contains(event.relatedTarget)) {
@@ -110,6 +150,12 @@ export class DragDropManager {
     }
   }
 
+  /**
+   * 指定された要素が対象にドロップ可能かどうかを判定する
+   * @param dragData ドラッグされている要素の情報
+   * @param target ドロップ対象の情報
+   * @returns ドロップ可能な場合true
+   */
   static canDrop(dragData: DragData, target: DropTarget): boolean {
     // 自分自身にはドロップできない
     if (dragData.id === target.id && dragData.type === target.type) {
@@ -161,10 +207,17 @@ export class DragDropManager {
     return false;
   }
 
+  /**
+   * 現在ドラッグ中の要素の情報を取得する
+   * @returns ドラッグ中の要素の情報（ドラッグ中でない場合はnull）
+   */
   static getDragData(): DragData | null {
     return this.dragData;
   }
 
+  /**
+   * ドロップゾーンの状態をクリアする
+   */
   static clearDropZone() {
     if (this.dropZoneElement) {
       this.dropZoneElement.classList.remove('drag-over');
@@ -173,6 +226,9 @@ export class DragDropManager {
     }
   }
 
+  /**
+   * 全ての要素からドロップターゲットのホバースタイルを削除する
+   */
   private static clearAllDropTargetHover() {
     // 全ての要素からdrop-target-hoverクラスを削除
     const elements = document.querySelectorAll('.drop-target-hover');

@@ -1,6 +1,11 @@
 import { format } from 'date-fns';
 import { settingsStore } from '$lib/stores/settings.svelte';
 
+/**
+ * 日付を「今日」「明日」「昨日」または通常の日付形式でフォーマットする
+ * @param date フォーマット対象の日付（undefinedの場合は空文字を返す）
+ * @returns フォーマットされた日付文字列
+ */
 export function formatDate(date: Date | undefined): string {
   if (!date) return '';
 
@@ -20,10 +25,20 @@ export function formatDate(date: Date | undefined): string {
   }
 }
 
+/**
+ * 日付と時刻をロケール形式の文字列でフォーマットする
+ * @param date フォーマット対象の日付
+ * @returns ロケール形式の日時文字列
+ */
 export function formatDateTime(date: Date): string {
   return new Date(date).toLocaleString();
 }
 
+/**
+ * 日付をHTML input[type="date"]用のYYYY-MM-DD形式でフォーマットする
+ * @param date フォーマット対象の日付（undefinedの場合は空文字を返す）
+ * @returns YYYY-MM-DD形式の日付文字列
+ */
 export function formatDateForInput(date: Date | undefined): string {
   if (!date) return '';
   const d = new Date(date);
@@ -34,6 +49,11 @@ export function formatDateForInput(date: Date | undefined): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * 日付を詳細形式（曜日、年、月名、日）でフォーマットする
+ * @param date フォーマット対象の日付（undefinedの場合は「No due date」を返す）
+ * @returns 詳細形式の日付文字列
+ */
 export function formatDetailedDate(date: Date | undefined): string {
   if (!date) return 'No due date';
   return new Date(date).toLocaleDateString('en-US', {
@@ -44,6 +64,12 @@ export function formatDetailedDate(date: Date | undefined): string {
   });
 }
 
+/**
+ * 期限日に基づいてCSSクラスを決定する
+ * @param date 期限日（undefinedの場合は空文字を返す）
+ * @param status タスクのステータス（完了済みの場合は期限切れ表示しない）
+ * @returns 期限状態に応じたCSSクラス文字列
+ */
 export function getDueDateClass(date: Date | undefined, status?: string): string {
   if (!date) return '';
 
@@ -60,14 +86,29 @@ export function getDueDateClass(date: Date | undefined, status?: string): string
   }
 }
 
+/**
+ * 日付が時刻情報を持っているかどうかを判定する
+ * @param date 判定対象の日付
+ * @returns 時刻情報（時分）が0以外の場合true
+ */
 export function hasTime(date?: Date): boolean {
   return !!date && (date.getHours() !== 0 || date.getMinutes() !== 0);
 }
 
+/**
+ * 時刻をHH:MM形式でフォーマットする
+ * @param date 時刻を含む日付オブジェクト
+ * @returns HH:MM形式の時刻文字列
+ */
 export function formatTime(date: Date): string {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
+/**
+ * 設定ストアの日付フォーマットを使用して日付をフォーマットする
+ * @param date フォーマット対象の日付
+ * @returns 設定に基づいた日付文字列（エラー時は日本語形式でフォールバック）
+ */
 export function formatDateJapanese(date: Date): string {
   try {
     return format(date, settingsStore.dateFormat);
@@ -82,6 +123,12 @@ export function formatDateJapanese(date: Date): string {
   }
 }
 
+/**
+ * 日付と時刻を組み合わせてフォーマットする
+ * @param date ベース日付
+ * @param time 時刻情報（省略可能）
+ * @returns 日付文字列（時刻がある場合は時刻も含む）
+ */
 export function formatSingleDate(date: Date, time?: Date): string {
   const baseFormatted = formatDateJapanese(date);
   if (hasTime(time)) {
@@ -90,6 +137,12 @@ export function formatSingleDate(date: Date, time?: Date): string {
   return baseFormatted;
 }
 
+/**
+ * 開始日から終了日までの期間を表示用にフォーマットする
+ * @param start 開始日
+ * @param end 終了日
+ * @returns 期間の表示文字列（同日の場合は1つの日付のみ表示）
+ */
 export function formatDateDisplayRange(start: Date, end: Date): string {
   const startFormatted = formatDateJapanese(start);
   const endFormatted = formatDateJapanese(end);
@@ -107,6 +160,15 @@ export function formatDateDisplayRange(start: Date, end: Date): string {
   }
 }
 
+/**
+ * 日付と時刻の範囲を複数のオプションでフォーマットする
+ * @param date ベース日付
+ * @param options フォーマットオプション
+ * @param options.startDateTime 開始日時
+ * @param options.endDateTime 終了日時
+ * @param options.isRangeDate 範囲日付として扱うかどうか
+ * @returns フォーマットされた日時範囲文字列
+ */
 export function formatDateTimeRange(
   date: Date,
   options: {
@@ -149,6 +211,11 @@ export function formatDateTimeRange(
   return formatDateJapanese(date);
 }
 
+/**
+ * 時刻をHH:MM:SS形式でフォーマットする
+ * @param date 時刻を含む日付オブジェクト
+ * @returns HH:MM:SS形式の時刻文字列
+ */
 export function formatTime1(date: Date): string {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -156,6 +223,11 @@ export function formatTime1(date: Date): string {
   return `${hours}:${minutes}:${seconds}`;
 }
 
+/**
+ * 日付をYYYY-MM-DD形式でフォーマットする
+ * @param date フォーマット対象の日付
+ * @returns YYYY-MM-DD形式の日付文字列
+ */
 export function formatDate1(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');

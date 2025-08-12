@@ -8,6 +8,8 @@ export class LanguageOrderUtils {
    * 曜日条件の表示順序を言語に応じて決定
    * 日本語: [条件] なら [方向] の [対象] にずらす
    * 英語: If [条件], move to [方向] [対象]
+   * @param language 対象言語（省略時は現在のロケールを使用）
+   * @returns 'ja'（日本語）または'en'（英語）
    */
   static getWeekdayConditionOrder(language?: string): 'ja' | 'en' {
     const lang = language || getTranslationService().getCurrentLocale();
@@ -15,7 +17,11 @@ export class LanguageOrderUtils {
   }
 
   /**
-   * 日本語の条件表示テンプレート
+   * 日本語の条件表示テンプレートを生成する
+   * @param condition 条件文字列
+   * @param direction 方向文字列
+   * @param target 対象文字列
+   * @returns テンプレートとパーツの配列を含むオブジェクト
    */
   static formatWeekdayConditionJa(
     condition: string,
@@ -39,7 +45,11 @@ export class LanguageOrderUtils {
   }
 
   /**
-   * 英語の条件表示テンプレート
+   * 英語の条件表示テンプレートを生成する
+   * @param condition 条件文字列
+   * @param direction 方向文字列
+   * @param target 対象文字列
+   * @returns テンプレートとパーツの配列を含むオブジェクト
    */
   static formatWeekdayConditionEn(
     condition: string,
@@ -62,7 +72,12 @@ export class LanguageOrderUtils {
   }
 
   /**
-   * 現在の言語に応じた条件表示を生成
+   * 現在の言語に応じた条件表示を生成する
+   * @param condition 条件文字列
+   * @param direction 方向文字列
+   * @param target 対象文字列
+   * @param language 対象言語（省略時は現在のロケールを使用）
+   * @returns 言語に応じたテンプレートとパーツの配列を含むオブジェクト
    */
   static formatWeekdayCondition(
     condition: string,

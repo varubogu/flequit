@@ -1,7 +1,9 @@
 import { settingsStore } from '$lib/stores/settings.svelte';
 
 /**
- * ローカル日時文字列をUTC Dateオブジェクトに変換
+ * ローカル日時文字列をUTC Dateオブジェクトに変換する
+ * @param localDateTime ローカル日時文字列（YYYY-MM-DDTHH:mm:ss形式）
+ * @returns UTC Dateオブジェクト
  */
 export function localDateTimeToUTC(localDateTime: string): Date {
   // ISO形式の文字列をそのままUTCとして扱う
@@ -9,7 +11,9 @@ export function localDateTimeToUTC(localDateTime: string): Date {
 }
 
 /**
- * UTC DateオブジェクトをローカルタイムゾーンでのISO文字列に変換
+ * UTC DateオブジェクトをローカルタイムゾーンでのISO文字列に変換する
+ * @param utcDate 変換対象のUTC Dateオブジェクト（null/undefinedの場合は空文字列を返す）
+ * @returns YYYY-MM-DDTHH:mm:ss形式のローカル日時文字列
  */
 export function utcToLocalDateTime(utcDate: Date | null | undefined): string {
   if (!utcDate) return '';
@@ -39,7 +43,10 @@ export function utcToLocalDateTime(utcDate: Date | null | undefined): string {
 }
 
 /**
- * UTC Dateオブジェクトを指定タイムゾーンで表示用にフォーマット
+ * UTC Dateオブジェクトを指定タイムゾーンで表示用にフォーマットする
+ * @param utcDate フォーマット対象のUTC Dateオブジェクト（null/undefinedの場合は空文字列を返す）
+ * @param includeTime 時刻情報を含めるかどうか（デフォルト: true）
+ * @returns フォーマットされた日時文字列
  */
 export function formatDateTimeInTimezone(
   utcDate: Date | null | undefined,
@@ -74,7 +81,10 @@ export function formatDateTimeInTimezone(
 }
 
 /**
- * 指定タイムゾーンのオフセット（ミリ秒）を取得
+ * 指定タイムゾーンのオフセット（ミリ秒）を取得する
+ * @param timezone タイムゾーン文字列（例: 'Asia/Tokyo'）
+ * @param date 基準となる日付
+ * @returns タイムゾーンオフセット（ミリ秒）
  */
 function getTimezoneOffset(timezone: string, date: Date): number {
   try {
@@ -90,7 +100,9 @@ function getTimezoneOffset(timezone: string, date: Date): number {
 }
 
 /**
- * 日付文字列をUTC Dateに変換（入力フィールド用）
+ * 日付文字列をUTC Dateに変換する（入力フィールド用）
+ * @param dateTimeString 日付文字列（YYYY-MM-DD または YYYY-MM-DDTHH:mm:ss 形式）
+ * @returns 変換されたUTC Dateオブジェクト（変換失敗時はnull）
  */
 export function parseInputDateTime(dateTimeString: string): Date | null {
   if (!dateTimeString) return null;
