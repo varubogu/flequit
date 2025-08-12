@@ -2,7 +2,7 @@ pub mod service_error;
 pub mod repository_error;
 pub mod command_error;
 
-pub use service_error::ServiceError;
+// pub use service_error::ServiceError;
 pub use repository_error::RepositoryError;
 // pub use command_error::CommandError;
 
