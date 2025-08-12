@@ -82,9 +82,7 @@ export class InitializationTauriService implements InitializationService {
   private getDefaultSettings(): LocalSettings {
     return {
       theme: 'system',
-      language: 'ja',
-      autoSave: true,
-      autoSaveInterval: 5
+      language: 'ja'
     };
   }
 }

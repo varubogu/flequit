@@ -120,9 +120,7 @@ export class InitializationWebService implements InitializationService {
   private getDefaultSettings(): LocalSettings {
     return {
       theme: 'system',
-      language: 'ja',
-      autoSave: false, // Web版では自動保存は無効
-      autoSaveInterval: 5
+      language: 'ja'
     };
   }
 

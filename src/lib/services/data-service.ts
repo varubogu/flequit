@@ -35,10 +35,6 @@ export class DataService {
     return await backend.initialization.initializeAll();
   }
 
-  // 自動保存
-  async autoSave(): Promise<void> {
-    // TODO: バックエンドサービスにautoSaveメソッドを実装後、適切に呼び出す
-  }
 
   // プロジェクト管理
   async createProject(projectData: {

@@ -6,8 +6,6 @@ import type { ProjectTree } from "$lib/types/project";
 export interface LocalSettings {
   theme: 'light' | 'dark' | 'system';
   language: string;
-  autoSave: boolean;
-  autoSaveInterval: number; // minutes
   [key: string]: unknown;
 }
 

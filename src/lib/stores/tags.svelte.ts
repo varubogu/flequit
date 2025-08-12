@@ -89,7 +89,6 @@ export class TagStore {
     // バックエンドに同期（作成操作は即座に保存）
     try {
       await dataService.createTag(newTag);
-      await dataService.autoSave();
     } catch (error) {
       console.error('Failed to sync new tag to backend:', error);
       errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
@@ -108,7 +107,6 @@ export class TagStore {
   private async syncAddTagToBackend(tag: Tag) {
     try {
       await dataService.createTag(tag);
-      await dataService.autoSave();
     } catch (error) {
       console.error('Failed to sync new tag to backend:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
@@ -237,8 +235,7 @@ export class TagStore {
       // バックエンドに同期（削除操作は即座に保存）
       try {
         await dataService.deleteTag(tagId);
-        await dataService.autoSave();
-      } catch (error) {
+        } catch (error) {
         console.error('Failed to sync tag deletion to backend:', error);
         errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
         // エラーが発生した場合はローカル状態を復元
@@ -258,7 +255,6 @@ export class TagStore {
   private async syncDeleteTagToBackend(tagId: string) {
     try {
       await dataService.deleteTag(tagId);
-      await dataService.autoSave();
     } catch (error) {
       console.error('Failed to sync tag deletion to backend:', error);
       errorHandler.addSyncError('タグ削除', 'tag', tagId, error);

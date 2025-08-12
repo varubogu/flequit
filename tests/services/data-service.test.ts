@@ -236,8 +236,5 @@ describe('DataService', () => {
       expect(result).toEqual([]);
     });
 
-    test('autoSave should not throw error (placeholder)', async () => {
-      await expect(dataService.autoSave()).resolves.not.toThrow();
-    });
   });
 });

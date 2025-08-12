@@ -10,7 +10,6 @@ import type { Tag } from "$lib/types/tag";
 import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
-import { autoSaveManager } from './auto-save.svelte';
 import { errorHandler } from './error-handler.svelte';
 
 // Global state using Svelte 5 runes
@@ -36,10 +35,6 @@ export class TaskStore {
       });
     }
 
-    // 自動保存マネージャーを初期化
-    if (typeof window !== 'undefined') {
-      autoSaveManager.start();
-    }
   }
 
   // Computed values
@@ -125,12 +120,6 @@ export class TaskStore {
   async setProjects(projects: ProjectTree[]) {
     this.loadProjectsData(projects);
 
-    // 変更があった場合のみ自動保存を実行
-    try {
-      await dataService.autoSave();
-    } catch (error) {
-      console.error('Failed to auto-save after setting projects:', error);
-    }
   }
 
   // データ読み込み専用メソッド（保存処理なし）
@@ -239,7 +228,6 @@ export class TaskStore {
         // バックエンドに同期（作成操作は即座に保存）
         try {
           await dataService.createTaskWithSubTasks(listId, newTask);
-          await dataService.autoSave();
         } catch (error) {
           console.error('Failed to sync new task to backend:', error);
           errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
@@ -307,8 +295,7 @@ export class TaskStore {
           // バックエンドに同期（削除操作は即座に保存）
           try {
             await dataService.deleteTaskWithSubTasks(taskId);
-            await dataService.autoSave();
-          } catch (error) {
+            } catch (error) {
             console.error('Failed to sync task deletion to backend:', error);
             errorHandler.addSyncError('タスク削除', 'task', taskId, error);
             // エラーが発生した場合はローカル状態を復元
@@ -365,7 +352,7 @@ export class TaskStore {
           const task = list.tasks.find((t) => t.id === taskId);
           if (task) {
             task.sub_tasks.push(newSubTask);
-            await dataService.autoSave(); // 作成操作は即座に保存
+ // 作成操作は即座に保存
             return newSubTask;
           }
         }
@@ -396,8 +383,7 @@ export class TaskStore {
             // バックエンドに同期（削除操作は即座に保存）
             try {
               await dataService.deleteSubTask(subTaskId);
-              await dataService.autoSave();
-            } catch (error) {
+                } catch (error) {
               console.error('Failed to sync subtask deletion to backend:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
               // エラーが発生した場合はローカル状態を復元
@@ -600,7 +586,6 @@ export class TaskStore {
     try {
       const newProject = await dataService.createProjectTree(project);
       this.projects.push(newProject);
-      await dataService.autoSave(); // 作成操作は即座に保存
       return newProject;
     } catch (error) {
       console.error('Failed to create project:', error);
@@ -645,7 +630,6 @@ export class TaskStore {
           }
         }
       }
-      await dataService.autoSave(); // 削除操作は即座に保存
       return success;
     } catch (error) {
       console.error('Failed to delete project:', error);
@@ -665,7 +649,6 @@ export class TaskStore {
       if (project) {
         project.task_lists.push(newTaskList);
       }
-      await dataService.autoSave(); // 作成操作は即座に保存
       return newTaskList;
     } catch (error) {
       console.error('Failed to create task list:', error);
@@ -717,7 +700,6 @@ export class TaskStore {
           }
         }
       }
-      await dataService.autoSave(); // 削除操作は即座に保存
       return success;
     } catch (error) {
       console.error('Failed to delete task list:', error);
