@@ -21,6 +21,7 @@ impl Default for PathConfig {
     }
 }
 
+#[allow(dead_code)]
 pub struct PathService {
     config: PathConfig,
 }
@@ -36,6 +37,7 @@ impl PathService {
     // }
 
     /// OS別のデフォルトデータディレクトリを取得
+    #[allow(dead_code)]
     pub fn get_default_data_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
         #[cfg(target_os = "windows")]
         {

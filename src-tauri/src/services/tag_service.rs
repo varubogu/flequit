@@ -2,8 +2,10 @@ use crate::types::tag_types::Tag;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 
+#[allow(dead_code)]
 pub struct TagService;
 
+#[allow(dead_code)]
 impl TagService {
     pub async fn create_tag(
         &self,

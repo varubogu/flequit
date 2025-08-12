@@ -4,8 +4,10 @@ use crate::errors::service_error::ServiceError;
 use crate::types::command_types::ProjectSearchRequest;
 use chrono::Utc;
 
+#[allow(dead_code)]
 pub struct ProjectService;
 
+#[allow(dead_code)]
 impl ProjectService {
     pub async fn create_project(
         &self,

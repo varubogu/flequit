@@ -2,8 +2,10 @@ use crate::types::sub_task_types::Subtask;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 
+#[allow(dead_code)]
 pub struct SubtaskService;
 
+#[allow(dead_code)]
 impl SubtaskService {
     pub async fn create_subtask(
         &self,

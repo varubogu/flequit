@@ -2,8 +2,10 @@ use crate::types::user_types::User;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 
+#[allow(dead_code)]
 pub struct UserService;
 
+#[allow(dead_code)]
 impl UserService {
     pub async fn create_user(
         &self,

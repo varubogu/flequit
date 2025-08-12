@@ -3,8 +3,10 @@ use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 use crate::types::command_types::TaskSearchRequest;
 
+#[allow(dead_code)]
 pub struct TaskService;
 
+#[allow(dead_code)]
 impl TaskService {
     pub async fn create_task(
         &self,

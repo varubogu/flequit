@@ -6,10 +6,12 @@ use crate::repositories::{
     web::WebRepository
 };
 
+#[allow(dead_code)]
 pub fn get_repository_searcher() -> Box<dyn CoreRepositoryTrait> {
     Box::new(SqliteRepository {})
 }
 
+#[allow(dead_code)]
 pub fn get_repositories() -> Vec<Box<dyn CoreRepositoryTrait>> {
 
     let mut repositories: Vec<Box<dyn CoreRepositoryTrait>> = Vec::new();
