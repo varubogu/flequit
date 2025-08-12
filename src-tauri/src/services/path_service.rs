@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use std::fs;
+// use std::fs;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,78 +86,78 @@ impl PathService {
         Ok(PathBuf::from("./flequit"))
     }
 
-    /// 設定済みまたはデフォルトのデータディレクトリを取得
-    pub fn get_data_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
-        if self.config.use_system_default || self.config.data_dir.is_none() {
-            Self::get_default_data_dir()
-        } else {
-            Ok(self.config.data_dir.as_ref().unwrap().clone())
-        }
-    }
+    // /// 設定済みまたはデフォルトのデータディレクトリを取得
+    // pub fn get_data_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    //     if self.config.use_system_default || self.config.data_dir.is_none() {
+    //         Self::get_default_data_dir()
+    //     } else {
+    //         Ok(self.config.data_dir.as_ref().unwrap().clone())
+    //     }
+    // }
 
-    /// バックアップディレクトリを取得
-    pub fn get_backup_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
-        if let Some(backup_dir) = &self.config.backup_dir {
-            Ok(backup_dir.clone())
-        } else {
-            Ok(self.get_data_dir()?.join("backups"))
-        }
-    }
+    // /// バックアップディレクトリを取得
+    // pub fn get_backup_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    //     if let Some(backup_dir) = &self.config.backup_dir {
+    //         Ok(backup_dir.clone())
+    //     } else {
+    //         Ok(self.get_data_dir()?.join("backups"))
+    //     }
+    // }
 
-    /// エクスポートディレクトリを取得
-    pub fn get_export_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
-        if let Some(export_dir) = &self.config.export_dir {
-            Ok(export_dir.clone())
-        } else {
-            // デフォルトはダウンロードディレクトリ
-            if let Some(download_dir) = dirs::download_dir() {
-                Ok(download_dir.join("flequit-exports"))
-            } else {
-                Ok(self.get_data_dir()?.join("exports"))
-            }
-        }
-    }
+    // /// エクスポートディレクトリを取得
+    // pub fn get_export_dir(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    //     if let Some(export_dir) = &self.config.export_dir {
+    //         Ok(export_dir.clone())
+    //     } else {
+    //         // デフォルトはダウンロードディレクトリ
+    //         if let Some(download_dir) = dirs::download_dir() {
+    //             Ok(download_dir.join("flequit-exports"))
+    //         } else {
+    //             Ok(self.get_data_dir()?.join("exports"))
+    //         }
+    //     }
+    // }
 
     // /// メインデータファイルのパスを取得
     // pub fn get_main_data_file(&self) -> Result<PathBuf, Box<dyn std::error::Error>> {
     //     Ok(self.get_data_dir()?.join("tasks.automerge"))
     // }
 
-    /// 設定ファイルのパスを取得
-    pub fn get_config_file() -> Result<PathBuf, Box<dyn std::error::Error>> {
-        let config_dir = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
-        Ok(config_dir.join("flequit").join("path_config.json"))
-    }
+    // /// 設定ファイルのパスを取得
+    // pub fn get_config_file() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    //     let config_dir = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
+    //     Ok(config_dir.join("flequit").join("path_config.json"))
+    // }
 
-    /// 必要なディレクトリを作成
-    pub fn ensure_directories(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let data_dir = self.get_data_dir()?;
-        let backup_dir = self.get_backup_dir()?;
-        let export_dir = self.get_export_dir()?;
+    // /// 必要なディレクトリを作成
+    // pub fn ensure_directories(&self) -> Result<(), Box<dyn std::error::Error>> {
+    //     let data_dir = self.get_data_dir()?;
+    //     let backup_dir = self.get_backup_dir()?;
+    //     let export_dir = self.get_export_dir()?;
 
-        fs::create_dir_all(&data_dir)?;
-        fs::create_dir_all(&backup_dir)?;
-        fs::create_dir_all(&export_dir)?;
+    //     fs::create_dir_all(&data_dir)?;
+    //     fs::create_dir_all(&backup_dir)?;
+    //     fs::create_dir_all(&export_dir)?;
 
-        log::info!("Created directories:");
-        log::info!("  Data: {:?}", data_dir);
-        log::info!("  Backup: {:?}", backup_dir);
-        log::info!("  Export: {:?}", export_dir);
+    //     log::info!("Created directories:");
+    //     log::info!("  Data: {:?}", data_dir);
+    //     log::info!("  Backup: {:?}", backup_dir);
+    //     log::info!("  Export: {:?}", export_dir);
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    /// 設定をファイルに保存
-    pub fn save_config(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let config_file = Self::get_config_file()?;
-        if let Some(parent) = config_file.parent() {
-            fs::create_dir_all(parent)?;
-        }
-        let json = serde_json::to_string_pretty(&self.config)?;
-        fs::write(&config_file, json)?;
-        log::info!("Saved path configuration to: {:?}", config_file);
-        Ok(())
-    }
+    // /// 設定をファイルに保存
+    // pub fn save_config(&self) -> Result<(), Box<dyn std::error::Error>> {
+    //     let config_file = Self::get_config_file()?;
+    //     if let Some(parent) = config_file.parent() {
+    //         fs::create_dir_all(parent)?;
+    //     }
+    //     let json = serde_json::to_string_pretty(&self.config)?;
+    //     fs::write(&config_file, json)?;
+    //     log::info!("Saved path configuration to: {:?}", config_file);
+    //     Ok(())
+    // }
 
     // /// 設定をファイルから読み込み
     // pub fn load_config() -> Result<PathConfig, Box<dyn std::error::Error>> {
@@ -173,57 +173,57 @@ impl PathService {
     //     }
     // }
 
-    /// 設定を更新
-    pub fn update_config(&mut self, new_config: PathConfig) -> Result<(), Box<dyn std::error::Error>> {
-        self.config = new_config;
-        self.save_config()?;
-        self.ensure_directories()?;
-        Ok(())
-    }
+    // /// 設定を更新
+    // pub fn update_config(&mut self, new_config: PathConfig) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.config = new_config;
+    //     self.save_config()?;
+    //     self.ensure_directories()?;
+    //     Ok(())
+    // }
 
-    /// 現在の設定を取得
-    pub fn get_config(&self) -> &PathConfig {
-        &self.config
-    }
+    // /// 現在の設定を取得
+    // pub fn get_config(&self) -> &PathConfig {
+    //     &self.config
+    // }
 
-    /// データディレクトリをカスタムパスに設定
-    pub fn set_custom_data_dir(&mut self, path: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
-        self.config.data_dir = Some(path);
-        self.config.use_system_default = false;
-        self.save_config()?;
-        self.ensure_directories()?;
-        Ok(())
-    }
+    // /// データディレクトリをカスタムパスに設定
+    // pub fn set_custom_data_dir(&mut self, path: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.config.data_dir = Some(path);
+    //     self.config.use_system_default = false;
+    //     self.save_config()?;
+    //     self.ensure_directories()?;
+    //     Ok(())
+    // }
 
-    /// システムデフォルトに戻す
-    pub fn reset_to_system_default(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.config.use_system_default = true;
-        self.config.data_dir = None;
-        self.config.backup_dir = None;
-        self.save_config()?;
-        self.ensure_directories()?;
-        Ok(())
-    }
+    // /// システムデフォルトに戻す
+    // pub fn reset_to_system_default(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.config.use_system_default = true;
+    //     self.config.data_dir = None;
+    //     self.config.backup_dir = None;
+    //     self.save_config()?;
+    //     self.ensure_directories()?;
+    //     Ok(())
+    // }
 
-    /// パスの正当性をチェック
-    pub fn validate_path(&self, path: &PathBuf) -> Result<bool, Box<dyn std::error::Error>> {
-        // パスが存在するか、作成可能かチェック
-        if path.exists() {
-            // 書き込み権限があるかチェック
-            let test_file = path.join(".flequit_write_test");
-            match fs::write(&test_file, "test") {
-                Ok(_) => {
-                    let _ = fs::remove_file(&test_file);
-                    Ok(true)
-                }
-                Err(_) => Ok(false),
-            }
-        } else {
-            // ディレクトリを作成できるかチェック
-            match fs::create_dir_all(path) {
-                Ok(_) => Ok(true),
-                Err(_) => Ok(false),
-            }
-        }
-    }
+    // /// パスの正当性をチェック
+    // pub fn validate_path(&self, path: &PathBuf) -> Result<bool, Box<dyn std::error::Error>> {
+    //     // パスが存在するか、作成可能かチェック
+    //     if path.exists() {
+    //         // 書き込み権限があるかチェック
+    //         let test_file = path.join(".flequit_write_test");
+    //         match fs::write(&test_file, "test") {
+    //             Ok(_) => {
+    //                 let _ = fs::remove_file(&test_file);
+    //                 Ok(true)
+    //             }
+    //             Err(_) => Ok(false),
+    //         }
+    //     } else {
+    //         // ディレクトリを作成できるかチェック
+    //         match fs::create_dir_all(path) {
+    //             Ok(_) => Ok(true),
+    //             Err(_) => Ok(false),
+    //         }
+    //     }
+    // }
 }
