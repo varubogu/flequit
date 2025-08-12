@@ -32,6 +32,7 @@ export class TaskDetailLogic {
   showDeleteDialog = $state(false);
   showProjectTaskListDialog = $state(false);
   showRecurrenceDialog = $state(false);
+  showSubTaskAddForm = $state(false);
 
   // Action states
   pendingAction = $state<(() => void) | null>(null);
@@ -252,6 +253,28 @@ export class TaskDetailLogic {
 
   handleSubTaskClick(subTaskId: string) {
     TaskService.selectSubTask(subTaskId);
+  }
+
+  handleAddSubTask() {
+    this.showSubTaskAddForm = !this.showSubTaskAddForm;
+  }
+
+  async handleSubTaskAdded(title: string) {
+    if (!this.task || !title.trim()) return;
+
+    const newSubTask = await TaskService.addSubTask(this.task.id, {
+      title: title.trim()
+    });
+
+    if (newSubTask) {
+      this.showSubTaskAddForm = false;
+      // サブタスクは連続入力することが多いため、自動選択はしない
+      // タスク詳細画面は現在のメインタスクを維持
+    }
+  }
+
+  handleSubTaskAddCancel() {
+    this.showSubTaskAddForm = false;
   }
 
   handleGoToParentTask() {

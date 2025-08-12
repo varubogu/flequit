@@ -159,6 +159,22 @@ export class TaskService {
     });
   }
 
+  static async addSubTask(
+    taskId: string,
+    subTaskData: {
+      title: string;
+      description?: string;
+      priority?: number;
+    }
+  ): Promise<SubTask | null> {
+    return await taskStore.addSubTask(taskId, {
+      title: subTaskData.title,
+      description: subTaskData.description,
+      status: 'not_started',
+      priority: subTaskData.priority || 0
+    });
+  }
+
   static updateSubTaskFromForm(
     subTaskId: string,
     formData: {

@@ -37,6 +37,10 @@
       onSaveNewTask={logic.handleSaveNewTask.bind(logic)}
       onSubTaskClick={logic.handleSubTaskClick.bind(logic)}
       onSubTaskToggle={logic.handleSubTaskToggle.bind(logic)}
+      onAddSubTask={logic.handleAddSubTask?.bind(logic)}
+      showSubTaskAddForm={logic.showSubTaskAddForm}
+      onSubTaskAdded={logic.handleSubTaskAdded?.bind(logic)}
+      onSubTaskAddCancel={logic.handleSubTaskAddCancel?.bind(logic)}
       onGoToParentTask={logic.handleGoToParentTask.bind(logic)}
       onProjectTaskListEdit={logic.handleProjectTaskListEdit.bind(logic)}
     />
@@ -64,6 +68,10 @@
       onSaveNewTask={logic.handleSaveNewTask.bind(logic)}
       onSubTaskClick={logic.handleSubTaskClick.bind(logic)}
       onSubTaskToggle={logic.handleSubTaskToggle.bind(logic)}
+      onAddSubTask={logic.handleAddSubTask?.bind(logic)}
+      showSubTaskAddForm={logic.showSubTaskAddForm}
+      onSubTaskAdded={logic.handleSubTaskAdded?.bind(logic)}
+      onSubTaskAddCancel={logic.handleSubTaskAddCancel?.bind(logic)}
       onGoToParentTask={logic.handleGoToParentTask.bind(logic)}
       onProjectTaskListEdit={logic.handleProjectTaskListEdit.bind(logic)}
     />

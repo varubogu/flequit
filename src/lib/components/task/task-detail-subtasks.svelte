@@ -3,26 +3,65 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '$lib/components/datetime/due-date.svelte';
+  import { TaskListService } from '$lib/services/task-list-service';
+  import { Plus } from 'lucide-svelte';
+  import SubTaskAddForm from './subtask-add-form.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
     selectedSubTaskId: string | null;
     onSubTaskClick: (subTaskId: string) => void;
     onSubTaskToggle: (subTaskId: string) => void;
+    onAddSubTask?: () => void;
+    showSubTaskAddForm?: boolean;
+    onSubTaskAdded?: (title: string) => void;
+    onSubTaskAddCancel?: () => void;
   }
 
-  let { task, selectedSubTaskId, onSubTaskClick, onSubTaskToggle }: Props = $props();
+  let { 
+    task, 
+    selectedSubTaskId, 
+    onSubTaskClick, 
+    onSubTaskToggle, 
+    onAddSubTask,
+    showSubTaskAddForm = false,
+    onSubTaskAdded,
+    onSubTaskAddCancel
+  }: Props = $props();
 
   const translationService = getTranslationService();
+  let subTaskCountText = $derived(TaskListService.getTaskCountText(task.sub_tasks.length).replace('task', 'subtask'));
+  
   // Reactive messages
   const sub_tasks = translationService.getMessage('sub_tasks');
   const toggle_subtask_completion = translationService.getMessage('toggle_subtask_completion');
+  const add_subtask = translationService.getMessage('add_subtask');
 </script>
 
-{#if task.sub_tasks.length > 0}
-  <div>
-    <h3 class="mb-2 block text-sm font-medium">{sub_tasks()}</h3>
-    <div class="space-y-2">
+<div>
+  <!-- Header with count and add button -->
+  <div class="mb-2 flex items-center justify-between">
+    <h3 class="text-sm font-medium">{sub_tasks()}</h3>
+    <div class="flex items-center gap-2">
+      <span class="text-muted-foreground text-xs">
+        {subTaskCountText}
+      </span>
+      {#if onAddSubTask}
+        <Button size="icon" variant="ghost" class="h-6 w-6" onclick={onAddSubTask} title={add_subtask()} data-testid="add-subtask">
+          <Plus class="h-3 w-3" />
+        </Button>
+      {/if}
+    </div>
+  </div>
+
+  <!-- Add SubTask Form -->
+  {#if showSubTaskAddForm}
+    <SubTaskAddForm onSubTaskAdded={onSubTaskAdded} onCancel={onSubTaskAddCancel} />
+  {/if}
+
+  <!-- Sub-task list -->
+  {#if task.sub_tasks.length > 0}
+    <div class="space-y-2" class:mt-1={showSubTaskAddForm}>
       {#each task.sub_tasks as subTask (subTask.id)}
         <Button
           variant="ghost"
@@ -64,5 +103,5 @@
         </Button>
       {/each}
     </div>
-  </div>
-{/if}
+  {/if}
+</div>

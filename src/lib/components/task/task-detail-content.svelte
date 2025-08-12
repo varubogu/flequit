@@ -42,6 +42,10 @@
     onSaveNewTask: () => Promise<void>;
     onSubTaskClick: (subTaskId: string) => void;
     onSubTaskToggle: (subTaskId: string) => void;
+    onAddSubTask?: () => void;
+    showSubTaskAddForm?: boolean;
+    onSubTaskAdded?: (title: string) => void;
+    onSubTaskAddCancel?: () => void;
     onGoToParentTask: () => void;
     onProjectTaskListEdit: () => void;
   }
@@ -66,6 +70,10 @@
     onSaveNewTask,
     onSubTaskClick,
     onSubTaskToggle,
+    onAddSubTask,
+    showSubTaskAddForm,
+    onSubTaskAdded,
+    onSubTaskAddCancel,
     onGoToParentTask,
     onProjectTaskListEdit
   }: Props = $props();
@@ -106,7 +114,7 @@
 
     <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
     {#if !isSubTask && !isNewTaskMode && task}
-      <TaskDetailSubTasks {task} {selectedSubTaskId} {onSubTaskClick} {onSubTaskToggle} />
+      <TaskDetailSubTasks {task} {selectedSubTaskId} {onSubTaskClick} {onSubTaskToggle} {onAddSubTask} {showSubTaskAddForm} {onSubTaskAdded} {onSubTaskAddCancel} />
     {/if}
 
     <!-- Tags -->
