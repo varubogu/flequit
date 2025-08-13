@@ -50,76 +50,19 @@ export interface Account {
 export type WeekStart = 'sunday' | 'monday';
 
 /**
- * 外観設定
+ * テーマ設定
  */
-export interface AppearanceSettings {
-  /** フォント名 */
-  font: string;
-  /** フォントサイズ */
-  fontSize: number;
-  /** フォント色 */
-  fontColor: string;
-  /** 背景色 */
-  backgroundColor: string;
-}
+export type Theme = 'system' | 'light' | 'dark';
 
 /**
- * 基本設定
+ * ビューアイテム（タスク表示設定用）
  */
-export interface BasicSettings {
-  /** 週の開始曜日 */
-  weekStart: WeekStart;
-  /** タイムゾーン */
-  timezone: string;
-  /** 日付フォーマット */
-  dateFormat: string;
-  /** カスタム期日日数 */
-  customDueDays: number[];
-}
-
-/**
- * 表示設定
- */
-export interface ViewSettings {
-  /** 期日ボタンの表示設定 */
-  dueDateButtons: {
-    /** 期限切れ */
-    overdue: boolean;
-    /** 今日 */
-    today: boolean;
-    /** 明日 */
-    tomorrow: boolean;
-    /** 3日以内 */
-    threeDays: boolean;
-    /** 今週 */
-    thisWeek: boolean;
-    /** 今月 */
-    thisMonth: boolean;
-    /** 今四半期 */
-    thisQuarter: boolean;
-    /** 今年 */
-    thisYear: boolean;
-    /** 年末 */
-    thisYearEnd: boolean;
-  };
-}
-
-/**
- * アカウント設定
- */
-export interface AccountSettings {
-  /** 選択中のアカウント */
-  selectedAccount: string;
-  /** アカウントアイコン */
-  accountIcon: string | null;
-  /** アカウント名 */
-  accountName: string;
-  /** メールアドレス */
-  email: string;
-  /** パスワード */
-  password: string;
-  /** サーバーURL */
-  serverUrl: string;
+export interface ViewItem {
+  id: string;
+  label: string;
+  icon: string;
+  visible: boolean;
+  order: number;
 }
 
 /**
@@ -147,15 +90,74 @@ export interface TimeLabel {
 }
 
 /**
- * 全設定をまとめた型
+ * アプリケーション設定（フラット構造）
  */
-export interface AllSettings {
-  /** 基本設定 */
-  basic: BasicSettings;
-  /** 外観設定 */
-  appearance: AppearanceSettings;
-  /** 表示設定 */
-  views: ViewSettings;
-  /** アカウント設定 */
-  account: AccountSettings;
+export interface Settings {
+  // テーマ・外観設定
+  /** UIテーマ */
+  theme: Theme;
+  /** 言語設定（ISO 639-1形式） */
+  language: string;
+  /** フォント名 */
+  font: string;
+  /** フォントサイズ */
+  fontSize: number;
+  /** フォント色 */
+  fontColor: string;
+  /** 背景色 */
+  backgroundColor: string;
+
+  // 基本設定
+  /** 週の開始曜日 */
+  weekStart: WeekStart;
+  /** タイムゾーン */
+  timezone: string;
+  /** 日付フォーマット */
+  dateFormat: string;
+  /** カスタム期日日数 */
+  customDueDays: number[];
+  /** カスタム日付フォーマット */
+  customDateFormats: CustomDateFormat[];
+  /** 時刻ラベル */
+  timeLabels: TimeLabel[];
+
+  // 表示設定
+  /** 期日ボタンの表示設定 */
+  dueDateButtons: {
+    /** 期限切れ */
+    overdue: boolean;
+    /** 今日 */
+    today: boolean;
+    /** 明日 */
+    tomorrow: boolean;
+    /** 3日以内 */
+    threeDays: boolean;
+    /** 今週 */
+    thisWeek: boolean;
+    /** 今月 */
+    thisMonth: boolean;
+    /** 今四半期 */
+    thisQuarter: boolean;
+    /** 今年 */
+    thisYear: boolean;
+    /** 年末 */
+    thisYearEnd: boolean;
+  };
+  /** ビューアイテム設定 */
+  viewItems: ViewItem[];
+
+  // アカウント設定
+  /** 選択中のアカウント */
+  selectedAccount: string;
+  /** アカウントアイコン */
+  accountIcon: string | null;
+  /** アカウント名 */
+  accountName: string;
+  /** メールアドレス */
+  email: string;
+  /** パスワード */
+  password: string;
+  /** サーバーURL */
+  serverUrl: string;
 }
+

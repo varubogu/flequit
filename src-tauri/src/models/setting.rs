@@ -11,7 +11,7 @@
 
 use serde::{Serialize, Deserialize};
 
-use crate::models::{command::setting::{LocalSettingsCommand, SettingCommand}, CommandModelConverter};
+use crate::models::{command::setting::{LocalSettingsCommand, SettingCommand, SettingsCommand}, CommandModelConverter};
 
 /// ローカル環境固有の設定情報を表現する構造体
 /// 
@@ -88,6 +88,123 @@ pub struct Setting {
     pub updated_at: String,
 }
 
+/// ビューアイテム設定構造体
+/// 
+/// タスク表示ビューの個別アイテム設定を管理します。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ViewItem {
+    /// ビューアイテムのID
+    pub id: String,
+    /// 表示ラベル
+    pub label: String,
+    /// アイコン
+    pub icon: String,
+    /// 表示/非表示フラグ
+    pub visible: bool,
+    /// 表示順序
+    pub order: i32,
+}
+
+/// カスタム日付フォーマット構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomDateFormat {
+    /// フォーマットID
+    pub id: String,
+    /// フォーマット名
+    pub name: String,
+    /// フォーマット文字列
+    pub format: String,
+}
+
+/// 時刻ラベル構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TimeLabel {
+    /// ラベルID
+    pub id: String,
+    /// ラベル名
+    pub name: String,
+    /// 時刻（HH:mm形式）
+    pub time: String,
+}
+
+/// 期日ボタン表示設定構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DueDateButtons {
+    /// 期限切れ
+    pub overdue: bool,
+    /// 今日
+    pub today: bool,
+    /// 明日
+    pub tomorrow: bool,
+    /// 3日以内
+    pub three_days: bool,
+    /// 今週
+    pub this_week: bool,
+    /// 今月
+    pub this_month: bool,
+    /// 今四半期
+    pub this_quarter: bool,
+    /// 今年
+    pub this_year: bool,
+    /// 年末
+    pub this_year_end: bool,
+}
+
+/// 統合設定構造体（フラット構造）
+/// 
+/// アプリケーションの全設定項目を単一の構造体で管理します。
+/// フロントエンドのSettings型に対応しています。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    // テーマ・外観設定
+    /// UIテーマ（"system", "light", "dark"）
+    pub theme: String,
+    /// 言語設定（ISO 639-1形式）
+    pub language: String,
+    /// フォント名
+    pub font: String,
+    /// フォントサイズ
+    pub font_size: i32,
+    /// フォント色
+    pub font_color: String,
+    /// 背景色
+    pub background_color: String,
+
+    // 基本設定
+    /// 週の開始曜日（"sunday", "monday"）
+    pub week_start: String,
+    /// タイムゾーン
+    pub timezone: String,
+    /// 日付フォーマット
+    pub date_format: String,
+    /// カスタム期日日数
+    pub custom_due_days: Vec<i32>,
+    /// カスタム日付フォーマット
+    pub custom_date_formats: Vec<CustomDateFormat>,
+    /// 時刻ラベル
+    pub time_labels: Vec<TimeLabel>,
+
+    // 表示設定
+    /// 期日ボタンの表示設定
+    pub due_date_buttons: DueDateButtons,
+    /// ビューアイテム設定
+    pub view_items: Vec<ViewItem>,
+
+    // アカウント設定
+    /// 選択中のアカウント
+    pub selected_account: String,
+    /// アカウントアイコン
+    pub account_icon: Option<String>,
+    /// アカウント名
+    pub account_name: String,
+    /// メールアドレス
+    pub email: String,
+    /// パスワード
+    pub password: String,
+    /// サーバーURL
+    pub server_url: String,
+}
+
 /// 設定操作のレスポンス用構造体
 /// 
 /// 設定の取得・更新・削除操作の結果を統一的に返すための構造体です。
@@ -132,6 +249,33 @@ impl CommandModelConverter<SettingCommand> for Setting {
             data_type: self.data_type.clone(),
             created_at: self.created_at.clone(),
             updated_at: self.updated_at.clone(),
+        })
+    }
+}
+
+impl CommandModelConverter<SettingsCommand> for Settings {
+    async fn to_command_model(&self) -> Result<SettingsCommand, String> {
+        Ok(SettingsCommand {
+            theme: self.theme.clone(),
+            language: self.language.clone(),
+            font: self.font.clone(),
+            font_size: self.font_size,
+            font_color: self.font_color.clone(),
+            background_color: self.background_color.clone(),
+            week_start: self.week_start.clone(),
+            timezone: self.timezone.clone(),
+            date_format: self.date_format.clone(),
+            custom_due_days: self.custom_due_days.clone(),
+            custom_date_formats: self.custom_date_formats.clone(),
+            time_labels: self.time_labels.clone(),
+            due_date_buttons: self.due_date_buttons.clone(),
+            view_items: self.view_items.clone(),
+            selected_account: self.selected_account.clone(),
+            account_icon: self.account_icon.clone(),
+            account_name: self.account_name.clone(),
+            email: self.email.clone(),
+            password: self.password.clone(),
+            server_url: self.server_url.clone(),
         })
     }
 }
