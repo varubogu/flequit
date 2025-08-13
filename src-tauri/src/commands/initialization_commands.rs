@@ -32,23 +32,11 @@ pub async fn load_all_project_data() -> Result<Vec<ProjectTree>, String> {
     Ok(vec![])
 }
 
-// Account interface compatibility aliases
 #[tauri::command]
-pub async fn get_account(id: String) -> Result<Option<Account>, String> {
-    println!("get_account called");
-    println!("id: {}", id);
+pub async fn load_all_account() -> Result<Vec<Account>, String> {
+    println!("load_all_account called");
     
-    // 現在は実装なしのため、Noneを返す
-    // 実際にはデータベースからアカウント情報を取得する実装が必要
-    Ok(None)
-}
-
-#[tauri::command]
-pub async fn update_account(account: Account) -> Result<bool, String> {
-    println!("update_account called");
-    println!("account: {:?}", account);
-    
-    // 現在は実装なしのため、trueを返す
-    // 実際にはデータベースにアカウント情報を更新する実装が必要
-    Ok(true)
+    // 現在は実装なしのため、空のベクタを返す
+    // 実際にはデータベースから全アカウント情報を取得する実装が必要
+    Ok(vec![])
 }

@@ -1,3 +1,4 @@
+pub mod account_commands;
 pub mod initialization_commands;
 pub mod project_commands;
 pub mod setting_commands;

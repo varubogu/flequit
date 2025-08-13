@@ -7,12 +7,17 @@ mod types;
 mod errors;
 
 use commands::{
+    account_commands::{
+        create_account,
+        get_account,
+        update_account,
+        delete_account,
+    },
     initialization_commands::{
         load_local_settings,
         load_current_account,
         load_all_project_data,
-        get_account,
-        update_account,
+        load_all_account,
     },
     project_commands::{
         create_project,
@@ -72,10 +77,13 @@ pub fn run() {
             load_local_settings,
             load_current_account,
             load_all_project_data,
+            load_all_account,
             
             // Account commands
+            create_account,
             get_account,
             update_account,
+            delete_account,
 
             // Task management commands
             create_task,

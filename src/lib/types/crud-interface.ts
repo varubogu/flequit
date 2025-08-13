@@ -54,9 +54,14 @@ export interface SettingInterface<T> {
 }
 
 /**
- * アカウント用の特別なインターフェース（IDベースでの取得・更新のみ）
+ * アカウント用の特別なインターフェース（CRUD操作）
  */
 export interface AccountInterface<T> {
+  /**
+   * 新規作成
+   */
+  create(item: T): Promise<boolean>;
+
   /**
    * IDでアカウントを取得
    */
@@ -66,4 +71,9 @@ export interface AccountInterface<T> {
    * アカウントを更新
    */
   update(item: T): Promise<boolean>;
+
+  /**
+   * アカウントを削除
+   */
+  delete(id: string): Promise<boolean>;
 }
