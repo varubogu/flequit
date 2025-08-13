@@ -16,17 +16,21 @@
     onWeekdayConditionAdd: () => void;
     onWeekdayConditionRemove: (id: string) => void;
     onWeekdayConditionUpdate: (id: string, updates: Partial<WeekdayCondition>) => void;
+    ondateconditionschange?: (dateConditions: DateCondition[]) => void;
+    onweekdayconditionschange?: (weekdayConditions: WeekdayCondition[]) => void;
   };
 
   let {
-    dateConditions = $bindable(),
-    weekdayConditions = $bindable(),
+    dateConditions,
+    weekdayConditions,
     onDateConditionAdd,
     onDateConditionRemove,
     onDateConditionUpdate,
     onWeekdayConditionAdd,
     onWeekdayConditionRemove,
-    onWeekdayConditionUpdate
+    onWeekdayConditionUpdate,
+    ondateconditionschange,
+    onweekdayconditionschange
   }: Props = $props();
 
   const translationService = getTranslationService();

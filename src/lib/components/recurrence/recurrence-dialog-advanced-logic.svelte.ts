@@ -184,4 +184,35 @@ export class RecurrenceDialogAdvancedLogic {
     );
     this.handleImmediateSave();
   }
+
+  // セッター関数
+  setUnit(unit: RecurrenceUnit) {
+    this.unit = unit;
+    this.handleImmediateSave();
+  }
+
+  setInterval(interval: number) {
+    this.interval = interval;
+    this.handleImmediateSave();
+  }
+
+  setDaysOfWeek(daysOfWeek: DayOfWeek[]) {
+    this.daysOfWeek = daysOfWeek;
+    this.handleImmediateSave();
+  }
+
+  setDetails(details: RecurrenceDetails) {
+    this.details = details;
+    this.handleImmediateSave();
+  }
+
+  setDateConditions(dateConditions: DateCondition[]) {
+    this.dateConditions = dateConditions;
+    this.handleImmediateSave();
+  }
+
+  setWeekdayConditions(weekdayConditions: WeekdayCondition[]) {
+    this.weekdayConditions = weekdayConditions;
+    this.handleImmediateSave();
+  }
 }

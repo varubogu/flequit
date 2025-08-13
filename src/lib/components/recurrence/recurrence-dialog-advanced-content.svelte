@@ -28,24 +28,29 @@
         oninput={logic.handleImmediateSave.bind(logic)}
       />
       <RecurrenceIntervalEditor
-        bind:unit={logic.unit}
-        bind:interval={logic.interval}
-        bind:daysOfWeek={logic.daysOfWeek}
-        bind:details={logic.details}
+        unit={logic.unit}
+        interval={logic.interval}
+        daysOfWeek={logic.daysOfWeek}
+        details={logic.details}
         showAdvancedSettings={logic.showAdvancedSettings}
         onchange={logic.handleImmediateSave.bind(logic)}
         ontoggleDayOfWeek={logic.toggleDayOfWeek.bind(logic)}
+        onunitchange={logic.setUnit.bind(logic)}
+        onintervalchange={logic.setInterval.bind(logic)}
+        ondetailschange={logic.setDetails.bind(logic)}
       />
       {#if logic.showAdvancedSettings}
         <RecurrenceAdjustmentEditor
-          bind:dateConditions={logic.dateConditions}
-          bind:weekdayConditions={logic.weekdayConditions}
+          dateConditions={logic.dateConditions}
+          weekdayConditions={logic.weekdayConditions}
           onDateConditionAdd={logic.addDateCondition.bind(logic)}
           onDateConditionRemove={logic.removeDateCondition.bind(logic)}
           onDateConditionUpdate={logic.updateDateCondition.bind(logic)}
           onWeekdayConditionAdd={logic.addWeekdayCondition.bind(logic)}
           onWeekdayConditionRemove={logic.removeWeekdayCondition.bind(logic)}
           onWeekdayConditionUpdate={logic.updateWeekdayCondition.bind(logic)}
+          ondateconditionschange={logic.setDateConditions.bind(logic)}
+          onweekdayconditionschange={logic.setWeekdayConditions.bind(logic)}
         />
       {/if}
     {/if}
