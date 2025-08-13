@@ -1,4 +1,4 @@
-use crate::models::command_models::Setting;
+use crate::models::setting_models::Setting;
 
 #[tauri::command]
 pub async fn get_setting(key: String) -> Result<Option<Setting>, String> {

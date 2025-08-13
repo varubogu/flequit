@@ -1,5 +1,5 @@
 use crate::models::task_list_models::TaskList;
-use crate::models::command_models::TaskListSearchRequest;
+use crate::models::search_request_models::TaskListSearchRequest;
 
 #[tauri::command]
 pub fn create_task_list(task_list: TaskList) -> Result<bool, String> {

@@ -1,35 +1,6 @@
 use serde::{Serialize, Deserialize};
 use super::super::types::{project_types::ProjectStatus, task_types::TaskStatus};
 
-// Initialization command types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LocalSettings {
-    pub theme: String,
-    pub language: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Account {
-    pub id: String,
-    pub email: Option<String>,
-    pub display_name: Option<String>,
-    pub avatar_url: Option<String>,
-    pub provider: String,
-    pub provider_id: Option<String>,
-    pub is_active: bool,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectTree {
-    pub id: String,
-    pub name: String,
-    pub description: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
 // Project command types
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectSearchRequest {
@@ -41,24 +12,6 @@ pub struct ProjectSearchRequest {
     pub created_to: Option<String>,
     pub limit: Option<usize>,
     pub offset: Option<usize>,
-}
-
-// Setting command types
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Setting {
-    pub id: String,
-    pub key: String,
-    pub value: String,
-    pub data_type: String,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SettingResponse {
-    pub success: bool,
-    pub data: Option<Setting>,
-    pub message: Option<String>,
 }
 
 // Task command types

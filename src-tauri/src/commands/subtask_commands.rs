@@ -1,5 +1,5 @@
 use crate::models::sub_task_models::Subtask;
-use crate::models::command_models::SubtaskSearchRequest;
+use crate::models::search_request_models::SubtaskSearchRequest;
 
 // Frontend compatibility aliases only
 #[tauri::command]

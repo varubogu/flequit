@@ -1,4 +1,6 @@
-use crate::models::command_models::{LocalSettings, Account, ProjectTree};
+use crate::models::setting_models::LocalSettings;
+use crate::models::account_models::Account;
+use crate::models::project_models::ProjectTree;
 
 #[tauri::command]
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {

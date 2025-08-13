@@ -1,5 +1,5 @@
 use crate::models::project_models::Project;
-use crate::models::command_models::ProjectSearchRequest;
+use crate::models::search_request_models::ProjectSearchRequest;
 
 #[tauri::command]
 pub async fn create_project(project: Project) -> Result<bool, String> {
