@@ -1,14 +1,5 @@
+use crate::models::search_request_models::TaskListSearchRequest;
 use crate::models::task_list_models::TaskList;
-
-#[derive(Debug)]
-pub struct TaskListSearchRequest {
-    pub project_id: Option<String>,
-    pub name: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
 
 pub fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
     // 実際にはサービス層を通してデータを作成する実装が必要

@@ -1,17 +1,5 @@
 use crate::models::project_models::Project;
-use crate::types::project_types::ProjectStatus;
-
-#[derive(Debug)]
-pub struct ProjectSearchRequest {
-    pub name: Option<String>,
-    pub description: Option<String>,
-    pub status: Option<ProjectStatus>,
-    pub owner_id: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
+use crate::models::search_request_models::ProjectSearchRequest;
 
 pub async fn create_project(project: &Project) -> Result<bool, String> {
     // 実際にはサービス層を通してデータを作成する実装が必要

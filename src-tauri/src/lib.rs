@@ -1,10 +1,11 @@
 // Module declarations
 mod commands;
-mod services;
-mod repositories;
-mod models;
-mod types;
 mod errors;
+mod facades;
+mod models;
+mod repositories;
+mod services;
+mod types;
 
 use commands::*;
 

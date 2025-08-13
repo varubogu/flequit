@@ -20,12 +20,7 @@ pub async fn load_all_project_data() -> Result<Vec<ProjectTree>, String> {
     Ok(vec![])
 }
 
-pub async fn get_account(id: &str) -> Result<Option<Account>, String> {
-    // 実際にはデータベースからアカウント情報を取得する実装が必要
-    Ok(None)
-}
-
-pub async fn update_account(account: &Account) -> Result<bool, String> {
-    // 実際にはデータベースにアカウント情報を更新する実装が必要
-    Ok(true)
+pub async fn load_all_account() -> Result<Vec<Account>, String> {
+    // 実際にはデータベースから全アカウント情報を取得する実装が必要
+    Ok(vec![])
 }

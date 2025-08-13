@@ -1,16 +1,5 @@
+use crate::models::search_request_models::TagSearchRequest;
 use crate::models::tag_models::Tag;
-
-#[derive(Debug)]
-pub struct TagSearchRequest {
-    pub name: Option<String>,
-    pub color: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub usage_count_min: Option<u32>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-    pub order_by_popularity: Option<bool>,
-}
 
 pub async fn create_tag(tag: &Tag) -> Result<bool, String> {
     // 実際にはサービス層を通してデータを作成する実装が必要

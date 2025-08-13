@@ -1,3 +1,4 @@
+pub mod account_facades;
 pub mod initialization_facades;
 pub mod project_facades;
 pub mod setting_facades;

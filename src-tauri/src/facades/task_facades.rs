@@ -1,23 +1,5 @@
+use crate::models::search_request_models::TaskSearchRequest;
 use crate::models::task_models::Task;
-use crate::types::task_types::TaskStatus;
-
-#[derive(Debug)]
-pub struct TaskSearchRequest {
-    pub project_id: Option<String>,
-    pub title: Option<String>,
-    pub description: Option<String>,
-    pub status: Option<TaskStatus>,
-    pub assignee_id: Option<String>,
-    pub priority_min: Option<i32>,
-    pub priority_max: Option<i32>,
-    pub tag_ids: Option<Vec<String>>,
-    pub due_date_from: Option<String>,
-    pub due_date_to: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-}
 
 pub async fn create_task(task: &Task) -> Result<bool, String> {
     // 実際にはサービス層を通してデータを作成する実装が必要
