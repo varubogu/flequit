@@ -5,6 +5,7 @@
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
+  import type { WeekStart } from '$lib/types/settings';
   import { ArrowLeft, Search, Menu } from 'lucide-svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import SettingsBasic from './settings-basic.svelte';
@@ -111,8 +112,8 @@
   }
 
   function handleWeekStartChange(weekStart: string) {
-    settings.weekStart = weekStart;
-    settingsStore.setWeekStart(weekStart);
+    settings.weekStart = weekStart as WeekStart;
+    settingsStore.setWeekStart(weekStart as WeekStart);
   }
 
   function handleTimezoneChange(timezone: string) {
@@ -162,9 +163,9 @@
       <!-- Desktop Sidebar / Mobile Overlay Sidebar -->
       <div
         class={`
-        ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'} 
-        ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'} 
-        ${isMobile.current ? 'w-80 max-w-[80vw]' : 'w-80'} 
+        ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'}
+        ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+        ${isMobile.current ? 'w-80 max-w-[80vw]' : 'w-80'}
         bg-background flex flex-shrink-0 flex-col overflow-hidden border-r
       `}
       >

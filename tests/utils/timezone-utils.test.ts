@@ -8,7 +8,7 @@ import {
 import { settingsStore } from '../../src/lib/stores/settings.svelte';
 
 // Mock settingsStore
-vi.mock('../../src/lib/stores/settings.svelte', () => ({
+vi.mock('../../src/lib/stores/main-settings.svelte', () => ({
   settingsStore: {
     effectiveTimezone: 'Asia/Tokyo'
   }

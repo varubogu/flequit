@@ -171,7 +171,7 @@ describe('SettingsStore', () => {
 
     test('should contain major timezones', () => {
       const timezones = getAvailableTimezones();
-      const timezoneValues = timezones.map((tz) => tz.value);
+      const timezoneValues = timezones.map((tz: any) => tz.value);
 
       expect(timezoneValues).toContain('UTC');
       expect(timezoneValues).toContain('Asia/Tokyo');

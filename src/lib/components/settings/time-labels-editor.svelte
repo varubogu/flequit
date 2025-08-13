@@ -1,7 +1,8 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import { settingsStore, type TimeLabel } from '$lib/stores/settings.svelte';
+  import { settingsStore } from '$lib/stores/settings.svelte';
+  import type { TimeLabel } from '$lib/types/settings';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { Trash2, Plus, Edit2 } from 'lucide-svelte';
 
@@ -122,7 +123,7 @@
       <h5 class="font-medium">
         {editingId ? edit() : add()} {timeLabels()}
       </h5>
-      
+
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label for="time-label-name" class="block text-sm font-medium mb-1">
@@ -134,7 +135,7 @@
             placeholder="朝食"
           />
         </div>
-        
+
         <div>
           <label for="time-label-time" class="block text-sm font-medium mb-1">
             {timeLabelTime()}
@@ -146,7 +147,7 @@
           />
         </div>
       </div>
-      
+
       <div class="flex gap-2 justify-end">
         <Button variant="outline" onclick={resetForm}>
           {cancel()}
