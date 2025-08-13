@@ -172,8 +172,8 @@ class MainSettingsStore {
 
   resetDateFormatToDefault(): void {
     const locale = getLocale();
-    const defaultFormat = locale.startsWith('ja') 
-      ? 'yyyy年MM月dd日(E) HH:mm:ss' 
+    const defaultFormat = locale.startsWith('ja')
+      ? 'yyyy年MM月dd日(E) HH:mm:ss'
       : 'EEEE, MMMM do, yyyy HH:mm:ss';
     this.setDateFormat(defaultFormat);
   }
@@ -378,7 +378,7 @@ class MainSettingsStore {
     if (!backend) {
       throw new Error('Backend service not available');
     }
-    
+
     const setting: Setting = {
       id: `setting_${key}`,
       key,
@@ -387,7 +387,7 @@ class MainSettingsStore {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     await backend.setting.update(setting);
   }
 
@@ -417,12 +417,12 @@ class MainSettingsStore {
             break;
           case 'fontSize':
           case 'appearance_fontSize':
-            const fontSize = parseInt(setting.value, 10);
+            { const fontSize = parseInt(setting.value, 10);
             if (!isNaN(fontSize)) {
               this._settings.fontSize = fontSize;
               loadedCount++;
             }
-            break;
+            break; }
           case 'fontColor':
           case 'appearance_fontColor':
             this._settings.fontColor = setting.value;
@@ -533,7 +533,7 @@ class MainSettingsStore {
       }
     } catch (error) {
       console.error('Failed to load settings from backend:', error);
-      
+
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('flequit-settings');
         if (stored) {
