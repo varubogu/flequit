@@ -49,8 +49,6 @@
           onWeekdayConditionAdd={logic.addWeekdayCondition.bind(logic)}
           onWeekdayConditionRemove={logic.removeWeekdayCondition.bind(logic)}
           onWeekdayConditionUpdate={logic.updateWeekdayCondition.bind(logic)}
-          ondateconditionschange={logic.setDateConditions.bind(logic)}
-          onweekdayconditionschange={logic.setWeekdayConditions.bind(logic)}
         />
       {/if}
     {/if}

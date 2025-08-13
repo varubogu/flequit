@@ -6,9 +6,12 @@ import type { DateCondition } from "$lib/types/datetime-calendar";
 import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
 import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
 import type { DayOfWeek } from "$lib/types/datetime-calendar";
-import { RecurrenceService } from '$lib/services/recurrence-service';
-import { generateRandomId } from '$lib/utils/id-utils';
-import { SvelteDate } from 'svelte/reactivity';
+import { RecurrenceState } from './recurrence-state.svelte';
+import { DateConditionManager } from './date-condition-manager.svelte';
+import { WeekdayConditionManager } from './weekday-condition-manager.svelte';
+import { RecurrenceRuleBuilder } from './recurrence-rule-builder.svelte';
+import { RecurrencePreviewManager } from './recurrence-preview-manager.svelte';
+import { RecurrenceInitializer } from './recurrence-initializer.svelte';
 
 export class RecurrenceDialogAdvancedLogic {
   // Props
@@ -18,18 +21,12 @@ export class RecurrenceDialogAdvancedLogic {
   endDateTime?: Date;
   isRangeDate?: boolean;
 
-  // State
-  recurrenceLevel = $state<RecurrenceLevel>('disabled');
-  unit = $state<RecurrenceUnit>('day');
-  interval = $state(1);
-  daysOfWeek = $state<DayOfWeek[]>([]);
-  details = $state<RecurrenceDetails>({});
-  dateConditions = $state<DateCondition[]>([]);
-  weekdayConditions = $state<WeekdayCondition[]>([]);
-  endDate = $state<Date | undefined>(undefined);
-  repeatCount = $state<number | undefined>(undefined);
-  previewDates = $state<Date[]>([]);
-  displayCount = $state(15);
+  // Composed managers
+  private state = new RecurrenceState();
+  private dateConditionManager = new DateConditionManager();
+  private weekdayConditionManager = new WeekdayConditionManager();
+  private ruleBuilder = new RecurrenceRuleBuilder();
+  private previewManager = new RecurrencePreviewManager();
 
   // Translation service
   private translationService = getTranslationService();
@@ -51,34 +48,37 @@ export class RecurrenceDialogAdvancedLogic {
     this.setupEffect();
   }
 
-  // Derived State
-  showBasicSettings = $derived(
-    this.recurrenceLevel === 'enabled' || this.recurrenceLevel === 'advanced'
-  );
-  showAdvancedSettings = $derived(this.recurrenceLevel === 'advanced');
+  // Property getters for external access
+  get recurrenceLevel() { return this.state.recurrenceLevel; }
+  get unit() { return this.state.unit; }
+  get interval() { return this.state.interval; }
+  get daysOfWeek() { return this.state.daysOfWeek; }
+  get details() { return this.state.details; }
+  get endDate() { return this.state.endDate; }
+  get repeatCount() { return this.state.repeatCount; }
+  get previewDates() { return this.previewManager.getPreviewDates(); }
+  get displayCount() { return this.previewManager.getDisplayCount(); }
+  get dateConditions() { return this.dateConditionManager.getConditions(); }
+  get weekdayConditions() { return this.weekdayConditionManager.getConditions(); }
+  get showBasicSettings() { return this.state.showBasicSettings; }
+  get showAdvancedSettings() { return this.state.showAdvancedSettings; }
+
+  // Property setters
+  set recurrenceLevel(value: RecurrenceLevel) { this.state.recurrenceLevel = value; }
+  set repeatCount(value: number | undefined) { this.state.repeatCount = value; }
+  set displayCount(value: number) { this.previewManager.setDisplayCount(value); }
   isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(this.unit));
 
   // Messages
   recurrenceSettings = this.translationService.getMessage('recurrence_settings');
 
   private initializeState() {
-    this.recurrenceLevel = !this.recurrenceRule
-      ? 'disabled'
-      : (this.recurrenceRule.adjustment &&
-            (this.recurrenceRule.adjustment.date_conditions.length > 0 ||
-              this.recurrenceRule.adjustment.weekday_conditions.length > 0)) ||
-          (this.recurrenceRule.details && Object.keys(this.recurrenceRule.details).length > 0)
-        ? 'advanced'
-        : 'enabled';
-
-    this.unit = this.recurrenceRule?.unit || 'day';
-    this.interval = this.recurrenceRule?.interval || 1;
-    this.daysOfWeek = this.recurrenceRule?.days_of_week || [];
-    this.details = this.recurrenceRule?.details || {};
-    this.dateConditions = this.recurrenceRule?.adjustment?.date_conditions || [];
-    this.weekdayConditions = this.recurrenceRule?.adjustment?.weekday_conditions || [];
-    this.endDate = this.recurrenceRule?.end_date;
-    this.repeatCount = this.recurrenceRule?.max_occurrences;
+    RecurrenceInitializer.initializeFromRule(
+      this.recurrenceRule || null,
+      this.state,
+      this.dateConditionManager,
+      this.weekdayConditionManager
+    );
   }
 
   private setupEffect() {
@@ -86,31 +86,24 @@ export class RecurrenceDialogAdvancedLogic {
       if (this.showBasicSettings) {
         this.updatePreview();
       } else {
-        this.previewDates = [];
+        this.previewManager.clearPreview();
       }
     });
   }
 
   buildRecurrenceRule(): RecurrenceRule | null {
-    if (this.recurrenceLevel === 'disabled') return null;
-    const rule: RecurrenceRule = {
-      unit: this.unit,
-      interval: this.interval,
-      ...(this.unit === 'week' && this.daysOfWeek.length > 0 && { days_of_week: this.daysOfWeek }),
-      ...(this.showAdvancedSettings &&
-        this.isComplexUnit &&
-        Object.keys(this.details).length > 0 && { details: this.details }),
-      ...(this.showAdvancedSettings &&
-        (this.dateConditions.length > 0 || this.weekdayConditions.length > 0) && {
-          adjustment: {
-            date_conditions: this.dateConditions,
-            weekday_conditions: this.weekdayConditions
-          }
-        }),
-      ...(this.endDate && { end_date: this.endDate }),
-      ...(this.repeatCount && this.repeatCount > 0 && { max_occurrences: this.repeatCount })
-    };
-    return rule;
+    return this.ruleBuilder.buildRule(
+      this.recurrenceLevel,
+      this.unit,
+      this.interval,
+      this.daysOfWeek,
+      this.details,
+      this.dateConditions,
+      this.weekdayConditions,
+      this.endDate,
+      this.repeatCount,
+      this.showAdvancedSettings
+    );
   }
 
   handleImmediateSave() {
@@ -119,100 +112,64 @@ export class RecurrenceDialogAdvancedLogic {
   }
 
   updatePreview() {
-    try {
-      const rule = this.buildRecurrenceRule();
-      if (rule) {
-        const baseDate = this.startDateTime || this.endDateTime || new SvelteDate();
-        const previewLimit = 20;
-        this.previewDates = RecurrenceService.generateRecurrenceDates(baseDate, rule, previewLimit);
-      } else {
-        this.previewDates = [];
-      }
-    } catch (error) {
-      console.error('プレビュー生成エラー:', error);
-      this.previewDates = [];
-    }
+    const rule = this.buildRecurrenceRule();
+    this.previewManager.updatePreview(rule, this.startDateTime, this.endDateTime);
   }
 
   // Event Handlers
   toggleDayOfWeek(day: DayOfWeek) {
-    this.daysOfWeek = this.daysOfWeek.includes(day)
-      ? this.daysOfWeek.filter((d) => d !== day)
-      : [...this.daysOfWeek, day];
+    this.state.toggleDayOfWeek(day);
     this.handleImmediateSave();
   }
 
   addDateCondition() {
-    this.dateConditions = [
-      ...this.dateConditions,
-      { id: generateRandomId(), relation: 'before', reference_date: new SvelteDate() }
-    ];
+    this.dateConditionManager.addCondition();
     this.handleImmediateSave();
   }
 
   removeDateCondition(id: string) {
-    this.dateConditions = this.dateConditions.filter((c) => c.id !== id);
+    this.dateConditionManager.removeCondition(id);
     this.handleImmediateSave();
   }
 
   updateDateCondition(id: string, updates: Partial<DateCondition>) {
-    this.dateConditions = this.dateConditions.map((c) => (c.id === id ? { ...c, ...updates } : c));
+    this.dateConditionManager.updateCondition(id, updates);
     this.handleImmediateSave();
   }
 
   addWeekdayCondition() {
-    this.weekdayConditions = [
-      ...this.weekdayConditions,
-      {
-        id: generateRandomId(),
-        if_weekday: 'monday',
-        then_direction: 'next',
-        then_target: 'weekday'
-      }
-    ];
+    this.weekdayConditionManager.addCondition();
     this.handleImmediateSave();
   }
 
   removeWeekdayCondition(id: string) {
-    this.weekdayConditions = this.weekdayConditions.filter((c) => c.id !== id);
+    this.weekdayConditionManager.removeCondition(id);
     this.handleImmediateSave();
   }
 
   updateWeekdayCondition(id: string, updates: Partial<WeekdayCondition>) {
-    this.weekdayConditions = this.weekdayConditions.map((c) =>
-      c.id === id ? { ...c, ...updates } : c
-    );
+    this.weekdayConditionManager.updateCondition(id, updates);
     this.handleImmediateSave();
   }
 
   // セッター関数
   setUnit(unit: RecurrenceUnit) {
-    this.unit = unit;
+    this.state.setUnit(unit);
     this.handleImmediateSave();
   }
 
   setInterval(interval: number) {
-    this.interval = interval;
+    this.state.setInterval(interval);
     this.handleImmediateSave();
   }
 
   setDaysOfWeek(daysOfWeek: DayOfWeek[]) {
-    this.daysOfWeek = daysOfWeek;
+    this.state.setDaysOfWeek(daysOfWeek);
     this.handleImmediateSave();
   }
 
   setDetails(details: RecurrenceDetails) {
-    this.details = details;
-    this.handleImmediateSave();
-  }
-
-  setDateConditions(dateConditions: DateCondition[]) {
-    this.dateConditions = dateConditions;
-    this.handleImmediateSave();
-  }
-
-  setWeekdayConditions(weekdayConditions: WeekdayCondition[]) {
-    this.weekdayConditions = weekdayConditions;
+    this.state.setDetails(details);
     this.handleImmediateSave();
   }
 }

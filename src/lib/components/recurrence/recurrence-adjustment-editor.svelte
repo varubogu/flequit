@@ -16,8 +16,6 @@
     onWeekdayConditionAdd: () => void;
     onWeekdayConditionRemove: (id: string) => void;
     onWeekdayConditionUpdate: (id: string, updates: Partial<WeekdayCondition>) => void;
-    ondateconditionschange?: (dateConditions: DateCondition[]) => void;
-    onweekdayconditionschange?: (weekdayConditions: WeekdayCondition[]) => void;
   };
 
   let {
@@ -28,9 +26,7 @@
     onDateConditionUpdate,
     onWeekdayConditionAdd,
     onWeekdayConditionRemove,
-    onWeekdayConditionUpdate,
-    ondateconditionschange,
-    onweekdayconditionschange
+    onWeekdayConditionUpdate
   }: Props = $props();
 
   const translationService = getTranslationService();
