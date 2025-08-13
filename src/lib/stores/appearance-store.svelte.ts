@@ -102,13 +102,14 @@ class AppearanceStore {
             loadedCount++;
             break;
             
-          case 'appearance_fontSize':
+          case 'appearance_fontSize': {
             const fontSize = parseInt(setting.value, 10);
             if (!isNaN(fontSize)) {
               this._settings.fontSize = fontSize;
               loadedCount++;
             }
             break;
+          }
             
           case 'appearance_fontColor':
             this._settings.fontColor = setting.value;

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
 import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
+import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/services/backend', () => ({
@@ -178,7 +179,7 @@ describe('TimeLabels Integration Tests', () => {
     // settingsStoreで同じ時刻のラベルが取得できることを確認
     const timeLabels = settingsStore.getTimeLabelsByTime('08:00');
     expect(timeLabels).toHaveLength(2);
-    expect(timeLabels.map((t: any) => t.name)).toEqual(['朝食', '出勤準備']);
+    expect(timeLabels.map((t: TimeLabel) => t.name)).toEqual(['朝食', '出勤準備']);
   });
 
   it('フォームバリデーションが正しく動作すること', async () => {

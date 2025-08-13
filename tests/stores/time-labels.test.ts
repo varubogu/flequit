@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { settingsStore } from '$lib/stores/settings.svelte';
+import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/services/backend', () => ({
@@ -55,7 +56,7 @@ describe('TimeLabels Store', () => {
       const id3 = settingsStore.addTimeLabel('夕食', '18:00');
 
       expect(settingsStore.timeLabels).toHaveLength(3);
-      expect(settingsStore.timeLabels.map((t: any) => t.id)).toEqual([id1, id2, id3]);
+      expect(settingsStore.timeLabels.map((t: TimeLabel) => t.id)).toEqual([id1, id2, id3]);
     });
 
     it('同じ時刻に複数のラベルを設定できること', () => {
@@ -72,7 +73,7 @@ describe('TimeLabels Store', () => {
       const id = settingsStore.addTimeLabel('朝食', '08:00');
       settingsStore.updateTimeLabel(id, { name: '朝ごはん' });
 
-      const timeLabel = settingsStore.timeLabels.find((t: any) => t.id === id);
+      const timeLabel = settingsStore.timeLabels.find((t: TimeLabel) => t.id === id);
       expect(timeLabel?.name).toBe('朝ごはん');
       expect(timeLabel?.time).toBe('08:00');
     });
@@ -81,7 +82,7 @@ describe('TimeLabels Store', () => {
       const id = settingsStore.addTimeLabel('朝食', '08:00');
       settingsStore.updateTimeLabel(id, { time: '08:30' });
 
-      const timeLabel = settingsStore.timeLabels.find((t: any) => t.id === id);
+      const timeLabel = settingsStore.timeLabels.find((t: TimeLabel) => t.id === id);
       expect(timeLabel?.name).toBe('朝食');
       expect(timeLabel?.time).toBe('08:30');
     });
@@ -90,7 +91,7 @@ describe('TimeLabels Store', () => {
       const id = settingsStore.addTimeLabel('朝食', '08:00');
       settingsStore.updateTimeLabel(id, { name: '朝ごはん', time: '08:30' });
 
-      const timeLabel = settingsStore.timeLabels.find((t: any) => t.id === id);
+      const timeLabel = settingsStore.timeLabels.find((t: TimeLabel) => t.id === id);
       expect(timeLabel?.name).toBe('朝ごはん');
       expect(timeLabel?.time).toBe('08:30');
     });
@@ -136,7 +137,7 @@ describe('TimeLabels Store', () => {
       const timeLabels = settingsStore.getTimeLabelsByTime('08:00');
 
       expect(timeLabels).toHaveLength(2);
-      expect(timeLabels.map((t: any) => t.id)).toEqual([id1, id2]);
+      expect(timeLabels.map((t: TimeLabel) => t.id)).toEqual([id1, id2]);
     });
 
     it('該当する時刻がない場合は空配列を返すこと', () => {
