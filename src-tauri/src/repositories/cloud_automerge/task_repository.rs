@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::task_models::Task;
+use crate::models::task::Task;
 use crate::types::task_types::TaskStatus;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
 use crate::repositories::core::task_repository_trait::TaskRepositoryTrait;

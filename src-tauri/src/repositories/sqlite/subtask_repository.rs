@@ -1,7 +1,7 @@
 #[allow(dead_code)]
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::sub_task_models::Subtask;
+use crate::models::subtask::Subtask;
 use crate::repositories::sqlite::SqliteRepository;
 use crate::repositories::core::subtask_repository_trait::SubtaskRepositoryTrait;
 

@@ -1,6 +1,6 @@
 use log::info;
 
-use crate::models::setting_models::Setting;
+use crate::models::setting::Setting;
 
 pub async fn get_setting(key: &str) -> Result<Option<Setting>, String> {
     // 実際にはサービス層を通してデータを取得する実装が必要

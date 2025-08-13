@@ -1,34 +1,33 @@
 use log::info;
 
-use crate::models::search_request_models::SubtaskSearchRequest;
-use crate::models::sub_task_models::Subtask;
+use crate::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
 
-pub async fn create_sub_task(subtask: &Subtask) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを作成する実装が必要
-    info!("create_sub_task called with account: {:?}", subtask);
+pub async fn create_sub_task(subtask: &SubtaskCommand) -> Result<bool, String> {
+    // SubtaskServiceのcreate_subtaskはproject_idが必要だが、facadeのインターフェースではサブタスクのみ
+    info!("get_setting called with account: {:?}", subtask);
     Ok(true)
 }
 
-pub async fn get_sub_task(id: &str) -> Result<Option<Subtask>, String> {
-    // 実際にはサービス層を通してデータを取得する実装が必要
-    info!("get_sub_task called with account: {:?}", id);
-    Ok(None)
+pub async fn get_sub_task(id: &str) -> Result<Option<SubtaskCommand>, String> {
+    // SubtaskServiceのget_subtaskはproject_idとtask_idが必要だが、facadeのインターフェースではidのみ
+    info!("get_setting called with account: {:?}", id);
+    Ok(Option::from(None))
 }
 
-pub async fn update_sub_task(subtask: &Subtask) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを更新する実装が必要
-    info!("update_sub_task called with account: {:?}", subtask);
+pub async fn update_sub_task(subtask: &SubtaskCommand) -> Result<bool, String> {
+    // SubtaskServiceのupdate_subtaskはproject_idが必要だが、facadeのインターフェースではサブタスクのみ
+    info!("get_setting called with account: {:?}", subtask);
     Ok(true)
 }
 
 pub async fn delete_sub_task(id: &str) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを削除する実装が必要
-    info!("delete_sub_task called with account: {:?}", id);
+    // SubtaskServiceのdelete_subtaskはproject_idとtask_idが必要だが、facadeのインターフェースではidのみ
+    info!("get_setting called with account: {:?}", id);
     Ok(true)
 }
 
-pub async fn search_sub_tasks(condition: &SubtaskSearchRequest) -> Result<Vec<Subtask>, String> {
-    // 実際にはサービス層を通してデータを検索する実装が必要
-    info!("search_sub_tasks called with account: {:?}", condition);
+pub async fn search_sub_tasks(condition: &SubtaskSearchRequest) -> Result<Vec<SubtaskCommand>, String> {
+    // SubtaskServiceにはsearchメソッドがないため、一時的に空の結果を返す
+    info!("get_setting called with account: {:?}", condition);
     Ok(vec![])
 }

@@ -1,20 +1,28 @@
 use crate::facades::project_facades;
-use crate::models::project_models::Project;
-use crate::models::search_request_models::ProjectSearchRequest;
+use crate::models::command::project::{ProjectCommand, ProjectSearchRequest};
+use crate::models::command::ModelConverter;
+use crate::models::CommandModelConverter;
 
 #[tauri::command]
-pub async fn create_project(project: Project) -> Result<bool, String> {
-    project_facades::create_project(&project).await
+pub async fn create_project(project: ProjectCommand) -> Result<bool, String> {
+    let internal_project = project.to_model().await?;
+    
+    Ok(project_facades::create_project(&internal_project).await?)
 }
 
 #[tauri::command]
-pub async fn get_project(id: String) -> Result<Option<Project>, String> {
-    project_facades::get_project(&id).await
+pub async fn get_project(id: String) -> Result<Option<ProjectCommand>, String> {
+    let result = project_facades::get_project(&id).await?;
+    match result {
+        Some(project) => Ok(Some(project.to_command_model().await?)),
+        None => Ok(None),
+    }
 }
 
 #[tauri::command]
-pub async fn update_project(project: Project) -> Result<bool, String> {
-    project_facades::update_project(&project).await
+pub async fn update_project(project: ProjectCommand) -> Result<bool, String> {
+    let internal_project = project.to_model().await?;
+    Ok(project_facades::update_project(&internal_project).await?)
 }
 
 #[tauri::command]
@@ -23,6 +31,11 @@ pub async fn delete_project(id: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub async fn search_projects(condition: ProjectSearchRequest) -> Result<Vec<Project>, String> {
-    project_facades::search_projects(&condition).await
+pub async fn search_projects(condition: ProjectSearchRequest) -> Result<Vec<ProjectCommand>, String> {
+    let results = project_facades::search_projects(&condition).await?;
+    let mut command_results = Vec::new();
+    for project in results {
+        command_results.push(project.to_command_model().await?);
+    }
+    Ok(command_results)
 }

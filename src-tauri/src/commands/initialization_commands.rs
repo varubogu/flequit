@@ -1,7 +1,7 @@
 use crate::facades::initialization_facades;
-use crate::models::account_models::Account;
-use crate::models::project_models::ProjectTree;
-use crate::models::setting_models::LocalSettings;
+use crate::models::account::Account;
+use crate::models::project::ProjectTree;
+use crate::models::setting::LocalSettings;
 
 #[tauri::command]
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {

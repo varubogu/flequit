@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
-use crate::models::project_models::{Project, ProjectMember};
+use crate::models::project::{Project, ProjectMember};
 use crate::types::project_types::ProjectStatus;
 use crate::repositories::core::project_repository_trait::ProjectRepositoryTrait;
 

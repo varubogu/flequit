@@ -1,4 +1,4 @@
-use crate::models::tag_models::Tag;
+use crate::models::tag::Tag;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 

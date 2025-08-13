@@ -1,6 +1,6 @@
-use crate::models::setting_models::LocalSettings;
-use crate::models::account_models::Account;
-use crate::models::project_models::ProjectTree;
+use crate::models::setting::LocalSettings;
+use crate::models::account::Account;
+use crate::models::project::ProjectTree;
 
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
     // 実際にはローカルファイルから設定を読み込む実装が必要

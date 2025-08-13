@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::tag_models::Tag;
+use crate::models::tag::Tag;
 use crate::repositories::web::WebRepository;
 use crate::repositories::core::tag_repository_trait::TagRepositoryTrait;
 

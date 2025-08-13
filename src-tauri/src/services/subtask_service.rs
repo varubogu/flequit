@@ -1,4 +1,4 @@
-use crate::models::sub_task_models::Subtask;
+use crate::models::subtask::Subtask;
 use crate::repositories::core::CoreRepositoryTrait;
 use crate::errors::service_error::ServiceError;
 
