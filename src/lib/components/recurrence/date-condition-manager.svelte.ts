@@ -1,5 +1,6 @@
 import type { DateCondition } from "$lib/types/datetime-calendar";
 import { generateRandomId } from '$lib/utils/id-utils';
+import { SvelteDate } from "svelte/reactivity";
 
 export class DateConditionManager {
   conditions = $state<DateCondition[]>([]);
@@ -8,7 +9,7 @@ export class DateConditionManager {
     const newCondition: DateCondition = {
       id: generateRandomId(),
       relation: 'before',
-      reference_date: new Date()
+      reference_date: new SvelteDate()
     };
     this.conditions.push(newCondition);
   }
