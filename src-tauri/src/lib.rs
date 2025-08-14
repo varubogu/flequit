@@ -1,9 +1,9 @@
 // Module declarations
 mod commands;
-mod errors;
+pub mod errors;
 mod facades;
 mod models;
-mod repositories;
+pub mod repositories;
 mod services;
 mod types;
 

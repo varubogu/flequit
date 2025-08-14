@@ -1,9 +1,13 @@
-use super::AutomergeError;
-
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {
     #[error("Automerge error: {0}")]
-    AutomergeError(#[from] AutomergeError),
+    AutomergeError(String),
+
+    #[error("Serialization error: {0}")]
+    SerializationError(String),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
 
     #[error("Email conflict: {0}")]
     EmailConflict(String),
