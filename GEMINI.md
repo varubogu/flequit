@@ -1,6 +1,6 @@
-# CLAUDE.md
+# GEMINI.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Gemini CLI when working with code in this repository.
 
 ## レスポンスについて
 
@@ -26,6 +26,7 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 - **Tauri**: デスクトップアプリケーションフレームワーク
 - **Rust**: バックエンドロジック
 - **SQLite**: ローカルデータベース
+- **Automerge**: ローカルデータベースの履歴管理・同期用
 
 ### 開発ツール
 
@@ -118,11 +119,17 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 - 200行を超える場合は機能分割を検討
 - メッセージはInlang Paraglideを使用して常に国際化対応
 
+### Rust部分について
+
+- Optionから値を取り出す際、１つだけならif let Someで取ってよいが、複数ある場合はネストが深くならないように一時的に変数に格納する
+
 ## 開発ワークフロー
 
 ### 推奨手順
 
-エラー発生時は解消後に次工程に進む
+手順の過程でエラーが発生した場合、解消後に次工程に進む
+
+#### フロントエンド（SvelteKit）のコード修正時
 
 1. コード編集
 2. vitest単体テストケース作成
@@ -133,6 +140,20 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 7. `bun run test` - vitest全テスト実行
 8. Playwright(E2E)テストケース作成
 9. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
+
+#### Tauriのコード修正時
+
+1. コード編集
+2. `cargo check --quiet` - エラーがないかチェック（警告は一旦除く）
+3. `cargo check` - 警告がないかチェック
+4. `cargo test [単体テストファイル名]` - cargo単体テスト実行
+5. cargo結合テストケース作成
+6. `cargo run test [結合テストファイル名]` - cargo結合テスト実行
+7. `cargo run test` - cargo全テスト実行
+
+#### 両方のコード修正時
+
+フロントエンド、Tauriの順番で推薦手順を実施
 
 ### 重要な制約
 
