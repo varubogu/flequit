@@ -1,21 +1,33 @@
-use log::info;
-
 use crate::models::setting::Setting;
+use crate::services::setting_service::SettingService;
+use crate::errors::service_error::ServiceError;
 
 pub async fn get_setting(key: &str) -> Result<Option<Setting>, String> {
-    // 実際にはサービス層を通してデータを取得する実装が必要
-    info!("get_setting called with account: {:?}", key);
-    Ok(None)
+    let service = SettingService;
+    
+    match service.get_setting(key).await {
+        Ok(setting) => Ok(setting),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to get setting: {:?}", e))
+    }
 }
 
 pub async fn get_all_settings() -> Result<Vec<Setting>, String> {
-    // 実際にはサービス層を通してデータを取得する実装が必要
-    info!("get_all_settings called");
-    Ok(vec![])
+    let service = SettingService;
+    
+    match service.get_all_settings().await {
+        Ok(settings) => Ok(settings),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to get all settings: {:?}", e))
+    }
 }
 
 pub async fn update_setting(setting: &Setting) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを更新する実装が必要
-    info!("update_setting called with account: {:?}", setting);
-    Ok(true)
+    let service = SettingService;
+    
+    match service.update_setting(setting).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to update setting: {:?}", e))
+    }
 }

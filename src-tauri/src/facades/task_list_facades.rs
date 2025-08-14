@@ -1,34 +1,54 @@
-use log::info;
-
 use crate::models::command::task_list::TaskListSearchRequest;
 use crate::models::task_list::TaskList;
+use crate::services::task_list_service::TaskListService;
+use crate::errors::service_error::ServiceError;
 
 pub async fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを作成する実装が必要
-    info!("create_task_list called with account: {:?}", task_list);
-    Ok(true)
+    let service = TaskListService;
+    
+    match service.create_task_list(task_list).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to create task list: {:?}", e))
+    }
 }
 
 pub async fn get_task_list(id: &str) -> Result<Option<TaskList>, String> {
-    // 実際にはサービス層を通してデータを取得する実装が必要
-    info!("get_task_list called with account: {:?}", id);
-    Ok(None)
+    let service = TaskListService;
+    
+    match service.get_task_list(id).await {
+        Ok(task_list) => Ok(task_list),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to get task list: {:?}", e))
+    }
 }
 
 pub async fn update_task_list(task_list: &TaskList) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを更新する実装が必要
-    info!("update_task_list called with account: {:?}", task_list);
-    Ok(true)
+    let service = TaskListService;
+    
+    match service.update_task_list(task_list).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to update task list: {:?}", e))
+    }
 }
 
 pub async fn delete_task_list(id: &str) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを削除する実装が必要
-    info!("delete_task_list called with account: {:?}", id);
-    Ok(true)
+    let service = TaskListService;
+    
+    match service.delete_task_list(id).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to delete task list: {:?}", e))
+    }
 }
 
 pub async fn search_task_lists(condition: &TaskListSearchRequest) -> Result<Vec<TaskList>, String> {
-    // 実際にはサービス層を通してデータを検索する実装が必要
-    info!("search_task_lists called with account: {:?}", condition);
-    Ok(vec![])
+    let service = TaskListService;
+    
+    match service.search_task_lists(condition).await {
+        Ok(task_lists) => Ok(task_lists),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to search task lists: {:?}", e))
+    }
 }

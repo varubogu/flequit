@@ -3,7 +3,6 @@ use log::info;
 use crate::models::account::Account;
 use crate::models::user::User;
 use crate::services::user_service::UserService;
-use crate::services::repository_service::{get_repository_searcher, get_repositories};
 use crate::errors::service_error::ServiceError;
 
 pub async fn create_account(account: &Account) -> Result<bool, String> {
@@ -22,9 +21,8 @@ pub async fn create_account(account: &Account) -> Result<bool, String> {
     };
 
     let service = UserService;
-    let mut repositories = get_repositories();
 
-    match service.create_user(&mut repositories, &user).await {
+    match service.create_user(&user).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create account: {:?}", e))
@@ -33,9 +31,8 @@ pub async fn create_account(account: &Account) -> Result<bool, String> {
 
 pub async fn get_account(id: &str) -> Result<Option<Account>, String> {
     let service = UserService;
-    let repository = get_repository_searcher();
 
-    match service.get_user(repository.as_ref(), id).await {
+    match service.get_user(id).await {
         Ok(Some(user)) => {
             // UserモデルをAccountモデルに変換
             let account = crate::models::account::Account {
@@ -74,9 +71,8 @@ pub async fn update_account(account: &Account) -> Result<bool, String> {
     };
 
     let service = UserService;
-    let mut repositories = get_repositories();
 
-    match service.update_user(&mut repositories, &user).await {
+    match service.update_user(&user).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update account: {:?}", e))
