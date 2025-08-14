@@ -1,5 +1,5 @@
 use crate::errors::RepositoryError;
-use crate::models::{project_models::*, task_types::*, user_types::*};
+use crate::models::{project::*, task::*, user::*, subtask::*, tag::*};
 
 /// ローカル専用のAutomergeストレージ
 /// SQLiteとは異なり、純粋にAutomergeドキュメントのみでデータ管理を行う

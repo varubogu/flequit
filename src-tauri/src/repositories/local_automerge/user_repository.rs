@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::user_models::User;
+use crate::models::user::User;
 use crate::repositories::local_automerge::LocalAutomergeRepository;
 use crate::repositories::core::user_repository_trait::UserRepositoryTrait;
 
