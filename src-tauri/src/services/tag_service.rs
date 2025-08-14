@@ -1,5 +1,6 @@
 use crate::models::tag::Tag;
 use crate::errors::service_error::ServiceError;
+use crate::repositories::local_automerge::projects_repository::ProjectsRepository;
 
 #[allow(dead_code)]
 pub struct TagService;
@@ -10,8 +11,11 @@ impl TagService {
         &self,
         tag: &Tag,
     ) -> Result<(), ServiceError> {
-        // 一時的に何もしない
-        let _ = tag;
+        if tag.name.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Tag name cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
+        repository.save_tag(tag).await?;
         Ok(())
     }
 
@@ -19,9 +23,11 @@ impl TagService {
         &self,
         tag_id: &str,
     ) -> Result<Option<Tag>, ServiceError> {
-        // 一時的にNoneを返す
-        let _ = tag_id;
-        Ok(None)
+        if tag_id.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
+        Ok(repository.get_tag(tag_id).await?)
     }
 
     pub async fn list_tags(
@@ -35,8 +41,11 @@ impl TagService {
         &self,
         tag: &Tag,
     ) -> Result<(), ServiceError> {
-        // 一時的に何もしない
-        let _ = tag;
+        if tag.name.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Tag name cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
+        repository.save_tag(tag).await?;
         Ok(())
     }
 

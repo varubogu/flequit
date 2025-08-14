@@ -3,7 +3,6 @@ use crate::types::task_types::TaskStatus;
 use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
 use crate::repositories::local_automerge::projects_repository::ProjectsRepository;
-use crate::services::path_service::PathService;
 
 #[allow(dead_code)]
 pub struct TaskService;
@@ -14,8 +13,10 @@ impl TaskService {
         &self,
         task: &Task,
     ) -> Result<(), ServiceError> {
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        if task.project_id.trim().is_empty() || task.title.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Project ID and Task title cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
         repository.save_task(&task.project_id, task).await?;
         Ok(())
     }
@@ -25,8 +26,10 @@ impl TaskService {
         project_id: &str,
         task_id: &str,
     ) -> Result<Option<Task>, ServiceError> {
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        if project_id.trim().is_empty() || task_id.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Project ID and Task ID cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
         Ok(repository.get_task(project_id, task_id).await?)
     }
 
@@ -43,8 +46,10 @@ impl TaskService {
         &self,
         task: &Task,
     ) -> Result<(), ServiceError> {
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        if task.project_id.trim().is_empty() || task.title.trim().is_empty() {
+            return Err(ServiceError::ValidationError("Project ID and Task title cannot be empty".to_string()));
+        }
+        let mut repository = ProjectsRepository::with_default_path()?;
         repository.save_task(&task.project_id, task).await?;
         Ok(())
     }

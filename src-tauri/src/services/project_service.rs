@@ -2,7 +2,6 @@ use crate::models::project::{Project};
 use crate::errors::service_error::ServiceError;
 use crate::models::command::project::ProjectSearchRequest;
 use crate::repositories::local_automerge::projects_repository::ProjectsRepository;
-use crate::services::path_service::PathService;
 use chrono::Utc;
 
 #[allow(dead_code)]
@@ -27,8 +26,7 @@ impl ProjectService {
             new_project.id = format!("project_{}", now.timestamp_nanos_opt().unwrap_or(now.timestamp() * 1_000_000_000));
         }
 
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        let mut repository = ProjectsRepository::with_default_path()?;
         repository.save_project(&new_project).await?;
 
         Ok(new_project)
@@ -41,8 +39,7 @@ impl ProjectService {
         if project_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
         }
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        let mut repository = ProjectsRepository::with_default_path()?;
         Ok(repository.get_project(project_id).await?)
     }
 
@@ -50,6 +47,7 @@ impl ProjectService {
         &self,
     ) -> Result<Vec<Project>, ServiceError> {
         // ProjectsRepositoryにはlist_projectsメソッドがないため、一時的に空のVecを返す
+        // 将来的には複数のプロジェクトを管理するためのメソッドが必要
         Ok(Vec::new())
     }
 
@@ -60,8 +58,7 @@ impl ProjectService {
         let mut updated_project = project.clone();
         updated_project.updated_at = Utc::now();
 
-        let data_dir = PathService::get_default_data_dir().unwrap_or_else(|_| std::path::PathBuf::from("./flequit"));
-        let mut repository = ProjectsRepository::new(data_dir)?;
+        let mut repository = ProjectsRepository::with_default_path()?;
         repository.save_project(&updated_project).await?;
         Ok(updated_project)
     }
@@ -74,8 +71,17 @@ impl ProjectService {
             return Err(ServiceError::ValidationError("Project ID cannot be empty".to_string()));
         }
         // ProjectsRepositoryにはdelete_projectメソッドがないため、一時的に何もしない
+        // 将来的にはプロジェクトデータの削除処理が必要
         let _ = project_id;
         Ok(())
+    }
+
+    pub async fn restore_project(
+        &self,
+        backup_path: &str,
+    ) -> Result<String, ServiceError> {
+        let mut repository = ProjectsRepository::with_default_path()?;
+        Ok(repository.restore_project(backup_path).await?)
     }
 
     pub async fn search_projects(

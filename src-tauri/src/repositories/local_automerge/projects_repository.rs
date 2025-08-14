@@ -8,6 +8,7 @@ use crate::models::{
     tag::Tag,
 };
 use super::document_manager::{DocumentManager, DocumentType};
+use crate::services::path_service::PathService;
 
 /// Projects用のAutomerge-Repoリポジトリ
 /// プロジェクトごとに独立したドキュメントファイルを管理します
@@ -22,6 +23,13 @@ impl ProjectsRepository {
         Ok(Self {
             document_manager,
         })
+    }
+
+    /// デフォルトパスでProjectsRepositoryを作成
+    pub fn with_default_path() -> Result<Self, RepositoryError> {
+        let data_dir = PathService::get_default_data_dir()
+            .unwrap_or_else(|_| PathBuf::from("./flequit"));
+        Self::new(data_dir)
     }
 
     /// プロジェクト情報を保存
