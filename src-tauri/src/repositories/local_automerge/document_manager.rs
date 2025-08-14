@@ -124,8 +124,8 @@ impl DocumentManager {
 
         doc_handle.with_doc(|doc| {
             match doc.get(automerge::ROOT, key) {
-                Ok(Some((value, _))) => {
-                    let json_value = self.value_to_json_value(&value);
+                Ok(Some((value, obj_id))) => {
+                    let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
                     if json_value == serde_json::Value::Null {
                         return Ok(None);
                     }
@@ -234,29 +234,87 @@ impl DocumentManager {
             serde_json::Value::String(s) => {
                 tx.insert(list_obj, index, s.as_str())?;
             }
-            serde_json::Value::Array(_) | serde_json::Value::Object(_) => {
-                // 複雑な型は現在サポートしない（必要に応じて実装）
-                tx.insert(list_obj, index, "[complex_object]")?;
+            serde_json::Value::Array(arr) => {
+                let nested_list_id = tx.insert_object(list_obj, index, ObjType::List)?;
+                for (i, item) in arr.iter().enumerate() {
+                    self.put_json_value_at_index(tx, &nested_list_id, i, item)?;
+                }
+            }
+            serde_json::Value::Object(map) => {
+                let nested_map_id = tx.insert_object(list_obj, index, ObjType::Map)?;
+                for (k, v) in map.iter() {
+                    self.put_json_value(tx, &nested_map_id, k, v)?;
+                }
             }
         }
         Ok(())
     }
 
-    /// ValueをJSON Valueに変換するヘルパー
-    fn value_to_json_value(&self, value: &automerge::Value) -> serde_json::Value {
+    /// ValueをJSON Valueに変換するヘルパー（オブジェクトID付き版）
+    fn value_to_json_value_with_objid<D: ReadDoc>(
+        &self, 
+        doc: &D, 
+        value: &automerge::Value, 
+        obj_id: &automerge::ObjId
+    ) -> serde_json::Value {
         match value {
             automerge::Value::Scalar(scalar) => self.scalar_to_json_value(scalar),
             automerge::Value::Object(obj_type) => {
-                // Object型の場合、Nullではなく空のObjectを返す（作業用）
                 match obj_type {
-                    automerge::ObjType::Map => serde_json::Value::Object(serde_json::Map::new()),
-                    automerge::ObjType::List => serde_json::Value::Array(vec![]),
-                    automerge::ObjType::Text => serde_json::Value::String("".to_string()),
-                    automerge::ObjType::Table => serde_json::Value::Object(serde_json::Map::new()),
+                    automerge::ObjType::Map | automerge::ObjType::Table => {
+                        self.read_map_object(doc, obj_id)
+                    }
+                    automerge::ObjType::List => {
+                        self.read_list_object(doc, obj_id)
+                    }
+                    automerge::ObjType::Text => {
+                        self.read_text_object(doc, obj_id)
+                    }
                 }
             }
-            // 他の型は現在サポートしていないためNullを返す
-            // 将来的にはオブジェクトIDを使った実際のデータ取得を実装
+        }
+    }
+
+
+    /// Mapオブジェクトからデータを読み取る
+    fn read_map_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
+        let mut map = serde_json::Map::new();
+        
+        // Mapのすべてのキーと値を取得
+        for key in doc.keys(obj_id.clone()) {
+            if let Ok(Some((value, nested_obj_id))) = doc.get(obj_id, &key) {
+                let json_value = self.value_to_json_value_with_objid(doc, &value, &nested_obj_id);
+                map.insert(key, json_value);
+            }
+        }
+        
+        serde_json::Value::Object(map)
+    }
+
+    /// Listオブジェクトからデータを読み取る
+    fn read_list_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
+        let mut array = Vec::new();
+        
+        // Listの長さを取得
+        let length = doc.length(obj_id.clone());
+        
+        // 各インデックスの値を取得
+        for i in 0..length {
+            if let Ok(Some((value, nested_obj_id))) = doc.get(obj_id, i) {
+                let json_value = self.value_to_json_value_with_objid(doc, &value, &nested_obj_id);
+                array.push(json_value);
+            }
+        }
+        
+        serde_json::Value::Array(array)
+    }
+
+    /// Textオブジェクトからデータを読み取る
+    fn read_text_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
+        // Textオブジェクトをstringとして読み取る
+        match doc.text(obj_id.clone()) {
+            Ok(text) => serde_json::Value::String(text),
+            Err(_) => serde_json::Value::String("".to_string()),
         }
     }
 
@@ -286,6 +344,7 @@ impl DocumentManager {
 mod tests {
     use super::*;
     use tempfile::TempDir;
+    use serde_json::json;
 
     #[tokio::test]
     async fn test_document_manager() {
@@ -298,5 +357,109 @@ mod tests {
 
         // ドキュメントが作成されたことを確認
         assert!(manager.document_exists(&doc_type));
+    }
+
+    #[tokio::test]
+    async fn test_save_and_load_simple_data() {
+        let temp_dir = TempDir::new().unwrap();
+        let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
+
+        let doc_type = DocumentType::Settings;
+        let test_value = "test_value";
+
+        // データを保存
+        manager.save_data(&doc_type, "test_key", &test_value).await.unwrap();
+
+        // データを読み込み
+        let loaded_value: Option<String> = manager.load_data(&doc_type, "test_key").await.unwrap();
+        assert_eq!(loaded_value, Some(test_value.to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_save_and_load_nested_object() {
+        let temp_dir = TempDir::new().unwrap();
+        let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
+
+        let doc_type = DocumentType::Settings;
+        
+        // ネストしたオブジェクトを作成
+        let test_data = json!({
+            "user": {
+                "name": "テストユーザー",
+                "age": 30,
+                "preferences": {
+                    "theme": "dark",
+                    "language": "ja"
+                }
+            },
+            "settings": {
+                "notifications": true,
+                "auto_save": false
+            }
+        });
+
+        // データを保存
+        manager.save_data(&doc_type, "user_config", &test_data).await.unwrap();
+
+        // データを読み込み
+        let loaded_data: Option<serde_json::Value> = manager.load_data(&doc_type, "user_config").await.unwrap();
+        
+        assert!(loaded_data.is_some());
+        let loaded = loaded_data.unwrap();
+        
+        // ネストしたデータが正しく読み込まれることを確認
+        assert_eq!(loaded["user"]["name"], "テストユーザー");
+        assert_eq!(loaded["user"]["age"], 30);
+        assert_eq!(loaded["user"]["preferences"]["theme"], "dark");
+        assert_eq!(loaded["user"]["preferences"]["language"], "ja");
+        assert_eq!(loaded["settings"]["notifications"], true);
+        assert_eq!(loaded["settings"]["auto_save"], false);
+    }
+
+    #[tokio::test]
+    async fn test_save_and_load_array() {
+        let temp_dir = TempDir::new().unwrap();
+        let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
+
+        let doc_type = DocumentType::Settings;
+        
+        // 配列データを作成
+        let test_array = json!([
+            {"id": 1, "name": "項目1"},
+            {"id": 2, "name": "項目2"},
+            {"id": 3, "name": "項目3"}
+        ]);
+
+        // データを保存
+        manager.save_data(&doc_type, "items", &test_array).await.unwrap();
+
+        // データを読み込み
+        let loaded_array: Option<serde_json::Value> = manager.load_data(&doc_type, "items").await.unwrap();
+        
+        assert!(loaded_array.is_some());
+        let loaded = loaded_array.unwrap();
+        
+        // 配列データが正しく読み込まれることを確認
+        assert!(loaded.is_array());
+        let arr = loaded.as_array().unwrap();
+        assert_eq!(arr.len(), 3);
+        assert_eq!(arr[0]["id"], 1);
+        assert_eq!(arr[0]["name"], "項目1");
+        assert_eq!(arr[1]["id"], 2);
+        assert_eq!(arr[1]["name"], "項目2");
+        assert_eq!(arr[2]["id"], 3);
+        assert_eq!(arr[2]["name"], "項目3");
+    }
+
+    #[tokio::test]
+    async fn test_load_nonexistent_data() {
+        let temp_dir = TempDir::new().unwrap();
+        let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
+
+        let doc_type = DocumentType::Settings;
+
+        // 存在しないキーを読み込み
+        let loaded_value: Option<String> = manager.load_data(&doc_type, "nonexistent_key").await.unwrap();
+        assert_eq!(loaded_value, None);
     }
 }

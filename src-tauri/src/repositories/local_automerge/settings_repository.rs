@@ -122,14 +122,35 @@ mod tests {
         assert_eq!(settings.theme, "system");
         assert_eq!(settings.language, "ja");
 
-        // シンプルな文字列値の保存/読み込みテスト
-        println!("シンプルな文字列値のテストを実行...");
-        repo.update_setting("test_theme", "dark").await.unwrap();
+        // Settings構造体の完全な保存/読み込みテスト（改良後）
+        let mut custom_settings = settings.clone();
+        custom_settings.theme = "dark".to_string();
+        custom_settings.font_size = 16;
+        custom_settings.language = "en".to_string();
         
-        // シンプルな数値のテスト
-        repo.update_setting("test_font_size", "16").await.unwrap();
+        println!("Saving custom settings: theme={}, font_size={}, language={}", 
+                custom_settings.theme, custom_settings.font_size, custom_settings.language);
+        repo.save_settings(&custom_settings).await.unwrap();
         
-        println!("シンプルな値の保存/読み込みテストが完了しました。");
-        println!("Note: 複雑なオブジェクトのシリアライゼーションは次のフェーズで実装予定です。");
+        println!("Loading settings back...");
+        let loaded_settings = repo.load_settings().await.unwrap();
+        
+        println!("Loaded settings: theme={}, font_size={}, language={}", 
+                loaded_settings.theme, loaded_settings.font_size, loaded_settings.language);
+        
+        // 改良後の実装では実際の値が返されるはず
+        assert_eq!(loaded_settings.theme, "dark");
+        assert_eq!(loaded_settings.font_size, 16);
+        assert_eq!(loaded_settings.language, "en");
+        
+        // 複雑なフィールドもテスト
+        assert_eq!(loaded_settings.custom_due_days, vec![1, 3, 7, 30]);
+        assert_eq!(loaded_settings.due_date_buttons.overdue, true);
+        assert_eq!(loaded_settings.due_date_buttons.today, true);
+        
+        // 特定の設定項目を更新テスト
+        repo.update_setting("font", "Arial").await.unwrap();
+        
+        println!("Settings構造体の完全な保存/読み込みテストが成功しました！");
     }
 }

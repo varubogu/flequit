@@ -151,19 +151,65 @@ mod tests {
             updated_at: Utc::now(),
         };
 
-        // アカウントを保存（現在はシンプルな実装）
+        // Vec<Account>の完全な保存/読み込みテスト（改良後）
         repo.save_account(&account).await.unwrap();
         
-        // 基本的な機能のテスト
-        let current_id = repo.get_current_account_id().await.unwrap();
-        println!("Current account ID: {:?}", current_id);
+        // 追加のテストアカウントを作成
+        let account2 = Account {
+            id: "acc_test_456".to_string(),
+            email: Some("user2@example.com".to_string()),
+            display_name: Some("Second User".to_string()),
+            avatar_url: Some("https://example.com/avatar2.png".to_string()),
+            provider: "github".to_string(),
+            provider_id: Some("github_123".to_string()),
+            is_active: false,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        };
         
-        // 現在のアカウントIDを設定テスト
+        repo.save_account(&account2).await.unwrap();
+        
+        // アカウントリストを取得して検証
+        let accounts = repo.list_accounts().await.unwrap();
+        println!("Retrieved {} accounts", accounts.len());
+        assert_eq!(accounts.len(), 2);
+        
+        // 各アカウントのデータを検証
+        let retrieved1 = repo.get_account("acc_test_123").await.unwrap().unwrap();
+        assert_eq!(retrieved1.email, Some("test@example.com".to_string()));
+        assert_eq!(retrieved1.display_name, Some("Test User".to_string()));
+        assert_eq!(retrieved1.provider, "local");
+        assert_eq!(retrieved1.is_active, true);
+        
+        let retrieved2 = repo.get_account("acc_test_456").await.unwrap().unwrap();
+        assert_eq!(retrieved2.email, Some("user2@example.com".to_string()));
+        assert_eq!(retrieved2.provider, "github");
+        assert_eq!(retrieved2.is_active, false);
+        
+        // フィルタリングテスト
+        let active_accounts = repo.list_active_accounts().await.unwrap();
+        assert_eq!(active_accounts.len(), 1);
+        assert_eq!(active_accounts[0].id, "acc_test_123");
+        
+        let local_accounts = repo.find_accounts_by_provider("local").await.unwrap();
+        assert_eq!(local_accounts.len(), 1);
+        
+        let github_accounts = repo.find_accounts_by_provider("github").await.unwrap();
+        assert_eq!(github_accounts.len(), 1);
+        
+        // 現在のアカウント管理テスト
         repo.set_current_account_id(Some("acc_test_123")).await.unwrap();
-        let updated_current_id = repo.get_current_account_id().await.unwrap();
-        assert_eq!(updated_current_id, Some("acc_test_123".to_string()));
+        let current_account = repo.get_current_account().await.unwrap().unwrap();
+        assert_eq!(current_account.id, "acc_test_123");
         
-        println!("アカウントリポジトリの基本機能テストが完了しました。");
-        println!("Note: 複雑なオブジェクトのシリアライゼーションは次のフェーズで実装予定です。");
+        // 削除テスト
+        let deleted = repo.delete_account("acc_test_456").await.unwrap();
+        assert!(deleted);
+        
+        let remaining_accounts = repo.list_accounts().await.unwrap();
+        assert_eq!(remaining_accounts.len(), 1);
+        assert_eq!(remaining_accounts[0].id, "acc_test_123");
+        
+        println!("Vec<Account>の完全な保存/読み込みテストが成功しました！");
     }
 }
