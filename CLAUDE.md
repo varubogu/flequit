@@ -54,7 +54,32 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 │   ├── routes/                 # SvelteKitルーティング
 │   ├── paraglide/              # 国際化（自動生成、Git管理対象外）
 │   ├── app.css                 # グローバルスタイル + Tailwind設定
-│   └── app.html               # HTMLテンプレート
+│   └── app.html                # HTMLテンプレート
+├── src-tauri/                  # Tauri部分のソースコード
+│   ├── capabilities/           # ???
+│   ├── icons/                  # アプリアイコン
+│   ├── src/                    # Tauriソースコード
+│   │   ├── commands/           # フロントエンドからinvokeで呼び出されるTauriコマンド
+│   │   ├── errors/             # エラー型格納
+│   │   ├── models/             # モデル定義
+│   │   │   ├── command/        # コマンド用のモデル
+│   │   │   └── sqlite/         # SQLite用のモデル定義とマイグレーション
+│   │   ├── repositories/                 # Repositoryの定義
+│   │   │   ├── cloud_automerge/          # クラウドストレージのAutomergeでデータを読み書きするためのRepository定義
+│   │   │   ├── local_automerge/          # ローカルのAutomergeでデータを読み書きするためのRepository定義
+│   │   │   ├── local_sqlite/             # ローカルのSQLiteでデータを読み書きするためのRepository定義
+│   │   │   ├── web/                      # Webサーバーに保存するためのRepository定義
+│   │   │   ├── base_repository_trait.rs  # Repositoryのベース定義（CRUD操作など）
+│   │   │   └── XXXX_repository_trait.rs  # 機能別Repositoryのベース定義（project_repository_traitなど）
+│   │   ├── services/                     # Serviceの定義
+│   │   │   └── xxxx_service.rs           # 機能別Serviceの定義（project_serviceなど）
+│   │   ├── types/          # type,enumなどの型定義（構造体はmodelsで定義）
+│   │   ├── utils/          # 汎用処理のヘルパー関数群
+│   ├── target/
+│   ├── build.rs
+│   ├── Cargo.lock
+│   ├── Cargo.toml
+│   ├── tauri.conf.json
 ├── tests/         # 単体・結合テスト(vitest)
 │   ├── integration/          # 結合テスト
 │   ├── */                    # 単体テスト
@@ -122,6 +147,24 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 ### Rust部分について
 
 - Optionから値を取り出す際、１つだけならif let Someで取ってよいが、複数ある場合はネストが深くならないように一時的に変数に格納する
+
+### モジュールの関連性
+
+#### Tauri側
+クリーンアーキテクチャ採用
+
+アプリケーション層イベント（commands,controllers,eventなど）
+↓
+ドメイン層（facadeが呼び出され、場合によってはそこから複数のserviceを呼び出す）
+↓
+データアクセス層（repository, 実体としてはsqliteやautomergeなど）
+
+##### アクセス制御ルール
+
+- commands: facadeはOK、commands, service, repositoriesはNG
+- facade: serviceはOK、facade, commands, repositoriesはNG
+- service -> serviceとrepositoryはOK、commands, facadeはNG
+- repository: repository内のみOK、外部はNG
 
 ## 開発ワークフロー
 
