@@ -96,7 +96,7 @@ impl Repository<Task> for TaskRepository {
     async fn update(&self, task: &Task) -> Result<Task, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         
-        let existing = TaskEntity::find_by_id(&task.id)
+        let existing = TaskEntity::find_by_id(&task.id.to_string())
             .one(db)
             .await?
             .ok_or_else(|| RepositoryError::NotFound(format!("Task not found: {}", task.id)))?;

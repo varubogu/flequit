@@ -76,7 +76,7 @@ impl Repository<Subtask> for SubtaskRepository {
     async fn update(&self, subtask: &Subtask) -> Result<Subtask, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         
-        let existing = SubtaskEntity::find_by_id(&subtask.id)
+        let existing = SubtaskEntity::find_by_id(&subtask.id.to_string())
             .one(db)
             .await?
             .ok_or_else(|| RepositoryError::NotFound(format!("Subtask not found: {}", subtask.id)))?;

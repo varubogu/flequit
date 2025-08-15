@@ -11,7 +11,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use super::super::types::{project_types::{ProjectStatus, MemberRole}};
+use super::super::types::{project_types::{ProjectStatus, MemberRole}, id_types::{ProjectId, UserId}};
 
 use crate::models::{command::project::ProjectCommand, CommandModelConverter};
 
@@ -41,7 +41,7 @@ use crate::models::{command::project::ProjectCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Project {
     /// プロジェクトの一意識別子
-    pub id: String,
+    pub id: ProjectId,
     /// プロジェクト名（必須）
     pub name: String,
     /// プロジェクトの説明文
@@ -55,7 +55,7 @@ pub struct Project {
     /// プロジェクトステータス（進行中、完了等）
     pub status: Option<ProjectStatus>, // Optionalに変更（Svelte側にはないが既存機能保持）
     /// プロジェクトオーナーのユーザーID
-    pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
+    pub owner_id: Option<UserId>, // プロジェクトオーナーのユーザーID
     /// プロジェクト作成日時
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
@@ -84,9 +84,9 @@ pub struct Project {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectMember {
     /// メンバーのユーザーID
-    pub user_id: String,
+    pub user_id: UserId,
     /// 所属プロジェクトID
-    pub project_id: String,
+    pub project_id: ProjectId,
     /// プロジェクト内での役割（Owner、Member等）
     pub role: MemberRole,
     /// プロジェクト参加日時
@@ -118,7 +118,7 @@ pub struct ProjectMember {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectTree {
     /// プロジェクトの一意識別子
-    pub id: String,
+    pub id: ProjectId,
     /// プロジェクト名（必須）
     pub name: String,
     /// プロジェクトの説明文
@@ -130,7 +130,7 @@ pub struct ProjectTree {
     /// アーカイブ状態フラグ
     pub is_archived: bool,
     /// プロジェクトオーナーのユーザーID
-    pub owner_id: Option<String>, // プロジェクトオーナーのユーザーID
+    pub owner_id: Option<UserId>, // プロジェクトオーナーのユーザーID
     /// プロジェクト作成日時
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
@@ -142,14 +142,14 @@ pub struct ProjectTree {
 impl CommandModelConverter<ProjectCommand> for Project {
     async fn to_command_model(&self) -> Result<ProjectCommand, String> {
         Ok(ProjectCommand {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             status: self.status.clone(),
-            owner_id: self.owner_id.clone(),
+            owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
         })

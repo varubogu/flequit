@@ -6,7 +6,7 @@ use crate::errors::service_error::ServiceError;
 pub async fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
     let service = TaskListService;
     
-    match service.create_task_list(&task_list.project_id, task_list).await {
+    match service.create_task_list(&task_list.project_id.to_string(), task_list).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create task list: {:?}", e))
@@ -30,7 +30,7 @@ pub async fn get_task_list(id: &str) -> Result<Option<TaskList>, String> {
 pub async fn update_task_list(task_list: &TaskList) -> Result<bool, String> {
     let service = TaskListService;
     
-    match service.update_task_list(&task_list.project_id, task_list).await {
+    match service.update_task_list(&task_list.project_id.to_string(), task_list).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task list: {:?}", e))

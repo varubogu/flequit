@@ -141,7 +141,7 @@ impl Repository<Tag> for TagRepository {
     async fn update(&self, tag: &Tag) -> Result<Tag, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         
-        let existing = TagEntity::find_by_id(&tag.id)
+        let existing = TagEntity::find_by_id(&tag.id.to_string())
             .one(db)
             .await?
             .ok_or_else(|| RepositoryError::NotFound(format!("Tag not found: {}", tag.id)))?;

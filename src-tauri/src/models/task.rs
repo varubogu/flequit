@@ -10,7 +10,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use super::super::types::task_types::TaskStatus;
+use super::super::types::{task_types::TaskStatus, id_types::{TaskId, SubTaskId, ProjectId, TaskListId, UserId, TagId}};
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
 
@@ -67,13 +67,13 @@ use crate::models::{command::task::TaskCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
     /// タスクの一意識別子
-    pub id: String,
+    pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
-    pub sub_task_id: Option<String>,
+    pub sub_task_id: Option<SubTaskId>,
     /// 所属プロジェクトID
-    pub project_id: String,
+    pub project_id: ProjectId,
     /// 所属タスクリストID
-    pub list_id: String,
+    pub list_id: TaskListId,
     /// タスクタイトル（必須）
     pub title: String,
     /// タスクの詳細説明
@@ -91,9 +91,9 @@ pub struct Task {
     /// 繰り返しルール（定期タスク用）
     pub recurrence_rule: Option<RecurrenceRule>,
     /// アサインされたユーザーIDリスト
-    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 付与されたタグIDリスト
-    pub tag_ids: Vec<String>, // 付与されたタグIDの配列
+    pub tag_ids: Vec<TagId>, // 付与されたタグIDの配列
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// アーカイブ状態フラグ
@@ -153,13 +153,13 @@ pub struct Task {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskWithSubTasks {
     /// タスクの一意識別子
-    pub id: String,
+    pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
-    pub sub_task_id: Option<String>, // 追加
+    pub sub_task_id: Option<SubTaskId>, // 追加
     /// 所属プロジェクトID
-    pub project_id: String,
+    pub project_id: ProjectId,
     /// 所属タスクリストID
-    pub list_id: String,
+    pub list_id: TaskListId,
     /// タスクタイトル（必須）
     pub title: String,
     /// タスクの詳細説明
@@ -177,7 +177,7 @@ pub struct TaskWithSubTasks {
     /// 繰り返しルール（定期タスク用）
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
     /// アサインされたユーザーIDリスト
-    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// アーカイブ状態フラグ
@@ -195,10 +195,10 @@ pub struct TaskWithSubTasks {
 impl CommandModelConverter<TaskCommand> for Task {
     async fn to_command_model(&self) -> Result<TaskCommand, String> {
         Ok(TaskCommand {
-            id: self.id.clone(),
-            sub_task_id: self.sub_task_id.clone(),
-            project_id: self.project_id.clone(),
-            list_id: self.list_id.clone(),
+            id: self.id.to_string(),
+            sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
+            project_id: self.project_id.to_string(),
+            list_id: self.list_id.to_string(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
@@ -207,8 +207,8 @@ impl CommandModelConverter<TaskCommand> for Task {
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.clone(),
-            tag_ids: self.tag_ids.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),

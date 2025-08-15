@@ -9,6 +9,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use super::super::types::id_types::UserId;
 
 use crate::models::{command::user::UserCommand, CommandModelConverter};
 
@@ -46,7 +47,7 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 /// use chrono::Utc;
 /// 
 /// let user = User {
-///     id: "user_123".to_string(),
+///     id: UserId::new(),
 ///     name: "john_doe".to_string(),
 ///     email: "john@example.com".to_string(),
 ///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
@@ -66,7 +67,7 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     /// ユーザーの一意識別子
-    pub id: String,
+    pub id: UserId,
     /// ユーザー名（必須、表示やメンション等で使用）
     pub name: String,
     /// メールアドレス（必須、通知や連絡で使用）
@@ -88,7 +89,7 @@ pub struct User {
 impl CommandModelConverter<UserCommand> for User {
     async fn to_command_model(&self) -> Result<UserCommand, String> {
         Ok(UserCommand {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             name: self.name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),

@@ -38,8 +38,8 @@ impl ProjectService {
         new_project.created_at = now;
         new_project.updated_at = now;
 
-        if new_project.id.trim().is_empty() {
-            new_project.id = format!("project_{}", now.timestamp_nanos_opt().unwrap_or(now.timestamp() * 1_000_000_000));
+        if new_project.id.to_string().trim().is_empty() {
+            new_project.id = crate::types::id_types::ProjectId::new();
         }
 
         self.repository.save(&new_project).await?;

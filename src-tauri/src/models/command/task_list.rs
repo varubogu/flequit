@@ -27,9 +27,11 @@ impl ModelConverter<TaskList> for TaskListCommand {
         let updated_at = self.updated_at.parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
+        use crate::types::id_types::{TaskListId, ProjectId};
+        
         Ok(crate::models::task_list::TaskList {
-            id: self.id.clone(),
-            project_id: self.project_id.clone(),
+            id: TaskListId::from(self.id.clone()),
+            project_id: ProjectId::from(self.project_id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),

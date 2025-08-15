@@ -23,8 +23,10 @@ impl ModelConverter<Tag> for TagCommand {
         let updated_at = self.updated_at.parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
+        use crate::types::id_types::TagId;
+        
         Ok(crate::models::tag::Tag {
-            id: self.id.clone(),
+            id: TagId::from(self.id.clone()),
             name: self.name.clone(),
             color: self.color.clone(),
             order_index: self.order_index,

@@ -35,20 +35,20 @@ impl AccountRepository {
     /// IDでアカウントを取得
     pub async fn get_user(&self, account_id: &str) -> Result<Option<Account>, RepositoryError> {
         let accounts = self.list_users().await?;
-        Ok(accounts.into_iter().find(|acc| acc.id == account_id))
+        Ok(accounts.into_iter().find(|acc| acc.id == account_id.into()))
     }
 
     /// アカウントを作成または更新
     pub async fn set_user(&self, account: &Account) -> Result<(), RepositoryError> {
         let mut accounts = self.list_users().await?;
-        
+
         // 既存のアカウントを更新、または新規追加
         if let Some(existing) = accounts.iter_mut().find(|acc| acc.id == account.id) {
             *existing = account.clone();
         } else {
             accounts.push(account.clone());
         }
-        
+
         {
             let mut manager = self.document_manager.lock().await;
             manager.save_data(&DocumentType::Account, "accounts", &accounts).await
@@ -59,8 +59,8 @@ impl AccountRepository {
     pub async fn delete_account(&self, account_id: &str) -> Result<bool, RepositoryError> {
         let mut accounts = self.list_users().await?;
         let initial_len = accounts.len();
-        accounts.retain(|acc| acc.id != account_id);
-        
+        accounts.retain(|acc| acc.id != account_id.into());
+
         if accounts.len() != initial_len {
             {
                 let mut manager = self.document_manager.lock().await;
@@ -143,6 +143,8 @@ impl AccountRepository {
 
 #[cfg(test)]
 mod tests {
+    use crate::types::id_types::AccountId;
+
     use super::*;
     use tempfile::TempDir;
     use chrono::Utc;
@@ -157,8 +159,9 @@ mod tests {
         assert_eq!(accounts.len(), 0);
 
         // テスト用アカウントを作成
+        let test_account_id = AccountId::new();
         let account = Account {
-            id: "acc_test_123".to_string(),
+            id: test_account_id,
             email: Some("test@example.com".to_string()),
             display_name: Some("Test User".to_string()),
             avatar_url: None,
@@ -171,10 +174,11 @@ mod tests {
 
         // Vec<Account>の完全な保存/読み込みテスト（改良後）
         repo.set_user(&account).await.unwrap();
-        
+
         // 追加のテストアカウントを作成
+        let test_account_id2 = AccountId::new();
         let account2 = Account {
-            id: "acc_test_456".to_string(),
+            id: test_account_id2,
             email: Some("user2@example.com".to_string()),
             display_name: Some("Second User".to_string()),
             avatar_url: Some("https://example.com/avatar2.png".to_string()),
@@ -184,50 +188,50 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
-        
+
         repo.set_user(&account2).await.unwrap();
-        
+
         // アカウントリストを取得して検証
         let accounts = repo.list_users().await.unwrap();
         println!("Retrieved {} accounts", accounts.len());
         assert_eq!(accounts.len(), 2);
-        
+
         // 各アカウントのデータを検証
-        let retrieved1 = repo.get_user("acc_test_123").await.unwrap().unwrap();
+        let retrieved1 = repo.get_user(&test_account_id.to_string()).await.unwrap().unwrap();
         assert_eq!(retrieved1.email, Some("test@example.com".to_string()));
         assert_eq!(retrieved1.display_name, Some("Test User".to_string()));
         assert_eq!(retrieved1.provider, "local");
         assert_eq!(retrieved1.is_active, true);
-        
-        let retrieved2 = repo.get_user("acc_test_456").await.unwrap().unwrap();
+
+        let retrieved2 = repo.get_user(&test_account_id2.to_string()).await.unwrap().unwrap();
         assert_eq!(retrieved2.email, Some("user2@example.com".to_string()));
         assert_eq!(retrieved2.provider, "github");
         assert_eq!(retrieved2.is_active, false);
-        
+
         // フィルタリングテスト
         let active_accounts = repo.list_active_accounts().await.unwrap();
         assert_eq!(active_accounts.len(), 1);
-        assert_eq!(active_accounts[0].id, "acc_test_123");
-        
+        assert_eq!(active_accounts[0].id, test_account_id);
+
         let local_accounts = repo.find_accounts_by_provider("local").await.unwrap();
         assert_eq!(local_accounts.len(), 1);
-        
+
         let github_accounts = repo.find_accounts_by_provider("github").await.unwrap();
         assert_eq!(github_accounts.len(), 1);
-        
+
         // 現在のアカウント管理テスト
-        repo.set_current_account_id(Some("acc_test_123")).await.unwrap();
+        repo.set_current_account_id(Some(&test_account_id.to_string())).await.unwrap();
         let current_account = repo.get_current_account().await.unwrap().unwrap();
-        assert_eq!(current_account.id, "acc_test_123");
-        
+        assert_eq!(current_account.id, test_account_id);
+
         // 削除テスト
-        let deleted = repo.delete_account("acc_test_456").await.unwrap();
+        let deleted = repo.delete_account(&test_account_id2.to_string()).await.unwrap();
         assert!(deleted);
-        
+
         let remaining_accounts = repo.list_users().await.unwrap();
         assert_eq!(remaining_accounts.len(), 1);
-        assert_eq!(remaining_accounts[0].id, "acc_test_123");
-        
+        assert_eq!(remaining_accounts[0].id, test_account_id);
+
         println!("Vec<Account>の完全な保存/読み込みテストが成功しました！");
     }
 }

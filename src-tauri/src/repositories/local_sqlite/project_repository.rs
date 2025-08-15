@@ -75,7 +75,7 @@ impl Repository<Project> for ProjectRepository {
     async fn update(&self, project: &Project) -> Result<Project, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        let existing = ProjectEntity::find_by_id(&project.id)
+        let existing = ProjectEntity::find_by_id(&project.id.to_string())
             .one(db)
             .await?
             .ok_or_else(|| RepositoryError::NotFound(format!("Project not found: {}", project.id)))?;

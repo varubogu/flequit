@@ -53,8 +53,10 @@ impl ActiveModelBehavior for ActiveModel {}
 /// SQLiteモデルからドメインモデルへの変換
 impl SqliteModelConverter<Account> for Model {
     async fn to_domain_model(&self) -> Result<Account, String> {
+        use crate::types::id_types::AccountId;
+        
         Ok(Account {
-            id: self.id.clone(),
+            id: AccountId::from(self.id.clone()),
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),
@@ -71,7 +73,7 @@ impl SqliteModelConverter<Account> for Model {
 impl DomainToSqliteConverter<ActiveModel> for Account {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
-            id: Set(self.id.clone()),
+            id: Set(self.id.to_string()),
             email: Set(self.email.clone()),
             display_name: Set(self.display_name.clone()),
             avatar_url: Set(self.avatar_url.clone()),

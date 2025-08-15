@@ -58,7 +58,7 @@ impl Repository<TaskList> for TaskListRepository {
     async fn update(&self, task_list: &TaskList) -> Result<TaskList, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         
-        let existing = TaskListEntity::find_by_id(&task_list.id)
+        let existing = TaskListEntity::find_by_id(&task_list.id.to_string())
             .one(db)
             .await?
             .ok_or_else(|| RepositoryError::NotFound(format!("TaskList not found: {}", task_list.id)))?;

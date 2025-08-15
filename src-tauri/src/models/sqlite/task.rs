@@ -132,25 +132,29 @@ impl SqliteModelConverter<Task> for Model {
 
         // アサインされたユーザーIDリストJSONをパース
         let assigned_user_ids = if let Some(users_json) = &self.assigned_user_ids {
-            serde_json::from_str::<Vec<String>>(users_json)
-                .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?
+            let string_ids: Vec<String> = serde_json::from_str(users_json)
+                .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
+            string_ids.into_iter().map(|id| crate::types::id_types::UserId::from(id)).collect()
         } else {
             vec![]
         };
 
         // タグIDリストJSONをパース
         let tag_ids = if let Some(tags_json) = &self.tag_ids {
-            serde_json::from_str::<Vec<String>>(tags_json)
-                .map_err(|e| format!("Failed to parse tag_ids: {}", e))?
+            let string_ids: Vec<String> = serde_json::from_str(tags_json)
+                .map_err(|e| format!("Failed to parse tag_ids: {}", e))?;
+            string_ids.into_iter().map(|id| crate::types::id_types::TagId::from(id)).collect()
         } else {
             vec![]
         };
 
+        use crate::types::id_types::{TaskId, SubTaskId, ProjectId, TaskListId};
+        
         Ok(Task {
-            id: self.id.clone(),
-            sub_task_id: self.sub_task_id.clone(),
-            project_id: self.project_id.clone(),
-            list_id: self.list_id.clone(),
+            id: TaskId::from(self.id.clone()),
+            sub_task_id: self.sub_task_id.as_ref().map(|id| SubTaskId::from(id.clone())),
+            project_id: ProjectId::from(self.project_id.clone()),
+            list_id: TaskListId::from(self.list_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
             status,
@@ -191,7 +195,8 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
 
         // アサインされたユーザーIDリストをJSONに変換
         let assigned_user_ids_json = if !self.assigned_user_ids.is_empty() {
-            Some(serde_json::to_string(&self.assigned_user_ids)
+            let string_ids: Vec<String> = self.assigned_user_ids.iter().map(|id| id.to_string()).collect();
+            Some(serde_json::to_string(&string_ids)
                 .map_err(|e| format!("Failed to serialize assigned_user_ids: {}", e))?)
         } else {
             None
@@ -199,17 +204,18 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
 
         // タグIDリストをJSONに変換
         let tag_ids_json = if !self.tag_ids.is_empty() {
-            Some(serde_json::to_string(&self.tag_ids)
+            let string_ids: Vec<String> = self.tag_ids.iter().map(|id| id.to_string()).collect();
+            Some(serde_json::to_string(&string_ids)
                 .map_err(|e| format!("Failed to serialize tag_ids: {}", e))?)
         } else {
             None
         };
 
         Ok(ActiveModel {
-            id: Set(self.id.clone()),
-            sub_task_id: Set(self.sub_task_id.clone()),
-            project_id: Set(self.project_id.clone()),
-            list_id: Set(self.list_id.clone()),
+            id: Set(self.id.to_string()),
+            sub_task_id: Set(self.sub_task_id.as_ref().map(|id| id.to_string())),
+            project_id: Set(self.project_id.to_string()),
+            list_id: Set(self.list_id.to_string()),
             title: Set(self.title.clone()),
             description: Set(self.description.clone()),
             status: Set(status_string),

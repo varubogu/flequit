@@ -55,8 +55,10 @@ impl ActiveModelBehavior for ActiveModel {
 /// SQLiteモデルからドメインモデルへの変換
 impl SqliteModelConverter<Tag> for Model {
     async fn to_domain_model(&self) -> Result<Tag, String> {
+        use crate::types::id_types::TagId;
+        
         Ok(Tag {
-            id: self.id.clone(),
+            id: TagId::from(self.id.clone()),
             name: self.name.clone(),
             color: self.color.clone(),
             order_index: self.order_index,
@@ -70,7 +72,7 @@ impl SqliteModelConverter<Tag> for Model {
 impl DomainToSqliteConverter<ActiveModel> for Tag {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
-            id: Set(self.id.clone()),
+            id: Set(self.id.to_string()),
             name: Set(self.name.clone()),
             color: Set(self.color.clone()),
             order_index: Set(self.order_index),

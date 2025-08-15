@@ -40,7 +40,7 @@ impl ProjectsRepository {
     /// プロジェクト情報を保存
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         // プロジェクト毎に個別のドキュメントを作成
-        let doc_type = DocumentType::Project(project.id.clone());
+        let doc_type = DocumentType::Project(project.id.to_string());
         let project_clone = project.clone();
         {
             let mut manager = self.document_manager.lock().await;
@@ -422,7 +422,7 @@ impl TagRepositoryTrait for ProjectsRepository {
 mod tests {
     use super::*;
     use tempfile::TempDir;
-    use crate::types::project_types::ProjectStatus;
+    use crate::types::{id_types::{ProjectId, UserId}, project_types::ProjectStatus};
     use chrono::Utc;
 
     #[tokio::test]
@@ -431,15 +431,16 @@ mod tests {
         let repo = ProjectsRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // テスト用プロジェクトを作成
+        let test_project_id = ProjectId::new();
         let project = Project {
-            id: "proj_test_123".to_string(),
+            id: test_project_id,
             name: "Test Project".to_string(),
             description: Some("Test description".to_string()),
             color: Some("#ff0000".to_string()),
             order_index: 1,
             is_archived: false,
             status: Some(ProjectStatus::Active),
-            owner_id: Some("user_123".to_string()),
+            owner_id: Some(UserId::new()),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
@@ -452,7 +453,7 @@ mod tests {
 
         // シンプルなタグ操作テスト
         let tag = Tag {
-            id: "tag_urgent".to_string(),
+            id: crate::types::id_types::TagId::new(),
             name: "Urgent".to_string(),
             color: Some("#ff0000".to_string()),
             order_index: Some(1),

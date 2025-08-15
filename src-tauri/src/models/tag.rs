@@ -9,6 +9,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use super::super::types::id_types::TagId;
 
 use crate::models::{command::tag::TagCommand, CommandModelConverter};
 
@@ -38,7 +39,7 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 /// use chrono::Utc;
 /// 
 /// let urgent_tag = Tag {
-///     id: "tag_urgent".to_string(),
+///     id: TagId::new(),
 ///     name: "緊急".to_string(),
 ///     color: Some("#ff4444".to_string()),
 ///     order_index: Some(1),
@@ -47,7 +48,7 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 /// };
 /// 
 /// let feature_tag = Tag {
-///     id: "tag_feature".to_string(),
+///     id: TagId::new(),
 ///     name: "新機能".to_string(),
 ///     color: Some("#4444ff".to_string()),
 ///     order_index: Some(2),
@@ -65,7 +66,7 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tag {
     /// タグの一意識別子
-    pub id: String,
+    pub id: TagId,
     /// タグ名（表示名、検索キー）
     pub name: String,
     /// タグの色（16進数カラーコード等、UI表示用）
@@ -81,7 +82,7 @@ pub struct Tag {
 impl CommandModelConverter<TagCommand> for Tag {
     async fn to_command_model(&self) -> Result<TagCommand, String> {
         Ok(TagCommand {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             name: self.name.clone(),
             color: self.color.clone(),
             order_index: self.order_index,

@@ -10,7 +10,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use super::super::types::task_types::TaskStatus;
+use super::super::types::{task_types::TaskStatus, id_types::{SubTaskId, TaskId, UserId, TagId}};
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
 
@@ -66,9 +66,9 @@ use crate::models::{command::subtask::SubtaskCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Subtask {
     /// サブタスクの一意識別子
-    pub id: String,
+    pub id: SubTaskId,
     /// 親タスクの識別子（必須の関連）
-    pub task_id: String,
+    pub task_id: TaskId,
     /// サブタスクタイトル（必須）
     pub title: String,
     /// サブタスクの詳細説明
@@ -86,9 +86,9 @@ pub struct Subtask {
     /// 繰り返しルール（定期サブタスク用）
     pub recurrence_rule: Option<RecurrenceRule>,
     /// アサインされたユーザーIDリスト
-    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 付与されたタグIDリスト（IDのみ）
-    pub tag_ids: Vec<String>, // 付与されたタグIDの配列
+    pub tag_ids: Vec<TagId>, // 付与されたタグIDの配列
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// 完了フラグ（従来互換性のため保持）
@@ -102,8 +102,8 @@ pub struct Subtask {
 impl CommandModelConverter<SubtaskCommand> for Subtask {
     async fn to_command_model(&self) -> Result<SubtaskCommand, String> {
         Ok(SubtaskCommand {
-            id: self.id.clone(),
-            task_id: self.task_id.clone(),
+            id: self.id.to_string(),
+            task_id: self.task_id.to_string(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
@@ -112,8 +112,8 @@ impl CommandModelConverter<SubtaskCommand> for Subtask {
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.clone(),
-            tag_ids: self.tag_ids.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),
@@ -171,9 +171,9 @@ impl CommandModelConverter<SubtaskCommand> for Subtask {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SubTask {
     /// サブタスクの一意識別子
-    pub id: String,
+    pub id: SubTaskId,
     /// 親タスクの識別子（必須の関連）
-    pub task_id: String,
+    pub task_id: TaskId,
     /// サブタスクタイトル（必須）
     pub title: String,
     /// サブタスクの詳細説明
@@ -191,7 +191,7 @@ pub struct SubTask {
     /// 繰り返しルール（定期サブタスク用）
     pub recurrence_rule: Option<RecurrenceRule>, // 追加
     /// アサインされたユーザーIDリスト
-    pub assigned_user_ids: Vec<String>, // アサインされたユーザーIDの配列
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// 付与されたタグの配列（Tag構造体の実体）

@@ -10,6 +10,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use super::super::types::id_types::{TaskListId, ProjectId};
 
 use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
 
@@ -55,8 +56,8 @@ use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
 /// use chrono::Utc;
 /// 
 /// let task_list = TaskList {
-///     id: "list_todo".to_string(),
-///     project_id: "project_1".to_string(),
+///     id: TaskListId::new(),
+///     project_id: ProjectId::new(),
 ///     name: "TODO".to_string(),
 ///     description: Some("新規タスクの管理".to_string()),
 ///     color: Some("#e3f2fd".to_string()),
@@ -69,9 +70,9 @@ use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskList {
     /// タスクリストの一意識別子
-    pub id: String,
+    pub id: TaskListId,
     /// 所属プロジェクトの識別子（必須の関連）
-    pub project_id: String,
+    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -133,8 +134,8 @@ pub struct TaskList {
 /// ```rust
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListWithTasks {
-///     id: "list_in_progress".to_string(),
-///     project_id: "project_1".to_string(),
+///     id: TaskListId::new(),
+///     project_id: ProjectId::new(),
 ///     name: "進行中".to_string(),
 ///     // ... 基本フィールドは TaskList と同様
 ///     tasks: vec![
@@ -146,9 +147,9 @@ pub struct TaskList {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskListWithTasks {
     /// タスクリストの一意識別子
-    pub id: String,
+    pub id: TaskListId,
     /// 所属プロジェクトの識別子（必須の関連）
-    pub project_id: String,
+    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -170,8 +171,8 @@ pub struct TaskListWithTasks {
 impl CommandModelConverter<TaskListCommand> for TaskList {
     async fn to_command_model(&self) -> Result<TaskListCommand, String> {
         Ok(TaskListCommand {
-            id: self.id.clone(),
-            project_id: self.project_id.clone(),
+            id: self.id.to_string(),
+            project_id: self.project_id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),

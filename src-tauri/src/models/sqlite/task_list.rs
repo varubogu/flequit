@@ -69,9 +69,11 @@ impl ActiveModelBehavior for ActiveModel {}
 /// SQLiteモデルからドメインモデルへの変換
 impl SqliteModelConverter<TaskList> for Model {
     async fn to_domain_model(&self) -> Result<TaskList, String> {
+        use crate::types::id_types::{TaskListId, ProjectId};
+        
         Ok(TaskList {
-            id: self.id.clone(),
-            project_id: self.project_id.clone(),
+            id: TaskListId::from(self.id.clone()),
+            project_id: ProjectId::from(self.project_id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -87,8 +89,8 @@ impl SqliteModelConverter<TaskList> for Model {
 impl DomainToSqliteConverter<ActiveModel> for TaskList {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
-            id: Set(self.id.clone()),
-            project_id: Set(self.project_id.clone()),
+            id: Set(self.id.to_string()),
+            project_id: Set(self.project_id.to_string()),
             name: Set(self.name.clone()),
             description: Set(self.description.clone()),
             color: Set(self.color.clone()),

@@ -10,6 +10,7 @@
 
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc};
+use super::super::types::id_types::AccountId;
 
 use crate::models::{command::account::AccountCommand, CommandModelConverter};
 
@@ -43,7 +44,7 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// // Google認証アカウントの例
 /// let google_account = Account {
-///     id: "acc_google_123".to_string(),
+///     id: AccountId::new(),
 ///     email: Some("user@gmail.com".to_string()),
 ///     display_name: Some("John Doe".to_string()),
 ///     avatar_url: Some("https://lh3.googleusercontent.com/...".to_string()),
@@ -56,7 +57,7 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// // ローカル認証アカウントの例
 /// let local_account = Account {
-///     id: "acc_local_789".to_string(),
+///     id: AccountId::new(),
 ///     email: Some("user@example.com".to_string()),
 ///     display_name: Some("ローカルユーザー".to_string()),
 ///     avatar_url: None,
@@ -70,7 +71,7 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     /// アカウントの一意識別子
-    pub id: String,
+    pub id: AccountId,
     /// メールアドレス（プロバイダーによっては取得不可）
     pub email: Option<String>,
     /// プロバイダーから提供される表示名
@@ -92,7 +93,7 @@ pub struct Account {
 impl CommandModelConverter<AccountCommand> for Account {
     async fn to_command_model(&self) -> Result<AccountCommand, String> {
         Ok(AccountCommand {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),

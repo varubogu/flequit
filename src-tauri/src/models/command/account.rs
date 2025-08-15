@@ -1,7 +1,9 @@
 use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 use crate::models::account::Account;
 use crate::models::command::ModelConverter;
+use crate::types::id_types::AccountId;
 
 /// Tauriコマンド引数用のAccount構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -28,7 +30,7 @@ impl ModelConverter<Account> for AccountCommand {
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         Ok(crate::models::account::Account {
-            id: self.id.clone(),
+            id: AccountId::from(Uuid::parse_str(&self.id).map_err(|e| format!("Invalid account ID: {}", e))?),
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),

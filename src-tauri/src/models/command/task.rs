@@ -52,11 +52,13 @@ impl ModelConverter<Task> for TaskCommand {
             None
         };
 
+        use crate::types::id_types::{TaskId, SubTaskId, ProjectId, TaskListId, UserId, TagId};
+        
         Ok(crate::models::task::Task {
-            id: self.id.clone(),
-            sub_task_id: self.sub_task_id.clone(),
-            project_id: self.project_id.clone(),
-            list_id: self.list_id.clone(),
+            id: TaskId::from(self.id.clone()),
+            sub_task_id: self.sub_task_id.as_ref().map(|id| SubTaskId::from(id.clone())),
+            project_id: ProjectId::from(self.project_id.clone()),
+            list_id: TaskListId::from(self.list_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
@@ -65,8 +67,8 @@ impl ModelConverter<Task> for TaskCommand {
             end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.clone(),
-            tag_ids: self.tag_ids.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| UserId::from(id.clone())).collect(),
+            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             created_at,

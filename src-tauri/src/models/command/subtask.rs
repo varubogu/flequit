@@ -49,9 +49,11 @@ impl ModelConverter<Subtask> for SubtaskCommand {
             None
         };
 
+        use crate::types::id_types::{SubTaskId, TaskId, UserId, TagId};
+        
         Ok(crate::models::subtask::Subtask {
-            id: self.id.clone(),
-            task_id: self.task_id.clone(),
+            id: SubTaskId::from(self.id.clone()),
+            task_id: TaskId::from(self.task_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
@@ -60,8 +62,8 @@ impl ModelConverter<Subtask> for SubtaskCommand {
             end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.clone(),
-            tag_ids: self.tag_ids.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| UserId::from(id.clone())).collect(),
+            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
             order_index: self.order_index,
             completed: self.completed,
             created_at,

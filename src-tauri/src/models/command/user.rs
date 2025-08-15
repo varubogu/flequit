@@ -27,8 +27,10 @@ impl ModelConverter<User> for UserCommand {
         let updated_at = self.updated_at.parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
+        use crate::types::id_types::UserId;
+        
         Ok(crate::models::user::User {
-            id: self.id.clone(),
+            id: UserId::from(self.id.clone()),
             name: self.name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),

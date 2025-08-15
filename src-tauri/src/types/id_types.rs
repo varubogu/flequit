@@ -19,6 +19,18 @@ macro_rules! define_id {
             }
         }
 
+        impl From<&str> for $name {
+            fn from(value: &str) -> Self {
+                Self(Uuid::parse_str(value).unwrap_or_else(|_| Uuid::new_v4()))
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self::from(value.as_str())
+            }
+        }
+
         impl $name {
             pub fn new() -> Self {
                 Self(Uuid::new_v4())
@@ -26,6 +38,10 @@ macro_rules! define_id {
 
             pub fn as_uuid(&self) -> &Uuid {
                 &self.0
+            }
+
+            pub fn try_from_str(value: &str) -> Result<Self, uuid::Error> {
+                Ok(Self(Uuid::parse_str(value)?))
             }
         }
 

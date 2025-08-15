@@ -91,15 +91,17 @@ impl SqliteModelConverter<Project> for Model {
             None
         };
 
+        use crate::types::id_types::{ProjectId, UserId};
+        
         Ok(Project {
-            id: self.id.clone(),
+            id: ProjectId::from(self.id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             status,
-            owner_id: self.owner_id.clone(),
+            owner_id: self.owner_id.as_ref().map(|id| UserId::from(id.clone())),
             created_at: self.created_at,
             updated_at: self.updated_at,
         })
@@ -123,14 +125,14 @@ impl DomainToSqliteConverter<ActiveModel> for Project {
         };
 
         Ok(ActiveModel {
-            id: Set(self.id.clone()),
+            id: Set(self.id.to_string()),
             name: Set(self.name.clone()),
             description: Set(self.description.clone()),
             color: Set(self.color.clone()),
             order_index: Set(self.order_index),
             is_archived: Set(self.is_archived),
             status: Set(status_string),
-            owner_id: Set(self.owner_id.clone()),
+            owner_id: Set(self.owner_id.as_ref().map(|id| id.to_string())),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
         })
