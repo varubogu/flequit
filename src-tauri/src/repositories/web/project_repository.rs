@@ -1,11 +1,9 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::models::project::{Project, ProjectMember};
-use crate::types::project_types::ProjectStatus;
+use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
 use crate::repositories::web::WebRepository;
-use crate::repositories::core::project_repository_trait::ProjectRepositoryTrait;
-
-
+use crate::types::project_types::ProjectStatus;
 
 #[async_trait]
 impl ProjectRepositoryTrait for WebRepository {

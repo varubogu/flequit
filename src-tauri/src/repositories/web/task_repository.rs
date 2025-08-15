@@ -3,7 +3,7 @@ use crate::errors::RepositoryError;
 use crate::models::task::Task;
 use crate::types::task_types::TaskStatus;
 use crate::repositories::web::WebRepository;
-use crate::repositories::core::task_repository_trait::TaskRepositoryTrait;
+use crate::repositories::task_repository_trait::TaskRepositoryTrait;
 
 
 #[async_trait]

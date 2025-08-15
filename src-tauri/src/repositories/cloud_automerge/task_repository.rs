@@ -3,9 +3,7 @@ use crate::errors::RepositoryError;
 use crate::models::task::Task;
 use crate::types::task_types::TaskStatus;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
-use crate::repositories::core::task_repository_trait::TaskRepositoryTrait;
-
-
+use crate::repositories::task_repository_trait::TaskRepositoryTrait;
 
 #[async_trait]
 impl TaskRepositoryTrait for CloudAutomergeRepository {

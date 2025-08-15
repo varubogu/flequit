@@ -1,4 +1,4 @@
-use crate::repositories::core::CoreRepositoryTrait;
+use crate::repositories::CoreRepositoryTrait;
 
 pub mod project_repository;
 pub mod task_repository;

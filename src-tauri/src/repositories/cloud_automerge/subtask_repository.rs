@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::models::subtask::Subtask;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
-use crate::repositories::core::subtask_repository_trait::SubtaskRepositoryTrait;
+use crate::repositories::subtask_repository_trait::SubtaskRepositoryTrait;
 
 #[async_trait]
 impl SubtaskRepositoryTrait for CloudAutomergeRepository {

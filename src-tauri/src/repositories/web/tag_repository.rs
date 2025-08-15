@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::models::tag::Tag;
 use crate::repositories::web::WebRepository;
-use crate::repositories::core::tag_repository_trait::TagRepositoryTrait;
+use crate::repositories::tag_repository_trait::TagRepositoryTrait;
 
 #[async_trait]
 impl TagRepositoryTrait for WebRepository {
