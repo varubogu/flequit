@@ -1,47 +1,33 @@
-use crate::errors::RepositoryError;
+// use crate::errors::repository_error::RepositoryError;
 use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
 use async_trait::async_trait;
 
-/// プロジェクト専用リポジトリトレイト
+/// 統合プロジェクトリポジトリトレイト
 /// 
-/// 汎用的な`Repository<Project>`を継承し、プロジェクト固有の操作のみを追加定義する。
+/// Service層はこのトレイトを直接使用し、内部でSQLiteとAutomergeを統合的に処理する。
+/// - SQLite: 高速検索とクエリ処理
+/// - Automerge: データ永続化と履歴管理
 /// 
-/// # 設計原則
-/// 
-/// 1. **単一責任**: プロジェクト管理のみに特化
-/// 2. **YAGNI原則**: 必要になるまで機能は追加しない
-/// 3. **シンプル**: 基本CRUDは`Repository<Project>`を使用
-/// 4. **関心の分離**: メンバー管理は別のリポジトリが担当
-/// 
-/// # 基本操作
+/// # 使用方法
 /// 
 /// ```rust
-/// // 基本CRUD操作（Repository<Project>から継承）
-/// repository.save(&project).await?;              // プロジェクト保存
-/// repository.find_by_id("id").await?;            // ID検索
-/// repository.find_all().await?;                  // 全件取得
-/// repository.delete("id").await?;                // 削除
-/// repository.exists("id").await?;                // 存在確認
-/// repository.count().await?;                     // 件数取得
+/// // Service層での使用例
+/// let repository = UnifiedProjectRepository::new().await?;
+/// 
+/// // 保存（Automerge + SQLiteに自動保存）
+/// repository.save(&project).await?;
+/// 
+/// // 検索（SQLiteから高速検索）
+/// let projects = repository.find_all().await?;
 /// ```
 /// 
-/// # プロジェクト固有操作
-/// 
-/// 現時点では**追加機能は不要**と判断。
-/// 将来的に必要な場合のみ、具体的な要件に基づいて追加する。
+/// Repository内部でストレージ選択を自動実行:
+/// - 検索系操作: SQLite
+/// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
 #[allow(dead_code)]
-pub trait ProjectRepositoryTrait: Repository<Project> {
-    // 現時点ではプロジェクト固有の追加メソッドは不要
-    // 
-    // 理由:
-    // 1. 基本CRUD操作は Repository<Project> で十分
-    // 2. 検索はクエリ層またはService層で対応
-    // 3. メンバー管理は別リポジトリで分離
-    // 4. バリデーションはドメイン層で対応
-    //
-    // 将来追加が必要な場合の例:
-    // - async fn archive_project(&self, project_id: &str) -> Result<(), RepositoryError>;
-    // - async fn restore_project(&self, project_id: &str) -> Result<(), RepositoryError>;
+pub trait ProjectRepositoryTrait: Repository<Project> + Send + Sync {
+    // 統合リポジトリでのみ使用するため、基本的なRepository<Project>の機能で十分
+    // 必要に応じて将来的に専用メソッドを追加
 }

@@ -2,7 +2,7 @@ use crate::models::project::{Project};
 use crate::errors::service_error::ServiceError;
 use crate::models::command::project::ProjectSearchRequest;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
-use crate::repositories::repository_factory::RepositoryFactory;
+use crate::repositories::unified_project_repository::UnifiedProjectRepository;
 use chrono::Utc;
 use std::sync::Arc;
 
@@ -20,8 +20,10 @@ impl ProjectService {
 
     /// デフォルトリポジトリでProjectServiceを作成
     pub async fn with_default_repository() -> Result<Self, ServiceError> {
-        let repository = RepositoryFactory::create_project_repository().await?;
-        Ok(Self { repository })
+        let repository = UnifiedProjectRepository::new().await?;
+        Ok(Self { 
+            repository: Arc::new(repository)
+        })
     }
     pub async fn create_project(
         &self,
