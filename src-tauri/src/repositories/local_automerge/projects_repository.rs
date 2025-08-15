@@ -3,14 +3,13 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use crate::errors::RepositoryError;
 use crate::models::{
-    project::{Project, ProjectMember},
+    project::{Project},
     task_list::TaskList,
     task::Task,
     subtask::Subtask,
     tag::Tag,
 };
-use crate::repositories::{ProjectRepositoryTrait, TaskRepositoryTrait, SubtaskRepositoryTrait, TagRepositoryTrait};
-use crate::types::project_types::ProjectStatus;
+use crate::repositories::{TaskRepositoryTrait, SubtaskRepositoryTrait, TagRepositoryTrait};
 use crate::types::task_types::TaskStatus;
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::services::path_service::PathService;
@@ -447,10 +446,10 @@ mod tests {
 
         // プロジェクトを保存
         repo.set_project(&project).await.unwrap();
-        
+
         // 基本的なプロジェクト操作テスト
         println!("プロジェクト保存完了: {}", project.name);
-        
+
         // シンプルなタグ操作テスト
         let tag = Tag {
             id: "tag_urgent".to_string(),
@@ -460,10 +459,10 @@ mod tests {
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
-        
+
         repo.set_tag(&tag).await.unwrap();
         println!("タグ保存完了: {}", tag.name);
-        
+
         println!("プロジェクトリポジトリの基本機能テストが完了しました。");
         println!("Note: 複雑なオブジェクトのシリアライゼーションは次のフェーズで実装予定です。");
     }
