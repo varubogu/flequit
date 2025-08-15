@@ -1,4 +1,3 @@
-use log::info;
 
 use crate::models::project::Project;
 use crate::models::command::project::ProjectSearchRequest;
@@ -6,7 +5,10 @@ use crate::services::project_service::ProjectService;
 use crate::errors::service_error::ServiceError;
 
 pub async fn create_project(project: &Project) -> Result<bool, String> {
-    let service = ProjectService;
+    let service = match ProjectService::with_default_repository().await {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to create service: {:?}", e)),
+    };
 
     match service.create_project(project).await {
         Ok(_) => Ok(true),
@@ -16,7 +18,10 @@ pub async fn create_project(project: &Project) -> Result<bool, String> {
 }
 
 pub async fn get_project(id: &str) -> Result<Option<Project>, String> {
-    let service = ProjectService;
+    let service = match ProjectService::with_default_repository().await {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to create service: {:?}", e)),
+    };
 
     match service.get_project(id).await {
         Ok(Some(project)) => Ok(Some(project)),
@@ -27,7 +32,10 @@ pub async fn get_project(id: &str) -> Result<Option<Project>, String> {
 }
 
 pub async fn update_project(project: &Project) -> Result<bool, String> {
-    let service = ProjectService;
+    let service = match ProjectService::with_default_repository().await {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to create service: {:?}", e)),
+    };
 
     match service.update_project(project).await {
         Ok(_) => Ok(true),
@@ -37,13 +45,23 @@ pub async fn update_project(project: &Project) -> Result<bool, String> {
 }
 
 pub async fn delete_project(id: &str) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを削除する実装が必要
-    info!("delete_project called with account: {:?}", id);
-    Ok(true)
+    let service = match ProjectService::with_default_repository().await {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to create service: {:?}", e)),
+    };
+
+    match service.delete_project(id).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to delete project: {:?}", e))
+    }
 }
 
 pub async fn search_projects(condition: &ProjectSearchRequest) -> Result<Vec<Project>, String> {
-    let service = ProjectService;
+    let service = match ProjectService::with_default_repository().await {
+        Ok(s) => s,
+        Err(e) => return Err(format!("Failed to create service: {:?}", e)),
+    };
 
     match service.search_projects(condition).await {
         Ok((projects, _)) => Ok(projects),

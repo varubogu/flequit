@@ -5,6 +5,7 @@ pub mod web;
 
 pub mod base_repository_trait;
 pub mod project_repository_trait;
+pub mod repository_factory;
 pub mod subtask_repository_trait;
 pub mod task_repository_trait;
 pub mod tag_repository_trait;
