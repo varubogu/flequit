@@ -10,6 +10,7 @@ use tokio::sync::OnceCell;
 pub mod settings_repository;
 pub mod account_repository;
 pub mod project_repository;
+pub mod project_repository_impl;
 pub mod task_list_repository;
 pub mod task_repository;
 pub mod subtask_repository;
@@ -74,6 +75,13 @@ impl DatabaseManager {
         }).await
     }
 
+    /// デフォルトパスでデータベースマネージャーを作成
+    pub async fn with_default_path() -> Result<Self, sea_orm::DbErr> {
+        // デフォルトのデータベースパスを取得
+        let default_path = get_default_database_path().unwrap_or_else(|| "./data/flequit.sqlite".to_string());
+        Ok(Self::new(default_path))
+    }
+
     /// データベース接続を閉じる
     pub async fn close(&self) -> Result<(), sea_orm::DbErr> {
         // OncelCellから取得した値は共有参照なので、closeは呼び出さない
@@ -96,6 +104,25 @@ pub enum RepositoryError {
     
     #[error("Constraint violation: {0}")]
     ConstraintViolation(String),
+}
+
+/// デフォルトデータベースパスを取得
+fn get_default_database_path() -> Option<String> {
+    use std::env;
+    
+    // 環境変数からデータベースパスを取得
+    if let Ok(db_path) = env::var("FLEQUIT_DB_PATH") {
+        return Some(db_path);
+    }
+    
+    // ユーザーディレクトリ内のアプリデータディレクトリを使用
+    if let Some(home_dir) = dirs::data_dir() {
+        let app_data_dir = home_dir.join("flequit");
+        let db_path = app_data_dir.join("database.sqlite");
+        return Some(db_path.to_string_lossy().to_string());
+    }
+    
+    None
 }
 
 /// 共通リポジトリトレイト

@@ -16,8 +16,8 @@ impl TaskService {
         if task.project_id.trim().is_empty() || task.title.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Task title cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_task(&task.project_id, task).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_task(&task.project_id, task).await?;
         Ok(())
     }
 
@@ -29,7 +29,7 @@ impl TaskService {
         if project_id.trim().is_empty() || task_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Task ID cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
+        let repository = ProjectsRepository::with_default_path()?;
         Ok(repository.get_task(project_id, task_id).await?)
     }
 
@@ -49,8 +49,8 @@ impl TaskService {
         if task.project_id.trim().is_empty() || task.title.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Task title cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_task(&task.project_id, task).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_task(&task.project_id, task).await?;
         Ok(())
     }
 

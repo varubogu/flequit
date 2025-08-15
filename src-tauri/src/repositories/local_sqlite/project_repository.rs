@@ -1,9 +1,11 @@
 //! Project用SQLiteリポジトリ
 
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
-use crate::models::project::Project;
+use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait, PaginatorTrait};
+use crate::models::project::{Project, ProjectMember};
 use crate::models::sqlite::project::{Entity as ProjectEntity, ActiveModel as ProjectActiveModel, Column};
 use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
+use crate::repositories::ProjectRepositoryTrait;
+use crate::types::project_types::ProjectStatus;
 use super::{DatabaseManager, RepositoryError, Repository};
 
 pub struct ProjectRepository {
@@ -119,3 +121,5 @@ impl Repository<Project> for ProjectRepository {
         Ok(projects)
     }
 }
+
+// ProjectRepositoryTrait実装は project_repository_impl.rs に移行しました

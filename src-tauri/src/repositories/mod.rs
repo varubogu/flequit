@@ -3,6 +3,7 @@ pub mod local_sqlite;
 pub mod cloud_automerge;
 pub mod web;
 
+pub mod base_repository_trait;
 pub mod project_repository_trait;
 pub mod subtask_repository_trait;
 pub mod task_repository_trait;

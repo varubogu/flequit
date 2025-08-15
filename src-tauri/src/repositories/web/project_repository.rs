@@ -1,65 +1,41 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::project::{Project, ProjectMember};
+use crate::models::project::Project;
+use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
 use crate::repositories::web::WebRepository;
-use crate::types::project_types::ProjectStatus;
 
+// TODO: 将来実装予定
+// Repository<Project>の基本CRUD実装
+#[async_trait]
+impl Repository<Project> for WebRepository {
+    async fn save(&self, _entity: &Project) -> Result<(), RepositoryError> {
+        todo!("WebAPIでの保存実装")
+    }
+
+    async fn find_by_id(&self, _id: &str) -> Result<Option<Project>, RepositoryError> {
+        todo!("WebAPIでの検索実装")
+    }
+
+    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
+        todo!("WebAPIでの全件取得実装")
+    }
+
+    async fn delete(&self, _id: &str) -> Result<(), RepositoryError> {
+        todo!("WebAPIでの削除実装")
+    }
+
+    async fn exists(&self, _id: &str) -> Result<bool, RepositoryError> {
+        todo!("WebAPIでの存在確認実装")
+    }
+
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        todo!("WebAPIでの件数取得実装")
+    }
+}
+
+// ProjectRepositoryTraitの実装（現在は追加メソッドなし）
 #[async_trait]
 impl ProjectRepositoryTrait for WebRepository {
-    async fn set_project(&self, _project: &Project) -> Result<(), RepositoryError> {
-        todo!("WebAPIでのプロジェクト保存実装")
-    }
-
-    async fn get_project(&self, _project_id: &str) -> Result<Option<Project>, RepositoryError> {
-        todo!("WebAPIでのプロジェクト取得実装")
-    }
-
-    async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
-        todo!("WebAPIでのプロジェクト一覧実装")
-    }
-
-    async fn delete_project(&self, _project_id: &str) -> Result<(), RepositoryError> {
-        todo!("WebAPIでのプロジェクト削除実装")
-    }
-
-    async fn set_member(&self, _project_id: &str, _member: &ProjectMember) -> Result<(), RepositoryError> {
-        todo!("WebAPIでのメンバー設定実装")
-    }
-
-    async fn get_member(&self, _project_id: &str, _user_id: &str) -> Result<Option<ProjectMember>, RepositoryError> {
-        todo!("WebAPIでのメンバー取得実装")
-    }
-
-    async fn list_members(&self, _project_id: &str) -> Result<Vec<ProjectMember>, RepositoryError> {
-        todo!("WebAPIでのメンバー一覧実装")
-    }
-
-    async fn remove_member(&self, _project_id: &str, _user_id: &str) -> Result<(), RepositoryError> {
-        todo!("WebAPIでのメンバー削除実装")
-    }
-
-    async fn find_projects_by_status(&self, _status: ProjectStatus) -> Result<Vec<Project>, RepositoryError> {
-        todo!("WebAPIでのステータス別プロジェクト検索実装")
-    }
-
-    async fn find_projects_by_member(&self, _user_id: &str) -> Result<Vec<Project>, RepositoryError> {
-        todo!("WebAPIでの参加プロジェクト取得実装")
-    }
-
-    async fn validate_project_exists(&self, _project_id: &str) -> Result<bool, RepositoryError> {
-        todo!("WebAPIでのプロジェクト存在検証実装")
-    }
-
-    async fn validate_member_exists(&self, _project_id: &str, _user_id: &str) -> Result<bool, RepositoryError> {
-        todo!("WebAPIでのメンバー存在検証実装")
-    }
-
-    async fn get_project_count(&self) -> Result<u64, RepositoryError> {
-        todo!("WebAPIでのプロジェクト数取得実装")
-    }
-
-    async fn get_member_count(&self, _project_id: &str) -> Result<u64, RepositoryError> {
-        todo!("WebAPIでのメンバー数取得実装")
-    }
+    // 現時点では追加メソッドなし
 }

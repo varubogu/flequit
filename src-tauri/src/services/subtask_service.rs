@@ -15,8 +15,8 @@ impl SubtaskService {
         if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Subtask title cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_subtask(project_id, subtask).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_subtask(project_id, subtask).await?;
         Ok(())
     }
 
@@ -29,7 +29,7 @@ impl SubtaskService {
         if project_id.trim().is_empty() || task_id.trim().is_empty() || subtask_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID, Task ID, and Subtask ID cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
+        let repository = ProjectsRepository::with_default_path()?;
         // ProjectsRepositoryのget_subtaskはproject_idとsubtask_idのみ必要（task_idは使用されない）
         Ok(repository.get_subtask(project_id, subtask_id).await?)
     }
@@ -52,8 +52,8 @@ impl SubtaskService {
         if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Subtask title cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_subtask(project_id, subtask).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_subtask(project_id, subtask).await?;
         Ok(())
     }
 

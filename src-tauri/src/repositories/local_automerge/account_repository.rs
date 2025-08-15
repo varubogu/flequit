@@ -1,11 +1,13 @@
 use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use crate::errors::RepositoryError;
 use crate::models::account::Account;
 use super::document_manager::{DocumentManager, DocumentType};
 
 /// Account用のAutomerge-Repoリポジトリ
 pub struct AccountRepository {
-    document_manager: DocumentManager,
+    document_manager: Arc<Mutex<DocumentManager>>,
 }
 
 impl AccountRepository {
@@ -13,14 +15,17 @@ impl AccountRepository {
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
-            document_manager,
+            document_manager: Arc::new(Mutex::new(document_manager)),
         })
     }
 
     /// 全アカウントリストを取得
-    pub async fn list_accounts(&mut self) -> Result<Vec<Account>, RepositoryError> {
-        if let Some(accounts) = self.document_manager
-            .load_data::<Vec<Account>>(&DocumentType::Account, "accounts").await? {
+    pub async fn list_users(&self) -> Result<Vec<Account>, RepositoryError> {
+        let accounts = {
+            let mut manager = self.document_manager.lock().await;
+            manager.load_data::<Vec<Account>>(&DocumentType::Account, "accounts").await?
+        };
+        if let Some(accounts) = accounts {
             Ok(accounts)
         } else {
             Ok(Vec::new())
@@ -28,14 +33,14 @@ impl AccountRepository {
     }
 
     /// IDでアカウントを取得
-    pub async fn get_account(&mut self, account_id: &str) -> Result<Option<Account>, RepositoryError> {
-        let accounts = self.list_accounts().await?;
+    pub async fn get_user(&self, account_id: &str) -> Result<Option<Account>, RepositoryError> {
+        let accounts = self.list_users().await?;
         Ok(accounts.into_iter().find(|acc| acc.id == account_id))
     }
 
     /// アカウントを作成または更新
-    pub async fn save_account(&mut self, account: &Account) -> Result<(), RepositoryError> {
-        let mut accounts = self.list_accounts().await?;
+    pub async fn set_user(&self, account: &Account) -> Result<(), RepositoryError> {
+        let mut accounts = self.list_users().await?;
         
         // 既存のアカウントを更新、または新規追加
         if let Some(existing) = accounts.iter_mut().find(|acc| acc.id == account.id) {
@@ -44,19 +49,23 @@ impl AccountRepository {
             accounts.push(account.clone());
         }
         
-        self.document_manager
-            .save_data(&DocumentType::Account, "accounts", &accounts).await
+        {
+            let mut manager = self.document_manager.lock().await;
+            manager.save_data(&DocumentType::Account, "accounts", &accounts).await
+        }
     }
 
     /// アカウントを削除
-    pub async fn delete_account(&mut self, account_id: &str) -> Result<bool, RepositoryError> {
-        let mut accounts = self.list_accounts().await?;
+    pub async fn delete_account(&self, account_id: &str) -> Result<bool, RepositoryError> {
+        let mut accounts = self.list_users().await?;
         let initial_len = accounts.len();
         accounts.retain(|acc| acc.id != account_id);
         
         if accounts.len() != initial_len {
-            self.document_manager
-                .save_data(&DocumentType::Account, "accounts", &accounts).await?;
+            {
+                let mut manager = self.document_manager.lock().await;
+                manager.save_data(&DocumentType::Account, "accounts", &accounts).await?
+            };
             Ok(true)
         } else {
             Ok(false)
@@ -64,28 +73,36 @@ impl AccountRepository {
     }
 
     /// 現在選択中のアカウントIDを取得
-    pub async fn get_current_account_id(&mut self) -> Result<Option<String>, RepositoryError> {
-        self.document_manager
-            .load_data::<String>(&DocumentType::Account, "current_account_id").await
+    pub async fn get_current_account_id(&self) -> Result<Option<String>, RepositoryError> {
+        {
+            let mut manager = self.document_manager.lock().await;
+            manager.load_data::<String>(&DocumentType::Account, "current_account_id").await
+        }
     }
 
     /// 現在選択中のアカウントIDを設定
-    pub async fn set_current_account_id(&mut self, account_id: Option<&str>) -> Result<(), RepositoryError> {
+    pub async fn set_current_account_id(&self, account_id: Option<&str>) -> Result<(), RepositoryError> {
         if let Some(id) = account_id {
-            self.document_manager
-                .save_data(&DocumentType::Account, "current_account_id", &id.to_string()).await
+            let id_string = id.to_string();
+            {
+                let mut manager = self.document_manager.lock().await;
+                manager.save_data(&DocumentType::Account, "current_account_id", &id_string).await
+            }
         } else {
             // Nullの場合は空文字列で代替（将来的に改善）
-            self.document_manager
-                .save_data(&DocumentType::Account, "current_account_id", &String::new()).await
+            let empty_string = String::new();
+            {
+                let mut manager = self.document_manager.lock().await;
+                manager.save_data(&DocumentType::Account, "current_account_id", &empty_string).await
+            }
         }
     }
 
     /// 現在選択中のアカウントを取得
-    pub async fn get_current_account(&mut self) -> Result<Option<Account>, RepositoryError> {
+    pub async fn get_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         if let Some(current_id) = self.get_current_account_id().await? {
             if !current_id.is_empty() {
-                self.get_account(&current_id).await
+                self.get_user(&current_id).await
             } else {
                 Ok(None)
             }
@@ -95,16 +112,16 @@ impl AccountRepository {
     }
 
     /// プロバイダーで検索
-    pub async fn find_accounts_by_provider(&mut self, provider: &str) -> Result<Vec<Account>, RepositoryError> {
-        let accounts = self.list_accounts().await?;
+    pub async fn find_accounts_by_provider(&self, provider: &str) -> Result<Vec<Account>, RepositoryError> {
+        let accounts = self.list_users().await?;
         Ok(accounts.into_iter()
             .filter(|acc| acc.provider == provider)
             .collect())
     }
 
     /// アクティブなアカウントのみを取得
-    pub async fn list_active_accounts(&mut self) -> Result<Vec<Account>, RepositoryError> {
-        let accounts = self.list_accounts().await?;
+    pub async fn list_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
+        let accounts = self.list_users().await?;
         Ok(accounts.into_iter()
             .filter(|acc| acc.is_active)
             .collect())
@@ -117,10 +134,11 @@ impl AccountRepository {
     }
 
     /// バックアップからアカウントを復元
-    pub async fn restore_accounts(&mut self, _backup_path: &str) -> Result<(), RepositoryError> {
+    pub async fn restore_accounts(&self, _backup_path: &str) -> Result<(), RepositoryError> {
         // TODO: バックアップファイルからドキュメントを復元
         Ok(())
     }
+
 }
 
 #[cfg(test)]
@@ -132,10 +150,10 @@ mod tests {
     #[tokio::test]
     async fn test_account_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let mut repo = AccountRepository::new(temp_dir.path().to_path_buf()).unwrap();
+        let repo = AccountRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // 初期状態では空
-        let accounts = repo.list_accounts().await.unwrap();
+        let accounts = repo.list_users().await.unwrap();
         assert_eq!(accounts.len(), 0);
 
         // テスト用アカウントを作成
@@ -152,7 +170,7 @@ mod tests {
         };
 
         // Vec<Account>の完全な保存/読み込みテスト（改良後）
-        repo.save_account(&account).await.unwrap();
+        repo.set_user(&account).await.unwrap();
         
         // 追加のテストアカウントを作成
         let account2 = Account {
@@ -167,21 +185,21 @@ mod tests {
             updated_at: Utc::now(),
         };
         
-        repo.save_account(&account2).await.unwrap();
+        repo.set_user(&account2).await.unwrap();
         
         // アカウントリストを取得して検証
-        let accounts = repo.list_accounts().await.unwrap();
+        let accounts = repo.list_users().await.unwrap();
         println!("Retrieved {} accounts", accounts.len());
         assert_eq!(accounts.len(), 2);
         
         // 各アカウントのデータを検証
-        let retrieved1 = repo.get_account("acc_test_123").await.unwrap().unwrap();
+        let retrieved1 = repo.get_user("acc_test_123").await.unwrap().unwrap();
         assert_eq!(retrieved1.email, Some("test@example.com".to_string()));
         assert_eq!(retrieved1.display_name, Some("Test User".to_string()));
         assert_eq!(retrieved1.provider, "local");
         assert_eq!(retrieved1.is_active, true);
         
-        let retrieved2 = repo.get_account("acc_test_456").await.unwrap().unwrap();
+        let retrieved2 = repo.get_user("acc_test_456").await.unwrap().unwrap();
         assert_eq!(retrieved2.email, Some("user2@example.com".to_string()));
         assert_eq!(retrieved2.provider, "github");
         assert_eq!(retrieved2.is_active, false);
@@ -206,7 +224,7 @@ mod tests {
         let deleted = repo.delete_account("acc_test_456").await.unwrap();
         assert!(deleted);
         
-        let remaining_accounts = repo.list_accounts().await.unwrap();
+        let remaining_accounts = repo.list_users().await.unwrap();
         assert_eq!(remaining_accounts.len(), 1);
         assert_eq!(remaining_accounts[0].id, "acc_test_123");
         

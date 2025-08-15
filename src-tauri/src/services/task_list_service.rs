@@ -16,8 +16,8 @@ impl TaskListService {
         if project_id.trim().is_empty() || task_list.name.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Task list name cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_task_list(project_id, task_list).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_task_list(project_id, task_list).await?;
         Ok(())
     }
 
@@ -29,7 +29,7 @@ impl TaskListService {
         if project_id.trim().is_empty() || list_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and List ID cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
+        let repository = ProjectsRepository::with_default_path()?;
         Ok(repository.get_task_list(project_id, list_id).await?)
     }
 
@@ -41,8 +41,8 @@ impl TaskListService {
         if project_id.trim().is_empty() || task_list.name.trim().is_empty() {
             return Err(ServiceError::ValidationError("Project ID and Task list name cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_task_list(project_id, task_list).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_task_list(project_id, task_list).await?;
         Ok(())
     }
 

@@ -14,8 +14,8 @@ impl TagService {
         if tag.name.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag name cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_tag(tag).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_tag(tag).await?;
         Ok(())
     }
 
@@ -26,7 +26,7 @@ impl TagService {
         if tag_id.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag ID cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
+        let repository = ProjectsRepository::with_default_path()?;
         Ok(repository.get_tag(tag_id).await?)
     }
 
@@ -44,8 +44,8 @@ impl TagService {
         if tag.name.trim().is_empty() {
             return Err(ServiceError::ValidationError("Tag name cannot be empty".to_string()));
         }
-        let mut repository = ProjectsRepository::with_default_path()?;
-        repository.save_tag(tag).await?;
+        let repository = ProjectsRepository::with_default_path()?;
+        repository.set_tag(tag).await?;
         Ok(())
     }
 
