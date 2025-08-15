@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 #[async_trait]
 #[allow(dead_code)]
-pub trait SubtaskRepositoryTrait {
+pub trait SubTaskRepositoryTrait {
     async fn set_subtask(&self, project_id: &str, task_id: &str, subtask: &Subtask) -> Result<(), RepositoryError>;
 
     async fn get_subtask(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, RepositoryError>;

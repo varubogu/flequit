@@ -9,7 +9,7 @@ use crate::models::{
     subtask::Subtask,
     tag::Tag,
 };
-use crate::repositories::{TaskRepositoryTrait, SubtaskRepositoryTrait, TagRepositoryTrait};
+use crate::repositories::{TaskRepositoryTrait, SubTaskRepositoryTrait, TagRepositoryTrait};
 use crate::types::task_types::TaskStatus;
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::services::path_service::PathService;
@@ -260,7 +260,7 @@ impl TaskRepositoryTrait for ProjectsRepository {
 }
 
 #[async_trait]
-impl SubtaskRepositoryTrait for ProjectsRepository {
+impl SubTaskRepositoryTrait for ProjectsRepository {
     async fn set_subtask(&self, project_id: &str, _task_id: &str, subtask: &Subtask) -> Result<(), RepositoryError> {
         self.set_subtask(project_id, subtask).await
     }

@@ -2,11 +2,11 @@ use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::models::subtask::Subtask;
 use crate::repositories::web::WebRepository;
-use crate::repositories::subtask_repository_trait::SubtaskRepositoryTrait;
+use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
 
 
 #[async_trait]
-impl SubtaskRepositoryTrait for WebRepository {
+impl SubTaskRepositoryTrait for WebRepository {
     async fn set_subtask(&self, _project_id: &str, _task_id: &str, _subtask: &Subtask) -> Result<(), RepositoryError> {
         todo!("WebAPIでのサブタスク保存実装")
     }

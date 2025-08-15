@@ -26,7 +26,7 @@ use async_trait::async_trait;
 /// - 検索系操作: SQLite
 /// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
-pub trait ProjectRepositoryTrait: Repository<Project> + Send + Sync {
+pub trait TaskListRepositoryTrait: Repository<Project> + Send + Sync {
     // 統合リポジトリでのみ使用するため、基本的なRepository<Project>の機能で十分
     // 必要に応じて将来的に専用メソッドを追加
 }

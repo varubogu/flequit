@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use crate::errors::RepositoryError;
 use crate::models::subtask::Subtask;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
-use crate::repositories::subtask_repository_trait::SubtaskRepositoryTrait;
+use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
 
 #[async_trait]
-impl SubtaskRepositoryTrait for CloudAutomergeRepository {
+impl SubTaskRepositoryTrait for CloudAutomergeRepository {
     async fn set_subtask(&self, _project_id: &str, _task_id: &str, _subtask: &Subtask) -> Result<(), RepositoryError> {
         todo!("クラウドAutomergeでのサブタスク保存実装")
     }
