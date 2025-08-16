@@ -2,7 +2,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/tag-display.svelte';
-  import DueDate from '$lib/components/datetime/due-date.svelte';
+  import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {

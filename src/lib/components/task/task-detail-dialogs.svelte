@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from "$lib/types/sub-task";
   import type { RecurrenceRule } from "$lib/types/datetime-calendar";
-  import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
+  import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
   import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
   import ProjectTaskListSelectorDialog from '$lib/components/project/project-task-list-selector-dialog.svelte';

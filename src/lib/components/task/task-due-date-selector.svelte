@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from "$lib/types/sub-task";
-  import DueDate from '$lib/components/datetime/due-date.svelte';
+  import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {

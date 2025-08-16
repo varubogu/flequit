@@ -3,7 +3,7 @@
   import type { SubTask } from "$lib/types/sub-task";
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
-  import DueDate from '../datetime/due-date.svelte';
+  import DueDate from '../datetime/date-inputs/due-date.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
