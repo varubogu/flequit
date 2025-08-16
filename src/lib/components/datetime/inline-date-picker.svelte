@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
+  import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
     import type { RecurrenceRule } from "$lib/types/datetime-calendar";
   import { InlineDatePickerLogic, type DateChangeData } from './inline-date-picker-logic.svelte';
   import InlineDatePickerUI from './inline-date-picker-ui.svelte';
@@ -87,7 +87,7 @@
 {/if}
 
 <!-- 繰り返しダイアログ - より高いZ-indexで独立して配置 -->
-<RecurrenceDialogAdvanced
+<RecurrenceDialog
   bind:open={logic.recurrenceDialogOpen}
   recurrenceRule={logic.currentRecurrenceRule}
   startDateTime={logic.useRangeMode && logic.startDate && logic.startTime

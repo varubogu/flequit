@@ -6,7 +6,7 @@
   import NewTaskConfirmationDialog from './new-task-confirmation-dialog.svelte';
   import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
   import ProjectTaskListSelectorDialog from '$lib/components/project/project-task-list-selector-dialog.svelte';
-  import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
+  import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask | null;
@@ -113,7 +113,7 @@
 />
 
 <!-- 繰り返し設定ダイアログ -->
-<RecurrenceDialogAdvanced
+<RecurrenceDialog
   open={showRecurrenceDialog}
   recurrenceRule={currentItem?.recurrence_rule}
   startDateTime={currentItem?.start_date}

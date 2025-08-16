@@ -1,10 +1,10 @@
 <script lang="ts">
-  import RecurrenceLevelSelector from './recurrence-level-selector.svelte';
-  import RecurrenceCountInput from './recurrence-count-input.svelte';
-  import RecurrenceIntervalEditor from './recurrence-interval-editor.svelte';
-  import RecurrenceAdjustmentEditor from './recurrence-adjustment-editor.svelte';
+  import RecurrenceLevelSelector from '../recurrence-level-selector.svelte';
+  import RecurrenceCountSettings from '../recurrence-count-settings.svelte';
+  import RecurrenceIntervalSettings from '../recurrence-interval-settings.svelte';
+  import RecurrenceAdjustmentEditor from '../recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime-utils';
-  import RecurrencePreview from './recurrence-preview.svelte';
+  import RecurrencePreview from '../preview/recurrence-preview.svelte';
   import type { RecurrenceDialogAdvancedLogic } from './recurrence-dialog-advanced-logic.svelte';
 
   interface Props {
@@ -23,11 +23,11 @@
     />
 
     {#if logic.showBasicSettings}
-      <RecurrenceCountInput
+      <RecurrenceCountSettings
         bind:value={logic.repeatCount}
         oninput={logic.handleImmediateSave.bind(logic)}
       />
-      <RecurrenceIntervalEditor
+      <RecurrenceIntervalSettings
         unit={logic.unit}
         interval={logic.interval}
         daysOfWeek={logic.daysOfWeek}

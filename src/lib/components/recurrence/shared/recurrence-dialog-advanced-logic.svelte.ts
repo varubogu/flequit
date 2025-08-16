@@ -7,10 +7,10 @@ import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
 import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
 import type { DayOfWeek } from "$lib/types/datetime-calendar";
 import { RecurrenceState } from './recurrence-state.svelte';
-import { DateConditionManager } from './date-condition-manager.svelte';
-import { WeekdayConditionManager } from './weekday-condition-manager.svelte';
+import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
+import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';
 import { RecurrenceRuleBuilder } from './recurrence-rule-builder.svelte';
-import { RecurrencePreviewManager } from './recurrence-preview-manager.svelte';
+import { RecurrencePreviewManager } from '../preview/recurrence-preview-manager.svelte';
 import { RecurrenceInitializer } from './recurrence-initializer.svelte';
 
 export class RecurrenceDialogAdvancedLogic {
