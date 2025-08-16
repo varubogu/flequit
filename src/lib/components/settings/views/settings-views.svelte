@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import Button from '$lib/components/shared/button.svelte';
-  import SettingsDraggableItems from '$lib/components/settings/settings-draggable-items.svelte';
-  import ConfirmDialog from '../dialog/confirm-dialog.svelte';
+  import SettingsDraggableItems from '$lib/components/settings/draggable-items/settings-draggable-items.svelte';
+  import ConfirmDialog from '../../dialog/confirm-dialog.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { RotateCcw } from 'lucide-svelte';
 

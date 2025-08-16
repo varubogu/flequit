@@ -8,10 +8,10 @@
   import type { WeekStart } from '$lib/types/settings';
   import { ArrowLeft, Search, Menu } from 'lucide-svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-  import SettingsBasic from './settings-basic.svelte';
-  import SettingsViews from './settings-views.svelte';
-  import SettingsAppearance from './settings-appearance.svelte';
-  import SettingsAccount from './settings-account.svelte';
+  import SettingsBasic from './basic/settings-basic.svelte';
+  import SettingsViews from './views/settings-views.svelte';
+  import SettingsAppearance from './appearance/settings-appearance.svelte';
+  import SettingsAccount from './account/settings-account.svelte';
 
   interface Props {
     open?: boolean;

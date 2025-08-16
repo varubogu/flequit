@@ -4,8 +4,8 @@
   import Input from '$lib/components/ui/input.svelte';
   import { format } from 'date-fns';
   import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
-  import DateFormatEditor from '$lib/components/settings/date-format-editor.svelte';
-  import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
+  import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
+  import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
   import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
 
   interface Props {
