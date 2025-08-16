@@ -1,0 +1,561 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { InitializationTauriService } from '$lib/services/backend/tauri/initialization-tauri-service';
+import type { LocalSettings, Account, InitializationResult } from '$lib/services/backend/initialization-service';
+import type { ProjectTree } from '$lib/types/project';
+
+// Mock Tauri invoke
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: vi.fn()
+}));
+
+// Get the mocked invoke for use in tests
+const mockInvoke = vi.mocked(await import('@tauri-apps/api/core')).invoke;
+
+describe('InitializationTauriService', () => {
+  let service: InitializationTauriService;
+  let mockLocalSettings: LocalSettings;
+  let mockAccount: Account;
+  let mockProjects: ProjectTree[];
+  let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    service = new InitializationTauriService();
+    
+    mockLocalSettings = {
+      theme: 'dark',
+      language: 'ja',
+      customSetting: 'test value'
+    };
+
+    mockAccount = {
+      id: 'account-123',
+      name: 'Test User',
+      email: 'test@example.com',
+      profile_image: 'https://example.com/avatar.jpg',
+      created_at: new Date('2024-01-01T00:00:00Z'),
+      updated_at: new Date('2024-01-01T00:00:00Z')
+    };
+
+    mockProjects = [
+      {
+        id: 'project-123',
+        name: 'Test Project',
+        description: 'Test Description',
+        color: '#FF5733',
+        order_index: 0,
+        is_archived: false,
+        created_at: new Date('2024-01-01T00:00:00Z'),
+        updated_at: new Date('2024-01-01T00:00:00Z'),
+        task_lists: []
+      }
+    ];
+
+    // console.warn と console.error をモック化
+    consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  describe('loadLocalSettings', () => {
+    it('should load local settings successfully', async () => {
+      mockInvoke.mockResolvedValue(mockLocalSettings);
+
+      const result = await service.loadLocalSettings();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
+      expect(result).toEqual(mockLocalSettings);
+    });
+
+    it('should return default settings when invoke returns null', async () => {
+      mockInvoke.mockResolvedValue(null);
+
+      const result = await service.loadLocalSettings();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
+      expect(result).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+    });
+
+    it('should return default settings when invoke fails', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed to load settings'));
+
+      const result = await service.loadLocalSettings();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
+      expect(result).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to load local settings:', expect.any(Error));
+    });
+
+    it('should handle different theme settings', async () => {
+      const lightSettings = { ...mockLocalSettings, theme: 'light' as const };
+      mockInvoke.mockResolvedValue(lightSettings);
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.theme).toBe('light');
+    });
+
+    it('should handle system theme setting', async () => {
+      const systemSettings = { ...mockLocalSettings, theme: 'system' as const };
+      mockInvoke.mockResolvedValue(systemSettings);
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.theme).toBe('system');
+    });
+
+    it('should handle different language settings', async () => {
+      const englishSettings = { ...mockLocalSettings, language: 'en' };
+      mockInvoke.mockResolvedValue(englishSettings);
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.language).toBe('en');
+    });
+
+    it('should handle custom settings properties', async () => {
+      const customSettings = {
+        ...mockLocalSettings,
+        customOption: true,
+        maxItems: 100,
+        features: ['feature1', 'feature2']
+      };
+      mockInvoke.mockResolvedValue(customSettings);
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.customOption).toBe(true);
+      expect(result.maxItems).toBe(100);
+      expect(result.features).toEqual(['feature1', 'feature2']);
+    });
+  });
+
+  describe('loadAccount', () => {
+    it('should load account successfully', async () => {
+      mockInvoke.mockResolvedValue(mockAccount);
+
+      const result = await service.loadAccount();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_current_account');
+      expect(result).toEqual(mockAccount);
+    });
+
+    it('should return null when no account exists', async () => {
+      mockInvoke.mockResolvedValue(null);
+
+      const result = await service.loadAccount();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_current_account');
+      expect(result).toBeNull();
+    });
+
+    it('should return null when invoke fails', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed to load account'));
+
+      const result = await service.loadAccount();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_current_account');
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to load account:', expect.any(Error));
+    });
+
+    it('should handle account without optional fields', async () => {
+      const minimalAccount = {
+        id: 'account-minimal',
+        name: 'Minimal User',
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      mockInvoke.mockResolvedValue(minimalAccount);
+
+      const result = await service.loadAccount();
+
+      expect(result?.email).toBeUndefined();
+      expect(result?.profile_image).toBeUndefined();
+      expect(result?.name).toBe('Minimal User');
+    });
+
+    it('should handle account with all optional fields', async () => {
+      const fullAccount = {
+        ...mockAccount,
+        profile_image: 'https://example.com/custom-avatar.png'
+      };
+      mockInvoke.mockResolvedValue(fullAccount);
+
+      const result = await service.loadAccount();
+
+      expect(result?.profile_image).toBe('https://example.com/custom-avatar.png');
+    });
+  });
+
+  describe('loadProjectData', () => {
+    it('should load project data successfully', async () => {
+      mockInvoke.mockResolvedValue(mockProjects);
+
+      const result = await service.loadProjectData();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_all_project_data');
+      expect(result).toEqual(mockProjects);
+    });
+
+    it('should return empty array when invoke returns null', async () => {
+      mockInvoke.mockResolvedValue(null);
+
+      const result = await service.loadProjectData();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_all_project_data');
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when invoke fails', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed to load project data'));
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await service.loadProjectData();
+
+      expect(mockInvoke).toHaveBeenCalledWith('load_all_project_data');
+      expect(result).toEqual([]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load project data:', expect.any(Error));
+      
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should handle multiple projects', async () => {
+      const multipleProjects = [
+        mockProjects[0],
+        {
+          id: 'project-456',
+          name: 'Second Project',
+          description: 'Another project',
+          color: '#00FF00',
+          order_index: 1,
+          is_archived: false,
+          created_at: new Date(),
+          updated_at: new Date(),
+          task_lists: []
+        }
+      ];
+      mockInvoke.mockResolvedValue(multipleProjects);
+
+      const result = await service.loadProjectData();
+
+      expect(result).toHaveLength(2);
+      expect(result[1].name).toBe('Second Project');
+    });
+
+    it('should handle projects with task lists', async () => {
+      const projectWithLists = {
+        ...mockProjects[0],
+        task_lists: [
+          {
+            id: 'list-1',
+            project_id: 'project-123',
+            name: 'To Do',
+            order_index: 0,
+            is_archived: false,
+            created_at: new Date(),
+            updated_at: new Date(),
+            tasks: []
+          }
+        ]
+      };
+      mockInvoke.mockResolvedValue([projectWithLists]);
+
+      const result = await service.loadProjectData();
+
+      expect(result[0].task_lists).toHaveLength(1);
+      expect(result[0].task_lists[0].name).toBe('To Do');
+    });
+
+    it('should handle archived projects', async () => {
+      const archivedProject = {
+        ...mockProjects[0],
+        is_archived: true
+      };
+      mockInvoke.mockResolvedValue([archivedProject]);
+
+      const result = await service.loadProjectData();
+
+      expect(result[0].is_archived).toBe(true);
+    });
+
+    it('should handle empty project list', async () => {
+      mockInvoke.mockResolvedValue([]);
+
+      const result = await service.loadProjectData();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('initializeAll', () => {
+    it('should initialize all data successfully', async () => {
+      mockInvoke
+        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
+        .mockResolvedValueOnce(mockAccount) // loadAccount
+        .mockResolvedValueOnce(mockProjects); // loadProjectData
+
+      const result = await service.initializeAll();
+
+      expect(mockInvoke).toHaveBeenCalledTimes(3);
+      expect(mockInvoke).toHaveBeenNthCalledWith(1, 'load_local_settings');
+      expect(mockInvoke).toHaveBeenNthCalledWith(2, 'load_current_account');
+      expect(mockInvoke).toHaveBeenNthCalledWith(3, 'load_all_project_data');
+
+      expect(result).toEqual({
+        localSettings: mockLocalSettings,
+        account: mockAccount,
+        projects: mockProjects
+      });
+    });
+
+    it('should handle initialization with null account', async () => {
+      mockInvoke
+        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
+        .mockResolvedValueOnce(null) // loadAccount
+        .mockResolvedValueOnce(mockProjects); // loadProjectData
+
+      const result = await service.initializeAll();
+
+      expect(result.account).toBeNull();
+      expect(result.localSettings).toEqual(mockLocalSettings);
+      expect(result.projects).toEqual(mockProjects);
+    });
+
+    it('should handle initialization with empty projects', async () => {
+      mockInvoke
+        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
+        .mockResolvedValueOnce(mockAccount) // loadAccount
+        .mockResolvedValueOnce([]); // loadProjectData
+
+      const result = await service.initializeAll();
+
+      expect(result.projects).toEqual([]);
+      expect(result.localSettings).toEqual(mockLocalSettings);
+      expect(result.account).toEqual(mockAccount);
+    });
+
+    it('should handle partial failures gracefully', async () => {
+      mockInvoke
+        .mockRejectedValueOnce(new Error('Settings failed')) // loadLocalSettings
+        .mockResolvedValueOnce(mockAccount) // loadAccount
+        .mockRejectedValueOnce(new Error('Projects failed')); // loadProjectData
+
+      const result = await service.initializeAll();
+
+      // デフォルト設定とnull/空配列が返される
+      expect(result.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+      expect(result.account).toEqual(mockAccount);
+      expect(result.projects).toEqual([]);
+    });
+
+    it('should handle all operations failing', async () => {
+      mockInvoke
+        .mockRejectedValueOnce(new Error('Settings failed'))
+        .mockRejectedValueOnce(new Error('Account failed'))
+        .mockRejectedValueOnce(new Error('Projects failed'));
+
+      const result = await service.initializeAll();
+
+      expect(result.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+      expect(result.account).toBeNull();
+      expect(result.projects).toEqual([]);
+    });
+
+    it('should execute operations in correct sequence', async () => {
+      let callOrder: string[] = [];
+      
+      mockInvoke.mockImplementation(async (command: string) => {
+        callOrder.push(command);
+        switch (command) {
+          case 'load_local_settings':
+            return mockLocalSettings;
+          case 'load_current_account':
+            return mockAccount;
+          case 'load_all_project_data':
+            return mockProjects;
+          default:
+            return null;
+        }
+      });
+
+      await service.initializeAll();
+
+      expect(callOrder).toEqual([
+        'load_local_settings',
+        'load_current_account',
+        'load_all_project_data'
+      ]);
+    });
+  });
+
+  describe('default settings', () => {
+    it('should provide consistent default settings', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed'));
+
+      const result1 = await service.loadLocalSettings();
+      const result2 = await service.loadLocalSettings();
+
+      expect(result1).toEqual(result2);
+      expect(result1).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+    });
+
+    it('should have proper default theme', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed'));
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.theme).toBe('system');
+    });
+
+    it('should have proper default language', async () => {
+      mockInvoke.mockRejectedValue(new Error('Failed'));
+
+      const result = await service.loadLocalSettings();
+
+      expect(result.language).toBe('ja');
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle network timeouts gracefully', async () => {
+      mockInvoke.mockRejectedValue(new Error('Network timeout'));
+
+      const result = await service.initializeAll();
+
+      expect(result.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+      expect(result.account).toBeNull();
+      expect(result.projects).toEqual([]);
+    });
+
+    it('should handle corrupted data gracefully', async () => {
+      mockInvoke
+        .mockResolvedValueOnce('invalid_json_string') // 無効なデータ
+        .mockResolvedValueOnce(undefined) // undefined
+        .mockResolvedValueOnce('not_an_array'); // 配列ではない
+
+      const result = await service.initializeAll();
+
+      // ガベージインガベージアウトだが、アプリがクラッシュしないことが重要
+      expect(result).toBeDefined();
+    });
+
+    it('should log appropriate error levels', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      mockInvoke
+        .mockRejectedValueOnce(new Error('Settings error'))
+        .mockRejectedValueOnce(new Error('Account error'))
+        .mockRejectedValueOnce(new Error('Projects error'));
+
+      await service.initializeAll();
+
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(2); // settings, account
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // projects
+      
+      consoleWarnSpy.mockRestore();
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('interface compliance', () => {
+    it('should implement all InitializationService methods', () => {
+      expect(typeof service.loadLocalSettings).toBe('function');
+      expect(typeof service.loadAccount).toBe('function');
+      expect(typeof service.loadProjectData).toBe('function');
+      expect(typeof service.initializeAll).toBe('function');
+    });
+
+    it('should return proper Promise types', async () => {
+      mockInvoke.mockResolvedValue(null);
+
+      const settingsPromise = service.loadLocalSettings();
+      const accountPromise = service.loadAccount();
+      const projectsPromise = service.loadProjectData();
+      const allPromise = service.initializeAll();
+
+      expect(settingsPromise).toBeInstanceOf(Promise);
+      expect(accountPromise).toBeInstanceOf(Promise);
+      expect(projectsPromise).toBeInstanceOf(Promise);
+      expect(allPromise).toBeInstanceOf(Promise);
+
+      await Promise.all([settingsPromise, accountPromise, projectsPromise, allPromise]);
+    });
+  });
+
+  describe('concurrent operations', () => {
+    it('should handle concurrent initialization calls', async () => {
+      mockInvoke
+        .mockResolvedValue(mockLocalSettings)
+        .mockResolvedValue(mockAccount)
+        .mockResolvedValue(mockProjects);
+
+      // 並行して初期化を実行
+      const [result1, result2, result3] = await Promise.all([
+        service.initializeAll(),
+        service.initializeAll(),
+        service.initializeAll()
+      ]);
+
+      // 全ての結果が一貫していることを確認
+      expect(result1).toEqual(result2);
+      expect(result2).toEqual(result3);
+    });
+
+    it('should handle mixed concurrent operations', async () => {
+      mockInvoke.mockImplementation(async (command: string) => {
+        // 少し遅延を追加してレースコンディションをテスト
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
+        
+        switch (command) {
+          case 'load_local_settings':
+            return mockLocalSettings;
+          case 'load_current_account':
+            return mockAccount;
+          case 'load_all_project_data':
+            return mockProjects;
+          default:
+            return null;
+        }
+      });
+
+      // 個別メソッドと全体初期化を並行実行
+      const [settings, account, projects, initResult] = await Promise.all([
+        service.loadLocalSettings(),
+        service.loadAccount(),
+        service.loadProjectData(),
+        service.initializeAll()
+      ]);
+
+      expect(settings).toEqual(mockLocalSettings);
+      expect(account).toEqual(mockAccount);
+      expect(projects).toEqual(mockProjects);
+      expect(initResult.localSettings).toEqual(mockLocalSettings);
+      expect(initResult.account).toEqual(mockAccount);
+      expect(initResult.projects).toEqual(mockProjects);
+    });
+  });
+});

@@ -1,0 +1,126 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { SubtaskWebService } from '$lib/services/backend/web/subtask-web-service';
+import type { SubTask, SubTaskSearchCondition } from '$lib/types/sub-task';
+
+describe('SubtaskWebService', () => {
+  let service: SubtaskWebService;
+  let mockSubTask: SubTask;
+  let mockSearchCondition: SubTaskSearchCondition;
+  let consoleSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    service = new SubtaskWebService();
+    
+    mockSubTask = {
+      id: 'subtask-123',
+      task_id: 'task-456',
+      title: 'Test SubTask',
+      description: 'Test subtask description',
+      status: 'todo',
+      priority: 'medium',
+      completion_rate: 0.5,
+      order_index: 0,
+      is_archived: false,
+      created_at: new Date('2024-01-01T00:00:00Z'),
+      updated_at: new Date('2024-01-01T00:00:00Z')
+    };
+
+    mockSearchCondition = {
+      task_id: 'task-456',
+      status: 'todo'
+    };
+
+    consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  describe('create', () => {
+    it('should return true and log warning for stub implementation', async () => {
+      const result = await service.create(mockSubTask);
+
+      expect(result).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createSubTask not implemented', mockSubTask);
+    });
+  });
+
+  describe('update', () => {
+    it('should return true and log warning for stub implementation', async () => {
+      const result = await service.update(mockSubTask);
+
+      expect(result).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateSubTask not implemented', mockSubTask);
+    });
+  });
+
+  describe('delete', () => {
+    it('should return true and log warning for stub implementation', async () => {
+      const result = await service.delete('subtask-123');
+
+      expect(result).toBe(true);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteSubTask not implemented', 'subtask-123');
+    });
+  });
+
+  describe('get', () => {
+    it('should return null and log warning for stub implementation', async () => {
+      const result = await service.get('subtask-123');
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSubTask not implemented (called for data retrieval)', 'subtask-123');
+    });
+  });
+
+  describe('search', () => {
+    it('should return empty array and log warning for stub implementation', async () => {
+      const result = await service.search(mockSearchCondition);
+
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchSubTasks not implemented', mockSearchCondition);
+    });
+  });
+
+  describe('interface compliance', () => {
+    it('should implement all SubTaskService methods', () => {
+      expect(typeof service.create).toBe('function');
+      expect(typeof service.update).toBe('function');
+      expect(typeof service.delete).toBe('function');
+      expect(typeof service.get).toBe('function');
+      expect(typeof service.search).toBe('function');
+    });
+
+    it('should return proper Promise types', async () => {
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
+        service.create(mockSubTask),
+        service.update(mockSubTask),
+        service.delete('subtask-123'),
+        service.get('subtask-123'),
+        service.search(mockSearchCondition)
+      ]);
+
+      expect(createResult).toBe(true);
+      expect(updateResult).toBe(true);
+      expect(deleteResult).toBe(true);
+      expect(getResult).toBeNull();
+      expect(searchResult).toEqual([]);
+    });
+  });
+
+  describe('concurrent operations', () => {
+    it('should handle concurrent operations without side effects', async () => {
+      const operations = await Promise.all([
+        service.create(mockSubTask),
+        service.get('subtask-123'),
+        service.update(mockSubTask),
+        service.delete('subtask-123'),
+        service.search(mockSearchCondition)
+      ]);
+
+      expect(operations).toEqual([true, null, true, true, []]);
+      expect(consoleSpy).toHaveBeenCalledTimes(5);
+    });
+  });
+});
