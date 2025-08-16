@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from "$lib/types/sub-task";
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import TagInput from '$lib/components/tag/tag-input.svelte';
+  import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
   interface Props {
     task: TaskWithSubTasks | null;

@@ -5,11 +5,11 @@ import {
   TagCompletionKeyHandler,
   type KeyHandlerCallbacks
 } from './tag-completion-keyhandler.svelte';
-import { TagNameUtils } from './tag-name-utils.svelte';
-import { TagParser } from './tag-parser.svelte';
-import { TagElementUpdater, type TagDetectionData } from './tag-element-updater.svelte';
+import { TagNameUtils } from '../utils/tag-name-utils.svelte';
+import { TagParser } from '../utils/tag-parser.svelte';
+import { TagElementUpdater, type TagDetectionData } from '../utils/tag-element-updater.svelte';
 
-export { type TagDetectionData } from './tag-element-updater.svelte';
+export { type TagDetectionData } from '../utils/tag-element-updater.svelte';
 
 /**
  * Main logic class for tag completion functionality

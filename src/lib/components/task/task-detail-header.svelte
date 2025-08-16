@@ -4,7 +4,7 @@
   import type { SubTask } from "$lib/types/sub-task";
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
-  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
+  import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 

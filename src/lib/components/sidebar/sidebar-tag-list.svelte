@@ -4,8 +4,8 @@
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import TagEditDialog from '$lib/components/tag/tag-edit-dialog.svelte';
-  import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
+  import TagEditDialog from '$lib/components/tag/dialogs/tag-edit-dialog.svelte';
+  import TagDeleteDialog from '$lib/components/tag/dialogs/tag-delete-dialog.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import SidebarTagItem from './sidebar-tag-item.svelte';
     import type { Tag } from "$lib/types/tag";

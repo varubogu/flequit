@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Tag } from "$lib/types/tag";
   import TagDisplay from './tag-display.svelte';
-  import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
+  import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import * as m from '$paraglide/messages';
   import { reactiveMessage } from '$lib/stores/locale.svelte';
 
