@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import RecurrenceCountInput from '$lib/components/recurrence/recurrence-count-input.svelte';
+import RecurrenceCountSettings from '$lib/components/recurrence/recurrence-count-settings.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // 翻訳サービスのモック
@@ -8,13 +8,13 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   getTranslationService: () => createUnitTestTranslationService()
 }));
 
-describe('RecurrenceCountInput', () => {
+describe('RecurrenceCountSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('基本的なレンダリングが正しく行われる', () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -35,7 +35,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('初期値が設定されている場合に正しく表示される', () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: 5
       }
@@ -46,7 +46,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('undefinedの初期値の場合は空欄で表示される', () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -59,7 +59,7 @@ describe('RecurrenceCountInput', () => {
   it('数値入力が正しく処理される', async () => {
     let currentValue: number | undefined = undefined;
 
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         get value() {
           return currentValue;
@@ -82,7 +82,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('非数値文字の入力が防がれる', async () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -99,7 +99,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('数値キーの入力は許可される', async () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -120,7 +120,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('制御キー（Backspace、Delete等）の入力は許可される', async () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: 123
       }
@@ -152,7 +152,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('Ctrl+A、Ctrl+C等のショートカットキーは許可される', async () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: 123
       }
@@ -179,7 +179,7 @@ describe('RecurrenceCountInput', () => {
   it('0または負の数が入力された場合はundefinedに設定される', async () => {
     let currentValue: number | undefined = 5;
 
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         get value() {
           return currentValue;
@@ -204,7 +204,7 @@ describe('RecurrenceCountInput', () => {
   it('空文字が入力された場合はundefinedに設定される', async () => {
     let currentValue: number | undefined = 5;
 
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         get value() {
           return currentValue;
@@ -229,7 +229,7 @@ describe('RecurrenceCountInput', () => {
   it('oninputコールバックが呼ばれる', async () => {
     const oninput = vi.fn();
 
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined,
         oninput
@@ -249,7 +249,7 @@ describe('RecurrenceCountInput', () => {
 
   it('親コンポーネントからのvalue変更が反映される', async () => {
     // Svelte 5では$setが使用できないため、初期値での表示確認のみテスト
-    const { unmount } = render(RecurrenceCountInput, {
+    const { unmount } = render(RecurrenceCountSettings, {
       props: {
         value: 5
       }
@@ -261,7 +261,7 @@ describe('RecurrenceCountInput', () => {
     unmount();
 
     // 別の値で新しいコンポーネントをレンダリング
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: 10
       }
@@ -272,7 +272,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('入力フィールドの属性が正しく設定される', () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -286,7 +286,7 @@ describe('RecurrenceCountInput', () => {
   });
 
   it('レイアウトクラスが正しく適用される', () => {
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         value: undefined
       }
@@ -312,7 +312,7 @@ describe('RecurrenceCountInput', () => {
   it('非数値文字が混在した文字列が入力された場合にサニタイズされる', async () => {
     let currentValue: number | undefined = undefined;
 
-    render(RecurrenceCountInput, {
+    render(RecurrenceCountSettings, {
       props: {
         get value() {
           return currentValue;

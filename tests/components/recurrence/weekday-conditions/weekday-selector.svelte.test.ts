@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import WeekdaySelector from '$lib/components/recurrence/weekday-selector.svelte';
+import WeekdaySelector from '$lib/components/recurrence/weekday-conditions/weekday-selector.svelte';
 import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
 // Mock translation service

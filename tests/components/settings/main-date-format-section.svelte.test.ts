@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import MainDateFormatSection from '$lib/components/settings/main-date-format-section.svelte';
+import MainDateFormatSection from '$lib/components/settings/date-format/main-date-format-section.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

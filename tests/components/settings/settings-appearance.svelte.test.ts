@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SettingsAppearance from '$lib/components/settings/settings-appearance.svelte';
+import SettingsAppearance from '$lib/components/settings/appearance/settings-appearance.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,

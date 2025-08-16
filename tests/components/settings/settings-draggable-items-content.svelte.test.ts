@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import SettingsDraggableItemsContent from '$lib/components/settings/settings-draggable-items-content.svelte';
+import SettingsDraggableItemsContent from '$lib/components/settings/draggable-items/settings-draggable-items-content.svelte';
 
 // Mock drag and drop library
 vi.mock('@thisux/sveltednd', () => ({

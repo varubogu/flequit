@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import DeleteFormatDialog from '$lib/components/settings/delete-format-dialog.svelte';
+import DeleteFormatDialog from '$lib/components/settings/date-format/delete-format-dialog.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

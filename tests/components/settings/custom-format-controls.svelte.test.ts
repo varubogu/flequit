@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import CustomFormatControls from '$lib/components/settings/custom-format-controls.svelte';
+import CustomFormatControls from '$lib/components/settings/date-format/custom-format-controls.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

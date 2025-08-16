@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { tick } from 'svelte';
-import RecurrenceDialogAdvanced from '$lib/components/recurrence/recurrence-dialog-advanced.svelte';
+import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
 import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
@@ -24,7 +24,7 @@ vi.mock('$lib/services/recurrence-service', () => ({
   }
 }));
 
-describe('RecurrenceDialogAdvanced', () => {
+describe('RecurrenceDialog', () => {
   const mockOnSave = vi.fn();
   const mockOnOpenChange = vi.fn();
 
@@ -34,7 +34,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('3段階の選択肢が表示される', () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -55,7 +55,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('無効選択時は基本設定が表示されない', () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -68,7 +68,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('有効選択時は基本設定のみ表示される', async () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -90,7 +90,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('有効（高度）選択時は全設定が表示される', async () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -128,7 +128,7 @@ describe('RecurrenceDialogAdvanced', () => {
       }
     };
 
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         recurrenceRule: existingRule,
@@ -142,7 +142,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('保存時に正しいルールが生成される', async () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -167,7 +167,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('無効選択時はnullが保存される', async () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -191,7 +191,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('繰り返し回数フィールドが表示される', () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -211,7 +211,7 @@ describe('RecurrenceDialogAdvanced', () => {
   });
 
   it('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
-    render(RecurrenceDialogAdvanced, {
+    render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -252,7 +252,7 @@ describe('RecurrenceDialogAdvanced', () => {
     let countInput: HTMLInputElement;
 
     beforeEach(() => {
-      render(RecurrenceDialogAdvanced, {
+      render(RecurrenceDialog, {
         props: {
           open: true,
           onSave: mockOnSave,

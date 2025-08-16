@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
-import TimeLabelsEditor from '$lib/components/settings/time-labels-editor.svelte';
+import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
 import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化

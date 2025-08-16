@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import FormatCopyButtons from '$lib/components/settings/format-copy-buttons.svelte';
+import FormatCopyButtons from '$lib/components/settings/date-format/format-copy-buttons.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

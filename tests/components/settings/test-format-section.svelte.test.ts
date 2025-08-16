@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TestFormatSection from '$lib/components/settings/test-format-section.svelte';
+import TestFormatSection from '$lib/components/settings/date-format/test-format-section.svelte';
 
 // Mock dependencies
 vi.mock('$lib/stores/locale.svelte', () => ({

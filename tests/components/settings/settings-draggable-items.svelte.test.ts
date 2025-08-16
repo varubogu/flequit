@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import SettingsDraggableItems from '$lib/components/settings/settings-draggable-items.svelte';
+import SettingsDraggableItems from '$lib/components/settings/draggable-items/settings-draggable-items.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

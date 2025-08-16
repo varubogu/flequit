@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SettingsBasic from '$lib/components/settings/settings-basic.svelte';
+import SettingsBasic from '$lib/components/settings/basic/settings-basic.svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
 import { getTranslationService, localeStore } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';

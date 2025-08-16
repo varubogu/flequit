@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import DateFormatEditor from '$lib/components/settings/date-format-editor.svelte';
+import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
 
 // 依存関係のモック
 vi.mock('$lib/stores/datetime-format.svelte', () => ({

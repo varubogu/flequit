@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import SettingsAccount from '$lib/components/settings/settings-account.svelte';
+import SettingsAccount from '$lib/components/settings/account/settings-account.svelte';
 
 describe('SettingsAccount Component', () => {
   const defaultSettings = {

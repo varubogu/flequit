@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import DateFormatEditorHeader from '$lib/components/settings/date-format-editor-header.svelte';
+import DateFormatEditorHeader from '$lib/components/settings/date-format/date-format-editor-header.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

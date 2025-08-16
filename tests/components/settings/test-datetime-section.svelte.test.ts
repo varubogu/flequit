@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import TestDatetimeSection from '$lib/components/settings/test-datetime-section.svelte';
+import TestDatetimeSection from '$lib/components/settings/date-format/test-datetime-section.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

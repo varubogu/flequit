@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import NumericIntervalInput from '$lib/components/recurrence/numeric-interval-input.svelte';
+import NumericIntervalInput from '$lib/components/recurrence/shared/numeric-interval-input.svelte';
 
 describe('NumericIntervalInput', () => {
   const defaultProps = {
