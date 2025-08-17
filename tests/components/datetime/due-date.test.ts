@@ -1,6 +1,6 @@
 import { test, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import DueDate from '$lib/components/datetime/due-date.svelte';
+import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
 import type { TaskBase } from '$lib/types/task';
 
 const createMockTask = (overrides: Partial<TaskBase> = {}): TaskBase => ({

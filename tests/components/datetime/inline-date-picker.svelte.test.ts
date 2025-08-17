@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 // TODO: 将来のDOM テスト実装時に使用予定
 // import { render } from '@testing-library/svelte';
-// import InlineDatePicker from '$lib/components/datetime/inline-date-picker.svelte';
+// import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
 
 describe('InlineDatePicker', () => {
   const defaultProps = {

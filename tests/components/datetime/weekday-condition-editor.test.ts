@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import WeekdayConditionEditor from '$lib/components/datetime/weekday-condition-editor.svelte';
+import WeekdayConditionEditor from '$lib/components/datetime/conditions/weekday-condition-editor.svelte';
 import type { WeekdayCondition } from "$lib/types/datetime-calendar";
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {

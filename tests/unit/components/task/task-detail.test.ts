@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import TaskDetail from '$lib/components/task/task-detail.svelte';
+import TaskDetail from '$lib/components/task/detail/task-detail.svelte';
 
 // Mock the translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -58,7 +58,7 @@ describe('TaskDetail Component', () => {
 
 describe('TaskDetailLogic', () => {
   it('can be imported without errors', async () => {
-    const module = await import('$lib/components/task/task-detail-logic.svelte');
+    const module = await import('$lib/components/task/detail/task-detail-logic.svelte');
     expect(module.TaskDetailLogic).toBeDefined();
     expect(typeof module.TaskDetailLogic).toBe('function');
   });

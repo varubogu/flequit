@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import DateTimeInputs from '$lib/components/datetime/date-time-inputs.svelte';
+import DateTimeInputs from '$lib/components/datetime/date-inputs/date-time-inputs.svelte';
 
 describe('DateTimeInputs', () => {
   const defaultProps = {

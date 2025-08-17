@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import InlineDatePickerUI from '$lib/components/datetime/inline-date-picker-ui.svelte';
+import InlineDatePickerUI from '$lib/components/datetime/inline-picker/inline-date-picker-ui.svelte';
 
 // Mock child components
 vi.mock('$lib/components/ui/switch', () => ({
