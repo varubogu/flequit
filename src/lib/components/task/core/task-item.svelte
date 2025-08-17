@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import TaskDatePicker from './task-date-picker.svelte';
+  import TaskDatePicker from '../forms/task-date-picker.svelte';
   import TaskItemContent from './task-item-content.svelte';
   import { TaskItemLogic } from './task-item-logic.svelte';
   import { createEventDispatcher } from 'svelte';

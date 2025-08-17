@@ -3,7 +3,7 @@
   import Card from '$lib/components/ui/card.svelte';
   import { TaskDetailLogic } from './task-detail-logic.svelte';
   import TaskDetailContent from './task-detail-content.svelte';
-  import TaskDetailDialogs from './task-detail-dialogs.svelte';
+  import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
 
   interface Props {
     isDrawerMode?: boolean;

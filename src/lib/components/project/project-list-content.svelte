@@ -4,7 +4,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import { ChevronDown, ChevronRight } from 'lucide-svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
-  import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
+  import TaskListDisplay from '$lib/components/task/core/task-list-display.svelte';
   import type { ProjectListLogic } from './project-list-logic.svelte';
 
   interface Props {

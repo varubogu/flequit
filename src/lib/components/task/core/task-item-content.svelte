@@ -2,13 +2,13 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { getPriorityColor } from '$lib/utils/task-utils';
   import Button from '$lib/components/shared/button.svelte';
-  import TaskStatusToggle from '$lib/components/task/task-status-toggle.svelte';
-  import TaskContent from '$lib/components/task/task-content.svelte';
-  import SubTaskList from '$lib/components/task/sub-task-list.svelte';
-  import TaskAccordionToggle from './task-accordion-toggle.svelte';
+  import TaskStatusToggle from '$lib/components/task/controls/task-status-toggle.svelte';
+  import TaskContent from '$lib/components/task/core/task-content.svelte';
+  import SubTaskList from '$lib/components/task/subtasks/sub-task-list.svelte';
+  import TaskAccordionToggle from '../controls/task-accordion-toggle.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import type { TaskItemLogic } from './task-item-logic.svelte';
-  import type TaskDatePicker from './task-date-picker.svelte';
+  import type TaskDatePicker from '../forms/task-date-picker.svelte';
 
   interface Props {
     logic: TaskItemLogic;

@@ -4,7 +4,7 @@
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
-  import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
+  import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { Edit, Plus, Trash2 } from 'lucide-svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';

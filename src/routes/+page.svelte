@@ -1,8 +1,8 @@
 <script lang="ts">
   import CollapsibleSidebar from '$lib/components/sidebar/collapsible-sidebar.svelte';
-  import TaskList from '$lib/components/task/task-list.svelte';
-  import TaskDetail from '$lib/components/task/task-detail.svelte';
-  import TaskDetailDrawer from '$lib/components/task/task-detail-drawer.svelte';
+  import TaskList from '$lib/components/task/core/task-list.svelte';
+  import TaskDetail from '$lib/components/task/detail/task-detail.svelte';
+  import TaskDetailDrawer from '$lib/components/task/detail/task-detail-drawer.svelte';
   import * as Resizable from '$lib/components/ui/resizable/index.js';
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';

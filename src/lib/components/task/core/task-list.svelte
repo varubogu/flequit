@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import TaskItem from './task-item.svelte';
-  import TaskAddForm from './task-add-form.svelte';
+  import TaskAddForm from '../forms/task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { TaskListService } from '$lib/services/task-list-service';
   import Button from '$lib/components/shared/button.svelte';

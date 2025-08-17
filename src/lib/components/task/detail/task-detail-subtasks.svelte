@@ -5,7 +5,7 @@
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
   import { TaskListService } from '$lib/services/task-list-service';
   import { Plus } from 'lucide-svelte';
-  import SubTaskAddForm from './subtask-add-form.svelte';
+  import SubTaskAddForm from '../forms/subtask-add-form.svelte';
 
   interface Props {
     task: TaskWithSubTasks;

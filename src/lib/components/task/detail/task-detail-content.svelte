@@ -2,10 +2,10 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from "$lib/types/sub-task";
   import TaskDetailHeader from './task-detail-header.svelte';
-  import TaskStatusSelector from './task-status-selector.svelte';
-  import TaskDueDateSelector from './task-due-date-selector.svelte';
-  import TaskPrioritySelector from './task-priority-selector.svelte';
-  import TaskDescriptionEditor from './task-description-editor.svelte';
+  import TaskStatusSelector from '../forms/task-status-selector.svelte';
+  import TaskDueDateSelector from '../forms/task-due-date-selector.svelte';
+  import TaskPrioritySelector from '../forms/task-priority-selector.svelte';
+  import TaskDescriptionEditor from '../editors/task-description-editor.svelte';
   import TaskDetailSubTasks from './task-detail-subtasks.svelte';
   import TaskDetailTags from './task-detail-tags.svelte';
   import TaskDetailMetadata from './task-detail-metadata.svelte';

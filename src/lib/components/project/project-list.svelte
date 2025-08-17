@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ViewType } from '$lib/services/view-service';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
-  import TaskListDialog from '$lib/components/task/task-list-dialog.svelte';
+  import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
   import ProjectListContent from './project-list-content.svelte';
   import { ProjectListLogic } from './project-list-logic.svelte';
 

@@ -3,7 +3,7 @@
   import { CalendarDate } from '@internationalized/date';
   import DateTimeInputs from '../date-inputs/date-time-inputs.svelte';
   import CalendarPicker from '../calendar/calendar-picker.svelte';
-  import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
+  import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
     import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 
   interface Props {
