@@ -195,7 +195,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
             active_model.is_active = new_active.is_active;
             active_model.updated_at = new_active.updated_at;
 
-            let updated = active_model.update(db).await?;
+            active_model.update(db).await?;
             Ok(())
         } else {
             // 新規作成
@@ -203,7 +203,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
                 .to_sqlite_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-            let saved = active_model.insert(db).await?;
+            active_model.insert(db).await?;
             Ok(())
         }
     }
@@ -227,7 +227,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        let result = AccountEntity::delete_by_id(id.to_string()).exec(db).await?;
+        AccountEntity::delete_by_id(id.to_string()).exec(db).await?;
         Ok(())
     }
 

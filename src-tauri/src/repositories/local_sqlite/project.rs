@@ -77,7 +77,7 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
-        let saved = active_model.insert(db).await?;
+        active_model.insert(db).await?;
         Ok(())
     }
 

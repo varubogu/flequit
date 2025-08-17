@@ -149,7 +149,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
             active_model.order_index = new_active.order_index;
             active_model.updated_at = new_active.updated_at;
 
-            let updated = active_model.update(db).await?;
+            active_model.update(db).await?;
             Ok(())
         } else {
             // 新規作成
@@ -157,7 +157,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
                 .to_sqlite_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-            let saved = active_model.insert(db).await?;
+            active_model.insert(db).await?;
             Ok(())
         }
     }

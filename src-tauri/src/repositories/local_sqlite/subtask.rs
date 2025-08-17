@@ -81,7 +81,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
-        let saved = active_model.insert(db).await?;
+        active_model.insert(db).await?;
         Ok(())
     }
 
@@ -124,7 +124,8 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn delete(&self, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        let result = SubtaskEntity::delete_by_id(id.to_string()).exec(db).await?;
+        SubtaskEntity::delete_by_id(id.to_string()).exec(db).await?;
+
         Ok(())
     }
 

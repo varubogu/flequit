@@ -59,7 +59,7 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
-        let saved = active_model.insert(db).await?;
+        active_model.insert(db).await?;
         Ok(())
     }
 
@@ -102,7 +102,7 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     async fn delete(&self, id: &TaskListId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        let result = TaskListEntity::delete_by_id(id.to_string())
+        TaskListEntity::delete_by_id(id.to_string())
             .exec(db)
             .await?;
         Ok(())
