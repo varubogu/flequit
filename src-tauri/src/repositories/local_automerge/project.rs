@@ -27,6 +27,7 @@ use log::info;
 /// - **履歴管理**: すべての変更履歴を保持
 /// - **オフライン対応**: ローカル優先で同期可能
 /// - **JSON互換**: 構造化データの効率的な管理
+#[derive(Debug)]
 pub struct ProjectLocalAutomergeRepository {}
 
 impl Default for ProjectLocalAutomergeRepository {

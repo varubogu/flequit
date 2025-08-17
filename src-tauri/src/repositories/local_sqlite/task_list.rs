@@ -13,6 +13,7 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrde
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+#[derive(Debug)]
 pub struct TaskListLocalSqliteRepository {
     db_manager: Arc<RwLock<DatabaseManager>>,
 }

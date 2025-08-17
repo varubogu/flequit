@@ -9,6 +9,7 @@ use std::path::{Path, PathBuf};
 pub enum DocumentType {
     Settings,
     Account,
+    User,
     Project(String), // project_id
 }
 
@@ -18,6 +19,7 @@ impl DocumentType {
         match self {
             DocumentType::Settings => "settings.automerge".to_string(),
             DocumentType::Account => "account.automerge".to_string(),
+            DocumentType::User => "user.automerge".to_string(),
             DocumentType::Project(id) => format!("project_{}.automerge", id),
         }
     }

@@ -164,10 +164,7 @@ impl AccountLocalSqliteRepository {
     }
 }
 
-impl AccountRepositoryTrait for AccountLocalSqliteRepository{
-    
-}
-
+impl AccountRepositoryTrait for AccountLocalSqliteRepository {}
 
 #[async_trait::async_trait]
 impl Repository<Account, AccountId> for AccountLocalSqliteRepository {

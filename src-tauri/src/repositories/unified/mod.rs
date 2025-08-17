@@ -16,6 +16,7 @@ pub mod subtask;
 pub mod tag;
 pub mod task;
 pub mod task_list;
+pub mod user;
 
 // 公開
 pub use account::AccountUnifiedRepository;
@@ -25,6 +26,7 @@ pub use subtask::SubTaskUnifiedRepository;
 pub use tag::TagUnifiedRepository;
 pub use task::TaskUnifiedRepository;
 pub use task_list::TaskListUnifiedRepository;
+pub use user::UserUnifiedRepository;
 
 pub use super::local_automerge::local_automerge_repositories::LocalAutomergeRepositories;
 pub use super::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories;

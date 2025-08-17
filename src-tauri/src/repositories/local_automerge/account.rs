@@ -342,7 +342,10 @@ mod tests {
 
         let found = repository.find_by_id(&test_account_id).await.unwrap();
         assert!(found.is_some());
-        assert_eq!(found.unwrap().email, Some("repo_test@example.com".to_string()));
+        assert_eq!(
+            found.unwrap().email,
+            Some("repo_test@example.com".to_string())
+        );
 
         let exists = repository.exists(&test_account_id).await.unwrap();
         assert!(exists);

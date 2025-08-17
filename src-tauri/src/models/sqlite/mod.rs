@@ -5,6 +5,7 @@ pub mod subtask;
 pub mod tag;
 pub mod task;
 pub mod task_list;
+pub mod user;
 
 /// SQLiteモデルと内部ドメインモデル間の変換を提供するトレイト
 ///

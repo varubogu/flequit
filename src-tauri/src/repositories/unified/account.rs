@@ -111,23 +111,32 @@ impl AccountUnifiedRepository {
 
     /// SQLiteリポジトリを保存用に追加
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
-        self.save_repositories.push(AccountRepositoryVariant::Sqlite(sqlite_repo));
+        self.save_repositories
+            .push(AccountRepositoryVariant::Sqlite(sqlite_repo));
     }
 
     /// SQLiteリポジトリを検索用に追加
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
-        self.search_repositories.push(AccountRepositoryVariant::Sqlite(sqlite_repo));
+        self.search_repositories
+            .push(AccountRepositoryVariant::Sqlite(sqlite_repo));
     }
 
     /// Automergeリポジトリを保存用に追加
     pub fn add_automerge_for_save(&mut self, automerge_repo: AccountLocalAutomergeRepository) {
-        self.save_repositories.push(AccountRepositoryVariant::Automerge(automerge_repo));
+        self.save_repositories
+            .push(AccountRepositoryVariant::Automerge(automerge_repo));
     }
 
     /// 便利メソッド: SQLiteを保存用と検索用の両方に追加
-    pub fn add_sqlite_for_both(&mut self, sqlite_repo_save: AccountLocalSqliteRepository, sqlite_repo_search: AccountLocalSqliteRepository) {
-        self.save_repositories.push(AccountRepositoryVariant::Sqlite(sqlite_repo_save));
-        self.search_repositories.push(AccountRepositoryVariant::Sqlite(sqlite_repo_search));
+    pub fn add_sqlite_for_both(
+        &mut self,
+        sqlite_repo_save: AccountLocalSqliteRepository,
+        sqlite_repo_search: AccountLocalSqliteRepository,
+    ) {
+        self.save_repositories
+            .push(AccountRepositoryVariant::Sqlite(sqlite_repo_save));
+        self.search_repositories
+            .push(AccountRepositoryVariant::Sqlite(sqlite_repo_search));
     }
 }
 
@@ -135,7 +144,10 @@ impl AccountUnifiedRepository {
 impl Repository<Account, AccountId> for AccountUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
-        info!("AccountUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存", self.save_repositories.len());
+        info!(
+            "AccountUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
+            self.save_repositories.len()
+        );
         info!("{:?}", entity);
 
         // 全ての保存用リポジトリに順次保存
@@ -175,7 +187,10 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
 
     /// 保存用リポジトリ（SQLite + Automerge + α）から削除
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
-        info!("AccountUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除", self.save_repositories.len());
+        info!(
+            "AccountUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除",
+            self.save_repositories.len()
+        );
         info!("{:?}", id);
 
         // 全ての保存用リポジトリから削除

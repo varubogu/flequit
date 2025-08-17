@@ -16,7 +16,7 @@ use crate::errors::RepositoryError;
 use crate::repositories::unified::{
     AccountUnifiedRepository, ProjectUnifiedRepository, SettingsUnifiedRepository,
     SubTaskUnifiedRepository, TagUnifiedRepository, TaskListUnifiedRepository,
-    TaskUnifiedRepository,
+    TaskUnifiedRepository, UserUnifiedRepository,
 };
 
 /// 統合リポジトリのメインエントリーポイント
@@ -30,6 +30,7 @@ pub struct Repositories {
     pub sub_tasks: SubTaskUnifiedRepository,
     pub tags: TagUnifiedRepository,
     pub accounts: AccountUnifiedRepository,
+    pub users: UserUnifiedRepository,
     pub settings: SettingsUnifiedRepository,
 }
 
@@ -37,12 +38,13 @@ impl Repositories {
     /// 新しい統合リポジトリインスタンスを作成
     pub async fn new() -> Result<Self, RepositoryError> {
         Ok(Self {
-            projects: ProjectUnifiedRepository::new(),
-            task_lists: TaskListUnifiedRepository::new(),
-            tasks: TaskUnifiedRepository::new(),
-            sub_tasks: SubTaskUnifiedRepository::new(),
-            tags: TagUnifiedRepository::new(),
+            projects: ProjectUnifiedRepository::new(vec![], vec![]),
+            task_lists: TaskListUnifiedRepository::new(vec![], vec![]),
+            tasks: TaskUnifiedRepository::new(vec![], vec![]),
+            sub_tasks: SubTaskUnifiedRepository::new(vec![], vec![]),
+            tags: TagUnifiedRepository::new(vec![], vec![]),
             accounts: AccountUnifiedRepository::new(vec![], vec![]),
+            users: UserUnifiedRepository::new(vec![], vec![]),
             settings: SettingsUnifiedRepository::new(),
         })
     }

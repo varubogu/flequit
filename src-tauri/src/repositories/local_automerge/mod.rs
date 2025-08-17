@@ -4,3 +4,8 @@ pub mod file_storage;
 pub mod local_automerge_repositories;
 pub mod project;
 pub mod settings;
+pub mod subtask;
+pub mod tag;
+pub mod task;
+pub mod task_list;
+pub mod user;
