@@ -15,13 +15,18 @@ use crate::{
     types::id_types::TaskListId,
 };
 
-use super::{LocalAutomergeRepositories, LocalSqliteRepositories};
 
 /// タスクリスト用統合リポジトリ
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、
 /// タスクリストエンティティに最適化されたアクセスパターンを提供する。
 pub struct TaskListUnifiedRepository {}
+
+impl Default for TaskListUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl TaskListUnifiedRepository {
     pub fn new() -> Self {
@@ -41,7 +46,7 @@ impl Repository<TaskList, TaskListId> for TaskListUnifiedRepository {
     async fn find_by_id(&self, id: &TaskListId) -> Result<Option<TaskList>, RepositoryError> {
         info!("TaskListUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<TaskList>, RepositoryError> {

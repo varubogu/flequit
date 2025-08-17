@@ -19,6 +19,12 @@ use crate::{
 /// タスクエンティティに最適化されたアクセスパターンを提供する。
 pub struct TaskUnifiedRepository {}
 
+impl Default for TaskUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TaskUnifiedRepository {
     pub fn new() -> Self {
         Self {}
@@ -37,7 +43,7 @@ impl Repository<Task, TaskId> for TaskUnifiedRepository {
     async fn find_by_id(&self, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
         info!("TaskUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<Task>, RepositoryError> {

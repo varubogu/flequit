@@ -21,6 +21,12 @@ use crate::{
 /// サブタスクエンティティに最適化されたアクセスパターンを提供する。
 pub struct SubTaskUnifiedRepository {}
 
+impl Default for SubTaskUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SubTaskUnifiedRepository {
     pub fn new() -> Self {
         Self {}
@@ -39,7 +45,7 @@ impl Repository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
     async fn find_by_id(&self, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
         info!("SubTaskUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<SubTask>, RepositoryError> {

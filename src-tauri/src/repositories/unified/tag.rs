@@ -19,6 +19,12 @@ use crate::types::id_types::TagId;
 /// タグエンティティに最適化されたアクセスパターンを提供する。
 pub struct TagUnifiedRepository {}
 
+impl Default for TagUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TagUnifiedRepository {
     pub fn new() -> Self {
         Self {}
@@ -37,7 +43,7 @@ impl Repository<Tag, TagId> for TagUnifiedRepository {
     async fn find_by_id(&self, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
         info!("TagUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<Tag>, RepositoryError> {

@@ -112,20 +112,14 @@ impl SqliteModelConverter<Project> for Model {
 impl DomainToSqliteConverter<ActiveModel> for Project {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
-        let status_string = if let Some(status) = &self.status {
-            Some(
-                match status {
+        let status_string = self.status.as_ref().map(|status| match status {
                     crate::types::project_types::ProjectStatus::Planning => "planning",
                     crate::types::project_types::ProjectStatus::Active => "active",
                     crate::types::project_types::ProjectStatus::OnHold => "on_hold",
                     crate::types::project_types::ProjectStatus::Completed => "completed",
                     crate::types::project_types::ProjectStatus::Archived => "archived",
                 }
-                .to_string(),
-            )
-        } else {
-            None
-        };
+                .to_string());
 
         Ok(ActiveModel {
             id: Set(self.id.to_string()),

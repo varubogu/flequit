@@ -8,7 +8,7 @@ use crate::types::id_types::TaskListId;
 #[tauri::command]
 pub async fn create_task_list(task_list: TaskListCommand) -> Result<bool, String> {
     let internal_task_list = task_list.to_model().await?;
-    Ok(task_list_facades::create_task_list(&internal_task_list).await?)
+    task_list_facades::create_task_list(&internal_task_list).await
 }
 
 #[tauri::command]
@@ -27,7 +27,7 @@ pub async fn get_task_list(id: String) -> Result<Option<TaskListCommand>, String
 #[tauri::command]
 pub async fn update_task_list(task_list: TaskListCommand) -> Result<bool, String> {
     let internal_task_list = task_list.to_model().await?;
-    Ok(task_list_facades::update_task_list(&internal_task_list).await?)
+    task_list_facades::update_task_list(&internal_task_list).await
 }
 
 #[tauri::command]

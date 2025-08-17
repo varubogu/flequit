@@ -17,6 +17,12 @@ use crate::types::id_types::AccountId;
 /// アカウントエンティティに最適化されたアクセスパターンを提供する。
 pub struct AccountUnifiedRepository {}
 
+impl Default for AccountUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AccountUnifiedRepository {
     pub fn new() -> Self {
         Self {}
@@ -35,7 +41,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         info!("AccountUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {

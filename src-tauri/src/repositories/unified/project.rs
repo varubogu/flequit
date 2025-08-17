@@ -21,6 +21,12 @@ pub struct ProjectUnifiedRepository {
     // 実際の実装では別のアプローチを採用
 }
 
+impl Default for ProjectUnifiedRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProjectUnifiedRepository {
     pub fn new() -> Self {
         Self {}
@@ -39,7 +45,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {

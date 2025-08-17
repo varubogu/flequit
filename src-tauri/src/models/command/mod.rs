@@ -52,5 +52,5 @@ pub trait ModelConverter<T> {
     /// * `Ok(T)` - 変換に成功した場合の内部ドメインモデル
     /// * `Err(String)` - 変換に失敗した場合のエラーメッセージ
     ///   （主に日時文字列のパースエラー）
-    async fn to_model(self: &Self) -> Result<T, String>;
+    async fn to_model(&self) -> Result<T, String>;
 }

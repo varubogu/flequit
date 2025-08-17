@@ -5,7 +5,7 @@ use crate::services::tag_service;
 use crate::types::id_types::TagId;
 
 pub async fn create_tag(tag: &Tag) -> Result<bool, String> {
-    match tag_service::create_tag(&tag).await {
+    match tag_service::create_tag(tag).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create tag: {:?}", e)),
@@ -22,7 +22,7 @@ pub async fn get_tag(id: &TagId) -> Result<Option<Tag>, String> {
 }
 
 pub async fn update_tag(tag: &Tag) -> Result<bool, String> {
-    match tag_service::update_tag(&tag).await {
+    match tag_service::update_tag(tag).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update tag: {:?}", e)),

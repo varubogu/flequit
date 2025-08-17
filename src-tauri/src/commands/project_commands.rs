@@ -8,7 +8,7 @@ use crate::types::id_types::ProjectId;
 pub async fn create_project(project: ProjectCommand) -> Result<bool, String> {
     let internal_project = project.to_model().await?;
 
-    Ok(project_facades::create_project(&internal_project).await?)
+    project_facades::create_project(&internal_project).await
 }
 
 #[tauri::command]
@@ -24,7 +24,7 @@ pub async fn get_project(id: String) -> Result<Option<ProjectCommand>, String> {
 #[tauri::command]
 pub async fn update_project(project: ProjectCommand) -> Result<bool, String> {
     let internal_project = project.to_model().await?;
-    Ok(project_facades::update_project(&internal_project).await?)
+    project_facades::update_project(&internal_project).await
 }
 
 #[tauri::command]

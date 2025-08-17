@@ -25,5 +25,5 @@ pub async fn get_all_settings() -> Result<Vec<SettingCommand>, String> {
 #[tauri::command]
 pub async fn update_setting(setting: SettingCommand) -> Result<bool, String> {
     let internal_setting = setting.to_model().await?;
-    Ok(setting_facades::update_setting(&internal_setting).await?)
+    setting_facades::update_setting(&internal_setting).await
 }

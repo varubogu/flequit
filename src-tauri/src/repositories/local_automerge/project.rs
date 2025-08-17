@@ -29,6 +29,12 @@ use log::info;
 /// - **JSON互換**: 構造化データの効率的な管理
 pub struct LocalAutomergeProjectRepository {}
 
+impl Default for LocalAutomergeProjectRepository {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LocalAutomergeProjectRepository {
     pub fn new() -> Self {
         Self {}
@@ -47,7 +53,7 @@ impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_by_id");
         info!("{:?}", id);
-        Ok(Option::from(None))
+        Ok(None)
     }
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {

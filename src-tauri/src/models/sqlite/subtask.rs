@@ -118,7 +118,7 @@ impl SqliteModelConverter<SubTask> for Model {
                 .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
             string_ids
                 .into_iter()
-                .map(|id| crate::types::id_types::UserId::from(id))
+                .map(crate::types::id_types::UserId::from)
                 .collect()
         } else {
             vec![]
@@ -130,7 +130,7 @@ impl SqliteModelConverter<SubTask> for Model {
                 .map_err(|e| format!("Failed to parse tag_ids: {}", e))?;
             string_ids
                 .into_iter()
-                .map(|id| crate::types::id_types::TagId::from(id))
+                .map(crate::types::id_types::TagId::from)
                 .collect()
         } else {
             vec![]

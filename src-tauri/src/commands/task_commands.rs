@@ -6,7 +6,7 @@ use crate::models::CommandModelConverter;
 #[tauri::command]
 pub async fn create_task(task: TaskCommand) -> Result<bool, String> {
     let internal_task = task.to_model().await?;
-    Ok(task_facades::create_task(&internal_task).await?)
+    task_facades::create_task(&internal_task).await
 }
 
 #[tauri::command]
@@ -21,7 +21,7 @@ pub async fn get_task(id: String) -> Result<Option<TaskCommand>, String> {
 #[tauri::command]
 pub async fn update_task(task: TaskCommand) -> Result<bool, String> {
     let internal_task = task.to_model().await?;
-    Ok(task_facades::update_task(&internal_task).await?)
+    task_facades::update_task(&internal_task).await
 }
 
 #[tauri::command]

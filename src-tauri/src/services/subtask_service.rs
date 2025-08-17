@@ -35,12 +35,12 @@ pub async fn update_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
 
 pub async fn delete_subtask(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
     // 一時的に何もしない
-    let _ = (subtask_id);
+    let _ = subtask_id;
     Ok(())
 }
 
 pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
     // 一時的に何もしない
-    let _ = (subtask_id);
+    let _ = subtask_id;
     Ok(())
 }

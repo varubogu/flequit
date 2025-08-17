@@ -7,7 +7,7 @@ use crate::models::CommandModelConverter;
 pub async fn create_account(account: AccountCommand) -> Result<bool, String> {
     let internal_account = account.to_model().await?;
 
-    Ok(account_facades::create_account(&internal_account).await?)
+    account_facades::create_account(&internal_account).await
 }
 
 #[tauri::command]
@@ -19,7 +19,7 @@ pub async fn get_account(id: String) -> Result<Option<AccountCommand>, String> {
 #[tauri::command]
 pub async fn update_account(account: AccountCommand) -> Result<bool, String> {
     let internal_account = account.to_model().await?;
-    Ok(account_facades::update_account(&internal_account).await?)
+    account_facades::update_account(&internal_account).await
 }
 
 #[tauri::command]
