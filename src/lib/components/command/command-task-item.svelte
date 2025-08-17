@@ -13,7 +13,7 @@
 
 <Command.Item {onSelect}>
   <span class="truncate font-medium">{task.title}</span>
-  {#if isTagSearch && task.tags.length > 0}
+  {#if isTagSearch && task.tags && task.tags.length > 0}
     <div class="ml-2 flex gap-1">
       {#each task.tags as tag (tag.id)}
         <span

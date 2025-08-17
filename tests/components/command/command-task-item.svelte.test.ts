@@ -1,12 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import CommandTaskItem from '$lib/components/command/command-task-item.svelte';
+import CommandTaskItemWrapper from './CommandTaskItemWrapper.test.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
-
-// Mock UI command components
-vi.mock('$lib/components/ui/command/index.js', () => ({
-  Item: () => null
-}));
 
 describe('CommandTaskItem', () => {
   const mockTask: TaskWithSubTasks = {
@@ -41,13 +36,13 @@ describe('CommandTaskItem', () => {
 
   describe('basic rendering', () => {
     it('should render without errors', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       expect(document.body).toBeInTheDocument();
     });
 
     it('should render task title', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Component should render without errors - skip text content verification due to mocking complexity
       expect(document.body).toBeInTheDocument();
@@ -71,7 +66,7 @@ describe('CommandTaskItem', () => {
         tags: []
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           task: minimalTask,
           isTagSearch: false,
@@ -86,7 +81,7 @@ describe('CommandTaskItem', () => {
 
   describe('task title rendering', () => {
     it('should display task title with correct styling', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Component should render without errors - skip text content verification due to mocking complexity
       expect(document.body).toBeInTheDocument();
@@ -98,7 +93,7 @@ describe('CommandTaskItem', () => {
         title: ''
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithEmptyTitle
@@ -115,7 +110,7 @@ describe('CommandTaskItem', () => {
         title: 'A'.repeat(200)
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithLongTitle
@@ -132,7 +127,7 @@ describe('CommandTaskItem', () => {
         title: 'Task with 特殊文字 & symbols!@#$%'
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithSpecialTitle
@@ -146,7 +141,7 @@ describe('CommandTaskItem', () => {
 
   describe('tag search mode', () => {
     it('should display tags when isTagSearch is true and task has tags', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: true
@@ -158,7 +153,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should not display tags when isTagSearch is false', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: false
@@ -175,7 +170,7 @@ describe('CommandTaskItem', () => {
         tags: []
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithoutTags,
@@ -188,7 +183,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should render tags with correct styling', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: true
@@ -209,7 +204,7 @@ describe('CommandTaskItem', () => {
         ]
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithSpecialTags,
@@ -224,7 +219,7 @@ describe('CommandTaskItem', () => {
 
   describe('description display', () => {
     it('should display description when not in tag search mode', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: false
@@ -236,7 +231,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should not display description when in tag search mode', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: true
@@ -252,7 +247,7 @@ describe('CommandTaskItem', () => {
         description: ''
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithoutDescription,
@@ -269,7 +264,7 @@ describe('CommandTaskItem', () => {
         description: null as any
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithNullDescription,
@@ -281,7 +276,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should render description with correct styling', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: false
@@ -303,7 +298,7 @@ describe('CommandTaskItem', () => {
         description: 'B'.repeat(300)
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithLongDescription,
@@ -319,7 +314,7 @@ describe('CommandTaskItem', () => {
   describe('onSelect callback', () => {
     it('should accept onSelect callback', () => {
       const mockCallback = vi.fn();
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           onSelect: mockCallback
@@ -330,7 +325,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should handle undefined onSelect', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           onSelect: undefined as any
@@ -341,7 +336,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should handle null onSelect', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           onSelect: null as any
@@ -354,7 +349,7 @@ describe('CommandTaskItem', () => {
 
   describe('command item integration', () => {
     it('should integrate with Command.Item component', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Should work with mocked Command.Item
       expect(document.body).toBeInTheDocument();
@@ -362,7 +357,7 @@ describe('CommandTaskItem', () => {
 
     it('should pass onSelect to Command.Item', () => {
       const mockCallback = vi.fn();
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           onSelect: mockCallback
@@ -376,7 +371,7 @@ describe('CommandTaskItem', () => {
 
   describe('conditional rendering logic', () => {
     it('should prioritize tags over description in tag search mode', () => {
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: true
@@ -394,7 +389,7 @@ describe('CommandTaskItem', () => {
         tags: []
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithoutTags,
@@ -412,7 +407,7 @@ describe('CommandTaskItem', () => {
         tags: []
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: minimalTask,
@@ -433,7 +428,7 @@ describe('CommandTaskItem', () => {
         title: null as any
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithNullTitle
@@ -449,7 +444,7 @@ describe('CommandTaskItem', () => {
         tags: undefined as any
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithUndefinedTags,
@@ -470,7 +465,7 @@ describe('CommandTaskItem', () => {
         ]
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: taskWithIncompleteTags,
@@ -484,7 +479,7 @@ describe('CommandTaskItem', () => {
 
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
-      const { unmount } = render(CommandTaskItem, { props: defaultProps });
+      const { unmount } = render(CommandTaskItemWrapper, { props: defaultProps });
       
       expect(document.body).toBeInTheDocument();
       
@@ -492,7 +487,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should handle prop updates', () => {
-      const { unmount } = render(CommandTaskItem, { props: defaultProps });
+      const { unmount } = render(CommandTaskItemWrapper, { props: defaultProps });
       
       unmount();
       
@@ -501,7 +496,7 @@ describe('CommandTaskItem', () => {
         title: 'Updated Task Title'
       };
 
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           task: updatedTask
@@ -512,7 +507,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should handle mode switching', () => {
-      const { unmount } = render(CommandTaskItem, { 
+      const { unmount } = render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: false
@@ -523,7 +518,7 @@ describe('CommandTaskItem', () => {
       
       unmount();
       
-      render(CommandTaskItem, { 
+      render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
           isTagSearch: true
@@ -537,7 +532,7 @@ describe('CommandTaskItem', () => {
 
   describe('accessibility', () => {
     it('should maintain proper text hierarchy', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Title should be prominent
       const titleElement = screen.getByText('Test Task');
@@ -545,7 +540,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should provide accessible content for screen readers', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Content should be accessible
       expect(screen.getByText('Test Task')).toBeInTheDocument();
@@ -553,7 +548,7 @@ describe('CommandTaskItem', () => {
     });
 
     it('should handle keyboard navigation integration', () => {
-      render(CommandTaskItem, { props: defaultProps });
+      render(CommandTaskItemWrapper, { props: defaultProps });
       
       // Should work with command item keyboard navigation
       expect(document.body).toBeInTheDocument();
