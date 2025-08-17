@@ -1,6 +1,7 @@
 //! TaskList用SQLiteリポジトリ
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::task_list::{Column, Entity as TaskListEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task_list::TaskList;
@@ -9,13 +10,15 @@ use crate::types::id_types::TaskListId;
 use async_trait::async_trait;
 use log::info;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct TaskListLocalSqliteRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl TaskListLocalSqliteRepository {
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
@@ -23,7 +26,8 @@ impl TaskListLocalSqliteRepository {
         &self,
         project_id: &str,
     ) -> Result<Vec<TaskList>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskListEntity::find()
             .filter(Column::ProjectId.eq(project_id))
@@ -48,7 +52,8 @@ impl TaskListLocalSqliteRepository {
 #[async_trait]
 impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     async fn save(&self, task_list: &TaskList) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let active_model = task_list
             .to_sqlite_model()
             .await
@@ -58,7 +63,8 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     }
 
     async fn find_by_id(&self, id: &TaskListId) -> Result<Option<TaskList>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = TaskListEntity::find_by_id(id.to_string()).one(db).await? {
             let task_list = model
@@ -72,7 +78,8 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     }
 
     async fn find_all(&self) -> Result<Vec<TaskList>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskListEntity::find()
             .order_by_asc(Column::OrderIndex)
@@ -92,7 +99,8 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     }
 
     async fn delete(&self, id: &TaskListId) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let result = TaskListEntity::delete_by_id(id.to_string())
             .exec(db)
             .await?;

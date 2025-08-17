@@ -1,6 +1,7 @@
 //! Tag用SQLiteリポジトリ
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::tag::{ActiveModel as TagActiveModel, Column, Entity as TagEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::tag::Tag;
@@ -9,18 +10,21 @@ use crate::types::id_types::TagId;
 use async_trait::async_trait;
 use log::info;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct TagLocalSqliteRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl TagLocalSqliteRepository {
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     pub async fn find_by_name(&self, name: &str) -> Result<Option<Tag>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = TagEntity::find()
             .filter(Column::Name.eq(name))
@@ -38,7 +42,8 @@ impl TagLocalSqliteRepository {
     }
 
     pub async fn find_by_color(&self, color: &str) -> Result<Vec<Tag>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TagEntity::find()
             .filter(Column::Color.eq(color))
@@ -59,7 +64,8 @@ impl TagLocalSqliteRepository {
     }
 
     pub async fn find_popular_tags(&self, limit: u64) -> Result<Vec<Tag>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TagEntity::find()
             .order_by_desc(Column::UsageCount)
@@ -80,7 +86,8 @@ impl TagLocalSqliteRepository {
     }
 
     pub async fn increment_usage(&self, tag_id: &str) -> Result<Tag, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let existing = TagEntity::find_by_id(tag_id)
             .one(db)
@@ -98,7 +105,8 @@ impl TagLocalSqliteRepository {
     }
 
     pub async fn decrement_usage(&self, tag_id: &str) -> Result<Tag, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let existing = TagEntity::find_by_id(tag_id)
             .one(db)
@@ -119,7 +127,8 @@ impl TagLocalSqliteRepository {
 #[async_trait]
 impl Repository<Tag, TagId> for TagLocalSqliteRepository {
     async fn save(&self, tag: &Tag) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // 名前で既存のタグをチェック
         let existing = TagEntity::find()
@@ -153,7 +162,8 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
     }
 
     async fn find_by_id(&self, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = TagEntity::find_by_id(id.to_string()).one(db).await? {
             let tag = model
@@ -167,7 +177,8 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
     }
 
     async fn find_all(&self) -> Result<Vec<Tag>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TagEntity::find()
             .order_by_asc(Column::OrderIndex)

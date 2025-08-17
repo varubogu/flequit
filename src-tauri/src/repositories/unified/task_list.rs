@@ -15,7 +15,6 @@ use crate::{
     types::id_types::TaskListId,
 };
 
-
 /// タスクリスト用統合リポジトリ
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、

@@ -1,12 +1,12 @@
-use crate::{errors::RepositoryError, repositories::unified::{LocalAutomergeRepositories, LocalSqliteRepositories}};
-
-
+use crate::{
+    errors::RepositoryError,
+    repositories::unified::{LocalAutomergeRepositories, LocalSqliteRepositories},
+};
 
 pub(crate) struct RepositoryManager {
     sqlite_repositories: LocalSqliteRepositories,
     automerge_repositories: LocalAutomergeRepositories,
 }
-
 
 impl RepositoryManager {
     pub(crate) async fn new() -> Result<Self, RepositoryError> {

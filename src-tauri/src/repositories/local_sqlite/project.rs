@@ -1,6 +1,7 @@
 //! Project用SQLiteリポジトリ
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::project::Project;
 use crate::models::sqlite::project::{Column, Entity as ProjectEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
@@ -9,18 +10,21 @@ use crate::types::id_types::ProjectId;
 use async_trait::async_trait;
 use log::info;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct ProjectLocalSqliteRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl ProjectLocalSqliteRepository {
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     pub async fn find_by_owner(&self, owner_id: &str) -> Result<Vec<Project>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = ProjectEntity::find()
             .filter(Column::OwnerId.eq(owner_id))
@@ -41,7 +45,8 @@ impl ProjectLocalSqliteRepository {
     }
 
     pub async fn find_active_projects(&self) -> Result<Vec<Project>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = ProjectEntity::find()
             .filter(Column::IsArchived.eq(false))
@@ -65,7 +70,8 @@ impl ProjectLocalSqliteRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
     async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let active_model = project
             .to_sqlite_model()
             .await
@@ -75,7 +81,8 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
     }
 
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = ProjectEntity::find_by_id(id.to_string()).one(db).await? {
             let project = model
@@ -89,7 +96,8 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
     }
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = ProjectEntity::find()
             .order_by_asc(Column::OrderIndex)

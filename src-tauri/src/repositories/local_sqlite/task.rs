@@ -1,6 +1,7 @@
 //! Task用SQLiteリポジトリ
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::task::{Column, Entity as TaskEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task::Task;
@@ -9,18 +10,21 @@ use crate::types::id_types::TaskId;
 use async_trait::async_trait;
 use log::info;
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 pub struct TaskLocalSqliteRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl TaskLocalSqliteRepository {
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     pub async fn find_by_project(&self, project_id: &str) -> Result<Vec<Task>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskEntity::find()
             .filter(Column::ProjectId.eq(project_id))
@@ -42,7 +46,8 @@ impl TaskLocalSqliteRepository {
     }
 
     pub async fn find_by_task_list(&self, list_id: &str) -> Result<Vec<Task>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskEntity::find()
             .filter(Column::ListId.eq(list_id))
@@ -64,7 +69,8 @@ impl TaskLocalSqliteRepository {
     }
 
     pub async fn find_by_status(&self, status: &str) -> Result<Vec<Task>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskEntity::find()
             .filter(Column::Status.eq(status))
@@ -89,7 +95,8 @@ impl TaskLocalSqliteRepository {
 #[async_trait]
 impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
     async fn save(&self, task: &Task) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let active_model = task
             .to_sqlite_model()
             .await
@@ -99,7 +106,8 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
     }
 
     async fn find_by_id(&self, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = TaskEntity::find_by_id(id.to_string()).one(db).await? {
             let task = model
@@ -113,7 +121,8 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
     }
 
     async fn find_all(&self) -> Result<Vec<Task>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = TaskEntity::find()
             .filter(Column::IsArchived.eq(false))
@@ -134,7 +143,8 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
     }
 
     async fn delete(&self, id: &TaskId) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let result = TaskEntity::delete_by_id(id.to_string()).exec(db).await?;
         Ok(())
     }

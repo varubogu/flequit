@@ -5,10 +5,10 @@
 
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_sqlite::{
-    account::AccountRepository, project::ProjectLocalSqliteRepository,
-    settings::SettingsLocalSqliteRepository, subtask::SubtaskLocalSqliteRepository,
-    tag::TagLocalSqliteRepository, task::TaskLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository, DatabaseManager,
+    account::AccountRepository, database_manager::DatabaseManager,
+    project::ProjectLocalSqliteRepository, settings::SettingsLocalSqliteRepository,
+    subtask::SubtaskLocalSqliteRepository, tag::TagLocalSqliteRepository,
+    task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
 };
 
 /// SQLiteリポジトリ群の統合管理
@@ -28,8 +28,8 @@ pub struct LocalSqliteRepositories {
 impl LocalSqliteRepositories {
     /// 新しいSQLiteリポジトリ群を作成
     pub async fn new() -> Result<Self, RepositoryError> {
-        // 共通のデータベースマネージャーを作成
-        let db_manager = DatabaseManager::with_default_path().await?;
+        // シングルトンのデータベースマネージャーを取得
+        let db_manager = DatabaseManager::instance().await?;
 
         Ok(Self {
             projects: ProjectLocalSqliteRepository::new(db_manager.clone()),

@@ -2,26 +2,28 @@
 //!
 //! マイグレーションの実行、リセット、状態確認用のユーティリティ
 
-use super::{hybrid_migration::HybridMigrator, DatabaseManager};
+use super::{database_manager::DatabaseManager, hybrid_migration::HybridMigrator};
 use sea_orm::ConnectionTrait;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// マイグレーション管理CLI
 pub struct MigrationCli {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl MigrationCli {
-    pub fn new(database_path: &str) -> Self {
-        Self {
-            db_manager: DatabaseManager::new(database_path),
-        }
+    pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
+        let db_manager = DatabaseManager::instance().await?;
+        Ok(Self { db_manager })
     }
 
     /// マイグレーション状態確認
     pub async fn status(&self) -> Result<(), Box<dyn std::error::Error>> {
         println!("🔍 マイグレーション状態確認");
 
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let migrator = HybridMigrator::new(db.clone());
 
         let is_up_to_date = migrator.check_migration_status().await?;
@@ -42,7 +44,8 @@ impl MigrationCli {
     pub async fn migrate(&self) -> Result<(), Box<dyn std::error::Error>> {
         println!("🚀 マイグレーション実行");
 
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let migrator = HybridMigrator::new(db.clone());
 
         migrator.run_migration().await?;
@@ -56,7 +59,8 @@ impl MigrationCli {
         println!("🔄 マイグレーション強制リセット");
         println!("⚠️  警告: 全データが削除されます");
 
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let migrator = HybridMigrator::new(db.clone());
 
         migrator.force_remigration().await?;
@@ -69,7 +73,8 @@ impl MigrationCli {
     pub async fn history(&self) -> Result<(), Box<dyn std::error::Error>> {
         println!("📋 マイグレーション履歴");
 
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
         let migrator = HybridMigrator::new(db.clone());
 
         let history = migrator.get_migration_history().await?;
@@ -93,7 +98,8 @@ impl MigrationCli {
 
     /// テーブル一覧表示
     async fn show_tables(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // SQLiteのテーブル一覧取得
         let result = db
@@ -133,9 +139,9 @@ impl MigrationCli {
 /// CLI実行用のヘルパー関数
 pub async fn run_migration_command(
     command: &str,
-    database_path: &str,
+    _database_path: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let cli = MigrationCli::new(database_path);
+    let cli = MigrationCli::new().await?;
 
     match command {
         "status" => cli.status().await,
@@ -157,11 +163,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_migration_cli() {
-        let temp_dir = tempdir().unwrap();
-        let db_path = temp_dir.path().join("test.db");
-        let db_path_str = db_path.to_str().unwrap();
+        let _temp_dir = tempdir().unwrap();
 
-        let cli = MigrationCli::new(db_path_str);
+        let cli = MigrationCli::new().await.unwrap();
 
         // マイグレーション実行テスト
         cli.migrate().await.unwrap();

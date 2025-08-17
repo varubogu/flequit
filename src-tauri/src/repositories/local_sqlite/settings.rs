@@ -2,28 +2,32 @@
 //!
 //! 設定データのSQLiteベースでのCRUD操作を提供
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::setting::Settings;
 use crate::models::sqlite::setting::{
     ActiveModel as SettingsActiveModel, Entity as SettingsEntity,
 };
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use sea_orm::{ActiveModelTrait, EntityTrait};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// Settings用SQLiteリポジトリ
 pub struct SettingsLocalSqliteRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl SettingsLocalSqliteRepository {
     /// 新しいSettingsRepositoryを作成
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     /// 設定を初期化（存在しない場合はデフォルト値で作成）
     pub async fn initialize_settings(&self) -> Result<Settings, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // 既存の設定を検索
         if let Some(existing) = SettingsEntity::find().one(db).await? {
@@ -121,7 +125,8 @@ impl SettingsLocalSqliteRepository {
 
 impl SettingsLocalSqliteRepository {
     async fn save(&self, settings: &Settings) -> Result<Settings, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // 既存の設定をチェック
         let existing = SettingsEntity::find().one(db).await?;
@@ -178,7 +183,8 @@ impl SettingsLocalSqliteRepository {
 
     async fn find_by_id(&self, _id: &str) -> Result<Option<Settings>, RepositoryError> {
         // 設定は単一のレコードなので、IDは無視して全体を取得
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = SettingsEntity::find().one(db).await? {
             let settings = model
@@ -196,14 +202,16 @@ impl SettingsLocalSqliteRepository {
     }
 
     async fn delete_by_id(&self, _id: &str) -> Result<bool, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let result = SettingsEntity::delete_many().exec(db).await?;
         Ok(result.rows_affected > 0)
     }
 
     async fn find_all(&self) -> Result<Vec<Settings>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = SettingsEntity::find().all(db).await?;
         let mut settings_list = Vec::new();

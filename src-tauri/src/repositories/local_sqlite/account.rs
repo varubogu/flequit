@@ -2,7 +2,8 @@
 //!
 //! アカウントデータのSQLiteベースでのCRUD操作を提供
 
-use super::{DatabaseManager, RepositoryError};
+use super::database_manager::DatabaseManager;
+use crate::errors::repository_error::RepositoryError;
 use crate::models::account::Account;
 use crate::models::sqlite::account::{
     ActiveModel as AccountActiveModel, Column, Entity as AccountEntity,
@@ -14,21 +15,24 @@ use log::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
 };
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// Account用SQLiteリポジトリ
 pub struct AccountRepository {
-    db_manager: DatabaseManager,
+    db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl AccountRepository {
     /// 新しいAccountRepositoryを作成
-    pub fn new(db_manager: DatabaseManager) -> Self {
+    pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     /// メールアドレスでアカウントを検索
     pub async fn find_by_email(&self, email: &str) -> Result<Option<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::Email.eq(email))
@@ -51,7 +55,8 @@ impl AccountRepository {
         provider: &str,
         provider_id: &str,
     ) -> Result<Option<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
@@ -71,7 +76,8 @@ impl AccountRepository {
 
     /// アクティブなアカウントを取得
     pub async fn find_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
@@ -93,7 +99,8 @@ impl AccountRepository {
 
     /// 現在アクティブなアカウントを取得（最新のアクティブアカウント）
     pub async fn find_current_account(&self) -> Result<Option<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
@@ -113,7 +120,8 @@ impl AccountRepository {
 
     /// アカウントをアクティブ化（他のアカウントは非アクティブ化）
     pub async fn activate_account(&self, account_id: &str) -> Result<Account, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // すべてのアカウントを非アクティブ化
         AccountEntity::update_many()
@@ -142,7 +150,8 @@ impl AccountRepository {
 
     /// プロバイダー別のアカウント数を取得
     pub async fn count_by_provider(&self, provider: &str) -> Result<u64, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let count = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
@@ -156,7 +165,8 @@ impl AccountRepository {
 #[async_trait::async_trait]
 impl Repository<Account, AccountId> for AccountRepository {
     async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         // 既存のアカウントをチェック（プロバイダーとプロバイダーIDで）
         let existing = if let Some(provider_id) = &account.provider_id {
@@ -195,7 +205,8 @@ impl Repository<Account, AccountId> for AccountRepository {
     }
 
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find_by_id(id.to_string()).one(db).await? {
             let account = model
@@ -209,14 +220,16 @@ impl Repository<Account, AccountId> for AccountRepository {
     }
 
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let result = AccountEntity::delete_by_id(id.to_string()).exec(db).await?;
         Ok(())
     }
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
 
         let models = AccountEntity::find()
             .order_by_asc(Column::CreatedAt)
