@@ -7,11 +7,6 @@ use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
 
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
-    if task.project_id.to_string().trim().is_empty() || task.title.trim().is_empty() {
-        return Err(ServiceError::ValidationError(
-            "Project ID and Task title cannot be empty".to_string(),
-        ));
-    }
     let repository = Repositories::new().await?;
     repository.tasks.save(task).await?;
     Ok(())
@@ -25,9 +20,9 @@ pub async fn get_task(
 }
 
 pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceError> {
-    // ProjectsRepositoryにはlist_tasksメソッドがないため、一時的に空のVecを返す
     let _ = project_id;
-    Ok(Vec::new())
+    let repository = Repositories::new().await?;
+    Ok(repository.tasks.find_all().await?)
 }
 
 pub async fn update_task(task: &Task) -> Result<(), ServiceError> {
@@ -37,8 +32,8 @@ pub async fn update_task(task: &Task) -> Result<(), ServiceError> {
 }
 
 pub async fn delete_task(task_id: &TaskId) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = task_id;
+    let repository = Repositories::new().await?;
+    repository.tasks.delete(task_id).await?;
     Ok(())
 }
 

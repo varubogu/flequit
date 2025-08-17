@@ -23,8 +23,8 @@ pub async fn update_task_list(task_list: &TaskList) -> Result<(), ServiceError> 
 }
 
 pub async fn delete_task_list(id: &TaskListId) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = id;
+    let repository = Repositories::new().await?;
+    repository.task_lists.delete(id).await?;
     Ok(())
 }
 

@@ -7,12 +7,6 @@ use crate::types::id_types::ProjectId;
 use chrono::Utc;
 
 pub async fn create_project(project: &Project) -> Result<Project, ServiceError> {
-    if project.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError(
-            "Project name cannot be empty".to_string(),
-        ));
-    }
-
     let mut new_project = project.clone();
     let now = Utc::now();
     new_project.created_at = now;
@@ -51,12 +45,6 @@ pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> 
     let repository = Repositories::new().await?;
     repository.projects.delete(project_id).await?;
     Ok(())
-}
-
-pub async fn restore_project(backup_path: &str) -> Result<String, ServiceError> {
-    // TODO: restore_project機能をトレイトに追加する必要があります
-    let _backup_path = backup_path;
-    Ok("restored_project_id".to_string())
 }
 
 pub async fn search_projects(

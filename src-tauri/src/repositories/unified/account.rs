@@ -17,8 +17,8 @@ use crate::types::id_types::AccountId;
 /// AccountRepositoryTrait実装の静的ディスパッチ対応enum
 #[derive(Debug)]
 pub enum AccountRepositoryVariant {
-    Sqlite(AccountLocalSqliteRepository),
-    Automerge(AccountLocalAutomergeRepository),
+    LocalSqlite(AccountLocalSqliteRepository),
+    LocalAutomerge(AccountLocalAutomergeRepository),
     // 将来的にWebの実装が追加される予定
     // Web(WebAccountRepository),
 }
@@ -29,43 +29,43 @@ impl AccountRepositoryTrait for AccountRepositoryVariant {}
 impl Repository<Account, AccountId> for AccountRepositoryVariant {
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.save(entity).await,
-            Self::Automerge(repo) => repo.save(entity).await,
+            Self::LocalSqlite(repo) => repo.save(entity).await,
+            Self::LocalAutomerge(repo) => repo.save(entity).await,
         }
     }
 
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.find_by_id(id).await,
-            Self::Automerge(repo) => repo.find_by_id(id).await,
+            Self::LocalSqlite(repo) => repo.find_by_id(id).await,
+            Self::LocalAutomerge(repo) => repo.find_by_id(id).await,
         }
     }
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.find_all().await,
-            Self::Automerge(repo) => repo.find_all().await,
+            Self::LocalSqlite(repo) => repo.find_all().await,
+            Self::LocalAutomerge(repo) => repo.find_all().await,
         }
     }
 
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.delete(id).await,
-            Self::Automerge(repo) => repo.delete(id).await,
+            Self::LocalSqlite(repo) => repo.delete(id).await,
+            Self::LocalAutomerge(repo) => repo.delete(id).await,
         }
     }
 
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.exists(id).await,
-            Self::Automerge(repo) => repo.exists(id).await,
+            Self::LocalSqlite(repo) => repo.exists(id).await,
+            Self::LocalAutomerge(repo) => repo.exists(id).await,
         }
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.count().await,
-            Self::Automerge(repo) => repo.count().await,
+            Self::LocalSqlite(repo) => repo.count().await,
+            Self::LocalAutomerge(repo) => repo.count().await,
         }
     }
 }
@@ -112,19 +112,19 @@ impl AccountUnifiedRepository {
     /// SQLiteリポジトリを保存用に追加
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
         self.save_repositories
-            .push(AccountRepositoryVariant::Sqlite(sqlite_repo));
+            .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
     /// SQLiteリポジトリを検索用に追加
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
         self.search_repositories
-            .push(AccountRepositoryVariant::Sqlite(sqlite_repo));
+            .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
     /// Automergeリポジトリを保存用に追加
     pub fn add_automerge_for_save(&mut self, automerge_repo: AccountLocalAutomergeRepository) {
         self.save_repositories
-            .push(AccountRepositoryVariant::Automerge(automerge_repo));
+            .push(AccountRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
     /// 便利メソッド: SQLiteを保存用と検索用の両方に追加
@@ -134,9 +134,9 @@ impl AccountUnifiedRepository {
         sqlite_repo_search: AccountLocalSqliteRepository,
     ) {
         self.save_repositories
-            .push(AccountRepositoryVariant::Sqlite(sqlite_repo_save));
+            .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo_save));
         self.search_repositories
-            .push(AccountRepositoryVariant::Sqlite(sqlite_repo_search));
+            .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo_search));
     }
 }
 

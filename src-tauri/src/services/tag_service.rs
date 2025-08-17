@@ -1,3 +1,5 @@
+use chrono::Utc;
+
 use crate::errors::service_error::ServiceError;
 use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::Repository;
@@ -5,13 +7,14 @@ use crate::repositories::Repositories;
 use crate::types::id_types::TagId;
 
 pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
-    if tag.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError(
-            "Tag name cannot be empty".to_string(),
-        ));
-    }
+    let mut new_data = tag.clone();
+    let now = Utc::now();
+    new_data.created_at = now;
+    new_data.updated_at = now;
+
     let repository = Repositories::new().await?;
-    repository.tags.save(tag).await?;
+    repository.tags.save(&new_data).await?;
+
     Ok(())
 }
 
@@ -21,24 +24,19 @@ pub async fn get_tag(tag_id: &TagId) -> Result<Option<Tag>, ServiceError> {
 }
 
 pub async fn list_tags() -> Result<Vec<Tag>, ServiceError> {
-    // 一時的に空のVecを返す
-    Ok(Vec::new())
+    let repository = Repositories::new().await?;
+    Ok(repository.tags.find_all().await?)
 }
 
 pub async fn update_tag(tag: &Tag) -> Result<(), ServiceError> {
-    if tag.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError(
-            "Tag name cannot be empty".to_string(),
-        ));
-    }
     let repository = Repositories::new().await?;
     repository.tags.save(tag).await?;
     Ok(())
 }
 
 pub async fn delete_tag(tag_id: &TagId) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = tag_id;
+    let repository = Repositories::new().await?;
+    repository.tags.delete(tag_id).await?;
     Ok(())
 }
 
