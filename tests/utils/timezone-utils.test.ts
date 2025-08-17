@@ -8,13 +8,15 @@ import {
 import { settingsStore } from '../../src/lib/stores/settings.svelte';
 
 // Mock settingsStore
-vi.mock('../../src/lib/stores/main-settings.svelte', () => ({
+vi.mock('../../src/lib/stores/settings.svelte', () => ({
   settingsStore: {
     effectiveTimezone: 'Asia/Tokyo'
   }
 }));
 
-const mockSettingsStore = vi.mocked(settingsStore);
+const mockSettingsStore = {
+  effectiveTimezone: 'Asia/Tokyo'
+};
 
 // Mock console.error
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

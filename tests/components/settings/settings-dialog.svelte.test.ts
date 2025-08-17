@@ -25,6 +25,38 @@ vi.mock('$lib/stores/settings.svelte', () => ({
     timezone: 'UTC',
     setTimezone: vi.fn(),
     effectiveTimezone: 'UTC'
+  },
+  getAvailableTimezones: vi.fn(() => [
+    { value: 'UTC', label: 'UTC' },
+    { value: 'America/New_York', label: 'America/New_York' },
+    { value: 'Europe/London', label: 'Europe/London' },
+    { value: 'Asia/Tokyo', label: 'Asia/Tokyo' }
+  ])
+}));
+
+// Mock translation service
+vi.mock('$lib/stores/locale.svelte', () => ({
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => {
+      const messages: Record<string, string> = {
+        settings: 'Settings',
+        basic: 'Basic',
+        views: 'Views',
+        appearance: 'Appearance',
+        account: 'Account',
+        search_settings: 'Search settings...',
+        close: 'Close'
+      };
+      return messages[key] || key;
+    }
+  }),
+  localeStore: {
+    locale: 'en',
+    setLocale: vi.fn(),
+    availableLocales: [
+      { code: 'en', name: 'English' },
+      { code: 'ja', name: '日本語' }
+    ]
   }
 }));
 

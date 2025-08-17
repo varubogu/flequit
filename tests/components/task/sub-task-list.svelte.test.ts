@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import SubTaskList from '$lib/components/task/sub-task-list.svelte';
+import SubTaskList from '$lib/components/task/subtasks/sub-task-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ContextMenuList } from '$lib/types/context-menu';
 

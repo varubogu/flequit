@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TaskDescriptionEditor from '$lib/components/task/task-description-editor.svelte';
+import TaskDescriptionEditor from '$lib/components/task/editors/task-description-editor.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 describe('TaskDescriptionEditor Component', () => {

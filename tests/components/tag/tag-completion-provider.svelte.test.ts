@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import TagCompletionProvider from '$lib/components/tag/tag-completion-provider.svelte';
+import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
 
 // モック設定
 vi.mock('$lib/stores/tags.svelte', () => ({

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TaskPrioritySelector from '$lib/components/task/task-priority-selector.svelte';
+import TaskPrioritySelector from '$lib/components/task/forms/task-priority-selector.svelte';
 
 describe('TaskPrioritySelector Component', () => {
   const mockFormData = {

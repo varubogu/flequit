@@ -193,7 +193,7 @@ describe('ViewsVisibilityStore', () => {
 
       // Verify that the error was logged
       expect(console.warn).toHaveBeenCalledWith(
-        'Failed to save views configuration:',
+        'Failed to save views configuration to localStorage:',
         expect.any(Error)
       );
 
