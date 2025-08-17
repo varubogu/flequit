@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TaskRecurrenceSelector from '$lib/components/task/task-recurrence-selector.svelte';
+import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
 import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import type { WeekOfMonth } from "$lib/types/datetime-calendar";
 import type { DayOfWeek } from "$lib/types/datetime-calendar";

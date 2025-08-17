@@ -4,7 +4,7 @@ import CommandSearchItem from '$lib/components/command/command-search-item.svelt
 
 // Mock UI command components
 vi.mock('$lib/components/ui/command/index.js', () => ({
-  Item: () => ({ $$: { fragment: null } })
+  Item: vi.fn(() => null)
 }));
 
 vi.mock('lucide-svelte', () => ({

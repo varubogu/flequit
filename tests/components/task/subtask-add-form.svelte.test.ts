@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
-import SubTaskAddForm from '$lib/components/task/subtask-add-form.svelte';
+import SubTaskAddForm from '$lib/components/task/forms/subtask-add-form.svelte';
 
 describe('SubTaskAddForm Component', () => {
   let onSubTaskAdded: ReturnType<typeof vi.fn>;

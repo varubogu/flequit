@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
-import TaskItem from '$lib/components/task/task-item.svelte';
+import TaskItem from '$lib/components/task/core/task-item.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock child components

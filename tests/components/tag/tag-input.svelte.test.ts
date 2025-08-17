@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TagInput from '$lib/components/tag/tag-input.svelte';
+import TagInput from '$lib/components/tag/display/tag-input.svelte';
 import type { Tag } from "$lib/types/tag";
 
 // TagDisplayのモック

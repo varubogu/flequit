@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import TaskList from '$lib/components/task/task-list.svelte';
+import TaskList from '$lib/components/task/core/task-list.svelte';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';

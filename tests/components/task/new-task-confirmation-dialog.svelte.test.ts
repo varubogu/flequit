@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import NewTaskConfirmationDialog from '$lib/components/task/new-task-confirmation-dialog.svelte';
+import NewTaskConfirmationDialog from '$lib/components/task/dialogs/new-task-confirmation-dialog.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,

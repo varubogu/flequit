@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TagCompletionUI from '$lib/components/tag/tag-completion-ui.svelte';
+import TagCompletionUI from '$lib/components/tag/completion/tag-completion-ui.svelte';
 import type { Tag } from '$lib/types/tag';
 
 // Mock Lucide icons

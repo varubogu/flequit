@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
-import TaskListDisplay from '$lib/components/task/task-list-display.svelte';
+import TaskListDisplay from '$lib/components/task/core/task-list-display.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from "$lib/types/project";

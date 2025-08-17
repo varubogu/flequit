@@ -3,15 +3,15 @@ import { render, fireEvent } from '@testing-library/svelte';
 import { writable } from 'svelte/store';
 
 // Mock sub-components
-vi.mock('$lib/components/task/task-accordion-toggle.svelte', () => ({
+vi.mock('$lib/components/task/controls/task-accordion-toggle.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('$lib/components/task/task-date-picker.svelte', () => ({
+vi.mock('$lib/components/task/forms/task-date-picker.svelte', () => ({
   default: () => null
 }));
 
-vi.mock('$lib/components/task/task-status-toggle.svelte', () => ({
+vi.mock('$lib/components/task/controls/task-status-toggle.svelte', () => ({
   default: () => null
 }));
 
@@ -55,7 +55,7 @@ vi.mock('$lib/services/task-detail-service', () => ({
   }
 }));
 
-import TaskItem from '$lib/components/task/task-item.svelte';
+import TaskItem from '$lib/components/task/core/task-item.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { TaskService } from '$lib/services/task-service';

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import TaskDetailDrawer from '$lib/components/task/task-detail-drawer.svelte';
+import TaskDetailDrawer from '$lib/components/task/detail/task-detail-drawer.svelte';
 
 // taskStoreのモック
 vi.mock('$lib/stores/tasks.svelte', () => ({

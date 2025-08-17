@@ -25,7 +25,7 @@ vi.mock('$lib/services/task-list-service', () => ({
 
 // vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
 
-import TaskList from '$lib/components/task/task-list.svelte';
+import TaskList from '$lib/components/task/core/task-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 describe('TaskList - Responsive Sidebar Toggle', () => {

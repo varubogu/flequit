@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TaskDetailMetadata from '$lib/components/task/task-detail-metadata.svelte';
+import TaskDetailMetadata from '$lib/components/task/detail/task-detail-metadata.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from "$lib/types/sub-task";
 

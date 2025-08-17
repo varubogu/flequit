@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import TagDeleteDialog from '$lib/components/tag/tag-delete-dialog.svelte';
+import TagDeleteDialog from '$lib/components/tag/dialogs/tag-delete-dialog.svelte';
 import type { Tag } from "$lib/types/tag";
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {

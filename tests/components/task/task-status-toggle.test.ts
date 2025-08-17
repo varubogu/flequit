@@ -1,6 +1,6 @@
 import { test, expect, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
-import TaskStatusToggle from '$lib/components/task/task-status-toggle.svelte';
+import TaskStatusToggle from '$lib/components/task/controls/task-status-toggle.svelte';
 
 test('TaskStatusToggle: renders with correct icon for completed status', async () => {
   const mockToggle = vi.fn();
