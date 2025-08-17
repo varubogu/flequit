@@ -4,48 +4,10 @@ use crate::errors::service_error::ServiceError;
 use crate::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
 use crate::models::subtask::SubTask;
 use crate::services::subtask_service;
-use crate::types::id_types::{SubTaskId, TagId, TaskId, UserId};
-use uuid::Uuid;
+use crate::types::id_types::SubTaskId;
 
-pub async fn create_sub_task(subtask: &SubtaskCommand) -> Result<bool, String> {
-    // SubtaskCommandからproject_idを取得し、Subtaskモデルに変換する必要がある
-    // 一時的にダミーのproject_idと簡素化した呼び出し
-    let project_id = "dummy_project";
-
-    // SubtaskCommandからSubtaskへの変換（ID型変換を含む）
-    let dummy_subtask = SubTask {
-        id: SubTaskId::from(
-            Uuid::parse_str(&subtask.id).map_err(|e| format!("Invalid subtask ID: {}", e))?,
-        ),
-        task_id: TaskId::from(
-            Uuid::parse_str(&subtask.task_id).map_err(|e| format!("Invalid task ID: {}", e))?,
-        ),
-        title: subtask.title.clone(),
-        description: subtask.description.clone(),
-        status: subtask.status.clone(),
-        priority: subtask.priority,
-        start_date: None, // 日時変換は省略
-        end_date: None,
-        is_range_date: subtask.is_range_date,
-        recurrence_rule: subtask.recurrence_rule.clone(),
-        assigned_user_ids: subtask
-            .assigned_user_ids
-            .iter()
-            .filter_map(|id| Uuid::parse_str(id).ok().map(UserId::from))
-            .collect(),
-        tag_ids: subtask
-            .tag_ids
-            .iter()
-            .filter_map(|id| Uuid::parse_str(id).ok().map(TagId::from))
-            .collect(),
-        tags: vec![],
-        order_index: subtask.order_index,
-        completed: subtask.completed,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-    };
-
-    match subtask_service::create_subtask(project_id, &dummy_subtask).await {
+pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
+    match subtask_service::create_subtask(&subtask).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create subtask: {:?}", e)),
@@ -65,41 +27,8 @@ pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubtaskCommand>, Stri
     }
 }
 
-pub async fn update_sub_task(subtask: &SubtaskCommand) -> Result<bool, String> {
-    // SubtaskCommandからSubtaskへの変換（ID型変換を含む）
-    let dummy_subtask = SubTask {
-        id: SubTaskId::from(
-            Uuid::parse_str(&subtask.id).map_err(|e| format!("Invalid subtask ID: {}", e))?,
-        ),
-        task_id: TaskId::from(
-            Uuid::parse_str(&subtask.task_id).map_err(|e| format!("Invalid task ID: {}", e))?,
-        ),
-        title: subtask.title.clone(),
-        description: subtask.description.clone(),
-        status: subtask.status.clone(),
-        priority: subtask.priority,
-        start_date: None, // 日時変換は省略
-        end_date: None,
-        is_range_date: subtask.is_range_date,
-        recurrence_rule: subtask.recurrence_rule.clone(),
-        assigned_user_ids: subtask
-            .assigned_user_ids
-            .iter()
-            .filter_map(|id| Uuid::parse_str(id).ok().map(UserId::from))
-            .collect(),
-        tag_ids: subtask
-            .tag_ids
-            .iter()
-            .filter_map(|id| Uuid::parse_str(id).ok().map(TagId::from))
-            .collect(),
-        tags: vec![],
-        order_index: subtask.order_index,
-        completed: subtask.completed,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-    };
-
-    match subtask_service::update_subtask(&dummy_subtask).await {
+pub async fn update_sub_task(subtask: &SubTask) -> Result<bool, String> {
+    match subtask_service::update_subtask(&subtask).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask: {:?}", e)),
@@ -116,7 +45,7 @@ pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
 
 pub async fn search_sub_tasks(
     condition: &SubtaskSearchRequest,
-) -> Result<Vec<SubtaskCommand>, String> {
+) -> Result<Vec<SubTask>, String> {
     // SubtaskServiceにはsearchメソッドがないため、一時的に空の結果を返す
     // 将来的にはlist_subtasksを使用してフィルタリングを行う
     let _ = condition;

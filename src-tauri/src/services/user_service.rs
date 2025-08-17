@@ -1,27 +1,6 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::user::User;
-
-/// ユーザーサービス（一時的なモック実装）
-pub struct UserService;
-
-impl UserService {
-    pub fn new() -> Self {
-        Self
-    }
-
-    pub async fn create_user(&self, user: &User) -> Result<(), ServiceError> {
-        create_user(user).await
-    }
-
-    pub async fn get_user(&self, user_id: &str) -> Result<Option<User>, ServiceError> {
-        get_user(user_id).await
-    }
-
-    pub async fn update_user(&self, user: &User) -> Result<(), ServiceError> {
-        update_user(user).await
-    }
-}
-
+use crate::types::id_types::UserId;
 
 pub async fn create_user(user: &User) -> Result<(), ServiceError> {
     // 一時的に何もしない
@@ -29,7 +8,7 @@ pub async fn create_user(user: &User) -> Result<(), ServiceError> {
     Ok(())
 }
 
-pub async fn get_user(user_id: &str) -> Result<Option<User>, ServiceError> {
+pub async fn get_user(user_id: &UserId) -> Result<Option<User>, ServiceError> {
     // 一時的にNoneを返す
     let _ = user_id;
     Ok(None)
@@ -52,7 +31,7 @@ pub async fn update_user(user: &User) -> Result<(), ServiceError> {
     Ok(())
 }
 
-pub async fn delete_user(user_id: &str) -> Result<(), ServiceError> {
+pub async fn delete_user(user_id: &UserId) -> Result<(), ServiceError> {
     // 一時的に何もしない
     let _ = user_id;
     Ok(())

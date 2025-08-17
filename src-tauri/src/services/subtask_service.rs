@@ -4,12 +4,7 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
 use crate::types::id_types::SubTaskId;
 
-pub async fn create_subtask(project_id: &str, subtask: &SubTask) -> Result<(), ServiceError> {
-    if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
-        return Err(ServiceError::ValidationError(
-            "Project ID and Subtask title cannot be empty".to_string(),
-        ));
-    }
+pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.sub_tasks.save(subtask).await?;
     Ok(())

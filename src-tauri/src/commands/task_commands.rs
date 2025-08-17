@@ -2,6 +2,7 @@ use crate::facades::task_facades;
 use crate::models::command::task::{TaskCommand, TaskSearchRequest};
 use crate::models::command::ModelConverter;
 use crate::models::CommandModelConverter;
+use crate::types::id_types::TaskId;
 
 #[tauri::command]
 pub async fn create_task(task: TaskCommand) -> Result<bool, String> {
@@ -11,7 +12,11 @@ pub async fn create_task(task: TaskCommand) -> Result<bool, String> {
 
 #[tauri::command]
 pub async fn get_task(id: String) -> Result<Option<TaskCommand>, String> {
-    let result = task_facades::get_task(&id).await?;
+    let task_id = match TaskId::try_from_str(&id) {
+        Ok (id) => id,
+        Err (err) => return Err(err.to_string()),
+    };
+    let result = task_facades::get_task(&task_id).await?;
     match result {
         Some(task) => Ok(Some(task.to_command_model().await?)),
         None => Ok(None),
@@ -26,7 +31,11 @@ pub async fn update_task(task: TaskCommand) -> Result<bool, String> {
 
 #[tauri::command]
 pub async fn delete_task(id: String) -> Result<bool, String> {
-    task_facades::delete_task(&id).await
+    let task_id = match TaskId::try_from_str(&id) {
+        Ok (id) => id,
+        Err (err) => return Err(err.to_string()),
+    };
+    task_facades::delete_task(&task_id).await
 }
 
 #[tauri::command]

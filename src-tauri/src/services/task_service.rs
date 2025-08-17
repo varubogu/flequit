@@ -18,7 +18,6 @@ pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
 }
 
 pub async fn get_task(
-    project_id: &ProjectId,
     task_id: &TaskId,
 ) -> Result<Option<Task>, ServiceError> {
     let repository = Repositories::new().await?;

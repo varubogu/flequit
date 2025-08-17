@@ -4,6 +4,7 @@ use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
 use crate::models::task::Task;
 use crate::services::task_service;
+use crate::types::id_types::TaskId;
 
 pub async fn create_task(task: &Task) -> Result<bool, String> {
     match task_service::create_task(task).await {
@@ -13,11 +14,13 @@ pub async fn create_task(task: &Task) -> Result<bool, String> {
     }
 }
 
-pub async fn get_task(id: &str) -> Result<Option<Task>, String> {
-    // TaskServiceのget_taskはproject_idが必要だが、facadeのインターフェースではidのみ
-    // 一時的にエラーを返す実装とし、後でインターフェース調整が必要
+pub async fn get_task(id: &TaskId) -> Result<Option<Task>, String> {
     info!("get_task called with id: {}", id);
-    Ok(None)
+    match task_service::get_task(id).await {
+        Ok(t) => Ok(t),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to update task: {:?}", e)),
+    }
 }
 
 pub async fn update_task(task: &Task) -> Result<bool, String> {
@@ -28,10 +31,13 @@ pub async fn update_task(task: &Task) -> Result<bool, String> {
     }
 }
 
-pub async fn delete_task(id: &str) -> Result<bool, String> {
-    // 実際にはサービス層を通してデータを削除する実装が必要
-    info!("delete_task called with account: {:?}", id);
-    Ok(true)
+pub async fn delete_task(id: &TaskId) -> Result<bool, String> {
+    match task_service::delete_task(id).await {
+        Ok(_) => Ok(true),
+        Err(ServiceError::ValidationError(msg)) => Err(msg),
+        Err(e) => Err(format!("Failed to update task: {:?}", e)),
+    }
+
 }
 
 pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, String> {
