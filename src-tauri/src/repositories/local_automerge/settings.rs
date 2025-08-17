@@ -6,11 +6,11 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Settings用のAutomerge-Repoリポジトリ
-pub struct LocalAutomergeSettingsRepository {
+pub struct SettingsLocalAutomergeRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
 
-impl LocalAutomergeSettingsRepository {
+impl SettingsLocalAutomergeRepository {
     /// 新しいSettingsRepositoryを作成
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
@@ -159,7 +159,7 @@ mod tests {
     #[tokio::test]
     async fn test_settings_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = LocalAutomergeSettingsRepository::new(temp_dir.path().to_path_buf()).unwrap();
+        let repo = SettingsLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // デフォルト設定を読み込み
         let settings = repo.get_setting().await.unwrap();

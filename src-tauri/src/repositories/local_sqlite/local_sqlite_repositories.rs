@@ -5,7 +5,7 @@
 
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_sqlite::{
-    account::AccountRepository, database_manager::DatabaseManager,
+    account::AccountLocalSqliteRepository, database_manager::DatabaseManager,
     project::ProjectLocalSqliteRepository, settings::SettingsLocalSqliteRepository,
     subtask::SubtaskLocalSqliteRepository, tag::TagLocalSqliteRepository,
     task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
@@ -21,7 +21,7 @@ pub struct LocalSqliteRepositories {
     pub tasks: TaskLocalSqliteRepository,
     pub sub_tasks: SubtaskLocalSqliteRepository,
     pub tags: TagLocalSqliteRepository,
-    pub accounts: AccountRepository,
+    pub accounts: AccountLocalSqliteRepository,
     pub settings: SettingsLocalSqliteRepository,
 }
 
@@ -37,7 +37,7 @@ impl LocalSqliteRepositories {
             tasks: TaskLocalSqliteRepository::new(db_manager.clone()),
             sub_tasks: SubtaskLocalSqliteRepository::new(db_manager.clone()),
             tags: TagLocalSqliteRepository::new(db_manager.clone()),
-            accounts: AccountRepository::new(db_manager.clone()),
+            accounts: AccountLocalSqliteRepository::new(db_manager.clone()),
             settings: SettingsLocalSqliteRepository::new(db_manager),
         })
     }

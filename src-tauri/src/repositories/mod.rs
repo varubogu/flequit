@@ -4,7 +4,6 @@ pub mod local_sqlite;
 pub mod account_repository_trait;
 pub mod base_repository_trait;
 pub mod project_repository_trait;
-pub mod repositry_manager;
 pub mod setting_repository_trait;
 pub mod sub_task_repository_trait;
 pub mod tag_repository_trait;
@@ -14,13 +13,10 @@ pub mod unified;
 pub mod user_repository_trait;
 
 use crate::errors::RepositoryError;
-use crate::repositories::{
-    repositry_manager::RepositoryManager,
-    unified::{
-        AccountUnifiedRepository, ProjectUnifiedRepository, SettingsUnifiedRepository,
-        SubTaskUnifiedRepository, TagUnifiedRepository, TaskListUnifiedRepository,
-        TaskUnifiedRepository,
-    },
+use crate::repositories::unified::{
+    AccountUnifiedRepository, ProjectUnifiedRepository, SettingsUnifiedRepository,
+    SubTaskUnifiedRepository, TagUnifiedRepository, TaskListUnifiedRepository,
+    TaskUnifiedRepository,
 };
 
 /// 統合リポジトリのメインエントリーポイント
@@ -35,25 +31,19 @@ pub struct Repositories {
     pub tags: TagUnifiedRepository,
     pub accounts: AccountUnifiedRepository,
     pub settings: SettingsUnifiedRepository,
-
-    // 内部ストレージリポジトリ（各エンティティから参照される）
-    all_repositories: RepositoryManager,
 }
 
 impl Repositories {
     /// 新しい統合リポジトリインスタンスを作成
     pub async fn new() -> Result<Self, RepositoryError> {
-        let all_repositories = RepositoryManager::new().await?;
-
         Ok(Self {
             projects: ProjectUnifiedRepository::new(),
             task_lists: TaskListUnifiedRepository::new(),
             tasks: TaskUnifiedRepository::new(),
             sub_tasks: SubTaskUnifiedRepository::new(),
             tags: TagUnifiedRepository::new(),
-            accounts: AccountUnifiedRepository::new(),
+            accounts: AccountUnifiedRepository::new(vec![], vec![]),
             settings: SettingsUnifiedRepository::new(),
-            all_repositories,
         })
     }
 }

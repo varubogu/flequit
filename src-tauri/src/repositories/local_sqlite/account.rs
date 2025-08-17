@@ -9,6 +9,7 @@ use crate::models::sqlite::account::{
     ActiveModel as AccountActiveModel, Column, Entity as AccountEntity,
 };
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::AccountId;
 use log::info;
@@ -19,11 +20,12 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// Account用SQLiteリポジトリ
-pub struct AccountRepository {
+#[derive(Debug)]
+pub struct AccountLocalSqliteRepository {
     db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
-impl AccountRepository {
+impl AccountLocalSqliteRepository {
     /// 新しいAccountRepositoryを作成
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
@@ -162,8 +164,13 @@ impl AccountRepository {
     }
 }
 
+impl AccountRepositoryTrait for AccountLocalSqliteRepository{
+    
+}
+
+
 #[async_trait::async_trait]
-impl Repository<Account, AccountId> for AccountRepository {
+impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
     async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;

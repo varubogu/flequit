@@ -10,6 +10,7 @@ use std::sync::Arc;
 use tokio::sync::{OnceCell, RwLock};
 
 /// SQLiteデータベース接続のシングルトン管理
+#[derive(Debug)]
 pub struct DatabaseManager {
     connection: OnceCell<DatabaseConnection>,
     database_path: String,

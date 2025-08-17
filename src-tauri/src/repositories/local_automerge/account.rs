@@ -1,16 +1,21 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::RepositoryError;
 use crate::models::account::Account;
+use crate::repositories::account_repository_trait::AccountRepositoryTrait;
+use crate::repositories::base_repository_trait::Repository;
+use crate::types::id_types::AccountId;
+use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Account用のAutomerge-Repoリポジトリ
-pub struct LocalAutomergeAccountRepository {
+#[derive(Debug)]
+pub struct AccountLocalAutomergeRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
 
-impl LocalAutomergeAccountRepository {
+impl AccountLocalAutomergeRepository {
     /// 新しいAccountRepositoryを作成
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
@@ -157,6 +162,52 @@ impl LocalAutomergeAccountRepository {
     }
 }
 
+// Repository<Account, AccountId> トレイトの実装
+impl AccountRepositoryTrait for AccountLocalAutomergeRepository {}
+
+#[async_trait]
+impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
+    async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
+        // 既存のset_userメソッドを活用
+        self.set_user(entity).await
+    }
+
+    async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
+        // 既存のget_userメソッドを活用
+        self.get_user(&id.to_string()).await
+    }
+
+    async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
+        // 既存のlist_usersメソッドを活用
+        self.list_users().await
+    }
+
+    async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
+        // 既存のdelete_accountメソッドを活用
+        let deleted = self.delete_account(&id.to_string()).await?;
+        if deleted {
+            Ok(())
+        } else {
+            Err(RepositoryError::NotFound(format!(
+                "Account not found: {}",
+                id
+            )))
+        }
+    }
+
+    async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
+        // find_by_idを使って存在確認
+        let found = self.find_by_id(id).await?;
+        Ok(found.is_some())
+    }
+
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        // find_allを使って件数取得
+        let accounts = self.find_all().await?;
+        Ok(accounts.len() as u64)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::types::id_types::AccountId;
@@ -168,7 +219,7 @@ mod tests {
     #[tokio::test]
     async fn test_account_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = LocalAutomergeAccountRepository::new(temp_dir.path().to_path_buf()).unwrap();
+        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // 初期状態では空
         let accounts = repo.list_users().await.unwrap();
@@ -262,5 +313,51 @@ mod tests {
         assert_eq!(remaining_accounts[0].id, test_account_id);
 
         println!("Vec<Account>の完全な保存/読み込みテストが成功しました！");
+    }
+
+    #[tokio::test]
+    async fn test_repository_trait_implementation() {
+        let temp_dir = TempDir::new().unwrap();
+        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).unwrap();
+
+        // Repository トレイトとして使用
+        let repository: &dyn Repository<Account, AccountId> = &repo;
+
+        // テスト用アカウント作成
+        let test_account_id = AccountId::new();
+        let account = Account {
+            id: test_account_id,
+            email: Some("repo_test@example.com".to_string()),
+            display_name: Some("Repository Test User".to_string()),
+            avatar_url: None,
+            provider: "local".to_string(),
+            provider_id: None,
+            is_active: true,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+
+        // Repository トレイトメソッドのテスト
+        repository.save(&account).await.unwrap();
+
+        let found = repository.find_by_id(&test_account_id).await.unwrap();
+        assert!(found.is_some());
+        assert_eq!(found.unwrap().email, Some("repo_test@example.com".to_string()));
+
+        let exists = repository.exists(&test_account_id).await.unwrap();
+        assert!(exists);
+
+        let count = repository.count().await.unwrap();
+        assert_eq!(count, 1);
+
+        let all_accounts = repository.find_all().await.unwrap();
+        assert_eq!(all_accounts.len(), 1);
+
+        repository.delete(&test_account_id).await.unwrap();
+
+        let exists_after_delete = repository.exists(&test_account_id).await.unwrap();
+        assert!(!exists_after_delete);
+
+        println!("Repository トレイトの実装テストが成功しました！");
     }
 }

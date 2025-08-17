@@ -27,22 +27,22 @@ use log::info;
 /// - **履歴管理**: すべての変更履歴を保持
 /// - **オフライン対応**: ローカル優先で同期可能
 /// - **JSON互換**: 構造化データの効率的な管理
-pub struct LocalAutomergeProjectRepository {}
+pub struct ProjectLocalAutomergeRepository {}
 
-impl Default for LocalAutomergeProjectRepository {
+impl Default for ProjectLocalAutomergeRepository {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl LocalAutomergeProjectRepository {
+impl ProjectLocalAutomergeRepository {
     pub fn new() -> Self {
         Self {}
     }
 }
 
 #[async_trait]
-impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
+impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         info!("ProjectUnifiedRepository::save");
         info!("{:?}", entity);
@@ -82,4 +82,4 @@ impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
 }
 
 #[async_trait]
-impl ProjectRepositoryTrait for LocalAutomergeProjectRepository {}
+impl ProjectRepositoryTrait for ProjectLocalAutomergeRepository {}

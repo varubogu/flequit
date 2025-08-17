@@ -24,6 +24,7 @@ impl DocumentType {
 }
 
 /// Automerge-Repoドキュメントの管理を行うマネージャー
+#[derive(Debug)]
 pub struct DocumentManager {
     _base_path: PathBuf, // 将来のバックアップ機能で使用予定
     repo_handle: RepoHandle,

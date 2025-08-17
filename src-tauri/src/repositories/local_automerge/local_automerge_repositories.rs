@@ -5,8 +5,8 @@
 
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_automerge::{
-    account::LocalAutomergeAccountRepository, project::LocalAutomergeProjectRepository,
-    settings::LocalAutomergeSettingsRepository,
+    account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
+    settings::SettingsLocalAutomergeRepository,
 };
 use crate::services::path_service::PathService;
 
@@ -15,9 +15,9 @@ use crate::services::path_service::PathService;
 /// 各エンティティのAutomergeリポジトリを保持し、
 /// 永続化・同期系操作を担当する。
 pub struct LocalAutomergeRepositories {
-    pub projects: LocalAutomergeProjectRepository,
-    pub accounts: LocalAutomergeAccountRepository,
-    pub settings: LocalAutomergeSettingsRepository,
+    pub projects: ProjectLocalAutomergeRepository,
+    pub accounts: AccountLocalAutomergeRepository,
+    pub settings: SettingsLocalAutomergeRepository,
     // 注意: 現在TaskList、Task、SubTask、TagのAutomergeリポジトリは未実装
     // 当面はProjectsRepositoryの機能を経由してアクセス
 }
@@ -31,14 +31,14 @@ impl LocalAutomergeRepositories {
         })?;
 
         Ok(Self {
-            projects: LocalAutomergeProjectRepository::new(),
-            accounts: LocalAutomergeAccountRepository::new(data_dir.clone()).map_err(|e| {
+            projects: ProjectLocalAutomergeRepository::new(),
+            accounts: AccountLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create AccountRepository: {:?}",
                     e
                 ))
             })?,
-            settings: LocalAutomergeSettingsRepository::new(data_dir).map_err(|e| {
+            settings: SettingsLocalAutomergeRepository::new(data_dir).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create SettingsRepository: {:?}",
                     e
