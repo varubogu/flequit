@@ -1,7 +1,7 @@
 pub mod local_automerge;
 pub mod local_sqlite;
-pub mod cloud_automerge;
-pub mod web;
+// pub mod cloud_automerge;
+// pub mod web;
 
 pub mod account_repository_trait;
 pub mod base_repository_trait;

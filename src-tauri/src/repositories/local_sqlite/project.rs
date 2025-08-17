@@ -1,19 +1,20 @@
 //! Project用SQLiteリポジトリ
 
+use async_trait::async_trait;
 use log::info;
 use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
 use crate::models::project::Project;
-use crate::models::sqlite::project::{Entity as ProjectEntity, ActiveModel as ProjectActiveModel, Column};
+use crate::models::sqlite::project::{Entity as ProjectEntity, Column};
 use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::ProjectId;
 use super::{DatabaseManager, RepositoryError};
 
-pub struct ProjectRepository {
+pub struct ProjectLocalSqliteRepository {
     db_manager: DatabaseManager,
 }
 
-impl ProjectRepository {
+impl ProjectLocalSqliteRepository {
     pub fn new(db_manager: DatabaseManager) -> Self {
         Self { db_manager }
     }
@@ -55,19 +56,19 @@ impl ProjectRepository {
     }
 }
 
-#[async_trait::async_trait]
-impl Repository<Project, ProjectId> for ProjectRepository {
-    async fn save(&self, project: &Project) -> Result<Project, RepositoryError> {
+#[async_trait]
+impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
+    async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         let active_model = project.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
         let saved = active_model.insert(db).await?;
-        saved.to_domain_model().await.map_err(RepositoryError::Conversion)
+        Ok(())
     }
 
-    async fn find_by_id(&self, id: &str) -> Result<Option<Project>, RepositoryError> {
+    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        if let Some(model) = ProjectEntity::find_by_id(id).one(db).await? {
+        if let Some(model) = ProjectEntity::find_by_id(id.to_string()).one(db).await? {
             let project = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(project))
         } else {
@@ -90,23 +91,6 @@ impl Repository<Project, ProjectId> for ProjectRepository {
         }
 
         Ok(projects)
-    }
-        async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        info!("ProjectUnifiedRepository::save");
-        info!("{:?}", entity);
-
-        Ok(())
-    }
-
-    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
-        info!("ProjectUnifiedRepository::find_by_id");
-        info!("{:?}", id);
-        Ok(Option::from(None))
-    }
-
-    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
-        info!("ProjectUnifiedRepository::find_all");
-        Ok(vec![])
     }
 
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {

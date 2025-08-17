@@ -2,11 +2,14 @@
 //!
 //! アカウントデータのSQLiteベースでのCRUD操作を提供
 
+use log::info;
 use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait, PaginatorTrait};
 use crate::models::account::Account;
 use crate::models::sqlite::account::{Entity as AccountEntity, ActiveModel as AccountActiveModel, Column};
 use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
-use super::{DatabaseManager, RepositoryError, Repository};
+use crate::repositories::base_repository_trait::Repository;
+use crate::types::id_types::AccountId;
+use super::{DatabaseManager, RepositoryError};
 
 /// Account用SQLiteリポジトリ
 pub struct AccountRepository {
@@ -126,8 +129,8 @@ impl AccountRepository {
 }
 
 #[async_trait::async_trait]
-impl Repository<Account> for AccountRepository {
-    async fn save(&self, account: &Account) -> Result<Account, RepositoryError> {
+impl Repository<Account, AccountId> for AccountRepository {
+    async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
         // 既存のアカウントをチェック（プロバイダーとプロバイダーIDで）
@@ -151,19 +154,19 @@ impl Repository<Account> for AccountRepository {
             active_model.updated_at = new_active.updated_at;
 
             let updated = active_model.update(db).await?;
-            updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+            Ok(())
         } else {
             // 新規作成
             let active_model = account.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
             let saved = active_model.insert(db).await?;
-            saved.to_domain_model().await.map_err(RepositoryError::Conversion)
+            Ok(())
         }
     }
 
-    async fn find_by_id(&self, id: &str) -> Result<Option<Account>, RepositoryError> {
+    async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        if let Some(model) = AccountEntity::find_by_id(id).one(db).await? {
+        if let Some(model) = AccountEntity::find_by_id(id.to_string()).one(db).await? {
             let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
         } else {
@@ -171,15 +174,13 @@ impl Repository<Account> for AccountRepository {
         }
     }
 
-    async fn update(&self, account: &Account) -> Result<Account, RepositoryError> {
-        self.save(account).await
-    }
-
-    async fn delete_by_id(&self, id: &str) -> Result<bool, RepositoryError> {
+    async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        let result = AccountEntity::delete_by_id(id).exec(db).await?;
-        Ok(result.rows_affected > 0)
+        let result = AccountEntity::delete_by_id(id.to_string())
+            .exec(db)
+            .await?;
+        Ok(())
     }
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
@@ -198,6 +199,14 @@ impl Repository<Account> for AccountRepository {
 
         Ok(accounts)
     }
-}
+    async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
+        info!("ProjectUnifiedRepository::exists");
+        info!("{:?}", id);
+        Ok(true)
+    }
 
-impl AccountRepository for Account
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        info!("ProjectUnifiedRepository::count");
+        Ok(0)
+    }
+}

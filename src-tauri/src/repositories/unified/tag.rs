@@ -3,6 +3,7 @@
 //! SQLite（高速検索）とAutomerge（永続化・同期）を統合し、
 //! タグエンティティに最適化されたアクセスパターンを提供する。
 
+use async_trait::async_trait;
 use log::info;
 
 use crate::errors::RepositoryError;
@@ -28,6 +29,7 @@ impl TagUnifiedRepository {
 }
 
 
+#[async_trait]
 impl Repository<Tag, TagId> for TagUnifiedRepository {
     async fn save(&self, entity: &Tag) -> Result<(), RepositoryError> {
         info!("TagUnifiedRepository::save");

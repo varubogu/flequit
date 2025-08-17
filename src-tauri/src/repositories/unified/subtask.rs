@@ -3,6 +3,7 @@
 //! SQLite（高速検索）とAutomerge（永続化・同期）を統合し、
 //! サブタスクエンティティに最適化されたアクセスパターンを提供する。
 
+use async_trait::async_trait;
 use log::info;
 
 use crate::{errors::RepositoryError, models::subtask::SubTask, repositories::{base_repository_trait::Repository, sub_task_repository_trait::SubTaskRepositoryTrait}, types::id_types::SubTaskId};
@@ -21,7 +22,7 @@ impl SubTaskUnifiedRepository {
     }
 }
 
-
+#[async_trait]
 impl Repository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
     async fn save(&self, entity: &SubTask) -> Result<(), RepositoryError> {
         info!("SubTaskUnifiedRepository::save");

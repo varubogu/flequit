@@ -1,6 +1,6 @@
-pub mod account_repository;
+pub mod account;
 pub mod document_manager;
 pub mod file_storage;
 pub mod local_automerge_repositories;
-pub mod project_repository;
-pub mod settings_repository;
+pub mod project;
+pub mod settings;

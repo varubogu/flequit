@@ -6,14 +6,14 @@ use sea_orm::{EntityTrait, ActiveModelTrait};
 use crate::models::setting::Settings;
 use crate::models::sqlite::setting::{Entity as SettingsEntity, ActiveModel as SettingsActiveModel};
 use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
-use super::{DatabaseManager, RepositoryError, Repository};
+use super::{DatabaseManager, RepositoryError};
 
 /// Settings用SQLiteリポジトリ
-pub struct SettingsRepository {
+pub struct SettingsLocalSqliteRepository {
     db_manager: DatabaseManager,
 }
 
-impl SettingsRepository {
+impl SettingsLocalSqliteRepository {
     /// 新しいSettingsRepositoryを作成
     pub fn new(db_manager: DatabaseManager) -> Self {
         Self { db_manager }
@@ -22,7 +22,7 @@ impl SettingsRepository {
     /// 設定を初期化（存在しない場合はデフォルト値で作成）
     pub async fn initialize_settings(&self) -> Result<Settings, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         // 既存の設定を検索
         if let Some(existing) = SettingsEntity::find().one(db).await? {
             return existing.to_domain_model().await.map_err(RepositoryError::Conversion);
@@ -36,7 +36,7 @@ impl SettingsRepository {
     /// デフォルト設定を作成
     fn create_default_settings() -> Settings {
         use crate::models::setting::{DueDateButtons, CustomDateFormat, TimeLabel, ViewItem};
-        
+
         Settings {
             theme: "system".to_string(),
             language: "ja".to_string(),
@@ -116,19 +116,18 @@ impl SettingsRepository {
     }
 }
 
-#[async_trait::async_trait]
-impl Repository<Settings> for SettingsRepository {
+impl SettingsLocalSqliteRepository {
     async fn save(&self, settings: &Settings) -> Result<Settings, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         // 既存の設定をチェック
         let existing = SettingsEntity::find().one(db).await?;
-        
+
         if let Some(existing_model) = existing {
             // 更新
             let mut active_model: SettingsActiveModel = existing_model.into();
             let new_active = settings.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
-            
+
             // 必要なフィールドを更新
             active_model.theme = new_active.theme;
             active_model.language = new_active.language;
@@ -151,7 +150,7 @@ impl Repository<Settings> for SettingsRepository {
             active_model.password = new_active.password;
             active_model.server_url = new_active.server_url;
             active_model.updated_at = new_active.updated_at;
-            
+
             let updated = active_model.update(db).await?;
             updated.to_domain_model().await.map_err(RepositoryError::Conversion)
         } else {
@@ -165,7 +164,7 @@ impl Repository<Settings> for SettingsRepository {
     async fn find_by_id(&self, _id: &str) -> Result<Option<Settings>, RepositoryError> {
         // 設定は単一のレコードなので、IDは無視して全体を取得
         let db = self.db_manager.get_connection().await?;
-        
+
         if let Some(model) = SettingsEntity::find().one(db).await? {
             let settings = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(settings))
@@ -180,22 +179,22 @@ impl Repository<Settings> for SettingsRepository {
 
     async fn delete_by_id(&self, _id: &str) -> Result<bool, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let result = SettingsEntity::delete_many().exec(db).await?;
         Ok(result.rows_affected > 0)
     }
 
     async fn find_all(&self) -> Result<Vec<Settings>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let models = SettingsEntity::find().all(db).await?;
         let mut settings_list = Vec::new();
-        
+
         for model in models {
             let settings = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             settings_list.push(settings);
         }
-        
+
         Ok(settings_list)
     }
 }

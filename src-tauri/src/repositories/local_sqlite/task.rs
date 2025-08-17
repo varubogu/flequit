@@ -1,5 +1,6 @@
 //! Task用SQLiteリポジトリ
 
+use async_trait::async_trait;
 use log::info;
 use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
 use crate::models::task::Task;
@@ -76,19 +77,19 @@ impl TaskLocalSqliteRepository {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
-    async fn save(&self, task: &Task) -> Result<Task, RepositoryError> {
+    async fn save(&self, task: &Task) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         let active_model = task.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
         let saved = active_model.insert(db).await?;
-        saved.to_domain_model().await.map_err(RepositoryError::Conversion)
+        Ok(())
     }
 
     async fn find_by_id(&self, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        if let Some(model) = TaskEntity::find_by_id(id).one(db).await? {
+        if let Some(model) = TaskEntity::find_by_id(id.to_string()).one(db).await? {
             let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(task))
         } else {
@@ -116,8 +117,8 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
 
     async fn delete(&self, id: &TaskId) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        let result = TaskEntity::delete_by_id(id).exec(db).await?;
-        Ok(result.rows_affected > 0)
+        let result = TaskEntity::delete_by_id(id.to_string()).exec(db).await?;
+        Ok(())
     }
 
     async fn exists(&self, id: &TaskId) -> Result<bool, RepositoryError> {

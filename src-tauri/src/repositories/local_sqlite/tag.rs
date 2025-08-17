@@ -1,5 +1,6 @@
 //! Tag用SQLiteリポジトリ
 
+use async_trait::async_trait;
 use log::info;
 use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait, QuerySelect};
 use crate::models::tag::Tag;
@@ -9,11 +10,11 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TagId;
 use super::{DatabaseManager, RepositoryError};
 
-pub struct TagRepository {
+pub struct TagLocalSqliteRepository {
     db_manager: DatabaseManager,
 }
 
-impl TagRepository {
+impl TagLocalSqliteRepository {
     pub fn new(db_manager: DatabaseManager) -> Self {
         Self { db_manager }
     }
@@ -100,9 +101,9 @@ impl TagRepository {
     }
 }
 
-#[async_trait::async_trait]
-impl Repository<Tag, TagId> for TagRepository {
-    async fn save(&self, tag: &Tag) -> Result<Tag, RepositoryError> {
+#[async_trait]
+impl Repository<Tag, TagId> for TagLocalSqliteRepository {
+    async fn save(&self, tag: &Tag) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
         // 名前で既存のタグをチェック
@@ -121,50 +122,24 @@ impl Repository<Tag, TagId> for TagRepository {
             active_model.updated_at = new_active.updated_at;
 
             let updated = active_model.update(db).await?;
-            updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+            Ok(())
         } else {
             // 新規作成
             let active_model = tag.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
             let saved = active_model.insert(db).await?;
-            saved.to_domain_model().await.map_err(RepositoryError::Conversion)
+            Ok(())
         }
     }
 
-    async fn find_by_id(&self, id: &str) -> Result<Option<Tag>, RepositoryError> {
+    async fn find_by_id(&self, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        if let Some(model) = TagEntity::find_by_id(id).one(db).await? {
+        if let Some(model) = TagEntity::find_by_id(id.to_string()).one(db).await? {
             let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(tag))
         } else {
             Ok(None)
         }
-    }
-
-    async fn update(&self, tag: &Tag) -> Result<Tag, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
-
-        let existing = TagEntity::find_by_id(&tag.id.to_string())
-            .one(db)
-            .await?
-            .ok_or_else(|| RepositoryError::NotFound(format!("Tag not found: {}", tag.id)))?;
-
-        let mut active_model: TagActiveModel = existing.into();
-        let new_active = tag.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
-
-        active_model.name = new_active.name;
-        active_model.color = new_active.color;
-        active_model.order_index = new_active.order_index;
-        active_model.updated_at = new_active.updated_at;
-
-        let updated = active_model.update(db).await?;
-        updated.to_domain_model().await.map_err(RepositoryError::Conversion)
-    }
-
-    async fn delete_by_id(&self, id: &str) -> Result<bool, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
-        let result = TagEntity::delete_by_id(id).exec(db).await?;
-        Ok(result.rows_affected > 0)
     }
 
     async fn find_all(&self) -> Result<Vec<Tag>, RepositoryError> {
@@ -183,31 +158,14 @@ impl Repository<Tag, TagId> for TagRepository {
 
         Ok(tags)
     }
-    async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        info!("ProjectUnifiedRepository::save");
-        info!("{:?}", entity);
 
-        Ok(())
-    }
-
-    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
-        info!("ProjectUnifiedRepository::find_by_id");
-        info!("{:?}", id);
-        Ok(Option::from(None))
-    }
-
-    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
-        info!("ProjectUnifiedRepository::find_all");
-        Ok(vec![])
-    }
-
-    async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
+    async fn delete(&self, id: &TagId) -> Result<(), RepositoryError> {
         info!("ProjectUnifiedRepository::delete");
         info!("{:?}", id);
         Ok(())
     }
 
-    async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, id: &TagId) -> Result<bool, RepositoryError> {
         info!("ProjectUnifiedRepository::exists");
         info!("{:?}", id);
         Ok(true)

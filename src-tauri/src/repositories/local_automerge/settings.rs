@@ -6,11 +6,11 @@ use crate::models::setting::{Settings, DueDateButtons};
 use super::document_manager::{DocumentManager, DocumentType};
 
 /// Settings用のAutomerge-Repoリポジトリ
-pub struct SettingsRepository {
+pub struct LocalAutomergeSettingsRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
 
-impl SettingsRepository {
+impl LocalAutomergeSettingsRepository {
     /// 新しいSettingsRepositoryを作成
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
@@ -137,7 +137,7 @@ mod tests {
     #[tokio::test]
     async fn test_settings_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = SettingsRepository::new(temp_dir.path().to_path_buf()).unwrap();
+        let repo = LocalAutomergeSettingsRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // デフォルト設定を読み込み
         let settings = repo.get_setting().await.unwrap();
@@ -149,30 +149,30 @@ mod tests {
         custom_settings.theme = "dark".to_string();
         custom_settings.font_size = 16;
         custom_settings.language = "en".to_string();
-        
-        println!("Saving custom settings: theme={}, font_size={}, language={}", 
+
+        println!("Saving custom settings: theme={}, font_size={}, language={}",
                 custom_settings.theme, custom_settings.font_size, custom_settings.language);
         repo.set_setting(&custom_settings).await.unwrap();
-        
+
         println!("Loading settings back...");
         let loaded_settings = repo.get_setting().await.unwrap();
-        
-        println!("Loaded settings: theme={}, font_size={}, language={}", 
+
+        println!("Loaded settings: theme={}, font_size={}, language={}",
                 loaded_settings.theme, loaded_settings.font_size, loaded_settings.language);
-        
+
         // 改良後の実装では実際の値が返されるはず
         assert_eq!(loaded_settings.theme, "dark");
         assert_eq!(loaded_settings.font_size, 16);
         assert_eq!(loaded_settings.language, "en");
-        
+
         // 複雑なフィールドもテスト
         assert_eq!(loaded_settings.custom_due_days, vec![1, 3, 7, 30]);
         assert_eq!(loaded_settings.due_date_buttons.overdue, true);
         assert_eq!(loaded_settings.due_date_buttons.today, true);
-        
+
         // 特定の設定項目を更新テスト
         repo.update_setting("font", "Arial").await.unwrap();
-        
+
         println!("Settings構造体の完全な保存/読み込みテストが成功しました！");
     }
 }

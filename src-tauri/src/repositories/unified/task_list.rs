@@ -3,6 +3,7 @@
 //! SQLite（高速検索）とAutomerge（永続化・同期）を統合し、
 //! タスクリストエンティティに最適化されたアクセスパターンを提供する。
 
+use async_trait::async_trait;
 use log::info;
 
 use crate::{errors::RepositoryError, models::task_list::TaskList, repositories::{base_repository_trait::Repository, task_list_repository_trait::TaskListRepositoryTrait}, types::id_types::TaskListId};
@@ -23,6 +24,7 @@ impl TaskListUnifiedRepository {
     }
 }
 
+#[async_trait]
 impl Repository<TaskList, TaskListId> for TaskListUnifiedRepository {
     async fn save(&self, entity: &TaskList) -> Result<(), RepositoryError> {
         info!("TaskListUnifiedRepository::save");

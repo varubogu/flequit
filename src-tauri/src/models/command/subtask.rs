@@ -64,6 +64,7 @@ impl ModelConverter<SubTask> for SubtaskCommand {
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self.assigned_user_ids.iter().map(|id| UserId::from(id.clone())).collect(),
             tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
+            tags: vec![],
             order_index: self.order_index,
             completed: self.completed,
             created_at,

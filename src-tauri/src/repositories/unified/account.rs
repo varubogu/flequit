@@ -3,6 +3,7 @@
 //! SQLite（高速検索）とAutomerge（永続化・同期）を統合し、
 //! アカウントエンティティに最適化されたアクセスパターンを提供する。
 
+use async_trait::async_trait;
 use log::info;
 
 use crate::errors::RepositoryError;
@@ -25,6 +26,7 @@ impl AccountUnifiedRepository {
     }
 }
 
+#[async_trait]
 impl Repository<Account, AccountId> for AccountUnifiedRepository {
 
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {

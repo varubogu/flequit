@@ -1,11 +1,10 @@
-use std::path::PathBuf;
 use async_trait::async_trait;
+use log::info;
 use crate::errors::RepositoryError;
 use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
 use crate::types::id_types::ProjectId;
-use super::project_repository::ProjectsRepository as InnerProjectsRepository;
 
 /// Automerge実装のプロジェクトリポジトリ
 ///
@@ -29,43 +28,26 @@ use super::project_repository::ProjectsRepository as InnerProjectsRepository;
 /// - **オフライン対応**: ローカル優先で同期可能
 /// - **JSON互換**: 構造化データの効率的な管理
 pub struct LocalAutomergeProjectRepository {
-    inner: InnerProjectsRepository,
 }
 
-impl LocalAutomergeProjectRepository {
-    /// 新しいLocalAutomergeProjectRepositoryを作成
-    ///
-    /// # 引数
-    ///
-    /// * `base_path` - Automergeドキュメントの保存先ディレクトリ
-    ///
-    /// # 戻り値
-    ///
-    /// 初期化されたリポジトリインスタンス、失敗時は`Err(RepositoryError)`
-    pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
-        let inner = InnerProjectsRepository::new(base_path)?;
-        Ok(Self { inner })
-    }
-
-    /// デフォルトパスでLocalAutomergeProjectRepositoryを作成
-    ///
-    /// # 戻り値
-    ///
-    /// 初期化されたリポジトリインスタンス、失敗時は`Err(RepositoryError)`
-    pub fn with_default_path() -> Result<Self, RepositoryError> {
-        let inner = InnerProjectsRepository::with_default_path()?;
-        Ok(Self { inner })
+impl LocalAutomergeProjectRepository{
+    pub fn new() -> Self {
+        Self {}
     }
 }
 
 #[async_trait]
 impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        self.inner.set_project(entity).await
-    }
+        info!("ProjectUnifiedRepository::save");
+        info!("{:?}", entity);
 
-    async fn find_by_id(&self, id: &Project) -> Result<Option<Project>, RepositoryError> {
-        self.inner.get_project(id).await
+        Ok(())    }
+
+    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+        info!("ProjectUnifiedRepository::find_by_id");
+        info!("{:?}", id);
+        Ok(Option::from(None))
     }
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
@@ -75,12 +57,15 @@ impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
     }
 
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
-        self.inner.delete_project(id).await
+        info!("ProjectUnifiedRepository::delete");
+        info!("{:?}", id);
+        Ok(())
     }
 
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
-        // get_projectで存在確認
-        Ok(self.inner.get_project(id).await?.is_some())
+        info!("ProjectUnifiedRepository::exists");
+        info!("{:?}", id);
+        Ok(false)
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {

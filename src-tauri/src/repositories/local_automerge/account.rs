@@ -6,11 +6,11 @@ use crate::models::account::Account;
 use super::document_manager::{DocumentManager, DocumentType};
 
 /// Account用のAutomerge-Repoリポジトリ
-pub struct AccountRepository {
+pub struct LocalAutomergeAccountRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
 
-impl AccountRepository {
+impl LocalAutomergeAccountRepository {
     /// 新しいAccountRepositoryを作成
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
@@ -152,7 +152,7 @@ mod tests {
     #[tokio::test]
     async fn test_account_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = AccountRepository::new(temp_dir.path().to_path_buf()).unwrap();
+        let repo = LocalAutomergeAccountRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // 初期状態では空
         let accounts = repo.list_users().await.unwrap();
