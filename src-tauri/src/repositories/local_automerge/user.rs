@@ -117,7 +117,7 @@ impl UserLocalAutomergeRepository {
             .filter(|user| {
                 user.display_name
                     .as_ref()
-                    .map_or(false, |dn| dn.contains(display_name))
+                    .is_some_and(|dn| dn.contains(display_name))
             })
             .collect())
     }
