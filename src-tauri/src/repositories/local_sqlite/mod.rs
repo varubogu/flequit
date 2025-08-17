@@ -3,23 +3,23 @@
 //! SQLiteデータベースを使用したローカルストレージの実装
 //! 高速なクエリとリレーショナルなデータアクセスを提供
 
-use sea_orm::{Database, DatabaseConnection, ConnectOptions};
+use crate::errors::repository_error::RepositoryError;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::path::Path;
 use tokio::sync::OnceCell;
-use crate::errors::repository_error::RepositoryError;
 
-pub mod settings;
 pub mod account;
+pub mod hybrid_migration;
+pub mod local_sqlite_repositories;
+pub mod migration;
+pub mod migration_cli;
 pub mod project;
-pub mod task_list;
-pub mod task;
+pub mod schema_migration;
+pub mod settings;
 pub mod subtask;
 pub mod tag;
-pub mod migration;
-pub mod schema_migration;
-pub mod hybrid_migration;
-pub mod migration_cli;
-pub mod local_sqlite_repositories;
+pub mod task;
+pub mod task_list;
 
 /// SQLiteデータベース接続の管理
 pub struct DatabaseManager {
@@ -47,49 +47,60 @@ impl DatabaseManager {
 
     /// データベース接続を取得（初回接続時は自動的に初期化）
     pub async fn get_connection(&self) -> Result<&DatabaseConnection, RepositoryError> {
-        self.connection.get_or_try_init(|| async {
-            // SQLiteデータベースファイルのディレクトリを作成
-            if let Some(parent) = Path::new(&self.database_path).parent() {
-                tokio::fs::create_dir_all(parent).await.map_err(|e| {
-                    RepositoryError::DatabaseError(format!("Failed to create database directory: {}", e))
-                })?;
-            }
+        self.connection
+            .get_or_try_init(|| async {
+                // SQLiteデータベースファイルのディレクトリを作成
+                if let Some(parent) = Path::new(&self.database_path).parent() {
+                    tokio::fs::create_dir_all(parent).await.map_err(|e| {
+                        RepositoryError::DatabaseError(format!(
+                            "Failed to create database directory: {}",
+                            e
+                        ))
+                    })?;
+                }
 
-            // 接続オプション設定
-            let mut opt = ConnectOptions::new(format!("sqlite://{}?mode=rwc", self.database_path));
-            opt.max_connections(100)
-                .min_connections(5)
-                .connect_timeout(std::time::Duration::from_secs(8))
-                .acquire_timeout(std::time::Duration::from_secs(8))
-                .idle_timeout(std::time::Duration::from_secs(8))
-                .max_lifetime(std::time::Duration::from_secs(8))
-                .sqlx_logging(false);
+                // 接続オプション設定
+                let mut opt =
+                    ConnectOptions::new(format!("sqlite://{}?mode=rwc", self.database_path));
+                opt.max_connections(100)
+                    .min_connections(5)
+                    .connect_timeout(std::time::Duration::from_secs(8))
+                    .acquire_timeout(std::time::Duration::from_secs(8))
+                    .idle_timeout(std::time::Duration::from_secs(8))
+                    .max_lifetime(std::time::Duration::from_secs(8))
+                    .sqlx_logging(false);
 
-            // データベースに接続
-            let db = Database::connect(opt).await.map_err(RepositoryError::from)?;
+                // データベースに接続
+                let db = Database::connect(opt)
+                    .await
+                    .map_err(RepositoryError::from)?;
 
-            // ハイブリッドマイグレーション実行
-            let migrator = hybrid_migration::HybridMigrator::new(db.clone());
+                // ハイブリッドマイグレーション実行
+                let migrator = hybrid_migration::HybridMigrator::new(db.clone());
 
-            // マイグレーション状態をチェック
-            let needs_migration = !migrator.check_migration_status().await
-                .unwrap_or(false);
+                // マイグレーション状態をチェック
+                let needs_migration = !migrator.check_migration_status().await.unwrap_or(false);
 
-            if needs_migration {
-                migrator.run_migration().await.map_err(RepositoryError::from)?;
-            } else {
-                println!("ℹ️  マイグレーションは最新です");
-            }
+                if needs_migration {
+                    migrator
+                        .run_migration()
+                        .await
+                        .map_err(RepositoryError::from)?;
+                } else {
+                    println!("ℹ️  マイグレーションは最新です");
+                }
 
-            Ok(db)
-        }).await
+                Ok(db)
+            })
+            .await
     }
 
     /// デフォルトパスでデータベースマネージャーを作成
     pub async fn with_default_path() -> Result<Self, RepositoryError> {
         // デフォルトのデータベースパスを取得
-        let default_path = get_default_database_path()
-            .ok_or_else(|| RepositoryError::ConfigurationError("Failed to get default database path".to_string()))?;
+        let default_path = get_default_database_path().ok_or_else(|| {
+            RepositoryError::ConfigurationError("Failed to get default database path".to_string())
+        })?;
         Ok(Self::new(default_path))
     }
 
@@ -100,7 +111,6 @@ impl DatabaseManager {
         Ok(())
     }
 }
-
 
 /// デフォルトデータベースパスを取得
 fn get_default_database_path() -> Option<String> {

@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::tag::Tag;
-use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// Tag用SQLiteエンティティ定義
 ///
@@ -15,26 +15,26 @@ pub struct Model {
     /// タグの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// タグ名
-    #[sea_orm(indexed, unique)]  // 名前検索用、重複防止
+    #[sea_orm(indexed, unique)] // 名前検索用、重複防止
     pub name: String,
-    
+
     /// タグの色（16進数カラーコード）
-    #[sea_orm(indexed)]  // 色別検索用
+    #[sea_orm(indexed)] // 色別検索用
     pub color: Option<String>,
-    
+
     /// 表示順序
-    #[sea_orm(indexed)]  // ソート用
+    #[sea_orm(indexed)] // ソート用
     pub order_index: Option<i32>,
-    
+
     /// 使用回数（キャッシュ用）
-    #[sea_orm(indexed)]  // 人気順ソート用
+    #[sea_orm(indexed)] // 人気順ソート用
     pub usage_count: i32,
-    
+
     /// 作成日時
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
@@ -56,7 +56,7 @@ impl ActiveModelBehavior for ActiveModel {
 impl SqliteModelConverter<Tag> for Model {
     async fn to_domain_model(&self) -> Result<Tag, String> {
         use crate::types::id_types::TagId;
-        
+
         Ok(Tag {
             id: TagId::from(self.id.clone()),
             name: self.name.clone(),
@@ -93,7 +93,7 @@ impl ActiveModel {
         self.updated_at = Set(chrono::Utc::now());
         self
     }
-    
+
     /// タグの使用回数をデクリメント（0未満にはならない）
     pub fn decrement_usage(mut self) -> Self {
         if let Set(current_count) = self.usage_count {

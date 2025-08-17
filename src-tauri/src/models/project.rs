@@ -1,27 +1,30 @@
 //! プロジェクト管理モデル
-//! 
+//!
 //! このモジュールはプロジェクトの構造とメンバー管理を定義する構造体を提供します。
-//! 
+//!
 //! ## 概要
-//! 
+//!
 //! プロジェクト管理では以下3つの主要構造体を提供：
 //! - `Project`: 基本プロジェクト情報
 //! - `ProjectMember`: プロジェクトメンバーシップ
 //! - `ProjectTree`: タスクリストを含む階層構造
 
-use serde::{Deserialize, Serialize};
+use super::super::types::{
+    id_types::{ProjectId, UserId},
+    project_types::{MemberRole, ProjectStatus},
+};
 use chrono::{DateTime, Utc};
-use super::super::types::{project_types::{ProjectStatus, MemberRole}, id_types::{ProjectId, UserId}};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::project::ProjectCommand, CommandModelConverter};
 
 /// 基本プロジェクト情報を表現する構造体
-/// 
+///
 /// プロジェクトの基本的なメタデータを管理します。
 /// UIの表示順序やアーカイブ状態等、フロントエンドとの整合性を重視した設計です。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `id` - プロジェクトの一意識別子
 /// * `name` - プロジェクト名（必須）
 /// * `description` - プロジェクトの説明文
@@ -32,9 +35,9 @@ use crate::models::{command::project::ProjectCommand, CommandModelConverter};
 /// * `owner_id` - プロジェクトオーナーのユーザーID
 /// * `created_at` - プロジェクト作成日時
 /// * `updated_at` - 最終更新日時
-/// 
+///
 /// # 設計思想
-/// 
+///
 /// - **フロントエンド最適化**: Svelteでの表示に最適化されたフィールド構成
 /// - **階層管理**: タスクリストやタスクの上位概念としての位置づけ
 /// - **チーム対応**: 複数メンバーでの共同作業を前提とした設計
@@ -63,19 +66,19 @@ pub struct Project {
 }
 
 /// プロジェクトメンバー情報を表現する構造体
-/// 
+///
 /// ユーザーとプロジェクト間のN:N関係を管理し、
 /// 各メンバーの役割と参加日時を記録します。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `user_id` - メンバーのユーザーID
 /// * `project_id` - 所属プロジェクトID
 /// * `role` - プロジェクト内での役割（Owner、Member等）
 /// * `joined_at` - プロジェクト参加日時
-/// 
+///
 /// # 役割について
-/// 
+///
 /// `role`フィールドは[`MemberRole`]enumを使用し、以下の権限管理を行います：
 /// - Owner: プロジェクトの全権限
 /// - Admin: メンバー管理とプロジェクト設定
@@ -94,25 +97,25 @@ pub struct ProjectMember {
 }
 
 /// タスクリストを含むプロジェクトツリー構造体
-/// 
+///
 /// プロジェクトの完全な階層情報を一括で取得・表示するための構造体です。
 /// フロントエンドでの初期表示やダッシュボード用途に最適化されています。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// 基本的には`Project`と同じフィールドを持ちますが、
 /// 追加で`task_lists`フィールドにより階層構造を表現します。
-/// 
+///
 /// * `task_lists` - 所属するタスクリスト一覧（タスク情報を含む）
-/// 
+///
 /// # 使用場面
-/// 
+///
 /// - プロジェクト一覧画面での詳細表示
 /// - ダッシュボードでのプロジェクト概要
 /// - エクスポート機能での完全データ取得
-/// 
+///
 /// # パフォーマンス注意点
-/// 
+///
 /// 大量のタスクデータを含むため、必要な場面でのみ使用することを推奨します。
 /// 単純なプロジェクト情報のみが必要な場合は`Project`を使用してください。
 #[derive(Debug, Clone, Serialize, Deserialize)]

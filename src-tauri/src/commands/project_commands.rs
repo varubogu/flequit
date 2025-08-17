@@ -34,7 +34,9 @@ pub async fn delete_project(id: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub async fn search_projects(condition: ProjectSearchRequest) -> Result<Vec<ProjectCommand>, String> {
+pub async fn search_projects(
+    condition: ProjectSearchRequest,
+) -> Result<Vec<ProjectCommand>, String> {
     let results = project_facades::search_projects(&condition).await?;
     let mut command_results = Vec::new();
     for project in results {

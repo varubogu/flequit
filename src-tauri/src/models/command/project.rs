@@ -1,9 +1,9 @@
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
 use crate::types::project_types::ProjectStatus;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
-use crate::models::project::Project;
 use crate::models::command::ModelConverter;
+use crate::models::project::Project;
 use crate::types::id_types::{ProjectId, UserId};
 
 /// Tauriコマンド引数用のProject構造体（created_at/updated_atはString）
@@ -26,20 +26,29 @@ impl ModelConverter<Project> for ProjectCommand {
     async fn to_model(&self) -> Result<Project, String> {
         use chrono::{DateTime, Utc};
 
-        let created_at = self.created_at.parse::<DateTime<Utc>>()
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid created_at format: {}", e))?;
-        let updated_at = self.updated_at.parse::<DateTime<Utc>>()
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         Ok(crate::models::project::Project {
-            id: ProjectId::from(Uuid::parse_str(&self.id).map_err(|e| format!("Invalid project ID: {}", e))?),
+            id: ProjectId::from(
+                Uuid::parse_str(&self.id).map_err(|e| format!("Invalid project ID: {}", e))?,
+            ),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             status: self.status.clone(),
-            owner_id: self.owner_id.as_ref().map(|id| UserId::from(Uuid::parse_str(id).unwrap_or_default())),
+            owner_id: self
+                .owner_id
+                .as_ref()
+                .map(|id| UserId::from(Uuid::parse_str(id).unwrap_or_default())),
             created_at,
             updated_at,
         })

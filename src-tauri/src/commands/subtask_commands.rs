@@ -26,6 +26,8 @@ pub async fn delete_sub_task(id: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub async fn search_sub_tasks(condition: SubtaskSearchRequest) -> Result<Vec<SubtaskCommand>, String> {
+pub async fn search_sub_tasks(
+    condition: SubtaskSearchRequest,
+) -> Result<Vec<SubtaskCommand>, String> {
     subtask_facades::search_sub_tasks(&condition).await
 }

@@ -1,5 +1,5 @@
-use crate::repositories::base_repository_trait::Repository;
 use crate::models::task::Task;
+use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TaskId;
 use async_trait::async_trait;
 
@@ -15,5 +15,4 @@ use async_trait::async_trait;
 /// ドメイン固有のメソッドのみを追加する最小限の設計。
 /// 複雑な検索・集計処理はService層で基本CRUDを組み合わせて実装。
 #[async_trait]
-pub trait TaskRepositoryTrait: Repository<Task, TaskId> + Send + Sync {
-}
+pub trait TaskRepositoryTrait: Repository<Task, TaskId> + Send + Sync {}

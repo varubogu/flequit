@@ -6,21 +6,26 @@
 use async_trait::async_trait;
 use log::info;
 
-use crate::{errors::RepositoryError, models::task_list::TaskList, repositories::{base_repository_trait::Repository, task_list_repository_trait::TaskListRepositoryTrait}, types::id_types::TaskListId};
+use crate::{
+    errors::RepositoryError,
+    models::task_list::TaskList,
+    repositories::{
+        base_repository_trait::Repository, task_list_repository_trait::TaskListRepositoryTrait,
+    },
+    types::id_types::TaskListId,
+};
 
-use super::{LocalSqliteRepositories, LocalAutomergeRepositories};
+use super::{LocalAutomergeRepositories, LocalSqliteRepositories};
 
 /// タスクリスト用統合リポジトリ
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、
 /// タスクリストエンティティに最適化されたアクセスパターンを提供する。
-pub struct TaskListUnifiedRepository {
-}
+pub struct TaskListUnifiedRepository {}
 
 impl TaskListUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -62,5 +67,4 @@ impl Repository<TaskList, TaskListId> for TaskListUnifiedRepository {
     }
 }
 
-impl TaskListRepositoryTrait for TaskListUnifiedRepository {
-}
+impl TaskListRepositoryTrait for TaskListUnifiedRepository {}

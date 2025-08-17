@@ -2,14 +2,18 @@
 //!
 //! アカウントデータのSQLiteベースでのCRUD操作を提供
 
-use log::info;
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait, PaginatorTrait};
+use super::{DatabaseManager, RepositoryError};
 use crate::models::account::Account;
-use crate::models::sqlite::account::{Entity as AccountEntity, ActiveModel as AccountActiveModel, Column};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
+use crate::models::sqlite::account::{
+    ActiveModel as AccountActiveModel, Column, Entity as AccountEntity,
+};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::AccountId;
-use super::{DatabaseManager, RepositoryError};
+use log::info;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+};
 
 /// Account用SQLiteリポジトリ
 pub struct AccountRepository {
@@ -31,7 +35,10 @@ impl AccountRepository {
             .one(db)
             .await?
         {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
         } else {
             Ok(None)
@@ -39,7 +46,11 @@ impl AccountRepository {
     }
 
     /// プロバイダーとプロバイダーIDでアカウントを検索
-    pub async fn find_by_provider(&self, provider: &str, provider_id: &str) -> Result<Option<Account>, RepositoryError> {
+    pub async fn find_by_provider(
+        &self,
+        provider: &str,
+        provider_id: &str,
+    ) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find()
@@ -48,7 +59,10 @@ impl AccountRepository {
             .one(db)
             .await?
         {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
         } else {
             Ok(None)
@@ -67,7 +81,10 @@ impl AccountRepository {
 
         let mut accounts = Vec::new();
         for model in models {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             accounts.push(account);
         }
 
@@ -84,7 +101,10 @@ impl AccountRepository {
             .one(db)
             .await?
         {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
         } else {
             Ok(None)
@@ -105,14 +125,19 @@ impl AccountRepository {
         let account_model = AccountEntity::find_by_id(account_id)
             .one(db)
             .await?
-            .ok_or_else(|| RepositoryError::NotFound(format!("Account not found: {}", account_id)))?;
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Account not found: {}", account_id))
+            })?;
 
         let mut active_model: AccountActiveModel = account_model.into();
         active_model.is_active = sea_orm::Set(true);
         active_model.updated_at = sea_orm::Set(chrono::Utc::now());
 
         let updated = active_model.update(db).await?;
-        updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+        updated
+            .to_domain_model()
+            .await
+            .map_err(RepositoryError::Conversion)
     }
 
     /// プロバイダー別のアカウント数を取得
@@ -147,7 +172,10 @@ impl Repository<Account, AccountId> for AccountRepository {
         if let Some(existing_model) = existing {
             // 更新
             let mut active_model: AccountActiveModel = existing_model.into();
-            let new_active = account.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let new_active = account
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
 
             active_model.email = new_active.email;
             active_model.is_active = new_active.is_active;
@@ -157,7 +185,10 @@ impl Repository<Account, AccountId> for AccountRepository {
             Ok(())
         } else {
             // 新規作成
-            let active_model = account.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let active_model = account
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             let saved = active_model.insert(db).await?;
             Ok(())
         }
@@ -167,7 +198,10 @@ impl Repository<Account, AccountId> for AccountRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = AccountEntity::find_by_id(id.to_string()).one(db).await? {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
         } else {
             Ok(None)
@@ -177,9 +211,7 @@ impl Repository<Account, AccountId> for AccountRepository {
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
-        let result = AccountEntity::delete_by_id(id.to_string())
-            .exec(db)
-            .await?;
+        let result = AccountEntity::delete_by_id(id.to_string()).exec(db).await?;
         Ok(())
     }
 
@@ -193,7 +225,10 @@ impl Repository<Account, AccountId> for AccountRepository {
 
         let mut accounts = Vec::new();
         for model in models {
-            let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let account = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             accounts.push(account);
         }
 

@@ -5,14 +5,10 @@
 
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_sqlite::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
-    subtask::SubtaskLocalSqliteRepository,
-    tag::TagLocalSqliteRepository,
-    account::AccountRepository,
-    settings::SettingsLocalSqliteRepository,
-    DatabaseManager,
+    account::AccountRepository, project::ProjectLocalSqliteRepository,
+    settings::SettingsLocalSqliteRepository, subtask::SubtaskLocalSqliteRepository,
+    tag::TagLocalSqliteRepository, task::TaskLocalSqliteRepository,
+    task_list::TaskListLocalSqliteRepository, DatabaseManager,
 };
 
 /// SQLiteリポジトリ群の統合管理

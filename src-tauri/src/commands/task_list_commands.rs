@@ -40,7 +40,9 @@ pub async fn delete_task_list(id: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub async fn search_task_lists(condition: TaskListSearchRequest) -> Result<Vec<TaskListCommand>, String> {
+pub async fn search_task_lists(
+    condition: TaskListSearchRequest,
+) -> Result<Vec<TaskListCommand>, String> {
     let results = task_list_facades::search_task_lists(&condition).await?;
     let mut command_results = Vec::new();
     for task_list in results {

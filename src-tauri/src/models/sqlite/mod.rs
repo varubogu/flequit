@@ -2,9 +2,9 @@ pub mod account;
 pub mod project;
 pub mod setting;
 pub mod subtask;
+pub mod tag;
 pub mod task;
 pub mod task_list;
-pub mod tag;
 
 /// SQLiteモデルと内部ドメインモデル間の変換を提供するトレイト
 ///

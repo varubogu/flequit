@@ -1,8 +1,8 @@
-use std::path::{Path, PathBuf};
-use automerge_repo::{RepoHandle, DocHandle};
-use automerge::{ObjType, ScalarValue, transaction::Transactable, ReadDoc};
-use crate::errors::RepositoryError;
 use super::file_storage::FileStorage;
+use crate::errors::RepositoryError;
+use automerge::{transaction::Transactable, ObjType, ReadDoc, ScalarValue};
+use automerge_repo::{DocHandle, RepoHandle};
+use std::path::{Path, PathBuf};
 
 /// Automergeドキュメントタイプ
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -34,7 +34,7 @@ impl DocumentManager {
     /// 新しいDocumentManagerを作成
     pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, RepositoryError> {
         let base_path = base_path.as_ref().to_path_buf();
-        
+
         // ベースディレクトリを作成
         if !base_path.exists() {
             std::fs::create_dir_all(&base_path)
@@ -59,7 +59,10 @@ impl DocumentManager {
     }
 
     /// ドキュメントハンドルを取得または作成
-    pub async fn get_or_create_document(&mut self, doc_type: &DocumentType) -> Result<DocHandle, RepositoryError> {
+    pub async fn get_or_create_document(
+        &mut self,
+        doc_type: &DocumentType,
+    ) -> Result<DocHandle, RepositoryError> {
         if let Some(doc_handle) = self.documents.get(doc_type) {
             Ok(doc_handle.clone())
         } else {
@@ -122,20 +125,18 @@ impl DocumentManager {
     ) -> Result<Option<T>, RepositoryError> {
         let doc_handle = self.get_or_create_document(doc_type).await?;
 
-        doc_handle.with_doc(|doc| {
-            match doc.get(automerge::ROOT, key) {
-                Ok(Some((value, obj_id))) => {
-                    let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
-                    if json_value == serde_json::Value::Null {
-                        return Ok(None);
-                    }
-                    let result: T = serde_json::from_value(json_value)
-                        .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-                    Ok(Some(result))
+        doc_handle.with_doc(|doc| match doc.get(automerge::ROOT, key) {
+            Ok(Some((value, obj_id))) => {
+                let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
+                if json_value == serde_json::Value::Null {
+                    return Ok(None);
                 }
-                Ok(None) => Ok(None),
-                Err(_) => Ok(None),
+                let result: T = serde_json::from_value(json_value)
+                    .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+                Ok(Some(result))
             }
+            Ok(None) => Ok(None),
+            Err(_) => Ok(None),
         })
     }
 
@@ -252,34 +253,27 @@ impl DocumentManager {
 
     /// ValueをJSON Valueに変換するヘルパー（オブジェクトID付き版）
     fn value_to_json_value_with_objid<D: ReadDoc>(
-        &self, 
-        doc: &D, 
-        value: &automerge::Value, 
-        obj_id: &automerge::ObjId
+        &self,
+        doc: &D,
+        value: &automerge::Value,
+        obj_id: &automerge::ObjId,
     ) -> serde_json::Value {
         match value {
             automerge::Value::Scalar(scalar) => self.scalar_to_json_value(scalar),
-            automerge::Value::Object(obj_type) => {
-                match obj_type {
-                    automerge::ObjType::Map | automerge::ObjType::Table => {
-                        self.read_map_object(doc, obj_id)
-                    }
-                    automerge::ObjType::List => {
-                        self.read_list_object(doc, obj_id)
-                    }
-                    automerge::ObjType::Text => {
-                        self.read_text_object(doc, obj_id)
-                    }
+            automerge::Value::Object(obj_type) => match obj_type {
+                automerge::ObjType::Map | automerge::ObjType::Table => {
+                    self.read_map_object(doc, obj_id)
                 }
-            }
+                automerge::ObjType::List => self.read_list_object(doc, obj_id),
+                automerge::ObjType::Text => self.read_text_object(doc, obj_id),
+            },
         }
     }
-
 
     /// Mapオブジェクトからデータを読み取る
     fn read_map_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
         let mut map = serde_json::Map::new();
-        
+
         // Mapのすべてのキーと値を取得
         for key in doc.keys(obj_id.clone()) {
             if let Ok(Some((value, nested_obj_id))) = doc.get(obj_id, &key) {
@@ -287,17 +281,21 @@ impl DocumentManager {
                 map.insert(key, json_value);
             }
         }
-        
+
         serde_json::Value::Object(map)
     }
 
     /// Listオブジェクトからデータを読み取る
-    fn read_list_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
+    fn read_list_object<D: ReadDoc>(
+        &self,
+        doc: &D,
+        obj_id: &automerge::ObjId,
+    ) -> serde_json::Value {
         let mut array = Vec::new();
-        
+
         // Listの長さを取得
         let length = doc.length(obj_id.clone());
-        
+
         // 各インデックスの値を取得
         for i in 0..length {
             if let Ok(Some((value, nested_obj_id))) = doc.get(obj_id, i) {
@@ -305,12 +303,16 @@ impl DocumentManager {
                 array.push(json_value);
             }
         }
-        
+
         serde_json::Value::Array(array)
     }
 
     /// Textオブジェクトからデータを読み取る
-    fn read_text_object<D: ReadDoc>(&self, doc: &D, obj_id: &automerge::ObjId) -> serde_json::Value {
+    fn read_text_object<D: ReadDoc>(
+        &self,
+        doc: &D,
+        obj_id: &automerge::ObjId,
+    ) -> serde_json::Value {
         // Textオブジェクトをstringとして読み取る
         match doc.text(obj_id.clone()) {
             Ok(text) => serde_json::Value::String(text),
@@ -343,8 +345,8 @@ impl DocumentManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use serde_json::json;
+    use tempfile::TempDir;
 
     #[tokio::test]
     async fn test_document_manager() {
@@ -368,7 +370,10 @@ mod tests {
         let test_value = "test_value";
 
         // データを保存
-        manager.save_data(&doc_type, "test_key", &test_value).await.unwrap();
+        manager
+            .save_data(&doc_type, "test_key", &test_value)
+            .await
+            .unwrap();
 
         // データを読み込み
         let loaded_value: Option<String> = manager.load_data(&doc_type, "test_key").await.unwrap();
@@ -381,7 +386,7 @@ mod tests {
         let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
 
         let doc_type = DocumentType::Settings;
-        
+
         // ネストしたオブジェクトを作成
         let test_data = json!({
             "user": {
@@ -399,14 +404,18 @@ mod tests {
         });
 
         // データを保存
-        manager.save_data(&doc_type, "user_config", &test_data).await.unwrap();
+        manager
+            .save_data(&doc_type, "user_config", &test_data)
+            .await
+            .unwrap();
 
         // データを読み込み
-        let loaded_data: Option<serde_json::Value> = manager.load_data(&doc_type, "user_config").await.unwrap();
-        
+        let loaded_data: Option<serde_json::Value> =
+            manager.load_data(&doc_type, "user_config").await.unwrap();
+
         assert!(loaded_data.is_some());
         let loaded = loaded_data.unwrap();
-        
+
         // ネストしたデータが正しく読み込まれることを確認
         assert_eq!(loaded["user"]["name"], "テストユーザー");
         assert_eq!(loaded["user"]["age"], 30);
@@ -422,7 +431,7 @@ mod tests {
         let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
 
         let doc_type = DocumentType::Settings;
-        
+
         // 配列データを作成
         let test_array = json!([
             {"id": 1, "name": "項目1"},
@@ -431,14 +440,18 @@ mod tests {
         ]);
 
         // データを保存
-        manager.save_data(&doc_type, "items", &test_array).await.unwrap();
+        manager
+            .save_data(&doc_type, "items", &test_array)
+            .await
+            .unwrap();
 
         // データを読み込み
-        let loaded_array: Option<serde_json::Value> = manager.load_data(&doc_type, "items").await.unwrap();
-        
+        let loaded_array: Option<serde_json::Value> =
+            manager.load_data(&doc_type, "items").await.unwrap();
+
         assert!(loaded_array.is_some());
         let loaded = loaded_array.unwrap();
-        
+
         // 配列データが正しく読み込まれることを確認
         assert!(loaded.is_array());
         let arr = loaded.as_array().unwrap();
@@ -459,7 +472,10 @@ mod tests {
         let doc_type = DocumentType::Settings;
 
         // 存在しないキーを読み込み
-        let loaded_value: Option<String> = manager.load_data(&doc_type, "nonexistent_key").await.unwrap();
+        let loaded_value: Option<String> = manager
+            .load_data(&doc_type, "nonexistent_key")
+            .await
+            .unwrap();
         assert_eq!(loaded_value, None);
     }
 }

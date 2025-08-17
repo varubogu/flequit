@@ -1,15 +1,15 @@
 use log::info;
 
-use crate::models::task::Task;
-use crate::models::command::task::TaskSearchRequest;
-use crate::services::task_service;
 use crate::errors::service_error::ServiceError;
+use crate::models::command::task::TaskSearchRequest;
+use crate::models::task::Task;
+use crate::services::task_service;
 
 pub async fn create_task(task: &Task) -> Result<bool, String> {
     match task_service::create_task(task).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to create task: {:?}", e))
+        Err(e) => Err(format!("Failed to create task: {:?}", e)),
     }
 }
 
@@ -24,7 +24,7 @@ pub async fn update_task(task: &Task) -> Result<bool, String> {
     match task_service::update_task(task).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to update task: {:?}", e))
+        Err(e) => Err(format!("Failed to update task: {:?}", e)),
     }
 }
 
@@ -37,6 +37,6 @@ pub async fn delete_task(id: &str) -> Result<bool, String> {
 pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, String> {
     match task_service::search_tasks(condition).await {
         Ok((tasks, _)) => Ok(tasks),
-        Err(e) => Err(format!("Failed to search tasks: {:?}", e))
+        Err(e) => Err(format!("Failed to search tasks: {:?}", e)),
     }
 }

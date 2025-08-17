@@ -1,8 +1,8 @@
+use crate::errors::RepositoryError;
+use automerge_repo::{DocumentId, Storage, StorageError};
+use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
-use std::future::Future;
-use automerge_repo::{Storage, StorageError, DocumentId};
-use crate::errors::RepositoryError;
 
 /// ファイルシステムベースのAutomergeストレージ実装
 pub struct FileStorage {
@@ -13,16 +13,17 @@ impl FileStorage {
     /// 新しいFileStorageを作成
     pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, RepositoryError> {
         let base_path = base_path.as_ref().to_path_buf();
-        
+
         // ベースディレクトリを作成
         if !base_path.exists() {
-            std::fs::create_dir_all(&base_path)
-                .map_err(|e| RepositoryError::IOError(format!("Failed to create directory: {}", e)))?;
+            std::fs::create_dir_all(&base_path).map_err(|e| {
+                RepositoryError::IOError(format!("Failed to create directory: {}", e))
+            })?;
         }
-        
+
         Ok(Self { base_path })
     }
-    
+
     /// ドキュメントのファイルパスを取得
     fn document_path(&self, id: &DocumentId) -> PathBuf {
         self.base_path.join(format!("{}.automerge", id))
@@ -30,7 +31,10 @@ impl FileStorage {
 }
 
 impl Storage for FileStorage {
-    fn get(&self, id: DocumentId) -> Pin<Box<dyn Future<Output = Result<Option<Vec<u8>>, StorageError>> + Send + 'static>> {
+    fn get(
+        &self,
+        id: DocumentId,
+    ) -> Pin<Box<dyn Future<Output = Result<Option<Vec<u8>>, StorageError>> + Send + 'static>> {
         let path = self.document_path(&id);
         Box::pin(async move {
             match std::fs::read(&path) {
@@ -45,7 +49,9 @@ impl Storage for FileStorage {
         })
     }
 
-    fn list_all(&self) -> Pin<Box<dyn Future<Output = Result<Vec<DocumentId>, StorageError>> + Send + 'static>> {
+    fn list_all(
+        &self,
+    ) -> Pin<Box<dyn Future<Output = Result<Vec<DocumentId>, StorageError>> + Send + 'static>> {
         let base_path = self.base_path.clone();
         Box::pin(async move {
             let mut document_ids = Vec::new();
@@ -65,7 +71,11 @@ impl Storage for FileStorage {
         })
     }
 
-    fn append(&self, id: DocumentId, changes: Vec<u8>) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + 'static>> {
+    fn append(
+        &self,
+        id: DocumentId,
+        changes: Vec<u8>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + 'static>> {
         let path = self.document_path(&id);
         Box::pin(async move {
             if let Ok(mut file) = std::fs::OpenOptions::new()
@@ -80,7 +90,11 @@ impl Storage for FileStorage {
         })
     }
 
-    fn compact(&self, id: DocumentId, full_doc: Vec<u8>) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + 'static>> {
+    fn compact(
+        &self,
+        id: DocumentId,
+        full_doc: Vec<u8>,
+    ) -> Pin<Box<dyn Future<Output = Result<(), StorageError>> + Send + 'static>> {
         let path = self.document_path(&id);
         Box::pin(async move {
             let _ = std::fs::write(&path, full_doc);

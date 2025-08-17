@@ -4,5 +4,4 @@ use crate::types::id_types::AccountId;
 use async_trait::async_trait;
 
 #[async_trait]
-pub trait AccountRepositoryTrait: Repository<Account, AccountId> + Send + Sync {
-}
+pub trait AccountRepositoryTrait: Repository<Account, AccountId> + Send + Sync {}

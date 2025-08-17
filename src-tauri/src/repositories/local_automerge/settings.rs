@@ -1,9 +1,9 @@
+use super::document_manager::{DocumentManager, DocumentType};
+use crate::errors::RepositoryError;
+use crate::models::setting::{DueDateButtons, Settings};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use crate::errors::RepositoryError;
-use crate::models::setting::{Settings, DueDateButtons};
-use super::document_manager::{DocumentManager, DocumentType};
 
 /// Settings用のAutomerge-Repoリポジトリ
 pub struct LocalAutomergeSettingsRepository {
@@ -24,7 +24,9 @@ impl LocalAutomergeSettingsRepository {
         // Automergeドキュメントから設定を読み込み
         let loaded_settings = {
             let mut manager = self.document_manager.lock().await;
-            manager.load_data::<Settings>(&DocumentType::Settings, "settings").await?
+            manager
+                .load_data::<Settings>(&DocumentType::Settings, "settings")
+                .await?
         };
         if let Some(settings) = loaded_settings {
             Ok(settings)
@@ -72,7 +74,9 @@ impl LocalAutomergeSettingsRepository {
         let settings_clone = settings.clone();
         {
             let mut manager = self.document_manager.lock().await;
-            manager.save_data(&DocumentType::Settings, "settings", &settings_clone).await
+            manager
+                .save_data(&DocumentType::Settings, "settings", &settings_clone)
+                .await
         }
     }
 
@@ -82,15 +86,24 @@ impl LocalAutomergeSettingsRepository {
         let value_string = value.to_string();
         {
             let mut manager = self.document_manager.lock().await;
-            manager.update_value(&DocumentType::Settings, &key_string, &value_string).await
+            manager
+                .update_value(&DocumentType::Settings, &key_string, &value_string)
+                .await
         }
     }
 
     /// 時刻ラベルを追加
-    pub async fn add_time_label(&self, _id: &str, _name: &str, _time: &str) -> Result<(), RepositoryError> {
+    pub async fn add_time_label(
+        &self,
+        _id: &str,
+        _name: &str,
+        _time: &str,
+    ) -> Result<(), RepositoryError> {
         let _doc_handle = {
             let mut manager = self.document_manager.lock().await;
-            manager.get_or_create_document(&DocumentType::Settings).await?
+            manager
+                .get_or_create_document(&DocumentType::Settings)
+                .await?
         };
         // TODO: Automergeドキュメントの配列に要素を追加する実装
         Ok(())
@@ -100,17 +113,26 @@ impl LocalAutomergeSettingsRepository {
     pub async fn remove_time_label(&self, _id: &str) -> Result<(), RepositoryError> {
         let _doc_handle = {
             let mut manager = self.document_manager.lock().await;
-            manager.get_or_create_document(&DocumentType::Settings).await?
+            manager
+                .get_or_create_document(&DocumentType::Settings)
+                .await?
         };
         // TODO: Automergeドキュメントから要素を削除する実装
         Ok(())
     }
 
     /// 時刻ラベルを更新
-    pub async fn update_time_label(&self, _id: &str, _name: Option<&str>, _time: Option<&str>) -> Result<(), RepositoryError> {
+    pub async fn update_time_label(
+        &self,
+        _id: &str,
+        _name: Option<&str>,
+        _time: Option<&str>,
+    ) -> Result<(), RepositoryError> {
         let _doc_handle = {
             let mut manager = self.document_manager.lock().await;
-            manager.get_or_create_document(&DocumentType::Settings).await?
+            manager
+                .get_or_create_document(&DocumentType::Settings)
+                .await?
         };
         // TODO: Automergeドキュメントの要素を更新する実装
         Ok(())
@@ -150,15 +172,19 @@ mod tests {
         custom_settings.font_size = 16;
         custom_settings.language = "en".to_string();
 
-        println!("Saving custom settings: theme={}, font_size={}, language={}",
-                custom_settings.theme, custom_settings.font_size, custom_settings.language);
+        println!(
+            "Saving custom settings: theme={}, font_size={}, language={}",
+            custom_settings.theme, custom_settings.font_size, custom_settings.language
+        );
         repo.set_setting(&custom_settings).await.unwrap();
 
         println!("Loading settings back...");
         let loaded_settings = repo.get_setting().await.unwrap();
 
-        println!("Loaded settings: theme={}, font_size={}, language={}",
-                loaded_settings.theme, loaded_settings.font_size, loaded_settings.language);
+        println!(
+            "Loaded settings: theme={}, font_size={}, language={}",
+            loaded_settings.theme, loaded_settings.font_size, loaded_settings.language
+        );
 
         // 改良後の実装では実際の値が返されるはず
         assert_eq!(loaded_settings.theme, "dark");

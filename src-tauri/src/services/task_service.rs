@@ -1,16 +1,16 @@
-use crate::models::task::Task;
-use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::{ProjectId, TaskId};
-use crate::types::task_types::TaskStatus;
 use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
+use crate::models::task::Task;
+use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::unified::UnifiedRepositories;
+use crate::types::id_types::{ProjectId, TaskId};
+use crate::types::task_types::TaskStatus;
 
-pub async fn create_task(
-    task: &Task,
-) -> Result<(), ServiceError> {
+pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     if task.project_id.to_string().trim().is_empty() || task.title.trim().is_empty() {
-        return Err(ServiceError::ValidationError("Project ID and Task title cannot be empty".to_string()));
+        return Err(ServiceError::ValidationError(
+            "Project ID and Task title cannot be empty".to_string(),
+        ));
     }
     let repository = UnifiedRepositories::new().await?;
     repository.tasks.save(task).await?;
@@ -25,25 +25,19 @@ pub async fn get_task(
     Ok(repository.tasks.find_by_id(task_id).await?)
 }
 
-pub async fn list_tasks(
-    project_id: &ProjectId,
-) -> Result<Vec<Task>, ServiceError> {
+pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceError> {
     // ProjectsRepositoryにはlist_tasksメソッドがないため、一時的に空のVecを返す
     let _ = project_id;
     Ok(Vec::new())
 }
 
-pub async fn update_task(
-    task: &Task,
-) -> Result<(), ServiceError> {
+pub async fn update_task(task: &Task) -> Result<(), ServiceError> {
     let repository = UnifiedRepositories::new().await?;
     repository.tasks.save(task).await?;
     Ok(())
 }
 
-pub async fn delete_task(
-    task_id: &TaskId,
-) -> Result<(), ServiceError> {
+pub async fn delete_task(task_id: &TaskId) -> Result<(), ServiceError> {
     // 一時的に何もしない
     let _ = task_id;
     Ok(())
@@ -97,9 +91,7 @@ pub async fn update_task_priority(
     Ok(())
 }
 
-pub async fn search_tasks(
-    request: &TaskSearchRequest,
-) -> Result<(Vec<Task>, usize), ServiceError> {
+pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usize), ServiceError> {
     let _project_id = request.project_id.as_deref().unwrap_or("");
     // NOTE: Ideally, filtering should be done in the repository layer with a dedicated method.
     // ProjectsRepositoryにはlist_tasksメソッドがないため、一時的に空のVecを使用

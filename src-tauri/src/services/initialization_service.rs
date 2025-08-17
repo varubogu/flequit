@@ -1,8 +1,7 @@
-use crate::models::setting::LocalSettings;
+use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
 use crate::models::project::ProjectTree;
-use crate::errors::service_error::ServiceError;
-
+use crate::models::setting::LocalSettings;
 
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError> {
     // 一時的にデフォルト値を返す

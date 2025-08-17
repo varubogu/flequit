@@ -1,25 +1,25 @@
 //! ユーザー管理モデル
-//! 
+//!
 //! このモジュールはアプリケーション内でのユーザー情報を管理する構造体を定義します。
-//! 
+//!
 //! ## 概要
-//! 
+//!
 //! `User`構造体は、アプリケーション内でのユーザープロフィール情報を表現します。
 //! 認証情報（`Account`）とは分離され、ユーザーの実体情報を管理します。
 
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 use super::super::types::id_types::UserId;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::user::UserCommand, CommandModelConverter};
 
 /// アプリケーションユーザー情報を表現する構造体
-/// 
+///
 /// 認証後のユーザーの実体情報（プロフィール、表示名等）を管理します。
 /// 認証情報は別途`Account`モデルで管理されます。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `id` - ユーザーの一意識別子
 /// * `name` - ユーザー名（必須、表示やメンション等で使用）
 /// * `email` - メールアドレス（必須、通知や連絡で使用）
@@ -29,23 +29,23 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 /// * `display_name` - 表示用名前（UI表示用、任意設定可能）
 /// * `created_at` - ユーザー作成日時
 /// * `updated_at` - プロフィール最終更新日時
-/// 
+///
 /// # フロントエンド互換性
-/// 
+///
 /// 本構造体は、Svelteフロントエンドとの互換性を保つため、
 /// 複数のアバター関連フィールド(`avatar_url`, `avatar`)を持ちます。
-/// 
+///
 /// # 設計思想
-/// 
+///
 /// - **ユーザー中心設計**: アプリケーション内でのユーザー体験に特化
 /// - **プロフィール管理**: 表示名、アバター等のカスタマイズ可能な情報を重視
 /// - **認証分離**: 認証情報とユーザー情報を明確に分離
-/// 
+///
 /// # 使用例
-/// 
+///
 /// ```rust
 /// use chrono::Utc;
-/// 
+///
 /// let user = User {
 ///     id: UserId::new(),
 ///     name: "john_doe".to_string(),
@@ -58,9 +58,9 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 ///     updated_at: Utc::now(),
 /// };
 /// ```
-/// 
+///
 /// # 関連モデル
-/// 
+///
 /// - [`crate::models::account::Account`] - 認証情報
 /// - [`crate::models::project::ProjectMember`] - プロジェクトメンバーシップ
 /// - [`crate::models::task::Task`] - タスク担当者情報

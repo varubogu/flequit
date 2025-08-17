@@ -1,14 +1,14 @@
 //! データベースマイグレーション
-//! 
+//!
 //! SQLiteデータベーススキーマの作成・更新を管理
 
-use sea_orm::{DatabaseConnection, DbErr, Statement, ConnectionTrait};
+use sea_orm::{ConnectionTrait, DatabaseConnection, DbErr, Statement};
 
 /// マイグレーションを実行
 pub async fn run_migrations(db: &DatabaseConnection) -> Result<(), DbErr> {
     // マイグレーションテーブルの作成
     create_migration_table(db).await?;
-    
+
     // 各テーブルの作成
     create_settings_table(db).await?;
     create_accounts_table(db).await?;
@@ -17,7 +17,7 @@ pub async fn run_migrations(db: &DatabaseConnection) -> Result<(), DbErr> {
     create_tasks_table(db).await?;
     create_subtasks_table(db).await?;
     create_tags_table(db).await?;
-    
+
     Ok(())
 }
 
@@ -30,12 +30,13 @@ async fn create_migration_table(db: &DatabaseConnection) -> Result<(), DbErr> {
             applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -49,12 +50,13 @@ async fn create_settings_table(db: &DatabaseConnection) -> Result<(), DbErr> {
             updated_at DATETIME NOT NULL
         );
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -77,12 +79,13 @@ async fn create_accounts_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_accounts_created_at ON accounts(created_at);
         CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_provider_account ON accounts(provider, provider_account_id);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -109,12 +112,13 @@ async fn create_projects_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_projects_owner_id ON projects(owner_id);
         CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -138,12 +142,13 @@ async fn create_task_lists_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_task_lists_order_index ON task_lists(order_index);
         CREATE INDEX IF NOT EXISTS idx_task_lists_is_archived ON task_lists(is_archived);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -184,12 +189,13 @@ async fn create_tasks_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_tasks_is_archived ON tasks(is_archived);
         CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -224,12 +230,13 @@ async fn create_subtasks_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_subtasks_order_index ON subtasks(order_index);
         CREATE INDEX IF NOT EXISTS idx_subtasks_completed ON subtasks(completed);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }
 
@@ -251,11 +258,12 @@ async fn create_tags_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         CREATE INDEX IF NOT EXISTS idx_tags_order_index ON tags(order_index);
         CREATE INDEX IF NOT EXISTS idx_tags_usage_count ON tags(usage_count);
     "#;
-    
+
     db.execute(Statement::from_string(
         sea_orm::DatabaseBackend::Sqlite,
         sql.to_string(),
-    )).await?;
-    
+    ))
+    .await?;
+
     Ok(())
 }

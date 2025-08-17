@@ -8,9 +8,9 @@
 //! ローカル認証によるユーザーアカウント情報を表現します。
 //! ユーザー情報とは分離され、認証に特化したデータを管理します。
 
-use serde::{Serialize, Deserialize};
-use chrono::{DateTime, Utc};
 use super::super::types::id_types::AccountId;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::account::AccountCommand, CommandModelConverter};
 

@@ -1,10 +1,10 @@
-use async_trait::async_trait;
-use log::info;
 use crate::errors::RepositoryError;
 use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
 use crate::types::id_types::ProjectId;
+use async_trait::async_trait;
+use log::info;
 
 /// Automerge実装のプロジェクトリポジトリ
 ///
@@ -27,10 +27,9 @@ use crate::types::id_types::ProjectId;
 /// - **履歴管理**: すべての変更履歴を保持
 /// - **オフライン対応**: ローカル優先で同期可能
 /// - **JSON互換**: 構造化データの効率的な管理
-pub struct LocalAutomergeProjectRepository {
-}
+pub struct LocalAutomergeProjectRepository {}
 
-impl LocalAutomergeProjectRepository{
+impl LocalAutomergeProjectRepository {
     pub fn new() -> Self {
         Self {}
     }
@@ -42,7 +41,8 @@ impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
         info!("ProjectUnifiedRepository::save");
         info!("{:?}", entity);
 
-        Ok(())    }
+        Ok(())
+    }
 
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_by_id");
@@ -76,5 +76,4 @@ impl Repository<Project, ProjectId> for LocalAutomergeProjectRepository {
 }
 
 #[async_trait]
-impl ProjectRepositoryTrait for LocalAutomergeProjectRepository {
-}
+impl ProjectRepositoryTrait for LocalAutomergeProjectRepository {}

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::ModelConverter, tag::Tag};
 
@@ -18,13 +18,17 @@ impl ModelConverter<Tag> for TagCommand {
     async fn to_model(&self) -> Result<Tag, String> {
         use chrono::{DateTime, Utc};
 
-        let created_at = self.created_at.parse::<DateTime<Utc>>()
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid created_at format: {}", e))?;
-        let updated_at = self.updated_at.parse::<DateTime<Utc>>()
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         use crate::types::id_types::TagId;
-        
+
         Ok(crate::models::tag::Tag {
             id: TagId::from(self.id.clone()),
             name: self.name.clone(),

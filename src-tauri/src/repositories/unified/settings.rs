@@ -3,7 +3,7 @@
 //! SQLite（高速検索）とAutomerge（永続化・同期）を統合し、
 //! 設定エンティティに最適化されたアクセスパターンを提供する。
 
-use super::{LocalSqliteRepositories, LocalAutomergeRepositories};
+use super::{LocalAutomergeRepositories, LocalSqliteRepositories};
 
 /// 設定用統合リポジトリ
 ///
@@ -11,13 +11,11 @@ use super::{LocalSqliteRepositories, LocalAutomergeRepositories};
 /// 設定エンティティに最適化されたアクセスパターンを提供する。
 ///
 /// 注意: 設定は単一オブジェクトのため、通常のCRUD操作とは異なる
-pub struct SettingsUnifiedRepository {
-}
+pub struct SettingsUnifiedRepository {}
 
 impl SettingsUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 

@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task_list::TaskList;
-use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// TaskList用SQLiteエンティティ定義
 ///
@@ -15,38 +15,42 @@ pub struct Model {
     /// タスクリストの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// 所属プロジェクトID
-    #[sea_orm(indexed)]  // プロジェクト別検索用
+    #[sea_orm(indexed)] // プロジェクト別検索用
     pub project_id: String,
-    
+
     /// タスクリスト名
     pub name: String,
-    
+
     /// タスクリスト説明
     pub description: Option<String>,
-    
+
     /// UI表示用のカラーコード
     pub color: Option<String>,
-    
+
     /// 表示順序
-    #[sea_orm(indexed)]  // ソート用
+    #[sea_orm(indexed)] // ソート用
     pub order_index: i32,
-    
+
     /// アーカイブ状態フラグ
-    #[sea_orm(indexed)]  // アーカイブフィルタ用
+    #[sea_orm(indexed)] // アーカイブフィルタ用
     pub is_archived: bool,
-    
+
     /// 作成日時
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(belongs_to = "super::project::Entity", from = "Column::ProjectId", to = "super::project::Column::Id")]
+    #[sea_orm(
+        belongs_to = "super::project::Entity",
+        from = "Column::ProjectId",
+        to = "super::project::Column::Id"
+    )]
     Project,
     #[sea_orm(has_many = "super::task::Entity")]
     Tasks,
@@ -69,8 +73,8 @@ impl ActiveModelBehavior for ActiveModel {}
 /// SQLiteモデルからドメインモデルへの変換
 impl SqliteModelConverter<TaskList> for Model {
     async fn to_domain_model(&self) -> Result<TaskList, String> {
-        use crate::types::id_types::{TaskListId, ProjectId};
-        
+        use crate::types::id_types::{ProjectId, TaskListId};
+
         Ok(TaskList {
             id: TaskListId::from(self.id.clone()),
             project_id: ProjectId::from(self.project_id.clone()),

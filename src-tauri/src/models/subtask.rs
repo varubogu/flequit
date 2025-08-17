@@ -8,11 +8,14 @@
 //! - `Subtask`: 基本サブタスク情報（軽量、一般的な操作用）
 //! - `SubTask`: タグ情報を含む完全なサブタスク構造
 
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use super::super::types::{task_types::TaskStatus, id_types::{SubTaskId, TaskId, UserId, TagId}};
+use super::super::types::{
+    id_types::{SubTaskId, TagId, TaskId, UserId},
+    task_types::TaskStatus,
+};
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::subtask::SubtaskCommand, CommandModelConverter};
 
@@ -114,7 +117,11 @@ impl CommandModelConverter<SubtaskCommand> for SubTask {
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             completed: self.completed,

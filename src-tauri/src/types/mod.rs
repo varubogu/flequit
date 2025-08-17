@@ -7,8 +7,8 @@
 pub mod datetime_calendar_types;
 /// 日付時刻のフォーマットに関連する型定義
 pub mod datetime_format_types;
+pub mod id_types;
 /// プロジェクトに関連する型定義
 pub mod project_types;
 /// タスクに関連する型定義
 pub mod task_types;
-pub mod id_types;

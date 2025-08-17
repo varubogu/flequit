@@ -1,9 +1,9 @@
 //! カレンダー日時管理モデル
-//! 
+//!
 //! このモジュールはタスクやイベントの複雑な日時パターンを管理する構造体を定義します。
-//! 
+//!
 //! ## 概要
-//! 
+//!
 //! カレンダー日時管理では以下の主要構造体を提供：
 //! - `DateCondition`: 特定日付に基づく条件
 //! - `WeekdayCondition`: 曜日に基づく条件
@@ -11,26 +11,28 @@
 //! - `RecurrenceDetails`: 繰り返し詳細設定
 //! - `RecurrenceRule`: 統合繰り返しルール
 
-use serde::{Deserialize, Serialize};
+use super::super::types::datetime_calendar_types::{
+    AdjustmentDirection, AdjustmentTarget, DateRelation, DayOfWeek, RecurrenceUnit, WeekOfMonth,
+};
 use chrono::{DateTime, Utc};
-use super::super::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget, WeekOfMonth, RecurrenceUnit};
+use serde::{Deserialize, Serialize};
 
 /// 日付に基づく条件を表現する構造体
-/// 
+///
 /// 特定の基準日に対する相対的な関係性を定義し、
 /// 繰り返しルールの適用条件や調整条件として使用されます。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `id` - 条件の一意識別子
 /// * `relation` - 基準日との関係性（前、後、同じ等）
 /// * `reference_date` - 比較基準となる日付
-/// 
+///
 /// # 使用例
-/// 
+///
 /// ```rust
 /// use chrono::Utc;
-/// 
+///
 /// // 特定日以降の条件
 /// let after_condition = DateCondition {
 ///     id: "after_new_year".to_string(),
@@ -38,9 +40,9 @@ use super::super::types::datetime_calendar_types::{DateRelation, DayOfWeek, Adju
 ///     reference_date: "2024-01-01T00:00:00Z".parse().unwrap(),
 /// };
 /// ```
-/// 
+///
 /// # 使用場面
-/// 
+///
 /// - 期間限定タスクの適用条件
 /// - 季節的なタスクの開始・終了条件
 /// - 祝日回避などの調整条件
@@ -55,21 +57,21 @@ pub struct DateCondition {
 }
 
 /// 曜日に基づく条件調整を表現する構造体
-/// 
+///
 /// 指定された曜日に該当する場合の日付調整ルールを定義します。
 /// ビジネス日への調整や曜日固定のタスク管理に使用されます。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `id` - 条件の一意識別子
 /// * `if_weekday` - 判定対象の曜日
 /// * `then_direction` - 調整方向（前・後・最近等）
 /// * `then_target` - 調整対象（平日・特定曜日・日数等）
 /// * `then_weekday` - 調整先の曜日（target=特定曜日の場合）
 /// * `then_days` - 調整日数（target=日数の場合）
-/// 
+///
 /// # 使用例
-/// 
+///
 /// ```rust
 /// // 土曜日なら翌営業日（月曜日）に調整
 /// let weekend_adjustment = WeekdayCondition {
@@ -81,9 +83,9 @@ pub struct DateCondition {
 ///     then_days: None,
 /// };
 /// ```
-/// 
+///
 /// # 使用場面
-/// 
+///
 /// - 営業日調整（土日祝日回避）
 /// - 定期会議の曜日固定
 /// - 月末処理の平日調整
@@ -104,23 +106,23 @@ pub struct WeekdayCondition {
 }
 
 /// 繰り返しルール補正条件を表現する構造体
-/// 
+///
 /// 日付条件と曜日条件を組み合わせて、繰り返しパターンの微調整を行います。
 /// 複雑なビジネスルールや特殊な繰り返しパターンに対応します。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `date_conditions` - 日付に基づく条件のリスト
 /// * `weekday_conditions` - 曜日に基づく条件のリスト
-/// 
+///
 /// # 処理順序
-/// 
+///
 /// 1. 基本繰り返しルールでベース日付を計算
 /// 2. 日付条件で適用可否を判定
 /// 3. 曜日条件で最終調整を実行
-/// 
+///
 /// # 使用例
-/// 
+///
 /// ```rust
 /// let business_adjustment = RecurrenceAdjustment {
 ///     date_conditions: vec![
@@ -142,19 +144,19 @@ pub struct RecurrenceAdjustment {
 }
 
 /// 繰り返しパターンの詳細設定を表現する構造体
-/// 
+///
 /// 基本的な繰り返し周期に加えて、より具体的な発生パターンを定義します。
 /// 月の特定日、特定週の特定曜日など、複雑な繰り返しパターンに対応します。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `specific_date` - 月の特定日（1-31、月次繰り返し時）
 /// * `week_of_period` - 期間内の特定週（第1週、最終週等）
 /// * `weekday_of_week` - 週の特定曜日
 /// * `date_conditions` - 追加の日付条件
-/// 
+///
 /// # パターン例
-/// 
+///
 /// ## 毎月第2火曜日
 /// ```rust
 /// RecurrenceDetails {
@@ -164,7 +166,7 @@ pub struct RecurrenceAdjustment {
 ///     date_conditions: None,
 /// }
 /// ```
-/// 
+///
 /// ## 毎月15日
 /// ```rust
 /// RecurrenceDetails {
@@ -187,27 +189,27 @@ pub struct RecurrenceDetails {
 }
 
 /// 統合繰り返しルールを表現する構造体
-/// 
+///
 /// タスクやイベントの完全な繰り返しパターンを定義するメイン構造体です。
 /// 基本的な周期から複雑な調整条件まで、あらゆる繰り返しパターンを表現できます。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// ## 基本繰り返し
 /// * `unit` - 繰り返し単位（日・週・月・年等）
 /// * `interval` - 繰り返し間隔（2週毎なら2）
 /// * `days_of_week` - 特定曜日のリスト（週次繰り返し用）
-/// 
+///
 /// ## 詳細設定
 /// * `details` - 詳細パターン設定（月の特定日等）
 /// * `adjustment` - 補正条件（営業日調整等）
-/// 
+///
 /// ## 終了条件
 /// * `end_date` - 終了日（指定日まで繰り返し）
 /// * `max_occurrences` - 最大回数（指定回数まで繰り返し）
-/// 
+///
 /// # 使用パターン
-/// 
+///
 /// ## 毎週火・木
 /// ```rust
 /// RecurrenceRule {
@@ -220,7 +222,7 @@ pub struct RecurrenceDetails {
 ///     max_occurrences: None,
 /// }
 /// ```
-/// 
+///
 /// ## 毎月最終営業日
 /// ```rust
 /// RecurrenceRule {
@@ -240,9 +242,9 @@ pub struct RecurrenceDetails {
 ///     max_occurrences: None,
 /// }
 /// ```
-/// 
+///
 /// # 処理フロー
-/// 
+///
 /// 1. `unit`と`interval`で基本周期を計算
 /// 2. `days_of_week`で曜日フィルタリング
 /// 3. `details`で詳細パターン適用

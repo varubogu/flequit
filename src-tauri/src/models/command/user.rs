@@ -1,7 +1,7 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::models::user::User;
 use crate::models::command::ModelConverter;
+use crate::models::user::User;
 
 /// Tauriコマンド引数用のUser構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,13 +22,17 @@ impl ModelConverter<User> for UserCommand {
     async fn to_model(&self) -> Result<User, String> {
         use chrono::{DateTime, Utc};
 
-        let created_at = self.created_at.parse::<DateTime<Utc>>()
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid created_at format: {}", e))?;
-        let updated_at = self.updated_at.parse::<DateTime<Utc>>()
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         use crate::types::id_types::UserId;
-        
+
         Ok(crate::models::user::User {
             id: UserId::from(self.id.clone()),
             name: self.name.clone(),

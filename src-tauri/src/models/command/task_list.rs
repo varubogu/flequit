@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::models::command::ModelConverter;
 use crate::models::task_list::TaskList;
@@ -22,13 +22,17 @@ impl ModelConverter<TaskList> for TaskListCommand {
     async fn to_model(&self) -> Result<TaskList, String> {
         use chrono::{DateTime, Utc};
 
-        let created_at = self.created_at.parse::<DateTime<Utc>>()
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid created_at format: {}", e))?;
-        let updated_at = self.updated_at.parse::<DateTime<Utc>>()
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
-        use crate::types::id_types::{TaskListId, ProjectId};
-        
+        use crate::types::id_types::{ProjectId, TaskListId};
+
         Ok(crate::models::task_list::TaskList {
             id: TaskListId::from(self.id.clone()),
             project_id: ProjectId::from(self.project_id.clone()),

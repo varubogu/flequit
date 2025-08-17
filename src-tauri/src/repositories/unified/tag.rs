@@ -9,8 +9,7 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::models::tag::Tag;
 use crate::repositories::{
-    base_repository_trait::Repository,
-    tag_repository_trait::TagRepositoryTrait
+    base_repository_trait::Repository, tag_repository_trait::TagRepositoryTrait,
 };
 use crate::types::id_types::TagId;
 
@@ -18,16 +17,13 @@ use crate::types::id_types::TagId;
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、
 /// タグエンティティに最適化されたアクセスパターンを提供する。
-pub struct TagUnifiedRepository {
-}
+pub struct TagUnifiedRepository {}
 
 impl TagUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
-
 
 #[async_trait]
 impl Repository<Tag, TagId> for TagUnifiedRepository {
@@ -67,6 +63,4 @@ impl Repository<Tag, TagId> for TagUnifiedRepository {
     }
 }
 
-impl TagRepositoryTrait for TagUnifiedRepository {
-
-}
+impl TagRepositoryTrait for TagUnifiedRepository {}

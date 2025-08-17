@@ -5,8 +5,7 @@
 
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_automerge::{
-    project::LocalAutomergeProjectRepository,
-    account::LocalAutomergeAccountRepository,
+    account::LocalAutomergeAccountRepository, project::LocalAutomergeProjectRepository,
     settings::LocalAutomergeSettingsRepository,
 };
 use crate::services::path_service::PathService;
@@ -27,15 +26,24 @@ impl LocalAutomergeRepositories {
     /// 新しいAutomergeリポジトリ群を作成
     pub async fn new() -> Result<Self, RepositoryError> {
         // データディレクトリのパスを取得
-        let data_dir = PathService::get_default_data_dir()
-            .map_err(|e| RepositoryError::ConfigurationError(format!("Failed to get data directory: {}", e)))?;
+        let data_dir = PathService::get_default_data_dir().map_err(|e| {
+            RepositoryError::ConfigurationError(format!("Failed to get data directory: {}", e))
+        })?;
 
         Ok(Self {
             projects: LocalAutomergeProjectRepository::new(),
-            accounts: LocalAutomergeAccountRepository::new(data_dir.clone())
-                .map_err(|e| RepositoryError::ConfigurationError(format!("Failed to create AccountRepository: {:?}", e)))?,
-            settings: LocalAutomergeSettingsRepository::new(data_dir)
-                .map_err(|e| RepositoryError::ConfigurationError(format!("Failed to create SettingsRepository: {:?}", e)))?,
+            accounts: LocalAutomergeAccountRepository::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create AccountRepository: {:?}",
+                    e
+                ))
+            })?,
+            settings: LocalAutomergeSettingsRepository::new(data_dir).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create SettingsRepository: {:?}",
+                    e
+                ))
+            })?,
         })
     }
 }

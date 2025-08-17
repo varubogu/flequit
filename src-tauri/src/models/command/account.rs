@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::models::account::Account;
@@ -24,13 +24,19 @@ impl ModelConverter<Account> for AccountCommand {
     async fn to_model(&self) -> Result<Account, String> {
         use chrono::{DateTime, Utc};
 
-        let created_at = self.created_at.parse::<DateTime<Utc>>()
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid created_at format: {}", e))?;
-        let updated_at = self.updated_at.parse::<DateTime<Utc>>()
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         Ok(crate::models::account::Account {
-            id: AccountId::from(Uuid::parse_str(&self.id).map_err(|e| format!("Invalid account ID: {}", e))?),
+            id: AccountId::from(
+                Uuid::parse_str(&self.id).map_err(|e| format!("Invalid account ID: {}", e))?,
+            ),
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),

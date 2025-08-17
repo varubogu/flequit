@@ -1,7 +1,9 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::models::setting::{LocalSettings, Setting, Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
 use crate::models::command::ModelConverter;
+use crate::models::setting::{
+    CustomDateFormat, DueDateButtons, LocalSettings, Setting, Settings, TimeLabel, ViewItem,
+};
 
 /// Tauriコマンド引数用のLocalSettings構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]

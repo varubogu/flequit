@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::project::Project;
-use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// Project用SQLiteエンティティ定義
 ///
@@ -15,37 +15,37 @@ pub struct Model {
     /// プロジェクトの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// プロジェクト名
-    #[sea_orm(indexed)]  // 名前検索用
+    #[sea_orm(indexed)] // 名前検索用
     pub name: String,
-    
+
     /// プロジェクト説明
     pub description: Option<String>,
-    
+
     /// UI表示用のカラーコード
     pub color: Option<String>,
-    
+
     /// 表示順序
-    #[sea_orm(indexed)]  // ソート用
+    #[sea_orm(indexed)] // ソート用
     pub order_index: i32,
-    
+
     /// アーカイブ状態フラグ
-    #[sea_orm(indexed)]  // アーカイブフィルタ用
+    #[sea_orm(indexed)] // アーカイブフィルタ用
     pub is_archived: bool,
-    
+
     /// プロジェクトステータス（文字列形式、Optional）
-    #[sea_orm(indexed)]  // ステータス別検索用
+    #[sea_orm(indexed)] // ステータス別検索用
     pub status: Option<String>,
-    
+
     /// プロジェクトオーナーのユーザーID
-    #[sea_orm(indexed)]  // オーナー別検索用
+    #[sea_orm(indexed)] // オーナー別検索用
     pub owner_id: Option<String>,
-    
+
     /// 作成日時
-    #[sea_orm(indexed)]  // 作成日順ソート用
+    #[sea_orm(indexed)] // 作成日順ソート用
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
@@ -76,7 +76,7 @@ impl ActiveModelBehavior for ActiveModel {}
 impl SqliteModelConverter<Project> for Model {
     async fn to_domain_model(&self) -> Result<Project, String> {
         use crate::types::project_types::ProjectStatus;
-        
+
         // ステータス文字列をenumに変換
         let status = if let Some(status_str) = &self.status {
             match status_str.as_str() {
@@ -92,7 +92,7 @@ impl SqliteModelConverter<Project> for Model {
         };
 
         use crate::types::id_types::{ProjectId, UserId};
-        
+
         Ok(Project {
             id: ProjectId::from(self.id.clone()),
             name: self.name.clone(),
@@ -113,13 +113,16 @@ impl DomainToSqliteConverter<ActiveModel> for Project {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let status_string = if let Some(status) = &self.status {
-            Some(match status {
-                crate::types::project_types::ProjectStatus::Planning => "planning",
-                crate::types::project_types::ProjectStatus::Active => "active",
-                crate::types::project_types::ProjectStatus::OnHold => "on_hold",
-                crate::types::project_types::ProjectStatus::Completed => "completed",
-                crate::types::project_types::ProjectStatus::Archived => "archived",
-            }.to_string())
+            Some(
+                match status {
+                    crate::types::project_types::ProjectStatus::Planning => "planning",
+                    crate::types::project_types::ProjectStatus::Active => "active",
+                    crate::types::project_types::ProjectStatus::OnHold => "on_hold",
+                    crate::types::project_types::ProjectStatus::Completed => "completed",
+                    crate::types::project_types::ProjectStatus::Archived => "archived",
+                }
+                .to_string(),
+            )
         } else {
             None
         };

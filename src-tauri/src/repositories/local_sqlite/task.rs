@@ -1,14 +1,14 @@
 //! Task用SQLiteリポジトリ
 
-use async_trait::async_trait;
-use log::info;
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
+use super::{DatabaseManager, RepositoryError};
+use crate::models::sqlite::task::{Column, Entity as TaskEntity};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task::Task;
-use crate::models::sqlite::task::{Entity as TaskEntity, Column};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TaskId;
-use super::{DatabaseManager, RepositoryError};
+use async_trait::async_trait;
+use log::info;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 pub struct TaskLocalSqliteRepository {
     db_manager: DatabaseManager,
@@ -31,7 +31,10 @@ impl TaskLocalSqliteRepository {
 
         let mut tasks = Vec::new();
         for model in models {
-            let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tasks.push(task);
         }
 
@@ -50,7 +53,10 @@ impl TaskLocalSqliteRepository {
 
         let mut tasks = Vec::new();
         for model in models {
-            let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tasks.push(task);
         }
 
@@ -69,7 +75,10 @@ impl TaskLocalSqliteRepository {
 
         let mut tasks = Vec::new();
         for model in models {
-            let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tasks.push(task);
         }
 
@@ -81,7 +90,10 @@ impl TaskLocalSqliteRepository {
 impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
     async fn save(&self, task: &Task) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        let active_model = task.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+        let active_model = task
+            .to_sqlite_model()
+            .await
+            .map_err(RepositoryError::Conversion)?;
         let saved = active_model.insert(db).await?;
         Ok(())
     }
@@ -90,7 +102,10 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = TaskEntity::find_by_id(id.to_string()).one(db).await? {
-            let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(task))
         } else {
             Ok(None)
@@ -108,7 +123,10 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
 
         let mut tasks = Vec::new();
         for model in models {
-            let task = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tasks.push(task);
         }
 

@@ -1,9 +1,9 @@
+use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::account::Account;
-use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// Account用SQLiteエンティティ定義
 ///
@@ -15,32 +15,32 @@ pub struct Model {
     /// アカウントの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// メールアドレス
-    #[sea_orm(indexed)]  // 検索用インデックス
+    #[sea_orm(indexed)] // 検索用インデックス
     pub email: Option<String>,
-    
+
     /// 表示名
     pub display_name: Option<String>,
-    
+
     /// アバターURL
     pub avatar_url: Option<String>,
-    
+
     /// プロバイダー ("local", "github", "google" など)
-    #[sea_orm(indexed)]  // プロバイダー別検索用
+    #[sea_orm(indexed)] // プロバイダー別検索用
     pub provider: String,
-    
+
     /// プロバイダー固有ID
     pub provider_id: Option<String>,
-    
+
     /// アクティブ状態
-    #[sea_orm(indexed)]  // アクティブフィルタ用
+    #[sea_orm(indexed)] // アクティブフィルタ用
     pub is_active: bool,
-    
+
     /// 作成日時
-    #[sea_orm(indexed)]  // 作成日順ソート用
+    #[sea_orm(indexed)] // 作成日順ソート用
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
@@ -54,7 +54,7 @@ impl ActiveModelBehavior for ActiveModel {}
 impl SqliteModelConverter<Account> for Model {
     async fn to_domain_model(&self) -> Result<Account, String> {
         use crate::types::id_types::AccountId;
-        
+
         Ok(Account {
             id: AccountId::from(self.id.clone()),
             email: self.email.clone(),

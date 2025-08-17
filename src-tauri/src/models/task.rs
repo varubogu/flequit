@@ -8,11 +8,14 @@
 //! - `Task`: 基本タスク情報（軽量、一般的な操作用）
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use super::super::types::{task_types::TaskStatus, id_types::{TaskId, SubTaskId, ProjectId, TaskListId, UserId, TagId}};
+use super::super::types::{
+    id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId},
+    task_types::TaskStatus,
+};
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::task::TaskCommand, CommandModelConverter};
 
@@ -207,7 +210,11 @@ impl CommandModelConverter<TaskCommand> for Task {
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,

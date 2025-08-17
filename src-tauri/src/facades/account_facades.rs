@@ -1,18 +1,23 @@
 use log::info;
 
+use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
 use crate::models::user::User;
 use crate::services::user_service::UserService;
-use crate::errors::service_error::ServiceError;
 use crate::types::id_types::{AccountId, UserId};
 
 pub async fn create_account(account: &Account) -> Result<bool, String> {
-
     // AccountモデルをUserモデルに変換してUserServiceを使用
     let user = User {
         id: UserId::from(*account.id.as_uuid()),
-        name: account.display_name.clone().unwrap_or_else(|| "Unknown".to_string()),
-        email: account.email.clone().unwrap_or_else(|| "unknown@example.com".to_string()),
+        name: account
+            .display_name
+            .clone()
+            .unwrap_or_else(|| "Unknown".to_string()),
+        email: account
+            .email
+            .clone()
+            .unwrap_or_else(|| "unknown@example.com".to_string()),
         avatar_url: account.avatar_url.clone(),
         avatar: account.avatar_url.clone(),
         username: account.display_name.clone(),
@@ -26,7 +31,7 @@ pub async fn create_account(account: &Account) -> Result<bool, String> {
     match service.create_user(&user).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to create account: {:?}", e))
+        Err(e) => Err(format!("Failed to create account: {:?}", e)),
     }
 }
 
@@ -49,20 +54,25 @@ pub async fn get_account(id: &str) -> Result<Option<Account>, String> {
             };
             // AccountをAccountに変換して返却
             Ok(Some(account))
-        },
+        }
         Ok(None) => Ok(None),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to get account: {:?}", e))
+        Err(e) => Err(format!("Failed to get account: {:?}", e)),
     }
 }
 
 pub async fn update_account(account: &Account) -> Result<bool, String> {
-
     // AccountモデルをUserモデルに変換してUserServiceを使用
     let user = User {
         id: UserId::from(*account.id.as_uuid()),
-        name: account.display_name.clone().unwrap_or_else(|| "Unknown".to_string()),
-        email: account.email.clone().unwrap_or_else(|| "unknown@example.com".to_string()),
+        name: account
+            .display_name
+            .clone()
+            .unwrap_or_else(|| "Unknown".to_string()),
+        email: account
+            .email
+            .clone()
+            .unwrap_or_else(|| "unknown@example.com".to_string()),
         avatar_url: account.avatar_url.clone(),
         avatar: account.avatar_url.clone(),
         username: account.display_name.clone(),
@@ -76,7 +86,7 @@ pub async fn update_account(account: &Account) -> Result<bool, String> {
     match service.update_user(&user).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to update account: {:?}", e))
+        Err(e) => Err(format!("Failed to update account: {:?}", e)),
     }
 }
 

@@ -23,8 +23,7 @@ pub struct ProjectUnifiedRepository {
 
 impl ProjectUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -66,6 +65,4 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
     }
 }
 
-impl ProjectRepositoryTrait for ProjectUnifiedRepository {
-
-}
+impl ProjectRepositoryTrait for ProjectUnifiedRepository {}

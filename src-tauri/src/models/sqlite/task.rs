@@ -1,10 +1,10 @@
+use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task::Task;
 use crate::types::task_types::TaskStatus;
-use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// Task用SQLiteエンティティ定義
 ///
@@ -16,74 +16,82 @@ pub struct Model {
     /// タスクの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// 親サブタスクID
     pub sub_task_id: Option<String>,
-    
+
     /// 所属プロジェクトID
-    #[sea_orm(indexed)]  // プロジェクト別検索用
+    #[sea_orm(indexed)] // プロジェクト別検索用
     pub project_id: String,
-    
+
     /// 所属タスクリストID
-    #[sea_orm(indexed)]  // タスクリスト別検索用
+    #[sea_orm(indexed)] // タスクリスト別検索用
     pub list_id: String,
-    
+
     /// タスクタイトル
-    #[sea_orm(indexed)]  // タイトル検索用
+    #[sea_orm(indexed)] // タイトル検索用
     pub title: String,
-    
+
     /// タスク説明
     pub description: Option<String>,
-    
+
     /// タスクステータス（文字列形式）
-    #[sea_orm(indexed)]  // ステータス別検索用
+    #[sea_orm(indexed)] // ステータス別検索用
     pub status: String,
-    
+
     /// 優先度（数値）
-    #[sea_orm(indexed)]  // 優先度別検索用
+    #[sea_orm(indexed)] // 優先度別検索用
     pub priority: i32,
-    
+
     /// 開始日時
-    #[sea_orm(indexed)]  // 日時範囲検索用
+    #[sea_orm(indexed)] // 日時範囲検索用
     pub start_date: Option<DateTime<Utc>>,
-    
+
     /// 終了日時
-    #[sea_orm(indexed)]  // 日時範囲検索用
+    #[sea_orm(indexed)] // 日時範囲検索用
     pub end_date: Option<DateTime<Utc>>,
-    
+
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
-    
+
     /// 繰り返しルール（JSON形式）
     pub recurrence_rule: Option<String>,
-    
+
     /// アサインされたユーザーIDリスト（JSON配列形式）
     pub assigned_user_ids: Option<String>,
-    
+
     /// 付与されたタグIDリスト（JSON配列形式）
     pub tag_ids: Option<String>,
-    
+
     /// 表示順序
-    #[sea_orm(indexed)]  // ソート用
+    #[sea_orm(indexed)] // ソート用
     pub order_index: i32,
-    
+
     /// アーカイブ状態フラグ
-    #[sea_orm(indexed)]  // アーカイブフィルタ用
+    #[sea_orm(indexed)] // アーカイブフィルタ用
     pub is_archived: bool,
-    
+
     /// 作成日時
-    #[sea_orm(indexed)]  // 作成日順ソート用
+    #[sea_orm(indexed)] // 作成日順ソート用
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(belongs_to = "super::project::Entity", from = "Column::ProjectId", to = "super::project::Column::Id")]
+    #[sea_orm(
+        belongs_to = "super::project::Entity",
+        from = "Column::ProjectId",
+        to = "super::project::Column::Id"
+    )]
     Project,
-    #[sea_orm(belongs_to = "super::task_list::Entity", from = "Column::ListId", to = "super::task_list::Column::Id")]
+    #[sea_orm(
+        belongs_to = "super::task_list::Entity",
+        from = "Column::ListId",
+        to = "super::task_list::Column::Id"
+    )]
     TaskList,
     #[sea_orm(has_many = "super::subtask::Entity")]
     Subtasks,
@@ -124,8 +132,10 @@ impl SqliteModelConverter<Task> for Model {
 
         // 繰り返しルールJSONをパース
         let recurrence_rule = if let Some(rule_json) = &self.recurrence_rule {
-            Some(serde_json::from_str(rule_json)
-                .map_err(|e| format!("Failed to parse recurrence_rule: {}", e))?)
+            Some(
+                serde_json::from_str(rule_json)
+                    .map_err(|e| format!("Failed to parse recurrence_rule: {}", e))?,
+            )
         } else {
             None
         };
@@ -134,7 +144,10 @@ impl SqliteModelConverter<Task> for Model {
         let assigned_user_ids = if let Some(users_json) = &self.assigned_user_ids {
             let string_ids: Vec<String> = serde_json::from_str(users_json)
                 .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
-            string_ids.into_iter().map(|id| crate::types::id_types::UserId::from(id)).collect()
+            string_ids
+                .into_iter()
+                .map(|id| crate::types::id_types::UserId::from(id))
+                .collect()
         } else {
             vec![]
         };
@@ -143,16 +156,22 @@ impl SqliteModelConverter<Task> for Model {
         let tag_ids = if let Some(tags_json) = &self.tag_ids {
             let string_ids: Vec<String> = serde_json::from_str(tags_json)
                 .map_err(|e| format!("Failed to parse tag_ids: {}", e))?;
-            string_ids.into_iter().map(|id| crate::types::id_types::TagId::from(id)).collect()
+            string_ids
+                .into_iter()
+                .map(|id| crate::types::id_types::TagId::from(id))
+                .collect()
         } else {
             vec![]
         };
 
-        use crate::types::id_types::{TaskId, SubTaskId, ProjectId, TaskListId};
-        
+        use crate::types::id_types::{ProjectId, SubTaskId, TaskId, TaskListId};
+
         Ok(Task {
             id: TaskId::from(self.id.clone()),
-            sub_task_id: self.sub_task_id.as_ref().map(|id| SubTaskId::from(id.clone())),
+            sub_task_id: self
+                .sub_task_id
+                .as_ref()
+                .map(|id| SubTaskId::from(id.clone())),
             project_id: ProjectId::from(self.project_id.clone()),
             list_id: TaskListId::from(self.list_id.clone()),
             title: self.title.clone(),
@@ -183,21 +202,30 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
             TaskStatus::Waiting => "waiting",
             TaskStatus::Completed => "completed",
             TaskStatus::Cancelled => "cancelled",
-        }.to_string();
+        }
+        .to_string();
 
         // 繰り返しルールをJSONに変換
         let recurrence_rule_json = if let Some(rule) = &self.recurrence_rule {
-            Some(serde_json::to_string(rule)
-                .map_err(|e| format!("Failed to serialize recurrence_rule: {}", e))?)
+            Some(
+                serde_json::to_string(rule)
+                    .map_err(|e| format!("Failed to serialize recurrence_rule: {}", e))?,
+            )
         } else {
             None
         };
 
         // アサインされたユーザーIDリストをJSONに変換
         let assigned_user_ids_json = if !self.assigned_user_ids.is_empty() {
-            let string_ids: Vec<String> = self.assigned_user_ids.iter().map(|id| id.to_string()).collect();
-            Some(serde_json::to_string(&string_ids)
-                .map_err(|e| format!("Failed to serialize assigned_user_ids: {}", e))?)
+            let string_ids: Vec<String> = self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect();
+            Some(
+                serde_json::to_string(&string_ids)
+                    .map_err(|e| format!("Failed to serialize assigned_user_ids: {}", e))?,
+            )
         } else {
             None
         };
@@ -205,8 +233,10 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
         // タグIDリストをJSONに変換
         let tag_ids_json = if !self.tag_ids.is_empty() {
             let string_ids: Vec<String> = self.tag_ids.iter().map(|id| id.to_string()).collect();
-            Some(serde_json::to_string(&string_ids)
-                .map_err(|e| format!("Failed to serialize tag_ids: {}", e))?)
+            Some(
+                serde_json::to_string(&string_ids)
+                    .map_err(|e| format!("Failed to serialize tag_ids: {}", e))?,
+            )
         } else {
             None
         };

@@ -11,8 +11,8 @@
 // 統合リポジトリ群
 pub mod account;
 pub mod project;
-pub mod subtask;
 pub mod settings;
+pub mod subtask;
 pub mod tag;
 pub mod task;
 pub mod task_list;
@@ -20,16 +20,16 @@ pub mod task_list;
 use crate::errors::repository_error::RepositoryError;
 
 // 公開
+pub use account::AccountUnifiedRepository;
 pub use project::ProjectUnifiedRepository;
-pub use task_list::TaskListUnifiedRepository;
-pub use task::TaskUnifiedRepository;
+pub use settings::SettingsUnifiedRepository;
 pub use subtask::SubTaskUnifiedRepository;
 pub use tag::TagUnifiedRepository;
-pub use account::AccountUnifiedRepository;
-pub use settings::SettingsUnifiedRepository;
+pub use task::TaskUnifiedRepository;
+pub use task_list::TaskListUnifiedRepository;
 
-pub use super::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories;
 pub use super::local_automerge::local_automerge_repositories::LocalAutomergeRepositories;
+pub use super::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories;
 
 /// 統合リポジトリのメインエントリーポイント
 ///

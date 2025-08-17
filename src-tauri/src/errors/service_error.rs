@@ -1,5 +1,5 @@
-use thiserror::Error;
 use crate::errors::repository_error::RepositoryError;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum ServiceError {

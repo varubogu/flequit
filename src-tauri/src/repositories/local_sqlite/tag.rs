@@ -1,14 +1,14 @@
 //! Tag用SQLiteリポジトリ
 
-use async_trait::async_trait;
-use log::info;
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait, QuerySelect};
+use super::{DatabaseManager, RepositoryError};
+use crate::models::sqlite::tag::{ActiveModel as TagActiveModel, Column, Entity as TagEntity};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::tag::Tag;
-use crate::models::sqlite::tag::{Entity as TagEntity, ActiveModel as TagActiveModel, Column};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TagId;
-use super::{DatabaseManager, RepositoryError};
+use async_trait::async_trait;
+use log::info;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 
 pub struct TagLocalSqliteRepository {
     db_manager: DatabaseManager,
@@ -27,7 +27,10 @@ impl TagLocalSqliteRepository {
             .one(db)
             .await?
         {
-            let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(tag))
         } else {
             Ok(None)
@@ -45,7 +48,10 @@ impl TagLocalSqliteRepository {
 
         let mut tags = Vec::new();
         for model in models {
-            let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tags.push(tag);
         }
 
@@ -63,7 +69,10 @@ impl TagLocalSqliteRepository {
 
         let mut tags = Vec::new();
         for model in models {
-            let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tags.push(tag);
         }
 
@@ -82,7 +91,10 @@ impl TagLocalSqliteRepository {
         let updated_model = active_model.increment_usage();
 
         let updated = updated_model.update(db).await?;
-        updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+        updated
+            .to_domain_model()
+            .await
+            .map_err(RepositoryError::Conversion)
     }
 
     pub async fn decrement_usage(&self, tag_id: &str) -> Result<Tag, RepositoryError> {
@@ -97,7 +109,10 @@ impl TagLocalSqliteRepository {
         let updated_model = active_model.decrement_usage();
 
         let updated = updated_model.update(db).await?;
-        updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+        updated
+            .to_domain_model()
+            .await
+            .map_err(RepositoryError::Conversion)
     }
 }
 
@@ -115,7 +130,10 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         if let Some(existing_model) = existing {
             // 更新
             let mut active_model: TagActiveModel = existing_model.into();
-            let new_active = tag.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let new_active = tag
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
 
             active_model.color = new_active.color;
             active_model.order_index = new_active.order_index;
@@ -125,7 +143,10 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
             Ok(())
         } else {
             // 新規作成
-            let active_model = tag.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let active_model = tag
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             let saved = active_model.insert(db).await?;
             Ok(())
         }
@@ -135,7 +156,10 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = TagEntity::find_by_id(id.to_string()).one(db).await? {
-            let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(tag))
         } else {
             Ok(None)
@@ -152,7 +176,10 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
 
         let mut tags = Vec::new();
         for model in models {
-            let tag = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             tags.push(tag);
         }
 

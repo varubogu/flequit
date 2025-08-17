@@ -15,20 +15,16 @@ use crate::types::id_types::AccountId;
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、
 /// アカウントエンティティに最適化されたアクセスパターンを提供する。
-pub struct AccountUnifiedRepository {
-
-}
+pub struct AccountUnifiedRepository {}
 
 impl AccountUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountUnifiedRepository {
-
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         info!("AccountUnifiedRepository::save");
         info!("{:?}", entity);

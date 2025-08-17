@@ -1,17 +1,16 @@
-use crate::models::project::{Project};
 use crate::errors::service_error::ServiceError;
 use crate::models::command::project::ProjectSearchRequest;
+use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::unified::UnifiedRepositories;
 use crate::types::id_types::ProjectId;
 use chrono::Utc;
 
-
-pub async fn create_project(
-    project: &Project,
-) -> Result<Project, ServiceError> {
+pub async fn create_project(project: &Project) -> Result<Project, ServiceError> {
     if project.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError("Project name cannot be empty".to_string()));
+        return Err(ServiceError::ValidationError(
+            "Project name cannot be empty".to_string(),
+        ));
     }
 
     let mut new_project = project.clone();
@@ -29,22 +28,17 @@ pub async fn create_project(
     Ok(new_project)
 }
 
-pub async fn get_project(
-    project_id: &ProjectId,
-) -> Result<Option<Project>, ServiceError> {
+pub async fn get_project(project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
     let repository = UnifiedRepositories::new().await?;
     Ok(repository.projects.find_by_id(project_id).await?)
 }
 
-pub async fn list_projects(
-) -> Result<Vec<Project>, ServiceError> {
+pub async fn list_projects() -> Result<Vec<Project>, ServiceError> {
     let repository = UnifiedRepositories::new().await?;
     Ok(repository.projects.find_all().await?)
 }
 
-pub async fn update_project(
-    project: &Project,
-) -> Result<Project, ServiceError> {
+pub async fn update_project(project: &Project) -> Result<Project, ServiceError> {
     let mut updated_project = project.clone();
     updated_project.updated_at = Utc::now();
 
@@ -53,17 +47,13 @@ pub async fn update_project(
     Ok(updated_project)
 }
 
-pub async fn delete_project(
-    project_id: &ProjectId,
-) -> Result<(), ServiceError> {
+pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> {
     let repository = UnifiedRepositories::new().await?;
     repository.projects.delete(project_id).await?;
     Ok(())
 }
 
-pub async fn restore_project(
-    backup_path: &str,
-) -> Result<String, ServiceError> {
+pub async fn restore_project(backup_path: &str) -> Result<String, ServiceError> {
     // TODO: restore_project機能をトレイトに追加する必要があります
     let _backup_path = backup_path;
     Ok("restored_project_id".to_string())
@@ -76,7 +66,12 @@ pub async fn search_projects(
     let projects = repository.projects.find_all().await?;
 
     // フィルタリングは空のVecには意味がないため、requestのパラメータを使用するだけ
-    let _ = (&request.name, &request.description, &request.status, &request.owner_id);
+    let _ = (
+        &request.name,
+        &request.description,
+        &request.status,
+        &request.owner_id,
+    );
 
     let total_count = projects.len();
     let offset = request.offset.unwrap_or(0);

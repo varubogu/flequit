@@ -2,17 +2,13 @@
 //!
 //! Sea-ORMの自動生成 + 手動補完によるデータベースマイグレーション
 
-use sea_orm::{DatabaseConnection, DbErr, Schema, DbBackend, Statement, ConnectionTrait};
 use sea_orm::sea_query::{Index, SqliteQueryBuilder};
+use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Statement};
 
 use crate::models::sqlite::{
-    setting::Entity as SettingsEntity,
-    account::Entity as AccountEntity,
-    project::Entity as ProjectEntity,
-    task_list::Entity as TaskListEntity,
-    task::Entity as TaskEntity,
-    subtask::Entity as SubtaskEntity,
-    tag::Entity as TagEntity,
+    account::Entity as AccountEntity, project::Entity as ProjectEntity,
+    setting::Entity as SettingsEntity, subtask::Entity as SubtaskEntity, tag::Entity as TagEntity,
+    task::Entity as TaskEntity, task_list::Entity as TaskListEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -64,10 +60,12 @@ impl HybridMigrator {
             );
         "#;
 
-        self.db.execute(Statement::from_string(
-            sea_orm::DatabaseBackend::Sqlite,
-            sql.to_string(),
-        )).await?;
+        self.db
+            .execute(Statement::from_string(
+                sea_orm::DatabaseBackend::Sqlite,
+                sql.to_string(),
+            ))
+            .await?;
 
         Ok(())
     }
@@ -80,7 +78,10 @@ impl HybridMigrator {
             ("settings", schema.create_table_from_entity(SettingsEntity)),
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
-            ("task_lists", schema.create_table_from_entity(TaskListEntity)),
+            (
+                "task_lists",
+                schema.create_table_from_entity(TaskListEntity),
+            ),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
@@ -91,7 +92,9 @@ impl HybridMigrator {
             let sql = stmt.to_string(SqliteQueryBuilder);
             let sql_with_if_not_exists = sql.replace("CREATE TABLE", "CREATE TABLE IF NOT EXISTS");
 
-            self.db.execute_unprepared(&sql_with_if_not_exists).await
+            self.db
+                .execute_unprepared(&sql_with_if_not_exists)
+                .await
                 .map_err(|e| {
                     println!("❌ テーブル作成エラー ({}): {}", table_name, e);
                     e
@@ -150,7 +153,10 @@ impl HybridMigrator {
         ];
 
         for info in cascade_info {
-            println!("  ⚠️  注意: {} - SQLiteの制限により、アプリケーションレベルで管理", info);
+            println!(
+                "  ⚠️  注意: {} - SQLiteの制限により、アプリケーションレベルで管理",
+                info
+            );
         }
 
         // 実際の削除はリポジトリレイヤーで管理する
@@ -170,7 +176,10 @@ impl HybridMigrator {
 
         for sql in additional_indexes {
             self.db.execute_unprepared(sql).await?;
-            println!("  📈 追加インデックス作成: {}", sql.split("ON").nth(1).unwrap_or(""));
+            println!(
+                "  📈 追加インデックス作成: {}",
+                sql.split("ON").nth(1).unwrap_or("")
+            );
         }
 
         Ok(())
@@ -179,9 +188,10 @@ impl HybridMigrator {
     /// 初期データ挿入
     async fn insert_initial_data(&self) -> Result<(), DbErr> {
         // デフォルト設定の挿入チェック
-        let settings_exists = self.db.execute_unprepared(
-            "SELECT COUNT(*) as count FROM settings;"
-        ).await;
+        let settings_exists = self
+            .db
+            .execute_unprepared("SELECT COUNT(*) as count FROM settings;")
+            .await;
 
         if settings_exists.is_ok() {
             // 既に設定データが存在する場合はスキップ
@@ -217,9 +227,12 @@ impl HybridMigrator {
         match result {
             Ok(_) => {
                 // migrationsテーブルが存在する場合、最新のマイグレーション確認
-                let latest = self.db.execute_unprepared(
-                    "SELECT version FROM migrations ORDER BY applied_at DESC LIMIT 1;"
-                ).await;
+                let latest = self
+                    .db
+                    .execute_unprepared(
+                        "SELECT version FROM migrations ORDER BY applied_at DESC LIMIT 1;",
+                    )
+                    .await;
 
                 match latest {
                     Ok(_) => {
@@ -249,7 +262,7 @@ impl HybridMigrator {
         // 全テーブル削除（逆順）
         let drop_tables = vec![
             "DROP TABLE IF EXISTS subtasks;",
-            "DROP TABLE IF EXISTS tasks;", 
+            "DROP TABLE IF EXISTS tasks;",
             "DROP TABLE IF EXISTS task_lists;",
             "DROP TABLE IF EXISTS projects;",
             "DROP TABLE IF EXISTS accounts;",

@@ -2,11 +2,13 @@
 //!
 //! 設定データのSQLiteベースでのCRUD操作を提供
 
-use sea_orm::{EntityTrait, ActiveModelTrait};
-use crate::models::setting::Settings;
-use crate::models::sqlite::setting::{Entity as SettingsEntity, ActiveModel as SettingsActiveModel};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use super::{DatabaseManager, RepositoryError};
+use crate::models::setting::Settings;
+use crate::models::sqlite::setting::{
+    ActiveModel as SettingsActiveModel, Entity as SettingsEntity,
+};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
+use sea_orm::{ActiveModelTrait, EntityTrait};
 
 /// Settings用SQLiteリポジトリ
 pub struct SettingsLocalSqliteRepository {
@@ -25,7 +27,10 @@ impl SettingsLocalSqliteRepository {
 
         // 既存の設定を検索
         if let Some(existing) = SettingsEntity::find().one(db).await? {
-            return existing.to_domain_model().await.map_err(RepositoryError::Conversion);
+            return existing
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion);
         }
 
         // デフォルト設定を作成
@@ -35,7 +40,7 @@ impl SettingsLocalSqliteRepository {
 
     /// デフォルト設定を作成
     fn create_default_settings() -> Settings {
-        use crate::models::setting::{DueDateButtons, CustomDateFormat, TimeLabel, ViewItem};
+        use crate::models::setting::{CustomDateFormat, DueDateButtons, TimeLabel, ViewItem};
 
         Settings {
             theme: "system".to_string(),
@@ -48,13 +53,11 @@ impl SettingsLocalSqliteRepository {
             timezone: "Asia/Tokyo".to_string(),
             date_format: "YYYY/MM/DD".to_string(),
             custom_due_days: vec![1, 3, 7, 14, 30],
-            custom_date_formats: vec![
-                CustomDateFormat {
-                    id: "format1".to_string(),
-                    name: "日本語形式".to_string(),
-                    format: "YYYY年MM月DD日".to_string(),
-                },
-            ],
+            custom_date_formats: vec![CustomDateFormat {
+                id: "format1".to_string(),
+                name: "日本語形式".to_string(),
+                format: "YYYY年MM月DD日".to_string(),
+            }],
             time_labels: vec![
                 TimeLabel {
                     id: "morning".to_string(),
@@ -126,7 +129,10 @@ impl SettingsLocalSqliteRepository {
         if let Some(existing_model) = existing {
             // 更新
             let mut active_model: SettingsActiveModel = existing_model.into();
-            let new_active = settings.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let new_active = settings
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
 
             // 必要なフィールドを更新
             active_model.theme = new_active.theme;
@@ -152,12 +158,21 @@ impl SettingsLocalSqliteRepository {
             active_model.updated_at = new_active.updated_at;
 
             let updated = active_model.update(db).await?;
-            updated.to_domain_model().await.map_err(RepositoryError::Conversion)
+            updated
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)
         } else {
             // 新規作成
-            let active_model = settings.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+            let active_model = settings
+                .to_sqlite_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             let saved = active_model.insert(db).await?;
-            saved.to_domain_model().await.map_err(RepositoryError::Conversion)
+            saved
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)
         }
     }
 
@@ -166,7 +181,10 @@ impl SettingsLocalSqliteRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = SettingsEntity::find().one(db).await? {
-            let settings = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let settings = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(settings))
         } else {
             Ok(None)
@@ -191,7 +209,10 @@ impl SettingsLocalSqliteRepository {
         let mut settings_list = Vec::new();
 
         for model in models {
-            let settings = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let settings = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             settings_list.push(settings);
         }
 

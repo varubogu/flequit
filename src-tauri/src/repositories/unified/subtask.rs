@@ -6,19 +6,24 @@
 use async_trait::async_trait;
 use log::info;
 
-use crate::{errors::RepositoryError, models::subtask::SubTask, repositories::{base_repository_trait::Repository, sub_task_repository_trait::SubTaskRepositoryTrait}, types::id_types::SubTaskId};
+use crate::{
+    errors::RepositoryError,
+    models::subtask::SubTask,
+    repositories::{
+        base_repository_trait::Repository, sub_task_repository_trait::SubTaskRepositoryTrait,
+    },
+    types::id_types::SubTaskId,
+};
 
 /// サブタスク用統合リポジトリ
 ///
 /// 検索系操作はSQLite、保存系操作はAutomerge→SQLiteの順で実行し、
 /// サブタスクエンティティに最適化されたアクセスパターンを提供する。
-pub struct SubTaskUnifiedRepository {
-}
+pub struct SubTaskUnifiedRepository {}
 
 impl SubTaskUnifiedRepository {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 }
 
@@ -60,5 +65,4 @@ impl Repository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
     }
 }
 
-impl SubTaskRepositoryTrait for SubTaskUnifiedRepository {
-}
+impl SubTaskRepositoryTrait for SubTaskUnifiedRepository {}

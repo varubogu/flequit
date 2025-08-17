@@ -1,43 +1,43 @@
 //! タグ管理モデル
-//! 
+//!
 //! このモジュールはタスクやプロジェクトの分類・ラベル付けに使用するタグを定義します。
-//! 
+//!
 //! ## 概要
-//! 
+//!
 //! `Tag`構造体は、タスクやプロジェクトに付与するラベル情報を管理します。
 //! カテゴリ分けや検索性の向上、視覚的な識別に活用されます。
 
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 use super::super::types::id_types::TagId;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 use crate::models::{command::tag::TagCommand, CommandModelConverter};
 
 /// タグ情報を表現する構造体
-/// 
+///
 /// タスクやプロジェクトの分類・ラベル付けに使用されるタグの情報を管理します。
 /// 色による視覚的な区別や表示順序の制御をサポートします。
-/// 
+///
 /// # フィールド
-/// 
+///
 /// * `id` - タグの一意識別子
 /// * `name` - タグ名（表示名、検索キー）
 /// * `color` - タグの色（16進数カラーコード等、UI表示用）
 /// * `order_index` - 表示順序（昇順ソート用、Svelteフロントエンド対応）
 /// * `created_at` - タグ作成日時
 /// * `updated_at` - 最終更新日時
-/// 
+///
 /// # 設計思想
-/// 
+///
 /// - **多目的利用**: タスク、プロジェクト等、複数エンティティでの共用
 /// - **視覚化重視**: 色情報による直感的な識別
 /// - **フロントエンド最適化**: Svelte UIでの表示・操作に対応
-/// 
+///
 /// # 使用例
-/// 
+///
 /// ```rust
 /// use chrono::Utc;
-/// 
+///
 /// let urgent_tag = Tag {
 ///     id: TagId::new(),
 ///     name: "緊急".to_string(),
@@ -46,7 +46,7 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
 /// };
-/// 
+///
 /// let feature_tag = Tag {
 ///     id: TagId::new(),
 ///     name: "新機能".to_string(),
@@ -56,9 +56,9 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 ///     updated_at: Utc::now(),
 /// };
 /// ```
-/// 
+///
 /// # 関連機能
-/// 
+///
 /// - タスクへの複数タグ付与
 /// - タグによるフィルタリング・検索
 /// - タグ使用頻度の統計

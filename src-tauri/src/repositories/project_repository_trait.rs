@@ -26,5 +26,4 @@ use async_trait::async_trait;
 /// - 検索系操作: SQLite
 /// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
-pub trait ProjectRepositoryTrait: Repository<Project, ProjectId> + Send + Sync {
-}
+pub trait ProjectRepositoryTrait: Repository<Project, ProjectId> + Send + Sync {}

@@ -1,14 +1,14 @@
 //! TaskList用SQLiteリポジトリ
 
-use async_trait::async_trait;
-use log::info;
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
+use super::{DatabaseManager, RepositoryError};
+use crate::models::sqlite::task_list::{Column, Entity as TaskListEntity};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task_list::TaskList;
-use crate::models::sqlite::task_list::{Entity as TaskListEntity, Column};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TaskListId;
-use super::{DatabaseManager, RepositoryError};
+use async_trait::async_trait;
+use log::info;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 pub struct TaskListLocalSqliteRepository {
     db_manager: DatabaseManager,
@@ -19,7 +19,10 @@ impl TaskListLocalSqliteRepository {
         Self { db_manager }
     }
 
-    pub async fn find_by_project(&self, project_id: &str) -> Result<Vec<TaskList>, RepositoryError> {
+    pub async fn find_by_project(
+        &self,
+        project_id: &str,
+    ) -> Result<Vec<TaskList>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
         let models = TaskListEntity::find()
@@ -31,7 +34,10 @@ impl TaskListLocalSqliteRepository {
 
         let mut task_lists = Vec::new();
         for model in models {
-            let task_list = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task_list = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             task_lists.push(task_list);
         }
 
@@ -43,7 +49,10 @@ impl TaskListLocalSqliteRepository {
 impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
     async fn save(&self, task_list: &TaskList) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        let active_model = task_list.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+        let active_model = task_list
+            .to_sqlite_model()
+            .await
+            .map_err(RepositoryError::Conversion)?;
         let saved = active_model.insert(db).await?;
         Ok(())
     }
@@ -52,7 +61,10 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = TaskListEntity::find_by_id(id.to_string()).one(db).await? {
-            let task_list = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task_list = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(task_list))
         } else {
             Ok(None)
@@ -69,7 +81,10 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
 
         let mut task_lists = Vec::new();
         for model in models {
-            let task_list = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let task_list = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             task_lists.push(task_list);
         }
 
@@ -78,7 +93,9 @@ impl Repository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
 
     async fn delete(&self, id: &TaskListId) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        let result = TaskListEntity::delete_by_id(id.to_string()).exec(db).await?;
+        let result = TaskListEntity::delete_by_id(id.to_string())
+            .exec(db)
+            .await?;
         Ok(())
     }
 

@@ -1,14 +1,14 @@
 //! Subtask用SQLiteリポジトリ
 
-use async_trait::async_trait;
-use log::info;
-use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
+use super::{DatabaseManager, RepositoryError};
+use crate::models::sqlite::subtask::{Column, Entity as SubtaskEntity};
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::subtask::SubTask;
-use crate::models::sqlite::subtask::{Entity as SubtaskEntity, Column};
-use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::SubTaskId;
-use super::{DatabaseManager, RepositoryError};
+use async_trait::async_trait;
+use log::info;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 pub struct SubtaskLocalSqliteRepository {
     db_manager: DatabaseManager,
@@ -30,14 +30,20 @@ impl SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let subtask = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             subtasks.push(subtask);
         }
 
         Ok(subtasks)
     }
 
-    pub async fn find_completed_by_task(&self, task_id: &str) -> Result<Vec<SubTask>, RepositoryError> {
+    pub async fn find_completed_by_task(
+        &self,
+        task_id: &str,
+    ) -> Result<Vec<SubTask>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
         let models = SubtaskEntity::find()
@@ -49,7 +55,10 @@ impl SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let subtask = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             subtasks.push(subtask);
         }
 
@@ -61,7 +70,10 @@ impl SubtaskLocalSqliteRepository {
 impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn save(&self, subtask: &SubTask) -> Result<(), RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        let active_model = subtask.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
+        let active_model = subtask
+            .to_sqlite_model()
+            .await
+            .map_err(RepositoryError::Conversion)?;
         let saved = active_model.insert(db).await?;
         Ok(())
     }
@@ -70,7 +82,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         let db = self.db_manager.get_connection().await?;
 
         if let Some(model) = SubtaskEntity::find_by_id(id.to_string()).one(db).await? {
-            let subtask = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let subtask = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             Ok(Some(subtask))
         } else {
             Ok(None)
@@ -87,7 +102,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
+            let subtask = model
+                .to_domain_model()
+                .await
+                .map_err(RepositoryError::Conversion)?;
             subtasks.push(subtask);
         }
 
