@@ -1,5 +1,68 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
+
+// Mock the backend service to avoid Web backend not implemented warnings
+vi.mock('$lib/services/backend/index', () => ({
+  getBackendService: () => Promise.resolve({
+    project: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    tasklist: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    task: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    subtask: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    tag: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    setting: {
+      getAll: vi.fn().mockResolvedValue({}),
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true)
+    },
+    account: {
+      create: vi.fn().mockResolvedValue(true),
+      update: vi.fn().mockResolvedValue(true),
+      delete: vi.fn().mockResolvedValue(true),
+      get: vi.fn().mockResolvedValue(null),
+      search: vi.fn().mockResolvedValue([])
+    },
+    autoFetch: {
+      start: vi.fn(),
+      stop: vi.fn(),
+      isRunning: vi.fn().mockReturnValue(false)
+    },
+    initialization: {
+      loadProjectData: vi.fn().mockResolvedValue([]),
+      initializeAll: vi.fn().mockResolvedValue(true)
+    }
+  })
+}));
 
 describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   beforeEach(() => {

@@ -2,25 +2,54 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import InlineDatePickerUI from '$lib/components/datetime/inline-picker/inline-date-picker-ui.svelte';
 
+// Mock translation service
+vi.mock('$lib/stores/locale.svelte', () => ({
+  getTranslationService: () => ({
+    getMessage: (key: string) => () => {
+      const messages: Record<string, string> = {
+        date_range: 'Date Range',
+        recurrence: 'Recurrence'
+      };
+      return messages[key] || key;
+    }
+  })
+}));
+
 // Mock child components
 vi.mock('$lib/components/ui/switch', () => ({
-  Switch: () => ({ $$: { fragment: null } })
+  Switch: class MockSwitch {
+    constructor() {}
+    $$set() {}
+    $destroy() {}
+  }
 }));
 
 vi.mock('$lib/components/datetime/date-time-inputs.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: class MockDateTimeInputs {
+    constructor() {}
+    $$set() {}
+    $destroy() {}
+  }
 }));
 
 vi.mock('$lib/components/datetime/calendar-picker.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: class MockCalendarPicker {
+    constructor() {}
+    $$set() {}
+    $destroy() {}
+  }
 }));
 
 vi.mock('$lib/components/task/task-recurrence-selector.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: class MockTaskRecurrenceSelector {
+    constructor() {}
+    $$set() {}
+    $destroy() {}
+  }
 }));
 
-vi.mock('@internationalized/date', () => ({
-  CalendarDate: class {
+vi.mock('@internationalized/date', () => {
+  class MockCalendarDate {
     constructor(year: number, month: number, day: number) {
       this.year = year;
       this.month = month;
@@ -29,8 +58,36 @@ vi.mock('@internationalized/date', () => ({
     year: number;
     month: number;
     day: number;
+    
+    set(field: string, value: number) {
+      if (field === 'year') this.year = value;
+      else if (field === 'month') this.month = value;
+      else if (field === 'day') this.day = value;
+      return this;
+    }
+    
+    add(field: string, amount: number) {
+      if (field === 'years') this.year += amount;
+      else if (field === 'months') this.month += amount;
+      else if (field === 'days') this.day += amount;
+      return this;
+    }
+    
+    subtract(field: string, amount: number) {
+      return this.add(field, -amount);
+    }
+    
+    toString() {
+      return `${this.year}-${String(this.month).padStart(2, '0')}-${String(this.day).padStart(2, '0')}`;
+    }
   }
-}));
+  
+  return {
+    CalendarDate: MockCalendarDate,
+    today: () => new MockCalendarDate(2024, 1, 15),
+    getLocalTimeZone: () => 'UTC'
+  };
+});
 
 describe('InlineDatePickerUI', () => {
   const defaultProps = {
