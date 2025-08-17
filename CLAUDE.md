@@ -20,6 +20,12 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 - **スタイリング**: Tailwind CSS v4 + カスタムCSS変数
 - **国際化**: Inlang Paraglide（英語・日本語対応）
 - **アイコン**: Lucide Svelte
+- **パッケージマネージャ**: bun
+- **ビルドツール**: Vite
+- **型チェック**: TypeScript + svelte-check
+- **フォーマッター**: Prettier
+- **リンター**: ESLint
+- **テスト**: Vitest(単体) + @testing-library/svelte(結合) + Playwright(E2E)
 
 ### バックエンド・デスクトップ
 
@@ -27,13 +33,12 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 - **Rust**: バックエンドロジック
 - **SQLite**: ローカルデータベース
 - **Automerge**: ローカルデータベースの履歴管理・同期用
-
-### 開発ツール
-
-- **パッケージマネージャ**: bun
-- **ビルドツール**: Vite
-- **型チェック**: TypeScript + svelte-check
-- **テスト**: Vitest + @testing-library/svelte + Playwright
+- **パッケージマネージャ**: cargo
+- **ビルドツール**: cargo
+- **型チェック**: cargo check
+- **フォーマッター**: rustfmt
+- **リンター**: clippy
+- **テスト**: cargo test
 
 ## プロジェクト構造
 
@@ -74,13 +79,13 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 │   │   ├── services/                     # Serviceの定義
 │   │   │   └── xxxx_service.rs           # 機能別Serviceの定義（project_serviceなど）
 │   │   ├── types/          # type,enumなどの型定義（構造体はmodelsで定義）
-│   │   ├── utils/          # 汎用処理のヘルパー関数群
+│   │   └── utils/          # 汎用処理のヘルパー関数群
 │   ├── target/
 │   ├── build.rs
 │   ├── Cargo.lock
 │   ├── Cargo.toml
-│   ├── tauri.conf.json
-├── tests/         # 単体・結合テスト(vitest)
+│   └── tauri.conf.json
+├── tests/                    # 単体・結合テスト(vitest)
 │   ├── integration/          # 結合テスト
 │   ├── */                    # 単体テスト
 │   └── vitest.setup.ts       # Vitest設定
@@ -177,22 +182,25 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 1. コード編集
 2. vitest単体テストケース作成
 3. `bun check` - 型チェック実行
-4. `bun run test [単体テストファイル名]` - vitest単体テスト実行
-5. vitest結合テストケース作成
-6. `bun run test [結合テストファイル名]` - vitest結合テスト実行
-7. `bun run test` - vitest全テスト実行
-8. Playwright(E2E)テストケース作成
-9. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
+4. `bun run lint` - リンター実行
+5. `bun run test [単体テストファイル名]` - vitest単体テスト実行
+6. vitest結合テストケース作成
+7. `bun run test [結合テストファイル名]` - vitest結合テスト実行
+8. `bun run test` - vitest全テスト実行
+9. Playwright(E2E)テストケース作成
+10. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
 
 #### Tauriのコード修正時
 
 1. コード編集
 2. `cargo check --quiet` - エラーがないかチェック（警告は一旦除く）
 3. `cargo check` - 警告がないかチェック
-4. `cargo test [単体テストファイル名]` - cargo単体テスト実行
-5. cargo結合テストケース作成
-6. `cargo run test [結合テストファイル名]` - cargo結合テスト実行
-7. `cargo run test` - cargo全テスト実行
+4. `cargo clippy` - リンター実行
+5. `cargo fmt --all` - フォーマッター実行
+6. `cargo test [単体テストファイル名]` - cargo単体テスト実行
+7. cargo結合テストケース作成
+8. `cargo run test [結合テストファイル名]` - cargo結合テスト実行
+9. `cargo run test` - cargo全テスト実行
 
 #### 両方のコード修正時
 
