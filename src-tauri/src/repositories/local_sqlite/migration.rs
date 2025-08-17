@@ -44,9 +44,8 @@ async fn create_migration_table(db: &DatabaseConnection) -> Result<(), DbErr> {
 async fn create_settings_table(db: &DatabaseConnection) -> Result<(), DbErr> {
     let sql = r#"
         CREATE TABLE IF NOT EXISTS settings (
-            id TEXT PRIMARY KEY,
-            app_settings TEXT NOT NULL,
-            created_at DATETIME NOT NULL,
+            id INTEGER PRIMARY KEY,
+            settings_json TEXT NOT NULL,
             updated_at DATETIME NOT NULL
         );
     "#;

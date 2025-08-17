@@ -1,11 +1,14 @@
 use super::document_manager::{DocumentManager, DocumentType};
-use crate::errors::RepositoryError;
-use crate::models::setting::{DueDateButtons, Settings};
+use crate::errors::repository_error::RepositoryError;
+use crate::models::setting::{Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
+use crate::repositories::settings_repository_trait::{SettingsRepository, SettingsValidator, SettingsValidationError};
+use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Settings用のAutomerge-Repoリポジトリ
+#[derive(Debug)]
 pub struct SettingsLocalAutomergeRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
@@ -19,123 +22,14 @@ impl SettingsLocalAutomergeRepository {
         })
     }
 
-    /// 設定データを読み込み
-    pub async fn get_setting(&self) -> Result<Settings, RepositoryError> {
-        // Automergeドキュメントから設定を読み込み
-        let loaded_settings = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .load_data::<Settings>(&DocumentType::Settings, "settings")
-                .await?
-        };
-        if let Some(settings) = loaded_settings {
-            Ok(settings)
-        } else {
-            // データが存在しない場合はデフォルト値を保存して返す
-            let default_settings = Settings {
-                theme: "system".to_string(),
-                language: "ja".to_string(),
-                font: "system-ui".to_string(),
-                font_size: 14,
-                font_color: "#000000".to_string(),
-                background_color: "#ffffff".to_string(),
-                week_start: "monday".to_string(),
-                timezone: "system".to_string(),
-                date_format: "YYYY-MM-DD".to_string(),
-                custom_due_days: vec![1, 3, 7, 30],
-                custom_date_formats: vec![],
-                time_labels: vec![],
-                due_date_buttons: DueDateButtons {
-                    overdue: true,
-                    today: true,
-                    tomorrow: true,
-                    three_days: true,
-                    this_week: true,
-                    this_month: false,
-                    this_quarter: false,
-                    this_year: false,
-                    this_year_end: false,
-                },
-                view_items: vec![],
-                selected_account: "".to_string(),
-                account_icon: None,
-                account_name: "".to_string(),
-                email: "".to_string(),
-                password: "".to_string(),
-                server_url: "".to_string(),
-            };
-            self.set_setting(&default_settings).await?;
-            Ok(default_settings)
-        }
-    }
-
-    /// 設定データを保存
-    pub async fn set_setting(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let settings_clone = settings.clone();
-        {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .save_data(&DocumentType::Settings, "settings", &settings_clone)
-                .await
-        }
-    }
-
-    /// 特定の設定項目を更新
-    pub async fn update_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
-        let key_string = key.to_string();
-        let value_string = value.to_string();
-        {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .update_value(&DocumentType::Settings, &key_string, &value_string)
-                .await
-        }
-    }
-
-    /// 時刻ラベルを追加
-    pub async fn add_time_label(
-        &self,
-        _id: &str,
-        _name: &str,
-        _time: &str,
-    ) -> Result<(), RepositoryError> {
-        let _doc_handle = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .get_or_create_document(&DocumentType::Settings)
-                .await?
-        };
-        // TODO: Automergeドキュメントの配列に要素を追加する実装
-        Ok(())
-    }
-
-    /// 時刻ラベルを削除
-    pub async fn remove_time_label(&self, _id: &str) -> Result<(), RepositoryError> {
-        let _doc_handle = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .get_or_create_document(&DocumentType::Settings)
-                .await?
-        };
-        // TODO: Automergeドキュメントから要素を削除する実装
-        Ok(())
-    }
-
-    /// 時刻ラベルを更新
-    pub async fn update_time_label(
-        &self,
-        _id: &str,
-        _name: Option<&str>,
-        _time: Option<&str>,
-    ) -> Result<(), RepositoryError> {
-        let _doc_handle = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .get_or_create_document(&DocumentType::Settings)
-                .await?
-        };
-        // TODO: Automergeドキュメントの要素を更新する実装
-        Ok(())
+    /// 設定データの部分更新を内部的に処理
+    async fn update_partial<F>(&self, updater: F) -> Result<(), RepositoryError>
+    where
+        F: FnOnce(&mut Settings),
+    {
+        let mut current_settings = self.load().await?;
+        updater(&mut current_settings);
+        self.save_with_validation(&current_settings).await
     }
 
     /// 設定のバックアップを作成
@@ -151,6 +45,130 @@ impl SettingsLocalAutomergeRepository {
     }
 }
 
+#[async_trait]
+impl SettingsRepository for SettingsLocalAutomergeRepository {
+    async fn load(&self) -> Result<Settings, RepositoryError> {
+        // Automergeドキュメントから設定を読み込み
+        let loaded_settings = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Settings>(&DocumentType::Settings, "settings")
+                .await?
+        };
+        if let Some(settings) = loaded_settings {
+            Ok(settings)
+        } else {
+            // データが存在しない場合はデフォルト値を保存して返す
+            let default_settings = SettingsValidator::create_default();
+            self.save(&default_settings).await?;
+            Ok(default_settings)
+        }
+    }
+
+    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
+        let settings_clone = settings.clone();
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, "settings", &settings_clone)
+            .await
+    }
+
+    async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
+        let validation_errors = self.validate(settings);
+        if !validation_errors.is_empty() {
+            let error_messages: Vec<String> = validation_errors
+                .iter()
+                .map(|e| format!("{}: {}", e.field, e.message))
+                .collect();
+            return Err(RepositoryError::ValidationError(error_messages.join(", ")));
+        }
+
+        self.save(settings).await
+    }
+
+    async fn reset_to_default(&self) -> Result<Settings, RepositoryError> {
+        let default_settings = SettingsValidator::create_default();
+        self.save(&default_settings).await?;
+        Ok(default_settings)
+    }
+
+    fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError> {
+        SettingsValidator::validate(settings)
+    }
+
+    async fn update_theme(&self, theme: String) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.theme = theme;
+        }).await
+    }
+
+    async fn update_language(&self, language: String) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.language = language;
+        }).await
+    }
+
+    async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.custom_date_formats = formats;
+        }).await
+    }
+
+    async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.time_labels = labels;
+        }).await
+    }
+
+    async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.view_items = items;
+        }).await
+    }
+
+    async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.due_date_buttons = buttons;
+        }).await
+    }
+
+    async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.custom_date_formats.push(format);
+        }).await
+    }
+
+    async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.custom_date_formats.retain(|f| f.id != format_id);
+        }).await
+    }
+
+    async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.time_labels.push(label);
+        }).await
+    }
+
+    async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.time_labels.retain(|l| l.id != label_id);
+        }).await
+    }
+
+    async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.view_items.push(item);
+        }).await
+    }
+
+    async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError> {
+        self.update_partial(|settings| {
+            settings.view_items.retain(|i| i.id != item_id);
+        }).await
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -162,7 +180,7 @@ mod tests {
         let repo = SettingsLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).unwrap();
 
         // デフォルト設定を読み込み
-        let settings = repo.get_setting().await.unwrap();
+        let settings = repo.load().await.unwrap();
         assert_eq!(settings.theme, "system");
         assert_eq!(settings.language, "ja");
 
@@ -176,10 +194,10 @@ mod tests {
             "Saving custom settings: theme={}, font_size={}, language={}",
             custom_settings.theme, custom_settings.font_size, custom_settings.language
         );
-        repo.set_setting(&custom_settings).await.unwrap();
+        repo.save(&custom_settings).await.unwrap();
 
         println!("Loading settings back...");
-        let loaded_settings = repo.get_setting().await.unwrap();
+        let loaded_settings = repo.load().await.unwrap();
 
         println!(
             "Loaded settings: theme={}, font_size={}, language={}",
@@ -192,12 +210,20 @@ mod tests {
         assert_eq!(loaded_settings.language, "en");
 
         // 複雑なフィールドもテスト
-        assert_eq!(loaded_settings.custom_due_days, vec![1, 3, 7, 30]);
+        assert_eq!(loaded_settings.custom_due_days, vec![1, 3, 7, 14, 30]);
         assert_eq!(loaded_settings.due_date_buttons.overdue, true);
         assert_eq!(loaded_settings.due_date_buttons.today, true);
 
-        // 特定の設定項目を更新テスト
-        repo.update_setting("font", "Arial").await.unwrap();
+        // 部分更新テスト
+        repo.update_theme("light".to_string()).await.unwrap();
+        let updated_settings = repo.load().await.unwrap();
+        assert_eq!(updated_settings.theme, "light");
+
+        // バリデーションテスト
+        let mut invalid_settings = settings.clone();
+        invalid_settings.theme = "invalid_theme".to_string();
+        let result = repo.save_with_validation(&invalid_settings).await;
+        assert!(result.is_err());
 
         println!("Settings構造体の完全な保存/読み込みテストが成功しました！");
     }

@@ -5,6 +5,7 @@ pub mod account_repository_trait;
 pub mod base_repository_trait;
 pub mod project_repository_trait;
 pub mod setting_repository_trait;
+pub mod settings_repository_trait;
 pub mod sub_task_repository_trait;
 pub mod tag_repository_trait;
 pub mod task_list_repository_trait;
@@ -45,7 +46,11 @@ impl Repositories {
             tags: TagUnifiedRepository::new(vec![], vec![]),
             accounts: AccountUnifiedRepository::new(vec![], vec![]),
             users: UserUnifiedRepository::new(vec![], vec![]),
-            settings: SettingsUnifiedRepository::new(),
+            settings: SettingsUnifiedRepository::new(vec![], crate::repositories::unified::settings::SettingsRepositoryVariant::Sqlite(
+                crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository::new(
+                    crate::repositories::local_sqlite::database_manager::DatabaseManager::instance().await.unwrap()
+                )
+            )),
         })
     }
 }
