@@ -1,7 +1,7 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::subtask::SubTask;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::unified::UnifiedRepositories;
+use crate::repositories::Repositories;
 use crate::types::id_types::SubTaskId;
 
 pub async fn create_subtask(project_id: &str, subtask: &SubTask) -> Result<(), ServiceError> {
@@ -10,13 +10,13 @@ pub async fn create_subtask(project_id: &str, subtask: &SubTask) -> Result<(), S
             "Project ID and Subtask title cannot be empty".to_string(),
         ));
     }
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.sub_tasks.save(subtask).await?;
     Ok(())
 }
 
 pub async fn get_subtask(subtask_id: &SubTaskId) -> Result<Option<SubTask>, ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     // ProjectsRepositoryのget_subtaskはproject_idとsubtask_idのみ必要（task_idは使用されない）
     Ok(repository.sub_tasks.find_by_id(subtask_id).await?)
 }
@@ -28,7 +28,7 @@ pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> 
 }
 
 pub async fn update_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.sub_tasks.save(subtask).await?;
     Ok(())
 }

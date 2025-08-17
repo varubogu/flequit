@@ -1,7 +1,7 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::unified::UnifiedRepositories;
+use crate::repositories::Repositories;
 use crate::types::id_types::TagId;
 
 pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
@@ -10,13 +10,13 @@ pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
             "Tag name cannot be empty".to_string(),
         ));
     }
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.tags.save(tag).await?;
     Ok(())
 }
 
 pub async fn get_tag(tag_id: &TagId) -> Result<Option<Tag>, ServiceError> {
-    let repository: UnifiedRepositories = UnifiedRepositories::new().await?;
+    let repository: Repositories = Repositories::new().await?;
     Ok(repository.tags.find_by_id(tag_id).await?)
 }
 
@@ -31,7 +31,7 @@ pub async fn update_tag(tag: &Tag) -> Result<(), ServiceError> {
             "Tag name cannot be empty".to_string(),
         ));
     }
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.tags.save(tag).await?;
     Ok(())
 }

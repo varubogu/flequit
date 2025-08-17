@@ -2,22 +2,22 @@ use crate::errors::service_error::ServiceError;
 use crate::models::command::task_list::TaskListSearchRequest;
 use crate::models::task_list::TaskList;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::unified::UnifiedRepositories;
+use crate::repositories::Repositories;
 use crate::types::id_types::TaskListId;
 
 pub async fn create_task_list(task_list: &TaskList) -> Result<(), ServiceError> {
-    let repository: UnifiedRepositories = UnifiedRepositories::new().await?;
+    let repository: Repositories = Repositories::new().await?;
     repository.task_lists.save(task_list).await?;
     Ok(())
 }
 
 pub async fn get_task_list(list_id: &TaskListId) -> Result<Option<TaskList>, ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     Ok(repository.task_lists.find_by_id(list_id).await?)
 }
 
 pub async fn update_task_list(task_list: &TaskList) -> Result<(), ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.task_lists.save(task_list).await?;
     Ok(())
 }

@@ -2,7 +2,7 @@ use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
 use crate::models::task::Task;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::unified::UnifiedRepositories;
+use crate::repositories::Repositories;
 use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
 
@@ -12,7 +12,7 @@ pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
             "Project ID and Task title cannot be empty".to_string(),
         ));
     }
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.tasks.save(task).await?;
     Ok(())
 }
@@ -21,7 +21,7 @@ pub async fn get_task(
     project_id: &ProjectId,
     task_id: &TaskId,
 ) -> Result<Option<Task>, ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     Ok(repository.tasks.find_by_id(task_id).await?)
 }
 
@@ -32,7 +32,7 @@ pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceErro
 }
 
 pub async fn update_task(task: &Task) -> Result<(), ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.tasks.save(task).await?;
     Ok(())
 }

@@ -2,7 +2,7 @@ use crate::errors::service_error::ServiceError;
 use crate::models::command::project::ProjectSearchRequest;
 use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::unified::UnifiedRepositories;
+use crate::repositories::Repositories;
 use crate::types::id_types::ProjectId;
 use chrono::Utc;
 
@@ -22,19 +22,19 @@ pub async fn create_project(project: &Project) -> Result<Project, ServiceError> 
         new_project.id = crate::types::id_types::ProjectId::new();
     }
 
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.projects.save(&new_project).await?;
 
     Ok(new_project)
 }
 
 pub async fn get_project(project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     Ok(repository.projects.find_by_id(project_id).await?)
 }
 
 pub async fn list_projects() -> Result<Vec<Project>, ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     Ok(repository.projects.find_all().await?)
 }
 
@@ -42,13 +42,13 @@ pub async fn update_project(project: &Project) -> Result<Project, ServiceError> 
     let mut updated_project = project.clone();
     updated_project.updated_at = Utc::now();
 
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.projects.save(&updated_project).await?;
     Ok(updated_project)
 }
 
 pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     repository.projects.delete(project_id).await?;
     Ok(())
 }
@@ -62,7 +62,7 @@ pub async fn restore_project(backup_path: &str) -> Result<String, ServiceError> 
 pub async fn search_projects(
     request: &ProjectSearchRequest,
 ) -> Result<(Vec<Project>, usize), ServiceError> {
-    let repository = UnifiedRepositories::new().await?;
+    let repository = Repositories::new().await?;
     let projects = repository.projects.find_all().await?;
 
     // フィルタリングは空のVecには意味がないため、requestのパラメータを使用するだけ
