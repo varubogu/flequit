@@ -22,6 +22,7 @@
 
   // Check if current input matches any existing tag (case-insensitive)
   let hasExactMatch = $derived(
+    suggestions && currentTagInput && 
     suggestions.some((s) => s.name.toLowerCase() === currentTagInput.toLowerCase())
   );
 </script>
@@ -35,9 +36,9 @@
     )}px;"
   >
     <div class="text-muted-foreground px-2 py-1 text-xs">
-      Debug: showing {suggestions.length} suggestions
+      Debug: showing {suggestions ? suggestions.length : 0} suggestions
     </div>
-    {#each suggestions as suggestion (suggestion.id)}
+    {#each suggestions || [] as suggestion (suggestion.id)}
       <button
         type="button"
         class="hover:bg-accent hover:text-accent-foreground flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
@@ -53,7 +54,7 @@
     {/each}
 
     <!-- Show "Create new tag" option if input doesn't match any existing tag -->
-    {#if currentTagInput.trim() && !hasExactMatch}
+    {#if currentTagInput && currentTagInput.trim() && !hasExactMatch}
       <button
         type="button"
         class="hover:bg-accent hover:text-accent-foreground border-border flex w-full items-center gap-2 border-t px-3 py-2 text-left text-sm"

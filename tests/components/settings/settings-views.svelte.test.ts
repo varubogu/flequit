@@ -2,13 +2,40 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
 
+// Mock translation service
+vi.mock('$lib/stores/locale.svelte', () => ({
+  getTranslationService: vi.fn(() => ({
+    getMessage: (key: string) => () => {
+      const messages: Record<string, string> = {
+        views_settings: 'Views Settings',
+        views_description_text: 'Drag and drop to reorder views, move them between visible and hidden sections',
+        reset_to_defaults: 'Reset to Defaults',
+        reset_view_settings: 'Reset View Settings',
+        reset_view_confirmation: 'Are you sure you want to reset views to defaults?',
+        reset: 'Reset',
+        visible_in_sidebar: 'Visible in sidebar',
+        hidden_from_sidebar: 'Hidden from sidebar'
+      };
+      return messages[key] || key;
+    }
+  })),
+  reactiveMessage: (fn: () => string) => fn
+}));
+
 // Mock views visibility store
 vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
   const original = (await importOriginal()) as Record<string, unknown>;
   return {
     ...original,
     viewsVisibilityStore: {
-      resetToDefaults: vi.fn()
+      resetToDefaults: vi.fn(),
+      visibleViews: [
+        { id: 'today', name: 'Today' },
+        { id: 'upcoming', name: 'Upcoming' }
+      ],
+      hiddenViews: [
+        { id: 'completed', name: 'Completed' }
+      ]
     }
   };
 });
@@ -38,8 +65,7 @@ describe('SettingsViews Component', () => {
   test('should display description text', () => {
     render(SettingsViews);
 
-    expect(screen.getByText(/Drag and drop to reorder views/)).toBeInTheDocument();
-    expect(screen.getByText(/move them between visible and hidden sections/)).toBeInTheDocument();
+    expect(screen.getByText(/Drag and drop to reorder views, move them between visible and hidden sections/)).toBeInTheDocument();
   });
 
   test('should render reset to defaults button', () => {

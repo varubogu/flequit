@@ -165,6 +165,11 @@ export const unitTestTranslations = {
   edit_date_format: 'TEST_EDIT_DATE_FORMAT',
   add_custom_due_date_button: 'TEST_ADD_CUSTOM_DUE_DATE_BUTTON',
   add_custom_due_date: 'TEST_ADD_CUSTOM_DUE_DATE',
+  time_labels: 'TEST_TIME_LABELS',
+  add_time_label: 'TEST_ADD_TIME_LABEL',
+  time_label_name: 'TEST_TIME_LABEL_NAME',
+  time_label_time: 'TEST_TIME_LABEL_TIME',
+  no_time_labels: 'TEST_NO_TIME_LABELS',
 
   // プロジェクト関連
   project: 'TEST_PROJECT',

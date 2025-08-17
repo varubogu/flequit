@@ -42,12 +42,18 @@ describe('WeekdaySelector', () => {
     it('should render all weekday buttons', () => {
       render(WeekdaySelector, { props: defaultProps });
       
-      // Should render 7 day buttons (using first letter of each day)
-      expect(screen.getByRole('button', { name: 'S' })).toBeInTheDocument(); // Sunday
+      // Should render 7 day buttons total
+      const allButtons = screen.getAllByRole('button');
+      expect(allButtons).toHaveLength(7);
+      
+      // Check for specific unique day buttons
       expect(screen.getByRole('button', { name: 'M' })).toBeInTheDocument(); // Monday
-      expect(screen.getByRole('button', { name: 'T' })).toBeInTheDocument(); // Tuesday
       expect(screen.getByRole('button', { name: 'W' })).toBeInTheDocument(); // Wednesday
       expect(screen.getByRole('button', { name: 'F' })).toBeInTheDocument(); // Friday
+      
+      // Check for duplicate letters (S and T appear twice)
+      expect(screen.getAllByRole('button', { name: 'S' })).toHaveLength(2); // Sunday & Saturday
+      expect(screen.getAllByRole('button', { name: 'T' })).toHaveLength(2); // Tuesday & Thursday
     });
 
     it('should have proper accessibility structure', () => {

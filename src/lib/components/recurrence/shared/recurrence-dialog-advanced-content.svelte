@@ -14,6 +14,7 @@
   let { logic }: Props = $props();
 </script>
 
+{#if logic}
 <div class="flex max-h-[calc(85vh-120px)] flex-wrap gap-6 overflow-y-auto">
   <!-- 設定パネル -->
   <div class="min-w-[480px] flex-1 space-y-6 overflow-y-auto">
@@ -72,3 +73,4 @@
     </div>
   {/if}
 </div>
+{/if}

@@ -35,7 +35,7 @@
       {#each dayOfWeekOptions as dayOption (dayOption.value)}
         <button
           type="button"
-          class="border-border rounded border p-2 text-sm {selectedDays.includes(
+          class="border-border rounded border p-2 text-sm {selectedDays && selectedDays.includes(
             dayOption.value as DayOfWeek
           )
             ? 'bg-primary text-primary-foreground'

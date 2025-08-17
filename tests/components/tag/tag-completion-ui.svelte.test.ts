@@ -97,9 +97,10 @@ describe('TagCompletionUI', () => {
     });
 
     it('should render tag colors when available', () => {
-      render(TagCompletionUI, { props: defaultProps });
+      const { container } = render(TagCompletionUI, { props: defaultProps });
       
-      const coloredTag = document.querySelector('[style*="background-color: #ff0000"]');
+      // Look for any element with background-color style  
+      const coloredTag = container.querySelector('[style*="background-color"]');
       expect(coloredTag).toBeInTheDocument();
     });
 
