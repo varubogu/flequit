@@ -52,6 +52,9 @@ describe('DataService', () => {
         delete: vi.fn().mockResolvedValue(true),
         get: vi.fn().mockResolvedValue(null),
         search: vi.fn().mockResolvedValue([])
+      },
+      initialization: {
+        loadProjectData: vi.fn().mockResolvedValue([])
       }
     };
 
