@@ -87,7 +87,7 @@
     {#if !isCollapsed}
       <TaskListDisplay
         {project}
-        isExpanded={logic.expandedProjects.has(project.id)}
+        isExpanded={logic.expandedProjects?.has(project.id) ?? false}
         {onViewChange}
       />
     {/if}

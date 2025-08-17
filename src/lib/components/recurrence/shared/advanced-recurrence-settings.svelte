@@ -5,7 +5,7 @@
   import type { DayOfWeek } from "$lib/types/datetime-calendar";
 
   type Props = {
-    details: RecurrenceDetails;
+    details?: RecurrenceDetails;
     onchange?: (event: Event) => void;
     ondetailschange?: (details: RecurrenceDetails) => void;
   };
@@ -18,21 +18,21 @@
 
   function handleSpecificDateChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    const newDetails = { ...details, specific_date: target.valueAsNumber || undefined };
+    const newDetails = { ...(details || {}), specific_date: target.valueAsNumber || undefined };
     ondetailschange?.(newDetails);
     onchange?.(event);
   }
 
   function handleWeekOfPeriodChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = { ...details, week_of_period: target.value as WeekOfMonth || undefined };
+    const newDetails = { ...(details || {}), week_of_period: target.value as WeekOfMonth || undefined };
     ondetailschange?.(newDetails);
     onchange?.(event);
   }
 
   function handleWeekdayOfWeekChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = { ...details, weekday_of_week: target.value as DayOfWeek || undefined };
+    const newDetails = { ...(details || {}), weekday_of_week: target.value as DayOfWeek || undefined };
     ondetailschange?.(newDetails);
     onchange?.(event);
   }
@@ -76,7 +76,7 @@
       <input
         id="specific-date-input"
         type="number"
-        value={details.specific_date}
+        value={details?.specific_date}
         min="1"
         max="31"
         class="border-border bg-background text-foreground w-full rounded border p-2"
@@ -92,7 +92,7 @@
       </label>
       <select
         id="week-of-period-select"
-        value={details.week_of_period}
+        value={details?.week_of_period}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekOfPeriodChange}
       >
@@ -104,14 +104,14 @@
     </div>
   </div>
 
-  {#if details.week_of_period}
+  {#if details?.week_of_period}
     <div>
       <label for="weekday-of-week-select" class="text-muted-foreground text-sm">
         {weekdayOfWeek()}
       </label>
       <select
         id="weekday-of-week-select"
-        value={details.weekday_of_week}
+        value={details?.weekday_of_week}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekdayOfWeekChange}
       >
