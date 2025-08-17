@@ -1,81 +1,59 @@
-use crate::models::subtask::Subtask;
+
+use crate::models::subtask::SubTask;
 use crate::errors::service_error::ServiceError;
-use crate::repositories::local_automerge::projects_repository::ProjectsRepository;
+use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::unified::UnifiedRepositories;
+use crate::types::id_types::SubTaskId;
 
-#[allow(dead_code)]
-pub struct SubtaskService;
 
-#[allow(dead_code)]
-impl SubtaskService {
-    pub async fn create_subtask(
-        &self,
-        project_id: &str,
-        subtask: &Subtask,
-    ) -> Result<(), ServiceError> {
-        if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID and Subtask title cannot be empty".to_string()));
-        }
-        let repository = ProjectsRepository::with_default_path()?;
-        repository.set_subtask(project_id, subtask).await?;
-        Ok(())
+pub async fn create_subtask(
+    project_id: &str,
+    subtask: &SubTask,
+) -> Result<(), ServiceError> {
+    if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
+        return Err(ServiceError::ValidationError("Project ID and Subtask title cannot be empty".to_string()));
     }
+    let repository = UnifiedRepositories::new().await?;
+    repository.sub_tasks.save(subtask).await?;
+    Ok(())
+}
 
-    pub async fn get_subtask(
-        &self,
-        project_id: &str,
-        task_id: &str,
-        subtask_id: &str,
-    ) -> Result<Option<Subtask>, ServiceError> {
-        if project_id.trim().is_empty() || task_id.trim().is_empty() || subtask_id.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID, Task ID, and Subtask ID cannot be empty".to_string()));
-        }
-        let repository = ProjectsRepository::with_default_path()?;
-        // ProjectsRepositoryのget_subtaskはproject_idとsubtask_idのみ必要（task_idは使用されない）
-        Ok(repository.get_subtask(project_id, subtask_id).await?)
-    }
+pub async fn get_subtask(
+    subtask_id: &SubTaskId,
+) -> Result<Option<SubTask>, ServiceError> {
+    let repository = UnifiedRepositories::new().await?;
+    // ProjectsRepositoryのget_subtaskはproject_idとsubtask_idのみ必要（task_idは使用されない）
+    Ok(repository.sub_tasks.find_by_id(subtask_id).await?)
+}
 
-    pub async fn list_subtasks(
-        &self,
-        project_id: &str,
-        task_id: &str,
-    ) -> Result<Vec<Subtask>, ServiceError> {
-        // 一時的に空のVecを返す
-        let _ = (project_id, task_id);
-        Ok(Vec::new())
-    }
+pub async fn list_subtasks(
+    task_id: &str,
+) -> Result<Vec<SubTask>, ServiceError> {
+    // 一時的に空のVecを返す
+    let _ = task_id;
+    Ok(Vec::new())
+}
 
-    pub async fn update_subtask(
-        &self,
-        project_id: &str,
-        subtask: &Subtask,
-    ) -> Result<(), ServiceError> {
-        if project_id.trim().is_empty() || subtask.title.trim().is_empty() {
-            return Err(ServiceError::ValidationError("Project ID and Subtask title cannot be empty".to_string()));
-        }
-        let repository = ProjectsRepository::with_default_path()?;
-        repository.set_subtask(project_id, subtask).await?;
-        Ok(())
-    }
+pub async fn update_subtask(
+    subtask: &SubTask,
+) -> Result<(), ServiceError> {
+    let repository = UnifiedRepositories::new().await?;
+    repository.sub_tasks.save(subtask).await?;
+    Ok(())
+}
 
-    pub async fn delete_subtask(
-        &self,
-        project_id: &str,
-        task_id: &str,
-        subtask_id: &str,
-    ) -> Result<(), ServiceError> {
-        // 一時的に何もしない
-        let _ = (project_id, task_id, subtask_id);
-        Ok(())
-    }
+pub async fn delete_subtask(
+    subtask_id: &SubTaskId,
+) -> Result<(), ServiceError> {
+    // 一時的に何もしない
+    let _ = (subtask_id);
+    Ok(())
+}
 
-    pub async fn toggle_completion(
-        &self,
-        project_id: &str,
-        task_id: &str,
-        subtask_id: &str,
-    ) -> Result<(), ServiceError> {
-        // 一時的に何もしない
-        let _ = (project_id, task_id, subtask_id);
-        Ok(())
-    }
+pub async fn toggle_completion(
+    subtask_id: &SubTaskId,
+) -> Result<(), ServiceError> {
+    // 一時的に何もしない
+    let _ = (subtask_id);
+    Ok(())
 }

@@ -1,3 +1,5 @@
+use sea_orm;
+
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {
     #[error("Automerge error: {0}")]
@@ -32,4 +34,22 @@ pub enum RepositoryError {
 
     #[error("Validation error: {0}")]
     ValidationError(String),
+
+    #[error("Configuration error: {0}")]
+    ConfigurationError(String),
+
+    #[error("Database error: {0}")]
+    DatabaseError(String),
+
+    #[error("Model conversion error: {0}")]
+    Conversion(String),
+
+    #[error("Constraint violation: {0}")]
+    ConstraintViolation(String),
+}
+
+impl From<sea_orm::DbErr> for RepositoryError {
+    fn from(err: sea_orm::DbErr) -> Self {
+        RepositoryError::DatabaseError(err.to_string())
+    }
 }

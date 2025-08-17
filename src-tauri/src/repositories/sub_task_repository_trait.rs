@@ -1,41 +1,19 @@
-use crate::errors::RepositoryError;
-use crate::models::subtask::Subtask;
+use crate::repositories::base_repository_trait::Repository;
+use crate::models::subtask::SubTask;
+use crate::types::id_types::SubTaskId;
 use async_trait::async_trait;
 
+/// 統合サブタスクリポジトリトレイト
+///
+/// Service層はこのトレイトを直接使用し、内部でSQLiteとAutomergeを統合的に処理する。
+/// - SQLite: 高速検索とクエリ処理
+/// - Automerge: データ永続化と履歴管理
+///
+/// # 設計思想
+///
+/// Repository<Subtask>から基本CRUD操作を継承し、
+/// ドメイン固有のメソッドのみを追加する最小限の設計。
+/// 複雑な検索・集計処理はService層で基本CRUDを組み合わせて実装。
 #[async_trait]
-#[allow(dead_code)]
-pub trait SubTaskRepositoryTrait {
-    async fn set_subtask(&self, project_id: &str, task_id: &str, subtask: &Subtask) -> Result<(), RepositoryError>;
-
-    async fn get_subtask(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, RepositoryError>;
-
-    async fn list_subtasks(&self, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, RepositoryError>;
-
-    async fn delete_subtask(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), RepositoryError>;
-
-    async fn find_completed_subtasks(&self, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, RepositoryError>;
-
-    async fn find_incomplete_subtasks(&self, project_id: &str, task_id: &str) -> Result<Vec<Subtask>, RepositoryError>;
-
-    async fn find_subtasks_by_project(&self, project_id: &str) -> Result<Vec<Subtask>, RepositoryError>;
-
-    async fn toggle_completion(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), RepositoryError>;
-
-    async fn mark_completed(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), RepositoryError>;
-
-    async fn mark_incomplete(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<(), RepositoryError>;
-
-    async fn validate_subtask_exists(&self, project_id: &str, task_id: &str, subtask_id: &str) -> Result<bool, RepositoryError>;
-
-    async fn validate_task_exists(&self, project_id: &str, task_id: &str) -> Result<bool, RepositoryError>;
-
-    async fn get_subtask_count(&self, project_id: &str, task_id: &str) -> Result<u64, RepositoryError>;
-
-    async fn get_completed_subtask_count(&self, project_id: &str, task_id: &str) -> Result<u64, RepositoryError>;
-
-    async fn get_completion_rate(&self, project_id: &str, task_id: &str) -> Result<f32, RepositoryError>;
-
-    async fn mark_all_completed(&self, project_id: &str, task_id: &str) -> Result<(), RepositoryError>;
-
-    async fn mark_all_incomplete(&self, project_id: &str, task_id: &str) -> Result<(), RepositoryError>;
+pub trait SubTaskRepositoryTrait: Repository<SubTask, SubTaskId> + Send + Sync {
 }

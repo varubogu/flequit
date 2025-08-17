@@ -1,6 +1,6 @@
-// use crate::errors::repository_error::RepositoryError;
 use crate::models::project::Project;
 use crate::repositories::base_repository_trait::Repository;
+use crate::types::id_types::ProjectId;
 use async_trait::async_trait;
 
 /// 統合プロジェクトリポジトリトレイト
@@ -26,7 +26,5 @@ use async_trait::async_trait;
 /// - 検索系操作: SQLite
 /// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
-pub trait ProjectRepositoryTrait: Repository<Project> + Send + Sync {
-    // 統合リポジトリでのみ使用するため、基本的なRepository<Project>の機能で十分
-    // 必要に応じて将来的に専用メソッドを追加
+pub trait ProjectRepositoryTrait: Repository<Project, ProjectId> + Send + Sync {
 }

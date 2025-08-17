@@ -1,37 +1,19 @@
-use crate::errors::RepositoryError;
+use crate::repositories::base_repository_trait::Repository;
 use crate::models::tag::Tag;
+use crate::types::id_types::TagId;
 use async_trait::async_trait;
 
+/// 統合タグリポジトリトレイト
+///
+/// Service層はこのトレイトを直接使用し、内部でSQLiteとAutomergeを統合的に処理する。
+/// - SQLite: 高速検索とクエリ処理
+/// - Automerge: データ永続化と履歴管理
+///
+/// # 設計思想
+///
+/// Repository<Tag>から基本CRUD操作を継承し、
+/// ドメイン固有のメソッドのみを追加する最小限の設計。
+/// 複雑な検索・集計処理はService層で基本CRUDを組み合わせて実装。
 #[async_trait]
-#[allow(dead_code)]
-pub trait TagRepositoryTrait {
-    async fn set_tag(&self, tag: &Tag) -> Result<(), RepositoryError>;
-
-    async fn get_tag(&self, tag_id: &str) -> Result<Option<Tag>, RepositoryError>;
-
-    async fn list_tags(&self) -> Result<Vec<Tag>, RepositoryError>;
-
-    async fn delete_tag(&self, tag_id: &str) -> Result<(), RepositoryError>;
-
-    async fn find_tags_by_name(&self, name_pattern: &str) -> Result<Vec<Tag>, RepositoryError>;
-
-    async fn find_tags_by_color(&self, color: &str) -> Result<Vec<Tag>, RepositoryError>;
-
-    async fn get_tag_usage_count(&self, tag_id: &str) -> Result<u32, RepositoryError>;
-
-    async fn get_tags_with_usage_count(&self) -> Result<Vec<(Tag, u32)>, RepositoryError>;
-
-    async fn get_popular_tags(&self, limit: u32) -> Result<Vec<(Tag, u32)>, RepositoryError>;
-
-    async fn get_unused_tags(&self) -> Result<Vec<Tag>, RepositoryError>;
-
-    async fn validate_tag_exists(&self, tag_id: &str) -> Result<bool, RepositoryError>;
-
-    async fn is_tag_name_unique(&self, name: &str, exclude_id: Option<&str>) -> Result<bool, RepositoryError>;
-
-    async fn can_delete_tag(&self, tag_id: &str) -> Result<bool, RepositoryError>;
-
-    async fn get_tag_count(&self) -> Result<u64, RepositoryError>;
-
-    async fn get_color_distribution(&self) -> Result<Vec<(Option<String>, u32)>, RepositoryError>;
+pub trait TagRepositoryTrait: Repository<Tag, TagId> + Send + Sync {
 }

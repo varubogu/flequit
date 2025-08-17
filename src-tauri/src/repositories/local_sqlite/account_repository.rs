@@ -22,7 +22,7 @@ impl AccountRepository {
     /// メールアドレスでアカウントを検索
     pub async fn find_by_email(&self, email: &str) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         if let Some(model) = AccountEntity::find()
             .filter(Column::Email.eq(email))
             .one(db)
@@ -38,7 +38,7 @@ impl AccountRepository {
     /// プロバイダーとプロバイダーIDでアカウントを検索
     pub async fn find_by_provider(&self, provider: &str, provider_id: &str) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         if let Some(model) = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
             .filter(Column::ProviderId.eq(provider_id))
@@ -55,26 +55,26 @@ impl AccountRepository {
     /// アクティブなアカウントを取得
     pub async fn find_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let models = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
             .order_by_asc(Column::CreatedAt)
             .all(db)
             .await?;
-        
+
         let mut accounts = Vec::new();
         for model in models {
             let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             accounts.push(account);
         }
-        
+
         Ok(accounts)
     }
 
     /// 現在アクティブなアカウントを取得（最新のアクティブアカウント）
     pub async fn find_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         if let Some(model) = AccountEntity::find()
             .filter(Column::IsActive.eq(true))
             .order_by_desc(Column::CreatedAt)
@@ -91,7 +91,7 @@ impl AccountRepository {
     /// アカウントをアクティブ化（他のアカウントは非アクティブ化）
     pub async fn activate_account(&self, account_id: &str) -> Result<Account, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         // すべてのアカウントを非アクティブ化
         AccountEntity::update_many()
             .col_expr(Column::IsActive, sea_orm::sea_query::Expr::value(false))
@@ -115,12 +115,12 @@ impl AccountRepository {
     /// プロバイダー別のアカウント数を取得
     pub async fn count_by_provider(&self, provider: &str) -> Result<u64, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let count = AccountEntity::find()
             .filter(Column::Provider.eq(provider))
             .count(db)
             .await?;
-        
+
         Ok(count)
     }
 }
@@ -129,7 +129,7 @@ impl AccountRepository {
 impl Repository<Account> for AccountRepository {
     async fn save(&self, account: &Account) -> Result<Account, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         // 既存のアカウントをチェック（プロバイダーとプロバイダーIDで）
         let existing = if let Some(provider_id) = &account.provider_id {
             AccountEntity::find()
@@ -140,16 +140,16 @@ impl Repository<Account> for AccountRepository {
         } else {
             None
         };
-        
+
         if let Some(existing_model) = existing {
             // 更新
             let mut active_model: AccountActiveModel = existing_model.into();
             let new_active = account.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
-            
+
             active_model.email = new_active.email;
             active_model.is_active = new_active.is_active;
             active_model.updated_at = new_active.updated_at;
-            
+
             let updated = active_model.update(db).await?;
             updated.to_domain_model().await.map_err(RepositoryError::Conversion)
         } else {
@@ -162,7 +162,7 @@ impl Repository<Account> for AccountRepository {
 
     async fn find_by_id(&self, id: &str) -> Result<Option<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         if let Some(model) = AccountEntity::find_by_id(id).one(db).await? {
             let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             Ok(Some(account))
@@ -177,25 +177,27 @@ impl Repository<Account> for AccountRepository {
 
     async fn delete_by_id(&self, id: &str) -> Result<bool, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let result = AccountEntity::delete_by_id(id).exec(db).await?;
         Ok(result.rows_affected > 0)
     }
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
-        
+
         let models = AccountEntity::find()
             .order_by_asc(Column::CreatedAt)
             .all(db)
             .await?;
-        
+
         let mut accounts = Vec::new();
         for model in models {
             let account = model.to_domain_model().await.map_err(RepositoryError::Conversion)?;
             accounts.push(account);
         }
-        
+
         Ok(accounts)
     }
 }
+
+impl AccountRepository for Account

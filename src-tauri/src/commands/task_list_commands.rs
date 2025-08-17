@@ -3,6 +3,7 @@ use crate::models::command::task_list::TaskListCommand;
 use crate::models::command::task_list::TaskListSearchRequest;
 use crate::models::command::ModelConverter;
 use crate::models::CommandModelConverter;
+use crate::types::id_types::TaskListId;
 
 #[tauri::command]
 pub async fn create_task_list(task_list: TaskListCommand) -> Result<bool, String> {
@@ -12,7 +13,11 @@ pub async fn create_task_list(task_list: TaskListCommand) -> Result<bool, String
 
 #[tauri::command]
 pub async fn get_task_list(id: String) -> Result<Option<TaskListCommand>, String> {
-    let result = task_list_facades::get_task_list(&id).await?;
+    let task_list_id = match TaskListId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    let result = task_list_facades::get_task_list(&task_list_id).await?;
     match result {
         Some(task_list) => Ok(Some(task_list.to_command_model().await?)),
         None => Ok(None),
@@ -27,7 +32,11 @@ pub async fn update_task_list(task_list: TaskListCommand) -> Result<bool, String
 
 #[tauri::command]
 pub async fn delete_task_list(id: String) -> Result<bool, String> {
-    task_list_facades::delete_task_list(&id).await
+    let task_list_id = match TaskListId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    task_list_facades::delete_task_list(&task_list_id).await
 }
 
 #[tauri::command]

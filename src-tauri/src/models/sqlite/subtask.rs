@@ -2,7 +2,7 @@ use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 
-use crate::models::subtask::Subtask;
+use crate::models::subtask::SubTask;
 use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// Subtask用SQLiteエンティティ定義
@@ -15,56 +15,56 @@ pub struct Model {
     /// サブタスクの一意識別子
     #[sea_orm(primary_key)]
     pub id: String,
-    
+
     /// 親タスクID
     #[sea_orm(indexed)]  // 親タスク別検索用
     pub task_id: String,
-    
+
     /// サブタスクタイトル
     pub title: String,
-    
+
     /// サブタスク説明
     pub description: Option<String>,
-    
+
     /// サブタスクステータス（文字列形式）
     #[sea_orm(indexed)]  // ステータス別検索用
     pub status: String,
-    
+
     /// 優先度（数値、Optional）
     #[sea_orm(indexed)]  // 優先度別検索用
     pub priority: Option<i32>,
-    
+
     /// 開始日時
     #[sea_orm(indexed)]  // 日時範囲検索用
     pub start_date: Option<DateTime<Utc>>,
-    
+
     /// 終了日時
     #[sea_orm(indexed)]  // 日時範囲検索用
     pub end_date: Option<DateTime<Utc>>,
-    
+
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
-    
+
     /// 繰り返しルール（JSON形式）
     pub recurrence_rule: Option<String>,
-    
+
     /// アサインされたユーザーIDリスト（JSON配列形式）
     pub assigned_user_ids: Option<String>,
-    
+
     /// 付与されたタグIDリスト（JSON配列形式）
     pub tag_ids: Option<String>,
-    
+
     /// 表示順序
     #[sea_orm(indexed)]  // ソート用
     pub order_index: i32,
-    
+
     /// 完了フラグ（従来互換性のため保持）
     #[sea_orm(indexed)]  // 完了状態フィルタ用
     pub completed: bool,
-    
+
     /// 作成日時
     pub created_at: DateTime<Utc>,
-    
+
     /// 更新日時
     pub updated_at: DateTime<Utc>,
 }
@@ -84,10 +84,10 @@ impl Related<super::task::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
-impl SqliteModelConverter<Subtask> for Model {
-    async fn to_domain_model(&self) -> Result<Subtask, String> {
+impl SqliteModelConverter<SubTask> for Model {
+    async fn to_domain_model(&self) -> Result<SubTask, String> {
         use crate::types::task_types::TaskStatus;
-        
+
         // ステータス文字列をenumに変換
         let status = match self.status.as_str() {
             "not_started" => TaskStatus::NotStarted,
@@ -125,8 +125,8 @@ impl SqliteModelConverter<Subtask> for Model {
         };
 
         use crate::types::id_types::{SubTaskId, TaskId};
-        
-        Ok(Subtask {
+
+        Ok(SubTask {
             id: SubTaskId::from(self.id.clone()),
             task_id: TaskId::from(self.task_id.clone()),
             title: self.title.clone(),
@@ -148,7 +148,7 @@ impl SqliteModelConverter<Subtask> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
-impl DomainToSqliteConverter<ActiveModel> for Subtask {
+impl DomainToSqliteConverter<ActiveModel> for SubTask {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let status_string = match &self.status {

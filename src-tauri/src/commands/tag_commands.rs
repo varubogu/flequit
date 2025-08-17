@@ -1,7 +1,10 @@
+use std::f32::consts::E;
+
 use crate::facades::tag_facades;
 use crate::models::command::tag::{TagCommand, TagSearchRequest};
 use crate::models::command::ModelConverter;
 use crate::models::CommandModelConverter;
+use crate::types::id_types::TagId;
 
 #[tauri::command]
 pub async fn create_tag(tag: TagCommand) -> Result<bool, String> {
@@ -11,7 +14,11 @@ pub async fn create_tag(tag: TagCommand) -> Result<bool, String> {
 
 #[tauri::command]
 pub async fn get_tag(id: String) -> Result<Option<TagCommand>, String> {
-    let result = tag_facades::get_tag(&id).await?;
+    let tag_id = match TagId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    let result = tag_facades::get_tag(&tag_id).await?;
     match result {
         Some(tag) => Ok(Some(tag.to_command_model().await?)),
         None => Ok(None),
@@ -26,7 +33,11 @@ pub async fn update_tag(tag: TagCommand) -> Result<bool, String> {
 
 #[tauri::command]
 pub async fn delete_tag(id: String) -> Result<bool, String> {
-    tag_facades::delete_tag(&id).await
+    let tag_id = match TagId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    tag_facades::delete_tag(&tag_id).await
 }
 
 #[tauri::command]

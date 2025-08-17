@@ -1,20 +1,20 @@
 use async_trait::async_trait;
 use crate::errors::RepositoryError;
-use crate::models::subtask::Subtask;
+use crate::models::subtask::SubTask;
 use crate::repositories::cloud_automerge::CloudAutomergeRepository;
 use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
 
 #[async_trait]
 impl SubTaskRepositoryTrait for CloudAutomergeRepository {
-    async fn set_subtask(&self, _project_id: &str, _task_id: &str, _subtask: &Subtask) -> Result<(), RepositoryError> {
+    async fn set_subtask(&self, _project_id: &str, _task_id: &str, _subtask: &SubTask) -> Result<(), RepositoryError> {
         todo!("クラウドAutomergeでのサブタスク保存実装")
     }
 
-    async fn get_subtask(&self, _project_id: &str, _task_id: &str, _subtask_id: &str) -> Result<Option<Subtask>, RepositoryError> {
+    async fn get_subtask(&self, _project_id: &str, _task_id: &str, _subtask_id: &str) -> Result<Option<SubTask>, RepositoryError> {
         todo!("クラウドAutomergeでのサブタスク取得実装")
     }
 
-    async fn list_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<Subtask>, RepositoryError> {
+    async fn list_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<SubTask>, RepositoryError> {
         todo!("クラウドAutomergeでのサブタスク一覧実装")
     }
 
@@ -22,15 +22,15 @@ impl SubTaskRepositoryTrait for CloudAutomergeRepository {
         todo!("クラウドAutomergeでのサブタスク削除実装")
     }
 
-    async fn find_completed_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<Subtask>, RepositoryError> {
+    async fn find_completed_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<SubTask>, RepositoryError> {
         todo!("クラウドAutomergeでの完了サブタスク検索実装")
     }
 
-    async fn find_incomplete_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<Subtask>, RepositoryError> {
+    async fn find_incomplete_subtasks(&self, _project_id: &str, _task_id: &str) -> Result<Vec<SubTask>, RepositoryError> {
         todo!("クラウドAutomergeでの未完了サブタスク検索実装")
     }
 
-    async fn find_subtasks_by_project(&self, _project_id: &str) -> Result<Vec<Subtask>, RepositoryError> {
+    async fn find_subtasks_by_project(&self, _project_id: &str) -> Result<Vec<SubTask>, RepositoryError> {
         todo!("クラウドAutomergeでのプロジェクト別サブタスク検索実装")
     }
 

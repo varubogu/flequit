@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use crate::models::command::ModelConverter;
-use crate::models::subtask::Subtask;
+use crate::models::subtask::SubTask;
 use crate::types::task_types::TaskStatus;
 use crate::models::datetime_calendar::RecurrenceRule;
 
@@ -25,9 +25,9 @@ pub struct SubtaskCommand {
     pub updated_at: String,
 }
 
-impl ModelConverter<Subtask> for SubtaskCommand {
+impl ModelConverter<SubTask> for SubtaskCommand {
     /// コマンド引数用（SubtaskCommand）から内部モデル（Subtask）に変換
-    async fn to_model(&self) -> Result<crate::models::subtask::Subtask, String> {
+    async fn to_model(&self) -> Result<crate::models::subtask::SubTask, String> {
         use chrono::{DateTime, Utc};
 
         let created_at = self.created_at.parse::<DateTime<Utc>>()
@@ -50,8 +50,8 @@ impl ModelConverter<Subtask> for SubtaskCommand {
         };
 
         use crate::types::id_types::{SubTaskId, TaskId, UserId, TagId};
-        
-        Ok(crate::models::subtask::Subtask {
+
+        Ok(crate::models::subtask::SubTask {
             id: SubTaskId::from(self.id.clone()),
             task_id: TaskId::from(self.task_id.clone()),
             title: self.title.clone(),

@@ -1,11 +1,12 @@
 //! SQLiteベースのローカルリポジトリ
-//! 
+//!
 //! SQLiteデータベースを使用したローカルストレージの実装
 //! 高速なクエリとリレーショナルなデータアクセスを提供
 
 use sea_orm::{Database, DatabaseConnection, ConnectOptions};
 use std::path::Path;
 use tokio::sync::OnceCell;
+use crate::errors::repository_error::RepositoryError;
 
 pub mod settings_repository;
 pub mod account_repository;
@@ -19,11 +20,21 @@ pub mod migration;
 pub mod schema_migration;
 pub mod hybrid_migration;
 pub mod migration_cli;
+pub mod local_sqlite_repositories;
 
 /// SQLiteデータベース接続の管理
 pub struct DatabaseManager {
     connection: OnceCell<DatabaseConnection>,
     database_path: String,
+}
+
+impl Clone for DatabaseManager {
+    fn clone(&self) -> Self {
+        Self {
+            connection: OnceCell::new(),
+            database_path: self.database_path.clone(),
+        }
+    }
 }
 
 impl DatabaseManager {
@@ -36,12 +47,12 @@ impl DatabaseManager {
     }
 
     /// データベース接続を取得（初回接続時は自動的に初期化）
-    pub async fn get_connection(&self) -> Result<&DatabaseConnection, sea_orm::DbErr> {
+    pub async fn get_connection(&self) -> Result<&DatabaseConnection, RepositoryError> {
         self.connection.get_or_try_init(|| async {
             // SQLiteデータベースファイルのディレクトリを作成
             if let Some(parent) = Path::new(&self.database_path).parent() {
                 tokio::fs::create_dir_all(parent).await.map_err(|e| {
-                    sea_orm::DbErr::Custom(format!("Failed to create database directory: {}", e))
+                    RepositoryError::DatabaseError(format!("Failed to create database directory: {}", e))
                 })?;
             }
 
@@ -56,17 +67,17 @@ impl DatabaseManager {
                 .sqlx_logging(false);
 
             // データベースに接続
-            let db = Database::connect(opt).await?;
-            
+            let db = Database::connect(opt).await.map_err(RepositoryError::from)?;
+
             // ハイブリッドマイグレーション実行
             let migrator = hybrid_migration::HybridMigrator::new(db.clone());
-            
+
             // マイグレーション状態をチェック
             let needs_migration = !migrator.check_migration_status().await
                 .unwrap_or(false);
-            
+
             if needs_migration {
-                migrator.run_migration().await?;
+                migrator.run_migration().await.map_err(RepositoryError::from)?;
             } else {
                 println!("ℹ️  マイグレーションは最新です");
             }
@@ -76,9 +87,10 @@ impl DatabaseManager {
     }
 
     /// デフォルトパスでデータベースマネージャーを作成
-    pub async fn with_default_path() -> Result<Self, sea_orm::DbErr> {
+    pub async fn with_default_path() -> Result<Self, RepositoryError> {
         // デフォルトのデータベースパスを取得
-        let default_path = get_default_database_path().unwrap_or_else(|| "./data/flequit.sqlite".to_string());
+        let default_path = get_default_database_path()
+            .ok_or_else(|| RepositoryError::ConfigurationError("Failed to get default database path".to_string()))?;
         Ok(Self::new(default_path))
     }
 
@@ -90,56 +102,22 @@ impl DatabaseManager {
     }
 }
 
-/// リポジトリの共通エラー型
-#[derive(Debug, thiserror::Error)]
-pub enum RepositoryError {
-    #[error("Database error: {0}")]
-    Database(#[from] sea_orm::DbErr),
-    
-    #[error("Model conversion error: {0}")]
-    Conversion(String),
-    
-    #[error("Entity not found: {0}")]
-    NotFound(String),
-    
-    #[error("Constraint violation: {0}")]
-    ConstraintViolation(String),
-}
 
 /// デフォルトデータベースパスを取得
 fn get_default_database_path() -> Option<String> {
     use std::env;
-    
+
     // 環境変数からデータベースパスを取得
     if let Ok(db_path) = env::var("FLEQUIT_DB_PATH") {
         return Some(db_path);
     }
-    
+
     // ユーザーディレクトリ内のアプリデータディレクトリを使用
     if let Some(home_dir) = dirs::data_dir() {
         let app_data_dir = home_dir.join("flequit");
         let db_path = app_data_dir.join("database.sqlite");
         return Some(db_path.to_string_lossy().to_string());
     }
-    
-    None
-}
 
-/// 共通リポジトリトレイト
-#[async_trait::async_trait]
-pub trait Repository<T> {
-    /// エンティティを保存
-    async fn save(&self, entity: &T) -> Result<T, RepositoryError>;
-    
-    /// IDでエンティティを検索
-    async fn find_by_id(&self, id: &str) -> Result<Option<T>, RepositoryError>;
-    
-    /// エンティティを更新
-    async fn update(&self, entity: &T) -> Result<T, RepositoryError>;
-    
-    /// IDでエンティティを削除
-    async fn delete_by_id(&self, id: &str) -> Result<bool, RepositoryError>;
-    
-    /// 全エンティティを取得
-    async fn find_all(&self) -> Result<Vec<T>, RepositoryError>;
+    None
 }

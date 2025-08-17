@@ -1,10 +1,13 @@
 //! Project用SQLiteリポジトリ
 
+use log::info;
 use sea_orm::{EntityTrait, QueryFilter, QueryOrder, ColumnTrait, ActiveModelTrait};
 use crate::models::project::Project;
 use crate::models::sqlite::project::{Entity as ProjectEntity, ActiveModel as ProjectActiveModel, Column};
 use crate::models::sqlite::{SqliteModelConverter, DomainToSqliteConverter};
-use super::{DatabaseManager, RepositoryError, Repository};
+use crate::repositories::base_repository_trait::Repository;
+use crate::types::id_types::ProjectId;
+use super::{DatabaseManager, RepositoryError};
 
 pub struct ProjectRepository {
     db_manager: DatabaseManager,
@@ -53,7 +56,7 @@ impl ProjectRepository {
 }
 
 #[async_trait::async_trait]
-impl Repository<Project> for ProjectRepository {
+impl Repository<Project, ProjectId> for ProjectRepository {
     async fn save(&self, project: &Project) -> Result<Project, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
         let active_model = project.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
@@ -72,36 +75,6 @@ impl Repository<Project> for ProjectRepository {
         }
     }
 
-    async fn update(&self, project: &Project) -> Result<Project, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
-
-        let existing = ProjectEntity::find_by_id(&project.id.to_string())
-            .one(db)
-            .await?
-            .ok_or_else(|| RepositoryError::NotFound(format!("Project not found: {}", project.id)))?;
-
-        let mut active_model: ProjectActiveModel = existing.into();
-        let new_active = project.to_sqlite_model().await.map_err(RepositoryError::Conversion)?;
-
-        active_model.name = new_active.name;
-        active_model.description = new_active.description;
-        active_model.color = new_active.color;
-        active_model.order_index = new_active.order_index;
-        active_model.is_archived = new_active.is_archived;
-        active_model.status = new_active.status;
-        active_model.owner_id = new_active.owner_id;
-        active_model.updated_at = new_active.updated_at;
-
-        let updated = active_model.update(db).await?;
-        updated.to_domain_model().await.map_err(RepositoryError::Conversion)
-    }
-
-    async fn delete_by_id(&self, id: &str) -> Result<bool, RepositoryError> {
-        let db = self.db_manager.get_connection().await?;
-        let result = ProjectEntity::delete_by_id(id).exec(db).await?;
-        Ok(result.rows_affected > 0)
-    }
-
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         let db = self.db_manager.get_connection().await?;
 
@@ -118,6 +91,38 @@ impl Repository<Project> for ProjectRepository {
 
         Ok(projects)
     }
-}
+        async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
+        info!("ProjectUnifiedRepository::save");
+        info!("{:?}", entity);
 
-// ProjectRepositoryTrait実装は project_repository_impl.rs に移行しました
+        Ok(())
+    }
+
+    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+        info!("ProjectUnifiedRepository::find_by_id");
+        info!("{:?}", id);
+        Ok(Option::from(None))
+    }
+
+    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
+        info!("ProjectUnifiedRepository::find_all");
+        Ok(vec![])
+    }
+
+    async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
+        info!("ProjectUnifiedRepository::delete");
+        info!("{:?}", id);
+        Ok(())
+    }
+
+    async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
+        info!("ProjectUnifiedRepository::exists");
+        info!("{:?}", id);
+        Ok(true)
+    }
+
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        info!("ProjectUnifiedRepository::count");
+        Ok(0)
+    }
+}

@@ -2,17 +2,19 @@ use crate::facades::project_facades;
 use crate::models::command::project::{ProjectCommand, ProjectSearchRequest};
 use crate::models::command::ModelConverter;
 use crate::models::CommandModelConverter;
+use crate::types::id_types::ProjectId;
 
 #[tauri::command]
 pub async fn create_project(project: ProjectCommand) -> Result<bool, String> {
     let internal_project = project.to_model().await?;
-    
+
     Ok(project_facades::create_project(&internal_project).await?)
 }
 
 #[tauri::command]
 pub async fn get_project(id: String) -> Result<Option<ProjectCommand>, String> {
-    let result = project_facades::get_project(&id).await?;
+    let project_id = ProjectId::from(id);
+    let result = project_facades::get_project(&project_id).await?;
     match result {
         Some(project) => Ok(Some(project.to_command_model().await?)),
         None => Ok(None),
@@ -27,7 +29,8 @@ pub async fn update_project(project: ProjectCommand) -> Result<bool, String> {
 
 #[tauri::command]
 pub async fn delete_project(id: String) -> Result<bool, String> {
-    project_facades::delete_project(&id).await
+    let project_id = ProjectId::from(id);
+    project_facades::delete_project(&project_id).await
 }
 
 #[tauri::command]
