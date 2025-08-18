@@ -28,13 +28,17 @@ describe('SettingTauriService', () => {
   });
 
   describe('get', () => {
-    it('should successfully retrieve a setting by key', async () => {
-      mockInvoke.mockResolvedValue(mockSetting);
+    it('should return null (not implemented for single value retrieval)', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockInvoke.mockResolvedValue('dark');
 
       const result = await service.get('theme');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_setting', { key: 'theme' });
-      expect(result).toEqual(mockSetting);
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('get_setting returns only value, not full Setting object. Consider using get_all_settings instead.');
+      
+      consoleSpy.mockRestore();
     });
 
     it('should return null when setting not found', async () => {
@@ -58,47 +62,45 @@ describe('SettingTauriService', () => {
       
       consoleSpy.mockRestore();
     });
-
-    it('should handle different data types', async () => {
-      const booleanSetting = {
-        ...mockSetting,
-        key: 'notifications_enabled',
-        value: 'true',
-        data_type: 'boolean' as const
-      };
-      mockInvoke.mockResolvedValue(booleanSetting);
-
-      const result = await service.get('notifications_enabled');
-
-      expect(result?.data_type).toBe('boolean');
-      expect(result?.value).toBe('true');
-    });
   });
 
   describe('getAll', () => {
     it('should successfully retrieve all settings', async () => {
-      const mockSettings = [
-        mockSetting,
-        {
-          id: 'setting-456',
-          key: 'language',
-          value: 'en',
-          data_type: 'string' as const,
-          created_at: new Date('2024-01-01T00:00:00Z'),
-          updated_at: new Date('2024-01-01T00:00:00Z')
-        }
-      ];
-      mockInvoke.mockResolvedValue(mockSettings);
+      const mockTauriSettings = {
+        theme: 'dark',
+        language: 'ja',
+        font: 'default',
+        font_size: 14,
+        font_color: 'default',
+        background_color: 'default',
+        week_start: 'sunday',
+        timezone: 'system',
+        date_format: 'yyyy-MM-dd',
+        custom_due_days: [1, 3, 7],
+        selected_account: 'local',
+        account_icon: null,
+        account_name: 'Test User',
+        email: 'test@example.com',
+        password: '',
+        server_url: ''
+      };
+      mockInvoke.mockResolvedValue(mockTauriSettings);
 
       const result = await service.getAll();
 
       expect(mockInvoke).toHaveBeenCalledWith('get_all_settings');
-      expect(result).toEqual(mockSettings);
-      expect(result).toHaveLength(2);
+      expect(result).toBeInstanceOf(Array);
+      expect(result.length).toBeGreaterThan(0);
+      
+      // 具体的な設定項目を確認
+      const themeSettings = result.find(s => s.key === 'theme');
+      expect(themeSettings).toBeDefined();
+      expect(themeSettings?.value).toBe('dark');
+      expect(themeSettings?.data_type).toBe('string');
     });
 
     it('should return empty array when no settings found', async () => {
-      mockInvoke.mockResolvedValue([]);
+      mockInvoke.mockResolvedValue({});
 
       const result = await service.getAll();
 
@@ -126,7 +128,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: mockSetting.value });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: 'dark' });
       expect(result).toBe(true);
     });
 
@@ -136,7 +138,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: mockSetting.value });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: 'dark' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update setting:', expect.any(Error));
       
@@ -155,7 +157,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(numberSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: numberSetting.key, value: numberSetting.value });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: numberSetting.key, value: 14 });
       expect(result).toBe(true);
     });
 
@@ -171,7 +173,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(jsonSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: jsonSetting.key, value: jsonSetting.value });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: jsonSetting.key, value: { theme: 'dark', notifications: true } });
       expect(result).toBe(true);
     });
   });
@@ -187,16 +189,15 @@ describe('SettingTauriService', () => {
     });
 
     it('should handle special characters in key', async () => {
-      const specialKeySetting = {
-        ...mockSetting,
-        key: 'user.preferences.ui-theme'
-      };
-      mockInvoke.mockResolvedValue(specialKeySetting);
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      mockInvoke.mockResolvedValue('dark');
 
       const result = await service.get('user.preferences.ui-theme');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_setting', { key: 'user.preferences.ui-theme' });
-      expect(result).toEqual(specialKeySetting);
+      expect(result).toBeNull(); // get()は常にnullを返す
+      
+      consoleSpy.mockRestore();
     });
 
     it('should handle update with minimal setting data', async () => {

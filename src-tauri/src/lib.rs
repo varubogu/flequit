@@ -41,6 +41,25 @@ pub fn run() {
             setting_commands::get_setting,
             setting_commands::get_all_settings,
             setting_commands::update_setting,
+            setting_commands::set_setting,
+            // Custom Date Format commands
+            setting_commands::get_custom_date_format_setting,
+            setting_commands::get_all_custom_date_format_settings,
+            setting_commands::add_custom_date_format_setting,
+            setting_commands::update_custom_date_format_setting,
+            setting_commands::delete_custom_date_format_setting,
+            // Time Label commands
+            setting_commands::get_time_label_setting,
+            setting_commands::get_all_time_label_settings,
+            setting_commands::add_time_label_setting,
+            setting_commands::update_time_label_setting,
+            setting_commands::delete_time_label_setting,
+            // View Item commands
+            setting_commands::get_view_item_setting,
+            setting_commands::get_all_view_item_settings,
+            setting_commands::add_view_item_setting,
+            setting_commands::update_view_item_setting,
+            setting_commands::delete_view_item_setting,
             // Subtask management commands (frontend compatibility aliases)
             subtask_commands::create_sub_task,
             subtask_commands::get_sub_task,
