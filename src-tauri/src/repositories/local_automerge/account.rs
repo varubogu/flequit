@@ -150,14 +150,70 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// アカウントのバックアップを作成
-    pub fn backup_accounts(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: アカウントドキュメントファイルをバックアップパスにコピー
+    pub async fn backup_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
+        use std::fs;
+
+        // 現在のアカウントデータを取得
+        let accounts = self.list_users().await?;
+        let current_id = self.get_current_account_id().await?;
+
+        // バックアップデータを構造化
+        let backup_data = serde_json::json!({
+            "accounts": accounts,
+            "current_account_id": current_id
+        });
+
+        // バックアップファイルに保存
+        let backup_content = serde_json::to_string_pretty(&backup_data)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+        fs::write(backup_path, backup_content)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+
         Ok(())
     }
 
     /// バックアップからアカウントを復元
-    pub async fn restore_accounts(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: バックアップファイルからドキュメントを復元
+    pub async fn restore_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
+        use std::fs;
+
+        // バックアップファイルから読み込み
+        if !std::path::Path::new(backup_path).exists() {
+            return Err(RepositoryError::NotFound(format!("Backup file not found: {}", backup_path)));
+        }
+
+        let backup_content = fs::read_to_string(backup_path)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+
+        let backup_data: serde_json::Value = serde_json::from_str(&backup_content)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+        // アカウントデータを復元
+        if let Some(accounts_value) = backup_data.get("accounts") {
+            let accounts: Vec<Account> = serde_json::from_value(accounts_value.clone())
+                .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+            // 既存のアカウントデータを削除して復元
+            {
+                let mut manager = self.document_manager.lock().await;
+                manager
+                    .save_data(&DocumentType::Account, "accounts", &accounts)
+                    .await?;
+            }
+        }
+
+        // 現在のアカウントIDを復元
+        if let Some(current_id_value) = backup_data.get("current_account_id") {
+            let current_id: Option<String> = serde_json::from_value(current_id_value.clone())
+                .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+            if let Some(id) = current_id {
+                self.set_current_account_id(Some(&id)).await?;
+            } else {
+                self.set_current_account_id(None).await?;
+            }
+        }
+
         Ok(())
     }
 }

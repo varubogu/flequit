@@ -31,7 +31,12 @@ impl LocalAutomergeRepositories {
         })?;
 
         Ok(Self {
-            projects: ProjectLocalAutomergeRepository::new(),
+            projects: ProjectLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create ProjectRepository: {:?}",
+                    e
+                ))
+            })?,
             accounts: AccountLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create AccountRepository: {:?}",

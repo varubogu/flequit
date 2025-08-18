@@ -8,8 +8,7 @@ use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TagId;
 use async_trait::async_trait;
-use log::info;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -199,19 +198,23 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
     }
 
     async fn delete(&self, id: &TagId) -> Result<(), RepositoryError> {
-        info!("ProjectUnifiedRepository::delete");
-        info!("{:?}", id);
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        TagEntity::delete_by_id(id.to_string()).exec(db).await?;
         Ok(())
     }
 
     async fn exists(&self, id: &TagId) -> Result<bool, RepositoryError> {
-        info!("ProjectUnifiedRepository::exists");
-        info!("{:?}", id);
-        Ok(true)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = TagEntity::find_by_id(id.to_string()).count(db).await?;
+        Ok(count > 0)
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {
-        info!("ProjectUnifiedRepository::count");
-        Ok(0)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = TagEntity::find().count(db).await?;
+        Ok(count)
     }
 }

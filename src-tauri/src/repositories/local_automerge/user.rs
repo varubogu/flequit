@@ -123,14 +123,45 @@ impl UserLocalAutomergeRepository {
     }
 
     /// ユーザーのバックアップを作成
-    pub fn backup_users(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: ユーザードキュメントファイルをバックアップパスにコピー
+    pub async fn backup_users(&self, backup_path: &str) -> Result<(), RepositoryError> {
+        use std::fs;
+
+        // 現在のユーザーデータを取得
+        let users = self.list_users().await?;
+
+        // バックアップデータをJSONとして保存
+        let backup_content = serde_json::to_string_pretty(&users)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+        fs::write(backup_path, backup_content)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+
         Ok(())
     }
 
     /// バックアップからユーザーを復元
-    pub async fn restore_users(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: バックアップファイルからドキュメントを復元
+    pub async fn restore_users(&self, backup_path: &str) -> Result<(), RepositoryError> {
+        use std::fs;
+
+        // バックアップファイルから読み込み
+        if !std::path::Path::new(backup_path).exists() {
+            return Err(RepositoryError::NotFound(format!("Backup file not found: {}", backup_path)));
+        }
+
+        let backup_content = fs::read_to_string(backup_path)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+
+        let users: Vec<User> = serde_json::from_str(&backup_content)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+
+        // 既存のユーザーデータを削除して復元
+        {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .save_data(&DocumentType::User, "users", &users)
+                .await?;
+        }
+
         Ok(())
     }
 }

@@ -8,8 +8,7 @@ use crate::models::subtask::SubTask;
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::SubTaskId;
 use async_trait::async_trait;
-use log::info;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -130,13 +129,16 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     }
 
     async fn exists(&self, id: &SubTaskId) -> Result<bool, RepositoryError> {
-        info!("ProjectUnifiedRepository::exists");
-        info!("{:?}", id);
-        Ok(true)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = SubtaskEntity::find_by_id(id.to_string()).count(db).await?;
+        Ok(count > 0)
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {
-        info!("ProjectUnifiedRepository::count");
-        Ok(0)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = SubtaskEntity::find().count(db).await?;
+        Ok(count)
     }
 }

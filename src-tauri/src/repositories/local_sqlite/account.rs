@@ -12,7 +12,6 @@ use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::AccountId;
-use log::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
 };
@@ -252,13 +251,16 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         Ok(accounts)
     }
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
-        info!("ProjectUnifiedRepository::exists");
-        info!("{:?}", id);
-        Ok(true)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = AccountEntity::find_by_id(id.to_string()).count(db).await?;
+        Ok(count > 0)
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {
-        info!("ProjectUnifiedRepository::count");
-        Ok(0)
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let count = AccountEntity::find().count(db).await?;
+        Ok(count)
     }
 }
