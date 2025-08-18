@@ -138,7 +138,7 @@ export class DateFormatEditorLogic {
     return { isDuplicate: false };
   }
 
-  saveFormat() {
+  async saveFormat() {
     if (this.testFormatName.trim() && this.testFormat.trim()) {
       const trimmedName = this.testFormatName.trim();
       const trimmedFormat = this.testFormat.trim();
@@ -158,7 +158,7 @@ export class DateFormatEditorLogic {
       }
       try {
         if (this.editMode === 'edit' && this.editingFormatId) {
-          dateTimeFormatStore.updateCustomFormat(this.editingFormatId, {
+          await dateTimeFormatStore.updateCustomFormat(this.editingFormatId, {
             name: trimmedName,
             format: trimmedFormat
           });
@@ -166,7 +166,7 @@ export class DateFormatEditorLogic {
           this.editingFormatId = null;
           toast.success('フォーマットを更新しました');
         } else {
-          const newId = dateTimeFormatStore.addCustomFormat(trimmedName, trimmedFormat);
+          const newId = await dateTimeFormatStore.addCustomFormat(trimmedName, trimmedFormat);
           toast.success('新しいフォーマットを保存しました');
           this.editMode = 'manual';
           // Select the newly added format
@@ -217,11 +217,11 @@ export class DateFormatEditorLogic {
     }
   }
 
-  deleteCustomFormat() {
+  async deleteCustomFormat() {
     const preset = this.selectedPreset();
     if (preset?.group === 'カスタムフォーマット') {
       try {
-        dateTimeFormatStore.removeCustomFormat(preset.id as string);
+        await dateTimeFormatStore.removeCustomFormat(preset.id as string);
         this.testFormat = '';
         this.testFormatName = '';
         toast.success('フォーマットを削除しました');
