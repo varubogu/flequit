@@ -25,7 +25,7 @@ export class SettingTauriService implements SettingService {
 
   async update(setting: Setting): Promise<boolean> {
     try {
-      await invoke('update_setting', { setting });
+      await invoke('update_setting', { key: setting.key, value: setting.value });
       return true;
     } catch (error) {
       console.error('Failed to update setting:', error);

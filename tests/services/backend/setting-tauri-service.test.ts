@@ -126,7 +126,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { setting: mockSetting });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: mockSetting.value });
       expect(result).toBe(true);
     });
 
@@ -136,7 +136,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { setting: mockSetting });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: mockSetting.value });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update setting:', expect.any(Error));
       
@@ -155,7 +155,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(numberSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { setting: numberSetting });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: numberSetting.key, value: numberSetting.value });
       expect(result).toBe(true);
     });
 
@@ -171,7 +171,7 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(jsonSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { setting: jsonSetting });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: jsonSetting.key, value: jsonSetting.value });
       expect(result).toBe(true);
     });
   });

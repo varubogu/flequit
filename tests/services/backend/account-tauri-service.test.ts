@@ -117,7 +117,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.delete('account-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { account_id: 'account-123' });
       expect(result).toBe(true);
     });
 
@@ -127,7 +127,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.delete('account-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { account_id: 'account-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete account:', expect.any(Error));
       
