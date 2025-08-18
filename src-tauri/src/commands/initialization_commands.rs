@@ -1,24 +1,46 @@
 use crate::facades::initialization_facades;
-use crate::models::account::Account;
-use crate::models::project::ProjectTree;
 use crate::models::setting::LocalSettings;
+use crate::models::command::account::AccountCommand;
+use crate::models::command::project::ProjectCommand;
+use crate::models::CommandModelConverter;
+
+#[tauri::command]
+pub async fn load_all_data() -> Result<Option<LocalSettings>, String> {
+    let initialized = initialization_facades::load_all_data().await?;
+    Ok(initialized)
+}
 
 #[tauri::command]
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
-    initialization_facades::load_local_settings().await
+    let settings = initialization_facades::load_local_settings().await?;
+    Ok(settings)
 }
 
 #[tauri::command]
-pub async fn load_current_account() -> Result<Option<Account>, String> {
-    initialization_facades::load_current_account().await
+pub async fn load_current_account() -> Result<Option<AccountCommand>, String> {
+    let account = initialization_facades::load_current_account().await?;
+    match account {
+        Some(acc) => Ok(Some(acc.to_command_model().await?)),
+        None => Ok(None),
+    }
 }
 
 #[tauri::command]
-pub async fn load_all_project_data() -> Result<Vec<ProjectTree>, String> {
-    initialization_facades::load_all_project_data().await
+pub async fn load_all_project_data() -> Result<Vec<ProjectCommand>, String> {
+    let projects = initialization_facades::load_all_project_data().await?;
+    let mut command_results = Vec::new();
+    for project in projects {
+        command_results.push(project.to_command_model().await?);
+    }
+    Ok(command_results)
 }
 
 #[tauri::command]
-pub async fn load_all_account() -> Result<Vec<Account>, String> {
-    initialization_facades::load_all_account().await
+pub async fn load_all_account() -> Result<Vec<AccountCommand>, String> {
+    let accounts = initialization_facades::load_all_account().await?;
+    let mut command_results = Vec::new();
+    for account in accounts {
+        command_results.push(account.to_command_model().await?);
+    }
+    Ok(command_results)
 }

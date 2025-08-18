@@ -12,7 +12,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::models::{
-    command::setting::{LocalSettingsCommand, SettingCommand, SettingsCommand},
+    command::setting::{LocalSettingsCommand, SettingCommand},
     CommandModelConverter,
 };
 
@@ -131,7 +131,7 @@ pub struct TimeLabel {
 }
 
 /// 期日ボタン表示設定構造体
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DueDateButtons {
     /// 期限切れ
     pub overdue: bool,
@@ -157,7 +157,7 @@ pub struct DueDateButtons {
 ///
 /// アプリケーションの全設定項目を単一の構造体で管理します。
 /// フロントエンドのSettings型に対応しています。
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Settings {
     // テーマ・外観設定
     /// UIテーマ（"system", "light", "dark"）
@@ -256,29 +256,3 @@ impl CommandModelConverter<SettingCommand> for Setting {
     }
 }
 
-impl CommandModelConverter<SettingsCommand> for Settings {
-    async fn to_command_model(&self) -> Result<SettingsCommand, String> {
-        Ok(SettingsCommand {
-            theme: self.theme.clone(),
-            language: self.language.clone(),
-            font: self.font.clone(),
-            font_size: self.font_size,
-            font_color: self.font_color.clone(),
-            background_color: self.background_color.clone(),
-            week_start: self.week_start.clone(),
-            timezone: self.timezone.clone(),
-            date_format: self.date_format.clone(),
-            custom_due_days: self.custom_due_days.clone(),
-            custom_date_formats: self.custom_date_formats.clone(),
-            time_labels: self.time_labels.clone(),
-            due_date_buttons: self.due_date_buttons.clone(),
-            view_items: self.view_items.clone(),
-            selected_account: self.selected_account.clone(),
-            account_icon: self.account_icon.clone(),
-            account_name: self.account_name.clone(),
-            email: self.email.clone(),
-            password: self.password.clone(),
-            server_url: self.server_url.clone(),
-        })
-    }
-}

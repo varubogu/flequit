@@ -2,167 +2,225 @@
 
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
-use crate::models::sqlite::settings::{Entity as SettingsEntity, Column};
-use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::repositories::settings_repository_trait::{SettingsRepository, SettingsValidator, SettingsValidationError};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
+use crate::models::sqlite::settings_key_value::{
+    ActiveModel as SettingKeyValueActiveModel, Column as SettingKeyValueColumn,
+    Entity as SettingKeyValueEntity,
+};
+use crate::models::sqlite::{
+    custom_date_format::{
+        ActiveModel as CustomDateFormatActiveModel, Entity as CustomDateFormatEntity,
+    },
+    time_label::{ActiveModel as TimeLabelActiveModel, Entity as TimeLabelEntity},
+    view_item::{ActiveModel as ViewItemActiveModel, Entity as ViewItemEntity},
+    DomainToSqliteConverter, SqliteModelConverter,
+};
+use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, EntityTrait, QueryOrder};
+use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// Settings用SQLiteリポジトリ
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SettingsLocalSqliteRepository {
     db_manager: Arc<RwLock<DatabaseManager>>,
 }
 
 impl SettingsLocalSqliteRepository {
-    /// 新しいインスタンスを作成
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
-    }
-
-    /// 設定データの部分更新を内部的に処理
-    async fn update_partial<F>(&self, updater: F) -> Result<(), RepositoryError>
-    where
-        F: FnOnce(&mut Settings),
-    {
-        let mut current_settings = self.load().await?;
-        updater(&mut current_settings);
-        self.save_with_validation(&current_settings).await
     }
 }
 
 #[async_trait]
-impl SettingsRepository for SettingsLocalSqliteRepository {
-    async fn load(&self) -> Result<Settings, RepositoryError> {
+impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
+    // ---------------------------
+    // Key-Value設定
+    // ---------------------------
+
+    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        // 最新の設定レコードを取得（IDの降順で）
-        if let Some(model) = SettingsEntity::find()
-            .order_by_desc(Column::Id)
-            .one(db)
-            .await?
-        {
-            let settings = model
-                .to_domain_model()
-                .await
-                .map_err(RepositoryError::Conversion)?;
-            Ok(settings)
-        } else {
-            // 設定が存在しない場合はデフォルト設定を作成して保存
-            let default_settings = SettingsValidator::create_default();
-            self.save(&default_settings).await?;
-            Ok(default_settings)
-        }
+        let model = SettingKeyValueEntity::find_by_id(key).one(db).await?;
+        Ok(model.map(|m| m.value))
     }
 
-    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
+    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        let active_model = <Settings as DomainToSqliteConverter<crate::models::sqlite::settings::ActiveModel>>::to_sqlite_model(settings)
-            .await
-            .map_err(RepositoryError::Conversion)?;
-        
-        active_model.insert(db).await?;
+        let model = SettingKeyValueActiveModel {
+            key: ActiveValue::Set(key.to_string()),
+            value: ActiveValue::Set(value.to_string()),
+        };
+        // `insert` はPK違反で失敗する可能性があるため、`save` (UPSERT) を使うのが望ましいが、
+        // sea-ormのSQLiteバックエンドでは `save` が素直なUPSERTにならないケースがある。
+        // ここでは、まず存在確認してからUPDATE/INSERTする。
+        if SettingKeyValueEntity::find_by_id(key).one(db).await?.is_some() {
+            // UPDATE
+            SettingKeyValueEntity::update(model).filter(SettingKeyValueColumn::Key.eq(key)).exec(db).await?;
+        } else {
+            // INSERT
+            model.insert(db).await?;
+        }
         Ok(())
     }
 
-    async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let validation_errors = self.validate(settings);
-        if !validation_errors.is_empty() {
-            let error_messages: Vec<String> = validation_errors
-                .iter()
-                .map(|e| format!("{}: {}", e.field, e.message))
-                .collect();
-            return Err(RepositoryError::ValidationError(error_messages.join(", ")));
+    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+
+        let models = SettingKeyValueEntity::find().all(db).await?;
+        let map = models.into_iter().map(|m| (m.key, m.value)).collect();
+        Ok(map)
+    }
+
+    // ---------------------------
+    // Custom Date Formats
+    // ---------------------------
+
+    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+
+        if let Some(model) = CustomDateFormatEntity::find_by_id(id).one(db).await? {
+            Ok(Some(model.to_domain_model().await?))
+        } else {
+            Ok(None)
         }
-
-        self.save(settings).await
     }
 
-    async fn reset_to_default(&self) -> Result<Settings, RepositoryError> {
-        let default_settings = SettingsValidator::create_default();
-        self.save(&default_settings).await?;
-        Ok(default_settings)
+    async fn get_all_custom_date_formats(&self) -> Result<Vec<CustomDateFormat>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+
+        let models = CustomDateFormatEntity::find().all(db).await?;
+        let mut results = Vec::new();
+        for model in models {
+            results.push(model.to_domain_model().await?);
+        }
+        Ok(results)
     }
 
-    fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError> {
-        SettingsValidator::validate(settings)
+    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: CustomDateFormatActiveModel = format.to_sqlite_model().await?;
+        model.insert(db).await?;
+        Ok(())
     }
 
-    async fn update_theme(&self, theme: String) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.theme = theme;
-        }).await
+    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: CustomDateFormatActiveModel = format.to_sqlite_model().await?;
+        model.update(db).await?;
+        Ok(())
     }
 
-    async fn update_language(&self, language: String) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.language = language;
-        }).await
+    async fn delete_custom_date_format(&self, id: &str) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        CustomDateFormatEntity::delete_by_id(id).exec(db).await?;
+        Ok(())
     }
 
-    async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats = formats;
-        }).await
+    // ---------------------------
+    // Time Labels
+    // ---------------------------
+
+    async fn get_time_label(&self, id: &str) -> Result<Option<TimeLabel>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        if let Some(model) = TimeLabelEntity::find_by_id(id).one(db).await? {
+            Ok(Some(model.to_domain_model().await?))
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels = labels;
-        }).await
+    async fn get_all_time_labels(&self) -> Result<Vec<TimeLabel>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let models = TimeLabelEntity::find().all(db).await?;
+        let mut results = Vec::new();
+        for model in models {
+            results.push(model.to_domain_model().await?);
+        }
+        Ok(results)
     }
 
-    async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items = items;
-        }).await
+    async fn add_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: TimeLabelActiveModel = label.to_sqlite_model().await?;
+        model.insert(db).await?;
+        Ok(())
     }
 
-    async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.due_date_buttons = buttons;
-        }).await
+    async fn update_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: TimeLabelActiveModel = label.to_sqlite_model().await?;
+        model.update(db).await?;
+        Ok(())
     }
 
-    async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats.push(format);
-        }).await
+    async fn delete_time_label(&self, id: &str) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        TimeLabelEntity::delete_by_id(id).exec(db).await?;
+        Ok(())
     }
 
-    async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats.retain(|f| f.id != format_id);
-        }).await
+    // ---------------------------
+    // View Items
+    // ---------------------------
+
+    async fn get_view_item(&self, id: &str) -> Result<Option<ViewItem>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        if let Some(model) = ViewItemEntity::find_by_id(id).one(db).await? {
+            Ok(Some(model.to_domain_model().await?))
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels.push(label);
-        }).await
+    async fn get_all_view_items(&self) -> Result<Vec<ViewItem>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let models = ViewItemEntity::find().all(db).await?;
+        let mut results = Vec::new();
+        for model in models {
+            results.push(model.to_domain_model().await?);
+        }
+        Ok(results)
     }
 
-    async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels.retain(|l| l.id != label_id);
-        }).await
+    async fn add_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: ViewItemActiveModel = item.to_sqlite_model().await?;
+        model.insert(db).await?;
+        Ok(())
     }
 
-    async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items.push(item);
-        }).await
+    async fn update_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let model: ViewItemActiveModel = item.to_sqlite_model().await?;
+        model.update(db).await?;
+        Ok(())
     }
 
-    async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items.retain(|i| i.id != item_id);
-        }).await
+    async fn delete_view_item(&self, id: &str) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        ViewItemEntity::delete_by_id(id).exec(db).await?;
+        Ok(())
     }
 }

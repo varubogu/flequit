@@ -4,6 +4,7 @@ use crate::models::command::ModelConverter;
 use crate::models::setting::{
     CustomDateFormat, DueDateButtons, LocalSettings, Setting, Settings, TimeLabel, ViewItem,
 };
+use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のLocalSettings構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,6 +84,123 @@ impl ModelConverter<Settings> for SettingsCommand {
     /// コマンド引数用（SettingsCommand）から内部モデル（Settings）に変換
     async fn to_model(&self) -> Result<Settings, String> {
         Ok(crate::models::setting::Settings {
+            theme: self.theme.clone(),
+            language: self.language.clone(),
+            font: self.font.clone(),
+            font_size: self.font_size,
+            font_color: self.font_color.clone(),
+            background_color: self.background_color.clone(),
+            week_start: self.week_start.clone(),
+            timezone: self.timezone.clone(),
+            date_format: self.date_format.clone(),
+            custom_due_days: self.custom_due_days.clone(),
+            custom_date_formats: self.custom_date_formats.clone(),
+            time_labels: self.time_labels.clone(),
+            due_date_buttons: self.due_date_buttons.clone(),
+            view_items: self.view_items.clone(),
+            selected_account: self.selected_account.clone(),
+            account_icon: self.account_icon.clone(),
+            account_name: self.account_name.clone(),
+            email: self.email.clone(),
+            password: self.password.clone(),
+            server_url: self.server_url.clone(),
+        })
+    }
+}
+
+/// Tauriコマンド引数用のCustomDateFormat構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CustomDateFormatCommand {
+    pub id: String,
+    pub name: String,
+    pub format: String,
+}
+
+impl ModelConverter<CustomDateFormat> for CustomDateFormatCommand {
+    async fn to_model(&self) -> Result<CustomDateFormat, String> {
+        Ok(CustomDateFormat {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            format: self.format.clone(),
+        })
+    }
+}
+
+impl CommandModelConverter<CustomDateFormatCommand> for CustomDateFormat {
+    async fn to_command_model(&self) -> Result<CustomDateFormatCommand, String> {
+        Ok(CustomDateFormatCommand {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            format: self.format.clone(),
+        })
+    }
+}
+
+/// Tauriコマンド引数用のTimeLabel構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TimeLabelCommand {
+    pub id: String,
+    pub name: String,
+    pub time: String,
+}
+
+impl ModelConverter<TimeLabel> for TimeLabelCommand {
+    async fn to_model(&self) -> Result<TimeLabel, String> {
+        Ok(TimeLabel {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            time: self.time.clone(),
+        })
+    }
+}
+
+impl CommandModelConverter<TimeLabelCommand> for TimeLabel {
+    async fn to_command_model(&self) -> Result<TimeLabelCommand, String> {
+        Ok(TimeLabelCommand {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            time: self.time.clone(),
+        })
+    }
+}
+
+/// Tauriコマンド引数用のViewItem構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ViewItemCommand {
+    pub id: String,
+    pub label: String,
+    pub icon: String,
+    pub visible: bool,
+    pub order: i32,
+}
+
+impl ModelConverter<ViewItem> for ViewItemCommand {
+    async fn to_model(&self) -> Result<ViewItem, String> {
+        Ok(ViewItem {
+            id: self.id.clone(),
+            label: self.label.clone(),
+            icon: self.icon.clone(),
+            visible: self.visible,
+            order: self.order,
+        })
+    }
+}
+
+impl CommandModelConverter<ViewItemCommand> for ViewItem {
+    async fn to_command_model(&self) -> Result<ViewItemCommand, String> {
+        Ok(ViewItemCommand {
+            id: self.id.clone(),
+            label: self.label.clone(),
+            icon: self.icon.clone(),
+            visible: self.visible,
+            order: self.order,
+        })
+    }
+}
+
+impl CommandModelConverter<SettingsCommand> for Settings {
+    async fn to_command_model(&self) -> Result<SettingsCommand, String> {
+        Ok(SettingsCommand {
             theme: self.theme.clone(),
             language: self.language.clone(),
             font: self.font.clone(),

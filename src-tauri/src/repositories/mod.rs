@@ -46,11 +46,7 @@ impl Repositories {
             tags: TagUnifiedRepository::new(vec![], vec![]),
             accounts: AccountUnifiedRepository::new(vec![], vec![]),
             users: UserUnifiedRepository::new(vec![], vec![]),
-            settings: SettingsUnifiedRepository::new(vec![], crate::repositories::unified::settings::SettingsRepositoryVariant::Sqlite(
-                crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository::new(
-                    crate::repositories::local_sqlite::database_manager::DatabaseManager::instance().await.unwrap()
-                )
-            )),
+            settings: SettingsUnifiedRepository::new(vec![], vec![]),
         })
     }
 }

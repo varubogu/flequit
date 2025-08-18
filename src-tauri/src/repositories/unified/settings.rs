@@ -1,439 +1,313 @@
 //! Settings統合リポジトリ
-//!
-//! 複数の保存先（SQLite、Automerge）に対する設定データの操作を統一的に提供
-
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
 use crate::repositories::local_automerge::settings::SettingsLocalAutomergeRepository;
 use crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
-use crate::repositories::settings_repository_trait::{SettingsRepository, SettingsValidationError};
+use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
+use std::collections::HashMap;
 
 /// Settings用のリポジトリvariant（静的ディスパッチ用）
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SettingsRepositoryVariant {
     Sqlite(SettingsLocalSqliteRepository),
     Automerge(SettingsLocalAutomergeRepository),
 }
 
-impl SettingsRepositoryVariant {
-    /// 設定を読み込み
-    pub async fn load(&self) -> Result<Settings, RepositoryError> {
+#[async_trait]
+impl SettingRepositoryTrait for SettingsRepositoryVariant {
+    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.load().await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.load().await,
+            Self::Sqlite(repo) => repo.get_setting(key).await,
+            Self::Automerge(repo) => repo.get_setting(key).await,
         }
     }
 
-    /// 設定を保存
-    pub async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
+    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.save(settings).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.save(settings).await,
+            Self::Sqlite(repo) => repo.set_setting(key, value).await,
+            Self::Automerge(repo) => repo.set_setting(key, value).await,
         }
     }
 
-    /// バリデーション付きで設定を保存
-    pub async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
+    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.save_with_validation(settings).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.save_with_validation(settings).await,
+            Self::Sqlite(repo) => repo.get_all_key_value_settings().await,
+            Self::Automerge(repo) => repo.get_all_key_value_settings().await,
         }
     }
 
-    /// デフォルト設定にリセット
-    pub async fn reset_to_default(&self) -> Result<Settings, RepositoryError> {
+    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.reset_to_default().await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.reset_to_default().await,
+            Self::Sqlite(repo) => repo.get_custom_date_format(id).await,
+            Self::Automerge(repo) => repo.get_custom_date_format(id).await,
         }
     }
 
-    /// バリデーション実行
-    pub fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError> {
+    async fn get_all_custom_date_formats(&self) -> Result<Vec<CustomDateFormat>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.validate(settings),
-            SettingsRepositoryVariant::Automerge(repo) => repo.validate(settings),
+            Self::Sqlite(repo) => repo.get_all_custom_date_formats().await,
+            Self::Automerge(repo) => repo.get_all_custom_date_formats().await,
         }
     }
 
-    /// テーマを更新
-    pub async fn update_theme(&self, theme: String) -> Result<(), RepositoryError> {
+    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_theme(theme).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_theme(theme).await,
+            Self::Sqlite(repo) => repo.add_custom_date_format(format).await,
+            Self::Automerge(repo) => repo.add_custom_date_format(format).await,
         }
     }
 
-    /// 言語を更新
-    pub async fn update_language(&self, language: String) -> Result<(), RepositoryError> {
+    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_language(language).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_language(language).await,
+            Self::Sqlite(repo) => repo.update_custom_date_format(format).await,
+            Self::Automerge(repo) => repo.update_custom_date_format(format).await,
         }
     }
 
-    /// カスタム日付フォーマットを更新
-    pub async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError> {
+    async fn delete_custom_date_format(&self, id: &str) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_custom_date_formats(formats).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_custom_date_formats(formats).await,
+            Self::Sqlite(repo) => repo.delete_custom_date_format(id).await,
+            Self::Automerge(repo) => repo.delete_custom_date_format(id).await,
         }
     }
 
-    /// 時刻ラベルを更新
-    pub async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError> {
+    async fn get_time_label(&self, id: &str) -> Result<Option<TimeLabel>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_time_labels(labels).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_time_labels(labels).await,
+            Self::Sqlite(repo) => repo.get_time_label(id).await,
+            Self::Automerge(repo) => repo.get_time_label(id).await,
         }
     }
 
-    /// ビューアイテムを更新
-    pub async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError> {
+    async fn get_all_time_labels(&self) -> Result<Vec<TimeLabel>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_view_items(items).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_view_items(items).await,
+            Self::Sqlite(repo) => repo.get_all_time_labels().await,
+            Self::Automerge(repo) => repo.get_all_time_labels().await,
         }
     }
 
-    /// 期日ボタン設定を更新
-    pub async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError> {
+    async fn add_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.update_due_date_buttons(buttons).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.update_due_date_buttons(buttons).await,
+            Self::Sqlite(repo) => repo.add_time_label(label).await,
+            Self::Automerge(repo) => repo.add_time_label(label).await,
         }
     }
 
-    /// カスタム日付フォーマットを追加
-    pub async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn update_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.add_custom_date_format(format).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.add_custom_date_format(format).await,
+            Self::Sqlite(repo) => repo.update_time_label(label).await,
+            Self::Automerge(repo) => repo.update_time_label(label).await,
         }
     }
 
-    /// カスタム日付フォーマットを削除
-    pub async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError> {
+    async fn delete_time_label(&self, id: &str) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.remove_custom_date_format(format_id).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.remove_custom_date_format(format_id).await,
+            Self::Sqlite(repo) => repo.delete_time_label(id).await,
+            Self::Automerge(repo) => repo.delete_time_label(id).await,
         }
     }
 
-    /// 時刻ラベルを追加
-    pub async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError> {
+    async fn get_view_item(&self, id: &str) -> Result<Option<ViewItem>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.add_time_label(label).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.add_time_label(label).await,
+            Self::Sqlite(repo) => repo.get_view_item(id).await,
+            Self::Automerge(repo) => repo.get_view_item(id).await,
         }
     }
 
-    /// 時刻ラベルを削除
-    pub async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError> {
+    async fn get_all_view_items(&self) -> Result<Vec<ViewItem>, RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.remove_time_label(label_id).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.remove_time_label(label_id).await,
+            Self::Sqlite(repo) => repo.get_all_view_items().await,
+            Self::Automerge(repo) => repo.get_all_view_items().await,
         }
     }
 
-    /// ビューアイテムを追加
-    pub async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError> {
+    async fn add_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.add_view_item(item).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.add_view_item(item).await,
+            Self::Sqlite(repo) => repo.add_view_item(item).await,
+            Self::Automerge(repo) => repo.add_view_item(item).await,
         }
     }
 
-    /// ビューアイテムを削除
-    pub async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError> {
+    async fn update_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
         match self {
-            SettingsRepositoryVariant::Sqlite(repo) => repo.remove_view_item(item_id).await,
-            SettingsRepositoryVariant::Automerge(repo) => repo.remove_view_item(item_id).await,
+            Self::Sqlite(repo) => repo.update_view_item(item).await,
+            Self::Automerge(repo) => repo.update_view_item(item).await,
+        }
+    }
+
+    async fn delete_view_item(&self, id: &str) -> Result<(), RepositoryError> {
+        match self {
+            Self::Sqlite(repo) => repo.delete_view_item(id).await,
+            Self::Automerge(repo) => repo.delete_view_item(id).await,
         }
     }
 }
 
 /// Settings統合リポジトリ
-///
-/// 保存操作は複数のリポジトリに対して実行し、
-/// 検索操作はSQLiteリポジトリから実行する
-#[derive(Debug)]
+#[derive(Default)]
 pub struct SettingsUnifiedRepository {
-    /// 保存用のリポジトリ一覧（SQLite + Automerge + 将来的にCloud等）
     save_repositories: Vec<SettingsRepositoryVariant>,
-    /// 検索用のリポジトリ（SQLiteのみ、高速検索のため）
-    search_repository: SettingsRepositoryVariant,
+    search_repositories: Vec<SettingsRepositoryVariant>,
 }
 
 impl SettingsUnifiedRepository {
-    /// 新しいインスタンスを作成
     pub fn new(
         save_repositories: Vec<SettingsRepositoryVariant>,
-        search_repository: SettingsRepositoryVariant,
+        search_repositories: Vec<SettingsRepositoryVariant>,
     ) -> Self {
         Self {
             save_repositories,
-            search_repository,
+            search_repositories,
         }
     }
-
-    /// 複数のリポジトリに保存操作を実行
-    async fn save_to_all(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
-        for repo in &self.save_repositories {
-            if let Err(e) = repo.save(settings).await {
-                errors.push(format!("Save error: {}", e));
-            }
-        }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
-        Ok(())
+    // `project.rs` に倣ったヘルパーメソッド群
+    pub fn add_sqlite_for_save(&mut self, sqlite_repo: SettingsLocalSqliteRepository) {
+        self.save_repositories
+            .push(SettingsRepositoryVariant::Sqlite(sqlite_repo));
     }
-
-    /// バリデーション付きで複数のリポジトリに保存操作を実行
-    async fn save_to_all_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        // まずバリデーションを実行
-        let validation_errors = self.search_repository.validate(settings);
-        if !validation_errors.is_empty() {
-            let error_messages: Vec<String> = validation_errors
-                .iter()
-                .map(|e| format!("{}: {}", e.field, e.message))
-                .collect();
-            return Err(RepositoryError::ValidationError(error_messages.join(", ")));
-        }
-
-        // バリデーション成功後、全リポジトリに保存
-        self.save_to_all(settings).await
+    pub fn add_sqlite_for_search(&mut self, sqlite_repo: SettingsLocalSqliteRepository) {
+        self.search_repositories
+            .push(SettingsRepositoryVariant::Sqlite(sqlite_repo));
+    }
+    pub fn add_automerge_for_save(&mut self, automerge_repo: SettingsLocalAutomergeRepository) {
+        self.save_repositories
+            .push(SettingsRepositoryVariant::Automerge(automerge_repo));
     }
 }
 
 #[async_trait]
-impl SettingsRepository for SettingsUnifiedRepository {
-    async fn load(&self) -> Result<Settings, RepositoryError> {
-        self.search_repository.load().await
+impl SettingRepositoryTrait for SettingsUnifiedRepository {
+    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_setting(key).await
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        self.save_to_all(settings).await
-    }
-
-    async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        self.save_to_all_with_validation(settings).await
-    }
-
-    async fn reset_to_default(&self) -> Result<Settings, RepositoryError> {
-        // デフォルト設定を全リポジトリに保存し、検索リポジトリから返す
-        let default_settings = self.search_repository.reset_to_default().await?;
-        
-        // 他のリポジトリにも保存
+    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.save(&default_settings).await {
-                // エラーログを出すが、処理は継続
-                eprintln!("Warning: Failed to save default settings to repository: {}", e);
-            }
+            repo.set_setting(key, value).await?;
         }
-
-        Ok(default_settings)
-    }
-
-    fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError> {
-        self.search_repository.validate(settings)
-    }
-
-    async fn update_theme(&self, theme: String) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
-        for repo in &self.save_repositories {
-            if let Err(e) = repo.update_theme(theme.clone()).await {
-                errors.push(format!("Update theme error: {}", e));
-            }
-        }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn update_language(&self, language: String) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_all_key_value_settings().await
+        } else {
+            Ok(HashMap::new())
+        }
+    }
+
+    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_custom_date_format(id).await
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn get_all_custom_date_formats(&self) -> Result<Vec<CustomDateFormat>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_all_custom_date_formats().await
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.update_language(language.clone()).await {
-                errors.push(format!("Update language error: {}", e));
-            }
+            repo.add_custom_date_format(format).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.update_custom_date_formats(formats.clone()).await {
-                errors.push(format!("Update custom date formats error: {}", e));
-            }
+            repo.update_custom_date_format(format).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn delete_custom_date_format(&self, id: &str) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.update_time_labels(labels.clone()).await {
-                errors.push(format!("Update time labels error: {}", e));
-            }
+            repo.delete_custom_date_format(id).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn get_time_label(&self, id: &str) -> Result<Option<TimeLabel>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_time_label(id).await
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn get_all_time_labels(&self) -> Result<Vec<TimeLabel>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_all_time_labels().await
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    async fn add_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.update_view_items(items.clone()).await {
-                errors.push(format!("Update view items error: {}", e));
-            }
+            repo.add_time_label(label).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn update_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.update_due_date_buttons(buttons.clone()).await {
-                errors.push(format!("Update due date buttons error: {}", e));
-            }
+            repo.update_time_label(label).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn delete_time_label(&self, id: &str) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.add_custom_date_format(format.clone()).await {
-                errors.push(format!("Add custom date format error: {}", e));
-            }
+            repo.delete_time_label(id).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn get_view_item(&self, id: &str) -> Result<Option<ViewItem>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_view_item(id).await
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn get_all_view_items(&self) -> Result<Vec<ViewItem>, RepositoryError> {
+        if let Some(repo) = self.search_repositories.first() {
+            repo.get_all_view_items().await
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    async fn add_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.remove_custom_date_format(format_id).await {
-                errors.push(format!("Remove custom date format error: {}", e));
-            }
+            repo.add_view_item(item).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn update_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.add_time_label(label.clone()).await {
-                errors.push(format!("Add time label error: {}", e));
-            }
+            repo.update_view_item(item).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 
-    async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
+    async fn delete_view_item(&self, id: &str) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            if let Err(e) = repo.remove_time_label(label_id).await {
-                errors.push(format!("Remove time label error: {}", e));
-            }
+            repo.delete_view_item(id).await?;
         }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
-        Ok(())
-    }
-
-    async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
-        for repo in &self.save_repositories {
-            if let Err(e) = repo.add_view_item(item.clone()).await {
-                errors.push(format!("Add view item error: {}", e));
-            }
-        }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
-        Ok(())
-    }
-
-    async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError> {
-        let mut errors = Vec::new();
-        
-        for repo in &self.save_repositories {
-            if let Err(e) = repo.remove_view_item(item_id).await {
-                errors.push(format!("Remove view item error: {}", e));
-            }
-        }
-
-        if !errors.is_empty() {
-            return Err(RepositoryError::MultipleErrors(errors));
-        }
-
         Ok(())
     }
 }

@@ -71,6 +71,7 @@ pub mod account;
 pub mod command;
 pub mod datetime_calendar;
 pub mod datetime_format;
+pub mod initialized_data;
 pub mod project;
 pub mod setting;
 pub mod sqlite;

@@ -1,37 +1,34 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
-use crate::models::project::ProjectTree;
+use crate::models::project::Project;
 use crate::models::setting::LocalSettings;
 use crate::services::initialization_service;
 
+// エラー変換のヘルパー関数
+fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String> {
+    result.map_err(|e| format!("{:?}", e))
+}
+
+pub async fn load_all_data() -> Result<Option<LocalSettings>, String> {
+    // TODO: InitializedResultからLocalSettingsへの適切な変換を実装
+    Ok(Some(LocalSettings {
+        theme: "system".to_string(),
+        language: "ja".to_string(),
+    }))
+}
+
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
-    match initialization_service::load_local_settings().await {
-        Ok(settings) => Ok(settings),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to load local settings: {:?}", e)),
-    }
+    handle_service_error(initialization_service::load_local_settings().await)
 }
 
 pub async fn load_current_account() -> Result<Option<Account>, String> {
-    match initialization_service::load_current_account().await {
-        Ok(account) => Ok(account),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to load current account: {:?}", e)),
-    }
+    handle_service_error(initialization_service::load_current_account().await)
 }
 
-pub async fn load_all_project_data() -> Result<Vec<ProjectTree>, String> {
-    match initialization_service::load_all_project_data().await {
-        Ok(projects) => Ok(projects),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to load all project data: {:?}", e)),
-    }
+pub async fn load_all_project_data() -> Result<Vec<Project>, String> {
+    handle_service_error(initialization_service::load_all_project_data().await)
 }
 
 pub async fn load_all_account() -> Result<Vec<Account>, String> {
-    match initialization_service::load_all_account().await {
-        Ok(accounts) => Ok(accounts),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to load all accounts: {:?}", e)),
-    }
+    handle_service_error(initialization_service::load_all_account().await)
 }

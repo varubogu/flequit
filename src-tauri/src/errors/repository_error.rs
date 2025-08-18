@@ -56,3 +56,15 @@ impl From<sea_orm::DbErr> for RepositoryError {
         RepositoryError::DatabaseError(err.to_string())
     }
 }
+
+impl From<String> for RepositoryError {
+    fn from(err: String) -> Self {
+        RepositoryError::ConversionError(err)
+    }
+}
+
+impl From<serde_json::Error> for RepositoryError {
+    fn from(err: serde_json::Error) -> Self {
+        RepositoryError::SerializationError(err.to_string())
+    }
+}

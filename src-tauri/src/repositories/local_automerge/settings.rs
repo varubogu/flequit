@@ -1,230 +1,341 @@
+//! Settings用Automergeリポジトリ
+
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
-use crate::repositories::settings_repository_trait::{SettingsRepository, SettingsValidator, SettingsValidationError};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
+use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+const KEY_VALUE_SETTINGS_KEY: &str = "key_value_settings";
+const CUSTOM_DATE_FORMATS_KEY: &str = "custom_date_formats";
+const TIME_LABELS_KEY: &str = "time_labels";
+const VIEW_ITEMS_KEY: &str = "view_items";
+
 /// Settings用のAutomerge-Repoリポジトリ
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SettingsLocalAutomergeRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
 }
 
 impl SettingsLocalAutomergeRepository {
-    /// 新しいSettingsRepositoryを作成
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
             document_manager: Arc::new(Mutex::new(document_manager)),
         })
     }
-
-    /// 設定データの部分更新を内部的に処理
-    async fn update_partial<F>(&self, updater: F) -> Result<(), RepositoryError>
-    where
-        F: FnOnce(&mut Settings),
-    {
-        let mut current_settings = self.load().await?;
-        updater(&mut current_settings);
-        self.save_with_validation(&current_settings).await
-    }
-
-    /// 設定のバックアップを作成
-    pub fn backup_settings(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: ドキュメントファイルをバックアップパスにコピーする実装
-        Ok(())
-    }
-
-    /// バックアップから設定を復元
-    pub async fn restore_settings(&self, _backup_path: &str) -> Result<(), RepositoryError> {
-        // TODO: バックアップファイルからドキュメントを復元する実装
-        Ok(())
-    }
 }
 
 #[async_trait]
-impl SettingsRepository for SettingsLocalAutomergeRepository {
-    async fn load(&self) -> Result<Settings, RepositoryError> {
-        // Automergeドキュメントから設定を読み込み
-        let loaded_settings = {
+impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
+    // ---------------------------
+    // Key-Value設定
+    // ---------------------------
+
+    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+        let settings = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Settings>(&DocumentType::Settings, "settings")
+                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
                 .await?
         };
-        if let Some(settings) = loaded_settings {
-            Ok(settings)
+        
+        if let Some(settings) = settings {
+            Ok(settings.get(key).cloned())
         } else {
-            // データが存在しない場合はデフォルト値を保存して返す
-            let default_settings = SettingsValidator::create_default();
-            self.save(&default_settings).await?;
-            Ok(default_settings)
+            Ok(None)
         }
     }
 
-    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let settings_clone = settings.clone();
+    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
+        let mut settings = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        settings.insert(key.to_string(), value.to_string());
+
         let mut manager = self.document_manager.lock().await;
         manager
-            .save_data(&DocumentType::Settings, "settings", &settings_clone)
+            .save_data(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY, &settings)
             .await
     }
 
-    async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let validation_errors = self.validate(settings);
-        if !validation_errors.is_empty() {
-            let error_messages: Vec<String> = validation_errors
-                .iter()
-                .map(|e| format!("{}: {}", e.field, e.message))
-                .collect();
-            return Err(RepositoryError::ValidationError(error_messages.join(", ")));
+    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
+        let settings = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
+                .await?
+        };
+        
+        Ok(settings.unwrap_or_default())
+    }
+
+    // ---------------------------
+    // Custom Date Formats
+    // ---------------------------
+
+    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+        let formats = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .await?
+        };
+        
+        if let Some(formats) = formats {
+            Ok(formats.into_iter().find(|f| f.id == id))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn get_all_custom_date_formats(&self) -> Result<Vec<CustomDateFormat>, RepositoryError> {
+        let formats = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .await?
+        };
+        
+        Ok(formats.unwrap_or_default())
+    }
+
+    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+        let mut formats = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        formats.push(format.clone());
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY, &formats)
+            .await
+    }
+
+    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+        let mut formats = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        if let Some(existing) = formats.iter_mut().find(|f| f.id == format.id) {
+            *existing = format.clone();
+        } else {
+            return Err(RepositoryError::NotFound(format!("CustomDateFormat not found: {}", format.id)));
         }
 
-        self.save(settings).await
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY, &formats)
+            .await
     }
 
-    async fn reset_to_default(&self) -> Result<Settings, RepositoryError> {
-        let default_settings = SettingsValidator::create_default();
-        self.save(&default_settings).await?;
-        Ok(default_settings)
+    async fn delete_custom_date_format(&self, id: &str) -> Result<(), RepositoryError> {
+        let mut formats = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        let initial_len = formats.len();
+        formats.retain(|f| f.id != id);
+
+        if formats.len() == initial_len {
+            return Err(RepositoryError::NotFound(format!("CustomDateFormat not found: {}", id)));
+        }
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY, &formats)
+            .await
     }
 
-    fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError> {
-        SettingsValidator::validate(settings)
+    // ---------------------------
+    // Time Labels
+    // ---------------------------
+
+    async fn get_time_label(&self, id: &str) -> Result<Option<TimeLabel>, RepositoryError> {
+        let labels = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
+                .await?
+        };
+        
+        if let Some(labels) = labels {
+            Ok(labels.into_iter().find(|l| l.id == id))
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn update_theme(&self, theme: String) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.theme = theme;
-        }).await
+    async fn get_all_time_labels(&self) -> Result<Vec<TimeLabel>, RepositoryError> {
+        let labels = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
+                .await?
+        };
+        
+        Ok(labels.unwrap_or_default())
     }
 
-    async fn update_language(&self, language: String) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.language = language;
-        }).await
+    async fn add_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
+        let mut labels = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        labels.push(label.clone());
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, TIME_LABELS_KEY, &labels)
+            .await
     }
 
-    async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats = formats;
-        }).await
+    async fn update_time_label(&self, label: &TimeLabel) -> Result<(), RepositoryError> {
+        let mut labels = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        if let Some(existing) = labels.iter_mut().find(|l| l.id == label.id) {
+            *existing = label.clone();
+        } else {
+            return Err(RepositoryError::NotFound(format!("TimeLabel not found: {}", label.id)));
+        }
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, TIME_LABELS_KEY, &labels)
+            .await
     }
 
-    async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels = labels;
-        }).await
+    async fn delete_time_label(&self, id: &str) -> Result<(), RepositoryError> {
+        let mut labels = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        let initial_len = labels.len();
+        labels.retain(|l| l.id != id);
+
+        if labels.len() == initial_len {
+            return Err(RepositoryError::NotFound(format!("TimeLabel not found: {}", id)));
+        }
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, TIME_LABELS_KEY, &labels)
+            .await
     }
 
-    async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items = items;
-        }).await
+    // ---------------------------
+    // View Items
+    // ---------------------------
+
+    async fn get_view_item(&self, id: &str) -> Result<Option<ViewItem>, RepositoryError> {
+        let items = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
+                .await?
+        };
+        
+        if let Some(items) = items {
+            Ok(items.into_iter().find(|i| i.id == id))
+        } else {
+            Ok(None)
+        }
     }
 
-    async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.due_date_buttons = buttons;
-        }).await
+    async fn get_all_view_items(&self) -> Result<Vec<ViewItem>, RepositoryError> {
+        let items = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
+                .await?
+        };
+        
+        Ok(items.unwrap_or_default())
     }
 
-    async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats.push(format);
-        }).await
+    async fn add_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
+        let mut items = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        items.push(item.clone());
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, VIEW_ITEMS_KEY, &items)
+            .await
     }
 
-    async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.custom_date_formats.retain(|f| f.id != format_id);
-        }).await
+    async fn update_view_item(&self, item: &ViewItem) -> Result<(), RepositoryError> {
+        let mut items = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
+                .await?
+        }.unwrap_or_default();
+
+        if let Some(existing) = items.iter_mut().find(|i| i.id == item.id) {
+            *existing = item.clone();
+        } else {
+            return Err(RepositoryError::NotFound(format!("ViewItem not found: {}", item.id)));
+        }
+
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, VIEW_ITEMS_KEY, &items)
+            .await
     }
 
-    async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels.push(label);
-        }).await
-    }
+    async fn delete_view_item(&self, id: &str) -> Result<(), RepositoryError> {
+        let mut items = {
+            let mut manager = self.document_manager.lock().await;
+            manager
+                .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
+                .await?
+        }.unwrap_or_default();
 
-    async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.time_labels.retain(|l| l.id != label_id);
-        }).await
-    }
+        let initial_len = items.len();
+        items.retain(|i| i.id != id);
 
-    async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items.push(item);
-        }).await
-    }
+        if items.len() == initial_len {
+            return Err(RepositoryError::NotFound(format!("ViewItem not found: {}", id)));
+        }
 
-    async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError> {
-        self.update_partial(|settings| {
-            settings.view_items.retain(|i| i.id != item_id);
-        }).await
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use tempfile::TempDir;
-
-    #[tokio::test]
-    async fn test_settings_repository() {
-        let temp_dir = TempDir::new().unwrap();
-        let repo = SettingsLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).unwrap();
-
-        // デフォルト設定を読み込み
-        let settings = repo.load().await.unwrap();
-        assert_eq!(settings.theme, "system");
-        assert_eq!(settings.language, "ja");
-
-        // Settings構造体の完全な保存/読み込みテスト（改良後）
-        let mut custom_settings = settings.clone();
-        custom_settings.theme = "dark".to_string();
-        custom_settings.font_size = 16;
-        custom_settings.language = "en".to_string();
-
-        println!(
-            "Saving custom settings: theme={}, font_size={}, language={}",
-            custom_settings.theme, custom_settings.font_size, custom_settings.language
-        );
-        repo.save(&custom_settings).await.unwrap();
-
-        println!("Loading settings back...");
-        let loaded_settings = repo.load().await.unwrap();
-
-        println!(
-            "Loaded settings: theme={}, font_size={}, language={}",
-            loaded_settings.theme, loaded_settings.font_size, loaded_settings.language
-        );
-
-        // 改良後の実装では実際の値が返されるはず
-        assert_eq!(loaded_settings.theme, "dark");
-        assert_eq!(loaded_settings.font_size, 16);
-        assert_eq!(loaded_settings.language, "en");
-
-        // 複雑なフィールドもテスト
-        assert_eq!(loaded_settings.custom_due_days, vec![1, 3, 7, 14, 30]);
-        assert_eq!(loaded_settings.due_date_buttons.overdue, true);
-        assert_eq!(loaded_settings.due_date_buttons.today, true);
-
-        // 部分更新テスト
-        repo.update_theme("light".to_string()).await.unwrap();
-        let updated_settings = repo.load().await.unwrap();
-        assert_eq!(updated_settings.theme, "light");
-
-        // バリデーションテスト
-        let mut invalid_settings = settings.clone();
-        invalid_settings.theme = "invalid_theme".to_string();
-        let result = repo.save_with_validation(&invalid_settings).await;
-        assert!(result.is_err());
-
-        println!("Settings構造体の完全な保存/読み込みテストが成功しました！");
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, VIEW_ITEMS_KEY, &items)
+            .await
     }
 }
