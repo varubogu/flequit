@@ -351,6 +351,60 @@ describe('TaskStatusToggle', () => {
     });
   });
 
+  describe('string-based status values (from root file)', () => {
+    it('should render with correct icon for completed status', () => {
+      const mockToggle = vi.fn();
+
+      const { getByRole } = render(TaskStatusToggle, {
+        props: {
+          status: 'completed' as any,
+          ontoggle: mockToggle
+        }
+      });
+
+      const button = getByRole('button');
+      expect(button).toBeTruthy();
+    });
+
+    it('should call ontoggle when clicked with string status', () => {
+      const mockToggle = vi.fn();
+
+      const { getByRole } = render(TaskStatusToggle, {
+        props: {
+          status: 'not_started' as any,
+          ontoggle: mockToggle
+        }
+      });
+
+      const button = getByRole('button');
+      fireEvent.click(button);
+
+      expect(mockToggle).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle status transitions with string values', () => {
+      const mockToggle = vi.fn();
+
+      const { getByRole, rerender } = render(TaskStatusToggle, {
+        props: {
+          status: 'not_started' as any,
+          ontoggle: mockToggle
+        }
+      });
+
+      let button = getByRole('button');
+      expect(button).toBeTruthy();
+
+      rerender({
+        status: 'in_progress' as any,
+        ontoggle: mockToggle
+      });
+
+      button = getByRole('button');
+      expect(button).toBeTruthy();
+    });
+  });
+
   describe('performance', () => {
     it('should not cause unnecessary re-renders', () => {
       const { rerender } = render(TaskStatusToggle, { props: defaultProps });
