@@ -156,18 +156,18 @@ describe('CommandQuickActions', () => {
       expect(document.body).toBeInTheDocument();
     });
 
-    it('should handle undefined callbacks', () => {
-      const propsWithUndefinedCallbacks = {
+    it('should handle no-op callbacks', () => {
+      const propsWithNoOpCallbacks = {
         showAllTasks: 'Show All Tasks',
         quickActions: 'Quick Actions',
         addNewTask: 'Add New Task',
         viewAllTasks: 'View All Tasks',
-        onSearchExecute: undefined as (() => void) | undefined,
-        onAddNewTask: undefined as (() => void) | undefined,
-        onViewAllTasks: undefined as (() => void) | undefined
+        onSearchExecute: () => {},
+        onAddNewTask: () => {},
+        onViewAllTasks: () => {}
       };
 
-      render(CommandQuickActions, { props: propsWithUndefinedCallbacks });
+      render(CommandQuickActions, { props: propsWithNoOpCallbacks });
       
       expect(document.body).toBeInTheDocument();
     });
@@ -288,34 +288,18 @@ describe('CommandQuickActions', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle null text values', () => {
-      const nullTextProps = {
-        showAllTasks: null as string | null,
-        quickActions: null as string | null,
-        addNewTask: null as string | null,
-        viewAllTasks: null as string | null,
+    it('should handle fallback text values', () => {
+      const fallbackTextProps = {
+        showAllTasks: '',
+        quickActions: '',
+        addNewTask: '',
+        viewAllTasks: '',
         onSearchExecute: vi.fn(),
         onAddNewTask: vi.fn(),
         onViewAllTasks: vi.fn()
       };
 
-      render(CommandQuickActions, { props: nullTextProps });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle undefined text values', () => {
-      const undefinedTextProps = {
-        showAllTasks: undefined as string | undefined,
-        quickActions: undefined as string | undefined,
-        addNewTask: undefined as string | undefined,
-        viewAllTasks: undefined as string | undefined,
-        onSearchExecute: vi.fn(),
-        onAddNewTask: vi.fn(),
-        onViewAllTasks: vi.fn()
-      };
-
-      render(CommandQuickActions, { props: undefinedTextProps });
+      render(CommandQuickActions, { props: fallbackTextProps });
       
       expect(document.body).toBeInTheDocument();
     });

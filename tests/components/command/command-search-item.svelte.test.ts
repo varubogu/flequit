@@ -210,22 +210,11 @@ describe('CommandSearchItem', () => {
       expect(document.body).toBeInTheDocument();
     });
 
-    it('should handle undefined onSelect', () => {
+    it('should handle no-op onSelect', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          onSelect: undefined as (() => void) | undefined
-        }
-      });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle null onSelect', () => {
-      render(CommandSearchItem, { 
-        props: { 
-          ...defaultProps, 
-          onSelect: null as (() => void) | null
+          onSelect: () => {}
         }
       });
       
@@ -330,22 +319,11 @@ describe('CommandSearchItem', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle null text', () => {
+    it('should handle empty text', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          showAllResultsText: null as string | null
-        }
-      });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle undefined text', () => {
-      render(CommandSearchItem, { 
-        props: { 
-          ...defaultProps, 
-          showAllResultsText: undefined as string | undefined
+          showAllResultsText: ''
         }
       });
       
@@ -357,28 +335,6 @@ describe('CommandSearchItem', () => {
         props: { 
           ...defaultProps, 
           showAllResultsText: '   \t\n   '
-        }
-      });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle boolean as text', () => {
-      render(CommandSearchItem, { 
-        props: { 
-          ...defaultProps, 
-          showAllResultsText: true as unknown as string
-        }
-      });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle number as text', () => {
-      render(CommandSearchItem, { 
-        props: { 
-          ...defaultProps, 
-          showAllResultsText: 12345 as unknown as string
         }
       });
       

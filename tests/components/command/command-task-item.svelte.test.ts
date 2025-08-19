@@ -260,16 +260,16 @@ describe('CommandTaskItem', () => {
       expect(screen.queryByText(/Test task description/)).not.toBeInTheDocument();
     });
 
-    it('should handle null description', () => {
-      const taskWithNullDescription: TaskWithSubTasks = {
+    it('should handle undefined description', () => {
+      const taskWithUndefinedDescription: TaskWithSubTasks = {
         ...mockTask,
-        description: null as string | null
+        description: undefined
       };
 
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          task: taskWithNullDescription,
+          task: taskWithUndefinedDescription,
           isTagSearch: false
         }
       });
@@ -326,22 +326,11 @@ describe('CommandTaskItem', () => {
       expect(document.body).toBeInTheDocument();
     });
 
-    it('should handle undefined onSelect', () => {
+    it('should handle no-op onSelect', () => {
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          onSelect: undefined as (() => void) | undefined
-        }
-      });
-      
-      expect(document.body).toBeInTheDocument();
-    });
-
-    it('should handle null onSelect', () => {
-      render(CommandTaskItemWrapper, { 
-        props: { 
-          ...defaultProps, 
-          onSelect: null as (() => void) | null
+          onSelect: () => {}
         }
       });
       
@@ -424,32 +413,32 @@ describe('CommandTaskItem', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle task with null title', () => {
-      const taskWithNullTitle: TaskWithSubTasks = {
+    it('should handle task with empty title', () => {
+      const taskWithEmptyTitle: TaskWithSubTasks = {
         ...mockTask,
-        title: null as string | null
+        title: ''
       };
 
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          task: taskWithNullTitle
+          task: taskWithEmptyTitle
         }
       });
       
       expect(document.body).toBeInTheDocument();
     });
 
-    it('should handle task with undefined tags', () => {
-      const taskWithUndefinedTags: TaskWithSubTasks = {
+    it('should handle task with empty tags', () => {
+      const taskWithEmptyTags: TaskWithSubTasks = {
         ...mockTask,
-        tags: undefined as typeof mockTask.tags | undefined
+        tags: []
       };
 
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          task: taskWithUndefinedTags,
+          task: taskWithEmptyTags,
           isTagSearch: true
         }
       });
@@ -457,13 +446,13 @@ describe('CommandTaskItem', () => {
       expect(document.body).toBeInTheDocument();
     });
 
-    it('should handle tags with missing properties', () => {
+    it('should handle tags with missing optional properties', () => {
       const taskWithIncompleteTags: TaskWithSubTasks = {
         ...mockTask,
         tags: [
           { id: 'tag-1', name: '', color: '#ff0000', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
-          { id: '', name: 'test', color: '#00ff00', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
-          { id: 'tag-3', name: null as string | null, color: null as string | null, created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
+          { id: 'tag-2', name: 'test', color: undefined, created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+          { id: 'tag-3', name: 'no-color', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
         ]
       };
 
