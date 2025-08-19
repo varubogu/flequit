@@ -379,7 +379,7 @@ describe('RecurrenceDialog', () => {
 
   describe('edge cases', () => {
     it('should handle invalid recurrence rule gracefully', () => {
-      const invalidRule = { invalid: 'data' } as any;
+      const invalidRule = { invalid: 'data' } as unknown as RecurrenceRule;
       const propsWithInvalidRule = { ...defaultProps, recurrenceRule: invalidRule };
       const { container } = render(RecurrenceDialog, { props: propsWithInvalidRule });
       
@@ -401,8 +401,8 @@ describe('RecurrenceDialog', () => {
     it('should handle null callbacks gracefully', () => {
       const propsWithNullCallbacks = { 
         ...defaultProps, 
-        onOpenChange: null as any,
-        onSave: null as any
+        onOpenChange: null as unknown as (value: boolean) => void,
+        onSave: null as unknown as (rule: RecurrenceRule) => void
       };
       const { container } = render(RecurrenceDialog, { props: propsWithNullCallbacks });
       

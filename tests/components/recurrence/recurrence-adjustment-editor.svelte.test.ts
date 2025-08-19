@@ -438,7 +438,7 @@ describe('RecurrenceAdjustmentEditor', () => {
     it('should handle missing condition properties', () => {
       const incompleteProps = {
         ...defaultProps,
-        dateConditions: [{ id: 'date-1' } as any]
+        dateConditions: [{ id: 'date-1' } as unknown as DateCondition]
       };
       
       const { container } = render(RecurrenceAdjustmentEditor, { props: incompleteProps });
@@ -449,9 +449,9 @@ describe('RecurrenceAdjustmentEditor', () => {
     it('should handle null callbacks', () => {
       const nullProps = {
         ...defaultProps,
-        onDateConditionAdd: null as any,
-        onDateConditionRemove: null as any,
-        onDateConditionUpdate: null as any
+        onDateConditionAdd: null as unknown as typeof defaultProps.onDateConditionAdd,
+        onDateConditionRemove: null as unknown as typeof defaultProps.onDateConditionRemove,
+        onDateConditionUpdate: null as unknown as typeof defaultProps.onDateConditionUpdate
       };
       
       const { container } = render(RecurrenceAdjustmentEditor, { props: nullProps });
