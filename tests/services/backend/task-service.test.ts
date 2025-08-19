@@ -34,7 +34,6 @@ describe('TaskService Interface', () => {
       due_date: new Date('2024-12-31T23:59:59Z'),
       estimated_time: 120,
       actual_time: 90,
-      completion_rate: 0.75,
       order_index: 0,
       is_archived: false,
       created_at: new Date('2024-01-01T00:00:00Z'),

@@ -379,7 +379,7 @@ describe('InitializationTauriService', () => {
     });
 
     it('should execute operations in correct sequence', async () => {
-      let callOrder: string[] = [];
+      const callOrder: string[] = [];
       
       mockInvoke.mockImplementation(async (command: string) => {
         callOrder.push(command);

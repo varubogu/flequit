@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-import type { TaskBase } from '$lib/types/task';
+import type { TaskBase, Task } from '$lib/types/task';
+import { getDueDateClass } from '$lib/utils/datetime-utils';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -31,19 +32,21 @@ vi.mock('$lib/utils/datetime-utils', () => ({
 describe('DueDate', () => {
   const mockHandleDueDateClick = vi.fn();
 
-  const baseTask: TaskBase = {
+  const baseTask = {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 'not_started',
+    status: 'not_started' as const,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: false,
     list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01')
-  };
+  } as Task;
 
   const defaultProps = {
     task: baseTask,
@@ -240,7 +243,7 @@ describe('DueDate', () => {
     });
 
     it('should handle null end_date', () => {
-      const taskWithNullDate = { ...baseTask, end_date: null };
+      const taskWithNullDate = { ...baseTask, end_date: undefined };
       const { container } = render(DueDate, { 
         props: { ...defaultProps, task: taskWithNullDate }
       });
@@ -265,7 +268,7 @@ describe('DueDate', () => {
       const { container } = render(DueDate, { props: defaultProps });
       
       const button = container.querySelector('button');
-      expect(vi.mocked(vi.importMock('$lib/utils/datetime-utils')).getDueDateClass).toHaveBeenCalledWith(
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
         baseTask.end_date,
         baseTask.status
       );
@@ -530,7 +533,7 @@ describe('DueDate', () => {
     it('should integrate with datetime utils', () => {
       render(DueDate, { props: defaultProps });
       
-      expect(vi.mocked(vi.importMock('$lib/utils/datetime-utils')).getDueDateClass).toHaveBeenCalled();
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalled();
     });
 
     it('should integrate with translation service', () => {
@@ -544,13 +547,13 @@ describe('DueDate', () => {
     });
 
     it('should work with different task types', () => {
-      const completedTask = { ...baseTask, status: 4 };
+      const completedTask = { ...baseTask, status: 'completed' as const };
       const { container } = render(DueDate, { 
         props: { ...defaultProps, task: completedTask }
       });
       
       expect(container.innerHTML).toBeTruthy();
-      expect(vi.mocked(vi.importMock('$lib/utils/datetime-utils')).getDueDateClass).toHaveBeenCalledWith(
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
         completedTask.end_date,
         4
       );

@@ -18,7 +18,6 @@ describe('SubtaskWebService', () => {
       description: 'Test subtask description',
       status: 'not_started',
       priority: 2,
-      completion_rate: 0.5,
       order_index: 0,
       is_archived: false,
       created_at: new Date('2024-01-01T00:00:00Z'),
