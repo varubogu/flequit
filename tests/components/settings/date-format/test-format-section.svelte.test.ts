@@ -4,14 +4,14 @@ import TestFormatSection from '$lib/components/settings/date-format/test-format-
 import type { DateTimeFormat } from '$lib/types/datetime-format';
 
 // Mock dependencies
-vi.mock('$lib/components/ui/input.svelte', () => ({
-  default: () => ({ render: () => '<input data-testid="input-mock" />' })
+vi.mock('$lib/utils', () => ({
+  cn: (...classes: (string | undefined)[]) => classes.filter(Boolean).join(' ')
 }));
 
 vi.mock('$lib/stores/locale.svelte', () => ({
   getTranslationService: vi.fn(() => ({
     getMessage: vi.fn((key: string) => {
-      const translations = {
+      const translations: Record<string, string> = {
         test_format: 'Test Format',
         preview: 'Preview',
         format_selection: 'Format Selection',
@@ -28,6 +28,9 @@ vi.mock('date-fns', () => ({
     if (formatString === 'yyyy年MM月dd日 HH:mm:ss') {
       return '2024年01月01日 12:00:00';
     }
+    if (formatString === 'yyyy-MM-dd') {
+      return 'formatted-yyyy-MM-dd';
+    }
     if (formatString === 'invalid') {
       throw new Error('Invalid format');
     }
@@ -38,9 +41,9 @@ vi.mock('date-fns', () => ({
 vi.mock('$lib/stores/datetime-format.svelte', () => ({
   dateTimeFormatStore: {
     allFormats: () => [
-      { id: 1, name: 'Standard', format: 'yyyy-MM-dd HH:mm:ss' },
-      { id: 2, name: 'Japanese', format: 'yyyy年MM月dd日 HH:mm:ss' },
-      { id: 3, name: 'Custom', format: null }
+      { id: 1, name: 'Standard', format: 'yyyy-MM-dd HH:mm:ss', group: 'デフォルト', order: 1 },
+      { id: 2, name: 'Japanese', format: 'yyyy年MM月dd日 HH:mm:ss', group: 'プリセット', order: 2 },
+      { id: 3, name: 'Custom', format: null, group: 'カスタム', order: 3 }
     ]
   }
 }));
@@ -51,7 +54,9 @@ describe('TestFormatSection', () => {
   const mockSelectedPreset: DateTimeFormat = {
     id: 1,
     name: 'Standard',
-    format: 'yyyy-MM-dd HH:mm:ss'
+    format: 'yyyy-MM-dd HH:mm:ss',
+    group: 'デフォルト',
+    order: 1
   };
 
   const defaultProps = {
@@ -116,8 +121,8 @@ describe('TestFormatSection', () => {
     it('should show preview label', () => {
       render(TestFormatSection, { props: defaultProps });
       
-      const previewLabel = document.querySelector('.font-medium');
-      expect(previewLabel?.textContent).toBe('Preview:');
+      const previewSection = document.querySelector('.flex.items-center.gap-2.text-sm .font-medium');
+      expect(previewSection?.textContent).toBe('Preview:');
     });
 
     it('should show formatted preview', () => {
@@ -263,11 +268,18 @@ describe('TestFormatSection', () => {
     });
 
     it('should update preview when format changes', () => {
-      const { rerender } = render(TestFormatSection, { props: defaultProps });
+      // First render with initial format
+      const { unmount } = render(TestFormatSection, { props: defaultProps });
       
-      rerender({ ...defaultProps, testFormat: 'yyyy-MM-dd' });
+      // Check initial preview
+      let preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
+      expect(preview?.textContent).toBe('2024年01月01日 12:00:00');
       
-      const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
+      // Unmount and re-render with new format
+      unmount();
+      render(TestFormatSection, { props: { ...defaultProps, testFormat: 'yyyy-MM-dd' } });
+      
+      preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('formatted-yyyy-MM-dd');
     });
   });
@@ -284,7 +296,9 @@ describe('TestFormatSection', () => {
       const differentPreset: DateTimeFormat = {
         id: 2,
         name: 'Japanese',
-        format: 'yyyy年MM月dd日 HH:mm:ss'
+        format: 'yyyy年MM月dd日 HH:mm:ss',
+        group: 'プリセット',
+        order: 2
       };
 
       render(TestFormatSection, { props: { ...defaultProps, selectedPreset: differentPreset } });
