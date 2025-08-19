@@ -4,23 +4,23 @@ import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/shared/r
 
 // Mock child components
 vi.mock('$lib/components/recurrence/recurrence-level-selector.svelte', () => ({
-  default: () => ({ $$: { fragment: null } as any })
+  default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-count-input.svelte', () => ({
-  default: () => ({ $$: { fragment: null } as any })
+  default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-interval-editor.svelte', () => ({
-  default: () => ({ $$: { fragment: null } as any })
+  default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-adjustment-editor.svelte', () => ({
-  default: () => ({ $$: { fragment: null } as any })
+  default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-preview.svelte', () => ({
-  default: () => ({ $$: { fragment: null } as any })
+  default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
 vi.mock('$lib/utils/datetime-utils', () => ({
@@ -58,7 +58,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as any
+    logic: mockLogic as RecurrenceDialogAdvancedLogic
   };
 
   beforeEach(() => {
@@ -92,7 +92,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should show basic settings when showBasicSettings is true', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -104,7 +104,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should hide basic settings when showBasicSettings is false', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: false } as any
+          logic: { ...mockLogic, showBasicSettings: false } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -115,7 +115,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should show preview panel when showBasicSettings is true', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -126,7 +126,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should hide preview panel when showBasicSettings is false', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: false } as any
+          logic: { ...mockLogic, showBasicSettings: false } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -141,7 +141,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
             ...mockLogic, 
             showBasicSettings: true,
             showAdvancedSettings: true 
-          } as any
+          } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -156,7 +156,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
             ...mockLogic, 
             showBasicSettings: true,
             showAdvancedSettings: false 
-          } as any
+          } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -176,7 +176,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should render RecurrenceCountInput when basic settings shown', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -186,7 +186,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should render RecurrenceIntervalEditor when basic settings shown', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -196,7 +196,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should render RecurrencePreview when basic settings shown', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -220,7 +220,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
       };
 
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: customLogic as any }
+        props: { logic: customLogic as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();
@@ -262,7 +262,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
     it('should have proper panel sizing', () => {
       render(RecurrenceDialogAdvancedContent, { 
         props: { 
-          logic: { ...mockLogic, showBasicSettings: true } as any
+          logic: { ...mockLogic, showBasicSettings: true } as RecurrenceDialogAdvancedLogic
         }
       });
       
@@ -284,7 +284,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
       };
 
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: incompleteLogic as any }
+        props: { logic: incompleteLogic as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();
@@ -292,7 +292,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
 
     it('should handle null logic', () => {
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: null as any }
+        props: { logic: null as unknown as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();
@@ -308,7 +308,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
       };
 
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: logicWithEmptyArrays as any }
+        props: { logic: logicWithEmptyArrays as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();
@@ -334,7 +334,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
       };
 
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: updatedLogic as any }
+        props: { logic: updatedLogic as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();
@@ -358,7 +358,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
       };
 
       render(RecurrenceDialogAdvancedContent, { 
-        props: { logic: logicWithoutCallbacks as any }
+        props: { logic: logicWithoutCallbacks as RecurrenceDialogAdvancedLogic }
       });
       
       expect(document.body).toBeInTheDocument();

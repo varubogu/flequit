@@ -459,7 +459,7 @@ describe('AutoFetchTauriService', () => {
 
       const longTypeNotification = {
         ...mockNotification,
-        dataType: longDataType as any
+        dataType: longDataType as unknown as DataType
       };
 
       await service.notifyDataChange(longTypeNotification);

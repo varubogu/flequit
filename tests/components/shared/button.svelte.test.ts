@@ -2,6 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Button from '$lib/components/shared/button.svelte';
 
+type ButtonVariants = {
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+};
+
 // Mock UI Button component
 vi.mock('$lib/components/ui/button.svelte', () => ({
   default: () => ({ $$: { fragment: null } })
@@ -28,7 +33,7 @@ describe('Button', () => {
     it('should handle all variants', () => {
       const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'];
       variants.forEach(variant => {
-        render(Button, { props: { variant: variant as any } });
+        render(Button, { props: { variant: variant as ButtonVariants['variant'] } });
         expect(document.body).toBeInTheDocument();
       });
     });
@@ -38,7 +43,7 @@ describe('Button', () => {
     it('should handle all sizes', () => {
       const sizes = ['default', 'sm', 'lg', 'icon'];
       sizes.forEach(size => {
-        render(Button, { props: { size: size as any } });
+        render(Button, { props: { size: size as ButtonVariants['size'] } });
         expect(document.body).toBeInTheDocument();
       });
     });
@@ -53,7 +58,7 @@ describe('Button', () => {
         'aria-label': 'Button Label',
         'data-testid': 'test-button'
       };
-      
+
       render(Button, { props });
       expect(document.body).toBeInTheDocument();
     });
@@ -70,7 +75,7 @@ describe('Button', () => {
         ondragenter: vi.fn(),
         ondragleave: vi.fn()
       };
-      
+
       render(Button, { props: dragProps });
       expect(document.body).toBeInTheDocument();
     });
@@ -78,9 +83,9 @@ describe('Button', () => {
 
   describe('edge cases', () => {
     it('should handle null and undefined props', () => {
-      render(Button, { 
-        props: { 
-          onclick: null as any,
+      render(Button, {
+        props: {
+          onclick: null as ((event?: Event) => void) | null,
           title: undefined,
           variant: undefined,
           size: undefined

@@ -287,7 +287,6 @@ vi.mock('../../src/lib/services/recurrence-service', () => ({
   }
 }));
 
-const mockTagStore = vi.mocked(await import('../../src/lib/stores/tags.svelte')).tagStore;
 const mockRecurrenceService = vi.mocked(await import('../../src/lib/services/recurrence-service')).RecurrenceService;
 
 // Update mockTaskStore to include all required methods
@@ -547,8 +546,8 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   };
   
   const nextDate = new Date('2024-01-16');
-  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(nextDate);
+  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
@@ -592,8 +591,8 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
     }
   };
   
-  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(null); // No next date
+  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(null); // No next date
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
@@ -622,8 +621,8 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
     }
   };
   
-  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(nextDate);
+  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
 
   TaskService.changeTaskStatus(taskId, 'completed');
 

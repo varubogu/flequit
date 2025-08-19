@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import NewTaskConfirmationDialog from '$lib/components/task/dialogs/new-task-confirmation-dialog.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 // import {
 //   createUnitTestTranslationService,
 //   'test-text'
@@ -10,13 +11,20 @@ import { setTranslationService } from '$lib/stores/locale.svelte';
 describe('NewTaskConfirmationDialog', () => {
   const defaultProps = {
     open: true,
-    onConfirm: vi.fn() as any,
-    onCancel: vi.fn() as any
+    onConfirm: vi.fn() as () => void,
+    onCancel: vi.fn() as () => void
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setTranslationService({} as any);
+    const mockTranslationService: ITranslationService = {
+      getCurrentLocale: vi.fn().mockReturnValue('en'),
+      setLocale: vi.fn(),
+      reactiveMessage: vi.fn().mockImplementation((fn) => fn),
+      getMessage: vi.fn().mockReturnValue(() => 'mock-message'),
+      getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
+    };
+    setTranslationService(mockTranslationService);
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -178,8 +186,8 @@ describe('NewTaskConfirmationDialog', () => {
   it('必要なpropsが正しく設定される', () => {
     const props = {
       open: true,
-      onConfirm: vi.fn() as any,
-      onCancel: vi.fn() as any
+      onConfirm: vi.fn() as () => void,
+      onCancel: vi.fn() as () => void
     };
 
     const { container } = render(NewTaskConfirmationDialog, { props });

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import SettingsDraggableItemsContent from '$lib/components/settings/draggable-items/settings-draggable-items-content.svelte';
+import type { SettingsDraggableItemsLogic } from '$lib/components/settings/draggable-items/settings-draggable-items-logic.svelte';
 
 // Mock drag and drop library
 vi.mock('@thisux/sveltednd', () => ({
@@ -54,7 +55,7 @@ describe('SettingsDraggableItemsContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as any
+    logic: mockLogic as unknown as SettingsDraggableItemsLogic
   };
 
   beforeEach(() => {
@@ -67,21 +68,21 @@ describe('SettingsDraggableItemsContent', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const gridContainer = document.querySelector('.grid.grid-cols-1.gap-6.md\\:grid-cols-2');
       expect(gridContainer).toBeInTheDocument();
     });
 
     it('should render visible and hidden sections', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(screen.getByText('Visible in Sidebar')).toBeInTheDocument();
       expect(screen.getByText('Hidden from Sidebar')).toBeInTheDocument();
     });
 
     it('should render items in correct sections', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(screen.getByText('📋 Item 1')).toBeInTheDocument();
       expect(screen.getByText('📝 Item 2')).toBeInTheDocument();
       expect(screen.getByText('🗂️ Item 3')).toBeInTheDocument();
@@ -91,7 +92,7 @@ describe('SettingsDraggableItemsContent', () => {
   describe('visible items section', () => {
     it('should render visible items correctly', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const visibleItems = screen.getAllByText(/📋 Item 1|📝 Item 2/);
       expect(visibleItems).toHaveLength(2);
     });
@@ -102,10 +103,10 @@ describe('SettingsDraggableItemsContent', () => {
         localVisibleItems: []
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithEmptyVisible as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmptyVisible as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(screen.getByText('Visible in Sidebar')).toBeInTheDocument();
     });
 
@@ -119,10 +120,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const visibleDropZone = document.querySelector('.bg-background');
       expect(visibleDropZone).toHaveClass('border-primary', 'bg-primary/5');
     });
@@ -138,10 +139,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const draggedItem = document.querySelector(`[data-item-id="${mockItems[0].id}"]`);
       expect(draggedItem).toHaveClass('opacity-50');
     });
@@ -150,7 +151,7 @@ describe('SettingsDraggableItemsContent', () => {
   describe('hidden items section', () => {
     it('should render hidden items correctly', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(screen.getByText('🗂️ Item 3')).toBeInTheDocument();
     });
 
@@ -160,10 +161,10 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: []
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithEmptyHidden as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmptyHidden as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(screen.getByText('Hidden from Sidebar')).toBeInTheDocument();
     });
 
@@ -177,10 +178,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const hiddenDropZone = document.querySelector('.bg-muted\\/50');
       expect(hiddenDropZone).toHaveClass('border-primary', 'bg-primary/5');
     });
@@ -196,10 +197,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const draggedItem = document.querySelector(`[data-item-id="${mockItems[2].id}"]`);
       expect(draggedItem).toHaveClass('opacity-50');
     });
@@ -217,10 +218,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -236,10 +237,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const dropIndicators = document.querySelectorAll('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicators.length).toBeGreaterThan(0);
     });
@@ -255,10 +256,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: draggingLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -267,21 +268,21 @@ describe('SettingsDraggableItemsContent', () => {
   describe('item structure', () => {
     it('should render items with correct structure', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const itemElement = document.querySelector(`[data-item-id="${mockItems[0].id}"]`);
       expect(itemElement).toHaveClass('bg-card', 'hover:bg-muted', 'flex', 'cursor-grab');
     });
 
     it('should render item icons and labels', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const item1 = screen.getByText('📋 Item 1');
       expect(item1).toHaveClass('flex-1', 'text-sm');
     });
 
     it('should include grip handles for dragging', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       // GripVertical icons are mocked, but containers should exist
       const items = document.querySelectorAll('[data-item-id]');
       expect(items.length).toBe(3);
@@ -291,21 +292,21 @@ describe('SettingsDraggableItemsContent', () => {
   describe('logic integration', () => {
     it('should call translation functions', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(mockLogic.visibleInSidebar).toHaveBeenCalled();
       expect(mockLogic.hiddenFromSidebar).toHaveBeenCalled();
     });
 
     it('should setup drop zone callbacks', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       // Drag and drop setup should not throw errors
       expect(document.querySelector('.grid')).toBeInTheDocument();
     });
 
     it('should setup draggable callbacks', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       // All items should have data-item-id attributes
       const draggableItems = document.querySelectorAll('[data-item-id]');
       expect(draggableItems).toHaveLength(3);
@@ -315,7 +316,7 @@ describe('SettingsDraggableItemsContent', () => {
   describe('responsive layout', () => {
     it('should have responsive grid classes', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const gridContainer = document.querySelector('.grid');
       expect(gridContainer).toHaveClass('grid-cols-1', 'md:grid-cols-2');
     });
@@ -334,10 +335,10 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: manyItems.slice(10)
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithManyItems as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithManyItems as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(document.querySelectorAll('[data-item-id]')).toHaveLength(20);
     });
   });
@@ -355,10 +356,10 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: []
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithEmptyLabels as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmptyLabels as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(document.querySelectorAll('[data-item-id]')).toHaveLength(2);
     });
 
@@ -374,10 +375,10 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: [specialItems[1]]
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithSpecialItems as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithSpecialItems as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(screen.getByText('🎯 Item with 特殊文字')).toBeInTheDocument();
       expect(screen.getByText('💫 Item & symbols!@#')).toBeInTheDocument();
     });
@@ -393,10 +394,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: logicWithNullDragState as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithNullDragState as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(document.querySelector('.grid')).toBeInTheDocument();
     });
   });
@@ -404,7 +405,7 @@ describe('SettingsDraggableItemsContent', () => {
   describe('accessibility', () => {
     it('should provide proper headings structure', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const headings = document.querySelectorAll('h4');
       expect(headings).toHaveLength(2);
       expect(headings[0]).toHaveClass('mb-3', 'text-base', 'font-medium');
@@ -412,7 +413,7 @@ describe('SettingsDraggableItemsContent', () => {
 
     it('should maintain keyboard accessibility', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       // Items should be draggable (cursor-grab class)
       const draggableItems = document.querySelectorAll('.cursor-grab');
       expect(draggableItems.length).toBeGreaterThan(0);
@@ -420,7 +421,7 @@ describe('SettingsDraggableItemsContent', () => {
 
     it('should provide visual feedback for interactions', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const items = document.querySelectorAll('.hover\\:bg-muted');
       expect(items.length).toBeGreaterThan(0);
     });
@@ -429,27 +430,27 @@ describe('SettingsDraggableItemsContent', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(document.querySelector('.grid')).toBeInTheDocument();
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { unmount } = render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       unmount();
-      
+
       const updatedLogic = {
         ...mockLogic,
         localVisibleItems: [mockItems[2]],
         localHiddenItems: [mockItems[0], mockItems[1]]
       };
 
-      render(SettingsDraggableItemsContent, { 
-        props: { logic: updatedLogic as any }
+      render(SettingsDraggableItemsContent, {
+        props: { logic: updatedLogic as unknown as SettingsDraggableItemsLogic }
       });
-      
+
       expect(screen.getByText('🗂️ Item 3')).toBeInTheDocument();
     });
   });

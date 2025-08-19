@@ -5,7 +5,6 @@ import {
   formatDateTimeInTimezone,
   parseInputDateTime
 } from '../../src/lib/utils/timezone-utils';
-import { settingsStore } from '../../src/lib/stores/settings.svelte';
 
 // Mock settingsStore
 vi.mock('../../src/lib/stores/settings.svelte', () => ({

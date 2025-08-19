@@ -13,7 +13,7 @@ vi.mock('$lib/services/backend', () => ({
 }));
 
 describe('SettingsInitService', () => {
-  let service: any;
+  let service: SettingsInitService;
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 

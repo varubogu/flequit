@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import UserProfileContent from '$lib/components/user/user-profile-content.svelte';
+import type { UserProfileLogic } from '$lib/components/user/user-profile-logic.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 
 // Mock dependencies
 vi.mock('$lib/components/shared/button.svelte', () => ({
@@ -33,17 +35,19 @@ describe('UserProfileContent', () => {
     avatar: 'https://example.com/avatar.jpg'
   };
 
+  const mockTranslationService: ITranslationService = {
+    getMessage: vi.fn(() => () => 'Test Message'),
+    getCurrentLocale: vi.fn(() => 'ja-JP'),
+    setLocale: vi.fn(),
+    reactiveMessage: vi.fn(),
+    getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
+  };
+
   const mockLogic = {
     user: mockUser,
     showMenu: false,
     showSettings: false,
-    translationService: {
-      getMessage: vi.fn(() => () => 'Test Message'),
-      getCurrentLocale: vi.fn(() => 'ja-JP'),
-      setLocale: vi.fn(),
-      reactiveMessage: vi.fn(),
-      getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
-    },
+    translationService: mockTranslationService,
     getInitials: vi.fn((name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase()),
     toggleMenu: vi.fn(),
     handleSettings: vi.fn(),
@@ -60,7 +64,7 @@ describe('UserProfileContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as any
+    logic: mockLogic as unknown as UserProfileLogic
   };
 
   beforeEach(() => {
@@ -72,20 +76,20 @@ describe('UserProfileContent', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
 
     it('should render with user data', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
     });
 
     it('should render component structure correctly', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       const container = document.querySelector('.user-profile-container.relative');
       expect(container).toBeInTheDocument();
     });
@@ -94,7 +98,7 @@ describe('UserProfileContent', () => {
   describe('logic integration', () => {
     it('should initialize with provided logic', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Component should render and use the logic
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -102,7 +106,7 @@ describe('UserProfileContent', () => {
 
     it('should handle logic with user data', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Logic should be accessible for user operations
       expect(mockLogic.user).toBe(mockUser);
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
@@ -113,9 +117,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: null
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithoutUser as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithoutUser as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -124,7 +128,7 @@ describe('UserProfileContent', () => {
   describe('sidebar state integration', () => {
     it('should use sidebar context', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Component should integrate with sidebar
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -139,7 +143,7 @@ describe('UserProfileContent', () => {
       })));
 
       render(UserProfileContent, { props: defaultProps });
-      
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -148,7 +152,7 @@ describe('UserProfileContent', () => {
   describe('user state handling', () => {
     it('should handle logged in user', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       expect(mockLogic.user).toEqual(mockUser);
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -156,7 +160,7 @@ describe('UserProfileContent', () => {
 
     it('should handle user with avatar', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       expect(mockLogic.user.avatar).toBe('https://example.com/avatar.jpg');
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -167,9 +171,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: { ...mockUser, avatar: undefined }
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithoutAvatar as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithoutAvatar as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -179,9 +183,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: null
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithoutUser as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithoutUser as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -190,7 +194,7 @@ describe('UserProfileContent', () => {
   describe('menu state handling', () => {
     it('should handle hidden menu', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       expect(mockLogic.showMenu).toBe(false);
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -201,9 +205,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         showMenu: true
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithMenu as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithMenu as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -213,9 +217,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         showMenu: true
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithMenu as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithMenu as unknown as UserProfileLogic } });
+
       expect(logicWithMenu.user).toEqual(mockUser);
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -227,9 +231,9 @@ describe('UserProfileContent', () => {
         user: null,
         showMenu: true
       };
-      
-      render(UserProfileContent, { props: { logic: logicWithMenuNoUser as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicWithMenuNoUser as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -238,7 +242,7 @@ describe('UserProfileContent', () => {
   describe('component props', () => {
     it('should accept and use logic prop', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       expect(defaultProps.logic).toBeDefined();
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -250,9 +254,9 @@ describe('UserProfileContent', () => {
         user: { ...mockUser, name: 'Custom User' },
         showMenu: true
       };
-      
-      render(UserProfileContent, { props: { logic: customLogic as any } });
-      
+
+      render(UserProfileContent, { props: { logic: customLogic as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -264,9 +268,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: { ...mockUser, name: '' }
       };
-      
-      render(UserProfileContent, { props: { logic: logicEmptyName as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicEmptyName as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -276,9 +280,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: { ...mockUser, email: '' }
       };
-      
-      render(UserProfileContent, { props: { logic: logicEmptyEmail as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicEmptyEmail as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -289,9 +293,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: { ...mockUser, name: longName }
       };
-      
-      render(UserProfileContent, { props: { logic: logicLongName as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicLongName as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -306,9 +310,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: specialUser
       };
-      
-      render(UserProfileContent, { props: { logic: logicSpecialUser as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicSpecialUser as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -318,14 +322,14 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: {
           ...mockUser,
-          name: null as any,
-          email: undefined as any,
-          avatar: null as any
+          name: null as unknown as string,
+          email: undefined as unknown as string,
+          avatar: null as unknown as string | undefined
         }
       };
-      
-      render(UserProfileContent, { props: { logic: logicNullProps as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicNullProps as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -334,27 +338,27 @@ describe('UserProfileContent', () => {
   describe('component structure', () => {
     it('should have proper container class', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       const container = document.querySelector('.user-profile-container.relative');
       expect(container).toBeInTheDocument();
     });
 
     it('should maintain structure with different states', () => {
       const { unmount } = render(UserProfileContent, { props: defaultProps });
-      
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
-      
+
       unmount();
-      
+
       // Render with different state
       const logicDifferentState = {
         ...mockLogic,
         showMenu: true,
         user: null
       };
-      
-      render(UserProfileContent, { props: { logic: logicDifferentState as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicDifferentState as unknown as UserProfileLogic } });
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
     });
   });
@@ -362,7 +366,7 @@ describe('UserProfileContent', () => {
   describe('responsive behavior', () => {
     it('should handle component responsiveness', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Component should be responsive
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -370,7 +374,7 @@ describe('UserProfileContent', () => {
 
     it('should adapt to sidebar state changes', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Should integrate with sidebar state
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -380,7 +384,7 @@ describe('UserProfileContent', () => {
   describe('accessibility considerations', () => {
     it('should be accessible', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Component should maintain accessibility
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -391,9 +395,9 @@ describe('UserProfileContent', () => {
         ...mockLogic,
         user: null
       };
-      
-      render(UserProfileContent, { props: { logic: logicNoUser as any } });
-      
+
+      render(UserProfileContent, { props: { logic: logicNoUser as unknown as UserProfileLogic } });
+
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
     });
@@ -402,27 +406,27 @@ describe('UserProfileContent', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(UserProfileContent, { props: defaultProps });
-      
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { unmount } = render(UserProfileContent, { props: defaultProps });
-      
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
-      
+
       unmount();
-      
+
       // Re-render with updated props
       const updatedLogic = {
         ...mockLogic,
         user: { ...mockUser, name: 'Updated User' }
       };
-      
-      render(UserProfileContent, { props: { logic: updatedLogic as any } });
-      
+
+      render(UserProfileContent, { props: { logic: updatedLogic as unknown as UserProfileLogic } });
+
       expect(document.querySelector('.user-profile-container')).toBeInTheDocument();
     });
   });
@@ -430,7 +434,7 @@ describe('UserProfileContent', () => {
   describe('integration with external systems', () => {
     it('should integrate with sidebar system', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Should work with sidebar context
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();
@@ -438,7 +442,7 @@ describe('UserProfileContent', () => {
 
     it('should handle different sidebar states', () => {
       render(UserProfileContent, { props: defaultProps });
-      
+
       // Should adapt to different sidebar configurations
       const container = document.querySelector('.user-profile-container');
       expect(container).toBeInTheDocument();

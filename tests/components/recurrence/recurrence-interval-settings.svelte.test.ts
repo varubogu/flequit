@@ -454,7 +454,7 @@ describe('RecurrenceIntervalSettings', () => {
     it('should handle null details', () => {
       const propsWithNullDetails = { 
         ...defaultProps, 
-        details: null as any,
+        details: null as unknown as RecurrenceDetails,
         unit: 'month' as RecurrenceUnit,
         showAdvancedSettings: true
       };

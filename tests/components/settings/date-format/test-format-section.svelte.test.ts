@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import TestFormatSection from '$lib/components/settings/date-format/test-format-section.svelte';
 import type { DateTimeFormat } from '$lib/types/datetime-format';
 

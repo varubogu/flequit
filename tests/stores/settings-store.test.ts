@@ -32,7 +32,7 @@ const localStorageMock = {
 global.localStorage = localStorageMock as unknown as Storage;
 
 // Mock console.error
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+vi.spyOn(console, 'error').mockImplementation(() => {});
 
 describe('SettingsStore', () => {
   beforeEach(() => {

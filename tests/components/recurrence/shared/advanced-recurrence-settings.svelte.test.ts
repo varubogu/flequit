@@ -168,7 +168,7 @@ describe('AdvancedRecurrenceSettings', () => {
       render(AdvancedRecurrenceSettings, { 
         props: { 
           ...defaultProps, 
-          details: undefined as any
+          details: undefined as RecurrenceDetails | undefined
         }
       });
       

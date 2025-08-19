@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import ContextMenuItems from '$lib/components/shared/context-menu-items.svelte';
-import type { ContextMenuList, ContextMenuItem } from '$lib/types/context-menu';
+import type { ContextMenuList } from '$lib/types/context-menu';
+import type { ComponentType } from 'svelte';
+import type { ContextMenuStore } from '$lib/stores/context-menu.svelte';
 
 // Mock UI context menu components
 vi.mock('$lib/components/ui/context-menu/index.js', () => ({
@@ -33,7 +35,7 @@ describe('ContextMenuItems', () => {
       id: 'action-1',
       label: 'Action 1',
       action: mockAction1,
-      icon: () => ({ $$: { fragment: null } }) as any,
+      icon: (() => ({ $$: { fragment: null } })) as ComponentType,
       keyboardShortcut: 'Ctrl+1'
     },
     { type: 'separator' },
@@ -44,7 +46,7 @@ describe('ContextMenuItems', () => {
       disabled: mockDisabledCheck,
       destructive: true
     }
-  ] as any;
+  ];
 
   const defaultProps = {
     items: defaultItems,
@@ -103,7 +105,7 @@ describe('ContextMenuItems', () => {
     it('should handle static labels', () => {
       const staticItems: ContextMenuList = [
         { id: 'static-1', label: 'Static Label', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: staticItems } });
       
@@ -113,7 +115,7 @@ describe('ContextMenuItems', () => {
     it('should handle function labels', () => {
       const functionItems: ContextMenuList = [
         { id: 'function-1', label: () => 'Function Label', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: functionItems } });
       
@@ -126,9 +128,9 @@ describe('ContextMenuItems', () => {
           id: 'icon-1',
           label: 'With Icon', 
           action: vi.fn(),
-          icon: () => ({ $$: { fragment: null } }) as any
+          icon: (() => ({ $$: { fragment: null } })) as ComponentType
         }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: iconItems } });
       
@@ -138,7 +140,7 @@ describe('ContextMenuItems', () => {
     it('should handle items without icons', () => {
       const noIconItems: ContextMenuList = [
         { id: 'no-icon-1', label: 'No Icon', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: noIconItems } });
       
@@ -155,7 +157,7 @@ describe('ContextMenuItems', () => {
           action: vi.fn(),
           keyboardShortcut: 'Ctrl+S'
         }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: shortcutItems } });
       
@@ -165,7 +167,7 @@ describe('ContextMenuItems', () => {
     it('should handle items without shortcuts', () => {
       const noShortcutItems: ContextMenuList = [
         { id: 'no-shortcut-1', label: 'No Shortcut', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: noShortcutItems } });
       
@@ -178,7 +180,7 @@ describe('ContextMenuItems', () => {
       const disabledItems: ContextMenuList = [
         { id: 'disabled-1', label: 'Disabled', action: vi.fn(), disabled: true },
         { id: 'enabled-1', label: 'Enabled', action: vi.fn(), disabled: false }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: disabledItems } });
       
@@ -189,7 +191,7 @@ describe('ContextMenuItems', () => {
       const dynamicDisabledItems: ContextMenuList = [
         { id: 'dyn-disabled-1', label: 'Dynamic Disabled', action: vi.fn(), disabled: () => true },
         { id: 'dyn-enabled-1', label: 'Dynamic Enabled', action: vi.fn(), disabled: () => false }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: dynamicDisabledItems } });
       
@@ -199,7 +201,7 @@ describe('ContextMenuItems', () => {
     it('should handle undefined disabled state', () => {
       const undefinedDisabledItems: ContextMenuList = [
         { id: 'undefined-disabled-1', label: 'No Disabled Property', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: undefinedDisabledItems } });
       
@@ -211,7 +213,7 @@ describe('ContextMenuItems', () => {
     it('should apply destructive styling', () => {
       const destructiveItems: ContextMenuList = [
         { id: 'delete-1', label: 'Delete', action: vi.fn(), destructive: true }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: destructiveItems } });
       
@@ -221,7 +223,7 @@ describe('ContextMenuItems', () => {
     it('should not apply destructive styling when false', () => {
       const normalItems: ContextMenuList = [
         { id: 'normal-1', label: 'Normal', action: vi.fn(), destructive: false }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: normalItems } });
       
@@ -231,7 +233,7 @@ describe('ContextMenuItems', () => {
     it('should not apply destructive styling when undefined', () => {
       const undefinedDestructiveItems: ContextMenuList = [
         { id: 'undefined-dest-1', label: 'Undefined Destructive', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: undefinedDestructiveItems } });
       
@@ -242,7 +244,7 @@ describe('ContextMenuItems', () => {
   describe('keyboard navigation', () => {
     it('should handle ArrowDown key', () => {
       const mockSelectNext = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectNext = mockSelectNext;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectNext = mockSelectNext;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -253,7 +255,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle ArrowUp key', () => {
       const mockSelectPrevious = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectPrevious = mockSelectPrevious;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectPrevious = mockSelectPrevious;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -264,7 +266,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle Enter key', () => {
       const mockActivateSelected = vi.fn(() => 0);
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.activateSelected = mockActivateSelected;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.activateSelected = mockActivateSelected;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -276,7 +278,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle Escape key', () => {
       const mockClose = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.close = mockClose;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.close = mockClose;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -287,8 +289,8 @@ describe('ContextMenuItems', () => {
 
     it('should ignore keys when menu is closed', () => {
       const mockSelectNext = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.isOpen = false;
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectNext = mockSelectNext;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.isOpen = false;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectNext = mockSelectNext;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -299,7 +301,7 @@ describe('ContextMenuItems', () => {
 
     it('should ignore unknown keys', () => {
       const mockSelectNext = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectNext = mockSelectNext;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectNext = mockSelectNext;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -311,7 +313,7 @@ describe('ContextMenuItems', () => {
 
   describe('selection handling', () => {
     it('should track selected index', () => {
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectedIndex = 1;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectedIndex = 1;
 
       render(ContextMenuItems, { props: defaultProps });
       
@@ -320,7 +322,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle mouse enter on items', () => {
       const mockSelectIndex = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.selectIndex = mockSelectIndex;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.selectIndex = mockSelectIndex;
 
       render(ContextMenuItems, { props: defaultProps });
       
@@ -330,7 +332,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle invalid selected index in Enter key', () => {
       const mockActivateSelected = vi.fn(() => null);
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.activateSelected = mockActivateSelected;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.activateSelected = mockActivateSelected;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -342,7 +344,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle out of bounds selected index in Enter key', () => {
       const mockActivateSelected = vi.fn(() => 999);
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.activateSelected = mockActivateSelected;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.activateSelected = mockActivateSelected;
 
       const { container } = render(ContextMenuItems, { props: defaultProps });
       
@@ -356,7 +358,7 @@ describe('ContextMenuItems', () => {
   describe('menu lifecycle', () => {
     it('should handle menu open', () => {
       const mockOpen = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.open = mockOpen;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.open = mockOpen;
 
       render(ContextMenuItems, { props: defaultProps });
       
@@ -366,7 +368,7 @@ describe('ContextMenuItems', () => {
 
     it('should handle menu close', () => {
       const mockClose = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as any).contextMenuStore.close = mockClose;
+      (vi.mocked(vi.importMock('$lib/stores/context-menu.svelte.js')) as { contextMenuStore: Partial<ContextMenuStore> }).contextMenuStore.close = mockClose;
 
       render(ContextMenuItems, { props: defaultProps });
       
@@ -381,7 +383,7 @@ describe('ContextMenuItems', () => {
         { id: 'item-2', label: 'Item 2', action: vi.fn() },
         { type: 'separator' },
         { id: 'item-3', label: 'Item 3', action: vi.fn() }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: itemsWithSeparators } });
       
@@ -410,8 +412,8 @@ describe('ContextMenuItems', () => {
 
     it('should handle null action functions', () => {
       const nullActionItems: ContextMenuList = [
-        { id: 'null-action-1', label: 'Null Action', action: null as any }
-      ] as any;
+        { id: 'null-action-1', label: 'Null Action', action: null as unknown as () => void }
+      ];
 
       render(ContextMenuItems, { props: { items: nullActionItems } });
       
@@ -420,8 +422,8 @@ describe('ContextMenuItems', () => {
 
     it('should handle undefined action functions', () => {
       const undefinedActionItems: ContextMenuList = [
-        { id: 'undefined-action-1', label: 'Undefined Action', action: undefined as any }
-      ] as any;
+        { id: 'undefined-action-1', label: 'Undefined Action', action: undefined as unknown as () => void }
+      ];
 
       render(ContextMenuItems, { props: { items: undefinedActionItems } });
       
@@ -430,8 +432,8 @@ describe('ContextMenuItems', () => {
 
     it('should handle null labels', () => {
       const nullLabelItems: ContextMenuList = [
-        { id: 'null-label-1', label: null as any, action: vi.fn() }
-      ] as any;
+        { id: 'null-label-1', label: null as unknown as string, action: vi.fn() }
+      ];
 
       render(ContextMenuItems, { props: { items: nullLabelItems } });
       
@@ -440,8 +442,8 @@ describe('ContextMenuItems', () => {
 
     it('should handle function labels that return null', () => {
       const nullReturnLabelItems: ContextMenuList = [
-        { id: 'null-return-1', label: () => null as any, action: vi.fn() }
-      ] as any;
+        { id: 'null-return-1', label: () => null as unknown as string, action: vi.fn() }
+      ];
 
       render(ContextMenuItems, { props: { items: nullReturnLabelItems } });
       
@@ -461,7 +463,7 @@ describe('ContextMenuItems', () => {
       
       const updatedItems: ContextMenuList = [
         { id: 'updated-1', label: 'Updated Item', action: vi.fn() }
-      ] as any;
+      ];
 
       expect(() => rerender({ items: updatedItems, class: 'w-64' })).not.toThrow();
     });
@@ -473,7 +475,7 @@ describe('ContextMenuItems', () => {
         { id: 'dynamic-1', label: 'Dynamic Item 1', action: vi.fn() },
         { type: 'separator' },
         { id: 'dynamic-2', label: 'Dynamic Item 2', action: vi.fn(), destructive: true }
-      ] as any;
+      ];
 
       expect(() => rerender({ items: dynamicItems })).not.toThrow();
     });
@@ -530,7 +532,7 @@ describe('ContextMenuItems', () => {
           id: 'complex-1',
           label: () => 'Complex Item',
           action: vi.fn(),
-          icon: () => ({ $$: { fragment: null } }) as any,
+          icon: (() => ({ $$: { fragment: null } })) as ComponentType,
           keyboardShortcut: 'Ctrl+Alt+C',
           disabled: () => false,
           destructive: false
@@ -541,7 +543,7 @@ describe('ContextMenuItems', () => {
           label: 'Simple Item',
           action: vi.fn()
         }
-      ] as any;
+      ];
 
       render(ContextMenuItems, { props: { items: complexItems } });
       

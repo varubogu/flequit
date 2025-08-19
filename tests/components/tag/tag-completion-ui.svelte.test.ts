@@ -318,7 +318,7 @@ describe('TagCompletionUI', () => {
       render(TagCompletionUI, { 
         props: { 
           ...defaultProps, 
-          suggestions: undefined as any
+          suggestions: undefined as unknown as Tag[]
         }
       });
       
@@ -329,7 +329,7 @@ describe('TagCompletionUI', () => {
       render(TagCompletionUI, { 
         props: { 
           ...defaultProps, 
-          currentTagInput: null as any
+          currentTagInput: null as unknown as string
         }
       });
       
@@ -340,8 +340,8 @@ describe('TagCompletionUI', () => {
       render(TagCompletionUI, { 
         props: { 
           ...defaultProps, 
-          onSelectSuggestion: undefined as any,
-          onCreateNewTag: undefined as any
+          onSelectSuggestion: undefined as ((tag: Tag) => void) | undefined,
+          onCreateNewTag: undefined as (() => void) | undefined
         }
       });
       
@@ -351,7 +351,7 @@ describe('TagCompletionUI', () => {
     it('should handle tags without ids', () => {
       const tagsWithoutIds: Tag[] = [
         { id: '', name: 'work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
-        { id: null as any, name: 'personal', color: '#00ff00', created_at: new Date(), updated_at: new Date() }
+        { id: null as unknown as string, name: 'personal', color: '#00ff00', created_at: new Date(), updated_at: new Date() }
       ];
 
       render(TagCompletionUI, { 

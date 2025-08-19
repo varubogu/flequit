@@ -200,7 +200,7 @@ describe('WeekdaySelector', () => {
       render(WeekdaySelector, { 
         props: { 
           ...defaultProps, 
-          selectedDays: undefined as any
+          selectedDays: undefined as unknown as DayOfWeek[]
         }
       });
       

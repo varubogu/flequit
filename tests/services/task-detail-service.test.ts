@@ -22,7 +22,7 @@ describe('TaskDetailService', () => {
     
     // Force close drawer state regardless of mobile/desktop
     // Access the private state directly for testing
-    (TaskDetailService as any).taskDetailDrawerState.open = false;
+    (TaskDetailService as unknown as { taskDetailDrawerState: { open: boolean } }).taskDetailDrawerState.open = false;
     
     TaskDetailService.setCloseHandler(() => {});
     vi.clearAllMocks();

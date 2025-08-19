@@ -5,6 +5,7 @@ import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import type { WeekOfMonth } from "$lib/types/datetime-calendar";
 import type { DayOfWeek } from "$lib/types/datetime-calendar";
 import { setTranslationService } from '$lib/stores/locale.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 // import {
 //   createUnitTestTranslationService,
 //   'test-text'
@@ -13,13 +14,20 @@ import { setTranslationService } from '$lib/stores/locale.svelte';
 describe('TaskRecurrenceSelector', () => {
   const defaultProps = {
     recurrenceRule: null,
-    onEdit: vi.fn() as any,
+    onEdit: vi.fn() as () => void,
     disabled: false
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setTranslationService({} as any);
+    const mockTranslationService: ITranslationService = {
+      getCurrentLocale: vi.fn().mockReturnValue('en'),
+      setLocale: vi.fn(),
+      reactiveMessage: vi.fn().mockImplementation((fn) => fn),
+      getMessage: vi.fn().mockReturnValue(() => 'mock-message'),
+      getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
+    };
+    setTranslationService(mockTranslationService);
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -47,7 +55,7 @@ describe('TaskRecurrenceSelector', () => {
   });
 
   it('編集ボタンをクリックするとonEditが呼ばれる', async () => {
-    const onEdit = vi.fn() as any;
+    const onEdit = vi.fn() as () => void;
     render(TaskRecurrenceSelector, {
       props: {
         ...defaultProps,
@@ -328,7 +336,7 @@ describe('TaskRecurrenceSelector', () => {
         unit: 'day' as const,
         interval: 1
       },
-      onEdit: vi.fn() as any,
+      onEdit: vi.fn() as () => void,
       disabled: false
     };
 

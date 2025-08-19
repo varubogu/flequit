@@ -5,6 +5,7 @@ import { TaskListService } from '$lib/services/task-list-service';
 import { TaskService } from '$lib/services/task-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 // import {
 //   createUnitTestTranslationService,
 //   'test-text'
@@ -48,7 +49,14 @@ const mockTaskStore = vi.mocked(taskStore);
 describe('TaskAddForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    setTranslationService({} as any);
+    const mockTranslationService: ITranslationService = {
+      getCurrentLocale: vi.fn().mockReturnValue('en'),
+      setLocale: vi.fn(),
+      reactiveMessage: vi.fn().mockImplementation((fn) => fn),
+      getMessage: vi.fn().mockReturnValue(() => 'mock-message'),
+      getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
+    };
+    setTranslationService(mockTranslationService);
   });
 
   describe('rendering', () => {

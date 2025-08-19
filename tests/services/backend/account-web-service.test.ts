@@ -252,8 +252,8 @@ describe('AccountWebService', () => {
     it('should handle malformed account objects gracefully', async () => {
       const malformedAccount = {
         ...mockAccount,
-        created_at: 'invalid-date' as any,
-        updated_at: null as any
+        created_at: 'invalid-date' as unknown as Date,
+        updated_at: null as unknown as Date
       };
 
       const createResult = await service.create(malformedAccount);

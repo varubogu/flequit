@@ -83,8 +83,8 @@ describe('TaskList', () => {
     title: 'My Tasks',
     tasks: mockTasks,
     showAddButton: true,
-    onTaskClick: vi.fn() as any,
-    onSubTaskClick: vi.fn() as any
+    onTaskClick: vi.fn() as unknown,
+    onSubTaskClick: vi.fn() as unknown
   };
 
   beforeEach(() => {
@@ -260,8 +260,8 @@ describe('TaskList', () => {
   describe('コールバック関数テスト', () => {
     it('コールバック関数が提供された場合、正常にレンダリングされる', () => {
       const callbacks = {
-        onTaskClick: vi.fn() as any,
-        onSubTaskClick: vi.fn() as any
+        onTaskClick: vi.fn() as unknown,
+        onSubTaskClick: vi.fn() as unknown
       };
       const props = { ...defaultProps, ...callbacks };
       const { container } = render(TaskList, { props });
@@ -320,20 +320,20 @@ describe('TaskList', () => {
       const invalidTask = {
         id: 'invalid',
         title: '',
-        description: null as any,
+        description: null as unknown,
         status: -1,
         priority: 999,
-        start_date: null as any,
-        end_date: null as any,
-        is_range_date: null as any,
+        start_date: null as unknown,
+        end_date: null as unknown,
+        is_range_date: null as unknown,
         project_id: '',
         task_list_id: '',
-        created_at: null as any,
-        updated_at: null as any,
-        sub_tasks: null as any
+        created_at: null as unknown,
+        updated_at: null as unknown,
+        sub_tasks: null as unknown
       };
       
-      const props = { ...defaultProps, tasks: [invalidTask as any] };
+      const props = { ...defaultProps, tasks: [invalidTask as unknown] };
       const { container } = render(TaskList, { props });
       
       expect(container.innerHTML).toBeTruthy();

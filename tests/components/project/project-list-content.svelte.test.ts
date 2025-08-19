@@ -237,7 +237,7 @@ describe('ProjectListContent', () => {
     it('should handle projects without names', () => {
       const projectsWithoutNames = [
         { ...mockProjects[0], name: '' },
-        { ...mockProjects[1], name: null as any }
+        { ...mockProjects[1], name: null as unknown as string }
       ];
 
       const logicWithEmptyNames = {
@@ -258,7 +258,7 @@ describe('ProjectListContent', () => {
     it('should handle undefined expandedProjects', () => {
       const logicWithoutExpanded = {
         ...mockLogic,
-        expandedProjects: undefined as any
+        expandedProjects: undefined as unknown as Set<string>
       } as typeof mockLogic;
 
       render(ProjectListContent, { 

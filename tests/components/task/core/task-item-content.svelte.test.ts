@@ -1,7 +1,9 @@
 import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
-import type { TaskWithSubTasks } from '$lib/types/task';
+import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
+import type { TaskItemLogic } from '$lib/components/task/core/task-item-logic.svelte';
+import type { SubTask } from '$lib/types/sub-task';
 
 // 必要なモジュールをモック
 vi.mock('$lib/utils/task-utils', () => ({
@@ -38,7 +40,7 @@ describe('TaskItemContent', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1 as any,
+    status: 'not_started' as TaskStatus,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
@@ -48,7 +50,7 @@ describe('TaskItemContent', () => {
     updated_at: new Date('2024-01-01'),
     sub_tasks: [],
     tags: []
-  } as any;
+  } as unknown as TaskWithSubTasks;
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
@@ -57,14 +59,14 @@ describe('TaskItemContent', () => {
         id: 'subtask-1',
         title: 'Test SubTask',
         description: 'Test subtask description',
-        status: 1 as any,
+        status: 'not_started' as TaskStatus,
         priority: 1,
         task_id: 'task-1',
         order_index: 0,
         tags: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
-      } as any
+      } as unknown as SubTask
     ]
   };
 
@@ -94,10 +96,10 @@ describe('TaskItemContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as any,
+    logic: mockLogic as unknown as TaskItemLogic,
     task: mockTask,
     taskDatePicker: mockTaskDatePicker
-  } as any;
+  } as unknown;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -106,14 +108,14 @@ describe('TaskItemContent', () => {
   describe('基本表示テスト', () => {
     it('タスクアイテムが正常にレンダリングされる', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(50);
     });
 
     it('基本的なHTML構造が存在する', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       // フレックスレイアウトが含まれる
       expect(container.innerHTML).toContain('flex w-full');
       // ドラッグ可能な要素が含まれる
@@ -122,23 +124,23 @@ describe('TaskItemContent', () => {
 
     it('ロール属性とタブインデックスが設定される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('role="button"');
       expect(container.innerHTML).toContain('tabindex="0"');
     });
 
     it('レスポンシブクラスが適用される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('min-w-0');
       expect(container.innerHTML).toContain('overflow-hidden');
     });
 
     it('異なるロジック状態で正常にレンダリングされる', () => {
       const activeLogic = { ...mockLogic, isActiveTask: true };
-      const props = { ...defaultProps, logic: activeLogic as any };
+      const props = { ...defaultProps, logic: activeLogic as unknown };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -146,7 +148,7 @@ describe('TaskItemContent', () => {
   describe('サブタスク表示テスト', () => {
     it('サブタスクなしのタスクが正常にレンダリングされる', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).not.toMatch(/SubTask List/);
     });
@@ -157,7 +159,7 @@ describe('TaskItemContent', () => {
         task: mockTaskWithSubTasks
       };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -165,11 +167,11 @@ describe('TaskItemContent', () => {
       const expandedLogic = { ...mockLogic, showSubTasks: true };
       const props = {
         ...defaultProps,
-        logic: expandedLogic as any,
+        logic: expandedLogic as TaskItemLogic,
         task: mockTaskWithSubTasks
       };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -177,11 +179,11 @@ describe('TaskItemContent', () => {
       const collapsedLogic = { ...mockLogic, showSubTasks: false };
       const props = {
         ...defaultProps,
-        logic: collapsedLogic as any,
+        logic: collapsedLogic as TaskItemLogic,
         task: mockTaskWithSubTasks
       };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -189,13 +191,13 @@ describe('TaskItemContent', () => {
   describe('イベントハンドリングテスト', () => {
     it('ドラッグ&ドロップ属性が正しく設定される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('draggable="true"');
     });
 
     it('ロジッククラスのメソッドが正しくバインドされる', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       // コンポーネントが正常にレンダリングされることで、バインディングが正常であることを確認
       expect(container.innerHTML).toBeTruthy();
     });
@@ -205,7 +207,7 @@ describe('TaskItemContent', () => {
         ...defaultProps,
         taskDatePicker: undefined
       };
-      
+
       const { container } = render(TaskItemContent, { props });
       expect(container.innerHTML).toBeTruthy();
     });
@@ -220,9 +222,9 @@ describe('TaskItemContent', () => {
           { label: 'Delete', action: vi.fn() }
         ]
       };
-      const props = { ...defaultProps, logic: logicWithMenuItems as any };
+      const props = { ...defaultProps, logic: logicWithMenuItems as unknown };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -231,9 +233,9 @@ describe('TaskItemContent', () => {
         ...mockLogic,
         taskContextMenuItems: []
       };
-      const props = { ...defaultProps, logic: logicWithEmptyMenu as any };
+      const props = { ...defaultProps, logic: logicWithEmptyMenu as unknown };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -241,25 +243,25 @@ describe('TaskItemContent', () => {
   describe('レスポンシブ・アクセシビリティテスト', () => {
     it('適切なロール属性が設定される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('role="button"');
     });
 
     it('tabindex属性が設定される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('tabindex="0"');
     });
 
     it('フレックスレイアウトが適用される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('flex w-full');
     });
 
     it('オーバーフロー処理が適用される', () => {
       const { container } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('overflow-hidden');
     });
   });
@@ -269,15 +271,15 @@ describe('TaskItemContent', () => {
       const highPriorityTask = { ...mockTask, priority: 5 };
       const props = { ...defaultProps, task: highPriorityTask };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('異なるステータスのタスクが正常にレンダリングされる', () => {
-      const completedTask = { ...mockTask, status: 4 as any };
+      const completedTask = { ...mockTask, status: 4 as unknown };
       const props = { ...defaultProps, task: completedTask };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -285,14 +287,14 @@ describe('TaskItemContent', () => {
       const taskWithMultipleSubTasks = {
         ...mockTask,
         sub_tasks: [
-          { id: 'sub1', title: 'SubTask 1', status: 1 as any, priority: 1, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub2', title: 'SubTask 2', status: 2 as any, priority: 2, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub3', title: 'SubTask 3', status: 4 as any, priority: 3, task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
+          { id: 'sub1', title: 'SubTask 1', status: 1 as unknown, priority: 1, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
+          { id: 'sub2', title: 'SubTask 2', status: 2 as unknown, priority: 2, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
+          { id: 'sub3', title: 'SubTask 3', status: 4 as unknown, priority: 3, task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
         ]
       };
       const props = { ...defaultProps, task: taskWithMultipleSubTasks };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -304,7 +306,7 @@ describe('TaskItemContent', () => {
       ];
 
       variousLogicStates.forEach(logic => {
-        const props = { ...defaultProps, logic: logic as any };
+        const props = { ...defaultProps, logic: logic as unknown };
         const { container } = render(TaskItemContent, { props });
         expect(container.innerHTML).toBeTruthy();
       });
@@ -315,16 +317,16 @@ describe('TaskItemContent', () => {
     it('不正な優先度でもエラーにならない', () => {
       const invalidPriorityTask = { ...mockTask, priority: -1 };
       const props = { ...defaultProps, task: invalidPriorityTask };
-      
+
       const { container } = render(TaskItemContent, { props });
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('コンポーネントが正常にマウント・アンマウントできる', () => {
       const { container, unmount } = render(TaskItemContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
-      
+
       // アンマウントしてもエラーが発生しない
       expect(() => unmount()).not.toThrow();
     });
@@ -332,11 +334,11 @@ describe('TaskItemContent', () => {
     it('ロジックメソッドがnullでもエラーにならない', () => {
       const logicWithNullMethods = {
         ...mockLogic,
-        handleTaskClick: null as any,
-        handleStatusToggle: null as any
+        handleTaskClick: null as ((task: TaskWithSubTasks) => void) | null,
+        handleStatusToggle: null as unknown
       };
-      const props = { ...defaultProps, logic: logicWithNullMethods as any };
-      
+      const props = { ...defaultProps, logic: logicWithNullMethods as unknown };
+
       const { container } = render(TaskItemContent, { props });
       expect(container.innerHTML).toBeTruthy();
     });
@@ -345,7 +347,7 @@ describe('TaskItemContent', () => {
       const taskWithEmptySubTasks = { ...mockTask, sub_tasks: [] };
       const props = { ...defaultProps, task: taskWithEmptySubTasks };
       const { container } = render(TaskItemContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).not.toContain('SubTask List');
     });

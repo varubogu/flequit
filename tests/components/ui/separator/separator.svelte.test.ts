@@ -3,7 +3,7 @@ import { render } from '@testing-library/svelte';
 
 // Mock cn utility
 vi.mock('$lib/utils', () => ({
-  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')) as any
+  cn: vi.fn((...classes: (string | boolean | undefined)[]) => classes.filter(Boolean).join(' '))
 }));
 
 import Separator from '$lib/components/ui/separator/separator.svelte';

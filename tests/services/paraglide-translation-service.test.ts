@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { ITranslationServiceWithNotification } from '$lib/services/translation-service';
 
 // Mock external dependencies
 const mockGetLocale = vi.fn(() => 'en');
@@ -43,7 +44,7 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 describe('ParaglideTranslationService (Singleton)', () => {
-  let service: any;
+  let service: ITranslationServiceWithNotification;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -55,7 +56,7 @@ describe('ParaglideTranslationService (Singleton)', () => {
     
     // Import the singleton instance
     const module = await import('$lib/services/paraglide-translation-service.svelte');
-    service = (module as any).translationService;
+    service = module.translationService;
   });
 
   describe('basic functionality', () => {

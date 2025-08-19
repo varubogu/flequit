@@ -6,7 +6,7 @@ import type { ProjectTree } from "$lib/types/project";
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({
-  getTranslationService: () => ({} as any)
+  getTranslationService: () => ({} as unknown)
 }));
 
 // taskStoreのモック
@@ -99,7 +99,7 @@ describe('TaskListDisplay', () => {
   const defaultProps = {
     project: mockProject,
     isExpanded: true,
-    onViewChange: vi.fn() as any
+    onViewChange: vi.fn() as unknown
   };
 
   beforeEach(() => {
@@ -164,7 +164,7 @@ describe('TaskListDisplay', () => {
   });
 
   it('onViewChangeコールバックが呼ばれる', async () => {
-    const onViewChange = vi.fn() as any;
+    const onViewChange = vi.fn() as unknown;
     render(TaskListDisplay, {
       props: {
         ...defaultProps,

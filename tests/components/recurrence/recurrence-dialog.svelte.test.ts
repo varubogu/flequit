@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render, screen } from '@testing-library/svelte';
 import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 

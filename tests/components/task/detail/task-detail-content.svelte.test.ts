@@ -19,9 +19,9 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    addTagToNewTask: vi.fn() as any,
-    addTagToSubTask: vi.fn() as any,
-    addTagToTask: vi.fn() as any
+    addTagToNewTask: vi.fn() as (tagName: string) => void,
+    addTagToSubTask: vi.fn() as (subTaskId: string, tagName: string) => Promise<void>,
+    addTagToTask: vi.fn() as (taskId: string, tagName: string) => Promise<void>
   }
 }));
 
@@ -129,22 +129,22 @@ describe('TaskDetailContent', () => {
     selectedSubTaskId: null,
     projectInfo: mockProjectInfo,
     isDrawerMode: false,
-    onTitleChange: vi.fn() as any,
-    onDescriptionChange: vi.fn() as any,
-    onPriorityChange: vi.fn() as any,
-    onStatusChange: vi.fn() as any,
-    onDueDateClick: vi.fn() as any,
-    onFormChange: vi.fn() as any,
-    onDelete: vi.fn() as any,
-    onSaveNewTask: vi.fn() as any,
-    onSubTaskClick: vi.fn() as any,
-    onSubTaskToggle: vi.fn() as any,
-    onAddSubTask: vi.fn() as any,
+    onTitleChange: vi.fn() as (title: string) => void,
+    onDescriptionChange: vi.fn() as (description: string) => void,
+    onPriorityChange: vi.fn() as (priority: number) => void,
+    onStatusChange: vi.fn() as (event: Event) => void,
+    onDueDateClick: vi.fn() as (event?: Event) => void,
+    onFormChange: vi.fn() as () => void,
+    onDelete: vi.fn() as () => void,
+    onSaveNewTask: vi.fn() as () => Promise<void>,
+    onSubTaskClick: vi.fn() as (subTaskId: string) => void,
+    onSubTaskToggle: vi.fn() as (subTaskId: string) => void,
+    onAddSubTask: vi.fn() as () => void,
     showSubTaskAddForm: false,
-    onSubTaskAdded: vi.fn() as any,
-    onSubTaskAddCancel: vi.fn() as any,
-    onGoToParentTask: vi.fn() as any,
-    onProjectTaskListEdit: vi.fn() as any
+    onSubTaskAdded: vi.fn() as (title: string) => void,
+    onSubTaskAddCancel: vi.fn() as () => void,
+    onGoToParentTask: vi.fn() as () => void,
+    onProjectTaskListEdit: vi.fn() as () => void
   };
 
   beforeEach(() => {
@@ -259,18 +259,18 @@ describe('TaskDetailContent', () => {
 
     it('コールバック関数が適切に渡される', () => {
       const callbacks = {
-        onTitleChange: vi.fn() as any,
-        onDescriptionChange: vi.fn() as any,
-        onPriorityChange: vi.fn() as any,
-        onStatusChange: vi.fn() as any,
-        onDueDateClick: vi.fn() as any,
-        onFormChange: vi.fn() as any,
-        onDelete: vi.fn() as any,
-        onSaveNewTask: vi.fn() as any,
-        onSubTaskClick: vi.fn() as any,
-        onSubTaskToggle: vi.fn() as any,
-        onGoToParentTask: vi.fn() as any,
-        onProjectTaskListEdit: vi.fn() as any
+        onTitleChange: vi.fn() as (title: string) => void,
+        onDescriptionChange: vi.fn() as (description: string) => void,
+        onPriorityChange: vi.fn() as (priority: number) => void,
+        onStatusChange: vi.fn() as (event: Event) => void,
+        onDueDateClick: vi.fn() as (event?: Event) => void,
+        onFormChange: vi.fn() as () => void,
+        onDelete: vi.fn() as () => void,
+        onSaveNewTask: vi.fn() as () => Promise<void>,
+        onSubTaskClick: vi.fn() as (subTaskId: string) => void,
+        onSubTaskToggle: vi.fn() as (subTaskId: string) => void,
+        onGoToParentTask: vi.fn() as () => void,
+        onProjectTaskListEdit: vi.fn() as () => void
       };
       
       const props = { ...defaultProps, ...callbacks };
@@ -291,18 +291,18 @@ describe('TaskDetailContent', () => {
         editForm: mockEditForm,
         selectedSubTaskId: null,
         projectInfo: null,
-        onTitleChange: vi.fn() as any,
-        onDescriptionChange: vi.fn() as any,
-        onPriorityChange: vi.fn() as any,
-        onStatusChange: vi.fn() as any,
-        onDueDateClick: vi.fn() as any,
-        onFormChange: vi.fn() as any,
-        onDelete: vi.fn() as any,
-        onSaveNewTask: vi.fn() as any,
-        onSubTaskClick: vi.fn() as any,
-        onSubTaskToggle: vi.fn() as any,
-        onGoToParentTask: vi.fn() as any,
-        onProjectTaskListEdit: vi.fn() as any
+        onTitleChange: vi.fn() as (title: string) => void,
+        onDescriptionChange: vi.fn() as (description: string) => void,
+        onPriorityChange: vi.fn() as (priority: number) => void,
+        onStatusChange: vi.fn() as (event: Event) => void,
+        onDueDateClick: vi.fn() as (event?: Event) => void,
+        onFormChange: vi.fn() as () => void,
+        onDelete: vi.fn() as () => void,
+        onSaveNewTask: vi.fn() as () => Promise<void>,
+        onSubTaskClick: vi.fn() as (subTaskId: string) => void,
+        onSubTaskToggle: vi.fn() as (subTaskId: string) => void,
+        onGoToParentTask: vi.fn() as () => void,
+        onProjectTaskListEdit: vi.fn() as () => void
       };
       
       const { container } = render(TaskDetailContent, { props: incompleteProps });

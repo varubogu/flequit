@@ -641,7 +641,6 @@ test('ViewService.getTasksForView: date range tests work correctly', () => {
 });
 
 test('ViewService.getTasksForView: edge case for end of month calculation', () => {
-  const today = new Date(2024, 0, 31); // January 31st, 2024
   const endOfMonth = new Date(2024, 1, 0); // Last day of January
   
   const taskAtEndOfMonth = {
@@ -663,7 +662,7 @@ test('ViewService.getTasksForView: edge case for end of month calculation', () =
     static now() {
       return new originalDate(2024, 0, 31).getTime();
     }
-  } as any;
+  } as DateConstructor;
   
   const result = ViewService.getTasksForView('thismonth');
   

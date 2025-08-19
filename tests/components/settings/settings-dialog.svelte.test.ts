@@ -112,7 +112,7 @@ describe('SettingsDialog Integration', () => {
 
   test('should handle undefined callback', () => {
     const { container } = render(SettingsDialog, { 
-      props: { open: true, onOpenChange: undefined as any }
+      props: { open: true, onOpenChange: undefined as ((open: boolean) => void) | undefined }
     });
 
     // Should render without errors

@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskDetailDialogs from '$lib/components/task/dialogs/task-detail-dialogs.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
 // 子コンポーネントをモック
 vi.mock('$lib/components/datetime/inline-picker/inline-date-picker.svelte', () => ({
@@ -37,7 +38,7 @@ describe('TaskDetailDialogs', () => {
     is_range_date: true,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
-    recurrence_rule: {} as any,
+    recurrence_rule: {} as unknown as RecurrenceRule,
     tags: [],
     list_id: 'list-1',
     order_index: 0,
@@ -87,17 +88,17 @@ describe('TaskDetailDialogs', () => {
     showProjectTaskListDialog: false,
     showRecurrenceDialog: false,
     projectInfo: mockProjectInfo,
-    onDateChange: vi.fn() as any,
-    onDateClear: vi.fn() as any,
-    onDatePickerClose: vi.fn() as any,
-    onConfirmDiscard: vi.fn() as any,
-    onCancelDiscard: vi.fn() as any,
-    onConfirmDelete: vi.fn() as any,
-    onCancelDelete: vi.fn() as any,
-    onProjectTaskListChange: vi.fn() as any,
-    onProjectTaskListDialogClose: vi.fn() as any,
-    onRecurrenceChange: vi.fn() as any,
-    onRecurrenceDialogClose: vi.fn() as any
+    onDateChange: vi.fn() as (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void,
+    onDateClear: vi.fn() as () => void,
+    onDatePickerClose: vi.fn() as () => void,
+    onConfirmDiscard: vi.fn() as () => void,
+    onCancelDiscard: vi.fn() as () => void,
+    onConfirmDelete: vi.fn() as () => void,
+    onCancelDelete: vi.fn() as () => void,
+    onProjectTaskListChange: vi.fn() as (data: { projectId: string; taskListId: string }) => void,
+    onProjectTaskListDialogClose: vi.fn() as () => void,
+    onRecurrenceChange: vi.fn() as (rule: RecurrenceRule | null) => void,
+    onRecurrenceDialogClose: vi.fn() as () => void
   };
 
   beforeEach(() => {
@@ -107,7 +108,7 @@ describe('TaskDetailDialogs', () => {
   describe('基本表示テスト', () => {
     it('全てのダイアログコンポーネントがレンダリングされる', () => {
       const { container } = render(TaskDetailDialogs, { props: defaultProps });
-      
+
       // 基本的なダイアログコンポーネントが含まれることを確認
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(20);
@@ -115,7 +116,7 @@ describe('TaskDetailDialogs', () => {
 
     it('メインタスクの場合、適切にレンダリングされる', () => {
       const { container } = render(TaskDetailDialogs, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -125,7 +126,7 @@ describe('TaskDetailDialogs', () => {
         currentItem: mockSubTask
       };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -135,7 +136,7 @@ describe('TaskDetailDialogs', () => {
         currentItem: null
       };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -148,14 +149,14 @@ describe('TaskDetailDialogs', () => {
         showDatePicker: true
       };
       const { container: showContainer } = render(TaskDetailDialogs, { props: showDatePickerProps });
-      
+
       // 日付ピッカー非表示
       const hideDatePickerProps = {
         ...defaultProps,
         showDatePicker: false
       };
       const { container: hideContainer } = render(TaskDetailDialogs, { props: hideDatePickerProps });
-      
+
       expect(showContainer.innerHTML).toBeTruthy();
       expect(hideContainer.innerHTML).toBeTruthy();
     });
@@ -166,7 +167,7 @@ describe('TaskDetailDialogs', () => {
         showConfirmationDialog: true
       };
       const { container } = render(TaskDetailDialogs, { props: showConfirmationProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -178,7 +179,7 @@ describe('TaskDetailDialogs', () => {
         deleteDialogMessage: 'This action cannot be undone.'
       };
       const { container } = render(TaskDetailDialogs, { props: showDeleteProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -188,7 +189,7 @@ describe('TaskDetailDialogs', () => {
         showProjectTaskListDialog: true
       };
       const { container } = render(TaskDetailDialogs, { props: showProjectProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -198,7 +199,7 @@ describe('TaskDetailDialogs', () => {
         showRecurrenceDialog: true
       };
       const { container } = render(TaskDetailDialogs, { props: showRecurrenceProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -215,7 +216,7 @@ describe('TaskDetailDialogs', () => {
         }
       };
       const { container } = render(TaskDetailDialogs, { props: datePickerProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -227,7 +228,7 @@ describe('TaskDetailDialogs', () => {
         deleteDialogMessage: 'Are you sure you want to delete this subtask?'
       };
       const { container } = render(TaskDetailDialogs, { props: deleteProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -241,7 +242,7 @@ describe('TaskDetailDialogs', () => {
         }
       };
       const { container } = render(TaskDetailDialogs, { props: projectProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -251,7 +252,7 @@ describe('TaskDetailDialogs', () => {
         projectInfo: null
       };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -259,33 +260,33 @@ describe('TaskDetailDialogs', () => {
   describe('コールバック関数テスト', () => {
     it('全てのコールバック関数が適切に渡される', () => {
       const callbacks = {
-        onDateChange: vi.fn() as any,
-        onDateClear: vi.fn() as any,
-        onDatePickerClose: vi.fn() as any,
-        onConfirmDiscard: vi.fn() as any,
-        onCancelDiscard: vi.fn() as any,
-        onConfirmDelete: vi.fn() as any,
-        onCancelDelete: vi.fn() as any,
-        onProjectTaskListChange: vi.fn() as any,
-        onProjectTaskListDialogClose: vi.fn() as any,
-        onRecurrenceChange: vi.fn() as any,
-        onRecurrenceDialogClose: vi.fn() as any
+        onDateChange: vi.fn() as (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void,
+        onDateClear: vi.fn() as () => void,
+        onDatePickerClose: vi.fn() as () => void,
+        onConfirmDiscard: vi.fn() as () => void,
+        onCancelDiscard: vi.fn() as () => void,
+        onConfirmDelete: vi.fn() as () => void,
+        onCancelDelete: vi.fn() as () => void,
+        onProjectTaskListChange: vi.fn() as (data: { projectId: string; taskListId: string }) => void,
+        onProjectTaskListDialogClose: vi.fn() as () => void,
+        onRecurrenceChange: vi.fn() as (rule: RecurrenceRule | null) => void,
+        onRecurrenceDialogClose: vi.fn() as () => void
       };
-      
+
       const props = { ...defaultProps, ...callbacks };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('コールバック関数がundefinedでも正常に動作する', () => {
       const props = {
         ...defaultProps,
-        onDateChange: undefined as any,
-        onDateClear: undefined as any,
-        onDatePickerClose: undefined as any
+        onDateChange: undefined as ((data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void) | undefined,
+        onDateClear: undefined as (() => void) | undefined,
+        onDatePickerClose: undefined as (() => void) | undefined
       };
-      
+
       const { container } = render(TaskDetailDialogs, { props });
       expect(container.innerHTML).toBeTruthy();
     });
@@ -303,7 +304,7 @@ describe('TaskDetailDialogs', () => {
         currentItem: taskWithoutDates
       };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -317,7 +318,7 @@ describe('TaskDetailDialogs', () => {
         currentItem: taskWithoutRecurrence
       };
       const { container } = render(TaskDetailDialogs, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -330,7 +331,7 @@ describe('TaskDetailDialogs', () => {
         }
       };
       const { container } = render(TaskDetailDialogs, { props: nonRangeProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -344,31 +345,31 @@ describe('TaskDetailDialogs', () => {
         deleteDialogMessage: ''
       };
       const { container } = render(TaskDetailDialogs, { props: invalidProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('コンポーネントが正常にマウント・アンマウントできる', () => {
       const { container, unmount } = render(TaskDetailDialogs, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
-      
+
       // アンマウントしてもエラーが発生しない
       expect(() => unmount()).not.toThrow();
     });
 
     it('プロパティの動的変更に対応する', () => {
       const { container, rerender } = render(TaskDetailDialogs, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
-      
+
       // プロパティを変更してre-render
       const updatedProps = {
         ...defaultProps,
         showDatePicker: true,
         showDeleteDialog: true
       };
-      
+
       expect(() => rerender(updatedProps)).not.toThrow();
       expect(container.innerHTML).toBeTruthy();
     });
