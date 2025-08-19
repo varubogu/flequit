@@ -20,9 +20,11 @@ describe('AccountService Interface', () => {
     
     mockAccount = {
       id: 'account-123',
-      name: 'Test User',
+      display_name: 'Test User',
       email: 'test@example.com',
-      profile_image: 'https://example.com/avatar.jpg',
+      avatar_url: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      is_active: true,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };

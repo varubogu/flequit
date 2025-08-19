@@ -60,6 +60,8 @@ describe('CommandTaskItem', () => {
         end_date: new Date(),
         is_range_date: false,
         list_id: 'list-1',
+        order_index: 0,
+        is_archived: false,
         created_at: new Date(),
         updated_at: new Date(),
         sub_tasks: [],

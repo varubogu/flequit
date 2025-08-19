@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SettingWebService } from '$lib/services/backend/web/setting-web-service';
 import type { Setting } from '$lib/types/settings';
 

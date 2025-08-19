@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AutoFetchWebService } from '$lib/services/backend/web/auto-fetch-web-service';
 import type { DataChangeNotification, DataType, ChangeType } from '$lib/services/backend/auto-fetch-service';
 

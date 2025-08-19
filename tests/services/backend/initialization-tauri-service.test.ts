@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { InitializationTauriService } from '$lib/services/backend/tauri/initialization-tauri-service';
 import type { LocalSettings, Account, InitializationResult } from '$lib/services/backend/initialization-service';
 import type { ProjectTree } from '$lib/types/project';

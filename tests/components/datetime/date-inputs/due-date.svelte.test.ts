@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
 import type { TaskBase } from '$lib/types/task';
@@ -35,13 +35,12 @@ describe('DueDate', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 'not_started',
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: false,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
+    list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01')
   };
@@ -429,7 +428,7 @@ describe('DueDate', () => {
     it('should handle task with minimal properties', () => {
       const minimalTask = {
         id: 'minimal',
-        status: 1,
+        status: 'not_started',
         end_date: undefined
       } as TaskBase;
       

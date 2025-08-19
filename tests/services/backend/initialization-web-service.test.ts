@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { InitializationWebService } from '$lib/services/backend/web/initialization-web-service';
 
 // Mock localStorage

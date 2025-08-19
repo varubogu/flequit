@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AutoFetchTauriService } from '$lib/services/backend/tauri/auto-fetch-tauri-service';
 import type { DataChangeNotification, DataType, ChangeType } from '$lib/services/backend/auto-fetch-service';
 
@@ -15,7 +15,7 @@ describe('AutoFetchTauriService', () => {
       id: 'project-123',
       timestamp: new Date('2024-01-01T00:00:00Z')
     };
-    
+
     // console.errorをモック化
     consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.clearAllMocks();
@@ -61,7 +61,7 @@ describe('AutoFetchTauriService', () => {
 
       // プロジェクト変更通知
       await service.notifyDataChange(mockNotification);
-      
+
       expect(projectCallback).toHaveBeenCalledWith(mockNotification);
       expect(taskCallback).not.toHaveBeenCalled();
 
@@ -72,7 +72,7 @@ describe('AutoFetchTauriService', () => {
         id: 'task-456'
       };
       await service.notifyDataChange(taskNotification);
-      
+
       expect(taskCallback).toHaveBeenCalledWith(taskNotification);
       expect(projectCallback).toHaveBeenCalledTimes(1); // 変わらず
     });
@@ -143,7 +143,7 @@ describe('AutoFetchTauriService', () => {
 
         // 対応するコールバックのみが呼ばれることを確認
         expect(callbacks[i]).toHaveBeenCalledWith(notification);
-        
+
         // 他のコールバックは呼ばれていないことを確認
         callbacks.forEach((callback, j) => {
           if (i !== j) {
@@ -398,7 +398,7 @@ describe('AutoFetchTauriService', () => {
 
     it('should handle large number of listeners', async () => {
       const callbacks = Array.from({ length: 100 }, () => vi.fn());
-      
+
       // 100個のリスナーを登録
       callbacks.forEach(callback => service.subscribe(callback));
 
@@ -434,36 +434,36 @@ describe('AutoFetchTauriService', () => {
     it('should handle unsubscribe of non-existent callback', () => {
       const callback = vi.fn();
       const unsubscribe = service.subscribe(callback);
-      
+
       unsubscribe(); // 正常なアンサブスクライブ
-      
+
       expect(() => unsubscribe()).not.toThrow(); // 2回目のアンサブスクライブでもエラーにならない
     });
 
     it('should handle subscription and immediate unsubscription', async () => {
       const callback = vi.fn();
       const unsubscribe = service.subscribe(callback);
-      
+
       unsubscribe(); // 即座にアンサブスクライブ
-      
+
       await service.notifyDataChange(mockNotification);
-      
+
       expect(callback).not.toHaveBeenCalled();
     });
 
     it('should handle very long data type names', async () => {
       const longDataType = 'very_long_data_type_name_that_exceeds_normal_length_limits_'.repeat(10);
       const callback = vi.fn();
-      
+
       service.subscribeToDataType(longDataType, callback);
-      
+
       const longTypeNotification = {
         ...mockNotification,
         dataType: longDataType as any
       };
-      
+
       await service.notifyDataChange(longTypeNotification);
-      
+
       expect(callback).toHaveBeenCalledWith(longTypeNotification);
     });
   });

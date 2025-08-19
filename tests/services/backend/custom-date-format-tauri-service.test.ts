@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, type MockedFunction } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest';
 import { CustomDateFormatTauriService } from '$lib/services/backend/tauri/custom-date-format-tauri-service';
 import { invoke } from '@tauri-apps/api/core';
 import type { CustomDateFormat } from '$lib/types/settings';

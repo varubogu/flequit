@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AccountWebService } from '$lib/services/backend/web/account-web-service';
 import type { Account } from '$lib/types/settings';
 
@@ -12,9 +12,11 @@ describe('AccountWebService', () => {
     
     mockAccount = {
       id: 'account-123',
-      name: 'Test User',
+      display_name: 'Test User',
       email: 'test@example.com',
-      profile_image: 'https://example.com/avatar.jpg',
+      avatar_url: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      is_active: true,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };
@@ -39,7 +41,9 @@ describe('AccountWebService', () => {
     it('should handle account with minimal data', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        name: 'Minimal User',
+        display_name: 'Minimal User',
+        provider: 'local',
+        is_active: true,
         created_at: new Date(),
         updated_at: new Date()
       };
