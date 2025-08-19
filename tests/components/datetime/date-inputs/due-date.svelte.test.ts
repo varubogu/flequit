@@ -21,7 +21,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 }));
 
 vi.mock('$lib/utils/datetime-utils', () => ({
-  getDueDateClass: vi.fn((date: Date, status: number) => {
+  getDueDateClass: vi.fn(() => {
     const now = new Date();
     if (date < now) return 'text-red-500'; // overdue
     if (date.toDateString() === now.toDateString()) return 'text-orange-500'; // today
@@ -265,9 +265,8 @@ describe('DueDate', () => {
 
   describe('styling and colors', () => {
     it('should apply color classes from getDueDateClass when task has end_date', () => {
-      const { container } = render(DueDate, { props: defaultProps });
+      render(DueDate, { props: defaultProps });
       
-      const button = container.querySelector('button');
       expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(
         baseTask.end_date,
         baseTask.status
@@ -347,7 +346,7 @@ describe('DueDate', () => {
 
     it('should handle missing handleDueDateClick gracefully', () => {
       const { container } = render(DueDate, { 
-        props: { ...defaultProps, handleDueDateClick: undefined as any }
+        props: { ...defaultProps, handleDueDateClick: undefined as ((event: Event) => void) | undefined }
       });
       
       const button = container.querySelector('button') as HTMLButtonElement;
@@ -453,7 +452,7 @@ describe('DueDate', () => {
 
     it('should handle null class', () => {
       const { container } = render(DueDate, { 
-        props: { ...defaultProps, class: null as any }
+        props: { ...defaultProps, class: null as string | null }
       });
       
       const button = container.querySelector('button');

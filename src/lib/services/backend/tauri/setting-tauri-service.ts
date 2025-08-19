@@ -77,7 +77,7 @@ export class SettingTauriService implements SettingService {
   async update(setting: Setting): Promise<boolean> {
     try {
       // valueをJSON Valueに変換
-      let jsonValue: any;
+      let jsonValue: string | number | boolean | object;
       if (setting.data_type === 'json') {
         try {
           jsonValue = JSON.parse(setting.value);

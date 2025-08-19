@@ -387,7 +387,7 @@ describe('WeekdayConditionEditor', () => {
     it('should handle null condition', () => {
       const nullProps = {
         ...defaultProps,
-        condition: null as any
+        condition: null as WeekdayCondition | null
       };
       
       const { container } = render(WeekdayConditionEditor, { props: nullProps });
@@ -398,8 +398,8 @@ describe('WeekdayConditionEditor', () => {
     it('should handle undefined callbacks', () => {
       const undefinedCallbackProps = {
         ...defaultProps,
-        onUpdate: undefined as any,
-        onRemove: undefined as any
+        onUpdate: undefined as ((updates: Partial<WeekdayCondition>) => void) | undefined,
+        onRemove: undefined as (() => void) | undefined
       };
       
       const { container } = render(WeekdayConditionEditor, { props: undefinedCallbackProps });
@@ -412,7 +412,7 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_direction: 'invalid' as any
+          then_direction: 'invalid' as AdjustmentDirection
         }
       };
       

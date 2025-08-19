@@ -116,8 +116,8 @@ describe('InlineDatePickerUI', () => {
       const { container } = render(InlineDatePickerUI, { 
         props: { 
           ...defaultProps, 
-          startDate: '' as any,
-          endDate: '' as any
+          startDate: '' as string,
+          endDate: '' as string
         }
       });
       expect(container).toBeInTheDocument();

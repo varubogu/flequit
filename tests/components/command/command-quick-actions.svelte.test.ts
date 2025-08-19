@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import CommandQuickActions from '$lib/components/command/command-quick-actions.svelte';
 
 // Mock UI command components
@@ -162,9 +162,9 @@ describe('CommandQuickActions', () => {
         quickActions: 'Quick Actions',
         addNewTask: 'Add New Task',
         viewAllTasks: 'View All Tasks',
-        onSearchExecute: undefined as any,
-        onAddNewTask: undefined as any,
-        onViewAllTasks: undefined as any
+        onSearchExecute: undefined as (() => void) | undefined,
+        onAddNewTask: undefined as (() => void) | undefined,
+        onViewAllTasks: undefined as (() => void) | undefined
       };
 
       render(CommandQuickActions, { props: propsWithUndefinedCallbacks });
@@ -290,10 +290,10 @@ describe('CommandQuickActions', () => {
   describe('edge cases', () => {
     it('should handle null text values', () => {
       const nullTextProps = {
-        showAllTasks: null as any,
-        quickActions: null as any,
-        addNewTask: null as any,
-        viewAllTasks: null as any,
+        showAllTasks: null as string | null,
+        quickActions: null as string | null,
+        addNewTask: null as string | null,
+        viewAllTasks: null as string | null,
         onSearchExecute: vi.fn(),
         onAddNewTask: vi.fn(),
         onViewAllTasks: vi.fn()
@@ -306,10 +306,10 @@ describe('CommandQuickActions', () => {
 
     it('should handle undefined text values', () => {
       const undefinedTextProps = {
-        showAllTasks: undefined as any,
-        quickActions: undefined as any,
-        addNewTask: undefined as any,
-        viewAllTasks: undefined as any,
+        showAllTasks: undefined as string | undefined,
+        quickActions: undefined as string | undefined,
+        addNewTask: undefined as string | undefined,
+        viewAllTasks: undefined as string | undefined,
         onSearchExecute: vi.fn(),
         onAddNewTask: vi.fn(),
         onViewAllTasks: vi.fn()

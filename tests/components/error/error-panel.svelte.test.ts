@@ -1,27 +1,27 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render } from '@testing-library/svelte';
+// import { render } from '@testing-library/svelte'; // Not used in current tests
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 // Simple test component that uses error handler directly
-import { SvelteComponent } from 'svelte';
+// import { SvelteComponent } from 'svelte'; // Not used in current tests
 
 // Create a simple test component instead of testing the complex ErrorPanel
-const TestComponent = `
-<script>
-  import { errorHandler } from '$lib/stores/error-handler.svelte';
-  const errors = $derived(errorHandler.errors);
-</script>
-
-{#if errors.length > 0}
-  <div data-testid="error-container" class="error-panel">
-    {#each errors as error (error.id)}
-      <div data-testid="error-item" class="error-item">
-        {error.message}
-      </div>
-    {/each}
-  </div>
-{/if}
-`;
+// const TestComponent = ` // Not used in current tests
+// <script>
+//   import { errorHandler } from '$lib/stores/error-handler.svelte';
+//   const errors = $derived(errorHandler.errors);
+// </script>
+// 
+// {#if errors.length > 0}
+//   <div data-testid="error-container" class="error-panel">
+//     {#each errors as error (error.id)}
+//       <div data-testid="error-item" class="error-item">
+//         {error.message}
+//       </div>
+//     {/each}
+//   </div>
+// {/if}
+// `;
 
 describe('ErrorPanel (Store Integration)', () => {
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('ErrorPanel (Store Integration)', () => {
     expect(errorHandler.errors.length).toBe(0);
     
     // Add an error
-    const errorId = errorHandler.addError({
+    errorHandler.addError({
       type: 'validation',
       message: 'Test error message',
       retryable: false
@@ -49,13 +49,13 @@ describe('ErrorPanel (Store Integration)', () => {
 
   it('should handle multiple errors', () => {
     // Add multiple errors
-    const errorId1 = errorHandler.addError({
+    errorHandler.addError({
       type: 'validation',
       message: 'First error',
       retryable: false
     });
     
-    const errorId2 = errorHandler.addError({
+    errorHandler.addError({
       type: 'network',
       message: 'Second error',
       retryable: true
@@ -67,13 +67,13 @@ describe('ErrorPanel (Store Integration)', () => {
   });
 
   it('should remove specific errors', () => {
-    const errorId1 = errorHandler.addError({
+    errorHandler.addError({
       type: 'validation',
       message: 'First error',
       retryable: false
     });
     
-    const errorId2 = errorHandler.addError({
+    errorHandler.addError({
       type: 'network',
       message: 'Second error',
       retryable: true
@@ -133,7 +133,7 @@ describe('ErrorPanel (Store Integration)', () => {
   });
 
   it('should include context information', () => {
-    const errorId = errorHandler.addError({
+    errorHandler.addError({
       type: 'validation',
       message: 'Validation failed',
       retryable: false,
@@ -157,14 +157,14 @@ describe('ErrorPanel (Store Integration)', () => {
     const originalSetTimeout = global.setTimeout;
     let timeoutCallback: (() => void) = () => {};
     
-    const mockSetTimeout = vi.fn((callback: () => void, delay: number) => {
+    const mockSetTimeout = vi.fn((callback: () => void) => {
       timeoutCallback = callback;
-      return 123 as any; // Return a mock timer ID
-    }) as any;
+      return 123 as unknown as NodeJS.Timeout; // Return a mock timer ID
+    }) as typeof setTimeout;
     mockSetTimeout.__promisify__ = vi.fn();
     global.setTimeout = mockSetTimeout;
 
-    const errorId = errorHandler.addError({
+    errorHandler.addError({
       type: 'validation',
       message: 'Auto-remove error',
       retryable: false
@@ -184,11 +184,11 @@ describe('ErrorPanel (Store Integration)', () => {
 
   it('should not auto-remove retryable errors', () => {
     // Mock setTimeout for testing
-    const mockSetTimeout = vi.fn() as any;
+    const mockSetTimeout = vi.fn() as typeof setTimeout;
     mockSetTimeout.__promisify__ = vi.fn();
     global.setTimeout = mockSetTimeout;
 
-    const errorId = errorHandler.addError({
+    errorHandler.addError({
       type: 'network',
       message: 'Retryable error',
       retryable: true

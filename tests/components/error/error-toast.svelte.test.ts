@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { errorHandler, type ErrorInfo } from '$lib/stores/error-handler.svelte';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 // Test the ErrorToast functionality through error handler store
 describe('ErrorToast (Store Integration)', () => {
@@ -84,7 +84,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should remove error when handleDismiss is called', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'validation',
         message: 'Test error',
         retryable: false
@@ -98,7 +98,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should remove error when handleRetry is called', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'network',
         message: 'Network error',
         retryable: true
@@ -114,7 +114,7 @@ describe('ErrorToast (Store Integration)', () => {
 
   describe('Error Information Display', () => {
     it('should handle error with all information fields', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'validation',
         message: 'Field validation failed',
         details: 'Email address is required',
@@ -138,7 +138,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should handle error with minimal information', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'general',
         message: 'Something went wrong',
         retryable: false
@@ -154,7 +154,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should handle retryable network error', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'network',
         message: 'Connection timeout',
         details: 'Unable to reach server',
@@ -174,7 +174,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should handle sync error with context', () => {
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'sync',
         message: 'Sync conflict detected',
         details: 'Local and remote versions differ',
@@ -200,7 +200,7 @@ describe('ErrorToast (Store Integration)', () => {
 
   describe('Error Interaction Patterns', () => {
     it('should handle multiple errors with different properties', () => {
-      const errorId1 = errorHandler.addError({
+      errorHandler.addError({
         type: 'validation',
         message: 'Validation error',
         retryable: false
@@ -212,7 +212,7 @@ describe('ErrorToast (Store Integration)', () => {
         retryable: true
       });
 
-      const errorId3 = errorHandler.addError({
+      errorHandler.addError({
         type: 'sync',
         message: 'Sync error',
         retryable: true
@@ -231,7 +231,7 @@ describe('ErrorToast (Store Integration)', () => {
     it('should provide consistent timestamps', () => {
       const beforeTime = new Date();
       
-      const errorId = errorHandler.addError({
+      errorHandler.addError({
         type: 'general',
         message: 'Test error',
         retryable: false
@@ -245,7 +245,7 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should generate unique error IDs', () => {
-      const errorId1 = errorHandler.addError({
+      errorHandler.addError({
         type: 'validation',
         message: 'Error 1',
         retryable: false

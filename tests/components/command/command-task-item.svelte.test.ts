@@ -263,7 +263,7 @@ describe('CommandTaskItem', () => {
     it('should handle null description', () => {
       const taskWithNullDescription: TaskWithSubTasks = {
         ...mockTask,
-        description: null as any
+        description: null as string | null
       };
 
       render(CommandTaskItemWrapper, { 
@@ -330,7 +330,7 @@ describe('CommandTaskItem', () => {
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          onSelect: undefined as any
+          onSelect: undefined as (() => void) | undefined
         }
       });
       
@@ -341,7 +341,7 @@ describe('CommandTaskItem', () => {
       render(CommandTaskItemWrapper, { 
         props: { 
           ...defaultProps, 
-          onSelect: null as any
+          onSelect: null as (() => void) | null
         }
       });
       
@@ -427,7 +427,7 @@ describe('CommandTaskItem', () => {
     it('should handle task with null title', () => {
       const taskWithNullTitle: TaskWithSubTasks = {
         ...mockTask,
-        title: null as any
+        title: null as string | null
       };
 
       render(CommandTaskItemWrapper, { 
@@ -443,7 +443,7 @@ describe('CommandTaskItem', () => {
     it('should handle task with undefined tags', () => {
       const taskWithUndefinedTags: TaskWithSubTasks = {
         ...mockTask,
-        tags: undefined as any
+        tags: undefined as typeof mockTask.tags | undefined
       };
 
       render(CommandTaskItemWrapper, { 
@@ -463,7 +463,7 @@ describe('CommandTaskItem', () => {
         tags: [
           { id: 'tag-1', name: '', color: '#ff0000', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
           { id: '', name: 'test', color: '#00ff00', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
-          { id: 'tag-3', name: null as any, color: null as any, created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
+          { id: 'tag-3', name: null as string | null, color: null as string | null, created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
         ]
       };
 

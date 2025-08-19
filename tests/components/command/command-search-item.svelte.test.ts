@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import CommandSearchItem from '$lib/components/command/command-search-item.svelte';
 
 // Mock UI command components - simplified approach, skip specific testing of text content
@@ -214,7 +214,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          onSelect: undefined as any
+          onSelect: undefined as (() => void) | undefined
         }
       });
       
@@ -225,7 +225,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          onSelect: null as any
+          onSelect: null as (() => void) | null
         }
       });
       
@@ -334,7 +334,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          showAllResultsText: null as any
+          showAllResultsText: null as string | null
         }
       });
       
@@ -345,7 +345,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          showAllResultsText: undefined as any
+          showAllResultsText: undefined as string | undefined
         }
       });
       
@@ -367,7 +367,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          showAllResultsText: true as any
+          showAllResultsText: true as unknown as string
         }
       });
       
@@ -378,7 +378,7 @@ describe('CommandSearchItem', () => {
       render(CommandSearchItem, { 
         props: { 
           ...defaultProps, 
-          showAllResultsText: 12345 as any
+          showAllResultsText: 12345 as unknown as string
         }
       });
       

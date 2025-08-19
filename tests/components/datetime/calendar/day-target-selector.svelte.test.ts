@@ -298,7 +298,7 @@ describe('DayTargetSelector', () => {
   describe('edge cases', () => {
     it('should handle undefined value', () => {
       const { container } = render(DayTargetSelector, { 
-        props: { value: undefined as any, onchange: vi.fn() }
+        props: { value: undefined as DayOfWeek | AdjustmentTarget | undefined, onchange: vi.fn() }
       });
       
       const select = container.querySelector('select') as HTMLSelectElement;
@@ -307,7 +307,7 @@ describe('DayTargetSelector', () => {
 
     it('should handle null value', () => {
       const { container } = render(DayTargetSelector, { 
-        props: { value: null as any, onchange: vi.fn() }
+        props: { value: null as DayOfWeek | AdjustmentTarget | null, onchange: vi.fn() }
       });
       
       const select = container.querySelector('select') as HTMLSelectElement;
@@ -316,7 +316,7 @@ describe('DayTargetSelector', () => {
 
     it('should handle invalid value', () => {
       const { container } = render(DayTargetSelector, { 
-        props: { value: 'invalid_day' as any, onchange: vi.fn() }
+        props: { value: 'invalid_day' as DayOfWeek | AdjustmentTarget, onchange: vi.fn() }
       });
       
       const select = container.querySelector('select') as HTMLSelectElement;
@@ -335,7 +335,7 @@ describe('DayTargetSelector', () => {
 
     it('should handle null class', () => {
       const { container } = render(DayTargetSelector, { 
-        props: { ...defaultProps, class: null as any }
+        props: { ...defaultProps, class: null as string | null }
       });
       
       const select = container.querySelector('select');

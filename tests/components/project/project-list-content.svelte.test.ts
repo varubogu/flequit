@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import ProjectListContent from '$lib/components/project/project-list-content.svelte';
 
 // Mock stores
@@ -77,7 +77,7 @@ describe('ProjectListContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as any,
+    logic: mockLogic as typeof mockLogic,
     currentView: 'all' as const,
     isCollapsed: false,
     onViewChange: vi.fn()
@@ -104,7 +104,7 @@ describe('ProjectListContent', () => {
       const emptyLogic = {
         ...mockLogic,
         projectsData: []
-      } as any;
+      } as typeof mockLogic;
 
       const { component } = render(ProjectListContent, { 
         props: { 
@@ -243,7 +243,7 @@ describe('ProjectListContent', () => {
       const logicWithEmptyNames = {
         ...mockLogic,
         projectsData: projectsWithoutNames
-      } as any;
+      } as typeof mockLogic;
 
       render(ProjectListContent, { 
         props: { 
@@ -259,7 +259,7 @@ describe('ProjectListContent', () => {
       const logicWithoutExpanded = {
         ...mockLogic,
         expandedProjects: undefined as any
-      } as any;
+      } as typeof mockLogic;
 
       render(ProjectListContent, { 
         props: { 
@@ -279,7 +279,7 @@ describe('ProjectListContent', () => {
       const logicWithEmptyLists = {
         ...mockLogic,
         projectsData: projectsWithEmptyLists
-      } as any;
+      } as typeof mockLogic;
 
       render(ProjectListContent, { 
         props: { 

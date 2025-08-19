@@ -128,8 +128,8 @@ describe('ConfirmDialog', () => {
       render(ConfirmDialog, { 
         props: { 
           ...defaultProps, 
-          onConfirm: null as any,
-          onCancel: null as any
+          onConfirm: null as (() => void) | null,
+          onCancel: null as (() => void) | null
         }
       });
       expect(document.body).toBeInTheDocument();
