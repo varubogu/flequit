@@ -47,7 +47,7 @@ describe('TestFormatSection', () => {
     testFormatName: 'My Format',
     testDateTime: mockDateTime,
     editMode: 'manual' as const,
-    selectedPreset: { id: 1, name: 'Default', format: 'yyyy-MM-dd HH:mm' },
+    selectedPreset: { id: 1, name: 'Default', format: 'yyyy-MM-dd HH:mm' } as any,
     formatNameEnabled: true,
     onTestFormatChange: vi.fn(),
     onFormatSelectionChange: vi.fn()
@@ -318,7 +318,7 @@ describe('TestFormatSection', () => {
       render(TestFormatSection, { 
         props: { 
           ...defaultProps, 
-          selectedPreset: { id: 2, name: 'Short', format: 'MM/dd/yyyy' }
+          selectedPreset: { id: 2, name: 'Short', format: 'MM/dd/yyyy' } as any
         }
       });
       
@@ -330,7 +330,7 @@ describe('TestFormatSection', () => {
       render(TestFormatSection, { 
         props: { 
           ...defaultProps, 
-          selectedPreset: { id: 3, name: 'Custom', format: null }
+          selectedPreset: { id: 3, name: 'Custom', format: null } as any
         }
       });
       

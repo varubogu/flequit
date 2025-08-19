@@ -38,17 +38,17 @@ describe('TaskItemContent', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 1 as any,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
+    list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
-    sub_tasks: []
-  };
+    sub_tasks: [],
+    tags: []
+  } as any;
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
@@ -57,12 +57,14 @@ describe('TaskItemContent', () => {
         id: 'subtask-1',
         title: 'Test SubTask',
         description: 'Test subtask description',
-        status: 1,
+        status: 1 as any,
         priority: 1,
         task_id: 'task-1',
+        order_index: 0,
+        tags: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
-      }
+      } as any
     ]
   };
 
@@ -92,10 +94,10 @@ describe('TaskItemContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic,
+    logic: mockLogic as any,
     task: mockTask,
     taskDatePicker: mockTaskDatePicker
-  };
+  } as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -134,7 +136,7 @@ describe('TaskItemContent', () => {
 
     it('異なるロジック状態で正常にレンダリングされる', () => {
       const activeLogic = { ...mockLogic, isActiveTask: true };
-      const props = { ...defaultProps, logic: activeLogic };
+      const props = { ...defaultProps, logic: activeLogic as any };
       const { container } = render(TaskItemContent, { props });
       
       expect(container.innerHTML).toBeTruthy();
@@ -163,7 +165,7 @@ describe('TaskItemContent', () => {
       const expandedLogic = { ...mockLogic, showSubTasks: true };
       const props = {
         ...defaultProps,
-        logic: expandedLogic,
+        logic: expandedLogic as any,
         task: mockTaskWithSubTasks
       };
       const { container } = render(TaskItemContent, { props });
@@ -175,7 +177,7 @@ describe('TaskItemContent', () => {
       const collapsedLogic = { ...mockLogic, showSubTasks: false };
       const props = {
         ...defaultProps,
-        logic: collapsedLogic,
+        logic: collapsedLogic as any,
         task: mockTaskWithSubTasks
       };
       const { container } = render(TaskItemContent, { props });
@@ -218,7 +220,7 @@ describe('TaskItemContent', () => {
           { label: 'Delete', action: vi.fn() }
         ]
       };
-      const props = { ...defaultProps, logic: logicWithMenuItems };
+      const props = { ...defaultProps, logic: logicWithMenuItems as any };
       const { container } = render(TaskItemContent, { props });
       
       expect(container.innerHTML).toBeTruthy();
@@ -229,7 +231,7 @@ describe('TaskItemContent', () => {
         ...mockLogic,
         taskContextMenuItems: []
       };
-      const props = { ...defaultProps, logic: logicWithEmptyMenu };
+      const props = { ...defaultProps, logic: logicWithEmptyMenu as any };
       const { container } = render(TaskItemContent, { props });
       
       expect(container.innerHTML).toBeTruthy();
@@ -272,7 +274,7 @@ describe('TaskItemContent', () => {
     });
 
     it('異なるステータスのタスクが正常にレンダリングされる', () => {
-      const completedTask = { ...mockTask, status: 4 };
+      const completedTask = { ...mockTask, status: 4 as any };
       const props = { ...defaultProps, task: completedTask };
       const { container } = render(TaskItemContent, { props });
       
@@ -283,9 +285,9 @@ describe('TaskItemContent', () => {
       const taskWithMultipleSubTasks = {
         ...mockTask,
         sub_tasks: [
-          { id: 'sub1', title: 'SubTask 1', status: 1, priority: 1, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub2', title: 'SubTask 2', status: 2, priority: 2, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub3', title: 'SubTask 3', status: 4, priority: 3, task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
+          { id: 'sub1', title: 'SubTask 1', status: 1 as any, priority: 1, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
+          { id: 'sub2', title: 'SubTask 2', status: 2 as any, priority: 2, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
+          { id: 'sub3', title: 'SubTask 3', status: 4 as any, priority: 3, task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
         ]
       };
       const props = { ...defaultProps, task: taskWithMultipleSubTasks };
@@ -302,7 +304,7 @@ describe('TaskItemContent', () => {
       ];
 
       variousLogicStates.forEach(logic => {
-        const props = { ...defaultProps, logic };
+        const props = { ...defaultProps, logic: logic as any };
         const { container } = render(TaskItemContent, { props });
         expect(container.innerHTML).toBeTruthy();
       });
@@ -333,7 +335,7 @@ describe('TaskItemContent', () => {
         handleTaskClick: null as any,
         handleStatusToggle: null as any
       };
-      const props = { ...defaultProps, logic: logicWithNullMethods };
+      const props = { ...defaultProps, logic: logicWithNullMethods as any };
       
       const { container } = render(TaskItemContent, { props });
       expect(container.innerHTML).toBeTruthy();

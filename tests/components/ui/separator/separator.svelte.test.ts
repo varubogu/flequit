@@ -3,7 +3,7 @@ import { render } from '@testing-library/svelte';
 
 // Mock cn utility
 vi.mock('$lib/utils', () => ({
-  cn: vi.fn((...classes) => classes.filter(Boolean).join(' '))
+  cn: vi.fn((...classes) => classes.filter(Boolean).join(' ')) as any
 }));
 
 import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -110,10 +110,10 @@ describe('Separator', () => {
 
     it('should handle all bits-ui props', () => {
       const allProps = {
-        orientation: 'horizontal',
+        orientation: 'horizontal' as const,
         decorative: false,
         'data-testid': 'separator',
-        'aria-orientation': 'horizontal'
+        'aria-orientation': 'horizontal' as const
       };
       
       const { container } = render(Separator, { props: allProps });

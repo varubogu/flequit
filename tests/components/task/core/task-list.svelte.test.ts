@@ -56,15 +56,17 @@ describe('TaskList', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 'not_started' as const,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
+    tags: [],
+    list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     sub_tasks: []
   };
 
@@ -81,8 +83,8 @@ describe('TaskList', () => {
     title: 'My Tasks',
     tasks: mockTasks,
     showAddButton: true,
-    onTaskClick: vi.fn(),
-    onSubTaskClick: vi.fn()
+    onTaskClick: vi.fn() as any,
+    onSubTaskClick: vi.fn() as any
   };
 
   beforeEach(() => {
@@ -258,8 +260,8 @@ describe('TaskList', () => {
   describe('コールバック関数テスト', () => {
     it('コールバック関数が提供された場合、正常にレンダリングされる', () => {
       const callbacks = {
-        onTaskClick: vi.fn(),
-        onSubTaskClick: vi.fn()
+        onTaskClick: vi.fn() as any,
+        onSubTaskClick: vi.fn() as any
       };
       const props = { ...defaultProps, ...callbacks };
       const { container } = render(TaskList, { props });

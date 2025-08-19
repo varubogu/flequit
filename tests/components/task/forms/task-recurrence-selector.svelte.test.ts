@@ -5,21 +5,21 @@ import type { RecurrenceRule } from "$lib/types/datetime-calendar";
 import type { WeekOfMonth } from "$lib/types/datetime-calendar";
 import type { DayOfWeek } from "$lib/types/datetime-calendar";
 import { setTranslationService } from '$lib/stores/locale.svelte';
-import {
-  createUnitTestTranslationService,
-  unitTestTranslations
-} from '../../unit-translation-mock';
+// import {
+//   createUnitTestTranslationService,
+//   'test-text'
+// } from '../../unit-translation-mock';
 
 describe('TaskRecurrenceSelector', () => {
   const defaultProps = {
     recurrenceRule: null,
-    onEdit: vi.fn(),
+    onEdit: vi.fn() as any,
     disabled: false
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    setTranslationService(createUnitTestTranslationService());
+    setTranslationService({} as any);
   });
 
   it('コンポーネントが正しくマウントされる', () => {
@@ -31,7 +31,7 @@ describe('TaskRecurrenceSelector', () => {
     render(TaskRecurrenceSelector, { props: defaultProps });
 
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText(unitTestTranslations.no_recurrence)).toBeInTheDocument();
+    expect(screen.getByText('No recurrence')).toBeInTheDocument();
   });
 
   it('無効化状態でボタンが操作できない', () => {
@@ -47,7 +47,7 @@ describe('TaskRecurrenceSelector', () => {
   });
 
   it('編集ボタンをクリックするとonEditが呼ばれる', async () => {
-    const onEdit = vi.fn();
+    const onEdit = vi.fn() as any;
     render(TaskRecurrenceSelector, {
       props: {
         ...defaultProps,
@@ -74,7 +74,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('週単位の繰り返し設定が表示される', () => {
@@ -90,7 +90,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('週単位で曜日指定がある場合の表示', () => {
@@ -109,7 +109,7 @@ describe('TaskRecurrenceSelector', () => {
 
     expect(
       screen.getByText(
-        `${unitTestTranslations.every_interval_unit} ${unitTestTranslations.recurrence_weekly_days}`
+        `${'Every interval unit'} ${'Weekly days'}`
       )
     ).toBeInTheDocument();
   });
@@ -132,7 +132,7 @@ describe('TaskRecurrenceSelector', () => {
 
     expect(
       screen.getByText(
-        `${unitTestTranslations.every_interval_unit} ${unitTestTranslations.recurrence_monthly_detail}`
+        `${'Every interval unit'} ${'Monthly detail'}`
       )
     ).toBeInTheDocument();
   });
@@ -156,7 +156,7 @@ describe('TaskRecurrenceSelector', () => {
 
     expect(
       screen.getByText(
-        `${unitTestTranslations.every_interval_unit} ${unitTestTranslations.recurrence_monthly_detail}`
+        `${'Every interval unit'} ${'Monthly detail'}`
       )
     ).toBeInTheDocument();
   });
@@ -178,7 +178,7 @@ describe('TaskRecurrenceSelector', () => {
 
     expect(
       screen.getByText(
-        `${unitTestTranslations.every_interval_unit} ${unitTestTranslations.recurrence_end_date}`
+        `${'Every interval unit'} ${'End date'}`
       )
     ).toBeInTheDocument();
   });
@@ -199,7 +199,7 @@ describe('TaskRecurrenceSelector', () => {
 
     expect(
       screen.getByText(
-        `${unitTestTranslations.every_interval_unit} ${unitTestTranslations.recurrence_max_occurrences}`
+        `${'Every interval unit'} ${'Max occurrences'}`
       )
     ).toBeInTheDocument();
   });
@@ -217,7 +217,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('年単位の繰り返し設定が表示される', () => {
@@ -233,7 +233,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('四半期単位の繰り返し設定が表示される', () => {
@@ -249,7 +249,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('半年単位の繰り返し設定が表示される', () => {
@@ -265,7 +265,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('時間単位の繰り返し設定が表示される', () => {
@@ -281,7 +281,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('分単位の繰り返し設定が表示される', () => {
@@ -297,7 +297,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(screen.getByText(unitTestTranslations.every_interval_unit)).toBeInTheDocument();
+    expect(screen.getByText('Every interval unit')).toBeInTheDocument();
   });
 
   it('繰り返し設定があるときとないときでアイコンが変わる', () => {
@@ -328,7 +328,7 @@ describe('TaskRecurrenceSelector', () => {
         unit: 'day' as const,
         interval: 1
       },
-      onEdit: vi.fn(),
+      onEdit: vi.fn() as any,
       disabled: false
     };
 

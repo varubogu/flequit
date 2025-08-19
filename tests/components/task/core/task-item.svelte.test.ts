@@ -14,6 +14,11 @@ vi.mock('$lib/components/task/core/task-item-content.svelte', () => ({
 
 vi.mock('$lib/components/task/core/task-item-logic.svelte', () => ({
   TaskItemLogic: class MockTaskItemLogic {
+    task: any;
+    onTaskClick: any;
+    onSubTaskClick: any;
+    dispatch: any;
+
     constructor(task: any, onTaskClick: any, onSubTaskClick: any, dispatch: any) {
       this.task = task;
       this.onTaskClick = onTaskClick;
@@ -48,17 +53,17 @@ describe('TaskItem', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 1 as any,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
+    list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
-    sub_tasks: []
-  };
+    sub_tasks: [],
+    tags: []
+  } as any;
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
@@ -67,12 +72,14 @@ describe('TaskItem', () => {
         id: 'subtask-1',
         title: 'Test SubTask',
         description: 'Test subtask description',
-        status: 1,
+        status: 1 as any,
         priority: 1,
         task_id: 'task-1',
+        order_index: 0,
+        tags: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
-      }
+      } as any
     ]
   };
 
@@ -80,7 +87,7 @@ describe('TaskItem', () => {
     task: mockTask,
     onTaskClick: vi.fn(),
     onSubTaskClick: vi.fn()
-  };
+  } as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -140,7 +147,7 @@ describe('TaskItem', () => {
     });
 
     it('異なるステータスのタスクで正常にレンダリングされる', () => {
-      const completedTask = { ...mockTask, status: 4 };
+      const completedTask = { ...mockTask, status: 4 as any };
       const props = { ...defaultProps, task: completedTask };
       const { container } = render(TaskItem, { props });
       
@@ -331,7 +338,7 @@ describe('TaskItem', () => {
         id: `subtask-${i}`,
         title: `SubTask ${i}`,
         description: '',
-        status: 1,
+        status: 1 as any,
         priority: 1,
         task_id: 'task-1',
         created_at: new Date(),

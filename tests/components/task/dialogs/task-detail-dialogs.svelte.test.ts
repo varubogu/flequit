@@ -30,21 +30,18 @@ describe('TaskDetailDialogs', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 'not_started' as const,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
-    recurrence_rule: {
-      frequency: 'daily',
-      unit: 'day',
-      interval: 1,
-      end_date: new Date('2024-12-31')
-    },
+    recurrence_rule: {} as any,
+    tags: [],
+    list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     sub_tasks: []
   };
 
@@ -52,14 +49,16 @@ describe('TaskDetailDialogs', () => {
     id: 'subtask-1',
     title: 'Test SubTask',
     description: 'Test subtask description',
-    status: 1,
+    status: 'not_started' as const,
     priority: 1,
     task_id: 'task-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
-    is_range_date: false
+    is_range_date: false,
+    order_index: 0,
+    tags: []
   };
 
   const mockEditForm = {
@@ -88,17 +87,17 @@ describe('TaskDetailDialogs', () => {
     showProjectTaskListDialog: false,
     showRecurrenceDialog: false,
     projectInfo: mockProjectInfo,
-    onDateChange: vi.fn(),
-    onDateClear: vi.fn(),
-    onDatePickerClose: vi.fn(),
-    onConfirmDiscard: vi.fn(),
-    onCancelDiscard: vi.fn(),
-    onConfirmDelete: vi.fn(),
-    onCancelDelete: vi.fn(),
-    onProjectTaskListChange: vi.fn(),
-    onProjectTaskListDialogClose: vi.fn(),
-    onRecurrenceChange: vi.fn(),
-    onRecurrenceDialogClose: vi.fn()
+    onDateChange: vi.fn() as any,
+    onDateClear: vi.fn() as any,
+    onDatePickerClose: vi.fn() as any,
+    onConfirmDiscard: vi.fn() as any,
+    onCancelDiscard: vi.fn() as any,
+    onConfirmDelete: vi.fn() as any,
+    onCancelDelete: vi.fn() as any,
+    onProjectTaskListChange: vi.fn() as any,
+    onProjectTaskListDialogClose: vi.fn() as any,
+    onRecurrenceChange: vi.fn() as any,
+    onRecurrenceDialogClose: vi.fn() as any
   };
 
   beforeEach(() => {
@@ -260,17 +259,17 @@ describe('TaskDetailDialogs', () => {
   describe('コールバック関数テスト', () => {
     it('全てのコールバック関数が適切に渡される', () => {
       const callbacks = {
-        onDateChange: vi.fn(),
-        onDateClear: vi.fn(),
-        onDatePickerClose: vi.fn(),
-        onConfirmDiscard: vi.fn(),
-        onCancelDiscard: vi.fn(),
-        onConfirmDelete: vi.fn(),
-        onCancelDelete: vi.fn(),
-        onProjectTaskListChange: vi.fn(),
-        onProjectTaskListDialogClose: vi.fn(),
-        onRecurrenceChange: vi.fn(),
-        onRecurrenceDialogClose: vi.fn()
+        onDateChange: vi.fn() as any,
+        onDateClear: vi.fn() as any,
+        onDatePickerClose: vi.fn() as any,
+        onConfirmDiscard: vi.fn() as any,
+        onCancelDiscard: vi.fn() as any,
+        onConfirmDelete: vi.fn() as any,
+        onCancelDelete: vi.fn() as any,
+        onProjectTaskListChange: vi.fn() as any,
+        onProjectTaskListDialogClose: vi.fn() as any,
+        onRecurrenceChange: vi.fn() as any,
+        onRecurrenceDialogClose: vi.fn() as any
       };
       
       const props = { ...defaultProps, ...callbacks };

@@ -19,9 +19,9 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    addTagToNewTask: vi.fn(),
-    addTagToSubTask: vi.fn(),
-    addTagToTask: vi.fn()
+    addTagToNewTask: vi.fn() as any,
+    addTagToSubTask: vi.fn() as any,
+    addTagToTask: vi.fn() as any
   }
 }));
 
@@ -78,15 +78,17 @@ describe('TaskDetailContent', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 1,
+    status: 'not_started' as const,
     priority: 2,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
+    tags: [],
+    list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     sub_tasks: []
   };
 
@@ -94,9 +96,11 @@ describe('TaskDetailContent', () => {
     id: 'subtask-1',
     title: 'Test SubTask',
     description: 'Test subtask description',
-    status: 1,
+    status: 'not_started' as const,
     priority: 1,
     task_id: 'task-1',
+    order_index: 0,
+    tags: [],
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01')
   };
@@ -125,22 +129,22 @@ describe('TaskDetailContent', () => {
     selectedSubTaskId: null,
     projectInfo: mockProjectInfo,
     isDrawerMode: false,
-    onTitleChange: vi.fn(),
-    onDescriptionChange: vi.fn(),
-    onPriorityChange: vi.fn(),
-    onStatusChange: vi.fn(),
-    onDueDateClick: vi.fn(),
-    onFormChange: vi.fn(),
-    onDelete: vi.fn(),
-    onSaveNewTask: vi.fn(),
-    onSubTaskClick: vi.fn(),
-    onSubTaskToggle: vi.fn(),
-    onAddSubTask: vi.fn(),
+    onTitleChange: vi.fn() as any,
+    onDescriptionChange: vi.fn() as any,
+    onPriorityChange: vi.fn() as any,
+    onStatusChange: vi.fn() as any,
+    onDueDateClick: vi.fn() as any,
+    onFormChange: vi.fn() as any,
+    onDelete: vi.fn() as any,
+    onSaveNewTask: vi.fn() as any,
+    onSubTaskClick: vi.fn() as any,
+    onSubTaskToggle: vi.fn() as any,
+    onAddSubTask: vi.fn() as any,
     showSubTaskAddForm: false,
-    onSubTaskAdded: vi.fn(),
-    onSubTaskAddCancel: vi.fn(),
-    onGoToParentTask: vi.fn(),
-    onProjectTaskListEdit: vi.fn()
+    onSubTaskAdded: vi.fn() as any,
+    onSubTaskAddCancel: vi.fn() as any,
+    onGoToParentTask: vi.fn() as any,
+    onProjectTaskListEdit: vi.fn() as any
   };
 
   beforeEach(() => {
@@ -255,18 +259,18 @@ describe('TaskDetailContent', () => {
 
     it('コールバック関数が適切に渡される', () => {
       const callbacks = {
-        onTitleChange: vi.fn(),
-        onDescriptionChange: vi.fn(),
-        onPriorityChange: vi.fn(),
-        onStatusChange: vi.fn(),
-        onDueDateClick: vi.fn(),
-        onFormChange: vi.fn(),
-        onDelete: vi.fn(),
-        onSaveNewTask: vi.fn(),
-        onSubTaskClick: vi.fn(),
-        onSubTaskToggle: vi.fn(),
-        onGoToParentTask: vi.fn(),
-        onProjectTaskListEdit: vi.fn()
+        onTitleChange: vi.fn() as any,
+        onDescriptionChange: vi.fn() as any,
+        onPriorityChange: vi.fn() as any,
+        onStatusChange: vi.fn() as any,
+        onDueDateClick: vi.fn() as any,
+        onFormChange: vi.fn() as any,
+        onDelete: vi.fn() as any,
+        onSaveNewTask: vi.fn() as any,
+        onSubTaskClick: vi.fn() as any,
+        onSubTaskToggle: vi.fn() as any,
+        onGoToParentTask: vi.fn() as any,
+        onProjectTaskListEdit: vi.fn() as any
       };
       
       const props = { ...defaultProps, ...callbacks };
@@ -287,18 +291,18 @@ describe('TaskDetailContent', () => {
         editForm: mockEditForm,
         selectedSubTaskId: null,
         projectInfo: null,
-        onTitleChange: vi.fn(),
-        onDescriptionChange: vi.fn(),
-        onPriorityChange: vi.fn(),
-        onStatusChange: vi.fn(),
-        onDueDateClick: vi.fn(),
-        onFormChange: vi.fn(),
-        onDelete: vi.fn(),
-        onSaveNewTask: vi.fn(),
-        onSubTaskClick: vi.fn(),
-        onSubTaskToggle: vi.fn(),
-        onGoToParentTask: vi.fn(),
-        onProjectTaskListEdit: vi.fn()
+        onTitleChange: vi.fn() as any,
+        onDescriptionChange: vi.fn() as any,
+        onPriorityChange: vi.fn() as any,
+        onStatusChange: vi.fn() as any,
+        onDueDateClick: vi.fn() as any,
+        onFormChange: vi.fn() as any,
+        onDelete: vi.fn() as any,
+        onSaveNewTask: vi.fn() as any,
+        onSubTaskClick: vi.fn() as any,
+        onSubTaskToggle: vi.fn() as any,
+        onGoToParentTask: vi.fn() as any,
+        onProjectTaskListEdit: vi.fn() as any
       };
       
       const { container } = render(TaskDetailContent, { props: incompleteProps });

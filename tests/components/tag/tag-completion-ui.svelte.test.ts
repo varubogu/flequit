@@ -10,9 +10,9 @@ vi.mock('lucide-svelte', () => ({
 
 describe('TagCompletionUI', () => {
   const mockTags: Tag[] = [
-    { id: 'tag-1', name: 'work', color: '#ff0000' },
-    { id: 'tag-2', name: 'personal', color: '#00ff00' },
-    { id: 'tag-3', name: 'urgent', color: null }
+    { id: 'tag-1', name: 'work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
+    { id: 'tag-2', name: 'personal', color: '#00ff00', created_at: new Date(), updated_at: new Date() },
+    { id: 'tag-3', name: 'urgent', color: undefined, created_at: new Date(), updated_at: new Date() }
   ];
 
   const defaultProps = {
@@ -258,8 +258,8 @@ describe('TagCompletionUI', () => {
 
     it('should handle special characters in tag names', () => {
       const specialTags: Tag[] = [
-        { id: 'tag-1', name: 'tag-with-dash', color: '#ff0000' },
-        { id: 'tag-2', name: 'tag with spaces', color: '#00ff00' }
+        { id: 'tag-1', name: 'tag-with-dash', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
+        { id: 'tag-2', name: 'tag with spaces', color: '#00ff00', created_at: new Date(), updated_at: new Date() }
       ];
 
       render(TagCompletionUI, { 
@@ -350,8 +350,8 @@ describe('TagCompletionUI', () => {
 
     it('should handle tags without ids', () => {
       const tagsWithoutIds: Tag[] = [
-        { id: '', name: 'work', color: '#ff0000' },
-        { id: null as any, name: 'personal', color: '#00ff00' }
+        { id: '', name: 'work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
+        { id: null as any, name: 'personal', color: '#00ff00', created_at: new Date(), updated_at: new Date() }
       ];
 
       render(TagCompletionUI, { 
@@ -366,7 +366,7 @@ describe('TagCompletionUI', () => {
 
     it('should handle very long tag names', () => {
       const longNameTag: Tag[] = [
-        { id: 'tag-1', name: 'A'.repeat(100), color: '#ff0000' }
+        { id: 'tag-1', name: 'A'.repeat(100), color: '#ff0000', created_at: new Date(), updated_at: new Date() }
       ];
 
       render(TagCompletionUI, { 
