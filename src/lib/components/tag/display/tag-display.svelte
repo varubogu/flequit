@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Tag } from "$lib/types/tag";
+  import type { Tag } from '$lib/types/tag';
   import Button from '$lib/components/shared/button.svelte';
   import Badge from '$lib/components/ui/badge.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';

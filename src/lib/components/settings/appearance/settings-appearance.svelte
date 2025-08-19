@@ -33,7 +33,8 @@
             id="theme-select"
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
             value={userPrefersMode.current}
-            onchange={(e) => themeStore.setTheme(e.currentTarget.value as 'system' | 'light' | 'dark')}
+            onchange={(e) =>
+              themeStore.setTheme(e.currentTarget.value as 'system' | 'light' | 'dark')}
           >
             <option value="system">{system()} ({systemPrefersMode.current})</option>
             <option value="light">{light()}</option>

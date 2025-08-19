@@ -1,5 +1,5 @@
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
-import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
 import { RecurrenceState } from './recurrence-state.svelte';
 import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
 import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';

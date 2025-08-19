@@ -1,4 +1,4 @@
-import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 import { generateRandomId } from '$lib/utils/id-utils';
 
 export class WeekdayConditionManager {
@@ -19,9 +19,7 @@ export class WeekdayConditionManager {
   }
 
   updateCondition(id: string, updates: Partial<WeekdayCondition>) {
-    this.conditions = this.conditions.map((c) =>
-      c.id === id ? { ...c, ...updates } : c
-    );
+    this.conditions = this.conditions.map((c) => (c.id === id ? { ...c, ...updates } : c));
   }
 
   getConditions(): WeekdayCondition[] {

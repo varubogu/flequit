@@ -16,7 +16,7 @@ interface TauriSettingsCommand {
   timezone: string;
   date_format: string;
   custom_due_days: number[];
-  // 表示設定 
+  // 表示設定
   // アカウント設定
   selected_account: string;
   account_icon?: string;
@@ -35,7 +35,9 @@ export class SettingTauriService implements SettingService {
       }
       // Tauriコマンドは値（string）のみを返すので、Settingオブジェクトを構築する必要がある
       // 実際のアプリケーションでは、keyからSettingオブジェクトを構築するロジックが必要
-      console.warn('get_setting returns only value, not full Setting object. Consider using get_all_settings instead.');
+      console.warn(
+        'get_setting returns only value, not full Setting object. Consider using get_all_settings instead.'
+      );
       return null; // 一時的にnullを返す
     } catch (error) {
       console.error('Failed to get setting:', error);
@@ -46,11 +48,11 @@ export class SettingTauriService implements SettingService {
   async getAll(): Promise<Setting[]> {
     try {
       const result = (await invoke('get_all_settings')) as TauriSettingsCommand;
-      
+
       // TauriSettingsCommandをSetting[]に変換
       const settings: Setting[] = [];
       const now = new Date();
-      
+
       // 各フィールドをSettingオブジェクトに変換
       Object.entries(result).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
@@ -58,15 +60,20 @@ export class SettingTauriService implements SettingService {
             id: `setting-${key}`,
             key,
             value: typeof value === 'string' ? value : JSON.stringify(value),
-            data_type: typeof value === 'string' ? 'string' : 
-                      typeof value === 'number' ? 'number' :
-                      typeof value === 'boolean' ? 'boolean' : 'json',
+            data_type:
+              typeof value === 'string'
+                ? 'string'
+                : typeof value === 'number'
+                  ? 'number'
+                  : typeof value === 'boolean'
+                    ? 'boolean'
+                    : 'json',
             created_at: now,
             updated_at: now
           });
         }
       });
-      
+
       return settings;
     } catch (error) {
       console.error('Failed to get all settings:', error);
@@ -91,7 +98,7 @@ export class SettingTauriService implements SettingService {
       } else {
         jsonValue = setting.value;
       }
-      
+
       await invoke('update_setting', { key: setting.key, value: jsonValue });
       return true;
     } catch (error) {

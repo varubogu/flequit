@@ -160,4 +160,3 @@ export interface Settings {
   /** サーバーURL */
   serverUrl: string;
 }
-

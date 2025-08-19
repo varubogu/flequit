@@ -31,12 +31,12 @@
     const focusInput = async () => {
       await tick();
       await tick(); // ダブルtickで確実にDOM更新を待つ
-      
+
       if (inputElement && inputElement.focus) {
         inputElement.focus();
       }
     };
-    
+
     focusInput();
   });
 

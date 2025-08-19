@@ -1,23 +1,19 @@
-
 /**
  * 曜日の列挙型
  */
-export type DayOfWeek = 'sunday' |
-  'monday' |
-  'tuesday' |
-  'wednesday' |
-  'thursday' |
-  'friday' |
-  'saturday';
+export type DayOfWeek =
+  | 'sunday'
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
 
 /**
  * 月内の週指定（第1週、第2週など）
  */
-export type WeekOfMonth = 'first' |
-  'second' |
-  'third' |
-  'fourth' |
-  'last';
+export type WeekOfMonth = 'first' | 'second' | 'third' | 'fourth' | 'last';
 
 /**
  * 調整方向（前または後）
@@ -27,34 +23,34 @@ export type AdjustmentDirection = 'previous' | 'next';
 /**
  * 調整対象の種別
  */
-export type AdjustmentTarget = 'weekday' |
-  'weekend' |
-  'holiday' |
-  'non_holiday' |
-  'weekend_only' |
-  'non_weekend' |
-  'weekend_holiday' |
-  'non_weekend_holiday' |
-  'specific_weekday';
+export type AdjustmentTarget =
+  | 'weekday'
+  | 'weekend'
+  | 'holiday'
+  | 'non_holiday'
+  | 'weekend_only'
+  | 'non_weekend'
+  | 'weekend_holiday'
+  | 'non_weekend_holiday'
+  | 'specific_weekday';
 
 /**
  * 繰り返し単位
  */
-export type RecurrenceUnit = 'minute' |
-  'hour' |
-  'day' |
-  'week' |
-  'month' |
-  'quarter' |
-  'half_year' |
-  'year';
+export type RecurrenceUnit =
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'half_year'
+  | 'year';
 
 /**
  * 繰り返し機能のレベル
  */
-export type RecurrenceLevel = 'disabled' |
-  'enabled' |
-  'advanced';
+export type RecurrenceLevel = 'disabled' | 'enabled' | 'advanced';
 
 /**
  * 日付条件（◯日より前/以前/以降/より後）

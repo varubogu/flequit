@@ -213,7 +213,11 @@
       <div class="flex w-full min-w-0 flex-1 flex-col overflow-hidden">
         <div class="w-full flex-1 overflow-auto" bind:this={settingsContentElement}>
           <div class="w-full max-w-none space-y-12 p-4 sm:p-8">
-            <SettingsBasic {settings} onWeekStartChange={handleWeekStartChange} onTimezoneChange={handleTimezoneChange} />
+            <SettingsBasic
+              {settings}
+              onWeekStartChange={handleWeekStartChange}
+              onTimezoneChange={handleTimezoneChange}
+            />
 
             <SettingsViews />
 

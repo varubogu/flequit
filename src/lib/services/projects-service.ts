@@ -1,6 +1,6 @@
-import type { TaskList } from "$lib/types/task-list";
-import type { ProjectWithLists } from "$lib/types/project";
-import type { Project } from "$lib/types/project";
+import type { TaskList } from '$lib/types/task-list';
+import type { ProjectWithLists } from '$lib/types/project';
+import type { Project } from '$lib/types/project';
 import { dataService } from '$lib/services/data-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
@@ -283,7 +283,11 @@ export class ProjectsService {
   }
 
   // タスクリスト並べ替え
-  static async reorderTaskLists(projectId: string, fromIndex: number, toIndex: number): Promise<void> {
+  static async reorderTaskLists(
+    projectId: string,
+    fromIndex: number,
+    toIndex: number
+  ): Promise<void> {
     await taskStore.reorderTaskLists(projectId, fromIndex, toIndex);
   }
 

@@ -70,7 +70,7 @@ function getCustomEntry(): AppPresetFormat {
 class DateTimeFormatStore {
   // Tauriサービス
   private customDateFormatService = new CustomDateFormatTauriService();
-  
+
   // 現在の日時フォーマット（ストア管理、即座反映）
   currentFormat = $state('yyyy年MM月dd日 HH:mm:ss');
 
@@ -145,7 +145,10 @@ class DateTimeFormatStore {
   }
 
   // カスタムフォーマットを更新（即座反映）
-  async updateCustomFormat(id: string, updates: Partial<Pick<CustomDateTimeFormat, 'name' | 'format'>>) {
+  async updateCustomFormat(
+    id: string,
+    updates: Partial<Pick<CustomDateTimeFormat, 'name' | 'format'>>
+  ) {
     const index = this.customFormats.findIndex((f) => f.id === id);
     if (index !== -1) {
       const currentFormat = this.customFormats[index];
@@ -244,7 +247,7 @@ class DateTimeFormatStore {
   async loadCustomFormatsFromTauri() {
     try {
       const tauriFormats = await this.customDateFormatService.getAll();
-      this.customFormats = tauriFormats.map(f => this.convertFromTauri(f));
+      this.customFormats = tauriFormats.map((f) => this.convertFromTauri(f));
     } catch (error) {
       console.error('Failed to load custom formats from Tauri:', error);
     }
@@ -252,7 +255,7 @@ class DateTimeFormatStore {
 
   constructor() {
     this.loadFromStorage();
-    
+
     // Tauriからカスタムフォーマットを読み込み
     this.loadCustomFormatsFromTauri().catch(console.error);
   }

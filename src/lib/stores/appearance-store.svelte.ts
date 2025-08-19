@@ -74,7 +74,7 @@ class AppearanceStore {
     if (!backend) {
       throw new Error('Backend service not available');
     }
-    
+
     const setting: Setting = {
       id: `setting_${key}`,
       key,
@@ -83,7 +83,7 @@ class AppearanceStore {
       created_at: new Date(),
       updated_at: new Date()
     };
-    
+
     await backend.setting.update(setting);
   }
 
@@ -91,7 +91,7 @@ class AppearanceStore {
     try {
       // 統合初期化サービスから全設定を取得
       const allSettings = await settingsInitService.getAllSettings();
-      
+
       let loadedCount = 0;
 
       // 各設定を適用
@@ -101,7 +101,7 @@ class AppearanceStore {
             this._settings.font = setting.value;
             loadedCount++;
             break;
-            
+
           case 'appearance_fontSize': {
             const fontSize = parseInt(setting.value, 10);
             if (!isNaN(fontSize)) {
@@ -110,12 +110,12 @@ class AppearanceStore {
             }
             break;
           }
-            
+
           case 'appearance_fontColor':
             this._settings.fontColor = setting.value;
             loadedCount++;
             break;
-            
+
           case 'appearance_backgroundColor':
             this._settings.backgroundColor = setting.value;
             loadedCount++;
@@ -124,13 +124,15 @@ class AppearanceStore {
       }
 
       if (loadedCount > 0) {
-        console.log(`Appearance settings loaded successfully from backend (${loadedCount} settings)`);
+        console.log(
+          `Appearance settings loaded successfully from backend (${loadedCount} settings)`
+        );
       } else {
         console.log('No appearance settings found in backend, using defaults');
       }
     } catch (error) {
       console.error('Failed to load appearance settings from backend:', error);
-      
+
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('flequit-appearance');
@@ -156,6 +158,6 @@ class AppearanceStore {
 export const appearanceStore = new AppearanceStore();
 
 // 初期化の実行
-appearanceStore.init().catch(error => {
+appearanceStore.init().catch((error) => {
   console.error('Failed to initialize appearance store:', error);
 });

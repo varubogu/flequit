@@ -1,4 +1,4 @@
-import type { TaskList, TaskListWithTasks } from "./task-list";
+import type { TaskList, TaskListWithTasks } from './task-list';
 
 /**
  * プロジェクト

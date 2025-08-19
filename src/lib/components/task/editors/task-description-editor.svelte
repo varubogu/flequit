@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import type { SubTask } from "$lib/types/sub-task";
+  import type { SubTask } from '$lib/types/sub-task';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';

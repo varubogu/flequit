@@ -73,14 +73,14 @@ class SettingsInitService {
    * 特定のキーの設定を取得する
    */
   getSettingByKey(allSettings: Setting[], key: string): Setting | undefined {
-    return allSettings.find(s => s.key === key);
+    return allSettings.find((s) => s.key === key);
   }
 
   /**
    * 特定のキーパターンに一致する設定を取得する
    */
   getSettingsByKeyPattern(allSettings: Setting[], pattern: string): Setting[] {
-    return allSettings.filter(s => s.key.startsWith(pattern));
+    return allSettings.filter((s) => s.key.startsWith(pattern));
   }
 
   /**

@@ -1,12 +1,10 @@
-import type {
-  Task,
-  TaskWithSubTasks} from '$lib/types/task';
-import type { ProjectTree } from "$lib/types/project";
-import type { SubTask } from "$lib/types/sub-task";
-import type { TaskListWithTasks } from "$lib/types/task-list";
-import type { TaskList } from "$lib/types/task-list";
-import type { Project } from "$lib/types/project";
-import type { Tag } from "$lib/types/tag";
+import type { Task, TaskWithSubTasks } from '$lib/types/task';
+import type { ProjectTree } from '$lib/types/project';
+import type { SubTask } from '$lib/types/sub-task';
+import type { TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskList } from '$lib/types/task-list';
+import type { Project } from '$lib/types/project';
+import type { Tag } from '$lib/types/tag';
 import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
@@ -34,7 +32,6 @@ export class TaskStore {
         this.updateTagInAllTasks(customEvent.detail);
       });
     }
-
   }
 
   // Computed values
@@ -119,7 +116,6 @@ export class TaskStore {
   // Actions
   async setProjects(projects: ProjectTree[]) {
     this.loadProjectsData(projects);
-
   }
 
   // データ読み込み専用メソッド（保存処理なし）
@@ -295,7 +291,7 @@ export class TaskStore {
           // バックエンドに同期（削除操作は即座に保存）
           try {
             await dataService.deleteTaskWithSubTasks(taskId);
-            } catch (error) {
+          } catch (error) {
             console.error('Failed to sync task deletion to backend:', error);
             errorHandler.addSyncError('タスク削除', 'task', taskId, error);
             // エラーが発生した場合はローカル状態を復元
@@ -352,7 +348,7 @@ export class TaskStore {
           const task = list.tasks.find((t) => t.id === taskId);
           if (task) {
             task.sub_tasks.push(newSubTask);
- // 作成操作は即座に保存
+            // 作成操作は即座に保存
             return newSubTask;
           }
         }
@@ -383,7 +379,7 @@ export class TaskStore {
             // バックエンドに同期（削除操作は即座に保存）
             try {
               await dataService.deleteSubTask(subTaskId);
-                } catch (error) {
+            } catch (error) {
               console.error('Failed to sync subtask deletion to backend:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
               // エラーが発生した場合はローカル状態を復元
@@ -600,7 +596,13 @@ export class TaskStore {
 
   async updateProject(
     projectId: string,
-    updates: { name?: string; description?: string; color?: string; order_index?: number; is_archived?: boolean }
+    updates: {
+      name?: string;
+      description?: string;
+      color?: string;
+      order_index?: number;
+      is_archived?: boolean;
+    }
   ) {
     try {
       const updatedProject = await dataService.updateProject(projectId, updates);
@@ -653,7 +655,10 @@ export class TaskStore {
         ...taskList,
         order_index: project ? project.task_lists.length : 0
       };
-      const newTaskList = await dataService.createTaskListWithTasks(projectId, taskListWithOrderIndex);
+      const newTaskList = await dataService.createTaskListWithTasks(
+        projectId,
+        taskListWithOrderIndex
+      );
       if (project) {
         project.task_lists.push(newTaskList);
       }
@@ -863,7 +868,7 @@ export class TaskStore {
       const project = this.projects[index];
       project.order_index = index;
       project.updated_at = new SvelteDate();
-      
+
       try {
         // Use dataService directly to avoid circular dependency and double update
         await dataService.updateProject(project.id, { order_index: index });
@@ -903,7 +908,7 @@ export class TaskStore {
       const taskList = project.task_lists[index];
       taskList.order_index = index;
       taskList.updated_at = new SvelteDate();
-      
+
       try {
         await dataService.updateTaskList(taskList.id, { order_index: index });
       } catch (error) {
@@ -931,7 +936,7 @@ export class TaskStore {
           const tl = project.task_lists[index];
           tl.order_index = index;
           tl.updated_at = new SvelteDate();
-          
+
           try {
             await dataService.updateTaskList(tl.id, { order_index: index });
           } catch (error) {
@@ -974,9 +979,9 @@ export class TaskStore {
       const tl = targetProject.task_lists[index];
       tl.order_index = index;
       tl.updated_at = new SvelteDate();
-      
+
       try {
-        await dataService.updateTaskList(tl.id, { 
+        await dataService.updateTaskList(tl.id, {
           order_index: index,
           project_id: tl.project_id
         });

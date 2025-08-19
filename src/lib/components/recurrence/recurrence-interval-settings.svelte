@@ -3,9 +3,9 @@
   import NumericIntervalInput from './shared/numeric-interval-input.svelte';
   import WeekdaySelector from './weekday-conditions/weekday-selector.svelte';
   import AdvancedRecurrenceSettings from './shared/advanced-recurrence-settings.svelte';
-  import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
-  import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
-  import type { DayOfWeek } from "$lib/types/datetime-calendar";
+  import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+  import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
+  import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
   type Props = {
     unit: RecurrenceUnit;
@@ -84,6 +84,6 @@
 
   <!-- 複雑な単位の詳細設定 -->
   {#if showAdvancedSettings && isComplexUnit}
-    <AdvancedRecurrenceSettings {details} {onchange} ondetailschange={ondetailschange} />
+    <AdvancedRecurrenceSettings {details} {onchange} {ondetailschange} />
   {/if}
 </div>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import { Repeat } from 'lucide-svelte';
-    import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+  import type { RecurrenceRule } from '$lib/types/datetime-calendar';
   import RecurrenceDialogAdvancedContent from './shared/recurrence-dialog-advanced-content.svelte';
   import { RecurrenceDialogAdvancedLogic } from './shared/recurrence-dialog-advanced-logic.svelte';
 

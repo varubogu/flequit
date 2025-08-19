@@ -1,6 +1,14 @@
 import { getBackendService } from '$lib/services/backend';
 import { settingsInitService } from '$lib/services/settings-init-service';
-import type { Setting, Settings, Theme, WeekStart, CustomDateFormat, TimeLabel, ViewItem } from '$lib/types/settings';
+import type {
+  Setting,
+  Settings,
+  Theme,
+  WeekStart,
+  CustomDateFormat,
+  TimeLabel,
+  ViewItem
+} from '$lib/types/settings';
 import { getLocale } from '$paraglide/runtime';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 
@@ -36,7 +44,7 @@ const DEFAULT_SETTINGS: Settings = {
     thisMonth: true,
     thisQuarter: false,
     thisYear: false,
-    thisYearEnd: false,
+    thisYearEnd: false
   },
   viewItems: [
     { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
@@ -188,7 +196,11 @@ class MainSettingsStore {
   addCustomDateFormat(name: string, format: string): string {
     const id = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     this._settings.customDateFormats.push({ id, name, format });
-    this.saveSingleSetting('customDateFormats', JSON.stringify(this._settings.customDateFormats), 'json');
+    this.saveSingleSetting(
+      'customDateFormats',
+      JSON.stringify(this._settings.customDateFormats),
+      'json'
+    );
     return id;
   }
 
@@ -199,13 +211,21 @@ class MainSettingsStore {
         ...this._settings.customDateFormats[index],
         ...updates
       };
-      this.saveSingleSetting('customDateFormats', JSON.stringify(this._settings.customDateFormats), 'json');
+      this.saveSingleSetting(
+        'customDateFormats',
+        JSON.stringify(this._settings.customDateFormats),
+        'json'
+      );
     }
   }
 
   removeCustomDateFormat(id: string): void {
     this._settings.customDateFormats = this._settings.customDateFormats.filter((f) => f.id !== id);
-    this.saveSingleSetting('customDateFormats', JSON.stringify(this._settings.customDateFormats), 'json');
+    this.saveSingleSetting(
+      'customDateFormats',
+      JSON.stringify(this._settings.customDateFormats),
+      'json'
+    );
   }
 
   get timeLabels(): TimeLabel[] {
@@ -419,13 +439,14 @@ class MainSettingsStore {
             loadedCount++;
             break;
           case 'fontSize':
-          case 'appearance_fontSize':
-            { const fontSize = parseInt(setting.value, 10);
+          case 'appearance_fontSize': {
+            const fontSize = parseInt(setting.value, 10);
             if (!isNaN(fontSize)) {
               this._settings.fontSize = fontSize;
               loadedCount++;
             }
-            break; }
+            break;
+          }
           case 'fontColor':
           case 'appearance_fontColor':
             this._settings.fontColor = setting.value;
@@ -477,7 +498,10 @@ class MainSettingsStore {
           case 'dueDateButtons':
             if (setting.data_type === 'json') {
               try {
-                this._settings.dueDateButtons = { ...this._settings.dueDateButtons, ...JSON.parse(setting.value) };
+                this._settings.dueDateButtons = {
+                  ...this._settings.dueDateButtons,
+                  ...JSON.parse(setting.value)
+                };
                 loadedCount++;
               } catch (error) {
                 console.error('Failed to parse dueDateButtons:', error);
@@ -568,7 +592,7 @@ export const mainSettingsStore = new MainSettingsStore();
 export const settingsStore = mainSettingsStore;
 
 // 初期化の実行
-mainSettingsStore.init().catch(error => {
+mainSettingsStore.init().catch((error) => {
   console.error('Failed to initialize main settings store:', error);
 });
 
@@ -638,7 +662,10 @@ export function getStandardDateFormats() {
 export function getAllDateFormats() {
   const locale = getLocale();
   const standardFormats = getStandardDateFormats();
-  const customFormats = mainSettingsStore.customDateFormats.map((f) => ({ ...f, isStandard: false }));
+  const customFormats = mainSettingsStore.customDateFormats.map((f) => ({
+    ...f,
+    isStandard: false
+  }));
 
   const customLabel = locale.startsWith('ja') ? 'カスタム' : 'Custom';
   const customFormat = { id: 'custom', name: customLabel, format: '', isStandard: false };

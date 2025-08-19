@@ -45,7 +45,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     // 購読者に変更を通知
     if (oldLocale !== locale) {
       this.subscribers.forEach((callback) => callback(locale));
-      
+
       // バックエンドに保存
       this.saveLocale(locale);
     }
@@ -109,7 +109,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       if (!backend) {
         throw new Error('Backend service not available');
       }
-      
+
       const setting: Setting = {
         id: 'setting_locale',
         key: 'locale',
@@ -118,7 +118,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
         created_at: new Date(),
         updated_at: new Date()
       };
-      
+
       await backend.setting.update(setting);
       console.log(`Locale '${locale}' saved successfully`);
     } catch (error) {
@@ -135,7 +135,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       // 統合初期化サービスから全設定を取得
       const allSettings = await settingsInitService.getAllSettings();
       const localeSetting = settingsInitService.getSettingByKey(allSettings, 'locale');
-      
+
       if (localeSetting) {
         paraglidSetLocale(localeSetting.value as Locale, { reload: false });
         this.localeChangeCounter++;
@@ -145,7 +145,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       }
     } catch (error) {
       console.error('Failed to load locale from backend:', error);
-      
+
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('flequit-locale');
@@ -168,6 +168,6 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
 export const translationService = new ParaglideTranslationService();
 
 // 初期化の実行
-translationService.init().catch(error => {
+translationService.init().catch((error) => {
   console.error('Failed to initialize translation service:', error);
 });

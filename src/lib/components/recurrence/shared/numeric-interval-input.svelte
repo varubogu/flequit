@@ -4,10 +4,7 @@
     onchange?: (value: number) => void;
   };
 
-  let {
-    value,
-    onchange
-  }: Props = $props();
+  let { value, onchange }: Props = $props();
 
   let inputValue = $state(String(value));
 

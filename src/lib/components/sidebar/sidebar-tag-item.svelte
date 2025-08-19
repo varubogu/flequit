@@ -5,7 +5,7 @@
   import { Hash, Edit, Trash2, Bookmark, BookmarkX } from 'lucide-svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
-    import type { Tag } from "$lib/types/tag";
+  import type { Tag } from '$lib/types/tag';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 

@@ -5,7 +5,7 @@ import type {
   Account,
   InitializationResult
 } from '../initialization-service';
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 /**
  * Tauri版初期化サービス
@@ -18,7 +18,7 @@ export class InitializationTauriService implements InitializationService {
    */
   async loadLocalSettings(): Promise<LocalSettings> {
     try {
-      const settings = await invoke('load_local_settings') as LocalSettings | null;
+      const settings = (await invoke('load_local_settings')) as LocalSettings | null;
 
       if (!settings) {
         // デフォルト設定を返す
@@ -38,7 +38,7 @@ export class InitializationTauriService implements InitializationService {
    */
   async loadAccount(): Promise<Account | null> {
     try {
-      const account = await invoke('load_current_account') as Account | null;
+      const account = (await invoke('load_current_account')) as Account | null;
       return account;
     } catch (error) {
       console.warn('Failed to load account:', error);
@@ -52,7 +52,7 @@ export class InitializationTauriService implements InitializationService {
    */
   async loadProjectData(): Promise<ProjectTree[]> {
     try {
-      const projects = await invoke('load_all_project_data') as ProjectTree[];
+      const projects = (await invoke('load_all_project_data')) as ProjectTree[];
       return projects || [];
     } catch (error) {
       console.error('Failed to load project data:', error);

@@ -1,8 +1,8 @@
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
-import type { WeekdayCondition } from "$lib/types/datetime-calendar";
-import type { DateCondition } from "$lib/types/datetime-calendar";
-import type { WeekOfMonth } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import type { WeekdayCondition } from '$lib/types/datetime-calendar';
+import type { DateCondition } from '$lib/types/datetime-calendar';
+import type { WeekOfMonth } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
 /**
  * 繰り返しタスクの次回実行日を計算するサービス

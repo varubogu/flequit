@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-    import type { AdjustmentTarget } from "$lib/types/datetime-calendar";
-  import type { DayOfWeek } from "$lib/types/datetime-calendar";
+  import type { AdjustmentTarget } from '$lib/types/datetime-calendar';
+  import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
   interface Props {
     value: DayOfWeek | AdjustmentTarget;

@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubTaskSearchCondition } from "$lib/types/sub-task";
-import type { SubTask } from "$lib/types/sub-task";
+import type { SubTaskSearchCondition } from '$lib/types/sub-task';
+import type { SubTask } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {

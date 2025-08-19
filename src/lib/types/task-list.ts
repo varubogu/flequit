@@ -1,4 +1,4 @@
-import type { TaskWithSubTasks } from "./task";
+import type { TaskWithSubTasks } from './task';
 
 /**
  * タスクリスト

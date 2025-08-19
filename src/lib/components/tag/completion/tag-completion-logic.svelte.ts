@@ -1,5 +1,5 @@
 import { tagStore } from '$lib/stores/tags.svelte';
-import type { Tag } from "$lib/types/tag";
+import type { Tag } from '$lib/types/tag';
 import { TagCompletionPosition } from './tag-completion-position.svelte';
 import {
   TagCompletionKeyHandler,

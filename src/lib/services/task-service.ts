@@ -1,5 +1,5 @@
 import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
-import type { SubTask } from "$lib/types/sub-task";
+import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { RecurrenceService } from './recurrence-service';

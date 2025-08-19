@@ -3,9 +3,9 @@
   import { Button } from '$lib/components/ui/button/index.js';
   import { Plus, X } from 'lucide-svelte';
   import WeekdayConditionEditor from '../datetime/conditions/weekday-condition-editor.svelte';
-    import type { DateRelation } from "$lib/types/datetime-calendar";
-  import type { WeekdayCondition } from "$lib/types/datetime-calendar";
-  import type { DateCondition } from "$lib/types/datetime-calendar";
+  import type { DateRelation } from '$lib/types/datetime-calendar';
+  import type { WeekdayCondition } from '$lib/types/datetime-calendar';
+  import type { DateCondition } from '$lib/types/datetime-calendar';
 
   type Props = {
     dateConditions: DateCondition[];

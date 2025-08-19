@@ -71,16 +71,14 @@
     return timeRegex.test(time);
   }
 
-  const canSubmit = $derived(
-    formName.trim() && formTime && isValidTime(formTime)
-  );
+  const canSubmit = $derived(formName.trim() && formTime && isValidTime(formTime));
 </script>
 
 <div class="space-y-4">
   <div class="flex items-center justify-between">
     <h4 class="text-lg font-medium">{timeLabels()}</h4>
     <Button size="sm" onclick={showAddDialog}>
-      <Plus class="h-4 w-4 mr-2" />
+      <Plus class="mr-2 h-4 w-4" />
       {addTimeLabel()}
     </Button>
   </div>
@@ -91,24 +89,16 @@
   {:else}
     <div class="space-y-2">
       {#each sortedTimeLabels as timeLabel (timeLabel.id)}
-        <div class="flex items-center justify-between p-3 border rounded-lg">
+        <div class="flex items-center justify-between rounded-lg border p-3">
           <div>
             <div class="font-medium">{timeLabel.name}</div>
-            <div class="text-sm text-muted-foreground">{timeLabel.time}</div>
+            <div class="text-muted-foreground text-sm">{timeLabel.time}</div>
           </div>
           <div class="flex gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onclick={() => showEditDialog(timeLabel)}
-            >
+            <Button variant="ghost" size="sm" onclick={() => showEditDialog(timeLabel)}>
               <Edit2 class="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onclick={() => handleDelete(timeLabel.id)}
-            >
+            <Button variant="ghost" size="sm" onclick={() => handleDelete(timeLabel.id)}>
               <Trash2 class="h-4 w-4" />
             </Button>
           </div>
@@ -119,36 +109,29 @@
 
   <!-- 追加・編集フォーム -->
   {#if showAddForm || editingId}
-    <div class="border rounded-lg p-4 space-y-4">
+    <div class="space-y-4 rounded-lg border p-4">
       <h5 class="font-medium">
-        {editingId ? edit() : add()} {timeLabels()}
+        {editingId ? edit() : add()}
+        {timeLabels()}
       </h5>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label for="time-label-name" class="block text-sm font-medium mb-1">
+          <label for="time-label-name" class="mb-1 block text-sm font-medium">
             {timeLabelName()}
           </label>
-          <Input
-            id="time-label-name"
-            bind:value={formName}
-            placeholder="朝食"
-          />
+          <Input id="time-label-name" bind:value={formName} placeholder="朝食" />
         </div>
 
         <div>
-          <label for="time-label-time" class="block text-sm font-medium mb-1">
+          <label for="time-label-time" class="mb-1 block text-sm font-medium">
             {timeLabelTime()}
           </label>
-          <Input
-            id="time-label-time"
-            type="time"
-            bind:value={formTime}
-          />
+          <Input id="time-label-time" type="time" bind:value={formTime} />
         </div>
       </div>
 
-      <div class="flex gap-2 justify-end">
+      <div class="flex justify-end gap-2">
         <Button variant="outline" onclick={resetForm}>
           {cancel()}
         </Button>

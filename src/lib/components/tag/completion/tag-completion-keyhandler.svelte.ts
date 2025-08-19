@@ -1,4 +1,4 @@
-import type { Tag } from "$lib/types/tag";
+import type { Tag } from '$lib/types/tag';
 
 export interface KeyHandlerCallbacks {
   selectSuggestion: (tag: Tag) => void;

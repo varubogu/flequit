@@ -1,5 +1,5 @@
-import type { SubTaskSearchCondition } from "$lib/types/sub-task";
-import type { SubTask } from "$lib/types/sub-task";
+import type { SubTaskSearchCondition } from '$lib/types/sub-task';
+import type { SubTask } from '$lib/types/sub-task';
 import type { CrudInterface, SearchInterface } from '../../types/crud-interface';
 
 /**

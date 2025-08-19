@@ -1,8 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
-  import type { WeekOfMonth } from "$lib/types/datetime-calendar";
-  import type { DayOfWeek } from "$lib/types/datetime-calendar";
+  import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+  import type { WeekOfMonth } from '$lib/types/datetime-calendar';
+  import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
   type Props = {
     details?: RecurrenceDetails;
@@ -10,11 +10,7 @@
     ondetailschange?: (details: RecurrenceDetails) => void;
   };
 
-  let {
-    details,
-    onchange,
-    ondetailschange
-  }: Props = $props();
+  let { details, onchange, ondetailschange }: Props = $props();
 
   function handleSpecificDateChange(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -25,14 +21,20 @@
 
   function handleWeekOfPeriodChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = { ...(details || {}), week_of_period: target.value as WeekOfMonth || undefined };
+    const newDetails = {
+      ...(details || {}),
+      week_of_period: (target.value as WeekOfMonth) || undefined
+    };
     ondetailschange?.(newDetails);
     onchange?.(event);
   }
 
   function handleWeekdayOfWeekChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = { ...(details || {}), weekday_of_week: target.value as DayOfWeek || undefined };
+    const newDetails = {
+      ...(details || {}),
+      weekday_of_week: (target.value as DayOfWeek) || undefined
+    };
     ondetailschange?.(newDetails);
     onchange?.(event);
   }

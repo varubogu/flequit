@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Tag } from "$lib/types/tag";
+  import type { Tag } from '$lib/types/tag';
   import { Hash } from 'lucide-svelte';
 
   interface Props {
@@ -22,8 +22,9 @@
 
   // Check if current input matches any existing tag (case-insensitive)
   let hasExactMatch = $derived(
-    suggestions && currentTagInput && 
-    suggestions.some((s) => s.name.toLowerCase() === currentTagInput.toLowerCase())
+    suggestions &&
+      currentTagInput &&
+      suggestions.some((s) => s.name.toLowerCase() === currentTagInput.toLowerCase())
   );
 </script>
 

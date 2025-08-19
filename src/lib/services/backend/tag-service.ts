@@ -1,5 +1,5 @@
-import type { TagSearchCondition } from "$lib/types/tag";
-import type { Tag } from "$lib/types/tag";
+import type { TagSearchCondition } from '$lib/types/tag';
+import type { Tag } from '$lib/types/tag';
 import type { CrudInterface, SearchInterface } from '../../types/crud-interface';
 
 /**

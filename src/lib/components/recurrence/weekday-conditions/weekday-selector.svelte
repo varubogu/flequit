@@ -1,16 +1,13 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { DayOfWeek } from "$lib/types/datetime-calendar";
+  import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
   type Props = {
     selectedDays: DayOfWeek[];
     ontoggleDayOfWeek?: (day: DayOfWeek) => void;
   };
 
-  let {
-    selectedDays,
-    ontoggleDayOfWeek
-  }: Props = $props();
+  let { selectedDays, ontoggleDayOfWeek }: Props = $props();
 
   const translationService = getTranslationService();
   const repeatWeekdays = translationService.getMessage('repeat_weekdays');
@@ -35,9 +32,8 @@
       {#each dayOfWeekOptions as dayOption (dayOption.value)}
         <button
           type="button"
-          class="border-border rounded border p-2 text-sm {selectedDays && selectedDays.includes(
-            dayOption.value as DayOfWeek
-          )
+          class="border-border rounded border p-2 text-sm {selectedDays &&
+          selectedDays.includes(dayOption.value as DayOfWeek)
             ? 'bg-primary text-primary-foreground'
             : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
           onclick={() => ontoggleDayOfWeek?.(dayOption.value as DayOfWeek)}

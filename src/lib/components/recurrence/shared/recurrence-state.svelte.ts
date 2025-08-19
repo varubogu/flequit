@@ -1,9 +1,9 @@
-import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
-import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
-import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
-import type { DateCondition } from "$lib/types/datetime-calendar";
-import type { WeekdayCondition } from "$lib/types/datetime-calendar";
+import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
+import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
+import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+import type { DateCondition } from '$lib/types/datetime-calendar';
+import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 
 export class RecurrenceState {
   // Basic recurrence settings
@@ -12,11 +12,11 @@ export class RecurrenceState {
   interval = $state(1);
   daysOfWeek = $state<DayOfWeek[]>([]);
   details = $state<RecurrenceDetails>({});
-  
+
   // End conditions
   endDate = $state<Date | undefined>(undefined);
   repeatCount = $state<number | undefined>(undefined);
-  
+
   // Adjustment conditions
   dateConditions = $state<DateCondition[]>([]);
   weekdayConditions = $state<WeekdayCondition[]>([]);

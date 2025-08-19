@@ -1,4 +1,4 @@
-import type { Tag } from "$lib/types/tag";
+import type { Tag } from '$lib/types/tag';
 import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
@@ -235,7 +235,7 @@ export class TagStore {
       // バックエンドに同期（削除操作は即座に保存）
       try {
         await dataService.deleteTag(tagId);
-        } catch (error) {
+      } catch (error) {
         console.error('Failed to sync tag deletion to backend:', error);
         errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
         // エラーが発生した場合はローカル状態を復元

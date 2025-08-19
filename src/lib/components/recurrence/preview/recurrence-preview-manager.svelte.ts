@@ -1,4 +1,4 @@
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { RecurrenceService } from '$lib/services/recurrence-service';
 import { SvelteDate } from 'svelte/reactivity';
 
@@ -6,11 +6,7 @@ export class RecurrencePreviewManager {
   previewDates = $state<Date[]>([]);
   displayCount = $state(15);
 
-  updatePreview(
-    rule: RecurrenceRule | null,
-    startDateTime?: Date,
-    endDateTime?: Date
-  ) {
+  updatePreview(rule: RecurrenceRule | null, startDateTime?: Date, endDateTime?: Date) {
     try {
       if (rule) {
         const baseDate = startDateTime || endDateTime || new SvelteDate();

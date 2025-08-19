@@ -1,5 +1,5 @@
 import { CalendarDate } from '@internationalized/date';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import type { InlineDatePickerState } from './inline-date-picker-state.svelte';
 
 export interface DateChangeData {

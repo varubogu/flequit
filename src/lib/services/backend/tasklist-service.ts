@@ -1,5 +1,5 @@
-import type { TaskListSearchCondition } from "$lib/types/task-list";
-import type { TaskList } from "$lib/types/task-list";
+import type { TaskListSearchCondition } from '$lib/types/task-list';
+import type { TaskList } from '$lib/types/task-list';
 import type { CrudInterface, SearchInterface } from '$lib/types/crud-interface';
 
 /**

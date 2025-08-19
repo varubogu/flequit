@@ -1,6 +1,6 @@
-import type { DateCondition } from "$lib/types/datetime-calendar";
+import type { DateCondition } from '$lib/types/datetime-calendar';
 import { generateRandomId } from '$lib/utils/id-utils';
-import { SvelteDate } from "svelte/reactivity";
+import { SvelteDate } from 'svelte/reactivity';
 
 export class DateConditionManager {
   conditions = $state<DateCondition[]>([]);
@@ -19,9 +19,7 @@ export class DateConditionManager {
   }
 
   updateCondition(id: string, updates: Partial<DateCondition>) {
-    this.conditions = this.conditions.map((c) =>
-      c.id === id ? { ...c, ...updates } : c
-    );
+    this.conditions = this.conditions.map((c) => (c.id === id ? { ...c, ...updates } : c));
   }
 
   getConditions(): DateCondition[] {

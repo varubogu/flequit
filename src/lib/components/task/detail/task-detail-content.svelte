@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import type { SubTask } from "$lib/types/sub-task";
+  import type { SubTask } from '$lib/types/sub-task';
   import TaskDetailHeader from './task-detail-header.svelte';
   import TaskStatusSelector from '../forms/task-status-selector.svelte';
   import TaskDueDateSelector from '../forms/task-due-date-selector.svelte';
@@ -114,7 +114,16 @@
 
     <!-- Sub-tasks (only show for main tasks, not for sub-tasks or new task mode) -->
     {#if !isSubTask && !isNewTaskMode && task}
-      <TaskDetailSubTasks {task} {selectedSubTaskId} {onSubTaskClick} {onSubTaskToggle} {onAddSubTask} {showSubTaskAddForm} {onSubTaskAdded} {onSubTaskAddCancel} />
+      <TaskDetailSubTasks
+        {task}
+        {selectedSubTaskId}
+        {onSubTaskClick}
+        {onSubTaskToggle}
+        {onAddSubTask}
+        {showSubTaskAddForm}
+        {onSubTaskAdded}
+        {onSubTaskAddCancel}
+      />
     {/if}
 
     <!-- Tags -->

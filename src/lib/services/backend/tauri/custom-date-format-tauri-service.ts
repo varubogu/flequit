@@ -12,7 +12,9 @@ export interface CustomDateFormatService {
 export class CustomDateFormatTauriService implements CustomDateFormatService {
   async create(format: CustomDateFormat): Promise<CustomDateFormat | null> {
     try {
-      const result = await invoke('add_custom_date_format_setting', { format }) as CustomDateFormat;
+      const result = (await invoke('add_custom_date_format_setting', {
+        format
+      })) as CustomDateFormat;
       return result;
     } catch (error) {
       console.error('Failed to create custom date format:', error);
@@ -22,7 +24,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async get(id: string): Promise<CustomDateFormat | null> {
     try {
-      const result = await invoke('get_custom_date_format_setting', { id }) as CustomDateFormat | null;
+      const result = (await invoke('get_custom_date_format_setting', {
+        id
+      })) as CustomDateFormat | null;
       return result;
     } catch (error) {
       console.error('Failed to get custom date format:', error);
@@ -32,7 +36,7 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async getAll(): Promise<CustomDateFormat[]> {
     try {
-      const result = await invoke('get_all_custom_date_format_settings') as CustomDateFormat[];
+      const result = (await invoke('get_all_custom_date_format_settings')) as CustomDateFormat[];
       return result;
     } catch (error) {
       console.error('Failed to get all custom date formats:', error);
@@ -42,7 +46,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async update(format: CustomDateFormat): Promise<CustomDateFormat | null> {
     try {
-      const result = await invoke('update_custom_date_format_setting', { format }) as CustomDateFormat;
+      const result = (await invoke('update_custom_date_format_setting', {
+        format
+      })) as CustomDateFormat;
       return result;
     } catch (error) {
       console.error('Failed to update custom date format:', error);

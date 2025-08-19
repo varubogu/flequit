@@ -1,6 +1,6 @@
-import type { RecurrenceRule } from "./datetime-calendar";
-import type { SubTask } from "./sub-task";
-import type { Tag } from "./tag";
+import type { RecurrenceRule } from './datetime-calendar';
+import type { SubTask } from './sub-task';
+import type { Tag } from './tag';
 
 /**
  * タスクのステータス

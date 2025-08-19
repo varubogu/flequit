@@ -37,7 +37,7 @@ class ThemeStore {
       if (!backend) {
         throw new Error('Backend service not available');
       }
-      
+
       const setting: Setting = {
         id: 'setting_theme',
         key: 'theme',
@@ -46,7 +46,7 @@ class ThemeStore {
         created_at: new Date(),
         updated_at: new Date()
       };
-      
+
       await backend.setting.update(setting);
       console.log(`Theme '${theme}' saved successfully`);
     } catch (error) {
@@ -63,8 +63,13 @@ class ThemeStore {
       // 統合初期化サービスから全設定を取得
       const allSettings = await settingsInitService.getAllSettings();
       const themeSetting = settingsInitService.getSettingByKey(allSettings, 'theme');
-      
-      if (themeSetting && (themeSetting.value === 'system' || themeSetting.value === 'light' || themeSetting.value === 'dark')) {
+
+      if (
+        themeSetting &&
+        (themeSetting.value === 'system' ||
+          themeSetting.value === 'light' ||
+          themeSetting.value === 'dark')
+      ) {
         setMode(themeSetting.value as Theme);
         console.log(`Theme loaded from backend: ${themeSetting.value}`);
       } else {
@@ -72,7 +77,7 @@ class ThemeStore {
       }
     } catch (error) {
       console.error('Failed to load theme from backend:', error);
-      
+
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('flequit-theme');
@@ -93,6 +98,6 @@ class ThemeStore {
 export const themeStore = new ThemeStore();
 
 // 初期化の実行
-themeStore.init().catch(error => {
+themeStore.init().catch((error) => {
   console.error('Failed to initialize theme store:', error);
 });

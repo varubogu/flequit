@@ -1,4 +1,4 @@
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 export function generateSampleData(): ProjectTree[] {
   const now = new Date();

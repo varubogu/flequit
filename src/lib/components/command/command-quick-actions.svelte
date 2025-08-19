@@ -13,14 +13,14 @@
     onViewAllTasks: () => void;
   }
 
-  let { 
-    showAllTasks, 
-    quickActions, 
-    addNewTask, 
-    viewAllTasks, 
-    onSearchExecute, 
-    onAddNewTask, 
-    onViewAllTasks 
+  let {
+    showAllTasks,
+    quickActions,
+    addNewTask,
+    viewAllTasks,
+    onSearchExecute,
+    onAddNewTask,
+    onViewAllTasks
   }: Props = $props();
 </script>
 

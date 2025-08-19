@@ -119,13 +119,11 @@ class ViewsVisibilityStore {
       // 統合初期化サービスから全設定を取得
       const allSettings = await settingsInitService.getAllSettings();
       const viewsSetting = settingsInitService.getSettingByKey(allSettings, 'views_visibility');
-      
+
       if (viewsSetting) {
         const parsedConfig = JSON.parse(viewsSetting.value);
         // Merge with defaults to handle new view items
-        const existingIds = new Set(
-          parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
-        );
+        const existingIds = new Set(parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []);
         const mergedItems = [
           ...(parsedConfig.viewItems || []),
           ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
@@ -139,7 +137,7 @@ class ViewsVisibilityStore {
       }
     } catch (error) {
       console.error('Failed to load views configuration from backend:', error);
-      
+
       // フォールバックとしてlocalStorageから読み込み
       if (typeof window !== 'undefined') {
         try {
@@ -186,7 +184,7 @@ class ViewsVisibilityStore {
       if (!backend) {
         throw new Error('Backend service not available');
       }
-      
+
       const setting: Setting = {
         id: 'setting_views_visibility',
         key: 'views_visibility',
@@ -195,12 +193,12 @@ class ViewsVisibilityStore {
         created_at: new Date(),
         updated_at: new Date()
       };
-      
+
       await backend.setting.update(setting);
       console.log('Views visibility configuration saved successfully');
     } catch (error) {
       console.error('Failed to save views visibility to backend:', error);
-      
+
       // フォールバックとしてlocalStorageに保存
       if (typeof window !== 'undefined') {
         try {
@@ -233,6 +231,6 @@ class ViewsVisibilityStore {
 export const viewsVisibilityStore = new ViewsVisibilityStore();
 
 // 初期化の実行
-viewsVisibilityStore.init().catch(error => {
+viewsVisibilityStore.init().catch((error) => {
   console.error('Failed to initialize views visibility store:', error);
 });

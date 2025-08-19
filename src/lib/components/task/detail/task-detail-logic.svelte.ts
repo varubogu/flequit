@@ -1,6 +1,6 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskStatus } from '$lib/types/task';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { TaskService } from '$lib/services/task-service';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';

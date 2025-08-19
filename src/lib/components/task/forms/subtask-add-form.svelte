@@ -26,12 +26,12 @@
     const focusInput = async () => {
       await tick();
       await tick(); // ダブルtickで確実にDOM更新を待つ
-      
+
       if (inputElement && inputElement.focus) {
         inputElement.focus();
       }
     };
-    
+
     focusInput();
   });
 
@@ -69,7 +69,12 @@
       bind:value={newSubTaskTitle}
       onkeydown={handleKeydown}
     />
-    <Button size="icon" onclick={handleAddSubTask} disabled={!newSubTaskTitle.trim()} title={addSubtask()}>
+    <Button
+      size="icon"
+      onclick={handleAddSubTask}
+      disabled={!newSubTaskTitle.trim()}
+      title={addSubtask()}
+    >
       <Save class="h-4 w-4" />
     </Button>
     <Button variant="secondary" size="icon" onclick={handleCancel} title={cancel()}>

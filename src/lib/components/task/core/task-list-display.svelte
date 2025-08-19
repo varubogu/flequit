@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-    import type { ProjectTree } from "$lib/types/project";
+  import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/view-service';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';

@@ -18,11 +18,11 @@
     onSubTaskAddCancel?: () => void;
   }
 
-  let { 
-    task, 
-    selectedSubTaskId, 
-    onSubTaskClick, 
-    onSubTaskToggle, 
+  let {
+    task,
+    selectedSubTaskId,
+    onSubTaskClick,
+    onSubTaskToggle,
     onAddSubTask,
     showSubTaskAddForm = false,
     onSubTaskAdded,
@@ -30,8 +30,10 @@
   }: Props = $props();
 
   const translationService = getTranslationService();
-  let subTaskCountText = $derived(TaskListService.getTaskCountText(task.sub_tasks.length).replace('task', 'subtask'));
-  
+  let subTaskCountText = $derived(
+    TaskListService.getTaskCountText(task.sub_tasks.length).replace('task', 'subtask')
+  );
+
   // Reactive messages
   const sub_tasks = translationService.getMessage('sub_tasks');
   const toggle_subtask_completion = translationService.getMessage('toggle_subtask_completion');
@@ -47,7 +49,14 @@
         {subTaskCountText}
       </span>
       {#if onAddSubTask}
-        <Button size="icon" variant="ghost" class="h-6 w-6" onclick={onAddSubTask} title={add_subtask()} data-testid="add-subtask">
+        <Button
+          size="icon"
+          variant="ghost"
+          class="h-6 w-6"
+          onclick={onAddSubTask}
+          title={add_subtask()}
+          data-testid="add-subtask"
+        >
           <Plus class="h-3 w-3" />
         </Button>
       {/if}
@@ -56,7 +65,7 @@
 
   <!-- Add SubTask Form -->
   {#if showSubTaskAddForm}
-    <SubTaskAddForm onSubTaskAdded={onSubTaskAdded} onCancel={onSubTaskAddCancel} />
+    <SubTaskAddForm {onSubTaskAdded} onCancel={onSubTaskAddCancel} />
   {/if}
 
   <!-- Sub-task list -->

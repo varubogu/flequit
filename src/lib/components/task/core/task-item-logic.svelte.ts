@@ -1,6 +1,6 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from "$lib/types/sub-task";
+import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { calculateSubTaskProgress } from '$lib/utils/task-utils';
 import { TaskService } from '$lib/services/task-service';

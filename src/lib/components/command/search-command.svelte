@@ -24,7 +24,11 @@
 
 <Command.Dialog bind:open {onOpenChange} class="max-w-2xl" shouldFilter={false}>
   <Command.Input
-    placeholder={logic.isCommandMode.value ? messages.typeACommand() : logic.isTagSearch.value ? 'Search tags...' : messages.searchTasks()}
+    placeholder={logic.isCommandMode.value
+      ? messages.typeACommand()
+      : logic.isTagSearch.value
+        ? 'Search tags...'
+        : messages.searchTasks()}
     bind:value={logic.searchValue.value}
     onkeydown={logic.handleKeyDown}
   />

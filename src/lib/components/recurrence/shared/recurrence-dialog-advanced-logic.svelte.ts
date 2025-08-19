@@ -1,11 +1,11 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
-import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
-import type { WeekdayCondition } from "$lib/types/datetime-calendar";
-import type { DateCondition } from "$lib/types/datetime-calendar";
-import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
-import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+import type { WeekdayCondition } from '$lib/types/datetime-calendar';
+import type { DateCondition } from '$lib/types/datetime-calendar';
+import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
+import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
 import { RecurrenceState } from './recurrence-state.svelte';
 import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
 import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';
@@ -49,24 +49,56 @@ export class RecurrenceDialogAdvancedLogic {
   }
 
   // Property getters for external access
-  get recurrenceLevel() { return this.state.recurrenceLevel; }
-  get unit() { return this.state.unit; }
-  get interval() { return this.state.interval; }
-  get daysOfWeek() { return this.state.daysOfWeek; }
-  get details() { return this.state.details; }
-  get endDate() { return this.state.endDate; }
-  get repeatCount() { return this.state.repeatCount; }
-  get previewDates() { return this.previewManager.getPreviewDates(); }
-  get displayCount() { return this.previewManager.getDisplayCount(); }
-  get dateConditions() { return this.dateConditionManager.getConditions(); }
-  get weekdayConditions() { return this.weekdayConditionManager.getConditions(); }
-  get showBasicSettings() { return this.state.showBasicSettings; }
-  get showAdvancedSettings() { return this.state.showAdvancedSettings; }
+  get recurrenceLevel() {
+    return this.state.recurrenceLevel;
+  }
+  get unit() {
+    return this.state.unit;
+  }
+  get interval() {
+    return this.state.interval;
+  }
+  get daysOfWeek() {
+    return this.state.daysOfWeek;
+  }
+  get details() {
+    return this.state.details;
+  }
+  get endDate() {
+    return this.state.endDate;
+  }
+  get repeatCount() {
+    return this.state.repeatCount;
+  }
+  get previewDates() {
+    return this.previewManager.getPreviewDates();
+  }
+  get displayCount() {
+    return this.previewManager.getDisplayCount();
+  }
+  get dateConditions() {
+    return this.dateConditionManager.getConditions();
+  }
+  get weekdayConditions() {
+    return this.weekdayConditionManager.getConditions();
+  }
+  get showBasicSettings() {
+    return this.state.showBasicSettings;
+  }
+  get showAdvancedSettings() {
+    return this.state.showAdvancedSettings;
+  }
 
   // Property setters
-  set recurrenceLevel(value: RecurrenceLevel) { this.state.recurrenceLevel = value; }
-  set repeatCount(value: number | undefined) { this.state.repeatCount = value; }
-  set displayCount(value: number) { this.previewManager.setDisplayCount(value); }
+  set recurrenceLevel(value: RecurrenceLevel) {
+    this.state.recurrenceLevel = value;
+  }
+  set repeatCount(value: number | undefined) {
+    this.state.repeatCount = value;
+  }
+  set displayCount(value: number) {
+    this.previewManager.setDisplayCount(value);
+  }
   isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(this.unit));
 
   // Messages

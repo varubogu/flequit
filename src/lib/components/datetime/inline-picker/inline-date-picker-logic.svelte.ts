@@ -1,7 +1,10 @@
 import { CalendarDate } from '@internationalized/date';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { InlineDatePickerState } from './inline-date-picker-state.svelte';
-import { InlineDatePickerHandlers, type DateChangeData } from './inline-date-picker-handlers.svelte';
+import {
+  InlineDatePickerHandlers,
+  type DateChangeData
+} from './inline-date-picker-handlers.svelte';
 
 export { type DateChangeData };
 
@@ -23,31 +26,55 @@ export class InlineDatePickerLogic {
       isRangeDate,
       recurrenceRule
     );
-    
-    this.handlers = new InlineDatePickerHandlers(
-      this.state,
-      onchange,
-      onclose
-    );
+
+    this.handlers = new InlineDatePickerHandlers(this.state, onchange, onclose);
   }
 
   // State property getters
-  get endDate() { return this.state.endDate; }
-  get endTime() { return this.state.endTime; }
-  get startDate() { return this.state.startDate; }
-  get startTime() { return this.state.startTime; }
-  get useRangeMode() { return this.state.useRangeMode; }
-  get recurrenceDialogOpen() { return this.state.recurrenceDialogOpen; }
-  get currentRecurrenceRule() { return this.state.currentRecurrenceRule; }
+  get endDate() {
+    return this.state.endDate;
+  }
+  get endTime() {
+    return this.state.endTime;
+  }
+  get startDate() {
+    return this.state.startDate;
+  }
+  get startTime() {
+    return this.state.startTime;
+  }
+  get useRangeMode() {
+    return this.state.useRangeMode;
+  }
+  get recurrenceDialogOpen() {
+    return this.state.recurrenceDialogOpen;
+  }
+  get currentRecurrenceRule() {
+    return this.state.currentRecurrenceRule;
+  }
 
   // State property setters
-  set endDate(value: string) { this.state.endDate = value; }
-  set endTime(value: string) { this.state.endTime = value; }
-  set startDate(value: string) { this.state.startDate = value; }
-  set startTime(value: string) { this.state.startTime = value; }
-  set useRangeMode(value: boolean) { this.state.useRangeMode = value; }
-  set recurrenceDialogOpen(value: boolean) { this.state.recurrenceDialogOpen = value; }
-  set currentRecurrenceRule(value: RecurrenceRule | null) { this.state.currentRecurrenceRule = value; }
+  set endDate(value: string) {
+    this.state.endDate = value;
+  }
+  set endTime(value: string) {
+    this.state.endTime = value;
+  }
+  set startDate(value: string) {
+    this.state.startDate = value;
+  }
+  set startTime(value: string) {
+    this.state.startTime = value;
+  }
+  set useRangeMode(value: boolean) {
+    this.state.useRangeMode = value;
+  }
+  set recurrenceDialogOpen(value: boolean) {
+    this.state.recurrenceDialogOpen = value;
+  }
+  set currentRecurrenceRule(value: RecurrenceRule | null) {
+    this.state.currentRecurrenceRule = value;
+  }
 
   // Delegate methods to state
   updateCurrentDate(currentDate: string) {

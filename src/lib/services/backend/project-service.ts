@@ -1,5 +1,5 @@
-import type { ProjectSearchCondition } from "$lib/types/project";
-import type { Project } from "$lib/types/project";
+import type { ProjectSearchCondition } from '$lib/types/project';
+import type { Project } from '$lib/types/project';
 import type { CrudInterface, SearchInterface } from '../../types/crud-interface';
 
 /**

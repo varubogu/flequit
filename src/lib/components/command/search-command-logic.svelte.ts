@@ -6,7 +6,7 @@ import { viewStore } from '$lib/stores/view-store.svelte';
 export function createSearchLogic(onClose: () => void) {
   let searchValue = $state('');
   let filteredTasks = $state<TaskWithSubTasks[]>([]);
-  
+
   const isCommandMode = $derived(searchValue.startsWith('>'));
   const isTagSearch = $derived(searchValue.startsWith('#'));
 
@@ -81,12 +81,28 @@ export function createSearchLogic(onClose: () => void) {
 
   return {
     searchValue: {
-      get value() { return searchValue; },
-      set value(val: string) { searchValue = val; }
+      get value() {
+        return searchValue;
+      },
+      set value(val: string) {
+        searchValue = val;
+      }
     },
-    filteredTasks: { get value() { return filteredTasks; } },
-    isCommandMode: { get value() { return isCommandMode; } },
-    isTagSearch: { get value() { return isTagSearch; } },
+    filteredTasks: {
+      get value() {
+        return filteredTasks;
+      }
+    },
+    isCommandMode: {
+      get value() {
+        return isCommandMode;
+      }
+    },
+    isTagSearch: {
+      get value() {
+        return isTagSearch;
+      }
+    },
     handleSearchExecute,
     handleTaskSelect,
     handleCommandSelect,
