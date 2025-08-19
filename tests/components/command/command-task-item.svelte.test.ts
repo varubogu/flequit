@@ -8,19 +8,20 @@ describe('CommandTaskItem', () => {
     id: 'task-1',
     title: 'Test Task',
     description: 'Test task description',
-    status: 'todo',
+    status: 'not_started',
     priority: 3,
     start_date: new Date('2024-01-01'),
     end_date: new Date('2024-01-02'),
     is_range_date: true,
-    project_id: 'project-1',
-    task_list_id: 'list-1',
+    list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
     sub_tasks: [],
     tags: [
-      { id: 'tag-1', name: 'urgent', color: '#ff0000' },
-      { id: 'tag-2', name: 'work', color: '#00ff00' }
+      { id: 'tag-1', name: 'urgent', color: '#ff0000', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+      { id: 'tag-2', name: 'work', color: '#00ff00', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
     ]
   };
 
@@ -53,13 +54,12 @@ describe('CommandTaskItem', () => {
         id: 'minimal-task',
         title: 'Minimal Task',
         description: '',
-        status: 'todo',
+        status: 'not_started',
         priority: 1,
         start_date: new Date(),
         end_date: new Date(),
         is_range_date: false,
-        project_id: 'project-1',
-        task_list_id: 'list-1',
+        list_id: 'list-1',
         created_at: new Date(),
         updated_at: new Date(),
         sub_tasks: [],
@@ -198,9 +198,9 @@ describe('CommandTaskItem', () => {
       const taskWithSpecialTags: TaskWithSubTasks = {
         ...mockTask,
         tags: [
-          { id: 'tag-1', name: 'tag with spaces', color: '#ff0000' },
-          { id: 'tag-2', name: 'タグ', color: '#00ff00' },
-          { id: 'tag-3', name: 'tag&symbols!', color: '#0000ff' }
+          { id: 'tag-1', name: 'tag with spaces', color: '#ff0000', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+          { id: 'tag-2', name: 'タグ', color: '#00ff00', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+          { id: 'tag-3', name: 'tag&symbols!', color: '#0000ff', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
         ]
       };
 
@@ -459,9 +459,9 @@ describe('CommandTaskItem', () => {
       const taskWithIncompleteTags: TaskWithSubTasks = {
         ...mockTask,
         tags: [
-          { id: 'tag-1', name: '', color: '#ff0000' },
-          { id: '', name: 'test', color: '#00ff00' },
-          { id: 'tag-3', name: null as any, color: null as any }
+          { id: 'tag-1', name: '', color: '#ff0000', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+          { id: '', name: 'test', color: '#00ff00', created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') },
+          { id: 'tag-3', name: null as any, color: null as any, created_at: new Date('2024-01-01'), updated_at: new Date('2024-01-01') }
         ]
       };
 

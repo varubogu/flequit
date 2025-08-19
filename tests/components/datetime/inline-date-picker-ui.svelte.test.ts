@@ -87,17 +87,17 @@ describe('InlineDatePickerUI', () => {
     });
 
     it('should handle undefined callbacks', () => {
-      const propsWithUndefinedCallbacks = {
+      const propsWithNoOpCallbacks = {
         ...defaultProps,
-        onDateTimeInputChange: undefined,
-        onCalendarChange: undefined,
-        onRangeChange: undefined,
-        onRangeModeChange: undefined,
-        onRecurrenceEdit: undefined
+        onDateTimeInputChange: () => {},
+        onCalendarChange: () => {},
+        onRangeChange: () => {},
+        onRangeModeChange: () => {},
+        onRecurrenceEdit: () => {}
       };
 
       const { container } = render(InlineDatePickerUI, { 
-        props: propsWithUndefinedCallbacks
+        props: propsWithNoOpCallbacks
       });
       expect(container).toBeInTheDocument();
     });

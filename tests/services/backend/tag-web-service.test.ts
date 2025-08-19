@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TagWebService } from '$lib/services/backend/web/tag-web-service';
 import type { Tag, TagSearchCondition } from '$lib/types/tag';
 
@@ -16,14 +16,12 @@ describe('TagWebService', () => {
       name: 'Work',
       color: '#3498DB',
       order_index: 0,
-      is_archived: false,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };
 
     mockSearchCondition = {
-      name: 'Work',
-      is_archived: false
+      name: 'Work'
     };
 
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

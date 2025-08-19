@@ -15,7 +15,6 @@ describe('SettingWebService', () => {
       key: 'theme',
       value: 'dark',
       data_type: 'string',
-      is_local: false,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };
@@ -67,9 +66,9 @@ describe('SettingWebService', () => {
 
     it('should handle different setting types', async () => {
       const settings = [
-        { ...mockSetting, data_type: 'boolean', value: 'true' },
-        { ...mockSetting, data_type: 'number', value: '42' },
-        { ...mockSetting, data_type: 'json', value: '{"test":true}' }
+        { ...mockSetting, data_type: 'boolean' as const, value: 'true' },
+        { ...mockSetting, data_type: 'number' as const, value: '42' },
+        { ...mockSetting, data_type: 'json' as const, value: '{"test":true}' }
       ];
 
       for (const setting of settings) {

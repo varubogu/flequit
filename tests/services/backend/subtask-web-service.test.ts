@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SubtaskWebService } from '$lib/services/backend/web/subtask-web-service';
 import type { SubTask, SubTaskSearchCondition } from '$lib/types/sub-task';
 
@@ -16,8 +16,8 @@ describe('SubtaskWebService', () => {
       task_id: 'task-456',
       title: 'Test SubTask',
       description: 'Test subtask description',
-      status: 'todo',
-      priority: 'medium',
+      status: 'not_started',
+      priority: 2,
       completion_rate: 0.5,
       order_index: 0,
       is_archived: false,
@@ -27,7 +27,7 @@ describe('SubtaskWebService', () => {
 
     mockSearchCondition = {
       task_id: 'task-456',
-      status: 'todo'
+      status: 'not_started'
     };
 
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

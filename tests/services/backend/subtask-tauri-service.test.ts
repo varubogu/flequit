@@ -283,7 +283,7 @@ describe('SubtaskTauriService', () => {
       const subTaskWithRecurrence = {
         ...mockSubTask,
         recurrence_rule: {
-          frequency: 'daily' as const,
+          unit: 'day' as const,
           interval: 1,
           end_date: new Date('2024-12-31T23:59:59Z')
         }

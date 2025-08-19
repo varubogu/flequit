@@ -26,11 +26,11 @@ describe('TaskService Interface', () => {
     
     mockTask = {
       id: 'task-123',
-      task_list_id: 'list-456',
+      list_id: 'list-456',
       title: 'Test Task',
       description: 'Test task description',
-      status: 'todo',
-      priority: 'medium',
+      status: 'not_started',
+      priority: 2,
       due_date: new Date('2024-12-31T23:59:59Z'),
       estimated_time: 120,
       actual_time: 90,
@@ -42,8 +42,8 @@ describe('TaskService Interface', () => {
     };
 
     mockSearchCondition = {
-      task_list_id: 'list-456',
-      status: 'todo'
+      list_id: 'list-456',
+      status: 'not_started'
     };
 
     vi.clearAllMocks();
@@ -70,9 +70,9 @@ describe('TaskService Interface', () => {
     it('should handle task with minimal data', async () => {
       const minimalTask = {
         id: 'task-minimal',
-        task_list_id: 'list-123',
+        list_id: 'list-123',
         title: 'Minimal Task',
-        status: 'todo' as const,
+        status: 'not_started' as const,
         priority: 'medium' as const,
         completion_rate: 0,
         order_index: 0,
@@ -318,7 +318,7 @@ describe('TaskService Interface', () => {
     });
 
     it('should handle search by task list ID only', async () => {
-      const listOnlyCondition = { task_list_id: 'list-456' };
+      const listOnlyCondition = { list_id: 'list-456' };
       service.search.mockResolvedValue([mockTask]);
 
       const result = await service.search(listOnlyCondition);
@@ -382,9 +382,9 @@ describe('TaskService Interface', () => {
 
     it('should handle complex search conditions', async () => {
       const complexCondition = {
-        task_list_id: 'list-456',
+        list_id: 'list-456',
         title: 'Test',
-        status: 'todo' as const,
+        status: 'not_started' as const,
         priority: 'medium' as const,
         is_archived: false,
         due_date_from: new Date('2024-01-01'),
@@ -404,7 +404,7 @@ describe('TaskService Interface', () => {
         mockTask,
         {
           id: 'task-456',
-          task_list_id: 'list-789',
+          list_id: 'list-789',
           title: 'Another Task',
           status: 'in_progress' as const,
           priority: 'high' as const,

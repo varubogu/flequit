@@ -22,7 +22,6 @@ describe('SettingService Interface', () => {
       key: 'theme',
       value: 'dark',
       data_type: 'string',
-      is_local: false,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };
