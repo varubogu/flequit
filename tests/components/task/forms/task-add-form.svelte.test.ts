@@ -178,9 +178,7 @@ describe('TaskAddForm', () => {
     });
 
     it('should auto-focus input on mount', async () => {
-      const { container } = render(TaskAddForm, { props: defaultProps });
-
-      const input = container.querySelector('input[type="text"]') as HTMLInputElement;
+      render(TaskAddForm, { props: defaultProps });
 
       // Wait for effect to run
       await waitFor(() => {

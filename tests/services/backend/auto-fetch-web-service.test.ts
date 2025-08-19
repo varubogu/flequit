@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AutoFetchWebService } from '$lib/services/backend/web/auto-fetch-web-service';
-import type { DataChangeNotification, DataType, ChangeType } from '$lib/services/backend/auto-fetch-service';
+import type { DataChangeNotification, DataType } from '$lib/services/backend/auto-fetch-service';
 
 describe('AutoFetchWebService', () => {
   let service: AutoFetchWebService;
@@ -257,7 +257,7 @@ describe('AutoFetchWebService', () => {
       const callbacks = [vi.fn(), vi.fn(), vi.fn()];
       
       // 並行してサブスクリプション登録と通知
-      const operations = await Promise.all([
+      await Promise.all([
         Promise.resolve(service.subscribe(callbacks[0])),
         Promise.resolve(service.subscribe(callbacks[1])),
         service.notifyDataChange(mockNotification),

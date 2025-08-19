@@ -265,16 +265,16 @@ describe('BackendWebService', () => {
     });
 
     it('should handle hasOwnProperty checks', () => {
-      expect(service.hasOwnProperty('project')).toBe(true);
-      expect(service.hasOwnProperty('tasklist')).toBe(true);
-      expect(service.hasOwnProperty('task')).toBe(true);
-      expect(service.hasOwnProperty('subtask')).toBe(true);
-      expect(service.hasOwnProperty('tag')).toBe(true);
-      expect(service.hasOwnProperty('setting')).toBe(true);
-      expect(service.hasOwnProperty('account')).toBe(true);
-      expect(service.hasOwnProperty('autoFetch')).toBe(true);
-      expect(service.hasOwnProperty('initialization')).toBe(true);
-      expect(service.hasOwnProperty('nonExistentProperty')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(service, 'project')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tasklist')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'task')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'subtask')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tag')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'setting')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'account')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'autoFetch')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'initialization')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });
   });
 });

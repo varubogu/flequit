@@ -35,10 +35,10 @@ describe('BackendTauriService', () => {
       // readonlyプロパティのため、設定しようとするとTypeScriptエラーになるが
       // 実行時の動作を確認
       const originalProject = service.project;
-      
+
       // プロパティが変更不可能かテスト（TypeScriptレベルでreadonly）
       expect(service.project).toBe(originalProject);
-      
+
       // 各サービスが独立したインスタンスであることを確認
       expect(service.project).not.toBe(service.tasklist);
       expect(service.task).not.toBe(service.subtask);
@@ -50,7 +50,7 @@ describe('BackendTauriService', () => {
     it('should initialize services only once per instance', () => {
       const project1 = service.project;
       const project2 = service.project;
-      
+
       expect(project1).toBe(project2); // 同じインスタンス
     });
   });
@@ -131,15 +131,6 @@ describe('BackendTauriService', () => {
 
   describe('service integration', () => {
     it('should provide working project service', async () => {
-      const mockProject = {
-        id: 'project-123',
-        name: 'Test Project',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-
       // プロジェクトサービスが実際に動作することを確認（モック化が必要）
       expect(service.project).toBeDefined();
       expect(typeof service.project.create).toBe('function');
@@ -313,16 +304,16 @@ describe('BackendTauriService', () => {
     });
 
     it('should handle hasOwnProperty checks', () => {
-      expect(service.hasOwnProperty('project')).toBe(true);
-      expect(service.hasOwnProperty('tasklist')).toBe(true);
-      expect(service.hasOwnProperty('task')).toBe(true);
-      expect(service.hasOwnProperty('subtask')).toBe(true);
-      expect(service.hasOwnProperty('tag')).toBe(true);
-      expect(service.hasOwnProperty('setting')).toBe(true);
-      expect(service.hasOwnProperty('account')).toBe(true);
-      expect(service.hasOwnProperty('autoFetch')).toBe(true);
-      expect(service.hasOwnProperty('initialization')).toBe(true);
-      expect(service.hasOwnProperty('nonExistentProperty')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(service, 'project')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tasklist')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'task')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'subtask')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tag')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'setting')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'account')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'autoFetch')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'initialization')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });
   });
 
