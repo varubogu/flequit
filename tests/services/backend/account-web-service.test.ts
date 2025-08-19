@@ -42,7 +42,7 @@ describe('AccountWebService', () => {
       const minimalAccount = {
         id: 'account-minimal',
         display_name: 'Minimal User',
-        provider: 'local',
+        provider: 'local' as const,
         is_active: true,
         created_at: new Date(),
         updated_at: new Date()

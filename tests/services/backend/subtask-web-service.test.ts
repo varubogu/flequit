@@ -19,7 +19,7 @@ describe('SubtaskWebService', () => {
       status: 'not_started',
       priority: 2,
       order_index: 0,
-      is_archived: false,
+      tags: [],
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
     };

@@ -49,9 +49,9 @@ describe('RecurrenceAdjustmentEditor', () => {
 
   const mockWeekdayCondition: WeekdayCondition = {
     id: 'weekday-1',
-    weekday: 1,
-    nth: 1,
-    relation: 'before' as DateRelation
+    if_weekday: 'monday',
+    then_direction: 'next',
+    then_target: 'weekday'
   };
 
   const defaultProps = {
@@ -246,7 +246,12 @@ describe('RecurrenceAdjustmentEditor', () => {
         ...defaultProps,
         weekdayConditions: [
           mockWeekdayCondition,
-          { id: 'weekday-2', weekday: 2, nth: 2, relation: 'after' as DateRelation }
+          { 
+            id: 'weekday-2', 
+            if_weekday: 'tuesday' as const,
+            then_direction: 'previous' as const,
+            then_target: 'holiday' as const
+          }
         ]
       };
       

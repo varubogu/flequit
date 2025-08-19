@@ -49,21 +49,35 @@ describe('ProjectListContent', () => {
   const mockLogic = {
     projectsData: mockProjects,
     expandedProjects: new Set(['project-1']),
-    toggleTaskLists: vi.fn(() => 'Toggle Task Lists'),
+    showProjectDialog: false,
+    projectDialogMode: 'add' as const,
+    editingProject: null,
+    showTaskListDialog: false,
+    taskListDialogProject: null,
+    editProject: () => 'Edit Project',
+    addTaskList: () => 'Add Task List',
+    deleteProject: () => 'Delete Project',
+    toggleTaskLists: () => 'Toggle Task Lists',
     toggleProjectExpansion: vi.fn(),
     createProjectContextMenu: vi.fn(() => []),
     handleProjectSelect: vi.fn(),
-    getProjectTaskCount: vi.fn(() => '5'),
+    getProjectTaskCount: vi.fn(() => 5),
     handleProjectDragStart: vi.fn(),
     handleProjectDragOver: vi.fn(),
     handleProjectDrop: vi.fn(),
     handleProjectDragEnd: vi.fn(),
     handleProjectDragEnter: vi.fn(),
-    handleProjectDragLeave: vi.fn()
+    handleProjectDragLeave: vi.fn(),
+    openProjectDialog: vi.fn(),
+    openTaskListDialog: vi.fn(),
+    handleTaskListSave: vi.fn(),
+    handleProjectSave: vi.fn(),
+    handleProjectDialogClose: vi.fn(),
+    handleTaskListDialogClose: vi.fn()
   };
 
   const defaultProps = {
-    logic: mockLogic,
+    logic: mockLogic as any,
     currentView: 'all' as const,
     isCollapsed: false,
     onViewChange: vi.fn()
@@ -90,7 +104,7 @@ describe('ProjectListContent', () => {
       const emptyLogic = {
         ...mockLogic,
         projectsData: []
-      };
+      } as any;
 
       const { component } = render(ProjectListContent, { 
         props: { 
@@ -229,7 +243,7 @@ describe('ProjectListContent', () => {
       const logicWithEmptyNames = {
         ...mockLogic,
         projectsData: projectsWithoutNames
-      };
+      } as any;
 
       render(ProjectListContent, { 
         props: { 
@@ -245,7 +259,7 @@ describe('ProjectListContent', () => {
       const logicWithoutExpanded = {
         ...mockLogic,
         expandedProjects: undefined as any
-      };
+      } as any;
 
       render(ProjectListContent, { 
         props: { 
@@ -265,7 +279,7 @@ describe('ProjectListContent', () => {
       const logicWithEmptyLists = {
         ...mockLogic,
         projectsData: projectsWithEmptyLists
-      };
+      } as any;
 
       render(ProjectListContent, { 
         props: { 

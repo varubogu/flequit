@@ -656,11 +656,8 @@ test('ViewService.getTasksForView: edge case for end of month calculation', () =
   // Mock Date.now() to return January 31st, 2024
   const originalDate = Date;
   global.Date = class extends originalDate {
-    constructor(...args: any[]) {
-      super(...args);
-      if (args.length === 0) {
-        return new originalDate(2024, 0, 31);
-      }
+    constructor() {
+      super(2024, 0, 31);
     }
     
     static now() {

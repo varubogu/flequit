@@ -155,12 +155,14 @@ describe('ErrorPanel (Store Integration)', () => {
   it('should auto-remove non-retryable errors after timeout', () => {
     // Mock setTimeout for testing
     const originalSetTimeout = global.setTimeout;
-    let timeoutCallback: (() => void) | null = null;
+    let timeoutCallback: (() => void) = () => {};
     
-    global.setTimeout = vi.fn((callback: () => void, delay: number) => {
+    const mockSetTimeout = vi.fn((callback: () => void, delay: number) => {
       timeoutCallback = callback;
       return 123 as any; // Return a mock timer ID
-    });
+    }) as any;
+    mockSetTimeout.__promisify__ = vi.fn();
+    global.setTimeout = mockSetTimeout;
 
     const errorId = errorHandler.addError({
       type: 'validation',
@@ -172,9 +174,7 @@ describe('ErrorPanel (Store Integration)', () => {
     expect(global.setTimeout).toHaveBeenCalledWith(expect.any(Function), 5000);
 
     // Simulate timeout
-    if (timeoutCallback) {
-      timeoutCallback();
-    }
+    timeoutCallback();
 
     expect(errorHandler.errors.length).toBe(0);
 
@@ -184,7 +184,9 @@ describe('ErrorPanel (Store Integration)', () => {
 
   it('should not auto-remove retryable errors', () => {
     // Mock setTimeout for testing
-    global.setTimeout = vi.fn();
+    const mockSetTimeout = vi.fn() as any;
+    mockSetTimeout.__promisify__ = vi.fn();
+    global.setTimeout = mockSetTimeout;
 
     const errorId = errorHandler.addError({
       type: 'network',

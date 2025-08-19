@@ -3,6 +3,7 @@ import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import WeekdayConditionEditor from '$lib/components/datetime/conditions/weekday-condition-editor.svelte';
 import type { WeekdayCondition, DayOfWeek, AdjustmentDirection, AdjustmentTarget } from '$lib/types/datetime-calendar';
+import { getTranslationService } from '$lib/stores/locale.svelte';
 
 // Mock dependencies
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -14,7 +15,10 @@ vi.mock('$lib/stores/locale.svelte', () => ({
       };
       return messages[key] || key;
     }),
-    getCurrentLocale: vi.fn(() => 'ja-JP')
+    getCurrentLocale: vi.fn(() => 'ja-JP'),
+    setLocale: vi.fn(),
+    reactiveMessage: vi.fn(),
+    getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
   }))
 }));
 
@@ -117,7 +121,7 @@ describe('WeekdayConditionEditor', () => {
 
   describe('English language rendering', () => {
     beforeEach(() => {
-      vi.mocked(vi.importMock('$lib/stores/locale.svelte')).getTranslationService.mockReturnValue({
+      vi.mocked(getTranslationService).mockReturnValue({
         getMessage: vi.fn((key: string) => () => {
           const messages: Record<string, string> = {
             previous: 'previous',
@@ -125,7 +129,10 @@ describe('WeekdayConditionEditor', () => {
           };
           return messages[key] || key;
         }),
-        getCurrentLocale: vi.fn(() => 'en-US')
+        getCurrentLocale: vi.fn(() => 'en-US'),
+        setLocale: vi.fn(),
+        reactiveMessage: vi.fn(),
+        getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
       });
     });
 
@@ -357,7 +364,7 @@ describe('WeekdayConditionEditor', () => {
       expect(queryByText('なら')).toBeInTheDocument();
       
       // Mock English locale
-      vi.mocked(vi.importMock('$lib/stores/locale.svelte')).getTranslationService.mockReturnValue({
+      vi.mocked(getTranslationService).mockReturnValue({
         getMessage: vi.fn((key: string) => () => {
           const messages: Record<string, string> = {
             previous: 'previous',
@@ -365,7 +372,10 @@ describe('WeekdayConditionEditor', () => {
           };
           return messages[key] || key;
         }),
-        getCurrentLocale: vi.fn(() => 'en-US')
+        getCurrentLocale: vi.fn(() => 'en-US'),
+        setLocale: vi.fn(),
+        reactiveMessage: vi.fn(),
+        getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
       });
       
       rerender(defaultProps);
@@ -412,9 +422,12 @@ describe('WeekdayConditionEditor', () => {
     });
 
     it('should handle unknown locale', () => {
-      vi.mocked(vi.importMock('$lib/stores/locale.svelte')).getTranslationService.mockReturnValue({
+      vi.mocked(getTranslationService).mockReturnValue({
         getMessage: vi.fn((key: string) => () => key),
-        getCurrentLocale: vi.fn(() => 'unknown-locale')
+        getCurrentLocale: vi.fn(() => 'unknown-locale'),
+        setLocale: vi.fn(),
+        reactiveMessage: vi.fn(),
+        getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
       });
       
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });

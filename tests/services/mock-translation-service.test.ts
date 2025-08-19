@@ -93,7 +93,7 @@ describe('MockTranslationService', () => {
     });
 
     it('should handle functions with parameters', () => {
-      const messageFn = (name: string) => `hello_${name}`;
+      const messageFn = (...args: unknown[]) => `hello_${args[0] as string}`;
       const wrappedFn = service.reactiveMessage(messageFn);
       
       expect(wrappedFn('world')).toBe('hello_world');

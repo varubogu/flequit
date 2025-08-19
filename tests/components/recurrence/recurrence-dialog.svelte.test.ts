@@ -42,8 +42,10 @@ const mockLogic = {
   hasChanges: vi.fn(() => false)
 };
 
+const MockRecurrenceDialogAdvancedLogic = vi.fn(() => mockLogic);
+
 vi.mock('./shared/recurrence-dialog-advanced-logic.svelte', () => ({
-  RecurrenceDialogAdvancedLogic: vi.fn(() => mockLogic)
+  RecurrenceDialogAdvancedLogic: MockRecurrenceDialogAdvancedLogic
 }));
 
 describe('RecurrenceDialog', () => {
@@ -55,9 +57,7 @@ describe('RecurrenceDialog', () => {
       specific_date: undefined,
       week_of_period: undefined,
       weekday_of_week: undefined
-    },
-    count: undefined,
-    until: undefined
+    }
   };
 
   const defaultProps = {
@@ -158,7 +158,7 @@ describe('RecurrenceDialog', () => {
 
     it('should call onOpenChange when provided', () => {
       const mockOnOpenChange = vi.fn();
-      render(RecurrenceDialog, { 
+      const { container } = render(RecurrenceDialog, { 
         props: { ...defaultProps, onOpenChange: mockOnOpenChange }
       });
       
@@ -196,11 +196,9 @@ describe('RecurrenceDialog', () => {
         days_of_week: ['monday', 'wednesday', 'friday'],
         details: {
           specific_date: 15,
-          week_of_period: 2,
+          week_of_period: 'second',
           weekday_of_week: 'tuesday'
-        },
-        count: 10,
-        until: new Date('2024-12-31')
+        }
       };
       
       const propsWithComplexRule = { ...defaultProps, recurrenceRule: complexRule };
@@ -233,7 +231,7 @@ describe('RecurrenceDialog', () => {
       });
       
       // Logic should be initialized with onSave callback
-      expect(vi.mocked(vi.importMock('./shared/recurrence-dialog-advanced-logic.svelte')).RecurrenceDialogAdvancedLogic).toHaveBeenCalled();
+      expect(MockRecurrenceDialogAdvancedLogic).toHaveBeenCalled();
     });
   });
 
@@ -290,7 +288,7 @@ describe('RecurrenceDialog', () => {
         }
       });
       
-      expect(vi.mocked(vi.importMock('./shared/recurrence-dialog-advanced-logic.svelte')).RecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
+      expect(MockRecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
         defaultProps.recurrenceRule,
         defaultProps.onSave,
         startDate,
@@ -304,7 +302,7 @@ describe('RecurrenceDialog', () => {
     it('should initialize RecurrenceDialogAdvancedLogic', () => {
       render(RecurrenceDialog, { props: defaultProps });
       
-      expect(vi.mocked(vi.importMock('./shared/recurrence-dialog-advanced-logic.svelte')).RecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
+      expect(MockRecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
         defaultProps.recurrenceRule,
         defaultProps.onSave,
         defaultProps.startDateTime,
@@ -454,7 +452,7 @@ describe('RecurrenceDialog', () => {
       rerender(updatedProps);
       
       // Logic should be recreated with new props
-      expect(vi.mocked(vi.importMock('./shared/recurrence-dialog-advanced-logic.svelte')).RecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
+      expect(MockRecurrenceDialogAdvancedLogic).toHaveBeenCalledWith(
         mockRecurrenceRule,
         defaultProps.onSave,
         updatedProps.startDateTime,
@@ -489,14 +487,14 @@ describe('RecurrenceDialog', () => {
     it('should integrate with RecurrenceDialogAdvancedLogic', () => {
       render(RecurrenceDialog, { props: defaultProps });
       
-      expect(vi.mocked(vi.importMock('./shared/recurrence-dialog-advanced-logic.svelte')).RecurrenceDialogAdvancedLogic).toHaveBeenCalled();
+      expect(MockRecurrenceDialogAdvancedLogic).toHaveBeenCalled();
       expect(mockLogic.recurrenceSettings).toHaveBeenCalled();
     });
   });
 
   describe('dialog behavior', () => {
     it('should support binding open state', () => {
-      const { rerender } = render(RecurrenceDialog, { props: defaultProps });
+      const { rerender, container } = render(RecurrenceDialog, { props: defaultProps });
       
       // Update open state
       rerender({ ...defaultProps, open: true });
@@ -506,7 +504,7 @@ describe('RecurrenceDialog', () => {
 
     it('should handle dialog state changes', () => {
       const mockOnOpenChange = vi.fn();
-      render(RecurrenceDialog, { 
+      const { container } = render(RecurrenceDialog, { 
         props: { ...defaultProps, onOpenChange: mockOnOpenChange }
       });
       
@@ -515,7 +513,7 @@ describe('RecurrenceDialog', () => {
     });
 
     it('should maintain state consistency', () => {
-      const { rerender } = render(RecurrenceDialog, { props: { ...defaultProps, open: false } });
+      const { rerender, container } = render(RecurrenceDialog, { props: { ...defaultProps, open: false } });
       
       rerender({ ...defaultProps, open: true });
       rerender({ ...defaultProps, open: false });

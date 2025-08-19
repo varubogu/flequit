@@ -512,7 +512,7 @@ describe('AccountService Interface', () => {
       const getResult = await service.get(rapidAccount.id);
       expect(getResult).toEqual(rapidAccount);
 
-      rapidAccount.name = 'Updated Name';
+      rapidAccount.display_name = 'Updated Name';
       const updateResult = await service.update(rapidAccount);
       expect(updateResult).toBe(true);
 

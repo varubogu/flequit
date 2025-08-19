@@ -4,23 +4,23 @@ import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/shared/r
 
 // Mock child components
 vi.mock('$lib/components/recurrence/recurrence-level-selector.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: () => ({ $$: { fragment: null } as any })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-count-input.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: () => ({ $$: { fragment: null } as any })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-interval-editor.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: () => ({ $$: { fragment: null } as any })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-adjustment-editor.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: () => ({ $$: { fragment: null } as any })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-preview.svelte', () => ({
-  default: () => ({ $$: { fragment: null } })
+  default: () => ({ $$: { fragment: null } as any })
 }));
 
 vi.mock('$lib/utils/datetime-utils', () => ({
@@ -58,7 +58,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic
+    logic: mockLogic as any
   };
 
   beforeEach(() => {

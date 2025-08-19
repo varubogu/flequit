@@ -13,12 +13,7 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
     addTask: vi.fn(),
     updateSubTask: vi.fn(),
     deleteSubTask: vi.fn(),
-    getTaskById: vi.fn(() => ({
-      id: 'task-123',
-      title: 'Test Task',
-      status: 'not_started',
-      recurrence_rule: null
-    }))
+    getTaskById: vi.fn()
   }
 }));
 
@@ -389,7 +384,16 @@ test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters
     priority: 1
   };
 
-  const mockSubTask = { id: 'subtask-123', title: 'New Subtask' };
+  const mockSubTask = { 
+    id: 'subtask-123', 
+    title: 'New Subtask',
+    task_id: taskId,
+    status: 'not_started' as const,
+    order_index: 0,
+    tags: [],
+    created_at: new Date(),
+    updated_at: new Date()
+  };
   vi.mocked(mockTaskStore.addSubTask).mockImplementation(() => Promise.resolve(mockSubTask));
 
   const result = await TaskService.addSubTask(taskId, subTaskData);
@@ -543,8 +547,8 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   };
   
   const nextDate = new Date('2024-01-16');
-  mockTaskStore.getTaskById.mockReturnValue(mockRecurringTask);
-  mockRecurrenceService.calculateNextDate.mockReturnValue(nextDate);
+  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(nextDate);
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
@@ -588,8 +592,8 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
     }
   };
   
-  mockTaskStore.getTaskById.mockReturnValue(mockRecurringTask);
-  mockRecurrenceService.calculateNextDate.mockReturnValue(null); // No next date
+  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(null); // No next date
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
@@ -618,8 +622,8 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
     }
   };
   
-  mockTaskStore.getTaskById.mockReturnValue(mockRecurringTask);
-  mockRecurrenceService.calculateNextDate.mockReturnValue(nextDate);
+  (mockTaskStore.getTaskById as any).mockReturnValue(mockRecurringTask);
+  (mockRecurrenceService.calculateNextDate as any).mockReturnValue(nextDate);
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
