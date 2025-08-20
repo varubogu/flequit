@@ -1,8 +1,10 @@
-import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
+import type { Task, TaskWithSubTasks, TaskStatus, TaskPatch } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { RecurrenceService } from './recurrence-service';
+// TODO: Tauri APIのセットアップ後に有効化
+// import { invoke } from '@tauri-apps/api/tauri';
 
 export class TaskService {
   static toggleTaskStatus(taskId: string): void {
@@ -292,4 +294,62 @@ export class TaskService {
       taskStore.addTagToSubTask(subTaskId, tag.name);
     }
   }
+
+  // TODO: Tauri APIのセットアップ後に有効化
+  /*
+  /**
+   * 汎用パッチ更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskPatch(id: string, patch: TaskPatch): Promise<boolean> {
+    return await invoke<boolean>('update_task_patch', { id, patch });
+  }
+
+  /**
+   * タスクタイトルの更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskTitle(id: string, title: string): Promise<boolean> {
+    const patch: TaskPatch = { title };
+    return await this.updateTaskPatch(id, patch);
+  }
+
+  /**
+   * タスクステータスの更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskStatusTauri(id: string, status: TaskStatus): Promise<boolean> {
+    const patch: TaskPatch = { status };
+    return await this.updateTaskPatch(id, patch);
+  }
+
+  /**
+   * タスクの説明の更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskDescription(id: string, description: string | null): Promise<boolean> {
+    const patch: TaskPatch = { description };
+    return await this.updateTaskPatch(id, patch);
+  }
+
+  /**
+   * タスクの優先度の更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskPriority(id: string, priority: number): Promise<boolean> {
+    const patch: TaskPatch = { priority };
+    return await this.updateTaskPatch(id, patch);
+  }
+
+  /**
+   * タスクの期日の更新 - Tauriバックエンドを使用
+   */
+  /*
+  static async updateTaskDueDate(id: string, end_date: Date | null): Promise<boolean> {
+    const patch: TaskPatch = { 
+      end_date: end_date ? end_date.toISOString() : null 
+    };
+    return await this.updateTaskPatch(id, patch);
+  }
+  */
 }

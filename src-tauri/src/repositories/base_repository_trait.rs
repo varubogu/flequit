@@ -89,4 +89,9 @@ pub trait Repository<T, TId>: Send + Sync {
     ///
     /// エンティティの総数、失敗時は`Err(RepositoryError)`
     async fn count(&self) -> Result<u64, RepositoryError>;
+
+    // TODO: パッチによる部分更新（段階的実装のため後で全Repository実装に追加）
+    // async fn patch<P>(&self, id: &TId, patch: &P) -> Result<bool, RepositoryError>
+    // where
+    //     P: Partial + Send + Sync;
 }

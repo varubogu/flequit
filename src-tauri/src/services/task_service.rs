@@ -1,11 +1,12 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
-use crate::models::task::Task;
+use crate::models::task::{Task, PartialTask};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
 use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
 use chrono::Utc;
+use partially::Partial;
 
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
@@ -247,4 +248,23 @@ pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usi
     let paginated_tasks = tasks.into_iter().skip(offset).take(limit).collect();
 
     Ok((paginated_tasks, total_count))
+}
+
+pub async fn update_task_patch(
+    task_id: &TaskId, 
+    patch: &PartialTask
+) -> Result<bool, ServiceError> {
+    let repository = Repositories::new().await?;
+    
+    if let Some(mut task) = repository.tasks.find_by_id(task_id).await? {
+        let changed = task.apply_some(patch.clone());
+        if changed {
+            // 更新日時を設定
+            task.updated_at = Utc::now();
+            repository.tasks.save(&task).await?;
+        }
+        Ok(changed)
+    } else {
+        Err(ServiceError::NotFound("Task not found".to_string()))
+    }
 }

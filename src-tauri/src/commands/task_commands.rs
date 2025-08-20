@@ -2,6 +2,7 @@ use crate::facades::task_facades;
 use crate::models::command::task::{TaskCommand, TaskSearchRequest};
 use crate::models::command::ModelConverter;
 use crate::models::CommandModelConverter;
+use crate::models::task::PartialTask;
 use crate::types::id_types::TaskId;
 
 #[tauri::command]
@@ -46,4 +47,14 @@ pub async fn search_tasks(condition: TaskSearchRequest) -> Result<Vec<TaskComman
         command_results.push(task.to_command_model().await?);
     }
     Ok(command_results)
+}
+
+// 汎用パッチ更新コマンド
+#[tauri::command]
+pub async fn update_task_patch(id: String, patch: PartialTask) -> Result<bool, String> {
+    let task_id = match TaskId::try_from_str(&id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    task_facades::update_task_patch(&task_id, &patch).await
 }

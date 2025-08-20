@@ -16,6 +16,7 @@ use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use partially::Partial;
 
 use crate::models::{command::task::TaskCommand, CommandModelConverter};
 
@@ -67,9 +68,11 @@ use crate::models::{command::task::TaskCommand, CommandModelConverter};
 /// - 基本的なCRUD操作
 /// - 検索・フィルタリング
 /// - 軽量なデータ取得
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Task {
     /// タスクの一意識別子
+    #[partially(omit)]  // IDは更新対象外
     pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
     pub sub_task_id: Option<SubTaskId>,
@@ -223,3 +226,4 @@ impl CommandModelConverter<TaskCommand> for Task {
         })
     }
 }
+

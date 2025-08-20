@@ -82,3 +82,37 @@ export interface TaskSearchCondition {
   /** アーカイブ状態 */
   is_archived?: boolean;
 }
+
+/**
+ * タスク部分更新用のパッチインターフェース
+ */
+export interface TaskPatch {
+  /** サブタスクID（サブタスクの場合） */
+  sub_task_id?: string | null;
+  /** 所属タスクリストID */
+  list_id?: string;
+  /** タスクタイトル */
+  title?: string;
+  /** タスクの説明 */
+  description?: string | null;
+  /** ステータス */
+  status?: TaskStatus;
+  /** 優先度 */
+  priority?: number;
+  /** 開始日 */
+  start_date?: string | null;
+  /** 終了日（期日） */
+  end_date?: string | null;
+  /** 期日が範囲選択かどうか */
+  is_range_date?: boolean | null;
+  /** 繰り返しルール */
+  recurrence_rule?: RecurrenceRule | null;
+  /** 担当者ユーザーIDの配列 */
+  assigned_user_ids?: string[];
+  /** タグIDの配列 */
+  tag_ids?: string[];
+  /** 表示順序 */
+  order_index?: number;
+  /** アーカイブ状態 */
+  is_archived?: boolean;
+}
