@@ -10,12 +10,17 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 coverage/
 
-.claude/
-
 # Playwright
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 
+# Claude Code
+.claude/
+
+# Serena MCP
+.serena/
+
+# 一時フォルダ
 .tmp
