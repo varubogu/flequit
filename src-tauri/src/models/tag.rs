@@ -9,6 +9,7 @@
 
 use super::super::types::id_types::TagId;
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::tag::TagCommand, CommandModelConverter};
@@ -63,9 +64,11 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 /// - タグによるフィルタリング・検索
 /// - タグ使用頻度の統計
 /// - 人気タグランキング
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Tag {
     /// タグの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: TagId,
     /// タグ名（表示名、検索キー）
     pub name: String,

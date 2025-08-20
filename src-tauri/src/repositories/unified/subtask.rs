@@ -8,7 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::subtask::SubTask;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
 use crate::repositories::local_sqlite::subtask::SubtaskLocalSqliteRepository;
 use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
@@ -230,3 +230,6 @@ impl Repository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
 }
 
 impl SubTaskRepositoryTrait for SubTaskUnifiedRepository {}
+
+#[async_trait]
+impl Patchable<SubTask, SubTaskId> for SubTaskUnifiedRepository {}

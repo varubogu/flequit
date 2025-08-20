@@ -9,7 +9,7 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::models::account::Account;
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::account::AccountLocalAutomergeRepository;
 use crate::repositories::local_sqlite::account::AccountLocalSqliteRepository;
 use crate::types::id_types::AccountId;
@@ -228,3 +228,8 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
         }
     }
 }
+
+impl AccountRepositoryTrait for AccountUnifiedRepository {}
+
+#[async_trait]
+impl Patchable<Account, AccountId> for AccountUnifiedRepository {}

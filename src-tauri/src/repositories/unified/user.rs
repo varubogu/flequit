@@ -8,7 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::user::User;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::user::UserLocalAutomergeRepository;
 use crate::repositories::local_sqlite::user::UserLocalSqliteRepository;
 use crate::repositories::user_repository_trait::UserRepositoryTrait;
@@ -230,3 +230,6 @@ impl Repository<User, UserId> for UserUnifiedRepository {
 }
 
 impl UserRepositoryTrait for UserUnifiedRepository {}
+
+#[async_trait]
+impl Patchable<User, UserId> for UserUnifiedRepository {}

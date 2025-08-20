@@ -1,5 +1,5 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::account::Account;
+use crate::models::account::{Account, PartialAccount};
 use crate::services::account_service;
 use crate::types::id_types::AccountId;
 
@@ -20,9 +20,12 @@ pub async fn get_account(id: &AccountId) -> Result<Option<Account>, String> {
     }
 }
 
-pub async fn update_account(account: &Account) -> Result<bool, String> {
-    match account_service::update_account(account).await {
-        Ok(_) => Ok(true),
+pub async fn update_account(
+    account_id: &AccountId,
+    patch: &PartialAccount,
+) -> Result<bool, String> {
+    match account_service::update_account(account_id, patch).await {
+        Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update account: {:?}", e)),
     }

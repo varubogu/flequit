@@ -2,7 +2,7 @@ use log::info;
 
 use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
-use crate::models::task::{Task, PartialTask};
+use crate::models::task::{PartialTask, Task};
 use crate::services::task_service;
 use crate::types::id_types::TaskId;
 
@@ -23,9 +23,9 @@ pub async fn get_task(id: &TaskId) -> Result<Option<Task>, String> {
     }
 }
 
-pub async fn update_task(task: &Task) -> Result<bool, String> {
-    match task_service::update_task(task).await {
-        Ok(_) => Ok(true),
+pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, String> {
+    match task_service::update_task(task_id, patch).await {
+        Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task: {:?}", e)),
     }
@@ -43,13 +43,5 @@ pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, St
     match task_service::search_tasks(condition).await {
         Ok((tasks, _)) => Ok(tasks),
         Err(e) => Err(format!("Failed to search tasks: {:?}", e)),
-    }
-}
-
-pub async fn update_task_patch(task_id: &TaskId, patch: &PartialTask) -> Result<bool, String> {
-    match task_service::update_task_patch(task_id, patch).await {
-        Ok(changed) => Ok(changed),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to update task: {:?}", e)),
     }
 }

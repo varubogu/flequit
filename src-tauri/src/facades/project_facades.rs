@@ -1,6 +1,6 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::command::project::ProjectSearchRequest;
-use crate::models::project::Project;
+use crate::models::project::{PartialProject, Project};
 use crate::services::project_service;
 use crate::types::id_types::ProjectId;
 
@@ -21,9 +21,12 @@ pub async fn get_project(id: &ProjectId) -> Result<Option<Project>, String> {
     }
 }
 
-pub async fn update_project(project: &Project) -> Result<bool, String> {
-    match project_service::update_project(project).await {
-        Ok(_) => Ok(true),
+pub async fn update_project(
+    project_id: &ProjectId,
+    patch: &PartialProject,
+) -> Result<bool, String> {
+    match project_service::update_project(project_id, patch).await {
+        Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update project: {:?}", e)),
     }

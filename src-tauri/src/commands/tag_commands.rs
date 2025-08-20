@@ -1,6 +1,7 @@
 use crate::facades::tag_facades;
 use crate::models::command::tag::{TagCommand, TagSearchRequest};
 use crate::models::command::ModelConverter;
+use crate::models::tag::PartialTag;
 use crate::models::CommandModelConverter;
 use crate::types::id_types::TagId;
 
@@ -24,9 +25,12 @@ pub async fn get_tag(id: String) -> Result<Option<TagCommand>, String> {
 }
 
 #[tauri::command]
-pub async fn update_tag(tag: TagCommand) -> Result<bool, String> {
-    let internal_tag = tag.to_model().await?;
-    tag_facades::update_tag(&internal_tag).await
+pub async fn update_tag(id: String, patch: PartialTag) -> Result<bool, String> {
+    let tag_id = match TagId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    tag_facades::update_tag(&tag_id, &patch).await
 }
 
 #[tauri::command]

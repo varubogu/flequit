@@ -10,6 +10,7 @@
 
 use super::super::types::id_types::{ProjectId, TaskListId};
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
@@ -67,9 +68,11 @@ use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
 ///     updated_at: Utc::now(),
 /// };
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct TaskList {
     /// タスクリストの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: TaskListId,
     /// 所属プロジェクトの識別子（必須の関連）
     pub project_id: ProjectId,

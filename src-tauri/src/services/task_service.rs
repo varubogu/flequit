@@ -1,12 +1,11 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::command::task::TaskSearchRequest;
-use crate::models::task::{Task, PartialTask};
-use crate::repositories::base_repository_trait::Repository;
+use crate::models::task::{PartialTask, Task};
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
 use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
 use chrono::Utc;
-use partially::Partial;
 
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
@@ -25,10 +24,23 @@ pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceErro
     Ok(repository.tasks.find_all().await?)
 }
 
-pub async fn update_task(task: &Task) -> Result<(), ServiceError> {
+pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, ServiceError> {
     let repository = Repositories::new().await?;
-    repository.tasks.save(task).await?;
-    Ok(())
+
+    // updated_atフィールドを自動設定したパッチを作成
+    let mut updated_patch = patch.clone();
+    updated_patch.updated_at = Some(Utc::now());
+
+    let changed = repository.tasks.patch(task_id, &updated_patch).await?;
+
+    if !changed {
+        // パッチ適用で変更がなかった場合、エンティティが存在するかチェック
+        if repository.tasks.find_by_id(task_id).await?.is_none() {
+            return Err(ServiceError::NotFound("Task not found".to_string()));
+        }
+    }
+
+    Ok(changed)
 }
 
 pub async fn delete_task(task_id: &TaskId) -> Result<(), ServiceError> {
@@ -43,16 +55,19 @@ pub async fn list_tasks_by_assignee(
 ) -> Result<Vec<Task>, ServiceError> {
     let repository = Repositories::new().await?;
     let all_tasks = repository.tasks.find_all().await?;
-    
+
     // project_idとuser_idでフィルタリング
     let filtered_tasks = all_tasks
         .into_iter()
         .filter(|task| {
             task.project_id.to_string() == project_id
-                && task.assigned_user_ids.iter().any(|id| id.to_string() == user_id)
+                && task
+                    .assigned_user_ids
+                    .iter()
+                    .any(|id| id.to_string() == user_id)
         })
         .collect();
-    
+
     Ok(filtered_tasks)
 }
 
@@ -62,15 +77,13 @@ pub async fn list_tasks_by_status(
 ) -> Result<Vec<Task>, ServiceError> {
     let repository = Repositories::new().await?;
     let all_tasks = repository.tasks.find_all().await?;
-    
+
     // project_idとstatusでフィルタリング
     let filtered_tasks = all_tasks
         .into_iter()
-        .filter(|task| {
-            task.project_id.to_string() == project_id && task.status == *status
-        })
+        .filter(|task| task.project_id.to_string() == project_id && task.status == *status)
         .collect();
-    
+
     Ok(filtered_tasks)
 }
 
@@ -80,11 +93,11 @@ pub async fn assign_task(
     assignee_id: Option<String>,
 ) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // タスクIDから TaskId 型に変換
     use crate::types::id_types::{TaskId, UserId};
     let task_id_typed = TaskId::from(task_id.to_string());
-    
+
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
         if task.project_id.to_string() != project_id {
@@ -92,7 +105,7 @@ pub async fn assign_task(
                 "Task does not belong to the specified project".to_string(),
             ));
         }
-        
+
         // assignee_idがある場合は追加、ない場合は全てクリア
         if let Some(assignee_id) = assignee_id {
             let user_id = UserId::from(assignee_id);
@@ -104,14 +117,14 @@ pub async fn assign_task(
             // assignee_idがNoneの場合は全てクリア
             task.assigned_user_ids.clear();
         }
-        
+
         // 更新日時を設定
         task.updated_at = Utc::now();
-        
+
         // 保存
         repository.tasks.save(&task).await?;
     }
-    
+
     Ok(())
 }
 
@@ -121,11 +134,11 @@ pub async fn update_task_status(
     status: &TaskStatus,
 ) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // タスクIDから TaskId 型に変換
     use crate::types::id_types::TaskId;
     let task_id_typed = TaskId::from(task_id.to_string());
-    
+
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
         if task.project_id.to_string() != project_id {
@@ -133,17 +146,17 @@ pub async fn update_task_status(
                 "Task does not belong to the specified project".to_string(),
             ));
         }
-        
+
         // ステータス更新
         task.status = status.clone();
-        
+
         // 更新日時を設定
         task.updated_at = Utc::now();
-        
+
         // 保存
         repository.tasks.save(&task).await?;
     }
-    
+
     Ok(())
 }
 
@@ -153,11 +166,11 @@ pub async fn update_task_priority(
     priority: i32,
 ) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // タスクIDから TaskId 型に変換
     use crate::types::id_types::TaskId;
     let task_id_typed = TaskId::from(task_id.to_string());
-    
+
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
         if task.project_id.to_string() != project_id {
@@ -165,17 +178,17 @@ pub async fn update_task_priority(
                 "Task does not belong to the specified project".to_string(),
             ));
         }
-        
+
         // 優先度更新
         task.priority = priority;
-        
+
         // 更新日時を設定
         task.updated_at = Utc::now();
-        
+
         // 保存
         repository.tasks.save(&task).await?;
     }
-    
+
     Ok(())
 }
 
@@ -233,7 +246,7 @@ pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usi
             .filter(|task| task.priority >= priority_min)
             .collect();
     }
-    
+
     if let Some(priority_max) = request.priority_max {
         tasks = tasks
             .into_iter()
@@ -248,23 +261,4 @@ pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usi
     let paginated_tasks = tasks.into_iter().skip(offset).take(limit).collect();
 
     Ok((paginated_tasks, total_count))
-}
-
-pub async fn update_task_patch(
-    task_id: &TaskId, 
-    patch: &PartialTask
-) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
-    
-    if let Some(mut task) = repository.tasks.find_by_id(task_id).await? {
-        let changed = task.apply_some(patch.clone());
-        if changed {
-            // 更新日時を設定
-            task.updated_at = Utc::now();
-            repository.tasks.save(&task).await?;
-        }
-        Ok(changed)
-    } else {
-        Err(ServiceError::NotFound("Task not found".to_string()))
-    }
 }

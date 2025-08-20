@@ -2,6 +2,7 @@ use crate::facades::task_list_facades;
 use crate::models::command::task_list::TaskListCommand;
 use crate::models::command::task_list::TaskListSearchRequest;
 use crate::models::command::ModelConverter;
+use crate::models::task_list::PartialTaskList;
 use crate::models::CommandModelConverter;
 use crate::types::id_types::TaskListId;
 
@@ -25,9 +26,12 @@ pub async fn get_task_list(id: String) -> Result<Option<TaskListCommand>, String
 }
 
 #[tauri::command]
-pub async fn update_task_list(task_list: TaskListCommand) -> Result<bool, String> {
-    let internal_task_list = task_list.to_model().await?;
-    task_list_facades::update_task_list(&internal_task_list).await
+pub async fn update_task_list(id: String, patch: PartialTaskList) -> Result<bool, String> {
+    let task_list_id = match TaskListId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    task_list_facades::update_task_list(&task_list_id, &patch).await
 }
 
 #[tauri::command]

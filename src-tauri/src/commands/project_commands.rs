@@ -1,6 +1,7 @@
 use crate::facades::project_facades;
 use crate::models::command::project::{ProjectCommand, ProjectSearchRequest};
 use crate::models::command::ModelConverter;
+use crate::models::project::PartialProject;
 use crate::models::CommandModelConverter;
 use crate::types::id_types::ProjectId;
 
@@ -22,9 +23,9 @@ pub async fn get_project(id: String) -> Result<Option<ProjectCommand>, String> {
 }
 
 #[tauri::command]
-pub async fn update_project(project: ProjectCommand) -> Result<bool, String> {
-    let internal_project = project.to_model().await?;
-    project_facades::update_project(&internal_project).await
+pub async fn update_project(id: String, patch: PartialProject) -> Result<bool, String> {
+    let project_id = ProjectId::from(id);
+    project_facades::update_project(&project_id, &patch).await
 }
 
 #[tauri::command]

@@ -8,7 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::tag::Tag;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
 use crate::repositories::local_sqlite::tag::TagLocalSqliteRepository;
 use crate::repositories::tag_repository_trait::TagRepositoryTrait;
@@ -230,3 +230,6 @@ impl Repository<Tag, TagId> for TagUnifiedRepository {
 }
 
 impl TagRepositoryTrait for TagUnifiedRepository {}
+
+#[async_trait]
+impl Patchable<Tag, TagId> for TagUnifiedRepository {}

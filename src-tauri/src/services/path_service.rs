@@ -176,7 +176,10 @@ impl PathService {
     }
 
     /// 設定を更新
-    pub async fn update_config(&mut self, new_config: PathConfig) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn update_config(
+        &mut self,
+        new_config: PathConfig,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         self.config = new_config;
         self.save_config().await?;
         self.ensure_directories().await?;
@@ -189,7 +192,10 @@ impl PathService {
     }
 
     /// データディレクトリをカスタムパスに設定
-    pub async fn set_custom_data_dir(&mut self, path: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn set_custom_data_dir(
+        &mut self,
+        path: PathBuf,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         self.config.data_dir = Some(path);
         self.config.use_system_default = false;
         self.save_config().await?;

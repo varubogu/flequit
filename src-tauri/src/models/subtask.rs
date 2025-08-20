@@ -15,6 +15,7 @@ use super::super::types::{
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::subtask::SubtaskCommand, CommandModelConverter};
@@ -66,9 +67,11 @@ use crate::models::{command::subtask::SubtaskCommand, CommandModelConverter};
 /// - 基本的なCRUD操作
 /// - 進捗管理とステータス更新
 /// - 軽量なデータ取得
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct SubTask {
     /// サブタスクの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: SubTaskId,
     /// 親タスクの識別子（必須の関連）
     pub task_id: TaskId,

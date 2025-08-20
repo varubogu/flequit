@@ -9,6 +9,7 @@
 
 use super::super::types::id_types::UserId;
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::user::UserCommand, CommandModelConverter};
@@ -64,9 +65,11 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 /// - [`crate::models::account::Account`] - 認証情報
 /// - [`crate::models::project::ProjectMember`] - プロジェクトメンバーシップ
 /// - [`crate::models::task::Task`] - タスク担当者情報
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct User {
     /// ユーザーの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: UserId,
     /// ユーザー名（必須、表示やメンション等で使用）
     pub name: String,

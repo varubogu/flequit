@@ -1,5 +1,6 @@
 use crate::errors::repository_error::RepositoryError;
 use async_trait::async_trait;
+use partially::Partial;
 
 /// 汎用的なリポジトリトレイト
 ///
@@ -28,7 +29,11 @@ use async_trait::async_trait;
 /// }
 /// ```
 #[async_trait]
-pub trait Repository<T, TId>: Send + Sync {
+pub trait Repository<T, TId>: Send + Sync
+where
+    T: Send + Sync,
+    TId: Send + Sync,
+{
     /// エンティティを保存または更新
     ///
     /// # 引数
@@ -89,9 +94,47 @@ pub trait Repository<T, TId>: Send + Sync {
     ///
     /// エンティティの総数、失敗時は`Err(RepositoryError)`
     async fn count(&self) -> Result<u64, RepositoryError>;
+}
 
-    // TODO: パッチによる部分更新（段階的実装のため後で全Repository実装に追加）
-    // async fn patch<P>(&self, id: &TId, patch: &P) -> Result<bool, RepositoryError>
-    // where
-    //     P: Partial + Send + Sync;
+/// パッチ更新可能なリポジトリトレイト
+///
+/// Repository traitにパッチ更新機能を追加。
+/// ジェネリック型パラメータが含まれるためdyn compatibilityを考慮して分離。
+#[async_trait]
+pub trait Patchable<T, TId>: Repository<T, TId>
+where
+    T: Send + Sync,
+    TId: Send + Sync,
+{
+    /// パッチによる部分更新
+    ///
+    /// 指定されたIDのエンティティに対して、パッチで指定された
+    /// フィールドのみを更新する。内部では find_by_id → apply_some → save を実行。
+    ///
+    /// # 引数
+    ///
+    /// * `id` - 更新するエンティティのID  
+    /// * `patch` - 更新するフィールド情報
+    ///
+    /// # 戻り値
+    ///
+    /// 実際に変更が発生した場合は`Ok(true)`、
+    /// 変更がなかった場合は`Ok(false)`、
+    /// エンティティが存在しない場合は`Ok(false)`、
+    /// エラー時は`Err(RepositoryError)`
+    async fn patch<P>(&self, id: &TId, patch: &P) -> Result<bool, RepositoryError>
+    where
+        P: Send + Sync + Clone,
+        T: Partial<Item = P> + Clone,
+    {
+        if let Some(mut entity) = self.find_by_id(id).await? {
+            let changed = entity.apply_some(patch.clone());
+            if changed {
+                self.save(&entity).await?;
+            }
+            Ok(changed)
+        } else {
+            Ok(false)
+        }
+    }
 }

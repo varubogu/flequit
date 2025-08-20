@@ -10,6 +10,7 @@
 
 use super::super::types::id_types::AccountId;
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::account::AccountCommand, CommandModelConverter};
@@ -68,9 +69,11 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///     updated_at: Utc::now(),
 /// };
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Account {
     /// アカウントの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: AccountId,
     /// メールアドレス（プロバイダーによっては取得不可）
     pub email: Option<String>,

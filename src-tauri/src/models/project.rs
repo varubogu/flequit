@@ -14,6 +14,7 @@ use super::super::types::{
     project_types::{MemberRole, ProjectStatus},
 };
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::project::ProjectCommand, CommandModelConverter};
@@ -41,9 +42,11 @@ use crate::models::{command::project::ProjectCommand, CommandModelConverter};
 /// - **フロントエンド最適化**: Svelteでの表示に最適化されたフィールド構成
 /// - **階層管理**: タスクリストやタスクの上位概念としての位置づけ
 /// - **チーム対応**: 複数メンバーでの共同作業を前提とした設計
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Project {
     /// プロジェクトの一意識別子
+    #[partially(omit)] // IDは更新対象外
     pub id: ProjectId,
     /// プロジェクト名（必須）
     pub name: String,

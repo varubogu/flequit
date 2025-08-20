@@ -8,7 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::project::Project;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
 use crate::repositories::local_sqlite::project::ProjectLocalSqliteRepository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
@@ -230,3 +230,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
 }
 
 impl ProjectRepositoryTrait for ProjectUnifiedRepository {}
+
+#[async_trait]
+impl Patchable<Project, ProjectId> for ProjectUnifiedRepository {}
