@@ -62,10 +62,7 @@ pub async fn update_user_profile(
     ))
 }
 
-pub async fn change_password(
-    _user_id: &str,
-    _new_password_hash: &str,
-) -> Result<(), ServiceError> {
+pub async fn change_password(_user_id: &str, _new_password_hash: &str) -> Result<(), ServiceError> {
     Err(ServiceError::InternalError(
         "Temporarily disabled".to_string(),
     ))

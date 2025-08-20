@@ -145,11 +145,14 @@ impl UserLocalAutomergeRepository {
 
         // バックアップファイルから読み込み
         if !std::path::Path::new(backup_path).exists() {
-            return Err(RepositoryError::NotFound(format!("Backup file not found: {}", backup_path)));
+            return Err(RepositoryError::NotFound(format!(
+                "Backup file not found: {}",
+                backup_path
+            )));
         }
 
-        let backup_content = fs::read_to_string(backup_path)
-            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        let backup_content =
+            fs::read_to_string(backup_path).map_err(|e| RepositoryError::IOError(e.to_string()))?;
 
         let users: Vec<User> = serde_json::from_str(&backup_content)
             .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;

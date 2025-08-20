@@ -1,7 +1,7 @@
 use crate::facades::initialization_facades;
-use crate::models::setting::LocalSettings;
 use crate::models::command::account::AccountCommand;
 use crate::models::command::project::ProjectCommand;
+use crate::models::setting::LocalSettings;
 use crate::models::CommandModelConverter;
 
 #[tauri::command]

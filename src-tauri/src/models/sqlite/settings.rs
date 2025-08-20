@@ -35,7 +35,7 @@ impl DomainToSqliteConverter<ActiveModel> for Settings {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         let json_string = serde_json::to_string(self)
             .map_err(|e| format!("Failed to serialize settings: {}", e))?;
-        
+
         let now = Utc::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
         Ok(ActiveModel {

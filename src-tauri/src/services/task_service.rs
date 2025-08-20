@@ -12,9 +12,7 @@ pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     Ok(())
 }
 
-pub async fn get_task(
-    task_id: &TaskId,
-) -> Result<Option<Task>, ServiceError> {
+pub async fn get_task(task_id: &TaskId) -> Result<Option<Task>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.tasks.find_by_id(task_id).await?)
 }

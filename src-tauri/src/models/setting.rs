@@ -255,4 +255,3 @@ impl CommandModelConverter<SettingCommand> for Setting {
         })
     }
 }
-

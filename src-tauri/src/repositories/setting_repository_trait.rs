@@ -24,16 +24,25 @@ pub trait SettingRepositoryTrait: Send + Sync {
     // ---------------------------
 
     /// 指定したIDのカスタム日付フォーマットを取得します。
-    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError>;
+    async fn get_custom_date_format(
+        &self,
+        id: &str,
+    ) -> Result<Option<CustomDateFormat>, RepositoryError>;
 
     /// すべてのカスタム日付フォーマットを取得します。
     async fn get_all_custom_date_formats(&self) -> Result<Vec<CustomDateFormat>, RepositoryError>;
 
     /// カスタム日付フォーマットを新規追加します。
-    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError>;
+    async fn add_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError>;
 
     /// カスタム日付フォーマットを更新します。
-    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError>;
+    async fn update_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError>;
 
     /// カスタム日付フォーマットを削除します。
     async fn delete_custom_date_format(&self, id: &str) -> Result<(), RepositoryError>;

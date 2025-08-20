@@ -13,8 +13,8 @@ pub async fn create_task(task: TaskCommand) -> Result<bool, String> {
 #[tauri::command]
 pub async fn get_task(id: String) -> Result<Option<TaskCommand>, String> {
     let task_id = match TaskId::try_from_str(&id) {
-        Ok (id) => id,
-        Err (err) => return Err(err.to_string()),
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
     };
     let result = task_facades::get_task(&task_id).await?;
     match result {
@@ -32,8 +32,8 @@ pub async fn update_task(task: TaskCommand) -> Result<bool, String> {
 #[tauri::command]
 pub async fn delete_task(id: String) -> Result<bool, String> {
     let task_id = match TaskId::try_from_str(&id) {
-        Ok (id) => id,
-        Err (err) => return Err(err.to_string()),
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
     };
     task_facades::delete_task(&task_id).await
 }

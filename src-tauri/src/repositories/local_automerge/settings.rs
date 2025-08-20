@@ -40,10 +40,13 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         let settings = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
+                .load_data::<HashMap<String, String>>(
+                    &DocumentType::Settings,
+                    KEY_VALUE_SETTINGS_KEY,
+                )
                 .await?
         };
-        
+
         if let Some(settings) = settings {
             Ok(settings.get(key).cloned())
         } else {
@@ -55,9 +58,13 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         let mut settings = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
+                .load_data::<HashMap<String, String>>(
+                    &DocumentType::Settings,
+                    KEY_VALUE_SETTINGS_KEY,
+                )
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         settings.insert(key.to_string(), value.to_string());
 
@@ -71,10 +78,13 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         let settings = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<HashMap<String, String>>(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY)
+                .load_data::<HashMap<String, String>>(
+                    &DocumentType::Settings,
+                    KEY_VALUE_SETTINGS_KEY,
+                )
                 .await?
         };
-        
+
         Ok(settings.unwrap_or_default())
     }
 
@@ -82,14 +92,20 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
     // Custom Date Formats
     // ---------------------------
 
-    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+    async fn get_custom_date_format(
+        &self,
+        id: &str,
+    ) -> Result<Option<CustomDateFormat>, RepositoryError> {
         let formats = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .load_data::<Vec<CustomDateFormat>>(
+                    &DocumentType::Settings,
+                    CUSTOM_DATE_FORMATS_KEY,
+                )
                 .await?
         };
-        
+
         if let Some(formats) = formats {
             Ok(formats.into_iter().find(|f| f.id == id))
         } else {
@@ -101,20 +117,30 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         let formats = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .load_data::<Vec<CustomDateFormat>>(
+                    &DocumentType::Settings,
+                    CUSTOM_DATE_FORMATS_KEY,
+                )
                 .await?
         };
-        
+
         Ok(formats.unwrap_or_default())
     }
 
-    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn add_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         let mut formats = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .load_data::<Vec<CustomDateFormat>>(
+                    &DocumentType::Settings,
+                    CUSTOM_DATE_FORMATS_KEY,
+                )
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         formats.push(format.clone());
 
@@ -124,18 +150,28 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             .await
     }
 
-    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn update_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         let mut formats = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .load_data::<Vec<CustomDateFormat>>(
+                    &DocumentType::Settings,
+                    CUSTOM_DATE_FORMATS_KEY,
+                )
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         if let Some(existing) = formats.iter_mut().find(|f| f.id == format.id) {
             *existing = format.clone();
         } else {
-            return Err(RepositoryError::NotFound(format!("CustomDateFormat not found: {}", format.id)));
+            return Err(RepositoryError::NotFound(format!(
+                "CustomDateFormat not found: {}",
+                format.id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;
@@ -148,15 +184,22 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         let mut formats = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<Vec<CustomDateFormat>>(&DocumentType::Settings, CUSTOM_DATE_FORMATS_KEY)
+                .load_data::<Vec<CustomDateFormat>>(
+                    &DocumentType::Settings,
+                    CUSTOM_DATE_FORMATS_KEY,
+                )
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         let initial_len = formats.len();
         formats.retain(|f| f.id != id);
 
         if formats.len() == initial_len {
-            return Err(RepositoryError::NotFound(format!("CustomDateFormat not found: {}", id)));
+            return Err(RepositoryError::NotFound(format!(
+                "CustomDateFormat not found: {}",
+                id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;
@@ -176,7 +219,7 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
                 .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
                 .await?
         };
-        
+
         if let Some(labels) = labels {
             Ok(labels.into_iter().find(|l| l.id == id))
         } else {
@@ -191,7 +234,7 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
                 .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
                 .await?
         };
-        
+
         Ok(labels.unwrap_or_default())
     }
 
@@ -201,7 +244,8 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         labels.push(label.clone());
 
@@ -217,12 +261,16 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         if let Some(existing) = labels.iter_mut().find(|l| l.id == label.id) {
             *existing = label.clone();
         } else {
-            return Err(RepositoryError::NotFound(format!("TimeLabel not found: {}", label.id)));
+            return Err(RepositoryError::NotFound(format!(
+                "TimeLabel not found: {}",
+                label.id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;
@@ -237,13 +285,17 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<TimeLabel>>(&DocumentType::Settings, TIME_LABELS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         let initial_len = labels.len();
         labels.retain(|l| l.id != id);
 
         if labels.len() == initial_len {
-            return Err(RepositoryError::NotFound(format!("TimeLabel not found: {}", id)));
+            return Err(RepositoryError::NotFound(format!(
+                "TimeLabel not found: {}",
+                id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;
@@ -263,7 +315,7 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
                 .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
                 .await?
         };
-        
+
         if let Some(items) = items {
             Ok(items.into_iter().find(|i| i.id == id))
         } else {
@@ -278,7 +330,7 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
                 .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
                 .await?
         };
-        
+
         Ok(items.unwrap_or_default())
     }
 
@@ -288,7 +340,8 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         items.push(item.clone());
 
@@ -304,12 +357,16 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         if let Some(existing) = items.iter_mut().find(|i| i.id == item.id) {
             *existing = item.clone();
         } else {
-            return Err(RepositoryError::NotFound(format!("ViewItem not found: {}", item.id)));
+            return Err(RepositoryError::NotFound(format!(
+                "ViewItem not found: {}",
+                item.id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;
@@ -324,13 +381,17 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
             manager
                 .load_data::<Vec<ViewItem>>(&DocumentType::Settings, VIEW_ITEMS_KEY)
                 .await?
-        }.unwrap_or_default();
+        }
+        .unwrap_or_default();
 
         let initial_len = items.len();
         items.retain(|i| i.id != id);
 
         if items.len() == initial_len {
-            return Err(RepositoryError::NotFound(format!("ViewItem not found: {}", id)));
+            return Err(RepositoryError::NotFound(format!(
+                "ViewItem not found: {}",
+                id
+            )));
         }
 
         let mut manager = self.document_manager.lock().await;

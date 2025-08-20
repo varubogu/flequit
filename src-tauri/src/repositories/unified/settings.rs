@@ -37,7 +37,10 @@ impl SettingRepositoryTrait for SettingsRepositoryVariant {
         }
     }
 
-    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+    async fn get_custom_date_format(
+        &self,
+        id: &str,
+    ) -> Result<Option<CustomDateFormat>, RepositoryError> {
         match self {
             Self::Sqlite(repo) => repo.get_custom_date_format(id).await,
             Self::Automerge(repo) => repo.get_custom_date_format(id).await,
@@ -51,14 +54,20 @@ impl SettingRepositoryTrait for SettingsRepositoryVariant {
         }
     }
 
-    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn add_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::Sqlite(repo) => repo.add_custom_date_format(format).await,
             Self::Automerge(repo) => repo.add_custom_date_format(format).await,
         }
     }
 
-    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn update_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         match self {
             Self::Sqlite(repo) => repo.update_custom_date_format(format).await,
             Self::Automerge(repo) => repo.update_custom_date_format(format).await,
@@ -200,7 +209,10 @@ impl SettingRepositoryTrait for SettingsUnifiedRepository {
         }
     }
 
-    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+    async fn get_custom_date_format(
+        &self,
+        id: &str,
+    ) -> Result<Option<CustomDateFormat>, RepositoryError> {
         if let Some(repo) = self.search_repositories.first() {
             repo.get_custom_date_format(id).await
         } else {
@@ -216,14 +228,20 @@ impl SettingRepositoryTrait for SettingsUnifiedRepository {
         }
     }
 
-    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn add_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
             repo.add_custom_date_format(format).await?;
         }
         Ok(())
     }
 
-    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn update_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
             repo.update_custom_date_format(format).await?;
         }

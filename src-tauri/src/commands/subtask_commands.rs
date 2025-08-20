@@ -16,8 +16,8 @@ pub async fn create_sub_task(sub_task: SubtaskCommand) -> Result<bool, String> {
 #[tauri::command]
 pub async fn get_sub_task(id: String) -> Result<Option<SubtaskCommand>, String> {
     let subtask_id = match SubTaskId::try_from_str(&id) {
-        Ok (id) => id,
-        Err (err) => return Err(err.to_string()),
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
     };
     let sub_task_id = SubTaskId::from(subtask_id);
     subtask_facades::get_sub_task(&sub_task_id).await
@@ -32,8 +32,8 @@ pub async fn update_sub_task(sub_task: SubtaskCommand) -> Result<bool, String> {
 #[tauri::command]
 pub async fn delete_sub_task(id: String) -> Result<bool, String> {
     let subtask_id = match SubTaskId::try_from_str(&id) {
-        Ok (id) => id,
-        Err (err) => return Err(err.to_string()),
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
     };
     let sub_task_id = SubTaskId::from(subtask_id);
     subtask_facades::delete_sub_task(&sub_task_id).await

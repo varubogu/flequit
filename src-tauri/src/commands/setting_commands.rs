@@ -29,7 +29,9 @@ pub async fn set_setting(key: String, value: serde_json::Value) -> Result<(), St
 
 /// 指定されたIDのカスタム日付フォーマットを取得します。
 #[tauri::command]
-pub async fn get_custom_date_format_setting(id: String) -> Result<Option<CustomDateFormatCommand>, String> {
+pub async fn get_custom_date_format_setting(
+    id: String,
+) -> Result<Option<CustomDateFormatCommand>, String> {
     let result = setting_facades::get_custom_date_format(&id).await?;
     match result {
         Some(data) => Ok(Some(data.to_command_model().await?)),
@@ -109,7 +111,9 @@ pub async fn add_time_label_setting(label: TimeLabelCommand) -> Result<TimeLabel
 
 /// 時刻ラベルを更新します。
 #[tauri::command]
-pub async fn update_time_label_setting(label: TimeLabelCommand) -> Result<TimeLabelCommand, String> {
+pub async fn update_time_label_setting(
+    label: TimeLabelCommand,
+) -> Result<TimeLabelCommand, String> {
     let model = label.to_model().await?;
     let result = setting_facades::update_time_label(model).await?;
     Ok(result.to_command_model().await?)

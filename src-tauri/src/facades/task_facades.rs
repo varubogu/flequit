@@ -37,7 +37,6 @@ pub async fn delete_task(id: &TaskId) -> Result<bool, String> {
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task: {:?}", e)),
     }
-
 }
 
 pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, String> {

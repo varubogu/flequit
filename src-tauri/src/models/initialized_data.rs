@@ -1,9 +1,12 @@
-use crate::models::{account::Account, command::initialize::InitializedResult, project::Project, setting::Settings, CommandModelConverter};
+use crate::models::{
+    account::Account, command::initialize::InitializedResult, project::Project, setting::Settings,
+    CommandModelConverter,
+};
 
 pub struct InitializedData {
     pub settings: Settings,
     pub accounts: Vec<Account>,
-    pub projects: Vec<Project>
+    pub projects: Vec<Project>,
 }
 
 impl CommandModelConverter<InitializedResult> for InitializedData {

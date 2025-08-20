@@ -59,9 +59,16 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
         // `insert` はPK違反で失敗する可能性があるため、`save` (UPSERT) を使うのが望ましいが、
         // sea-ormのSQLiteバックエンドでは `save` が素直なUPSERTにならないケースがある。
         // ここでは、まず存在確認してからUPDATE/INSERTする。
-        if SettingKeyValueEntity::find_by_id(key).one(db).await?.is_some() {
+        if SettingKeyValueEntity::find_by_id(key)
+            .one(db)
+            .await?
+            .is_some()
+        {
             // UPDATE
-            SettingKeyValueEntity::update(model).filter(SettingKeyValueColumn::Key.eq(key)).exec(db).await?;
+            SettingKeyValueEntity::update(model)
+                .filter(SettingKeyValueColumn::Key.eq(key))
+                .exec(db)
+                .await?;
         } else {
             // INSERT
             model.insert(db).await?;
@@ -82,7 +89,10 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
     // Custom Date Formats
     // ---------------------------
 
-    async fn get_custom_date_format(&self, id: &str) -> Result<Option<CustomDateFormat>, RepositoryError> {
+    async fn get_custom_date_format(
+        &self,
+        id: &str,
+    ) -> Result<Option<CustomDateFormat>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
@@ -105,7 +115,10 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
         Ok(results)
     }
 
-    async fn add_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn add_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
         let model: CustomDateFormatActiveModel = format.to_sqlite_model().await?;
@@ -113,7 +126,10 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
         Ok(())
     }
 
-    async fn update_custom_date_format(&self, format: &CustomDateFormat) -> Result<(), RepositoryError> {
+    async fn update_custom_date_format(
+        &self,
+        format: &CustomDateFormat,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
         let model: CustomDateFormatActiveModel = format.to_sqlite_model().await?;

@@ -43,9 +43,7 @@ pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
     }
 }
 
-pub async fn search_sub_tasks(
-    condition: &SubtaskSearchRequest,
-) -> Result<Vec<SubTask>, String> {
+pub async fn search_sub_tasks(condition: &SubtaskSearchRequest) -> Result<Vec<SubTask>, String> {
     // SubtaskServiceにはsearchメソッドがないため、一時的に空の結果を返す
     // 将来的にはlist_subtasksを使用してフィルタリングを行う
     let _ = condition;

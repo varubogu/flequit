@@ -8,7 +8,10 @@ use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::TagId;
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    QuerySelect,
+};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

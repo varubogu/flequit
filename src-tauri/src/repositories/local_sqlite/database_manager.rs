@@ -40,7 +40,8 @@ impl DatabaseManager {
                 })?;
                 Ok(Arc::new(RwLock::new(DatabaseManager::new(default_path))))
             })
-            .await.cloned()
+            .await
+            .cloned()
     }
 
     /// データベース接続を取得（初回接続時は自動的に初期化）

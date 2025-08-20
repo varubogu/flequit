@@ -8,7 +8,9 @@ use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::ProjectId;
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

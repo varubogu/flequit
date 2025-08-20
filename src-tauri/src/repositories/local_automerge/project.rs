@@ -123,7 +123,10 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         if deleted {
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("Project not found: {}", id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                id
+            )))
         }
     }
 

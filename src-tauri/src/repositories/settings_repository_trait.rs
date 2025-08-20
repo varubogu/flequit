@@ -3,7 +3,7 @@
 //! 設定データの保存・読み込み・バリデーション機能を提供します。
 
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{Settings, ViewItem, CustomDateFormat, TimeLabel, DueDateButtons};
+use crate::models::setting::{CustomDateFormat, DueDateButtons, Settings, TimeLabel, ViewItem};
 use async_trait::async_trait;
 
 /// 設定バリデーションエラー
@@ -22,15 +22,16 @@ impl SettingsValidator {
     /// 設定データのバリデーションを実行
     pub fn validate(settings: &Settings) -> Vec<SettingsValidationError> {
         let mut errors = Vec::new();
-        
+
         // テーマ検証
         if !["system", "light", "dark"].contains(&settings.theme.as_str()) {
             errors.push(SettingsValidationError {
                 field: "theme".to_string(),
-                message: "テーマは 'system', 'light', 'dark' のいずれかである必要があります".to_string(),
+                message: "テーマは 'system', 'light', 'dark' のいずれかである必要があります"
+                    .to_string(),
             });
         }
-        
+
         // 言語検証
         if !["ja", "en"].contains(&settings.language.as_str()) {
             errors.push(SettingsValidationError {
@@ -38,7 +39,7 @@ impl SettingsValidator {
                 message: "言語は 'ja', 'en' のいずれかである必要があります".to_string(),
             });
         }
-        
+
         // フォントサイズ検証
         if settings.font_size < 8 || settings.font_size > 72 {
             errors.push(SettingsValidationError {
@@ -46,15 +47,16 @@ impl SettingsValidator {
                 message: "フォントサイズは8-72の範囲で指定してください".to_string(),
             });
         }
-        
+
         // 週の開始曜日検証
         if !["sunday", "monday"].contains(&settings.week_start.as_str()) {
             errors.push(SettingsValidationError {
                 field: "week_start".to_string(),
-                message: "週の開始曜日は 'sunday', 'monday' のいずれかである必要があります".to_string(),
+                message: "週の開始曜日は 'sunday', 'monday' のいずれかである必要があります"
+                    .to_string(),
             });
         }
-        
+
         // CustomDateFormatのID重複チェック
         let mut format_ids = std::collections::HashSet::new();
         for format in &settings.custom_date_formats {
@@ -65,7 +67,7 @@ impl SettingsValidator {
                 });
             }
         }
-        
+
         // TimeLabelのID重複チェック
         let mut label_ids = std::collections::HashSet::new();
         for label in &settings.time_labels {
@@ -75,7 +77,7 @@ impl SettingsValidator {
                     message: format!("時刻ラベルID '{}' が重複しています", label.id),
                 });
             }
-            
+
             // 時刻フォーマット検証（HH:mm形式）
             if !label.time.matches(':').count() == 1 || label.time.len() != 5 {
                 errors.push(SettingsValidationError {
@@ -84,7 +86,7 @@ impl SettingsValidator {
                 });
             }
         }
-        
+
         // ViewItemのID重複チェック
         let mut view_item_ids = std::collections::HashSet::new();
         for item in &settings.view_items {
@@ -95,10 +97,10 @@ impl SettingsValidator {
                 });
             }
         }
-        
+
         errors
     }
-    
+
     /// デフォルト設定を生成
     pub fn create_default() -> Settings {
         Settings {
@@ -141,54 +143,59 @@ impl SettingsValidator {
 pub trait SettingsRepository {
     /// 設定データを読み込み
     async fn load(&self) -> Result<Settings, RepositoryError>;
-    
+
     /// 設定データを保存（バリデーションなし）
     async fn save(&self, settings: &Settings) -> Result<(), RepositoryError>;
-    
+
     /// 設定データを保存（バリデーション付き）
     async fn save_with_validation(&self, settings: &Settings) -> Result<(), RepositoryError>;
-    
+
     /// デフォルト設定にリセット
     async fn reset_to_default(&self) -> Result<Settings, RepositoryError>;
-    
+
     /// 設定データのバリデーション
     fn validate(&self, settings: &Settings) -> Vec<SettingsValidationError>;
-    
+
     // 部分更新メソッド群
     /// テーマを更新
     async fn update_theme(&self, theme: String) -> Result<(), RepositoryError>;
-    
+
     /// 言語を更新
     async fn update_language(&self, language: String) -> Result<(), RepositoryError>;
-    
+
     /// カスタム日付フォーマットを更新
-    async fn update_custom_date_formats(&self, formats: Vec<CustomDateFormat>) -> Result<(), RepositoryError>;
-    
+    async fn update_custom_date_formats(
+        &self,
+        formats: Vec<CustomDateFormat>,
+    ) -> Result<(), RepositoryError>;
+
     /// 時刻ラベルを更新
     async fn update_time_labels(&self, labels: Vec<TimeLabel>) -> Result<(), RepositoryError>;
-    
+
     /// ビューアイテムを更新
     async fn update_view_items(&self, items: Vec<ViewItem>) -> Result<(), RepositoryError>;
-    
+
     /// 期日ボタン設定を更新
-    async fn update_due_date_buttons(&self, buttons: DueDateButtons) -> Result<(), RepositoryError>;
-    
+    async fn update_due_date_buttons(&self, buttons: DueDateButtons)
+        -> Result<(), RepositoryError>;
+
     // ネストした構造体の個別操作
     /// カスタム日付フォーマットを追加
-    async fn add_custom_date_format(&self, format: CustomDateFormat) -> Result<(), RepositoryError>;
-    
+    async fn add_custom_date_format(&self, format: CustomDateFormat)
+        -> Result<(), RepositoryError>;
+
     /// カスタム日付フォーマットを削除
     async fn remove_custom_date_format(&self, format_id: &str) -> Result<(), RepositoryError>;
-    
+
     /// 時刻ラベルを追加
     async fn add_time_label(&self, label: TimeLabel) -> Result<(), RepositoryError>;
-    
+
     /// 時刻ラベルを削除
     async fn remove_time_label(&self, label_id: &str) -> Result<(), RepositoryError>;
-    
+
     /// ビューアイテムを追加
     async fn add_view_item(&self, item: ViewItem) -> Result<(), RepositoryError>;
-    
+
     /// ビューアイテムを削除
     async fn remove_view_item(&self, item_id: &str) -> Result<(), RepositoryError>;
 }

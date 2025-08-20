@@ -36,7 +36,9 @@ pub async fn add_custom_date_format(format: CustomDateFormat) -> Result<CustomDa
     handle_service_error(setting_service::add_custom_date_format(format).await)
 }
 
-pub async fn update_custom_date_format(format: CustomDateFormat) -> Result<CustomDateFormat, String> {
+pub async fn update_custom_date_format(
+    format: CustomDateFormat,
+) -> Result<CustomDateFormat, String> {
     handle_service_error(setting_service::update_custom_date_format(format).await)
 }
 
