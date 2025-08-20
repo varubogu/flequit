@@ -51,15 +51,55 @@ pub async fn search_projects(
     request: &ProjectSearchRequest,
 ) -> Result<(Vec<Project>, usize), ServiceError> {
     let repository = Repositories::new().await?;
-    let projects = repository.projects.find_all().await?;
+    let mut projects = repository.projects.find_all().await?;
 
-    // フィルタリングは空のVecには意味がないため、requestのパラメータを使用するだけ
-    let _ = (
-        &request.name,
-        &request.description,
-        &request.status,
-        &request.owner_id,
-    );
+    // 名前でのフィルタリング
+    if let Some(name) = &request.name {
+        if !name.trim().is_empty() {
+            let name_lower = name.to_lowercase();
+            projects = projects
+                .into_iter()
+                .filter(|p| p.name.to_lowercase().contains(&name_lower))
+                .collect();
+        }
+    }
+
+    // 説明でのフィルタリング
+    if let Some(description) = &request.description {
+        if !description.trim().is_empty() {
+            let desc_lower = description.to_lowercase();
+            projects = projects
+                .into_iter()
+                .filter(|p| {
+                    p.description
+                        .as_ref()
+                        .map(|d| d.to_lowercase().contains(&desc_lower))
+                        .unwrap_or(false)
+                })
+                .collect();
+        }
+    }
+
+    // ステータスでのフィルタリング
+    if let Some(status) = &request.status {
+        projects = projects
+            .into_iter()
+            .filter(|p| p.status.as_ref() == Some(status))
+            .collect();
+    }
+
+    // オーナーIDでのフィルタリング
+    if let Some(owner_id) = &request.owner_id {
+        projects = projects
+            .into_iter()
+            .filter(|p| {
+                p.owner_id
+                    .as_ref()
+                    .map(|o| o.to_string() == *owner_id)
+                    .unwrap_or(false)
+            })
+            .collect();
+    }
 
     let total_count = projects.len();
     let offset = request.offset.unwrap_or(0);

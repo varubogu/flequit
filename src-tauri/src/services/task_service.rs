@@ -5,6 +5,7 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
 use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
+use chrono::Utc;
 
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
@@ -39,18 +40,37 @@ pub async fn list_tasks_by_assignee(
     project_id: &str,
     user_id: &str,
 ) -> Result<Vec<Task>, ServiceError> {
-    // 一時的に空のVecを返す
-    let _ = (project_id, user_id);
-    Ok(Vec::new())
+    let repository = Repositories::new().await?;
+    let all_tasks = repository.tasks.find_all().await?;
+    
+    // project_idとuser_idでフィルタリング
+    let filtered_tasks = all_tasks
+        .into_iter()
+        .filter(|task| {
+            task.project_id.to_string() == project_id
+                && task.assigned_user_ids.iter().any(|id| id.to_string() == user_id)
+        })
+        .collect();
+    
+    Ok(filtered_tasks)
 }
 
 pub async fn list_tasks_by_status(
     project_id: &str,
     status: &TaskStatus,
 ) -> Result<Vec<Task>, ServiceError> {
-    // 一時的に空のVecを返す
-    let _ = (project_id, status);
-    Ok(Vec::new())
+    let repository = Repositories::new().await?;
+    let all_tasks = repository.tasks.find_all().await?;
+    
+    // project_idとstatusでフィルタリング
+    let filtered_tasks = all_tasks
+        .into_iter()
+        .filter(|task| {
+            task.project_id.to_string() == project_id && task.status == *status
+        })
+        .collect();
+    
+    Ok(filtered_tasks)
 }
 
 pub async fn assign_task(
@@ -58,8 +78,39 @@ pub async fn assign_task(
     task_id: &str,
     assignee_id: Option<String>,
 ) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = (project_id, task_id, assignee_id);
+    let repository = Repositories::new().await?;
+    
+    // タスクIDから TaskId 型に変換
+    use crate::types::id_types::{TaskId, UserId};
+    let task_id_typed = TaskId::from(task_id.to_string());
+    
+    if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
+        // プロジェクトIDが一致するかチェック
+        if task.project_id.to_string() != project_id {
+            return Err(ServiceError::InternalError(
+                "Task does not belong to the specified project".to_string(),
+            ));
+        }
+        
+        // assignee_idがある場合は追加、ない場合は全てクリア
+        if let Some(assignee_id) = assignee_id {
+            let user_id = UserId::from(assignee_id);
+            // 既に含まれていない場合のみ追加
+            if !task.assigned_user_ids.contains(&user_id) {
+                task.assigned_user_ids.push(user_id);
+            }
+        } else {
+            // assignee_idがNoneの場合は全てクリア
+            task.assigned_user_ids.clear();
+        }
+        
+        // 更新日時を設定
+        task.updated_at = Utc::now();
+        
+        // 保存
+        repository.tasks.save(&task).await?;
+    }
+    
     Ok(())
 }
 
@@ -68,8 +119,30 @@ pub async fn update_task_status(
     task_id: &str,
     status: &TaskStatus,
 ) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = (project_id, task_id, status);
+    let repository = Repositories::new().await?;
+    
+    // タスクIDから TaskId 型に変換
+    use crate::types::id_types::TaskId;
+    let task_id_typed = TaskId::from(task_id.to_string());
+    
+    if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
+        // プロジェクトIDが一致するかチェック
+        if task.project_id.to_string() != project_id {
+            return Err(ServiceError::InternalError(
+                "Task does not belong to the specified project".to_string(),
+            ));
+        }
+        
+        // ステータス更新
+        task.status = status.clone();
+        
+        // 更新日時を設定
+        task.updated_at = Utc::now();
+        
+        // 保存
+        repository.tasks.save(&task).await?;
+    }
+    
     Ok(())
 }
 
@@ -78,19 +151,94 @@ pub async fn update_task_priority(
     task_id: &str,
     priority: i32,
 ) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = (project_id, task_id, priority);
+    let repository = Repositories::new().await?;
+    
+    // タスクIDから TaskId 型に変換
+    use crate::types::id_types::TaskId;
+    let task_id_typed = TaskId::from(task_id.to_string());
+    
+    if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
+        // プロジェクトIDが一致するかチェック
+        if task.project_id.to_string() != project_id {
+            return Err(ServiceError::InternalError(
+                "Task does not belong to the specified project".to_string(),
+            ));
+        }
+        
+        // 優先度更新
+        task.priority = priority;
+        
+        // 更新日時を設定
+        task.updated_at = Utc::now();
+        
+        // 保存
+        repository.tasks.save(&task).await?;
+    }
+    
     Ok(())
 }
 
 pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usize), ServiceError> {
-    let _project_id = request.project_id.as_deref().unwrap_or("");
-    // NOTE: Ideally, filtering should be done in the repository layer with a dedicated method.
-    // ProjectsRepositoryにはlist_tasksメソッドがないため、一時的に空のVecを使用
-    let tasks: Vec<Task> = Vec::new();
+    let repository = Repositories::new().await?;
+    let mut tasks = repository.tasks.find_all().await?;
 
-    // フィルタリングは空のVecには意味がないため、requestのパラメータを使用するだけ
-    let _ = &request.title;
+    // project_idでフィルタリング
+    if let Some(project_id) = &request.project_id {
+        if !project_id.trim().is_empty() {
+            tasks = tasks
+                .into_iter()
+                .filter(|task| task.project_id.to_string() == *project_id)
+                .collect();
+        }
+    }
+
+    // タイトルでフィルタリング
+    if let Some(title) = &request.title {
+        if !title.trim().is_empty() {
+            let title_lower = title.to_lowercase();
+            tasks = tasks
+                .into_iter()
+                .filter(|task| task.title.to_lowercase().contains(&title_lower))
+                .collect();
+        }
+    }
+
+    // ステータスでフィルタリング
+    if let Some(status) = &request.status {
+        tasks = tasks
+            .into_iter()
+            .filter(|task| &task.status == status)
+            .collect();
+    }
+
+    // 担当者でフィルタリング
+    if let Some(assignee_id) = &request.assignee_id {
+        if !assignee_id.trim().is_empty() {
+            tasks = tasks
+                .into_iter()
+                .filter(|task| {
+                    task.assigned_user_ids
+                        .iter()
+                        .any(|id| id.to_string() == *assignee_id)
+                })
+                .collect();
+        }
+    }
+
+    // 優先度でフィルタリング
+    if let Some(priority_min) = request.priority_min {
+        tasks = tasks
+            .into_iter()
+            .filter(|task| task.priority >= priority_min)
+            .collect();
+    }
+    
+    if let Some(priority_max) = request.priority_max {
+        tasks = tasks
+            .into_iter()
+            .filter(|task| task.priority <= priority_max)
+            .collect();
+    }
 
     let total_count = tasks.len();
     let offset = request.offset.unwrap_or(0);

@@ -24,10 +24,16 @@ pub async fn get_subtask(subtask_id: &SubTaskId) -> Result<Option<SubTask>, Serv
 }
 
 pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> {
-    // 一時的に空のVecを返す
-    let _ = task_id;
     let repository = Repositories::new().await?;
-    Ok(repository.sub_tasks.find_all().await?)
+    let all_subtasks = repository.sub_tasks.find_all().await?;
+    
+    // task_idでフィルタリング
+    let filtered_subtasks = all_subtasks
+        .into_iter()
+        .filter(|subtask| subtask.task_id.to_string() == task_id)
+        .collect();
+    
+    Ok(filtered_subtasks)
 }
 
 pub async fn update_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
@@ -43,7 +49,27 @@ pub async fn delete_subtask(subtask_id: &SubTaskId) -> Result<(), ServiceError> 
 }
 
 pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
-    // 一時的に何もしない
-    let _ = subtask_id;
+    let repository = Repositories::new().await?;
+    
+    // 既存のサブタスクを取得
+    if let Some(mut subtask) = repository.sub_tasks.find_by_id(subtask_id).await? {
+        // 完了状態をトグル
+        subtask.completed = !subtask.completed;
+        
+        // ステータスも更新（completedフラグと連動）
+        use crate::types::task_types::TaskStatus;
+        subtask.status = if subtask.completed {
+            TaskStatus::Completed
+        } else {
+            TaskStatus::NotStarted
+        };
+        
+        // 更新日時を設定
+        subtask.updated_at = Utc::now();
+        
+        // 保存
+        repository.sub_tasks.save(&subtask).await?;
+    }
+    
     Ok(())
 }
