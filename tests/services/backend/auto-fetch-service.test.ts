@@ -1,20 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { 
-  AutoFetchService, 
-  DataChangeNotification, 
-  DataType, 
-  ChangeType 
+import type {
+  AutoFetchService,
+  DataChangeNotification,
+  DataType,
+  ChangeType
 } from '$lib/services/backend/auto-fetch-service';
 
 // モックの自動更新サービス実装
 class MockAutoFetchService implements AutoFetchService {
   private callbacks: Array<(notification: DataChangeNotification) => void> = [];
-  private dataTypeCallbacks: Map<DataType, Array<(notification: DataChangeNotification) => void>> = new Map();
+  private dataTypeCallbacks: Map<DataType, Array<(notification: DataChangeNotification) => void>> =
+    new Map();
 
   // テスト用にモック化されたメソッド
   notifyDataChange = vi.fn(async (notification: DataChangeNotification) => {
     // 全体リスナーに通知
-    this.callbacks.forEach(callback => {
+    this.callbacks.forEach((callback) => {
       try {
         callback(notification);
       } catch (error) {
@@ -22,11 +23,11 @@ class MockAutoFetchService implements AutoFetchService {
         console.warn('Callback error:', error);
       }
     });
-    
+
     // データタイプ固有リスナーに通知
     const typeCallbacks = this.dataTypeCallbacks.get(notification.dataType);
     if (typeCallbacks) {
-      typeCallbacks.forEach(callback => {
+      typeCallbacks.forEach((callback) => {
         try {
           callback(notification);
         } catch (error) {
@@ -47,25 +48,24 @@ class MockAutoFetchService implements AutoFetchService {
     };
   });
 
-  subscribeToDataType = vi.fn((
-    dataType: DataType,
-    callback: (notification: DataChangeNotification) => void
-  ) => {
-    if (!this.dataTypeCallbacks.has(dataType)) {
-      this.dataTypeCallbacks.set(dataType, []);
-    }
-    this.dataTypeCallbacks.get(dataType)!.push(callback);
-    
-    return () => {
-      const callbacks = this.dataTypeCallbacks.get(dataType);
-      if (callbacks) {
-        const index = callbacks.indexOf(callback);
-        if (index > -1) {
-          callbacks.splice(index, 1);
-        }
+  subscribeToDataType = vi.fn(
+    (dataType: DataType, callback: (notification: DataChangeNotification) => void) => {
+      if (!this.dataTypeCallbacks.has(dataType)) {
+        this.dataTypeCallbacks.set(dataType, []);
       }
-    };
-  });
+      this.dataTypeCallbacks.get(dataType)!.push(callback);
+
+      return () => {
+        const callbacks = this.dataTypeCallbacks.get(dataType);
+        if (callbacks) {
+          const index = callbacks.indexOf(callback);
+          if (index > -1) {
+            callbacks.splice(index, 1);
+          }
+        }
+      };
+    }
+  );
 
   // テスト用ヘルパーメソッド
   clearCallbacks() {
@@ -98,7 +98,15 @@ describe('AutoFetchService Interface', () => {
     });
 
     it('should handle different data types', async () => {
-      const dataTypes: DataType[] = ['project', 'tasklist', 'task', 'subtask', 'tag', 'setting', 'account'];
+      const dataTypes: DataType[] = [
+        'project',
+        'tasklist',
+        'task',
+        'subtask',
+        'tag',
+        'setting',
+        'account'
+      ];
 
       for (const dataType of dataTypes) {
         const notification = {
@@ -379,7 +387,15 @@ describe('AutoFetchService Interface', () => {
       const callback = vi.fn();
       service.subscribe(callback);
 
-      const dataTypes: DataType[] = ['project', 'tasklist', 'task', 'subtask', 'tag', 'setting', 'account'];
+      const dataTypes: DataType[] = [
+        'project',
+        'tasklist',
+        'task',
+        'subtask',
+        'tag',
+        'setting',
+        'account'
+      ];
       const changeTypes: ChangeType[] = ['create', 'update', 'delete'];
 
       let callCount = 0;
@@ -405,22 +421,22 @@ describe('AutoFetchService Interface', () => {
       const unsubscribers: Array<() => void> = [];
 
       // 複数のサブスクライバーを登録
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         unsubscribers.push(service.subscribe(callback));
       });
 
       // 最初の通知：全てのコールバックが呼ばれる
       await service.notifyDataChange(mockNotification);
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         expect(callback).toHaveBeenCalledTimes(1);
       });
 
       // 全てアンサブスクライブ
-      unsubscribers.forEach(unsubscribe => unsubscribe());
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
 
       // 2回目の通知：どのコールバックも呼ばれない
       await service.notifyDataChange(mockNotification);
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         expect(callback).toHaveBeenCalledTimes(1); // 増えない
       });
     });
@@ -435,7 +451,7 @@ describe('AutoFetchService Interface', () => {
 
     it('should return proper types', () => {
       const callback = vi.fn();
-      
+
       // subscribe should return unsubscribe function
       const unsubscribe1 = service.subscribe(callback);
       expect(typeof unsubscribe1).toBe('function');

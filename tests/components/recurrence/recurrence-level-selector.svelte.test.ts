@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { RecurrenceLevel } from "$lib/types/datetime-calendar";
+import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
 
 describe('RecurrenceLevelSelector', () => {
   const defaultProps = {

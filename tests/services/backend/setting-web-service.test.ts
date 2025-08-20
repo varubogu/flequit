@@ -9,7 +9,7 @@ describe('SettingWebService', () => {
 
   beforeEach(() => {
     service = new SettingWebService();
-    
+
     mockSetting = {
       id: 'setting-123',
       key: 'theme',
@@ -61,7 +61,10 @@ describe('SettingWebService', () => {
       const result = await service.update(mockSetting);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateSetting not implemented', mockSetting);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateSetting not implemented',
+        mockSetting
+      );
     });
 
     it('should handle different setting types', async () => {

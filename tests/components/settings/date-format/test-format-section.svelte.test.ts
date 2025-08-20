@@ -50,7 +50,7 @@ vi.mock('$lib/stores/datetime-format.svelte', () => ({
 
 describe('TestFormatSection', () => {
   const mockDateTime = new Date('2024-01-01T12:00:00Z');
-  
+
   const mockSelectedPreset: DateTimeFormat = {
     id: 1,
     name: 'Standard',
@@ -77,20 +77,20 @@ describe('TestFormatSection', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       const { container } = render(TestFormatSection, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('should render main container with proper spacing', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const container = document.querySelector('.space-y-4');
       expect(container).toBeInTheDocument();
     });
 
     it('should render grid layout', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const grids = document.querySelectorAll('.grid.grid-cols-1.gap-4.lg\\:grid-cols-2');
       expect(grids).toHaveLength(2);
     });
@@ -99,35 +99,37 @@ describe('TestFormatSection', () => {
   describe('test format input section', () => {
     it('should render test format label', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const label = document.querySelector('label[for="test-format"]');
       expect(label?.textContent).toBe('Test Format');
     });
 
     it('should render test format input', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const input = document.querySelector('#test-format');
       expect(input).toBeInTheDocument();
     });
 
     it('should display preview section', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const previewSection = document.querySelector('.flex.items-center.gap-2.text-sm');
       expect(previewSection).toBeInTheDocument();
     });
 
     it('should show preview label', () => {
       render(TestFormatSection, { props: defaultProps });
-      
-      const previewSection = document.querySelector('.flex.items-center.gap-2.text-sm .font-medium');
+
+      const previewSection = document.querySelector(
+        '.flex.items-center.gap-2.text-sm .font-medium'
+      );
       expect(previewSection?.textContent).toBe('Preview:');
     });
 
     it('should show formatted preview', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('2024年01月01日 12:00:00');
     });
@@ -136,24 +138,24 @@ describe('TestFormatSection', () => {
   describe('format selection section', () => {
     it('should render format selection label', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const label = document.querySelector('label[for="format-selection"]');
       expect(label?.textContent).toBe('Format Selection');
     });
 
     it('should render format selection dropdown', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const select = document.querySelector('#format-selection');
       expect(select).toBeInTheDocument();
     });
 
     it('should render all format options', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const options = document.querySelectorAll('#format-selection option');
       expect(options).toHaveLength(3);
-      
+
       expect(options[0].textContent).toBe('Standard: yyyy-MM-dd HH:mm:ss');
       expect(options[1].textContent).toBe('Japanese: yyyy年MM月dd日 HH:mm:ss');
       expect(options[2].textContent).toBe('Custom');
@@ -161,7 +163,7 @@ describe('TestFormatSection', () => {
 
     it('should set selected value from props', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.value).toBe('1');
     });
@@ -170,21 +172,21 @@ describe('TestFormatSection', () => {
   describe('format name section', () => {
     it('should render format name label', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const label = document.querySelector('label[for="format-name"]');
       expect(label?.textContent).toBe('Format Name');
     });
 
     it('should render format name input', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const input = document.querySelector('#format-name');
       expect(input).toBeInTheDocument();
     });
 
     it('should show placeholder text', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const input = document.querySelector('#format-name') as HTMLInputElement;
       expect(input?.placeholder).toBe('Enter format name');
     });
@@ -193,28 +195,28 @@ describe('TestFormatSection', () => {
   describe('edit mode handling', () => {
     it('should enable format selection in manual mode', () => {
       render(TestFormatSection, { props: { ...defaultProps, editMode: 'manual' } });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.disabled).toBe(false);
     });
 
     it('should disable format selection in new mode', () => {
       render(TestFormatSection, { props: { ...defaultProps, editMode: 'new' } });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.disabled).toBe(true);
     });
 
     it('should disable format selection in edit mode', () => {
       render(TestFormatSection, { props: { ...defaultProps, editMode: 'edit' } });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.disabled).toBe(true);
     });
 
     it('should show disabled styling when format selection is disabled', () => {
       render(TestFormatSection, { props: { ...defaultProps, editMode: 'new' } });
-      
+
       const select = document.querySelector('#format-selection');
       expect(select).toHaveClass('disabled:cursor-not-allowed');
       expect(select).toHaveClass('disabled:opacity-50');
@@ -224,21 +226,21 @@ describe('TestFormatSection', () => {
   describe('format name enabled state', () => {
     it('should enable format name input when formatNameEnabled is true', () => {
       render(TestFormatSection, { props: { ...defaultProps, formatNameEnabled: true } });
-      
+
       const input = document.querySelector('#format-name') as HTMLInputElement;
       expect(input?.disabled).toBe(false);
     });
 
     it('should disable format name input when formatNameEnabled is false', () => {
       render(TestFormatSection, { props: { ...defaultProps, formatNameEnabled: false } });
-      
+
       const input = document.querySelector('#format-name') as HTMLInputElement;
       expect(input?.disabled).toBe(true);
     });
 
     it('should show disabled styling when format name is disabled', () => {
       render(TestFormatSection, { props: { ...defaultProps, formatNameEnabled: false } });
-      
+
       const input = document.querySelector('#format-name');
       expect(input).toHaveClass('disabled:cursor-not-allowed');
       expect(input).toHaveClass('disabled:opacity-50');
@@ -248,21 +250,21 @@ describe('TestFormatSection', () => {
   describe('preview functionality', () => {
     it('should show formatted preview for valid format', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('2024年01月01日 12:00:00');
     });
 
     it('should show "Invalid format" for invalid format', () => {
       render(TestFormatSection, { props: { ...defaultProps, testFormat: 'invalid' } });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('Invalid format');
     });
 
     it('should show empty preview for empty format', () => {
       render(TestFormatSection, { props: { ...defaultProps, testFormat: '' } });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('');
     });
@@ -270,15 +272,15 @@ describe('TestFormatSection', () => {
     it('should update preview when format changes', () => {
       // First render with initial format
       const { unmount } = render(TestFormatSection, { props: defaultProps });
-      
+
       // Check initial preview
       let preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('2024年01月01日 12:00:00');
-      
+
       // Unmount and re-render with new format
       unmount();
       render(TestFormatSection, { props: { ...defaultProps, testFormat: 'yyyy-MM-dd' } });
-      
+
       preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('formatted-yyyy-MM-dd');
     });
@@ -287,7 +289,7 @@ describe('TestFormatSection', () => {
   describe('selected preset handling', () => {
     it('should handle null selected preset', () => {
       render(TestFormatSection, { props: { ...defaultProps, selectedPreset: null } });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.value).toBe('');
     });
@@ -302,16 +304,16 @@ describe('TestFormatSection', () => {
       };
 
       render(TestFormatSection, { props: { ...defaultProps, selectedPreset: differentPreset } });
-      
+
       const select = document.querySelector('#format-selection') as HTMLSelectElement;
       expect(select?.value).toBe('2');
     });
 
     it('should handle format option without format string', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const options = document.querySelectorAll('#format-selection option');
-      const customOption = Array.from(options).find(option => option.textContent === 'Custom');
+      const customOption = Array.from(options).find((option) => option.textContent === 'Custom');
       expect(customOption).toBeInTheDocument();
     });
   });
@@ -319,17 +321,17 @@ describe('TestFormatSection', () => {
   describe('responsive layout', () => {
     it('should have responsive grid classes', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const grids = document.querySelectorAll('.grid.grid-cols-1.gap-4.lg\\:grid-cols-2');
       expect(grids).toHaveLength(2);
     });
 
     it('should have proper spacing classes', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const container = document.querySelector('.space-y-4');
       expect(container).toBeInTheDocument();
-      
+
       const formatNameSection = document.querySelector('.space-y-3');
       expect(formatNameSection).toBeInTheDocument();
     });
@@ -338,7 +340,7 @@ describe('TestFormatSection', () => {
   describe('styling and classes', () => {
     it('should apply proper input styling', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const formatNameInput = document.querySelector('#format-name');
       expect(formatNameInput).toHaveClass('border-input');
       expect(formatNameInput).toHaveClass('bg-background');
@@ -348,7 +350,7 @@ describe('TestFormatSection', () => {
 
     it('should apply proper select styling', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const select = document.querySelector('#format-selection');
       expect(select).toHaveClass('border-input');
       expect(select).toHaveClass('bg-background');
@@ -359,7 +361,7 @@ describe('TestFormatSection', () => {
 
     it('should apply proper preview styling', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview).toHaveClass('bg-muted');
       expect(preview).toHaveClass('rounded');
@@ -371,13 +373,13 @@ describe('TestFormatSection', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(TestFormatSection, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(TestFormatSection, { props: defaultProps });
-      
+
       const updatedProps = {
         ...defaultProps,
         testFormat: 'dd/MM/yyyy',
@@ -392,14 +394,16 @@ describe('TestFormatSection', () => {
   describe('edge cases', () => {
     it('should handle empty format name', () => {
       render(TestFormatSection, { props: { ...defaultProps, testFormatName: '' } });
-      
+
       const input = document.querySelector('#format-name') as HTMLInputElement;
       expect(input?.value).toBe('');
     });
 
     it('should handle special characters in format', () => {
-      render(TestFormatSection, { props: { ...defaultProps, testFormat: 'yyyy/MM/dd "特殊文字"' } });
-      
+      render(TestFormatSection, {
+        props: { ...defaultProps, testFormat: 'yyyy/MM/dd "特殊文字"' }
+      });
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('formatted-yyyy/MM/dd "特殊文字"');
     });
@@ -407,14 +411,14 @@ describe('TestFormatSection', () => {
     it('should handle very long format strings', () => {
       const longFormat = 'yyyy年MM月dd日 HH時mm分ss秒 EEEE'.repeat(10);
       render(TestFormatSection, { props: { ...defaultProps, testFormat: longFormat } });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe(`formatted-${longFormat}`);
     });
 
     it('should handle format with only spaces', () => {
       render(TestFormatSection, { props: { ...defaultProps, testFormat: '   ' } });
-      
+
       const preview = document.querySelector('.bg-muted.rounded.px-2.py-1');
       expect(preview?.textContent).toBe('formatted-   ');
     });
@@ -423,11 +427,11 @@ describe('TestFormatSection', () => {
   describe('accessibility', () => {
     it('should have proper label associations', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       const testFormatLabel = document.querySelector('label[for="test-format"]');
       const formatSelectionLabel = document.querySelector('label[for="format-selection"]');
       const formatNameLabel = document.querySelector('label[for="format-name"]');
-      
+
       expect(testFormatLabel).toBeInTheDocument();
       expect(formatSelectionLabel).toBeInTheDocument();
       expect(formatNameLabel).toBeInTheDocument();
@@ -435,7 +439,7 @@ describe('TestFormatSection', () => {
 
     it('should have proper input ids', () => {
       render(TestFormatSection, { props: defaultProps });
-      
+
       expect(document.querySelector('#test-format')).toBeInTheDocument();
       expect(document.querySelector('#format-selection')).toBeInTheDocument();
       expect(document.querySelector('#format-name')).toBeInTheDocument();

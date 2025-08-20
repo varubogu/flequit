@@ -10,7 +10,7 @@ describe('SubtaskWebService', () => {
 
   beforeEach(() => {
     service = new SubtaskWebService();
-    
+
     mockSubTask = {
       id: 'subtask-123',
       task_id: 'task-456',
@@ -42,7 +42,10 @@ describe('SubtaskWebService', () => {
       const result = await service.create(mockSubTask);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createSubTask not implemented', mockSubTask);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createSubTask not implemented',
+        mockSubTask
+      );
     });
   });
 
@@ -51,7 +54,10 @@ describe('SubtaskWebService', () => {
       const result = await service.update(mockSubTask);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateSubTask not implemented', mockSubTask);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateSubTask not implemented',
+        mockSubTask
+      );
     });
   });
 
@@ -60,7 +66,10 @@ describe('SubtaskWebService', () => {
       const result = await service.delete('subtask-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteSubTask not implemented', 'subtask-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: deleteSubTask not implemented',
+        'subtask-123'
+      );
     });
   });
 
@@ -69,7 +78,10 @@ describe('SubtaskWebService', () => {
       const result = await service.get('subtask-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSubTask not implemented (called for data retrieval)', 'subtask-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getSubTask not implemented (called for data retrieval)',
+        'subtask-123'
+      );
     });
   });
 
@@ -78,7 +90,10 @@ describe('SubtaskWebService', () => {
       const result = await service.search(mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchSubTasks not implemented', mockSearchCondition);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchSubTasks not implemented',
+        mockSearchCondition
+      );
     });
   });
 
@@ -92,13 +107,15 @@ describe('SubtaskWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        service.create(mockSubTask),
-        service.update(mockSubTask),
-        service.delete('subtask-123'),
-        service.get('subtask-123'),
-        service.search(mockSearchCondition)
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [
+          service.create(mockSubTask),
+          service.update(mockSubTask),
+          service.delete('subtask-123'),
+          service.get('subtask-123'),
+          service.search(mockSearchCondition)
+        ]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

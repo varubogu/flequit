@@ -10,7 +10,7 @@ describe('TagWebService', () => {
 
   beforeEach(() => {
     service = new TagWebService();
-    
+
     mockTag = {
       id: 'tag-123',
       name: 'Work',
@@ -73,7 +73,10 @@ describe('TagWebService', () => {
       const result = await service.search(mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchTags not implemented', mockSearchCondition);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchTags not implemented',
+        mockSearchCondition
+      );
     });
   });
 
@@ -87,13 +90,15 @@ describe('TagWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        service.create(mockTag),
-        service.update(mockTag),
-        service.delete('tag-123'),
-        service.get('tag-123'),
-        service.search(mockSearchCondition)
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [
+          service.create(mockTag),
+          service.update(mockTag),
+          service.delete('tag-123'),
+          service.get('tag-123'),
+          service.search(mockSearchCondition)
+        ]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

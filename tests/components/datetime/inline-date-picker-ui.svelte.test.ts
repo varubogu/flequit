@@ -47,14 +47,14 @@ describe('InlineDatePickerUI', () => {
   describe('prop handling', () => {
     it('should handle position props', () => {
       const position = { x: 100, y: 50 };
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: { ...defaultProps, position }
       });
       expect(container).toBeInTheDocument();
     });
 
     it('should handle range mode', () => {
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: { ...defaultProps, useRangeMode: true }
       });
       expect(container).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('InlineDatePickerUI', () => {
     it('should handle date props', () => {
       const startDate = '2024-02-01';
       const endDate = '2024-02-28';
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: { ...defaultProps, startDate, endDate }
       });
       expect(container).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe('InlineDatePickerUI', () => {
         onRecurrenceEdit: vi.fn()
       };
 
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: { ...defaultProps, ...mockCallbacks }
       });
       expect(container).toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('InlineDatePickerUI', () => {
         onRecurrenceEdit: () => {}
       };
 
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: propsWithNoOpCallbacks
       });
       expect(container).toBeInTheDocument();
@@ -106,16 +106,16 @@ describe('InlineDatePickerUI', () => {
   describe('edge cases', () => {
     it('should handle different position values', () => {
       const position = { x: 0, y: 0 };
-      const { container } = render(InlineDatePickerUI, { 
+      const { container } = render(InlineDatePickerUI, {
         props: { ...defaultProps, position }
       });
       expect(container).toBeInTheDocument();
     });
 
     it('should handle undefined dates', () => {
-      const { container } = render(InlineDatePickerUI, { 
-        props: { 
-          ...defaultProps, 
+      const { container } = render(InlineDatePickerUI, {
+        props: {
+          ...defaultProps,
           startDate: '' as string,
           endDate: '' as string
         }
@@ -124,9 +124,9 @@ describe('InlineDatePickerUI', () => {
     });
 
     it('should handle empty time strings', () => {
-      const { container } = render(InlineDatePickerUI, { 
-        props: { 
-          ...defaultProps, 
+      const { container } = render(InlineDatePickerUI, {
+        props: {
+          ...defaultProps,
           startTime: '',
           endTime: ''
         }

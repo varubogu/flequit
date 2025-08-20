@@ -38,7 +38,9 @@ vi.mock('$lib/components/task/detail/task-detail-header.svelte', () => ({
 }));
 
 vi.mock('$lib/components/task/detail/task-detail-empty-state.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="task-detail-empty-state">No task selected</div>' })
+  default: () => ({
+    render: () => '<div data-testid="task-detail-empty-state">No task selected</div>'
+  })
 }));
 
 vi.mock('$lib/components/task/detail/task-detail-subtasks.svelte', () => ({
@@ -50,7 +52,9 @@ vi.mock('$lib/components/task/detail/task-detail-tags.svelte', () => ({
 }));
 
 vi.mock('$lib/components/project/project-task-list-selector.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="project-task-list-selector">Project Selector</div>' })
+  default: () => ({
+    render: () => '<div data-testid="project-task-list-selector">Project Selector</div>'
+  })
 }));
 
 vi.mock('$lib/components/task/forms/task-status-selector.svelte', () => ({
@@ -154,7 +158,7 @@ describe('TaskDetailContent', () => {
   describe('基本表示テスト', () => {
     it('タスクが設定されている場合、コンテンツが存在する', () => {
       const { container } = render(TaskDetailContent, { props: defaultProps });
-      
+
       // 基本的なコンテンツ構造が存在することを確認
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(50);
@@ -163,7 +167,7 @@ describe('TaskDetailContent', () => {
     it('タスクが設定されていない場合、空状態になる', () => {
       const props = { ...defaultProps, currentItem: null, task: null };
       const { container } = render(TaskDetailContent, { props });
-      
+
       // コメントタグのみの場合（空状態）
       expect(container.innerHTML).toBe('<!---->');
     });
@@ -171,10 +175,10 @@ describe('TaskDetailContent', () => {
     it('ドロワーモードでスタイルが変化する', () => {
       const drawerProps = { ...defaultProps, isDrawerMode: true };
       const { container: drawerContainer } = render(TaskDetailContent, { props: drawerProps });
-      
+
       const normalProps = { ...defaultProps, isDrawerMode: false };
       const { container: normalContainer } = render(TaskDetailContent, { props: normalProps });
-      
+
       // ドロワーモードの方がスペーシングが小さい
       expect(drawerContainer.innerHTML).toContain('space-y-4');
       expect(normalContainer.innerHTML).toContain('space-y-6');
@@ -189,7 +193,7 @@ describe('TaskDetailContent', () => {
         isSubTask: true
       };
       const { container } = render(TaskDetailContent, { props: subTaskProps });
-      
+
       // サブタスクモードでもコンテンツが表示される
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(50);
@@ -198,7 +202,7 @@ describe('TaskDetailContent', () => {
     it('新規タスクモードでは適切に表示される', () => {
       const newTaskProps = { ...defaultProps, isNewTaskMode: true };
       const { container } = render(TaskDetailContent, { props: newTaskProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(50);
     });
@@ -209,13 +213,17 @@ describe('TaskDetailContent', () => {
       // 通常モード
       const normalResult = render(TaskDetailContent, { props: defaultProps });
       expect(normalResult.container.innerHTML).toContain('space-y-6');
-      
-      // ドロワーモード 
-      const drawerResult = render(TaskDetailContent, { props: { ...defaultProps, isDrawerMode: true } });
+
+      // ドロワーモード
+      const drawerResult = render(TaskDetailContent, {
+        props: { ...defaultProps, isDrawerMode: true }
+      });
       expect(drawerResult.container.innerHTML).toContain('space-y-4');
-      
+
       // 新規タスクモード
-      const newTaskResult = render(TaskDetailContent, { props: { ...defaultProps, isNewTaskMode: true } });
+      const newTaskResult = render(TaskDetailContent, {
+        props: { ...defaultProps, isNewTaskMode: true }
+      });
       expect(newTaskResult.container.innerHTML).toBeTruthy();
     });
 
@@ -223,7 +231,7 @@ describe('TaskDetailContent', () => {
       // メインタスク
       const mainTaskResult = render(TaskDetailContent, { props: defaultProps });
       expect(mainTaskResult.container.innerHTML).toBeTruthy();
-      
+
       // サブタスク
       const subTaskProps = {
         ...defaultProps,
@@ -241,7 +249,7 @@ describe('TaskDetailContent', () => {
       const noProjectProps = { ...defaultProps, projectInfo: null };
       const noProjectResult = render(TaskDetailContent, { props: noProjectProps });
       expect(noProjectResult.container.innerHTML).toBeTruthy();
-      
+
       // サブタスクIDなし
       const noSubTaskIdProps = { ...defaultProps, selectedSubTaskId: null };
       const noSubTaskIdResult = render(TaskDetailContent, { props: noSubTaskIdProps });
@@ -252,7 +260,7 @@ describe('TaskDetailContent', () => {
   describe('プロパティテスト', () => {
     it('必要なプロパティを受け取り、レンダリングが完了する', () => {
       const { container } = render(TaskDetailContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(100);
     });
@@ -272,10 +280,10 @@ describe('TaskDetailContent', () => {
         onGoToParentTask: vi.fn() as () => void,
         onProjectTaskListEdit: vi.fn() as () => void
       };
-      
+
       const props = { ...defaultProps, ...callbacks };
       const { container } = render(TaskDetailContent, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -304,7 +312,7 @@ describe('TaskDetailContent', () => {
         onGoToParentTask: vi.fn() as () => void,
         onProjectTaskListEdit: vi.fn() as () => void
       };
-      
+
       const { container } = render(TaskDetailContent, { props: incompleteProps });
       expect(container.innerHTML).toBeTruthy();
     });
@@ -312,16 +320,16 @@ describe('TaskDetailContent', () => {
     it('空のcurrentItemでも正常に動作する', () => {
       const props = { ...defaultProps, currentItem: null, task: null };
       const { container } = render(TaskDetailContent, { props });
-      
+
       // 空状態ではコメントタグのみ
       expect(container.innerHTML).toBe('<!---->');
     });
 
     it('コンポーネントが正常にマウント・アンマウントできる', () => {
       const { container, unmount } = render(TaskDetailContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
-      
+
       // アンマウントしてもエラーが発生しない
       expect(() => unmount()).not.toThrow();
     });

@@ -183,7 +183,9 @@ describe('TaskAddForm', () => {
       // Wait for effect to run
       await waitFor(() => {
         // Check if tick was called (indicating auto-focus logic ran)
-        expect((vi.mocked(vi.importMock('svelte')) as unknown as MockedSvelte).tick).toHaveBeenCalled();
+        expect(
+          (vi.mocked(vi.importMock('svelte')) as unknown as MockedSvelte).tick
+        ).toHaveBeenCalled();
       });
     });
   });
@@ -191,7 +193,11 @@ describe('TaskAddForm', () => {
   describe('keyboard interactions', () => {
     it('should handle Enter key to add task', async () => {
       const mockAddNewTask = vi.fn().mockResolvedValue('new-task-id');
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -236,8 +242,14 @@ describe('TaskAddForm', () => {
       const mockSelectTask = vi.fn();
       const mockOnTaskAdded = vi.fn();
 
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
-      (vi.mocked(vi.importMock('$lib/services/task-service')) as unknown as MockedTaskService).TaskService.selectTask = mockSelectTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(vi.importMock('$lib/services/task-service')) as unknown as MockedTaskService
+      ).TaskService.selectTask = mockSelectTask;
 
       const { container } = render(TaskAddForm, {
         props: { ...defaultProps, onTaskAdded: mockOnTaskAdded }
@@ -258,7 +270,11 @@ describe('TaskAddForm', () => {
 
     it('should clear input after successful add', async () => {
       const mockAddNewTask = vi.fn().mockResolvedValue('new-task-id');
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -273,7 +289,11 @@ describe('TaskAddForm', () => {
 
     it('should handle add task failure', async () => {
       const mockAddNewTask = vi.fn().mockResolvedValue(null);
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -290,7 +310,11 @@ describe('TaskAddForm', () => {
 
     it('should not add empty task', () => {
       const mockAddNewTask = vi.fn();
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -307,9 +331,17 @@ describe('TaskAddForm', () => {
       const mockUpdateNewTaskData = vi.fn();
       const mockOpenNewTaskDetail = vi.fn();
 
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.startNewTaskMode = mockStartNewTaskMode;
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.updateNewTaskData = mockUpdateNewTaskData;
-      (vi.mocked(vi.importMock('$lib/services/task-detail-service')) as unknown as MockedTaskDetailService).TaskDetailService.openNewTaskDetail = mockOpenNewTaskDetail;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.startNewTaskMode = mockStartNewTaskMode;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.updateNewTaskData = mockUpdateNewTaskData;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-detail-service')
+        ) as unknown as MockedTaskDetailService
+      ).TaskDetailService.openNewTaskDetail = mockOpenNewTaskDetail;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -323,7 +355,9 @@ describe('TaskAddForm', () => {
 
     it('should handle edit without title', () => {
       const mockStartNewTaskMode = vi.fn();
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.startNewTaskMode = mockStartNewTaskMode;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.startNewTaskMode = mockStartNewTaskMode;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -340,7 +374,9 @@ describe('TaskAddForm', () => {
 
     it('should fallback to first available list when no selection', () => {
       // Mock taskStore with no selectedListId
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.selectedListId = null;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.selectedListId = null;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -434,7 +470,9 @@ describe('TaskAddForm', () => {
     });
 
     it('should handle empty projects in taskStore', () => {
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.projects = [];
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.projects = [];
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -442,9 +480,9 @@ describe('TaskAddForm', () => {
     });
 
     it('should handle projects with no task lists', () => {
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.projects = [
-        { id: 'project-1', task_lists: [] }
-      ];
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.projects = [{ id: 'project-1', task_lists: [] }];
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -500,7 +538,11 @@ describe('TaskAddForm', () => {
   describe('integration', () => {
     it('should integrate with TaskListService', async () => {
       const mockAddNewTask = vi.fn().mockResolvedValue('task-id');
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -517,8 +559,14 @@ describe('TaskAddForm', () => {
       const mockSelectTask = vi.fn();
       const mockAddNewTask = vi.fn().mockResolvedValue('task-id');
 
-      (vi.mocked(vi.importMock('$lib/services/task-service')) as unknown as MockedTaskService).TaskService.selectTask = mockSelectTask;
-      (vi.mocked(vi.importMock('$lib/services/task-list-service')) as unknown as MockedTaskListService).TaskListService.addNewTask = mockAddNewTask;
+      (
+        vi.mocked(vi.importMock('$lib/services/task-service')) as unknown as MockedTaskService
+      ).TaskService.selectTask = mockSelectTask;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-list-service')
+        ) as unknown as MockedTaskListService
+      ).TaskListService.addNewTask = mockAddNewTask;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -533,7 +581,11 @@ describe('TaskAddForm', () => {
 
     it('should integrate with TaskDetailService', () => {
       const mockOpenNewTaskDetail = vi.fn();
-      (vi.mocked(vi.importMock('$lib/services/task-detail-service')) as unknown as MockedTaskDetailService).TaskDetailService.openNewTaskDetail = mockOpenNewTaskDetail;
+      (
+        vi.mocked(
+          vi.importMock('$lib/services/task-detail-service')
+        ) as unknown as MockedTaskDetailService
+      ).TaskDetailService.openNewTaskDetail = mockOpenNewTaskDetail;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 
@@ -545,8 +597,12 @@ describe('TaskAddForm', () => {
       const mockStartNewTaskMode = vi.fn();
       const mockUpdateNewTaskData = vi.fn();
 
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.startNewTaskMode = mockStartNewTaskMode;
-      (vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore).taskStore.updateNewTaskData = mockUpdateNewTaskData;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.startNewTaskMode = mockStartNewTaskMode;
+      (
+        vi.mocked(vi.importMock('$lib/stores/tasks.svelte')) as unknown as MockedTaskStore
+      ).taskStore.updateNewTaskData = mockUpdateNewTaskData;
 
       const { container } = render(TaskAddForm, { props: defaultProps });
 

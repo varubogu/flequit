@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TaskStore } from '$lib/stores/tasks.svelte';
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 describe('TaskStore - Selection Management', () => {
   let taskStore: TaskStore;

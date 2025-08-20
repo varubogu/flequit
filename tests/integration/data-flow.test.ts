@@ -1,6 +1,6 @@
 import { test, expect, vi } from 'vitest';
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from "$lib/types/sub-task";
+import type { SubTask } from '$lib/types/sub-task';
 
 // データフローのインテグレーションテスト（モック使用）
 

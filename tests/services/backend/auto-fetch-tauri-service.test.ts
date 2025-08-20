@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AutoFetchTauriService } from '$lib/services/backend/tauri/auto-fetch-tauri-service';
-import type { DataChangeNotification, DataType, ChangeType } from '$lib/services/backend/auto-fetch-service';
+import type {
+  DataChangeNotification,
+  DataType,
+  ChangeType
+} from '$lib/services/backend/auto-fetch-service';
 
 describe('AutoFetchTauriService', () => {
   let service: AutoFetchTauriService;
@@ -119,11 +123,22 @@ describe('AutoFetchTauriService', () => {
 
       expect(errorCallback).toHaveBeenCalled();
       expect(normalCallback).toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('Error in type-specific data change listener:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in type-specific data change listener:',
+        expect.any(Error)
+      );
     });
 
     it('should handle different data types', async () => {
-      const dataTypes: DataType[] = ['project', 'tasklist', 'task', 'subtask', 'tag', 'setting', 'account'];
+      const dataTypes: DataType[] = [
+        'project',
+        'tasklist',
+        'task',
+        'subtask',
+        'tag',
+        'setting',
+        'account'
+      ];
       const callbacks = dataTypes.map(() => vi.fn());
 
       // 各データタイプにリスナーを登録
@@ -152,7 +167,7 @@ describe('AutoFetchTauriService', () => {
         });
 
         // 次のテストのためにモックをリセット
-        callbacks.forEach(callback => callback.mockReset());
+        callbacks.forEach((callback) => callback.mockReset());
       }
     });
 
@@ -400,12 +415,12 @@ describe('AutoFetchTauriService', () => {
       const callbacks = Array.from({ length: 100 }, () => vi.fn());
 
       // 100個のリスナーを登録
-      callbacks.forEach(callback => service.subscribe(callback));
+      callbacks.forEach((callback) => service.subscribe(callback));
 
       await service.notifyDataChange(mockNotification);
 
       // 全てのコールバックが呼ばれることを確認
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         expect(callback).toHaveBeenCalledWith(mockNotification);
       });
     });
@@ -475,26 +490,28 @@ describe('AutoFetchTauriService', () => {
       const taskCallbacks = [vi.fn()];
 
       // リスナーを登録
-      const globalUnsubscribers = globalCallbacks.map(cb => service.subscribe(cb));
-      const projectUnsubscribers = projectCallbacks.map(cb => service.subscribeToDataType('project', cb));
-      const taskUnsubscribers = taskCallbacks.map(cb => service.subscribeToDataType('task', cb));
+      const globalUnsubscribers = globalCallbacks.map((cb) => service.subscribe(cb));
+      const projectUnsubscribers = projectCallbacks.map((cb) =>
+        service.subscribeToDataType('project', cb)
+      );
+      const taskUnsubscribers = taskCallbacks.map((cb) => service.subscribeToDataType('task', cb));
 
       // 通知が正常に動作することを確認
       await service.notifyDataChange(mockNotification);
-      globalCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(1));
-      projectCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(1));
-      taskCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(0));
+      globalCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(1));
+      projectCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(1));
+      taskCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(0));
 
       // 全てのリスナーをアンサブスクライブ
-      globalUnsubscribers.forEach(unsub => unsub());
-      projectUnsubscribers.forEach(unsub => unsub());
-      taskUnsubscribers.forEach(unsub => unsub());
+      globalUnsubscribers.forEach((unsub) => unsub());
+      projectUnsubscribers.forEach((unsub) => unsub());
+      taskUnsubscribers.forEach((unsub) => unsub());
 
       // アンサブスクライブ後は通知が届かないことを確認
       await service.notifyDataChange(mockNotification);
-      globalCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(1)); // 増えない
-      projectCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(1)); // 増えない
-      taskCallbacks.forEach(cb => expect(cb).toHaveBeenCalledTimes(0)); // 変わらず
+      globalCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(1)); // 増えない
+      projectCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(1)); // 増えない
+      taskCallbacks.forEach((cb) => expect(cb).toHaveBeenCalledTimes(0)); // 変わらず
     });
   });
 });

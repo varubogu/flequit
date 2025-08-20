@@ -32,9 +32,9 @@ describe('BackendWebService', () => {
 
     it('should have all services as readonly properties', () => {
       const originalProject = service.project;
-      
+
       expect(service.project).toBe(originalProject);
-      
+
       // 各サービスが独立したインスタンスであることを確認
       expect(service.project).not.toBe(service.tasklist);
       expect(service.task).not.toBe(service.subtask);

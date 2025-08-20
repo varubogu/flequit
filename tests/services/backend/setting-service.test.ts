@@ -16,7 +16,7 @@ describe('SettingService Interface', () => {
 
   beforeEach(() => {
     service = new MockSettingService();
-    
+
     mockSetting = {
       id: 'setting-123',
       key: 'theme',
@@ -56,7 +56,7 @@ describe('SettingService Interface', () => {
         service.get.mockResolvedValue(setting);
 
         const result = await service.get(key);
-        
+
         expect(service.get).toHaveBeenCalledWith(key);
         expect(result?.key).toBe(key);
       }
@@ -108,7 +108,13 @@ describe('SettingService Interface', () => {
         { ...mockSetting, key: 'theme', value: 'dark', data_type: 'string' },
         { ...mockSetting, id: 'setting-2', key: 'auto_save', value: 'true', data_type: 'boolean' },
         { ...mockSetting, id: 'setting-3', key: 'max_items', value: '100', data_type: 'number' },
-        { ...mockSetting, id: 'setting-4', key: 'user_prefs', value: '{"theme":"dark"}', data_type: 'json' }
+        {
+          ...mockSetting,
+          id: 'setting-4',
+          key: 'user_prefs',
+          value: '{"theme":"dark"}',
+          data_type: 'json'
+        }
       ];
       service.getAll.mockResolvedValue(multiTypeSettings);
 

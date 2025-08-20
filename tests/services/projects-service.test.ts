@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProjectsService } from '$lib/services/projects-service';
 import type { Project, ProjectTree } from '$lib/types/project';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
-import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock dataService
 vi.mock('$lib/services/data-service', () => ({
@@ -278,7 +277,10 @@ describe('ProjectsService', () => {
 
   describe('getAllProjects', () => {
     it('should return all projects', () => {
-      const projects = [mockProjectWithLists, { ...mockProjectWithLists, id: 'project-456', name: 'Project 2' }];
+      const projects = [
+        mockProjectWithLists,
+        { ...mockProjectWithLists, id: 'project-456', name: 'Project 2' }
+      ];
       mockTaskStore.projects = projects;
 
       const result = ProjectsService.getAllProjects();
@@ -299,7 +301,12 @@ describe('ProjectsService', () => {
     it('should find projects by name substring', () => {
       const projects = [
         mockProjectWithLists,
-        { ...mockProjectWithLists, id: 'project-456', name: 'Another Test', description: 'Different project' }
+        {
+          ...mockProjectWithLists,
+          id: 'project-456',
+          name: 'Another Test',
+          description: 'Different project'
+        }
       ];
       mockTaskStore.projects = projects;
 
@@ -353,8 +360,14 @@ describe('ProjectsService', () => {
 
       const result = await ProjectsService.createTaskList('project-123', taskListData);
 
-      expect(vi.mocked(mockDataService.createTaskList)).toHaveBeenCalledWith('project-123', taskListData);
-      expect(vi.mocked(mockTaskStore.addTaskList)).toHaveBeenCalledWith('project-123', taskListData);
+      expect(vi.mocked(mockDataService.createTaskList)).toHaveBeenCalledWith(
+        'project-123',
+        taskListData
+      );
+      expect(vi.mocked(mockTaskStore.addTaskList)).toHaveBeenCalledWith(
+        'project-123',
+        taskListData
+      );
       expect(result).toEqual(mockTaskList);
     });
 
@@ -421,7 +434,7 @@ describe('ProjectsService', () => {
       const result = ProjectsService.getActiveProjects();
 
       expect(result).toHaveLength(2);
-      expect(result.every(p => !p.is_archived)).toBe(true);
+      expect(result.every((p) => !p.is_archived)).toBe(true);
     });
 
     it('should return empty array when all projects are archived', () => {
@@ -439,12 +452,20 @@ describe('ProjectsService', () => {
 
   describe('archiveProject', () => {
     it('should successfully archive a project', async () => {
-      vi.mocked(mockDataService.updateProject).mockResolvedValue({ ...mockProject, is_archived: true });
-      vi.mocked(mockTaskStore.updateProject).mockResolvedValue({ ...mockProject, is_archived: true });
+      vi.mocked(mockDataService.updateProject).mockResolvedValue({
+        ...mockProject,
+        is_archived: true
+      });
+      vi.mocked(mockTaskStore.updateProject).mockResolvedValue({
+        ...mockProject,
+        is_archived: true
+      });
 
       const result = await ProjectsService.archiveProject('project-123', true);
 
-      expect(vi.mocked(mockDataService.updateProject)).toHaveBeenCalledWith('project-123', { is_archived: true });
+      expect(vi.mocked(mockDataService.updateProject)).toHaveBeenCalledWith('project-123', {
+        is_archived: true
+      });
       expect(result).toBe(true);
     });
 

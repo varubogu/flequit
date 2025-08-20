@@ -383,10 +383,12 @@ describe('DataService', () => {
       expect(mockBackendService.subtask.update).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'subtask-id',
-          tags: [expect.objectContaining({
-            id: 'tag-id',
-            name: 'Tag-tag-id'
-          })]
+          tags: [
+            expect.objectContaining({
+              id: 'tag-id',
+              name: 'Tag-tag-id'
+            })
+          ]
         })
       );
     });

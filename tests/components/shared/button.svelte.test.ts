@@ -32,7 +32,7 @@ describe('Button', () => {
   describe('button variants', () => {
     it('should handle all variants', () => {
       const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'];
-      variants.forEach(variant => {
+      variants.forEach((variant) => {
         render(Button, { props: { variant: variant as ButtonVariants['variant'] } });
         expect(document.body).toBeInTheDocument();
       });
@@ -42,7 +42,7 @@ describe('Button', () => {
   describe('button sizes', () => {
     it('should handle all sizes', () => {
       const sizes = ['default', 'sm', 'lg', 'icon'];
-      sizes.forEach(size => {
+      sizes.forEach((size) => {
         render(Button, { props: { size: size as ButtonVariants['size'] } });
         expect(document.body).toBeInTheDocument();
       });
@@ -83,6 +83,8 @@ describe('Button', () => {
 
   describe('edge cases', () => {
     it('should handle null and undefined props', () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       render(Button, {
         props: {
           onclick: null as ((event?: Event) => void) | null,

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import type { Tag } from "$lib/types/tag";
+import type { Tag } from '$lib/types/tag';
 
 // 必要なモジュールをモック
 vi.mock('$lib/stores/tasks.svelte', () => ({

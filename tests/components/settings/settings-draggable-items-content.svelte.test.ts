@@ -241,7 +241,9 @@ describe('SettingsDraggableItemsContent', () => {
         props: { logic: draggingLogic as unknown as SettingsDraggableItemsLogic }
       });
 
-      const dropIndicators = document.querySelectorAll('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
+      const dropIndicators = document.querySelectorAll(
+        '.bg-primary.mx-2.my-1.h-0\\.5.rounded-full'
+      );
       expect(dropIndicators.length).toBeGreaterThan(0);
     });
 

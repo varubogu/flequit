@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { RecurrenceDetails } from "$lib/types/datetime-calendar";
-import type { RecurrenceUnit } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
+import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
 describe('RecurrenceIntervalEditor', () => {
   const mockDetails: RecurrenceDetails = {

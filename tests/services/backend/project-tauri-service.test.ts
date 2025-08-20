@@ -53,7 +53,7 @@ describe('ProjectTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -77,7 +77,7 @@ describe('ProjectTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_project', { project: mockProject });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update project:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -101,7 +101,7 @@ describe('ProjectTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete project:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -134,7 +134,7 @@ describe('ProjectTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get project:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -146,7 +146,9 @@ describe('ProjectTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_projects', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual(mockProjects);
     });
 
@@ -155,7 +157,9 @@ describe('ProjectTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_projects', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
     });
 
@@ -165,10 +169,12 @@ describe('ProjectTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_projects', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_projects', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to search projects:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 

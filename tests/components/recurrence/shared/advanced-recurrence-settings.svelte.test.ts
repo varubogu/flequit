@@ -52,13 +52,13 @@ describe('AdvancedRecurrenceSettings', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       render(AdvancedRecurrenceSettings, { props: defaultProps });
-      
+
       expect(screen.getByText('Advanced Settings')).toBeInTheDocument();
     });
 
     it('should render form elements', () => {
       render(AdvancedRecurrenceSettings, { props: defaultProps });
-      
+
       expect(document.querySelector('#specific-date-input')).toBeInTheDocument();
       expect(document.querySelector('#week-of-period-select')).toBeInTheDocument();
     });
@@ -67,16 +67,16 @@ describe('AdvancedRecurrenceSettings', () => {
   describe('specific date input', () => {
     it('should handle specific date changes', () => {
       const mockOnDetailsChange = vi.fn();
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           ondetailschange: mockOnDetailsChange
         }
       });
-      
+
       const input = document.querySelector('#specific-date-input') as HTMLInputElement;
       fireEvent.input(input, { target: { value: '15' } });
-      
+
       expect(mockOnDetailsChange).toHaveBeenCalled();
     });
 
@@ -86,13 +86,13 @@ describe('AdvancedRecurrenceSettings', () => {
         specific_date: 15
       };
 
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           details: detailsWithDate
         }
       });
-      
+
       const input = document.querySelector('#specific-date-input') as HTMLInputElement;
       expect(input.value).toBe('15');
     });
@@ -101,23 +101,23 @@ describe('AdvancedRecurrenceSettings', () => {
   describe('week of month selection', () => {
     it('should render week of month options', () => {
       render(AdvancedRecurrenceSettings, { props: defaultProps });
-      
+
       expect(screen.getByText('First Week')).toBeInTheDocument();
       expect(screen.getByText('Last Week')).toBeInTheDocument();
     });
 
     it('should handle week selection changes', () => {
       const mockOnDetailsChange = vi.fn();
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           ondetailschange: mockOnDetailsChange
         }
       });
-      
+
       const select = document.querySelector('#week-of-period-select') as HTMLSelectElement;
       fireEvent.change(select, { target: { value: 'first' } });
-      
+
       expect(mockOnDetailsChange).toHaveBeenCalled();
     });
   });
@@ -129,19 +129,19 @@ describe('AdvancedRecurrenceSettings', () => {
         week_of_period: 'first'
       };
 
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           details: detailsWithWeek
         }
       });
-      
+
       expect(document.querySelector('#weekday-of-week-select')).toBeInTheDocument();
     });
 
     it('should hide weekday selector when no week is selected', () => {
       render(AdvancedRecurrenceSettings, { props: defaultProps });
-      
+
       expect(document.querySelector('#weekday-of-week-select')).not.toBeInTheDocument();
     });
 
@@ -151,13 +151,13 @@ describe('AdvancedRecurrenceSettings', () => {
         week_of_period: 'first'
       };
 
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           details: detailsWithWeek
         }
       });
-      
+
       expect(screen.getByText('Sunday')).toBeInTheDocument();
       expect(screen.getByText('Saturday')).toBeInTheDocument();
     });
@@ -165,23 +165,23 @@ describe('AdvancedRecurrenceSettings', () => {
 
   describe('edge cases', () => {
     it('should handle undefined details', () => {
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
-          ...defaultProps, 
+      render(AdvancedRecurrenceSettings, {
+        props: {
+          ...defaultProps,
           details: undefined as RecurrenceDetails | undefined
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
 
     it('should handle missing callbacks', () => {
-      render(AdvancedRecurrenceSettings, { 
-        props: { 
+      render(AdvancedRecurrenceSettings, {
+        props: {
           details: mockDetails
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
   });
@@ -189,7 +189,7 @@ describe('AdvancedRecurrenceSettings', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(AdvancedRecurrenceSettings, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
   });

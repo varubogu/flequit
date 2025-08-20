@@ -34,8 +34,8 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.create(mockCustomDateFormat);
 
-      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', { 
-        format: mockCustomDateFormat 
+      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', {
+        format: mockCustomDateFormat
       });
       expect(result).toEqual(mockCustomDateFormat);
     });
@@ -45,11 +45,14 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.create(mockCustomDateFormat);
 
-      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', { 
-        format: mockCustomDateFormat 
+      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', {
+        format: mockCustomDateFormat
       });
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to create custom date format:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to create custom date format:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -59,7 +62,9 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.get('format-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', { id: 'format-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', {
+        id: 'format-123'
+      });
       expect(result).toEqual(mockCustomDateFormat);
     });
 
@@ -68,7 +73,9 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.get('nonexistent-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', { id: 'nonexistent-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_custom_date_format_setting', {
+        id: 'nonexistent-id'
+      });
       expect(result).toBeNull();
     });
 
@@ -78,7 +85,10 @@ describe('CustomDateFormatTauriService', () => {
       const result = await service.get('format-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to get custom date format:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to get custom date format:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -108,7 +118,10 @@ describe('CustomDateFormatTauriService', () => {
       const result = await service.getAll();
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to get all custom date formats:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to get all custom date formats:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -119,8 +132,8 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.update(updatedFormat);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_custom_date_format_setting', { 
-        format: updatedFormat 
+      expect(mockInvoke).toHaveBeenCalledWith('update_custom_date_format_setting', {
+        format: updatedFormat
       });
       expect(result).toEqual(updatedFormat);
     });
@@ -130,11 +143,14 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.update(mockCustomDateFormat);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_custom_date_format_setting', { 
-        format: mockCustomDateFormat 
+      expect(mockInvoke).toHaveBeenCalledWith('update_custom_date_format_setting', {
+        format: mockCustomDateFormat
       });
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to update custom date format:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to update custom date format:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -144,7 +160,9 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.delete('format-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_custom_date_format_setting', { id: 'format-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_custom_date_format_setting', {
+        id: 'format-123'
+      });
       expect(result).toBe(true);
     });
 
@@ -153,9 +171,14 @@ describe('CustomDateFormatTauriService', () => {
 
       const result = await service.delete('format-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_custom_date_format_setting', { id: 'format-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_custom_date_format_setting', {
+        id: 'format-123'
+      });
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to delete custom date format:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to delete custom date format:',
+        expect.any(Error)
+      );
     });
   });
 
@@ -175,13 +198,13 @@ describe('CustomDateFormatTauriService', () => {
         name: 'Special & Format',
         format: 'yyyy年MM月dd日 <HH:mm:ss>'
       };
-      
+
       mockInvoke.mockResolvedValue(specialFormat);
 
       const result = await service.create(specialFormat);
 
-      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', { 
-        format: specialFormat 
+      expect(mockInvoke).toHaveBeenCalledWith('add_custom_date_format_setting', {
+        format: specialFormat
       });
       expect(result).toEqual(specialFormat);
     });

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 // モックプロジェクトデータ
 const mockProjects: ProjectTree[] = [

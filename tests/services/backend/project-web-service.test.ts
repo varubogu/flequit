@@ -10,7 +10,7 @@ describe('ProjectWebService', () => {
 
   beforeEach(() => {
     service = new ProjectWebService();
-    
+
     mockProject = {
       id: 'project-123',
       name: 'Test Project',
@@ -40,7 +40,10 @@ describe('ProjectWebService', () => {
       const result = await service.create(mockProject);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createProject not implemented', mockProject);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createProject not implemented',
+        mockProject
+      );
     });
   });
 
@@ -49,7 +52,10 @@ describe('ProjectWebService', () => {
       const result = await service.update(mockProject);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateProject not implemented', mockProject);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateProject not implemented',
+        mockProject
+      );
     });
   });
 
@@ -58,7 +64,10 @@ describe('ProjectWebService', () => {
       const result = await service.delete('project-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteProject not implemented', 'project-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: deleteProject not implemented',
+        'project-123'
+      );
     });
   });
 
@@ -67,7 +76,10 @@ describe('ProjectWebService', () => {
       const result = await service.get('project-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getProject not implemented', 'project-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getProject not implemented',
+        'project-123'
+      );
     });
   });
 
@@ -76,7 +88,10 @@ describe('ProjectWebService', () => {
       const result = await service.search(mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchProjects not implemented', mockSearchCondition);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchProjects not implemented',
+        mockSearchCondition
+      );
     });
   });
 
@@ -90,13 +105,15 @@ describe('ProjectWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        service.create(mockProject),
-        service.update(mockProject),
-        service.delete('project-123'),
-        service.get('project-123'),
-        service.search(mockSearchCondition)
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [
+          service.create(mockProject),
+          service.update(mockProject),
+          service.delete('project-123'),
+          service.get('project-123'),
+          service.search(mockSearchCondition)
+        ]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

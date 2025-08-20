@@ -4,13 +4,15 @@ import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/services/backend', () => ({
-  getBackendService: vi.fn(() => Promise.resolve({
-    setting: {
-      get: vi.fn(() => Promise.resolve(null)),
-      getAll: vi.fn(() => Promise.resolve([])),
-      update: vi.fn(() => Promise.resolve(true))
-    }
-  }))
+  getBackendService: vi.fn(() =>
+    Promise.resolve({
+      setting: {
+        get: vi.fn(() => Promise.resolve(null)),
+        getAll: vi.fn(() => Promise.resolve([])),
+        update: vi.fn(() => Promise.resolve(true))
+      }
+    })
+  )
 }));
 
 describe('TimeLabels Store', () => {
@@ -47,7 +49,7 @@ describe('TimeLabels Store', () => {
       expect(timeLabel.id).toBe(id);
 
       // 少し待ってバックエンドサービス呼び出しが完了することを確認
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
 
     it('複数の時刻ラベルを追加できること', () => {

@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskListDisplay from '$lib/components/task/core/task-list-display.svelte';
 // import { createUnitTestTranslationService } from '../../unit-translation-mock';
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({
-  getTranslationService: () => ({} as unknown)
+  getTranslationService: () => ({}) as unknown
 }));
 
 // taskStoreのモック
@@ -99,7 +99,7 @@ describe('TaskListDisplay', () => {
   const defaultProps = {
     project: mockProject,
     isExpanded: true,
-    onViewChange: vi.fn() as unknown
+    onViewChange: vi.fn() as unknown as (view: string) => void
   };
 
   beforeEach(() => {
@@ -164,7 +164,7 @@ describe('TaskListDisplay', () => {
   });
 
   it('onViewChangeコールバックが呼ばれる', async () => {
-    const onViewChange = vi.fn() as unknown;
+    const onViewChange = vi.fn() as unknown as (view: string) => void;
     render(TaskListDisplay, {
       props: {
         ...defaultProps,

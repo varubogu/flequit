@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
 // 日付・時刻管理のモック
 const mockDateTimeStore = {

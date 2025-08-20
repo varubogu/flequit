@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Task, TaskStatus } from '$lib/types/task';
-import type { TaskList } from "$lib/types/task-list";
-import type { Project } from "$lib/types/project";
+import type { TaskList } from '$lib/types/task-list';
+import type { Project } from '$lib/types/project';
 
 describe('シンプルな結合テスト', () => {
   beforeEach(() => {

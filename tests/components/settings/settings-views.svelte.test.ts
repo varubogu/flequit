@@ -8,7 +8,8 @@ vi.mock('$lib/stores/locale.svelte', () => ({
     getMessage: (key: string) => () => {
       const messages: Record<string, string> = {
         views_settings: 'Views Settings',
-        views_description_text: 'Drag and drop to reorder views, move them between visible and hidden sections',
+        views_description_text:
+          'Drag and drop to reorder views, move them between visible and hidden sections',
         reset_to_defaults: 'Reset to Defaults',
         reset_view_settings: 'Reset View Settings',
         reset_view_confirmation: 'Are you sure you want to reset views to defaults?',
@@ -33,9 +34,7 @@ vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
         { id: 'today', name: 'Today' },
         { id: 'upcoming', name: 'Upcoming' }
       ],
-      hiddenViews: [
-        { id: 'completed', name: 'Completed' }
-      ]
+      hiddenViews: [{ id: 'completed', name: 'Completed' }]
     }
   };
 });
@@ -65,7 +64,11 @@ describe('SettingsViews Component', () => {
   test('should display description text', () => {
     render(SettingsViews);
 
-    expect(screen.getByText(/Drag and drop to reorder views, move them between visible and hidden sections/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Drag and drop to reorder views, move them between visible and hidden sections/
+      )
+    ).toBeInTheDocument();
   });
 
   test('should render reset to defaults button', () => {

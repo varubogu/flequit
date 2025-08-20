@@ -68,9 +68,9 @@ describe('ConfirmDialog', () => {
     });
 
     it('should handle long content', () => {
-      render(ConfirmDialog, { 
-        props: { 
-          ...defaultProps, 
+      render(ConfirmDialog, {
+        props: {
+          ...defaultProps,
           title: 'A'.repeat(100),
           message: 'B'.repeat(500)
         }
@@ -86,9 +86,9 @@ describe('ConfirmDialog', () => {
     });
 
     it('should use custom button texts', () => {
-      render(ConfirmDialog, { 
-        props: { 
-          ...defaultProps, 
+      render(ConfirmDialog, {
+        props: {
+          ...defaultProps,
           confirmText: 'Yes, Delete',
           cancelText: 'No, Keep'
         }
@@ -101,9 +101,9 @@ describe('ConfirmDialog', () => {
     it('should handle confirm and cancel callbacks', () => {
       const mockConfirm = vi.fn();
       const mockCancel = vi.fn();
-      render(ConfirmDialog, { 
-        props: { 
-          ...defaultProps, 
+      render(ConfirmDialog, {
+        props: {
+          ...defaultProps,
           onConfirm: mockConfirm,
           onCancel: mockCancel
         }
@@ -114,9 +114,9 @@ describe('ConfirmDialog', () => {
 
   describe('edge cases', () => {
     it('should handle special characters', () => {
-      render(ConfirmDialog, { 
-        props: { 
-          ...defaultProps, 
+      render(ConfirmDialog, {
+        props: {
+          ...defaultProps,
           title: 'Title with 特殊文字 & symbols!',
           message: 'Message with émojis 🔥'
         }
@@ -125,9 +125,11 @@ describe('ConfirmDialog', () => {
     });
 
     it('should handle null callbacks', () => {
-      render(ConfirmDialog, { 
-        props: { 
-          ...defaultProps, 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      render(ConfirmDialog, {
+        props: {
+          ...defaultProps,
           onConfirm: null as (() => void) | null,
           onCancel: null as (() => void) | null
         }
@@ -154,7 +156,7 @@ describe('ConfirmDialog', () => {
         onConfirm: vi.fn(),
         onCancel: vi.fn()
       };
-      
+
       render(ConfirmDialog, { props: deleteProps });
       expect(document.body).toBeInTheDocument();
     });
@@ -169,7 +171,7 @@ describe('ConfirmDialog', () => {
         onConfirm: vi.fn(),
         onCancel: vi.fn()
       };
-      
+
       render(ConfirmDialog, { props: saveProps });
       expect(document.body).toBeInTheDocument();
     });

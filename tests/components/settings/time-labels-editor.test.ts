@@ -106,7 +106,7 @@ describe('TimeLabelsEditor', () => {
     render(TimeLabelsEditor);
 
     const editButtons = screen.getAllByRole('button');
-    const editButton = editButtons.find(button => button.innerHTML.includes('Edit'));
+    const editButton = editButtons.find((button) => button.innerHTML.includes('Edit'));
 
     if (editButton) {
       await fireEvent.click(editButton);
@@ -123,7 +123,7 @@ describe('TimeLabelsEditor', () => {
     render(TimeLabelsEditor);
 
     const deleteButtons = screen.getAllByRole('button');
-    const deleteButton = deleteButtons.find(button => button.innerHTML.includes('Trash'));
+    const deleteButton = deleteButtons.find((button) => button.innerHTML.includes('Trash'));
 
     if (deleteButton) {
       await fireEvent.click(deleteButton);

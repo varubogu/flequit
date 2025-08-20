@@ -59,7 +59,7 @@ describe('TaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: mockTask });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -83,7 +83,7 @@ describe('TaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_task', { task: mockTask });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -107,7 +107,7 @@ describe('TaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_task', { id: 'task-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -140,7 +140,7 @@ describe('TaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_task', { id: 'task-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -174,7 +174,7 @@ describe('TaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('search_tasks', { condition: mockSearchCondition });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to search tasks:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 

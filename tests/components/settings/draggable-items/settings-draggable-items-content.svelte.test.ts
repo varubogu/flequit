@@ -43,7 +43,7 @@ describe('SettingsDraggableItemsContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as SettingsDraggableItemsLogic
+    logic: mockLogic as unknown as any
   };
 
   beforeEach(() => {
@@ -59,23 +59,23 @@ describe('SettingsDraggableItemsContent', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       const { container } = render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('should render grid layout', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const grid = document.querySelector('.grid.grid-cols-1.gap-6.md\\:grid-cols-2');
       expect(grid).toBeInTheDocument();
     });
 
     it('should render visible and hidden sections', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       // Visible section title
       expect(mockLogic.visibleInSidebar).toHaveBeenCalled();
-      // Hidden section title  
+      // Hidden section title
       expect(mockLogic.hiddenFromSidebar).toHaveBeenCalled();
     });
   });
@@ -83,28 +83,28 @@ describe('SettingsDraggableItemsContent', () => {
   describe('visible items section', () => {
     it('should render visible items section', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const visibleSection = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       expect(visibleSection).toBeInTheDocument();
     });
 
     it('should render visible items', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const itemElement = document.querySelector('[data-item-id="visible-1"]');
       expect(itemElement).toBeInTheDocument();
     });
 
     it('should display visible item content correctly', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const itemElement = document.querySelector('[data-item-id="visible-1"]');
       expect(itemElement?.textContent).toContain('📋 Visible Item');
     });
 
     it('should apply normal styling when not dragging', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const dropZone = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       expect(dropZone).not.toHaveClass('border-primary');
       expect(dropZone).not.toHaveClass('bg-primary/5');
@@ -114,21 +114,21 @@ describe('SettingsDraggableItemsContent', () => {
   describe('hidden items section', () => {
     it('should render hidden items section', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const hiddenSection = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
       expect(hiddenSection).toBeInTheDocument();
     });
 
     it('should render hidden items', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const itemElement = document.querySelector('[data-item-id="hidden-1"]');
       expect(itemElement).toBeInTheDocument();
     });
 
     it('should display hidden item content correctly', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const itemElement = document.querySelector('[data-item-id="hidden-1"]');
       expect(itemElement?.textContent).toContain('🔒 Hidden Item');
     });
@@ -146,8 +146,8 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as unknown as any } });
+
       const visibleDropZone = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       expect(visibleDropZone).toHaveClass('border-primary');
       expect(visibleDropZone).toHaveClass('bg-primary/5');
@@ -164,8 +164,8 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as unknown as any } });
+
       const hiddenDropZone = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
       expect(hiddenDropZone).toHaveClass('border-primary');
       expect(hiddenDropZone).toHaveClass('bg-primary/5');
@@ -182,8 +182,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDraggedItem as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithDraggedItem as unknown as any }
+      });
+
       const draggedElement = document.querySelector('[data-item-id="visible-1"]');
       expect(draggedElement).toHaveClass('opacity-50');
     });
@@ -199,8 +201,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDropIndicator as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithDropIndicator as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -216,8 +220,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDropIndicator as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithDropIndicator as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -234,8 +240,10 @@ describe('SettingsDraggableItemsContent', () => {
         ]
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithMultipleVisible as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithMultipleVisible as unknown as any }
+      });
+
       expect(document.querySelector('[data-item-id="visible-1"]')).toBeInTheDocument();
       expect(document.querySelector('[data-item-id="visible-2"]')).toBeInTheDocument();
       expect(document.querySelector('[data-item-id="visible-3"]')).toBeInTheDocument();
@@ -251,8 +259,10 @@ describe('SettingsDraggableItemsContent', () => {
         ]
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithMultipleHidden as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithMultipleHidden as unknown as any }
+      });
+
       expect(document.querySelector('[data-item-id="hidden-1"]')).toBeInTheDocument();
       expect(document.querySelector('[data-item-id="hidden-2"]')).toBeInTheDocument();
       expect(document.querySelector('[data-item-id="hidden-3"]')).toBeInTheDocument();
@@ -267,11 +277,11 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: []
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithEmpty as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, { props: { logic: logicWithEmpty as unknown as any } });
+
       const visibleSection = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       const hiddenSection = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
-      
+
       expect(visibleSection).toBeInTheDocument();
       expect(hiddenSection).toBeInTheDocument();
     });
@@ -288,8 +298,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithEmptyAndDrag as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmptyAndDrag as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -306,8 +318,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithEmptyAndDrag as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmptyAndDrag as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -316,10 +330,10 @@ describe('SettingsDraggableItemsContent', () => {
   describe('item content display', () => {
     it('should display item icon and label', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const visibleItem = document.querySelector('[data-item-id="visible-1"] span');
       const hiddenItem = document.querySelector('[data-item-id="hidden-1"] span');
-      
+
       expect(visibleItem?.textContent).toBe('📋 Visible Item');
       expect(hiddenItem?.textContent).toBe('🔒 Hidden Item');
     });
@@ -327,15 +341,19 @@ describe('SettingsDraggableItemsContent', () => {
     it('should display items with special characters', () => {
       const logicWithSpecialChars = {
         ...mockLogic,
-        localVisibleItems: [{
-          id: 'special-1',
-          icon: '🌟',
-          label: 'Special & Important <Task>'
-        }]
+        localVisibleItems: [
+          {
+            id: 'special-1',
+            icon: '🌟',
+            label: 'Special & Important <Task>'
+          }
+        ]
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithSpecialChars as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithSpecialChars as unknown as any }
+      });
+
       const item = document.querySelector('[data-item-id="special-1"] span');
       expect(item?.textContent).toBe('🌟 Special & Important <Task>');
     });
@@ -343,15 +361,19 @@ describe('SettingsDraggableItemsContent', () => {
     it('should handle long item labels', () => {
       const logicWithLongLabel = {
         ...mockLogic,
-        localVisibleItems: [{
-          id: 'long-1',
-          icon: '📝',
-          label: 'Very Long Item Label That Should Be Handled Properly In The UI'
-        }]
+        localVisibleItems: [
+          {
+            id: 'long-1',
+            icon: '📝',
+            label: 'Very Long Item Label That Should Be Handled Properly In The UI'
+          }
+        ]
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithLongLabel as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithLongLabel as unknown as any }
+      });
+
       const item = document.querySelector('[data-item-id="long-1"] span');
       expect(item?.textContent).toContain('Very Long Item Label');
     });
@@ -369,7 +391,9 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      const { container } = render(SettingsDraggableItemsContent, { props: { logic: logicWithNullDrag as SettingsDraggableItemsLogic } });
+      const { container } = render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithNullDrag as unknown as any }
+      });
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -384,8 +408,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithHighIndex as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithHighIndex as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -401,8 +427,10 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithNegativeIndex as SettingsDraggableItemsLogic } });
-      
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithNegativeIndex as unknown as any }
+      });
+
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
       expect(dropIndicator).toBeInTheDocument();
     });
@@ -411,14 +439,14 @@ describe('SettingsDraggableItemsContent', () => {
   describe('component structure', () => {
     it('should have proper grid layout classes', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const grid = document.querySelector('.grid.grid-cols-1.gap-6.md\\:grid-cols-2');
       expect(grid).toBeInTheDocument();
     });
 
     it('should have proper item styling classes', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const visibleItem = document.querySelector('[data-item-id="visible-1"]');
       expect(visibleItem).toHaveClass('bg-card');
       expect(visibleItem).toHaveClass('hover:bg-muted');
@@ -429,15 +457,15 @@ describe('SettingsDraggableItemsContent', () => {
 
     it('should have proper drop zone styling', () => {
       render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const visibleDropZone = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       const hiddenDropZone = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
-      
+
       expect(visibleDropZone).toHaveClass('space-y-1');
       expect(visibleDropZone).toHaveClass('rounded-lg');
       expect(visibleDropZone).toHaveClass('border');
       expect(visibleDropZone).toHaveClass('p-2');
-      
+
       expect(hiddenDropZone).toHaveClass('space-y-1');
       expect(hiddenDropZone).toHaveClass('rounded-lg');
       expect(hiddenDropZone).toHaveClass('border');
@@ -448,21 +476,19 @@ describe('SettingsDraggableItemsContent', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(SettingsDraggableItemsContent, { props: defaultProps });
-      
+
       const updatedLogic = {
         ...mockLogic,
-        localVisibleItems: [
-          { id: 'updated-1', icon: '🔄', label: 'Updated Item' }
-        ]
+        localVisibleItems: [{ id: 'updated-1', icon: '🔄', label: 'Updated Item' }]
       };
 
-      expect(() => rerender({ logic: updatedLogic as SettingsDraggableItemsLogic })).not.toThrow();
+      expect(() => rerender({ logic: updatedLogic as unknown as any })).not.toThrow();
     });
   });
 
@@ -475,9 +501,11 @@ describe('SettingsDraggableItemsContent', () => {
         visibleInSidebar: vi.fn(() => 'Visible') as ReturnType<typeof vi.fn>,
         hiddenFromSidebar: vi.fn(() => 'Hidden') as ReturnType<typeof vi.fn>
         // Missing some methods intentionally
-      } as unknown as SettingsDraggableItemsLogic;
+      } as unknown as unknown as any;
 
-      const { container } = render(SettingsDraggableItemsContent, { props: { logic: incompleteLogic } });
+      const { container } = render(SettingsDraggableItemsContent, {
+        props: { logic: incompleteLogic }
+      });
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -485,13 +513,15 @@ describe('SettingsDraggableItemsContent', () => {
       const logicWithBadItems = {
         ...mockLogic,
         localVisibleItems: [
-          { id: null, icon: null, label: null } as unknown as ViewItem,
+          { id: null, icon: null, label: null } as unknown as any,
           { id: '', icon: '', label: '' },
           mockVisibleItem
         ]
       };
 
-      const { container } = render(SettingsDraggableItemsContent, { props: { logic: logicWithBadItems as SettingsDraggableItemsLogic } });
+      const { container } = render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithBadItems as unknown as any }
+      });
       expect(container.innerHTML).toBeTruthy();
     });
   });

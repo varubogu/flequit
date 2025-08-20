@@ -53,7 +53,9 @@ describe('InitializationWebService', () => {
         theme: 'system',
         language: 'ja'
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: loadLocalSettings - localStorage-based implementation (not fully implemented)');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: loadLocalSettings - localStorage-based implementation (not fully implemented)'
+      );
     });
 
     it('should merge saved settings with defaults', async () => {
@@ -95,7 +97,9 @@ describe('InitializationWebService', () => {
         updated_at: expect.any(Date)
       });
       expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_account', expect.any(String));
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: loadAccount - localStorage-based mock implementation (not fully implemented)');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: loadAccount - localStorage-based mock implementation (not fully implemented)'
+      );
     });
 
     it('should return saved account from localStorage', async () => {
@@ -146,7 +150,9 @@ describe('InitializationWebService', () => {
         }
       ]);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_projects', expect.any(String));
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: loadProjectData - localStorage with sample data (not fully implemented)');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: loadProjectData - localStorage with sample data (not fully implemented)'
+      );
     });
 
     it('should return sample data when localStorage throws error', async () => {
@@ -185,7 +191,9 @@ describe('InitializationWebService', () => {
         },
         projects: expect.any(Array)
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: initializeAll - combined initialization with localStorage (not fully implemented)');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: initializeAll - combined initialization with localStorage (not fully implemented)'
+      );
     });
   });
 

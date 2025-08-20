@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import DayTargetSelector from '$lib/components/datetime/calendar/day-target-selector.svelte';
-import type { AdjustmentTarget } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
+import type { AdjustmentTarget } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,

@@ -53,22 +53,22 @@ describe('SettingsDialog Integration', () => {
 
   test('should not render dialog content when closed', () => {
     render(SettingsDialog, { props: defaultProps });
-    
+
     expect(screen.queryByText('Settings')).not.toBeInTheDocument();
   });
 
   test('should render settings dialog when open', () => {
-    const { container } = render(SettingsDialog, { 
+    const { container } = render(SettingsDialog, {
       props: { ...defaultProps, open: true }
     });
-    
+
     // Dialog should be rendered when open
     expect(container).toBeInTheDocument();
   });
 
   test('should handle open prop changes', () => {
     const onOpenChange = vi.fn();
-    const { rerender, container } = render(SettingsDialog, { 
+    const { rerender, container } = render(SettingsDialog, {
       props: { open: false, onOpenChange }
     });
 
@@ -77,13 +77,13 @@ describe('SettingsDialog Integration', () => {
 
     // Open the dialog
     rerender({ open: true, onOpenChange });
-    
+
     // Dialog container should be present
     expect(container).toBeInTheDocument();
   });
 
   test('should render basic settings content when open', () => {
-    render(SettingsDialog, { 
+    render(SettingsDialog, {
       props: { ...defaultProps, open: true }
     });
 
@@ -92,7 +92,7 @@ describe('SettingsDialog Integration', () => {
   });
 
   test('should have proper component structure', () => {
-    const { container } = render(SettingsDialog, { 
+    const { container } = render(SettingsDialog, {
       props: { ...defaultProps, open: true }
     });
 
@@ -102,7 +102,7 @@ describe('SettingsDialog Integration', () => {
 
   test('should handle callback props', () => {
     const onOpenChange = vi.fn();
-    render(SettingsDialog, { 
+    render(SettingsDialog, {
       props: { open: true, onOpenChange }
     });
 
@@ -111,7 +111,7 @@ describe('SettingsDialog Integration', () => {
   });
 
   test('should handle undefined callback', () => {
-    const { container } = render(SettingsDialog, { 
+    const { container } = render(SettingsDialog, {
       props: { open: true, onOpenChange: undefined as ((open: boolean) => void) | undefined }
     });
 
@@ -120,12 +120,12 @@ describe('SettingsDialog Integration', () => {
   });
 
   test('should render and unmount cleanly', () => {
-    const { unmount } = render(SettingsDialog, { 
+    const { unmount } = render(SettingsDialog, {
       props: { ...defaultProps, open: true }
     });
 
     expect(screen.getByText('Settings')).toBeInTheDocument();
-    
+
     expect(() => unmount()).not.toThrow();
   });
 });

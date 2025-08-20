@@ -53,7 +53,11 @@ global.console = {
   info: () => {},
   // Suppress backend not implemented warnings
   warn: (message: string, ...args: unknown[]) => {
-    if (typeof message === 'string' && message.includes('Web backend:') && message.includes('not implemented')) {
+    if (
+      typeof message === 'string' &&
+      message.includes('Web backend:') &&
+      message.includes('not implemented')
+    ) {
       return; // Suppress backend not implemented warnings
     }
     originalConsole.warn(message, ...args);

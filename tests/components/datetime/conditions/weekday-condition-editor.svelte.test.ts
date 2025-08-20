@@ -2,7 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import WeekdayConditionEditor from '$lib/components/datetime/conditions/weekday-condition-editor.svelte';
-import type { WeekdayCondition, DayOfWeek, AdjustmentDirection, AdjustmentTarget } from '$lib/types/datetime-calendar';
+import type {
+  WeekdayCondition,
+  DayOfWeek,
+  AdjustmentDirection,
+  AdjustmentTarget
+} from '$lib/types/datetime-calendar';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 
 // Mock dependencies
@@ -53,42 +58,50 @@ describe('WeekdayConditionEditor', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('should render main container with correct classes', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const mainDiv = container.querySelector('.border-border.bg-card');
       expect(mainDiv).toBeInTheDocument();
-      expect(mainDiv).toHaveClass('flex', 'flex-wrap', 'items-center', 'gap-2', 'rounded', 'border', 'p-3');
+      expect(mainDiv).toHaveClass(
+        'flex',
+        'flex-wrap',
+        'items-center',
+        'gap-2',
+        'rounded',
+        'border',
+        'p-3'
+      );
     });
 
     it('should render day target selectors', () => {
       const { getAllByTestId } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const selectors = getAllByTestId('day-target-selector');
       expect(selectors).toHaveLength(2);
     });
 
     it('should render direction select', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeInTheDocument();
     });
 
     it('should render remove button', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const removeButton = container.querySelector('button[type="button"]');
       expect(removeButton).toBeInTheDocument();
     });
 
     it('should render X icon in remove button', () => {
       const { getByTestId } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(getByTestId('x-icon')).toBeInTheDocument();
     });
   });
@@ -96,7 +109,7 @@ describe('WeekdayConditionEditor', () => {
   describe('Japanese language rendering', () => {
     it('should render Japanese text elements', () => {
       const { getByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(getByText('なら')).toBeInTheDocument();
       expect(getByText('の')).toBeInTheDocument();
       expect(getByText('にずらす')).toBeInTheDocument();
@@ -104,7 +117,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should render direction options in Japanese', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const options = container.querySelectorAll('option');
       expect(options).toHaveLength(2);
       expect(options[0]).toHaveTextContent('前の');
@@ -113,7 +126,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should not render English text elements', () => {
       const { queryByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(queryByText('If')).not.toBeInTheDocument();
       expect(queryByText(', move to')).not.toBeInTheDocument();
     });
@@ -138,14 +151,14 @@ describe('WeekdayConditionEditor', () => {
 
     it('should render English text elements', () => {
       const { getByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(getByText('If')).toBeInTheDocument();
       expect(getByText(', move to')).toBeInTheDocument();
     });
 
     it('should render direction options in English', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const options = container.querySelectorAll('option');
       expect(options).toHaveLength(2);
       expect(options[0]).toHaveTextContent('previous');
@@ -154,7 +167,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should not render Japanese text elements', () => {
       const { queryByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(queryByText('なら')).not.toBeInTheDocument();
       expect(queryByText('の')).not.toBeInTheDocument();
       expect(queryByText('にずらす')).not.toBeInTheDocument();
@@ -164,7 +177,7 @@ describe('WeekdayConditionEditor', () => {
   describe('form interactions', () => {
     it('should display correct direction value', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('next');
     });
@@ -172,10 +185,10 @@ describe('WeekdayConditionEditor', () => {
     it('should handle direction change', async () => {
       const user = userEvent.setup();
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       await user.selectOptions(select, 'previous');
-      
+
       expect(defaultProps.onUpdate).toHaveBeenCalledWith({
         then_direction: 'previous'
       });
@@ -184,23 +197,23 @@ describe('WeekdayConditionEditor', () => {
     it('should call onRemove when remove button clicked', async () => {
       const user = userEvent.setup();
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const removeButton = container.querySelector('button[type="button"]') as HTMLButtonElement;
       await user.click(removeButton);
-      
+
       expect(defaultProps.onRemove).toHaveBeenCalledOnce();
     });
 
     it('should handle if_weekday condition change', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // DayTargetSelector would trigger handleConditionChange
       expect(container.innerHTML).toContain('day-target-selector');
     });
 
     it('should handle target change for specific weekday', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // DayTargetSelector would trigger handleTargetChange
       expect(container.innerHTML).toContain('day-target-selector');
     });
@@ -216,9 +229,9 @@ describe('WeekdayConditionEditor', () => {
           then_weekday: 'friday' as DayOfWeek
         }
       };
-      
+
       const { getAllByTestId } = render(WeekdayConditionEditor, { props: specificWeekdayProps });
-      
+
       const selectors = getAllByTestId('day-target-selector');
       expect(selectors).toHaveLength(2);
     });
@@ -232,9 +245,9 @@ describe('WeekdayConditionEditor', () => {
           then_weekday: undefined
         }
       };
-      
+
       const { getAllByTestId } = render(WeekdayConditionEditor, { props: nonSpecificProps });
-      
+
       const selectors = getAllByTestId('day-target-selector');
       expect(selectors).toHaveLength(2);
     });
@@ -251,9 +264,9 @@ describe('WeekdayConditionEditor', () => {
           then_target: 'holiday' as AdjustmentTarget
         }
       };
-      
+
       const { container } = render(WeekdayConditionEditor, { props: differentProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('previous');
     });
@@ -266,9 +279,9 @@ describe('WeekdayConditionEditor', () => {
           then_weekday: undefined
         }
       };
-      
+
       const { container } = render(WeekdayConditionEditor, { props: undefinedWeekdayProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -282,9 +295,9 @@ describe('WeekdayConditionEditor', () => {
           then_target: 'weekday' as AdjustmentTarget
         }
       };
-      
+
       const { container } = render(WeekdayConditionEditor, { props: minimalProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -292,24 +305,37 @@ describe('WeekdayConditionEditor', () => {
   describe('styling', () => {
     it('should apply correct CSS classes to select element', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
-      expect(select).toHaveClass('border-border', 'bg-background', 'text-foreground', 'rounded', 'border', 'p-1');
+      expect(select).toHaveClass(
+        'border-border',
+        'bg-background',
+        'text-foreground',
+        'rounded',
+        'border',
+        'p-1'
+      );
     });
 
     it('should apply correct CSS classes to remove button', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const removeButton = container.querySelector('button[type="button"]');
-      expect(removeButton).toHaveClass('text-destructive', 'hover:bg-destructive/10', 'ml-auto', 'rounded', 'p-1');
+      expect(removeButton).toHaveClass(
+        'text-destructive',
+        'hover:bg-destructive/10',
+        'ml-auto',
+        'rounded',
+        'p-1'
+      );
     });
 
     it('should apply correct CSS classes to text spans', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const textSpans = container.querySelectorAll('span.text-sm');
       expect(textSpans.length).toBeGreaterThan(0);
-      textSpans.forEach(span => {
+      textSpans.forEach((span) => {
         expect(span).toHaveClass('text-sm');
       });
     });
@@ -318,14 +344,14 @@ describe('WeekdayConditionEditor', () => {
   describe('accessibility', () => {
     it('should have accessible remove button with aria-label', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const removeButton = container.querySelector('button[type="button"]');
       expect(removeButton).toHaveAttribute('aria-label', 'Remove condition');
     });
 
     it('should have accessible form elements', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeInTheDocument();
       expect(select).toHaveAttribute('type', null);
@@ -333,10 +359,10 @@ describe('WeekdayConditionEditor', () => {
 
     it('should provide semantic structure', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const mainDiv = container.querySelector('div');
       expect(mainDiv).toBeInTheDocument();
-      
+
       const button = container.querySelector('button');
       expect(button).toHaveAttribute('type', 'button');
     });
@@ -345,7 +371,7 @@ describe('WeekdayConditionEditor', () => {
   describe('internationalization', () => {
     it('should use translation service for direction labels', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const options = container.querySelectorAll('option');
       expect(options[0]).toHaveTextContent('前の');
       expect(options[1]).toHaveTextContent('次の');
@@ -353,16 +379,16 @@ describe('WeekdayConditionEditor', () => {
 
     it('should detect language correctly', () => {
       const { getByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // Japanese layout should be used
       expect(getByText('なら')).toBeInTheDocument();
     });
 
     it('should handle locale switching', () => {
       const { rerender, queryByText } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(queryByText('なら')).toBeInTheDocument();
-      
+
       // Mock English locale
       vi.mocked(getTranslationService).mockReturnValue({
         getMessage: vi.fn((key: string) => () => {
@@ -377,7 +403,7 @@ describe('WeekdayConditionEditor', () => {
         reactiveMessage: vi.fn(),
         getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
       });
-      
+
       rerender(defaultProps);
       expect(queryByText('If')).toBeInTheDocument();
     });
@@ -387,23 +413,37 @@ describe('WeekdayConditionEditor', () => {
     it('should handle null condition', () => {
       const nullProps = {
         ...defaultProps,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         condition: null as WeekdayCondition | null
       };
-      
-      const { container } = render(WeekdayConditionEditor, { props: nullProps });
-      
+
+      const { container } = render(WeekdayConditionEditor, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        props: nullProps
+      });
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('should handle undefined callbacks', () => {
       const undefinedCallbackProps = {
         ...defaultProps,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onUpdate: undefined as ((updates: Partial<WeekdayCondition>) => void) | undefined,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onRemove: undefined as (() => void) | undefined
       };
-      
-      const { container } = render(WeekdayConditionEditor, { props: undefinedCallbackProps });
-      
+
+      const { container } = render(WeekdayConditionEditor, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        props: undefinedCallbackProps
+      });
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -415,9 +455,9 @@ describe('WeekdayConditionEditor', () => {
           then_direction: 'invalid' as AdjustmentDirection
         }
       };
-      
+
       const { container } = render(WeekdayConditionEditor, { props: invalidProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -429,9 +469,9 @@ describe('WeekdayConditionEditor', () => {
         reactiveMessage: vi.fn(),
         getAvailableLocales: vi.fn(() => ['ja-JP', 'en-US'])
       });
-      
+
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -439,13 +479,13 @@ describe('WeekdayConditionEditor', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const updatedProps = {
         ...defaultProps,
         condition: {
@@ -453,30 +493,30 @@ describe('WeekdayConditionEditor', () => {
           then_direction: 'previous' as AdjustmentDirection
         }
       };
-      
+
       expect(() => rerender(updatedProps)).not.toThrow();
     });
 
     it('should handle condition updates reactively', () => {
       const { rerender, container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const newCondition = {
         ...mockCondition,
         then_direction: 'previous' as AdjustmentDirection
       };
-      
+
       rerender({ ...defaultProps, condition: newCondition });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('previous');
     });
 
     it('should maintain state consistency across rerenders', () => {
       const { rerender, container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       rerender(defaultProps);
       rerender(defaultProps);
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('next');
     });
@@ -485,21 +525,21 @@ describe('WeekdayConditionEditor', () => {
   describe('callback function handling', () => {
     it('should call handleConditionChange correctly', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // Function should be available for DayTargetSelector
       expect(container.innerHTML).toContain('day-target-selector');
     });
 
     it('should call handleTargetChange for weekday values', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // Function should be available for DayTargetSelector
       expect(container.innerHTML).toContain('day-target-selector');
     });
 
     it('should call handleTargetChange for non-weekday values', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // Function should be available for DayTargetSelector
       expect(container.innerHTML).toContain('day-target-selector');
     });

@@ -9,7 +9,7 @@ describe('AccountWebService', () => {
 
   beforeEach(() => {
     service = new AccountWebService();
-    
+
     mockAccount = {
       id: 'account-123',
       display_name: 'Test User',
@@ -35,7 +35,10 @@ describe('AccountWebService', () => {
       const result = await service.create(mockAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createAccount not implemented', mockAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createAccount not implemented',
+        mockAccount
+      );
     });
 
     it('should handle account with minimal data', async () => {
@@ -51,7 +54,10 @@ describe('AccountWebService', () => {
       const result = await service.create(minimalAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createAccount not implemented', minimalAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createAccount not implemented',
+        minimalAccount
+      );
     });
 
     it('should handle account with all fields', async () => {
@@ -64,7 +70,10 @@ describe('AccountWebService', () => {
       const result = await service.create(fullAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createAccount not implemented', fullAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createAccount not implemented',
+        fullAccount
+      );
     });
   });
 
@@ -73,7 +82,10 @@ describe('AccountWebService', () => {
       const result = await service.get('account-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAccount not implemented', 'account-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getAccount not implemented',
+        'account-123'
+      );
     });
 
     it('should handle different ID formats', async () => {
@@ -93,7 +105,10 @@ describe('AccountWebService', () => {
       const result = await service.update(mockAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateAccount not implemented', mockAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateAccount not implemented',
+        mockAccount
+      );
     });
 
     it('should handle update with changed fields', async () => {
@@ -106,7 +121,10 @@ describe('AccountWebService', () => {
       const result = await service.update(updatedAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateAccount not implemented', updatedAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateAccount not implemented',
+        updatedAccount
+      );
     });
   });
 
@@ -115,7 +133,10 @@ describe('AccountWebService', () => {
       const result = await service.delete('account-123');
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteAccount not implemented', 'account-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: deleteAccount not implemented',
+        'account-123'
+      );
     });
 
     it('should handle different ID formats for deletion', async () => {
@@ -191,10 +212,26 @@ describe('AccountWebService', () => {
       await service.delete('account-123');
 
       expect(consoleSpy).toHaveBeenCalledTimes(4);
-      expect(consoleSpy).toHaveBeenNthCalledWith(1, 'Web backend: createAccount not implemented', mockAccount);
-      expect(consoleSpy).toHaveBeenNthCalledWith(2, 'Web backend: getAccount not implemented', 'account-123');
-      expect(consoleSpy).toHaveBeenNthCalledWith(3, 'Web backend: updateAccount not implemented', mockAccount);
-      expect(consoleSpy).toHaveBeenNthCalledWith(4, 'Web backend: deleteAccount not implemented', 'account-123');
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        1,
+        'Web backend: createAccount not implemented',
+        mockAccount
+      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        2,
+        'Web backend: getAccount not implemented',
+        'account-123'
+      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        3,
+        'Web backend: updateAccount not implemented',
+        mockAccount
+      );
+      expect(consoleSpy).toHaveBeenNthCalledWith(
+        4,
+        'Web backend: deleteAccount not implemented',
+        'account-123'
+      );
     });
   });
 
@@ -234,7 +271,10 @@ describe('AccountWebService', () => {
       const result = await service.create(specialAccount);
 
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createAccount not implemented', specialAccount);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createAccount not implemented',
+        specialAccount
+      );
     });
 
     it('should handle empty and invalid IDs', async () => {

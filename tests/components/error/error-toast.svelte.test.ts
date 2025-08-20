@@ -3,7 +3,6 @@ import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 // Test the ErrorToast functionality through error handler store
 describe('ErrorToast (Store Integration)', () => {
-
   beforeEach(() => {
     // Clear all errors before each test
     errorHandler.clearAllErrors();
@@ -11,7 +10,7 @@ describe('ErrorToast (Store Integration)', () => {
 
   describe('ErrorToast Logic Functions', () => {
     // Test the logic functions that would be used in the ErrorToast component
-    
+
     function getIcon(type: 'sync' | 'validation' | 'network' | 'general') {
       switch (type) {
         case 'sync':
@@ -70,12 +69,16 @@ describe('ErrorToast (Store Integration)', () => {
 
     it('should return correct background color for network errors', () => {
       const color = getBgColor('network');
-      expect(color).toBe('bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/10 dark:border-yellow-700 dark:text-yellow-300');
+      expect(color).toBe(
+        'bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-900/10 dark:border-yellow-700 dark:text-yellow-300'
+      );
     });
 
     it('should return correct background color for sync errors', () => {
       const color = getBgColor('sync');
-      expect(color).toBe('bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/10 dark:border-blue-700 dark:text-blue-300');
+      expect(color).toBe(
+        'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/10 dark:border-blue-700 dark:text-blue-300'
+      );
     });
 
     it('should return correct background color for general errors', () => {
@@ -84,30 +87,30 @@ describe('ErrorToast (Store Integration)', () => {
     });
 
     it('should remove error when handleDismiss is called', () => {
-      errorHandler.addError({
+      const errorId = errorHandler.addError({
         type: 'validation',
         message: 'Test error',
         retryable: false
       });
 
       expect(errorHandler.errors.length).toBe(1);
-      
+
       handleDismiss(errorId);
-      
+
       expect(errorHandler.errors.length).toBe(0);
     });
 
     it('should remove error when handleRetry is called', () => {
-      errorHandler.addError({
+      const errorId = errorHandler.addError({
         type: 'network',
         message: 'Network error',
         retryable: true
       });
 
       expect(errorHandler.errors.length).toBe(1);
-      
+
       handleRetry(errorId);
-      
+
       expect(errorHandler.errors.length).toBe(0);
     });
   });
@@ -127,7 +130,7 @@ describe('ErrorToast (Store Integration)', () => {
       });
 
       const error = errorHandler.errors[0];
-      
+
       expect(error.type).toBe('validation');
       expect(error.message).toBe('Field validation failed');
       expect(error.details).toBe('Email address is required');
@@ -145,7 +148,7 @@ describe('ErrorToast (Store Integration)', () => {
       });
 
       const error = errorHandler.errors[0];
-      
+
       expect(error.type).toBe('general');
       expect(error.message).toBe('Something went wrong');
       expect(error.retryable).toBe(false);
@@ -165,7 +168,7 @@ describe('ErrorToast (Store Integration)', () => {
       });
 
       const error = errorHandler.errors[0];
-      
+
       expect(error.type).toBe('network');
       expect(error.message).toBe('Connection timeout');
       expect(error.details).toBe('Unable to reach server');
@@ -187,7 +190,7 @@ describe('ErrorToast (Store Integration)', () => {
       });
 
       const error = errorHandler.errors[0];
-      
+
       expect(error.type).toBe('sync');
       expect(error.message).toBe('Sync conflict detected');
       expect(error.details).toBe('Local and remote versions differ');
@@ -200,7 +203,7 @@ describe('ErrorToast (Store Integration)', () => {
 
   describe('Error Interaction Patterns', () => {
     it('should handle multiple errors with different properties', () => {
-      errorHandler.addError({
+      const errorId1 = errorHandler.addError({
         type: 'validation',
         message: 'Validation error',
         retryable: false
@@ -212,7 +215,7 @@ describe('ErrorToast (Store Integration)', () => {
         retryable: true
       });
 
-      errorHandler.addError({
+      const errorId3 = errorHandler.addError({
         type: 'sync',
         message: 'Sync error',
         retryable: true
@@ -222,7 +225,7 @@ describe('ErrorToast (Store Integration)', () => {
 
       // Remove the network error (middle one)
       errorHandler.removeError(errorId2);
-      
+
       expect(errorHandler.errors.length).toBe(2);
       expect(errorHandler.errors[0].type).toBe('validation');
       expect(errorHandler.errors[1].type).toBe('sync');
@@ -230,7 +233,7 @@ describe('ErrorToast (Store Integration)', () => {
 
     it('should provide consistent timestamps', () => {
       const beforeTime = new Date();
-      
+
       errorHandler.addError({
         type: 'general',
         message: 'Test error',
@@ -239,13 +242,13 @@ describe('ErrorToast (Store Integration)', () => {
 
       const afterTime = new Date();
       const error = errorHandler.errors[0];
-      
+
       expect(error.timestamp.getTime()).toBeGreaterThanOrEqual(beforeTime.getTime());
       expect(error.timestamp.getTime()).toBeLessThanOrEqual(afterTime.getTime());
     });
 
     it('should generate unique error IDs', () => {
-      errorHandler.addError({
+      const errorId1 = errorHandler.addError({
         type: 'validation',
         message: 'Error 1',
         retryable: false

@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { generateSampleData } from '../../src/lib/data/sample-data';
-import type { ProjectTree } from "$lib/types/project";
+import type { ProjectTree } from '$lib/types/project';
 
 describe('sample-data', () => {
   let sampleData: ProjectTree[];

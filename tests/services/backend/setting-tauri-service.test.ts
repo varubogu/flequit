@@ -36,8 +36,10 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('get_setting', { key: 'theme' });
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('get_setting returns only value, not full Setting object. Consider using get_all_settings instead.');
-      
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'get_setting returns only value, not full Setting object. Consider using get_all_settings instead.'
+      );
+
       consoleSpy.mockRestore();
     });
 
@@ -59,7 +61,7 @@ describe('SettingTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_setting', { key: 'theme' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get setting:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -91,9 +93,9 @@ describe('SettingTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_all_settings');
       expect(result).toBeInstanceOf(Array);
       expect(result.length).toBeGreaterThan(0);
-      
+
       // 具体的な設定項目を確認
-      const themeSettings = result.find(s => s.key === 'theme');
+      const themeSettings = result.find((s) => s.key === 'theme');
       expect(themeSettings).toBeDefined();
       expect(themeSettings?.value).toBe('dark');
       expect(themeSettings?.data_type).toBe('string');
@@ -117,7 +119,7 @@ describe('SettingTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_all_settings');
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get all settings:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -128,7 +130,10 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: 'dark' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
+        key: mockSetting.key,
+        value: 'dark'
+      });
       expect(result).toBe(true);
     });
 
@@ -138,16 +143,19 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(mockSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: mockSetting.key, value: 'dark' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
+        key: mockSetting.key,
+        value: 'dark'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update setting:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle different data types for update', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const numberSetting = {
         ...mockSetting,
         key: 'font_size',
@@ -157,13 +165,16 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(numberSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: numberSetting.key, value: 14 });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
+        key: numberSetting.key,
+        value: 14
+      });
       expect(result).toBe(true);
     });
 
     it('should handle JSON data type', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const jsonSetting = {
         ...mockSetting,
         key: 'custom_config',
@@ -173,7 +184,10 @@ describe('SettingTauriService', () => {
 
       const result = await service.update(jsonSetting);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_setting', { key: jsonSetting.key, value: { theme: 'dark', notifications: true } });
+      expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
+        key: jsonSetting.key,
+        value: { theme: 'dark', notifications: true }
+      });
       expect(result).toBe(true);
     });
   });
@@ -196,13 +210,13 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('get_setting', { key: 'user.preferences.ui-theme' });
       expect(result).toBeNull(); // get()は常にnullを返す
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle update with minimal setting data', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const minimalSetting = {
         id: 'minimal-setting',
         key: 'test',

@@ -16,7 +16,7 @@ describe('AutoFetchWebService', () => {
       id: 'project-123',
       timestamp: new Date('2024-01-01T00:00:00Z')
     };
-    
+
     // console.warn と console.error をモック化
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -36,7 +36,10 @@ describe('AutoFetchWebService', () => {
       await service.notifyDataChange(mockNotification);
 
       expect(callback).toHaveBeenCalledWith(mockNotification);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: notifyDataChange not fully implemented', mockNotification);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: notifyDataChange not fully implemented',
+        mockNotification
+      );
     });
 
     it('should notify multiple global listeners', async () => {
@@ -61,7 +64,7 @@ describe('AutoFetchWebService', () => {
       service.subscribeToDataType('task', taskCallback);
 
       await service.notifyDataChange(mockNotification);
-      
+
       expect(projectCallback).toHaveBeenCalledWith(mockNotification);
       expect(taskCallback).not.toHaveBeenCalled();
     });
@@ -79,7 +82,10 @@ describe('AutoFetchWebService', () => {
 
       expect(errorCallback).toHaveBeenCalled();
       expect(normalCallback).toHaveBeenCalled();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error in data change listener:', expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error in data change listener:',
+        expect.any(Error)
+      );
     });
 
     it('should handle different data types', async () => {
@@ -99,8 +105,8 @@ describe('AutoFetchWebService', () => {
 
         await service.notifyDataChange(notification);
         expect(callbacks[i]).toHaveBeenCalledWith(notification);
-        
-        callbacks.forEach(callback => callback.mockReset());
+
+        callbacks.forEach((callback) => callback.mockReset());
       }
     });
   });
@@ -181,7 +187,7 @@ describe('AutoFetchWebService', () => {
 
     it('should return proper Promise and function types', async () => {
       const callback = vi.fn();
-      
+
       const subscribeResult = service.subscribe(callback);
       const subscribeToDataTypeResult = service.subscribeToDataType('project', callback);
       const notifyResult = service.notifyDataChange(mockNotification);
@@ -199,7 +205,7 @@ describe('AutoFetchWebService', () => {
       await service.notifyDataChange(mockNotification);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: notifyDataChange not fully implemented', 
+        'Web backend: notifyDataChange not fully implemented',
         mockNotification
       );
     });
@@ -230,7 +236,7 @@ describe('AutoFetchWebService', () => {
       }
 
       expect(consoleSpy).toHaveBeenCalledTimes(3);
-      consoleSpy.mock.calls.forEach(call => {
+      consoleSpy.mock.calls.forEach((call) => {
         expect(call[0]).toBe('Web backend: notifyDataChange not fully implemented');
       });
     });
@@ -255,7 +261,7 @@ describe('AutoFetchWebService', () => {
 
     it('should handle subscription and notification concurrency', async () => {
       const callbacks = [vi.fn(), vi.fn(), vi.fn()];
-      
+
       // 並行してサブスクリプション登録と通知
       await Promise.all([
         Promise.resolve(service.subscribe(callbacks[0])),
@@ -267,7 +273,7 @@ describe('AutoFetchWebService', () => {
       // 追加の通知で全てのコールバックが動作することを確認
       await service.notifyDataChange(mockNotification);
 
-      callbacks.forEach(callback => {
+      callbacks.forEach((callback) => {
         expect(callback).toHaveBeenCalledWith(mockNotification);
       });
     });
@@ -278,7 +284,7 @@ describe('AutoFetchWebService', () => {
       await service.notifyDataChange(mockNotification);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: notifyDataChange not fully implemented', 
+        'Web backend: notifyDataChange not fully implemented',
         mockNotification
       );
     });
@@ -296,7 +302,7 @@ describe('AutoFetchWebService', () => {
 
       expect(callback).toHaveBeenCalledWith(specialNotification);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: notifyDataChange not fully implemented', 
+        'Web backend: notifyDataChange not fully implemented',
         specialNotification
       );
     });

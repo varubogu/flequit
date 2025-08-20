@@ -287,7 +287,9 @@ vi.mock('../../src/lib/services/recurrence-service', () => ({
   }
 }));
 
-const mockRecurrenceService = vi.mocked(await import('../../src/lib/services/recurrence-service')).RecurrenceService;
+const mockRecurrenceService = vi.mocked(
+  await import('../../src/lib/services/recurrence-service')
+).RecurrenceService;
 
 // Update mockTaskStore to include all required methods
 Object.assign(mockTaskStore, {
@@ -303,9 +305,9 @@ Object.assign(mockTaskStore, {
 
 test('TaskService.selectTask: returns false when in new task mode', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: true, pendingTaskSelection: null });
-  
+
   const result = TaskService.selectTask('task-123');
-  
+
   expect(result).toBe(false);
   expect(mockTaskStore.pendingTaskSelection).toBe('task-123');
   expect(mockTaskStore.selectTask).not.toHaveBeenCalled();
@@ -313,27 +315,27 @@ test('TaskService.selectTask: returns false when in new task mode', () => {
 
 test('TaskService.selectTask: returns true when not in new task mode', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: false });
-  
+
   const result = TaskService.selectTask('task-123');
-  
+
   expect(result).toBe(true);
   expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.selectTask: works with null taskId', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: false });
-  
+
   const result = TaskService.selectTask(null);
-  
+
   expect(result).toBe(true);
   expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
 });
 
 test('TaskService.selectSubTask: returns false when in new task mode', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: true, pendingSubTaskSelection: null });
-  
+
   const result = TaskService.selectSubTask('subtask-123');
-  
+
   expect(result).toBe(false);
   expect(mockTaskStore.pendingSubTaskSelection).toBe('subtask-123');
   expect(mockTaskStore.selectSubTask).not.toHaveBeenCalled();
@@ -341,36 +343,36 @@ test('TaskService.selectSubTask: returns false when in new task mode', () => {
 
 test('TaskService.selectSubTask: returns true when not in new task mode', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: false });
-  
+
   const result = TaskService.selectSubTask('subtask-123');
-  
+
   expect(result).toBe(true);
   expect(mockTaskStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
 });
 
 test('TaskService.forceSelectTask: cancels new task mode and selects task', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: true });
-  
+
   TaskService.forceSelectTask('task-123');
-  
+
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
   expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.forceSelectTask: works when not in new task mode', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: false });
-  
+
   TaskService.forceSelectTask('task-123');
-  
+
   expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
   expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask', () => {
   Object.assign(mockTaskStore, { isNewTaskMode: true });
-  
+
   TaskService.forceSelectSubTask('subtask-123');
-  
+
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
   expect(mockTaskStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
 });
@@ -383,8 +385,8 @@ test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters
     priority: 1
   };
 
-  const mockSubTask = { 
-    id: 'subtask-123', 
+  const mockSubTask = {
+    id: 'subtask-123',
     title: 'New Subtask',
     task_id: taskId,
     status: 'not_started' as const,
@@ -460,7 +462,7 @@ test('TaskService.addTagToSubTask: finds tag by ID and calls taskStore.addTagToS
 test('TaskService.updateTaskDueDateForView: updates due date for today view', () => {
   const taskId = 'task-123';
   const today = new Date();
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'today');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
@@ -474,7 +476,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for today view', ()
 
 test('TaskService.updateTaskDueDateForView: updates due date for tomorrow view', () => {
   const taskId = 'task-123';
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'tomorrow');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
@@ -484,7 +486,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for tomorrow view',
 
 test('TaskService.updateTaskDueDateForView: updates due date for next3days view', () => {
   const taskId = 'task-123';
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'next3days');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
@@ -494,7 +496,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for next3days view'
 
 test('TaskService.updateTaskDueDateForView: updates due date for nextweek view', () => {
   const taskId = 'task-123';
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'nextweek');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
@@ -504,7 +506,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for nextweek view',
 
 test('TaskService.updateTaskDueDateForView: updates due date for thismonth view', () => {
   const taskId = 'task-123';
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'thismonth');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
@@ -514,7 +516,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for thismonth view'
 
 test('TaskService.updateTaskDueDateForView: does not update for unknown view', () => {
   const taskId = 'task-123';
-  
+
   TaskService.updateTaskDueDateForView(taskId, 'unknown-view');
 
   expect(mockTaskStore.updateTask).not.toHaveBeenCalled();
@@ -523,7 +525,7 @@ test('TaskService.updateTaskDueDateForView: does not update for unknown view', (
 test('TaskService.updateSubTaskDueDateForView: updates due date for subtask', () => {
   const subTaskId = 'subtask-123';
   const taskId = 'task-123';
-  
+
   TaskService.updateSubTaskDueDateForView(subTaskId, taskId, 'today');
 
   expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
@@ -544,7 +546,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
       interval: 1
     }
   };
-  
+
   const nextDate = new Date('2024-01-16');
   (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
   (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
@@ -569,7 +571,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
 
 test('TaskService.changeTaskStatus: handles completion with no recurrence', () => {
   const taskId = 'task-123';
-  
+
   TaskService.changeTaskStatus(taskId, 'in_progress');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'in_progress' });
@@ -590,7 +592,7 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
       interval: 1
     }
   };
-  
+
   (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
   (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(null); // No next date
 
@@ -606,7 +608,7 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
   const startDate = new Date('2024-01-10');
   const endDate = new Date('2024-01-15');
   const nextDate = new Date('2024-01-16');
-  
+
   const mockRecurringTask = {
     id: taskId,
     title: 'Range Task',
@@ -620,7 +622,7 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
       interval: 1
     }
   };
-  
+
   (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
   (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
 

@@ -71,7 +71,7 @@ describe('TaskItem', () => {
     updated_at: new Date('2024-01-01'),
     sub_tasks: [],
     tags: []
-  } as unknown;
+  };
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
@@ -95,7 +95,7 @@ describe('TaskItem', () => {
     task: mockTask,
     onTaskClick: vi.fn(),
     onSubTaskClick: vi.fn()
-  } as unknown;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();

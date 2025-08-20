@@ -10,7 +10,7 @@ describe('TaskWebService', () => {
 
   beforeEach(() => {
     service = new TaskWebService();
-    
+
     mockTask = {
       id: 'task-123',
       list_id: 'list-456',
@@ -60,7 +60,10 @@ describe('TaskWebService', () => {
       const result = await service.delete('task-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTask not implemented', 'task-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: deleteTask not implemented',
+        'task-123'
+      );
     });
   });
 
@@ -69,7 +72,10 @@ describe('TaskWebService', () => {
       const result = await service.get('task-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTask not implemented (called for data retrieval)', 'task-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getTask not implemented (called for data retrieval)',
+        'task-123'
+      );
     });
   });
 
@@ -78,7 +84,10 @@ describe('TaskWebService', () => {
       const result = await service.search(mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchTasks not implemented', mockSearchCondition);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchTasks not implemented',
+        mockSearchCondition
+      );
     });
   });
 
@@ -92,13 +101,15 @@ describe('TaskWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        service.create(mockTask),
-        service.update(mockTask),
-        service.delete('task-123'),
-        service.get('task-123'),
-        service.search(mockSearchCondition)
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [
+          service.create(mockTask),
+          service.update(mockTask),
+          service.delete('task-123'),
+          service.get('task-123'),
+          service.search(mockSearchCondition)
+        ]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

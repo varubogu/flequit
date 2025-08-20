@@ -54,13 +54,13 @@ describe('TasklistTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_task_list', { taskList: mockTaskList });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task list:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle task list with minimal data', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const minimalTaskList = {
         id: 'tasklist-minimal',
         project_id: 'project-123',
@@ -79,7 +79,7 @@ describe('TasklistTauriService', () => {
 
     it('should handle task list with all optional fields', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const fullTaskList = {
         id: 'tasklist-full',
         project_id: 'project-789',
@@ -118,13 +118,13 @@ describe('TasklistTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: mockTaskList });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task list:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle name change', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const renamedTaskList = {
         ...mockTaskList,
         name: 'Updated Development Tasks',
@@ -139,7 +139,7 @@ describe('TasklistTauriService', () => {
 
     it('should handle archive status change', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const archivedTaskList = {
         ...mockTaskList,
         is_archived: true,
@@ -154,7 +154,7 @@ describe('TasklistTauriService', () => {
 
     it('should handle order index change', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const reorderedTaskList = {
         ...mockTaskList,
         order_index: 10,
@@ -187,7 +187,7 @@ describe('TasklistTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_list', { id: 'tasklist-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task list:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -220,7 +220,7 @@ describe('TasklistTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_task_list', { id: 'tasklist-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task list:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -232,7 +232,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual(mockTaskLists);
     });
 
@@ -241,7 +243,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
     });
 
@@ -251,10 +255,12 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to search task lists:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -265,7 +271,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(projectOnlyCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: projectOnlyCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: projectOnlyCondition
+      });
       expect(result).toEqual(mockTaskLists);
     });
 
@@ -276,7 +284,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(nameOnlyCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: nameOnlyCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: nameOnlyCondition
+      });
       expect(result).toEqual(mockTaskLists);
     });
 
@@ -287,7 +297,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(archiveOnlyCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: archiveOnlyCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: archiveOnlyCondition
+      });
       expect(result).toEqual([archivedTaskList]);
     });
 
@@ -302,7 +314,9 @@ describe('TasklistTauriService', () => {
 
       const result = await service.search(multiCriteriaCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', { condition: multiCriteriaCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_task_lists', {
+        condition: multiCriteriaCondition
+      });
       expect(result).toEqual([mockTaskList]);
     });
 
@@ -310,9 +324,9 @@ describe('TasklistTauriService', () => {
       const emptyCondition = {};
       const allTaskLists = [
         mockTaskList,
-        { 
-          id: 'tasklist-2', 
-          project_id: 'project-789', 
+        {
+          id: 'tasklist-2',
+          project_id: 'project-789',
           name: 'Testing Tasks',
           order_index: 1,
           is_archived: false,
@@ -332,7 +346,7 @@ describe('TasklistTauriService', () => {
   describe('edge cases', () => {
     it('should handle task list with special characters in name', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const specialCharTaskList = {
         ...mockTaskList,
         name: 'タスクリスト！@#$% & Special chars',
@@ -346,7 +360,7 @@ describe('TasklistTauriService', () => {
 
     it('should handle task list with various order indices', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const orderIndices = [0, 1, 10, 100, -1];
 
       for (const orderIndex of orderIndices) {
@@ -363,10 +377,14 @@ describe('TasklistTauriService', () => {
 
     it('should handle task list with different color formats', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const colorFormats = [
-        '#FF0000', '#00FF00', '#0000FF',
-        '#FFFFFF', '#000000', '#FF5733',
+        '#FF0000',
+        '#00FF00',
+        '#0000FF',
+        '#FFFFFF',
+        '#000000',
+        '#FF5733',
         undefined // No color
       ];
 
@@ -394,7 +412,7 @@ describe('TasklistTauriService', () => {
 
     it('should handle task list with very long names and descriptions', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const longTaskList = {
         ...mockTaskList,
         name: 'A'.repeat(1000), // Very long name

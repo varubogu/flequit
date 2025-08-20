@@ -50,13 +50,13 @@ describe('TagTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { tag: mockTag });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create tag:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle tag with minimal data', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const minimalTag = {
         id: 'tag-minimal',
         name: 'basic',
@@ -72,7 +72,7 @@ describe('TagTauriService', () => {
 
     it('should handle tag with all optional fields', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const fullTag = {
         id: 'tag-full',
         name: 'complete',
@@ -108,13 +108,13 @@ describe('TagTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { tag: mockTag });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update tag:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle color change', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const updatedTag = {
         ...mockTag,
         color: '#0066CC',
@@ -129,7 +129,7 @@ describe('TagTauriService', () => {
 
     it('should handle name change', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const renamedTag = {
         ...mockTag,
         name: 'high-priority',
@@ -162,7 +162,7 @@ describe('TagTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { id: 'tag-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete tag:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -195,7 +195,7 @@ describe('TagTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { id: 'tag-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get tag:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -229,7 +229,7 @@ describe('TagTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: mockSearchCondition });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to search tags:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -249,7 +249,13 @@ describe('TagTauriService', () => {
       const allTags = [
         mockTag,
         { id: 'tag-2', name: 'important', created_at: new Date(), updated_at: new Date() },
-        { id: 'tag-3', name: 'review', color: '#00FF00', created_at: new Date(), updated_at: new Date() }
+        {
+          id: 'tag-3',
+          name: 'review',
+          color: '#00FF00',
+          created_at: new Date(),
+          updated_at: new Date()
+        }
       ];
       mockInvoke.mockResolvedValue(allTags);
 
@@ -273,7 +279,7 @@ describe('TagTauriService', () => {
   describe('edge cases', () => {
     it('should handle tags with special characters in name', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const specialCharTag = {
         id: 'tag-special',
         name: '重要！@#$%',
@@ -289,11 +295,17 @@ describe('TagTauriService', () => {
 
     it('should handle tags with hex color codes', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const colorVariations = [
-        '#FF0000', '#00FF00', '#0000FF', 
-        '#FFFFFF', '#000000', '#FF5733',
-        '#3498DB', '#E74C3C', '#2ECC71'
+        '#FF0000',
+        '#00FF00',
+        '#0000FF',
+        '#FFFFFF',
+        '#000000',
+        '#FF5733',
+        '#3498DB',
+        '#E74C3C',
+        '#2ECC71'
       ];
 
       for (const color of colorVariations) {
@@ -312,7 +324,7 @@ describe('TagTauriService', () => {
 
     it('should handle tags with no color specified', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const noColorTag = {
         id: 'tag-no-color',
         name: 'no-color',
@@ -327,7 +339,7 @@ describe('TagTauriService', () => {
 
     it('should handle tags with various order indices', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const orderIndices = [0, 1, 10, 100, -1];
 
       for (const orderIndex of orderIndices) {

@@ -6,13 +6,15 @@ import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/services/backend', () => ({
-  getBackendService: vi.fn(() => Promise.resolve({
-    setting: {
-      get: vi.fn(() => Promise.resolve(null)),
-      getAll: vi.fn(() => Promise.resolve([])),
-      update: vi.fn(() => Promise.resolve(true))
-    }
-  }))
+  getBackendService: vi.fn(() =>
+    Promise.resolve({
+      setting: {
+        get: vi.fn(() => Promise.resolve(null)),
+        getAll: vi.fn(() => Promise.resolve([])),
+        update: vi.fn(() => Promise.resolve(true))
+      }
+    })
+  )
 }));
 
 // モック化
@@ -102,9 +104,9 @@ describe('TimeLabels Integration Tests', () => {
 
     // 3. 時刻ラベルを編集
     const editButtons = screen.getAllByRole('button');
-    const firstEditButton = editButtons.find(button =>
-      button.innerHTML.includes('Edit') &&
-      button.closest('div')?.textContent?.includes('朝食')
+    const firstEditButton = editButtons.find(
+      (button) =>
+        button.innerHTML.includes('Edit') && button.closest('div')?.textContent?.includes('朝食')
     );
 
     if (firstEditButton) {
@@ -125,9 +127,9 @@ describe('TimeLabels Integration Tests', () => {
 
     // 4. 時刻ラベルを削除
     const deleteButtons = screen.getAllByRole('button');
-    const firstDeleteButton = deleteButtons.find(button =>
-      button.innerHTML.includes('Trash') &&
-      button.closest('div')?.textContent?.includes('昼食')
+    const firstDeleteButton = deleteButtons.find(
+      (button) =>
+        button.innerHTML.includes('Trash') && button.closest('div')?.textContent?.includes('昼食')
     );
 
     if (firstDeleteButton) {
@@ -219,5 +221,4 @@ describe('TimeLabels Integration Tests', () => {
     await fireEvent.input(timeInput, { target: { value: '08:00' } });
     expect(saveButton).not.toBeDisabled();
   });
-
 });

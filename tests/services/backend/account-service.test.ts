@@ -17,7 +17,7 @@ describe('AccountService Interface', () => {
 
   beforeEach(() => {
     service = new MockAccountService();
-    
+
     mockAccount = {
       id: 'account-123',
       display_name: 'Test User',

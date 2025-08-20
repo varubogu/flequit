@@ -23,8 +23,8 @@ vi.mock('$lib/stores/locale.svelte', () => ({
         non_weekend: 'Non-Weekend',
         weekend_holiday: 'Weekend/Holiday',
         non_weekend_holiday: 'Non-Weekend/Holiday',
-        '月曜日': '月曜日',
-        '火曜日': '火曜日'
+        月曜日: '月曜日',
+        火曜日: '火曜日'
       };
       return translations[key] || key;
     },
@@ -49,14 +49,14 @@ describe('DayTargetSelector', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeInTheDocument();
     });
 
     it('should render select element with proper styling', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass('border-border');
       expect(select).toHaveClass('bg-background');
@@ -68,10 +68,10 @@ describe('DayTargetSelector', () => {
 
     it('should apply custom class when provided', () => {
       const customClass = 'custom-selector-class';
-      const { container } = render(DayTargetSelector, { 
-        props: { ...defaultProps, class: customClass } 
+      const { container } = render(DayTargetSelector, {
+        props: { ...defaultProps, class: customClass }
       });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass(customClass);
     });
@@ -80,7 +80,7 @@ describe('DayTargetSelector', () => {
   describe('options rendering', () => {
     it('should render all weekday options', () => {
       render(DayTargetSelector, { props: defaultProps });
-      
+
       expect(screen.getByText('Monday')).toBeInTheDocument();
       expect(screen.getByText('Tuesday')).toBeInTheDocument();
       expect(screen.getByText('Wednesday')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('DayTargetSelector', () => {
 
     it('should render adjustment target options', () => {
       render(DayTargetSelector, { props: defaultProps });
-      
+
       expect(screen.getByText('Weekday')).toBeInTheDocument();
       expect(screen.getByText('Weekend')).toBeInTheDocument();
       expect(screen.getByText('Holiday')).toBeInTheDocument();
@@ -105,21 +105,21 @@ describe('DayTargetSelector', () => {
 
     it('should render all 15 options', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const options = container.querySelectorAll('option');
       expect(options).toHaveLength(15);
     });
 
     it('should have correct option values', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const mondayOption = Array.from(container.querySelectorAll('option')).find(
-        option => option.textContent === 'Monday'
+        (option) => option.textContent === 'Monday'
       ) as HTMLOptionElement;
       expect(mondayOption?.value).toBe('monday');
 
       const weekdayOption = Array.from(container.querySelectorAll('option')).find(
-        option => option.textContent === 'Weekday'
+        (option) => option.textContent === 'Weekday'
       ) as HTMLOptionElement;
       expect(weekdayOption?.value).toBe('weekday');
     });
@@ -127,35 +127,52 @@ describe('DayTargetSelector', () => {
 
   describe('value handling', () => {
     it('should set initial value correctly', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, value: 'tuesday' }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('tuesday');
     });
 
     it('should handle weekday values', () => {
-      const weekdays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
-      weekdays.forEach(day => {
-        const { container } = render(DayTargetSelector, { 
+      const weekdays: DayOfWeek[] = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+      ];
+
+      weekdays.forEach((day) => {
+        const { container } = render(DayTargetSelector, {
           props: { ...defaultProps, value: day }
         });
-        
+
         const select = container.querySelector('select') as HTMLSelectElement;
         expect(select.value).toBe(day);
       });
     });
 
     it('should handle adjustment target values', () => {
-      const targets: AdjustmentTarget[] = ['weekday', 'weekend', 'holiday', 'non_holiday', 'weekend_only', 'non_weekend', 'weekend_holiday', 'non_weekend_holiday'];
-      
-      targets.forEach(target => {
-        const { container } = render(DayTargetSelector, { 
+      const targets: AdjustmentTarget[] = [
+        'weekday',
+        'weekend',
+        'holiday',
+        'non_holiday',
+        'weekend_only',
+        'non_weekend',
+        'weekend_holiday',
+        'non_weekend_holiday'
+      ];
+
+      targets.forEach((target) => {
+        const { container } = render(DayTargetSelector, {
           props: { ...defaultProps, value: target }
         });
-        
+
         const select = container.querySelector('select') as HTMLSelectElement;
         expect(select.value).toBe(target);
       });
@@ -165,45 +182,45 @@ describe('DayTargetSelector', () => {
   describe('change handling', () => {
     it('should call onchange when value changes', () => {
       const mockOnChange = vi.fn();
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, onchange: mockOnChange }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       fireEvent.change(select, { target: { value: 'friday' } });
-      
+
       expect(mockOnChange).toHaveBeenCalledWith('friday');
     });
 
     it('should handle change from weekday to adjustment target', () => {
       const mockOnChange = vi.fn();
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, onchange: mockOnChange, value: 'monday' }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       fireEvent.change(select, { target: { value: 'weekday' } });
-      
+
       expect(mockOnChange).toHaveBeenCalledWith('weekday');
     });
 
     it('should handle change from adjustment target to weekday', () => {
       const mockOnChange = vi.fn();
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, onchange: mockOnChange, value: 'weekend' }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       fireEvent.change(select, { target: { value: 'saturday' } });
-      
+
       expect(mockOnChange).toHaveBeenCalledWith('saturday');
     });
 
     it('should not error when onchange is not provided', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { value: 'monday' }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(() => {
         fireEvent.change(select, { target: { value: 'tuesday' } });
@@ -213,20 +230,22 @@ describe('DayTargetSelector', () => {
 
   describe('styling classes', () => {
     it('should apply empty class when no class provided', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { value: 'monday', onchange: vi.fn() }
       });
-      
+
       const select = container.querySelector('select');
-      expect(select?.className).toContain('border-border bg-background text-foreground rounded border p-1');
+      expect(select?.className).toContain(
+        'border-border bg-background text-foreground rounded border p-1'
+      );
     });
 
     it('should combine default and custom classes', () => {
       const customClass = 'w-full font-bold';
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, class: customClass }
       });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass('border-border');
       expect(select).toHaveClass('bg-background');
@@ -236,10 +255,10 @@ describe('DayTargetSelector', () => {
 
     it('should handle multiple custom classes', () => {
       const customClasses = 'text-lg shadow-md hover:border-blue-500';
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, class: customClasses }
       });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass('text-lg');
       expect(select).toHaveClass('shadow-md');
@@ -250,7 +269,7 @@ describe('DayTargetSelector', () => {
   describe('internationalization', () => {
     it('should call translation service for all labels', () => {
       render(DayTargetSelector, { props: defaultProps });
-      
+
       // All translation keys should be used
       expect(screen.getByText('Monday')).toBeInTheDocument();
       expect(screen.getByText('Weekend/Holiday')).toBeInTheDocument();
@@ -261,7 +280,7 @@ describe('DayTargetSelector', () => {
       // Note: Japanese translations would be handled by the existing mock
 
       render(DayTargetSelector, { props: defaultProps });
-      
+
       expect(screen.getByText('月曜日')).toBeInTheDocument();
       expect(screen.getByText('火曜日')).toBeInTheDocument();
     });
@@ -270,17 +289,17 @@ describe('DayTargetSelector', () => {
   describe('accessibility', () => {
     it('should be keyboard navigable', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.tabIndex).toBe(0);
     });
 
     it('should support arrow key navigation', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       select.focus();
-      
+
       fireEvent.keyDown(select, { key: 'ArrowDown' });
       // Select element should handle keyboard navigation natively
       expect(select).toHaveFocus();
@@ -288,7 +307,7 @@ describe('DayTargetSelector', () => {
 
     it('should have proper ARIA attributes', () => {
       const { container } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select?.tagName).toBe('SELECT');
       // Native select elements have built-in accessibility
@@ -296,48 +315,52 @@ describe('DayTargetSelector', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle undefined value', () => {
-      const { container } = render(DayTargetSelector, { 
+    it('should handle default value', () => {
+      const { container } = render(DayTargetSelector, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         props: { value: undefined as DayOfWeek | AdjustmentTarget | undefined, onchange: vi.fn() }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('');
     });
 
     it('should handle null value', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         props: { value: null as DayOfWeek | AdjustmentTarget | null, onchange: vi.fn() }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('');
     });
 
     it('should handle invalid value', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { value: 'invalid_day' as DayOfWeek | AdjustmentTarget, onchange: vi.fn() }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('invalid_day');
     });
 
     it('should handle empty string class', () => {
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, class: '' }
       });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass('border-border');
       expect(select).toHaveClass('bg-background');
     });
 
-    it('should handle null class', () => {
-      const { container } = render(DayTargetSelector, { 
-        props: { ...defaultProps, class: null as string | null }
+    it('should handle undefined class', () => {
+      const { container } = render(DayTargetSelector, {
+        props: { ...defaultProps, class: undefined }
       });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeTruthy();
     });
@@ -346,32 +369,32 @@ describe('DayTargetSelector', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(DayTargetSelector, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(DayTargetSelector, { props: defaultProps });
-      
+
       const updatedProps = { ...defaultProps, value: 'weekend' as AdjustmentTarget };
       expect(() => rerender(updatedProps)).not.toThrow();
-      
+
       const select = document.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('weekend');
     });
 
     it('should handle multiple rapid changes', () => {
       const mockOnChange = vi.fn();
-      const { container } = render(DayTargetSelector, { 
+      const { container } = render(DayTargetSelector, {
         props: { ...defaultProps, onchange: mockOnChange }
       });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
-      
+
       fireEvent.change(select, { target: { value: 'tuesday' } });
       fireEvent.change(select, { target: { value: 'weekday' } });
       fireEvent.change(select, { target: { value: 'holiday' } });
-      
+
       expect(mockOnChange).toHaveBeenCalledTimes(3);
       expect(mockOnChange).toHaveBeenNthCalledWith(1, 'tuesday');
       expect(mockOnChange).toHaveBeenNthCalledWith(2, 'weekday');
@@ -381,9 +404,17 @@ describe('DayTargetSelector', () => {
 
   describe('type safety', () => {
     it('should accept DayOfWeek type values', () => {
-      const weekdays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
-      weekdays.forEach(day => {
+      const weekdays: DayOfWeek[] = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+      ];
+
+      weekdays.forEach((day) => {
         expect(() => {
           render(DayTargetSelector, { props: { ...defaultProps, value: day } });
         }).not.toThrow();
@@ -391,9 +422,18 @@ describe('DayTargetSelector', () => {
     });
 
     it('should accept AdjustmentTarget type values', () => {
-      const targets: AdjustmentTarget[] = ['weekday', 'weekend', 'holiday', 'non_holiday', 'weekend_only', 'non_weekend', 'weekend_holiday', 'non_weekend_holiday'];
-      
-      targets.forEach(target => {
+      const targets: AdjustmentTarget[] = [
+        'weekday',
+        'weekend',
+        'holiday',
+        'non_holiday',
+        'weekend_only',
+        'non_weekend',
+        'weekend_holiday',
+        'non_weekend_holiday'
+      ];
+
+      targets.forEach((target) => {
         expect(() => {
           render(DayTargetSelector, { props: { ...defaultProps, value: target } });
         }).not.toThrow();

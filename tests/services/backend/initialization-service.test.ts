@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { 
-  InitializationService, 
-  LocalSettings, 
-  Account, 
-  InitializationResult 
+import type {
+  InitializationService,
+  LocalSettings,
+  Account,
+  InitializationResult
 } from '$lib/services/backend/initialization-service';
 import type { ProjectTree } from '$lib/types/project';
 
@@ -25,7 +25,7 @@ describe('InitializationService Interface', () => {
 
   beforeEach(() => {
     service = new MockInitializationService();
-    
+
     mockLocalSettings = {
       theme: 'dark',
       language: 'ja',
@@ -372,7 +372,7 @@ describe('InitializationService Interface', () => {
       // 最初の初期化
       service.initializeAll.mockResolvedValueOnce(mockInitResult);
       const firstResult = await service.initializeAll();
-      
+
       // 2回目の初期化（再初期化のシナリオ）
       const updatedResult = {
         ...mockInitResult,

@@ -49,7 +49,7 @@ describe('AccountTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create account:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -82,7 +82,7 @@ describe('AccountTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get account:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -106,7 +106,7 @@ describe('AccountTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_account', { account: mockAccount });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update account:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -130,7 +130,7 @@ describe('AccountTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_account', { account_id: 'account-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete account:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });

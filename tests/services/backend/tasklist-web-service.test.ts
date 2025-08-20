@@ -10,7 +10,7 @@ describe('TasklistWebService', () => {
 
   beforeEach(() => {
     service = new TasklistWebService();
-    
+
     mockTaskList = {
       id: 'tasklist-123',
       project_id: 'project-456',
@@ -41,7 +41,10 @@ describe('TasklistWebService', () => {
       const result = await service.create(mockTaskList);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTaskList not implemented', mockTaskList);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: createTaskList not implemented',
+        mockTaskList
+      );
     });
   });
 
@@ -50,7 +53,10 @@ describe('TasklistWebService', () => {
       const result = await service.update(mockTaskList);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTaskList not implemented', mockTaskList);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: updateTaskList not implemented',
+        mockTaskList
+      );
     });
   });
 
@@ -59,7 +65,10 @@ describe('TasklistWebService', () => {
       const result = await service.delete('tasklist-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTaskList not implemented', 'tasklist-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: deleteTaskList not implemented',
+        'tasklist-123'
+      );
     });
   });
 
@@ -68,7 +77,10 @@ describe('TasklistWebService', () => {
       const result = await service.get('tasklist-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTaskList not implemented', 'tasklist-123');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getTaskList not implemented',
+        'tasklist-123'
+      );
     });
   });
 
@@ -77,7 +89,10 @@ describe('TasklistWebService', () => {
       const result = await service.search(mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchTaskLists not implemented', mockSearchCondition);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchTaskLists not implemented',
+        mockSearchCondition
+      );
     });
   });
 
@@ -91,13 +106,15 @@ describe('TasklistWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        service.create(mockTaskList),
-        service.update(mockTaskList),
-        service.delete('tasklist-123'),
-        service.get('tasklist-123'),
-        service.search(mockSearchCondition)
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [
+          service.create(mockTaskList),
+          service.update(mockTaskList),
+          service.delete('tasklist-123'),
+          service.get('tasklist-123'),
+          service.search(mockSearchCondition)
+        ]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

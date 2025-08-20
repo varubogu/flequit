@@ -11,7 +11,7 @@ import { errorHandler } from '$lib/stores/error-handler.svelte';
 //   import { errorHandler } from '$lib/stores/error-handler.svelte';
 //   const errors = $derived(errorHandler.errors);
 // </script>
-// 
+//
 // {#if errors.length > 0}
 //   <div data-testid="error-container" class="error-panel">
 //     {#each errors as error (error.id)}
@@ -32,14 +32,14 @@ describe('ErrorPanel (Store Integration)', () => {
   it('should integrate with error handler store', () => {
     // Test the error handler store directly
     expect(errorHandler.errors.length).toBe(0);
-    
+
     // Add an error
-    errorHandler.addError({
+    const errorId = errorHandler.addError({
       type: 'validation',
       message: 'Test error message',
       retryable: false
     });
-    
+
     expect(errorHandler.errors.length).toBe(1);
     expect(errorHandler.errors[0].message).toBe('Test error message');
     expect(errorHandler.errors[0].type).toBe('validation');
@@ -54,7 +54,7 @@ describe('ErrorPanel (Store Integration)', () => {
       message: 'First error',
       retryable: false
     });
-    
+
     errorHandler.addError({
       type: 'network',
       message: 'Second error',
@@ -67,12 +67,12 @@ describe('ErrorPanel (Store Integration)', () => {
   });
 
   it('should remove specific errors', () => {
-    errorHandler.addError({
+    const errorId1 = errorHandler.addError({
       type: 'validation',
       message: 'First error',
       retryable: false
     });
-    
+
     errorHandler.addError({
       type: 'network',
       message: 'Second error',
@@ -80,10 +80,10 @@ describe('ErrorPanel (Store Integration)', () => {
     });
 
     expect(errorHandler.errors.length).toBe(2);
-    
+
     // Remove first error
     errorHandler.removeError(errorId1);
-    
+
     expect(errorHandler.errors.length).toBe(1);
     expect(errorHandler.errors[0].message).toBe('Second error');
   });
@@ -95,7 +95,7 @@ describe('ErrorPanel (Store Integration)', () => {
       message: 'First error',
       retryable: false
     });
-    
+
     errorHandler.addError({
       type: 'network',
       message: 'Second error',
@@ -103,15 +103,18 @@ describe('ErrorPanel (Store Integration)', () => {
     });
 
     expect(errorHandler.errors.length).toBe(2);
-    
+
     // Clear all errors
     errorHandler.clearAllErrors();
-    
+
     expect(errorHandler.errors.length).toBe(0);
   });
 
   it('should handle different error types', () => {
-    const errorTypes: Array<{ type: 'sync' | 'validation' | 'network' | 'general', message: string }> = [
+    const errorTypes: Array<{
+      type: 'sync' | 'validation' | 'network' | 'general';
+      message: string;
+    }> = [
       { type: 'sync', message: 'Sync error' },
       { type: 'validation', message: 'Validation error' },
       { type: 'network', message: 'Network error' },
@@ -124,7 +127,7 @@ describe('ErrorPanel (Store Integration)', () => {
     });
 
     expect(errorHandler.errors.length).toBe(4);
-    
+
     // Check each error type
     errorTypes.forEach((expected, index) => {
       expect(errorHandler.errors[index].type).toBe(expected.type);
@@ -155,14 +158,17 @@ describe('ErrorPanel (Store Integration)', () => {
   it('should auto-remove non-retryable errors after timeout', () => {
     // Mock setTimeout for testing
     const originalSetTimeout = global.setTimeout;
-    let timeoutCallback: (() => void) = () => {};
-    
+    let timeoutCallback: () => void = () => {};
+
     const mockSetTimeout = vi.fn((callback: () => void) => {
       timeoutCallback = callback;
       return 123 as unknown as NodeJS.Timeout; // Return a mock timer ID
-    }) as typeof setTimeout;
-    mockSetTimeout.__promisify__ = vi.fn();
-    global.setTimeout = mockSetTimeout;
+    });
+    Object.defineProperty(mockSetTimeout, '__promisify__', {
+      value: vi.fn(),
+      writable: true
+    });
+    global.setTimeout = mockSetTimeout as unknown as typeof setTimeout;
 
     errorHandler.addError({
       type: 'validation',
@@ -184,9 +190,12 @@ describe('ErrorPanel (Store Integration)', () => {
 
   it('should not auto-remove retryable errors', () => {
     // Mock setTimeout for testing
-    const mockSetTimeout = vi.fn() as typeof setTimeout;
-    mockSetTimeout.__promisify__ = vi.fn();
-    global.setTimeout = mockSetTimeout;
+    const mockSetTimeout = vi.fn();
+    Object.defineProperty(mockSetTimeout, '__promisify__', {
+      value: vi.fn(),
+      writable: true
+    });
+    global.setTimeout = mockSetTimeout as unknown as typeof setTimeout;
 
     errorHandler.addError({
       type: 'network',

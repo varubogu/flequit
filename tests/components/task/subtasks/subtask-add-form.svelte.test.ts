@@ -69,7 +69,7 @@ describe('SubTaskAddForm Component', () => {
     });
 
     const input = screen.getByPlaceholderText('Sub-task title');
-    
+
     await fireEvent.input(input, { target: { value: 'New SubTask' } });
     await fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -108,7 +108,7 @@ describe('SubTaskAddForm Component', () => {
     const saveButton = screen.getByTitle('Add Subtask');
 
     await fireEvent.input(input, { target: { value: 'New SubTask' } });
-    
+
     await waitFor(() => {
       expect(saveButton).not.toBeDisabled();
     });

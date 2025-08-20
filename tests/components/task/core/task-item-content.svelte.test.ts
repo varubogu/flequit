@@ -28,7 +28,9 @@ vi.mock('$lib/components/task/subtasks/sub-task-list.svelte', () => ({
 }));
 
 vi.mock('$lib/components/task/controls/task-accordion-toggle.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="task-accordion-toggle">Accordion Toggle</div>' })
+  default: () => ({
+    render: () => '<div data-testid="task-accordion-toggle">Accordion Toggle</div>'
+  })
 }));
 
 vi.mock('$lib/components/shared/context-menu-wrapper.svelte', () => ({
@@ -96,10 +98,10 @@ describe('TaskItemContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as unknown as TaskItemLogic,
+    logic: mockLogic as unknown as any,
     task: mockTask,
     taskDatePicker: mockTaskDatePicker
-  } as unknown;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -287,9 +289,33 @@ describe('TaskItemContent', () => {
       const taskWithMultipleSubTasks = {
         ...mockTask,
         sub_tasks: [
-          { id: 'sub1', title: 'SubTask 1', status: 1 as unknown, priority: 1, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub2', title: 'SubTask 2', status: 2 as unknown, priority: 2, task_id: 'task-1', created_at: new Date(), updated_at: new Date() },
-          { id: 'sub3', title: 'SubTask 3', status: 4 as unknown, priority: 3, task_id: 'task-1', created_at: new Date(), updated_at: new Date() }
+          {
+            id: 'sub1',
+            title: 'SubTask 1',
+            status: 1 as unknown,
+            priority: 1,
+            task_id: 'task-1',
+            created_at: new Date(),
+            updated_at: new Date()
+          },
+          {
+            id: 'sub2',
+            title: 'SubTask 2',
+            status: 2 as unknown,
+            priority: 2,
+            task_id: 'task-1',
+            created_at: new Date(),
+            updated_at: new Date()
+          },
+          {
+            id: 'sub3',
+            title: 'SubTask 3',
+            status: 4 as unknown,
+            priority: 3,
+            task_id: 'task-1',
+            created_at: new Date(),
+            updated_at: new Date()
+          }
         ]
       };
       const props = { ...defaultProps, task: taskWithMultipleSubTasks };
@@ -305,7 +331,7 @@ describe('TaskItemContent', () => {
         { ...mockLogic, completedSubTasks: 5, subTaskProgress: 0.5 }
       ];
 
-      variousLogicStates.forEach(logic => {
+      variousLogicStates.forEach((logic) => {
         const props = { ...defaultProps, logic: logic as unknown };
         const { container } = render(TaskItemContent, { props });
         expect(container.innerHTML).toBeTruthy();

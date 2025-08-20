@@ -11,15 +11,21 @@ vi.mock('$lib/components/datetime/inline-picker/inline-date-picker.svelte', () =
 }));
 
 vi.mock('$lib/components/task/dialogs/new-task-confirmation-dialog.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="new-task-confirmation-dialog">New Task Confirmation</div>' })
+  default: () => ({
+    render: () => '<div data-testid="new-task-confirmation-dialog">New Task Confirmation</div>'
+  })
 }));
 
 vi.mock('$lib/components/dialog/delete-confirmation-dialog.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="delete-confirmation-dialog">Delete Confirmation</div>' })
+  default: () => ({
+    render: () => '<div data-testid="delete-confirmation-dialog">Delete Confirmation</div>'
+  })
 }));
 
 vi.mock('$lib/components/project/project-task-list-selector-dialog.svelte', () => ({
-  default: () => ({ render: () => '<div data-testid="project-task-list-selector-dialog">Project Selector</div>' })
+  default: () => ({
+    render: () => '<div data-testid="project-task-list-selector-dialog">Project Selector</div>'
+  })
 }));
 
 vi.mock('$lib/components/recurrence/recurrence-dialog.svelte', () => ({
@@ -88,7 +94,12 @@ describe('TaskDetailDialogs', () => {
     showProjectTaskListDialog: false,
     showRecurrenceDialog: false,
     projectInfo: mockProjectInfo,
-    onDateChange: vi.fn() as (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void,
+    onDateChange: vi.fn() as (data: {
+      date: string;
+      dateTime: string;
+      range?: { start: string; end: string };
+      isRangeDate: boolean;
+    }) => void,
     onDateClear: vi.fn() as () => void,
     onDatePickerClose: vi.fn() as () => void,
     onConfirmDiscard: vi.fn() as () => void,
@@ -148,14 +159,18 @@ describe('TaskDetailDialogs', () => {
         ...defaultProps,
         showDatePicker: true
       };
-      const { container: showContainer } = render(TaskDetailDialogs, { props: showDatePickerProps });
+      const { container: showContainer } = render(TaskDetailDialogs, {
+        props: showDatePickerProps
+      });
 
       // 日付ピッカー非表示
       const hideDatePickerProps = {
         ...defaultProps,
         showDatePicker: false
       };
-      const { container: hideContainer } = render(TaskDetailDialogs, { props: hideDatePickerProps });
+      const { container: hideContainer } = render(TaskDetailDialogs, {
+        props: hideDatePickerProps
+      });
 
       expect(showContainer.innerHTML).toBeTruthy();
       expect(hideContainer.innerHTML).toBeTruthy();
@@ -260,14 +275,22 @@ describe('TaskDetailDialogs', () => {
   describe('コールバック関数テスト', () => {
     it('全てのコールバック関数が適切に渡される', () => {
       const callbacks = {
-        onDateChange: vi.fn() as (data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void,
+        onDateChange: vi.fn() as (data: {
+          date: string;
+          dateTime: string;
+          range?: { start: string; end: string };
+          isRangeDate: boolean;
+        }) => void,
         onDateClear: vi.fn() as () => void,
         onDatePickerClose: vi.fn() as () => void,
         onConfirmDiscard: vi.fn() as () => void,
         onCancelDiscard: vi.fn() as () => void,
         onConfirmDelete: vi.fn() as () => void,
         onCancelDelete: vi.fn() as () => void,
-        onProjectTaskListChange: vi.fn() as (data: { projectId: string; taskListId: string }) => void,
+        onProjectTaskListChange: vi.fn() as (data: {
+          projectId: string;
+          taskListId: string;
+        }) => void,
         onProjectTaskListDialogClose: vi.fn() as () => void,
         onRecurrenceChange: vi.fn() as (rule: RecurrenceRule | null) => void,
         onRecurrenceDialogClose: vi.fn() as () => void
@@ -282,9 +305,14 @@ describe('TaskDetailDialogs', () => {
     it('コールバック関数がundefinedでも正常に動作する', () => {
       const props = {
         ...defaultProps,
-        onDateChange: undefined as ((data: { date: string; dateTime: string; range?: { start: string; end: string }; isRangeDate: boolean }) => void) | undefined,
-        onDateClear: undefined as (() => void) | undefined,
-        onDatePickerClose: undefined as (() => void) | undefined
+        onDateChange: (data: {
+          date: string;
+          dateTime: string;
+          range?: { start: string; end: string };
+          isRangeDate: boolean;
+        }) => {},
+        onDateClear: () => {},
+        onDatePickerClose: () => {}
       };
 
       const { container } = render(TaskDetailDialogs, { props });

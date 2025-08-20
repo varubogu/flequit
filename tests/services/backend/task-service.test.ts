@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { 
-  TaskService
-} from '$lib/services/backend/task-service';
+import type { TaskService } from '$lib/services/backend/task-service';
 import type { Task, TaskSearchCondition } from '$lib/types/task';
 
 // モックのタスクサービス実装
@@ -11,7 +9,7 @@ class MockTaskService implements TaskService {
   update = vi.fn();
   delete = vi.fn();
   get = vi.fn();
-  
+
   // SearchInterface メソッド
   search = vi.fn();
 }
@@ -23,7 +21,7 @@ describe('TaskService Interface', () => {
 
   beforeEach(() => {
     service = new MockTaskService();
-    
+
     mockTask = {
       id: 'task-123',
       list_id: 'list-456',
@@ -457,13 +455,9 @@ describe('TaskService Interface', () => {
       expect(getPromise).toBeInstanceOf(Promise);
       expect(searchPromise).toBeInstanceOf(Promise);
 
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        createPromise,
-        updatePromise,
-        deletePromise,
-        getPromise,
-        searchPromise
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [createPromise, updatePromise, deletePromise, getPromise, searchPromise]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);

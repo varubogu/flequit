@@ -151,8 +151,12 @@ describe('SettingsAppearance Component', () => {
 
     const fontSelect = screen.getByLabelText(unitTestTranslations.font) as HTMLSelectElement;
     const fontSizeInput = screen.getByLabelText(unitTestTranslations.font_size) as HTMLInputElement;
-    const fontColorSelect = screen.getByLabelText(unitTestTranslations.font_color) as HTMLSelectElement;
-    const backgroundColorSelect = screen.getByLabelText(unitTestTranslations.background_color) as HTMLSelectElement;
+    const fontColorSelect = screen.getByLabelText(
+      unitTestTranslations.font_color
+    ) as HTMLSelectElement;
+    const backgroundColorSelect = screen.getByLabelText(
+      unitTestTranslations.background_color
+    ) as HTMLSelectElement;
 
     expect(fontSelect.value).toBe('default');
     expect(fontSizeInput.value).toBe('13');

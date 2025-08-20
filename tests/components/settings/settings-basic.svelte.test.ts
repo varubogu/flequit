@@ -115,7 +115,7 @@ describe('SettingsBasic Component', () => {
 
     // レンダリング時には setTimezone が呼ばれないことを確認
     expect(mockSettingsStore.setTimezone).not.toHaveBeenCalled();
-    
+
     // この部分は実際のコンポーネントがタイムゾーン変更をサポートしているかによって
     // 適切なイベントテストに置き換える必要がある
   });

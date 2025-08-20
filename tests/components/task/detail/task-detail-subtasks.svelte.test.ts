@@ -290,7 +290,9 @@ describe('TaskDetailSubTasks Component', () => {
 
     const input = screen.getByPlaceholderText('Sub-task title');
     const addButtons = screen.getAllByTitle('Add Subtask');
-    const saveButton = addButtons.find(btn => btn.querySelector('svg')?.getAttribute('class')?.includes('lucide-save'))!;
+    const saveButton = addButtons.find((btn) =>
+      btn.querySelector('svg')?.getAttribute('class')?.includes('lucide-save')
+    )!;
 
     // タイトルを入力してサブタスクを追加
     await fireEvent.input(input, { target: { value: 'New SubTask' } });
@@ -319,8 +321,10 @@ describe('TaskDetailSubTasks Component', () => {
     // DOM内での位置関係をチェック
     const container = formInput.closest('div');
     const subtaskContainer = subtask1.closest('button');
-    
+
     // formInputの親要素がsubtaskより前に現れることを確認
-    expect(container?.compareDocumentPosition(subtaskContainer!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(container?.compareDocumentPosition(subtaskContainer!)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 });

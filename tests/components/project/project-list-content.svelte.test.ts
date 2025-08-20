@@ -54,6 +54,9 @@ describe('ProjectListContent', () => {
     editingProject: null,
     showTaskListDialog: false,
     taskListDialogProject: null,
+    translationService: {
+      getMessage: vi.fn((key: string) => key)
+    },
     editProject: () => 'Edit Project',
     addTaskList: () => 'Add Task List',
     deleteProject: () => 'Delete Project',
@@ -77,7 +80,7 @@ describe('ProjectListContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as typeof mockLogic,
+    logic: mockLogic as unknown as any,
     currentView: 'all' as const,
     isCollapsed: false,
     onViewChange: vi.fn()
@@ -95,7 +98,7 @@ describe('ProjectListContent', () => {
 
     it('should process projects data', () => {
       render(ProjectListContent, { props: defaultProps });
-      
+
       // Verify that the component processes the projects data from logic
       expect(defaultProps.logic.projectsData).toEqual(mockProjects);
     });
@@ -104,15 +107,15 @@ describe('ProjectListContent', () => {
       const emptyLogic = {
         ...mockLogic,
         projectsData: []
-      } as typeof mockLogic;
+      } as unknown as any;
 
-      const { component } = render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      const { component } = render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           logic: emptyLogic
         }
       });
-      
+
       expect(component).toBeTruthy();
     });
   });
@@ -120,7 +123,7 @@ describe('ProjectListContent', () => {
   describe('project expansion toggle', () => {
     it('should handle toggle button logic for projects', () => {
       const { component } = render(ProjectListContent, { props: defaultProps });
-      
+
       // Verify component rendered and logic methods are available
       expect(component).toBeTruthy();
       expect(mockLogic.toggleTaskLists).toBeDefined();
@@ -129,7 +132,7 @@ describe('ProjectListContent', () => {
 
     it('should handle expandedProjects state', () => {
       render(ProjectListContent, { props: defaultProps });
-      
+
       // Verify expanded projects set contains project-1
       expect(mockLogic.expandedProjects.has('project-1')).toBe(true);
     });
@@ -137,26 +140,26 @@ describe('ProjectListContent', () => {
 
   describe('collapsed mode', () => {
     it('should handle collapsed state', () => {
-      const { component } = render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      const { component } = render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           isCollapsed: true
         }
       });
-      
+
       expect(component).toBeTruthy();
     });
   });
 
   describe('project selection', () => {
     it('should handle different view types', () => {
-      const { component } = render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      const { component } = render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           currentView: 'project'
         }
       });
-      
+
       expect(component).toBeTruthy();
       expect(mockLogic.handleProjectSelect).toBeDefined();
     });
@@ -165,7 +168,7 @@ describe('ProjectListContent', () => {
   describe('component integration', () => {
     it('should handle project functionality', () => {
       const { component } = render(ProjectListContent, { props: defaultProps });
-      
+
       expect(component).toBeTruthy();
       expect(mockLogic.createProjectContextMenu).toBeDefined();
       expect(mockLogic.getProjectTaskCount).toBeDefined();
@@ -176,21 +179,21 @@ describe('ProjectListContent', () => {
   describe('task list display integration', () => {
     it('should render TaskListDisplay for expanded projects', () => {
       render(ProjectListContent, { props: defaultProps });
-      
+
       // TaskListDisplay is mocked, should render when not collapsed
       expect(document.body).toBeInTheDocument();
     });
 
     it('should pass correct props to TaskListDisplay', () => {
       render(ProjectListContent, { props: defaultProps });
-      
+
       // Should pass project, isExpanded, and onViewChange
       expect(document.body).toBeInTheDocument();
     });
 
     it('should handle expansion state correctly', () => {
       render(ProjectListContent, { props: defaultProps });
-      
+
       // Should check expandedProjects Set for expansion state
       expect(document.body).toBeInTheDocument();
     });
@@ -198,37 +201,37 @@ describe('ProjectListContent', () => {
 
   describe('view type handling', () => {
     it('should handle different view types', () => {
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           currentView: 'project'
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
 
     it('should pass onViewChange to TaskListDisplay', () => {
       const mockViewChange = vi.fn();
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           onViewChange: mockViewChange
         }
       });
-      
+
       // onViewChange should be passed to TaskListDisplay
       expect(document.body).toBeInTheDocument();
     });
 
     it('should handle undefined onViewChange', () => {
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
           onViewChange: undefined
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
   });
@@ -245,13 +248,13 @@ describe('ProjectListContent', () => {
         projectsData: projectsWithoutNames
       } as typeof mockLogic;
 
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
-          logic: logicWithEmptyNames
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
+          logic: logicWithEmptyNames as unknown as any
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
 
@@ -261,33 +264,31 @@ describe('ProjectListContent', () => {
         expandedProjects: undefined as unknown as Set<string>
       } as typeof mockLogic;
 
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
-          logic: logicWithoutExpanded
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
+          logic: logicWithoutExpanded as unknown as any
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
 
     it('should handle projects with empty task_lists', () => {
-      const projectsWithEmptyLists = [
-        { ...mockProjects[0], task_lists: [] }
-      ];
+      const projectsWithEmptyLists = [{ ...mockProjects[0], task_lists: [] }];
 
       const logicWithEmptyLists = {
         ...mockLogic,
         projectsData: projectsWithEmptyLists
       } as typeof mockLogic;
 
-      render(ProjectListContent, { 
-        props: { 
-          ...defaultProps, 
-          logic: logicWithEmptyLists
+      render(ProjectListContent, {
+        props: {
+          ...defaultProps,
+          logic: logicWithEmptyLists as unknown as any
         }
       });
-      
+
       expect(document.body).toBeInTheDocument();
     });
   });
@@ -295,15 +296,15 @@ describe('ProjectListContent', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(ProjectListContent, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { unmount } = render(ProjectListContent, { props: defaultProps });
-      
+
       unmount();
-      
+
       const updatedProps = {
         ...defaultProps,
         isCollapsed: true,
@@ -311,7 +312,7 @@ describe('ProjectListContent', () => {
       };
 
       render(ProjectListContent, { props: updatedProps });
-      
+
       expect(document.body).toBeInTheDocument();
     });
   });

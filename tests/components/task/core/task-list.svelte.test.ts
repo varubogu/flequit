@@ -83,8 +83,8 @@ describe('TaskList', () => {
     title: 'My Tasks',
     tasks: mockTasks,
     showAddButton: true,
-    onTaskClick: vi.fn() as unknown,
-    onSubTaskClick: vi.fn() as unknown
+    onTaskClick: vi.fn(() => {}),
+    onSubTaskClick: vi.fn(() => {})
   };
 
   beforeEach(() => {
@@ -94,32 +94,32 @@ describe('TaskList', () => {
   describe('基本表示テスト', () => {
     it('タスクリストが正常にレンダリングされる', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML.length).toBeGreaterThan(100);
     });
 
     it('data-testidが設定される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('data-testid="task-list"');
     });
 
     it('タイトルが表示される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('My Tasks');
     });
 
     it('タスク数が表示される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('2 tasks');
     });
 
     it('フレックスレイアウトが適用される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('flex h-full w-full flex-col');
     });
   });
@@ -127,21 +127,21 @@ describe('TaskList', () => {
   describe('タスク表示テスト', () => {
     it('タスクがある場合、タスクアイテムが表示される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('data-testid="task-items"');
     });
 
     it('タスクがない場合、空状態メッセージが表示される', () => {
       const props = { ...defaultProps, tasks: [] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('No tasks found');
     });
 
     it('検索ビューの場合、適切なメッセージが表示される', () => {
       const props = { ...defaultProps, title: 'Search: test', tasks: [] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('No search results');
       expect(container.innerHTML).toContain('🔍');
     });
@@ -149,7 +149,7 @@ describe('TaskList', () => {
     it('通常ビューの場合、適切なメッセージが表示される', () => {
       const props = { ...defaultProps, tasks: [] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('No tasks found');
       expect(container.innerHTML).toContain('📝');
     });
@@ -158,7 +158,7 @@ describe('TaskList', () => {
   describe('追加ボタンテスト', () => {
     it('showAddButtonがtrueの場合、ボタンエリアが存在する', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       // showAddButtonがtrueの場合、ボタンエリアが存在することを確認
       expect(container.innerHTML).toContain('flex-shrink-0 items-center gap-2');
     });
@@ -166,7 +166,7 @@ describe('TaskList', () => {
     it('showAddButtonがfalseの場合、適切にレンダリングされる', () => {
       const props = { ...defaultProps, showAddButton: false };
       const { container } = render(TaskList, { props });
-      
+
       // falseの場合でも正常にレンダリングされる
       expect(container.innerHTML).toBeTruthy();
     });
@@ -176,21 +176,21 @@ describe('TaskList', () => {
     it('通常の空状態でshowAddButtonがtrueの場合、適切なメッセージが表示される', () => {
       const props = { ...defaultProps, tasks: [], showAddButton: true };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('Click + to add a task');
     });
 
     it('通常の空状態でshowAddButtonがfalseの場合、適切なメッセージが表示される', () => {
       const props = { ...defaultProps, tasks: [], showAddButton: false };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('Add some tasks to get started');
     });
 
     it('検索結果の空状態の場合、適切なメッセージが表示される', () => {
       const props = { ...defaultProps, title: 'Search Results', tasks: [] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('Try a different search');
     });
   });
@@ -198,7 +198,7 @@ describe('TaskList', () => {
   describe('レスポンシブテスト', () => {
     it('レスポンシブクラスが適用される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       // レスポンシブに関連するクラスが存在することを確認
       expect(container.innerHTML).toContain('min-w-0');
       expect(container.innerHTML).toContain('flex-1');
@@ -206,7 +206,7 @@ describe('TaskList', () => {
 
     it('デスクトップ環境の場合、モバイル用トグルボタンが表示されない', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       // デスクトップ環境でモバイル専用ボタンが表示されない
       expect(container.innerHTML).not.toContain('data-testid="mobile-sidebar-toggle"');
     });
@@ -215,7 +215,7 @@ describe('TaskList', () => {
   describe('プロパティバリエーションテスト', () => {
     it('デフォルトプロパティで正常にレンダリングされる', () => {
       const { container } = render(TaskList, { props: {} });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).toContain('Tasks'); // デフォルトタイトル
     });
@@ -223,14 +223,14 @@ describe('TaskList', () => {
     it('異なるタイトルで正常にレンダリングされる', () => {
       const props = { ...defaultProps, title: 'Custom Title' };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toContain('Custom Title');
     });
 
     it('空のタスク配列で正常にレンダリングされる', () => {
       const props = { ...defaultProps, tasks: [] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).toContain('0 tasks');
     });
@@ -238,7 +238,7 @@ describe('TaskList', () => {
     it('単一のタスクで正常にレンダリングされる', () => {
       const props = { ...defaultProps, tasks: [mockTask] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).toContain('1 tasks');
     });
@@ -251,7 +251,7 @@ describe('TaskList', () => {
       }));
       const props = { ...defaultProps, tasks: manyTasks };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).toContain('100 tasks');
     });
@@ -260,12 +260,12 @@ describe('TaskList', () => {
   describe('コールバック関数テスト', () => {
     it('コールバック関数が提供された場合、正常にレンダリングされる', () => {
       const callbacks = {
-        onTaskClick: vi.fn() as unknown,
-        onSubTaskClick: vi.fn() as unknown
+        onTaskClick: vi.fn() as unknown as (taskId: string) => void,
+        onSubTaskClick: vi.fn() as unknown as (taskId: string) => void
       };
       const props = { ...defaultProps, ...callbacks };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -276,33 +276,30 @@ describe('TaskList', () => {
         onSubTaskClick: undefined
       };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
 
   describe('特殊なタイトルテスト', () => {
     it('検索プレフィックス付きタイトルで正常にレンダリングされる', () => {
-      const searchTitles = [
-        'Search: important',
-        'Search Results',
-        'Search: project:work'
-      ];
+      const searchTitles = ['Search: important', 'Search Results', 'Search: project:work'];
 
-      searchTitles.forEach(title => {
+      searchTitles.forEach((title) => {
         const props = { ...defaultProps, title, tasks: [] };
         const { container } = render(TaskList, { props });
-        
+
         expect(container.innerHTML).toBeTruthy();
         expect(container.innerHTML).toContain(title);
       });
     });
 
     it('長いタイトルでも正常にレンダリングされる', () => {
-      const longTitle = 'This is a very long title that might cause layout issues if not handled properly';
+      const longTitle =
+        'This is a very long title that might cause layout issues if not handled properly';
       const props = { ...defaultProps, title: longTitle };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
       expect(container.innerHTML).toContain('truncate'); // 省略表示のクラス
     });
@@ -310,7 +307,7 @@ describe('TaskList', () => {
     it('空のタイトルでも正常にレンダリングされる', () => {
       const props = { ...defaultProps, title: '' };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
   });
@@ -332,18 +329,20 @@ describe('TaskList', () => {
         updated_at: null as unknown,
         sub_tasks: null as unknown
       };
-      
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const props = { ...defaultProps, tasks: [invalidTask as unknown] };
       const { container } = render(TaskList, { props });
-      
+
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('コンポーネントが正常にマウント・アンマウントできる', () => {
       const { container, unmount } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toBeTruthy();
-      
+
       // アンマウントしてもエラーが発生しない
       expect(() => unmount()).not.toThrow();
     });
@@ -356,21 +355,21 @@ describe('TaskList', () => {
         onTaskClick: undefined,
         onSubTaskClick: undefined
       };
-      
+
       const { container } = render(TaskList, { props });
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('オーバーフロー処理が適用される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('overflow-hidden');
       expect(container.innerHTML).toContain('overflow-auto');
     });
 
     it('最小幅制約が適用される', () => {
       const { container } = render(TaskList, { props: defaultProps });
-      
+
       expect(container.innerHTML).toContain('min-w-0');
     });
   });

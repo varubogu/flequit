@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { 
-  ProjectService
-} from '$lib/services/backend/project-service';
+import type { ProjectService } from '$lib/services/backend/project-service';
 import type { Project, ProjectSearchCondition } from '$lib/types/project';
 
 // モックのプロジェクトサービス実装
@@ -11,7 +9,7 @@ class MockProjectService implements ProjectService {
   update = vi.fn();
   delete = vi.fn();
   get = vi.fn();
-  
+
   // SearchInterface メソッド
   search = vi.fn();
 }
@@ -23,7 +21,7 @@ describe('ProjectService Interface', () => {
 
   beforeEach(() => {
     service = new MockProjectService();
-    
+
     mockProject = {
       id: 'project-123',
       name: 'Test Project',
@@ -386,13 +384,9 @@ describe('ProjectService Interface', () => {
       expect(getPromise).toBeInstanceOf(Promise);
       expect(searchPromise).toBeInstanceOf(Promise);
 
-      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all([
-        createPromise,
-        updatePromise,
-        deletePromise,
-        getPromise,
-        searchPromise
-      ]);
+      const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
+        [createPromise, updatePromise, deletePromise, getPromise, searchPromise]
+      );
 
       expect(createResult).toBe(true);
       expect(updateResult).toBe(true);
@@ -430,10 +424,7 @@ describe('ProjectService Interface', () => {
     });
 
     it('should handle multiple projects with same name', async () => {
-      const duplicateProjects = [
-        mockProject,
-        { ...mockProject, id: 'project-456' }
-      ];
+      const duplicateProjects = [mockProject, { ...mockProject, id: 'project-456' }];
       service.search.mockResolvedValue(duplicateProjects);
 
       const result = await service.search({ name: 'Test Project' });

@@ -24,7 +24,7 @@ describe('MockTranslationService', () => {
         ja: { hello: 'こんにちは' }
       };
       const customService = new MockTranslationService('en', messages);
-      
+
       const messageGetter = customService.getMessage('hello');
       expect(messageGetter()).toBe('Hello');
     });
@@ -45,9 +45,9 @@ describe('MockTranslationService', () => {
     it('should notify subscribers when locale changes', () => {
       const callback = vi.fn();
       service.subscribe(callback);
-      
+
       service.setLocale('ja');
-      
+
       expect(callback).toHaveBeenCalledWith('ja');
       expect(callback).toHaveBeenCalledTimes(1);
     });
@@ -55,9 +55,9 @@ describe('MockTranslationService', () => {
     it('should not notify subscribers when locale is the same', () => {
       const callback = vi.fn();
       service.subscribe(callback);
-      
+
       service.setLocale('en'); // Same as initial
-      
+
       expect(callback).not.toHaveBeenCalled();
     });
   });
@@ -71,16 +71,16 @@ describe('MockTranslationService', () => {
     it('should wrap message function and return translated message', () => {
       const messageFn = () => 'greeting';
       const wrappedFn = service.reactiveMessage(messageFn);
-      
+
       expect(wrappedFn()).toBe('Hello');
     });
 
     it('should return different message for different locales', () => {
       const messageFn = () => 'greeting';
       const wrappedFn = service.reactiveMessage(messageFn);
-      
+
       expect(wrappedFn()).toBe('Hello');
-      
+
       service.setLocale('ja');
       expect(wrappedFn()).toBe('こんにちは');
     });
@@ -88,21 +88,21 @@ describe('MockTranslationService', () => {
     it('should return original message if not found in translations', () => {
       const messageFn = () => 'unknown_key';
       const wrappedFn = service.reactiveMessage(messageFn);
-      
+
       expect(wrappedFn()).toBe('unknown_key');
     });
 
     it('should handle functions with parameters', () => {
       const messageFn = (...args: unknown[]) => `hello_${args[0] as string}`;
       const wrappedFn = service.reactiveMessage(messageFn);
-      
+
       expect(wrappedFn('world')).toBe('hello_world');
     });
   });
 
   describe('getMessage', () => {
     beforeEach(() => {
-      service.setMessages('en', { 
+      service.setMessages('en', {
         greeting: 'Hello',
         parametric: 'Hello {name}, you have {count} messages'
       });
@@ -120,9 +120,9 @@ describe('MockTranslationService', () => {
     });
 
     it('should replace parameters in message', () => {
-      const messageGetter = service.getMessage('parametric', { 
-        name: 'John', 
-        count: 5 
+      const messageGetter = service.getMessage('parametric', {
+        name: 'John',
+        count: 5
       });
       expect(messageGetter()).toBe('Hello John, you have 5 messages');
     });
@@ -157,7 +157,7 @@ describe('MockTranslationService', () => {
     it('should add subscriber and return unsubscribe function', () => {
       const callback = vi.fn();
       const unsubscribe = service.subscribe(callback);
-      
+
       expect(typeof unsubscribe).toBe('function');
       expect(service.getSubscriberCount()).toBe(1);
     });
@@ -165,34 +165,34 @@ describe('MockTranslationService', () => {
     it('should call subscriber when locale changes', () => {
       const callback = vi.fn();
       service.subscribe(callback);
-      
+
       service.setLocale('ja');
-      
+
       expect(callback).toHaveBeenCalledWith('ja');
     });
 
     it('should remove subscriber when unsubscribe is called', () => {
       const callback = vi.fn();
       const unsubscribe = service.subscribe(callback);
-      
+
       expect(service.getSubscriberCount()).toBe(1);
-      
+
       unsubscribe();
-      
+
       expect(service.getSubscriberCount()).toBe(0);
     });
 
     it('should handle multiple subscribers', () => {
       const callback1 = vi.fn();
       const callback2 = vi.fn();
-      
+
       service.subscribe(callback1);
       service.subscribe(callback2);
-      
+
       expect(service.getSubscriberCount()).toBe(2);
-      
+
       service.setLocale('ja');
-      
+
       expect(callback1).toHaveBeenCalledWith('ja');
       expect(callback2).toHaveBeenCalledWith('ja');
     });
@@ -202,14 +202,14 @@ describe('MockTranslationService', () => {
     it('should set messages for locale', () => {
       service.setMessages('fr', { hello: 'Bonjour' });
       service.setLocale('fr');
-      
+
       const messageGetter = service.getMessage('hello');
       expect(messageGetter()).toBe('Bonjour');
     });
 
     it('should overwrite existing messages', () => {
       service.setMessages('en', { hello: 'Hi' });
-      
+
       const messageGetter = service.getMessage('hello');
       expect(messageGetter()).toBe('Hi');
     });
@@ -218,16 +218,16 @@ describe('MockTranslationService', () => {
   describe('getSubscriberCount (test utility)', () => {
     it('should return correct subscriber count', () => {
       expect(service.getSubscriberCount()).toBe(0);
-      
+
       const unsubscribe1 = service.subscribe(vi.fn());
       expect(service.getSubscriberCount()).toBe(1);
-      
+
       const unsubscribe2 = service.subscribe(vi.fn());
       expect(service.getSubscriberCount()).toBe(2);
-      
+
       unsubscribe1();
       expect(service.getSubscriberCount()).toBe(1);
-      
+
       unsubscribe2();
       expect(service.getSubscriberCount()).toBe(0);
     });
@@ -237,11 +237,11 @@ describe('MockTranslationService', () => {
     it('should handle rapid locale changes', () => {
       const callback = vi.fn();
       service.subscribe(callback);
-      
+
       service.setLocale('ja');
       service.setLocale('en');
       service.setLocale('ja');
-      
+
       expect(callback).toHaveBeenCalledTimes(3);
       expect(callback).toHaveBeenNthCalledWith(1, 'ja');
       expect(callback).toHaveBeenNthCalledWith(2, 'en');
@@ -251,14 +251,14 @@ describe('MockTranslationService', () => {
     it('should maintain message consistency during locale changes', () => {
       service.setMessages('en', { test: 'English' });
       service.setMessages('ja', { test: '日本語' });
-      
+
       const messageGetter = service.getMessage('test');
-      
+
       expect(messageGetter()).toBe('English');
-      
+
       service.setLocale('ja');
       expect(messageGetter()).toBe('日本語');
-      
+
       service.setLocale('en');
       expect(messageGetter()).toBe('English');
     });

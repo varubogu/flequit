@@ -20,7 +20,7 @@ describe('InitializationTauriService', () => {
 
   beforeEach(() => {
     service = new InitializationTauriService();
-    
+
     mockLocalSettings = {
       theme: 'dark',
       language: 'ja',
@@ -53,7 +53,7 @@ describe('InitializationTauriService', () => {
     // console.warn と console.error をモック化
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     vi.clearAllMocks();
   });
 
@@ -225,8 +225,11 @@ describe('InitializationTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('load_all_project_data');
       expect(result).toEqual([]);
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load project data:', expect.any(Error));
-      
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to load project data:',
+        expect.any(Error)
+      );
+
       consoleErrorSpy.mockRestore();
     });
 
@@ -380,7 +383,7 @@ describe('InitializationTauriService', () => {
 
     it('should execute operations in correct sequence', async () => {
       const callOrder: string[] = [];
-      
+
       mockInvoke.mockImplementation(async (command: string) => {
         callOrder.push(command);
         switch (command) {
@@ -475,7 +478,7 @@ describe('InitializationTauriService', () => {
 
       expect(consoleWarnSpy).toHaveBeenCalledTimes(2); // settings, account
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // projects
-      
+
       consoleWarnSpy.mockRestore();
       consoleErrorSpy.mockRestore();
     });
@@ -528,8 +531,8 @@ describe('InitializationTauriService', () => {
     it('should handle mixed concurrent operations', async () => {
       mockInvoke.mockImplementation(async (command: string) => {
         // 少し遅延を追加してレースコンディションをテスト
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
-        
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
+
         switch (command) {
           case 'load_local_settings':
             return mockLocalSettings;

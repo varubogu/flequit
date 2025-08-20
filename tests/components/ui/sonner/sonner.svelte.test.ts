@@ -29,13 +29,13 @@ describe('Sonner', () => {
   describe('basic rendering', () => {
     it('should render without errors', () => {
       const { container } = render(Sonner, { props: defaultProps });
-      
+
       expect(container).toBeDefined();
     });
 
     it('should have accessible content', () => {
       const { container } = render(Sonner, { props: defaultProps });
-      
+
       expect(container.firstChild).toBeDefined();
     });
   });
@@ -43,7 +43,7 @@ describe('Sonner', () => {
   describe('props handling', () => {
     it('should accept position prop', () => {
       expect(() => {
-        render(Sonner, { 
+        render(Sonner, {
           props: { position: 'top-right' }
         });
       }).not.toThrow();
@@ -51,7 +51,7 @@ describe('Sonner', () => {
 
     it('should accept duration prop', () => {
       expect(() => {
-        render(Sonner, { 
+        render(Sonner, {
           props: { duration: 3000 }
         });
       }).not.toThrow();
@@ -59,7 +59,7 @@ describe('Sonner', () => {
 
     it('should accept closeButton prop', () => {
       expect(() => {
-        render(Sonner, { 
+        render(Sonner, {
           props: { closeButton: true }
         });
       }).not.toThrow();
@@ -67,7 +67,7 @@ describe('Sonner', () => {
 
     it('should accept richColors prop', () => {
       expect(() => {
-        render(Sonner, { 
+        render(Sonner, {
           props: { richColors: true }
         });
       }).not.toThrow();
@@ -75,7 +75,7 @@ describe('Sonner', () => {
 
     it('should accept expand prop', () => {
       expect(() => {
-        render(Sonner, { 
+        render(Sonner, {
           props: { expand: true }
         });
       }).not.toThrow();
@@ -85,13 +85,13 @@ describe('Sonner', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(Sonner, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(Sonner, { props: defaultProps });
-      
+
       expect(() => rerender({ position: 'top-center' })).not.toThrow();
       expect(() => rerender({ duration: 4000 })).not.toThrow();
       expect(() => rerender({ closeButton: true })).not.toThrow();

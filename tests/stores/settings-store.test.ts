@@ -56,7 +56,10 @@ describe('SettingsStore', () => {
     test('should handle invalid JSON in localStorage', () => {
       // Skip specific localStorage error testing, test basic store resilience
       expect(settingsStore.timezone).toBeDefined();
-      expect(['system', 'Asia/Tokyo'].includes(settingsStore.timezone as string) || typeof settingsStore.timezone === 'string').toBe(true);
+      expect(
+        ['system', 'Asia/Tokyo'].includes(settingsStore.timezone as string) ||
+          typeof settingsStore.timezone === 'string'
+      ).toBe(true);
     });
 
     test('should handle missing localStorage gracefully', () => {
@@ -110,10 +113,10 @@ describe('SettingsStore', () => {
     test('should update timezone and save to localStorage', () => {
       // Test basic timezone setting functionality without localStorage verification
       const originalTimezone = settingsStore.timezone;
-      
+
       settingsStore.setTimezone('Europe/London');
       expect(settingsStore.timezone).toBe('Europe/London');
-      
+
       // Restore original timezone
       settingsStore.setTimezone(originalTimezone);
     });

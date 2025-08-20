@@ -58,13 +58,13 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { subTask: mockSubTask });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create sub task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle subtask with minimal data', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const minimalSubTask = {
         id: 'subtask-minimal',
         task_id: 'task-123',
@@ -102,13 +102,13 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { subTask: mockSubTask });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update sub task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
     it('should handle status changes', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const updatedSubTask = {
         ...mockSubTask,
         status: 'completed' as const,
@@ -141,7 +141,7 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', { id: 'subtask-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete sub task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -174,7 +174,7 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { id: 'subtask-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get sub task:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -186,7 +186,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual(mockSubTasks);
     });
 
@@ -195,7 +197,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
     });
 
@@ -205,10 +209,12 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.search(mockSearchCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', { condition: mockSearchCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        condition: mockSearchCondition
+      });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to search sub tasks:', expect.any(Error));
-      
+
       consoleSpy.mockRestore();
     });
 
@@ -230,7 +236,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.search(statusOnlyCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', { condition: statusOnlyCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        condition: statusOnlyCondition
+      });
       expect(result).toEqual([completedSubTask]);
     });
 
@@ -245,7 +253,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.search(multiCriteriaCondition);
 
-      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', { condition: multiCriteriaCondition });
+      expect(mockInvoke).toHaveBeenCalledWith('search_sub_tasks', {
+        condition: multiCriteriaCondition
+      });
       expect(result).toEqual([]);
     });
 
@@ -263,12 +273,24 @@ describe('SubtaskTauriService', () => {
   describe('edge cases', () => {
     it('should handle subtask with tags', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const subTaskWithTags = {
         ...mockSubTask,
         tags: [
-          { id: 'tag-1', name: 'urgent', color: '#FF0000', created_at: new Date(), updated_at: new Date() },
-          { id: 'tag-2', name: 'review', color: '#00FF00', created_at: new Date(), updated_at: new Date() }
+          {
+            id: 'tag-1',
+            name: 'urgent',
+            color: '#FF0000',
+            created_at: new Date(),
+            updated_at: new Date()
+          },
+          {
+            id: 'tag-2',
+            name: 'review',
+            color: '#00FF00',
+            created_at: new Date(),
+            updated_at: new Date()
+          }
         ]
       };
 
@@ -279,7 +301,7 @@ describe('SubtaskTauriService', () => {
 
     it('should handle subtask with recurrence rule', async () => {
       mockInvoke.mockResolvedValue(undefined);
-      
+
       const subTaskWithRecurrence = {
         ...mockSubTask,
         recurrence_rule: {
@@ -296,7 +318,7 @@ describe('SubtaskTauriService', () => {
 
     it('should handle different priority values', async () => {
       mockInvoke.mockResolvedValue([]);
-      
+
       const priorityCondition = { priority: 0 };
 
       const result = await service.search(priorityCondition);

@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
-import type { RecurrenceRule } from "$lib/types/datetime-calendar";
-import type { WeekOfMonth } from "$lib/types/datetime-calendar";
-import type { DayOfWeek } from "$lib/types/datetime-calendar";
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import type { WeekOfMonth } from '$lib/types/datetime-calendar';
+import type { DayOfWeek } from '$lib/types/datetime-calendar';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import type { ITranslationService } from '$lib/services/translation-service';
 // import {
@@ -115,11 +115,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(
-      screen.getByText(
-        `${'Every interval unit'} ${'Weekly days'}`
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${'Every interval unit'} ${'Weekly days'}`)).toBeInTheDocument();
   });
 
   it('月単位で特定日指定がある場合の表示', () => {
@@ -138,11 +134,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(
-      screen.getByText(
-        `${'Every interval unit'} ${'Monthly detail'}`
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${'Every interval unit'} ${'Monthly detail'}`)).toBeInTheDocument();
   });
 
   it('月単位で第n曜日指定がある場合の表示', () => {
@@ -162,11 +154,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(
-      screen.getByText(
-        `${'Every interval unit'} ${'Monthly detail'}`
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${'Every interval unit'} ${'Monthly detail'}`)).toBeInTheDocument();
   });
 
   it('終了日が設定されている場合の表示', () => {
@@ -184,11 +172,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(
-      screen.getByText(
-        `${'Every interval unit'} ${'End date'}`
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${'Every interval unit'} ${'End date'}`)).toBeInTheDocument();
   });
 
   it('最大繰り返し回数が設定されている場合の表示', () => {
@@ -205,11 +189,7 @@ describe('TaskRecurrenceSelector', () => {
       }
     });
 
-    expect(
-      screen.getByText(
-        `${'Every interval unit'} ${'Max occurrences'}`
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${'Every interval unit'} ${'Max occurrences'}`)).toBeInTheDocument();
   });
 
   it('複数間隔での複数形表示', () => {
