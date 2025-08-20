@@ -1308,6 +1308,7 @@ dependencies = [
  "env_logger",
  "futures",
  "log",
+ "partially",
  "sea-orm",
  "serde",
  "serde_json",
@@ -3112,6 +3113,12 @@ dependencies = [
  "smallvec",
  "windows-targets 0.52.6",
 ]
+
+[[package]]
+name = "partially"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c662358b50ce030ff0bf5c174541e37b2e29564732c34504e8ffb952389e3c1"
 
 [[package]]
 name = "pathdiff"
