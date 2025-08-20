@@ -305,12 +305,7 @@ describe('TaskDetailDialogs', () => {
     it('コールバック関数がundefinedでも正常に動作する', () => {
       const props = {
         ...defaultProps,
-        onDateChange: (data: {
-          date: string;
-          dateTime: string;
-          range?: { start: string; end: string };
-          isRangeDate: boolean;
-        }) => {},
+        onDateChange: () => {},
         onDateClear: () => {},
         onDatePickerClose: () => {}
       };

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import ProjectListContent from '$lib/components/project/project-list-content.svelte';
+import type { ProjectListLogic } from '$lib/components/project/project-list-logic.svelte';
 
 // Mock stores
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -80,7 +81,7 @@ describe('ProjectListContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as unknown as any,
+    logic: mockLogic as unknown as ProjectListLogic,
     currentView: 'all' as const,
     isCollapsed: false,
     onViewChange: vi.fn()
@@ -107,7 +108,7 @@ describe('ProjectListContent', () => {
       const emptyLogic = {
         ...mockLogic,
         projectsData: []
-      } as unknown as any;
+      } as unknown as ProjectListLogic;
 
       const { component } = render(ProjectListContent, {
         props: {
@@ -251,7 +252,7 @@ describe('ProjectListContent', () => {
       render(ProjectListContent, {
         props: {
           ...defaultProps,
-          logic: logicWithEmptyNames as unknown as any
+          logic: logicWithEmptyNames as unknown as ProjectListLogic
         }
       });
 
@@ -267,7 +268,7 @@ describe('ProjectListContent', () => {
       render(ProjectListContent, {
         props: {
           ...defaultProps,
-          logic: logicWithoutExpanded as unknown as any
+          logic: logicWithoutExpanded as unknown as ProjectListLogic
         }
       });
 
@@ -285,7 +286,7 @@ describe('ProjectListContent', () => {
       render(ProjectListContent, {
         props: {
           ...defaultProps,
-          logic: logicWithEmptyLists as unknown as any
+          logic: logicWithEmptyLists as unknown as ProjectListLogic
         }
       });
 

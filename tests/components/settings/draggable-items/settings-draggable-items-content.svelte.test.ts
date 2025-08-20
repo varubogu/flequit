@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import SettingsDraggableItemsContent from '$lib/components/settings/draggable-items/settings-draggable-items-content.svelte';
+import type { SettingsDraggableItemsLogic } from '$lib/components/settings/draggable-items/settings-draggable-items-logic.svelte';
 
 // Mock dependencies
 vi.mock('@thisux/sveltednd', () => ({
@@ -43,7 +44,7 @@ describe('SettingsDraggableItemsContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as unknown as any
+    logic: mockLogic as unknown as SettingsDraggableItemsLogic
   };
 
   beforeEach(() => {
@@ -146,7 +147,9 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as unknown as any } });
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithDrag as unknown as SettingsDraggableItemsLogic }
+      });
 
       const visibleDropZone = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       expect(visibleDropZone).toHaveClass('border-primary');
@@ -164,7 +167,9 @@ describe('SettingsDraggableItemsContent', () => {
         }
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithDrag as unknown as any } });
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithDrag as unknown as SettingsDraggableItemsLogic }
+      });
 
       const hiddenDropZone = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
       expect(hiddenDropZone).toHaveClass('border-primary');
@@ -183,7 +188,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithDraggedItem as unknown as any }
+        props: { logic: logicWithDraggedItem as unknown as SettingsDraggableItemsLogic }
       });
 
       const draggedElement = document.querySelector('[data-item-id="visible-1"]');
@@ -202,7 +207,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithDropIndicator as unknown as any }
+        props: { logic: logicWithDropIndicator as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -221,7 +226,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithDropIndicator as unknown as any }
+        props: { logic: logicWithDropIndicator as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -241,7 +246,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithMultipleVisible as unknown as any }
+        props: { logic: logicWithMultipleVisible as unknown as SettingsDraggableItemsLogic }
       });
 
       expect(document.querySelector('[data-item-id="visible-1"]')).toBeInTheDocument();
@@ -260,7 +265,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithMultipleHidden as unknown as any }
+        props: { logic: logicWithMultipleHidden as unknown as SettingsDraggableItemsLogic }
       });
 
       expect(document.querySelector('[data-item-id="hidden-1"]')).toBeInTheDocument();
@@ -277,7 +282,9 @@ describe('SettingsDraggableItemsContent', () => {
         localHiddenItems: []
       };
 
-      render(SettingsDraggableItemsContent, { props: { logic: logicWithEmpty as unknown as any } });
+      render(SettingsDraggableItemsContent, {
+        props: { logic: logicWithEmpty as unknown as SettingsDraggableItemsLogic }
+      });
 
       const visibleSection = document.querySelector('.bg-background.relative.min-h-\\[200px\\]');
       const hiddenSection = document.querySelector('.bg-muted\\/50.relative.min-h-\\[200px\\]');
@@ -299,7 +306,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithEmptyAndDrag as unknown as any }
+        props: { logic: logicWithEmptyAndDrag as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -319,7 +326,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithEmptyAndDrag as unknown as any }
+        props: { logic: logicWithEmptyAndDrag as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -351,7 +358,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithSpecialChars as unknown as any }
+        props: { logic: logicWithSpecialChars as unknown as SettingsDraggableItemsLogic }
       });
 
       const item = document.querySelector('[data-item-id="special-1"] span');
@@ -371,7 +378,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithLongLabel as unknown as any }
+        props: { logic: logicWithLongLabel as unknown as SettingsDraggableItemsLogic }
       });
 
       const item = document.querySelector('[data-item-id="long-1"] span');
@@ -392,7 +399,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       const { container } = render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithNullDrag as unknown as any }
+        props: { logic: logicWithNullDrag as unknown as SettingsDraggableItemsLogic }
       });
       expect(container.innerHTML).toBeTruthy();
     });
@@ -409,7 +416,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithHighIndex as unknown as any }
+        props: { logic: logicWithHighIndex as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -428,7 +435,7 @@ describe('SettingsDraggableItemsContent', () => {
       };
 
       render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithNegativeIndex as unknown as any }
+        props: { logic: logicWithNegativeIndex as unknown as SettingsDraggableItemsLogic }
       });
 
       const dropIndicator = document.querySelector('.bg-primary.mx-2.my-1.h-0\\.5.rounded-full');
@@ -488,7 +495,9 @@ describe('SettingsDraggableItemsContent', () => {
         localVisibleItems: [{ id: 'updated-1', icon: '🔄', label: 'Updated Item' }]
       };
 
-      expect(() => rerender({ logic: updatedLogic as unknown as any })).not.toThrow();
+      expect(() =>
+        rerender({ logic: updatedLogic as unknown as SettingsDraggableItemsLogic })
+      ).not.toThrow();
     });
   });
 
@@ -501,7 +510,7 @@ describe('SettingsDraggableItemsContent', () => {
         visibleInSidebar: vi.fn(() => 'Visible') as ReturnType<typeof vi.fn>,
         hiddenFromSidebar: vi.fn(() => 'Hidden') as ReturnType<typeof vi.fn>
         // Missing some methods intentionally
-      } as unknown as unknown as any;
+      } as unknown as SettingsDraggableItemsLogic;
 
       const { container } = render(SettingsDraggableItemsContent, {
         props: { logic: incompleteLogic }
@@ -513,14 +522,14 @@ describe('SettingsDraggableItemsContent', () => {
       const logicWithBadItems = {
         ...mockLogic,
         localVisibleItems: [
-          { id: null, icon: null, label: null } as unknown as any,
+          { id: null, icon: null, label: null } as unknown as SettingsDraggableItemsLogic,
           { id: '', icon: '', label: '' },
           mockVisibleItem
         ]
       };
 
       const { container } = render(SettingsDraggableItemsContent, {
-        props: { logic: logicWithBadItems as unknown as any }
+        props: { logic: logicWithBadItems as unknown as SettingsDraggableItemsLogic }
       });
       expect(container.innerHTML).toBeTruthy();
     });

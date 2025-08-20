@@ -125,7 +125,7 @@ describe('ConfirmDialog', () => {
     });
 
     it('should handle null callbacks', () => {
-      const { container } = render(ConfirmDialog, {
+      render(ConfirmDialog, {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore - Testing runtime safety with null callbacks
         props: {

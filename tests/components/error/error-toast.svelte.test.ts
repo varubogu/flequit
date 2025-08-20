@@ -203,7 +203,7 @@ describe('ErrorToast (Store Integration)', () => {
 
   describe('Error Interaction Patterns', () => {
     it('should handle multiple errors with different properties', () => {
-      const errorId1 = errorHandler.addError({
+      errorHandler.addError({
         type: 'validation',
         message: 'Validation error',
         retryable: false
@@ -215,7 +215,7 @@ describe('ErrorToast (Store Integration)', () => {
         retryable: true
       });
 
-      const errorId3 = errorHandler.addError({
+      errorHandler.addError({
         type: 'sync',
         message: 'Sync error',
         retryable: true

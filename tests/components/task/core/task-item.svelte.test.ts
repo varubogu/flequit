@@ -2,7 +2,6 @@ import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItem from '$lib/components/task/core/task-item.svelte';
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from '$lib/types/sub-task';
 
 type EventDispatcher = (type: string, detail?: unknown) => boolean;
 

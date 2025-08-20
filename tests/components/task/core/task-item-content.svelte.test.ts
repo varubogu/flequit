@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
 import type { TaskItemLogic } from '$lib/components/task/core/task-item-logic.svelte';
-import type { SubTask } from '$lib/types/sub-task';
 
 // 必要なモジュールをモック
 vi.mock('$lib/utils/task-utils', () => ({
@@ -102,7 +101,7 @@ describe('TaskItemContent', () => {
   };
 
   const defaultProps = {
-    logic: mockLogic as unknown as any,
+    logic: mockLogic as unknown as TaskItemLogic,
     task: mockTask,
     taskDatePicker: mockTaskDatePicker
   };
