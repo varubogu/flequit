@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type MockedFunction } from 'vitest';
 import { CustomDateFormatTauriService } from '$lib/services/backend/tauri/custom-date-format-tauri-service';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke, isTauri } from '@tauri-apps/api/core';
 import type { CustomDateFormat } from '$lib/types/settings';
 
 // @tauri-apps/api/coreをモック化
 vi.mock('@tauri-apps/api/core');
 
 const mockInvoke = invoke as MockedFunction<typeof invoke>;
+const mockIsTauri = isTauri as MockedFunction<typeof isTauri>;
 
 describe('CustomDateFormatTauriService', () => {
   let service: CustomDateFormatTauriService;
@@ -21,6 +22,8 @@ describe('CustomDateFormatTauriService', () => {
   beforeEach(() => {
     service = new CustomDateFormatTauriService();
     consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    // Tauri環境であることをモック化
+    mockIsTauri.mockReturnValue(true);
     vi.clearAllMocks();
   });
 
@@ -207,6 +210,49 @@ describe('CustomDateFormatTauriService', () => {
         format: specialFormat
       });
       expect(result).toEqual(specialFormat);
+    });
+  });
+
+  describe('non-Tauri environment', () => {
+    beforeEach(() => {
+      // 非Tauri環境をモック化
+      mockIsTauri.mockReturnValue(false);
+      vi.clearAllMocks();
+    });
+
+    it('should return null for create when not in Tauri environment', async () => {
+      const result = await service.create(mockCustomDateFormat);
+
+      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(result).toBeNull();
+    });
+
+    it('should return null for get when not in Tauri environment', async () => {
+      const result = await service.get('format-123');
+
+      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(result).toBeNull();
+    });
+
+    it('should return empty array for getAll when not in Tauri environment', async () => {
+      const result = await service.getAll();
+
+      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+
+    it('should return null for update when not in Tauri environment', async () => {
+      const result = await service.update(mockCustomDateFormat);
+
+      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(result).toBeNull();
+    });
+
+    it('should return false for delete when not in Tauri environment', async () => {
+      const result = await service.delete('format-123');
+
+      expect(mockInvoke).not.toHaveBeenCalled();
+      expect(result).toBe(false);
     });
   });
 });

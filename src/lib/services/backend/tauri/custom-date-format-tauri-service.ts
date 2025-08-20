@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { isTauri } from '@tauri-apps/api/core';
 import type { CustomDateFormat } from '$lib/types/settings';
 
 export interface CustomDateFormatService {
@@ -10,8 +11,19 @@ export interface CustomDateFormatService {
 }
 
 export class CustomDateFormatTauriService implements CustomDateFormatService {
+  private checkTauriEnvironment(): boolean {
+    if (!isTauri()) {
+      console.warn('Tauri environment not available');
+      return false;
+    }
+    return true;
+  }
+
   async create(format: CustomDateFormat): Promise<CustomDateFormat | null> {
     try {
+      if (!this.checkTauriEnvironment()) {
+        return null;
+      }
       const result = (await invoke('add_custom_date_format_setting', {
         format
       })) as CustomDateFormat;
@@ -24,6 +36,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async get(id: string): Promise<CustomDateFormat | null> {
     try {
+      if (!this.checkTauriEnvironment()) {
+        return null;
+      }
       const result = (await invoke('get_custom_date_format_setting', {
         id
       })) as CustomDateFormat | null;
@@ -36,6 +51,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async getAll(): Promise<CustomDateFormat[]> {
     try {
+      if (!this.checkTauriEnvironment()) {
+        return [];
+      }
       const result = (await invoke('get_all_custom_date_format_settings')) as CustomDateFormat[];
       return result;
     } catch (error) {
@@ -46,6 +64,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async update(format: CustomDateFormat): Promise<CustomDateFormat | null> {
     try {
+      if (!this.checkTauriEnvironment()) {
+        return null;
+      }
       const result = (await invoke('update_custom_date_format_setting', {
         format
       })) as CustomDateFormat;
@@ -58,6 +79,9 @@ export class CustomDateFormatTauriService implements CustomDateFormatService {
 
   async delete(id: string): Promise<boolean> {
     try {
+      if (!this.checkTauriEnvironment()) {
+        return false;
+      }
       await invoke('delete_custom_date_format_setting', { id });
       return true;
     } catch (error) {
