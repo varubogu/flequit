@@ -83,11 +83,13 @@ describe('Button', () => {
 
   describe('edge cases', () => {
     it('should handle null and undefined props', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       render(Button, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing runtime safety with null/undefined props
         props: {
-          onclick: null as ((event?: Event) => void) | null,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onclick: null,
           title: undefined,
           variant: undefined,
           size: undefined

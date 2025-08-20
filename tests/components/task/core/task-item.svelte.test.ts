@@ -67,6 +67,8 @@ describe('TaskItem', () => {
     end_date: new Date('2024-01-02'),
     is_range_date: true,
     list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
     sub_tasks: [],
@@ -87,7 +89,7 @@ describe('TaskItem', () => {
         tags: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
-      } as SubTask
+      }
     ]
   };
 
@@ -155,7 +157,7 @@ describe('TaskItem', () => {
     });
 
     it('異なるステータスのタスクで正常にレンダリングされる', () => {
-      const completedTask = { ...mockTask, status: 4 as unknown };
+      const completedTask = { ...mockTask, status: 'completed' as TaskStatus };
       const props = { ...defaultProps, task: completedTask };
       const { container } = render(TaskItem, { props });
 
@@ -304,20 +306,29 @@ describe('TaskItem', () => {
         sub_tasks: null as unknown
       };
 
-      const props = { ...defaultProps, task: invalidTask as unknown };
-      const { container } = render(TaskItem, { props });
+      const { container } = render(TaskItem, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with invalid task structure for runtime safety
+        props: { ...defaultProps, task: invalidTask as unknown }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('nullコールバックでもエラーにならない', () => {
-      const props = {
-        task: mockTask,
-        onTaskClick: null as unknown,
-        onSubTaskClick: null as unknown
-      };
-
-      const { container } = render(TaskItem, { props });
+      const { container } = render(TaskItem, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing runtime safety with null callbacks
+        props: {
+          task: mockTask,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onTaskClick: null,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onSubTaskClick: null
+        }
+      });
       expect(container.innerHTML).toBeTruthy();
     });
 
@@ -349,6 +360,8 @@ describe('TaskItem', () => {
         status: 'not_started' as TaskStatus,
         priority: 1,
         task_id: 'task-1',
+        order_index: i,
+        tags: [],
         created_at: new Date(),
         updated_at: new Date()
       }));

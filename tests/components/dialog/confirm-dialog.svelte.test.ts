@@ -125,13 +125,17 @@ describe('ConfirmDialog', () => {
     });
 
     it('should handle null callbacks', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      render(ConfirmDialog, {
+      const { container } = render(ConfirmDialog, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing runtime safety with null callbacks
         props: {
           ...defaultProps,
-          onConfirm: null as (() => void) | null,
-          onCancel: null as (() => void) | null
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onConfirm: null,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onCancel: null
         }
       });
       expect(document.body).toBeInTheDocument();

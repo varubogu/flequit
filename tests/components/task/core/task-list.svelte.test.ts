@@ -330,10 +330,11 @@ describe('TaskList', () => {
         sub_tasks: null as unknown
       };
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const props = { ...defaultProps, tasks: [invalidTask as unknown] };
-      const { container } = render(TaskList, { props });
+      const { container } = render(TaskList, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with invalid task structure for runtime safety
+        props: { ...defaultProps, tasks: [invalidTask as unknown] }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });

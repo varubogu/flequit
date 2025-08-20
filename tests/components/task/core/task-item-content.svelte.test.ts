@@ -48,11 +48,13 @@ describe('TaskItemContent', () => {
     end_date: new Date('2024-01-02'),
     is_range_date: true,
     list_id: 'list-1',
+    order_index: 0,
+    is_archived: false,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
     sub_tasks: [],
     tags: []
-  } as unknown as TaskWithSubTasks;
+  };
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
@@ -68,7 +70,7 @@ describe('TaskItemContent', () => {
         tags: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
-      } as unknown as SubTask
+      }
     ]
   };
 
@@ -94,7 +96,9 @@ describe('TaskItemContent', () => {
 
   const mockTaskDatePicker = {
     handleDueDateClick: vi.fn(),
-    handleSubTaskDueDateClick: vi.fn()
+    handleSubTaskDueDateClick: vi.fn(),
+    datePickerPosition: { x: 0, y: 0, width: 0, height: 0 },
+    showDatePicker: false as const
   };
 
   const defaultProps = {
@@ -140,8 +144,11 @@ describe('TaskItemContent', () => {
 
     it('異なるロジック状態で正常にレンダリングされる', () => {
       const activeLogic = { ...mockLogic, isActiveTask: true };
-      const props = { ...defaultProps, logic: activeLogic as unknown };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with mock logic object
+        props: { ...defaultProps, logic: activeLogic as unknown }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -167,24 +174,34 @@ describe('TaskItemContent', () => {
 
     it('アコーディオン展開状態で正常にレンダリングされる', () => {
       const expandedLogic = { ...mockLogic, showSubTasks: true };
-      const props = {
-        ...defaultProps,
-        logic: expandedLogic as TaskItemLogic,
-        task: mockTaskWithSubTasks
-      };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with mock logic object
+        props: {
+          ...defaultProps,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          logic: expandedLogic as unknown,
+          task: mockTaskWithSubTasks
+        }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
 
     it('アコーディオン折りたたみ状態で正常にレンダリングされる', () => {
       const collapsedLogic = { ...mockLogic, showSubTasks: false };
-      const props = {
-        ...defaultProps,
-        logic: collapsedLogic as TaskItemLogic,
-        task: mockTaskWithSubTasks
-      };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with mock logic object
+        props: {
+          ...defaultProps,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          logic: collapsedLogic as unknown,
+          task: mockTaskWithSubTasks
+        }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -224,8 +241,11 @@ describe('TaskItemContent', () => {
           { label: 'Delete', action: vi.fn() }
         ]
       };
-      const props = { ...defaultProps, logic: logicWithMenuItems as unknown };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with mock logic object
+        props: { ...defaultProps, logic: logicWithMenuItems as unknown }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -235,8 +255,11 @@ describe('TaskItemContent', () => {
         ...mockLogic,
         taskContextMenuItems: []
       };
-      const props = { ...defaultProps, logic: logicWithEmptyMenu as unknown };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with mock logic object
+        props: { ...defaultProps, logic: logicWithEmptyMenu as unknown }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -278,9 +301,12 @@ describe('TaskItemContent', () => {
     });
 
     it('異なるステータスのタスクが正常にレンダリングされる', () => {
-      const completedTask = { ...mockTask, status: 4 as unknown };
-      const props = { ...defaultProps, task: completedTask };
-      const { container } = render(TaskItemContent, { props });
+      const completedTask = { ...mockTask, status: 'completed' };
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with different task status
+        props: { ...defaultProps, task: completedTask }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -292,34 +318,43 @@ describe('TaskItemContent', () => {
           {
             id: 'sub1',
             title: 'SubTask 1',
-            status: 1 as unknown,
+            status: 'not_started',
             priority: 1,
             task_id: 'task-1',
+            order_index: 0,
+            tags: [],
             created_at: new Date(),
             updated_at: new Date()
           },
           {
             id: 'sub2',
             title: 'SubTask 2',
-            status: 2 as unknown,
+            status: 'in_progress',
             priority: 2,
             task_id: 'task-1',
+            order_index: 1,
+            tags: [],
             created_at: new Date(),
             updated_at: new Date()
           },
           {
             id: 'sub3',
             title: 'SubTask 3',
-            status: 4 as unknown,
+            status: 'completed',
             priority: 3,
             task_id: 'task-1',
+            order_index: 2,
+            tags: [],
             created_at: new Date(),
             updated_at: new Date()
           }
         ]
       };
-      const props = { ...defaultProps, task: taskWithMultipleSubTasks };
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with multiple subtasks
+        props: { ...defaultProps, task: taskWithMultipleSubTasks }
+      });
 
       expect(container.innerHTML).toBeTruthy();
     });
@@ -332,8 +367,11 @@ describe('TaskItemContent', () => {
       ];
 
       variousLogicStates.forEach((logic) => {
-        const props = { ...defaultProps, logic: logic as unknown };
-        const { container } = render(TaskItemContent, { props });
+        const { container } = render(TaskItemContent, {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore - Testing with mock logic object
+          props: { ...defaultProps, logic: logic as unknown }
+        });
         expect(container.innerHTML).toBeTruthy();
       });
     });
@@ -363,9 +401,11 @@ describe('TaskItemContent', () => {
         handleTaskClick: null as ((task: TaskWithSubTasks) => void) | null,
         handleStatusToggle: null as unknown
       };
-      const props = { ...defaultProps, logic: logicWithNullMethods as unknown };
-
-      const { container } = render(TaskItemContent, { props });
+      const { container } = render(TaskItemContent, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing with null methods in logic object
+        props: { ...defaultProps, logic: logicWithNullMethods as unknown }
+      });
       expect(container.innerHTML).toBeTruthy();
     });
 

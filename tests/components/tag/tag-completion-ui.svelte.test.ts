@@ -364,10 +364,16 @@ describe('TagCompletionUI', () => {
 
     it('should handle missing callbacks', () => {
       render(TagCompletionUI, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing runtime safety with undefined callbacks
         props: {
           ...defaultProps,
-          onSelectSuggestion: undefined as ((tag: Tag) => void) | undefined,
-          onCreateNewTag: undefined as (() => void) | undefined
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onSelectSuggestion: undefined,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          onCreateNewTag: undefined
         }
       });
 

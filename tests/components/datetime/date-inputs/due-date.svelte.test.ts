@@ -342,12 +342,14 @@ describe('DueDate', () => {
     });
 
     it('should handle missing handleDueDateClick gracefully', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const { container } = render(DueDate, {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Testing runtime safety with undefined callback
         props: {
           ...defaultProps,
-          handleDueDateClick: undefined as ((event?: Event) => void) | undefined
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          handleDueDateClick: undefined
         }
       });
 
