@@ -13,7 +13,7 @@ use crate::models::project::Project;
 #[sea_orm(table_name = "projects")]
 pub struct Model {
     /// プロジェクトの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// プロジェクト名

@@ -13,7 +13,7 @@ use crate::models::account::Account;
 #[sea_orm(table_name = "accounts")]
 pub struct Model {
     /// アカウントの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// メールアドレス

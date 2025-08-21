@@ -13,7 +13,7 @@ use crate::models::user::User;
 #[sea_orm(table_name = "users")]
 pub struct Model {
     /// ユーザーの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// ユーザー名（必須、表示やメンション等で使用）

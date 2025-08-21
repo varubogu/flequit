@@ -13,7 +13,7 @@ use crate::models::subtask::SubTask;
 #[sea_orm(table_name = "subtasks")]
 pub struct Model {
     /// サブタスクの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// 親タスクID

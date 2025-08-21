@@ -1,8 +1,8 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
+use crate::models::command::initialize::InitializedResult;
 use crate::models::project::Project;
 use crate::models::setting::LocalSettings;
-use crate::models::command::initialize::InitializedResult;
 use crate::services::initialization_service;
 
 // エラー変換のヘルパー関数
@@ -16,14 +16,18 @@ pub async fn load_all_data() -> Result<InitializedResult, String> {
     let _current_account = load_current_account().await?; // 現在は使用しない
     let projects = load_all_project_data().await?;
     let accounts = load_all_account().await?;
-    
+
     // LocalSettingsからSettingsを構築（一時的にLocalSettingsと同じ構造とする）
     let settings = crate::models::setting::Settings {
-        theme: local_settings.as_ref().map_or("system".to_string(), |s| s.theme.clone()),
-        language: local_settings.as_ref().map_or("ja".to_string(), |s| s.language.clone()),
+        theme: local_settings
+            .as_ref()
+            .map_or("system".to_string(), |s| s.theme.clone()),
+        language: local_settings
+            .as_ref()
+            .map_or("ja".to_string(), |s| s.language.clone()),
         ..Default::default()
     };
-    
+
     Ok(InitializedResult {
         settings,
         accounts,

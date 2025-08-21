@@ -14,7 +14,7 @@ use crate::types::task_types::TaskStatus;
 #[sea_orm(table_name = "tasks")]
 pub struct Model {
     /// タスクの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// 親サブタスクID

@@ -67,20 +67,31 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクトを作成または更新
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
+        log::info!("set_project - 開始: {:?}", project.id);
         let mut projects = self.list_projects().await?;
+        log::info!("set_project - 現在のプロジェクト数: {}", projects.len());
 
         // 既存のプロジェクトを更新、または新規追加
         if let Some(existing) = projects.iter_mut().find(|p| p.id == project.id) {
+            log::info!("set_project - 既存プロジェクトを更新: {:?}", project.id);
             *existing = project.clone();
         } else {
+            log::info!("set_project - 新規プロジェクト追加: {:?}", project.id);
             projects.push(project.clone());
         }
 
         {
             let mut manager = self.document_manager.lock().await;
-            manager
+            log::info!("set_project - DocumentManager取得完了");
+            let result = manager
                 .save_data(&DocumentType::Settings, "projects", &projects)
-                .await
+                .await;
+            if result.is_ok() {
+                log::info!("set_project - Automergeドキュメント保存完了");
+            } else {
+                log::error!("set_project - Automergeドキュメント保存エラー: {:?}", result);
+            }
+            result
         }
     }
 
@@ -107,7 +118,14 @@ impl ProjectLocalAutomergeRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        self.set_project(entity).await
+        log::info!("ProjectLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        let result = self.set_project(entity).await;
+        if result.is_ok() {
+            log::info!("ProjectLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+        } else {
+            log::error!("ProjectLocalAutomergeRepository::save - エラー: {:?}", result);
+        }
+        result
     }
 
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {

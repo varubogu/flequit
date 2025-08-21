@@ -13,7 +13,7 @@ use crate::models::task_list::TaskList;
 #[sea_orm(table_name = "task_lists")]
 pub struct Model {
     /// タスクリストの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// 所属プロジェクトID

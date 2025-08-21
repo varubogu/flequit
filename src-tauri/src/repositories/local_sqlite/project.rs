@@ -72,13 +72,18 @@ impl ProjectLocalSqliteRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
     async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
+        log::info!("ProjectLocalSqliteRepository::save - 開始: {:?}", project.id);
         let db_manager = self.db_manager.read().await;
+        log::info!("ProjectLocalSqliteRepository::save - DB Manager取得完了");
         let db = db_manager.get_connection().await?;
+        log::info!("ProjectLocalSqliteRepository::save - DB接続取得完了");
         let active_model = project
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
-        active_model.insert(db).await?;
+        log::info!("ProjectLocalSqliteRepository::save - ActiveModel作成完了");
+        let result = active_model.insert(db).await?;
+        log::info!("ProjectLocalSqliteRepository::save - DB挿入完了: {:?}", result);
         Ok(())
     }
 

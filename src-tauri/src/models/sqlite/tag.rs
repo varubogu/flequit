@@ -13,7 +13,7 @@ use crate::models::tag::Tag;
 #[sea_orm(table_name = "tags")]
 pub struct Model {
     /// タグの一意識別子
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// タグ名

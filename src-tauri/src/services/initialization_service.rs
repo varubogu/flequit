@@ -12,7 +12,7 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
     let local_settings = load_local_settings().await?;
     let accounts = load_all_account().await?;
     let projects = load_all_project_data().await?;
-    
+
     // LocalSettingsからSettingsを構築
     let mut settings = Settings::default();
     if let Some(local_settings) = local_settings {
@@ -29,25 +29,31 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
 
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // ローカル設定取得ロジック：設定データベースから取得
     let key_value_settings = repository
         .settings
         .get_all_key_value_settings()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
-    
+
     let local_settings = LocalSettings {
-        theme: key_value_settings.get("theme").unwrap_or(&"system".to_string()).clone(),
-        language: key_value_settings.get("language").unwrap_or(&"ja".to_string()).clone(),
+        theme: key_value_settings
+            .get("theme")
+            .unwrap_or(&"system".to_string())
+            .clone(),
+        language: key_value_settings
+            .get("language")
+            .unwrap_or(&"ja".to_string())
+            .clone(),
     };
-    
+
     Ok(Some(local_settings))
 }
 
 pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
     let accounts = repository
@@ -55,10 +61,10 @@ pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
-    
+
     // is_activeフラグがtrueのアカウントを優先して返す
     let active_account = accounts.iter().find(|account| account.is_active).cloned();
-    
+
     if active_account.is_some() {
         Ok(active_account)
     } else {

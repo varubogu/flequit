@@ -13,7 +13,7 @@ use crate::models::setting::{CustomDateFormat, DueDateButtons, Settings, TimeLab
 #[sea_orm(table_name = "settings")]
 pub struct Model {
     /// 設定のプライマリキー (通常は "app_settings")
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
     /// テーマ設定
