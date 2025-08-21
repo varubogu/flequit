@@ -24,6 +24,7 @@ describe('TaskService Interface', () => {
 
     mockTask = {
       id: 'task-123',
+      project_id: 'proj-1',
       list_id: 'list-456',
       title: 'Test Task',
       description: 'Test task description',
@@ -32,7 +33,9 @@ describe('TaskService Interface', () => {
       order_index: 0,
       is_archived: false,
       created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      updated_at: new Date('2024-01-01T00:00:00Z'),
+      assigned_user_ids: [],
+      tag_ids: []
     };
 
     mockSearchCondition = {
@@ -64,6 +67,7 @@ describe('TaskService Interface', () => {
     it('should handle task with minimal data', async () => {
       const minimalTask = {
         id: 'task-minimal',
+        project_id: 'proj-1',
         list_id: 'list-123',
         title: 'Minimal Task',
         status: 'not_started' as const,
@@ -398,6 +402,7 @@ describe('TaskService Interface', () => {
         mockTask,
         {
           id: 'task-456',
+          project_id: 'proj-2',
           list_id: 'list-789',
           title: 'Another Task',
           status: 'in_progress' as const,

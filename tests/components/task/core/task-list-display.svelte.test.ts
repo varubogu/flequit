@@ -77,7 +77,10 @@ describe('TaskListDisplay', () => {
             created_at: new Date(),
             updated_at: new Date(),
             sub_tasks: [],
-            tags: []
+            tags: [],
+            project_id: 'project-1',
+            assigned_user_ids: [],
+            tag_ids: []
           }
         ]
       },

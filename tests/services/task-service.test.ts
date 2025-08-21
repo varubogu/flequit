@@ -167,12 +167,15 @@ test('TaskService.addTask: handles default priority', async () => {
 test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => {
   const task: TaskWithSubTasks = {
     id: 'task-123',
+    project_id: 'proj-1',
     list_id: 'list-123',
     title: 'Test Task',
     status: 'not_started',
     priority: 0,
     order_index: 0,
     is_archived: false,
+    assigned_user_ids: [],
+    tag_ids: [],
     created_at: new Date(),
     updated_at: new Date(),
     sub_tasks: [
@@ -213,12 +216,15 @@ test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => 
 test('TaskService.toggleSubTaskStatus: handles non-existent subtask', () => {
   const task: TaskWithSubTasks = {
     id: 'task-123',
+    project_id: 'proj-1',
     list_id: 'list-123',
     title: 'Test Task',
     status: 'not_started',
     priority: 0,
     order_index: 0,
     is_archived: false,
+    assigned_user_ids: [],
+    tag_ids: [],
     created_at: new Date(),
     updated_at: new Date(),
     sub_tasks: [],
@@ -537,6 +543,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
+    project_id: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
     list_id: 'list-123',
@@ -583,6 +590,7 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
+    project_id: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
     list_id: 'list-123',
@@ -611,6 +619,7 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
 
   const mockRecurringTask = {
     id: taskId,
+    project_id: 'proj-1',
     title: 'Range Task',
     status: 'not_started',
     list_id: 'list-123',

@@ -71,6 +71,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         const newTask: Task = {
           id: `task-${Date.now()}`,
           list_id: listId,
+          project_id: taskData.project_id || 'project-1',
           title: taskData.title || '',
           description: taskData.description || '',
           status: taskData.status || 'not_started',
@@ -79,6 +80,8 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           end_date: taskData.end_date,
           is_range_date: taskData.is_range_date || false,
           recurrence_rule: taskData.recurrence_rule,
+          assigned_user_ids: taskData.assigned_user_ids || [],
+          tag_ids: taskData.tag_ids || [],
           order_index: 0,
           is_archived: false,
           created_at: new Date(),

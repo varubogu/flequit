@@ -30,11 +30,14 @@ describe('TaskStore - Selection Management', () => {
           tasks: [
             {
               id: 'task-1',
+              project_id: 'proj-1',
               list_id: 'list-1',
               title: 'Test Task',
               description: 'Test description',
               status: 'not_started',
               priority: 1,
+              assigned_user_ids: [],
+              tag_ids: [],
               order_index: 0,
               is_archived: false,
               created_at: new Date(),

@@ -52,6 +52,7 @@ Object.defineProperty(globalThis, 'DataTransfer', {
 describe('SubTaskList - Drag and Drop', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
+    project_id: 'proj-1',
     list_id: 'list-1',
     title: 'Test Task',
     description: '',
@@ -61,6 +62,8 @@ describe('SubTaskList - Drag and Drop', () => {
     is_archived: false,
     created_at: new Date(),
     updated_at: new Date(),
+    assigned_user_ids: [],
+    tag_ids: [],
     sub_tasks: [
       {
         id: 'subtask-1',

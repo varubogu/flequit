@@ -29,6 +29,8 @@ export interface Task {
   id: string;
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string;
+  /** 所属プロジェクトID */
+  project_id: string;
   /** 所属タスクリストID */
   list_id: string;
   /** タスクタイトル */
@@ -47,6 +49,10 @@ export interface Task {
   is_range_date?: boolean;
   /** 繰り返しルール */
   recurrence_rule?: RecurrenceRule;
+  /** 担当者ユーザーIDの配列 */
+  assigned_user_ids: string[];
+  /** タグIDの配列 */
+  tag_ids: string[];
   /** 表示順序 */
   order_index: number;
   /** アーカイブ状態 */
@@ -71,6 +77,8 @@ export interface TaskWithSubTasks extends Task {
  * タスク検索条件
  */
 export interface TaskSearchCondition {
+  /** 所属プロジェクトID */
+  project_id?: string;
   /** 所属タスクリストID */
   list_id?: string;
   /** タイトル */
@@ -89,6 +97,8 @@ export interface TaskSearchCondition {
 export interface TaskPatch {
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string | null;
+  /** 所属プロジェクトID */
+  project_id?: string;
   /** 所属タスクリストID */
   list_id?: string;
   /** タスクタイトル */

@@ -20,12 +20,15 @@ describe('TaskContent', () => {
 
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
+    project_id: 'project-1',
     title: 'Test Task',
     description: 'Test task description',
     status: 'not_started',
     priority: 1,
     end_date: new Date('2024-02-15'),
     list_id: 'list-1',
+    assigned_user_ids: [],
+    tag_ids: ['tag-1'],
     order_index: 0,
     is_archived: false,
     created_at: new Date(),
@@ -325,6 +328,7 @@ describe('TaskContent', () => {
   it('複雑なタスク構成が処理される', () => {
     const complexTask: TaskWithSubTasks = {
       id: 'complex-task',
+      project_id: 'project-1',
       title: 'Complex Task with Multiple Features',
       description:
         'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
@@ -332,6 +336,8 @@ describe('TaskContent', () => {
       priority: 3,
       end_date: new Date('2024-03-01'),
       list_id: 'list-1',
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 0,
       is_archived: false,
       created_at: new Date(),

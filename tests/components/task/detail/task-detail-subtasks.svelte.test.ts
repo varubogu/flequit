@@ -19,6 +19,9 @@ describe('TaskDetailSubTasks Component', () => {
     is_range_date: false,
     tags: [],
     is_archived: false,
+    project_id: 'project-1',
+    assigned_user_ids: [],
+    tag_ids: [],
     sub_tasks: [
       {
         id: 'subtask-1',

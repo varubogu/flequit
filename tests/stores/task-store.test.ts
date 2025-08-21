@@ -24,10 +24,13 @@ describe('TaskStore', () => {
         tasks: [
           {
             id: 'task-1',
+            project_id: 'proj-1',
             list_id: 'list-1',
             title: 'Test Task 1',
             status: 'not_started',
             priority: 1,
+            assigned_user_ids: [],
+            tag_ids: [],
             order_index: 0,
             is_archived: false,
             end_date: new Date('2030-12-31'), // Far future date
@@ -49,10 +52,13 @@ describe('TaskStore', () => {
           },
           {
             id: 'task-2',
+            project_id: 'proj-1',
             list_id: 'list-1',
             title: 'Overdue Task',
             status: 'not_started',
             priority: 2,
+            assigned_user_ids: [],
+            tag_ids: [],
             order_index: 1,
             is_archived: false,
             end_date: new Date('2020-01-01'), // Past date
@@ -63,10 +69,13 @@ describe('TaskStore', () => {
           },
           {
             id: 'task-3',
+            project_id: 'proj-1',
             list_id: 'list-1',
             title: 'Today Task',
             status: 'not_started',
             priority: 1,
+            assigned_user_ids: [],
+            tag_ids: [],
             order_index: 2,
             is_archived: false,
             end_date: (() => {
@@ -230,10 +239,13 @@ describe('TaskStore', () => {
 
     test('addTask should add a new task to the specified list', async () => {
       const newTaskData = {
+        project_id: 'proj-1',
         list_id: 'list-1',
         title: 'New Task',
         status: 'not_started' as const,
         priority: 1,
+        assigned_user_ids: [],
+        tag_ids: [],
         order_index: 3,
         is_archived: false
       };
@@ -254,10 +266,13 @@ describe('TaskStore', () => {
 
     test('addTask should return null for non-existent list', async () => {
       const result = await store.addTask('non-existent-list', {
+        project_id: 'non-existent-proj',
         list_id: 'non-existent-list',
         title: 'New Task',
         status: 'not_started',
         priority: 1,
+        assigned_user_ids: [],
+        tag_ids: [],
         order_index: 0,
         is_archived: false
       });

@@ -174,6 +174,7 @@ const mockTagStore = {
 // テスト用のサンプルタスク
 const sampleTask: TaskWithSubTasks = {
   id: 'task-1',
+  project_id: 'proj-1',
   list_id: 'list-1',
   title: 'サンプルタスク',
   description: 'これはテスト用のタスクです',
@@ -184,6 +185,8 @@ const sampleTask: TaskWithSubTasks = {
   is_range_date: true,
   order_index: 0,
   is_archived: false,
+  assigned_user_ids: [],
+  tag_ids: ['tag-1', 'tag-2'],
   created_at: new Date('2024-01-01'),
   updated_at: new Date('2024-01-01'),
   sub_tasks: [

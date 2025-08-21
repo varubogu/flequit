@@ -32,6 +32,9 @@ describe('TaskDatePicker Component', () => {
     is_range_date: false,
     is_archived: false,
     tags: [],
+    project_id: 'project-1',
+    assigned_user_ids: [],
+    tag_ids: [],
     sub_tasks: [
       {
         id: 'subtask-1',

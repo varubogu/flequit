@@ -6,10 +6,13 @@ import type { TaskWithSubTasks } from '$lib/types/task';
 describe('TaskDescriptionEditor Component', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
+    project_id: 'project-1',
     title: 'Test Task',
     description: 'Test description',
     status: 'in_progress',
     priority: 2,
+    assigned_user_ids: [],
+    tag_ids: [],
     created_at: new Date(),
     updated_at: new Date(),
     list_id: 'list-1',

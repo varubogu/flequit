@@ -25,12 +25,15 @@ describe('サブタスクとタグ管理の結合テスト', () => {
         tasks: [
           {
             id: 'task-1',
+            project_id: 'project-1',
             list_id: 'list-1',
             title: 'Parent Task',
             status: 'not_started',
             priority: 1,
             order_index: 0,
             is_archived: false,
+            assigned_user_ids: [],
+            tag_ids: [],
             created_at: new Date(),
             updated_at: new Date(),
             sub_tasks: [],

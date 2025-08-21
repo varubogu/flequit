@@ -39,6 +39,7 @@ vi.mock('$lib/components/shared/context-menu-wrapper.svelte', () => ({
 describe('TaskItemContent', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
+    project_id: 'project-1',
     title: 'Test Task',
     description: 'Test description',
     status: 'not_started' as TaskStatus,
@@ -47,6 +48,8 @@ describe('TaskItemContent', () => {
     end_date: new Date('2024-01-02'),
     is_range_date: true,
     list_id: 'list-1',
+    assigned_user_ids: [],
+    tag_ids: [],
     order_index: 0,
     is_archived: false,
     created_at: new Date('2024-01-01'),

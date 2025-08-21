@@ -22,6 +22,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
 describe('SubTaskList', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
+    project_id: 'project-1',
     sub_task_id: undefined,
     list_id: 'list-1',
     title: 'Main Task',
@@ -33,6 +34,8 @@ describe('SubTaskList', () => {
     is_range_date: false,
     order_index: 0,
     is_archived: false,
+    assigned_user_ids: [],
+    tag_ids: [],
     created_at: new Date(),
     updated_at: new Date(),
     sub_tasks: [

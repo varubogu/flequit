@@ -27,6 +27,7 @@ const mockProjects: ProjectTree[] = [
         tasks: [
           {
             id: 'task-1',
+            project_id: 'project-1',
             list_id: 'tasklist-1',
             title: 'タスク1',
             description: '',
@@ -34,6 +35,8 @@ const mockProjects: ProjectTree[] = [
             priority: 0,
             order_index: 0,
             is_archived: false,
+            assigned_user_ids: [],
+            tag_ids: [],
             created_at: new Date(),
             updated_at: new Date(),
             sub_tasks: [],

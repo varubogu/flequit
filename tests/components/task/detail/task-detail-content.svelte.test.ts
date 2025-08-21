@@ -93,7 +93,10 @@ describe('TaskDetailContent', () => {
     list_id: 'list-1',
     order_index: 0,
     is_archived: false,
-    sub_tasks: []
+    sub_tasks: [],
+    project_id: 'project-1',
+    assigned_user_ids: [],
+    tag_ids: []
   };
 
   const mockSubTask: SubTask = {

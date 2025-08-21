@@ -296,7 +296,10 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
         status: 'not_started',
         order_index: 0,
         list_id: list1!.id,
-        is_archived: false
+        is_archived: false,
+        project_id: project1!.id,
+        assigned_user_ids: [],
+        tag_ids: []
       });
 
       expect(task1).toBeTruthy();

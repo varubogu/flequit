@@ -19,6 +19,7 @@ describe('TaskTauriService', () => {
     service = new TaskTauriService();
     mockTask = {
       id: 'task-123',
+      project_id: 'proj-1',
       list_id: 'list-456',
       title: 'Test Task',
       description: 'Test Description',
@@ -27,6 +28,8 @@ describe('TaskTauriService', () => {
       start_date: new Date('2024-01-01T00:00:00Z'),
       end_date: new Date('2024-01-02T00:00:00Z'),
       is_range_date: true,
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 0,
       is_archived: false,
       created_at: new Date('2024-01-01T00:00:00Z'),

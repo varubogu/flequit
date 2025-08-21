@@ -151,11 +151,14 @@ export class TaskService {
     }
   ): Promise<TaskWithSubTasks | null> {
     return await taskStore.addTask(listId, {
+      project_id: 'default-project',
       list_id: listId,
       title: taskData.title,
       description: taskData.description,
       status: 'not_started',
       priority: taskData.priority || 0,
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 0,
       is_archived: false
     });

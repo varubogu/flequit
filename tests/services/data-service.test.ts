@@ -163,6 +163,9 @@ describe('DataService', () => {
         description: 'Test Description',
         status: 'not_started' as const,
         priority: 1,
+        project_id: 'project-1',
+        assigned_user_ids: [],
+        tag_ids: [],
         order_index: 0,
         is_archived: false
       };
@@ -475,10 +478,13 @@ describe('DataService', () => {
       const mockTask = {
         id: 'task-id',
         list_id: 'list-id',
+        project_id: 'project-1',
         title: 'Test Task',
         status: 'not_started' as const,
         priority: 1,
         order_index: 0,
+        assigned_user_ids: [],
+        tag_ids: [],
         tags: [],
         sub_tasks: [],
         is_archived: false,

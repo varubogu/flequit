@@ -42,7 +42,10 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
       is_archived: false,
       created_at: new Date(),
       updated_at: new Date(),
-      sub_tasks: []
+      sub_tasks: [],
+      project_id: 'project-1',
+      assigned_user_ids: [],
+      tag_ids: []
     }
   ];
 
@@ -196,7 +199,10 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           is_archived: false,
           created_at: new Date(),
           updated_at: new Date(),
-          sub_tasks: []
+          sub_tasks: [],
+          project_id: 'project-1',
+          assigned_user_ids: [],
+          tag_ids: []
         },
         {
           id: 'long-task-2',
@@ -211,7 +217,10 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           is_archived: false,
           created_at: new Date(),
           updated_at: new Date(),
-          sub_tasks: []
+          sub_tasks: [],
+          project_id: 'project-1',
+          assigned_user_ids: [],
+          tag_ids: []
         }
       ];
 
@@ -247,7 +256,10 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           is_archived: false,
           created_at: new Date(),
           updated_at: new Date(),
-          sub_tasks: []
+          sub_tasks: [],
+          project_id: 'project-1',
+          assigned_user_ids: [],
+          tag_ids: []
         }
       ];
 

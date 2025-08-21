@@ -29,6 +29,7 @@ describe('ViewService - TaskList Filtering', () => {
           tasks: [
             {
               id: 'task-1',
+              project_id: 'project-1',
               list_id: 'list-1',
               title: 'Task 1 in List 1',
               description: 'Test task 1',
@@ -36,6 +37,8 @@ describe('ViewService - TaskList Filtering', () => {
               priority: 1,
               order_index: 0,
               is_archived: false,
+              assigned_user_ids: [],
+              tag_ids: [],
               created_at: new Date(),
               updated_at: new Date(),
               sub_tasks: [],
@@ -43,6 +46,7 @@ describe('ViewService - TaskList Filtering', () => {
             },
             {
               id: 'task-2',
+              project_id: 'project-1',
               list_id: 'list-1',
               title: 'Task 2 in List 1',
               description: 'Test task 2',
@@ -50,6 +54,8 @@ describe('ViewService - TaskList Filtering', () => {
               priority: 2,
               order_index: 1,
               is_archived: false,
+              assigned_user_ids: [],
+              tag_ids: [],
               created_at: new Date(),
               updated_at: new Date(),
               sub_tasks: [],
@@ -70,6 +76,7 @@ describe('ViewService - TaskList Filtering', () => {
           tasks: [
             {
               id: 'task-3',
+              project_id: 'project-1',
               list_id: 'list-2',
               title: 'Task 3 in List 2',
               description: 'Test task 3',
@@ -77,6 +84,8 @@ describe('ViewService - TaskList Filtering', () => {
               priority: 1,
               order_index: 0,
               is_archived: false,
+              assigned_user_ids: [],
+              tag_ids: [],
               created_at: new Date(),
               updated_at: new Date(),
               sub_tasks: [],
@@ -109,6 +118,7 @@ describe('ViewService - TaskList Filtering', () => {
           tasks: [
             {
               id: 'task-4',
+              project_id: 'project-2',
               list_id: 'list-3',
               title: 'Task 4 in List 3',
               description: 'Test task 4',
@@ -116,6 +126,8 @@ describe('ViewService - TaskList Filtering', () => {
               priority: 3,
               order_index: 0,
               is_archived: false,
+              assigned_user_ids: [],
+              tag_ids: [],
               created_at: new Date(),
               updated_at: new Date(),
               sub_tasks: [],
