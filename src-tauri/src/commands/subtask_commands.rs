@@ -8,12 +8,14 @@ use crate::models::CommandModelConverter;
 use crate::types::id_types::SubTaskId;
 
 // Frontend compatibility aliases only
+#[tracing::instrument]
 #[tauri::command]
 pub async fn create_sub_task(sub_task: SubtaskCommand) -> Result<bool, String> {
     let subtask_param = sub_task.to_model().await?;
     subtask_facades::create_sub_task(&subtask_param).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn get_sub_task(id: String) -> Result<Option<SubtaskCommand>, String> {
     let subtask_id = match SubTaskId::try_from_str(&id) {
@@ -24,6 +26,7 @@ pub async fn get_sub_task(id: String) -> Result<Option<SubtaskCommand>, String> 
     subtask_facades::get_sub_task(&sub_task_id).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn update_sub_task(id: String, patch: PartialSubTask) -> Result<bool, String> {
     let subtask_id = match SubTaskId::try_from_str(&id) {
@@ -33,6 +36,7 @@ pub async fn update_sub_task(id: String, patch: PartialSubTask) -> Result<bool, 
     subtask_facades::update_sub_task(&subtask_id, &patch).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn delete_sub_task(id: String) -> Result<bool, String> {
     let subtask_id = match SubTaskId::try_from_str(&id) {
@@ -43,6 +47,7 @@ pub async fn delete_sub_task(id: String) -> Result<bool, String> {
     subtask_facades::delete_sub_task(&sub_task_id).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn search_sub_tasks(
     condition: SubtaskSearchRequest,

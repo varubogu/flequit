@@ -6,12 +6,14 @@ use crate::models::task_list::PartialTaskList;
 use crate::models::CommandModelConverter;
 use crate::types::id_types::TaskListId;
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn create_task_list(task_list: TaskListCommand) -> Result<bool, String> {
     let internal_task_list = task_list.to_model().await?;
     task_list_facades::create_task_list(&internal_task_list).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn get_task_list(id: String) -> Result<Option<TaskListCommand>, String> {
     let task_list_id = match TaskListId::try_from_str(&id) {
@@ -25,6 +27,7 @@ pub async fn get_task_list(id: String) -> Result<Option<TaskListCommand>, String
     }
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn update_task_list(id: String, patch: PartialTaskList) -> Result<bool, String> {
     let task_list_id = match TaskListId::try_from_str(&id) {
@@ -34,6 +37,7 @@ pub async fn update_task_list(id: String, patch: PartialTaskList) -> Result<bool
     task_list_facades::update_task_list(&task_list_id, &patch).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn delete_task_list(id: String) -> Result<bool, String> {
     let task_list_id = match TaskListId::try_from_str(&id) {
@@ -43,6 +47,7 @@ pub async fn delete_task_list(id: String) -> Result<bool, String> {
     task_list_facades::delete_task_list(&task_list_id).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn search_task_lists(
     condition: TaskListSearchRequest,

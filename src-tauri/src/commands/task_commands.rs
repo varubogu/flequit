@@ -5,12 +5,14 @@ use crate::models::task::PartialTask;
 use crate::models::CommandModelConverter;
 use crate::types::id_types::TaskId;
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn create_task(task: TaskCommand) -> Result<bool, String> {
     let internal_task = task.to_model().await?;
     task_facades::create_task(&internal_task).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn get_task(id: String) -> Result<Option<TaskCommand>, String> {
     let task_id = match TaskId::try_from_str(&id) {
@@ -24,6 +26,7 @@ pub async fn get_task(id: String) -> Result<Option<TaskCommand>, String> {
     }
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn update_task(id: String, patch: PartialTask) -> Result<bool, String> {
     let task_id = match TaskId::try_from_str(&id) {
@@ -33,6 +36,7 @@ pub async fn update_task(id: String, patch: PartialTask) -> Result<bool, String>
     task_facades::update_task(&task_id, &patch).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn delete_task(id: String) -> Result<bool, String> {
     let task_id = match TaskId::try_from_str(&id) {
@@ -42,6 +46,7 @@ pub async fn delete_task(id: String) -> Result<bool, String> {
     task_facades::delete_task(&task_id).await
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn search_tasks(condition: TaskSearchRequest) -> Result<Vec<TaskCommand>, String> {
     let results = task_facades::search_tasks(&condition).await?;

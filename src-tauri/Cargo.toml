@@ -35,6 +35,8 @@ tokio = { version = "1.47.1", features = ["full"] }
 thiserror = "2.0.12"
 futures = "0.3.31"
 partially = { version = "0.2.1", features = ["derive"] }
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
 
 [dev-dependencies]
 tempfile = "3.0"

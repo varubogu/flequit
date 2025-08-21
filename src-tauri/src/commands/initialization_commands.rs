@@ -4,18 +4,21 @@ use crate::models::command::project::ProjectCommand;
 use crate::models::setting::LocalSettings;
 use crate::models::CommandModelConverter;
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn load_all_data() -> Result<Option<LocalSettings>, String> {
     let initialized = initialization_facades::load_all_data().await?;
     Ok(initialized)
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
     let settings = initialization_facades::load_local_settings().await?;
     Ok(settings)
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn load_current_account() -> Result<Option<AccountCommand>, String> {
     let account = initialization_facades::load_current_account().await?;
@@ -25,6 +28,7 @@ pub async fn load_current_account() -> Result<Option<AccountCommand>, String> {
     }
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn load_all_project_data() -> Result<Vec<ProjectCommand>, String> {
     let projects = initialization_facades::load_all_project_data().await?;
@@ -35,6 +39,7 @@ pub async fn load_all_project_data() -> Result<Vec<ProjectCommand>, String> {
     Ok(command_results)
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn load_all_account() -> Result<Vec<AccountCommand>, String> {
     let accounts = initialization_facades::load_all_account().await?;
