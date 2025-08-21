@@ -1,7 +1,7 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
 use crate::models::command::initialize::InitializedResult;
-use crate::models::project::{Project, ProjectTree};
+use crate::models::project::ProjectTree;
 use crate::models::setting::LocalSettings;
 use crate::models::TreeCommandConverter;
 use crate::services::initialization_service;
@@ -48,10 +48,6 @@ pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
 
 pub async fn load_current_account() -> Result<Option<Account>, String> {
     handle_service_error(initialization_service::load_current_account().await)
-}
-
-pub async fn load_all_project_data() -> Result<Vec<Project>, String> {
-    handle_service_error(initialization_service::load_all_project_data().await)
 }
 
 pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, String> {

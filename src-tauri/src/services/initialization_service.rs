@@ -83,32 +83,23 @@ pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
     }
 }
 
-pub async fn load_all_project_data() -> Result<Vec<Project>, ServiceError> {
-    let repository = Repositories::new().await?;
-    repository
-        .projects
-        .find_all()
-        .await
-        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
-}
-
 pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // 1. 全プロジェクトを取得
     let projects = repository
         .projects
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
-    
+
     let mut project_trees = Vec::new();
-    
+
     // 2. 各プロジェクトに対してTaskListTreeを取得してProjectTreeを構築
     for project in projects {
         // TaskListTreeを取得
         let task_lists = crate::services::task_list_service::get_task_lists_with_tasks(&project.id).await?;
-        
+
         let project_tree = ProjectTree {
             id: project.id.clone(),
             name: project.name,
@@ -122,10 +113,10 @@ pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> 
             updated_at: project.updated_at,
             task_lists,
         };
-        
+
         project_trees.push(project_tree);
     }
-    
+
     Ok(project_trees)
 }
 

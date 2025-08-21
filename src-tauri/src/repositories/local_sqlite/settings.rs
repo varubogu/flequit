@@ -16,8 +16,7 @@ use crate::models::sqlite::{
 };
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
-use std::collections::HashMap;
+use sea_orm::{ActiveModelTrait, EntityTrait};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -45,7 +44,7 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
 
         // 設定は単一レコードとして保存する（id = "app_settings"）
         let model = SettingEntity::find_by_id("app_settings").one(db).await?;
-        
+
         if let Some(model) = model {
             // SQLiteモデルからドメインモデルに変換
             let settings = model.to_domain_model().await?;
@@ -61,14 +60,14 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
 
         // ドメインモデルからSQLiteモデルに変換
         let active_model: SettingActiveModel = settings.to_sqlite_model().await?;
-        
+
         // 既存レコードがあるかチェックしてUPSERT
         if SettingEntity::find_by_id("app_settings").one(db).await?.is_some() {
             active_model.update(db).await?;
         } else {
             active_model.insert(db).await?;
         }
-        
+
         Ok(())
     }
 
