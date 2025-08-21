@@ -17,7 +17,7 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::project::ProjectCommand, CommandModelConverter};
+use crate::models::{command::project::ProjectCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter};
 
 /// 基本プロジェクト情報を表現する構造体
 ///
@@ -135,6 +135,8 @@ pub struct ProjectTree {
     pub order_index: i32,
     /// アーカイブ状態フラグ
     pub is_archived: bool,
+    /// プロジェクトステータス（進行中、完了等）
+    pub status: Option<ProjectStatus>,
     /// プロジェクトオーナーのユーザーID
     pub owner_id: Option<UserId>, // プロジェクトオーナーのユーザーID
     /// プロジェクト作成日時
@@ -142,7 +144,7 @@ pub struct ProjectTree {
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
     /// 所属するタスクリスト一覧（タスク情報を含む）
-    pub task_lists: Vec<super::task_list::TaskListWithTasks>,
+    pub task_lists: Vec<super::task_list::TaskListTree>,
 }
 
 impl CommandModelConverter<ProjectCommand> for Project {
@@ -158,6 +160,48 @@ impl CommandModelConverter<ProjectCommand> for Project {
             owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+        })
+    }
+}
+
+impl FromTreeModel<Project> for ProjectTree {
+    async fn from_tree_model(&self) -> Result<Project, String> {
+        // ProjectTreeからProjectに変換（関連データのtask_listsは除く）
+        Ok(Project {
+            id: self.id.clone(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            color: self.color.clone(),
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            status: self.status.clone(),
+            owner_id: self.owner_id.clone(),
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+        })
+    }
+}
+
+impl TreeCommandConverter<crate::models::command::project::ProjectTreeCommand> for ProjectTree {
+    async fn to_command_model(&self) -> Result<crate::models::command::project::ProjectTreeCommand, String> {
+        // タスクリストをコマンドモデルに変換
+        let mut task_list_commands = Vec::new();
+        for task_list in &self.task_lists {
+            task_list_commands.push(task_list.to_command_model().await?);
+        }
+
+        Ok(crate::models::command::project::ProjectTreeCommand {
+            id: self.id.to_string(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            color: self.color.clone(),
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            status: self.status.clone(),
+            owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+            task_lists: task_list_commands,
         })
     }
 }

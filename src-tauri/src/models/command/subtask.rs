@@ -91,6 +91,27 @@ impl ModelConverter<SubTask> for SubtaskCommand {
     }
 }
 
+/// Tauriコマンド戻り値用のSubTaskTree構造体（日時フィールドはString、階層構造含む）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SubTaskTreeCommand {
+    pub id: String,
+    pub task_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: TaskStatus,
+    pub priority: Option<i32>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
+    pub is_range_date: Option<bool>,
+    pub recurrence_rule: Option<RecurrenceRule>,
+    pub assigned_user_ids: Vec<String>,
+    pub order_index: i32,
+    pub completed: bool,
+    pub created_at: String,
+    pub updated_at: String,
+    pub tags: Vec<super::tag::TagCommand>,
+}
+
 /// Tauriコマンド引数用のSubtaskSearchRequest構造体
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SubtaskSearchRequest {

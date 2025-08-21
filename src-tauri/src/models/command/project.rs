@@ -55,6 +55,22 @@ impl ModelConverter<Project> for ProjectCommand {
     }
 }
 
+/// Tauriコマンド戻り値用のProjectTree構造体（日時フィールドはString、階層構造含む）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectTreeCommand {
+    pub id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub color: Option<String>,
+    pub order_index: i32,
+    pub is_archived: bool,
+    pub status: Option<ProjectStatus>,
+    pub owner_id: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub task_lists: Vec<super::task_list::TaskListTreeCommand>,
+}
+
 /// Tauriコマンド引数用のProjectSearchRequest構造体
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProjectSearchRequest {

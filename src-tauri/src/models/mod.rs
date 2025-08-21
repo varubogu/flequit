@@ -84,3 +84,31 @@ pub mod user;
 pub trait CommandModelConverter<T> {
     async fn to_command_model(&self) -> Result<T, String>;
 }
+
+/// 通常モデルとTree系モデル間の相互変換を定義するトレイト
+///
+/// 通常モデル（SQLite用のテーブル単位構造）とTree系モデル（フロントエンド用の階層構造）
+/// の間で相互変換を行うためのトレイトです。
+///
+/// # 設計思想
+///
+/// - **from_tree_model**: Tree系モデル → 通常モデル（関連データは除く）
+/// - 通常モデル → Tree系モデルの変換は、サービス層で関連データ取得と組み合わせて実現
+///
+/// # 使用例
+///
+/// ```rust
+/// // ProjectTree → Project への変換  
+/// let project = ProjectTree::from_tree_model(&project_tree).await?;
+/// ```
+/// Tree系モデルから通常モデルに変換するトレイト
+pub trait FromTreeModel<BaseModel> {
+    /// Tree系モデルから通常モデルに変換（関連データは除く）
+    async fn from_tree_model(&self) -> Result<BaseModel, String>;
+}
+
+/// Tree系モデルからコマンドモデルに変換するトレイト
+pub trait TreeCommandConverter<CommandModel> {
+    /// Tree系モデル → コマンドモデル（階層構造を含む）
+    async fn to_command_model(&self) -> Result<CommandModel, String>;
+}

@@ -1,8 +1,9 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
 use crate::models::command::initialize::InitializedResult;
-use crate::models::project::Project;
+use crate::models::project::{Project, ProjectTree};
 use crate::models::setting::{LocalSettings, Settings};
+use crate::models::TreeCommandConverter;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use crate::repositories::Repositories;
@@ -11,7 +12,7 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
     // 他のservice関数を組み合わせて全データを取得
     let local_settings = load_local_settings().await?;
     let accounts = load_all_account().await?;
-    let projects = load_all_project_data().await?;
+    let project_trees = load_all_project_trees().await?;
 
     // LocalSettingsからSettingsを構築
     let mut settings = Settings::default();
@@ -20,10 +21,16 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
         settings.language = local_settings.language;
     }
 
+    // ProjectTreeをProjectTreeCommandに変換
+    let mut project_tree_commands = Vec::new();
+    for project_tree in project_trees {
+        project_tree_commands.push(project_tree.to_command_model().await.map_err(|e| ServiceError::InternalError(e))?);
+    }
+
     Ok(InitializedResult {
         settings,
         accounts,
-        projects,
+        projects: project_tree_commands,
     })
 }
 
@@ -83,6 +90,43 @@ pub async fn load_all_project_data() -> Result<Vec<Project>, ServiceError> {
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
+}
+
+pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> {
+    let repository = Repositories::new().await?;
+    
+    // 1. 全プロジェクトを取得
+    let projects = repository
+        .projects
+        .find_all()
+        .await
+        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
+    
+    let mut project_trees = Vec::new();
+    
+    // 2. 各プロジェクトに対してTaskListTreeを取得してProjectTreeを構築
+    for project in projects {
+        // TaskListTreeを取得
+        let task_lists = crate::services::task_list_service::get_task_lists_with_tasks(&project.id).await?;
+        
+        let project_tree = ProjectTree {
+            id: project.id.clone(),
+            name: project.name,
+            description: project.description,
+            color: project.color,
+            order_index: project.order_index,
+            is_archived: project.is_archived,
+            status: project.status,
+            owner_id: project.owner_id,
+            created_at: project.created_at,
+            updated_at: project.updated_at,
+            task_lists,
+        };
+        
+        project_trees.push(project_tree);
+    }
+    
+    Ok(project_trees)
 }
 
 pub async fn load_all_account() -> Result<Vec<Account>, ServiceError> {

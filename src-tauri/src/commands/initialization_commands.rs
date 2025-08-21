@@ -1,9 +1,9 @@
 use crate::facades::initialization_facades;
 use crate::models::command::account::AccountCommand;
 use crate::models::command::initialize::InitializedResult;
-use crate::models::command::project::ProjectCommand;
+use crate::models::command::project::ProjectTreeCommand;
 use crate::models::setting::LocalSettings;
-use crate::models::CommandModelConverter;
+use crate::models::{CommandModelConverter, TreeCommandConverter};
 
 #[tracing::instrument]
 #[tauri::command]
@@ -30,11 +30,11 @@ pub async fn load_current_account() -> Result<Option<AccountCommand>, String> {
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn load_all_project_data() -> Result<Vec<ProjectCommand>, String> {
-    let projects = initialization_facades::load_all_project_data().await?;
+pub async fn load_all_project_data() -> Result<Vec<ProjectTreeCommand>, String> {
+    let project_trees = initialization_facades::load_all_project_trees().await?;
     let mut command_results = Vec::new();
-    for project in projects {
-        command_results.push(project.to_command_model().await?);
+    for project_tree in project_trees {
+        command_results.push(TreeCommandConverter::<ProjectTreeCommand>::to_command_model(&project_tree).await?);
     }
     Ok(command_results)
 }

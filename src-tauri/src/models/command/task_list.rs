@@ -47,6 +47,21 @@ impl ModelConverter<TaskList> for TaskListCommand {
     }
 }
 
+/// Tauriコマンド戻り値用のTaskListTree構造体（日時フィールドはString、階層構造含む）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskListTreeCommand {
+    pub id: String,
+    pub project_id: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub color: Option<String>,
+    pub order_index: i32,
+    pub is_archived: bool,
+    pub created_at: String,
+    pub updated_at: String,
+    pub tasks: Vec<super::task::TaskTreeCommand>,
+}
+
 /// Tauriコマンド引数用のTaskListSearchRequest構造体
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TaskListSearchRequest {

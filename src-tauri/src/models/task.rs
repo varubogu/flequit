@@ -18,7 +18,7 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::task::TaskCommand, CommandModelConverter};
+use crate::models::{command::task::TaskCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter};
 
 /// 基本タスク情報を表現する構造体
 ///
@@ -110,7 +110,7 @@ pub struct Task {
     pub updated_at: DateTime<Utc>,
 }
 
-/// サブタスクとタグ情報を含む完全なタスク構造体
+/// サブタスクとタグ情報を含む完全なタスクツリー構造体
 ///
 /// タスクの詳細表示や編集画面で使用される、関連データを含む完全な構造体です。
 /// サブタスクとタグの実体情報を含むため、詳細画面での一括表示に最適化されています。
@@ -144,7 +144,7 @@ pub struct Task {
 ///
 /// ```rust
 /// // タスク詳細画面での使用例
-/// let detailed_task = TaskWithSubTasks {
+/// let detailed_task = TaskTree {
 ///     // ... 基本フィールドは Task と同様
 ///     sub_tasks: vec![
 ///         SubTask { /* サブタスク1 */ },
@@ -157,7 +157,7 @@ pub struct Task {
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskWithSubTasks {
+pub struct TaskTree {
     /// タスクの一意識別子
     pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
@@ -223,6 +223,71 @@ impl CommandModelConverter<TaskCommand> for Task {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+        })
+    }
+}
+
+impl FromTreeModel<Task> for TaskTree {
+    async fn from_tree_model(&self) -> Result<Task, String> {
+        // TaskTreeからTaskに変換（関連データのsub_tasks, tagsは除く）
+        Ok(Task {
+            id: self.id.clone(),
+            sub_task_id: self.sub_task_id.clone(),
+            project_id: self.project_id.clone(),
+            list_id: self.list_id.clone(),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            start_date: self.start_date,
+            end_date: self.end_date,
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            assigned_user_ids: self.assigned_user_ids.clone(),
+            tag_ids: self.tags.iter().map(|tag| tag.id.clone()).collect(), // タグの実体からIDを取得
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+        })
+    }
+}
+
+impl TreeCommandConverter<crate::models::command::task::TaskTreeCommand> for TaskTree {
+    async fn to_command_model(&self) -> Result<crate::models::command::task::TaskTreeCommand, String> {
+        // サブタスクをSubTaskTreeCommandに変換
+        let mut sub_task_tree_commands = Vec::new();
+        for sub_task in &self.sub_tasks {
+            // SubTaskはTreeCommandConverterを実装しているのでそれを使用
+            sub_task_tree_commands.push(TreeCommandConverter::<crate::models::command::subtask::SubTaskTreeCommand>::to_command_model(sub_task).await?);
+        }
+
+        // タグをコマンドモデルに変換
+        let mut tag_commands = Vec::new();
+        for tag in &self.tags {
+            tag_commands.push(tag.to_command_model().await?);
+        }
+
+        Ok(crate::models::command::task::TaskTreeCommand {
+            id: self.id.to_string(),
+            sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
+            project_id: self.project_id.to_string(),
+            list_id: self.list_id.to_string(),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            start_date: self.start_date.map(|d| d.to_rfc3339()),
+            end_date: self.end_date.map(|d| d.to_rfc3339()),
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+            sub_tasks: sub_task_tree_commands,
+            tags: tag_commands,
         })
     }
 }

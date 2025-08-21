@@ -13,7 +13,7 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::task_list::TaskListCommand, CommandModelConverter};
+use crate::models::{command::task_list::TaskListCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter};
 
 /// 基本タスクリスト情報を表現する構造体
 ///
@@ -92,7 +92,7 @@ pub struct TaskList {
     pub updated_at: DateTime<Utc>,
 }
 
-/// タスクを含む完全なタスクリスト構造体
+/// タスクを含む完全なタスクリストツリー構造体
 ///
 /// タスクリストの詳細表示や一括操作で使用される、関連タスクを含む完全な構造体です。
 /// 所属タスクの実体情報を含むため、詳細画面やダッシュボードでの表示に最適化されています。
@@ -102,7 +102,7 @@ pub struct TaskList {
 /// `TaskList`構造体と同様のフィールドに加えて、以下の関連データを含みます：
 ///
 /// ## 関連データ
-/// * `tasks` - 所属するタスクの配列（TaskWithSubTasks構造体）
+/// * `tasks` - 所属するタスクの配列（TaskTree構造体）
 ///
 /// # 使用場面
 ///
@@ -120,14 +120,14 @@ pub struct TaskList {
 /// # データ整合性
 ///
 /// - `tasks`配列には該当タスクリストに所属するタスクのみ含まれます
-/// - 各タスクはサブタスクとタグ情報も含む完全な構造（TaskWithSubTasks）です
+/// - 各タスクはサブタスクとタグ情報も含む完全な構造（TaskTree）です
 ///
 /// # 階層構造
 ///
 /// ```
 /// Project
-///   └── TaskListWithTasks
-///       └── TaskWithSubTasks[]
+///   └── TaskListTree
+///       └── TaskTree[]
 ///           └── SubTask[]
 ///           └── Tag[]
 /// ```
@@ -136,19 +136,19 @@ pub struct TaskList {
 ///
 /// ```rust
 /// // プロジェクトダッシュボードでの使用例
-/// let detailed_list = TaskListWithTasks {
+/// let detailed_list = TaskListTree {
 ///     id: TaskListId::new(),
 ///     project_id: ProjectId::new(),
 ///     name: "進行中".to_string(),
 ///     // ... 基本フィールドは TaskList と同様
 ///     tasks: vec![
-///         TaskWithSubTasks { /* 完全なタスク情報 */ },
-///         TaskWithSubTasks { /* 完全なタスク情報 */ },
+///         TaskTree { /* 完全なタスク情報 */ },
+///         TaskTree { /* 完全なタスク情報 */ },
 ///     ],
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskListWithTasks {
+pub struct TaskListTree {
     /// タスクリストの一意識別子
     pub id: TaskListId,
     /// 所属プロジェクトの識別子（必須の関連）
@@ -167,8 +167,8 @@ pub struct TaskListWithTasks {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
-    /// 所属するタスクの配列（TaskWithSubTasks構造体）
-    pub tasks: Vec<super::task::TaskWithSubTasks>,
+    /// 所属するタスクの配列（TaskTree構造体）
+    pub tasks: Vec<super::task::TaskTree>,
 }
 
 impl CommandModelConverter<TaskListCommand> for TaskList {
@@ -183,6 +183,46 @@ impl CommandModelConverter<TaskListCommand> for TaskList {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+        })
+    }
+}
+
+impl FromTreeModel<TaskList> for TaskListTree {
+    async fn from_tree_model(&self) -> Result<TaskList, String> {
+        // TaskListTreeからTaskListに変換（関連データのtasksは除く）
+        Ok(TaskList {
+            id: self.id.clone(),
+            project_id: self.project_id.clone(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            color: self.color.clone(),
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+        })
+    }
+}
+
+impl TreeCommandConverter<crate::models::command::task_list::TaskListTreeCommand> for TaskListTree {
+    async fn to_command_model(&self) -> Result<crate::models::command::task_list::TaskListTreeCommand, String> {
+        // タスクをコマンドモデルに変換
+        let mut task_commands = Vec::new();
+        for task in &self.tasks {
+            task_commands.push(task.to_command_model().await?);
+        }
+
+        Ok(crate::models::command::task_list::TaskListTreeCommand {
+            id: self.id.to_string(),
+            project_id: self.project_id.to_string(),
+            name: self.name.clone(),
+            description: self.description.clone(),
+            color: self.color.clone(),
+            order_index: self.order_index,
+            is_archived: self.is_archived,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+            tasks: task_commands,
         })
     }
 }
