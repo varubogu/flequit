@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TaskListSearchCondition } from '$lib/types/task-list';
-import type { TaskList } from '$lib/types/task-list';
+import type { TaskListSearchCondition, TaskList, TaskListPatch } from '$lib/types/task-list';
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
 export class TasklistTauriService implements TaskListService {
@@ -14,10 +13,10 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async update(taskList: TaskList): Promise<boolean> {
+  async update(id: string, patch: TaskListPatch): Promise<boolean> {
     try {
-      await invoke('update_task_list', { taskList });
-      return true;
+      const result = await invoke('update_task_list', { id, patch });
+      return result as boolean;
     } catch (error) {
       console.error('Failed to update task list:', error);
       return false;

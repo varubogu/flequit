@@ -60,11 +60,11 @@ describe('ProjectTauriService', () => {
 
   describe('update', () => {
     it('should successfully update a project', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockProject);
+      const result = await service.update(mockProject.id, mockProject);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_project', { project: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
       expect(result).toBe(true);
     });
 
@@ -72,9 +72,9 @@ describe('ProjectTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockProject);
+      const result = await service.update(mockProject.id, mockProject);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_project', { project: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update project:', expect.any(Error));
 

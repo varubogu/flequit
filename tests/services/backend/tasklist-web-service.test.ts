@@ -50,11 +50,12 @@ describe('TasklistWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockTaskList);
+      const result = await service.update(mockTaskList.id, mockTaskList);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: updateTaskList not implemented',
+        mockTaskList.id,
         mockTaskList
       );
     });
@@ -109,7 +110,7 @@ describe('TasklistWebService', () => {
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
           service.create(mockTaskList),
-          service.update(mockTaskList),
+          service.update(mockTaskList.id, mockTaskList),
           service.delete('tasklist-123'),
           service.get('tasklist-123'),
           service.search(mockSearchCondition)
@@ -129,7 +130,7 @@ describe('TasklistWebService', () => {
       const operations = await Promise.all([
         service.create(mockTaskList),
         service.get('tasklist-123'),
-        service.update(mockTaskList),
+        service.update(mockTaskList.id, mockTaskList),
         service.delete('tasklist-123'),
         service.search(mockSearchCondition)
       ]);

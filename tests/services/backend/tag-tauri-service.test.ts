@@ -91,11 +91,11 @@ describe('TagTauriService', () => {
 
   describe('update', () => {
     it('should successfully update a tag', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockTag);
+      const result = await service.update(mockTag.id, mockTag);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { tag: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: mockTag.id, patch: mockTag });
       expect(result).toBe(true);
     });
 
@@ -103,9 +103,9 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockTag);
+      const result = await service.update(mockTag.id, mockTag);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { tag: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: mockTag.id, patch: mockTag });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update tag:', expect.any(Error));
 
@@ -113,7 +113,7 @@ describe('TagTauriService', () => {
     });
 
     it('should handle color change', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const updatedTag = {
         ...mockTag,
@@ -121,14 +121,14 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(updatedTag);
+      const result = await service.update(updatedTag.id, updatedTag);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { tag: updatedTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: updatedTag.id, patch: updatedTag });
       expect(result).toBe(true);
     });
 
     it('should handle name change', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const renamedTag = {
         ...mockTag,
@@ -136,9 +136,9 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(renamedTag);
+      const result = await service.update(renamedTag.id, renamedTag);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { tag: renamedTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: renamedTag.id, patch: renamedTag });
       expect(result).toBe(true);
     });
   });

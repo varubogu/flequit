@@ -1,16 +1,16 @@
 /**
  * 基本的なCRUD操作インターフェース
  */
-export interface CrudInterface<T> {
+export interface CrudInterface<T, TPatch = Partial<T>> {
   /**
    * 新規作成
    */
   create(item: T): Promise<boolean>;
 
   /**
-   * 更新
+   * 部分更新
    */
-  update(item: T): Promise<boolean>;
+  update(id: string, patch: TPatch): Promise<boolean>;
 
   /**
    * 削除
@@ -56,7 +56,7 @@ export interface SettingInterface<T> {
 /**
  * アカウント用の特別なインターフェース（CRUD操作）
  */
-export interface AccountInterface<T> {
+export interface AccountInterface<T, TPatch = Partial<T>> {
   /**
    * 新規作成
    */
@@ -68,9 +68,9 @@ export interface AccountInterface<T> {
   get(id: string): Promise<T | null>;
 
   /**
-   * アカウントを更新
+   * アカウントの部分更新
    */
-  update(item: T): Promise<boolean>;
+  update(id: string, patch: TPatch): Promise<boolean>;
 
   /**
    * アカウントを削除

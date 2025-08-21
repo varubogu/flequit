@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TagSearchCondition } from '$lib/types/tag';
-import type { Tag } from '$lib/types/tag';
+import type { TagSearchCondition, Tag, TagPatch } from '$lib/types/tag';
 import type { TagService } from '$lib/services/backend/tag-service';
 
 export class TagTauriService implements TagService {
@@ -14,10 +13,10 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async update(tag: Tag): Promise<boolean> {
+  async update(id: string, patch: TagPatch): Promise<boolean> {
     try {
-      await invoke('update_tag', { tag });
-      return true;
+      const result = await invoke('update_tag', { id, patch });
+      return result as boolean;
     } catch (error) {
       console.error('Failed to update tag:', error);
       return false;

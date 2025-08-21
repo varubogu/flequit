@@ -67,23 +67,20 @@ export class DataService {
     }
   ): Promise<Project | null> {
     const backend = await this.getBackend();
-    const project = await backend.project.get(projectId);
+    
+    // Patch形式でのupdateに変更
+    const patchData = {
+      ...updates,
+      updated_at: new Date()
+    };
 
-    // Web環境では既存データが取得できないため、更新データのみでProjectオブジェクトを構築
-    const updatedProject = project
-      ? {
-          ...project,
-          ...updates,
-          updated_at: new Date()
-        }
-      : ({
-          id: projectId,
-          ...updates,
-          updated_at: new Date()
-        } as Project);
-
-    const success = await backend.project.update(updatedProject);
-    return success ? updatedProject : null;
+    const success = await backend.project.update(projectId, patchData);
+    
+    if (success) {
+      // 更新後のデータを取得して返す
+      return await backend.project.get(projectId);
+    }
+    return null;
   }
 
   async deleteProject(projectId: string): Promise<boolean> {
@@ -129,23 +126,20 @@ export class DataService {
     }
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
-    const taskList = await backend.tasklist.get(taskListId);
+    
+    // Patch形式でのupdateに変更
+    const patchData = {
+      ...updates,
+      updated_at: new Date()
+    };
 
-    // Web環境では既存データが取得できないため、更新データのみでTaskListオブジェクトを構築
-    const updatedTaskList = taskList
-      ? {
-          ...taskList,
-          ...updates,
-          updated_at: new Date()
-        }
-      : ({
-          id: taskListId,
-          ...updates,
-          updated_at: new Date()
-        } as TaskList);
-
-    const success = await backend.tasklist.update(updatedTaskList);
-    return success ? updatedTaskList : null;
+    const success = await backend.tasklist.update(taskListId, patchData);
+    
+    if (success) {
+      // 更新後のデータを取得して返す
+      return await backend.tasklist.get(taskListId);
+    }
+    return null;
   }
 
   async deleteTaskList(taskListId: string): Promise<boolean> {
@@ -173,25 +167,24 @@ export class DataService {
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
-    const task = await backend.task.get(taskId);
-
-    // Web環境では既存データが取得できないため、更新データのみでTaskオブジェクトを構築
-    const updatedTask = task
-      ? {
-          ...task,
-          ...updates,
-          updated_at: new Date()
-        }
-      : ({
-          id: taskId,
-          ...updates,
-          updated_at: new Date()
-        } as Task);
+    
+    // Patch形式でのupdateに変更（Date型をstring型に変換）
+    const patchData = {
+      ...updates,
+      start_date: updates.start_date ? updates.start_date.toISOString() : updates.start_date,
+      end_date: updates.end_date ? updates.end_date.toISOString() : updates.end_date,
+      updated_at: new Date()
+    };
 
     console.log('DataService: calling backend.task.update');
-    const success = await backend.task.update(updatedTask);
+    const success = await backend.task.update(taskId, patchData);
     console.log('DataService: backend.task.update result:', success);
-    return success ? updatedTask : null;
+    
+    if (success) {
+      // 更新後のデータを取得して返す
+      return await backend.task.get(taskId);
+    }
+    return null;
   }
 
   async deleteTask(taskId: string): Promise<boolean> {
@@ -235,25 +228,24 @@ export class DataService {
   async updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<SubTask | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
-    const subTask = await backend.subtask.get(subTaskId);
-
-    // Web環境では既存データが取得できないため、更新データのみでSubTaskオブジェクトを構築
-    const updatedSubTask = subTask
-      ? {
-          ...subTask,
-          ...updates,
-          updated_at: new Date()
-        }
-      : ({
-          id: subTaskId,
-          ...updates,
-          updated_at: new Date()
-        } as SubTask);
+    
+    // Patch形式でのupdateに変更（Date型をstring型に変換）
+    const patchData = {
+      ...updates,
+      start_date: updates.start_date ? updates.start_date.toISOString() : updates.start_date,
+      end_date: updates.end_date ? updates.end_date.toISOString() : updates.end_date,
+      updated_at: new Date()
+    };
 
     console.log('DataService: calling backend.subtask.update');
-    const success = await backend.subtask.update(updatedSubTask);
+    const success = await backend.subtask.update(subTaskId, patchData);
     console.log('DataService: backend.subtask.update result:', success);
-    return success ? updatedSubTask : null;
+    
+    if (success) {
+      // 更新後のデータを取得して返す
+      return await backend.subtask.get(subTaskId);
+    }
+    return null;
   }
 
   async deleteSubTask(subTaskId: string): Promise<boolean> {
@@ -279,25 +271,22 @@ export class DataService {
   async updateTag(tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTag called with backend:', backend.constructor.name);
-    const tag = await backend.tag.get(tagId);
-
-    // Web環境では既存データが取得できないため、更新データのみでTagオブジェクトを構築
-    const updatedTag = tag
-      ? {
-          ...tag,
-          ...updates,
-          updated_at: new Date()
-        }
-      : ({
-          id: tagId,
-          ...updates,
-          updated_at: new Date()
-        } as Tag);
+    
+    // Patch形式でのupdateに変更
+    const patchData = {
+      ...updates,
+      updated_at: new Date()
+    };
 
     console.log('DataService: calling backend.tag.update');
-    const success = await backend.tag.update(updatedTag);
+    const success = await backend.tag.update(tagId, patchData);
     console.log('DataService: backend.tag.update result:', success);
-    return success ? updatedTag : null;
+    
+    if (success) {
+      // 更新後のデータを取得して返す
+      return await backend.tag.get(tagId);
+    }
+    return null;
   }
 
   async deleteTag(tagId: string): Promise<boolean> {

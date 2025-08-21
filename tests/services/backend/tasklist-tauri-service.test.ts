@@ -101,11 +101,11 @@ describe('TasklistTauriService', () => {
 
   describe('update', () => {
     it('should successfully update a task list', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockTaskList);
+      const result = await service.update(mockTaskList.id, mockTaskList);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: mockTaskList });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { id: mockTaskList.id, patch: mockTaskList });
       expect(result).toBe(true);
     });
 
@@ -113,9 +113,9 @@ describe('TasklistTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockTaskList);
+      const result = await service.update(mockTaskList.id, mockTaskList);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: mockTaskList });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { id: mockTaskList.id, patch: mockTaskList });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task list:', expect.any(Error));
 
@@ -123,7 +123,7 @@ describe('TasklistTauriService', () => {
     });
 
     it('should handle name change', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const renamedTaskList = {
         ...mockTaskList,
@@ -131,14 +131,14 @@ describe('TasklistTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(renamedTaskList);
+      const result = await service.update(renamedTaskList.id, renamedTaskList);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: renamedTaskList });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { id: renamedTaskList.id, patch: renamedTaskList });
       expect(result).toBe(true);
     });
 
     it('should handle archive status change', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const archivedTaskList = {
         ...mockTaskList,
@@ -146,14 +146,14 @@ describe('TasklistTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(archivedTaskList);
+      const result = await service.update(archivedTaskList.id, archivedTaskList);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: archivedTaskList });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { id: archivedTaskList.id, patch: archivedTaskList });
       expect(result).toBe(true);
     });
 
     it('should handle order index change', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const reorderedTaskList = {
         ...mockTaskList,
@@ -161,9 +161,9 @@ describe('TasklistTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(reorderedTaskList);
+      const result = await service.update(reorderedTaskList.id, reorderedTaskList);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { taskList: reorderedTaskList });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task_list', { id: reorderedTaskList.id, patch: reorderedTaskList });
       expect(result).toBe(true);
     });
   });

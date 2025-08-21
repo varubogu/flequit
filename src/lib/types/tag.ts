@@ -23,3 +23,15 @@ export interface TagSearchCondition {
   /** タグ名 */
   name?: string;
 }
+
+/**
+ * タグ部分更新用のパッチインターフェース
+ */
+export interface TagPatch {
+  /** タグ名 */
+  name?: string;
+  /** タグの色 */
+  color?: string | null;
+  /** 表示順序 */
+  order_index?: number | null;
+}

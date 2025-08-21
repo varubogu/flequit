@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Task, TaskSearchCondition } from '$lib/types/task';
+import type { Task, TaskSearchCondition, TaskPatch } from '$lib/types/task';
 import type { TaskService } from '$lib/services/backend/task-service';
 
 export class TaskTauriService implements TaskService {
@@ -13,10 +13,10 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async update(task: Task): Promise<boolean> {
+  async update(id: string, patch: TaskPatch): Promise<boolean> {
     try {
-      await invoke('update_task', { task });
-      return true;
+      const result = await invoke('update_task', { id, patch });
+      return result as boolean;
     } catch (error) {
       console.error('Failed to update task:', error);
       return false;

@@ -49,11 +49,12 @@ describe('ProjectWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockProject);
+      const result = await service.update(mockProject.id, mockProject);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: updateProject not implemented',
+        mockProject.id,
         mockProject
       );
     });
@@ -108,7 +109,7 @@ describe('ProjectWebService', () => {
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
           service.create(mockProject),
-          service.update(mockProject),
+          service.update(mockProject.id, mockProject),
           service.delete('project-123'),
           service.get('project-123'),
           service.search(mockSearchCondition)
@@ -126,7 +127,7 @@ describe('ProjectWebService', () => {
   describe('stub behavior consistency', () => {
     it('should consistently return optimistic results for modification operations', async () => {
       const createResult = await service.create(mockProject);
-      const updateResult = await service.update(mockProject);
+      const updateResult = await service.update(mockProject.id, mockProject);
       const deleteResult = await service.delete('project-123');
 
       expect(createResult).toBe(true);
@@ -148,7 +149,7 @@ describe('ProjectWebService', () => {
       const operations = await Promise.all([
         service.create(mockProject),
         service.get('project-123'),
-        service.update(mockProject),
+        service.update(mockProject.id, mockProject),
         service.delete('project-123'),
         service.search(mockSearchCondition)
       ]);

@@ -1,5 +1,4 @@
-import type { TagSearchCondition } from '$lib/types/tag';
-import type { Tag } from '$lib/types/tag';
+import type { TagSearchCondition, Tag, TagPatch } from '$lib/types/tag';
 import type { TagService } from '$lib/services/backend/tag-service';
 
 export class TagWebService implements TagService {
@@ -9,9 +8,9 @@ export class TagWebService implements TagService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
-  async update(tag: Tag): Promise<boolean> {
+  async update(id: string, patch: TagPatch): Promise<boolean> {
     // TODO: Web API実装を追加
-    console.warn('Web backend: updateTag not implemented', tag);
+    console.warn('Web backend: updateTag not implemented', id, patch);
     return true; // 警告を出しつつ正常終了として扱う
   }
 
@@ -32,4 +31,5 @@ export class TagWebService implements TagService {
     console.warn('Web backend: searchTags not implemented', condition);
     return []; // 仮実装として空配列を返す
   }
+
 }

@@ -43,10 +43,10 @@ describe('TagWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockTag);
+      const result = await service.update(mockTag.id, mockTag);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTag not implemented', mockTag);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTag not implemented', mockTag.id, mockTag);
     });
   });
 
@@ -93,7 +93,7 @@ describe('TagWebService', () => {
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
           service.create(mockTag),
-          service.update(mockTag),
+          service.update(mockTag.id, mockTag),
           service.delete('tag-123'),
           service.get('tag-123'),
           service.search(mockSearchCondition)
@@ -113,7 +113,7 @@ describe('TagWebService', () => {
       const operations = await Promise.all([
         service.create(mockTag),
         service.get('tag-123'),
-        service.update(mockTag),
+        service.update(mockTag.id, mockTag),
         service.delete('tag-123'),
         service.search(mockSearchCondition)
       ]);

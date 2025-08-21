@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AccountService } from '$lib/services/backend/account-service';
-import type { Account } from '$lib/types/settings';
+import type { Account } from '$lib/types/account';
 
 // モックのアカウントサービス実装
 class MockAccountService implements AccountService {
@@ -20,10 +20,10 @@ describe('AccountService Interface', () => {
 
     mockAccount = {
       id: 'account-123',
+      username: 'testuser',
       display_name: 'Test User',
       email: 'test@example.com',
       avatar_url: 'https://example.com/avatar.jpg',
-      provider: 'local',
       is_active: true,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AccountWebService } from '$lib/services/backend/web/account-web-service';
-import type { Account } from '$lib/types/settings';
+import type { Account } from '$lib/types/account';
 
 describe('AccountWebService', () => {
   let service: AccountWebService;
@@ -12,10 +12,10 @@ describe('AccountWebService', () => {
 
     mockAccount = {
       id: 'account-123',
+      username: 'testuser',
       display_name: 'Test User',
       email: 'test@example.com',
       avatar_url: 'https://example.com/avatar.jpg',
-      provider: 'local',
       is_active: true,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
@@ -44,8 +44,8 @@ describe('AccountWebService', () => {
     it('should handle account with minimal data', async () => {
       const minimalAccount = {
         id: 'account-minimal',
+        username: 'minimaluser',
         display_name: 'Minimal User',
-        provider: 'local' as const,
         is_active: true,
         created_at: new Date(),
         updated_at: new Date()
@@ -63,8 +63,7 @@ describe('AccountWebService', () => {
     it('should handle account with all fields', async () => {
       const fullAccount = {
         ...mockAccount,
-        email: 'full@example.com',
-        profile_image: 'https://example.com/full-avatar.png'
+        email: 'full@example.com'
       };
 
       const result = await service.create(fullAccount);
@@ -102,11 +101,12 @@ describe('AccountWebService', () => {
 
   describe('update', () => {
     it('should return false for stub implementation', async () => {
-      const result = await service.update(mockAccount);
+      const result = await service.update(mockAccount.id, mockAccount);
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: updateAccount not implemented',
+        mockAccount.id,
         mockAccount
       );
     });
@@ -118,11 +118,12 @@ describe('AccountWebService', () => {
         email: 'updated@example.com'
       };
 
-      const result = await service.update(updatedAccount);
+      const result = await service.update(updatedAccount.id, updatedAccount);
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: updateAccount not implemented',
+        updatedAccount.id,
         updatedAccount
       );
     });
@@ -162,7 +163,7 @@ describe('AccountWebService', () => {
     it('should return proper Promise types', async () => {
       const createPromise = service.create(mockAccount);
       const getPromise = service.get('account-123');
-      const updatePromise = service.update(mockAccount);
+      const updatePromise = service.update(mockAccount.id, mockAccount);
       const deletePromise = service.delete('account-123');
 
       expect(createPromise).toBeInstanceOf(Promise);
@@ -187,7 +188,7 @@ describe('AccountWebService', () => {
   describe('stub behavior consistency', () => {
     it('should consistently return false for modification operations', async () => {
       const createResult = await service.create(mockAccount);
-      const updateResult = await service.update(mockAccount);
+      const updateResult = await service.update(mockAccount.id, mockAccount);
       const deleteResult = await service.delete('account-123');
 
       expect(createResult).toBe(false);
@@ -208,7 +209,7 @@ describe('AccountWebService', () => {
     it('should log appropriate warnings for all operations', async () => {
       await service.create(mockAccount);
       await service.get('account-123');
-      await service.update(mockAccount);
+      await service.update(mockAccount.id, mockAccount);
       await service.delete('account-123');
 
       expect(consoleSpy).toHaveBeenCalledTimes(4);
@@ -225,6 +226,7 @@ describe('AccountWebService', () => {
       expect(consoleSpy).toHaveBeenNthCalledWith(
         3,
         'Web backend: updateAccount not implemented',
+        mockAccount.id,
         mockAccount
       );
       expect(consoleSpy).toHaveBeenNthCalledWith(
@@ -240,7 +242,7 @@ describe('AccountWebService', () => {
       const operations = await Promise.all([
         service.create(mockAccount),
         service.get('account-123'),
-        service.update(mockAccount),
+        service.update(mockAccount.id, mockAccount),
         service.delete('account-123')
       ]);
 
@@ -264,7 +266,7 @@ describe('AccountWebService', () => {
     it('should handle special characters in account data', async () => {
       const specialAccount = {
         ...mockAccount,
-        name: 'ユーザー名 with émojis 🚀',
+        username: 'specialuser',
         email: 'test+special@example.com'
       };
 
@@ -297,7 +299,7 @@ describe('AccountWebService', () => {
       };
 
       const createResult = await service.create(malformedAccount);
-      const updateResult = await service.update(malformedAccount);
+      const updateResult = await service.update(malformedAccount.id, malformedAccount);
 
       expect(createResult).toBe(false);
       expect(updateResult).toBe(false);

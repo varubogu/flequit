@@ -49,3 +49,31 @@ export interface SubTaskSearchCondition {
   /** 優先度 */
   priority?: number;
 }
+
+/**
+ * サブタスク部分更新用のパッチインターフェース
+ */
+export interface SubTaskPatch {
+  /** 親タスクID */
+  task_id?: string;
+  /** サブタスクタイトル */
+  title?: string;
+  /** サブタスクの説明 */
+  description?: string | null;
+  /** ステータス */
+  status?: TaskStatus;
+  /** 優先度 */
+  priority?: number | null;
+  /** 開始日 */
+  start_date?: string | null;
+  /** 終了日（期日） */
+  end_date?: string | null;
+  /** 期日が範囲選択かどうか */
+  is_range_date?: boolean | null;
+  /** 繰り返しルール */
+  recurrence_rule?: RecurrenceRule | null;
+  /** 表示順序 */
+  order_index?: number;
+  /** タグIDの配列 */
+  tag_ids?: string[];
+}

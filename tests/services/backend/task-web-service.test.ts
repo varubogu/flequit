@@ -48,10 +48,17 @@ describe('TaskWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockTask);
+      const patchData = {
+        ...mockTask,
+        start_date: mockTask.start_date?.toISOString(),
+        end_date: mockTask.end_date?.toISOString(),
+        created_at: mockTask.created_at.toISOString(),
+        updated_at: mockTask.updated_at.toISOString()
+      };
+      const result = await service.update(mockTask.id, patchData);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', mockTask);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', mockTask.id, patchData);
     });
   });
 
@@ -101,10 +108,17 @@ describe('TaskWebService', () => {
     });
 
     it('should return proper Promise types', async () => {
+      const patchData = {
+        ...mockTask,
+        start_date: mockTask.start_date?.toISOString(),
+        end_date: mockTask.end_date?.toISOString(),
+        created_at: mockTask.created_at.toISOString(),
+        updated_at: mockTask.updated_at.toISOString()
+      };
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
           service.create(mockTask),
-          service.update(mockTask),
+          service.update(mockTask.id, patchData),
           service.delete('task-123'),
           service.get('task-123'),
           service.search(mockSearchCondition)
@@ -121,10 +135,17 @@ describe('TaskWebService', () => {
 
   describe('concurrent operations', () => {
     it('should handle concurrent operations without side effects', async () => {
+      const patchData = {
+        ...mockTask,
+        start_date: mockTask.start_date?.toISOString(),
+        end_date: mockTask.end_date?.toISOString(),
+        created_at: mockTask.created_at.toISOString(),
+        updated_at: mockTask.updated_at.toISOString()
+      };
       const operations = await Promise.all([
         service.create(mockTask),
         service.get('task-123'),
-        service.update(mockTask),
+        service.update(mockTask.id, patchData),
         service.delete('task-123'),
         service.search(mockSearchCondition)
       ]);

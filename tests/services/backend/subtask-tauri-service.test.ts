@@ -85,11 +85,18 @@ describe('SubtaskTauriService', () => {
 
   describe('update', () => {
     it('should successfully update a subtask', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockSubTask);
+      const patchData = {
+        ...mockSubTask,
+        start_date: mockSubTask.start_date?.toISOString(),
+        end_date: mockSubTask.end_date?.toISOString(),
+        created_at: mockSubTask.created_at.toISOString(),
+        updated_at: mockSubTask.updated_at.toISOString()
+      };
+      const result = await service.update(mockSubTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { subTask: mockSubTask });
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { id: mockSubTask.id, patch: patchData });
       expect(result).toBe(true);
     });
 
@@ -97,17 +104,24 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockSubTask);
+      const patchData = {
+        ...mockSubTask,
+        start_date: mockSubTask.start_date?.toISOString(),
+        end_date: mockSubTask.end_date?.toISOString(),
+        created_at: mockSubTask.created_at.toISOString(),
+        updated_at: mockSubTask.updated_at.toISOString()
+      };
+      const result = await service.update(mockSubTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { subTask: mockSubTask });
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { id: mockSubTask.id, patch: patchData });
       expect(result).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to update sub task:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to update subtask:', expect.any(Error));
 
       consoleSpy.mockRestore();
     });
 
     it('should handle status changes', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
       const updatedSubTask = {
         ...mockSubTask,
@@ -115,9 +129,17 @@ describe('SubtaskTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(updatedSubTask);
+      const patchData = {
+        ...updatedSubTask,
+        start_date: updatedSubTask.start_date?.toISOString(),
+        end_date: updatedSubTask.end_date?.toISOString(),
+        created_at: updatedSubTask.created_at.toISOString(),
+        updated_at: updatedSubTask.updated_at.toISOString()
+      };
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { subTask: updatedSubTask });
+      const result = await service.update(updatedSubTask.id, patchData);
+
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { id: updatedSubTask.id, patch: patchData });
       expect(result).toBe(true);
     });
   });

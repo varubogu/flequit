@@ -49,3 +49,19 @@ export interface ProjectTree extends Project {
   /** タスクを含むタスクリスト */
   task_lists: TaskListWithTasks[];
 }
+
+/**
+ * プロジェクト部分更新用のパッチインターフェース
+ */
+export interface ProjectPatch {
+  /** プロジェクト名 */
+  name?: string;
+  /** プロジェクトの説明 */
+  description?: string | null;
+  /** プロジェクトの色 */
+  color?: string | null;
+  /** 表示順序 */
+  order_index?: number;
+  /** アーカイブ状態 */
+  is_archived?: boolean;
+}

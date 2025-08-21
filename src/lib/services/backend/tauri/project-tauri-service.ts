@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { ProjectSearchCondition } from '$lib/types/project';
-import type { Project } from '$lib/types/project';
+import type { ProjectSearchCondition, Project, ProjectPatch } from '$lib/types/project';
 import type { ProjectService } from '$lib/services/backend/project-service';
 
 export class ProjectTauriService implements ProjectService {
@@ -14,10 +13,10 @@ export class ProjectTauriService implements ProjectService {
     }
   }
 
-  async update(project: Project): Promise<boolean> {
+  async update(id: string, patch: ProjectPatch): Promise<boolean> {
     try {
-      await invoke('update_project', { project });
-      return true;
+      const result = await invoke('update_project', { id, patch });
+      return result as boolean;
     } catch (error) {
       console.error('Failed to update project:', error);
       return false;

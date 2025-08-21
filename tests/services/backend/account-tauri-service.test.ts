@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AccountTauriService } from '$lib/services/backend/tauri/account-tauri-service';
-import type { Account } from '$lib/types/settings';
+import type { Account } from '$lib/types/account';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -18,11 +18,10 @@ describe('AccountTauriService', () => {
     service = new AccountTauriService();
     mockAccount = {
       id: 'account-123',
+      username: 'testuser',
       email: 'test@example.com',
       display_name: 'Test User',
       avatar_url: 'https://example.com/avatar.jpg',
-      provider: 'local',
-      provider_id: 'local-123',
       is_active: true,
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
@@ -89,11 +88,11 @@ describe('AccountTauriService', () => {
 
   describe('update', () => {
     it('should successfully update an account', async () => {
-      mockInvoke.mockResolvedValue(undefined);
+      mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockAccount);
+      const result = await service.update(mockAccount.id, mockAccount);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_account', { account: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
       expect(result).toBe(true);
     });
 
@@ -101,9 +100,9 @@ describe('AccountTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockAccount);
+      const result = await service.update(mockAccount.id, mockAccount);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_account', { account: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update account:', expect.any(Error));
 

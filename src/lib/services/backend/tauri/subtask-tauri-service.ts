@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubTaskSearchCondition } from '$lib/types/sub-task';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTaskSearchCondition, SubTask, SubTaskPatch } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
@@ -14,12 +13,12 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async update(subTask: SubTask): Promise<boolean> {
+  async update(id: string, patch: SubTaskPatch): Promise<boolean> {
     try {
-      await invoke('update_sub_task', { subTask });
-      return true;
+      const result = await invoke('update_sub_task', { id, patch });
+      return result as boolean;
     } catch (error) {
-      console.error('Failed to update sub task:', error);
+      console.error('Failed to update subtask:', error);
       return false;
     }
   }
