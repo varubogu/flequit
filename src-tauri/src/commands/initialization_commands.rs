@@ -1,14 +1,14 @@
 use crate::facades::initialization_facades;
 use crate::models::command::account::AccountCommand;
+use crate::models::command::initialize::InitializedResult;
 use crate::models::command::project::ProjectCommand;
 use crate::models::setting::LocalSettings;
 use crate::models::CommandModelConverter;
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn load_all_data() -> Result<Option<LocalSettings>, String> {
-    let initialized = initialization_facades::load_all_data().await?;
-    Ok(initialized)
+pub async fn load_all_data() -> Result<InitializedResult, String> {
+    initialization_facades::load_all_data().await
 }
 
 #[tracing::instrument]
