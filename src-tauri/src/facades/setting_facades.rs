@@ -95,9 +95,31 @@ pub async fn delete_view_item(id: &str) -> Result<(), String> {
 }
 
 // ---------------------------
-// Settings (Key-Value)
+// Settings (個別キー - レガシー対応)
 // ---------------------------
 
 pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
-    handle_service_error(setting_service::get_setting(key).await)
+    // 構造体から特定フィールドの値を文字列として返す（レガシー対応）
+    let settings = setting_service::get_all_settings().await.map_err(|e| format!("{:?}", e))?;
+    
+    let value = match key {
+        "theme" => Some(settings.theme),
+        "language" => Some(settings.language),
+        "font" => Some(settings.font),
+        "font_size" => Some(settings.font_size.to_string()),
+        "font_color" => Some(settings.font_color),
+        "background_color" => Some(settings.background_color),
+        "week_start" => Some(settings.week_start),
+        "timezone" => Some(settings.timezone),
+        "date_format" => Some(settings.date_format),
+        "selected_account" => Some(settings.selected_account),
+        "account_name" => Some(settings.account_name),
+        "email" => Some(settings.email),
+        "password" => Some(settings.password),
+        "server_url" => Some(settings.server_url),
+        "account_icon" => settings.account_icon,
+        _ => None,
+    };
+    
+    Ok(value)
 }

@@ -7,6 +7,8 @@ pub enum ServiceError {
     Repository(#[from] RepositoryError),
     #[error("Validation error: {0}")]
     ValidationError(String),
+    #[error("Invalid argument: {0}")]
+    InvalidArgument(String),
     #[error("Not found: {0}")]
     NotFound(String),
     // #[error("Conflict: {0}")]

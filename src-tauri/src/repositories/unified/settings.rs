@@ -1,11 +1,10 @@
 //! Settings統合リポジトリ
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
 use crate::repositories::local_automerge::settings::SettingsLocalAutomergeRepository;
 use crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
-use std::collections::HashMap;
 
 /// Settings用のリポジトリvariant（静的ディスパッチ用）
 #[derive(Debug, Clone)]
@@ -16,24 +15,17 @@ pub enum SettingsRepositoryVariant {
 
 #[async_trait]
 impl SettingRepositoryTrait for SettingsRepositoryVariant {
-    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+    async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.get_setting(key).await,
-            Self::Automerge(repo) => repo.get_setting(key).await,
+            Self::Sqlite(repo) => repo.get_settings().await,
+            Self::Automerge(repo) => repo.get_settings().await,
         }
     }
 
-    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
+    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
         match self {
-            Self::Sqlite(repo) => repo.set_setting(key, value).await,
-            Self::Automerge(repo) => repo.set_setting(key, value).await,
-        }
-    }
-
-    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
-        match self {
-            Self::Sqlite(repo) => repo.get_all_key_value_settings().await,
-            Self::Automerge(repo) => repo.get_all_key_value_settings().await,
+            Self::Sqlite(repo) => repo.save_settings(settings).await,
+            Self::Automerge(repo) => repo.save_settings(settings).await,
         }
     }
 
@@ -186,27 +178,19 @@ impl SettingsUnifiedRepository {
 
 #[async_trait]
 impl SettingRepositoryTrait for SettingsUnifiedRepository {
-    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+    async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError> {
         if let Some(repo) = self.search_repositories.first() {
-            repo.get_setting(key).await
+            repo.get_settings().await
         } else {
             Ok(None)
         }
     }
 
-    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
+    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
         for repo in &self.save_repositories {
-            repo.set_setting(key, value).await?;
+            repo.save_settings(settings).await?;
         }
         Ok(())
-    }
-
-    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
-        if let Some(repo) = self.search_repositories.first() {
-            repo.get_all_key_value_settings().await
-        } else {
-            Ok(HashMap::new())
-        }
     }
 
     async fn get_custom_date_format(

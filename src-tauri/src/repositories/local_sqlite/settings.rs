@@ -2,10 +2,9 @@
 
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
-use crate::models::sqlite::settings_key_value::{
-    ActiveModel as SettingKeyValueActiveModel, Column as SettingKeyValueColumn,
-    Entity as SettingKeyValueEntity,
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
+use crate::models::sqlite::setting::{
+    ActiveModel as SettingActiveModel, Entity as SettingEntity,
 };
 use crate::models::sqlite::{
     custom_date_format::{
@@ -37,52 +36,40 @@ impl SettingsLocalSqliteRepository {
 #[async_trait]
 impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
     // ---------------------------
-    // Key-Value設定
+    // 設定（構造体）
     // ---------------------------
 
-    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+    async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        let model = SettingKeyValueEntity::find_by_id(key).one(db).await?;
-        Ok(model.map(|m| m.value))
-    }
-
-    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
-        let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await?;
-
-        let model = SettingKeyValueActiveModel {
-            key: ActiveValue::Set(key.to_string()),
-            value: ActiveValue::Set(value.to_string()),
-        };
-        // `insert` はPK違反で失敗する可能性があるため、`save` (UPSERT) を使うのが望ましいが、
-        // sea-ormのSQLiteバックエンドでは `save` が素直なUPSERTにならないケースがある。
-        // ここでは、まず存在確認してからUPDATE/INSERTする。
-        if SettingKeyValueEntity::find_by_id(key)
-            .one(db)
-            .await?
-            .is_some()
-        {
-            // UPDATE
-            SettingKeyValueEntity::update(model)
-                .filter(SettingKeyValueColumn::Key.eq(key))
-                .exec(db)
-                .await?;
+        // 設定は単一レコードとして保存する（id = "app_settings"）
+        let model = SettingEntity::find_by_id("app_settings").one(db).await?;
+        
+        if let Some(model) = model {
+            // SQLiteモデルからドメインモデルに変換
+            let settings = model.to_domain_model().await?;
+            Ok(Some(settings))
         } else {
-            // INSERT
-            model.insert(db).await?;
+            Ok(None)
         }
-        Ok(())
     }
 
-    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
+    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        let models = SettingKeyValueEntity::find().all(db).await?;
-        let map = models.into_iter().map(|m| (m.key, m.value)).collect();
-        Ok(map)
+        // ドメインモデルからSQLiteモデルに変換
+        let active_model: SettingActiveModel = settings.to_sqlite_model().await?;
+        
+        // 既存レコードがあるかチェックしてUPSERT
+        if SettingEntity::find_by_id("app_settings").one(db).await?.is_some() {
+            active_model.update(db).await?;
+        } else {
+            active_model.insert(db).await?;
+        }
+        
+        Ok(())
     }
 
     // ---------------------------

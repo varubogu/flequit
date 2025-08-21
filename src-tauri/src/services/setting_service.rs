@@ -9,14 +9,19 @@ use uuid::Uuid;
 // Settings (全体設定)
 // ---------------------------
 
-/// すべての設定項目を各リポジトリから取得し、Settings構造体に組み立てて返します。
+/// すべての設定項目を各リポジトリから取得し、Settings構造体として返します。
 pub async fn get_all_settings() -> Result<Settings, ServiceError> {
     let repository = Repositories::new().await?;
-    let kv_settings = repository
+    
+    // メインの設定を取得
+    let base_settings = repository
         .settings
-        .get_all_key_value_settings()
+        .get_settings()
         .await
-        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
+        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?
+        .unwrap_or_default(); // デフォルト設定を使用
+        
+    // 関連データを取得
     let custom_date_formats = repository
         .settings
         .get_all_custom_date_formats()
@@ -33,79 +38,65 @@ pub async fn get_all_settings() -> Result<Settings, ServiceError> {
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
 
-    // HashMapからSettings構造体にマッピング
-    // `get` は `Option` を返すため、`unwrap_or_else` でデフォルト値を設定
+    // Settings構造体を組み立て
     let settings = Settings {
-        theme: kv_settings
-            .get("theme")
-            .cloned()
-            .unwrap_or_else(|| "system".to_string()),
-        language: kv_settings
-            .get("language")
-            .cloned()
-            .unwrap_or_else(|| "ja".to_string()),
-        font: kv_settings.get("font").cloned().unwrap_or_default(),
-        font_size: kv_settings
-            .get("fontSize")
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(14),
-        font_color: kv_settings.get("fontColor").cloned().unwrap_or_default(),
-        background_color: kv_settings
-            .get("backgroundColor")
-            .cloned()
-            .unwrap_or_default(),
-        week_start: kv_settings
-            .get("weekStart")
-            .cloned()
-            .unwrap_or_else(|| "sunday".to_string()),
-        timezone: kv_settings.get("timezone").cloned().unwrap_or_default(),
-        date_format: kv_settings.get("dateFormat").cloned().unwrap_or_default(),
-        custom_due_days: kv_settings
-            .get("customDueDays")
-            .and_then(|s| serde_json::from_str(s).ok())
-            .unwrap_or_default(),
-        due_date_buttons: kv_settings
-            .get("dueDateButtons")
-            .and_then(|s| serde_json::from_str(s).ok())
-            .unwrap_or_else(Default::default),
-        selected_account: kv_settings
-            .get("selectedAccount")
-            .cloned()
-            .unwrap_or_default(),
-        account_icon: kv_settings.get("accountIcon").cloned(),
-        account_name: kv_settings.get("accountName").cloned().unwrap_or_default(),
-        email: kv_settings.get("email").cloned().unwrap_or_default(),
-        password: kv_settings.get("password").cloned().unwrap_or_default(),
-        server_url: kv_settings.get("serverUrl").cloned().unwrap_or_default(),
-
-        // List items
         custom_date_formats,
         time_labels,
         view_items,
+        ..base_settings
     };
 
     Ok(settings)
 }
 
-/// 特定のキーの設定値を取得します。
-pub async fn get_setting(key: &str) -> Result<Option<String>, ServiceError> {
+/// 設定を保存します。
+pub async fn save_settings(settings: &Settings) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository
         .settings
-        .get_setting(key)
+        .save_settings(settings)
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
 }
 
-/// 特定のキーの設定値を保存します。
+/// 特定のキーの設定値を保存します（レガシー対応）。
 pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
-    let value_str = value.to_string();
-    repository
-        .settings
-        .set_setting(key, &value_str)
-        .await
-        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
+    // 現在の設定を取得
+    let mut current_settings = get_all_settings().await?;
+    
+    // 指定されたキーの値を更新
+    match key {
+        "theme" => current_settings.theme = value.as_str().unwrap_or_default().to_string(),
+        "language" => current_settings.language = value.as_str().unwrap_or_default().to_string(),
+        "font" => current_settings.font = value.as_str().unwrap_or_default().to_string(),
+        "font_size" => current_settings.font_size = value.as_i64().unwrap_or_default() as i32,
+        "font_color" => current_settings.font_color = value.as_str().unwrap_or_default().to_string(),
+        "background_color" => current_settings.background_color = value.as_str().unwrap_or_default().to_string(),
+        "week_start" => current_settings.week_start = value.as_str().unwrap_or_default().to_string(),
+        "timezone" => current_settings.timezone = value.as_str().unwrap_or_default().to_string(),
+        "date_format" => current_settings.date_format = value.as_str().unwrap_or_default().to_string(),
+        "selected_account" => current_settings.selected_account = value.as_str().unwrap_or_default().to_string(),
+        "account_name" => current_settings.account_name = value.as_str().unwrap_or_default().to_string(),
+        "email" => current_settings.email = value.as_str().unwrap_or_default().to_string(),
+        "password" => current_settings.password = value.as_str().unwrap_or_default().to_string(),
+        "server_url" => current_settings.server_url = value.as_str().unwrap_or_default().to_string(),
+        "account_icon" => current_settings.account_icon = value.as_str().map(|s| s.to_string()),
+        // JSONフィールドの場合
+        "custom_due_days" => {
+            if let Ok(days) = serde_json::from_value(value) {
+                current_settings.custom_due_days = days;
+            }
+        },
+        "due_date_buttons" => {
+            if let Ok(buttons) = serde_json::from_value(value) {
+                current_settings.due_date_buttons = buttons;
+            }
+        },
+        _ => return Err(ServiceError::InvalidArgument(format!("Unknown setting key: {}", key))),
+    }
+    
+    // 更新された設定を保存
+    save_settings(&current_settings).await
 }
 
 // ---------------------------

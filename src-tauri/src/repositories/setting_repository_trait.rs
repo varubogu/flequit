@@ -1,23 +1,19 @@
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
 use async_trait::async_trait;
-use std::collections::HashMap;
 
 /// 設定リポジトリのトレイト
 #[async_trait]
 pub trait SettingRepositoryTrait: Send + Sync {
     // ---------------------------
-    // Key-Value設定
+    // 設定（構造体）
     // ---------------------------
 
-    /// 指定したキーの設定値を取得します。
-    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError>;
+    /// すべての設定をSettings構造体として取得します。
+    async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError>;
 
-    /// 指定したキーの設定値を保存（新規作成または更新）します。
-    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError>;
-
-    /// すべてのKey-Value設定をHashMapとして取得します。
-    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError>;
+    /// 設定を保存（新規作成または更新）します。
+    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError>;
 
     // ---------------------------
     // Custom Date Formats

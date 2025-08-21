@@ -31,21 +31,22 @@ pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError
     let repository = Repositories::new().await?;
 
     // ローカル設定取得ロジック：設定データベースから取得
-    let key_value_settings = repository
+    let settings = repository
         .settings
-        .get_all_key_value_settings()
+        .get_settings()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
 
-    let local_settings = LocalSettings {
-        theme: key_value_settings
-            .get("theme")
-            .unwrap_or(&"system".to_string())
-            .clone(),
-        language: key_value_settings
-            .get("language")
-            .unwrap_or(&"ja".to_string())
-            .clone(),
+    let local_settings = if let Some(settings) = settings {
+        LocalSettings {
+            theme: settings.theme,
+            language: settings.language,
+        }
+    } else {
+        LocalSettings {
+            theme: "system".to_string(),
+            language: "ja".to_string(),
+        }
     };
 
     Ok(Some(local_settings))

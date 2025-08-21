@@ -2,8 +2,6 @@ pub mod account;
 pub mod custom_date_format;
 pub mod project;
 pub mod setting;
-pub mod settings;
-pub mod settings_key_value;
 pub mod subtask;
 pub mod tag;
 pub mod task;

@@ -179,3 +179,5 @@ impl DomainToSqliteConverter<ActiveModel> for Settings {
         })
     }
 }
+
+// レガシー対応の別形式は必要に応じて別モジュールで実装可能

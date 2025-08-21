@@ -2,15 +2,14 @@
 
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem};
+use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use async_trait::async_trait;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-const KEY_VALUE_SETTINGS_KEY: &str = "key_value_settings";
+const SETTINGS_KEY: &str = "app_settings";
 const CUSTOM_DATE_FORMATS_KEY: &str = "custom_date_formats";
 const TIME_LABELS_KEY: &str = "time_labels";
 const VIEW_ITEMS_KEY: &str = "view_items";
@@ -33,59 +32,25 @@ impl SettingsLocalAutomergeRepository {
 #[async_trait]
 impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
     // ---------------------------
-    // Key-Value設定
+    // 設定（構造体）
     // ---------------------------
 
-    async fn get_setting(&self, key: &str) -> Result<Option<String>, RepositoryError> {
+    async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError> {
         let settings = {
             let mut manager = self.document_manager.lock().await;
             manager
-                .load_data::<HashMap<String, String>>(
-                    &DocumentType::Settings,
-                    KEY_VALUE_SETTINGS_KEY,
-                )
+                .load_data::<Settings>(&DocumentType::Settings, SETTINGS_KEY)
                 .await?
         };
 
-        if let Some(settings) = settings {
-            Ok(settings.get(key).cloned())
-        } else {
-            Ok(None)
-        }
+        Ok(settings)
     }
 
-    async fn set_setting(&self, key: &str, value: &str) -> Result<(), RepositoryError> {
-        let mut settings = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .load_data::<HashMap<String, String>>(
-                    &DocumentType::Settings,
-                    KEY_VALUE_SETTINGS_KEY,
-                )
-                .await?
-        }
-        .unwrap_or_default();
-
-        settings.insert(key.to_string(), value.to_string());
-
+    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
         let mut manager = self.document_manager.lock().await;
         manager
-            .save_data(&DocumentType::Settings, KEY_VALUE_SETTINGS_KEY, &settings)
+            .save_data(&DocumentType::Settings, SETTINGS_KEY, settings)
             .await
-    }
-
-    async fn get_all_key_value_settings(&self) -> Result<HashMap<String, String>, RepositoryError> {
-        let settings = {
-            let mut manager = self.document_manager.lock().await;
-            manager
-                .load_data::<HashMap<String, String>>(
-                    &DocumentType::Settings,
-                    KEY_VALUE_SETTINGS_KEY,
-                )
-                .await?
-        };
-
-        Ok(settings.unwrap_or_default())
     }
 
     // ---------------------------
