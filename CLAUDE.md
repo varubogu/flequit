@@ -86,6 +86,7 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 ├── tests/                    # 単体・結合テスト(vitest)
+│   ├── test-data/            # 単体・結合テスト(vitest)で使用するテストデータ（1関数＝1テストデータ生成）
 │   ├── integration/          # 結合テスト
 │   ├── */                    # 単体テスト
 │   └── vitest.setup.ts       # Vitest設定
