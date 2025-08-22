@@ -281,6 +281,107 @@ impl DocumentManager {
         })
     }
 
+    /// ドキュメントの全データをJSONとして取得
+    pub async fn export_document_as_json(
+        &mut self,
+        doc_type: &DocumentType,
+    ) -> Result<serde_json::Value, RepositoryError> {
+        let doc_handle = self.get_or_create_document(doc_type).await?;
+        
+        doc_handle.with_doc(|doc| {
+            let root_value = match doc.get(&automerge::ROOT, "dummy_root_key") {
+                Ok(Some((value, obj_id))) => {
+                    // ダミーキーで取得した場合の処理
+                    self.value_to_json_value_with_objid(doc, &value, &obj_id)
+                }
+                _ => {
+                    // ルートオブジェクト全体を読み取る
+                    self.read_map_object(doc, &automerge::ROOT)
+                }
+            };
+            Ok(root_value)
+        })
+    }
+
+    /// ドキュメントの状態をJSONファイルに出力
+    pub async fn export_document_to_file<P: AsRef<Path>>(
+        &mut self,
+        doc_type: &DocumentType,
+        output_path: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let json_data = self.export_document_as_json(doc_type).await?;
+        
+        // メタデータを含むJSONを作成
+        let export_data = serde_json::json!({
+            "metadata": {
+                "document_type": format!("{:?}", doc_type),
+                "filename": doc_type.filename(),
+                "exported_at": chrono::Utc::now().to_rfc3339(),
+                "description": description.unwrap_or("Document state export")
+            },
+            "document_data": json_data
+        });
+        
+        let json_string = serde_json::to_string_pretty(&export_data)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+            
+        std::fs::write(output_path, json_string)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+            
+        Ok(())
+    }
+
+    /// 全てのドキュメントをJSONファイルに出力
+    pub async fn export_all_documents_to_directory<P: AsRef<Path>>(
+        &mut self,
+        output_dir: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let output_dir = output_dir.as_ref();
+        
+        // 出力ディレクトリを作成
+        if !output_dir.exists() {
+            std::fs::create_dir_all(output_dir)
+                .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        }
+        
+        let document_types = self.list_document_types()?;
+        let total_documents = document_types.len();
+        
+        for doc_type in &document_types {
+            let filename = format!("{}.json", doc_type.filename().replace(".automerge", ""));
+            let output_path = output_dir.join(filename);
+            
+            self.export_document_to_file(&doc_type, output_path, description).await?;
+        }
+        
+        // サマリーファイルを作成
+        let summary = serde_json::json!({
+            "export_metadata": {
+                "exported_at": chrono::Utc::now().to_rfc3339(),
+                "description": description.unwrap_or("Batch document export"),
+                "total_documents": total_documents
+            },
+            "documents": document_types.iter().map(|dt| {
+                serde_json::json!({
+                    "type": format!("{:?}", dt),
+                    "filename": dt.filename(),
+                    "json_file": format!("{}.json", dt.filename().replace(".automerge", ""))
+                })
+            }).collect::<Vec<_>>()
+        });
+        
+        let summary_path = output_dir.join("export_summary.json");
+        let summary_string = serde_json::to_string_pretty(&summary)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+            
+        std::fs::write(summary_path, summary_string)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        
+        Ok(())
+    }
+
     /// ネストしたオブジェクトを取得または作成するヘルパー
     fn get_or_create_nested_object(
         &self,
