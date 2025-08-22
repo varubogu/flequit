@@ -18,7 +18,9 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::task::TaskCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter};
+use crate::models::{
+    command::task::TaskCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter,
+};
 
 /// 基本タスク情報を表現する構造体
 ///
@@ -254,7 +256,9 @@ impl FromTreeModel<Task> for TaskTree {
 }
 
 impl TreeCommandConverter<crate::models::command::task::TaskTreeCommand> for TaskTree {
-    async fn to_command_model(&self) -> Result<crate::models::command::task::TaskTreeCommand, String> {
+    async fn to_command_model(
+        &self,
+    ) -> Result<crate::models::command::task::TaskTreeCommand, String> {
         // サブタスクをSubTaskTreeCommandに変換
         let mut sub_task_tree_commands = Vec::new();
         for sub_task in &self.sub_tasks {
@@ -281,7 +285,11 @@ impl TreeCommandConverter<crate::models::command::task::TaskTreeCommand> for Tas
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),

@@ -6,8 +6,7 @@
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_automerge::{
     account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
-    project_tree::ProjectTreeLocalAutomergeRepository,
-    settings::SettingsLocalAutomergeRepository,
+    project_tree::ProjectTreeLocalAutomergeRepository, settings::SettingsLocalAutomergeRepository,
 };
 use crate::services::path_service::PathService;
 
@@ -39,12 +38,14 @@ impl LocalAutomergeRepositories {
                     e
                 ))
             })?,
-            project_trees: ProjectTreeLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
-                RepositoryError::ConfigurationError(format!(
-                    "Failed to create ProjectTreeRepository: {:?}",
-                    e
-                ))
-            })?,
+            project_trees: ProjectTreeLocalAutomergeRepository::new(data_dir.clone()).map_err(
+                |e| {
+                    RepositoryError::ConfigurationError(format!(
+                        "Failed to create ProjectTreeRepository: {:?}",
+                        e
+                    ))
+                },
+            )?,
             accounts: AccountLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create AccountRepository: {:?}",

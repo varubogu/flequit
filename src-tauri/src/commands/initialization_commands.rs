@@ -34,7 +34,9 @@ pub async fn load_all_project_data() -> Result<Vec<ProjectTreeCommand>, String> 
     let project_trees = initialization_facades::load_all_project_trees().await?;
     let mut command_results = Vec::new();
     for project_tree in project_trees {
-        command_results.push(TreeCommandConverter::<ProjectTreeCommand>::to_command_model(&project_tree).await?);
+        command_results.push(
+            TreeCommandConverter::<ProjectTreeCommand>::to_command_model(&project_tree).await?,
+        );
     }
     Ok(command_results)
 }

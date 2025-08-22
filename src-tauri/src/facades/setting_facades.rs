@@ -100,8 +100,10 @@ pub async fn delete_view_item(id: &str) -> Result<(), String> {
 
 pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
     // 構造体から特定フィールドの値を文字列として返す（レガシー対応）
-    let settings = setting_service::get_all_settings().await.map_err(|e| format!("{:?}", e))?;
-    
+    let settings = setting_service::get_all_settings()
+        .await
+        .map_err(|e| format!("{:?}", e))?;
+
     let value = match key {
         "theme" => Some(settings.theme),
         "language" => Some(settings.language),
@@ -120,6 +122,6 @@ pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
         "account_icon" => settings.account_icon,
         _ => None,
     };
-    
+
     Ok(value)
 }

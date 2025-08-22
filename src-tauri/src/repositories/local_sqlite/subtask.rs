@@ -82,7 +82,19 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
-        active_model.insert(db).await?;
+
+        // 既存レコードを確認
+        let existing = SubtaskEntity::find_by_id(&subtask.id.to_string())
+            .one(db)
+            .await?;
+
+        if existing.is_some() {
+            // 既存レコードがある場合は更新
+            active_model.update(db).await?;
+        } else {
+            // 既存レコードがない場合は挿入
+            active_model.insert(db).await?;
+        }
         Ok(())
     }
 

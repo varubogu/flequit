@@ -129,15 +129,16 @@ pub async fn list_task_lists(project_id: &str) -> Result<Vec<TaskList>, ServiceE
 }
 
 /// プロジェクトIDからタスクを含むタスクリスト一覧を取得
-pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<TaskListTree>, ServiceError> {
-    
+pub async fn get_task_lists_with_tasks(
+    project_id: &ProjectId,
+) -> Result<Vec<TaskListTree>, ServiceError> {
     let repository = Repositories::new().await?;
-    
+
     // 1. プロジェクトのタスクリストを取得
     let task_lists = list_task_lists(&project_id.to_string()).await?;
-    
+
     let mut task_lists_with_tasks = Vec::new();
-    
+
     // 2. 各タスクリストに対してタスクを取得
     for task_list in task_lists {
         // タスクリストに属するタスクを取得
@@ -148,9 +149,9 @@ pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<Tas
             .into_iter()
             .filter(|task| task.list_id == task_list.id)
             .collect::<Vec<_>>();
-        
+
         let mut tasks_with_subtasks = Vec::new();
-        
+
         // 3. 各タスクにサブタスクとタグを追加
         for task in tasks {
             // サブタスクを取得
@@ -161,7 +162,7 @@ pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<Tas
                 .into_iter()
                 .filter(|subtask| subtask.task_id == task.id)
                 .collect::<Vec<_>>();
-            
+
             // タグを取得（タスクに関連付けられたタグ）
             let tags = if !task.tag_ids.is_empty() {
                 repository
@@ -174,7 +175,7 @@ pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<Tas
             } else {
                 Vec::new()
             };
-            
+
             let task_with_subtasks = crate::models::task::TaskTree {
                 id: task.id,
                 sub_task_id: task.sub_task_id,
@@ -196,10 +197,10 @@ pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<Tas
                 sub_tasks: subtasks,
                 tags,
             };
-            
+
             tasks_with_subtasks.push(task_with_subtasks);
         }
-        
+
         // TaskListTreeを構築
         let task_list_with_tasks = TaskListTree {
             id: task_list.id,
@@ -213,9 +214,9 @@ pub async fn get_task_lists_with_tasks(project_id: &ProjectId) -> Result<Vec<Tas
             updated_at: task_list.updated_at,
             tasks: tasks_with_subtasks,
         };
-        
+
         task_lists_with_tasks.push(task_list_with_tasks);
     }
-    
+
     Ok(task_lists_with_tasks)
 }

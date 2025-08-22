@@ -89,7 +89,10 @@ impl ProjectLocalAutomergeRepository {
             if result.is_ok() {
                 log::info!("set_project - Automergeドキュメント保存完了");
             } else {
-                log::error!("set_project - Automergeドキュメント保存エラー: {:?}", result);
+                log::error!(
+                    "set_project - Automergeドキュメント保存エラー: {:?}",
+                    result
+                );
             }
             result
         }
@@ -118,12 +121,21 @@ impl ProjectLocalAutomergeRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        log::info!("ProjectLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        log::info!(
+            "ProjectLocalAutomergeRepository::save - 開始: {:?}",
+            entity.id
+        );
         let result = self.set_project(entity).await;
         if result.is_ok() {
-            log::info!("ProjectLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+            log::info!(
+                "ProjectLocalAutomergeRepository::save - 完了: {:?}",
+                entity.id
+            );
         } else {
-            log::error!("ProjectLocalAutomergeRepository::save - エラー: {:?}", result);
+            log::error!(
+                "ProjectLocalAutomergeRepository::save - エラー: {:?}",
+                result
+            );
         }
         result
     }

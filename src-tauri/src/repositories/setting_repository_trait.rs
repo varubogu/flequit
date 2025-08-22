@@ -1,5 +1,5 @@
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
+use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use async_trait::async_trait;
 
 /// 設定リポジトリのトレイト
@@ -11,9 +11,6 @@ pub trait SettingRepositoryTrait: Send + Sync {
 
     /// すべての設定をSettings構造体として取得します。
     async fn get_settings(&self) -> Result<Option<Settings>, RepositoryError>;
-
-    /// 設定を保存（新規作成または更新）します。
-    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError>;
 
     // ---------------------------
     // Custom Date Formats

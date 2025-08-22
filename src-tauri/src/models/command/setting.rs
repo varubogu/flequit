@@ -5,6 +5,7 @@ use crate::models::setting::{
     CustomDateFormat, DueDateButtons, LocalSettings, Setting, Settings, TimeLabel, ViewItem,
 };
 use crate::models::CommandModelConverter;
+use crate::types::id_types::SettingsId;
 
 /// Tauriコマンド引数用のLocalSettings構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,6 +85,7 @@ impl ModelConverter<Settings> for SettingsCommand {
     /// コマンド引数用（SettingsCommand）から内部モデル（Settings）に変換
     async fn to_model(&self) -> Result<Settings, String> {
         Ok(crate::models::setting::Settings {
+            id: SettingsId::from("app_settings"),
             theme: self.theme.clone(),
             language: self.language.clone(),
             font: self.font.clone(),

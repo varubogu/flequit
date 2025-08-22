@@ -6,17 +6,11 @@ use sea_orm::sea_query::{Index, SqliteQueryBuilder};
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Statement};
 
 use crate::models::sqlite::{
-    account::Entity as AccountEntity, 
-    custom_date_format::Entity as CustomDateFormatEntity,
-    project::Entity as ProjectEntity,
-    setting::Entity as SettingEntity,
-    subtask::Entity as SubtaskEntity, 
-    tag::Entity as TagEntity,
-    task::Entity as TaskEntity, 
-    task_list::Entity as TaskListEntity,
-    time_label::Entity as TimeLabelEntity,
-    user::Entity as UserEntity,
-    view_item::Entity as ViewItemEntity,
+    account::Entity as AccountEntity, custom_date_format::Entity as CustomDateFormatEntity,
+    project::Entity as ProjectEntity, setting::Entity as SettingEntity,
+    subtask::Entity as SubtaskEntity, tag::Entity as TagEntity, task::Entity as TaskEntity,
+    task_list::Entity as TaskListEntity, time_label::Entity as TimeLabelEntity,
+    user::Entity as UserEntity, view_item::Entity as ViewItemEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -86,14 +80,26 @@ impl HybridMigrator {
             ("settings", schema.create_table_from_entity(SettingEntity)),
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
-            ("task_lists", schema.create_table_from_entity(TaskListEntity)),
+            (
+                "task_lists",
+                schema.create_table_from_entity(TaskListEntity),
+            ),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
             ("users", schema.create_table_from_entity(UserEntity)),
-            ("custom_date_formats", schema.create_table_from_entity(CustomDateFormatEntity)),
-            ("time_labels", schema.create_table_from_entity(TimeLabelEntity)),
-            ("view_items", schema.create_table_from_entity(ViewItemEntity)),
+            (
+                "custom_date_formats",
+                schema.create_table_from_entity(CustomDateFormatEntity),
+            ),
+            (
+                "time_labels",
+                schema.create_table_from_entity(TimeLabelEntity),
+            ),
+            (
+                "view_items",
+                schema.create_table_from_entity(ViewItemEntity),
+            ),
         ];
 
         for (table_name, stmt) in entities {

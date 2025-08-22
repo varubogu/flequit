@@ -10,4 +10,3 @@ pub struct InitializedResult {
     pub accounts: Vec<Account>,
     pub projects: Vec<ProjectTreeCommand>,
 }
-

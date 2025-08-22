@@ -2,8 +2,10 @@
 
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
+use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
+use crate::types::id_types::SettingsId;
 use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -44,13 +46,6 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         };
 
         Ok(settings)
-    }
-
-    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let mut manager = self.document_manager.lock().await;
-        manager
-            .save_data(&DocumentType::Settings, SETTINGS_KEY, settings)
-            .await
     }
 
     // ---------------------------
@@ -363,5 +358,50 @@ impl SettingRepositoryTrait for SettingsLocalAutomergeRepository {
         manager
             .save_data(&DocumentType::Settings, VIEW_ITEMS_KEY, &items)
             .await
+    }
+}
+
+#[async_trait]
+impl Repository<Settings, SettingsId> for SettingsLocalAutomergeRepository {
+    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .save_data(&DocumentType::Settings, SETTINGS_KEY, settings)
+            .await
+    }
+
+    async fn find_by_id(&self, id: &SettingsId) -> Result<Option<Settings>, RepositoryError> {
+        // 設定は固定ID "app_settings" のみサポート
+        if id.to_string() == "app_settings" {
+            self.get_settings().await
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn find_all(&self) -> Result<Vec<Settings>, RepositoryError> {
+        match self.get_settings().await? {
+            Some(settings) => Ok(vec![settings]),
+            None => Ok(vec![]),
+        }
+    }
+
+    async fn delete(&self, _id: &SettingsId) -> Result<(), RepositoryError> {
+        // 設定は削除をサポートしない
+        Err(RepositoryError::InvalidOperation(
+            "Settings deletion is not supported".to_string(),
+        ))
+    }
+
+    async fn exists(&self, id: &SettingsId) -> Result<bool, RepositoryError> {
+        let found = self.find_by_id(id).await?;
+        Ok(found.is_some())
+    }
+
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        match self.get_settings().await? {
+            Some(_) => Ok(1),
+            None => Ok(0),
+        }
     }
 }

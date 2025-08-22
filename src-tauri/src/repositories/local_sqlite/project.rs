@@ -72,7 +72,10 @@ impl ProjectLocalSqliteRepository {
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
     async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
-        log::info!("ProjectLocalSqliteRepository::save - 開始: {:?}", project.id);
+        log::info!(
+            "ProjectLocalSqliteRepository::save - 開始: {:?}",
+            project.id
+        );
         let db_manager = self.db_manager.read().await;
         log::info!("ProjectLocalSqliteRepository::save - DB Manager取得完了");
         let db = db_manager.get_connection().await?;
@@ -82,8 +85,24 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
             .await
             .map_err(RepositoryError::Conversion)?;
         log::info!("ProjectLocalSqliteRepository::save - ActiveModel作成完了");
-        let result = active_model.insert(db).await?;
-        log::info!("ProjectLocalSqliteRepository::save - DB挿入完了: {:?}", result);
+
+        // 既存レコードを確認
+        let existing = ProjectEntity::find_by_id(&project.id.to_string())
+            .one(db)
+            .await?;
+
+        let result = if existing.is_some() {
+            // 既存レコードがある場合は更新
+            active_model.update(db).await?
+        } else {
+            // 既存レコードがない場合は挿入
+            active_model.insert(db).await?
+        };
+
+        log::info!(
+            "ProjectLocalSqliteRepository::save - DB操作完了: {:?}",
+            result
+        );
         Ok(())
     }
 

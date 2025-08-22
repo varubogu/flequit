@@ -24,7 +24,12 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
     // ProjectTreeをProjectTreeCommandに変換
     let mut project_tree_commands = Vec::new();
     for project_tree in project_trees {
-        project_tree_commands.push(project_tree.to_command_model().await.map_err(|e| ServiceError::InternalError(e))?);
+        project_tree_commands.push(
+            project_tree
+                .to_command_model()
+                .await
+                .map_err(|e| ServiceError::InternalError(e))?,
+        );
     }
 
     Ok(InitializedResult {
@@ -98,7 +103,8 @@ pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> 
     // 2. 各プロジェクトに対してTaskListTreeを取得してProjectTreeを構築
     for project in projects {
         // TaskListTreeを取得
-        let task_lists = crate::services::task_list_service::get_task_lists_with_tasks(&project.id).await?;
+        let task_lists =
+            crate::services::task_list_service::get_task_lists_with_tasks(&project.id).await?;
 
         let project_tree = ProjectTree {
             id: project.id.clone(),

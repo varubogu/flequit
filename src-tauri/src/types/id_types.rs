@@ -62,3 +62,4 @@ define_id!(SubTaskId);
 define_id!(TagId);
 define_id!(AccountId);
 define_id!(UserId);
+define_id!(SettingsId);

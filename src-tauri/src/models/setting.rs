@@ -157,8 +157,10 @@ pub struct DueDateButtons {
 ///
 /// アプリケーションの全設定項目を単一の構造体で管理します。
 /// フロントエンドのSettings型に対応しています。
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
+    /// 設定ID（通常は固定値"app_settings"）
+    pub id: crate::types::id_types::SettingsId,
     // テーマ・外観設定
     /// UIテーマ（"system", "light", "dark"）
     pub theme: String,
@@ -206,6 +208,34 @@ pub struct Settings {
     pub password: String,
     /// サーバーURL
     pub server_url: String,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            id: crate::types::id_types::SettingsId::from("app_settings"),
+            theme: "system".to_string(),
+            language: "ja".to_string(),
+            font: "system".to_string(),
+            font_size: 14,
+            font_color: "#000000".to_string(),
+            background_color: "#FFFFFF".to_string(),
+            week_start: "monday".to_string(),
+            timezone: "Asia/Tokyo".to_string(),
+            date_format: "YYYY-MM-DD".to_string(),
+            custom_due_days: vec![1, 3, 7, 14, 30],
+            custom_date_formats: vec![],
+            time_labels: vec![],
+            due_date_buttons: DueDateButtons::default(),
+            view_items: vec![],
+            selected_account: String::new(),
+            account_icon: None,
+            account_name: String::new(),
+            email: String::new(),
+            password: String::new(),
+            server_url: String::new(),
+        }
+    }
 }
 
 /// 設定操作のレスポンス用構造体

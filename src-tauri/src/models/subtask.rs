@@ -18,7 +18,9 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::subtask::SubtaskCommand, CommandModelConverter, TreeCommandConverter};
+use crate::models::{
+    command::subtask::SubtaskCommand, CommandModelConverter, TreeCommandConverter,
+};
 
 /// 基本サブタスク情報を表現する構造体
 ///
@@ -135,7 +137,9 @@ impl CommandModelConverter<SubtaskCommand> for SubTask {
 }
 
 impl TreeCommandConverter<crate::models::command::subtask::SubTaskTreeCommand> for SubTask {
-    async fn to_command_model(&self) -> Result<crate::models::command::subtask::SubTaskTreeCommand, String> {
+    async fn to_command_model(
+        &self,
+    ) -> Result<crate::models::command::subtask::SubTaskTreeCommand, String> {
         // タグをコマンドモデルに変換
         let mut tag_commands = Vec::new();
         for tag in &self.tags {
@@ -153,7 +157,11 @@ impl TreeCommandConverter<crate::models::command::subtask::SubTaskTreeCommand> f
             end_date: self.end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             order_index: self.order_index,
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),

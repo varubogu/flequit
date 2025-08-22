@@ -17,7 +17,9 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::project::ProjectCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter};
+use crate::models::{
+    command::project::ProjectCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter,
+};
 
 /// 基本プロジェクト情報を表現する構造体
 ///
@@ -183,7 +185,9 @@ impl FromTreeModel<Project> for ProjectTree {
 }
 
 impl TreeCommandConverter<crate::models::command::project::ProjectTreeCommand> for ProjectTree {
-    async fn to_command_model(&self) -> Result<crate::models::command::project::ProjectTreeCommand, String> {
+    async fn to_command_model(
+        &self,
+    ) -> Result<crate::models::command::project::ProjectTreeCommand, String> {
         // タスクリストをコマンドモデルに変換
         let mut task_list_commands = Vec::new();
         for task_list in &self.task_lists {

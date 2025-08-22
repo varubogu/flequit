@@ -2,10 +2,8 @@
 
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, TimeLabel, ViewItem, Settings};
-use crate::models::sqlite::setting::{
-    ActiveModel as SettingActiveModel, Entity as SettingEntity,
-};
+use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use crate::models::sqlite::setting::{ActiveModel as SettingActiveModel, Entity as SettingEntity};
 use crate::models::sqlite::{
     custom_date_format::{
         ActiveModel as CustomDateFormatActiveModel, Entity as CustomDateFormatEntity,
@@ -14,7 +12,9 @@ use crate::models::sqlite::{
     view_item::{ActiveModel as ViewItemActiveModel, Entity as ViewItemEntity},
     DomainToSqliteConverter, SqliteModelConverter,
 };
+use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
+use crate::types::id_types::SettingsId;
 use async_trait::async_trait;
 use sea_orm::{ActiveModelTrait, EntityTrait};
 use std::sync::Arc;
@@ -52,23 +52,6 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
         } else {
             Ok(None)
         }
-    }
-
-    async fn save_settings(&self, settings: &Settings) -> Result<(), RepositoryError> {
-        let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await?;
-
-        // ドメインモデルからSQLiteモデルに変換
-        let active_model: SettingActiveModel = settings.to_sqlite_model().await?;
-
-        // 既存レコードがあるかチェックしてUPSERT
-        if SettingEntity::find_by_id("app_settings").one(db).await?.is_some() {
-            active_model.update(db).await?;
-        } else {
-            active_model.insert(db).await?;
-        }
-
-        Ok(())
     }
 
     // ---------------------------
@@ -224,5 +207,64 @@ impl SettingRepositoryTrait for SettingsLocalSqliteRepository {
         let db = db_manager.get_connection().await?;
         ViewItemEntity::delete_by_id(id).exec(db).await?;
         Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl Repository<Settings, SettingsId> for SettingsLocalSqliteRepository {
+    async fn save(&self, settings: &Settings) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+
+        // ドメインモデルからSQLiteモデルに変換
+        let active_model: SettingActiveModel = settings.to_sqlite_model().await?;
+
+        // 既存レコードがあるかチェックしてUPSERT
+        if SettingEntity::find_by_id("app_settings")
+            .one(db)
+            .await?
+            .is_some()
+        {
+            active_model.update(db).await?;
+        } else {
+            active_model.insert(db).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn find_by_id(&self, id: &SettingsId) -> Result<Option<Settings>, RepositoryError> {
+        // 設定は固定ID "app_settings" のみサポート
+        if id.to_string() == "app_settings" {
+            self.get_settings().await
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn find_all(&self) -> Result<Vec<Settings>, RepositoryError> {
+        match self.get_settings().await? {
+            Some(settings) => Ok(vec![settings]),
+            None => Ok(vec![]),
+        }
+    }
+
+    async fn delete(&self, id: &SettingsId) -> Result<(), RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        SettingEntity::delete_by_id(id.to_string()).exec(db).await?;
+        Ok(())
+    }
+
+    async fn exists(&self, id: &SettingsId) -> Result<bool, RepositoryError> {
+        let found = self.find_by_id(id).await?;
+        Ok(found.is_some())
+    }
+
+    async fn count(&self) -> Result<u64, RepositoryError> {
+        match self.get_settings().await? {
+            Some(_) => Ok(1),
+            None => Ok(0),
+        }
     }
 }

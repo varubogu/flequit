@@ -61,27 +61,40 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクトツリー全体を取得
-    pub async fn get_project_tree(&self, project_id: &ProjectId) -> Result<Option<ProjectTree>, RepositoryError> {
+    pub async fn get_project_tree(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Option<ProjectTree>, RepositoryError> {
         let mut manager = self.document_manager.lock().await;
         let doc_type = DocumentType::Project(project_id.to_string());
-        
+
         // load_dataメソッドを使用してデータを取得
         let project_tree: Option<ProjectTree> = manager.load_data(&doc_type, "project").await?;
         Ok(project_tree)
     }
 
     /// プロジェクトツリー全体を保存
-    pub async fn save_project_tree(&self, project_tree: &ProjectTree) -> Result<(), RepositoryError> {
+    pub async fn save_project_tree(
+        &self,
+        project_tree: &ProjectTree,
+    ) -> Result<(), RepositoryError> {
         let mut manager = self.document_manager.lock().await;
         let doc_type = DocumentType::Project(project_tree.id.to_string());
-        
+
         // save_dataメソッドを使用してデータを保存
-        manager.save_data(&doc_type, "project", project_tree).await?;
+        manager
+            .save_data(&doc_type, "project", project_tree)
+            .await?;
         Ok(())
     }
 
     /// タスクを追加（プロジェクトツリー内で）
-    pub async fn add_task_to_list(&self, project_id: &ProjectId, list_id: &TaskListId, task: &Task) -> Result<(), RepositoryError> {
+    pub async fn add_task_to_list(
+        &self,
+        project_id: &ProjectId,
+        list_id: &TaskListId,
+        task: &Task,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // 指定されたタスクリストを見つけてタスクを追加
             for task_list in &mut project_tree.task_lists {
@@ -113,14 +126,25 @@ impl ProjectTreeLocalAutomergeRepository {
                     return Ok(());
                 }
             }
-            Err(RepositoryError::NotFound(format!("TaskList {} not found in project {}", list_id, project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "TaskList {} not found in project {}",
+                list_id, project_id
+            )))
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 
     /// タスクを更新（プロジェクトツリー内で）
-    pub async fn update_task(&self, project_id: &ProjectId, task_id: &TaskId, task: &Task) -> Result<(), RepositoryError> {
+    pub async fn update_task(
+        &self,
+        project_id: &ProjectId,
+        task_id: &TaskId,
+        task: &Task,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // 指定されたタスクを見つけて更新
             for task_list in &mut project_tree.task_lists {
@@ -146,7 +170,7 @@ impl ProjectTreeLocalAutomergeRepository {
                             created_at: task.created_at,
                             updated_at: task.updated_at,
                             sub_tasks: existing_task.sub_tasks.clone(), // 既存のサブタスクを保持
-                            tags: existing_task.tags.clone(), // 既存のタグを保持
+                            tags: existing_task.tags.clone(),           // 既存のタグを保持
                         };
                         *existing_task = task_tree;
                         self.save_project_tree(&project_tree).await?;
@@ -154,14 +178,24 @@ impl ProjectTreeLocalAutomergeRepository {
                     }
                 }
             }
-            Err(RepositoryError::NotFound(format!("Task {} not found in project {}", task_id, project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Task {} not found in project {}",
+                task_id, project_id
+            )))
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 
     /// タスクを削除（プロジェクトツリー内で）
-    pub async fn delete_task(&self, project_id: &ProjectId, task_id: &TaskId) -> Result<(), RepositoryError> {
+    pub async fn delete_task(
+        &self,
+        project_id: &ProjectId,
+        task_id: &TaskId,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // 指定されたタスクを見つけて削除
             for task_list in &mut project_tree.task_lists {
@@ -170,19 +204,27 @@ impl ProjectTreeLocalAutomergeRepository {
             self.save_project_tree(&project_tree).await?;
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 
     /// プロジェクト内のすべてのタスクを取得
-    pub async fn get_tasks_by_project(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn get_tasks_by_project(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Task>, RepositoryError> {
         if let Some(project_tree) = self.get_project_tree(project_id).await? {
             let mut tasks = Vec::new();
             for task_list in &project_tree.task_lists {
                 for task_tree in &task_list.tasks {
                     // TaskTreeからTaskに変換（FromTreeModelトレイトを使用）
                     use crate::models::FromTreeModel;
-                    let task = task_tree.from_tree_model().await
+                    let task = task_tree
+                        .from_tree_model()
+                        .await
                         .map_err(|e| RepositoryError::ConversionError(e))?;
                     tasks.push(task);
                 }
@@ -194,7 +236,11 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクト内の指定されたタスクリストのタスクを取得
-    pub async fn get_tasks_by_list(&self, project_id: &ProjectId, list_id: &TaskListId) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn get_tasks_by_list(
+        &self,
+        project_id: &ProjectId,
+        list_id: &TaskListId,
+    ) -> Result<Vec<Task>, RepositoryError> {
         if let Some(project_tree) = self.get_project_tree(project_id).await? {
             for task_list in &project_tree.task_lists {
                 if &task_list.id == list_id {
@@ -202,7 +248,9 @@ impl ProjectTreeLocalAutomergeRepository {
                     for task_tree in &task_list.tasks {
                         // TaskTreeからTaskに変換（FromTreeModelトレイトを使用）
                         use crate::models::FromTreeModel;
-                        let task = task_tree.from_tree_model().await
+                        let task = task_tree
+                            .from_tree_model()
+                            .await
                             .map_err(|e| RepositoryError::ConversionError(e))?;
                         tasks.push(task);
                     }
@@ -216,7 +264,11 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクリストを追加
-    pub async fn add_task_list(&self, project_id: &ProjectId, task_list: &TaskList) -> Result<(), RepositoryError> {
+    pub async fn add_task_list(
+        &self,
+        project_id: &ProjectId,
+        task_list: &TaskList,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // TaskListからTaskListTreeに変換（空のタスクリストで）
             let task_list_tree = TaskListTree {
@@ -235,12 +287,20 @@ impl ProjectTreeLocalAutomergeRepository {
             self.save_project_tree(&project_tree).await?;
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 
     /// タスクリストを更新
-    pub async fn update_task_list(&self, project_id: &ProjectId, list_id: &TaskListId, task_list: &TaskList) -> Result<(), RepositoryError> {
+    pub async fn update_task_list(
+        &self,
+        project_id: &ProjectId,
+        list_id: &TaskListId,
+        task_list: &TaskList,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             for existing_list in &mut project_tree.task_lists {
                 if &existing_list.id == list_id {
@@ -262,20 +322,33 @@ impl ProjectTreeLocalAutomergeRepository {
                     return Ok(());
                 }
             }
-            Err(RepositoryError::NotFound(format!("TaskList {} not found in project {}", list_id, project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "TaskList {} not found in project {}",
+                list_id, project_id
+            )))
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 
     /// タスクリストを削除
-    pub async fn delete_task_list(&self, project_id: &ProjectId, list_id: &TaskListId) -> Result<(), RepositoryError> {
+    pub async fn delete_task_list(
+        &self,
+        project_id: &ProjectId,
+        list_id: &TaskListId,
+    ) -> Result<(), RepositoryError> {
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             project_tree.task_lists.retain(|list| &list.id != list_id);
             self.save_project_tree(&project_tree).await?;
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("Project {} not found", project_id)))
+            Err(RepositoryError::NotFound(format!(
+                "Project {} not found",
+                project_id
+            )))
         }
     }
 }

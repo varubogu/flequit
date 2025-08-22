@@ -9,8 +9,8 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
 use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
+use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
 use crate::repositories::local_sqlite::tag::TagLocalSqliteRepository;
 use crate::repositories::tag_repository_trait::TagRepositoryTrait;
 use crate::types::id_types::TagId;
@@ -36,8 +36,10 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
             Self::ProjectTree(_repo) => {
                 // ProjectTreeの場合、タグはタスク内に含まれるため個別保存は制限
                 // タスク更新時に一緒に更新されることを想定
-                Err(RepositoryError::InvalidOperation("ProjectTree tag save requires task update".to_string()))
-            },
+                Err(RepositoryError::InvalidOperation(
+                    "ProjectTree tag save requires task update".to_string(),
+                ))
+            }
         }
     }
 
@@ -49,7 +51,7 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
                 // ProjectTreeの場合、タグIDだけでは検索不可
                 // SQLiteリポジトリ経由で検索することを想定
                 Ok(None)
-            },
+            }
         }
     }
 
@@ -61,7 +63,7 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
                 // ProjectTreeの場合、全プロジェクトの全タグを取得することになる
                 // SQLiteリポジトリ経由で取得することを想定
                 Ok(vec![])
-            },
+            }
         }
     }
 
@@ -72,8 +74,10 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
             Self::ProjectTree(_repo) => {
                 // ProjectTreeの場合、タグIDだけでは削除不可
                 // SQLiteリポジトリ経由で削除することを想定
-                Err(RepositoryError::InvalidOperation("ProjectTree tag delete requires task update".to_string()))
-            },
+                Err(RepositoryError::InvalidOperation(
+                    "ProjectTree tag delete requires task update".to_string(),
+                ))
+            }
         }
     }
 
@@ -85,7 +89,7 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
                 // ProjectTreeの場合、タグIDだけでは存在確認不可
                 // SQLiteリポジトリ経由で確認することを想定
                 Ok(false)
-            },
+            }
         }
     }
 
@@ -97,7 +101,7 @@ impl Repository<Tag, TagId> for TagRepositoryVariant {
                 // ProjectTreeの場合、全プロジェクトの全タグをカウントすることになる
                 // SQLiteリポジトリ経由でカウントすることを想定
                 Ok(0)
-            },
+            }
         }
     }
 }
@@ -160,7 +164,10 @@ impl TagUnifiedRepository {
     }
 
     /// ProjectTreeリポジトリを保存用に追加
-    pub fn add_project_tree_for_save(&mut self, project_tree_repo: ProjectTreeLocalAutomergeRepository) {
+    pub fn add_project_tree_for_save(
+        &mut self,
+        project_tree_repo: ProjectTreeLocalAutomergeRepository,
+    ) {
         self.save_repositories
             .push(TagRepositoryVariant::ProjectTree(project_tree_repo));
     }

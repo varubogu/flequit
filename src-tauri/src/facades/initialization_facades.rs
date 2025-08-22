@@ -32,7 +32,12 @@ pub async fn load_all_data() -> Result<InitializedResult, String> {
     // ProjectTreeをProjectTreeCommandに変換
     let mut project_tree_commands = Vec::new();
     for project_tree in projects {
-        project_tree_commands.push(project_tree.to_command_model().await.map_err(|e| format!("Failed to convert ProjectTree: {}", e))?);
+        project_tree_commands.push(
+            project_tree
+                .to_command_model()
+                .await
+                .map_err(|e| format!("Failed to convert ProjectTree: {}", e))?,
+        );
     }
 
     Ok(InitializedResult {
