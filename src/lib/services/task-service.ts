@@ -150,8 +150,15 @@ export class TaskService {
       priority?: number;
     }
   ): Promise<TaskWithSubTasks | null> {
+    // listIdからproject_idを取得
+    const projectId = taskStore.getProjectIdByListId(listId);
+    if (!projectId) {
+      console.error('Failed to find project for list:', listId);
+      return null;
+    }
+
     return await taskStore.addTask(listId, {
-      project_id: 'default-project',
+      project_id: projectId,
       list_id: listId,
       title: taskData.title,
       description: taskData.description,

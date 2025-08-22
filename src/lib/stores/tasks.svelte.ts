@@ -247,7 +247,7 @@ export class TaskStore {
     const newTask: TaskWithSubTasks = {
       id: crypto.randomUUID(),
       sub_task_id: taskData.sub_task_id,
-      project_id: taskData.project_id || 'default-project',
+      project_id: taskData.project_id || this.getProjectIdByListId(taskData.list_id!) || 'unknown-project',
       list_id: taskData.list_id,
       title: taskData.title || '',
       description: taskData.description,
@@ -400,13 +400,20 @@ export class TaskStore {
     this.isNewTaskMode = true;
     this.selectedTaskId = null;
     this.selectedSubTaskId = null;
+    
+    const projectId = this.getProjectIdByListId(listId);
+    if (!projectId) {
+      console.error('Failed to find project for list:', listId);
+      return;
+    }
+
     this.newTaskData = {
       id: 'new-task',
       title: '',
       description: '',
       status: 'not_started',
       priority: 0,
-      project_id: 'default-project',
+      project_id: projectId,
       list_id: listId,
       assigned_user_ids: [],
       tag_ids: [],
@@ -1021,6 +1028,17 @@ export class TaskStore {
       // Different project - move
       await this.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
     }
+  }
+
+  // Helper method to get project ID by list ID
+  getProjectIdByListId(listId: string): string | null {
+    for (const project of this.projects) {
+      const list = project.task_lists.find((l) => l.id === listId);
+      if (list) {
+        return project.id;
+      }
+    }
+    return null;
   }
 }
 
