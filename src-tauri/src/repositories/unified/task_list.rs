@@ -10,6 +10,7 @@ use crate::errors::RepositoryError;
 use crate::models::task_list::TaskList;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
+use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
 use crate::repositories::local_sqlite::task_list::TaskListLocalSqliteRepository;
 use crate::repositories::task_list_repository_trait::TaskListRepositoryTrait;
 use crate::types::id_types::TaskListId;
@@ -19,6 +20,7 @@ use crate::types::id_types::TaskListId;
 pub enum TaskListRepositoryVariant {
     Sqlite(TaskListLocalSqliteRepository),
     Automerge(TaskListLocalAutomergeRepository),
+    ProjectTree(ProjectTreeLocalAutomergeRepository),
     // 将来的にWebの実装が追加される予定
     // Web(WebTaskListRepository),
 }
@@ -31,6 +33,10 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.save(entity).await,
             Self::Automerge(repo) => repo.save(entity).await,
+            Self::ProjectTree(repo) => {
+                // ProjectTreeの場合、タスクリストをプロジェクトツリー内で追加/更新
+                repo.add_task_list(&entity.project_id, entity).await
+            },
         }
     }
 
@@ -38,6 +44,11 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.find_by_id(id).await,
             Self::Automerge(repo) => repo.find_by_id(id).await,
+            Self::ProjectTree(_repo) => {
+                // ProjectTreeの場合、タスクリストIDだけでは検索不可
+                // SQLiteリポジトリ経由で検索することを想定
+                Ok(None)
+            },
         }
     }
 
@@ -45,6 +56,11 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.find_all().await,
             Self::Automerge(repo) => repo.find_all().await,
+            Self::ProjectTree(_repo) => {
+                // ProjectTreeの場合、全プロジェクトの全タスクリストを取得することになる
+                // SQLiteリポジトリ経由で取得することを想定
+                Ok(vec![])
+            },
         }
     }
 
@@ -52,6 +68,11 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.delete(id).await,
             Self::Automerge(repo) => repo.delete(id).await,
+            Self::ProjectTree(_repo) => {
+                // ProjectTreeの場合、タスクリストIDだけでは削除不可
+                // SQLiteリポジトリ経由で削除することを想定
+                Err(RepositoryError::InvalidOperation("ProjectTree task list delete requires project_id".to_string()))
+            },
         }
     }
 
@@ -59,6 +80,11 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.exists(id).await,
             Self::Automerge(repo) => repo.exists(id).await,
+            Self::ProjectTree(_repo) => {
+                // ProjectTreeの場合、タスクリストIDだけでは存在確認不可
+                // SQLiteリポジトリ経由で確認することを想定
+                Ok(false)
+            },
         }
     }
 
@@ -66,6 +92,11 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
         match self {
             Self::Sqlite(repo) => repo.count().await,
             Self::Automerge(repo) => repo.count().await,
+            Self::ProjectTree(_repo) => {
+                // ProjectTreeの場合、全プロジェクトの全タスクリストをカウントすることになる
+                // SQLiteリポジトリ経由でカウントすることを想定
+                Ok(0)
+            },
         }
     }
 }
@@ -125,6 +156,12 @@ impl TaskListUnifiedRepository {
     pub fn add_automerge_for_save(&mut self, automerge_repo: TaskListLocalAutomergeRepository) {
         self.save_repositories
             .push(TaskListRepositoryVariant::Automerge(automerge_repo));
+    }
+
+    /// ProjectTreeリポジトリを保存用に追加
+    pub fn add_project_tree_for_save(&mut self, project_tree_repo: ProjectTreeLocalAutomergeRepository) {
+        self.save_repositories
+            .push(TaskListRepositoryVariant::ProjectTree(project_tree_repo));
     }
 
     /// 便利メソッド: SQLiteを保存用と検索用の両方に追加

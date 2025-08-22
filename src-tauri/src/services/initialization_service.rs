@@ -1,7 +1,7 @@
 use crate::errors::service_error::ServiceError;
 use crate::models::account::Account;
 use crate::models::command::initialize::InitializedResult;
-use crate::models::project::{Project, ProjectTree};
+use crate::models::project::ProjectTree;
 use crate::models::setting::{LocalSettings, Settings};
 use crate::models::TreeCommandConverter;
 use crate::repositories::base_repository_trait::Repository;
