@@ -26,8 +26,14 @@ export interface SubTask {
   is_range_date?: boolean;
   /** 繰り返しルール */
   recurrence_rule?: RecurrenceRule;
+  /** 担当者IDの配列 */
+  assigned_user_ids: string[];
+  /** タグIDの配列 */
+  tag_ids: string[];
   /** 表示順序 */
   order_index: number;
+  /** 完了状態 */
+  completed: boolean;
   /** タグ一覧 */
   tags: Tag[];
   /** 作成日時 */
@@ -72,8 +78,12 @@ export interface SubTaskPatch {
   is_range_date?: boolean | null;
   /** 繰り返しルール */
   recurrence_rule?: RecurrenceRule | null;
-  /** 表示順序 */
-  order_index?: number;
+  /** 担当者IDの配列 */
+  assigned_user_ids?: string[];
   /** タグIDの配列 */
   tag_ids?: string[];
+  /** 表示順序 */
+  order_index?: number;
+  /** 完了状態 */
+  completed?: boolean;
 }

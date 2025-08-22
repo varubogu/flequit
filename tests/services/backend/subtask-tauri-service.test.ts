@@ -27,7 +27,10 @@ describe('SubtaskTauriService', () => {
       start_date: new Date('2024-01-01T00:00:00Z'),
       end_date: new Date('2024-01-02T00:00:00Z'),
       is_range_date: true,
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 0,
+      completed: false,
       tags: [],
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
@@ -70,7 +73,10 @@ describe('SubtaskTauriService', () => {
         task_id: 'task-123',
         title: 'Minimal SubTask',
         status: 'not_started' as const,
+        assigned_user_ids: [],
+        tag_ids: [],
         order_index: 0,
+        completed: false,
         tags: [],
         created_at: new Date(),
         updated_at: new Date()

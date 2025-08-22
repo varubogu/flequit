@@ -216,7 +216,10 @@ export class DataService {
           | 'completed'
           | 'cancelled') || 'not_started',
       priority: subTaskData.priority,
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 0,
+      completed: false,
       tags: [],
       created_at: new Date(),
       updated_at: new Date()
