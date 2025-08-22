@@ -105,6 +105,27 @@ impl DocumentManager {
         key: &str,
         value: &T,
     ) -> Result<(), RepositoryError> {
+        // デバッグモード時のJSON出力（保存前）
+        #[cfg(debug_assertions)]
+        {
+            let json_value = serde_json::to_value(value)
+                .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+            log::debug!("Automerge save - doc_type: {:?}, key: {} -> JSON: {}", 
+                doc_type, key, 
+                serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+            );
+        }
+        
+        self.save_data_at_path(doc_type, &[key], value).await
+    }
+
+    /// 指定されたパスにデータを保存
+    pub async fn save_data_at_path<T: serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+        value: &T,
+    ) -> Result<(), RepositoryError> {
         let doc_handle = self.get_or_create_document(doc_type).await?;
 
         // JSON形式でシリアライズしてから保存
@@ -113,33 +134,130 @@ impl DocumentManager {
 
         doc_handle.with_doc_mut(|doc| {
             let mut tx = doc.transaction();
-            self.put_json_value(&mut tx, &automerge::ROOT, key, &json_value)
-                .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
+            
+            if path.is_empty() {
+                return Err(RepositoryError::InvalidOperation("Empty path not allowed".to_string()));
+            }
+
+            if path.len() == 1 {
+                // 単一キーの場合は従来通り
+                self.put_json_value(&mut tx, &automerge::ROOT, path[0], &json_value)
+                    .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
+            } else {
+                // パス指定の場合は段階的にオブジェクトを辿る
+                let target_obj = self.get_or_create_nested_object(&mut tx, &automerge::ROOT, &path[..path.len()-1])
+                    .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
+                self.put_json_value(&mut tx, &target_obj, path[path.len()-1], &json_value)
+                    .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
+            }
+            
             tx.commit();
+
+            // デバッグモード時のJSON出力
+            #[cfg(debug_assertions)]
+            {
+                let path_str = path.join("/");
+                log::debug!("Automerge save - path: {} -> JSON: {}", path_str, serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string()));
+            }
+            
             Ok(())
         })
     }
 
     /// ドキュメントからデータを読み込み
-    pub async fn load_data<T: serde::de::DeserializeOwned>(
+    pub async fn load_data<T: serde::de::DeserializeOwned + serde::Serialize>(
         &mut self,
         doc_type: &DocumentType,
         key: &str,
     ) -> Result<Option<T>, RepositoryError> {
+        let result = self.load_data_at_path(doc_type, &[key]).await;
+        
+        // デバッグモード時のJSON出力（読み込み結果）
+        #[cfg(debug_assertions)]
+        {
+            match &result {
+                Ok(Some(data)) => {
+                    if let Ok(json_value) = serde_json::to_value(data) {
+                        log::debug!("Automerge load - doc_type: {:?}, key: {} <- JSON: {}", 
+                            doc_type, key, 
+                            serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+                        );
+                    }
+                },
+                Ok(None) => {
+                    log::debug!("Automerge load - doc_type: {:?}, key: {} <- NOT FOUND", doc_type, key);
+                },
+                Err(e) => {
+                    log::debug!("Automerge load - doc_type: {:?}, key: {} <- ERROR: {:?}", doc_type, key, e);
+                }
+            }
+        }
+        
+        result
+    }
+
+    /// 指定されたパスからデータを読み込み
+    pub async fn load_data_at_path<T: serde::de::DeserializeOwned + serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+    ) -> Result<Option<T>, RepositoryError> {
         let doc_handle = self.get_or_create_document(doc_type).await?;
 
-        doc_handle.with_doc(|doc| match doc.get(automerge::ROOT, key) {
-            Ok(Some((value, obj_id))) => {
-                let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
-                if json_value == serde_json::Value::Null {
-                    return Ok(None);
-                }
-                let result: T = serde_json::from_value(json_value)
-                    .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-                Ok(Some(result))
+        doc_handle.with_doc(|doc| {
+            if path.is_empty() {
+                return Err(RepositoryError::InvalidOperation("Empty path not allowed".to_string()));
             }
-            Ok(None) => Ok(None),
-            Err(_) => Ok(None),
+
+            // パスを辿ってオブジェクトを取得
+            let mut current_obj = automerge::ROOT;
+            for (i, &key) in path.iter().enumerate() {
+                match doc.get(&current_obj, key) {
+                    Ok(Some((value, obj_id))) => {
+                        if i == path.len() - 1 {
+                            // 最後のキーに到達した場合、値を返す
+                            let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
+                            if json_value == serde_json::Value::Null {
+                                return Ok(None);
+                            }
+                            
+                            // デバッグモード時のJSON出力（読み込み時）
+                            #[cfg(debug_assertions)]
+                            {
+                                let path_str = path.join("/");
+                                log::debug!("Automerge load - path: {} <- JSON: {}", 
+                                    path_str, 
+                                    serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+                                );
+                            }
+                            
+                            let result: T = serde_json::from_value(json_value)
+                                .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+                            return Ok(Some(result));
+                        } else {
+                            // 中間のオブジェクト、次に進む
+                            current_obj = obj_id;
+                        }
+                    }
+                    Ok(None) => {
+                        #[cfg(debug_assertions)]
+                        {
+                            let path_str = path.join("/");
+                            log::debug!("Automerge load - path: {} <- NOT FOUND", path_str);
+                        }
+                        return Ok(None);
+                    },
+                    Err(_) => {
+                        #[cfg(debug_assertions)]
+                        {
+                            let path_str = path.join("/");
+                            log::debug!("Automerge load - path: {} <- ERROR", path_str);
+                        }
+                        return Ok(None);
+                    },
+                }
+            }
+            Ok(None)
         })
     }
 
@@ -161,6 +279,36 @@ impl DocumentManager {
             tx.commit();
             Ok(())
         })
+    }
+
+    /// ネストしたオブジェクトを取得または作成するヘルパー
+    fn get_or_create_nested_object(
+        &self,
+        tx: &mut automerge::transaction::Transaction,
+        root_obj: &automerge::ObjId,
+        path: &[&str],
+    ) -> Result<automerge::ObjId, automerge::AutomergeError> {
+        let mut current_obj = root_obj.clone();
+        
+        for &key in path {
+            // 現在のオブジェクトから次のオブジェクトを取得
+            match tx.get(&current_obj, key)? {
+                Some((automerge::Value::Object(_), obj_id)) => {
+                    // オブジェクトが既に存在する場合
+                    current_obj = obj_id;
+                }
+                Some((_, _)) => {
+                    // 既存の値がオブジェクト以外の場合はエラー
+                    return Err(automerge::AutomergeError::InvalidOp(automerge::ObjType::Map));
+                }
+                None => {
+                    // オブジェクトが存在しない場合は作成
+                    current_obj = tx.put_object(&current_obj, key, automerge::ObjType::Map)?;
+                }
+            }
+        }
+        
+        Ok(current_obj)
     }
 
     /// JSON ValueをAutomergeに変換するヘルパー

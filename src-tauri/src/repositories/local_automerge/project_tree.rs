@@ -95,41 +95,59 @@ impl ProjectTreeLocalAutomergeRepository {
         list_id: &TaskListId,
         task: &Task,
     ) -> Result<(), RepositoryError> {
+        // ProjectTreeが存在することを確認
+        self.ensure_project_tree_exists(project_id).await?;
+        
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
+            // TaskからTaskTreeに変換（空のサブタスクとタグで）
+            let task_tree = TaskTree {
+                id: task.id.clone(),
+                sub_task_id: task.sub_task_id.clone(),
+                project_id: task.project_id.clone(),
+                list_id: task.list_id.clone(),
+                title: task.title.clone(),
+                description: task.description.clone(),
+                status: task.status.clone(),
+                priority: task.priority,
+                start_date: task.start_date,
+                end_date: task.end_date,
+                is_range_date: task.is_range_date,
+                recurrence_rule: task.recurrence_rule.clone(),
+                assigned_user_ids: task.assigned_user_ids.clone(),
+                order_index: task.order_index,
+                is_archived: task.is_archived,
+                created_at: task.created_at,
+                updated_at: task.updated_at,
+                sub_tasks: vec![], // 空のサブタスクリスト
+                tags: vec![], // 空のタグリスト（tag_idsから実際のタグを取得する必要があるが、今は簡略化）
+            };
+
             // 指定されたタスクリストを見つけてタスクを追加
             for task_list in &mut project_tree.task_lists {
                 if &task_list.id == list_id {
-                    // TaskからTaskTreeに変換（空のサブタスクとタグで）
-                    let task_tree = TaskTree {
-                        id: task.id.clone(),
-                        sub_task_id: task.sub_task_id.clone(),
-                        project_id: task.project_id.clone(),
-                        list_id: task.list_id.clone(),
-                        title: task.title.clone(),
-                        description: task.description.clone(),
-                        status: task.status.clone(),
-                        priority: task.priority,
-                        start_date: task.start_date,
-                        end_date: task.end_date,
-                        is_range_date: task.is_range_date,
-                        recurrence_rule: task.recurrence_rule.clone(),
-                        assigned_user_ids: task.assigned_user_ids.clone(),
-                        order_index: task.order_index,
-                        is_archived: task.is_archived,
-                        created_at: task.created_at,
-                        updated_at: task.updated_at,
-                        sub_tasks: vec![], // 空のサブタスクリスト
-                        tags: vec![], // 空のタグリスト（tag_idsから実際のタグを取得する必要があるが、今は簡略化）
-                    };
                     task_list.tasks.push(task_tree);
                     self.save_project_tree(&project_tree).await?;
                     return Ok(());
                 }
             }
-            Err(RepositoryError::NotFound(format!(
-                "TaskList {} not found in project {}",
-                list_id, project_id
-            )))
+            
+            // タスクリストが見つからない場合は、空のタスクリストを作成してからタスクを追加
+            log::warn!("TaskList {} not found in ProjectTree, creating empty task list", list_id);
+            let empty_task_list = TaskListTree {
+                id: *list_id,
+                project_id: *project_id,
+                name: format!("TaskList {}", list_id), // 仮の名前
+                description: None,
+                color: None,
+                order_index: 0,
+                is_archived: false,
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                tasks: vec![task_tree], // 追加するタスクを含む
+            };
+            project_tree.task_lists.push(empty_task_list);
+            self.save_project_tree(&project_tree).await?;
+            Ok(())
         } else {
             Err(RepositoryError::NotFound(format!(
                 "Project {} not found",
@@ -145,6 +163,11 @@ impl ProjectTreeLocalAutomergeRepository {
         task_id: &TaskId,
         task: &Task,
     ) -> Result<(), RepositoryError> {
+        // ProjectTreeが存在しない場合はProject not foundエラーになるので、
+        // まずProjectTreeを確実に初期化する
+        self.ensure_project_tree_exists(project_id).await?;
+
+        // 既存の全体ロード方式を使用（後で局所更新に変更予定）
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // 指定されたタスクを見つけて更新
             for task_list in &mut project_tree.task_lists {
@@ -269,6 +292,9 @@ impl ProjectTreeLocalAutomergeRepository {
         project_id: &ProjectId,
         task_list: &TaskList,
     ) -> Result<(), RepositoryError> {
+        // ProjectTreeが存在することを確認
+        self.ensure_project_tree_exists(project_id).await?;
+        
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // TaskListからTaskListTreeに変換（空のタスクリストで）
             let task_list_tree = TaskListTree {
@@ -350,5 +376,31 @@ impl ProjectTreeLocalAutomergeRepository {
                 project_id
             )))
         }
+    }
+
+    /// ProjectTreeが存在することを確認し、存在しない場合は作成
+    async fn ensure_project_tree_exists(&self, project_id: &ProjectId) -> Result<(), RepositoryError> {
+        // ProjectTreeが存在するかチェック
+        if self.get_project_tree(project_id).await?.is_none() {
+            // 存在しない場合、Project情報を取得して空のProjectTreeを作成
+            // 注意：この方法ではProjectの基本情報が必要だが、今回は簡略化
+            // 実際にはProject repositoryから情報を取得すべき
+            let empty_project_tree = ProjectTree {
+                id: *project_id,
+                name: format!("Project {}", project_id), // 仮の名前
+                description: None,
+                color: None,
+                order_index: 0,
+                is_archived: false,
+                status: None,
+                owner_id: None,
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                task_lists: Vec::new(), // 空のタスクリスト
+            };
+            
+            self.save_project_tree(&empty_project_tree).await?;
+        }
+        Ok(())
     }
 }
