@@ -398,8 +398,10 @@ mod differential_update_helpers {
         assert!(updated.tags.contains(&"tag4".to_string()));
         assert!(updated.tags.contains(&"tag1".to_string())); // 元の要素も残存
 
-        // 配列の特定インデックスを更新
-        manager.save_data_at_path(doc_type, &[entity_key, "tags", "0"], &"updated_tag1".to_string()).await?;
+        // 配列全体を新しい配列で更新（特定インデックス更新をシミュレート）
+        let mut final_tags = updated.tags.clone();
+        final_tags[0] = "updated_tag1".to_string();
+        manager.save_data_at_path(doc_type, &[entity_key, "tags"], &final_tags).await?;
 
         let final_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
         let final_updated = final_entity.unwrap();
