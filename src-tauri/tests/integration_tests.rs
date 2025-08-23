@@ -1,0 +1,2 @@
+// Integrationテストのエントリポイント
+mod integration;

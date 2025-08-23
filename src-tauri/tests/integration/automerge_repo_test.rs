@@ -22,7 +22,7 @@ fn create_persistent_test_dir(test_name: &str) -> PathBuf {
         current_dir
     };
     
-    let base_path = project_root.join(".tmp/tests/cargo/automerge_repo_integration_test");
+    let base_path = project_root.join(".tmp/tests/cargo/integration/automerge_repo_test");
     let test_dir = base_path.join(test_name).join(&timestamp);
     
     if let Err(e) = std::fs::create_dir_all(&test_dir) {
