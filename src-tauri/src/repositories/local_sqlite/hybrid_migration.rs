@@ -184,7 +184,7 @@ impl HybridMigrator {
     async fn create_additional_indexes(&self) -> Result<(), DbErr> {
         let additional_indexes = vec![
             // パフォーマンス最適化用の追加インデックス
-            "CREATE INDEX IF NOT EXISTS idx_tasks_due_date_status ON tasks(due_date, status);",
+            "CREATE INDEX IF NOT EXISTS idx_tasks_end_date_status ON tasks(end_date, status);",
             "CREATE INDEX IF NOT EXISTS idx_accounts_email_active ON accounts(email, is_active);",
             "CREATE INDEX IF NOT EXISTS idx_projects_owner_archived ON projects(owner_id, is_archived);",
         ];
