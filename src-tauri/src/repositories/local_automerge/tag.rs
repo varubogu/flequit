@@ -120,3 +120,31 @@ impl Repository<Tag, TagId> for TagLocalAutomergeRepository {
         Ok(tags.len() as u64)
     }
 }
+
+impl TagLocalAutomergeRepository {
+    /// Automergeドキュメントの変更履歴を段階的にJSONで出力
+    pub async fn export_tag_changes_history<P: AsRef<std::path::Path>>(
+        &self,
+        output_dir: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_changes_history(&DocumentType::Settings, &output_dir, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
+    }
+
+    /// JSON出力機能：現在のタグ状態をファイルにエクスポート
+    pub async fn export_tag_state<P: AsRef<std::path::Path>>(
+        &self,
+        output_path: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_to_file(&DocumentType::Settings, &output_path, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
+    }
+}
