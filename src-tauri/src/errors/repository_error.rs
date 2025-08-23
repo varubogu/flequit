@@ -49,6 +49,9 @@ pub enum RepositoryError {
 
     #[error("Multiple errors: {0:?}")]
     MultipleErrors(Vec<String>),
+
+    #[error("Export error: {0}")]
+    Export(String),
 }
 
 impl From<sea_orm::DbErr> for RepositoryError {

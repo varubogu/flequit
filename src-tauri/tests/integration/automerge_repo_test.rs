@@ -10,6 +10,197 @@ use std::path::{Path, PathBuf};
 use flequit_lib::repositories::local_automerge::document_manager::{DocumentManager, DocumentType};
 use flequit_lib::repositories::local_automerge::file_storage::FileStorage;
 
+/// テスト用DocumentManagerラッパー - 自動JSON履歴出力機能付き
+struct TestDocumentManager {
+    inner: DocumentManager,
+    test_name: String,
+    step_counter: std::sync::Arc<std::sync::Mutex<usize>>,
+    base_export_dir: PathBuf,
+}
+
+impl TestDocumentManager {
+    /// 新しいテスト用DocumentManagerを作成
+    fn new(base_path: &std::path::Path, test_name: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        let manager = DocumentManager::new(base_path)?;
+        
+        // エクスポート用ディレクトリを作成
+        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
+        let base_export_dir = base_path.join("json_history").join(test_name).join(&timestamp);
+        std::fs::create_dir_all(&base_export_dir)?;
+        
+        println!("📁 Test JSON history will be saved to: {:?}", base_export_dir);
+        
+        Ok(Self {
+            inner: manager,
+            test_name: test_name.to_string(),
+            step_counter: std::sync::Arc::new(std::sync::Mutex::new(0)),
+            base_export_dir,
+        })
+    }
+
+    /// 自動履歴出力付きでデータを保存
+    async fn save_data<T: serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        key: &str,
+        value: &T,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // データを保存
+        let result = self.inner.save_data(doc_type, key, value).await;
+        
+        // 成功した場合のみ履歴出力
+        if result.is_ok() {
+            self.export_current_state(doc_type, &format!("save_data_{}", key)).await?;
+        }
+        
+        result.map_err(|e| e.into())
+    }
+
+    /// 自動履歴出力付きでパス指定データを保存
+    async fn save_data_at_path<T: serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+        value: &T,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // データを保存
+        let result = self.inner.save_data_at_path(doc_type, path, value).await;
+        
+        // 成功した場合のみ履歴出力
+        if result.is_ok() {
+            let path_str = path.join("_");
+            self.export_current_state(doc_type, &format!("save_at_path_{}", path_str)).await?;
+        }
+        
+        result.map_err(|e| e.into())
+    }
+
+    /// データ読み込み（履歴出力なし）
+    async fn load_data<T: serde::de::DeserializeOwned + serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        key: &str,
+    ) -> Result<Option<T>, Box<dyn std::error::Error>> {
+        self.inner.load_data(doc_type, key).await.map_err(|e| e.into())
+    }
+
+    /// パス指定データ読み込み（履歴出力なし）
+    async fn load_data_at_path<T: serde::de::DeserializeOwned + serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+    ) -> Result<Option<T>, Box<dyn std::error::Error>> {
+        self.inner.load_data_at_path(doc_type, path).await.map_err(|e| e.into())
+    }
+
+    /// ドキュメント作成・取得（履歴出力付き）
+    async fn get_or_create_document(
+        &mut self,
+        doc_type: &DocumentType,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let result = self.inner.get_or_create_document(doc_type).await;
+        
+        if result.is_ok() {
+            self.export_current_state(doc_type, "get_or_create_document").await?;
+        }
+        
+        result.map_err(|e| e.into()).map(|_| ())
+    }
+
+    /// ドキュメント存在確認
+    fn document_exists(&self, doc_type: &DocumentType) -> bool {
+        self.inner.document_exists(doc_type)
+    }
+
+    /// ドキュメントタイプリスト取得
+    fn list_document_types(&self) -> Result<Vec<DocumentType>, Box<dyn std::error::Error>> {
+        self.inner.list_document_types().map_err(|e| e.into())
+    }
+
+    /// ドキュメント削除（履歴出力付き）
+    fn delete_document(&mut self, doc_type: DocumentType) -> Result<(), Box<dyn std::error::Error>> {
+        self.inner.delete_document(doc_type).map_err(|e| e.into())
+    }
+
+    /// キャッシュクリア
+    fn clear_cache(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+        self.inner.clear_cache().map_err(|e| e.into())
+    }
+
+    /// 現在の状態をJSONファイルに出力
+    async fn export_current_state(
+        &mut self,
+        doc_type: &DocumentType,
+        action: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let step = {
+            let mut counter = self.step_counter.lock().unwrap();
+            *counter += 1;
+            *counter
+        };
+        
+        let filename = format!("{:03}_{}_{}_{}.json", 
+                             step, 
+                             self.test_name,
+                             doc_type.filename(),
+                             action.replace("/", "_"));
+        
+        let export_path = self.base_export_dir.join(&filename);
+        
+        // 現在のドキュメントデータのみ出力する
+        let doc_data = self.inner.export_document_as_json(doc_type).await;
+        
+        match doc_data {
+            Ok(json_data) => {
+                let metadata = json!({
+                    "step": step,
+                    "test_name": self.test_name,
+                    "document_type": format!("{:?}", doc_type),
+                    "action": action,
+                    "timestamp": chrono::Utc::now().to_rfc3339(),
+                    "filename": filename
+                });
+                
+                let output_data = json!({
+                    "metadata": metadata,
+                    "document_data": json_data
+                });
+                
+                std::fs::write(&export_path, serde_json::to_string_pretty(&output_data)?)?;
+                println!("📄 Step {}: Exported JSON history to: {}", step, filename);
+            }
+            Err(e) => {
+                println!("⚠️  Failed to export JSON for step {}: {}", step, e);
+            }
+        }
+        
+        Ok(())
+    }
+
+    /// テスト終了時に詳細変更履歴を出力
+    async fn finalize_test(
+        &mut self,
+        doc_types: &[DocumentType],
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        println!("🏁 Finalizing test: {}", self.test_name);
+        
+        for doc_type in doc_types {
+            let changes_dir = self.base_export_dir.join("detailed_changes").join(&doc_type.filename());
+            
+            match self.inner.export_document_changes_history(
+                doc_type,
+                &changes_dir,
+                Some(&format!("Detailed changes history for test: {}", self.test_name))
+            ).await {
+                Ok(_) => println!("✅ Exported detailed changes for {:?}", doc_type),
+                Err(e) => println!("⚠️  Failed to export detailed changes for {:?}: {}", doc_type, e),
+            }
+        }
+        
+        Ok(())
+    }
+}
+
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
@@ -95,6 +286,10 @@ async fn test_file_storage_basic_operations() -> Result<(), Box<dyn std::error::
     assert!(storage_path.exists());
     assert!(storage_path.is_dir());
     
+    // 永続保存ディレクトリにコピー（FileStorageテストなのでJSON出力なし）
+    let persistent_dir = create_persistent_test_dir("test_file_storage_basic_operations");
+    copy_to_persistent_storage(&storage_path, &persistent_dir, "test_file_storage_basic_operations")?;
+    
     Ok(())
 }
 
@@ -107,15 +302,22 @@ async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Erro
     
     println!("テストディレクトリ: {:?}", manager_path);
     
-    // DocumentManagerを作成
-    let mut manager = DocumentManager::new(&manager_path)?;
+    // TestDocumentManagerを作成（自動JSON履歴出力付き）
+    let mut manager = TestDocumentManager::new(&manager_path, "test_document_manager_creation")?;
     
     // 基本的なドキュメント作成テスト
     let doc_type = DocumentType::Settings;
-    let _doc_handle = manager.get_or_create_document(&doc_type).await?;
+    manager.get_or_create_document(&doc_type).await?;
     
     // ドキュメントが作成されたことを確認
     assert!(manager.document_exists(&doc_type));
+    
+    // テスト終了時に詳細変更履歴を出力
+    manager.finalize_test(&[doc_type]).await?;
+    
+    // 永続保存ディレクトリにコピー
+    let persistent_dir = create_persistent_test_dir("test_document_manager_creation");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_document_manager_creation")?;
     
     Ok(())
 }
@@ -127,7 +329,7 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
     let temp_dir = TempDir::new()?;
     let manager_path = temp_dir.path().to_path_buf();
     
-    let mut manager = DocumentManager::new(&manager_path)?;
+    let mut manager = TestDocumentManager::new(&manager_path, "test_multiple_document_types")?;
     
     // 複数のドキュメントタイプを作成
     let doc_types = vec![
@@ -140,7 +342,7 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
     
     // 各ドキュメントタイプのドキュメントを作成
     for doc_type in &doc_types {
-        let _doc_handle = manager.get_or_create_document(doc_type).await?;
+        manager.get_or_create_document(doc_type).await?;
         assert!(manager.document_exists(doc_type));
     }
     
@@ -153,6 +355,13 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
         assert!(document_list.contains(doc_type));
     }
     
+    // テスト終了時に詳細変更履歴を出力
+    manager.finalize_test(&doc_types).await?;
+    
+    // 永続保存ディレクトリにコピー
+    let persistent_dir = create_persistent_test_dir("test_multiple_document_types");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_multiple_document_types")?;
+    
     Ok(())
 }
 
@@ -160,7 +369,7 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
 #[tokio::test]
 async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_simple_data_write_read")?;
     
     let doc_type = DocumentType::Settings;
     
@@ -177,6 +386,13 @@ async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>>
     let nonexistent_value: Option<String> = manager.load_data(&doc_type, "nonexistent_key").await?;
     assert_eq!(nonexistent_value, None);
     
+    // テスト終了時に詳細変更履歴を出力
+    manager.finalize_test(&[doc_type]).await?;
+    
+    // 永続保存ディレクトリにコピー
+    let persistent_dir = create_persistent_test_dir("test_simple_data_write_read");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_simple_data_write_read")?;
+    
     Ok(())
 }
 
@@ -184,7 +400,7 @@ async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>>
 #[tokio::test]
 async fn test_complex_json_data_write_read() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_complex_json_data_write_read")?;
     
     let doc_type = DocumentType::Settings;
     
@@ -237,6 +453,13 @@ async fn test_complex_json_data_write_read() -> Result<(), Box<dyn std::error::E
     assert_eq!(projects[0]["name"], "プロジェクト1");
     assert_eq!(projects[1]["id"], "proj2");
     assert_eq!(projects[1]["name"], "プロジェクト2");
+    
+    // テスト終了時に詳細変更履歴を出力
+    manager.finalize_test(&[doc_type]).await?;
+    
+    // 永続保存ディレクトリにコピー
+    let persistent_dir = create_persistent_test_dir("test_complex_json_data_write_read");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_complex_json_data_write_read")?;
     
     Ok(())
 }
@@ -763,10 +986,137 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
     assert!(project_data["team_members"].is_array());
     assert_eq!(project_data["team_members"].as_array().unwrap().len(), 3);
     
+    // 詳細変更履歴も出力
+    let detailed_changes_dir = temp_dir.path().join("detailed_change_history");
+    manager.export_document_changes_history(
+        &doc_type,
+        &detailed_changes_dir,
+        Some("Step-by-step JSON data evolution tracking in incremental changes")
+    ).await?;
+    
     println!("Incremental JSON export test completed successfully");
+    println!("詳細変更履歴も出力完了");
+    
+    // 永続保存ディレクトリにコピー（全体のtempディレクトリをコピー）
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_json_export_with_incremental_changes")?;
+    
+    Ok(())
+}
+
+/// Automergeの詳細変更履歴JSON出力テスト
+#[tokio::test]  
+async fn test_json_export_detailed_changes_history() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let persistent_dir = create_persistent_test_dir("test_json_export_detailed_changes_history");
+    let mut manager = DocumentManager::new(temp_dir.path())?;
+    
+    let doc_type = DocumentType::Project("detailed-changes-test".to_string());
+    let changes_output_dir = temp_dir.path().join("detailed_changes");
+    std::fs::create_dir_all(&changes_output_dir)?;
+    
+    println!("詳細変更履歴出力ディレクトリ: {:?}", changes_output_dir);
+    
+    // 変更1: 初期プロジェクト作成
+    let change1_data = json!({
+        "project": {
+            "name": "Automerge Test Project",
+            "status": "planning"
+        }
+    });
+    manager.save_data(&doc_type, "project", &change1_data["project"]).await?;
+    
+    // 変更2: ステータス変更とタスクリスト追加  
+    let change2_data = json!({
+        "project": {
+            "name": "Automerge Test Project", 
+            "status": "active"
+        },
+        "tasks": []
+    });
+    manager.save_data(&doc_type, "project", &change2_data["project"]).await?;
+    manager.save_data(&doc_type, "tasks", &change2_data["tasks"]).await?;
+    
+    // 変更3: 最初のタスク追加
+    let change3_tasks = json!([
+        {
+            "id": "task_001",
+            "title": "Setup development environment",
+            "status": "in_progress",
+            "priority": "high"
+        }
+    ]);
+    manager.save_data(&doc_type, "tasks", &change3_tasks).await?;
+    
+    // 変更4: 第2のタスク追加とプロジェクト詳細情報更新
+    let change4_project = json!({
+        "name": "Automerge Test Project",
+        "status": "active", 
+        "description": "Testing Automerge change tracking capabilities",
+        "team_size": 3
+    });
+    let change4_tasks = json!([
+        {
+            "id": "task_001",
+            "title": "Setup development environment",
+            "status": "completed",
+            "priority": "high",
+            "completed_at": "2024-01-15T10:00:00Z"
+        },
+        {
+            "id": "task_002", 
+            "title": "Implement core features",
+            "status": "in_progress",
+            "priority": "medium",
+            "assignee": "developer_1"
+        }
+    ]);
+    manager.save_data(&doc_type, "project", &change4_project).await?;
+    manager.save_data(&doc_type, "tasks", &change4_tasks).await?;
+    
+    // 変更5: プロジェクト完了と最終統計追加
+    let change5_project = json!({
+        "name": "Automerge Test Project",
+        "status": "completed",
+        "description": "Testing Automerge change tracking capabilities", 
+        "team_size": 3,
+        "completion_date": "2024-01-20T15:30:00Z",
+        "final_statistics": {
+            "total_tasks": 2,
+            "completed_tasks": 2,
+            "total_hours": 24.5
+        }
+    });
+    let change5_tasks = json!([
+        {
+            "id": "task_001", 
+            "title": "Setup development environment",
+            "status": "completed",
+            "priority": "high",
+            "completed_at": "2024-01-15T10:00:00Z"
+        },
+        {
+            "id": "task_002",
+            "title": "Implement core features", 
+            "status": "completed",
+            "priority": "medium",
+            "assignee": "developer_1",
+            "completed_at": "2024-01-20T15:30:00Z"
+        }
+    ]);
+    manager.save_data(&doc_type, "project", &change5_project).await?;
+    manager.save_data(&doc_type, "tasks", &change5_tasks).await?;
+    
+    // 詳細変更履歴をJSON出力
+    manager.export_document_changes_history(
+        &doc_type,
+        &changes_output_dir,
+        Some("Detailed step-by-step Automerge changes with JSON data evolution")
+    ).await?;
+    
+    println!("✅ 詳細変更履歴JSON出力完了");
     
     // 永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&json_output_dir, &persistent_dir, "test_json_export_with_incremental_changes")?;
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_json_export_detailed_changes_history")?;
     
     Ok(())
 }

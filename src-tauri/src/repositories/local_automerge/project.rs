@@ -5,7 +5,7 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
 use crate::types::id_types::ProjectId;
 use async_trait::async_trait;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -115,6 +115,32 @@ impl ProjectLocalAutomergeRepository {
         } else {
             Ok(false)
         }
+    }
+
+    /// JSON出力機能：プロジェクト変更履歴をエクスポート
+    pub async fn export_project_changes_history<P: AsRef<Path>>(
+        &self,
+        output_dir: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_changes_history(&DocumentType::Settings, &output_dir, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
+    }
+
+    /// JSON出力機能：現在のプロジェクト状態をファイルにエクスポート
+    pub async fn export_project_state<P: AsRef<Path>>(
+        &self,
+        file_path: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_to_file(&DocumentType::Settings, &file_path, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
     }
 }
 

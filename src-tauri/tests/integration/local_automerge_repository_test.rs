@@ -264,6 +264,11 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     repository.save(&stage1_project).await?;
     println!("✅ Stage 1: Basic project created");
     
+    // Stage 1の状態をエクスポート
+    let stage1_export_path = temp_dir.path().join("exports/stage1_project_creation.json");
+    std::fs::create_dir_all(stage1_export_path.parent().unwrap())?;
+    repository.export_project_state(&stage1_export_path, Some("Stage 1: 基本プロジェクト作成")).await?;
+    
     // Stage 2: タグとメンバー追加
     let mut stage2_project = stage1_project.clone();
     stage2_project.name = "段階的変更テストプロジェクト（ステージ2）".to_string();
@@ -274,6 +279,10 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     
     repository.save(&stage2_project).await?;
     println!("✅ Stage 2: Tags and members added");
+    
+    // Stage 2の状態をエクスポート
+    let stage2_export_path = temp_dir.path().join("exports/stage2_tags_members.json");
+    repository.export_project_state(&stage2_export_path, Some("Stage 2: タグとメンバー追加")).await?;
     
     // Stage 3: プロジェクト詳細拡張
     let mut stage3_project = stage2_project.clone();
@@ -286,6 +295,10 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     
     repository.save(&stage3_project).await?;
     println!("✅ Stage 3: Project fully enhanced");
+    
+    // Stage 3の状態をエクスポート
+    let stage3_export_path = temp_dir.path().join("exports/stage3_final_project.json");
+    repository.export_project_state(&stage3_export_path, Some("Stage 3: プロジェクト詳細拡張完了")).await?;
     
     // 最終状態の検証
     let final_project = repository.find_by_id(&project_id).await?;
@@ -300,8 +313,153 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     println!("✅ Final verification completed: color={:?}, order={}", 
              final_proj.color, final_proj.order_index);
     
+    // 詳細変更履歴をエクスポート
+    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    repository.export_project_changes_history(
+        &changes_history_dir,
+        Some("Project repository incremental changes with detailed JSON evolution tracking")
+    ).await?;
+    
+    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
+    
     // automerge履歴データを永続保存
     copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_project_incremental_changes_with_history")?;
+    
+    // エクスポートしたJSONファイルも永続保存にコピー
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_project_incremental_changes_with_history")?;
+    
+    Ok(())
+}
+
+/// プロジェクトリポジトリのJSON変更履歴エクスポート専用テスト
+#[tokio::test]
+async fn test_project_repository_json_export_with_detailed_changes() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let persistent_dir = create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");
+    let automerge_dir = temp_dir.path().join("automerge_data");
+    std::fs::create_dir_all(&automerge_dir)?;
+    
+    let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
+    
+    println!("=== プロジェクトリポジトリJSON変更履歴テスト開始 ===");
+    
+    // プロジェクト1: 基本プロジェクト
+    let project1_id = ProjectId::new();
+    let project1 = Project {
+        id: project1_id.clone(),
+        name: "基本プロジェクト".to_string(),
+        description: Some("最初のプロジェクト".to_string()),
+        color: Some("#3498db".to_string()),
+        order_index: 0,
+        is_archived: false,
+        status: None,
+        owner_id: Some(UserId::new()),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+    
+    repository.save(&project1).await?;
+    println!("📝 プロジェクト1作成完了: {}", project1.name);
+    
+    // Change 1をエクスポート
+    let change1_path = temp_dir.path().join("project_changes/change_1_first_project.json");
+    std::fs::create_dir_all(change1_path.parent().unwrap())?;
+    repository.export_project_state(&change1_path, Some("Change 1: First project created")).await?;
+    
+    // プロジェクト2: 第二のプロジェクト追加
+    let project2_id = ProjectId::new();
+    let project2 = Project {
+        id: project2_id.clone(),
+        name: "拡張プロジェクト".to_string(),
+        description: Some("機能拡張を行うプロジェクト".to_string()),
+        color: Some("#e74c3c".to_string()),
+        order_index: 1,
+        is_archived: false,
+        status: None,
+        owner_id: Some(UserId::new()),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+    
+    repository.save(&project2).await?;
+    println!("📝 プロジェクト2作成完了: {}", project2.name);
+    
+    // Change 2をエクスポート
+    let change2_path = temp_dir.path().join("project_changes/change_2_second_project.json");
+    repository.export_project_state(&change2_path, Some("Change 2: Second project added")).await?;
+    
+    // プロジェクト1を更新（色変更とアーカイブ）
+    let mut updated_project1 = project1.clone();
+    updated_project1.name = "更新された基本プロジェクト".to_string();
+    updated_project1.description = Some("説明を更新したプロジェクト".to_string());
+    updated_project1.color = Some("#f39c12".to_string());
+    updated_project1.order_index = 10;
+    updated_project1.updated_at = Utc::now();
+    
+    repository.save(&updated_project1).await?;
+    println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
+    
+    // Change 3をエクスポート
+    let change3_path = temp_dir.path().join("project_changes/change_3_updated_first_project.json");
+    repository.export_project_state(&change3_path, Some("Change 3: First project updated with new color and description")).await?;
+    
+    // プロジェクト3: 第三のプロジェクト追加（複雑な設定）
+    let project3_id = ProjectId::new();
+    let project3 = Project {
+        id: project3_id.clone(),
+        name: "高度な設定プロジェクト".to_string(),
+        description: Some("複雑な設定を持つプロジェクト。このプロジェクトは長い説明を含んでいて、automergeでの保存と復元がどのように動作するかをテストする目的があります。".to_string()),
+        color: Some("#9b59b6".to_string()),
+        order_index: 5,
+        is_archived: false,
+        status: None,
+        owner_id: Some(UserId::new()),
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+    
+    repository.save(&project3).await?;
+    println!("📝 プロジェクト3作成完了: {}", project3.name);
+    
+    // Change 4をエクスポート
+    let change4_path = temp_dir.path().join("project_changes/change_4_complex_third_project.json");
+    repository.export_project_state(&change4_path, Some("Change 4: Complex third project with detailed configuration")).await?;
+    
+    // プロジェクト2をアーカイブ
+    let mut archived_project2 = project2.clone();
+    archived_project2.is_archived = true;
+    archived_project2.name = "アーカイブされた拡張プロジェクト".to_string();
+    archived_project2.updated_at = Utc::now();
+    
+    repository.save(&archived_project2).await?;
+    println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
+    
+    // Change 5をエクスポート
+    let change5_path = temp_dir.path().join("project_changes/change_5_archived_second_project.json");
+    repository.export_project_state(&change5_path, Some("Change 5: Second project archived")).await?;
+    
+    // 最終検証
+    let all_projects = repository.find_all().await?;
+    println!("📊 最終プロジェクト数: {}", all_projects.len());
+    assert_eq!(all_projects.len(), 3);
+    
+    // アーカイブされたプロジェクトの確認
+    let archived_project = all_projects.iter().find(|p| p.is_archived);
+    assert!(archived_project.is_some());
+    assert_eq!(archived_project.unwrap().name, "アーカイブされた拡張プロジェクト");
+    
+    // 詳細変更履歴をエクスポート
+    let detailed_changes_dir = temp_dir.path().join("detailed_automerge_changes");
+    repository.export_project_changes_history(
+        &detailed_changes_dir,
+        Some("Complete project repository evolution with multiple projects and complex modifications")
+    ).await?;
+    
+    println!("✅ 詳細automerge変更履歴エクスポート完了: {:?}", detailed_changes_dir);
+    println!("=== プロジェクトリポジトリJSON変更履歴テスト完了 ===");
+    
+    // 全データを永続保存にコピー
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_project_repository_json_export_with_detailed_changes")?;
     
     Ok(())
 }

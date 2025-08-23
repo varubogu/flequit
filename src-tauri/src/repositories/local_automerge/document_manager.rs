@@ -332,6 +332,122 @@ impl DocumentManager {
         Ok(())
     }
 
+    /// Automergeドキュメントの変更履歴を段階的にJSONで出力
+    pub async fn export_document_changes_history<P: AsRef<Path>>(
+        &mut self,
+        doc_type: &DocumentType,
+        output_dir: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let output_dir = output_dir.as_ref();
+        std::fs::create_dir_all(output_dir)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        
+        let doc_handle = self.get_or_create_document(doc_type).await?;
+        let changes_history = doc_handle.with_doc(|doc| {
+            let mut history = Vec::new();
+            let _heads = doc.get_heads();
+            
+            // 各変更ポイントでのドキュメント状態を取得
+            for (change_index, change) in doc.get_changes(&[]).iter().enumerate() {
+                let change_hash = change.hash();
+                
+                // この変更までのドキュメント状態を取得
+                let doc_at_change = {
+                    let mut temp_doc = automerge::Automerge::new();
+                    let changes: Vec<_> = doc.get_changes(&[]).into_iter().take(change_index + 1).cloned().collect();
+                    temp_doc.apply_changes(changes)
+                        .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
+                    temp_doc
+                };
+                
+                let root_value = self.read_map_object(&doc_at_change, &automerge::ROOT);
+                
+                history.push(serde_json::json!({
+                    "change_index": change_index,
+                    "change_hash": format!("{:?}", change_hash),
+                    "actor": format!("{:?}", change.actor_id()),
+                    "timestamp": change.timestamp(),
+                    "message": change.message().map_or("", |v| v),
+                    "document_state": root_value
+                }));
+            }
+            
+            // 最新状態も追加
+            let current_state = self.read_map_object(doc, &automerge::ROOT);
+            history.push(serde_json::json!({
+                "change_index": "current",
+                "change_hash": "HEAD",
+                "actor": "current",
+                "timestamp": chrono::Utc::now().timestamp(),
+                "message": "Current state",
+                "document_state": current_state
+            }));
+            
+            Ok::<Vec<serde_json::Value>, RepositoryError>(history)
+        })?;
+        
+        // 各変更を個別ファイルに出力
+        for (index, change_data) in changes_history.iter().enumerate() {
+            let filename = if index == changes_history.len() - 1 {
+                "current_state.json".to_string()
+            } else {
+                format!("change_{:03}.json", index)
+            };
+            
+            let export_data = serde_json::json!({
+                "metadata": {
+                    "document_type": format!("{:?}", doc_type),
+                    "filename": doc_type.filename(),
+                    "exported_at": chrono::Utc::now().to_rfc3339(),
+                    "description": description.unwrap_or("Automerge change history export"),
+                    "change_sequence": index
+                },
+                "change_data": change_data
+            });
+            
+            let json_string = serde_json::to_string_pretty(&export_data)
+                .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+                
+            let file_path = output_dir.join(filename);
+            std::fs::write(file_path, json_string)
+                .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        }
+        
+        // サマリーファイルも作成
+        let summary_data = serde_json::json!({
+            "metadata": {
+                "document_type": format!("{:?}", doc_type),
+                "filename": doc_type.filename(),
+                "exported_at": chrono::Utc::now().to_rfc3339(),
+                "description": description.unwrap_or("Automerge change history summary"),
+                "total_changes": changes_history.len() - 1,
+                "summary_type": "change_history"
+            },
+            "changes_summary": changes_history.iter().enumerate().map(|(index, change)| {
+                serde_json::json!({
+                    "index": index,
+                    "change_hash": change["change_hash"],
+                    "timestamp": change["timestamp"],
+                    "message": change["message"],
+                    "filename": if index == changes_history.len() - 1 {
+                        "current_state.json".to_string()
+                    } else {
+                        format!("change_{:03}.json", index)
+                    }
+                })
+            }).collect::<Vec<_>>()
+        });
+        
+        let summary_json = serde_json::to_string_pretty(&summary_data)
+            .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
+            
+        std::fs::write(output_dir.join("changes_summary.json"), summary_json)
+            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
+        
+        Ok(())
+    }
+
     /// 全てのドキュメントをJSONファイルに出力
     pub async fn export_all_documents_to_directory<P: AsRef<Path>>(
         &mut self,
