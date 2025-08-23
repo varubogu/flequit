@@ -201,6 +201,218 @@ impl TestDocumentManager {
     }
 }
 
+/// 差分更新テスト用の共通ヘルパー関数群
+mod differential_update_helpers {
+    use super::*;
+
+    /// 差分更新テスト用のテストデータ構造
+    #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+    pub struct TestEntity {
+        pub id: String,
+        pub name: String,
+        pub description: Option<String>,
+        pub value: i32,
+        pub is_active: bool,
+        pub tags: Vec<String>,
+        pub metadata: std::collections::HashMap<String, serde_json::Value>,
+        pub nested: NestedData,
+    }
+
+    #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+    pub struct NestedData {
+        pub level: i32,
+        pub info: String,
+        pub settings: std::collections::HashMap<String, String>,
+    }
+
+    impl Default for TestEntity {
+        fn default() -> Self {
+            let mut metadata = std::collections::HashMap::new();
+            metadata.insert("created_at".to_string(), json!("2024-01-01T00:00:00Z"));
+            metadata.insert("version".to_string(), json!(1));
+            
+            let mut nested_settings = std::collections::HashMap::new();
+            nested_settings.insert("theme".to_string(), "light".to_string());
+            nested_settings.insert("lang".to_string(), "en".to_string());
+
+            Self {
+                id: "test-entity-001".to_string(),
+                name: "初期エンティティ".to_string(),
+                description: Some("テスト用の初期エンティティ".to_string()),
+                value: 100,
+                is_active: true,
+                tags: vec!["tag1".to_string(), "tag2".to_string()],
+                metadata,
+                nested: NestedData {
+                    level: 1,
+                    info: "初期ネストデータ".to_string(),
+                    settings: nested_settings,
+                },
+            }
+        }
+    }
+
+    /// 単一プロパティの差分更新テストを実行する共通関数
+    pub async fn test_single_property_update<T>(
+        manager: &mut TestDocumentManager,
+        doc_type: &DocumentType,
+        entity_key: &str,
+        property_name: &str,
+        initial_value: T,
+        updated_value: T,
+        property_path: &[&str],
+    ) -> Result<(), Box<dyn std::error::Error>>
+    where
+        T: serde::Serialize + serde::de::DeserializeOwned + std::fmt::Debug + PartialEq + Clone,
+    {
+        println!("🧪 Testing property update: {} -> {:?} to {:?}", property_name, initial_value, updated_value);
+
+        // 初期エンティティを作成
+        let entity = TestEntity::default();
+        manager.save_data(doc_type, entity_key, &entity).await?;
+
+        // 初期状態を確認
+        let loaded_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        assert!(loaded_entity.is_some(), "初期エンティティが保存されていません");
+
+        // プロパティの値を更新（パス指定で部分更新）
+        manager.save_data_at_path(doc_type, property_path, &updated_value).await?;
+
+        // 更新されたデータを読み込み
+        let updated_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        assert!(updated_entity.is_some(), "更新後のエンティティが読み込めません");
+
+        // 特定プロパティのみが更新されていることを確認
+        let updated = updated_entity.unwrap();
+        
+        // パス指定で値を取得して検証
+        let current_value: Option<T> = manager.load_data_at_path(doc_type, property_path).await?;
+        assert!(current_value.is_some(), "更新されたプロパティ値が読み込めません");
+        assert_eq!(current_value.unwrap(), updated_value, "プロパティ値が正しく更新されていません");
+
+        // 他のプロパティが影響を受けていないことを確認（基本的なもののみチェック）
+        assert_eq!(updated.id, entity.id, "IDが意図せず変更されています");
+        
+        println!("✅ Property update test passed for: {}", property_name);
+        Ok(())
+    }
+
+    /// 複数プロパティの差分更新テストを実行する共通関数
+    pub async fn test_multiple_properties_update(
+        manager: &mut TestDocumentManager,
+        doc_type: &DocumentType,
+        entity_key: &str,
+        updates: Vec<(&str, &[&str], serde_json::Value)>, // (property_name, path, new_value)
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        println!("🧪 Testing multiple properties update: {} properties", updates.len());
+
+        // 初期エンティティを作成
+        let entity = TestEntity::default();
+        manager.save_data(doc_type, entity_key, &entity).await?;
+
+        // 各プロパティを順次更新
+        for (i, (property_name, path, new_value)) in updates.iter().enumerate() {
+            println!("📝 Step {}: Updating property '{}'", i + 1, property_name);
+            manager.save_data_at_path(doc_type, path, new_value).await?;
+            
+            // 更新を確認
+            let current_value: Option<serde_json::Value> = manager.load_data_at_path(doc_type, path).await?;
+            assert!(current_value.is_some(), "プロパティ '{}' の更新に失敗", property_name);
+            assert_eq!(&current_value.unwrap(), new_value, "プロパティ '{}' の値が期待値と異なります", property_name);
+        }
+
+        // 最終状態を確認
+        let final_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        assert!(final_entity.is_some(), "最終エンティティが読み込めません");
+
+        println!("✅ Multiple properties update test passed");
+        Ok(())
+    }
+
+    /// ネストしたオブジェクトの差分更新テスト
+    pub async fn test_nested_object_update(
+        manager: &mut TestDocumentManager,
+        doc_type: &DocumentType,
+        entity_key: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        println!("🧪 Testing nested object update");
+
+        // 初期エンティティを作成
+        let entity = TestEntity::default();
+        manager.save_data(doc_type, entity_key, &entity).await?;
+
+        // ネストオブジェクトの各プロパティを更新
+        manager.save_data_at_path(doc_type, &[entity_key, "nested", "level"], &5).await?;
+        manager.save_data_at_path(doc_type, &[entity_key, "nested", "info"], &"更新されたネストデータ".to_string()).await?;
+        manager.save_data_at_path(doc_type, &[entity_key, "nested", "settings", "theme"], &"dark".to_string()).await?;
+        manager.save_data_at_path(doc_type, &[entity_key, "nested", "settings", "new_setting"], &"新しい設定".to_string()).await?;
+
+        // 更新結果を検証
+        let updated_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        assert!(updated_entity.is_some(), "更新後のエンティティが読み込めません");
+
+        let updated = updated_entity.unwrap();
+        assert_eq!(updated.nested.level, 5);
+        assert_eq!(updated.nested.info, "更新されたネストデータ");
+        assert_eq!(updated.nested.settings.get("theme").unwrap(), "dark");
+        assert_eq!(updated.nested.settings.get("new_setting").unwrap(), "新しい設定");
+        
+        // 元の設定も残っていることを確認
+        assert_eq!(updated.nested.settings.get("lang").unwrap(), "en");
+
+        // 他のトップレベルプロパティが影響を受けていないことを確認
+        assert_eq!(updated.id, entity.id);
+        assert_eq!(updated.name, entity.name);
+        assert_eq!(updated.value, entity.value);
+
+        println!("✅ Nested object update test passed");
+        Ok(())
+    }
+
+    /// 配列の差分更新テスト
+    pub async fn test_array_differential_update(
+        manager: &mut TestDocumentManager,
+        doc_type: &DocumentType,
+        entity_key: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        println!("🧪 Testing array differential update");
+
+        // 初期エンティティを作成
+        let entity = TestEntity::default();
+        manager.save_data(doc_type, entity_key, &entity).await?;
+
+        // 配列に新しい要素を追加
+        let mut updated_tags = entity.tags.clone();
+        updated_tags.push("tag3".to_string());
+        updated_tags.push("tag4".to_string());
+        
+        manager.save_data_at_path(doc_type, &[entity_key, "tags"], &updated_tags).await?;
+
+        // 更新結果を検証
+        let updated_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        assert!(updated_entity.is_some());
+
+        let updated = updated_entity.unwrap();
+        assert_eq!(updated.tags.len(), 4);
+        assert!(updated.tags.contains(&"tag3".to_string()));
+        assert!(updated.tags.contains(&"tag4".to_string()));
+        assert!(updated.tags.contains(&"tag1".to_string())); // 元の要素も残存
+
+        // 配列の特定インデックスを更新
+        manager.save_data_at_path(doc_type, &[entity_key, "tags", "0"], &"updated_tag1".to_string()).await?;
+
+        let final_entity: Option<TestEntity> = manager.load_data(doc_type, entity_key).await?;
+        let final_updated = final_entity.unwrap();
+        assert_eq!(final_updated.tags[0], "updated_tag1");
+        assert_eq!(final_updated.tags[1], "tag2"); // 他のインデックスは変更されない
+
+        println!("✅ Array differential update test passed");
+        Ok(())
+    }
+}
+
+use differential_update_helpers::*;
+
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
@@ -1202,6 +1414,309 @@ async fn test_json_export_multiple_document_types() -> Result<(), Box<dyn std::e
     
     // 永続保存ディレクトリにコピー
     copy_to_persistent_storage(&json_output_dir, &persistent_dir, "test_json_export_multiple_document_types")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：単一プロパティの更新（文字列）
+#[tokio::test]
+async fn test_differential_update_single_string_property() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_single_string_property")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    test_single_property_update(
+        &mut manager,
+        &doc_type,
+        entity_key,
+        "name",
+        "初期エンティティ".to_string(),
+        "更新されたエンティティ".to_string(),
+        &[entity_key, "name"],
+    ).await?;
+    
+    // テスト終了時に詳細変更履歴を出力
+    manager.finalize_test(&[doc_type]).await?;
+    
+    // 永続保存
+    let persistent_dir = create_persistent_test_dir("test_differential_update_single_string_property");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_single_string_property")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：単一プロパティの更新（数値）
+#[tokio::test]
+async fn test_differential_update_single_numeric_property() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_single_numeric_property")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    test_single_property_update(
+        &mut manager,
+        &doc_type,
+        entity_key,
+        "value",
+        100i32,
+        999i32,
+        &[entity_key, "value"],
+    ).await?;
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_single_numeric_property");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_single_numeric_property")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：単一プロパティの更新（ブール値）
+#[tokio::test]
+async fn test_differential_update_single_boolean_property() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_single_boolean_property")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    test_single_property_update(
+        &mut manager,
+        &doc_type,
+        entity_key,
+        "is_active",
+        true,
+        false,
+        &[entity_key, "is_active"],
+    ).await?;
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_single_boolean_property");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_single_boolean_property")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：オプション型プロパティの更新（None → Some）
+#[tokio::test]
+async fn test_differential_update_optional_property_none_to_some() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_optional_property_none_to_some")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    // まず初期エンティティでdescriptionをNoneに設定
+    let mut entity = TestEntity::default();
+    entity.description = None;
+    manager.save_data(&doc_type, entity_key, &entity).await?;
+    
+    // None → Some の更新
+    let new_description = Some("新しい説明".to_string());
+    manager.save_data_at_path(&doc_type, &[entity_key, "description"], &new_description).await?;
+    
+    // 検証
+    let updated_entity: Option<TestEntity> = manager.load_data(&doc_type, entity_key).await?;
+    assert!(updated_entity.is_some());
+    let updated = updated_entity.unwrap();
+    assert_eq!(updated.description, new_description);
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_optional_property_none_to_some");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_optional_property_none_to_some")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：複数プロパティの同時更新
+#[tokio::test]
+async fn test_differential_update_multiple_properties() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_multiple_properties")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    let name_path = [entity_key, "name"];
+    let value_path = [entity_key, "value"];
+    let active_path = [entity_key, "is_active"];
+    let desc_path = [entity_key, "description"];
+    
+    let updates = vec![
+        ("name", &name_path[..], json!("複数更新テスト")),
+        ("value", &value_path[..], json!(777)),
+        ("is_active", &active_path[..], json!(false)),
+        ("description", &desc_path[..], json!("複数プロパティ更新のテスト")),
+    ];
+    
+    test_multiple_properties_update(&mut manager, &doc_type, entity_key, updates).await?;
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_multiple_properties");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_multiple_properties")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：ネストしたオブジェクトの更新
+#[tokio::test]
+async fn test_differential_update_nested_objects() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_nested_objects")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    test_nested_object_update(&mut manager, &doc_type, entity_key).await?;
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_nested_objects");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_nested_objects")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：配列の差分更新
+#[tokio::test]
+async fn test_differential_update_arrays() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_arrays")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    test_array_differential_update(&mut manager, &doc_type, entity_key).await?;
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_arrays");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_arrays")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：深いネストのプロパティ更新
+#[tokio::test]
+async fn test_differential_update_deep_nested_properties() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_deep_nested_properties")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    println!("🧪 Testing deep nested property updates");
+    
+    // 初期エンティティを作成
+    let entity = TestEntity::default();
+    manager.save_data(&doc_type, entity_key, &entity).await?;
+    
+    // 深いネストのプロパティを順次更新
+    manager.save_data_at_path(&doc_type, &[entity_key, "nested", "settings", "theme"], &"dark".to_string()).await?;
+    manager.save_data_at_path(&doc_type, &[entity_key, "nested", "settings", "font_size"], &"14px".to_string()).await?;
+    manager.save_data_at_path(&doc_type, &[entity_key, "metadata", "version"], &json!(2)).await?;
+    manager.save_data_at_path(&doc_type, &[entity_key, "metadata", "last_modified"], &json!("2024-01-15T10:30:00Z")).await?;
+    
+    // 検証
+    let updated_entity: Option<TestEntity> = manager.load_data(&doc_type, entity_key).await?;
+    assert!(updated_entity.is_some());
+    let updated = updated_entity.unwrap();
+    
+    assert_eq!(updated.nested.settings.get("theme").unwrap(), "dark");
+    assert_eq!(updated.nested.settings.get("font_size").unwrap(), "14px");
+    assert_eq!(updated.nested.settings.get("lang").unwrap(), "en"); // 元の値は保持
+    assert_eq!(updated.metadata.get("version").unwrap(), &json!(2));
+    assert_eq!(updated.metadata.get("last_modified").unwrap(), &json!("2024-01-15T10:30:00Z"));
+    assert_eq!(updated.metadata.get("created_at").unwrap(), &json!("2024-01-01T00:00:00Z")); // 元の値は保持
+    
+    // 他のトップレベルプロパティが影響されていないことを確認
+    assert_eq!(updated.name, entity.name);
+    assert_eq!(updated.value, entity.value);
+    assert_eq!(updated.is_active, entity.is_active);
+    
+    println!("✅ Deep nested property update test passed");
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_deep_nested_properties");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_deep_nested_properties")?;
+    
+    Ok(())
+}
+
+/// 差分更新テスト：プロパティ名をパラメータ化したテスト
+#[tokio::test]
+async fn test_differential_update_parameterized_properties() -> Result<(), Box<dyn std::error::Error>> {
+    let temp_dir = TempDir::new()?;
+    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_parameterized_properties")?;
+    
+    let doc_type = DocumentType::Settings;
+    let entity_key = "test_entity";
+    
+    println!("🧪 Testing parameterized property updates");
+    
+    // パラメータ化されたプロパティテストの定義
+    let id_path = [entity_key, "id"];
+    let name_path = [entity_key, "name"];
+    let desc_path = [entity_key, "description"];
+    let value_path = [entity_key, "value"];
+    let active_path = [entity_key, "is_active"];
+    let nested_level_path = [entity_key, "nested", "level"];
+    let nested_info_path = [entity_key, "nested", "info"];
+    
+    let property_tests = vec![
+        ("id", &id_path[..], json!("updated-entity-001")),
+        ("name", &name_path[..], json!("パラメータ化テスト")),
+        ("description", &desc_path[..], json!("パラメータ化された更新テスト")),
+        ("value", &value_path[..], json!(555)),
+        ("is_active", &active_path[..], json!(false)),
+        ("nested.level", &nested_level_path[..], json!(10)),
+        ("nested.info", &nested_info_path[..], json!("パラメータ化されたネストデータ")),
+    ];
+    
+    // 初期エンティティを作成
+    let entity = TestEntity::default();
+    manager.save_data(&doc_type, entity_key, &entity).await?;
+    
+    // 各プロパティを順次テスト
+    for (property_name, path, expected_value) in &property_tests {
+        println!("🔧 Testing property: {}", property_name);
+        
+        // プロパティを更新
+        manager.save_data_at_path(&doc_type, path, expected_value).await?;
+        
+        // 更新されたことを確認
+        let current_value: Option<serde_json::Value> = manager.load_data_at_path(&doc_type, path).await?;
+        assert!(current_value.is_some(), "プロパティ '{}' の読み込みに失敗", property_name);
+        assert_eq!(&current_value.unwrap(), expected_value, "プロパティ '{}' の値が期待値と異なります", property_name);
+        
+        println!("✅ Property '{}' updated successfully", property_name);
+    }
+    
+    // 最終状態でエンティティ全体が正しく更新されていることを確認
+    let final_entity: Option<TestEntity> = manager.load_data(&doc_type, entity_key).await?;
+    assert!(final_entity.is_some());
+    let final_updated = final_entity.unwrap();
+    
+    assert_eq!(final_updated.id, "updated-entity-001");
+    assert_eq!(final_updated.name, "パラメータ化テスト");
+    assert_eq!(final_updated.value, 555);
+    assert_eq!(final_updated.is_active, false);
+    assert_eq!(final_updated.nested.level, 10);
+    assert_eq!(final_updated.nested.info, "パラメータ化されたネストデータ");
+    
+    println!("✅ All parameterized property updates completed successfully");
+    
+    manager.finalize_test(&[doc_type]).await?;
+    
+    let persistent_dir = create_persistent_test_dir("test_differential_update_parameterized_properties");
+    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_differential_update_parameterized_properties")?;
     
     Ok(())
 }
