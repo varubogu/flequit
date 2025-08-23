@@ -22,7 +22,15 @@ pub mod user;
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use serde::{Serialize, Deserialize};
+/// # use chrono::{DateTime, Utc};
+/// 
+/// // ModelConverterトレイトの定義例
+/// trait ModelConverter<T> {
+///     async fn to_model(&self) -> Result<T, String>;
+/// }
+/// 
 /// // Tauriコマンド用構造体
 /// #[derive(Serialize, Deserialize)]
 /// struct TaskCommand {
@@ -30,13 +38,20 @@ pub mod user;
 ///     title: String,
 ///     created_at: String,  // RFC3339フォーマット文字列
 /// }
+/// 
+/// // 内部ドメインモデル
+/// struct Task {
+///     id: String,
+///     title: String,
+///     created_at: DateTime<Utc>,
+/// }
 ///
 /// impl ModelConverter<Task> for TaskCommand {
 ///     async fn to_model(&self) -> Result<Task, String> {
 ///         Ok(Task {
 ///             id: self.id.clone(),
 ///             title: self.title.clone(),
-///             created_at: self.created_at.parse()?,
+///             created_at: self.created_at.parse().map_err(|e: chrono::ParseError| e.to_string())?,
 ///         })
 ///     }
 /// }

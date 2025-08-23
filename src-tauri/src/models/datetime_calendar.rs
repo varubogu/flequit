@@ -30,8 +30,10 @@ use serde::{Deserialize, Serialize};
 ///
 /// # 使用例
 ///
-/// ```rust
-/// use chrono::Utc;
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::datetime_calendar::DateCondition;
+/// # use flequit_lib::types::datetime_calendar_types::DateRelation;
 ///
 /// // 特定日以降の条件
 /// let after_condition = DateCondition {
@@ -72,7 +74,10 @@ pub struct DateCondition {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::WeekdayCondition;
+/// # use flequit_lib::types::datetime_calendar_types::{DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// 
 /// // 土曜日なら翌営業日（月曜日）に調整
 /// let weekend_adjustment = WeekdayCondition {
 ///     id: "saturday_to_monday".to_string(),
@@ -123,15 +128,30 @@ pub struct WeekdayCondition {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::{RecurrenceAdjustment, DateCondition, WeekdayCondition};
+/// # use flequit_lib::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use chrono::Utc;
+/// 
 /// let business_adjustment = RecurrenceAdjustment {
 ///     date_conditions: vec![
 ///         // 祝日回避条件
-///         DateCondition { /* 祝日以外 */ }
+///         DateCondition {
+///             id: "holiday_avoidance".to_string(),
+///             relation: DateRelation::OnOrAfter,
+///             reference_date: Utc::now(),
+///         }
 ///     ],
 ///     weekday_conditions: vec![
 ///         // 土日は翌営業日に調整
-///         WeekdayCondition { /* 土日→月曜 */ }
+///         WeekdayCondition {
+///             id: "weekend_to_weekday".to_string(),
+///             if_weekday: DayOfWeek::Saturday,
+///             then_direction: AdjustmentDirection::Next,
+///             then_target: AdjustmentTarget::Weekday,
+///             then_weekday: Some(DayOfWeek::Monday),
+///             then_days: None,
+///         }
 ///     ],
 /// };
 /// ```
@@ -158,23 +178,28 @@ pub struct RecurrenceAdjustment {
 /// # パターン例
 ///
 /// ## 毎月第2火曜日
-/// ```rust
-/// RecurrenceDetails {
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
+/// # use flequit_lib::types::datetime_calendar_types::{WeekOfMonth, DayOfWeek};
+/// 
+/// let second_tuesday = RecurrenceDetails {
 ///     specific_date: None,
 ///     week_of_period: Some(WeekOfMonth::Second),
 ///     weekday_of_week: Some(DayOfWeek::Tuesday),
 ///     date_conditions: None,
-/// }
+/// };
 /// ```
 ///
 /// ## 毎月15日
-/// ```rust
-/// RecurrenceDetails {
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
+/// 
+/// let fifteenth_day = RecurrenceDetails {
 ///     specific_date: Some(15),
 ///     week_of_period: None,
 ///     weekday_of_week: None,
 ///     date_conditions: None,
-/// }
+/// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecurrenceDetails {
@@ -211,36 +236,52 @@ pub struct RecurrenceDetails {
 /// # 使用パターン
 ///
 /// ## 毎週火・木
-/// ```rust
-/// RecurrenceRule {
-///     unit: RecurrenceUnit::Weekly,
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::RecurrenceRule;
+/// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
+/// 
+/// let weekly_rule = RecurrenceRule {
+///     unit: RecurrenceUnit::Week,
 ///     interval: 1,
 ///     days_of_week: Some(vec![DayOfWeek::Tuesday, DayOfWeek::Thursday]),
 ///     details: None,
 ///     adjustment: None,
 ///     end_date: None,
 ///     max_occurrences: None,
-/// }
+/// };
 /// ```
 ///
 /// ## 毎月最終営業日
-/// ```rust
-/// RecurrenceRule {
-///     unit: RecurrenceUnit::Monthly,
+/// ```rust,no_run
+/// # use flequit_lib::models::datetime_calendar::{RecurrenceRule, RecurrenceDetails, RecurrenceAdjustment, WeekdayCondition};
+/// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, WeekOfMonth, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// 
+/// let last_business_day = RecurrenceRule {
+///     unit: RecurrenceUnit::Month,
 ///     interval: 1,
 ///     days_of_week: None,
 ///     details: Some(RecurrenceDetails {
+///         specific_date: None,
 ///         week_of_period: Some(WeekOfMonth::Last),
 ///         weekday_of_week: Some(DayOfWeek::Friday),
-///         // ...
+///         date_conditions: None,
 ///     }),
 ///     adjustment: Some(RecurrenceAdjustment {
-///         weekday_conditions: vec![/* 土日回避 */],
-///         // ...
+///         date_conditions: vec![],
+///         weekday_conditions: vec![
+///             WeekdayCondition {
+///                 id: "weekend_adjustment".to_string(),
+///                 if_weekday: DayOfWeek::Saturday,
+///                 then_direction: AdjustmentDirection::Previous,
+///                 then_target: AdjustmentTarget::Weekday,
+///                 then_weekday: Some(DayOfWeek::Friday),
+///                 then_days: None,
+///             }
+///         ],
 ///     }),
 ///     end_date: None,
 ///     max_occurrences: None,
-/// }
+/// };
 /// ```
 ///
 /// # 処理フロー

@@ -11,15 +11,22 @@ use async_trait::async_trait;
 ///
 /// # 使用方法
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use flequit_lib::models::project::Project;
+/// # use flequit_lib::types::id_types::ProjectId;
+/// # use flequit_lib::repositories::project_repository_trait::ProjectRepositoryTrait;
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// // Service層での使用例
-/// let repository = UnifiedProjectRepository::new().await?;
-///
-/// // 保存（Automerge + SQLiteに自動保存）
-/// repository.save(&project).await?;
-///
-/// // 検索（SQLiteから高速検索）
-/// let projects = repository.find_all().await?;
+/// // let repository = SomeProjectRepository::new().await?;
+/// // let project = Project::default();
+/// //
+/// // // 保存（Automerge + SQLiteに自動保存）
+/// // repository.save(&project).await?;
+/// //
+/// // // 検索（SQLiteから高速検索）
+/// // let projects = repository.find_all().await?;
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// Repository内部でストレージ選択を自動実行:

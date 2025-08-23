@@ -44,8 +44,10 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 ///
 /// # 使用例
 ///
-/// ```rust
-/// use chrono::Utc;
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::user::User;
+/// # use flequit_lib::types::id_types::UserId;
 ///
 /// let user = User {
 ///     id: UserId::new(),

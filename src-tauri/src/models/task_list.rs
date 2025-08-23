@@ -55,8 +55,10 @@ use crate::models::{
 ///
 /// # 使用例
 ///
-/// ```rust
-/// use chrono::Utc;
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::task_list::TaskList;
+/// # use flequit_lib::types::id_types::{TaskListId, ProjectId};
 ///
 /// let task_list = TaskList {
 ///     id: TaskListId::new(),
@@ -126,26 +128,35 @@ pub struct TaskList {
 ///
 /// # 階層構造
 ///
-/// ```
+/// ```text
 /// Project
-///   └── TaskListTree
-///       └── TaskTree[]
-///           └── SubTask[]
-///           └── Tag[]
+///   |-- TaskListTree
+///       |-- TaskTree[]
+///           |-- SubTask[]
+///           |-- Tag[]
 /// ```
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::task_list::TaskListTree;
+/// # use flequit_lib::models::task::TaskTree;
+/// # use flequit_lib::types::id_types::{TaskListId, ProjectId, TaskId};
+/// 
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {
 ///     id: TaskListId::new(),
 ///     project_id: ProjectId::new(),
 ///     name: "進行中".to_string(),
-///     // ... 基本フィールドは TaskList と同様
+///     description: None,
+///     color: Some("#ffeb3b".to_string()),
+///     order_index: 2,
+///     is_archived: false,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
 ///     tasks: vec![
-///         TaskTree { /* 完全なタスク情報 */ },
-///         TaskTree { /* 完全なタスク情報 */ },
+///         // TaskTree構造体の例（完全なタスク情報を含む）
 ///     ],
 /// };
 /// ```

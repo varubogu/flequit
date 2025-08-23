@@ -16,11 +16,11 @@ use tokio::sync::Mutex;
 ///
 /// # アーキテクチャ
 ///
-/// ```
+/// ```text
 /// LocalAutomergeProjectRepository (このクラス)
-/// ↓ 委譲
+///   | 委譲
 /// InnerProjectsRepository (既存の実装)
-/// ↓ データアクセス
+///   | データアクセス
 /// Automerge Documents
 /// ```
 ///

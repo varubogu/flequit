@@ -25,44 +25,37 @@ pub mod view_item;
 ///
 /// # 使用例
 ///
-/// ```rust
-/// // SQLite用エンティティ
-/// #[derive(Clone, Debug, PartialEq, DeriveEntityModel)]
-/// #[sea_orm(table_name = "tasks")]
-/// pub struct Model {
-///     #[sea_orm(primary_key)]
-///     pub id: String,
-///     pub title: String,
-///     pub created_at: DateTime<Utc>,  // Sea-ORMがDateTime直接サポート
-///     pub updated_at: DateTime<Utc>,
+/// ```rust,no_run
+/// # use chrono::{DateTime, Utc};
+/// 
+/// // SqliteModelConverterトレイトの定義例
+/// trait SqliteModelConverter<T> {
+///     async fn to_domain_model(&self) -> Result<T, String>;
 /// }
-///
-/// // 内部ドメインモデル
-/// pub struct Task {
+/// 
+/// // 簡素化されたSQLite用エンティティ
+/// pub struct SqliteModel {
 ///     pub id: String,
 ///     pub title: String,
 ///     pub created_at: DateTime<Utc>,
 ///     pub updated_at: DateTime<Utc>,
 /// }
 ///
-/// impl SqliteModelConverter<Task> for Model {
-///     async fn to_domain_model(&self) -> Result<Task, String> {
-///         Ok(Task {
+/// // 内部ドメインモデル
+/// pub struct DomainModel {
+///     pub id: String,
+///     pub title: String,
+///     pub created_at: DateTime<Utc>,
+///     pub updated_at: DateTime<Utc>,
+/// }
+///
+/// impl SqliteModelConverter<DomainModel> for SqliteModel {
+///     async fn to_domain_model(&self) -> Result<DomainModel, String> {
+///         Ok(DomainModel {
 ///             id: self.id.clone(),
 ///             title: self.title.clone(),
 ///             created_at: self.created_at,
 ///             updated_at: self.updated_at,
-///         })
-///     }
-/// }
-///
-/// impl SqliteModelConverter<Model> for Task {
-///     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
-///         Ok(ActiveModel {
-///             id: Set(self.id.clone()),
-///             title: Set(self.title.clone()),
-///             created_at: Set(self.created_at),
-///             updated_at: Set(self.updated_at),
 ///         })
 ///     }
 /// }

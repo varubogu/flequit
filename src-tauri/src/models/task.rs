@@ -144,17 +144,38 @@ pub struct Task {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::task::TaskTree;
+/// # use flequit_lib::models::subtask::SubTask;
+/// # use flequit_lib::models::tag::Tag;
+/// # use flequit_lib::types::id_types::{TaskId, ProjectId, TaskListId, UserId, TagId, SubTaskId};
+/// # use flequit_lib::types::task_types::TaskStatus;
+/// 
 /// // タスク詳細画面での使用例
 /// let detailed_task = TaskTree {
-///     // ... 基本フィールドは Task と同様
+///     id: TaskId::new(),
+///     sub_task_id: None,
+///     project_id: ProjectId::new(),
+///     list_id: TaskListId::new(),
+///     title: "新機能の実装".to_string(),
+///     description: Some("詳細な説明".to_string()),
+///     status: TaskStatus::InProgress,
+///     priority: 5,
+///     start_date: Some(Utc::now()),
+///     end_date: None,
+///     is_range_date: Some(false),
+///     recurrence_rule: None,
+///     assigned_user_ids: vec![],
+///     order_index: 1,
+///     is_archived: false,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
 ///     sub_tasks: vec![
-///         SubTask { /* サブタスク1 */ },
-///         SubTask { /* サブタスク2 */ },
+///         // SubTask実体情報
 ///     ],
 ///     tags: vec![
-///         Tag { name: "緊急".to_string(), color: Some("#ff0000".to_string()), /* ... */ },
-///         Tag { name: "機能開発".to_string(), color: Some("#0000ff".to_string()), /* ... */ },
+///         // Tag実体情報
 ///     ],
 /// };
 /// ```

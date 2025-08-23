@@ -40,8 +40,10 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// # 使用例
 ///
-/// ```rust
-/// use chrono::Utc;
+/// ```rust,no_run
+/// # use flequit_lib::models::account::Account;
+/// # use flequit_lib::types::id_types::AccountId;
+/// # use chrono::Utc;
 ///
 /// // Google認証アカウントの例
 /// let google_account = Account {

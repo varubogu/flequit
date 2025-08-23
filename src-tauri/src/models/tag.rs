@@ -36,8 +36,10 @@ use crate::models::{command::tag::TagCommand, CommandModelConverter};
 ///
 /// # 使用例
 ///
-/// ```rust
-/// use chrono::Utc;
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_lib::models::tag::Tag;
+/// # use flequit_lib::types::id_types::TagId;
 ///
 /// let urgent_tag = Tag {
 ///     id: TagId::new(),

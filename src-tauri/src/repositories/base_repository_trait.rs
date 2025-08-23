@@ -20,12 +20,24 @@ use partially::Partial;
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use async_trait::async_trait;
+/// # use flequit_lib::repositories::base_repository_trait::Repository;
+/// # use flequit_lib::errors::RepositoryError;
+/// # struct Project;
+/// # struct ProjectId;
+/// # struct LocalSqliteProjectRepository;
 /// #[async_trait]
-/// impl Repository<Project> for LocalSqliteProjectRepository {
+/// impl Repository<Project, ProjectId> for LocalSqliteProjectRepository {
 ///     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
 ///         // SQLite実装
+/// #       unimplemented!()
 ///     }
+/// #   async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> { unimplemented!() }
+/// #   async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> { unimplemented!() }
+/// #   async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> { unimplemented!() }
+/// #   async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> { unimplemented!() }
+/// #   async fn count(&self) -> Result<u64, RepositoryError> { unimplemented!() }
 /// }
 /// ```
 #[async_trait]

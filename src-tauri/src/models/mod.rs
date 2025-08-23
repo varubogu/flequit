@@ -45,18 +45,23 @@
 //!
 //! ## 使用例
 //!
-//! ```rust
-//! use crate::models::{project::Project, task::Task};
-//! use chrono::Utc;
+//! ```rust,no_run
+//! # use flequit_lib::models::project::Project;
+//! # use flequit_lib::types::id_types::{ProjectId, UserId};
+//! # use chrono::Utc;
 //!
 //! // 内部ドメインモデルの使用例
 //! let project = Project {
-//!     id: "proj_123".to_string(),
+//!     id: ProjectId::new(),
 //!     name: "新プロジェクト".to_string(),
 //!     description: Some("重要なプロジェクト".to_string()),
+//!     color: Some("#4CAF50".to_string()),
+//!     order_index: 1,
+//!     is_archived: false,
+//!     status: None,
+//!     owner_id: Some(UserId::new()),
 //!     created_at: Utc::now(),
 //!     updated_at: Utc::now(),
-//!     // その他のフィールド...
 //! };
 //! ```
 //!
@@ -97,9 +102,33 @@ pub trait CommandModelConverter<T> {
 ///
 /// # 使用例
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use flequit_lib::models::project::{Project, ProjectTree};
+/// # use flequit_lib::models::FromTreeModel;
+/// # use flequit_lib::types::id_types::{ProjectId, UserId};
+/// # use chrono::Utc;
+/// # 
+/// # // 例として使用する関数
+/// # async fn example() -> Result<(), String> {
+/// # // ProjectTree構造体を何らかの方法で作成
+/// # let project_tree: ProjectTree = ProjectTree {
+/// #     id: ProjectId::new(),
+/// #     name: "サンプルプロジェクト".to_string(),
+/// #     description: None,
+/// #     color: None,
+/// #     order_index: 1,
+/// #     is_archived: false,
+/// #     status: None,
+/// #     owner_id: None,
+/// #     created_at: Utc::now(),
+/// #     updated_at: Utc::now(),
+/// #     task_lists: vec![],
+/// # };
+/// # 
 /// // ProjectTree → Project への変換  
-/// let project = ProjectTree::from_tree_model(&project_tree).await?;
+/// let project: Project = project_tree.from_tree_model().await?;
+/// # Ok(())
+/// # }
 /// ```
 /// Tree系モデルから通常モデルに変換するトレイト
 pub trait FromTreeModel<BaseModel> {

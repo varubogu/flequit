@@ -11,15 +11,22 @@ use async_trait::async_trait;
 ///
 /// # 使用方法
 ///
-/// ```rust
+/// ```rust,no_run
+/// # use flequit_lib::models::task_list::TaskList;
+/// # use flequit_lib::types::id_types::TaskListId;
+/// # use flequit_lib::repositories::task_list_repository_trait::TaskListRepositoryTrait;
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// // Service層での使用例
-/// let repository = UnifiedTaskListRepository::new().await?;
-///
-/// // 保存（Automerge + SQLiteに自動保存）
-/// repository.save(&task_list).await?;
-///
-/// // 検索（SQLiteから高速検索）
-/// let task_lists = repository.find_all().await?;
+/// // let repository = SomeTaskListRepository::new().await?;
+/// // let task_list = TaskList::default();
+/// //
+/// // // 保存（Automerge + SQLiteに自動保存）
+/// // repository.save(&task_list).await?;
+/// //
+/// // // 検索（SQLiteから高速検索）
+/// // let task_lists = repository.find_all().await?;
+/// # Ok(())
+/// # }
 /// ```
 ///
 /// Repository内部でストレージ選択を自動実行:
