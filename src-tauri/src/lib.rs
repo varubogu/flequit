@@ -2,10 +2,10 @@
 mod commands;
 pub mod errors;
 mod facades;
-mod models;
+pub mod models;
 pub mod repositories;
 mod services;
-mod types;
+pub mod types;
 
 use commands::*;
 
