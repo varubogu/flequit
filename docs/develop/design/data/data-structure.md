@@ -27,7 +27,7 @@ Account Document
 └── サーバーアカウント配列 (Account[])
 
 User Document
-└── ユーザー情報 (User)
+└── ユーザー情報配列 (User[]) ※追加・更新のみ、削除不可
 
 Project Documents (project_id毎)
 ├── プロジェクト詳細データ
@@ -317,20 +317,43 @@ interface Account {
 
 ```json
 {
-  "id": "public-user-uuid-1",
-  "username": "username",
-  "display_name": "表示名",
-  "email": "user@example.com",
-  "avatar_url": "https://example.com/avatar.jpg",
-  "bio": "自己紹介文",
-  "timezone": "Asia/Tokyo",
-  "is_active": true,
-  "created_at": "2024-01-01T10:00:00.000Z",
-  "updated_at": "2024-01-01T10:00:00.000Z"
+  "users": [
+    {
+      "id": "public-user-uuid-1",
+      "username": "username",
+      "display_name": "表示名",
+      "email": "user@example.com",
+      "avatar_url": "https://example.com/avatar.jpg",
+      "bio": "自己紹介文",
+      "timezone": "Asia/Tokyo",
+      "is_active": true,
+      "created_at": "2024-01-01T10:00:00.000Z",
+      "updated_at": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "id": "public-user-uuid-2",
+      "username": "another_user",
+      "display_name": "別のユーザー",
+      "email": "another@example.com",
+      "avatar_url": "https://example.com/another_avatar.jpg",
+      "bio": "もう一つの自己紹介文",
+      "timezone": "America/New_York",
+      "is_active": true,
+      "created_at": "2024-01-02T15:30:00.000Z",
+      "updated_at": "2024-01-02T15:30:00.000Z"
+    }
+  ]
 }
 ```
 
 #### Type Definitions
+
+##### UserDocument
+```typescript
+interface UserDocument {
+  users: User[];                // ユーザー情報配列（追加・更新のみ、削除不可） (Rust: Vec<User> → TS: User[])
+}
+```
 
 ##### User
 ```typescript
@@ -511,7 +534,8 @@ interface ProjectMember {
 ```rust
 // Rust側でのデータアクセス例
 use crate::models::project::Project;
-use crate::types::id_types::ProjectId;
+use crate::models::user::User;
+use crate::types::id_types::{ProjectId, UserId};
 
 // Settings Documentからプロジェクト一覧を取得
 let projects: Vec<Project> = document_manager.load_data(
@@ -525,6 +549,17 @@ let tasks: Vec<Task> = document_manager.load_data(
     &DocumentType::Project(project_id.to_string()),
     "tasks"
 ).await?;
+
+// User Documentからユーザー一覧を取得（配列形式）
+let users: Vec<User> = document_manager.load_data(
+    &DocumentType::User,
+    "users"
+).await?;
+
+// 特定ユーザーのプロフィールを取得
+let user_id = UserId::from("public-user-uuid-1");
+let specific_user: Option<User> = users.into_iter()
+    .find(|user| user.id == user_id);
 ```
 
 ```typescript
@@ -538,6 +573,22 @@ const projects: Project[] = await invoke('get_projects');
 const tasks: Task[] = await invoke('get_tasks', {
   projectId: 'project-uuid-1' // TS: string → Rust: ProjectId
 });
+
+// ユーザー一覧取得（配列形式） (Rust: Vec<User> → TS: User[])
+const users: User[] = await invoke('get_users');
+
+// 特定ユーザーのプロフィール取得
+const user: User | undefined = users.find(u => u.id === 'public-user-uuid-1');
+
+// 自分のプロフィール更新（編集権限チェックあり）
+const updatedProfile: User = await invoke('update_user_profile', {
+  userProfile: {
+    id: 'public-user-uuid-1',
+    username: 'new_username',
+    display_name: '新しい表示名',
+    // ... other fields
+  }
+});
 ```
 
 ### ドキュメント間の関係性
@@ -546,6 +597,41 @@ const tasks: Task[] = await invoke('get_tasks', {
 2. **Account ↔ User**: アカウント認証情報（ローカル/サーバー）とユーザープロフィールの関連
 3. **Project → User**: プロジェクトメンバー・タスク担当者とユーザー情報の関連（User.idで参照）
 4. **TaskList → Task → SubTask**: 階層的なタスク管理構造
+
+### User Documentの特別な操作制約
+
+User Documentは他のドキュメントと異なり、以下の特別な制約があります：
+
+#### データ操作制約
+- **追加**: 新しいユーザープロフィールの追加は常に可能
+- **更新**: 既存のユーザープロフィールの更新は可能
+- **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
+- **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
+
+#### データ特性
+- **公開情報**: 全てのユーザープロフィールは他のユーザーから参照可能
+- **情報蓄積**: プロジェクト参加者や担当者の情報を継続的に蓄積
+- **プロフィール管理**: 自分と他人の公開プロフィール情報として機能
+
+#### 実装における注意点
+```rust
+// 編集可能なプロフィールの判定例
+fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {
+    current_account.user_id == *target_user_id
+}
+
+// ユーザープロフィール更新の例（削除は行わない）
+fn update_user_profile(users: &mut Vec<User>, updated_user: User) -> Result<()> {
+    if let Some(existing_user) = users.iter_mut().find(|u| u.id == updated_user.id) {
+        // 既存プロフィールを更新
+        *existing_user = updated_user;
+    } else {
+        // 新しいプロフィールを追加
+        users.push(updated_user);
+    }
+    Ok(())
+}
+```
 
 ### 同期と競合解決
 
