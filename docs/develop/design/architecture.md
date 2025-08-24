@@ -25,8 +25,10 @@
   - 同期処理
 - データアクセスレイヤー
   - AutoMergeをベースとしてデータ構造
-  - それをローカルではSQLite、WebではPostgreSQLで管理する
-  - クラウドストレージやGitでも同期可能
+  - ローカル（Tauriアプリ）ではSQLiteを追加し、データ検索はSQLiteのみ、データ更新はSQLite、Automergeの順で保存する
+  - WebではPostgreSQLを追加し、データ検索はPostgreSQLのみ、データ更新はPostgreSQL、Automergeの順で保存する
+  - クラウドストレージ（Automerge）の同期も対応
+  - 将来的にはGitでも同期可能
 
 ## 2. アプリケーション版アーキテクチャ
 
