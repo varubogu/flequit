@@ -1,31 +1,31 @@
 //! Local Automerge Repository結合テスト
-//! 
+//!
 //! Repository trait、DocumentManager、FileStorageの連携をテストし、
 //! 実際のCRUD操作とautomerge-repoの動作を結合テストレベルで検証する
 
-use tempfile::TempDir;
+use chrono::Utc;
 use serde_json::json;
 use std::path::{Path, PathBuf};
-use chrono::Utc;
+use tempfile::TempDir;
 
 use flequit_lib::models::project::Project;
-use flequit_lib::models::task_list::TaskList;
-use flequit_lib::models::task::Task;
-use flequit_lib::types::task_types::TaskStatus;
 use flequit_lib::models::subtask::SubTask;
 use flequit_lib::models::tag::Tag;
+use flequit_lib::models::task::Task;
+use flequit_lib::models::task_list::TaskList;
+use flequit_lib::repositories::base_repository_trait::Repository;
 use flequit_lib::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::task::TaskLocalAutomergeRepository;
 use flequit_lib::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
 use flequit_lib::repositories::local_automerge::tag::TagLocalAutomergeRepository;
-use flequit_lib::repositories::base_repository_trait::Repository;
-use flequit_lib::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, TagId, UserId};
+use flequit_lib::repositories::local_automerge::task::TaskLocalAutomergeRepository;
+use flequit_lib::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
+use flequit_lib::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_lib::types::task_types::TaskStatus;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
-    
+
     // プロジェクトルートから.tmp/testsディレクトリを特定
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
     let project_root = if current_dir.ends_with("src-tauri") {
@@ -33,26 +33,34 @@ fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     } else {
         current_dir
     };
-    
-    let base_path = project_root.join(".tmp/tests/cargo/integration/local_automerge_repository_test");
+
+    let base_path =
+        project_root.join(".tmp/tests/cargo/integration/local_automerge_repository_test");
     let test_dir = base_path.join(test_name).join(&timestamp);
-    
+
     if let Err(e) = std::fs::create_dir_all(&test_dir) {
         eprintln!("Failed to create persistent test directory: {}", e);
         // フォールバック：一時ディレクトリを返す
-        return std::env::temp_dir().join("flequit_fallback").join(test_name).join(&timestamp);
+        return std::env::temp_dir()
+            .join("flequit_fallback")
+            .join(test_name)
+            .join(&timestamp);
     }
-    
+
     println!("Integration test results will be saved to: {:?}", test_dir);
     test_dir
 }
 
 /// テストの永続保存ディレクトリにファイルをコピーするヘルパー
-fn copy_to_persistent_storage(src_dir: &Path, dest_dir: &Path, test_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn copy_to_persistent_storage(
+    src_dir: &Path,
+    dest_dir: &Path,
+    test_name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     if !src_dir.exists() {
         return Ok(());
     }
-    
+
     // メタデータファイルを作成
     let metadata = json!({
         "test_name": test_name,
@@ -61,14 +69,17 @@ fn copy_to_persistent_storage(src_dir: &Path, dest_dir: &Path, test_name: &str) 
         "source_directory": src_dir.to_string_lossy(),
         "destination_directory": dest_dir.to_string_lossy()
     });
-    
+
     let metadata_file = dest_dir.join("test_metadata.json");
     std::fs::write(&metadata_file, serde_json::to_string_pretty(&metadata)?)?;
-    
+
     // ディレクトリ内容を再帰的にコピー
     copy_dir_recursive(src_dir, dest_dir)?;
-    
-    println!("Integration test results copied to persistent storage: {:?}", dest_dir);
+
+    println!(
+        "Integration test results copied to persistent storage: {:?}",
+        dest_dir
+    );
     Ok(())
 }
 
@@ -77,12 +88,12 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn std::error::
     if !dst.exists() {
         std::fs::create_dir_all(dst)?;
     }
-    
+
     for entry in std::fs::read_dir(src)? {
         let entry = entry?;
         let src_path = entry.path();
         let dst_path = dst.join(entry.file_name());
-        
+
         if src_path.is_dir() {
             copy_dir_recursive(&src_path, &dst_path)?;
         } else {
@@ -99,10 +110,10 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
     let persistent_dir = create_persistent_test_dir("test_project_repository_crud_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // プロジェクトリポジトリを作成
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // テスト用プロジェクトデータを作成
     let project_id = ProjectId::new();
     let project = Project {
@@ -117,13 +128,13 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     println!("Creating project: {:?}", project.name);
-    
+
     // Create操作テスト
     repository.save(&project).await?;
     println!("✅ Project created successfully");
-    
+
     // Read操作テスト
     let retrieved_project = repository.find_by_id(&project_id).await?;
     assert!(retrieved_project.is_some());
@@ -131,42 +142,52 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
     assert_eq!(retrieved.name, project.name);
     assert_eq!(retrieved.description, project.description);
     println!("✅ Project retrieved successfully: {}", retrieved.name);
-    
+
     // Update操作テスト
     let mut updated_project = project.clone();
     updated_project.name = "更新された統合テストプロジェクト".to_string();
     updated_project.description = Some("更新されたプロジェクト説明".to_string());
     updated_project.color = Some("#33ff57".to_string());
     updated_project.updated_at = Utc::now();
-    
+
     repository.save(&updated_project).await?;
     println!("✅ Project updated successfully");
-    
+
     // 更新確認
     let updated_retrieved = repository.find_by_id(&project_id).await?;
     assert!(updated_retrieved.is_some());
     let updated = updated_retrieved.unwrap();
     assert_eq!(updated.name, "更新された統合テストプロジェクト");
-    assert_eq!(updated.description, Some("更新されたプロジェクト説明".to_string()));
-    
+    assert_eq!(
+        updated.description,
+        Some("更新されたプロジェクト説明".to_string())
+    );
+
     // List操作テスト
     let all_projects = repository.find_all().await?;
     assert!(!all_projects.is_empty());
     assert!(all_projects.iter().any(|p| p.id == project_id));
-    println!("✅ Project list retrieved: {} projects found", all_projects.len());
-    
+    println!(
+        "✅ Project list retrieved: {} projects found",
+        all_projects.len()
+    );
+
     // Delete操作テスト
     repository.delete(&project_id).await?;
     println!("✅ Project deleted successfully");
-    
+
     // 削除確認
     let deleted_check = repository.find_by_id(&project_id).await?;
     assert!(deleted_check.is_none());
     println!("✅ Project deletion confirmed");
-    
+
     // automergeファイルを永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_project_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_project_repository_crud_operations",
+    )?;
+
     Ok(())
 }
 
@@ -177,9 +198,9 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
     let persistent_dir = create_persistent_test_dir("test_multiple_projects_concurrent_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // 複数のプロジェクトを作成
     let mut projects = Vec::new();
     for i in 0..5 {
@@ -197,50 +218,56 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
         };
         projects.push(project);
     }
-    
+
     println!("Creating {} projects concurrently", projects.len());
-    
+
     // 並行作成
     for project in &projects {
         repository.save(project).await?;
     }
-    
+
     // 全プロジェクトの存在確認
     let all_projects = repository.find_all().await?;
     assert_eq!(all_projects.len(), projects.len());
-    
+
     for project in &projects {
         let retrieved = repository.find_by_id(&project.id).await?;
         assert!(retrieved.is_some());
         assert_eq!(retrieved.unwrap().name, project.name);
     }
-    
+
     println!("✅ All {} projects created and verified", projects.len());
-    
+
     // 一部プロジェクトを並行更新
     for (i, project) in projects.iter().enumerate() {
-        if i % 2 == 0 { // 偶数インデックスのプロジェクトを更新
+        if i % 2 == 0 {
+            // 偶数インデックスのプロジェクトを更新
             let mut updated_project = project.clone();
             updated_project.name = format!("更新されたプロジェクト_{}", i + 1);
             updated_project.description = Some(format!("更新された説明 {}", i + 1));
             updated_project.updated_at = Utc::now();
-            
+
             repository.save(&updated_project).await?;
         }
     }
-    
+
     // 更新確認
     let updated_projects = repository.find_all().await?;
-    let updated_count = updated_projects.iter()
+    let updated_count = updated_projects
+        .iter()
         .filter(|p| p.name.starts_with("更新されたプロジェクト_"))
         .count();
     assert_eq!(updated_count, 3); // 0, 2, 4番目が更新される
-    
+
     println!("✅ {} projects updated successfully", updated_count);
-    
+
     // automergeファイルを永続保存
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_multiple_projects_concurrent_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_multiple_projects_concurrent_operations",
+    )?;
+
     Ok(())
 }
 
@@ -248,14 +275,15 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
 #[tokio::test]
 async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
-    let persistent_dir = create_persistent_test_dir("test_project_incremental_changes_with_history");
+    let persistent_dir =
+        create_persistent_test_dir("test_project_incremental_changes_with_history");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     let project_id = ProjectId::new();
-    
+
     // Stage 1: 基本プロジェクト作成
     let stage1_project = Project {
         id: project_id.clone(),
@@ -269,15 +297,17 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     repository.save(&stage1_project).await?;
     println!("✅ Stage 1: Basic project created");
-    
+
     // Stage 1の状態をエクスポート
     let stage1_export_path = temp_dir.path().join("exports/stage1_project_creation.json");
     std::fs::create_dir_all(stage1_export_path.parent().unwrap())?;
-    repository.export_project_state(&stage1_export_path, Some("Stage 1: 基本プロジェクト作成")).await?;
-    
+    repository
+        .export_project_state(&stage1_export_path, Some("Stage 1: 基本プロジェクト作成"))
+        .await?;
+
     // Stage 2: タグとメンバー追加
     let mut stage2_project = stage1_project.clone();
     stage2_project.name = "段階的変更テストプロジェクト（ステージ2）".to_string();
@@ -285,14 +315,16 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     stage2_project.color = Some("#cc6600".to_string());
     stage2_project.order_index = 1;
     stage2_project.updated_at = Utc::now();
-    
+
     repository.save(&stage2_project).await?;
     println!("✅ Stage 2: Tags and members added");
-    
+
     // Stage 2の状態をエクスポート
     let stage2_export_path = temp_dir.path().join("exports/stage2_tags_members.json");
-    repository.export_project_state(&stage2_export_path, Some("Stage 2: タグとメンバー追加")).await?;
-    
+    repository
+        .export_project_state(&stage2_export_path, Some("Stage 2: タグとメンバー追加"))
+        .await?;
+
     // Stage 3: プロジェクト詳細拡張
     let mut stage3_project = stage2_project.clone();
     stage3_project.name = "段階的変更テストプロジェクト（最終版）".to_string();
@@ -301,57 +333,79 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     stage3_project.order_index = 2;
     stage3_project.is_archived = false;
     stage3_project.updated_at = Utc::now();
-    
+
     repository.save(&stage3_project).await?;
     println!("✅ Stage 3: Project fully enhanced");
-    
+
     // Stage 3の状態をエクスポート
     let stage3_export_path = temp_dir.path().join("exports/stage3_final_project.json");
-    repository.export_project_state(&stage3_export_path, Some("Stage 3: プロジェクト詳細拡張完了")).await?;
-    
+    repository
+        .export_project_state(
+            &stage3_export_path,
+            Some("Stage 3: プロジェクト詳細拡張完了"),
+        )
+        .await?;
+
     // 最終状態の検証
     let final_project = repository.find_by_id(&project_id).await?;
     assert!(final_project.is_some());
     let final_proj = final_project.unwrap();
-    
+
     assert_eq!(final_proj.name, "段階的変更テストプロジェクト（最終版）");
     assert_eq!(final_proj.color, Some("#00cc66".to_string()));
     assert_eq!(final_proj.order_index, 2);
     assert!(!final_proj.is_archived);
-    
-    println!("✅ Final verification completed: color={:?}, order={}", 
-             final_proj.color, final_proj.order_index);
-    
+
+    println!(
+        "✅ Final verification completed: color={:?}, order={}",
+        final_proj.color, final_proj.order_index
+    );
+
     // 詳細変更履歴をエクスポート
     let changes_history_dir = temp_dir.path().join("detailed_changes_history");
-    repository.export_project_changes_history(
-        &changes_history_dir,
-        Some("Project repository incremental changes with detailed JSON evolution tracking")
-    ).await?;
-    
-    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
-    
+    repository
+        .export_project_changes_history(
+            &changes_history_dir,
+            Some("Project repository incremental changes with detailed JSON evolution tracking"),
+        )
+        .await?;
+
+    println!(
+        "✅ JSON changes history exported to: {:?}",
+        changes_history_dir
+    );
+
     // automerge履歴データを永続保存
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_project_incremental_changes_with_history")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_project_incremental_changes_with_history",
+    )?;
+
     // エクスポートしたJSONファイルも永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_project_incremental_changes_with_history")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_project_incremental_changes_with_history",
+    )?;
+
     Ok(())
 }
 
 /// プロジェクトリポジトリのJSON変更履歴エクスポート専用テスト
 #[tokio::test]
-async fn test_project_repository_json_export_with_detailed_changes() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_project_repository_json_export_with_detailed_changes(
+) -> Result<(), Box<dyn std::error::Error>> {
     let temp_dir = TempDir::new()?;
-    let persistent_dir = create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");
+    let persistent_dir =
+        create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     println!("=== プロジェクトリポジトリJSON変更履歴テスト開始 ===");
-    
+
     // プロジェクト1: 基本プロジェクト
     let project1_id = ProjectId::new();
     let project1 = Project {
@@ -366,15 +420,19 @@ async fn test_project_repository_json_export_with_detailed_changes() -> Result<(
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     repository.save(&project1).await?;
     println!("📝 プロジェクト1作成完了: {}", project1.name);
-    
+
     // Change 1をエクスポート
-    let change1_path = temp_dir.path().join("project_changes/change_1_first_project.json");
+    let change1_path = temp_dir
+        .path()
+        .join("project_changes/change_1_first_project.json");
     std::fs::create_dir_all(change1_path.parent().unwrap())?;
-    repository.export_project_state(&change1_path, Some("Change 1: First project created")).await?;
-    
+    repository
+        .export_project_state(&change1_path, Some("Change 1: First project created"))
+        .await?;
+
     // プロジェクト2: 第二のプロジェクト追加
     let project2_id = ProjectId::new();
     let project2 = Project {
@@ -389,14 +447,18 @@ async fn test_project_repository_json_export_with_detailed_changes() -> Result<(
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     repository.save(&project2).await?;
     println!("📝 プロジェクト2作成完了: {}", project2.name);
-    
+
     // Change 2をエクスポート
-    let change2_path = temp_dir.path().join("project_changes/change_2_second_project.json");
-    repository.export_project_state(&change2_path, Some("Change 2: Second project added")).await?;
-    
+    let change2_path = temp_dir
+        .path()
+        .join("project_changes/change_2_second_project.json");
+    repository
+        .export_project_state(&change2_path, Some("Change 2: Second project added"))
+        .await?;
+
     // プロジェクト1を更新（色変更とアーカイブ）
     let mut updated_project1 = project1.clone();
     updated_project1.name = "更新された基本プロジェクト".to_string();
@@ -404,14 +466,21 @@ async fn test_project_repository_json_export_with_detailed_changes() -> Result<(
     updated_project1.color = Some("#f39c12".to_string());
     updated_project1.order_index = 10;
     updated_project1.updated_at = Utc::now();
-    
+
     repository.save(&updated_project1).await?;
     println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
-    
+
     // Change 3をエクスポート
-    let change3_path = temp_dir.path().join("project_changes/change_3_updated_first_project.json");
-    repository.export_project_state(&change3_path, Some("Change 3: First project updated with new color and description")).await?;
-    
+    let change3_path = temp_dir
+        .path()
+        .join("project_changes/change_3_updated_first_project.json");
+    repository
+        .export_project_state(
+            &change3_path,
+            Some("Change 3: First project updated with new color and description"),
+        )
+        .await?;
+
     // プロジェクト3: 第三のプロジェクト追加（複雑な設定）
     let project3_id = ProjectId::new();
     let project3 = Project {
@@ -426,50 +495,71 @@ async fn test_project_repository_json_export_with_detailed_changes() -> Result<(
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     repository.save(&project3).await?;
     println!("📝 プロジェクト3作成完了: {}", project3.name);
-    
+
     // Change 4をエクスポート
-    let change4_path = temp_dir.path().join("project_changes/change_4_complex_third_project.json");
-    repository.export_project_state(&change4_path, Some("Change 4: Complex third project with detailed configuration")).await?;
-    
+    let change4_path = temp_dir
+        .path()
+        .join("project_changes/change_4_complex_third_project.json");
+    repository
+        .export_project_state(
+            &change4_path,
+            Some("Change 4: Complex third project with detailed configuration"),
+        )
+        .await?;
+
     // プロジェクト2をアーカイブ
     let mut archived_project2 = project2.clone();
     archived_project2.is_archived = true;
     archived_project2.name = "アーカイブされた拡張プロジェクト".to_string();
     archived_project2.updated_at = Utc::now();
-    
+
     repository.save(&archived_project2).await?;
     println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
-    
+
     // Change 5をエクスポート
-    let change5_path = temp_dir.path().join("project_changes/change_5_archived_second_project.json");
-    repository.export_project_state(&change5_path, Some("Change 5: Second project archived")).await?;
-    
+    let change5_path = temp_dir
+        .path()
+        .join("project_changes/change_5_archived_second_project.json");
+    repository
+        .export_project_state(&change5_path, Some("Change 5: Second project archived"))
+        .await?;
+
     // 最終検証
     let all_projects = repository.find_all().await?;
     println!("📊 最終プロジェクト数: {}", all_projects.len());
     assert_eq!(all_projects.len(), 3);
-    
+
     // アーカイブされたプロジェクトの確認
     let archived_project = all_projects.iter().find(|p| p.is_archived);
     assert!(archived_project.is_some());
-    assert_eq!(archived_project.unwrap().name, "アーカイブされた拡張プロジェクト");
-    
+    assert_eq!(
+        archived_project.unwrap().name,
+        "アーカイブされた拡張プロジェクト"
+    );
+
     // 詳細変更履歴をエクスポート
     let detailed_changes_dir = temp_dir.path().join("detailed_automerge_changes");
     repository.export_project_changes_history(
         &detailed_changes_dir,
         Some("Complete project repository evolution with multiple projects and complex modifications")
     ).await?;
-    
-    println!("✅ 詳細automerge変更履歴エクスポート完了: {:?}", detailed_changes_dir);
+
+    println!(
+        "✅ 詳細automerge変更履歴エクスポート完了: {:?}",
+        detailed_changes_dir
+    );
     println!("=== プロジェクトリポジトリJSON変更履歴テスト完了 ===");
-    
+
     // 全データを永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_project_repository_json_export_with_detailed_changes")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_project_repository_json_export_with_detailed_changes",
+    )?;
+
     Ok(())
 }
 
@@ -481,15 +571,15 @@ async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std:
     let persistent_dir = create_persistent_test_dir("test_multiple_repository_types_integration");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // プロジェクトリポジトリのみ使用（他のリポジトリは実装が未完成）
     let project_repo = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     println!("Created project repository for integration test");
-    
+
     // シンプルなユーザーIDを作成
     let user_id = UserId::new();
-    
+
     // プロジェクトを作成（ユーザーと関連付け）
     let project_id = ProjectId::new();
     let project = Project {
@@ -504,26 +594,30 @@ async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std:
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     project_repo.save(&project).await?;
     println!("✅ Project created with user relationship");
-    
+
     // プロジェクトの検証
     let retrieved_project = project_repo.find_by_id(&project_id).await?;
-    
+
     assert!(retrieved_project.is_some());
     let proj = retrieved_project.unwrap();
-    
+
     // リレーション検証
     assert_eq!(proj.owner_id, Some(user_id.clone()));
-    
+
     println!("✅ Project integration verified:");
     println!("  - Project: {}", proj.name);
     println!("  - Owner ID: {:?}", proj.owner_id);
-    
+
     // automergeファイル群を永続保存
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_multiple_repository_types_integration")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_multiple_repository_types_integration",
+    )?;
+
     Ok(())
 }
 
@@ -534,15 +628,15 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
     let persistent_dir = create_persistent_test_dir("test_error_handling_and_edge_cases");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // 存在しないIDでの取得テスト
     let non_existent_id = ProjectId::new();
     let result = repository.find_by_id(&non_existent_id).await?;
     assert!(result.is_none());
     println!("✅ Non-existent ID handling verified");
-    
+
     // 存在しないプロジェクトの更新テスト
     let fake_project = Project {
         id: ProjectId::new(),
@@ -556,15 +650,21 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     // 更新は成功する可能性があります（automergeの特性上、新規作成として扱われる場合）
     let update_result = repository.save(&fake_project).await;
-    println!("✅ Update non-existent project result: {:?}", update_result.is_ok());
-    
+    println!(
+        "✅ Update non-existent project result: {:?}",
+        update_result.is_ok()
+    );
+
     // 存在しないプロジェクトの削除テスト
     let delete_result = repository.delete(&non_existent_id).await;
-    println!("✅ Delete non-existent project result: {:?}", delete_result.is_ok());
-    
+    println!(
+        "✅ Delete non-existent project result: {:?}",
+        delete_result.is_ok()
+    );
+
     // 空のプロジェクト名でのテスト
     let empty_name_project = Project {
         id: ProjectId::new(),
@@ -578,10 +678,13 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     let create_result = repository.save(&empty_name_project).await;
-    println!("✅ Empty name project creation result: {:?}", create_result.is_ok());
-    
+    println!(
+        "✅ Empty name project creation result: {:?}",
+        create_result.is_ok()
+    );
+
     // 大きなデータでのテスト
     let large_project = Project {
         id: ProjectId::new(),
@@ -595,21 +698,35 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     let large_create_result = repository.save(&large_project).await;
-    println!("✅ Large project creation result: {:?}", large_create_result.is_ok());
-    
+    println!(
+        "✅ Large project creation result: {:?}",
+        large_create_result.is_ok()
+    );
+
     if large_create_result.is_ok() {
         let retrieved_large = repository.find_by_id(&large_project.id).await?;
         if let Some(large_proj) = retrieved_large {
-            println!("✅ Large project verified: name={}, description_len={}", 
-                     large_proj.name, large_proj.description.as_ref().map(|d| d.len()).unwrap_or(0));
+            println!(
+                "✅ Large project verified: name={}, description_len={}",
+                large_proj.name,
+                large_proj
+                    .description
+                    .as_ref()
+                    .map(|d| d.len())
+                    .unwrap_or(0)
+            );
         }
     }
-    
+
     // automergeファイルを永続保存
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_error_handling_and_edge_cases")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_error_handling_and_edge_cases",
+    )?;
+
     Ok(())
 }
 
@@ -620,10 +737,10 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     let persistent_dir = create_persistent_test_dir("test_task_list_repository_crud_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // TaskListリポジトリを作成
     let repository = TaskListLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // テスト用TaskListデータを作成
     let task_list_id = TaskListId::new();
     let project_id = ProjectId::new();
@@ -638,13 +755,13 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     println!("Creating task list: {:?}", task_list.name);
-    
+
     // Create操作テスト
     repository.save(&task_list).await?;
     println!("✅ TaskList created successfully");
-    
+
     // Read操作テスト
     let retrieved_task_list = repository.find_by_id(&task_list_id).await?;
     assert!(retrieved_task_list.is_some());
@@ -653,7 +770,7 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     assert_eq!(retrieved.description, task_list.description);
     assert_eq!(retrieved.project_id, task_list.project_id);
     println!("✅ TaskList retrieved successfully: {}", retrieved.name);
-    
+
     // Update操作テスト
     let mut updated_task_list = task_list.clone();
     updated_task_list.name = "更新された統合テスト用タスクリスト".to_string();
@@ -661,64 +778,83 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     updated_task_list.color = Some("#e74c3c".to_string());
     updated_task_list.order_index = 2;
     updated_task_list.updated_at = Utc::now();
-    
+
     repository.save(&updated_task_list).await?;
     println!("✅ TaskList updated successfully");
-    
+
     // 更新確認
     let updated_retrieved = repository.find_by_id(&task_list_id).await?;
     assert!(updated_retrieved.is_some());
     let updated = updated_retrieved.unwrap();
     assert_eq!(updated.name, "更新された統合テスト用タスクリスト");
-    assert_eq!(updated.description, Some("更新されたタスクリスト説明".to_string()));
+    assert_eq!(
+        updated.description,
+        Some("更新されたタスクリスト説明".to_string())
+    );
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, 2);
-    
+
     // List操作テスト
     let all_task_lists = repository.find_all().await?;
     assert!(!all_task_lists.is_empty());
     assert!(all_task_lists.iter().any(|tl| tl.id == task_list_id));
-    println!("✅ TaskList list retrieved: {} task lists found", all_task_lists.len());
-    
+    println!(
+        "✅ TaskList list retrieved: {} task lists found",
+        all_task_lists.len()
+    );
+
     // Exists操作テスト
     let exists = repository.exists(&task_list_id).await?;
     assert!(exists);
     println!("✅ TaskList exists confirmed");
-    
+
     // Count操作テスト
     let count = repository.count().await?;
     assert!(count > 0);
     println!("✅ TaskList count: {}", count);
-    
+
     // 詳細変更履歴をエクスポート
     let changes_history_dir = temp_dir.path().join("detailed_changes_history");
-    repository.export_task_list_changes_history(
-        &changes_history_dir,
-        Some("TaskList repository CRUD operations with detailed JSON evolution tracking")
-    ).await?;
-    
-    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
-    
+    repository
+        .export_task_list_changes_history(
+            &changes_history_dir,
+            Some("TaskList repository CRUD operations with detailed JSON evolution tracking"),
+        )
+        .await?;
+
+    println!(
+        "✅ JSON changes history exported to: {:?}",
+        changes_history_dir
+    );
+
     // Delete操作テスト
     repository.delete(&task_list_id).await?;
     println!("✅ TaskList deleted successfully");
-    
+
     // 削除確認
     let deleted_check = repository.find_by_id(&task_list_id).await?;
     assert!(deleted_check.is_none());
     println!("✅ TaskList deletion confirmed");
-    
+
     // 削除後のCount確認
     let count_after_delete = repository.count().await?;
     assert_eq!(count_after_delete, count - 1);
     println!("✅ TaskList count after deletion: {}", count_after_delete);
-    
+
     // automergeファイルを永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_task_list_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_task_list_repository_crud_operations",
+    )?;
+
     // エクスポートしたJSONファイルも永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_task_list_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_task_list_repository_crud_operations",
+    )?;
+
     Ok(())
 }
 
@@ -729,10 +865,10 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     let persistent_dir = create_persistent_test_dir("test_task_repository_crud_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // Taskリポジトリを作成
     let repository = TaskLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // テスト用Taskデータを作成
     let task_id = TaskId::new();
     let project_id = ProjectId::new();
@@ -757,13 +893,13 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     println!("Creating task: {:?}", task.title);
-    
+
     // Create操作テスト
     repository.save(&task).await?;
     println!("✅ Task created successfully");
-    
+
     // Read操作テスト
     let retrieved_task = repository.find_by_id(&task_id).await?;
     assert!(retrieved_task.is_some());
@@ -773,7 +909,7 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     assert_eq!(retrieved.list_id, task.list_id);
     assert_eq!(retrieved.status, task.status);
     println!("✅ Task retrieved successfully: {}", retrieved.title);
-    
+
     // Update操作テスト
     let mut updated_task = task.clone();
     updated_task.title = "更新された統合テスト用タスク".to_string();
@@ -781,10 +917,10 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     updated_task.status = TaskStatus::InProgress;
     updated_task.priority = 2;
     updated_task.updated_at = Utc::now();
-    
+
     repository.save(&updated_task).await?;
     println!("✅ Task updated successfully");
-    
+
     // 更新確認
     let updated_retrieved = repository.find_by_id(&task_id).await?;
     assert!(updated_retrieved.is_some());
@@ -792,37 +928,50 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     assert_eq!(updated.title, "更新された統合テスト用タスク");
     assert_eq!(updated.status, TaskStatus::InProgress);
     assert_eq!(updated.priority, 2);
-    
+
     // List操作テスト
     let all_tasks = repository.find_all().await?;
     assert!(!all_tasks.is_empty());
     assert!(all_tasks.iter().any(|t| t.id == task_id));
     println!("✅ Task list retrieved: {} tasks found", all_tasks.len());
-    
+
     // 詳細変更履歴をエクスポート
     let changes_history_dir = temp_dir.path().join("detailed_changes_history");
-    repository.export_task_changes_history(
-        &changes_history_dir,
-        Some("Task repository CRUD operations with detailed JSON evolution tracking")
-    ).await?;
-    
-    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
-    
+    repository
+        .export_task_changes_history(
+            &changes_history_dir,
+            Some("Task repository CRUD operations with detailed JSON evolution tracking"),
+        )
+        .await?;
+
+    println!(
+        "✅ JSON changes history exported to: {:?}",
+        changes_history_dir
+    );
+
     // Delete操作テスト
     repository.delete(&task_id).await?;
     println!("✅ Task deleted successfully");
-    
+
     // 削除確認
     let deleted_check = repository.find_by_id(&task_id).await?;
     assert!(deleted_check.is_none());
     println!("✅ Task deletion confirmed");
-    
+
     // automergeファイルを永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_task_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_task_repository_crud_operations",
+    )?;
+
     // エクスポートしたJSONファイルも永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_task_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_task_repository_crud_operations",
+    )?;
+
     Ok(())
 }
 
@@ -833,10 +982,10 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     let persistent_dir = create_persistent_test_dir("test_subtask_repository_crud_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // SubTaskリポジトリを作成
     let repository = SubTaskLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // テスト用SubTaskデータを作成
     let subtask_id = SubTaskId::new();
     let task_id = TaskId::new();
@@ -859,13 +1008,13 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     println!("Creating subtask: {:?}", subtask.title);
-    
+
     // Create操作テスト
     repository.save(&subtask).await?;
     println!("✅ SubTask created successfully");
-    
+
     // Read操作テスト
     let retrieved_subtask = repository.find_by_id(&subtask_id).await?;
     assert!(retrieved_subtask.is_some());
@@ -874,7 +1023,7 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     assert_eq!(retrieved.task_id, subtask.task_id);
     assert_eq!(retrieved.status, subtask.status);
     println!("✅ SubTask retrieved successfully: {}", retrieved.title);
-    
+
     // Update操作テスト
     let mut updated_subtask = subtask.clone();
     updated_subtask.title = "更新された統合テスト用サブタスク".to_string();
@@ -882,10 +1031,10 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     updated_subtask.status = TaskStatus::Completed;
     updated_subtask.order_index = 2;
     updated_subtask.updated_at = Utc::now();
-    
+
     repository.save(&updated_subtask).await?;
     println!("✅ SubTask updated successfully");
-    
+
     // 更新確認
     let updated_retrieved = repository.find_by_id(&subtask_id).await?;
     assert!(updated_retrieved.is_some());
@@ -893,37 +1042,53 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     assert_eq!(updated.title, "更新された統合テスト用サブタスク");
     assert_eq!(updated.status, TaskStatus::Completed);
     assert_eq!(updated.order_index, 2);
-    
+
     // List操作テスト
     let all_subtasks = repository.find_all().await?;
     assert!(!all_subtasks.is_empty());
     assert!(all_subtasks.iter().any(|st| st.id == subtask_id));
-    println!("✅ SubTask list retrieved: {} subtasks found", all_subtasks.len());
-    
+    println!(
+        "✅ SubTask list retrieved: {} subtasks found",
+        all_subtasks.len()
+    );
+
     // 詳細変更履歴をエクスポート
     let changes_history_dir = temp_dir.path().join("detailed_changes_history");
-    repository.export_subtask_changes_history(
-        &changes_history_dir,
-        Some("SubTask repository CRUD operations with detailed JSON evolution tracking")
-    ).await?;
-    
-    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
-    
+    repository
+        .export_subtask_changes_history(
+            &changes_history_dir,
+            Some("SubTask repository CRUD operations with detailed JSON evolution tracking"),
+        )
+        .await?;
+
+    println!(
+        "✅ JSON changes history exported to: {:?}",
+        changes_history_dir
+    );
+
     // Delete操作テスト
     repository.delete(&subtask_id).await?;
     println!("✅ SubTask deleted successfully");
-    
+
     // 削除確認
     let deleted_check = repository.find_by_id(&subtask_id).await?;
     assert!(deleted_check.is_none());
     println!("✅ SubTask deletion confirmed");
-    
+
     // automergeファイルを永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_subtask_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_subtask_repository_crud_operations",
+    )?;
+
     // エクスポートしたJSONファイルも永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_subtask_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_subtask_repository_crud_operations",
+    )?;
+
     Ok(())
 }
 
@@ -934,10 +1099,10 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     let persistent_dir = create_persistent_test_dir("test_tag_repository_crud_operations");
     let automerge_dir = temp_dir.path().join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
-    
+
     // Tagリポジトリを作成
     let repository = TagLocalAutomergeRepository::new(automerge_dir.clone())?;
-    
+
     // テスト用Tagデータを作成
     let tag_id = TagId::new();
     let tag = Tag {
@@ -948,13 +1113,13 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    
+
     println!("Creating tag: {:?}", tag.name);
-    
+
     // Create操作テスト
     repository.save(&tag).await?;
     println!("✅ Tag created successfully");
-    
+
     // Read操作テスト
     let retrieved_tag = repository.find_by_id(&tag_id).await?;
     assert!(retrieved_tag.is_some());
@@ -963,17 +1128,17 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     assert_eq!(retrieved.color, tag.color);
     assert_eq!(retrieved.order_index, tag.order_index);
     println!("✅ Tag retrieved successfully: {}", retrieved.name);
-    
+
     // Update操作テスト
     let mut updated_tag = tag.clone();
     updated_tag.name = "更新された統合テスト".to_string();
     updated_tag.color = Some("#e74c3c".to_string());
     updated_tag.order_index = Some(2);
     updated_tag.updated_at = Utc::now();
-    
+
     repository.save(&updated_tag).await?;
     println!("✅ Tag updated successfully");
-    
+
     // 更新確認
     let updated_retrieved = repository.find_by_id(&tag_id).await?;
     assert!(updated_retrieved.is_some());
@@ -981,36 +1146,49 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     assert_eq!(updated.name, "更新された統合テスト");
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, Some(2));
-    
+
     // List操作テスト
     let all_tags = repository.find_all().await?;
     assert!(!all_tags.is_empty());
     assert!(all_tags.iter().any(|t| t.id == tag_id));
     println!("✅ Tag list retrieved: {} tags found", all_tags.len());
-    
+
     // 詳細変更履歴をエクスポート
     let changes_history_dir = temp_dir.path().join("detailed_changes_history");
-    repository.export_tag_changes_history(
-        &changes_history_dir,
-        Some("Tag repository CRUD operations with detailed JSON evolution tracking")
-    ).await?;
-    
-    println!("✅ JSON changes history exported to: {:?}", changes_history_dir);
-    
+    repository
+        .export_tag_changes_history(
+            &changes_history_dir,
+            Some("Tag repository CRUD operations with detailed JSON evolution tracking"),
+        )
+        .await?;
+
+    println!(
+        "✅ JSON changes history exported to: {:?}",
+        changes_history_dir
+    );
+
     // Delete操作テスト
     repository.delete(&tag_id).await?;
     println!("✅ Tag deleted successfully");
-    
+
     // 削除確認
     let deleted_check = repository.find_by_id(&tag_id).await?;
     assert!(deleted_check.is_none());
     println!("✅ Tag deletion confirmed");
-    
+
     // automergeファイルを永続保存ディレクトリにコピー
-    copy_to_persistent_storage(&automerge_dir, &persistent_dir, "test_tag_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        &automerge_dir,
+        &persistent_dir,
+        "test_tag_repository_crud_operations",
+    )?;
+
     // エクスポートしたJSONファイルも永続保存にコピー
-    copy_to_persistent_storage(temp_dir.path(), &persistent_dir, "test_tag_repository_crud_operations")?;
-    
+    copy_to_persistent_storage(
+        temp_dir.path(),
+        &persistent_dir,
+        "test_tag_repository_crud_operations",
+    )?;
+
     Ok(())
 }

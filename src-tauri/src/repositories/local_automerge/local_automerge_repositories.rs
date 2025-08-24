@@ -25,6 +25,7 @@ pub struct LocalAutomergeRepositories {
 
 impl LocalAutomergeRepositories {
     /// 新しいAutomergeリポジトリ群を作成
+    #[tracing::instrument(level = "trace")]
     pub async fn new() -> Result<Self, RepositoryError> {
         // データディレクトリのパスを取得
         let data_dir = PathService::get_default_data_dir().map_err(|e| {

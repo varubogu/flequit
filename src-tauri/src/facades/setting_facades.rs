@@ -12,10 +12,12 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 // Settings (全体設定)
 // ---------------------------
 
+#[tracing::instrument]
 pub async fn get_all_settings() -> Result<Settings, String> {
     handle_service_error(setting_service::get_all_settings().await)
 }
 
+#[tracing::instrument]
 pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), String> {
     handle_service_error(setting_service::set_setting(key, value).await)
 }
@@ -24,24 +26,29 @@ pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), Stri
 // Custom Date Formats
 // ---------------------------
 
+#[tracing::instrument]
 pub async fn get_custom_date_format(id: &str) -> Result<Option<CustomDateFormat>, String> {
     handle_service_error(setting_service::get_custom_date_format(id).await)
 }
 
+#[tracing::instrument]
 pub async fn get_all_custom_date_formats() -> Result<Vec<CustomDateFormat>, String> {
     handle_service_error(setting_service::get_all_custom_date_formats().await)
 }
 
+#[tracing::instrument]
 pub async fn add_custom_date_format(format: CustomDateFormat) -> Result<CustomDateFormat, String> {
     handle_service_error(setting_service::add_custom_date_format(format).await)
 }
 
+#[tracing::instrument]
 pub async fn update_custom_date_format(
     format: CustomDateFormat,
 ) -> Result<CustomDateFormat, String> {
     handle_service_error(setting_service::update_custom_date_format(format).await)
 }
 
+#[tracing::instrument]
 pub async fn delete_custom_date_format(id: &str) -> Result<(), String> {
     handle_service_error(setting_service::delete_custom_date_format(id).await)
 }
@@ -50,22 +57,27 @@ pub async fn delete_custom_date_format(id: &str) -> Result<(), String> {
 // Time Labels
 // ---------------------------
 
+#[tracing::instrument]
 pub async fn get_time_label(id: &str) -> Result<Option<TimeLabel>, String> {
     handle_service_error(setting_service::get_time_label(id).await)
 }
 
+#[tracing::instrument]
 pub async fn get_all_time_labels() -> Result<Vec<TimeLabel>, String> {
     handle_service_error(setting_service::get_all_time_labels().await)
 }
 
+#[tracing::instrument]
 pub async fn add_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
     handle_service_error(setting_service::add_time_label(label).await)
 }
 
+#[tracing::instrument]
 pub async fn update_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
     handle_service_error(setting_service::update_time_label(label).await)
 }
 
+#[tracing::instrument]
 pub async fn delete_time_label(id: &str) -> Result<(), String> {
     handle_service_error(setting_service::delete_time_label(id).await)
 }
@@ -74,22 +86,27 @@ pub async fn delete_time_label(id: &str) -> Result<(), String> {
 // View Items
 // ---------------------------
 
+#[tracing::instrument]
 pub async fn get_view_item(id: &str) -> Result<Option<ViewItem>, String> {
     handle_service_error(setting_service::get_view_item(id).await)
 }
 
+#[tracing::instrument]
 pub async fn get_all_view_items() -> Result<Vec<ViewItem>, String> {
     handle_service_error(setting_service::get_all_view_items().await)
 }
 
+#[tracing::instrument]
 pub async fn add_view_item(item: ViewItem) -> Result<ViewItem, String> {
     handle_service_error(setting_service::add_view_item(item).await)
 }
 
+#[tracing::instrument]
 pub async fn update_view_item(item: ViewItem) -> Result<ViewItem, String> {
     handle_service_error(setting_service::update_view_item(item).await)
 }
 
+#[tracing::instrument]
 pub async fn delete_view_item(id: &str) -> Result<(), String> {
     handle_service_error(setting_service::delete_view_item(id).await)
 }
@@ -98,6 +115,7 @@ pub async fn delete_view_item(id: &str) -> Result<(), String> {
 // Settings (個別キー - レガシー対応)
 // ---------------------------
 
+#[tracing::instrument]
 pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
     // 構造体から特定フィールドの値を文字列として返す（レガシー対応）
     let settings = setting_service::get_all_settings()

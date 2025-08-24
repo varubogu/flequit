@@ -34,14 +34,17 @@ macro_rules! define_id {
         }
 
         impl $name {
+            #[tracing::instrument(level = "trace")]
             pub fn new() -> Self {
                 Self(Uuid::new_v4())
             }
 
+            #[tracing::instrument(level = "trace")]
             pub fn as_uuid(&self) -> &Uuid {
                 &self.0
             }
 
+            #[tracing::instrument(level = "trace")]
             pub fn try_from_str(value: &str) -> Result<Self, uuid::Error> {
                 Ok(Self(Uuid::parse_str(value)?))
             }

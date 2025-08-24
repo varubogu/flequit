@@ -3,7 +3,10 @@ use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::{models::setting::{CustomDateFormat, DueDateButtons, Settings, TimeLabel, ViewItem}, types::id_types::SettingsId};
+use crate::{
+    models::setting::{CustomDateFormat, DueDateButtons, Settings, TimeLabel, ViewItem},
+    types::id_types::SettingsId,
+};
 
 /// Settings用SQLiteエンティティ定義
 ///

@@ -29,14 +29,45 @@ impl TaskRepositoryTrait for TaskRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Task, TaskId> for TaskRepositoryVariant {
+    #[tracing::instrument(level = "trace")]
     async fn save(&self, entity: &Task) -> Result<(), RepositoryError> {
         match self {
             Self::Sqlite(repo) => repo.save(entity).await,
             Self::Automerge(repo) => repo.save(entity).await,
             Self::ProjectTree(repo) => {
-                // ProjectTreeの場合、タスクをプロジェクトツリー内で更新
-                repo.update_task(&entity.project_id, &entity.id, entity)
-                    .await
+                // ProjectTreeの場合、まずタスクが既存かどうかを確認する
+                // 既存のタスクなら更新、新しいタスクなら追加
+                if let Ok(Some(project_tree)) = repo.get_project_tree(&entity.project_id).await {
+                    // プロジェクトツリー内で既存のタスクを探す
+                    let mut task_exists = false;
+                    for task_list in &project_tree.task_lists {
+                        for existing_task in &task_list.tasks {
+                            if existing_task.id == entity.id {
+                                task_exists = true;
+                                break;
+                            }
+                        }
+                        if task_exists {
+                            break;
+                        }
+                    }
+
+                    if task_exists {
+                        // 既存のタスクを更新
+                        repo.update_task(&entity.project_id, &entity.id, entity)
+                            .await
+                    } else {
+                        // 新しいタスクを追加
+                        repo.add_task_to_list(&entity.project_id, &entity.list_id, entity)
+                            .await
+                    }
+                } else {
+                    // プロジェクトが存在しない場合はエラー
+                    Err(RepositoryError::NotFound(format!(
+                        "Project {} not found",
+                        entity.project_id
+                    )))
+                }
             }
         }
     }
@@ -108,6 +139,7 @@ impl Repository<Task, TaskId> for TaskRepositoryVariant {
 ///
 /// 保存用と検索用のリポジトリを分離管理し、
 /// タスクエンティティに最適化されたアクセスパターンを提供する。
+#[derive(Debug)]
 pub struct TaskUnifiedRepository {
     /// 保存用リポジトリ（冗長化のため複数: SQLite + Automerge + α）
     save_repositories: Vec<TaskRepositoryVariant>,
@@ -186,6 +218,7 @@ impl TaskUnifiedRepository {
 #[async_trait]
 impl Repository<Task, TaskId> for TaskUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
+    #[tracing::instrument(level = "trace")]
     async fn save(&self, entity: &Task) -> Result<(), RepositoryError> {
         info!(
             "TaskUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",

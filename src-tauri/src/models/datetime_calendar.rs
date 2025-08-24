@@ -77,7 +77,7 @@ pub struct DateCondition {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_calendar::WeekdayCondition;
 /// # use flequit_lib::types::datetime_calendar_types::{DayOfWeek, AdjustmentDirection, AdjustmentTarget};
-/// 
+///
 /// // 土曜日なら翌営業日（月曜日）に調整
 /// let weekend_adjustment = WeekdayCondition {
 ///     id: "saturday_to_monday".to_string(),
@@ -132,7 +132,7 @@ pub struct WeekdayCondition {
 /// # use flequit_lib::models::datetime_calendar::{RecurrenceAdjustment, DateCondition, WeekdayCondition};
 /// # use flequit_lib::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
 /// # use chrono::Utc;
-/// 
+///
 /// let business_adjustment = RecurrenceAdjustment {
 ///     date_conditions: vec![
 ///         // 祝日回避条件
@@ -181,7 +181,7 @@ pub struct RecurrenceAdjustment {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
 /// # use flequit_lib::types::datetime_calendar_types::{WeekOfMonth, DayOfWeek};
-/// 
+///
 /// let second_tuesday = RecurrenceDetails {
 ///     specific_date: None,
 ///     week_of_period: Some(WeekOfMonth::Second),
@@ -193,7 +193,7 @@ pub struct RecurrenceAdjustment {
 /// ## 毎月15日
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
-/// 
+///
 /// let fifteenth_day = RecurrenceDetails {
 ///     specific_date: Some(15),
 ///     week_of_period: None,
@@ -239,7 +239,7 @@ pub struct RecurrenceDetails {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_calendar::RecurrenceRule;
 /// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
-/// 
+///
 /// let weekly_rule = RecurrenceRule {
 ///     unit: RecurrenceUnit::Week,
 ///     interval: 1,
@@ -255,7 +255,7 @@ pub struct RecurrenceDetails {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_calendar::{RecurrenceRule, RecurrenceDetails, RecurrenceAdjustment, WeekdayCondition};
 /// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, WeekOfMonth, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
-/// 
+///
 /// let last_business_day = RecurrenceRule {
 ///     unit: RecurrenceUnit::Month,
 ///     interval: 1,

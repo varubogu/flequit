@@ -143,7 +143,7 @@ pub struct TaskList {
 /// # use flequit_lib::models::task_list::TaskListTree;
 /// # use flequit_lib::models::task::TaskTree;
 /// # use flequit_lib::types::id_types::{TaskListId, ProjectId, TaskId};
-/// 
+///
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {
 ///     id: TaskListId::new(),

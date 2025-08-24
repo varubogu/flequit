@@ -6,6 +6,7 @@ use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
 use crate::types::id_types::AccountId;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_account(account: &Account) -> Result<(), ServiceError> {
     let mut new_data = account.clone();
     let now = Utc::now();
@@ -18,11 +19,13 @@ pub async fn create_account(account: &Account) -> Result<(), ServiceError> {
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_account(account_id: &AccountId) -> Result<Option<Account>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.accounts.find_by_id(account_id).await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn update_account(
     account_id: &AccountId,
     patch: &PartialAccount,
@@ -48,6 +51,7 @@ pub async fn update_account(
     Ok(changed)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn delete_account(account_id: &AccountId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.accounts.delete(account_id).await?;

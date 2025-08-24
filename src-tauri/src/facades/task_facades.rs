@@ -6,6 +6,7 @@ use crate::models::task::{PartialTask, Task};
 use crate::services::task_service;
 use crate::types::id_types::TaskId;
 
+#[tracing::instrument]
 pub async fn create_task(task: &Task) -> Result<bool, String> {
     match task_service::create_task(task).await {
         Ok(_) => Ok(true),
@@ -14,6 +15,7 @@ pub async fn create_task(task: &Task) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn get_task(id: &TaskId) -> Result<Option<Task>, String> {
     info!("get_task called with id: {}", id);
     match task_service::get_task(id).await {
@@ -23,6 +25,7 @@ pub async fn get_task(id: &TaskId) -> Result<Option<Task>, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, String> {
     match task_service::update_task(task_id, patch).await {
         Ok(changed) => Ok(changed),
@@ -31,6 +34,7 @@ pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, 
     }
 }
 
+#[tracing::instrument]
 pub async fn delete_task(id: &TaskId) -> Result<bool, String> {
     match task_service::delete_task(id).await {
         Ok(_) => Ok(true),
@@ -39,6 +43,7 @@ pub async fn delete_task(id: &TaskId) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, String> {
     match task_service::search_tasks(condition).await {
         Ok((tasks, _)) => Ok(tasks),

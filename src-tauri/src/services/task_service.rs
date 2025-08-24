@@ -7,23 +7,27 @@ use crate::types::id_types::{ProjectId, TaskId};
 use crate::types::task_types::TaskStatus;
 use chrono::Utc;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.tasks.save(task).await?;
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn get_task(task_id: &TaskId) -> Result<Option<Task>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.tasks.find_by_id(task_id).await?)
 }
 
+#[tracing::instrument]
 pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceError> {
     let _ = project_id;
     let repository = Repositories::new().await?;
     Ok(repository.tasks.find_all().await?)
 }
 
+#[tracing::instrument]
 pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, ServiceError> {
     let repository = Repositories::new().await?;
 
@@ -43,12 +47,14 @@ pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, 
     Ok(changed)
 }
 
+#[tracing::instrument]
 pub async fn delete_task(task_id: &TaskId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.tasks.delete(task_id).await?;
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn list_tasks_by_assignee(
     project_id: &str,
     user_id: &str,
@@ -71,6 +77,7 @@ pub async fn list_tasks_by_assignee(
     Ok(filtered_tasks)
 }
 
+#[tracing::instrument]
 pub async fn list_tasks_by_status(
     project_id: &str,
     status: &TaskStatus,
@@ -87,6 +94,7 @@ pub async fn list_tasks_by_status(
     Ok(filtered_tasks)
 }
 
+#[tracing::instrument]
 pub async fn assign_task(
     project_id: &str,
     task_id: &str,
@@ -128,6 +136,7 @@ pub async fn assign_task(
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn update_task_status(
     project_id: &str,
     task_id: &str,
@@ -160,6 +169,7 @@ pub async fn update_task_status(
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn update_task_priority(
     project_id: &str,
     task_id: &str,
@@ -192,6 +202,7 @@ pub async fn update_task_priority(
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usize), ServiceError> {
     let repository = Repositories::new().await?;
     let mut tasks = repository.tasks.find_all().await?;

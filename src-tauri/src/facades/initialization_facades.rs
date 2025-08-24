@@ -11,6 +11,7 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
     result.map_err(|e| format!("{:?}", e))
 }
 
+#[tracing::instrument]
 pub async fn load_all_data() -> Result<InitializedResult, String> {
     // 他の関数を組み合わせて全データを取得
     let local_settings = load_local_settings().await?;
@@ -47,18 +48,22 @@ pub async fn load_all_data() -> Result<InitializedResult, String> {
     })
 }
 
+#[tracing::instrument]
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
     handle_service_error(initialization_service::load_local_settings().await)
 }
 
+#[tracing::instrument]
 pub async fn load_current_account() -> Result<Option<Account>, String> {
     handle_service_error(initialization_service::load_current_account().await)
 }
 
+#[tracing::instrument]
 pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, String> {
     handle_service_error(initialization_service::load_all_project_trees().await)
 }
 
+#[tracing::instrument]
 pub async fn load_all_account() -> Result<Vec<Account>, String> {
     handle_service_error(initialization_service::load_all_account().await)
 }

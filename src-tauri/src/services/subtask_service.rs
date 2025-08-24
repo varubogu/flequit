@@ -6,6 +6,7 @@ use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
 use crate::types::id_types::SubTaskId;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
     let mut new_data = subtask.clone();
     let now = Utc::now();
@@ -18,11 +19,13 @@ pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_subtask(subtask_id: &SubTaskId) -> Result<Option<SubTask>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.sub_tasks.find_by_id(subtask_id).await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> {
     let repository = Repositories::new().await?;
     let all_subtasks = repository.sub_tasks.find_all().await?;
@@ -36,6 +39,7 @@ pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> 
     Ok(filtered_subtasks)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn update_subtask(
     subtask_id: &SubTaskId,
     patch: &PartialSubTask,
@@ -61,12 +65,14 @@ pub async fn update_subtask(
     Ok(changed)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn delete_subtask(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.sub_tasks.delete(subtask_id).await?;
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
 

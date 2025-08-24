@@ -107,7 +107,7 @@ pub trait CommandModelConverter<T> {
 /// # use flequit_lib::models::FromTreeModel;
 /// # use flequit_lib::types::id_types::{ProjectId, UserId};
 /// # use chrono::Utc;
-/// # 
+/// #
 /// # // 例として使用する関数
 /// # async fn example() -> Result<(), String> {
 /// # // ProjectTree構造体を何らかの方法で作成
@@ -124,7 +124,7 @@ pub trait CommandModelConverter<T> {
 /// #     updated_at: Utc::now(),
 /// #     task_lists: vec![],
 /// # };
-/// # 
+/// #
 /// // ProjectTree → Project への変換  
 /// let project: Project = project_tree.from_tree_model().await?;
 /// # Ok(())

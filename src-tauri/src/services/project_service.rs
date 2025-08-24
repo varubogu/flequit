@@ -6,6 +6,7 @@ use crate::repositories::Repositories;
 use crate::types::id_types::ProjectId;
 use chrono::Utc;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_project(project: &Project) -> Result<Project, ServiceError> {
     let mut new_project = project.clone();
     let now = Utc::now();
@@ -22,16 +23,19 @@ pub async fn create_project(project: &Project) -> Result<Project, ServiceError> 
     Ok(new_project)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_project(project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.projects.find_by_id(project_id).await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn list_projects() -> Result<Vec<Project>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.projects.find_all().await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn update_project(
     project_id: &ProjectId,
     patch: &PartialProject,
@@ -57,12 +61,14 @@ pub async fn update_project(
     Ok(changed)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.projects.delete(project_id).await?;
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn search_projects(
     request: &ProjectSearchRequest,
 ) -> Result<(Vec<Project>, usize), ServiceError> {

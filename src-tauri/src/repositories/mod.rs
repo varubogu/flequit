@@ -36,6 +36,7 @@ pub struct Repositories {
 
 impl Repositories {
     /// 新しい統合リポジトリインスタンスを作成
+    #[tracing::instrument(level = "trace")]
     pub async fn new() -> Result<Self, RepositoryError> {
         // 保存用SQLiteリポジトリ群を作成
         let save_sqlite_repos = crate::repositories::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;

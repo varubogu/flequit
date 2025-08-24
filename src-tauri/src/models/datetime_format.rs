@@ -42,7 +42,7 @@ use serde::{Deserialize, Serialize};
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_format::DateTimeFormat;
 /// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
-/// 
+///
 /// // プリセットフォーマット
 /// let preset_format = DateTimeFormat {
 ///     id: "-1".to_string(),
@@ -107,7 +107,7 @@ pub struct DateTimeFormat {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_format::AppPresetFormat;
 /// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
-/// 
+///
 /// let standard_preset = AppPresetFormat {
 ///     id: -1,
 ///     name: "標準（YYYY-MM-DD HH:mm）".to_string(),
@@ -162,7 +162,7 @@ pub struct AppPresetFormat {
 /// ```rust,no_run
 /// # use flequit_lib::models::datetime_format::CustomDateTimeFormat;
 /// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
-/// 
+///
 /// let business_format = CustomDateTimeFormat {
 ///     id: "550e8400-e29b-41d4-a716-446655440000".to_string(),
 ///     name: "営業レポート用".to_string(),

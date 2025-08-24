@@ -4,6 +4,7 @@ use crate::models::task_list::{PartialTaskList, TaskList};
 use crate::services::task_list_service;
 use crate::types::id_types::TaskListId;
 
+#[tracing::instrument]
 pub async fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
     match task_list_service::create_task_list(task_list).await {
         Ok(_) => Ok(true),
@@ -12,6 +13,7 @@ pub async fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn get_task_list(id: &TaskListId) -> Result<Option<TaskList>, String> {
     match task_list_service::get_task_list(id).await {
         Ok(task_list) => Ok(task_list),
@@ -20,6 +22,7 @@ pub async fn get_task_list(id: &TaskListId) -> Result<Option<TaskList>, String> 
     }
 }
 
+#[tracing::instrument]
 pub async fn update_task_list(
     task_list_id: &TaskListId,
     patch: &PartialTaskList,
@@ -31,6 +34,7 @@ pub async fn update_task_list(
     }
 }
 
+#[tracing::instrument]
 pub async fn delete_task_list(id: &TaskListId) -> Result<bool, String> {
     match task_list_service::delete_task_list(id).await {
         Ok(_) => Ok(true),
@@ -39,6 +43,7 @@ pub async fn delete_task_list(id: &TaskListId) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn search_task_lists(condition: &TaskListSearchRequest) -> Result<Vec<TaskList>, String> {
     match task_list_service::search_task_lists(condition).await {
         Ok(task_lists) => Ok(task_lists),

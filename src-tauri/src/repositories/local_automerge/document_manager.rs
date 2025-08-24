@@ -110,12 +110,15 @@ impl DocumentManager {
         {
             let json_value = serde_json::to_value(value)
                 .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-            log::debug!("Automerge save - doc_type: {:?}, key: {} -> JSON: {}", 
-                doc_type, key, 
-                serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+            log::debug!(
+                "Automerge save - doc_type: {:?}, key: {} -> JSON: {}",
+                doc_type,
+                key,
+                serde_json::to_string_pretty(&json_value)
+                    .unwrap_or_else(|_| "Invalid JSON".to_string())
             );
         }
-        
+
         self.save_data_at_path(doc_type, &[key], value).await
     }
 
@@ -134,9 +137,11 @@ impl DocumentManager {
 
         doc_handle.with_doc_mut(|doc| {
             let mut tx = doc.transaction();
-            
+
             if path.is_empty() {
-                return Err(RepositoryError::InvalidOperation("Empty path not allowed".to_string()));
+                return Err(RepositoryError::InvalidOperation(
+                    "Empty path not allowed".to_string(),
+                ));
             }
 
             if path.len() == 1 {
@@ -145,21 +150,27 @@ impl DocumentManager {
                     .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
             } else {
                 // パス指定の場合は段階的にオブジェクトを辿る
-                let target_obj = self.get_or_create_nested_object(&mut tx, &automerge::ROOT, &path[..path.len()-1])
+                let target_obj = self
+                    .get_or_create_nested_object(&mut tx, &automerge::ROOT, &path[..path.len() - 1])
                     .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
-                self.put_json_value(&mut tx, &target_obj, path[path.len()-1], &json_value)
+                self.put_json_value(&mut tx, &target_obj, path[path.len() - 1], &json_value)
                     .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
             }
-            
+
             tx.commit();
 
             // デバッグモード時のJSON出力
             #[cfg(debug_assertions)]
             {
                 let path_str = path.join("/");
-                log::debug!("Automerge save - path: {} -> JSON: {}", path_str, serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string()));
+                log::debug!(
+                    "Automerge save - path: {} -> JSON: {}",
+                    path_str,
+                    serde_json::to_string_pretty(&json_value)
+                        .unwrap_or_else(|_| "Invalid JSON".to_string())
+                );
             }
-            
+
             Ok(())
         })
     }
@@ -171,28 +182,40 @@ impl DocumentManager {
         key: &str,
     ) -> Result<Option<T>, RepositoryError> {
         let result = self.load_data_at_path(doc_type, &[key]).await;
-        
+
         // デバッグモード時のJSON出力（読み込み結果）
         #[cfg(debug_assertions)]
         {
             match &result {
                 Ok(Some(data)) => {
                     if let Ok(json_value) = serde_json::to_value(data) {
-                        log::debug!("Automerge load - doc_type: {:?}, key: {} <- JSON: {}", 
-                            doc_type, key, 
-                            serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+                        log::debug!(
+                            "Automerge load - doc_type: {:?}, key: {} <- JSON: {}",
+                            doc_type,
+                            key,
+                            serde_json::to_string_pretty(&json_value)
+                                .unwrap_or_else(|_| "Invalid JSON".to_string())
                         );
                     }
-                },
+                }
                 Ok(None) => {
-                    log::debug!("Automerge load - doc_type: {:?}, key: {} <- NOT FOUND", doc_type, key);
-                },
+                    log::debug!(
+                        "Automerge load - doc_type: {:?}, key: {} <- NOT FOUND",
+                        doc_type,
+                        key
+                    );
+                }
                 Err(e) => {
-                    log::debug!("Automerge load - doc_type: {:?}, key: {} <- ERROR: {:?}", doc_type, key, e);
+                    log::debug!(
+                        "Automerge load - doc_type: {:?}, key: {} <- ERROR: {:?}",
+                        doc_type,
+                        key,
+                        e
+                    );
                 }
             }
         }
-        
+
         result
     }
 
@@ -206,7 +229,9 @@ impl DocumentManager {
 
         doc_handle.with_doc(|doc| {
             if path.is_empty() {
-                return Err(RepositoryError::InvalidOperation("Empty path not allowed".to_string()));
+                return Err(RepositoryError::InvalidOperation(
+                    "Empty path not allowed".to_string(),
+                ));
             }
 
             // パスを辿ってオブジェクトを取得
@@ -216,21 +241,24 @@ impl DocumentManager {
                     Ok(Some((value, obj_id))) => {
                         if i == path.len() - 1 {
                             // 最後のキーに到達した場合、値を返す
-                            let json_value = self.value_to_json_value_with_objid(doc, &value, &obj_id);
+                            let json_value =
+                                self.value_to_json_value_with_objid(doc, &value, &obj_id);
                             if json_value == serde_json::Value::Null {
                                 return Ok(None);
                             }
-                            
+
                             // デバッグモード時のJSON出力（読み込み時）
                             #[cfg(debug_assertions)]
                             {
                                 let path_str = path.join("/");
-                                log::debug!("Automerge load - path: {} <- JSON: {}", 
-                                    path_str, 
-                                    serde_json::to_string_pretty(&json_value).unwrap_or_else(|_| "Invalid JSON".to_string())
+                                log::debug!(
+                                    "Automerge load - path: {} <- JSON: {}",
+                                    path_str,
+                                    serde_json::to_string_pretty(&json_value)
+                                        .unwrap_or_else(|_| "Invalid JSON".to_string())
                                 );
                             }
-                            
+
                             let result: T = serde_json::from_value(json_value)
                                 .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
                             return Ok(Some(result));
@@ -246,7 +274,7 @@ impl DocumentManager {
                             log::debug!("Automerge load - path: {} <- NOT FOUND", path_str);
                         }
                         return Ok(None);
-                    },
+                    }
                     Err(_) => {
                         #[cfg(debug_assertions)]
                         {
@@ -254,7 +282,7 @@ impl DocumentManager {
                             log::debug!("Automerge load - path: {} <- ERROR", path_str);
                         }
                         return Ok(None);
-                    },
+                    }
                 }
             }
             Ok(None)
@@ -287,7 +315,7 @@ impl DocumentManager {
         doc_type: &DocumentType,
     ) -> Result<serde_json::Value, RepositoryError> {
         let doc_handle = self.get_or_create_document(doc_type).await?;
-        
+
         doc_handle.with_doc(|doc| {
             let root_value = match doc.get(&automerge::ROOT, "dummy_root_key") {
                 Ok(Some((value, obj_id))) => {
@@ -311,7 +339,7 @@ impl DocumentManager {
         description: Option<&str>,
     ) -> Result<(), RepositoryError> {
         let json_data = self.export_document_as_json(doc_type).await?;
-        
+
         // メタデータを含むJSONを作成
         let export_data = serde_json::json!({
             "metadata": {
@@ -322,13 +350,13 @@ impl DocumentManager {
             },
             "document_data": json_data
         });
-        
+
         let json_string = serde_json::to_string_pretty(&export_data)
             .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-            
+
         std::fs::write(output_path, json_string)
             .map_err(|e| RepositoryError::IOError(e.to_string()))?;
-            
+
         Ok(())
     }
 
@@ -340,29 +368,34 @@ impl DocumentManager {
         description: Option<&str>,
     ) -> Result<(), RepositoryError> {
         let output_dir = output_dir.as_ref();
-        std::fs::create_dir_all(output_dir)
-            .map_err(|e| RepositoryError::IOError(e.to_string()))?;
-        
+        std::fs::create_dir_all(output_dir).map_err(|e| RepositoryError::IOError(e.to_string()))?;
+
         let doc_handle = self.get_or_create_document(doc_type).await?;
         let changes_history = doc_handle.with_doc(|doc| {
             let mut history = Vec::new();
             let _heads = doc.get_heads();
-            
+
             // 各変更ポイントでのドキュメント状態を取得
             for (change_index, change) in doc.get_changes(&[]).iter().enumerate() {
                 let change_hash = change.hash();
-                
+
                 // この変更までのドキュメント状態を取得
                 let doc_at_change = {
                     let mut temp_doc = automerge::Automerge::new();
-                    let changes: Vec<_> = doc.get_changes(&[]).into_iter().take(change_index + 1).cloned().collect();
-                    temp_doc.apply_changes(changes)
+                    let changes: Vec<_> = doc
+                        .get_changes(&[])
+                        .into_iter()
+                        .take(change_index + 1)
+                        .cloned()
+                        .collect();
+                    temp_doc
+                        .apply_changes(changes)
                         .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?;
                     temp_doc
                 };
-                
+
                 let root_value = self.read_map_object(&doc_at_change, &automerge::ROOT);
-                
+
                 history.push(serde_json::json!({
                     "change_index": change_index,
                     "change_hash": format!("{:?}", change_hash),
@@ -372,7 +405,7 @@ impl DocumentManager {
                     "document_state": root_value
                 }));
             }
-            
+
             // 最新状態も追加
             let current_state = self.read_map_object(doc, &automerge::ROOT);
             history.push(serde_json::json!({
@@ -383,10 +416,10 @@ impl DocumentManager {
                 "message": "Current state",
                 "document_state": current_state
             }));
-            
+
             Ok::<Vec<serde_json::Value>, RepositoryError>(history)
         })?;
-        
+
         // 各変更を個別ファイルに出力
         for (index, change_data) in changes_history.iter().enumerate() {
             let filename = if index == changes_history.len() - 1 {
@@ -394,7 +427,7 @@ impl DocumentManager {
             } else {
                 format!("change_{:03}.json", index)
             };
-            
+
             let export_data = serde_json::json!({
                 "metadata": {
                     "document_type": format!("{:?}", doc_type),
@@ -405,15 +438,15 @@ impl DocumentManager {
                 },
                 "change_data": change_data
             });
-            
+
             let json_string = serde_json::to_string_pretty(&export_data)
                 .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-                
+
             let file_path = output_dir.join(filename);
             std::fs::write(file_path, json_string)
                 .map_err(|e| RepositoryError::IOError(e.to_string()))?;
         }
-        
+
         // サマリーファイルも作成
         let summary_data = serde_json::json!({
             "metadata": {
@@ -438,13 +471,13 @@ impl DocumentManager {
                 })
             }).collect::<Vec<_>>()
         });
-        
+
         let summary_json = serde_json::to_string_pretty(&summary_data)
             .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-            
+
         std::fs::write(output_dir.join("changes_summary.json"), summary_json)
             .map_err(|e| RepositoryError::IOError(e.to_string()))?;
-        
+
         Ok(())
     }
 
@@ -455,23 +488,24 @@ impl DocumentManager {
         description: Option<&str>,
     ) -> Result<(), RepositoryError> {
         let output_dir = output_dir.as_ref();
-        
+
         // 出力ディレクトリを作成
         if !output_dir.exists() {
             std::fs::create_dir_all(output_dir)
                 .map_err(|e| RepositoryError::IOError(e.to_string()))?;
         }
-        
+
         let document_types = self.list_document_types()?;
         let total_documents = document_types.len();
-        
+
         for doc_type in &document_types {
             let filename = format!("{}.json", doc_type.filename().replace(".automerge", ""));
             let output_path = output_dir.join(filename);
-            
-            self.export_document_to_file(&doc_type, output_path, description).await?;
+
+            self.export_document_to_file(&doc_type, output_path, description)
+                .await?;
         }
-        
+
         // サマリーファイルを作成
         let summary = serde_json::json!({
             "export_metadata": {
@@ -487,14 +521,14 @@ impl DocumentManager {
                 })
             }).collect::<Vec<_>>()
         });
-        
+
         let summary_path = output_dir.join("export_summary.json");
         let summary_string = serde_json::to_string_pretty(&summary)
             .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
-            
+
         std::fs::write(summary_path, summary_string)
             .map_err(|e| RepositoryError::IOError(e.to_string()))?;
-        
+
         Ok(())
     }
 
@@ -506,7 +540,7 @@ impl DocumentManager {
         path: &[&str],
     ) -> Result<automerge::ObjId, automerge::AutomergeError> {
         let mut current_obj = root_obj.clone();
-        
+
         for &key in path {
             // 現在のオブジェクトから次のオブジェクトを取得
             match tx.get(&current_obj, key)? {
@@ -516,7 +550,9 @@ impl DocumentManager {
                 }
                 Some((_, _)) => {
                     // 既存の値がオブジェクト以外の場合はエラー
-                    return Err(automerge::AutomergeError::InvalidOp(automerge::ObjType::Map));
+                    return Err(automerge::AutomergeError::InvalidOp(
+                        automerge::ObjType::Map,
+                    ));
                 }
                 None => {
                     // オブジェクトが存在しない場合は作成
@@ -524,7 +560,7 @@ impl DocumentManager {
                 }
             }
         }
-        
+
         Ok(current_obj)
     }
 

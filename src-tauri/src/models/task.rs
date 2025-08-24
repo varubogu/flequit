@@ -151,7 +151,7 @@ pub struct Task {
 /// # use flequit_lib::models::tag::Tag;
 /// # use flequit_lib::types::id_types::{TaskId, ProjectId, TaskListId, UserId, TagId, SubTaskId};
 /// # use flequit_lib::types::task_types::TaskStatus;
-/// 
+///
 /// // タスク詳細画面での使用例
 /// let detailed_task = TaskTree {
 ///     id: TaskId::new(),

@@ -53,6 +53,7 @@ pub struct ProjectTreeLocalAutomergeRepository {
 
 impl ProjectTreeLocalAutomergeRepository {
     /// 新しいProjectTreeRepositoryを作成
+    #[tracing::instrument(level = "trace")]
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -61,6 +62,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクトツリー全体を取得
+    #[tracing::instrument(level = "trace")]
     pub async fn get_project_tree(
         &self,
         project_id: &ProjectId,
@@ -74,6 +76,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクトツリー全体を保存
+    #[tracing::instrument(level = "trace")]
     pub async fn save_project_tree(
         &self,
         project_tree: &ProjectTree,
@@ -89,6 +92,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクを追加（プロジェクトツリー内で）
+    #[tracing::instrument(level = "trace")]
     pub async fn add_task_to_list(
         &self,
         project_id: &ProjectId,
@@ -97,7 +101,7 @@ impl ProjectTreeLocalAutomergeRepository {
     ) -> Result<(), RepositoryError> {
         // ProjectTreeが存在することを確認
         self.ensure_project_tree_exists(project_id).await?;
-        
+
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // TaskからTaskTreeに変換（空のサブタスクとタグで）
             let task_tree = TaskTree {
@@ -130,9 +134,12 @@ impl ProjectTreeLocalAutomergeRepository {
                     return Ok(());
                 }
             }
-            
+
             // タスクリストが見つからない場合は、空のタスクリストを作成してからタスクを追加
-            log::warn!("TaskList {} not found in ProjectTree, creating empty task list", list_id);
+            log::warn!(
+                "TaskList {} not found in ProjectTree, creating empty task list",
+                list_id
+            );
             let empty_task_list = TaskListTree {
                 id: *list_id,
                 project_id: *project_id,
@@ -157,6 +164,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクを更新（プロジェクトツリー内で）
+    #[tracing::instrument(level = "trace")]
     pub async fn update_task(
         &self,
         project_id: &ProjectId,
@@ -214,6 +222,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクを削除（プロジェクトツリー内で）
+    #[tracing::instrument(level = "trace")]
     pub async fn delete_task(
         &self,
         project_id: &ProjectId,
@@ -235,6 +244,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクト内のすべてのタスクを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn get_tasks_by_project(
         &self,
         project_id: &ProjectId,
@@ -259,6 +269,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// プロジェクト内の指定されたタスクリストのタスクを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn get_tasks_by_list(
         &self,
         project_id: &ProjectId,
@@ -287,6 +298,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクリストを追加
+    #[tracing::instrument(level = "trace")]
     pub async fn add_task_list(
         &self,
         project_id: &ProjectId,
@@ -294,7 +306,7 @@ impl ProjectTreeLocalAutomergeRepository {
     ) -> Result<(), RepositoryError> {
         // ProjectTreeが存在することを確認
         self.ensure_project_tree_exists(project_id).await?;
-        
+
         if let Some(mut project_tree) = self.get_project_tree(project_id).await? {
             // TaskListからTaskListTreeに変換（空のタスクリストで）
             let task_list_tree = TaskListTree {
@@ -321,6 +333,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクリストを更新
+    #[tracing::instrument(level = "trace")]
     pub async fn update_task_list(
         &self,
         project_id: &ProjectId,
@@ -361,6 +374,7 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// タスクリストを削除
+    #[tracing::instrument(level = "trace")]
     pub async fn delete_task_list(
         &self,
         project_id: &ProjectId,
@@ -379,7 +393,11 @@ impl ProjectTreeLocalAutomergeRepository {
     }
 
     /// ProjectTreeが存在することを確認し、存在しない場合は作成
-    async fn ensure_project_tree_exists(&self, project_id: &ProjectId) -> Result<(), RepositoryError> {
+    #[tracing::instrument(level = "trace")]
+    async fn ensure_project_tree_exists(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<(), RepositoryError> {
         // ProjectTreeが存在するかチェック
         if self.get_project_tree(project_id).await?.is_none() {
             // 存在しない場合、Project情報を取得して空のProjectTreeを作成
@@ -398,7 +416,7 @@ impl ProjectTreeLocalAutomergeRepository {
                 updated_at: chrono::Utc::now(),
                 task_lists: Vec::new(), // 空のタスクリスト
             };
-            
+
             self.save_project_tree(&empty_project_tree).await?;
         }
         Ok(())

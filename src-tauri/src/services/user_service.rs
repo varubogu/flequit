@@ -6,6 +6,7 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
 use crate::types::id_types::UserId;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_user(user: &User) -> Result<(), ServiceError> {
     let mut new_data = user.clone();
     let now = Utc::now();
@@ -18,11 +19,13 @@ pub async fn create_user(user: &User) -> Result<(), ServiceError> {
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_user(user_id: &UserId) -> Result<Option<User>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.users.find_by_id(user_id).await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError> {
     let repository = Repositories::new().await?;
     // UserLocalSqliteRepositoryのfind_by_emailメソッドを使用
@@ -31,6 +34,7 @@ pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError
     Ok(users.into_iter().find(|u| u.email == email))
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn list_users() -> Result<Vec<User>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.users.find_all().await?)

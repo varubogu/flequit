@@ -4,6 +4,7 @@ use crate::models::project::{PartialProject, Project};
 use crate::services::project_service;
 use crate::types::id_types::ProjectId;
 
+#[tracing::instrument]
 pub async fn create_project(project: &Project) -> Result<bool, String> {
     match project_service::create_project(project).await {
         Ok(_) => Ok(true),
@@ -12,6 +13,7 @@ pub async fn create_project(project: &Project) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn get_project(id: &ProjectId) -> Result<Option<Project>, String> {
     match project_service::get_project(id).await {
         Ok(Some(project)) => Ok(Some(project)),
@@ -21,6 +23,7 @@ pub async fn get_project(id: &ProjectId) -> Result<Option<Project>, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn update_project(
     project_id: &ProjectId,
     patch: &PartialProject,
@@ -32,6 +35,7 @@ pub async fn update_project(
     }
 }
 
+#[tracing::instrument]
 pub async fn delete_project(id: &ProjectId) -> Result<bool, String> {
     match project_service::delete_project(id).await {
         Ok(_) => Ok(true),
@@ -40,6 +44,7 @@ pub async fn delete_project(id: &ProjectId) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn search_projects(condition: &ProjectSearchRequest) -> Result<Vec<Project>, String> {
     match project_service::search_projects(condition).await {
         Ok((projects, _)) => Ok(projects),

@@ -6,6 +6,7 @@ use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
 use crate::types::id_types::TagId;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
     let mut new_data = tag.clone();
     let now = Utc::now();
@@ -18,16 +19,19 @@ pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_tag(tag_id: &TagId) -> Result<Option<Tag>, ServiceError> {
     let repository: Repositories = Repositories::new().await?;
     Ok(repository.tags.find_by_id(tag_id).await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn list_tags() -> Result<Vec<Tag>, ServiceError> {
     let repository = Repositories::new().await?;
     Ok(repository.tags.find_all().await?)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, ServiceError> {
     let repository = Repositories::new().await?;
 
@@ -47,12 +51,14 @@ pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, Serv
     Ok(changed)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn delete_tag(tag_id: &TagId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.tags.delete(tag_id).await?;
     Ok(())
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn search_tags_by_name(name: &str) -> Result<Vec<Tag>, ServiceError> {
     if name.trim().is_empty() {
         return Ok(Vec::new());
@@ -70,6 +76,7 @@ pub async fn search_tags_by_name(name: &str) -> Result<Vec<Tag>, ServiceError> {
     Ok(filtered_tags)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_tag_usage_count(tag_id: &TagId) -> Result<u32, ServiceError> {
     let repository = Repositories::new().await?;
     let mut count = 0u32;
@@ -93,6 +100,7 @@ pub async fn get_tag_usage_count(tag_id: &TagId) -> Result<u32, ServiceError> {
     Ok(count)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn is_tag_name_exists(
     name: &str,
     exclude_id: Option<&str>,
@@ -119,6 +127,7 @@ pub async fn is_tag_name_exists(
     Ok(false)
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn list_popular_tags(limit: u32) -> Result<Vec<Tag>, ServiceError> {
     let repository = Repositories::new().await?;
     let all_tags = repository.tags.find_all().await?;

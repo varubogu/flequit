@@ -27,6 +27,7 @@ pub struct LocalSqliteRepositories {
 
 impl LocalSqliteRepositories {
     /// 新しいSQLiteリポジトリ群を作成
+    #[tracing::instrument(level = "trace")]
     pub async fn new() -> Result<Self, RepositoryError> {
         // シングルトンのデータベースマネージャーを取得
         let db_manager = DatabaseManager::instance().await?;

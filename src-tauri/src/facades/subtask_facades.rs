@@ -6,6 +6,7 @@ use crate::models::subtask::{PartialSubTask, SubTask};
 use crate::services::subtask_service;
 use crate::types::id_types::SubTaskId;
 
+#[tracing::instrument]
 pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
     match subtask_service::create_subtask(&subtask).await {
         Ok(_) => Ok(true),
@@ -14,6 +15,7 @@ pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubtaskCommand>, String> {
     match subtask_service::get_subtask(id).await {
         Ok(Some(_subtask)) => {
@@ -27,6 +29,7 @@ pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubtaskCommand>, Stri
     }
 }
 
+#[tracing::instrument]
 pub async fn update_sub_task(
     subtask_id: &SubTaskId,
     patch: &PartialSubTask,
@@ -38,6 +41,7 @@ pub async fn update_sub_task(
     }
 }
 
+#[tracing::instrument]
 pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
     match subtask_service::delete_subtask(id).await {
         Ok(_) => Ok(true),
@@ -46,6 +50,7 @@ pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument]
 pub async fn search_sub_tasks(condition: &SubtaskSearchRequest) -> Result<Vec<SubTask>, String> {
     // SubtaskServiceにはsearchメソッドがないため、一時的に空の結果を返す
     // 将来的にはlist_subtasksを使用してフィルタリングを行う

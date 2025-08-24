@@ -3,6 +3,7 @@ use crate::models::account::{Account, PartialAccount};
 use crate::services::account_service;
 use crate::types::id_types::AccountId;
 
+#[tracing::instrument(level = "trace")]
 pub async fn create_account(account: &Account) -> Result<bool, String> {
     match account_service::create_account(account).await {
         Ok(_) => Ok(true),
@@ -11,6 +12,7 @@ pub async fn create_account(account: &Account) -> Result<bool, String> {
     }
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn get_account(id: &AccountId) -> Result<Option<Account>, String> {
     match account_service::get_account(id).await {
         Ok(Some(account)) => Ok(Some(account)),
@@ -20,6 +22,7 @@ pub async fn get_account(id: &AccountId) -> Result<Option<Account>, String> {
     }
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn update_account(
     account_id: &AccountId,
     patch: &PartialAccount,
@@ -31,6 +34,7 @@ pub async fn update_account(
     }
 }
 
+#[tracing::instrument(level = "trace")]
 pub async fn delete_account(id: &AccountId) -> Result<bool, String> {
     match account_service::delete_account(id).await {
         Ok(_) => Ok(true),

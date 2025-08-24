@@ -27,12 +27,12 @@ pub mod view_item;
 ///
 /// ```rust,no_run
 /// # use chrono::{DateTime, Utc};
-/// 
+///
 /// // SqliteModelConverterトレイトの定義例
 /// trait SqliteModelConverter<T> {
 ///     async fn to_domain_model(&self) -> Result<T, String>;
 /// }
-/// 
+///
 /// // 簡素化されたSQLite用エンティティ
 /// pub struct SqliteModel {
 ///     pub id: String,

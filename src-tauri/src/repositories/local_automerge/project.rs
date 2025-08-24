@@ -37,6 +37,7 @@ pub struct ProjectLocalAutomergeRepository {
 
 impl ProjectLocalAutomergeRepository {
     /// 新しいProjectRepositoryを作成
+    #[tracing::instrument(level = "trace")]
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -45,6 +46,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 全プロジェクトを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let projects = {
             let mut manager = self.document_manager.lock().await;
@@ -60,12 +62,14 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// IDでプロジェクトを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, RepositoryError> {
         let projects = self.list_projects().await?;
         Ok(projects.into_iter().find(|p| p.id == project_id.into()))
     }
 
     /// プロジェクトを作成または更新
+    #[tracing::instrument(level = "trace")]
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("set_project - 開始: {:?}", project.id);
         let mut projects = self.list_projects().await?;
@@ -99,6 +103,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトを削除
+    #[tracing::instrument(level = "trace")]
     pub async fn delete_project(&self, project_id: &str) -> Result<bool, RepositoryError> {
         let mut projects = self.list_projects().await?;
         let initial_len = projects.len();
@@ -118,6 +123,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// JSON出力機能：プロジェクト変更履歴をエクスポート
+    #[tracing::instrument(level = "trace", skip(output_dir))]
     pub async fn export_project_changes_history<P: AsRef<Path>>(
         &self,
         output_dir: P,
@@ -131,6 +137,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// JSON出力機能：現在のプロジェクト状態をファイルにエクスポート
+    #[tracing::instrument(level = "trace", skip(file_path))]
     pub async fn export_project_state<P: AsRef<Path>>(
         &self,
         file_path: P,
@@ -146,6 +153,7 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
+    #[tracing::instrument(level = "trace")]
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
@@ -166,14 +174,17 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         result
     }
 
+    #[tracing::instrument(level = "trace")]
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         self.get_project(&id.to_string()).await
     }
 
+    #[tracing::instrument(level = "trace")]
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         self.list_projects().await
     }
 
+    #[tracing::instrument(level = "trace")]
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         let deleted = self.delete_project(&id.to_string()).await?;
         if deleted {
@@ -186,11 +197,13 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         }
     }
 
+    #[tracing::instrument(level = "trace")]
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
 
+    #[tracing::instrument(level = "trace")]
     async fn count(&self) -> Result<u64, RepositoryError> {
         let projects = self.find_all().await?;
         Ok(projects.len() as u64)
