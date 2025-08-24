@@ -23,7 +23,8 @@ Settings Document
 └── ローカル設定 (LocalSettings)
 
 Account Document
-└── アカウント情報 (Account)
+├── ローカルアカウント (Account)
+└── サーバーアカウント配列 (Account[])
 
 User Document
 └── ユーザー情報 (User)
@@ -45,8 +46,8 @@ Flequitでは異なる層間で型変換を行います。以下の変換表に�
 | Rust内部型 | TypeScript/フロントエンド | SQLite | Automerge JSON | 説明 |
 |-----------|-------------------------|--------|----------------|------|
 | `ProjectId` | `string` | `TEXT` | `string` | プロジェクト一意識別子（UUID v4） |
-| `AccountId` | `string` | `TEXT` | `string` | アカウント一意識別子（UUID v4） |
-| `UserId` | `string` | `TEXT` | `string` | ユーザー一意識別子（UUID v4） |
+| `AccountId` | `string` | `TEXT` | `string` | アカウント内部識別子（UUID v4・非公開） |
+| `UserId` | `string` | `TEXT` | `string` | ユーザー識別子（UUID v4・公開用） |
 | `TaskId` | `string` | `TEXT` | `string` | タスク一意識別子（UUID v4） |
 | `TaskListId` | `string` | `TEXT` | `string` | タスクリスト一意識別子（UUID v4） |
 | `TagId` | `string` | `TEXT` | `string` | タグ一意識別子（UUID v4） |
@@ -243,24 +244,62 @@ interface DueDateButtons {
 
 ```json
 {
-  "id": "account-uuid-1",
-  "email": "user@example.com",
-  "display_name": "ユーザー名",
-  "avatar_url": "https://example.com/avatar.jpg",
-  "provider": "local",
-  "provider_id": null,
-  "is_active": true,
-  "created_at": "2024-01-01T10:00:00.000Z",
-  "updated_at": "2024-01-01T10:00:00.000Z"
+  "local_account": {
+    "id": "local-account-uuid",
+    "user_id": "local-user-uuid",
+    "email": "user@local.com",
+    "display_name": "ローカルユーザー",
+    "avatar_url": null,
+    "provider": "local",
+    "provider_id": null,
+    "is_active": true,
+    "created_at": "2024-01-01T10:00:00.000Z",
+    "updated_at": "2024-01-01T10:00:00.000Z"
+  },
+  "server_accounts": [
+    {
+      "id": "server-account-uuid-1",
+      "user_id": "public-user-uuid-1",
+      "email": "user@gmail.com",
+      "display_name": "Google User",
+      "avatar_url": "https://lh3.googleusercontent.com/avatar.jpg",
+      "provider": "google",
+      "provider_id": "google-user-id-123",
+      "is_active": true,
+      "created_at": "2024-01-01T10:00:00.000Z",
+      "updated_at": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "id": "server-account-uuid-2",
+      "user_id": "public-user-uuid-2",
+      "email": "user@github.com",
+      "display_name": "GitHub User",
+      "avatar_url": "https://avatars.githubusercontent.com/avatar.jpg",
+      "provider": "github",
+      "provider_id": "github-user-id-456",
+      "is_active": true,
+      "created_at": "2024-01-01T11:00:00.000Z",
+      "updated_at": "2024-01-01T11:00:00.000Z"
+    }
+  ]
 }
 ```
 
 #### Type Definitions
 
+##### AccountDocument
+```typescript
+interface AccountDocument {
+  local_account: Account;       // ローカルアカウント (Rust: Account → TS: Account)
+  server_accounts: Account[];   // サーバーアカウント配列 (Rust: Vec<Account> → TS: Account[])
+}
+```
+
 ##### Account
 ```typescript
 interface Account {
-  id: string;                   // アカウント一意識別子 (Rust: AccountId → TS: string)
+  id: string;                   // アカウント内部識別子（非公開） (Rust: AccountId → TS: string)
+  user_id: string;              // 公開ユーザー識別子（他者から参照可能） (Rust: UserId → TS: string)
   email?: string;               // メールアドレス (Rust: Option<String> → TS: string | null)
   display_name?: string;        // プロバイダー提供の表示名 (Rust: Option<String> → TS: string | null)
   avatar_url?: string;          // プロフィール画像URL (Rust: Option<String> → TS: string | null)
@@ -278,8 +317,7 @@ interface Account {
 
 ```json
 {
-  "id": "user-uuid-1",
-  "account_id": "account-uuid-1",
+  "id": "public-user-uuid-1",
   "username": "username",
   "display_name": "表示名",
   "email": "user@example.com",
@@ -297,8 +335,7 @@ interface Account {
 ##### User
 ```typescript
 interface User {
-  id: string;                   // ユーザー一意識別子 (Rust: UserId → TS: string)
-  account_id: string;           // 関連アカウントID (Rust: AccountId → TS: string)
+  id: string;                   // 公開ユーザー識別子（他者から参照可能） (Rust: UserId → TS: string)
   username: string;             // ユーザー名 (Rust: String → TS: string)
   display_name?: string;        // 表示名 (Rust: Option<String> → TS: string | null)
   email?: string;               // メールアドレス (Rust: Option<String> → TS: string | null)
@@ -343,7 +380,7 @@ interface User {
       "due_date": "2024-01-31T23:59:59.000Z",
       "start_date": "2024-01-01T09:00:00.000Z",
       "end_date": null,
-      "assignee_id": "user-uuid-1",
+      "assignee_id": "public-user-uuid-1",
       "order_index": 1,
       "is_archived": false,
       "created_at": "2024-01-01T10:00:00.000Z",
@@ -358,7 +395,7 @@ interface User {
       "description": "サブタスクの説明",
       "status": "Todo",
       "due_date": "2024-01-15T23:59:59.000Z",
-      "assignee_id": "user-uuid-1",
+      "assignee_id": "public-user-uuid-1",
       "order_index": 1,
       "is_completed": false,
       "created_at": "2024-01-01T10:00:00.000Z",
@@ -379,7 +416,7 @@ interface User {
   ],
   "project_members": [
     {
-      "user_id": "user-uuid-1",
+      "user_id": "public-user-uuid-1",
       "project_id": "project-uuid-1",
       "role": "Owner",
       "joined_at": "2024-01-01T10:00:00.000Z"
@@ -506,8 +543,8 @@ const tasks: Task[] = await invoke('get_tasks', {
 ### ドキュメント間の関係性
 
 1. **Settings → Project**: プロジェクト一覧からプロジェクト詳細へのナビゲーション
-2. **Account ↔ User**: アカウント認証情報とユーザープロフィールの関連
-3. **Project → User**: プロジェクトメンバーとユーザー情報の関連
+2. **Account ↔ User**: アカウント認証情報（ローカル/サーバー）とユーザープロフィールの関連
+3. **Project → User**: プロジェクトメンバー・タスク担当者とユーザー情報の関連（User.idで参照）
 4. **TaskList → Task → SubTask**: 階層的なタスク管理構造
 
 ### 同期と競合解決
