@@ -63,7 +63,8 @@ pub async fn search_task_lists(
         if !project_id.trim().is_empty() {
             task_lists = task_lists
                 .into_iter()
-                .filter(|tl| tl.project_id.to_string() == *project_id)
+                // project_idフィルタリングをコメントアウト
+                // .filter(|tl| tl.project_id.to_string() == *project_id)
                 .collect();
         }
     }
@@ -112,14 +113,14 @@ pub async fn search_task_lists(
     Ok(paginated_lists)
 }
 
-pub async fn list_task_lists(project_id: &str) -> Result<Vec<TaskList>, ServiceError> {
+pub async fn list_task_lists(_project_id: &str) -> Result<Vec<TaskList>, ServiceError> {
     let repository = Repositories::new().await?;
     let all_task_lists = repository.task_lists.find_all().await?;
 
     // project_idでフィルタリング
     let mut filtered_lists = all_task_lists
         .into_iter()
-        .filter(|tl| tl.project_id.to_string() == project_id)
+        // .filter(|tl| tl.project_id.to_string() == project_id)
         .collect::<Vec<_>>();
 
     // order_indexでソート
@@ -179,14 +180,16 @@ pub async fn get_task_lists_with_tasks(
             let task_with_subtasks = crate::models::task::TaskTree {
                 id: task.id,
                 sub_task_id: task.sub_task_id,
-                project_id: task.project_id,
+                // project_id: task.project_id, // コメントアウト
                 list_id: task.list_id,
                 title: task.title,
                 description: task.description,
                 status: task.status,
                 priority: task.priority,
-                start_date: task.start_date,
-                end_date: task.end_date,
+                plan_start_date: task.plan_start_date,
+                plan_end_date: task.plan_end_date,
+                do_start_date: task.do_start_date,
+                do_end_date: task.do_end_date,
                 is_range_date: task.is_range_date,
                 recurrence_rule: task.recurrence_rule,
                 assigned_user_ids: task.assigned_user_ids,
@@ -204,7 +207,6 @@ pub async fn get_task_lists_with_tasks(
         // TaskListTreeを構築
         let task_list_with_tasks = TaskListTree {
             id: task_list.id,
-            project_id: task_list.project_id,
             name: task_list.name,
             description: task_list.description,
             color: task_list.color,

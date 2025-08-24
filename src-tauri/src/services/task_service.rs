@@ -62,15 +62,14 @@ pub async fn list_tasks_by_assignee(
     let repository = Repositories::new().await?;
     let all_tasks = repository.tasks.find_all().await?;
 
-    // project_idとuser_idでフィルタリング
+    // user_idでフィルタリング
     let filtered_tasks = all_tasks
         .into_iter()
         .filter(|task| {
-            task.project_id.to_string() == project_id
-                && task
-                    .assigned_user_ids
-                    .iter()
-                    .any(|id| id.to_string() == user_id)
+            task
+                .assigned_user_ids
+                .iter()
+                .any(|id| id.to_string() == user_id)
         })
         .collect();
 
@@ -85,10 +84,10 @@ pub async fn list_tasks_by_status(
     let repository = Repositories::new().await?;
     let all_tasks = repository.tasks.find_all().await?;
 
-    // project_idとstatusでフィルタリング
+    // statusでフィルタリング
     let filtered_tasks = all_tasks
         .into_iter()
-        .filter(|task| task.project_id.to_string() == project_id && task.status == *status)
+        .filter(|task| task.status == *status)
         .collect();
 
     Ok(filtered_tasks)
@@ -108,11 +107,12 @@ pub async fn assign_task(
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
-        if task.project_id.to_string() != project_id {
+        // project_idチェックをコメントアウト
+        /*if task.project_id.to_string() != project_id {
             return Err(ServiceError::InternalError(
                 "Task does not belong to the specified project".to_string(),
             ));
-        }
+        }*/
 
         // assignee_idがある場合は追加、ない場合は全てクリア
         if let Some(assignee_id) = assignee_id {
@@ -150,11 +150,12 @@ pub async fn update_task_status(
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
-        if task.project_id.to_string() != project_id {
+        // project_idチェックをコメントアウト
+        /*if task.project_id.to_string() != project_id {
             return Err(ServiceError::InternalError(
                 "Task does not belong to the specified project".to_string(),
             ));
-        }
+        }*/
 
         // ステータス更新
         task.status = status.clone();
@@ -183,11 +184,12 @@ pub async fn update_task_priority(
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
         // プロジェクトIDが一致するかチェック
-        if task.project_id.to_string() != project_id {
+        // project_idチェックをコメントアウト
+        /*if task.project_id.to_string() != project_id {
             return Err(ServiceError::InternalError(
                 "Task does not belong to the specified project".to_string(),
             ));
-        }
+        }*/
 
         // 優先度更新
         task.priority = priority;
@@ -212,7 +214,7 @@ pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usi
         if !project_id.trim().is_empty() {
             tasks = tasks
                 .into_iter()
-                .filter(|task| task.project_id.to_string() == *project_id)
+                // .filter(|task| task.project_id.to_string() == *project_id)
                 .collect();
         }
     }

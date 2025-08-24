@@ -85,10 +85,14 @@ pub struct SubTask {
     pub status: TaskStatus,
     /// 優先度（数値、高いほど優先、Optional）
     pub priority: Option<i32>,
-    /// 開始日時（Optional）
-    pub start_date: Option<DateTime<Utc>>,
-    /// 終了日時（Optional）
-    pub end_date: Option<DateTime<Utc>>,
+    /// 予定開始日時（Optional）
+    pub plan_start_date: Option<DateTime<Utc>>,
+    /// 予定終了日時（Optional）
+    pub plan_end_date: Option<DateTime<Utc>>,
+    /// 実開始日時（Optional）
+    pub do_start_date: Option<DateTime<Utc>>,
+    /// 実終了日時（Optional）
+    pub do_end_date: Option<DateTime<Utc>>,
     /// 期間指定フラグ（開始〜終了の期間指定）
     pub is_range_date: Option<bool>,
     /// 繰り返しルール（定期サブタスク用）
@@ -118,8 +122,8 @@ impl CommandModelConverter<SubtaskCommand> for SubTask {
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.start_date.map(|d| d.to_rfc3339()),
-            end_date: self.end_date.map(|d| d.to_rfc3339()),
+            start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
+            end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self
@@ -153,8 +157,8 @@ impl TreeCommandConverter<crate::models::command::subtask::SubTaskTreeCommand> f
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.start_date.map(|d| d.to_rfc3339()),
-            end_date: self.end_date.map(|d| d.to_rfc3339()),
+            start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
+            end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self

@@ -29,8 +29,6 @@ export interface Task {
   id: string;
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string;
-  /** 所属プロジェクトID */
-  project_id: string;
   /** 所属タスクリストID */
   list_id: string;
   /** タスクタイトル */
@@ -41,10 +39,14 @@ export interface Task {
   status: TaskStatus;
   /** 優先度 */
   priority: number;
-  /** 開始日 */
-  start_date?: Date;
-  /** 終了日（期日） */
-  end_date?: Date;
+  /** 予定開始日 */
+  plan_start_date?: Date;
+  /** 予定終了日 */
+  plan_end_date?: Date;
+  /** 実開始日 */
+  do_start_date?: Date;
+  /** 実終了日 */
+  do_end_date?: Date;
   /** 期日が範囲選択かどうか */
   is_range_date?: boolean;
   /** 繰り返しルール */
@@ -77,8 +79,6 @@ export interface TaskWithSubTasks extends Task {
  * タスク検索条件
  */
 export interface TaskSearchCondition {
-  /** 所属プロジェクトID */
-  project_id?: string;
   /** 所属タスクリストID */
   list_id?: string;
   /** タイトル */
@@ -97,8 +97,6 @@ export interface TaskSearchCondition {
 export interface TaskPatch {
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string | null;
-  /** 所属プロジェクトID */
-  project_id?: string;
   /** 所属タスクリストID */
   list_id?: string;
   /** タスクタイトル */
@@ -109,10 +107,14 @@ export interface TaskPatch {
   status?: TaskStatus;
   /** 優先度 */
   priority?: number;
-  /** 開始日 */
-  start_date?: string | null;
-  /** 終了日（期日） */
-  end_date?: string | null;
+  /** 予定開始日 */
+  plan_start_date?: string | null;
+  /** 予定終了日 */
+  plan_end_date?: string | null;
+  /** 実開始日 */
+  do_start_date?: string | null;
+  /** 実終了日 */
+  do_end_date?: string | null;
   /** 期日が範囲選択かどうか */
   is_range_date?: boolean | null;
   /** 繰り返しルール */

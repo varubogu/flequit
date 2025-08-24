@@ -78,8 +78,6 @@ pub struct Task {
     pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
     pub sub_task_id: Option<SubTaskId>,
-    /// 所属プロジェクトID
-    pub project_id: ProjectId,
     /// 所属タスクリストID
     pub list_id: TaskListId,
     /// タスクタイトル（必須）
@@ -90,10 +88,14 @@ pub struct Task {
     pub status: TaskStatus,
     /// 優先度（数値、高いほど優先）
     pub priority: i32,
-    /// 開始日時（Optional）
-    pub start_date: Option<DateTime<Utc>>,
-    /// 終了日時（Optional）
-    pub end_date: Option<DateTime<Utc>>,
+    /// 予定開始日時（Optional）
+    pub plan_start_date: Option<DateTime<Utc>>,
+    /// 予定終了日時（Optional）
+    pub plan_end_date: Option<DateTime<Utc>>,
+    /// 実開始日時（Optional）
+    pub do_start_date: Option<DateTime<Utc>>,
+    /// 実終了日時（Optional）
+    pub do_end_date: Option<DateTime<Utc>>,
     /// 期間指定フラグ（開始〜終了の期間タスク）
     pub is_range_date: Option<bool>,
     /// 繰り返しルール（定期タスク用）
@@ -185,8 +187,6 @@ pub struct TaskTree {
     pub id: TaskId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
     pub sub_task_id: Option<SubTaskId>, // 追加
-    /// 所属プロジェクトID
-    pub project_id: ProjectId,
     /// 所属タスクリストID
     pub list_id: TaskListId,
     /// タスクタイトル（必須）
@@ -197,10 +197,14 @@ pub struct TaskTree {
     pub status: TaskStatus, // StringからTaskStatusに修正
     /// 優先度（数値、高いほど優先）
     pub priority: i32,
-    /// 開始日時（Optional）
-    pub start_date: Option<DateTime<Utc>>,
-    /// 終了日時（Optional）
-    pub end_date: Option<DateTime<Utc>>,
+    /// 予定開始日時（Optional）
+    pub plan_start_date: Option<DateTime<Utc>>,
+    /// 予定終了日時（Optional）
+    pub plan_end_date: Option<DateTime<Utc>>,
+    /// 実開始日時（Optional）
+    pub do_start_date: Option<DateTime<Utc>>,
+    /// 実終了日時（Optional）
+    pub do_end_date: Option<DateTime<Utc>>,
     /// 期間指定フラグ（開始〜終了の期間タスク）
     pub is_range_date: Option<bool>, // 追加
     /// 繰り返しルール（定期タスク用）
@@ -226,14 +230,15 @@ impl CommandModelConverter<TaskCommand> for Task {
         Ok(TaskCommand {
             id: self.id.to_string(),
             sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
-            project_id: self.project_id.to_string(),
             list_id: self.list_id.to_string(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.start_date.map(|d| d.to_rfc3339()),
-            end_date: self.end_date.map(|d| d.to_rfc3339()),
+            plan_start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
+            plan_end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
+            do_start_date: self.do_start_date.map(|d| d.to_rfc3339()),
+            do_end_date: self.do_end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self
@@ -256,14 +261,15 @@ impl FromTreeModel<Task> for TaskTree {
         Ok(Task {
             id: self.id.clone(),
             sub_task_id: self.sub_task_id.clone(),
-            project_id: self.project_id.clone(),
             list_id: self.list_id.clone(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.start_date,
-            end_date: self.end_date,
+            plan_start_date: self.plan_start_date,
+            plan_end_date: self.plan_end_date,
+            do_start_date: self.do_start_date,
+            do_end_date: self.do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self.assigned_user_ids.clone(),
@@ -296,14 +302,15 @@ impl TreeCommandConverter<crate::models::command::task::TaskTreeCommand> for Tas
         Ok(crate::models::command::task::TaskTreeCommand {
             id: self.id.to_string(),
             sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
-            project_id: self.project_id.to_string(),
             list_id: self.list_id.to_string(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.start_date.map(|d| d.to_rfc3339()),
-            end_date: self.end_date.map(|d| d.to_rfc3339()),
+            plan_start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
+            plan_end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
+            do_start_date: self.do_start_date.map(|d| d.to_rfc3339()),
+            do_end_date: self.do_end_date.map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self

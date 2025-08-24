@@ -6,8 +6,6 @@ import type { TaskWithSubTasks } from './task';
 export interface TaskList {
   /** タスクリストID */
   id: string;
-  /** 所属プロジェクトID */
-  project_id: string;
   /** タスクリスト名 */
   name: string;
   /** タスクリストの説明 */
@@ -36,8 +34,6 @@ export interface TaskListWithTasks extends TaskList {
  * タスクリスト検索条件
  */
 export interface TaskListSearchCondition {
-  /** 所属プロジェクトID */
-  project_id?: string;
   /** タスクリスト名 */
   name?: string;
   /** アーカイブ状態 */
@@ -50,8 +46,6 @@ export interface TaskListSearchCondition {
  * タスクリスト部分更新用のパッチインターフェース
  */
 export interface TaskListPatch {
-  /** 所属プロジェクトID */
-  project_id?: string;
   /** タスクリスト名 */
   name?: string;
   /** タスクリストの説明 */

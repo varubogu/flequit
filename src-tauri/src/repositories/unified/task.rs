@@ -8,6 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::task::Task;
+use crate::types::id_types::ProjectId;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
 use crate::repositories::local_automerge::task::TaskLocalAutomergeRepository;
@@ -37,37 +38,9 @@ impl Repository<Task, TaskId> for TaskRepositoryVariant {
             Self::ProjectTree(repo) => {
                 // ProjectTreeの場合、まずタスクが既存かどうかを確認する
                 // 既存のタスクなら更新、新しいタスクなら追加
-                if let Ok(Some(project_tree)) = repo.get_project_tree(&entity.project_id).await {
-                    // プロジェクトツリー内で既存のタスクを探す
-                    let mut task_exists = false;
-                    for task_list in &project_tree.task_lists {
-                        for existing_task in &task_list.tasks {
-                            if existing_task.id == entity.id {
-                                task_exists = true;
-                                break;
-                            }
-                        }
-                        if task_exists {
-                            break;
-                        }
-                    }
-
-                    if task_exists {
-                        // 既存のタスクを更新
-                        repo.update_task(&entity.project_id, &entity.id, entity)
-                            .await
-                    } else {
-                        // 新しいタスクを追加
-                        repo.add_task_to_list(&entity.project_id, &entity.list_id, entity)
-                            .await
-                    }
-                } else {
-                    // プロジェクトが存在しない場合はエラー
-                    Err(RepositoryError::NotFound(format!(
-                        "Project {} not found",
-                        entity.project_id
-                    )))
-                }
+                // project_idがないため、簡素化して直接タスクを追加
+                repo.add_task_to_list(&ProjectId::from("default".to_string()), &entity.list_id, entity)
+                    .await
             }
         }
     }

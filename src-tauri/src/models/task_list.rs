@@ -78,8 +78,6 @@ pub struct TaskList {
     /// タスクリストの一意識別子
     #[partially(omit)] // IDは更新対象外
     pub id: TaskListId,
-    /// 所属プロジェクトの識別子（必須の関連）
-    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -164,8 +162,6 @@ pub struct TaskList {
 pub struct TaskListTree {
     /// タスクリストの一意識別子
     pub id: TaskListId,
-    /// 所属プロジェクトの識別子（必須の関連）
-    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -188,7 +184,7 @@ impl CommandModelConverter<TaskListCommand> for TaskList {
     async fn to_command_model(&self) -> Result<TaskListCommand, String> {
         Ok(TaskListCommand {
             id: self.id.to_string(),
-            project_id: self.project_id.to_string(),
+            // project_id: "default".to_string(), // project_id削除のため仮の値
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -205,7 +201,6 @@ impl FromTreeModel<TaskList> for TaskListTree {
         // TaskListTreeからTaskListに変換（関連データのtasksは除く）
         Ok(TaskList {
             id: self.id.clone(),
-            project_id: self.project_id.clone(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -229,7 +224,7 @@ impl TreeCommandConverter<crate::models::command::task_list::TaskListTreeCommand
 
         Ok(crate::models::command::task_list::TaskListTreeCommand {
             id: self.id.to_string(),
-            project_id: self.project_id.to_string(),
+            // project_id: "default".to_string(), // project_id削除のため仮の値
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),

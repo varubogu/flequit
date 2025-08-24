@@ -7,7 +7,6 @@ use crate::models::task_list::TaskList;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskListCommand {
     pub id: String,
-    pub project_id: String,
     pub name: String,
     pub description: Option<String>,
     pub color: Option<String>,
@@ -35,7 +34,6 @@ impl ModelConverter<TaskList> for TaskListCommand {
 
         Ok(crate::models::task_list::TaskList {
             id: TaskListId::from(self.id.clone()),
-            project_id: ProjectId::from(self.project_id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -51,7 +49,6 @@ impl ModelConverter<TaskList> for TaskListCommand {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskListTreeCommand {
     pub id: String,
-    pub project_id: String,
     pub name: String,
     pub description: Option<String>,
     pub color: Option<String>,

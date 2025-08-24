@@ -68,8 +68,10 @@ impl ModelConverter<SubTask> for SubtaskCommand {
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date,
-            end_date,
+            plan_start_date: start_date,
+            plan_end_date: end_date,
+            do_start_date: None,
+            do_end_date: None,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self

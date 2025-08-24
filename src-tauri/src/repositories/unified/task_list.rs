@@ -8,6 +8,7 @@ use log::info;
 
 use crate::errors::RepositoryError;
 use crate::models::task_list::TaskList;
+use crate::types::id_types::ProjectId;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
 use crate::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
@@ -35,7 +36,7 @@ impl Repository<TaskList, TaskListId> for TaskListRepositoryVariant {
             Self::Automerge(repo) => repo.save(entity).await,
             Self::ProjectTree(repo) => {
                 // ProjectTreeの場合、タスクリストをプロジェクトツリー内で追加/更新
-                repo.add_task_list(&entity.project_id, entity).await
+                repo.add_task_list(&ProjectId::from("default".to_string()), entity).await
             }
         }
     }

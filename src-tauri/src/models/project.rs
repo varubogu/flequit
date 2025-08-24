@@ -90,15 +90,15 @@ pub struct Project {
 /// - Member: タスク作成・編集
 /// - Viewer: 読み取り専用
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectMember {
+pub struct Member {
     /// メンバーのユーザーID
     pub user_id: UserId,
-    /// 所属プロジェクトID
-    pub project_id: ProjectId,
     /// プロジェクト内での役割（Owner、Member等）
     pub role: MemberRole,
     /// プロジェクト参加日時
     pub joined_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
 }
 
 /// タスクリストを含むプロジェクトツリー構造体

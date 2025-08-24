@@ -107,14 +107,15 @@ impl ProjectTreeLocalAutomergeRepository {
             let task_tree = TaskTree {
                 id: task.id.clone(),
                 sub_task_id: task.sub_task_id.clone(),
-                project_id: task.project_id.clone(),
                 list_id: task.list_id.clone(),
                 title: task.title.clone(),
                 description: task.description.clone(),
                 status: task.status.clone(),
                 priority: task.priority,
-                start_date: task.start_date,
-                end_date: task.end_date,
+                plan_start_date: task.plan_start_date,
+                plan_end_date: task.plan_end_date,
+                do_start_date: task.do_start_date,
+                do_end_date: task.do_end_date,
                 is_range_date: task.is_range_date,
                 recurrence_rule: task.recurrence_rule.clone(),
                 assigned_user_ids: task.assigned_user_ids.clone(),
@@ -142,7 +143,6 @@ impl ProjectTreeLocalAutomergeRepository {
             );
             let empty_task_list = TaskListTree {
                 id: *list_id,
-                project_id: *project_id,
                 name: format!("TaskList {}", list_id), // 仮の名前
                 description: None,
                 color: None,
@@ -185,14 +185,15 @@ impl ProjectTreeLocalAutomergeRepository {
                         let task_tree = TaskTree {
                             id: task.id.clone(),
                             sub_task_id: task.sub_task_id.clone(),
-                            project_id: task.project_id.clone(),
                             list_id: task.list_id.clone(),
                             title: task.title.clone(),
                             description: task.description.clone(),
                             status: task.status.clone(),
                             priority: task.priority,
-                            start_date: task.start_date,
-                            end_date: task.end_date,
+                            plan_start_date: task.plan_start_date,
+                            plan_end_date: task.plan_end_date,
+                            do_start_date: task.do_start_date,
+                            do_end_date: task.do_end_date,
                             is_range_date: task.is_range_date,
                             recurrence_rule: task.recurrence_rule.clone(),
                             assigned_user_ids: task.assigned_user_ids.clone(),
@@ -311,7 +312,6 @@ impl ProjectTreeLocalAutomergeRepository {
             // TaskListからTaskListTreeに変換（空のタスクリストで）
             let task_list_tree = TaskListTree {
                 id: task_list.id.clone(),
-                project_id: task_list.project_id.clone(),
                 name: task_list.name.clone(),
                 description: task_list.description.clone(),
                 color: task_list.color.clone(),
@@ -346,7 +346,6 @@ impl ProjectTreeLocalAutomergeRepository {
                     // 既存のタスクを保持してタスクリストを更新
                     let task_list_tree = TaskListTree {
                         id: task_list.id.clone(),
-                        project_id: task_list.project_id.clone(),
                         name: task_list.name.clone(),
                         description: task_list.description.clone(),
                         color: task_list.color.clone(),

@@ -10,14 +10,15 @@ use crate::models::task::Task;
 pub struct TaskCommand {
     pub id: String,
     pub sub_task_id: Option<String>,
-    pub project_id: String,
     pub list_id: String,
     pub title: String,
     pub description: Option<String>,
     pub status: TaskStatus,
     pub priority: i32,
-    pub start_date: Option<String>,
-    pub end_date: Option<String>,
+    pub plan_start_date: Option<String>,
+    pub plan_end_date: Option<String>,
+    pub do_start_date: Option<String>,
+    pub do_end_date: Option<String>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>,
@@ -42,7 +43,7 @@ impl ModelConverter<Task> for TaskCommand {
             .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
-        let start_date = if let Some(ref date_str) = self.start_date {
+        let plan_start_date = if let Some(ref date_str) = self.plan_start_date {
             Some(
                 date_str
                     .parse::<DateTime<Utc>>()
@@ -52,7 +53,7 @@ impl ModelConverter<Task> for TaskCommand {
             None
         };
 
-        let end_date = if let Some(ref date_str) = self.end_date {
+        let plan_end_date = if let Some(ref date_str) = self.plan_end_date {
             Some(
                 date_str
                     .parse::<DateTime<Utc>>()
@@ -62,7 +63,27 @@ impl ModelConverter<Task> for TaskCommand {
             None
         };
 
-        use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+        let do_start_date = if let Some(ref date_str) = self.do_start_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_start_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let do_end_date = if let Some(ref date_str) = self.do_end_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_end_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        use crate::types::id_types::{SubTaskId, TagId, TaskId, TaskListId, UserId};
 
         Ok(crate::models::task::Task {
             id: TaskId::from(self.id.clone()),
@@ -70,14 +91,15 @@ impl ModelConverter<Task> for TaskCommand {
                 .sub_task_id
                 .as_ref()
                 .map(|id| SubTaskId::from(id.clone())),
-            project_id: ProjectId::from(self.project_id.clone()),
             list_id: TaskListId::from(self.list_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date,
-            end_date,
+            plan_start_date,
+            plan_end_date,
+            do_start_date,
+            do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self
@@ -103,14 +125,15 @@ impl ModelConverter<Task> for TaskCommand {
 pub struct TaskTreeCommand {
     pub id: String,
     pub sub_task_id: Option<String>,
-    pub project_id: String,
     pub list_id: String,
     pub title: String,
     pub description: Option<String>,
     pub status: TaskStatus,
     pub priority: i32,
-    pub start_date: Option<String>,
-    pub end_date: Option<String>,
+    pub plan_start_date: Option<String>,
+    pub plan_end_date: Option<String>,
+    pub do_start_date: Option<String>,
+    pub do_end_date: Option<String>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRule>,
     pub assigned_user_ids: Vec<String>,
