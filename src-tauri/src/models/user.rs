@@ -21,7 +21,7 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 ///
 /// # フィールド
 ///
-/// * `id` - ユーザーの一意識別子
+/// * `id` - ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
 /// * `name` - ユーザー名（必須、表示やメンション等で使用）
 /// * `email` - メールアドレス（必須、通知や連絡で使用）
 /// * `avatar_url` - プロフィール画像URL（外部サービス由来）
@@ -41,6 +41,7 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 /// - **ユーザー中心設計**: アプリケーション内でのユーザー体験に特化
 /// - **プロフィール管理**: 表示名、アバター等のカスタマイズ可能な情報を重視
 /// - **認証分離**: 認証情報とユーザー情報を明確に分離
+/// - **公開設計**: 全フィールドが外部公開想定（内部IDと公開IDの分離不要）
 ///
 /// # 使用例
 ///
@@ -70,7 +71,7 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
 #[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct User {
-    /// ユーザーの一意識別子
+    /// ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
     #[partially(omit)] // IDは更新対象外
     pub id: UserId,
     /// ユーザー名（必須、表示やメンション等で使用）

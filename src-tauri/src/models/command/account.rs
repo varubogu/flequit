@@ -3,12 +3,13 @@ use uuid::Uuid;
 
 use crate::models::account::Account;
 use crate::models::command::ModelConverter;
-use crate::types::id_types::AccountId;
+use crate::types::id_types::{AccountId, UserId};
 
 /// Tauriコマンド引数用のAccount構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccountCommand {
     pub id: String,
+    pub user_id: String,
     pub email: Option<String>,
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,
@@ -36,6 +37,9 @@ impl ModelConverter<Account> for AccountCommand {
         Ok(crate::models::account::Account {
             id: AccountId::from(
                 Uuid::parse_str(&self.id).map_err(|e| format!("Invalid account ID: {}", e))?,
+            ),
+            user_id: UserId::from(
+                Uuid::parse_str(&self.user_id).map_err(|e| format!("Invalid user ID: {}", e))?,
             ),
             email: self.email.clone(),
             display_name: self.display_name.clone(),

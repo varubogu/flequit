@@ -8,7 +8,7 @@
 //! ローカル認証によるユーザーアカウント情報を表現します。
 //! ユーザー情報とは分離され、認証に特化したデータを管理します。
 
-use super::super::types::id_types::AccountId;
+use super::super::types::id_types::{AccountId, UserId};
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
@@ -22,7 +22,8 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// # フィールド
 ///
-/// * `id` - アカウントの一意識別子
+/// * `id` - アカウントの内部識別子（機密、外部公開禁止）
+/// * `user_id` - 公開ユーザー識別子（他者から参照可能、プロジェクト共有用）
 /// * `email` - メールアドレス（Optionalで、プロバイダーによっては取得不可）
 /// * `display_name` - プロバイダーから提供される表示名
 /// * `avatar_url` - プロフィール画像URL（プロバイダー提供）
@@ -37,6 +38,7 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 /// - **認証特化**: 認証に必要な情報のみを管理
 /// - **プロバイダー対応**: 複数の認証プロバイダーに対応可能な設計
 /// - **分離設計**: ユーザー情報と認証情報を明確に分離
+/// - **セキュリティ設計**: 内部ID（機密）と公開ID（外部参照用）の二重構造
 ///
 /// # 使用例
 ///
@@ -47,7 +49,8 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// // Google認証アカウントの例
 /// let google_account = Account {
-///     id: AccountId::new(),
+///     id: AccountId::new(),        // 内部ID（機密）
+///     user_id: UserId::new(),      // 公開ID（外部参照用）
 ///     email: Some("user@gmail.com".to_string()),
 ///     display_name: Some("John Doe".to_string()),
 ///     avatar_url: Some("https://lh3.googleusercontent.com/...".to_string()),
@@ -60,7 +63,8 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// // ローカル認証アカウントの例
 /// let local_account = Account {
-///     id: AccountId::new(),
+///     id: AccountId::new(),        // 内部ID（機密）
+///     user_id: UserId::new(),      // 公開ID（外部参照用）
 ///     email: Some("user@example.com".to_string()),
 ///     display_name: Some("ローカルユーザー".to_string()),
 ///     avatar_url: None,
@@ -74,9 +78,12 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
 #[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Account {
-    /// アカウントの一意識別子
+    /// アカウントの内部識別子（機密、外部公開禁止）
     #[partially(omit)] // IDは更新対象外
     pub id: AccountId,
+    /// 公開ユーザー識別子（他者から参照可能、プロジェクト共有用）
+    #[partially(omit)] // IDは更新対象外
+    pub user_id: UserId,
     /// メールアドレス（プロバイダーによっては取得不可）
     pub email: Option<String>,
     /// プロバイダーから提供される表示名
@@ -99,6 +106,7 @@ impl CommandModelConverter<AccountCommand> for Account {
     async fn to_command_model(&self) -> Result<AccountCommand, String> {
         Ok(AccountCommand {
             id: self.id.to_string(),
+            user_id: self.user_id.to_string(),
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),

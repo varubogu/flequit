@@ -1,5 +1,6 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
 
+// このコンポーネント専用のUser型（簡略版）
 export interface User {
   id: string;
   name: string;
