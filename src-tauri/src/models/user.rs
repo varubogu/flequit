@@ -5,7 +5,16 @@
 //! ## 概要
 //!
 //! `User`構造体は、アプリケーション内でのユーザープロフィール情報を表現します。
+//! `UserDocument`構造体は、複数のユーザー情報を配列として管理するAutomergeドキュメントです。
 //! 認証情報（`Account`）とは分離され、ユーザーの実体情報を管理します。
+//!
+//! ## 操作制約
+//!
+//! User Documentは以下の特別な制約があります：
+//! - **追加**: 新しいユーザープロフィールの追加は常に可能
+//! - **更新**: 既存のユーザープロフィールの更新は可能
+//! - **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
+//! - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
 use super::super::types::id_types::UserId;
 use chrono::{DateTime, Utc};
@@ -13,6 +22,16 @@ use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::models::{command::user::UserCommand, CommandModelConverter};
+
+/// User Documentを表現する構造体（Automergeドキュメント）
+///
+/// 複数のユーザーをusersr配列として管理します。
+/// 追加・更新のみ可能で、削除は不可という制約があります。
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserDocument {
+    /// ユーザー情報配列（追加・更新のみ、削除不可）
+    pub users: Vec<User>,
+}
 
 /// アプリケーションユーザー情報を表現する構造体
 ///
@@ -22,12 +41,13 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 /// # フィールド
 ///
 /// * `id` - ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
-/// * `name` - ユーザー名（必須、表示やメンション等で使用）
-/// * `email` - メールアドレス（必須、通知や連絡で使用）
-/// * `avatar_url` - プロフィール画像URL（外部サービス由来）
-/// * `avatar` - ローカル保存されたアバター情報（Svelteフロントエンド対応）
-/// * `username` - ユニークユーザー名（@mention等で使用）
+/// * `username` - ユニークユーザー名（必須、@mention等で使用）
 /// * `display_name` - 表示用名前（UI表示用、任意設定可能）
+/// * `email` - メールアドレス（任意、通知や連絡で使用）
+/// * `avatar_url` - プロフィール画像URL（外部サービス由来）
+/// * `bio` - 自己紹介文（任意）
+/// * `timezone` - タイムゾーン（任意）
+/// * `is_active` - アクティブ状態（必須）
 /// * `created_at` - ユーザー作成日時
 /// * `updated_at` - プロフィール最終更新日時
 ///
@@ -52,12 +72,13 @@ use crate::models::{command::user::UserCommand, CommandModelConverter};
 ///
 /// let user = User {
 ///     id: UserId::new(),
-///     name: "john_doe".to_string(),
-///     email: "john@example.com".to_string(),
-///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
-///     avatar: None,
-///     username: Some("john_doe".to_string()),
+///     username: "john_doe".to_string(),
 ///     display_name: Some("John Doe".to_string()),
+///     email: Some("john@example.com".to_string()),
+///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
+///     bio: Some("Software developer".to_string()),
+///     timezone: Some("America/New_York".to_string()),
+///     is_active: true,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
 /// };
@@ -74,18 +95,20 @@ pub struct User {
     /// ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
     #[partially(omit)] // IDは更新対象外
     pub id: UserId,
-    /// ユーザー名（必須、表示やメンション等で使用）
-    pub name: String,
-    /// メールアドレス（必須、通知や連絡で使用）
-    pub email: String,
-    /// プロフィール画像URL（外部サービス由来）
-    pub avatar_url: Option<String>, // avatar_urlフィールド（診断エラー対応用に追加フィールドも）
-    /// ローカル保存されたアバター情報（Svelteフロントエンド対応）
-    pub avatar: Option<String>, // Svelte側のavatarフィールドに対応
-    /// ユニークユーザー名（@mention等で使用）
-    pub username: Option<String>, // 診断エラーで必要とされているフィールド
+    /// ユニークユーザー名（必須、@mention等で使用）
+    pub username: String,
     /// 表示用名前（UI表示用、任意設定可能）
-    pub display_name: Option<String>, // 診断エラーで必要とされているフィールド
+    pub display_name: Option<String>,
+    /// メールアドレス（任意、通知や連絡で使用）
+    pub email: Option<String>,
+    /// プロフィール画像URL（外部サービス由来）
+    pub avatar_url: Option<String>,
+    /// 自己紹介文（任意）
+    pub bio: Option<String>,
+    /// タイムゾーン（任意）
+    pub timezone: Option<String>,
+    /// アクティブ状態（必須）
+    pub is_active: bool,
     /// ユーザー作成日時
     pub created_at: DateTime<Utc>,
     /// プロフィール最終更新日時
@@ -96,12 +119,13 @@ impl CommandModelConverter<UserCommand> for User {
     async fn to_command_model(&self) -> Result<UserCommand, String> {
         Ok(UserCommand {
             id: self.id.to_string(),
-            name: self.name.clone(),
-            email: self.email.clone(),
-            avatar_url: self.avatar_url.clone(),
-            avatar: self.avatar.clone(),
             username: self.username.clone(),
             display_name: self.display_name.clone(),
+            email: self.email.clone(),
+            avatar_url: self.avatar_url.clone(),
+            bio: self.bio.clone(),
+            timezone: self.timezone.clone(),
+            is_active: self.is_active,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
         })

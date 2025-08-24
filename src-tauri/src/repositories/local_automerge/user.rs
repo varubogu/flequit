@@ -86,7 +86,7 @@ impl UserLocalAutomergeRepository {
     /// メールアドレスでユーザーを検索
     pub async fn find_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError> {
         let users = self.list_users().await?;
-        Ok(users.into_iter().find(|user| user.email == email))
+        Ok(users.into_iter().find(|user| user.email.as_ref() == Some(&email.to_string())))
     }
 
     /// ユーザー名でユーザーを検索
@@ -94,15 +94,15 @@ impl UserLocalAutomergeRepository {
         let users = self.list_users().await?;
         Ok(users
             .into_iter()
-            .find(|user| user.username.as_ref() == Some(&username.to_string())))
+            .find(|user| user.username == username))
     }
 
-    /// 名前でユーザーを検索（部分一致）
+    /// ユーザー名でユーザーを検索（部分一致）
     pub async fn find_by_name_partial(&self, name: &str) -> Result<Vec<User>, RepositoryError> {
         let users = self.list_users().await?;
         Ok(users
             .into_iter()
-            .filter(|user| user.name.contains(name))
+            .filter(|user| user.username.contains(name))
             .collect())
     }
 
@@ -232,12 +232,13 @@ mod tests {
         let test_user_id = UserId::new();
         let user = User {
             id: test_user_id,
-            name: "test_user".to_string(),
-            email: "test@example.com".to_string(),
-            avatar_url: None,
-            avatar: None,
-            username: Some("testuser".to_string()),
+            username: "testuser".to_string(),
             display_name: Some("Test User".to_string()),
+            email: Some("test@example.com".to_string()),
+            avatar_url: None,
+            bio: Some("Test bio".to_string()),
+            timezone: Some("UTC".to_string()),
+            is_active: true,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
@@ -249,12 +250,13 @@ mod tests {
         let test_user_id2 = UserId::new();
         let user2 = User {
             id: test_user_id2,
-            name: "second_user".to_string(),
-            email: "user2@example.com".to_string(),
-            avatar_url: Some("https://example.com/avatar2.png".to_string()),
-            avatar: None,
-            username: Some("seconduser".to_string()),
+            username: "seconduser".to_string(),
             display_name: Some("Second User".to_string()),
+            email: Some("user2@example.com".to_string()),
+            avatar_url: Some("https://example.com/avatar2.png".to_string()),
+            bio: None,
+            timezone: Some("Asia/Tokyo".to_string()),
+            is_active: true,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
@@ -272,19 +274,19 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(retrieved1.name, "test_user");
-        assert_eq!(retrieved1.email, "test@example.com");
-        assert_eq!(retrieved1.username, Some("testuser".to_string()));
+        assert_eq!(retrieved1.username, "testuser");
+        assert_eq!(retrieved1.email, Some("test@example.com".to_string()));
         assert_eq!(retrieved1.display_name, Some("Test User".to_string()));
+        assert!(retrieved1.is_active);
 
         let retrieved2 = repo
             .get_user(&test_user_id2.to_string())
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(retrieved2.name, "second_user");
-        assert_eq!(retrieved2.email, "user2@example.com");
-        assert_eq!(retrieved2.username, Some("seconduser".to_string()));
+        assert_eq!(retrieved2.username, "seconduser");
+        assert_eq!(retrieved2.email, Some("user2@example.com".to_string()));
+        assert_eq!(retrieved2.display_name, Some("Second User".to_string()));
 
         // 検索テスト
         let found_by_email = repo.find_by_email("test@example.com").await.unwrap();
@@ -326,12 +328,13 @@ mod tests {
         let test_user_id = UserId::new();
         let user = User {
             id: test_user_id,
-            name: "repo_test_user".to_string(),
-            email: "repo_test@example.com".to_string(),
-            avatar_url: None,
-            avatar: None,
-            username: Some("repotestuser".to_string()),
+            username: "repotestuser".to_string(),
             display_name: Some("Repository Test User".to_string()),
+            email: Some("repo_test@example.com".to_string()),
+            avatar_url: None,
+            bio: None,
+            timezone: None,
+            is_active: true,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
@@ -341,7 +344,7 @@ mod tests {
 
         let found = repository.find_by_id(&test_user_id).await.unwrap();
         assert!(found.is_some());
-        assert_eq!(found.unwrap().email, "repo_test@example.com");
+        assert_eq!(found.unwrap().email, Some("repo_test@example.com".to_string()));
 
         let exists = repository.exists(&test_user_id).await.unwrap();
         assert!(exists);

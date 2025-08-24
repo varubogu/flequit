@@ -76,8 +76,8 @@ impl UserLocalSqliteRepository {
         let db = db_manager.get_connection().await?;
 
         let models = UserEntity::find()
-            .filter(Column::Name.contains(name))
-            .order_by_asc(Column::Name)
+            .filter(Column::Username.contains(name))
+            .order_by_asc(Column::Username)
             .all(db)
             .await?;
 
@@ -162,12 +162,13 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
                 .await
                 .map_err(RepositoryError::Conversion)?;
 
-            active_model.name = new_active.name;
-            active_model.email = new_active.email;
-            active_model.avatar_url = new_active.avatar_url;
-            active_model.avatar = new_active.avatar;
             active_model.username = new_active.username;
             active_model.display_name = new_active.display_name;
+            active_model.email = new_active.email;
+            active_model.avatar_url = new_active.avatar_url;
+            active_model.bio = new_active.bio;
+            active_model.timezone = new_active.timezone;
+            active_model.is_active = new_active.is_active;
             active_model.updated_at = new_active.updated_at;
 
             active_model.update(db).await?;

@@ -1,24 +1,31 @@
 /**
+ * User Documentを表現するインターフェース（Automergeドキュメント）
+ * 複数のユーザーを配列として管理し、追加・更新のみ可能で削除は不可
+ */
+export interface UserDocument {
+  /** ユーザー情報配列（追加・更新のみ、削除不可） */
+  users: User[];
+}
+
+/**
  * ユーザー（ユーザー情報・全情報が公開想定）
  */
 export interface User {
   /** ユーザーの公開識別子（他者から参照可能、プロジェクト共有用） */
   id: string;
-  /** ユーザー名 */
+  /** ユニークユーザー名（必須、@mention等で使用） */
   username: string;
-  /** 表示名 */
+  /** 表示名（UI表示用、任意設定可能） */
   display_name?: string;
-  /** メールアドレス */
+  /** メールアドレス（任意、通知や連絡で使用） */
   email?: string;
-  /** アバターURL */
+  /** アバターURL（外部サービス由来） */
   avatar_url?: string;
-  /** ローカル保存アバター */
-  avatar?: string;
-  /** 自己紹介 */
+  /** 自己紹介文（任意） */
   bio?: string;
-  /** タイムゾーン */
+  /** タイムゾーン（任意） */
   timezone?: string;
-  /** アクティブ状態 */
+  /** アクティブ状態（必須） */
   is_active: boolean;
   /** 作成日時 */
   created_at: Date;
@@ -28,9 +35,10 @@ export interface User {
 
 /**
  * ユーザー部分更新用のパッチインターフェース
+ * 自分のAccount.user_idにマッチするプロフィールのみ更新可能
  */
 export interface UserPatch {
-  /** ユーザー名 */
+  /** ユニークユーザー名 */
   username?: string;
   /** 表示名 */
   display_name?: string | null;
@@ -38,8 +46,6 @@ export interface UserPatch {
   email?: string | null;
   /** アバターURL */
   avatar_url?: string | null;
-  /** ローカル保存アバター */
-  avatar?: string | null;
   /** 自己紹介 */
   bio?: string | null;
   /** タイムゾーン */

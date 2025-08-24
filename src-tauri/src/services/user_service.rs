@@ -1,10 +1,23 @@
 use chrono::Utc;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::user::User;
+use crate::models::{account::Account, user::User};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
 use crate::types::id_types::UserId;
+
+/// ユーザープロフィールの編集権限をチェック
+/// 自分のAccount.user_idにマッチするプロフィールのみ編集可能
+pub async fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {
+    current_account.user_id == *target_user_id
+}
+
+/// User Documentの特別な操作制約を実装するための削除制限エラー
+fn deletion_not_allowed_error() -> ServiceError {
+    ServiceError::ValidationError(
+        "User profile deletion is not allowed. User information is accumulated and cannot be deleted.".to_string()
+    )
+}
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_user(user: &User) -> Result<(), ServiceError> {
@@ -31,7 +44,7 @@ pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError
     // UserLocalSqliteRepositoryのfind_by_emailメソッドを使用
     // 注意: これは統合リポジトリ経由では直接アクセスできないため、一時的にfind_allで検索
     let users = repository.users.find_all().await?;
-    Ok(users.into_iter().find(|u| u.email == email))
+    Ok(users.into_iter().find(|u| u.email.as_ref() == Some(&email.to_string())))
 }
 
 #[tracing::instrument(level = "trace")]
@@ -46,9 +59,31 @@ pub async fn update_user(user: &User) -> Result<(), ServiceError> {
     Ok(())
 }
 
-pub async fn delete_user(user_id: &UserId) -> Result<(), ServiceError> {
+/// ユーザープロフィールの削除は設計上不可
+/// User Documentは情報蓄積方式のため削除操作は制限されています
+pub async fn delete_user(_user_id: &UserId) -> Result<(), ServiceError> {
+    Err(deletion_not_allowed_error())
+}
+
+/// 編集権限チェック付きでユーザープロフィールを更新
+/// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
+pub async fn update_user_with_permission_check(
+    current_account: &Account,
+    user: &User,
+) -> Result<(), ServiceError> {
+    // 編集権限チェック
+    if !can_edit_user_profile(current_account, &user.id).await {
+        return Err(ServiceError::Forbidden(
+            "You can only edit your own user profile".to_string(),
+        ));
+    }
+
+    // プロフィール更新
+    let mut updated_user = user.clone();
+    updated_user.updated_at = Utc::now();
+    
     let repository = Repositories::new().await?;
-    repository.users.delete(user_id).await?;
+    repository.users.save(&updated_user).await?;
     Ok(())
 }
 
@@ -56,15 +91,20 @@ pub async fn search_users(query: &str) -> Result<Vec<User>, ServiceError> {
     let repository = Repositories::new().await?;
     let users = repository.users.find_all().await?;
 
-    // 名前、表示名、メールアドレスで部分一致検索
+    // ユーザー名、表示名、メールアドレス、自己紹介で部分一致検索
     let filtered_users = users
         .into_iter()
         .filter(|user| {
-            user.name.to_lowercase().contains(&query.to_lowercase())
+            user.username.to_lowercase().contains(&query.to_lowercase())
                 || user.display_name.as_ref().map_or(false, |dn| {
                     dn.to_lowercase().contains(&query.to_lowercase())
                 })
-                || user.email.to_lowercase().contains(&query.to_lowercase())
+                || user.email.as_ref().map_or(false, |email| {
+                    email.to_lowercase().contains(&query.to_lowercase())
+                })
+                || user.bio.as_ref().map_or(false, |bio| {
+                    bio.to_lowercase().contains(&query.to_lowercase())
+                })
         })
         .collect();
 
@@ -77,18 +117,33 @@ pub async fn is_email_exists(email: &str, exclude_id: Option<&str>) -> Result<bo
 
     let exists = users
         .iter()
-        .any(|user| user.email == email && exclude_id.map_or(true, |id| user.id.to_string() != id));
+        .any(|user| {
+            user.email.as_ref().map_or(false, |user_email| user_email == email)
+                && exclude_id.map_or(true, |id| user.id.to_string() != id)
+        });
 
     Ok(exists)
 }
 
+/// 編集権限チェック付きでユーザープロフィールを更新
+/// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
 pub async fn update_user_profile(
+    current_account: &Account,
     user_id: &str,
     display_name: &Option<String>,
     avatar_url: &Option<String>,
+    bio: &Option<String>,
+    timezone: &Option<String>,
 ) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     let user_id_typed = UserId::from(user_id.to_string());
+
+    // 編集権限チェック
+    if !can_edit_user_profile(current_account, &user_id_typed).await {
+        return Err(ServiceError::Forbidden(
+            "You can only edit your own user profile".to_string(),
+        ));
+    }
 
     if let Some(mut user) = repository.users.find_by_id(&user_id_typed).await? {
         if let Some(dn) = display_name {
@@ -96,6 +151,12 @@ pub async fn update_user_profile(
         }
         if let Some(avatar) = avatar_url {
             user.avatar_url = Some(avatar.clone());
+        }
+        if let Some(bio_text) = bio {
+            user.bio = Some(bio_text.clone());
+        }
+        if let Some(tz) = timezone {
+            user.timezone = Some(tz.clone());
         }
         user.updated_at = Utc::now();
 

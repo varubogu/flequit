@@ -7,12 +7,13 @@ use crate::models::user::User;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCommand {
     pub id: String,
-    pub name: String,
-    pub email: String,
-    pub avatar_url: Option<String>,
-    pub avatar: Option<String>,
-    pub username: Option<String>,
+    pub username: String,
     pub display_name: Option<String>,
+    pub email: Option<String>,
+    pub avatar_url: Option<String>,
+    pub bio: Option<String>,
+    pub timezone: Option<String>,
+    pub is_active: bool,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -35,12 +36,13 @@ impl ModelConverter<User> for UserCommand {
 
         Ok(crate::models::user::User {
             id: UserId::from(self.id.clone()),
-            name: self.name.clone(),
-            email: self.email.clone(),
-            avatar_url: self.avatar_url.clone(),
-            avatar: self.avatar.clone(),
             username: self.username.clone(),
             display_name: self.display_name.clone(),
+            email: self.email.clone(),
+            avatar_url: self.avatar_url.clone(),
+            bio: self.bio.clone(),
+            timezone: self.timezone.clone(),
+            is_active: self.is_active,
             created_at,
             updated_at,
         })

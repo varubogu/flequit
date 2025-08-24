@@ -11,6 +11,8 @@ pub enum ServiceError {
     InvalidArgument(String),
     #[error("Not found: {0}")]
     NotFound(String),
+    #[error("Forbidden: {0}")]
+    Forbidden(String),
     // #[error("Conflict: {0}")]
     // Conflict(String),
     #[error("Internal error: {0}")]
