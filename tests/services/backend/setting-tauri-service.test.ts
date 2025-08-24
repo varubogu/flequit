@@ -79,12 +79,7 @@ describe('SettingTauriService', () => {
         timezone: 'system',
         date_format: 'yyyy-MM-dd',
         custom_due_days: [1, 3, 7],
-        selected_account: 'local',
-        account_icon: null,
-        account_name: 'Test User',
-        email: 'test@example.com',
-        password: '',
-        server_url: ''
+        last_selected_account: 'local'
       };
       mockInvoke.mockResolvedValue(mockTauriSettings);
 

@@ -5,12 +5,7 @@
 
   interface Props {
     settings: {
-      selectedAccount: string;
-      accountIcon: string | null;
-      accountName: string;
-      email: string;
-      password: string;
-      serverUrl: string;
+      lastSelectedAccount: string;
     };
   }
 
@@ -45,7 +40,7 @@
           <label for="account-type" class="text-sm font-medium">{account_type()}</label>
           <select
             id="account-type"
-            bind:value={settings.selectedAccount}
+            bind:value={settings.lastSelectedAccount}
             class="border-input bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 text-sm"
           >
             <option value="local">{local_account()}</option>
@@ -53,50 +48,10 @@
           </select>
         </div>
 
-        {#if settings.selectedAccount !== 'local'}
-          <!-- Organization Info (Read-only) -->
-          <div class="bg-muted max-w-lg rounded-lg p-4">
-            <h4 class="mb-2 font-medium">{organization()}</h4>
-            <div class="mb-2 flex items-center gap-3">
-              <div class="bg-primary h-8 w-8 rounded-full"></div>
-              <span class="text-sm">{example_organization()}</span>
-            </div>
-          </div>
-
-          <!-- Account Details -->
-          <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
-            <!-- Account Icon -->
-            <div>
-              <div class="mb-1 text-sm font-medium">{account_icon()}</div>
-              <Button variant="outline" class="mt-1 w-full">
-                {choose_file()}
-              </Button>
-            </div>
-
-            <!-- Account Name -->
-            <div>
-              <label for="account-name" class="text-sm font-medium">{account_name()}</label>
-              <Input id="account-name" bind:value={settings.accountName} class="mt-1" />
-            </div>
-
-            <!-- Email -->
-            <div>
-              <label for="email-address" class="text-sm font-medium">{email_address()}</label>
-              <Input id="email-address" type="email" bind:value={settings.email} class="mt-1" />
-            </div>
-
-            <!-- Password -->
-            <div>
-              <label for="password" class="text-sm font-medium">{password()}</label>
-              <Input id="password" type="password" bind:value={settings.password} class="mt-1" />
-            </div>
-
-            <!-- Server URL -->
-            <div class="md:col-span-2">
-              <label for="server-url" class="text-sm font-medium">{server_url()}</label>
-              <Input id="server-url" bind:value={settings.serverUrl} class="mt-1" />
-            </div>
-          </div>
+        {#if settings.lastSelectedAccount !== 'local'}
+          <p class="text-muted-foreground bg-muted max-w-2xl rounded-lg p-4 text-sm">
+            Cloud account functionality will be available in future versions.
+          </p>
         {:else}
           <p class="text-muted-foreground bg-muted max-w-2xl rounded-lg p-4 text-sm">
             {local_account_description()}

@@ -132,12 +132,7 @@ pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
         "week_start" => Some(settings.week_start),
         "timezone" => Some(settings.timezone),
         "date_format" => Some(settings.date_format),
-        "selected_account" => Some(settings.selected_account),
-        "account_name" => Some(settings.account_name),
-        "email" => Some(settings.email),
-        "password" => Some(settings.password),
-        "server_url" => Some(settings.server_url),
-        "account_icon" => settings.account_icon,
+        "last_selected_account" => Some(settings.last_selected_account),
         _ => None,
     };
 

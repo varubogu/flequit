@@ -147,16 +147,6 @@ export interface Settings {
   viewItems: ViewItem[];
 
   // アカウント設定
-  /** 選択中のアカウント */
-  selectedAccount: string;
-  /** アカウントアイコン */
-  accountIcon: string | null;
-  /** アカウント名 */
-  accountName: string;
-  /** メールアドレス */
-  email: string;
-  /** パスワード */
-  password: string;
-  /** サーバーURL */
-  serverUrl: string;
+  /** 最後に選択されたアカウントID */
+  lastSelectedAccount: string;
 }

@@ -18,12 +18,7 @@ interface TauriSettingsCommand {
   custom_due_days: number[];
   // 表示設定
   // アカウント設定
-  selected_account: string;
-  account_icon?: string;
-  account_name: string;
-  email: string;
-  password: string;
-  server_url: string;
+  last_selected_account: string;
 }
 
 export class SettingTauriService implements SettingService {

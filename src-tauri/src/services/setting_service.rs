@@ -84,18 +84,9 @@ pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), Serv
         "date_format" => {
             current_settings.date_format = value.as_str().unwrap_or_default().to_string()
         }
-        "selected_account" => {
-            current_settings.selected_account = value.as_str().unwrap_or_default().to_string()
+        "last_selected_account" => {
+            current_settings.last_selected_account = value.as_str().unwrap_or_default().to_string()
         }
-        "account_name" => {
-            current_settings.account_name = value.as_str().unwrap_or_default().to_string()
-        }
-        "email" => current_settings.email = value.as_str().unwrap_or_default().to_string(),
-        "password" => current_settings.password = value.as_str().unwrap_or_default().to_string(),
-        "server_url" => {
-            current_settings.server_url = value.as_str().unwrap_or_default().to_string()
-        }
-        "account_icon" => current_settings.account_icon = value.as_str().map(|s| s.to_string()),
         // JSONフィールドの場合
         "custom_due_days" => {
             if let Ok(days) = serde_json::from_value(value) {

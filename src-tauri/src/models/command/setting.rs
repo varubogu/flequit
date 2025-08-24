@@ -73,12 +73,7 @@ pub struct SettingsCommand {
     pub view_items: Vec<ViewItem>,
 
     // アカウント設定
-    pub selected_account: String,
-    pub account_icon: Option<String>,
-    pub account_name: String,
-    pub email: String,
-    pub password: String,
-    pub server_url: String,
+    pub last_selected_account: String,
 }
 
 impl ModelConverter<Settings> for SettingsCommand {
@@ -100,12 +95,7 @@ impl ModelConverter<Settings> for SettingsCommand {
             time_labels: self.time_labels.clone(),
             due_date_buttons: self.due_date_buttons.clone(),
             view_items: self.view_items.clone(),
-            selected_account: self.selected_account.clone(),
-            account_icon: self.account_icon.clone(),
-            account_name: self.account_name.clone(),
-            email: self.email.clone(),
-            password: self.password.clone(),
-            server_url: self.server_url.clone(),
+            last_selected_account: self.last_selected_account.clone(),
         })
     }
 }
@@ -217,12 +207,7 @@ impl CommandModelConverter<SettingsCommand> for Settings {
             time_labels: self.time_labels.clone(),
             due_date_buttons: self.due_date_buttons.clone(),
             view_items: self.view_items.clone(),
-            selected_account: self.selected_account.clone(),
-            account_icon: self.account_icon.clone(),
-            account_name: self.account_name.clone(),
-            email: self.email.clone(),
-            password: self.password.clone(),
-            server_url: self.server_url.clone(),
+            last_selected_account: self.last_selected_account.clone(),
         })
     }
 }

@@ -4,21 +4,11 @@ import SettingsAccount from '$lib/components/settings/account/settings-account.s
 
 describe('SettingsAccount Component', () => {
   const defaultSettings = {
-    selectedAccount: 'local',
-    accountIcon: null,
-    accountName: '',
-    email: '',
-    password: '',
-    serverUrl: ''
+    lastSelectedAccount: 'local'
   };
 
   const cloudSettings = {
-    selectedAccount: 'cloud',
-    accountIcon: null,
-    accountName: 'Test User',
-    email: 'test@example.com',
-    password: 'password123',
-    serverUrl: 'https://api.example.com'
+    lastSelectedAccount: 'cloud'
   };
 
   beforeEach(() => {
@@ -89,7 +79,7 @@ describe('SettingsAccount Component', () => {
   });
 
   test('should render account type select with correct value', () => {
-    const settings = { ...defaultSettings, selectedAccount: 'cloud' };
+    const settings = { ...defaultSettings, lastSelectedAccount: 'cloud' };
     render(SettingsAccount, { settings });
 
     const accountTypeSelect = screen.getByLabelText('Account Type') as HTMLSelectElement;

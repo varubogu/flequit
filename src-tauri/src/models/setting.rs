@@ -198,18 +198,8 @@ pub struct Settings {
     pub view_items: Vec<ViewItem>,
 
     // アカウント設定
-    /// 選択中のアカウント
-    pub selected_account: String,
-    /// アカウントアイコン
-    pub account_icon: Option<String>,
-    /// アカウント名
-    pub account_name: String,
-    /// メールアドレス
-    pub email: String,
-    /// パスワード
-    pub password: String,
-    /// サーバーURL
-    pub server_url: String,
+    /// 最後に選択されたアカウントID
+    pub last_selected_account: String,
 }
 
 impl Default for Settings {
@@ -230,12 +220,7 @@ impl Default for Settings {
             time_labels: vec![],
             due_date_buttons: DueDateButtons::default(),
             view_items: vec![],
-            selected_account: String::new(),
-            account_icon: None,
-            account_name: String::new(),
-            email: String::new(),
-            password: String::new(),
-            server_url: String::new(),
+            last_selected_account: String::new(),
         }
     }
 }

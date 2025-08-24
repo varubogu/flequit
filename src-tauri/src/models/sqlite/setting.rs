@@ -61,23 +61,8 @@ pub struct Model {
     /// ビューアイテム (JSON形式)
     pub view_items: String,
 
-    /// 選択中アカウント
+    /// 最後に選択されたアカウントID
     pub selected_account: String,
-
-    /// アカウントアイコン
-    pub account_icon: Option<String>,
-
-    /// アカウント名
-    pub account_name: String,
-
-    /// メールアドレス
-    pub email: String,
-
-    /// パスワード（暗号化済み）
-    pub password: String,
-
-    /// サーバーURL
-    pub server_url: String,
 
     /// 作成日時
     pub created_at: DateTime<Utc>,
@@ -127,12 +112,7 @@ impl SqliteModelConverter<Settings> for Model {
             time_labels,
             due_date_buttons,
             view_items,
-            selected_account: self.selected_account.clone(),
-            account_icon: self.account_icon.clone(),
-            account_name: self.account_name.clone(),
-            email: self.email.clone(),
-            password: self.password.clone(),
-            server_url: self.server_url.clone(),
+            last_selected_account: self.selected_account.clone(),
         })
     }
 }
@@ -172,12 +152,7 @@ impl DomainToSqliteConverter<ActiveModel> for Settings {
             time_labels: Set(time_labels_json),
             due_date_buttons: Set(due_date_buttons_json),
             view_items: Set(view_items_json),
-            selected_account: Set(self.selected_account.clone()),
-            account_icon: Set(self.account_icon.clone()),
-            account_name: Set(self.account_name.clone()),
-            email: Set(self.email.clone()),
-            password: Set(self.password.clone()),
-            server_url: Set(self.server_url.clone()),
+            selected_account: Set(self.last_selected_account.clone()),
             created_at: Set(Utc::now()),
             updated_at: Set(Utc::now()),
         })

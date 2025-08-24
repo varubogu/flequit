@@ -58,12 +58,7 @@ const DEFAULT_SETTINGS: Settings = {
   ],
 
   // アカウント設定
-  selectedAccount: '',
-  accountIcon: null,
-  accountName: '',
-  email: '',
-  password: '',
-  serverUrl: ''
+  lastSelectedAccount: ''
 };
 
 /**
@@ -316,58 +311,13 @@ class MainSettingsStore {
   /**
    * アカウント設定
    */
-  get selectedAccount(): string {
-    return this._settings.selectedAccount;
+  get lastSelectedAccount(): string {
+    return this._settings.lastSelectedAccount;
   }
 
-  setSelectedAccount(selectedAccount: string): void {
-    this._settings.selectedAccount = selectedAccount;
-    this.saveSingleSetting('selectedAccount', selectedAccount, 'string');
-  }
-
-  get accountIcon(): string | null {
-    return this._settings.accountIcon;
-  }
-
-  setAccountIcon(accountIcon: string | null): void {
-    this._settings.accountIcon = accountIcon;
-    this.saveSingleSetting('accountIcon', accountIcon || '', 'string');
-  }
-
-  get accountName(): string {
-    return this._settings.accountName;
-  }
-
-  setAccountName(accountName: string): void {
-    this._settings.accountName = accountName;
-    this.saveSingleSetting('accountName', accountName, 'string');
-  }
-
-  get email(): string {
-    return this._settings.email;
-  }
-
-  setEmail(email: string): void {
-    this._settings.email = email;
-    this.saveSingleSetting('email', email, 'string');
-  }
-
-  get password(): string {
-    return this._settings.password;
-  }
-
-  setPassword(password: string): void {
-    this._settings.password = password;
-    this.saveSingleSetting('password', password, 'string');
-  }
-
-  get serverUrl(): string {
-    return this._settings.serverUrl;
-  }
-
-  setServerUrl(serverUrl: string): void {
-    this._settings.serverUrl = serverUrl;
-    this.saveSingleSetting('serverUrl', serverUrl, 'string');
+  setLastSelectedAccount(lastSelectedAccount: string): void {
+    this._settings.lastSelectedAccount = lastSelectedAccount;
+    this.saveSingleSetting('lastSelectedAccount', lastSelectedAccount, 'string');
   }
 
   /**
@@ -526,28 +476,8 @@ class MainSettingsStore {
             break;
 
           // アカウント設定
-          case 'selectedAccount':
-            this._settings.selectedAccount = setting.value;
-            loadedCount++;
-            break;
-          case 'accountIcon':
-            this._settings.accountIcon = setting.value || null;
-            loadedCount++;
-            break;
-          case 'accountName':
-            this._settings.accountName = setting.value;
-            loadedCount++;
-            break;
-          case 'email':
-            this._settings.email = setting.value;
-            loadedCount++;
-            break;
-          case 'password':
-            this._settings.password = setting.value;
-            loadedCount++;
-            break;
-          case 'serverUrl':
-            this._settings.serverUrl = setting.value;
+          case 'lastSelectedAccount':
+            this._settings.lastSelectedAccount = setting.value;
             loadedCount++;
             break;
         }
