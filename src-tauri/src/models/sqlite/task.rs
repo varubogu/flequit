@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::models::task::Task;
+use crate::types::id_types::{SubTaskId, TaskId, TaskListId};
 use crate::types::task_types::TaskStatus;
 
 /// Task用SQLiteエンティティ定義
@@ -163,8 +164,6 @@ impl SqliteModelConverter<Task> for Model {
         } else {
             vec![]
         };
-
-        use crate::types::id_types::{ProjectId, SubTaskId, TaskId, TaskListId};
 
         Ok(Task {
             id: TaskId::from(self.id.clone()),

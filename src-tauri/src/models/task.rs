@@ -9,7 +9,7 @@
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
 use super::super::types::{
-    id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId},
+    id_types::{SubTaskId, TagId, TaskId, TaskListId, UserId},
     task_types::TaskStatus,
 };
 use super::datetime_calendar::RecurrenceRule;
@@ -151,21 +151,22 @@ pub struct Task {
 /// # use flequit_lib::models::task::TaskTree;
 /// # use flequit_lib::models::subtask::SubTask;
 /// # use flequit_lib::models::tag::Tag;
-/// # use flequit_lib::types::id_types::{TaskId, ProjectId, TaskListId, UserId, TagId, SubTaskId};
+/// # use flequit_lib::types::id_types::{TaskId, TaskListId, UserId, TagId, SubTaskId};
 /// # use flequit_lib::types::task_types::TaskStatus;
 ///
 /// // タスク詳細画面での使用例
 /// let detailed_task = TaskTree {
 ///     id: TaskId::new(),
 ///     sub_task_id: None,
-///     project_id: ProjectId::new(),
 ///     list_id: TaskListId::new(),
 ///     title: "新機能の実装".to_string(),
 ///     description: Some("詳細な説明".to_string()),
 ///     status: TaskStatus::InProgress,
 ///     priority: 5,
-///     start_date: Some(Utc::now()),
-///     end_date: None,
+///     plan_start_date: Some(Utc::now()),
+///     plan_end_date: None,
+///     do_start_date: None,
+///     do_end_date: None,
 ///     is_range_date: Some(false),
 ///     recurrence_rule: None,
 ///     assigned_user_ids: vec![],

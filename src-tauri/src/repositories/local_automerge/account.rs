@@ -3,7 +3,7 @@ use crate::errors::RepositoryError;
 use crate::models::account::Account;
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::AccountId;
+use crate::types::id_types::{AccountId, UserId};
 use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -306,6 +306,7 @@ mod tests {
         let test_account_id = AccountId::new();
         let account = Account {
             id: test_account_id,
+            user_id: UserId::new(),
             email: Some("test@example.com".to_string()),
             display_name: Some("Test User".to_string()),
             avatar_url: None,
@@ -323,6 +324,7 @@ mod tests {
         let test_account_id2 = AccountId::new();
         let account2 = Account {
             id: test_account_id2,
+            user_id: UserId::new(),
             email: Some("user2@example.com".to_string()),
             display_name: Some("Second User".to_string()),
             avatar_url: Some("https://example.com/avatar2.png".to_string()),
@@ -404,6 +406,7 @@ mod tests {
         let test_account_id = AccountId::new();
         let account = Account {
             id: test_account_id,
+            user_id: UserId::new(),
             email: Some("repo_test@example.com".to_string()),
             display_name: Some("Repository Test User".to_string()),
             avatar_url: None,

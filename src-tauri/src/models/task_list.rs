@@ -8,7 +8,7 @@
 //! - `TaskList`: 基本タスクリスト情報（軽量、一般的な操作用）
 //! - `TaskListWithTasks`: タスクを含む完全なタスクリスト構造
 
-use super::super::types::id_types::{ProjectId, TaskListId};
+use super::super::types::id_types::TaskListId;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
@@ -58,11 +58,10 @@ use crate::models::{
 /// ```rust,no_run
 /// # use chrono::Utc;
 /// # use flequit_lib::models::task_list::TaskList;
-/// # use flequit_lib::types::id_types::{TaskListId, ProjectId};
+/// # use flequit_lib::types::id_types::TaskListId;
 ///
 /// let task_list = TaskList {
 ///     id: TaskListId::new(),
-///     project_id: ProjectId::new(),
 ///     name: "TODO".to_string(),
 ///     description: Some("新規タスクの管理".to_string()),
 ///     color: Some("#e3f2fd".to_string()),
@@ -140,12 +139,11 @@ pub struct TaskList {
 /// # use chrono::Utc;
 /// # use flequit_lib::models::task_list::TaskListTree;
 /// # use flequit_lib::models::task::TaskTree;
-/// # use flequit_lib::types::id_types::{TaskListId, ProjectId, TaskId};
+/// # use flequit_lib::types::id_types::{TaskListId, TaskId};
 ///
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {
 ///     id: TaskListId::new(),
-///     project_id: ProjectId::new(),
 ///     name: "進行中".to_string(),
 ///     description: None,
 ///     color: Some("#ffeb3b".to_string()),

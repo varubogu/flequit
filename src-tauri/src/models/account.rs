@@ -44,7 +44,7 @@ use crate::models::{command::account::AccountCommand, CommandModelConverter};
 ///
 /// ```rust,no_run
 /// # use flequit_lib::models::account::Account;
-/// # use flequit_lib::types::id_types::AccountId;
+/// # use flequit_lib::types::id_types::{AccountId, UserId};
 /// # use chrono::Utc;
 ///
 /// // Google認証アカウントの例

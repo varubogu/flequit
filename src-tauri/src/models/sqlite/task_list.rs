@@ -3,7 +3,7 @@ use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::task_list::TaskList;
+use crate::{models::task_list::TaskList, types::id_types::TaskListId};
 
 /// TaskList用SQLiteエンティティ定義
 ///
@@ -73,7 +73,6 @@ impl ActiveModelBehavior for ActiveModel {}
 /// SQLiteモデルからドメインモデルへの変換
 impl SqliteModelConverter<TaskList> for Model {
     async fn to_domain_model(&self) -> Result<TaskList, String> {
-        use crate::types::id_types::{ProjectId, TaskListId};
 
         Ok(TaskList {
             id: TaskListId::from(self.id.clone()),

@@ -748,7 +748,6 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
         id: task_list_id.clone(),
         name: "統合テスト用タスクリスト".to_string(),
         description: Some("Automerge Repository統合テストのためのタスクリスト".to_string()),
-        project_id: project_id.clone(),
         color: Some("#3498db".to_string()),
         order_index: 1,
         is_archived: false,
@@ -768,7 +767,8 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     let retrieved = retrieved_task_list.unwrap();
     assert_eq!(retrieved.name, task_list.name);
     assert_eq!(retrieved.description, task_list.description);
-    assert_eq!(retrieved.project_id, task_list.project_id);
+    // project_idフィールドが削除されたため、この比較はコメントアウト
+    // assert_eq!(retrieved.project_id, task_list.project_id);
     println!("✅ TaskList retrieved successfully: {}", retrieved.name);
 
     // Update操作テスト
@@ -876,14 +876,15 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     let task = Task {
         id: task_id.clone(),
         sub_task_id: None,
-        project_id: project_id.clone(),
         list_id: task_list_id.clone(),
         title: "統合テスト用タスク".to_string(),
         description: Some("Automerge Repository統合テストのためのタスク".to_string()),
         status: TaskStatus::NotStarted,
         priority: 1,
-        start_date: None,
-        end_date: None,
+        plan_start_date: None,
+        plan_end_date: None,
+        do_start_date: None,
+        do_end_date: None,
         is_range_date: None,
         recurrence_rule: None,
         assigned_user_ids: vec![],
@@ -996,8 +997,10 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
         description: Some("Automerge Repository統合テストのためのサブタスク".to_string()),
         status: TaskStatus::NotStarted,
         priority: Some(1),
-        start_date: None,
-        end_date: None,
+        plan_start_date: None,
+        plan_end_date: None,
+        do_start_date: None,
+        do_end_date: None,
         is_range_date: None,
         recurrence_rule: None,
         assigned_user_ids: vec![],

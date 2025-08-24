@@ -1,7 +1,9 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::models::command::ModelConverter;
 use crate::models::task_list::TaskList;
+use crate::types::id_types::TaskListId;
 
 /// Tauriコマンド引数用のTaskList構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +21,6 @@ pub struct TaskListCommand {
 impl ModelConverter<TaskList> for TaskListCommand {
     /// コマンド引数用（TaskListCommand）から内部モデル（TaskList）に変換
     async fn to_model(&self) -> Result<TaskList, String> {
-        use chrono::{DateTime, Utc};
 
         let created_at = self
             .created_at
@@ -29,8 +30,6 @@ impl ModelConverter<TaskList> for TaskListCommand {
             .updated_at
             .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
-
-        use crate::types::id_types::{ProjectId, TaskListId};
 
         Ok(crate::models::task_list::TaskList {
             id: TaskListId::from(self.id.clone()),
