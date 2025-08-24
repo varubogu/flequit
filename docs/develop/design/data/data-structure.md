@@ -61,7 +61,7 @@ Flequitでは異なる層間で型変換を行います。以下の変換表に�
 ### 注意点
 
 - **UUID形式**: 全てのIDは`xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx`形式
-- **日時形式**: `YYYY-MM-DDTHH:mm:ss.sssZ` (UTC) 
+- **日時形式**: `YYYY-MM-DDTHH:mm:ss.sssZ` (UTC)
 - **SQLite真偽値**: `true`=1, `false`=0で保存
 - **Optional値**: 未設定時は`null`/`NULL`で統一
 
@@ -156,12 +156,7 @@ CREATE TABLE tasks (
       "order": 1
     }
   ],
-  "selected_account": "",
-  "account_icon": null,
-  "account_name": "",
-  "email": "",
-  "password": "",
-  "server_url": ""
+  "last_selected_account": "",
 }
 ```
 
@@ -171,7 +166,7 @@ CREATE TABLE tasks (
 ```typescript
 interface Settings {
   id: string;                   // 設定ID (Rust: SettingsId → TS: string)
-  
+
   // テーマ・外観設定
   theme: string;                // UIテーマ（"system" | "light" | "dark"） (Rust: String → TS: string)
   language: string;             // 言語設定（ISO 639-1形式） (Rust: String → TS: string)
@@ -179,7 +174,7 @@ interface Settings {
   font_size: number;            // フォントサイズ (Rust: i32 → TS: number)
   font_color: string;           // フォント色 (Rust: String → TS: string)
   background_color: string;     // 背景色 (Rust: String → TS: string)
-  
+
   // 基本設定
   week_start: string;           // 週の開始曜日（"sunday" | "monday"） (Rust: String → TS: string)
   timezone: string;             // タイムゾーン (Rust: String → TS: string)
@@ -187,18 +182,13 @@ interface Settings {
   custom_due_days: number[];    // カスタム期日日数 (Rust: Vec<i32> → TS: number[])
   custom_date_formats: CustomDateFormat[]; // カスタム日付フォーマット (Rust: Vec<CustomDateFormat> → TS: CustomDateFormat[])
   time_labels: TimeLabel[];     // 時刻ラベル (Rust: Vec<TimeLabel> → TS: TimeLabel[])
-  
+
   // 表示設定
   due_date_buttons: DueDateButtons; // 期日ボタンの表示設定 (Rust: DueDateButtons → TS: DueDateButtons)
   view_items: ViewItem[];       // ビューアイテム設定 (Rust: Vec<ViewItem> → TS: ViewItem[])
-  
+
   // アカウント設定
-  selected_account: string;     // 選択中のアカウント (Rust: String → TS: string)
-  account_icon?: string;        // アカウントアイコン (Rust: Option<String> → TS: string | null)
-  account_name: string;         // アカウント名 (Rust: String → TS: string)
-  email: string;                // メールアドレス (Rust: String → TS: string)
-  password: string;             // パスワード (Rust: String → TS: string)
-  server_url: string;           // サーバーURL (Rust: String → TS: string)
+  last_selected_account: string;     // 最後に選択中だったアカウント (Rust: String → TS: string)
 }
 ```
 
@@ -246,17 +236,6 @@ interface DueDateButtons {
 }
 ```
 
-#### 設計変更について
-
-**v1.0の設計（初期仕様）：**
-- `projects`: プロジェクトの配列をSettings内に含める
-- `local_settings`: 最小限の設定（theme, language）のみ
-- `view_settings`: ビューアイテムを独立した配列として管理
-
-**v2.0の設計（現在の実装）：**
-- プロジェクトデータは別のProject Documentとして独立管理
-- 全設定項目を単一のSettingsオブジェクトにフラット化
-- パフォーマンス最適化とフロントエンド連携の簡素化を重視
 
 ### 2. Account Document
 
@@ -499,11 +478,11 @@ use crate::types::id_types::ProjectId;
 
 // Settings Documentからプロジェクト一覧を取得
 let projects: Vec<Project> = document_manager.load_data(
-    &DocumentType::Settings, 
+    &DocumentType::Settings,
     "projects"
 ).await?;
 
-// Project Documentからタスク一覧を取得  
+// Project Documentからタスク一覧を取得
 let project_id = ProjectId::from("project-uuid-1");
 let tasks: Vec<Task> = document_manager.load_data(
     &DocumentType::Project(project_id.to_string()),
@@ -519,7 +498,7 @@ import { invoke } from '@tauri-apps/api/tauri';
 const projects: Project[] = await invoke('get_projects');
 
 // タスク一覧取得 (Rust: Vec<Task> → TS: Task[])
-const tasks: Task[] = await invoke('get_tasks', { 
+const tasks: Task[] = await invoke('get_tasks', {
   projectId: 'project-uuid-1' // TS: string → Rust: ProjectId
 });
 ```
