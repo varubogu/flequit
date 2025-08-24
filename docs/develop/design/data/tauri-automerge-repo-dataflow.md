@@ -1,7 +1,7 @@
 # Automerge-Repo 概念設計書
 
 タスク管理アプリケーションのデータ管理システム概念設計。
-Tauri → Commands → Service → Repository の3階層呼び出し構造で、Automerge-RepoによるCRDT操作と型安全な構造体操作を提供する。
+Tauri → Commands → Facade → Service → Repository の4階層呼び出し構造で、クリーンアーキテクチャとAutomerge-RepoによるCRDT操作を提供する。
 
 ## 設計概要
 
@@ -11,24 +11,16 @@ Tauri → Commands → Service → Repository の3階層呼び出し構造で、
 Frontend (SvelteKit)
     ↓ Tauri Invoke
 Commands Layer (Tauri Command)
+    ↓ ファサード呼び出し
+Facade Layer (Application Facade)
     ↓ ビジネスロジック呼び出し
 Service Layer (Business Logic)
-    ├── automerge/ (機能分散)
-    │   ├── project_service.rs
-    │   ├── task_service.rs
-    │   ├── subtask_service.rs
-    │   ├── tag_service.rs
-    │   └── user_service.rs
     ↓ データアクセス
-Repository Layer (Data Access + CRDT操作)
-    ├── automerge/
-    │   ├── project_repository.rs (SQLite + Automerge統合)
-    │   ├── task_repository.rs (SQLite + Automerge統合)
-    │   ├── subtask_repository.rs (SQLite + Automerge統合)
-    │   ├── tag_repository.rs (SQLite + Automerge統合)
-    │   ├── user_repository.rs (SQLite + Automerge統合)
-    │   ├── automerge_storage.rs (Automerge履歴・同期管理)
-    │   └── sqlite_storage.rs (SQLite最新データ管理)
+Repository Layer (Data Access Layer)
+    ├── local_automerge/ (Automerge実装)
+    ├── local_sqlite/ (SQLite実装)
+    ├── cloud_automerge/ (クラウドストレージのAutomerge実装)
+    └── web/ (Webサーバー実装)
 ```
 
 ### レイヤー責務
@@ -36,34 +28,44 @@ Repository Layer (Data Access + CRDT操作)
 - **Commands Layer**:
   - Tauri invoke関数の公開
   - 入力検証、結果変換
-  - Serviceレイヤーの呼び出し
+  - Facadeレイヤーの呼び出し
+
+- **Facade Layer**:
+  - アプリケーション層の統合ポイント
+  - 複数サービスの協調処理
+  - トランザクション境界の管理
+  - コマンドモデルへの変換
 
 - **Service Layer**:
-  - ビジネスロジック
-  - トランザクション管理
-  - 権限チェック
-  - **automerge子階層**: 機能別サービス（Project、Task、Subtask、Tag、User）
+  - ドメインビジネスロジック
+  - エンティティ間の整合性維持
+  - 権限・バリデーションチェック
+  - ストレージ実装に依存しない抽象化
 
 - **Repository Layer**:
-  - データアクセス抽象化
-  - 2層ストレージ管理（SQLite：最新データ、Automerge：履歴・同期）
-  - CRUD操作（読み込み：SQLite優先、書き込み：両方更新）
-  - 型変換
-  - **automerge子階層**: 2層ストレージ統合リポジトリ
-  - **sqlite_storage.rs**: SQLite最新データ管理
-  - **automerge_storage.rs**: Automerge履歴・同期管理
+  - データアクセスの具象実装
+  - 複数ストレージタイプの実装
+    - **local_automerge/**: ローカルAutomerge実装
+    - **local_sqlite/**: ローカルSQLite実装
+    - **cloud_automerge/**: クラウドAutomerge実装
+    - **web/**: Webサーバー実装
+  - CRUD操作とデータ永続化
+  - 型変換・シリアライゼーション
 
 ### データフロー
 
 ```
-Frontend Request → Commands Layer → Service Layer → Repository Layer
-                                                        ↓
-                           読み込み：SQLite (最新データ) ← Rust構造体
-                           書き込み：SQLite + Automerge ← Rust構造体
-                                                        ↓
-                              SQLite (最新データ) + Automerge (履歴・同期)
-                                                        ↓
-                                      Network Sync ←→ Automerge Document
+Frontend Request → Commands Layer → Facade Layer → Service Layer → Repository Layer
+                                                                        ↓
+                                                    Repository実装による分岐処理
+                                                    ├── local_automerge/
+                                                    ├── local_sqlite/
+                                                    ├── cloud_automerge/
+                                                    └── web/
+                                                                        ↓
+                                            選択されたストレージでのデータ操作
+                                                                        ↓
+                                                    Network Sync (必要に応じて)
 ```
 
 ### Automerge Document操作フロー
@@ -85,41 +87,40 @@ CRDT操作の種類:
 ```
 src-tauri/src/
 ├── commands/                   # Tauriコマンド層
-│   ├── project_commands.rs
-│   ├── task_commands.rs
-│   ├── subtask_commands.rs
-│   ├── tag_commands.rs
-│   ├── user_commands.rs
-│   └── mod.rs
-├── services/                   # ビジネスロジック層
-│   ├── automerge/              # Automerge関連サービス
-│   │   ├── project_service.rs
-│   │   ├── task_service.rs
-│   │   ├── subtask_service.rs
-│   │   ├── tag_service.rs
-│   │   ├── user_service.rs
+│   └── mod.rs                  # Tauri invoke関数の公開
+├── facades/                    # アプリケーションファサード層
+│   └── mod.rs                  # 複数サービスの協調処理
+├── services/                   # ドメインビジネスロジック層
+│   └── mod.rs                  # ストレージ非依存のビジネスロジック
+├── repositories/               # データアクセス層（複数実装）
+│   ├── local_automerge/        # ローカルAutomerge実装
+│   │   ├── document_manager.rs
+│   │   ├── project.rs
+│   │   ├── account.rs
+│   │   ├── user.rs
+│   │   └── settings.rs
+│   ├── local_sqlite/           # ローカルSQLite実装
 │   │   └── mod.rs
-│   └── mod.rs
-├── repositories/               # データアクセス層
-│   ├── automerge/              # 2層ストレージ統合リポジトリ
-│   │   ├── project_repository.rs    # プロジェクト操作（SQLite + Automerge）
-│   │   ├── task_repository.rs       # タスク操作（SQLite + Automerge）
-│   │   ├── subtask_repository.rs    # サブタスク操作（SQLite + Automerge）
-│   │   ├── tag_repository.rs        # タグ操作（SQLite + Automerge）
-│   │   ├── user_repository.rs       # ユーザー操作（SQLite + Automerge）
-│   │   ├── sqlite_storage.rs        # SQLite最新データ管理
-│   │   ├── automerge_storage.rs     # Automerge履歴・同期管理
+│   ├── cloud_automerge/        # クラウドAutomerge実装
 │   │   └── mod.rs
+│   ├── web/                    # Webサーバー実装
+│   │   └── mod.rs
+│   ├── base_repository_trait.rs     # 基底リポジトリトレイト
+│   ├── project_repository_trait.rs  # プロジェクトリポジトリトレイト
+│   ├── task_list_repository_trait.rs # タスクリストリポジトリトレイト
 │   └── mod.rs
-├── types/                      # 型定義
-│   ├── project_types.rs
-│   ├── task_types.rs
-│   ├── user_types.rs
+├── models/                     # データモデル層
+│   ├── project.rs
+│   ├── account.rs
+│   ├── user.rs
+│   ├── task.rs
+│   ├── task_list.rs
+│   ├── tag.rs
+│   ├── command/                # コマンドモデル（フロントエンド⇔バックエンド）
+│   └── mod.rs
+├── types/                      # 型定義・列挙型
 │   └── mod.rs
 ├── errors/                     # エラー型定義
-│   ├── service_error.rs
-│   ├── repository_error.rs
-│   ├── command_error.rs
 │   └── mod.rs
 └── main.rs
 ```
@@ -128,43 +129,70 @@ src-tauri/src/
 
 ### Automergeドキュメント分割
 
-```
-global_document/                    # グローバル情報ドキュメント
-├── global_tags/
-│   └── {tag_id}/ (Tag構造体)
-└── users/
-    └── {user_id}/ (User構造体)
+現在の実装では、以下の4つのAutomergeドキュメントに分割されています：
 
-project_document_{project_id}/      # プロジェクト別ドキュメント
-├── info (Project構造体)
-├── tasks/
-│   └── {task_id}/
-│       ├── info (Task構造体)
-│       └── subtasks/
-│           └── {subtask_id}/ (Subtask構造体)
-└── members/
-    └── {user_id}/ (ProjectMember構造体)
+```
+settings.automerge                 # 設定・プロジェクト一覧ドキュメント
+├── projects[] (Project構造体配列)
+├── local_settings (LocalSettings構造体)
+└── view_settings[] (ViewItem構造体配列)
+
+account.automerge                  # アカウント情報ドキュメント
+└── (Account構造体)
+
+user.automerge                     # ユーザー情報ドキュメント
+└── (User構造体)
+
+project_{project_id}.automerge     # プロジェクト別ドキュメント
+├── project_id (文字列)
+├── task_lists[] (TaskList構造体配列)
+├── tasks[] (Task構造体配列)
+├── subtasks[] (SubTask構造体配列)
+├── tags[] (Tag構造体配列)
+└── project_members[] (ProjectMember構造体配列)
 ```
 
 ## 階層的データアクセス API設計
 
 ### 基本パターン
 
-```
-// レベル1: ルート直下 (projects, global_tags, users)
-set_project(project: &Project) -> Result<(), RepositoryError>
-get_project(project_id: &str) -> Result<Option<Project>, RepositoryError>
+```rust
+// Settings Document アクセス
 list_projects() -> Result<Vec<Project>, RepositoryError>
+get_local_settings() -> Result<LocalSettings, RepositoryError>
+set_local_settings(settings: &LocalSettings) -> Result<(), RepositoryError>
 
-// レベル2: プロジェクト内 (tasks, members)
+// Account/User Document アクセス
+get_account() -> Result<Option<Account>, RepositoryError>
+set_account(account: &Account) -> Result<(), RepositoryError>
+get_user() -> Result<Option<User>, RepositoryError>
+set_user(user: &User) -> Result<(), RepositoryError>
+
+// Project Document アクセス (project_id毎)
+// タスクリスト操作
+set_task_list(project_id: &str, task_list: &TaskList) -> Result<(), RepositoryError>
+get_task_list(project_id: &str, task_list_id: &str) -> Result<Option<TaskList>, RepositoryError>
+list_task_lists(project_id: &str) -> Result<Vec<TaskList>, RepositoryError>
+
+// タスク操作
 set_task(project_id: &str, task: &Task) -> Result<(), RepositoryError>
 get_task(project_id: &str, task_id: &str) -> Result<Option<Task>, RepositoryError>
 list_tasks(project_id: &str) -> Result<Vec<Task>, RepositoryError>
 
-// レベル3: タスク内 (subtasks)
-set_subtask(project_id: &str, task_id: &str, subtask: &Subtask) -> Result<(), RepositoryError>
-get_subtask(project_id: &str, task_id: &str, subtask_id: &str) -> Result<Option<Subtask>, RepositoryError>
-list_subtasks(project_id: &str, task_id: &str) -> Result<Vec<Subtask>, RepositoryError>
+// サブタスク操作
+set_subtask(project_id: &str, subtask: &SubTask) -> Result<(), RepositoryError>
+get_subtask(project_id: &str, subtask_id: &str) -> Result<Option<SubTask>, RepositoryError>
+list_subtasks(project_id: &str, parent_task_id: &str) -> Result<Vec<SubTask>, RepositoryError>
+
+// タグ操作
+set_tag(project_id: &str, tag: &Tag) -> Result<(), RepositoryError>
+get_tag(project_id: &str, tag_id: &str) -> Result<Option<Tag>, RepositoryError>
+list_tags(project_id: &str) -> Result<Vec<Tag>, RepositoryError>
+
+// プロジェクトメンバー操作
+set_project_member(project_id: &str, member: &ProjectMember) -> Result<(), RepositoryError>
+get_project_member(project_id: &str, user_id: &str) -> Result<Option<ProjectMember>, RepositoryError>
+list_project_members(project_id: &str) -> Result<Vec<ProjectMember>, RepositoryError>
 ```
 
 ## エラーハンドリング
@@ -172,14 +200,15 @@ list_subtasks(project_id: &str, task_id: &str) -> Result<Vec<Subtask>, Repositor
 ### エラー変換フロー
 
 ```
-Repository Error → Service Error → Command Error → Frontend
+Repository Error → Service Error → Facade Error → Command Error → Frontend
 ```
 
 ### 各層の役割
 
-- **RepositoryError**: データアクセスエラー
-- **ServiceError**: ビジネスロジックエラー（RepositoryErrorからの自動変換含む）
-- **CommandError**: UI表示用エラー（SerializationError等）
+- **RepositoryError**: データアクセスエラー（ストレージ固有）
+- **ServiceError**: ドメインビジネスロジックエラー（RepositoryErrorからの自動変換含む）
+- **FacadeError**: アプリケーション統合エラー（複数サービス協調時のエラー）
+- **CommandError**: UI表示用エラー（SerializationError、入力検証エラー等）
 
 ### データ整合性エラー
 
@@ -257,11 +286,21 @@ Repository Error → Service Error → Command Error → Frontend
 
 ### Automergeドキュメント粒度
 
-- **粒度単位**: プロジェクト1つ = Automergeドキュメント1つ
-- **含有データ**: プロジェクト情報、全タスク、全サブタスク、メンバー情報
+- **4ドキュメント分割方式**:
+  - **Settings Document**: アプリケーション設定とプロジェクト一覧
+  - **Account Document**: 認証アカウント情報（プロバイダー情報、認証状態）
+  - **User Document**: ユーザープロフィール情報（個人設定、プロフィール）
+  - **Project Documents**: プロジェクト毎の詳細データ（1プロジェクト = 1ドキュメント）
+
+- **Project Document含有データ**:
+  - プロジェクト詳細データ
+  - 全タスクリスト、全タスク、全サブタスク
+  - プロジェクト固有タグ、メンバー情報
+
 - **設計根拠**:
-  - データ一貫性：プロジェクト内エンティティの整合性を1ドキュメントで保証
-  - トランザクション境界：プロジェクト内の複数変更を1トランザクションで処理
-  - 権限管理：プロジェクト単位でのアクセス制御が自然
-  - パフォーマンス：2層アーキテクチャにより大きなドキュメントも実行時影響軽微
-- **グローバルデータ**: ユーザー情報、グローバルタグは別途全体ドキュメントで管理
+  - **データ一貫性**: プロジェクト内エンティティの整合性を1ドキュメントで保証
+  - **トランザクション境界**: プロジェクト内の複数変更を1トランザクションで処理
+  - **権限管理**: プロジェクト単位でのアクセス制御が自然
+  - **パフォーマンス**: 2層アーキテクチャにより大きなドキュメントも実行時影響軽微
+  - **セキュリティ**: アカウント認証情報とユーザー情報を分離管理
+  - **設定分離**: グローバル設定とプロジェクト固有データの独立管理
