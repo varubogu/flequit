@@ -111,60 +111,94 @@ CREATE TABLE tasks (
 
 ```json
 {
-  "projects": [
+  "id": "app_settings",
+  "theme": "system",
+  "language": "ja",
+  "font": "system",
+  "font_size": 14,
+  "font_color": "#000000",
+  "background_color": "#FFFFFF",
+  "week_start": "monday",
+  "timezone": "Asia/Tokyo",
+  "date_format": "YYYY-MM-DD",
+  "custom_due_days": [1, 3, 7, 14, 30],
+  "custom_date_formats": [
     {
-      "id": "project-uuid-1",
-      "name": "サンプルプロジェクト",
-      "description": "プロジェクトの説明",
-      "color": "#4CAF50",
-      "order_index": 1,
-      "is_archived": false,
-      "status": "Active",
-      "owner_id": "user-uuid-1",
-      "created_at": "2024-01-01T10:00:00.000Z",
-      "updated_at": "2024-01-01T10:00:00.000Z"
+      "id": "format-1",
+      "name": "日本標準",
+      "format": "YYYY/MM/DD"
     }
   ],
-  "local_settings": {
-    "theme": "dark",
-    "language": "ja"
+  "time_labels": [
+    {
+      "id": "label-morning",
+      "name": "午前",
+      "time": "09:00"
+    }
+  ],
+  "due_date_buttons": {
+    "overdue": true,
+    "today": true,
+    "tomorrow": true,
+    "three_days": true,
+    "this_week": true,
+    "this_month": true,
+    "this_quarter": false,
+    "this_year": false,
+    "this_year_end": false
   },
-  "view_settings": [
+  "view_items": [
     {
       "id": "view-daily-today",
-      "key": "daily.today",
-      "title": "今日",
+      "label": "今日",
       "icon": "calendar-today",
-      "is_visible": true,
-      "order_index": 1
+      "visible": true,
+      "order": 1
     }
-  ]
+  ],
+  "selected_account": "",
+  "account_icon": null,
+  "account_name": "",
+  "email": "",
+  "password": "",
+  "server_url": ""
 }
 ```
 
 #### Type Definitions
 
-##### Project
+##### Settings
 ```typescript
-interface Project {
-  id: string;                    // プロジェクト一意識別子 (Rust: ProjectId → TS: string)
-  name: string;                  // プロジェクト名（必須） (Rust: String → TS: string)
-  description?: string;          // プロジェクト説明 (Rust: Option<String> → TS: string | null)
-  color?: string;               // UI表示用カラーコード (Rust: Option<String> → TS: string | null)
-  order_index: number;          // 表示順序 (Rust: i32 → TS: number)
-  is_archived: boolean;         // アーカイブ状態 (Rust: bool → TS: boolean)
-  status?: "Active" | "Completed" | "Suspended"; // プロジェクトステータス (Rust: Option<ProjectStatus> → TS: string | null)
-  owner_id?: string;            // プロジェクトオーナーのユーザーID (Rust: Option<UserId> → TS: string | null)
-  created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
-  updated_at: string;           // 最終更新日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
-}
-```
-
-##### LocalSettings
-```typescript
-interface LocalSettings {
-  theme: string;                // UIテーマ（"light" | "dark" | "system"） (Rust: String → TS: string)
+interface Settings {
+  id: string;                   // 設定ID (Rust: SettingsId → TS: string)
+  
+  // テーマ・外観設定
+  theme: string;                // UIテーマ（"system" | "light" | "dark"） (Rust: String → TS: string)
   language: string;             // 言語設定（ISO 639-1形式） (Rust: String → TS: string)
+  font: string;                 // フォント名 (Rust: String → TS: string)
+  font_size: number;            // フォントサイズ (Rust: i32 → TS: number)
+  font_color: string;           // フォント色 (Rust: String → TS: string)
+  background_color: string;     // 背景色 (Rust: String → TS: string)
+  
+  // 基本設定
+  week_start: string;           // 週の開始曜日（"sunday" | "monday"） (Rust: String → TS: string)
+  timezone: string;             // タイムゾーン (Rust: String → TS: string)
+  date_format: string;          // 日付フォーマット (Rust: String → TS: string)
+  custom_due_days: number[];    // カスタム期日日数 (Rust: Vec<i32> → TS: number[])
+  custom_date_formats: CustomDateFormat[]; // カスタム日付フォーマット (Rust: Vec<CustomDateFormat> → TS: CustomDateFormat[])
+  time_labels: TimeLabel[];     // 時刻ラベル (Rust: Vec<TimeLabel> → TS: TimeLabel[])
+  
+  // 表示設定
+  due_date_buttons: DueDateButtons; // 期日ボタンの表示設定 (Rust: DueDateButtons → TS: DueDateButtons)
+  view_items: ViewItem[];       // ビューアイテム設定 (Rust: Vec<ViewItem> → TS: ViewItem[])
+  
+  // アカウント設定
+  selected_account: string;     // 選択中のアカウント (Rust: String → TS: string)
+  account_icon?: string;        // アカウントアイコン (Rust: Option<String> → TS: string | null)
+  account_name: string;         // アカウント名 (Rust: String → TS: string)
+  email: string;                // メールアドレス (Rust: String → TS: string)
+  password: string;             // パスワード (Rust: String → TS: string)
+  server_url: string;           // サーバーURL (Rust: String → TS: string)
 }
 ```
 
@@ -172,13 +206,57 @@ interface LocalSettings {
 ```typescript
 interface ViewItem {
   id: string;                   // ビューアイテム一意識別子 (Rust: String → TS: string)
-  key: string;                  // 設定キー（ドット記法） (Rust: String → TS: string)
-  title: string;                // 表示タイトル (Rust: String → TS: string)
+  label: string;                // 表示ラベル (Rust: String → TS: string)
   icon: string;                 // アイコン名 (Rust: String → TS: string)
-  is_visible: boolean;          // 表示状態 (Rust: bool → TS: boolean)
-  order_index: number;          // 表示順序 (Rust: i32 → TS: number)
+  visible: boolean;             // 表示状態 (Rust: bool → TS: boolean)
+  order: number;                // 表示順序 (Rust: i32 → TS: number)
 }
 ```
+
+##### CustomDateFormat
+```typescript
+interface CustomDateFormat {
+  id: string;                   // フォーマットID (Rust: String → TS: string)
+  name: string;                 // フォーマット名 (Rust: String → TS: string)
+  format: string;               // フォーマット文字列 (Rust: String → TS: string)
+}
+```
+
+##### TimeLabel
+```typescript
+interface TimeLabel {
+  id: string;                   // ラベルID (Rust: String → TS: string)
+  name: string;                 // ラベル名 (Rust: String → TS: string)
+  time: string;                 // 時刻（HH:mm形式） (Rust: String → TS: string)
+}
+```
+
+##### DueDateButtons
+```typescript
+interface DueDateButtons {
+  overdue: boolean;             // 期限切れ (Rust: bool → TS: boolean)
+  today: boolean;               // 今日 (Rust: bool → TS: boolean)
+  tomorrow: boolean;            // 明日 (Rust: bool → TS: boolean)
+  three_days: boolean;          // 3日以内 (Rust: bool → TS: boolean)
+  this_week: boolean;           // 今週 (Rust: bool → TS: boolean)
+  this_month: boolean;          // 今月 (Rust: bool → TS: boolean)
+  this_quarter: boolean;        // 今四半期 (Rust: bool → TS: boolean)
+  this_year: boolean;           // 今年 (Rust: bool → TS: boolean)
+  this_year_end: boolean;       // 年末 (Rust: bool → TS: boolean)
+}
+```
+
+#### 設計変更について
+
+**v1.0の設計（初期仕様）：**
+- `projects`: プロジェクトの配列をSettings内に含める
+- `local_settings`: 最小限の設定（theme, language）のみ
+- `view_settings`: ビューアイテムを独立した配列として管理
+
+**v2.0の設計（現在の実装）：**
+- プロジェクトデータは別のProject Documentとして独立管理
+- 全設定項目を単一のSettingsオブジェクトにフラット化
+- パフォーマンス最適化とフロントエンド連携の簡素化を重視
 
 ### 2. Account Document
 
