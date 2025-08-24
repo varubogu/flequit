@@ -381,7 +381,6 @@ interface User {
   "task_lists": [
     {
       "id": "list-uuid-1",
-      "project_id": "project-uuid-1",
       "name": "タスクリスト名",
       "description": "タスクリストの説明",
       "order_index": 1,
@@ -393,7 +392,6 @@ interface User {
   "tasks": [
     {
       "id": "task-uuid-1",
-      "project_id": "project-uuid-1",
       "task_list_id": "list-uuid-1",
       "title": "タスクタイトル",
       "description": "タスクの詳細説明",
@@ -401,9 +399,11 @@ interface User {
       "priority": "Medium",
       "importance": "High",
       "due_date": "2024-01-31T23:59:59.000Z",
-      "start_date": "2024-01-01T09:00:00.000Z",
-      "end_date": null,
-      "assignee_id": "public-user-uuid-1",
+      "plan_start_date": "2024-01-01T09:00:00.000Z",
+      "plan_end_date": "2024-01-31T23:59:59.000Z",
+      "do_start_date": "2024-01-01T09:00:00.000Z",
+      "do_end_date": "2024-01-31T23:59:59.000Z",
+      "assignee_id": ["public-user-uuid-1"],
       "order_index": 1,
       "is_archived": false,
       "created_at": "2024-01-01T10:00:00.000Z",
@@ -418,6 +418,10 @@ interface User {
       "description": "サブタスクの説明",
       "status": "Todo",
       "due_date": "2024-01-15T23:59:59.000Z",
+      "plan_start_date": "2024-01-01T09:00:00.000Z",
+      "plan_end_date": "2024-01-31T23:59:59.000Z",
+      "do_start_date": "2024-01-01T09:00:00.000Z",
+      "do_end_date": "2024-01-31T23:59:59.000Z",
       "assignee_id": "public-user-uuid-1",
       "order_index": 1,
       "is_completed": false,
@@ -437,12 +441,18 @@ interface User {
       "updated_at": "2024-01-01T10:00:00.000Z"
     }
   ],
-  "project_members": [
+  "members": [
     {
       "user_id": "public-user-uuid-1",
-      "project_id": "project-uuid-1",
       "role": "Owner",
-      "joined_at": "2024-01-01T10:00:00.000Z"
+      "joined_at": "2024-01-01T10:00:00.000Z",
+      "updated_at": "2024-01-01T10:00:00.000Z"
+    },
+    {
+      "user_id": "public-user-uuid-2",
+      "role": "Admin",
+      "joined_at": "2024-01-01T10:00:00.000Z",
+      "updated_at": "2024-01-01T10:00:00.000Z"
     }
   ]
 }
@@ -454,7 +464,6 @@ interface User {
 ```typescript
 interface TaskList {
   id: string;                   // タスクリスト一意識別子 (Rust: TaskListId → TS: string)
-  project_id: string;           // 所属プロジェクトID (Rust: ProjectId → TS: string)
   name: string;                 // タスクリスト名 (Rust: String → TS: string)
   description?: string;         // 説明 (Rust: Option<String> → TS: string | null)
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
@@ -468,7 +477,6 @@ interface TaskList {
 ```typescript
 interface Task {
   id: string;                   // タスク一意識別子 (Rust: TaskId → TS: string)
-  project_id: string;           // 所属プロジェクトID (Rust: ProjectId → TS: string)
   task_list_id?: string;        // 所属タスクリストID (Rust: Option<TaskListId> → TS: string | null)
   title: string;                // タスクタイトル (Rust: String → TS: string)
   description?: string;         // 詳細説明 (Rust: Option<String> → TS: string | null)
@@ -476,9 +484,11 @@ interface Task {
   priority: "Low" | "Medium" | "High" | "Critical";     // 優先度 (Rust: Priority → TS: string)
   importance: "Low" | "Medium" | "High" | "Critical";   // 重要度 (Rust: Importance → TS: string)
   due_date?: string;            // 期限日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
-  start_date?: string;          // 開始予定日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
-  end_date?: string;            // 完了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
-  assignee_id?: string;         // 担当者ユーザーID (Rust: Option<UserId> → TS: string | null)
+  plan_start_date?: string;     // 予定開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  plan_end_date?: string;       // 予定終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  do_start_date?: string;       // 実開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  do_end_date?: string;         // 実終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  assignee_id?: string[];       // 担当者ユーザーID配列 (Rust: Vec<UserId> → TS: string[])
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
   is_archived: boolean;         // アーカイブ状態 (Rust: bool → TS: boolean)
   created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
@@ -495,6 +505,10 @@ interface SubTask {
   description?: string;         // 説明 (Rust: Option<String> → TS: string | null)
   status: "Todo" | "InProgress" | "Done" | "Cancelled"; // ステータス (Rust: TaskStatus → TS: string)
   due_date?: string;            // 期限日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  plan_start_date?: string;     // 予定開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  plan_end_date?: string;       // 予定終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  do_start_date?: string;       // 実開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  do_end_date?: string;         // 実終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   assignee_id?: string;         // 担当者ユーザーID (Rust: Option<UserId> → TS: string | null)
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
   is_completed: boolean;        // 完了状態 (Rust: bool → TS: boolean)
@@ -517,13 +531,13 @@ interface Tag {
 }
 ```
 
-##### ProjectMember
+##### Member
 ```typescript
-interface ProjectMember {
+interface Member {
   user_id: string;              // メンバーのユーザーID (Rust: UserId → TS: string)
-  project_id: string;           // 所属プロジェクトID (Rust: ProjectId → TS: string)
   role: "Owner" | "Admin" | "Member" | "Viewer"; // 権限役割 (Rust: MemberRole → TS: string)
   joined_at: string;            // 参加日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+  updated_at: string;           // 最終更新日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
 }
 ```
 
