@@ -28,20 +28,4 @@
 
 ## 開発ワークフロー
 
-### Tauriのコード修正時
-
-手順の過程でエラーが発生した場合、解消後に次工程に進む
-
-1. コード編集
-2. `cargo check --quiet` - エラーがないかチェック（警告は一旦除く）
-3. `cargo check` - 警告がないかチェック
-4. `cargo clippy` - リンター実行
-5. `cargo fmt --all` - フォーマッター実行
-6. `cargo test [単体テストファイル名]` - cargo単体テスト実行
-7. cargo結合テストケース作成
-8. `cargo test [結合テストファイル名]` - cargo結合テスト実行
-9. `cargo test` - cargo全テスト実行
-
-### 両方のコード修正時
-
-フロントエンド、Tauriの順番で推薦手順を実施
+詳細は `docs/develop/rules/workflow.md` を参照してください。

@@ -23,17 +23,4 @@
 
 ## 開発ワークフロー
 
-### フロントエンド（SvelteKit）のコード修正時
-
-手順の過程でエラーが発生した場合、解消後に次工程に進む
-
-1. コード編集
-2. vitest単体テストケース作成
-3. `bun check` - 型チェック実行
-4. `bun run lint` - リンター実行
-5. `bun run test [単体テストファイル名]` - vitest単体テスト実行
-6. vitest結合テストケース作成
-7. `bun run test [結合テストファイル名]` - vitest結合テスト実行
-8. `bun run test` - vitest全テスト実行
-9. Playwright(E2E)テストケース作成
-10. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
+詳細は `docs/develop/rules/workflow.md` を参照してください。

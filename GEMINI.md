@@ -6,231 +6,67 @@ This file provides guidance to Gemini CLI when working with code in this reposit
 
 日本語で
 
+## 設計ドキュメントについて
+
+詳細な設計や仕様については、以下のdocsディレクトリ配下のドキュメントを参照してください：
+
+### アーキテクチャ・設計
+- `docs/develop/design/architecture.md` - 全体アーキテクチャ
+- `docs/develop/design/data/` - データ関連設計
+  - `data-structure.md` - データ構造仕様
+  - `data-security.md` - セキュリティ設計
+  - `tauri-automerge-repo-dataflow.md` - データフロー設計
+  - `partial-update-implementation.md` - 部分更新システム実装詳細
+- `docs/develop/design/frontend/` - フロントエンド設計
+- `docs/develop/design/database/` - データベース設計
+
+### 開発ルール
+- `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
+
+### 要件定義
+- `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
+
+### テスト
+- `docs/develop/design/testing.md` - テスト戦略とガイドライン
+
+必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
+
 ## アプリケーション概要
 
 Tauri製のタスク管理デスクトップアプリケーション。プロジェクト管理や人とタスクのやり取りも可能。現在はローカル動作（SQLite）想定だが、将来的にはWeb同期、クラウドストレージ同期も対応予定。同期時に競合が起きないようにAutoMergeベースのデータ管理システムを採用する。
 
-## 技術スタック・アーキテクチャ
+## 技術スタック
 
-### フロントエンド
-
-- **SvelteKit**: メインフレームワーク（Svelte 5 + runes使用）
-- **アダプター**: `@sveltejs/adapter-static` (SSG) - Tauriでの静的サイト生成
-- **UI**: shadcn-svelte（bits-uiベース）- 極力オリジナルを維持
-- **スタイリング**: Tailwind CSS v4 + カスタムCSS変数
-- **国際化**: Inlang Paraglide（英語・日本語対応）
-- **アイコン**: Lucide Svelte
-- **パッケージマネージャ**: bun
-- **ビルドツール**: Vite
-- **型チェック**: TypeScript + svelte-check
-- **フォーマッター**: Prettier
-- **リンター**: ESLint
-- **テスト**: Vitest(単体) + @testing-library/svelte(結合) + Playwright(E2E)
-
-### バックエンド・デスクトップ
-
-- **Tauri**: デスクトップアプリケーションフレームワーク
-- **Rust**: バックエンドロジック
-- **SQLite**: ローカルデータベース
-- **Automerge**: ローカルデータベースの履歴管理・同期用
-- **パッケージマネージャ**: cargo
-- **ビルドツール**: cargo
-- **型チェック**: cargo check
-- **フォーマッター**: rustfmt
-- **リンター**: clippy
-- **テスト**: cargo test
+詳細は `docs/develop/design/tech-stack.md` を参照してください。
 
 ## プロジェクト構造
 
-```
-(root)
-├── e2e/           # E2Eテスト
-│   ├── components/  # SvelteコンポーネントのE2Eテスト
-├── src/          # ソースコード
-│   ├── lib/
-│   │   ├── components/          # Svelteコンポーネント
-│   │   │   ├── ui/             # shadcn-svelte基本コンポーネント（オリジナル維持）
-│   │   │   ├── shared/         # 共通コンポーネント
-│   │   │   └── [機能別]/       # 特定用途のコンポーネント
-│   │   ├── services/           # ビジネスロジック（API通信、データ操作）
-│   │   ├── stores/             # Svelte 5 runesベースの状態管理
-│   │   ├── types/              # TypeScript型定義
-│   │   └── utils/              # 純粋なヘルパー関数
-│   ├── routes/                 # SvelteKitルーティング
-│   ├── paraglide/              # 国際化（自動生成、Git管理対象外）
-│   ├── app.css                 # グローバルスタイル + Tailwind設定
-│   └── app.html                # HTMLテンプレート
-├── src-tauri/                  # Tauri部分のソースコード
-│   ├── capabilities/           # ???
-│   ├── icons/                  # アプリアイコン
-│   ├── src/                    # Tauriソースコード
-│   │   ├── commands/           # フロントエンドからinvokeで呼び出されるTauriコマンド
-│   │   ├── errors/             # エラー型格納
-│   │   ├── models/             # モデル定義
-│   │   │   ├── command/        # コマンド用のモデル
-│   │   │   └── sqlite/         # SQLite用のモデル定義とマイグレーション
-│   │   ├── repositories/                 # Repositoryの定義
-│   │   │   ├── cloud_automerge/          # クラウドストレージのAutomergeでデータを読み書きするためのRepository定義
-│   │   │   ├── local_automerge/          # ローカルのAutomergeでデータを読み書きするためのRepository定義
-│   │   │   ├── local_sqlite/             # ローカルのSQLiteでデータを読み書きするためのRepository定義
-│   │   │   ├── web/                      # Webサーバーに保存するためのRepository定義
-│   │   │   ├── base_repository_trait.rs  # Repositoryのベース定義（CRUD操作など）
-│   │   │   └── XXXX_repository_trait.rs  # 機能別Repositoryのベース定義（project_repository_traitなど）
-│   │   ├── services/                     # Serviceの定義
-│   │   │   └── xxxx_service.rs           # 機能別Serviceの定義（project_serviceなど）
-│   │   ├── types/          # type,enumなどの型定義（構造体はmodelsで定義）
-│   │   └── utils/          # 汎用処理のヘルパー関数群
-│   ├── target/
-│   ├── build.rs
-│   ├── Cargo.lock
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── tests/                    # 単体・結合テスト(vitest)
-│   ├── test-data/            # 単体・結合テスト(vitest)で使用するテストデータ（1関数＝1テストデータ生成）
-│   ├── integration/          # 結合テスト
-│   ├── */                    # 単体テスト
-│   └── vitest.setup.ts       # Vitest設定
-
-```
+詳細は `docs/develop/design/tech-stack.md` を参照してください。
 
 ## Svelte 5 設計パターン
 
-### 状態管理
-
-- **$state**: リアクティブな状態
-- **$derived**: 派生状態（計算されたプロパティ）
-- **$effect**: 副作用処理
-- **クラスベースストア**: 複雑な状態管理に使用
-
-### コンポーネント設計
-
-- **props**: `let { prop }: Props = $props()`
-- **イベント**: コールバック関数を優先、CustomEventは必要時のみ
-- **スニペット**: `Snippet`型を使用した子コンテンツ渡し
+詳細は `docs/develop/design/frontend/svelte5-patterns.md` を参照してください。
 
 ## 国際化システム
 
-全てのUIに関わるテキストは多言語対応を行う。
-設定画面でUI言語を選択可能で、選択後は即時反映される。（リアクティブ対応でリロード不要）
-
-- **Inlang Paraglide**: 翻訳管理（`project.inlang/`設定）
-- **対応言語**: 英語（ベース）、日本語
-- **使用方法**:
-  1. `paraglide/messages`からメッセージをインポート
-  2. `reactiveMessage`を使用してリアクティブにメッセージを取得
-  3. 実際に使用する
-
-  ```typescript
-  import * as m from '$paraglide/messages';
-  import { reactiveMessage } from '$lib/stores/locale.svelte';
-  const msg_task_title = reactiveMessage(m.task_title());
-  ```
-
-  ```svelte
-  <h1>{$msg_task_title}</h1>
-  ```
-
-- **ビルド**: `bun run build`で翻訳ファイル自動生成
-- **テスト時**: vitest（単体テスト）は`getTranslationService()`をモック化して実行する。詳細は`docs/develop/design/testing.md`の「翻訳システムのテスト」セクションを参照
+詳細は `docs/develop/design/frontend/i18n-system.md` を参照してください。
 
 ## コーディング規約
 
-### ファイル構成
-
-- **単一責任原則**: 1ファイル1機能
-- **ファイルサイズ**: 200行超過で必須分割、100行でも分割検討
-- **命名規則**:
-  - コンポーネント: ケバブケース（`task-item.svelte`）
-  - その他: TypeScript標準規約
-
-### コンポーネント設計原則
-
-- shadcn-svelteコンポーネントは極力オリジナル維持
-- 機能別コンポーネントは適切なディレクトリに配置
-- 200行を超える場合は機能分割を検討
-- メッセージはInlang Paraglideを使用して常に国際化対応
-- コンポーネントの単体テスト作成時、外部UIライブラリはモックは使わない。外部UIライブラリ以外はモック化する。
+詳細は `docs/develop/rules/coding-standards.md` を参照してください。
 
 ### Rust部分について
 
-- Optionから値を取り出す際、１つだけならif let Someで取ってよいが、複数ある場合はネストが深くならないように一時的に変数に格納する
+詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` を参照してください。
 
 ### モジュールの関連性
 
-#### Tauri側
-
-クリーンアーキテクチャ採用
-
-アプリケーション層イベント（commands,controllers,eventなど）
-↓
-ドメイン層（facadeが呼び出され、場合によってはそこから複数のserviceを呼び出す）
-↓
-データアクセス層（repository, 実体としてはsqliteやautomergeなど）
-
-##### アクセス制御ルール
-
-- commands: facadeはOK、commands, service, repositoriesはNG
-- facade: serviceはOK、facade, commands, repositoriesはNG
-- service -> serviceとrepositoryはOK、commands, facadeはNG
-- repository: repository内のみOK、外部はNG
+詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` の「アーキテクチャ構成」セクションを参照してください。
 
 ## 開発ワークフロー
 
-### 推奨手順
-
-手順の過程でエラーが発生した場合、解消後に次工程に進む
-
-#### フロントエンド（SvelteKit）のコード修正時
-
-1. コード編集
-2. vitest単体テストケース作成
-3. `bun check` - 型チェック実行
-4. `bun run lint` - リンター実行
-5. `bun run test [単体テストファイル名]` - vitest単体テスト実行
-6. vitest結合テストケース作成
-7. `bun run test [結合テストファイル名]` - vitest結合テスト実行
-8. `bun run test` - vitest全テスト実行
-9. Playwright(E2E)テストケース作成
-10. `bun run test:e2e [E2Eテストファイル名]` - E2Eテスト実行（個別ファイルのみで全体は実行しない）
-
-#### Tauriのコード修正時
-
-1. コード編集
-2. `cargo check --quiet` - エラーがないかチェック（警告は一旦除く）
-3. `cargo check` - 警告がないかチェック
-4. `cargo clippy` - リンター実行
-5. `cargo fmt --all` - フォーマッター実行
-6. `cargo test [単体テストファイル名]` - cargo単体テスト実行
-7. cargo結合テストケース作成
-8. `cargo run test [結合テストファイル名]` - cargo結合テスト実行
-9. `cargo run test` - cargo全テスト実行
-
-#### 両方のコード修正時
-
-フロントエンド、Tauriの順番で推薦手順を実施
-
-### 重要な制約
-
-- **開発サーバー**: `bun run dev`は使用禁止（ユーザーが使用中）
-- **E2Eテスト**: 全体実行禁止、個別ファイル実行のみ
-- **テストタイムアウト**: ファイル内テスト件数 × 1分
+詳細は `docs/develop/rules/workflow.md` を参照してください。
 
 ## コマンド一覧
 
-### 開発・ビルド
-
-- `bun check` - TypeScript型チェック（コード変更後必須実行）
-- `bun run build` - プロジェクトビルド（Paraglide翻訳ファイル含む）
-- `bun run tauri:dev` - Tauriデスクトップアプリ開発モード
-
-### テスト
-
-- `bun run test` - Vitest全テスト実行
-- `bun run test [ファイル名]` - Vitest個別ファイルテスト
-- `bun run test:watch` - Vitestウォッチモード
-- `bun run test:e2e [ファイル名]` - Playwright E2Eテスト（個別ファイルのみ、ヘッドレス）
-
-### 国際化
-
-- `bun run build` - Inlang機械翻訳実行
-- 各項目は設定変更によってリロード不要で即時反映するためにリアクティブ対応する必要あり
+詳細は `docs/develop/commands.md` を参照してください。
