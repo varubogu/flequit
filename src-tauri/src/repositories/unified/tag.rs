@@ -9,7 +9,7 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::models::tag::Tag;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
+use crate::repositories::local_automerge::project_tree::ProjectDocumentLocalAutomergeRepository;
 use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
 use crate::repositories::local_sqlite::tag::TagLocalSqliteRepository;
 use crate::repositories::tag_repository_trait::TagRepositoryTrait;
@@ -20,7 +20,7 @@ use crate::types::id_types::TagId;
 pub enum TagRepositoryVariant {
     Sqlite(TagLocalSqliteRepository),
     Automerge(TagLocalAutomergeRepository),
-    ProjectTree(ProjectTreeLocalAutomergeRepository),
+    ProjectTree(ProjectDocumentLocalAutomergeRepository),
     // 将来的にWebの実装が追加される予定
     // Web(WebTagRepository),
 }
@@ -166,7 +166,7 @@ impl TagUnifiedRepository {
     /// ProjectTreeリポジトリを保存用に追加
     pub fn add_project_tree_for_save(
         &mut self,
-        project_tree_repo: ProjectTreeLocalAutomergeRepository,
+        project_tree_repo: ProjectDocumentLocalAutomergeRepository,
     ) {
         self.save_repositories
             .push(TagRepositoryVariant::ProjectTree(project_tree_repo));

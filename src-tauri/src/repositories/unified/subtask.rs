@@ -9,7 +9,7 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::models::subtask::SubTask;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
+use crate::repositories::local_automerge::project_tree::ProjectDocumentLocalAutomergeRepository;
 use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
 use crate::repositories::local_sqlite::subtask::SubtaskLocalSqliteRepository;
 use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
@@ -20,7 +20,7 @@ use crate::types::id_types::SubTaskId;
 pub enum SubTaskRepositoryVariant {
     Sqlite(SubtaskLocalSqliteRepository),
     Automerge(SubTaskLocalAutomergeRepository),
-    ProjectTree(ProjectTreeLocalAutomergeRepository),
+    ProjectTree(ProjectDocumentLocalAutomergeRepository),
     // 将来的にWebの実装が追加される予定
     // Web(WebSubTaskRepository),
 }
@@ -166,7 +166,7 @@ impl SubTaskUnifiedRepository {
     /// ProjectTreeリポジトリを保存用に追加
     pub fn add_project_tree_for_save(
         &mut self,
-        project_tree_repo: ProjectTreeLocalAutomergeRepository,
+        project_tree_repo: ProjectDocumentLocalAutomergeRepository,
     ) {
         self.save_repositories
             .push(SubTaskRepositoryVariant::ProjectTree(project_tree_repo));

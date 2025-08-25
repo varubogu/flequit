@@ -6,7 +6,7 @@
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_automerge::{
     account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
-    project_tree::ProjectTreeLocalAutomergeRepository, settings::SettingsLocalAutomergeRepository,
+    project_tree::ProjectDocumentLocalAutomergeRepository, settings::SettingsLocalAutomergeRepository,
 };
 use crate::services::path_service::PathService;
 
@@ -16,7 +16,7 @@ use crate::services::path_service::PathService;
 /// 永続化・同期系操作を担当する。
 pub struct LocalAutomergeRepositories {
     pub projects: ProjectLocalAutomergeRepository,
-    pub project_trees: ProjectTreeLocalAutomergeRepository,
+    pub project_trees: ProjectDocumentLocalAutomergeRepository,
     pub accounts: AccountLocalAutomergeRepository,
     pub settings: SettingsLocalAutomergeRepository,
     // 注意: 個別のTaskList、Task、SubTask、TagのAutomergeリポジトリは廃止
@@ -39,7 +39,7 @@ impl LocalAutomergeRepositories {
                     e
                 ))
             })?,
-            project_trees: ProjectTreeLocalAutomergeRepository::new(data_dir.clone()).map_err(
+            project_trees: ProjectDocumentLocalAutomergeRepository::new(data_dir.clone()).map_err(
                 |e| {
                     RepositoryError::ConfigurationError(format!(
                         "Failed to create ProjectTreeRepository: {:?}",

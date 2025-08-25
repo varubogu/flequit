@@ -743,7 +743,7 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
 
     // テスト用TaskListデータを作成
     let task_list_id = TaskListId::new();
-    let project_id = ProjectId::new();
+    let _project_id = ProjectId::new();
     let task_list = TaskList {
         id: task_list_id.clone(),
         name: "統合テスト用タスクリスト".to_string(),
@@ -871,7 +871,7 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
 
     // テスト用Taskデータを作成
     let task_id = TaskId::new();
-    let project_id = ProjectId::new();
+    let _project_id = ProjectId::new();
     let task_list_id = TaskListId::new();
     let task = Task {
         id: task_id.clone(),

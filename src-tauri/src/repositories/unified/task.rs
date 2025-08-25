@@ -10,7 +10,7 @@ use crate::errors::RepositoryError;
 use crate::models::task::Task;
 use crate::types::id_types::ProjectId;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::project_tree::ProjectTreeLocalAutomergeRepository;
+use crate::repositories::local_automerge::project_tree::ProjectDocumentLocalAutomergeRepository;
 use crate::repositories::local_automerge::task::TaskLocalAutomergeRepository;
 use crate::repositories::local_sqlite::task::TaskLocalSqliteRepository;
 use crate::repositories::task_repository_trait::TaskRepositoryTrait;
@@ -21,7 +21,7 @@ use crate::types::id_types::TaskId;
 pub enum TaskRepositoryVariant {
     Sqlite(TaskLocalSqliteRepository),
     Automerge(TaskLocalAutomergeRepository),
-    ProjectTree(ProjectTreeLocalAutomergeRepository),
+    ProjectTree(ProjectDocumentLocalAutomergeRepository),
     // 将来的にWebの実装が追加される予定
     // Web(WebTaskRepository),
 }
@@ -36,10 +36,9 @@ impl Repository<Task, TaskId> for TaskRepositoryVariant {
             Self::Sqlite(repo) => repo.save(entity).await,
             Self::Automerge(repo) => repo.save(entity).await,
             Self::ProjectTree(repo) => {
-                // ProjectTreeの場合、まずタスクが既存かどうかを確認する
-                // 既存のタスクなら更新、新しいタスクなら追加
-                // project_idがないため、簡素化して直接タスクを追加
-                repo.add_task_to_list(&ProjectId::from("default".to_string()), &entity.list_id, entity)
+                // ProjectTreeの場合、タスクをプロジェクトドキュメントに追加
+                // project_idがないため、デフォルトプロジェクトIDを使用（将来的に改善必要）
+                repo.add_task(&ProjectId::from("default".to_string()), entity)
                     .await
             }
         }
@@ -169,7 +168,7 @@ impl TaskUnifiedRepository {
     /// ProjectTreeリポジトリを保存用に追加
     pub fn add_project_tree_for_save(
         &mut self,
-        project_tree_repo: ProjectTreeLocalAutomergeRepository,
+        project_tree_repo: ProjectDocumentLocalAutomergeRepository,
     ) {
         self.save_repositories
             .push(TaskRepositoryVariant::ProjectTree(project_tree_repo));

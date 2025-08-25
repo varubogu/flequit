@@ -3,7 +3,7 @@ use crate::errors::RepositoryError;
 use crate::models::account::Account;
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::{AccountId, UserId};
+use crate::types::id_types::AccountId;
 use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -287,11 +287,11 @@ impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::id_types::AccountId;
-
     use super::*;
     use chrono::Utc;
     use tempfile::TempDir;
+    use crate::types::id_types::AccountId;
+    use crate::types::id_types::UserId;
 
     #[tokio::test]
     async fn test_account_repository() {
