@@ -9,6 +9,7 @@ use crate::types::id_types::TaskListId;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskListCommand {
     pub id: String,
+    pub project_id: String,
     pub name: String,
     pub description: Option<String>,
     pub color: Option<String>,
@@ -21,7 +22,6 @@ pub struct TaskListCommand {
 impl ModelConverter<TaskList> for TaskListCommand {
     /// コマンド引数用（TaskListCommand）から内部モデル（TaskList）に変換
     async fn to_model(&self) -> Result<TaskList, String> {
-
         let created_at = self
             .created_at
             .parse::<DateTime<Utc>>()
@@ -33,6 +33,7 @@ impl ModelConverter<TaskList> for TaskListCommand {
 
         Ok(crate::models::task_list::TaskList {
             id: TaskListId::from(self.id.clone()),
+            project_id: crate::types::id_types::ProjectId::from(self.project_id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -48,6 +49,7 @@ impl ModelConverter<TaskList> for TaskListCommand {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskListTreeCommand {
     pub id: String,
+    pub project_id: String,
     pub name: String,
     pub description: Option<String>,
     pub color: Option<String>,

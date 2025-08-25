@@ -75,6 +75,8 @@ pub struct SubTask {
     /// サブタスクの一意識別子
     #[partially(omit)] // IDは更新対象外
     pub id: SubTaskId,
+    /// 所属プロジェクトID
+    pub project_id: crate::types::id_types::ProjectId,
     /// 親タスクの識別子（必須の関連）
     pub task_id: TaskId,
     /// サブタスクタイトル（必須）
@@ -117,6 +119,7 @@ impl CommandModelConverter<SubtaskCommand> for SubTask {
     async fn to_command_model(&self) -> Result<SubtaskCommand, String> {
         Ok(SubtaskCommand {
             id: self.id.to_string(),
+            project_id: self.project_id.to_string(),
             task_id: self.task_id.to_string(),
             title: self.title.clone(),
             description: self.description.clone(),

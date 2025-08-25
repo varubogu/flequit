@@ -167,6 +167,7 @@ impl SqliteModelConverter<Task> for Model {
 
         Ok(Task {
             id: TaskId::from(self.id.clone()),
+            project_id: crate::types::id_types::ProjectId::from(self.project_id.clone()),
             sub_task_id: self
                 .sub_task_id
                 .as_ref()
@@ -244,7 +245,7 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
             sub_task_id: Set(self.sub_task_id.as_ref().map(|id| id.to_string())),
-            project_id: Set("default".to_string()), // デフォルトプロジェクトIDを設定
+            project_id: Set(self.project_id.to_string()),
             list_id: Set(self.list_id.to_string()),
             title: Set(self.title.clone()),
             description: Set(self.description.clone()),

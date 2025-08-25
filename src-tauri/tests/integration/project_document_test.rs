@@ -3,10 +3,12 @@
 //! 正しいProject Document仕様に準拠したリポジトリの動作を検証
 
 use chrono::Utc;
-use std::path::PathBuf;
 use serde_json::Value;
+use std::path::PathBuf;
 
-use crate::test_utils::{TestPathGenerator, AutomergeHistoryExporter, AutomergeHistoryManager, TestCleanupHelper};
+use crate::test_utils::{
+    AutomergeHistoryExporter, AutomergeHistoryManager, TestCleanupHelper, TestPathGenerator,
+};
 
 use flequit_lib::models::project::{Member, Project};
 use flequit_lib::models::subtask::SubTask;
@@ -14,7 +16,7 @@ use flequit_lib::models::tag::Tag;
 use flequit_lib::models::task::Task;
 use flequit_lib::models::task_list::TaskList;
 use flequit_lib::repositories::local_automerge::project::{
-    ProjectLocalAutomergeRepository, ProjectDocument,
+    ProjectDocument, ProjectLocalAutomergeRepository,
 };
 use flequit_lib::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_lib::types::project_types::MemberRole;
@@ -29,19 +31,22 @@ struct TestProjectDocumentRepository {
 impl TestProjectDocumentRepository {
     fn new(automerge_dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
         let repository = ProjectLocalAutomergeRepository::new(automerge_dir)?;
-        Ok(Self { 
+        Ok(Self {
             inner: repository,
             current_project_id: None,
         })
     }
-    
+
     // 現在のプロジェクトIDを設定
     fn set_current_project_id(&mut self, project_id: ProjectId) {
         self.current_project_id = Some(project_id);
     }
 
     // 元のメソッドを委譲
-    async fn create_empty_project_document(&self, project_id: &ProjectId) -> Result<(), Box<dyn std::error::Error>> {
+    async fn create_empty_project_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         // 統合後のAPIではProject構造体が必要
         let project = Project {
             id: project_id.clone(),
@@ -58,47 +63,85 @@ impl TestProjectDocumentRepository {
         Ok(self.inner.create_empty_project_document(&project).await?)
     }
 
-    async fn get_project_document(&self, project_id: &ProjectId) -> Result<Option<ProjectDocument>, Box<dyn std::error::Error>> {
+    async fn get_project_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Option<ProjectDocument>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_project_document(project_id).await?)
     }
 
-    async fn add_task_list(&self, project_id: &ProjectId, task_list: &TaskList) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_task_list(
+        &self,
+        project_id: &ProjectId,
+        task_list: &TaskList,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(self.inner.add_task_list(project_id, task_list).await?)
     }
 
-    async fn add_task(&self, project_id: &ProjectId, task: &Task) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_task(
+        &self,
+        project_id: &ProjectId,
+        task: &Task,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(self.inner.add_task(project_id, task).await?)
     }
 
-    async fn add_subtask(&self, project_id: &ProjectId, subtask: &SubTask) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_subtask(
+        &self,
+        project_id: &ProjectId,
+        subtask: &SubTask,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(self.inner.add_subtask(project_id, subtask).await?)
     }
 
-    async fn add_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_tag(
+        &self,
+        project_id: &ProjectId,
+        tag: &Tag,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(self.inner.add_tag(project_id, tag).await?)
     }
 
-    async fn add_member(&self, project_id: &ProjectId, member: &Member) -> Result<(), Box<dyn std::error::Error>> {
+    async fn add_member(
+        &self,
+        project_id: &ProjectId,
+        member: &Member,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         Ok(self.inner.add_member(project_id, member).await?)
     }
 
-    async fn get_task_lists(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, Box<dyn std::error::Error>> {
+    async fn get_task_lists(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskList>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_task_lists(project_id).await?)
     }
 
-    async fn get_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, Box<dyn std::error::Error>> {
+    async fn get_tasks(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Task>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_tasks(project_id).await?)
     }
 
-    async fn get_subtasks(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, Box<dyn std::error::Error>> {
+    async fn get_subtasks(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<SubTask>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_subtasks(project_id).await?)
     }
 
-    async fn get_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, Box<dyn std::error::Error>> {
+    async fn get_tags(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Tag>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_tags(project_id).await?)
     }
 
-    async fn get_members(&self, project_id: &ProjectId) -> Result<Vec<Member>, Box<dyn std::error::Error>> {
+    async fn get_members(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Member>, Box<dyn std::error::Error>> {
         Ok(self.inner.get_members(project_id).await?)
     }
 }
@@ -112,7 +155,7 @@ impl AutomergeHistoryExporter for TestProjectDocumentRepository {
                 return Ok(serde_json::to_value(&doc)?);
             }
         }
-        
+
         // プロジェクトIDが設定されていないか、ドキュメントが見つからない場合
         Ok(serde_json::json!({
             "message": "No project document available for export",
@@ -124,9 +167,13 @@ impl AutomergeHistoryExporter for TestProjectDocumentRepository {
 
 /// Project Document結合テスト - 各項目2個ずつの完全なテスト
 #[tokio::test]
-async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn std::error::Error>>
+{
     // 共通処理でテストディレクトリを作成
-    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_project_document_comprehensive_operations");
+    let test_dir = TestPathGenerator::generate_test_dir(
+        file!(),
+        "test_project_document_comprehensive_operations",
+    );
     let automerge_dir = TestPathGenerator::create_automerge_dir(&test_dir)?;
     let json_history_dir = TestPathGenerator::create_json_history_dir(&test_dir)?;
 
@@ -134,18 +181,23 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     println!("💾 Test directory: {:?}", &test_dir);
 
     // automerge履歴管理を初期化
-    let mut history_manager = AutomergeHistoryManager::new(json_history_dir, "comprehensive_operations");
+    let mut history_manager =
+        AutomergeHistoryManager::new(json_history_dir, "comprehensive_operations");
 
     // テスト用リポジトリラッパーを作成
     let mut repository = TestProjectDocumentRepository::new(automerge_dir.clone())?;
     let project_id = ProjectId::new();
-    
+
     // 現在のプロジェクトIDを設定（履歴出力用）
     repository.set_current_project_id(project_id.clone());
 
     // 空のプロジェクトドキュメント作成テスト
-    repository.create_empty_project_document(&project_id).await?;
-    history_manager.export_history(&repository, "create_empty_project", "project").await?;
+    repository
+        .create_empty_project_document(&project_id)
+        .await?;
+    history_manager
+        .export_history(&repository, "create_empty_project", "project")
+        .await?;
     println!("✅ Empty project document created");
 
     // 初期状態確認
@@ -164,6 +216,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let task_list_1 = TaskList {
         id: TaskListId::new(),
+        project_id: project_id.clone(),
         name: "TODO".to_string(),
         description: Some("新規タスクリスト".to_string()),
         color: Some("#e3f2fd".to_string()),
@@ -175,6 +228,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let task_list_2 = TaskList {
         id: TaskListId::new(),
+        project_id: project_id.clone(),
         name: "進行中".to_string(),
         description: Some("進行中のタスク".to_string()),
         color: Some("#fff3e0".to_string()),
@@ -185,9 +239,13 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     };
 
     repository.add_task_list(&project_id, &task_list_1).await?;
-    history_manager.export_history(&repository, "add_task_list_1", "task_list").await?;
+    history_manager
+        .export_history(&repository, "add_task_list_1", "task_list")
+        .await?;
     repository.add_task_list(&project_id, &task_list_2).await?;
-    history_manager.export_history(&repository, "add_task_list_2", "task_list").await?;
+    history_manager
+        .export_history(&repository, "add_task_list_2", "task_list")
+        .await?;
     println!("✅ TaskList 1: {} added", task_list_1.name);
     println!("✅ TaskList 2: {} added", task_list_2.name);
 
@@ -202,6 +260,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let task_1 = Task {
         id: TaskId::new(),
+        project_id: project_id.clone(),
         sub_task_id: None,
         list_id: task_list_1.id,
         title: "タスク1".to_string(),
@@ -224,6 +283,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let task_2 = Task {
         id: TaskId::new(),
+        project_id: project_id.clone(),
         sub_task_id: None,
         list_id: task_list_2.id,
         title: "タスク2".to_string(),
@@ -245,9 +305,13 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     };
 
     repository.add_task(&project_id, &task_1).await?;
-    history_manager.export_history(&repository, "add_task_1", "task").await?;
+    history_manager
+        .export_history(&repository, "add_task_1", "task")
+        .await?;
     repository.add_task(&project_id, &task_2).await?;
-    history_manager.export_history(&repository, "add_task_2", "task").await?;
+    history_manager
+        .export_history(&repository, "add_task_2", "task")
+        .await?;
     println!("✅ Task 1: {} added", task_1.title);
     println!("✅ Task 2: {} added", task_2.title);
 
@@ -262,6 +326,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let subtask_1 = SubTask {
         id: SubTaskId::new(),
+        project_id: project_id.clone(),
         task_id: task_1.id,
         title: "サブタスク1".to_string(),
         description: Some("最初のサブタスク".to_string()),
@@ -284,6 +349,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let subtask_2 = SubTask {
         id: SubTaskId::new(),
+        project_id: project_id.clone(),
         task_id: task_2.id,
         title: "サブタスク2".to_string(),
         description: Some("2番目のサブタスク".to_string()),
@@ -305,9 +371,13 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     };
 
     repository.add_subtask(&project_id, &subtask_1).await?;
-    history_manager.export_history(&repository, "add_subtask_1", "subtask").await?;
+    history_manager
+        .export_history(&repository, "add_subtask_1", "subtask")
+        .await?;
     repository.add_subtask(&project_id, &subtask_2).await?;
-    history_manager.export_history(&repository, "add_subtask_2", "subtask").await?;
+    history_manager
+        .export_history(&repository, "add_subtask_2", "subtask")
+        .await?;
     println!("✅ SubTask 1: {} added", subtask_1.title);
     println!("✅ SubTask 2: {} added", subtask_2.title);
 
@@ -339,9 +409,13 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     };
 
     repository.add_tag(&project_id, &tag_1).await?;
-    history_manager.export_history(&repository, "add_tag_1", "tag").await?;
+    history_manager
+        .export_history(&repository, "add_tag_1", "tag")
+        .await?;
     repository.add_tag(&project_id, &tag_2).await?;
-    history_manager.export_history(&repository, "add_tag_2", "tag").await?;
+    history_manager
+        .export_history(&repository, "add_tag_2", "tag")
+        .await?;
     println!("✅ Tag 1: {} added", tag_1.name);
     println!("✅ Tag 2: {} added", tag_2.name);
 
@@ -369,9 +443,13 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     };
 
     repository.add_member(&project_id, &member_1).await?;
-    history_manager.export_history(&repository, "add_member_1", "member").await?;
+    history_manager
+        .export_history(&repository, "add_member_1", "member")
+        .await?;
     repository.add_member(&project_id, &member_2).await?;
-    history_manager.export_history(&repository, "add_member_2", "member").await?;
+    history_manager
+        .export_history(&repository, "add_member_2", "member")
+        .await?;
     println!("✅ Member 1: Owner added");
     println!("✅ Member 2: Admin added");
 
@@ -389,7 +467,9 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     let doc = final_doc.unwrap();
 
     // 完全なプロジェクトドキュメントの履歴を出力
-    history_manager.export_history(&repository, "complete_project_document", "project").await?;
+    history_manager
+        .export_history(&repository, "complete_project_document", "project")
+        .await?;
 
     // 各配列の長さ確認
     assert_eq!(doc.task_lists.len(), 2, "TaskLists should contain 2 items");
@@ -419,7 +499,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     // ドキュメントをJSONにシリアライズして構造確認
     let json_str = serde_json::to_string_pretty(&persisted)?;
-    println!("Generated JSON structure length: {} characters", json_str.len());
+    println!(
+        "Generated JSON structure length: {} characters",
+        json_str.len()
+    );
 
     // 必須フィールドの存在確認
     assert!(json_str.contains("task_lists"));
@@ -435,20 +518,26 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     println!("\n🔍 Search & Filter Tests");
 
     // 特定タスクリストのタスクが正しく分離されているかテスト
-    let todo_tasks: Vec<_> = persisted.tasks.iter()
+    let todo_tasks: Vec<_> = persisted
+        .tasks
+        .iter()
         .filter(|task| task.list_id == task_list_1.id)
         .collect();
     assert_eq!(todo_tasks.len(), 1);
     assert_eq!(todo_tasks[0].title, "タスク1");
 
-    let in_progress_tasks: Vec<_> = persisted.tasks.iter()
+    let in_progress_tasks: Vec<_> = persisted
+        .tasks
+        .iter()
         .filter(|task| task.list_id == task_list_2.id)
         .collect();
     assert_eq!(in_progress_tasks.len(), 1);
     assert_eq!(in_progress_tasks[0].title, "タスク2");
 
     // 特定タスクのサブタスクが正しく関連付けられているかテスト
-    let task1_subtasks: Vec<_> = persisted.subtasks.iter()
+    let task1_subtasks: Vec<_> = persisted
+        .subtasks
+        .iter()
         .filter(|subtask| subtask.task_id == task_1.id)
         .collect();
     assert_eq!(task1_subtasks.len(), 1);
@@ -472,7 +561,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     println!("All {} assertions passed", 20);
 
     // テスト結果確認用 - クリーンアップは行わない
-    println!("📁 JSON history files saved in: {:?}/json_history/", &test_dir);
+    println!(
+        "📁 JSON history files saved in: {:?}/json_history/",
+        &test_dir
+    );
 
     Ok(())
 }
@@ -481,7 +573,8 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 #[tokio::test]
 async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 共通処理でテストディレクトリを作成
-    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_multiple_projects_isolation");
+    let test_dir =
+        TestPathGenerator::generate_test_dir(file!(), "test_multiple_projects_isolation");
     let automerge_dir = TestPathGenerator::create_automerge_dir(&test_dir)?;
     let json_history_dir = TestPathGenerator::create_json_history_dir(&test_dir)?;
 
@@ -496,12 +589,17 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
     let project_id_2 = ProjectId::new();
 
     // 2つのプロジェクトで独立したドキュメントを作成
-    repository.create_empty_project_document(&project_id_1).await?;
-    repository.create_empty_project_document(&project_id_2).await?;
+    repository
+        .create_empty_project_document(&project_id_1)
+        .await?;
+    repository
+        .create_empty_project_document(&project_id_2)
+        .await?;
 
     // プロジェクト1にタスクリスト追加
     let task_list_p1 = TaskList {
         id: TaskListId::new(),
+        project_id: project_id_1.clone(),
         name: "Project1 TaskList".to_string(),
         description: None,
         color: None,
@@ -510,11 +608,14 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    repository.add_task_list(&project_id_1, &task_list_p1).await?;
+    repository
+        .add_task_list(&project_id_1, &task_list_p1)
+        .await?;
 
     // プロジェクト2にタスクリスト追加
     let task_list_p2 = TaskList {
         id: TaskListId::new(),
+        project_id: project_id_2.clone(),
         name: "Project2 TaskList".to_string(),
         description: None,
         color: None,
@@ -523,11 +624,19 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
         created_at: Utc::now(),
         updated_at: Utc::now(),
     };
-    repository.add_task_list(&project_id_2, &task_list_p2).await?;
+    repository
+        .add_task_list(&project_id_2, &task_list_p2)
+        .await?;
 
     // 各プロジェクトの独立性を確認
-    let doc1 = repository.get_project_document(&project_id_1).await?.unwrap();
-    let doc2 = repository.get_project_document(&project_id_2).await?.unwrap();
+    let doc1 = repository
+        .get_project_document(&project_id_1)
+        .await?
+        .unwrap();
+    let doc2 = repository
+        .get_project_document(&project_id_2)
+        .await?
+        .unwrap();
 
     assert_eq!(doc1.task_lists.len(), 1);
     assert_eq!(doc2.task_lists.len(), 1);

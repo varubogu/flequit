@@ -93,10 +93,7 @@ impl TaskLocalAutomergeRepository {
             if result.is_ok() {
                 log::info!("set_task - Automergeドキュメント保存完了");
             } else {
-                log::error!(
-                    "set_task - Automergeドキュメント保存エラー: {:?}",
-                    result
-                );
+                log::error!("set_task - Automergeドキュメント保存エラー: {:?}", result);
             }
             result
         }
@@ -130,21 +127,12 @@ impl TaskRepositoryTrait for TaskLocalAutomergeRepository {}
 impl Repository<Task, TaskId> for TaskLocalAutomergeRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, entity: &Task) -> Result<(), RepositoryError> {
-        log::info!(
-            "TaskLocalAutomergeRepository::save - 開始: {:?}",
-            entity.id
-        );
+        log::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_task(entity).await;
         if result.is_ok() {
-            log::info!(
-                "TaskLocalAutomergeRepository::save - 完了: {:?}",
-                entity.id
-            );
+            log::info!("TaskLocalAutomergeRepository::save - 完了: {:?}", entity.id);
         } else {
-            log::error!(
-                "TaskLocalAutomergeRepository::save - エラー: {:?}",
-                result
-            );
+            log::error!("TaskLocalAutomergeRepository::save - エラー: {:?}", result);
         }
         result
     }

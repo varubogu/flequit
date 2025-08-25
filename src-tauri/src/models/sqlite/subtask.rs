@@ -16,6 +16,10 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
+    /// 所属プロジェクトID
+    #[sea_orm(indexed)] // プロジェクト別検索用
+    pub project_id: String,
+
     /// 親タスクID
     #[sea_orm(indexed)] // 親タスク別検索用
     pub task_id: String,
@@ -140,6 +144,7 @@ impl SqliteModelConverter<SubTask> for Model {
 
         Ok(SubTask {
             id: SubTaskId::from(self.id.clone()),
+            project_id: crate::types::id_types::ProjectId::from(self.project_id.clone()),
             task_id: TaskId::from(self.task_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
@@ -213,6 +218,7 @@ impl DomainToSqliteConverter<ActiveModel> for SubTask {
 
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
+            project_id: Set(self.project_id.to_string()),
             task_id: Set(self.task_id.to_string()),
             title: Set(self.title.clone()),
             description: Set(self.description.clone()),

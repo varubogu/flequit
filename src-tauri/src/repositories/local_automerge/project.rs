@@ -1,7 +1,7 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::RepositoryError;
 use crate::models::{
-    project::{Project, Member},
+    project::{Member, Project},
     subtask::SubTask,
     tag::Tag,
     task::Task,
@@ -19,7 +19,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Project Document構造（data-structure.md仕様準拠）
-/// 
+///
 /// models/project::Projectの全プロパティ + プロジェクト内のすべてのエンティティを含む
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectDocument {
@@ -44,7 +44,7 @@ pub struct ProjectDocument {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
-    
+
     // プロジェクト内のエンティティ
     /// タスクリスト配列
     pub task_lists: Vec<TaskList>,
@@ -122,7 +122,8 @@ impl ProjectLocalAutomergeRepository {
         // 基本プロジェクト情報の読み込み
         let id: Option<String> = manager.load_data(&doc_type, "id").await?;
         let name: Option<String> = manager.load_data(&doc_type, "name").await?;
-        let description: Option<Option<String>> = manager.load_data(&doc_type, "description").await?;
+        let description: Option<Option<String>> =
+            manager.load_data(&doc_type, "description").await?;
         let color: Option<Option<String>> = manager.load_data(&doc_type, "color").await?;
         let order_index: Option<i32> = manager.load_data(&doc_type, "order_index").await?;
         let is_archived: Option<bool> = manager.load_data(&doc_type, "is_archived").await?;
@@ -139,8 +140,9 @@ impl ProjectLocalAutomergeRepository {
         let members: Option<Vec<Member>> = manager.load_data(&doc_type, "members").await?;
 
         // 必須フィールドが存在する場合のみProjectDocumentを構築
-        if let (Some(id), Some(name), Some(created_at), Some(updated_at)) = 
-            (id, name, created_at, updated_at) {
+        if let (Some(id), Some(name), Some(created_at), Some(updated_at)) =
+            (id, name, created_at, updated_at)
+        {
             Ok(Some(ProjectDocument {
                 id,
                 name,
@@ -173,24 +175,54 @@ impl ProjectLocalAutomergeRepository {
         let doc_type = DocumentType::Project(project_document.id.clone());
 
         // 基本プロジェクト情報を個別に保存
-        manager.save_data(&doc_type, "id", &project_document.id).await?;
-        manager.save_data(&doc_type, "name", &project_document.name).await?;
-        manager.save_data(&doc_type, "description", &project_document.description).await?;
-        manager.save_data(&doc_type, "color", &project_document.color).await?;
-        manager.save_data(&doc_type, "order_index", &project_document.order_index).await?;
-        manager.save_data(&doc_type, "is_archived", &project_document.is_archived).await?;
-        manager.save_data(&doc_type, "status", &project_document.status).await?;
-        manager.save_data(&doc_type, "owner_id", &project_document.owner_id).await?;
-        manager.save_data(&doc_type, "created_at", &project_document.created_at).await?;
-        manager.save_data(&doc_type, "updated_at", &project_document.updated_at).await?;
+        manager
+            .save_data(&doc_type, "id", &project_document.id)
+            .await?;
+        manager
+            .save_data(&doc_type, "name", &project_document.name)
+            .await?;
+        manager
+            .save_data(&doc_type, "description", &project_document.description)
+            .await?;
+        manager
+            .save_data(&doc_type, "color", &project_document.color)
+            .await?;
+        manager
+            .save_data(&doc_type, "order_index", &project_document.order_index)
+            .await?;
+        manager
+            .save_data(&doc_type, "is_archived", &project_document.is_archived)
+            .await?;
+        manager
+            .save_data(&doc_type, "status", &project_document.status)
+            .await?;
+        manager
+            .save_data(&doc_type, "owner_id", &project_document.owner_id)
+            .await?;
+        manager
+            .save_data(&doc_type, "created_at", &project_document.created_at)
+            .await?;
+        manager
+            .save_data(&doc_type, "updated_at", &project_document.updated_at)
+            .await?;
 
         // プロジェクト内エンティティを個別に保存
-        manager.save_data(&doc_type, "task_lists", &project_document.task_lists).await?;
-        manager.save_data(&doc_type, "tasks", &project_document.tasks).await?;
-        manager.save_data(&doc_type, "subtasks", &project_document.subtasks).await?;
-        manager.save_data(&doc_type, "tags", &project_document.tags).await?;
-        manager.save_data(&doc_type, "members", &project_document.members).await?;
-        
+        manager
+            .save_data(&doc_type, "task_lists", &project_document.task_lists)
+            .await?;
+        manager
+            .save_data(&doc_type, "tasks", &project_document.tasks)
+            .await?;
+        manager
+            .save_data(&doc_type, "subtasks", &project_document.subtasks)
+            .await?;
+        manager
+            .save_data(&doc_type, "tags", &project_document.tags)
+            .await?;
+        manager
+            .save_data(&doc_type, "members", &project_document.members)
+            .await?;
+
         Ok(())
     }
 
@@ -217,7 +249,7 @@ impl ProjectLocalAutomergeRepository {
             tags: Vec::new(),
             members: Vec::new(),
         };
-        
+
         self.save_project_document(&empty_document).await
     }
 
@@ -232,10 +264,13 @@ impl ProjectLocalAutomergeRepository {
     #[tracing::instrument(level = "trace")]
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("set_project - 開始: {:?}", project.id);
-        
+
         // プロジェクトドキュメントが存在するか確認
         if let Some(mut document) = self.get_project_document(&project.id).await? {
-            log::info!("set_project - 既存プロジェクトドキュメントを更新: {:?}", project.id);
+            log::info!(
+                "set_project - 既存プロジェクトドキュメントを更新: {:?}",
+                project.id
+            );
             // 基本情報のみ更新（エンティティは保持）
             document.name = project.name.clone();
             document.description = project.description.clone();
@@ -245,10 +280,13 @@ impl ProjectLocalAutomergeRepository {
             document.status = project.status.clone();
             document.owner_id = project.owner_id.clone();
             document.updated_at = project.updated_at;
-            
+
             self.save_project_document(&document).await?
         } else {
-            log::info!("set_project - 新規プロジェクトドキュメント作成: {:?}", project.id);
+            log::info!(
+                "set_project - 新規プロジェクトドキュメント作成: {:?}",
+                project.id
+            );
             // 新規プロジェクトドキュメントを作成
             self.create_empty_project_document(project).await?
         }
@@ -265,7 +303,7 @@ impl ProjectLocalAutomergeRepository {
         let result = manager
             .save_data(&DocumentType::Settings, "projects", &projects)
             .await;
-        
+
         if result.is_ok() {
             log::info!("set_project - Automergeドキュメント保存完了");
         } else {
@@ -297,7 +335,7 @@ impl ProjectLocalAutomergeRepository {
         // タスクリストを追加
         document.task_lists.push(task_list.clone());
         document.updated_at = Utc::now();
-        
+
         self.save_project_document(&document).await
     }
 
@@ -321,7 +359,7 @@ impl ProjectLocalAutomergeRepository {
         // タスクを追加
         document.tasks.push(task.clone());
         document.updated_at = Utc::now();
-        
+
         self.save_project_document(&document).await
     }
 
@@ -345,17 +383,13 @@ impl ProjectLocalAutomergeRepository {
         // サブタスクを追加
         document.subtasks.push(subtask.clone());
         document.updated_at = Utc::now();
-        
+
         self.save_project_document(&document).await
     }
 
     /// タグを追加
     #[tracing::instrument(level = "trace")]
-    pub async fn add_tag(
-        &self,
-        project_id: &ProjectId,
-        tag: &Tag,
-    ) -> Result<(), RepositoryError> {
+    pub async fn add_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         // プロジェクトドキュメントを取得または作成
         let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
             doc
@@ -369,7 +403,7 @@ impl ProjectLocalAutomergeRepository {
         // タグを追加
         document.tags.push(tag.clone());
         document.updated_at = Utc::now();
-        
+
         self.save_project_document(&document).await
     }
 
@@ -393,7 +427,7 @@ impl ProjectLocalAutomergeRepository {
         // メンバーを追加
         document.members.push(member.clone());
         document.updated_at = Utc::now();
-        
+
         self.save_project_document(&document).await
     }
 
@@ -409,7 +443,10 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクト内の全タスクリストを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn get_task_lists(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
+    pub async fn get_task_lists(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskList>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.task_lists)
         } else {
@@ -419,7 +456,10 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクト内の全サブタスクを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn get_subtasks(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
+    pub async fn get_subtasks(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<SubTask>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.subtasks)
         } else {
@@ -439,7 +479,10 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクト内の全メンバーを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn get_members(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
+    pub async fn get_members(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Member>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.members)
         } else {

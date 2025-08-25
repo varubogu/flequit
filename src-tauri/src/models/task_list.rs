@@ -58,10 +58,11 @@ use crate::models::{
 /// ```rust,no_run
 /// # use chrono::Utc;
 /// # use flequit_lib::models::task_list::TaskList;
-/// # use flequit_lib::types::id_types::TaskListId;
+/// # use flequit_lib::types::id_types::{TaskListId, ProjectId};
 ///
 /// let task_list = TaskList {
 ///     id: TaskListId::new(),
+///     project_id: ProjectId::new(),
 ///     name: "TODO".to_string(),
 ///     description: Some("新規タスクの管理".to_string()),
 ///     color: Some("#e3f2fd".to_string()),
@@ -77,6 +78,8 @@ pub struct TaskList {
     /// タスクリストの一意識別子
     #[partially(omit)] // IDは更新対象外
     pub id: TaskListId,
+    /// 所属プロジェクトの識別子
+    pub project_id: crate::types::id_types::ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -139,11 +142,12 @@ pub struct TaskList {
 /// # use chrono::Utc;
 /// # use flequit_lib::models::task_list::TaskListTree;
 /// # use flequit_lib::models::task::TaskTree;
-/// # use flequit_lib::types::id_types::{TaskListId, TaskId};
+/// # use flequit_lib::types::id_types::{TaskListId, TaskId, ProjectId};
 ///
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {
 ///     id: TaskListId::new(),
+///     project_id: ProjectId::new(),
 ///     name: "進行中".to_string(),
 ///     description: None,
 ///     color: Some("#ffeb3b".to_string()),
@@ -160,6 +164,8 @@ pub struct TaskList {
 pub struct TaskListTree {
     /// タスクリストの一意識別子
     pub id: TaskListId,
+    /// 所属プロジェクトの識別子
+    pub project_id: crate::types::id_types::ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -182,7 +188,7 @@ impl CommandModelConverter<TaskListCommand> for TaskList {
     async fn to_command_model(&self) -> Result<TaskListCommand, String> {
         Ok(TaskListCommand {
             id: self.id.to_string(),
-            // project_id: "default".to_string(), // project_id削除のため仮の値
+            project_id: self.project_id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -199,6 +205,7 @@ impl FromTreeModel<TaskList> for TaskListTree {
         // TaskListTreeからTaskListに変換（関連データのtasksは除く）
         Ok(TaskList {
             id: self.id.clone(),
+            project_id: self.project_id.clone(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -222,7 +229,7 @@ impl TreeCommandConverter<crate::models::command::task_list::TaskListTreeCommand
 
         Ok(crate::models::command::task_list::TaskListTreeCommand {
             id: self.id.to_string(),
-            // project_id: "default".to_string(), // project_id削除のため仮の値
+            project_id: self.project_id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),

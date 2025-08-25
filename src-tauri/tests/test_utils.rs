@@ -13,38 +13,42 @@ pub struct TestPathGenerator;
 
 impl TestPathGenerator {
     /// 実行されたテスト関数のファイルパスから、テストルール準拠のパスを生成
-    /// 
+    ///
     /// # Arguments
     /// * `file_path` - テストファイルの__FILE__パス（例: "tests/integration/project_document_test.rs"）
     /// * `test_function_name` - テスト関数名
-    /// 
+    ///
     /// # Returns
     /// `<project_root>/.tmp/tests/cargo/integration/[テストファイル名]/[テスト関数名]/[実行日時]/`
     pub fn generate_test_dir(file_path: &str, test_function_name: &str) -> PathBuf {
         let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
-        
+
         // ファイルパスからテストファイル名を抽出
         let test_file_name = std::path::Path::new(file_path)
             .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("unknown_test");
-        
+
         // テストルール準拠のパス生成: <project_root>/.tmp/tests/cargo/integration/[テストファイル名]/[テスト関数名]/[実行日時]/
         PathBuf::from("../.tmp/tests/cargo/integration")
             .join(test_file_name)
             .join(test_function_name)
             .join(timestamp)
     }
-    
+
     /// automergeデータ用のサブディレクトリを作成
-    pub fn create_automerge_dir(base_test_dir: &std::path::Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    pub fn create_automerge_dir(
+        base_test_dir: &std::path::Path,
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
         let automerge_dir = base_test_dir.join("automerge");
         std::fs::create_dir_all(&automerge_dir)?;
         Ok(automerge_dir)
     }
-    
+
     /// JSON履歴用のサブディレクトリを作成
-    pub fn create_json_history_dir(base_test_dir: &std::path::Path) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    pub fn create_json_history_dir(
+        base_test_dir: &std::path::Path,
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
         let json_dir = base_test_dir.join("json_history");
         std::fs::create_dir_all(&json_dir)?;
         Ok(json_dir)
@@ -52,11 +56,13 @@ impl TestPathGenerator {
 }
 
 /// automergeドキュメント履歴を管理するトレイト
-/// 
+///
 /// automergeを利用するテストで、１つ編集するごとにJSONスナップショットを出力する
 pub trait AutomergeHistoryExporter {
     /// 現在のautomergeドキュメント状態をJSONとしてエクスポート
-    async fn export_document_as_json(&self) -> Result<serde_json::Value, Box<dyn std::error::Error>>;
+    async fn export_document_as_json(
+        &self,
+    ) -> Result<serde_json::Value, Box<dyn std::error::Error>>;
 }
 
 /// automergeドキュメント履歴管理ヘルパー
@@ -75,9 +81,9 @@ impl AutomergeHistoryManager {
             test_name: test_name.to_string(),
         }
     }
-    
+
     /// automerge操作後の履歴をJSONファイルに保存
-    /// 
+    ///
     /// # Arguments
     /// * `exporter` - AutomergeHistoryExporterを実装したオブジェクト
     /// * `action` - 実行されたアクション名（例: "add_task", "update_subtask"）
@@ -124,16 +130,22 @@ impl AutomergeHistoryManager {
                 });
 
                 std::fs::write(&export_path, serde_json::to_string_pretty(&output_data)?)?;
-                println!("📄 Step {}: Exported automerge history to: {}", step, filename);
+                println!(
+                    "📄 Step {}: Exported automerge history to: {}",
+                    step, filename
+                );
             }
             Err(e) => {
-                println!("⚠️  Failed to export automerge JSON for step {}: {}", step, e);
+                println!(
+                    "⚠️  Failed to export automerge JSON for step {}: {}",
+                    step, e
+                );
             }
         }
 
         Ok(())
     }
-    
+
     /// 現在のステップ数を取得
     pub fn current_step(&self) -> usize {
         *self.step_counter.lock().unwrap()

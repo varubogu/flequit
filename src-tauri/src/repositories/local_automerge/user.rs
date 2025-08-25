@@ -86,15 +86,15 @@ impl UserLocalAutomergeRepository {
     /// メールアドレスでユーザーを検索
     pub async fn find_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError> {
         let users = self.list_users().await?;
-        Ok(users.into_iter().find(|user| user.email.as_ref() == Some(&email.to_string())))
+        Ok(users
+            .into_iter()
+            .find(|user| user.email.as_ref() == Some(&email.to_string())))
     }
 
     /// ユーザー名でユーザーを検索
     pub async fn find_by_username(&self, username: &str) -> Result<Option<User>, RepositoryError> {
         let users = self.list_users().await?;
-        Ok(users
-            .into_iter()
-            .find(|user| user.username == username))
+        Ok(users.into_iter().find(|user| user.username == username))
     }
 
     /// ユーザー名でユーザーを検索（部分一致）
@@ -372,7 +372,10 @@ mod tests {
 
         let found = repository.find_by_id(&test_user_id).await.unwrap();
         assert!(found.is_some());
-        assert_eq!(found.unwrap().email, Some("repo_test@example.com".to_string()));
+        assert_eq!(
+            found.unwrap().email,
+            Some("repo_test@example.com".to_string())
+        );
 
         let exists = repository.exists(&test_user_id).await.unwrap();
         assert!(exists);

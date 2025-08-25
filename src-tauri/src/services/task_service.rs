@@ -66,8 +66,7 @@ pub async fn list_tasks_by_assignee(
     let filtered_tasks = all_tasks
         .into_iter()
         .filter(|task| {
-            task
-                .assigned_user_ids
+            task.assigned_user_ids
                 .iter()
                 .any(|id| id.to_string() == user_id)
         })

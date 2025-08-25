@@ -9,6 +9,7 @@ use crate::models::task::Task;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskCommand {
     pub id: String,
+    pub project_id: String,
     pub sub_task_id: Option<String>,
     pub list_id: String,
     pub title: String,
@@ -83,10 +84,11 @@ impl ModelConverter<Task> for TaskCommand {
             None
         };
 
-        use crate::types::id_types::{SubTaskId, TagId, TaskId, TaskListId, UserId};
+        use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 
         Ok(crate::models::task::Task {
             id: TaskId::from(self.id.clone()),
+            project_id: ProjectId::from(self.project_id.clone()),
             sub_task_id: self
                 .sub_task_id
                 .as_ref()

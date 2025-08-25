@@ -179,8 +179,8 @@ pub async fn get_task_lists_with_tasks(
 
             let task_with_subtasks = crate::models::task::TaskTree {
                 id: task.id,
+                project_id: task.project_id,
                 sub_task_id: task.sub_task_id,
-                // project_id: task.project_id, // コメントアウト
                 list_id: task.list_id,
                 title: task.title,
                 description: task.description,
@@ -207,6 +207,7 @@ pub async fn get_task_lists_with_tasks(
         // TaskListTreeを構築
         let task_list_with_tasks = TaskListTree {
             id: task_list.id,
+            project_id: task_list.project_id,
             name: task_list.name,
             description: task_list.description,
             color: task_list.color,

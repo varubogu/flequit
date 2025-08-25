@@ -743,9 +743,10 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
 
     // テスト用TaskListデータを作成
     let task_list_id = TaskListId::new();
-    let _project_id = ProjectId::new();
+    let project_id = ProjectId::new();
     let task_list = TaskList {
         id: task_list_id.clone(),
+        project_id: project_id.clone(),
         name: "統合テスト用タスクリスト".to_string(),
         description: Some("Automerge Repository統合テストのためのタスクリスト".to_string()),
         color: Some("#3498db".to_string()),
@@ -871,10 +872,11 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
 
     // テスト用Taskデータを作成
     let task_id = TaskId::new();
-    let _project_id = ProjectId::new();
+    let project_id = ProjectId::new();
     let task_list_id = TaskListId::new();
     let task = Task {
         id: task_id.clone(),
+        project_id: project_id.clone(),
         sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "統合テスト用タスク".to_string(),
@@ -989,9 +991,11 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // テスト用SubTaskデータを作成
     let subtask_id = SubTaskId::new();
+    let project_id = ProjectId::new();
     let task_id = TaskId::new();
     let subtask = SubTask {
         id: subtask_id.clone(),
+        project_id: project_id.clone(),
         task_id: task_id.clone(),
         title: "統合テスト用サブタスク".to_string(),
         description: Some("Automerge Repository統合テストのためのサブタスク".to_string()),

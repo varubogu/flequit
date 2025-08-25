@@ -6,7 +6,9 @@
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::local_automerge::{
     account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
-    settings::SettingsLocalAutomergeRepository,
+    settings::SettingsLocalAutomergeRepository, subtask::SubTaskLocalAutomergeRepository,
+    tag::TagLocalAutomergeRepository, task::TaskLocalAutomergeRepository,
+    task_list::TaskListLocalAutomergeRepository,
 };
 use crate::services::path_service::PathService;
 
@@ -18,8 +20,10 @@ pub struct LocalAutomergeRepositories {
     pub projects: ProjectLocalAutomergeRepository,
     pub accounts: AccountLocalAutomergeRepository,
     pub settings: SettingsLocalAutomergeRepository,
-    // 注意: 個別のTaskList、Task、SubTask、TagのAutomergeリポジトリは廃止
-    // projectsを通じてプロジェクト統合ツリー構造でアクセス
+    pub task_lists: TaskListLocalAutomergeRepository,
+    pub tasks: TaskLocalAutomergeRepository,
+    pub sub_tasks: SubTaskLocalAutomergeRepository,
+    pub tags: TagLocalAutomergeRepository,
 }
 
 impl LocalAutomergeRepositories {
@@ -44,9 +48,33 @@ impl LocalAutomergeRepositories {
                     e
                 ))
             })?,
-            settings: SettingsLocalAutomergeRepository::new(data_dir).map_err(|e| {
+            settings: SettingsLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create SettingsRepository: {:?}",
+                    e
+                ))
+            })?,
+            task_lists: TaskListLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create TaskListRepository: {:?}",
+                    e
+                ))
+            })?,
+            tasks: TaskLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create TaskRepository: {:?}",
+                    e
+                ))
+            })?,
+            sub_tasks: SubTaskLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create SubTaskRepository: {:?}",
+                    e
+                ))
+            })?,
+            tags: TagLocalAutomergeRepository::new(data_dir).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create TagRepository: {:?}",
                     e
                 ))
             })?,

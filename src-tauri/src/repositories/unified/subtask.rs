@@ -127,7 +127,6 @@ impl SubTaskUnifiedRepository {
             .push(SubTaskRepositoryVariant::Automerge(automerge_repo));
     }
 
-
     /// 便利メソッド: SQLiteを保存用と検索用の両方に追加
     pub fn add_sqlite_for_both(
         &mut self,

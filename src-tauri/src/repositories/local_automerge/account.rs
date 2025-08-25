@@ -288,10 +288,10 @@ impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Utc;
-    use tempfile::TempDir;
     use crate::types::id_types::AccountId;
     use crate::types::id_types::UserId;
+    use chrono::Utc;
+    use tempfile::TempDir;
 
     #[tokio::test]
     async fn test_account_repository() {

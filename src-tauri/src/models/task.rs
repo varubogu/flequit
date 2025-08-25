@@ -76,6 +76,8 @@ pub struct Task {
     /// タスクの一意識別子
     #[partially(omit)] // IDは更新対象外
     pub id: TaskId,
+    /// 所属プロジェクトID
+    pub project_id: crate::types::id_types::ProjectId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
     pub sub_task_id: Option<SubTaskId>,
     /// 所属タスクリストID
@@ -151,12 +153,13 @@ pub struct Task {
 /// # use flequit_lib::models::task::TaskTree;
 /// # use flequit_lib::models::subtask::SubTask;
 /// # use flequit_lib::models::tag::Tag;
-/// # use flequit_lib::types::id_types::{TaskId, TaskListId, UserId, TagId, SubTaskId};
+/// # use flequit_lib::types::id_types::{TaskId, TaskListId, UserId, TagId, SubTaskId, ProjectId};
 /// # use flequit_lib::types::task_types::TaskStatus;
 ///
 /// // タスク詳細画面での使用例
 /// let detailed_task = TaskTree {
 ///     id: TaskId::new(),
+///     project_id: ProjectId::new(),
 ///     sub_task_id: None,
 ///     list_id: TaskListId::new(),
 ///     title: "新機能の実装".to_string(),
@@ -186,6 +189,8 @@ pub struct Task {
 pub struct TaskTree {
     /// タスクの一意識別子
     pub id: TaskId,
+    /// 所属プロジェクトID
+    pub project_id: crate::types::id_types::ProjectId,
     /// 親サブタスクID（タスクがサブタスクの一部の場合）
     pub sub_task_id: Option<SubTaskId>, // 追加
     /// 所属タスクリストID
@@ -230,6 +235,7 @@ impl CommandModelConverter<TaskCommand> for Task {
     async fn to_command_model(&self) -> Result<TaskCommand, String> {
         Ok(TaskCommand {
             id: self.id.to_string(),
+            project_id: self.project_id.to_string(),
             sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
             list_id: self.list_id.to_string(),
             title: self.title.clone(),
@@ -261,6 +267,7 @@ impl FromTreeModel<Task> for TaskTree {
         // TaskTreeからTaskに変換（関連データのsub_tasks, tagsは除く）
         Ok(Task {
             id: self.id.clone(),
+            project_id: self.project_id.clone(),
             sub_task_id: self.sub_task_id.clone(),
             list_id: self.list_id.clone(),
             title: self.title.clone(),

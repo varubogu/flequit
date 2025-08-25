@@ -44,7 +44,9 @@ pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError
     // UserLocalSqliteRepositoryのfind_by_emailメソッドを使用
     // 注意: これは統合リポジトリ経由では直接アクセスできないため、一時的にfind_allで検索
     let users = repository.users.find_all().await?;
-    Ok(users.into_iter().find(|u| u.email.as_ref() == Some(&email.to_string())))
+    Ok(users
+        .into_iter()
+        .find(|u| u.email.as_ref() == Some(&email.to_string())))
 }
 
 #[tracing::instrument(level = "trace")]
@@ -81,7 +83,7 @@ pub async fn update_user_with_permission_check(
     // プロフィール更新
     let mut updated_user = user.clone();
     updated_user.updated_at = Utc::now();
-    
+
     let repository = Repositories::new().await?;
     repository.users.save(&updated_user).await?;
     Ok(())
@@ -115,12 +117,12 @@ pub async fn is_email_exists(email: &str, exclude_id: Option<&str>) -> Result<bo
     let repository = Repositories::new().await?;
     let users = repository.users.find_all().await?;
 
-    let exists = users
-        .iter()
-        .any(|user| {
-            user.email.as_ref().map_or(false, |user_email| user_email == email)
-                && exclude_id.map_or(true, |id| user.id.to_string() != id)
-        });
+    let exists = users.iter().any(|user| {
+        user.email
+            .as_ref()
+            .map_or(false, |user_email| user_email == email)
+            && exclude_id.map_or(true, |id| user.id.to_string() != id)
+    });
 
     Ok(exists)
 }
