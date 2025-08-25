@@ -378,6 +378,12 @@ interface User {
 ```json
 {
   "id": "project-uuid-1",
+  "name": "プロジェクト名",
+  "description": "プロジェクトの説明文",
+  "status": "",
+  "is_archived": "",
+  "created_at": "2024-01-01T10:00:00.000Z",
+  "updated_at": "2024-01-01T10:00:00.000Z",
   "task_lists": [
     {
       "id": "list-uuid-1",
@@ -464,6 +470,8 @@ interface User {
 ```typescript
 interface Project {
   id: string;                   // プロジェクト一意識別子 (Rust: ProjectId → TS: string)
+  name: String;                 // プロジェクト名 (Rust: String → TS: string)
+  description: String;          // プロジェクト名 (Rust: String → TS: string)
   task_list: TaskList[];        // タスクリスト一覧 (Rust: Vec<TaskList> → TS: TaskList[])
   tasks: Task[];                // タスク一覧 (Rust: Vec<Task> → TS: Task[])
   sub_tasks: SubTask[];         // サブタスク一覧 (Rust: Vec<SubTask> → TS: SubTask[])
