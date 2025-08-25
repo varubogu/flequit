@@ -5,7 +5,7 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::user_repository_trait::UserRepositoryTrait;
 use crate::types::id_types::UserId;
 use async_trait::async_trait;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -166,6 +166,34 @@ impl UserLocalAutomergeRepository {
         }
 
         Ok(())
+    }
+
+    /// JSON出力機能：ユーザー変更履歴をエクスポート
+    #[tracing::instrument(level = "trace", skip(output_dir))]
+    pub async fn export_user_changes_history<P: AsRef<Path>>(
+        &self,
+        output_dir: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_changes_history(&DocumentType::User, &output_dir, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
+    }
+
+    /// JSON出力機能：現在のユーザー状態をファイルにエクスポート
+    #[tracing::instrument(level = "trace", skip(file_path))]
+    pub async fn export_user_state<P: AsRef<Path>>(
+        &self,
+        file_path: P,
+        description: Option<&str>,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        manager
+            .export_document_to_file(&DocumentType::User, &file_path, description)
+            .await
+            .map_err(|e| RepositoryError::Export(e.to_string()))
     }
 }
 

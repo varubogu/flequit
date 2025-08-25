@@ -56,22 +56,18 @@ impl Repositories {
         let mut task_lists = TaskListUnifiedRepository::new(vec![], vec![]);
         task_lists.add_sqlite_for_save(save_sqlite_repos.task_lists);
         task_lists.add_sqlite_for_search(search_sqlite_repos.task_lists);
-        task_lists.add_project_tree_for_save(automerge_repos.project_trees.clone());
 
         let mut tasks = TaskUnifiedRepository::new(vec![], vec![]);
         tasks.add_sqlite_for_save(save_sqlite_repos.tasks);
         tasks.add_sqlite_for_search(search_sqlite_repos.tasks);
-        tasks.add_project_tree_for_save(automerge_repos.project_trees.clone());
 
         let mut sub_tasks = SubTaskUnifiedRepository::new(vec![], vec![]);
         sub_tasks.add_sqlite_for_save(save_sqlite_repos.sub_tasks);
         sub_tasks.add_sqlite_for_search(search_sqlite_repos.sub_tasks);
-        sub_tasks.add_project_tree_for_save(automerge_repos.project_trees.clone());
 
         let mut tags = TagUnifiedRepository::new(vec![], vec![]);
         tags.add_sqlite_for_save(save_sqlite_repos.tags);
         tags.add_sqlite_for_search(search_sqlite_repos.tags);
-        tags.add_project_tree_for_save(automerge_repos.project_trees.clone());
 
         let mut accounts = AccountUnifiedRepository::new(vec![], vec![]);
         accounts.add_sqlite_for_save(save_sqlite_repos.accounts);

@@ -1,13 +1,62 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::RepositoryError;
-use crate::models::project::Project;
+use crate::models::{
+    project::{Project, Member},
+    subtask::SubTask,
+    tag::Tag,
+    task::Task,
+    task_list::TaskList,
+};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
-use crate::types::id_types::ProjectId;
+use crate::types::id_types::{ProjectId, UserId};
+use crate::types::project_types::{MemberRole, ProjectStatus};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
+
+/// Project Document構造（data-structure.md仕様準拠）
+/// 
+/// models/project::Projectの全プロパティ + プロジェクト内のすべてのエンティティを含む
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectDocument {
+    // models/project::Projectのプロパティ
+    /// プロジェクトの一意識別子
+    pub id: String,
+    /// プロジェクト名（必須）
+    pub name: String,
+    /// プロジェクトの説明文
+    pub description: Option<String>,
+    /// UI表示用のカラーコード（Svelteフロントエンド対応）
+    pub color: Option<String>,
+    /// 表示順序（昇順ソート用）
+    pub order_index: i32,
+    /// アーカイブ状態フラグ
+    pub is_archived: bool,
+    /// プロジェクトステータス（進行中、完了等）
+    pub status: Option<ProjectStatus>,
+    /// プロジェクトオーナーのユーザーID
+    pub owner_id: Option<UserId>,
+    /// プロジェクト作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    
+    // プロジェクト内のエンティティ
+    /// タスクリスト配列
+    pub task_lists: Vec<TaskList>,
+    /// タスク配列
+    pub tasks: Vec<Task>,
+    /// サブタスク配列
+    pub subtasks: Vec<SubTask>,
+    /// タグ配列
+    pub tags: Vec<Tag>,
+    /// メンバー配列
+    pub members: Vec<Member>,
+}
 
 /// Automerge実装のプロジェクトリポジトリ
 ///
@@ -45,7 +94,7 @@ impl ProjectLocalAutomergeRepository {
         })
     }
 
-    /// 全プロジェクトを取得
+    /// 全プロジェクトを取得（基本情報のみ）
     #[tracing::instrument(level = "trace")]
     pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let projects = {
@@ -61,6 +110,117 @@ impl ProjectLocalAutomergeRepository {
         }
     }
 
+    /// プロジェクトドキュメント全体を取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_project_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Option<ProjectDocument>, RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        let doc_type = DocumentType::Project(project_id.to_string());
+
+        // 基本プロジェクト情報の読み込み
+        let id: Option<String> = manager.load_data(&doc_type, "id").await?;
+        let name: Option<String> = manager.load_data(&doc_type, "name").await?;
+        let description: Option<Option<String>> = manager.load_data(&doc_type, "description").await?;
+        let color: Option<Option<String>> = manager.load_data(&doc_type, "color").await?;
+        let order_index: Option<i32> = manager.load_data(&doc_type, "order_index").await?;
+        let is_archived: Option<bool> = manager.load_data(&doc_type, "is_archived").await?;
+        let status: Option<Option<ProjectStatus>> = manager.load_data(&doc_type, "status").await?;
+        let owner_id: Option<Option<UserId>> = manager.load_data(&doc_type, "owner_id").await?;
+        let created_at: Option<DateTime<Utc>> = manager.load_data(&doc_type, "created_at").await?;
+        let updated_at: Option<DateTime<Utc>> = manager.load_data(&doc_type, "updated_at").await?;
+
+        // プロジェクト内エンティティの読み込み
+        let task_lists: Option<Vec<TaskList>> = manager.load_data(&doc_type, "task_lists").await?;
+        let tasks: Option<Vec<Task>> = manager.load_data(&doc_type, "tasks").await?;
+        let subtasks: Option<Vec<SubTask>> = manager.load_data(&doc_type, "subtasks").await?;
+        let tags: Option<Vec<Tag>> = manager.load_data(&doc_type, "tags").await?;
+        let members: Option<Vec<Member>> = manager.load_data(&doc_type, "members").await?;
+
+        // 必須フィールドが存在する場合のみProjectDocumentを構築
+        if let (Some(id), Some(name), Some(created_at), Some(updated_at)) = 
+            (id, name, created_at, updated_at) {
+            Ok(Some(ProjectDocument {
+                id,
+                name,
+                description: description.unwrap_or(None),
+                color: color.unwrap_or(None),
+                order_index: order_index.unwrap_or(0),
+                is_archived: is_archived.unwrap_or(false),
+                status: status.unwrap_or(None),
+                owner_id: owner_id.unwrap_or(None),
+                created_at,
+                updated_at,
+                task_lists: task_lists.unwrap_or_default(),
+                tasks: tasks.unwrap_or_default(),
+                subtasks: subtasks.unwrap_or_default(),
+                tags: tags.unwrap_or_default(),
+                members: members.unwrap_or_default(),
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// プロジェクトドキュメント全体を保存
+    #[tracing::instrument(level = "trace")]
+    pub async fn save_project_document(
+        &self,
+        project_document: &ProjectDocument,
+    ) -> Result<(), RepositoryError> {
+        let mut manager = self.document_manager.lock().await;
+        let doc_type = DocumentType::Project(project_document.id.clone());
+
+        // 基本プロジェクト情報を個別に保存
+        manager.save_data(&doc_type, "id", &project_document.id).await?;
+        manager.save_data(&doc_type, "name", &project_document.name).await?;
+        manager.save_data(&doc_type, "description", &project_document.description).await?;
+        manager.save_data(&doc_type, "color", &project_document.color).await?;
+        manager.save_data(&doc_type, "order_index", &project_document.order_index).await?;
+        manager.save_data(&doc_type, "is_archived", &project_document.is_archived).await?;
+        manager.save_data(&doc_type, "status", &project_document.status).await?;
+        manager.save_data(&doc_type, "owner_id", &project_document.owner_id).await?;
+        manager.save_data(&doc_type, "created_at", &project_document.created_at).await?;
+        manager.save_data(&doc_type, "updated_at", &project_document.updated_at).await?;
+
+        // プロジェクト内エンティティを個別に保存
+        manager.save_data(&doc_type, "task_lists", &project_document.task_lists).await?;
+        manager.save_data(&doc_type, "tasks", &project_document.tasks).await?;
+        manager.save_data(&doc_type, "subtasks", &project_document.subtasks).await?;
+        manager.save_data(&doc_type, "tags", &project_document.tags).await?;
+        manager.save_data(&doc_type, "members", &project_document.members).await?;
+        
+        Ok(())
+    }
+
+    /// 空のプロジェクトドキュメントを作成
+    #[tracing::instrument(level = "trace")]
+    pub async fn create_empty_project_document(
+        &self,
+        project: &Project,
+    ) -> Result<(), RepositoryError> {
+        let empty_document = ProjectDocument {
+            id: project.id.to_string(),
+            name: project.name.clone(),
+            description: project.description.clone(),
+            color: project.color.clone(),
+            order_index: project.order_index,
+            is_archived: project.is_archived,
+            status: project.status.clone(),
+            owner_id: project.owner_id.clone(),
+            created_at: project.created_at,
+            updated_at: project.updated_at,
+            task_lists: Vec::new(),
+            tasks: Vec::new(),
+            subtasks: Vec::new(),
+            tags: Vec::new(),
+            members: Vec::new(),
+        };
+        
+        self.save_project_document(&empty_document).await
+    }
+
     /// IDでプロジェクトを取得
     #[tracing::instrument(level = "trace")]
     pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, RepositoryError> {
@@ -68,37 +228,222 @@ impl ProjectLocalAutomergeRepository {
         Ok(projects.into_iter().find(|p| p.id == project_id.into()))
     }
 
-    /// プロジェクトを作成または更新
+    /// プロジェクトを作成または更新（基本情報のみ）
     #[tracing::instrument(level = "trace")]
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("set_project - 開始: {:?}", project.id);
-        let mut projects = self.list_projects().await?;
-        log::info!("set_project - 現在のプロジェクト数: {}", projects.len());
+        
+        // プロジェクトドキュメントが存在するか確認
+        if let Some(mut document) = self.get_project_document(&project.id).await? {
+            log::info!("set_project - 既存プロジェクトドキュメントを更新: {:?}", project.id);
+            // 基本情報のみ更新（エンティティは保持）
+            document.name = project.name.clone();
+            document.description = project.description.clone();
+            document.color = project.color.clone();
+            document.order_index = project.order_index;
+            document.is_archived = project.is_archived;
+            document.status = project.status.clone();
+            document.owner_id = project.owner_id.clone();
+            document.updated_at = project.updated_at;
+            
+            self.save_project_document(&document).await?
+        } else {
+            log::info!("set_project - 新規プロジェクトドキュメント作成: {:?}", project.id);
+            // 新規プロジェクトドキュメントを作成
+            self.create_empty_project_document(project).await?
+        }
 
-        // 既存のプロジェクトを更新、または新規追加
+        // プロジェクト一覧も更新
+        let mut projects = self.list_projects().await?;
         if let Some(existing) = projects.iter_mut().find(|p| p.id == project.id) {
-            log::info!("set_project - 既存プロジェクトを更新: {:?}", project.id);
             *existing = project.clone();
         } else {
-            log::info!("set_project - 新規プロジェクト追加: {:?}", project.id);
             projects.push(project.clone());
         }
 
-        {
-            let mut manager = self.document_manager.lock().await;
-            log::info!("set_project - DocumentManager取得完了");
-            let result = manager
-                .save_data(&DocumentType::Settings, "projects", &projects)
-                .await;
-            if result.is_ok() {
-                log::info!("set_project - Automergeドキュメント保存完了");
-            } else {
-                log::error!(
-                    "set_project - Automergeドキュメント保存エラー: {:?}",
-                    result
-                );
-            }
-            result
+        let mut manager = self.document_manager.lock().await;
+        let result = manager
+            .save_data(&DocumentType::Settings, "projects", &projects)
+            .await;
+        
+        if result.is_ok() {
+            log::info!("set_project - Automergeドキュメント保存完了");
+        } else {
+            log::error!(
+                "set_project - Automergeドキュメント保存エラー: {:?}",
+                result
+            );
+        }
+        result
+    }
+
+    /// タスクリストを追加
+    #[tracing::instrument(level = "trace")]
+    pub async fn add_task_list(
+        &self,
+        project_id: &ProjectId,
+        task_list: &TaskList,
+    ) -> Result<(), RepositoryError> {
+        // プロジェクトドキュメントを取得または作成
+        let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
+            doc
+        } else {
+            return Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                project_id
+            )));
+        };
+
+        // タスクリストを追加
+        document.task_lists.push(task_list.clone());
+        document.updated_at = Utc::now();
+        
+        self.save_project_document(&document).await
+    }
+
+    /// タスクを追加
+    #[tracing::instrument(level = "trace")]
+    pub async fn add_task(
+        &self,
+        project_id: &ProjectId,
+        task: &Task,
+    ) -> Result<(), RepositoryError> {
+        // プロジェクトドキュメントを取得または作成
+        let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
+            doc
+        } else {
+            return Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                project_id
+            )));
+        };
+
+        // タスクを追加
+        document.tasks.push(task.clone());
+        document.updated_at = Utc::now();
+        
+        self.save_project_document(&document).await
+    }
+
+    /// サブタスクを追加
+    #[tracing::instrument(level = "trace")]
+    pub async fn add_subtask(
+        &self,
+        project_id: &ProjectId,
+        subtask: &SubTask,
+    ) -> Result<(), RepositoryError> {
+        // プロジェクトドキュメントを取得または作成
+        let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
+            doc
+        } else {
+            return Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                project_id
+            )));
+        };
+
+        // サブタスクを追加
+        document.subtasks.push(subtask.clone());
+        document.updated_at = Utc::now();
+        
+        self.save_project_document(&document).await
+    }
+
+    /// タグを追加
+    #[tracing::instrument(level = "trace")]
+    pub async fn add_tag(
+        &self,
+        project_id: &ProjectId,
+        tag: &Tag,
+    ) -> Result<(), RepositoryError> {
+        // プロジェクトドキュメントを取得または作成
+        let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
+            doc
+        } else {
+            return Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                project_id
+            )));
+        };
+
+        // タグを追加
+        document.tags.push(tag.clone());
+        document.updated_at = Utc::now();
+        
+        self.save_project_document(&document).await
+    }
+
+    /// メンバーを追加
+    #[tracing::instrument(level = "trace")]
+    pub async fn add_member(
+        &self,
+        project_id: &ProjectId,
+        member: &Member,
+    ) -> Result<(), RepositoryError> {
+        // プロジェクトドキュメントを取得または作成
+        let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
+            doc
+        } else {
+            return Err(RepositoryError::NotFound(format!(
+                "Project not found: {}",
+                project_id
+            )));
+        };
+
+        // メンバーを追加
+        document.members.push(member.clone());
+        document.updated_at = Utc::now();
+        
+        self.save_project_document(&document).await
+    }
+
+    /// プロジェクト内の全タスクを取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+        if let Some(document) = self.get_project_document(project_id).await? {
+            Ok(document.tasks)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    /// プロジェクト内の全タスクリストを取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_task_lists(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
+        if let Some(document) = self.get_project_document(project_id).await? {
+            Ok(document.task_lists)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    /// プロジェクト内の全サブタスクを取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_subtasks(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
+        if let Some(document) = self.get_project_document(project_id).await? {
+            Ok(document.subtasks)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    /// プロジェクト内の全タグを取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
+        if let Some(document) = self.get_project_document(project_id).await? {
+            Ok(document.tags)
+        } else {
+            Ok(Vec::new())
+        }
+    }
+
+    /// プロジェクト内の全メンバーを取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_members(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
+        if let Some(document) = self.get_project_document(project_id).await? {
+            Ok(document.members)
+        } else {
+            Ok(Vec::new())
         }
     }
 

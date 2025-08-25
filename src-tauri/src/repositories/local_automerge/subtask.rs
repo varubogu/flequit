@@ -9,7 +9,27 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-/// SubTask用のAutomerge-Repoリポジトリ
+/// Automerge実装のサブタスクリポジトリ
+///
+/// `Repository<SubTask>`と`SubTaskRepositoryTrait`を実装し、
+/// Automerge-Repoを使用したサブタスク管理を提供する。
+///
+/// # アーキテクチャ
+///
+/// ```text
+/// LocalAutomergeSubTaskRepository (このクラス)
+///   | 委譲
+/// InnerSubTasksRepository (既存の実装)
+///   | データアクセス
+/// Automerge Documents
+/// ```
+///
+/// # 特徴
+///
+/// - **分散同期**: CRDTによる競合解決機能
+/// - **履歴管理**: すべての変更履歴を保持
+/// - **オフライン対応**: ローカル優先で同期可能
+/// - **JSON互換**: 構造化データの効率的な管理
 #[derive(Debug)]
 pub struct SubTaskLocalAutomergeRepository {
     document_manager: Arc<Mutex<DocumentManager>>,
@@ -17,6 +37,7 @@ pub struct SubTaskLocalAutomergeRepository {
 
 impl SubTaskLocalAutomergeRepository {
     /// 新しいSubTaskRepositoryを作成
+    #[tracing::instrument(level = "trace")]
     pub fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -25,6 +46,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// 全サブタスクを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn list_subtasks(&self) -> Result<Vec<SubTask>, RepositoryError> {
         let subtasks = {
             let mut manager = self.document_manager.lock().await;
@@ -40,6 +62,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// IDでサブタスクを取得
+    #[tracing::instrument(level = "trace")]
     pub async fn get_subtask(&self, subtask_id: &str) -> Result<Option<SubTask>, RepositoryError> {
         let subtasks = self.list_subtasks().await?;
         Ok(subtasks.into_iter().find(|st| st.id == subtask_id.into()))

@@ -8,13 +8,13 @@ use serde_json::Value;
 
 use crate::test_utils::{TestPathGenerator, AutomergeHistoryExporter, AutomergeHistoryManager, TestCleanupHelper};
 
-use flequit_lib::models::project::Member;
+use flequit_lib::models::project::{Member, Project};
 use flequit_lib::models::subtask::SubTask;
 use flequit_lib::models::tag::Tag;
 use flequit_lib::models::task::Task;
 use flequit_lib::models::task_list::TaskList;
-use flequit_lib::repositories::local_automerge::project_tree::{
-    ProjectDocumentLocalAutomergeRepository, ProjectDocument,
+use flequit_lib::repositories::local_automerge::project::{
+    ProjectLocalAutomergeRepository, ProjectDocument,
 };
 use flequit_lib::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_lib::types::project_types::MemberRole;
@@ -22,13 +22,13 @@ use flequit_lib::types::task_types::TaskStatus;
 
 /// テスト用ProjectDocumentRepositoryラッパー - automerge履歴出力機能付き
 struct TestProjectDocumentRepository {
-    inner: ProjectDocumentLocalAutomergeRepository,
+    inner: ProjectLocalAutomergeRepository,
     current_project_id: Option<ProjectId>,
 }
 
 impl TestProjectDocumentRepository {
     fn new(automerge_dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        let repository = ProjectDocumentLocalAutomergeRepository::new(automerge_dir)?;
+        let repository = ProjectLocalAutomergeRepository::new(automerge_dir)?;
         Ok(Self { 
             inner: repository,
             current_project_id: None,
@@ -42,7 +42,20 @@ impl TestProjectDocumentRepository {
 
     // 元のメソッドを委譲
     async fn create_empty_project_document(&self, project_id: &ProjectId) -> Result<(), Box<dyn std::error::Error>> {
-        Ok(self.inner.create_empty_project_document(project_id).await?)
+        // 統合後のAPIではProject構造体が必要
+        let project = Project {
+            id: project_id.clone(),
+            name: format!("Test Project {}", project_id),
+            description: Some("Test project description".to_string()),
+            color: None,
+            order_index: 0,
+            is_archived: false,
+            status: None,
+            owner_id: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        };
+        Ok(self.inner.create_empty_project_document(&project).await?)
     }
 
     async fn get_project_document(&self, project_id: &ProjectId) -> Result<Option<ProjectDocument>, Box<dyn std::error::Error>> {
