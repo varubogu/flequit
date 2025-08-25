@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/develop/design/architecture.md` - 全体アーキテクチャ
 - `docs/develop/design/data/` - データ関連設計
   - `data-structure.md` - データ構造仕様
-  - `data-security.md` - セキュリティ設計 
+  - `data-security.md` - セキュリティ設計
   - `tauri-automerge-repo-dataflow.md` - データフロー設計
   - `partial-update-implementation.md` - 部分更新システム実装詳細
 - `docs/develop/design/frontend/` - フロントエンド設計
@@ -22,6 +22,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 開発ルール
 - `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
+- 加えて、bunとcargoの両方で、ビルド時と全体テスト実行時はワーカー数を4に制限する（ユーザーの意図せぬ負荷を防ぐため）
+  - cargo test -j 4
+  - bun run test    # こちらは設定ファイルで設定済みなので意識しなくても良い
 
 ### 要件定義
 - `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
