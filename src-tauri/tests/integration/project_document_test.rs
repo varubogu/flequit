@@ -7,7 +7,7 @@ use serde_json::Value;
 use std::path::PathBuf;
 
 use crate::test_utils::{
-    AutomergeHistoryExporter, AutomergeHistoryManager, TestCleanupHelper, TestPathGenerator,
+    AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator,
 };
 
 use flequit_lib::models::project::{Member, Project};

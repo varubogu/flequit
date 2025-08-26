@@ -1,5 +1,3 @@
-mod automerge_repo_test;
-mod local_automerge_repository_test;
-mod local_sqlite_repository_test;
+mod local_automerge;
+mod local_sqlite;
 mod project_document_test;
-

@@ -6,7 +6,9 @@
 use chrono::Utc;
 use serde_json::json;
 use std::path::{Path, PathBuf};
-use tempfile::TempDir;
+
+// TestPathGeneratorを使用するためのインポート
+use crate::test_utils::TestPathGenerator;
 
 use flequit_lib::models::project::Project;
 use flequit_lib::models::subtask::SubTask;
@@ -106,9 +108,10 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn std::error::
 /// プロジェクトリポジトリの基本CRUD操作テスト
 #[tokio::test]
 async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_project_repository_crud_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // プロジェクトリポジトリを作成
@@ -194,9 +197,10 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
 /// 複数プロジェクトの並行処理テスト
 #[tokio::test]
 async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_multiple_projects_concurrent_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
@@ -274,10 +278,11 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
 /// プロジェクトの段階的変更とautomerge履歴テスト
 #[tokio::test]
 async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir =
         create_persistent_test_dir("test_project_incremental_changes_with_history");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
@@ -302,7 +307,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     println!("✅ Stage 1: Basic project created");
 
     // Stage 1の状態をエクスポート
-    let stage1_export_path = temp_dir.path().join("exports/stage1_project_creation.json");
+    let stage1_export_path = &temp_dir_path.join("exports/stage1_project_creation.json");
     std::fs::create_dir_all(stage1_export_path.parent().unwrap())?;
     repository
         .export_project_state(&stage1_export_path, Some("Stage 1: 基本プロジェクト作成"))
@@ -320,7 +325,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     println!("✅ Stage 2: Tags and members added");
 
     // Stage 2の状態をエクスポート
-    let stage2_export_path = temp_dir.path().join("exports/stage2_tags_members.json");
+    let stage2_export_path = &temp_dir_path.join("exports/stage2_tags_members.json");
     repository
         .export_project_state(&stage2_export_path, Some("Stage 2: タグとメンバー追加"))
         .await?;
@@ -338,7 +343,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     println!("✅ Stage 3: Project fully enhanced");
 
     // Stage 3の状態をエクスポート
-    let stage3_export_path = temp_dir.path().join("exports/stage3_final_project.json");
+    let stage3_export_path = &temp_dir_path.join("exports/stage3_final_project.json");
     repository
         .export_project_state(
             &stage3_export_path,
@@ -362,7 +367,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     );
 
     // 詳細変更履歴をエクスポート
-    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    let changes_history_dir = &temp_dir_path.join("detailed_changes_history");
     repository
         .export_project_changes_history(
             &changes_history_dir,
@@ -384,7 +389,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
 
     // エクスポートしたJSONファイルも永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_project_incremental_changes_with_history",
     )?;
@@ -396,10 +401,11 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
 #[tokio::test]
 async fn test_project_repository_json_export_with_detailed_changes(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir =
         create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
@@ -425,8 +431,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト1作成完了: {}", project1.name);
 
     // Change 1をエクスポート
-    let change1_path = temp_dir
-        .path()
+    let change1_path = temp_dir_path
         .join("project_changes/change_1_first_project.json");
     std::fs::create_dir_all(change1_path.parent().unwrap())?;
     repository
@@ -452,8 +457,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト2作成完了: {}", project2.name);
 
     // Change 2をエクスポート
-    let change2_path = temp_dir
-        .path()
+    let change2_path = temp_dir_path
         .join("project_changes/change_2_second_project.json");
     repository
         .export_project_state(&change2_path, Some("Change 2: Second project added"))
@@ -471,8 +475,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
 
     // Change 3をエクスポート
-    let change3_path = temp_dir
-        .path()
+    let change3_path = temp_dir_path
         .join("project_changes/change_3_updated_first_project.json");
     repository
         .export_project_state(
@@ -500,8 +503,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト3作成完了: {}", project3.name);
 
     // Change 4をエクスポート
-    let change4_path = temp_dir
-        .path()
+    let change4_path = temp_dir_path
         .join("project_changes/change_4_complex_third_project.json");
     repository
         .export_project_state(
@@ -520,8 +522,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
 
     // Change 5をエクスポート
-    let change5_path = temp_dir
-        .path()
+    let change5_path = temp_dir_path
         .join("project_changes/change_5_archived_second_project.json");
     repository
         .export_project_state(&change5_path, Some("Change 5: Second project archived"))
@@ -541,7 +542,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     );
 
     // 詳細変更履歴をエクスポート
-    let detailed_changes_dir = temp_dir.path().join("detailed_automerge_changes");
+    let detailed_changes_dir = &temp_dir_path.join("detailed_automerge_changes");
     repository.export_project_changes_history(
         &detailed_changes_dir,
         Some("Complete project repository evolution with multiple projects and complex modifications")
@@ -555,7 +556,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
 
     // 全データを永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_project_repository_json_export_with_detailed_changes",
     )?;
@@ -567,9 +568,10 @@ async fn test_project_repository_json_export_with_detailed_changes(
 #[tokio::test]
 #[ignore] // UserとAccountのリポジトリ実装が未完成のため一時的に無効化
 async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_multiple_repository_types_integration");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // プロジェクトリポジトリのみ使用（他のリポジトリは実装が未完成）
@@ -624,9 +626,10 @@ async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std:
 /// エラーハンドリングと例外ケースのテスト
 #[tokio::test]
 async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_error_handling_and_edge_cases");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone())?;
@@ -733,9 +736,10 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
 /// TaskListリポジトリの基本CRUD操作テスト
 #[tokio::test]
 async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_task_list_repository_crud_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // TaskListリポジトリを作成
@@ -815,7 +819,7 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     println!("✅ TaskList count: {}", count);
 
     // 詳細変更履歴をエクスポート
-    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    let changes_history_dir = &temp_dir_path.join("detailed_changes_history");
     repository
         .export_task_list_changes_history(
             &changes_history_dir,
@@ -851,7 +855,7 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
 
     // エクスポートしたJSONファイルも永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_task_list_repository_crud_operations",
     )?;
@@ -862,9 +866,10 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
 /// TaskリポジトリのCRUD操作テスト
 #[tokio::test]
 async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_task_repository_crud_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // Taskリポジトリを作成
@@ -939,7 +944,7 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     println!("✅ Task list retrieved: {} tasks found", all_tasks.len());
 
     // 詳細変更履歴をエクスポート
-    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    let changes_history_dir = &temp_dir_path.join("detailed_changes_history");
     repository
         .export_task_changes_history(
             &changes_history_dir,
@@ -970,7 +975,7 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
 
     // エクスポートしたJSONファイルも永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_task_repository_crud_operations",
     )?;
@@ -981,9 +986,10 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
 /// SubTaskリポジトリのCRUD操作テスト
 #[tokio::test]
 async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_subtask_repository_crud_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // SubTaskリポジトリを作成
@@ -1060,7 +1066,7 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     );
 
     // 詳細変更履歴をエクスポート
-    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    let changes_history_dir = &temp_dir_path.join("detailed_changes_history");
     repository
         .export_subtask_changes_history(
             &changes_history_dir,
@@ -1091,7 +1097,7 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // エクスポートしたJSONファイルも永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_subtask_repository_crud_operations",
     )?;
@@ -1102,9 +1108,10 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
 /// TagリポジトリのCRUD操作テスト
 #[tokio::test]
 async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_tag_repository_crud_operations");
-    let automerge_dir = temp_dir.path().join("automerge_data");
+    let automerge_dir = &temp_dir_path.join("automerge_data");
     std::fs::create_dir_all(&automerge_dir)?;
 
     // Tagリポジトリを作成
@@ -1161,7 +1168,7 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     println!("✅ Tag list retrieved: {} tags found", all_tags.len());
 
     // 詳細変更履歴をエクスポート
-    let changes_history_dir = temp_dir.path().join("detailed_changes_history");
+    let changes_history_dir = &temp_dir_path.join("detailed_changes_history");
     repository
         .export_tag_changes_history(
             &changes_history_dir,
@@ -1192,7 +1199,7 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
 
     // エクスポートしたJSONファイルも永続保存にコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_tag_repository_crud_operations",
     )?;

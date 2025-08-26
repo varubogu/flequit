@@ -5,10 +5,12 @@
 
 use serde_json::json;
 use std::path::{Path, PathBuf};
-use tempfile::TempDir;
 
 use flequit_lib::repositories::local_automerge::document_manager::{DocumentManager, DocumentType};
 use flequit_lib::repositories::local_automerge::file_storage::FileStorage;
+
+// TestPathGeneratorを使用するためのインポート
+use crate::test_utils::TestPathGenerator;
 
 /// テスト用DocumentManagerラッパー - 自動JSON履歴出力機能付き
 struct TestDocumentManager {
@@ -592,8 +594,8 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), Box<dyn std::error::
 #[tokio::test]
 async fn test_file_storage_basic_operations() -> Result<(), Box<dyn std::error::Error>> {
     // テンポラリディレクトリを作成
-    let temp_dir = TempDir::new()?;
-    let storage_path = temp_dir.path().to_path_buf();
+    let storage_path = TestPathGenerator::generate_test_dir(file!(), "test_storage");
+    std::fs::create_dir_all(&storage_path)?;
 
     println!("テストディレクトリ: {:?}", storage_path);
 
@@ -619,8 +621,8 @@ async fn test_file_storage_basic_operations() -> Result<(), Box<dyn std::error::
 #[tokio::test]
 async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Error>> {
     // テンポラリディレクトリを作成
-    let temp_dir = TempDir::new()?;
-    let manager_path = temp_dir.path().to_path_buf();
+    let manager_path = TestPathGenerator::generate_test_dir(file!(), "test_manager");
+    std::fs::create_dir_all(&manager_path)?;
 
     println!("テストディレクトリ: {:?}", manager_path);
 
@@ -640,7 +642,7 @@ async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Erro
     // 永続保存ディレクトリにコピー
     let persistent_dir = create_persistent_test_dir("test_document_manager_creation");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &manager_path,
         &persistent_dir,
         "test_document_manager_creation",
     )?;
@@ -652,8 +654,8 @@ async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Erro
 #[tokio::test]
 async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>> {
     // テンポラリディレクトリを作成
-    let temp_dir = TempDir::new()?;
-    let manager_path = temp_dir.path().to_path_buf();
+    let manager_path = TestPathGenerator::generate_test_dir(file!(), "test_manager");
+    std::fs::create_dir_all(&manager_path)?;
 
     let mut manager = TestDocumentManager::new(&manager_path, "test_multiple_document_types")?;
 
@@ -687,7 +689,7 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
     // 永続保存ディレクトリにコピー
     let persistent_dir = create_persistent_test_dir("test_multiple_document_types");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &manager_path,
         &persistent_dir,
         "test_multiple_document_types",
     )?;
@@ -698,8 +700,9 @@ async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>
 /// 単純なデータの書き込み・読み込みテスト
 #[tokio::test]
 async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_simple_data_write_read")?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = TestDocumentManager::new(&temp_dir_path, "test_simple_data_write_read")?;
 
     let doc_type = DocumentType::Settings;
 
@@ -722,7 +725,7 @@ async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>>
     // 永続保存ディレクトリにコピー
     let persistent_dir = create_persistent_test_dir("test_simple_data_write_read");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_simple_data_write_read",
     )?;
@@ -733,9 +736,10 @@ async fn test_simple_data_write_read() -> Result<(), Box<dyn std::error::Error>>
 /// 複雑なJSONデータの書き込み・読み込みテスト
 #[tokio::test]
 async fn test_complex_json_data_write_read() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager =
-        TestDocumentManager::new(temp_dir.path(), "test_complex_json_data_write_read")?;
+        TestDocumentManager::new(&temp_dir_path, "test_complex_json_data_write_read")?;
 
     let doc_type = DocumentType::Settings;
 
@@ -799,7 +803,7 @@ async fn test_complex_json_data_write_read() -> Result<(), Box<dyn std::error::E
     // 永続保存ディレクトリにコピー
     let persistent_dir = create_persistent_test_dir("test_complex_json_data_write_read");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_complex_json_data_write_read",
     )?;
@@ -810,8 +814,9 @@ async fn test_complex_json_data_write_read() -> Result<(), Box<dyn std::error::E
 /// 異なるドキュメント間でのデータ分離テスト
 #[tokio::test]
 async fn test_document_isolation() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     // 異なるドキュメントタイプを使用
     let settings_doc = DocumentType::Settings;
@@ -845,8 +850,9 @@ async fn test_document_isolation() -> Result<(), Box<dyn std::error::Error>> {
 /// ドキュメント削除テスト
 #[tokio::test]
 async fn test_document_deletion() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -870,8 +876,9 @@ async fn test_document_deletion() -> Result<(), Box<dyn std::error::Error>> {
 /// キャッシュクリアテスト
 #[tokio::test]
 async fn test_cache_clear() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -900,8 +907,9 @@ async fn test_cache_clear() -> Result<(), Box<dyn std::error::Error>> {
 /// パス指定でのデータ保存・読み込みテスト
 #[tokio::test]
 async fn test_path_based_data_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -935,8 +943,9 @@ async fn test_path_based_data_operations() -> Result<(), Box<dyn std::error::Err
 /// 順次実行でのデータ保存・読み込みテスト
 #[tokio::test]
 async fn test_sequential_operations() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -962,8 +971,9 @@ async fn test_sequential_operations() -> Result<(), Box<dyn std::error::Error>> 
 /// ドキュメント変更履歴・差分テスト
 #[tokio::test]
 async fn test_document_changes_tracking() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -994,8 +1004,9 @@ async fn test_document_changes_tracking() -> Result<(), Box<dyn std::error::Erro
 /// 複数ドキュメントの並行変更テスト
 #[tokio::test]
 async fn test_concurrent_document_modifications() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let settings_doc = DocumentType::Settings;
     let account_doc = DocumentType::Account;
@@ -1047,8 +1058,9 @@ async fn test_concurrent_document_modifications() -> Result<(), Box<dyn std::err
 /// 段階的なデータ変更テスト
 #[tokio::test]
 async fn test_incremental_data_changes() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Project("incremental-test".to_string());
 
@@ -1112,8 +1124,9 @@ async fn test_incremental_data_changes() -> Result<(), Box<dyn std::error::Error
 /// 異なるデータ型の変更テスト
 #[tokio::test]
 async fn test_data_type_changes() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -1144,8 +1157,9 @@ async fn test_data_type_changes() -> Result<(), Box<dyn std::error::Error>> {
 /// 大量データの差分処理テスト
 #[tokio::test]
 async fn test_large_data_incremental_updates() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::User;
 
@@ -1205,9 +1219,10 @@ async fn test_large_data_incremental_updates() -> Result<(), Box<dyn std::error:
 /// JSON出力機能の単体テスト
 #[tokio::test]
 async fn test_json_export_functionality() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_json_export_functionality");
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Settings;
 
@@ -1230,7 +1245,7 @@ async fn test_json_export_functionality() -> Result<(), Box<dyn std::error::Erro
         .await?;
 
     // JSON出力ディレクトリを作成
-    let json_output_dir = temp_dir.path().join("json_exports");
+    let json_output_dir = &temp_dir_path.join("json_exports");
 
     // 個別ドキュメントのJSON出力テスト
     let json_file_path = json_output_dir.join("settings_export.json");
@@ -1281,12 +1296,13 @@ async fn test_json_export_functionality() -> Result<(), Box<dyn std::error::Erro
 /// 差分処理でのJSON出力テスト
 #[tokio::test]
 async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_json_export_with_incremental_changes");
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Project("json-export-test".to_string());
-    let json_output_dir = temp_dir.path().join("incremental_exports");
+    let json_output_dir = &temp_dir_path.join("incremental_exports");
     std::fs::create_dir_all(&json_output_dir)?;
 
     println!("JSON export directory: {:?}", json_output_dir);
@@ -1403,7 +1419,7 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
     assert_eq!(project_data["team_members"].as_array().unwrap().len(), 3);
 
     // 詳細変更履歴も出力
-    let detailed_changes_dir = temp_dir.path().join("detailed_change_history");
+    let detailed_changes_dir = &temp_dir_path.join("detailed_change_history");
     manager
         .export_document_changes_history(
             &doc_type,
@@ -1417,7 +1433,7 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
 
     // 永続保存ディレクトリにコピー（全体のtempディレクトリをコピー）
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_json_export_with_incremental_changes",
     )?;
@@ -1428,12 +1444,13 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
 /// Automergeの詳細変更履歴JSON出力テスト
 #[tokio::test]
 async fn test_json_export_detailed_changes_history() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_json_export_detailed_changes_history");
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
     let doc_type = DocumentType::Project("detailed-changes-test".to_string());
-    let changes_output_dir = temp_dir.path().join("detailed_changes");
+    let changes_output_dir = &temp_dir_path.join("detailed_changes");
     std::fs::create_dir_all(&changes_output_dir)?;
 
     println!("詳細変更履歴出力ディレクトリ: {:?}", changes_output_dir);
@@ -1557,7 +1574,7 @@ async fn test_json_export_detailed_changes_history() -> Result<(), Box<dyn std::
 
     // 永続保存ディレクトリにコピー
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_json_export_detailed_changes_history",
     )?;
@@ -1568,11 +1585,12 @@ async fn test_json_export_detailed_changes_history() -> Result<(), Box<dyn std::
 /// 複数ドキュメントタイプのJSON出力テスト
 #[tokio::test]
 async fn test_json_export_multiple_document_types() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir = create_persistent_test_dir("test_json_export_multiple_document_types");
-    let mut manager = DocumentManager::new(temp_dir.path())?;
+    let mut manager = DocumentManager::new(&temp_dir_path)?;
 
-    let json_output_dir = temp_dir.path().join("multi_document_exports");
+    let json_output_dir = &temp_dir_path.join("multi_document_exports");
     std::fs::create_dir_all(&json_output_dir)?;
 
     println!(
@@ -1675,9 +1693,10 @@ async fn test_json_export_multiple_document_types() -> Result<(), Box<dyn std::e
 #[tokio::test]
 async fn test_differential_update_single_string_property() -> Result<(), Box<dyn std::error::Error>>
 {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_single_string_property",
     )?;
 
@@ -1702,7 +1721,7 @@ async fn test_differential_update_single_string_property() -> Result<(), Box<dyn
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_single_string_property");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_single_string_property",
     )?;
@@ -1714,9 +1733,10 @@ async fn test_differential_update_single_string_property() -> Result<(), Box<dyn
 #[tokio::test]
 async fn test_differential_update_single_numeric_property() -> Result<(), Box<dyn std::error::Error>>
 {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_single_numeric_property",
     )?;
 
@@ -1739,7 +1759,7 @@ async fn test_differential_update_single_numeric_property() -> Result<(), Box<dy
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_single_numeric_property");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_single_numeric_property",
     )?;
@@ -1751,9 +1771,10 @@ async fn test_differential_update_single_numeric_property() -> Result<(), Box<dy
 #[tokio::test]
 async fn test_differential_update_single_boolean_property() -> Result<(), Box<dyn std::error::Error>>
 {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_single_boolean_property",
     )?;
 
@@ -1776,7 +1797,7 @@ async fn test_differential_update_single_boolean_property() -> Result<(), Box<dy
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_single_boolean_property");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_single_boolean_property",
     )?;
@@ -1788,9 +1809,10 @@ async fn test_differential_update_single_boolean_property() -> Result<(), Box<dy
 #[tokio::test]
 async fn test_differential_update_optional_property_none_to_some(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_optional_property_none_to_some",
     )?;
 
@@ -1819,7 +1841,7 @@ async fn test_differential_update_optional_property_none_to_some(
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_optional_property_none_to_some");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_optional_property_none_to_some",
     )?;
@@ -1830,9 +1852,10 @@ async fn test_differential_update_optional_property_none_to_some(
 /// 差分更新テスト：複数プロパティの同時更新
 #[tokio::test]
 async fn test_differential_update_multiple_properties() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_multiple_properties",
     )?;
 
@@ -1861,7 +1884,7 @@ async fn test_differential_update_multiple_properties() -> Result<(), Box<dyn st
 
     let persistent_dir = create_persistent_test_dir("test_differential_update_multiple_properties");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_multiple_properties",
     )?;
@@ -1872,9 +1895,10 @@ async fn test_differential_update_multiple_properties() -> Result<(), Box<dyn st
 /// 差分更新テスト：ネストしたオブジェクトの更新
 #[tokio::test]
 async fn test_differential_update_nested_objects() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager =
-        TestDocumentManager::new(temp_dir.path(), "test_differential_update_nested_objects")?;
+        TestDocumentManager::new(&temp_dir_path, "test_differential_update_nested_objects")?;
 
     let doc_type = DocumentType::Settings;
     let entity_key = "test_entity";
@@ -1885,7 +1909,7 @@ async fn test_differential_update_nested_objects() -> Result<(), Box<dyn std::er
 
     let persistent_dir = create_persistent_test_dir("test_differential_update_nested_objects");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_nested_objects",
     )?;
@@ -1896,8 +1920,9 @@ async fn test_differential_update_nested_objects() -> Result<(), Box<dyn std::er
 /// 差分更新テスト：配列の差分更新
 #[tokio::test]
 async fn test_differential_update_arrays() -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
-    let mut manager = TestDocumentManager::new(temp_dir.path(), "test_differential_update_arrays")?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
+    let mut manager = TestDocumentManager::new(&temp_dir_path, "test_differential_update_arrays")?;
 
     let doc_type = DocumentType::Settings;
     let entity_key = "test_entity";
@@ -1908,7 +1933,7 @@ async fn test_differential_update_arrays() -> Result<(), Box<dyn std::error::Err
 
     let persistent_dir = create_persistent_test_dir("test_differential_update_arrays");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_arrays",
     )?;
@@ -1920,9 +1945,10 @@ async fn test_differential_update_arrays() -> Result<(), Box<dyn std::error::Err
 #[tokio::test]
 async fn test_differential_update_deep_nested_properties() -> Result<(), Box<dyn std::error::Error>>
 {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_deep_nested_properties",
     )?;
 
@@ -1991,7 +2017,7 @@ async fn test_differential_update_deep_nested_properties() -> Result<(), Box<dyn
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_deep_nested_properties");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_deep_nested_properties",
     )?;
@@ -2003,9 +2029,10 @@ async fn test_differential_update_deep_nested_properties() -> Result<(), Box<dyn
 #[tokio::test]
 async fn test_differential_update_parameterized_properties(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_temp");
+    std::fs::create_dir_all(&temp_dir_path)?;
     let mut manager = TestDocumentManager::new(
-        temp_dir.path(),
+        &temp_dir_path,
         "test_differential_update_parameterized_properties",
     )?;
 
@@ -2091,7 +2118,7 @@ async fn test_differential_update_parameterized_properties(
     let persistent_dir =
         create_persistent_test_dir("test_differential_update_parameterized_properties");
     copy_to_persistent_storage(
-        temp_dir.path(),
+        &temp_dir_path,
         &persistent_dir,
         "test_differential_update_parameterized_properties",
     )?;

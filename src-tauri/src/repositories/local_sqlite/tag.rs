@@ -133,9 +133,8 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
-        // 名前で既存のタグをチェック
-        let existing = TagEntity::find()
-            .filter(Column::Name.eq(&tag.name))
+        // IDで既存のタグをチェック
+        let existing = TagEntity::find_by_id(tag.id.to_string())
             .one(db)
             .await?;
 
@@ -147,6 +146,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
                 .await
                 .map_err(RepositoryError::Conversion)?;
 
+            active_model.name = new_active.name;
             active_model.color = new_active.color;
             active_model.order_index = new_active.order_index;
             active_model.updated_at = new_active.updated_at;
