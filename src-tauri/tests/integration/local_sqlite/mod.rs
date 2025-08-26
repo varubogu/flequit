@@ -6,4 +6,4 @@ mod subtasks;
 mod tags;
 
 // 統合テスト
-mod integration;
+mod integration_data;
