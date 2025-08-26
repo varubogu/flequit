@@ -516,30 +516,31 @@ use differential_update_helpers::*;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
-    let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
-
-    // プロジェクトルートから.tmp/testsディレクトリを特定
+    // TestPathGeneratorを使用して正しいパス構造を生成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), test_name);
+    
+    // プロジェクトルートを取得して相対パスを絶対パスに変換
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
     let project_root = if current_dir.ends_with("src-tauri") {
         current_dir.parent().unwrap().to_path_buf()
     } else {
         current_dir
     };
+    
+    let final_dir = project_root.join(test_dir);
 
-    let base_path = project_root.join(".tmp/tests/cargo/integration/automerge_repo_test");
-    let test_dir = base_path.join(test_name).join(&timestamp);
-
-    if let Err(e) = std::fs::create_dir_all(&test_dir) {
+    if let Err(e) = std::fs::create_dir_all(&final_dir) {
         eprintln!("Failed to create persistent test directory: {}", e);
         // フォールバック：一時ディレクトリを返す
+        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
         return std::env::temp_dir()
             .join("flequit_fallback")
             .join(test_name)
             .join(&timestamp);
     }
 
-    println!("Test results will be saved to: {:?}", test_dir);
-    test_dir
+    println!("Test results will be saved to: {:?}", final_dir);
+    final_dir
 }
 
 /// テストの永続保存ディレクトリにファイルをコピーするヘルパー

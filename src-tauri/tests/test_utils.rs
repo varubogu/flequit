@@ -18,19 +18,28 @@ impl TestPathGenerator {
     /// * `test_function_name` - テスト関数名
     ///
     /// # Returns
-    /// `<project_root>/.tmp/tests/cargo/integration/[テストファイル名]/[テスト関数名]/[実行日時]/`
+    /// `<project_root>/.tmp/tests/cargo/[テスト階層]/[テスト関数名]/[実行日時]/`
     pub fn generate_test_dir(file_path: &str, test_function_name: &str) -> PathBuf {
         let timestamp = Utc::now().format("%Y%m%d_%H%M%S").to_string();
 
-        // ファイルパスからテストファイル名を抽出
-        let test_file_name = std::path::Path::new(file_path)
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("unknown_test");
+        // ファイルパスから相対パス情報を抽出（testsディレクトリ以下）
+        let path = std::path::Path::new(file_path);
+        
+        // "tests/" 以降のパス部分を取得
+        let relative_test_path = if let Some(tests_pos) = file_path.find("tests/") {
+            let after_tests = &file_path[tests_pos + 6..]; // "tests/" の6文字をスキップ
+            std::path::Path::new(after_tests)
+        } else {
+            // "tests/" が見つからない場合はファイル名のみ使用
+            path
+        };
 
-        // テストルール準拠のパス生成: <project_root>/.tmp/tests/cargo/integration/[テストファイル名]/[テスト関数名]/[実行日時]/
-        PathBuf::from("../.tmp/tests/cargo/integration")
-            .join(test_file_name)
+        // 拡張子を除いたパス構造を取得
+        let path_without_extension = relative_test_path.with_extension("");
+        
+        // テストルール準拠のパス生成: <project_root>/.tmp/tests/cargo/[テスト階層]/[テスト関数名]/[実行日時]/
+        PathBuf::from("../.tmp/tests/cargo")
+            .join(path_without_extension)
             .join(test_function_name)
             .join(timestamp)
     }
