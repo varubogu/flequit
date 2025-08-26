@@ -419,18 +419,22 @@ interface User {
   "subtasks": [
     {
       "id": "subtask-uuid-1",
-      "parent_task_id": "task-uuid-1",
+      "task_id": "task-uuid-1",
       "title": "サブタスクタイトル",
       "description": "サブタスクの説明",
-      "status": "Todo",
-      "due_date": "2024-01-15T23:59:59.000Z",
+      "status": "not_started",
+      "priority": 1,
       "plan_start_date": "2024-01-01T09:00:00.000Z",
       "plan_end_date": "2024-01-31T23:59:59.000Z",
-      "do_start_date": "2024-01-01T09:00:00.000Z",
-      "do_end_date": "2024-01-31T23:59:59.000Z",
-      "assignee_id": "public-user-uuid-1",
+      "do_start_date": null,
+      "do_end_date": null,
+      "is_range_date": true,
+      "recurrence_rule": null,
+      "assigned_user_ids": ["public-user-uuid-1"],
+      "tag_ids": ["tag-uuid-1"],
+      "tags": [],
       "order_index": 1,
-      "is_completed": false,
+      "completed": false,
       "created_at": "2024-01-01T10:00:00.000Z",
       "updated_at": "2024-01-01T10:00:00.000Z"
     }
@@ -522,18 +526,22 @@ interface Task {
 ```typescript
 interface SubTask {
   id: string;                   // サブタスク一意識別子 (Rust: SubTaskId → TS: string)
-  parent_task_id: string;       // 親タスクID (Rust: TaskId → TS: string)
+  task_id: string;              // 親タスクID (Rust: TaskId → TS: string)
   title: string;                // サブタスクタイトル (Rust: String → TS: string)
   description?: string;         // 説明 (Rust: Option<String> → TS: string | null)
-  status: "Todo" | "InProgress" | "Done" | "Cancelled"; // ステータス (Rust: TaskStatus → TS: string)
-  due_date?: string;            // 期限日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  status: "not_started" | "in_progress" | "waiting" | "completed" | "cancelled"; // ステータス (Rust: TaskStatus → TS: string)
+  priority?: number;            // 優先度 (Rust: Option<i32> → TS: number | null)
   plan_start_date?: string;     // 予定開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   plan_end_date?: string;       // 予定終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   do_start_date?: string;       // 実開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   do_end_date?: string;         // 実終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
-  assignee_id?: string;         // 担当者ユーザーID (Rust: Option<UserId> → TS: string | null)
+  is_range_date?: boolean;      // 期間指定フラグ (Rust: Option<bool> → TS: boolean | null)
+  recurrence_rule?: RecurrenceRule; // 繰り返しルール (Rust: Option<RecurrenceRule> → TS: RecurrenceRule | null)
+  assigned_user_ids: string[];  // 担当者ユーザーIDの配列 (Rust: Vec<UserId> → TS: string[])
+  tag_ids: string[];            // タグIDの配列 (Rust: Vec<TagId> → TS: string[])
+  tags: Tag[];                  // タグ一覧 (Rust: Vec<Tag> → TS: Tag[])
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
-  is_completed: boolean;        // 完了状態 (Rust: bool → TS: boolean)
+  completed: boolean;           // 完了状態 (Rust: bool → TS: boolean)
   created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
   updated_at: string;           // 最終更新日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
 }

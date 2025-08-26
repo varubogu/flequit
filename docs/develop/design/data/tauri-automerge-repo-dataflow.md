@@ -180,9 +180,9 @@ get_task(project_id: &str, task_id: &str) -> Result<Option<Task>, RepositoryErro
 list_tasks(project_id: &str) -> Result<Vec<Task>, RepositoryError>
 
 // サブタスク操作
-set_subtask(project_id: &str, subtask: &SubTask) -> Result<(), RepositoryError>
-get_subtask(project_id: &str, subtask_id: &str) -> Result<Option<SubTask>, RepositoryError>
-list_subtasks(project_id: &str, parent_task_id: &str) -> Result<Vec<SubTask>, RepositoryError>
+set_subtask(subtask: &SubTask) -> Result<(), RepositoryError>
+get_subtask(subtask_id: &str) -> Result<Option<SubTask>, RepositoryError>
+list_subtasks(task_id: &str) -> Result<Vec<SubTask>, RepositoryError>
 
 // タグ操作
 set_tag(project_id: &str, tag: &Tag) -> Result<(), RepositoryError>
