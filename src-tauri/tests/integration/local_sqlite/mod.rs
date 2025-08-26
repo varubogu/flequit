@@ -1,9 +1,12 @@
-// 単体テスト
+// テーブル単体でのテスト
+mod accounts;
 mod projects;
-mod task_lists;
-mod tasks;
+mod settings;
 mod subtasks;
 mod tags;
+mod task_lists;
+mod tasks;
+mod users;
 
-// 統合テスト
+// テーブル統合テスト
 mod integration_data;
