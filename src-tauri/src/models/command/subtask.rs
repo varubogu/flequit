@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SubtaskCommand {
     pub id: String,
-    pub project_id: String,
     pub task_id: String,
     pub title: String,
     pub description: Option<String>,
@@ -60,11 +59,10 @@ impl ModelConverter<SubTask> for SubtaskCommand {
             None
         };
 
-        use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, UserId};
+        use crate::types::id_types::{SubTaskId, TagId, TaskId, UserId};
 
         Ok(crate::models::subtask::SubTask {
             id: SubTaskId::from(self.id.clone()),
-            project_id: ProjectId::from(self.project_id.clone()),
             task_id: TaskId::from(self.task_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
@@ -119,7 +117,6 @@ pub struct SubTaskTreeCommand {
 /// Tauriコマンド引数用のSubtaskSearchRequest構造体
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SubtaskSearchRequest {
-    pub project_id: String,
     pub task_id: Option<String>,
     pub title: Option<String>,
     pub description: Option<String>,
