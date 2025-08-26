@@ -326,7 +326,6 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let subtask_1 = SubTask {
         id: SubTaskId::new(),
-        project_id: project_id.clone(),
         task_id: task_1.id,
         title: "サブタスク1".to_string(),
         description: Some("最初のサブタスク".to_string()),
@@ -349,7 +348,6 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let subtask_2 = SubTask {
         id: SubTaskId::new(),
-        project_id: project_id.clone(),
         task_id: task_2.id,
         title: "サブタスク2".to_string(),
         description: Some("2番目のサブタスク".to_string()),

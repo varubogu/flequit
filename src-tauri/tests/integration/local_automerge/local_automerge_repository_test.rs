@@ -28,7 +28,7 @@ use flequit_lib::types::task_types::TaskStatus;
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     // TestPathGeneratorを使用して正しいパス構造を生成
     let test_dir = TestPathGenerator::generate_test_dir(file!(), test_name);
-    
+
     // プロジェクトルートを取得して相対パスを絶対パスに変換
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
     let project_root = if current_dir.ends_with("src-tauri") {
@@ -36,7 +36,7 @@ fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     } else {
         current_dir
     };
-    
+
     let final_dir = project_root.join(test_dir);
 
     if let Err(e) = std::fs::create_dir_all(&final_dir) {
@@ -997,11 +997,9 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // テスト用SubTaskデータを作成
     let subtask_id = SubTaskId::new();
-    let project_id = ProjectId::new();
     let task_id = TaskId::new();
     let subtask = SubTask {
         id: subtask_id.clone(),
-        project_id: project_id.clone(),
         task_id: task_id.clone(),
         title: "統合テスト用サブタスク".to_string(),
         description: Some("Automerge Repository統合テストのためのサブタスク".to_string()),

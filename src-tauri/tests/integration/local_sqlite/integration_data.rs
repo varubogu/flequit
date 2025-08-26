@@ -8,10 +8,10 @@ use flequit_lib::models::{
 use flequit_lib::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_lib::types::project_types::ProjectStatus;
 use flequit_lib::repositories::local_sqlite::{
-    project::ProjectLocalSqliteRepository, 
+    project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository, 
-    subtask::SubtaskLocalSqliteRepository, 
+    task::TaskLocalSqliteRepository,
+    subtask::SubtaskLocalSqliteRepository,
     tag::TagLocalSqliteRepository
 };
 use flequit_lib::repositories::base_repository_trait::Repository;
@@ -24,17 +24,17 @@ use crate::setup_sqlite_test;
 async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_multiple_entities_crud_operations")?;
-    
+
     // リポジトリを初期化
     let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
-    
+
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
     let task_repo = TaskLocalSqliteRepository::new(db_manager_arc.clone());
     let subtask_repo = SubtaskLocalSqliteRepository::new(db_manager_arc.clone());
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
-    
+
     // === プロジェクトを2件作成 ===
     let project_id1 = ProjectId::from(Uuid::new_v4());
     let project1 = Project {
@@ -49,7 +49,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let project_id2 = ProjectId::from(Uuid::new_v4());
     let project2 = Project {
         id: project_id2.clone(),
@@ -63,10 +63,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     project_repo.save(&project1).await?;
     project_repo.save(&project2).await?;
-    
+
     // プロジェクト取得確認
     let retrieved_project1 = project_repo.find_by_id(&project_id1).await?;
     let retrieved_project2 = project_repo.find_by_id(&project_id2).await?;
@@ -74,7 +74,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(retrieved_project2.is_some());
     assert_eq!(retrieved_project1.unwrap().name, project1.name);
     assert_eq!(retrieved_project2.unwrap().name, project2.name);
-    
+
     // === タスクリストを2件作成 ===
     let task_list_id1 = TaskListId::from(Uuid::new_v4());
     let task_list1 = TaskList {
@@ -88,7 +88,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let task_list_id2 = TaskListId::from(Uuid::new_v4());
     let task_list2 = TaskList {
         id: task_list_id2.clone(),
@@ -101,10 +101,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     task_list_repo.save(&task_list1).await?;
     task_list_repo.save(&task_list2).await?;
-    
+
     // タスクリスト取得確認
     let retrieved_task_list1 = task_list_repo.find_by_id(&task_list_id1).await?;
     let retrieved_task_list2 = task_list_repo.find_by_id(&task_list_id2).await?;
@@ -112,11 +112,11 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(retrieved_task_list2.is_some());
     assert_eq!(retrieved_task_list1.unwrap().name, task_list1.name);
     assert_eq!(retrieved_task_list2.unwrap().name, task_list2.name);
-    
+
     // === タスクを2件作成 ===
     use flequit_lib::types::id_types::TaskId;
     use flequit_lib::types::task_types::TaskStatus;
-    
+
     let task_id1 = TaskId::from(Uuid::new_v4());
     let task1 = Task {
         id: task_id1.clone(),
@@ -140,7 +140,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let task_id2 = TaskId::from(Uuid::new_v4());
     let task2 = Task {
         id: task_id2.clone(),
@@ -164,10 +164,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     task_repo.save(&task1).await?;
     task_repo.save(&task2).await?;
-    
+
     // タスク取得確認
     let retrieved_task1 = task_repo.find_by_id(&task_id1).await?;
     let retrieved_task2 = task_repo.find_by_id(&task_id2).await?;
@@ -175,14 +175,13 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(retrieved_task2.is_some());
     assert_eq!(retrieved_task1.unwrap().title, task1.title);
     assert_eq!(retrieved_task2.unwrap().title, task2.title);
-    
+
     // === サブタスクを2件作成 ===
     use flequit_lib::types::id_types::SubTaskId;
-    
+
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
     let subtask1 = SubTask {
         id: subtask_id1.clone(),
-        project_id: project_id1.clone(),
         task_id: task_id1.clone(),
         title: "マルチエンティティテストサブタスク1".to_string(),
         description: Some("複数エンティティテスト用サブタスク1".to_string()),
@@ -202,11 +201,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let subtask_id2 = SubTaskId::from(Uuid::new_v4());
     let subtask2 = SubTask {
         id: subtask_id2.clone(),
-        project_id: project_id2.clone(),
         task_id: task_id2.clone(),
         title: "マルチエンティティテストサブタスク2".to_string(),
         description: Some("複数エンティティテスト用サブタスク2".to_string()),
@@ -226,10 +224,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     subtask_repo.save(&subtask1).await?;
     subtask_repo.save(&subtask2).await?;
-    
+
     // サブタスク取得確認
     let retrieved_subtask1 = subtask_repo.find_by_id(&subtask_id1).await?;
     let retrieved_subtask2 = subtask_repo.find_by_id(&subtask_id2).await?;
@@ -237,10 +235,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(retrieved_subtask2.is_some());
     assert_eq!(retrieved_subtask1.unwrap().title, subtask1.title);
     assert_eq!(retrieved_subtask2.unwrap().title, subtask2.title);
-    
+
     // === タグを2件作成 ===
     use flequit_lib::types::id_types::TagId;
-    
+
     let tag_id1 = TagId::from(Uuid::new_v4());
     let tag1 = Tag {
         id: tag_id1.clone(),
@@ -250,7 +248,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let tag_id2 = TagId::from(Uuid::new_v4());
     let tag2 = Tag {
         id: tag_id2.clone(),
@@ -260,10 +258,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     tag_repo.save(&tag1).await?;
     tag_repo.save(&tag2).await?;
-    
+
     // タグ取得確認
     let retrieved_tag1 = tag_repo.find_by_id(&tag_id1).await?;
     let retrieved_tag2 = tag_repo.find_by_id(&tag_id2).await?;
@@ -271,34 +269,34 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(retrieved_tag2.is_some());
     assert_eq!(retrieved_tag1.unwrap().name, tag1.name);
     assert_eq!(retrieved_tag2.unwrap().name, tag2.name);
-    
+
     // === 更新テスト ===
     // プロジェクト更新
     let mut updated_project1 = project1.clone();
     updated_project1.name = "更新済みマルチエンティティテストプロジェクト1".to_string();
     project_repo.save(&updated_project1).await?;
-    
+
     let retrieved_updated_project1 = project_repo.find_by_id(&project_id1).await?;
     assert!(retrieved_updated_project1.is_some());
     assert_eq!(retrieved_updated_project1.unwrap().name, updated_project1.name);
-    
+
     // === 削除テスト ===
     // 逆順で削除（依存関係を考慮）
     tag_repo.delete(&tag_id1).await?;
     tag_repo.delete(&tag_id2).await?;
-    
+
     subtask_repo.delete(&subtask_id1).await?;
     subtask_repo.delete(&subtask_id2).await?;
-    
+
     task_repo.delete(&task_id1).await?;
     task_repo.delete(&task_id2).await?;
-    
+
     task_list_repo.delete(&task_list_id1).await?;
     task_list_repo.delete(&task_list_id2).await?;
-    
+
     project_repo.delete(&project_id1).await?;
     project_repo.delete(&project_id2).await?;
-    
+
     // 削除確認
     assert!(project_repo.find_by_id(&project_id1).await?.is_none());
     assert!(project_repo.find_by_id(&project_id2).await?.is_none());
@@ -310,8 +308,8 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert!(subtask_repo.find_by_id(&subtask_id2).await?.is_none());
     assert!(tag_repo.find_by_id(&tag_id1).await?.is_none());
     assert!(tag_repo.find_by_id(&tag_id2).await?.is_none());
-    
+
     println!("✅ 複数エンティティCRUD操作テスト完了");
-    
+
     Ok(())
 }
