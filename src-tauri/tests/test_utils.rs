@@ -182,3 +182,53 @@ macro_rules! cleanup_test {
         $crate::test_utils::TestCleanupHelper::cleanup_test_directory($test_dir)
     };
 }
+
+/// SQLiteテストハーネス - testing.mdルール準拠（build.rs版）
+pub struct SqliteTestHarness;
+
+impl SqliteTestHarness {
+    /// テンプレートデータベースのパス
+    const TEMPLATE_DB_PATH: &'static str = ".tmp/tests/test_database.db";
+    
+    /// テスト用SQLiteデータベースを作成（テンプレートDBをコピー）
+    pub fn create_test_database(
+        test_file_path: &str,
+        test_function_name: &str
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        // テスト用データベースパスを生成（testing.mdルール準拠）
+        let test_dir = TestPathGenerator::generate_test_dir(test_file_path, test_function_name);
+        let current_dir = std::env::current_dir()?;
+        let test_dir_full = current_dir.join(&test_dir);
+        std::fs::create_dir_all(&test_dir_full)?;
+        
+        let test_db_path = test_dir_full.join("test.db");
+        
+        // build.rsで作成されたテンプレートからコピー
+        let template_path = current_dir.join(Self::TEMPLATE_DB_PATH);
+        if !template_path.exists() {
+            return Err(format!(
+                "テンプレートデータベースが見つかりません: {}。build.rsでの作成に失敗している可能性があります。", 
+                template_path.display()
+            ).into());
+        }
+        
+        std::fs::copy(&template_path, &test_db_path)
+            .map_err(|e| format!("テンプレートコピー失敗 {} -> {}: {}", 
+                                template_path.display(), test_db_path.display(), e))?;
+        
+        println!("📋 SQLiteテストDB作成: {}", test_db_path.display());
+        
+        Ok(test_db_path)
+    }
+}
+
+/// SQLiteテスト用マクロ - テストデータベースを自動作成
+#[macro_export]
+macro_rules! setup_sqlite_test {
+    ($test_function_name:expr) => {
+        $crate::test_utils::SqliteTestHarness::create_test_database(
+            file!(), 
+            $test_function_name
+        )
+    };
+}

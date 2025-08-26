@@ -28,6 +28,11 @@ impl DatabaseManager {
         }
     }
 
+    /// テスト用: 指定パスで新しいDatabaseManagerを作成
+    pub fn new_for_test(database_path: impl Into<String>) -> Self {
+        Self::new(database_path)
+    }
+
     /// シングルトンインスタンスを取得
     pub async fn instance() -> Result<Arc<RwLock<DatabaseManager>>, RepositoryError> {
         DATABASE_MANAGER
