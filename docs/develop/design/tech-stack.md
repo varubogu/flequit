@@ -51,25 +51,36 @@
 │   ├── app.css                 # グローバルスタイル + Tailwind設定
 │   └── app.html                # HTMLテンプレート
 ├── src-tauri/                  # Tauri部分のソースコード
-│   ├── capabilities/           # ???
+│   ├── capabilities/           # Tauriセキュリティ設定
 │   ├── icons/                  # アプリアイコン
-│   ├── src/                    # Tauriソースコード
-│   │   ├── commands/           # フロントエンドからinvokeで呼び出されるTauriコマンド
-│   │   ├── errors/             # エラー型格納
-│   │   ├── models/             # モデル定義
-│   │   │   ├── command/        # コマンド用のモデル
-│   │   │   └── sqlite/         # SQLite用のモデル定義とマイグレーション
-│   │   ├── repositories/                 # Repositoryの定義
-│   │   │   ├── cloud_automerge/          # クラウドストレージのAutomergeでデータを読み書きするためのRepository定義
-│   │   │   ├── local_automerge/          # ローカルのAutomergeでデータを読み書きするためのRepository定義
-│   │   │   ├── local_sqlite/             # ローカルのSQLiteでデータを読み書きするためのRepository定義
-│   │   │   ├── web/                      # Webサーバーに保存するためのRepository定義
-│   │   │   ├── base_repository_trait.rs  # Repositoryのベース定義（CRUD操作など）
-│   │   │   └── XXXX_repository_trait.rs  # 機能別Repositoryのベース定義（project_repository_traitなど）
-│   │   ├── services/                     # Serviceの定義
-│   │   │   └── xxxx_service.rs           # 機能別Serviceの定義（project_serviceなど）
-│   │   ├── types/          # type,enumなどの型定義（構造体はmodelsで定義）
-│   │   └── utils/          # 汎用処理のヘルパー関数群
+│   ├── crates/                 # 分割されたクレート
+│   │   ├── flequit-storage/    # ストレージ層クレート
+│   │   │   ├── src/
+│   │   │   │   ├── errors/             # エラー型
+│   │   │   │   ├── models/             # データモデル
+│   │   │   │   │   ├── command/        # コマンド用モデル
+│   │   │   │   │   └── sqlite/         # SQLite用モデル
+│   │   │   │   ├── repositories/       # Repository実装
+│   │   │   │   │   ├── cloud_automerge/ # クラウドAutomerge
+│   │   │   │   │   ├── local_automerge/ # ローカルAutomerge
+│   │   │   │   │   ├── local_sqlite/    # ローカルSQLite
+│   │   │   │   │   ├── web/             # Webサーバー
+│   │   │   │   │   ├── unified/         # 統合レイヤー
+│   │   │   │   │   └── *_trait.rs       # Repository trait定義
+│   │   │   │   ├── types/              # 型定義
+│   │   │   │   └── utils/              # ストレージ用ユーティリティ
+│   │   │   ├── tests/              # ストレージ層テスト
+│   │   │   ├── build.rs            # テスト用DB作成
+│   │   │   └── Cargo.toml
+│   │   └── flequit-core/           # ビジネスロジック層クレート
+│   │       ├── src/
+│   │       │   ├── facades/            # ファサードレイヤー
+│   │       │   └── services/           # サービスレイヤー
+│   │       └── Cargo.toml
+│   ├── src/                    # メインアプリケーション
+│   │   ├── commands/           # Tauriコマンド（最小構成）
+│   │   ├── logger.rs           # ログ設定
+│   │   └── lib.rs              # エントリーポイント
 │   ├── target/
 │   ├── build.rs
 │   ├── Cargo.lock

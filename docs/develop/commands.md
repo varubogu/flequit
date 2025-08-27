@@ -22,11 +22,16 @@ bun run tauri:dev
 ### Rust/Tauri
 
 ```bash
-# エラーがないかチェック（警告は一旦除く）
+# 全クレートのエラーチェック（警告は一旦除く）
 cargo check --quiet
 
-# 警告がないかチェック
+# 全クレートの警告チェック
 cargo check
+
+# 特定クレートのみチェック
+cargo check -p flequit-storage
+cargo check -p flequit-core
+cargo check -p flequit
 
 # リンター実行
 cargo clippy

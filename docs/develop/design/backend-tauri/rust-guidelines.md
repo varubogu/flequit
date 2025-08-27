@@ -6,22 +6,37 @@ FlequitプロジェクトのTauri（Rust）部分における設計ガイドラ�
 
 ## アーキテクチャ構成
 
-### クリーンアーキテクチャ採用
+### クリーンアーキテクチャ採用（クレート分割版）
 
 ```
-アプリケーション層（commands, controllers, events）
+メインクレート（flequit）
+├── アプリケーション層（commands, controllers, events）
     ↓
-ドメイン層（facadeが呼び出され、複数のserviceを呼び出し）
+flequit-core クレート
+├── ドメイン層（facadeが呼び出され、複数のserviceを呼び出し）
     ↓
-データアクセス層（repository, SQLite/Automergeなどの実体）
+flequit-storage クレート  
+├── データアクセス層（repository, SQLite/Automergeなどの実体）
 ```
 
-### アクセス制御ルール
+### クレート間アクセス制御ルール
 
-- **commands**: facadeはOK、commands/service/repositoriesはNG
-- **facade**: serviceはOK、facade/commands/repositoriesはNG
-- **service**: serviceとrepositoryはOK、commands/facadeはNG
-- **repository**: repository内のみOK、外部はNG
+- **メインクレート（flequit）**: flequit-coreのみ参照可能
+- **flequit-core**: flequit-storageのみ参照可能
+- **flequit-storage**: 外部クレート参照なし（完全独立）
+
+### 各クレート内部のアクセス制御ルール
+
+#### メインクレート（flequit）
+- **commands**: flequit-core::facadeはOK、直接service/repositoryはNG
+
+#### flequit-core クレート
+- **facade**: serviceはOK、facade/commandsはNG
+- **service**: serviceとflequit-storage::repositoryはOK、facadeはNG
+
+#### flequit-storage クレート  
+- **repository**: repository内のみOK、外部参照はNG
+- **models**: 型定義のみ、ビジネスロジックはNG
 
 ## Option値の処理規約
 

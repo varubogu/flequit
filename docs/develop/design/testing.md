@@ -14,22 +14,45 @@
 
 ## 実行コマンド
 
+### フロントエンド（Vitest）
 - `bun run test` - Vitest全テスト実行
 - `bun run test [ファイル名]` - Vitest個別ファイルテスト
 - `bun run test:watch` - Vitestウォッチモード
 - `bun run test:e2e [ファイル名]` - Playwright E2Eテスト（個別ファイルのみ、ヘッドレス）
 
+### バックエンド（Rustクレート）
+- `cargo test -j 4` - 全クレートのテスト実行
+- `cargo test --lib -p flequit-storage -j 4` - ストレージ層のみ
+- `cargo test --lib -p flequit-core -j 4` - ビジネスロジック層のみ
+
 ## テストファイル構成
 
+### フロントエンド
 ```
 e2e/                   # E2Eテスト（Playwright）
 ├── components/        # Svelteコンポーネントのテスト
 ├── scenario/          # 実際にユーザーが使用することを想定したシナリオテスト
 tests/                 # 単体テスト、結合テスト（vitest）
-├── utils/             #
+├── utils/             # ユーティリティ関数テスト
 ├── integration/       # 統合テスト
 ├── **/                # 単体テスト ※実際のソースコード（src/）と同じ構成でテストする
 └── vitest.setup.ts    # Vitest専用設定
+```
+
+### バックエンド
+```
+src-tauri/crates/flequit-storage/tests/  # ストレージ層テスト
+├── integration/       # 統合テスト
+│   ├── local_sqlite/  # SQLiteリポジトリテスト
+│   └── local_automerge/ # Automergeリポジトリテスト
+├── test_utils.rs      # テストユーティリティ
+└── integration_tests.rs # テストエントリポイント
+
+src-tauri/crates/flequit-core/  # ビジネスロジック層（今後追加予定）
+└── tests/             # サービス・ファサードテスト
+
+src-tauri/src/         # メインクレート
+└── tests/             # Tauriコマンドテスト（今後追加予定）
 ```
 
 ## vitestのテストの書き方
