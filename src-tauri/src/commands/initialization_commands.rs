@@ -1,15 +1,8 @@
 use flequit_core::facades::initialization_facades;
 use flequit_core::models::command::account::AccountCommand;
-use flequit_core::models::command::initialize::InitializedResult;
 use flequit_core::models::command::project::ProjectTreeCommand;
 use flequit_core::models::setting::LocalSettings;
 use flequit_core::models::{CommandModelConverter, TreeCommandConverter};
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn load_all_data() -> Result<InitializedResult, String> {
-    initialization_facades::load_all_data().await
-}
 
 #[tracing::instrument]
 #[tauri::command]
