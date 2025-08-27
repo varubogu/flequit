@@ -17,6 +17,11 @@ pub async fn run_migrations(db: &DatabaseConnection) -> Result<(), DbErr> {
     create_tasks_table(db).await?;
     create_subtasks_table(db).await?;
     create_tags_table(db).await?;
+    create_task_tags_table(db).await?;
+    create_subtask_tags_table(db).await?;
+    
+    // tag_idsカラムを削除（紐づけテーブル移行後）
+    drop_tag_ids_columns(db).await?;
 
     Ok(())
 }
@@ -264,5 +269,73 @@ async fn create_tags_table(db: &DatabaseConnection) -> Result<(), DbErr> {
     ))
     .await?;
 
+    Ok(())
+}
+
+/// タスク・タグ紐づけテーブルの作成
+async fn create_task_tags_table(db: &DatabaseConnection) -> Result<(), DbErr> {
+    let sql = r#"
+        CREATE TABLE IF NOT EXISTS task_tags (
+            task_id TEXT NOT NULL,
+            tag_id TEXT NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (task_id, tag_id),
+            FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+            FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_task_tags_task_id ON task_tags(task_id);
+        CREATE INDEX IF NOT EXISTS idx_task_tags_tag_id ON task_tags(tag_id);
+    "#;
+
+    db.execute(Statement::from_string(
+        sea_orm::DatabaseBackend::Sqlite,
+        sql.to_string(),
+    ))
+    .await?;
+
+    Ok(())
+}
+
+/// サブタスク・タグ紐づけテーブルの作成
+async fn create_subtask_tags_table(db: &DatabaseConnection) -> Result<(), DbErr> {
+    let sql = r#"
+        CREATE TABLE IF NOT EXISTS subtask_tags (
+            subtask_id TEXT NOT NULL,
+            tag_id TEXT NOT NULL,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (subtask_id, tag_id),
+            FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
+            FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_subtask_tags_subtask_id ON subtask_tags(subtask_id);
+        CREATE INDEX IF NOT EXISTS idx_subtask_tags_tag_id ON subtask_tags(tag_id);
+    "#;
+
+    db.execute(Statement::from_string(
+        sea_orm::DatabaseBackend::Sqlite,
+        sql.to_string(),
+    ))
+    .await?;
+
+    Ok(())
+}
+
+/// task・subtaskテーブルからtag_idsカラムを削除
+async fn drop_tag_ids_columns(_db: &DatabaseConnection) -> Result<(), DbErr> {
+    // SQLiteではALTER TABLE DROP COLUMNが直接サポートされていないため、
+    // テーブルを再作成する必要がある場合がある。
+    // ただし、ActiveValueをNotSetにしてあるため、実際には無視される。
+    // 将来的にスキーマクリーンアップが必要な場合は、専用のマイグレーション関数を作成する。
+    
+    // 現在はコメントのみとして残し、必要に応じて実装する
+    // let sql_tasks = r#"
+    //     ALTER TABLE tasks DROP COLUMN tag_ids;
+    // "#;
+    // let sql_subtasks = r#"
+    //     ALTER TABLE subtasks DROP COLUMN tag_ids;
+    // "#;
+    
     Ok(())
 }

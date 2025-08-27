@@ -133,6 +133,17 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
 
+        // 名前での重複チェック
+        let existing_by_name = self.find_by_name(&tag.name).await?;
+        if let Some(existing_tag) = existing_by_name {
+            if existing_tag.id != tag.id {
+                return Err(RepositoryError::ConstraintViolation(format!(
+                    "Tag with name '{}' already exists with different ID",
+                    tag.name
+                )));
+            }
+        }
+
         // IDで既存のタグをチェック
         let existing = TagEntity::find_by_id(tag.id.to_string())
             .one(db)

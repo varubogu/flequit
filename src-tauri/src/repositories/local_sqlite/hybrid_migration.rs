@@ -118,6 +118,9 @@ impl HybridMigrator {
             println!("  📝 テーブル作成: {}", table_name);
         }
 
+        // Junction tablesを手動で作成（Entityが不要なため）
+        self.create_junction_tables_sql().await?;
+
         Ok(())
     }
 
@@ -132,6 +135,61 @@ impl HybridMigrator {
         // 3. 追加インデックス
         self.create_additional_indexes().await?;
 
+        Ok(())
+    }
+
+    /// Junction tables作成（テーブル生成時用）
+    async fn create_junction_tables_sql(&self) -> Result<(), DbErr> {
+        // task_tagsテーブル作成
+        let task_tags_sql = r#"
+            CREATE TABLE IF NOT EXISTS task_tags (
+                task_id TEXT NOT NULL,
+                tag_id TEXT NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (task_id, tag_id),
+                FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+            );
+        "#;
+        
+        self.db.execute_unprepared(task_tags_sql).await?;
+        println!("  📝 Junction table作成: task_tags");
+        
+        // task_tagsインデックス作成
+        let task_tags_indexes = vec![
+            "CREATE INDEX IF NOT EXISTS idx_task_tags_task_id ON task_tags(task_id);",
+            "CREATE INDEX IF NOT EXISTS idx_task_tags_tag_id ON task_tags(tag_id);",
+        ];
+        
+        for sql in task_tags_indexes {
+            self.db.execute_unprepared(sql).await?;
+        }
+        
+        // subtask_tagsテーブル作成
+        let subtask_tags_sql = r#"
+            CREATE TABLE IF NOT EXISTS subtask_tags (
+                subtask_id TEXT NOT NULL,
+                tag_id TEXT NOT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (subtask_id, tag_id),
+                FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
+                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+            );
+        "#;
+        
+        self.db.execute_unprepared(subtask_tags_sql).await?;
+        println!("  📝 Junction table作成: subtask_tags");
+        
+        // subtask_tagsインデックス作成
+        let subtask_tags_indexes = vec![
+            "CREATE INDEX IF NOT EXISTS idx_subtask_tags_subtask_id ON subtask_tags(subtask_id);",
+            "CREATE INDEX IF NOT EXISTS idx_subtask_tags_tag_id ON subtask_tags(tag_id);",
+        ];
+        
+        for sql in subtask_tags_indexes {
+            self.db.execute_unprepared(sql).await?;
+        }
+        
         Ok(())
     }
 

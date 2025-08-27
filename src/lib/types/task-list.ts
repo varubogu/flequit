@@ -6,6 +6,8 @@ import type { TaskWithSubTasks } from './task';
 export interface TaskList {
   /** タスクリストID */
   id: string;
+  /** プロジェクトID */
+  project_id: string;
   /** タスクリスト名 */
   name: string;
   /** タスクリストの説明 */

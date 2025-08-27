@@ -9,7 +9,8 @@ use crate::repositories::base_repository_trait::Repository;
 use crate::types::id_types::SubTaskId;
 use async_trait::async_trait;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    ActiveModelTrait, ActiveValue, ColumnTrait, ConnectionTrait, EntityTrait, 
+    PaginatorTrait, QueryFilter, QueryOrder, Statement, TransactionTrait,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -36,10 +37,14 @@ impl SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model
+            let mut subtask = model
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
+                
+            // 紐づけテーブルからタグIDを取得
+            subtask.tag_ids = self.get_subtask_tag_ids(db, &subtask.id.to_string()).await?;
+            
             subtasks.push(subtask);
         }
 
@@ -62,10 +67,14 @@ impl SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model
+            let mut subtask = model
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
+                
+            // 紐づけテーブルからタグIDを取得
+            subtask.tag_ids = self.get_subtask_tag_ids(db, &subtask.id.to_string()).await?;
+            
             subtasks.push(subtask);
         }
 
@@ -78,23 +87,35 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn save(&self, subtask: &SubTask) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        let active_model = subtask
+        
+        // トランザクション開始
+        let txn = db.begin().await?;
+        
+        let mut active_model = subtask
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;
+        
+        // tag_idsフィールドを無効化（紐づけテーブルを使用するため）
+        active_model.tag_ids = ActiveValue::NotSet;
 
         // 既存レコードを確認
         let existing = SubtaskEntity::find_by_id(&subtask.id.to_string())
-            .one(db)
+            .one(&txn)
             .await?;
 
         if existing.is_some() {
             // 既存レコードがある場合は更新
-            active_model.update(db).await?;
+            active_model.update(&txn).await?;
         } else {
             // 既存レコードがない場合は挿入
-            active_model.insert(db).await?;
+            active_model.insert(&txn).await?;
         }
+
+        // タグの紐づけを更新
+        self.update_subtask_tags(&txn, &subtask.id.to_string(), &subtask.tag_ids).await?;
+
+        txn.commit().await?;
         Ok(())
     }
 
@@ -103,10 +124,14 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         let db = db_manager.get_connection().await?;
 
         if let Some(model) = SubtaskEntity::find_by_id(id.to_string()).one(db).await? {
-            let subtask = model
+            let mut subtask = model
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
+            
+            // 紐づけテーブルからタグIDを取得
+            subtask.tag_ids = self.get_subtask_tag_ids(db, &id.to_string()).await?;
+            
             Ok(Some(subtask))
         } else {
             Ok(None)
@@ -124,10 +149,14 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
 
         let mut subtasks = Vec::new();
         for model in models {
-            let subtask = model
+            let mut subtask = model
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
+                
+            // 紐づけテーブルからタグIDを取得
+            subtask.tag_ids = self.get_subtask_tag_ids(db, &subtask.id.to_string()).await?;
+            
             subtasks.push(subtask);
         }
 
@@ -137,8 +166,23 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn delete(&self, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        SubtaskEntity::delete_by_id(id.to_string()).exec(db).await?;
-
+        
+        // トランザクション開始
+        let txn = db.begin().await?;
+        
+        // 紐づけテーブルから削除（CASCADE制約があるが明示的に削除）
+        let delete_tags_sql = format!("DELETE FROM subtask_tags WHERE subtask_id = ?");
+        txn.execute(Statement::from_sql_and_values(
+            sea_orm::DatabaseBackend::Sqlite,
+            &delete_tags_sql,
+            vec![id.to_string().into()],
+        ))
+        .await?;
+        
+        // サブタスク本体を削除
+        SubtaskEntity::delete_by_id(id.to_string()).exec(&txn).await?;
+        
+        txn.commit().await?;
         Ok(())
     }
 
@@ -154,5 +198,81 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         let db = db_manager.get_connection().await?;
         let count = SubtaskEntity::find().count(db).await?;
         Ok(count)
+    }
+}
+
+impl SubtaskLocalSqliteRepository {
+    /// サブタスクのタグ紐づけを更新
+    async fn update_subtask_tags<C>(
+        &self,
+        db: &C,
+        subtask_id: &str,
+        tag_ids: &[crate::types::id_types::TagId],
+    ) -> Result<(), RepositoryError> 
+    where
+        C: ConnectionTrait,
+    {
+        // 既存の紐づけを削除
+        let delete_sql = format!("DELETE FROM subtask_tags WHERE subtask_id = ?");
+        db.execute(Statement::from_sql_and_values(
+            sea_orm::DatabaseBackend::Sqlite,
+            &delete_sql,
+            vec![subtask_id.into()],
+        ))
+        .await?;
+
+        // 新しい紐づけを挿入
+        for tag_id in tag_ids {
+            let insert_sql = format!(
+                "INSERT INTO subtask_tags (subtask_id, tag_id, created_at) VALUES (?, ?, datetime('now'))"
+            );
+            db.execute(Statement::from_sql_and_values(
+                sea_orm::DatabaseBackend::Sqlite,
+                &insert_sql,
+                vec![subtask_id.into(), tag_id.to_string().into()],
+            ))
+            .await?;
+        }
+
+        // サブタスクのupdated_atを更新
+        let update_subtask_sql = format!("UPDATE subtasks SET updated_at = datetime('now') WHERE id = ?");
+        db.execute(Statement::from_sql_and_values(
+            sea_orm::DatabaseBackend::Sqlite,
+            &update_subtask_sql,
+            vec![subtask_id.into()],
+        ))
+        .await?;
+
+        Ok(())
+    }
+
+    /// サブタスクのタグIDを取得
+    async fn get_subtask_tag_ids<C>(
+        &self,
+        db: &C,
+        subtask_id: &str,
+    ) -> Result<Vec<crate::types::id_types::TagId>, RepositoryError>
+    where
+        C: ConnectionTrait,
+    {
+        let sql = format!("SELECT tag_id FROM subtask_tags WHERE subtask_id = ? ORDER BY created_at");
+        let result = db
+            .query_all(Statement::from_sql_and_values(
+                sea_orm::DatabaseBackend::Sqlite,
+                &sql,
+                vec![subtask_id.into()],
+            ))
+            .await?;
+
+        let mut tag_ids = Vec::new();
+        for row in result {
+            if let Ok(tag_id_str) = row.try_get::<String>("", "tag_id") {
+                if let Ok(tag_id) = crate::types::id_types::TagId::try_from_str(&tag_id_str) {
+                    tag_ids.push(tag_id);
+                }
+            }
+        }
+
+        Ok(tag_ids)
     }
 }

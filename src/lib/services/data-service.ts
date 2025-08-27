@@ -67,7 +67,7 @@ export class DataService {
     }
   ): Promise<Project | null> {
     const backend = await this.getBackend();
-    
+
     // Patch形式でのupdateに変更
     const patchData = {
       ...updates,
@@ -75,7 +75,7 @@ export class DataService {
     };
 
     const success = await backend.project.update(projectId, patchData);
-    
+
     if (success) {
       // 更新後のデータを取得して返す
       return await backend.project.get(projectId);
@@ -126,7 +126,7 @@ export class DataService {
     }
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
-    
+
     // Patch形式でのupdateに変更
     const patchData = {
       ...updates,
@@ -134,7 +134,7 @@ export class DataService {
     };
 
     const success = await backend.tasklist.update(taskListId, patchData);
-    
+
     if (success) {
       // 更新後のデータを取得して返す
       return await backend.tasklist.get(taskListId);
@@ -167,19 +167,25 @@ export class DataService {
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
-    
+
     // Patch形式でのupdateに変更（Date型をstring型に変換）
-    const patchData = {
+    const patchData: Partial<Task> = {
       ...updates,
       start_date: updates.start_date ? updates.start_date.toISOString() : updates.start_date,
       end_date: updates.end_date ? updates.end_date.toISOString() : updates.end_date,
       updated_at: new Date()
     };
 
+    // tagsをtag_idsに変換（バックエンドはtag_idsを期待）
+    if (updates.tags) {
+      patchData.tag_ids = updates.tags.map(tag => tag.id);
+      delete patchData.tags; // tags フィールドを削除
+    }
+
     console.log('DataService: calling backend.task.update');
     const success = await backend.task.update(taskId, patchData);
     console.log('DataService: backend.task.update result:', success);
-    
+
     if (success) {
       // 更新後のデータを取得して返す
       return await backend.task.get(taskId);
@@ -231,7 +237,7 @@ export class DataService {
   async updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<SubTask | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
-    
+
     // Patch形式でのupdateに変更（Date型をstring型に変換）
     const patchData = {
       ...updates,
@@ -243,7 +249,7 @@ export class DataService {
     console.log('DataService: calling backend.subtask.update');
     const success = await backend.subtask.update(subTaskId, patchData);
     console.log('DataService: backend.subtask.update result:', success);
-    
+
     if (success) {
       // 更新後のデータを取得して返す
       return await backend.subtask.get(subTaskId);
@@ -274,7 +280,7 @@ export class DataService {
   async updateTag(tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTag called with backend:', backend.constructor.name);
-    
+
     // Patch形式でのupdateに変更
     const patchData = {
       ...updates,
@@ -284,7 +290,7 @@ export class DataService {
     console.log('DataService: calling backend.tag.update');
     const success = await backend.tag.update(tagId, patchData);
     console.log('DataService: backend.tag.update result:', success);
-    
+
     if (success) {
       // 更新後のデータを取得して返す
       return await backend.tag.get(tagId);
