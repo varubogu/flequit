@@ -1,9 +1,9 @@
-use crate::facades::project_facades;
-use crate::models::command::project::{ProjectCommand, ProjectSearchRequest};
-use crate::models::command::ModelConverter;
-use crate::models::project::PartialProject;
-use crate::models::CommandModelConverter;
-use crate::types::id_types::ProjectId;
+use flequit_core::facades::project_facades;
+use flequit_core::models::command::project::{ProjectCommand, ProjectSearchRequest};
+use flequit_core::models::command::ModelConverter;
+use flequit_core::models::project::PartialProject;
+use flequit_core::models::CommandModelConverter;
+use flequit_core::types::id_types::ProjectId;
 
 #[tracing::instrument]
 #[tauri::command]

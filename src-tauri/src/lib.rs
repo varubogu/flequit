@@ -1,12 +1,9 @@
 // Module declarations
 mod commands;
-pub mod errors;
-mod facades;
 pub mod logger;
-pub mod models;
-pub mod repositories;
-mod services;
-pub mod types;
+
+// Re-export from flequit-core
+pub use flequit_core::*;
 
 use commands::*;
 

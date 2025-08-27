@@ -1,9 +1,9 @@
-use crate::facades::account_facades;
-use crate::models::account::PartialAccount;
-use crate::models::command::account::AccountCommand;
-use crate::models::command::ModelConverter;
-use crate::models::CommandModelConverter;
-use crate::types::id_types::AccountId;
+use flequit_core::facades::account_facades;
+use flequit_core::models::account::PartialAccount;
+use flequit_core::models::command::account::AccountCommand;
+use flequit_core::models::command::ModelConverter;
+use flequit_core::models::CommandModelConverter;
+use flequit_core::types::id_types::AccountId;
 
 #[tracing::instrument]
 #[tauri::command]

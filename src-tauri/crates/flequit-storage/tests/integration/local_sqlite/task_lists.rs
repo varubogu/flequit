@@ -2,14 +2,14 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクリストリポジトリテスト
 
-use flequit_lib::models::{project::Project, task_list::TaskList};
-use flequit_lib::types::id_types::{ProjectId, TaskListId, UserId};
-use flequit_lib::types::project_types::ProjectStatus;
-use flequit_lib::repositories::local_sqlite::{
+use crate::models::{project::Project, task_list::TaskList};
+use crate::types::id_types::{ProjectId, TaskListId, UserId};
+use crate::types::project_types::ProjectStatus;
+use crate::repositories::local_sqlite::{
     project::ProjectLocalSqliteRepository, 
     task_list::TaskListLocalSqliteRepository,
 };
-use flequit_lib::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -21,7 +21,7 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
     let db_path = setup_sqlite_test!("test_task_list_create_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc);
@@ -77,7 +77,7 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_task_list_read_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc);
@@ -151,7 +151,7 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
     let db_path = setup_sqlite_test!("test_task_list_update_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc);
@@ -234,7 +234,7 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
     let db_path = setup_sqlite_test!("test_task_list_delete_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc);

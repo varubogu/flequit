@@ -1,9 +1,9 @@
-use crate::facades::tag_facades;
-use crate::models::command::tag::{TagCommand, TagSearchRequest};
-use crate::models::command::ModelConverter;
-use crate::models::tag::PartialTag;
-use crate::models::CommandModelConverter;
-use crate::types::id_types::TagId;
+use flequit_core::facades::tag_facades;
+use flequit_core::models::command::tag::{TagCommand, TagSearchRequest};
+use flequit_core::models::command::ModelConverter;
+use flequit_core::models::tag::PartialTag;
+use flequit_core::models::CommandModelConverter;
+use flequit_core::types::id_types::TagId;
 
 #[tracing::instrument]
 #[tauri::command]

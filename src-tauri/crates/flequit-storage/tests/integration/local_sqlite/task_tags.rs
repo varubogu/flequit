@@ -2,18 +2,18 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクタグリポジトリテスト
 
-use flequit_lib::models::{project::Project, task_list::TaskList, task::Task, tag::Tag};
-use flequit_lib::types::id_types::{ProjectId, TaskListId, TaskId, TagId, UserId};
-use flequit_lib::types::project_types::ProjectStatus;
-use flequit_lib::types::task_types::TaskStatus;
-use flequit_lib::repositories::local_sqlite::{
+use crate::models::{project::Project, task_list::TaskList, task::Task, tag::Tag};
+use crate::types::id_types::{ProjectId, TaskListId, TaskId, TagId, UserId};
+use crate::types::project_types::ProjectStatus;
+use crate::types::task_types::TaskStatus;
+use crate::repositories::local_sqlite::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,
     tag::TagLocalSqliteRepository,
     task_tag::TaskTagLocalSqliteRepository,
 };
-use flequit_lib::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
     let db_path = setup_sqlite_test!("test_task_tag_relation_operations")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -152,7 +152,7 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
     let db_path = setup_sqlite_test!("test_task_tag_bulk_update")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());

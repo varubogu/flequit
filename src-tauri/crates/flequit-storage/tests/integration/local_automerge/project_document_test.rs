@@ -10,17 +10,17 @@ use crate::test_utils::{
     AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator,
 };
 
-use flequit_lib::models::project::{Member, Project};
-use flequit_lib::models::subtask::SubTask;
-use flequit_lib::models::tag::Tag;
-use flequit_lib::models::task::Task;
-use flequit_lib::models::task_list::TaskList;
-use flequit_lib::repositories::local_automerge::project::{
+use crate::models::project::{Member, Project};
+use crate::models::subtask::SubTask;
+use crate::models::tag::Tag;
+use crate::models::task::Task;
+use crate::models::task_list::TaskList;
+use crate::repositories::local_automerge::project::{
     ProjectDocument, ProjectLocalAutomergeRepository,
 };
-use flequit_lib::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
-use flequit_lib::types::project_types::MemberRole;
-use flequit_lib::types::task_types::TaskStatus;
+use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use crate::types::project_types::MemberRole;
+use crate::types::task_types::TaskStatus;
 
 /// テスト用ProjectDocumentRepositoryラッパー - automerge履歴出力機能付き
 struct TestProjectDocumentRepository {

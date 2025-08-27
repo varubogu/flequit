@@ -10,19 +10,19 @@ use std::path::{Path, PathBuf};
 // TestPathGeneratorを使用するためのインポート
 use crate::test_utils::TestPathGenerator;
 
-use flequit_lib::models::project::Project;
-use flequit_lib::models::subtask::SubTask;
-use flequit_lib::models::tag::Tag;
-use flequit_lib::models::task::Task;
-use flequit_lib::models::task_list::TaskList;
-use flequit_lib::repositories::base_repository_trait::Repository;
-use flequit_lib::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::tag::TagLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::task::TaskLocalAutomergeRepository;
-use flequit_lib::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
-use flequit_lib::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
-use flequit_lib::types::task_types::TaskStatus;
+use crate::models::project::Project;
+use crate::models::subtask::SubTask;
+use crate::models::tag::Tag;
+use crate::models::task::Task;
+use crate::models::task_list::TaskList;
+use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
+use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
+use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
+use crate::repositories::local_automerge::task::TaskLocalAutomergeRepository;
+use crate::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
+use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use crate::types::task_types::TaskStatus;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {

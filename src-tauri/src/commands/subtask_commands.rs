@@ -1,11 +1,11 @@
 use futures::future::join_all;
 
-use crate::facades::subtask_facades;
-use crate::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
-use crate::models::command::ModelConverter;
-use crate::models::subtask::PartialSubTask;
-use crate::models::CommandModelConverter;
-use crate::types::id_types::SubTaskId;
+use flequit_core::facades::subtask_facades;
+use flequit_core::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
+use flequit_core::models::command::ModelConverter;
+use flequit_core::models::subtask::PartialSubTask;
+use flequit_core::models::CommandModelConverter;
+use flequit_core::types::id_types::SubTaskId;
 
 // Frontend compatibility aliases only
 #[tracing::instrument]

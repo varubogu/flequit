@@ -1300,16 +1300,11 @@ dependencies = [
 name = "flequit"
 version = "0.1.0"
 dependencies = [
- "async-trait",
- "automerge",
- "automerge_repo",
- "chrono",
  "dirs",
  "env_logger",
+ "flequit-core",
  "futures",
  "log",
- "partially",
- "sea-orm",
  "serde",
  "serde_json",
  "tauri",
@@ -1321,6 +1316,43 @@ dependencies = [
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "flequit-core"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "flequit-storage",
+ "log",
+ "partially",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "flequit-storage"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "automerge",
+ "automerge_repo",
+ "chrono",
+ "dirs",
+ "futures",
+ "log",
+ "partially",
+ "sea-orm",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "tokio",
+ "tracing",
  "uuid",
 ]
 

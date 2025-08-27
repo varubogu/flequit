@@ -1,9 +1,9 @@
-use crate::facades::initialization_facades;
-use crate::models::command::account::AccountCommand;
-use crate::models::command::initialize::InitializedResult;
-use crate::models::command::project::ProjectTreeCommand;
-use crate::models::setting::LocalSettings;
-use crate::models::{CommandModelConverter, TreeCommandConverter};
+use flequit_core::facades::initialization_facades;
+use flequit_core::models::command::account::AccountCommand;
+use flequit_core::models::command::initialize::InitializedResult;
+use flequit_core::models::command::project::ProjectTreeCommand;
+use flequit_core::models::setting::LocalSettings;
+use flequit_core::models::{CommandModelConverter, TreeCommandConverter};
 
 #[tracing::instrument]
 #[tauri::command]

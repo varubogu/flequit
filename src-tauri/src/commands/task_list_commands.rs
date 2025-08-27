@@ -1,10 +1,10 @@
-use crate::facades::task_list_facades;
-use crate::models::command::task_list::TaskListCommand;
-use crate::models::command::task_list::TaskListSearchRequest;
-use crate::models::command::ModelConverter;
-use crate::models::task_list::PartialTaskList;
-use crate::models::CommandModelConverter;
-use crate::types::id_types::TaskListId;
+use flequit_core::facades::task_list_facades;
+use flequit_core::models::command::task_list::TaskListCommand;
+use flequit_core::models::command::task_list::TaskListSearchRequest;
+use flequit_core::models::command::ModelConverter;
+use flequit_core::models::task_list::PartialTaskList;
+use flequit_core::models::CommandModelConverter;
+use flequit_core::types::id_types::TaskListId;
 
 #[tracing::instrument]
 #[tauri::command]

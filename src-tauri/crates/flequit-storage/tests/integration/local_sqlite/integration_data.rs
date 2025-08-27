@@ -2,19 +2,19 @@
 //!
 //! 複数エンティティにわたる統合テスト
 
-use flequit_lib::models::{
+use crate::models::{
     project::Project, task_list::TaskList, task::Task, subtask::SubTask, tag::Tag
 };
-use flequit_lib::types::id_types::{ProjectId, TaskListId, UserId};
-use flequit_lib::types::project_types::ProjectStatus;
-use flequit_lib::repositories::local_sqlite::{
+use crate::types::id_types::{ProjectId, TaskListId, UserId};
+use crate::types::project_types::ProjectStatus;
+use crate::repositories::local_sqlite::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,
     subtask::SubtaskLocalSqliteRepository,
     tag::TagLocalSqliteRepository
 };
-use flequit_lib::repositories::base_repository_trait::Repository;
+use crate::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -26,7 +26,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     let db_path = setup_sqlite_test!("test_multiple_entities_crud_operations")?;
 
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
 
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
@@ -114,8 +114,8 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert_eq!(retrieved_task_list2.unwrap().name, task_list2.name);
 
     // === タスクを2件作成 ===
-    use flequit_lib::types::id_types::TaskId;
-    use flequit_lib::types::task_types::TaskStatus;
+    use crate::types::id_types::TaskId;
+    use crate::types::task_types::TaskStatus;
 
     let task_id1 = TaskId::from(Uuid::new_v4());
     let task1 = Task {
@@ -177,7 +177,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert_eq!(retrieved_task2.unwrap().title, task2.title);
 
     // === サブタスクを2件作成 ===
-    use flequit_lib::types::id_types::SubTaskId;
+    use crate::types::id_types::SubTaskId;
 
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
     let subtask1 = SubTask {
@@ -237,7 +237,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     assert_eq!(retrieved_subtask2.unwrap().title, subtask2.title);
 
     // === タグを2件作成 ===
-    use flequit_lib::types::id_types::TagId;
+    use crate::types::id_types::TagId;
 
     let tag_id1 = TagId::from(Uuid::new_v4());
     let tag1 = Tag {

@@ -10,7 +10,7 @@ use crate::repositories::local_automerge::{
     tag::TagLocalAutomergeRepository, task::TaskLocalAutomergeRepository,
     task_list::TaskListLocalAutomergeRepository,
 };
-use crate::services::path_service::PathService;
+use crate::utils::path_service::PathService;
 
 /// Automergeリポジトリ群の統合管理
 ///

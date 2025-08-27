@@ -2,11 +2,11 @@
 //!
 //! testing.mdルール準拠のSQLite設定リポジトリテスト
 
-use flequit_lib::models::setting::{Settings, CustomDateFormat, TimeLabel, ViewItem, DueDateButtons};
-use flequit_lib::types::id_types::SettingsId;
-use flequit_lib::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
-use flequit_lib::repositories::base_repository_trait::Repository;
-use flequit_lib::repositories::setting_repository_trait::SettingRepositoryTrait;
+use crate::models::setting::{Settings, CustomDateFormat, TimeLabel, ViewItem, DueDateButtons};
+use crate::types::id_types::SettingsId;
+use crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
+use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use std::sync::Arc;
 
 use crate::setup_sqlite_test;
@@ -17,7 +17,7 @@ async fn test_settings_create_operation() -> Result<(), Box<dyn std::error::Erro
     let db_path = setup_sqlite_test!("test_settings_create_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let settings_repo = SettingsLocalSqliteRepository::new(db_manager_arc);
     
@@ -75,7 +75,7 @@ async fn test_settings_read_operation() -> Result<(), Box<dyn std::error::Error>
     let db_path = setup_sqlite_test!("test_settings_read_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let settings_repo = SettingsLocalSqliteRepository::new(db_manager_arc);
     
@@ -122,7 +122,7 @@ async fn test_settings_update_operation() -> Result<(), Box<dyn std::error::Erro
     let db_path = setup_sqlite_test!("test_settings_update_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let settings_repo = SettingsLocalSqliteRepository::new(db_manager_arc);
     
@@ -200,7 +200,7 @@ async fn test_custom_date_format_operations() -> Result<(), Box<dyn std::error::
     let db_path = setup_sqlite_test!("test_custom_date_format_operations")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let settings_repo = SettingsLocalSqliteRepository::new(db_manager_arc);
     
@@ -270,8 +270,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     assert_ne!(db_path1, db_path2);
     
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
-    let db_manager2 = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
+    let db_manager1 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
+    let db_manager2 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
     
     let settings_repo1 = SettingsLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
     let settings_repo2 = SettingsLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));

@@ -2,10 +2,10 @@
 //!
 //! testing.mdルール準拠のSQLiteタグリポジトリテスト
 
-use flequit_lib::models::tag::Tag;
-use flequit_lib::types::id_types::TagId;
-use flequit_lib::repositories::local_sqlite::tag::TagLocalSqliteRepository;
-use flequit_lib::repositories::base_repository_trait::Repository;
+use crate::models::tag::Tag;
+use crate::types::id_types::TagId;
+use crate::repositories::local_sqlite::tag::TagLocalSqliteRepository;
+use crate::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -17,7 +17,7 @@ async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     let db_path = setup_sqlite_test!("test_tag_create_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
     
@@ -53,7 +53,7 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     let db_path = setup_sqlite_test!("test_tag_read_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
     
@@ -104,7 +104,7 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     let db_path = setup_sqlite_test!("test_tag_update_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
     
@@ -164,7 +164,7 @@ async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     let db_path = setup_sqlite_test!("test_tag_delete_operation")?;
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
     

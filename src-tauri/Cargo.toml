@@ -23,23 +23,30 @@ path = "src/bin/migration_runner.rs"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+# Internal crates
+flequit-core = { path = "crates/flequit-core" }
+
+# Tauri framework
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
-sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+
+# Serialization (for commands)
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.142"
-automerge = "0.6.1"
-uuid = { version = "1.0", features = ["v4", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
+
+# Async runtime
+tokio = { version = "1.47.1", features = ["full"] }
+futures = "0.3.31"
+
+# Utilities
 dirs = "6.0.0"
+
+# Error handling
+thiserror = "2.0.12"
+
+# Logging
 log = "0.4"
 env_logger = "0.11.8"
-automerge_repo = "0.2.2"
-async-trait = "0.1.88"
-tokio = { version = "1.47.1", features = ["full"] }
-thiserror = "2.0.12"
-futures = "0.3.31"
-partially = { version = "0.2.1", features = ["derive"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt", "time", "chrono"] }
 tracing-appender = "0.2.3"

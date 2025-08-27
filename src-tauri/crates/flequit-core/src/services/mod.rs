@@ -1,6 +1,5 @@
 pub mod account_service;
 pub mod initialization_service;
-pub mod path_service;
 pub mod project_service;
 pub mod setting_service;
 pub mod subtask_service;

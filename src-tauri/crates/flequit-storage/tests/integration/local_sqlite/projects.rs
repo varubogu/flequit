@@ -2,11 +2,11 @@
 //!
 //! testing.mdルール準拠のSQLiteプロジェクトリポジトリテスト
 
-use flequit_lib::models::project::Project;
-use flequit_lib::types::id_types::{ProjectId, UserId};
-use flequit_lib::types::project_types::ProjectStatus;
-use flequit_lib::repositories::local_sqlite::project::ProjectLocalSqliteRepository;
-use flequit_lib::repositories::base_repository_trait::Repository;
+use crate::models::project::Project;
+use crate::types::id_types::{ProjectId, UserId};
+use crate::types::project_types::ProjectStatus;
+use crate::repositories::local_sqlite::project::ProjectLocalSqliteRepository;
+use crate::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -18,7 +18,7 @@ async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_project_create_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc);
     
@@ -58,7 +58,7 @@ async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>>
     let db_path = setup_sqlite_test!("test_project_read_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc);
     
@@ -117,7 +117,7 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_project_update_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc);
     
@@ -185,7 +185,7 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_project_delete_operation")?;
     
     // リポジトリを初期化（非シングルトン）
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc);
     
@@ -248,8 +248,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     assert_ne!(db_path1, db_path2);
     
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
-    let db_manager2 = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
+    let db_manager1 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
+    let db_manager2 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
     
     let project_repo1 = ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
     let project_repo2 = ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
@@ -307,7 +307,7 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
     println!("🔍 デバッグテスト開始: {}", db_path.display());
     
     // リポジトリを初期化
-    let db_manager = flequit_lib::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     
@@ -345,14 +345,14 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
         
         // 直接SQLクエリでデータ確認
         use sea_orm::{EntityTrait, PaginatorTrait};
-        let count = flequit_lib::models::sqlite::project::Entity::find()
+        let count = crate::models::sqlite::project::Entity::find()
             .count(db_conn)
             .await?;
         
         println!("📊 テーブル内のレコード数: {}", count);
         
         // 実際のレコードを確認
-        let all_records = flequit_lib::models::sqlite::project::Entity::find()
+        let all_records = crate::models::sqlite::project::Entity::find()
             .all(db_conn)
             .await?;
             
