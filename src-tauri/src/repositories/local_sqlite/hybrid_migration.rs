@@ -8,9 +8,11 @@ use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Sta
 use crate::models::sqlite::{
     account::Entity as AccountEntity, custom_date_format::Entity as CustomDateFormatEntity,
     project::Entity as ProjectEntity, setting::Entity as SettingEntity,
-    subtask::Entity as SubtaskEntity, tag::Entity as TagEntity, task::Entity as TaskEntity,
-    task_list::Entity as TaskListEntity, time_label::Entity as TimeLabelEntity,
-    user::Entity as UserEntity, view_item::Entity as ViewItemEntity,
+    subtask::Entity as SubtaskEntity, subtask_tag::Entity as SubtaskTagEntity,
+    tag::Entity as TagEntity, task::Entity as TaskEntity,
+    task_list::Entity as TaskListEntity, task_tag::Entity as TaskTagEntity,
+    time_label::Entity as TimeLabelEntity, user::Entity as UserEntity,
+    view_item::Entity as ViewItemEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -87,6 +89,8 @@ impl HybridMigrator {
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
+            ("task_tags", schema.create_table_from_entity(TaskTagEntity)),
+            ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
             ("users", schema.create_table_from_entity(UserEntity)),
             (
                 "custom_date_formats",

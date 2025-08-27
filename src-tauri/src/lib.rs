@@ -2,6 +2,7 @@
 mod commands;
 pub mod errors;
 mod facades;
+pub mod logger;
 pub mod models;
 pub mod repositories;
 mod services;

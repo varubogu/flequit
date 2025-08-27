@@ -3,9 +3,11 @@ mod accounts;
 mod projects;
 mod settings;
 mod subtasks;
+mod subtask_tags;
 mod tags;
 mod task_lists;
 mod tasks;
+mod task_tags;
 mod users;
 
 // テーブル統合テスト

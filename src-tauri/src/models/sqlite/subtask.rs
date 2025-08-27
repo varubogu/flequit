@@ -51,8 +51,6 @@ pub struct Model {
     /// アサインされたユーザーIDリスト（JSON配列形式）
     pub assigned_user_ids: Option<String>,
 
-    /// 付与されたタグIDリスト（JSON配列形式）
-    pub tag_ids: Option<String>,
 
     /// 表示順序
     #[sea_orm(indexed)] // ソート用
@@ -124,17 +122,9 @@ impl SqliteModelConverter<SubTask> for Model {
             vec![]
         };
 
-        // タグIDリストJSONをパース
-        let tag_ids = if let Some(tags_json) = &self.tag_ids {
-            let string_ids: Vec<String> = serde_json::from_str(tags_json)
-                .map_err(|e| format!("Failed to parse tag_ids: {}", e))?;
-            string_ids
-                .into_iter()
-                .map(crate::types::id_types::TagId::from)
-                .collect()
-        } else {
-            vec![]
-        };
+        // タグIDリストは紐づけテーブル(subtask_tags)から取得するため、
+        // SQLiteモデルでは空のベクターを設定
+        let tag_ids = vec![];
 
         use crate::types::id_types::{SubTaskId, TaskId};
 
@@ -200,16 +190,8 @@ impl DomainToSqliteConverter<ActiveModel> for SubTask {
             None
         };
 
-        // タグIDリストをJSONに変換
-        let tag_ids_json = if !self.tag_ids.is_empty() {
-            let string_ids: Vec<String> = self.tag_ids.iter().map(|id| id.to_string()).collect();
-            Some(
-                serde_json::to_string(&string_ids)
-                    .map_err(|e| format!("Failed to serialize tag_ids: {}", e))?,
-            )
-        } else {
-            None
-        };
+        // タグIDリストは紐づけテーブル(subtask_tags)で管理するため、
+        // SQLiteのsubtasksテーブルには保存しない
 
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
@@ -223,7 +205,6 @@ impl DomainToSqliteConverter<ActiveModel> for SubTask {
             is_range_date: Set(self.is_range_date),
             recurrence_rule: Set(recurrence_rule_json),
             assigned_user_ids: Set(assigned_user_ids_json),
-            tag_ids: Set(tag_ids_json),
             order_index: Set(self.order_index),
             completed: Set(self.completed),
             created_at: Set(self.created_at),
