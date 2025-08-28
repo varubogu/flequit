@@ -17,13 +17,14 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [[bin]]
 name = "migration_runner"
-path = "src/bin/migration_runner.rs"
+path = "crates/flequit-storage/src/bin/migration_runner.rs"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # Internal crates
+flequit-model = { path = "crates/flequit-model" }
 flequit-core = { path = "crates/flequit-core" }
 
 # Tauri framework
@@ -50,6 +51,9 @@ env_logger = "0.11.8"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt", "time", "chrono"] }
 tracing-appender = "0.2.3"
+chrono = { version = "0.4.41", features = ["serde"] }
+uuid = { version = "1.18.0", features = ["serde", "v4"] }
+async-trait = "0.1.89"
 
 [dev-dependencies]
 tempfile = "3.0"

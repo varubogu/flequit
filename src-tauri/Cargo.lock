@@ -285,9 +285,9 @@ checksum = "8b75356056920673b02621b35afd0f7dda9306d03c79a30f5c56c44cf256e3de"
 
 [[package]]
 name = "async-trait"
-version = "0.1.88"
+version = "0.1.89"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e539d3fca749fcee5236ab05e93a52867dd549cc157c8cb7f99595f3cedffdb5"
+checksum = "9035ad2d096bed7955a320ee7e2230574d28fd3c3a0f186cbea1ff3c7eed5dbb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1300,9 +1300,12 @@ dependencies = [
 name = "flequit"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
+ "chrono",
  "dirs",
  "env_logger",
  "flequit-core",
+ "flequit-model",
  "futures",
  "log",
  "serde",
@@ -1316,6 +1319,7 @@ dependencies = [
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]
@@ -1324,6 +1328,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "flequit-model",
  "flequit-storage",
  "log",
  "partially",
@@ -1336,6 +1341,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "flequit-model"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "partially",
+ "serde",
+ "uuid",
+]
+
+[[package]]
 name = "flequit-storage"
 version = "0.1.0"
 dependencies = [
@@ -1344,6 +1360,7 @@ dependencies = [
  "automerge_repo",
  "chrono",
  "dirs",
+ "flequit-model",
  "futures",
  "log",
  "partially",
@@ -5823,9 +5840,9 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "uuid"
-version = "1.17.0"
+version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cf4199d1e5d15ddd86a694e4d0dffa9c323ce759fea589f00fef9d81cc1931d"
+checksum = "f33196643e165781c20a5ead5582283a7dacbb87855d867fbc2df3f81eddc1be"
 dependencies = [
  "getrandom 0.3.3",
  "js-sys",

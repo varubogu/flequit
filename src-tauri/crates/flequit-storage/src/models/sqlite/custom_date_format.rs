@@ -1,9 +1,9 @@
 //! CustomDateFormat用SQLiteモデル
 
-use crate::models::{
-    setting::CustomDateFormat,
-    sqlite::{DomainToSqliteConverter, SqliteModelConverter},
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter,
 };
+use async_trait::async_trait;
+use flequit_model::models::setting::CustomDateFormat;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +23,7 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
+#[async_trait]
 impl SqliteModelConverter<CustomDateFormat> for Model {
     async fn to_domain_model(&self) -> Result<CustomDateFormat, String> {
         Ok(CustomDateFormat {
@@ -33,6 +34,7 @@ impl SqliteModelConverter<CustomDateFormat> for Model {
     }
 }
 
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for CustomDateFormat {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

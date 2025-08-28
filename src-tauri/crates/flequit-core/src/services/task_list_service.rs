@@ -1,9 +1,9 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::command::task_list::TaskListSearchRequest;
-use crate::models::task_list::{PartialTaskList, TaskList, TaskListTree};
+use flequit_model::models::task::TaskTree;
+use flequit_model::models::task_list::{PartialTaskList, TaskList, TaskListTree};
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
-use crate::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId};
 
 pub async fn create_task_list(task_list: &TaskList) -> Result<(), ServiceError> {
     let repository: Repositories = Repositories::new().await?;
@@ -50,67 +50,6 @@ pub async fn delete_task_list(id: &TaskListId) -> Result<(), ServiceError> {
     let repository = Repositories::new().await?;
     repository.task_lists.delete(id).await?;
     Ok(())
-}
-
-pub async fn search_task_lists(
-    condition: &TaskListSearchRequest,
-) -> Result<Vec<TaskList>, ServiceError> {
-    let repository = Repositories::new().await?;
-    let mut task_lists = repository.task_lists.find_all().await?;
-
-    // project_idでのフィルタリング
-    if let Some(project_id) = &condition.project_id {
-        if !project_id.trim().is_empty() {
-            task_lists = task_lists
-                .into_iter()
-                // project_idフィルタリングをコメントアウト
-                // .filter(|tl| tl.project_id.to_string() == *project_id)
-                .collect();
-        }
-    }
-
-    // 名前でのフィルタリング
-    if let Some(name) = &condition.name {
-        if !name.trim().is_empty() {
-            let name_lower = name.to_lowercase();
-            task_lists = task_lists
-                .into_iter()
-                .filter(|tl| tl.name.to_lowercase().contains(&name_lower))
-                .collect();
-        }
-    }
-
-    // 作成日時の範囲フィルタリング
-    if let Some(created_from) = &condition.created_from {
-        if let Ok(from_date) = chrono::DateTime::parse_from_rfc3339(created_from) {
-            let from_utc = from_date.with_timezone(&chrono::Utc);
-            task_lists = task_lists
-                .into_iter()
-                .filter(|tl| tl.created_at >= from_utc)
-                .collect();
-        }
-    }
-
-    if let Some(created_to) = &condition.created_to {
-        if let Ok(to_date) = chrono::DateTime::parse_from_rfc3339(created_to) {
-            let to_utc = to_date.with_timezone(&chrono::Utc);
-            task_lists = task_lists
-                .into_iter()
-                .filter(|tl| tl.created_at <= to_utc)
-                .collect();
-        }
-    }
-
-    // order_indexでソート
-    task_lists.sort_by(|a, b| a.order_index.cmp(&b.order_index));
-
-    // ページネーション
-    let offset = condition.offset.unwrap_or(0);
-    let limit = condition.limit.unwrap_or(50);
-
-    let paginated_lists = task_lists.into_iter().skip(offset).take(limit).collect();
-
-    Ok(paginated_lists)
 }
 
 pub async fn list_task_lists(_project_id: &str) -> Result<Vec<TaskList>, ServiceError> {
@@ -177,10 +116,49 @@ pub async fn get_task_lists_with_tasks(
                 Vec::new()
             };
 
-            let task_with_subtasks = crate::models::task::TaskTree {
+            // SubTaskからSubTaskTreeに変換
+            let mut sub_task_trees = Vec::new();
+            for subtask in subtasks {
+                // サブタスクに関連するタグを取得
+                let subtask_tags = if !subtask.tag_ids.is_empty() {
+                    repository
+                        .tags
+                        .find_all()
+                        .await?
+                        .into_iter()
+                        .filter(|tag| subtask.tag_ids.contains(&tag.id))
+                        .collect::<Vec<_>>()
+                } else {
+                    Vec::new()
+                };
+
+                use flequit_model::models::subtask::SubTaskTree;
+                let sub_task_tree = SubTaskTree {
+                    id: subtask.id,
+                    task_id: subtask.task_id,
+                    title: subtask.title,
+                    description: subtask.description,
+                    status: subtask.status,
+                    priority: subtask.priority,
+                    plan_start_date: subtask.plan_start_date,
+                    plan_end_date: subtask.plan_end_date,
+                    do_start_date: subtask.do_start_date,
+                    do_end_date: subtask.do_end_date,
+                    is_range_date: subtask.is_range_date,
+                    recurrence_rule: subtask.recurrence_rule,
+                    order_index: subtask.order_index,
+                    completed: subtask.completed,
+                    created_at: subtask.created_at,
+                    updated_at: subtask.updated_at,
+                    assigned_user_ids: subtask.assigned_user_ids,
+                    tags: subtask_tags,
+                };
+                sub_task_trees.push(sub_task_tree);
+            }
+
+            let tasktree = TaskTree {
                 id: task.id,
                 project_id: task.project_id,
-                sub_task_id: task.sub_task_id,
                 list_id: task.list_id,
                 title: task.title,
                 description: task.description,
@@ -197,15 +175,15 @@ pub async fn get_task_lists_with_tasks(
                 is_archived: task.is_archived,
                 created_at: task.created_at,
                 updated_at: task.updated_at,
-                sub_tasks: subtasks,
+                sub_tasks: sub_task_trees,
                 tags,
             };
 
-            tasks_with_subtasks.push(task_with_subtasks);
+            tasks_with_subtasks.push(tasktree);
         }
 
         // TaskListTreeを構築
-        let task_list_with_tasks = TaskListTree {
+        let task_list_tree = TaskListTree {
             id: task_list.id,
             project_id: task_list.project_id,
             name: task_list.name,
@@ -218,7 +196,7 @@ pub async fn get_task_lists_with_tasks(
             tasks: tasks_with_subtasks,
         };
 
-        task_lists_with_tasks.push(task_list_with_tasks);
+        task_lists_with_tasks.push(task_list_tree);
     }
 
     Ok(task_lists_with_tasks)

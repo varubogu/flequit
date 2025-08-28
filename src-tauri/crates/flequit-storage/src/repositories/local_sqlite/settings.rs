@@ -2,7 +2,7 @@
 
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use crate::models::sqlite::setting::{ActiveModel as SettingActiveModel, Entity as SettingEntity};
 use crate::models::sqlite::{
     custom_date_format::{
@@ -14,7 +14,7 @@ use crate::models::sqlite::{
 };
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
-use crate::types::id_types::SettingsId;
+use flequit_model::types::id_types::SettingsId;
 use async_trait::async_trait;
 use sea_orm::{ActiveModelTrait, EntityTrait};
 use std::sync::Arc;

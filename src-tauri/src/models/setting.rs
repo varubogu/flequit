@@ -1,11 +1,12 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use crate::models::command::ModelConverter;
-use crate::models::setting::{
+use flequit_model::models::ModelConverter;
+use flequit_model::models::setting::{
     CustomDateFormat, DueDateButtons, LocalSettings, Setting, Settings, TimeLabel, ViewItem,
 };
 use crate::models::CommandModelConverter;
-use crate::types::id_types::SettingsId;
+use flequit_model::types::id_types::SettingsId;
 
 /// Tauriコマンド引数用のLocalSettings構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,10 +15,22 @@ pub struct LocalSettingsCommand {
     pub language: String,
 }
 
+#[async_trait]
 impl ModelConverter<LocalSettings> for LocalSettingsCommand {
     /// コマンド引数用（LocalSettingsCommand）から内部モデル（LocalSettings）に変換
     async fn to_model(&self) -> Result<LocalSettings, String> {
-        Ok(crate::models::setting::LocalSettings {
+        Ok(LocalSettings {
+            theme: self.theme.clone(),
+            language: self.language.clone(),
+        })
+    }
+}
+
+#[async_trait]
+impl CommandModelConverter<LocalSettingsCommand> for LocalSettings {
+    /// ドメインモデル（LocalSettings）からコマンドモデル（LocalSettingsCommand）に変換
+    async fn to_command_model(&self) -> Result<LocalSettingsCommand, String> {
+        Ok(LocalSettingsCommand {
             theme: self.theme.clone(),
             language: self.language.clone(),
         })
@@ -35,10 +48,26 @@ pub struct SettingCommand {
     pub updated_at: String,
 }
 
+#[async_trait]
 impl ModelConverter<Setting> for SettingCommand {
     /// コマンド引数用（SettingCommand）から内部モデル（Setting）に変換
     async fn to_model(&self) -> Result<Setting, String> {
-        Ok(crate::models::setting::Setting {
+        Ok(Setting {
+            id: self.id.clone(),
+            key: self.key.clone(),
+            value: self.value.clone(),
+            data_type: self.data_type.clone(),
+            created_at: self.created_at.clone(),
+            updated_at: self.updated_at.clone(),
+        })
+    }
+}
+
+#[async_trait]
+impl CommandModelConverter<SettingCommand> for Setting {
+    /// ドメインモデル（Setting）からコマンドモデル（SettingCommand）に変換
+    async fn to_command_model(&self) -> Result<SettingCommand, String> {
+        Ok(SettingCommand {
             id: self.id.clone(),
             key: self.key.clone(),
             value: self.value.clone(),
@@ -76,10 +105,11 @@ pub struct SettingsCommand {
     pub last_selected_account: String,
 }
 
+#[async_trait]
 impl ModelConverter<Settings> for SettingsCommand {
     /// コマンド引数用（SettingsCommand）から内部モデル（Settings）に変換
     async fn to_model(&self) -> Result<Settings, String> {
-        Ok(crate::models::setting::Settings {
+        Ok(Settings {
             id: SettingsId::from("app_settings"),
             theme: self.theme.clone(),
             language: self.language.clone(),
@@ -108,6 +138,7 @@ pub struct CustomDateFormatCommand {
     pub format: String,
 }
 
+#[async_trait]
 impl ModelConverter<CustomDateFormat> for CustomDateFormatCommand {
     async fn to_model(&self) -> Result<CustomDateFormat, String> {
         Ok(CustomDateFormat {
@@ -118,6 +149,7 @@ impl ModelConverter<CustomDateFormat> for CustomDateFormatCommand {
     }
 }
 
+#[async_trait]
 impl CommandModelConverter<CustomDateFormatCommand> for CustomDateFormat {
     async fn to_command_model(&self) -> Result<CustomDateFormatCommand, String> {
         Ok(CustomDateFormatCommand {
@@ -136,6 +168,7 @@ pub struct TimeLabelCommand {
     pub time: String,
 }
 
+#[async_trait]
 impl ModelConverter<TimeLabel> for TimeLabelCommand {
     async fn to_model(&self) -> Result<TimeLabel, String> {
         Ok(TimeLabel {
@@ -146,6 +179,7 @@ impl ModelConverter<TimeLabel> for TimeLabelCommand {
     }
 }
 
+#[async_trait]
 impl CommandModelConverter<TimeLabelCommand> for TimeLabel {
     async fn to_command_model(&self) -> Result<TimeLabelCommand, String> {
         Ok(TimeLabelCommand {
@@ -166,6 +200,7 @@ pub struct ViewItemCommand {
     pub order: i32,
 }
 
+#[async_trait]
 impl ModelConverter<ViewItem> for ViewItemCommand {
     async fn to_model(&self) -> Result<ViewItem, String> {
         Ok(ViewItem {
@@ -178,6 +213,7 @@ impl ModelConverter<ViewItem> for ViewItemCommand {
     }
 }
 
+#[async_trait]
 impl CommandModelConverter<ViewItemCommand> for ViewItem {
     async fn to_command_model(&self) -> Result<ViewItemCommand, String> {
         Ok(ViewItemCommand {
@@ -190,6 +226,7 @@ impl CommandModelConverter<ViewItemCommand> for ViewItem {
     }
 }
 
+#[async_trait]
 impl CommandModelConverter<SettingsCommand> for Settings {
     async fn to_command_model(&self) -> Result<SettingsCommand, String> {
         Ok(SettingsCommand {

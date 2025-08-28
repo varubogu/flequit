@@ -1,6 +1,6 @@
 //! 設定関連のFacade
 use crate::errors::service_error::ServiceError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use crate::services::setting_service;
 
 // エラー変換のヘルパー関数

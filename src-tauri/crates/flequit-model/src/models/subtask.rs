@@ -14,13 +14,12 @@ use super::super::types::{
 };
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    command::subtask::SubtaskCommand, CommandModelConverter, TreeCommandConverter,
-};
+use crate::models::ModelConverter;
 
 /// 基本サブタスク情報を表現する構造体
 ///
@@ -113,64 +112,78 @@ pub struct SubTask {
     pub updated_at: DateTime<Utc>,
 }
 
-impl CommandModelConverter<SubtaskCommand> for SubTask {
-    async fn to_command_model(&self) -> Result<SubtaskCommand, String> {
-        Ok(SubtaskCommand {
-            id: self.id.to_string(),
-            task_id: self.task_id.to_string(),
-            title: self.title.clone(),
-            description: self.description.clone(),
-            status: self.status.clone(),
-            priority: self.priority,
-            start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
-            end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
-            is_range_date: self.is_range_date,
-            recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self
-                .assigned_user_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect(),
-            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
-            order_index: self.order_index,
-            completed: self.completed,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
+pub struct SubTaskTree {
+    /// サブタスクの一意識別子
+    #[partially(omit)] // IDは更新対象外
+    pub id: SubTaskId,
+    /// 親タスクの識別子（必須の関連）
+    pub task_id: TaskId,
+    /// サブタスクタイトル（必須）
+    pub title: String,
+    /// サブタスクの詳細説明
+    pub description: Option<String>,
+    /// サブタスクステータス（TODO、進行中、完了等）
+    pub status: TaskStatus,
+    /// 優先度（数値、高いほど優先、Optional）
+    pub priority: Option<i32>,
+    /// 予定開始日時（Optional）
+    pub plan_start_date: Option<DateTime<Utc>>,
+    /// 予定終了日時（Optional）
+    pub plan_end_date: Option<DateTime<Utc>>,
+    /// 実開始日時（Optional）
+    pub do_start_date: Option<DateTime<Utc>>,
+    /// 実終了日時（Optional）
+    pub do_end_date: Option<DateTime<Utc>>,
+    /// 期間指定フラグ（開始〜終了の期間指定）
+    pub is_range_date: Option<bool>,
+    /// 繰り返しルール（定期サブタスク用）
+    pub recurrence_rule: Option<RecurrenceRule>,
+    /// 表示順序（昇順ソート用）
+    pub order_index: i32,
+    /// 完了フラグ（従来互換性のため保持）
+    pub completed: bool, // 既存のcompletedフィールドも保持
+    /// サブタスク作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// アサインされたユーザーIDリスト
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
+    /// 付与されたタグ
+    pub tags: Vec<Tag>, // 付与されたタグの配列
 }
 
-impl TreeCommandConverter<crate::models::command::subtask::SubTaskTreeCommand> for SubTask {
-    async fn to_command_model(
-        &self,
-    ) -> Result<crate::models::command::subtask::SubTaskTreeCommand, String> {
-        // タグをコマンドモデルに変換
-        let mut tag_commands = Vec::new();
-        for tag in &self.tags {
-            tag_commands.push(tag.to_command_model().await?);
-        }
-
-        Ok(crate::models::command::subtask::SubTaskTreeCommand {
-            id: self.id.to_string(),
-            task_id: self.task_id.to_string(),
+#[async_trait]
+impl ModelConverter<SubTask> for SubTaskTree {
+    /// SubTaskTreeからSubTaskに変換
+    /// 
+    /// タグ情報（tags）からタグIDリスト（tag_ids）を生成し、
+    /// 関連データを含まない軽量な基本サブタスク構造に変換します。
+    async fn to_model(&self) -> Result<SubTask, String> {
+        // tagsからtag_idsを生成
+        let tag_ids: Vec<TagId> = self.tags.iter().map(|tag| tag.id.clone()).collect();
+        
+        Ok(SubTask {
+            id: self.id.clone(),
+            task_id: self.task_id.clone(),
             title: self.title.clone(),
             description: self.description.clone(),
             status: self.status.clone(),
             priority: self.priority,
-            start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
-            end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
+            plan_start_date: self.plan_start_date,
+            plan_end_date: self.plan_end_date,
+            do_start_date: self.do_start_date,
+            do_end_date: self.do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self
-                .assigned_user_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect(),
+            assigned_user_ids: self.assigned_user_ids.clone(),
+            tag_ids, // tagsから生成したIDリスト
+            tags: self.tags.clone(), // タグの実体も保持
             order_index: self.order_index,
             completed: self.completed,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-            tags: tag_commands,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
         })
     }
 }

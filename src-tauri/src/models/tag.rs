@@ -1,6 +1,18 @@
+use async_trait::async_trait;
+use flequit_model::types::id_types::TagId;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::ModelConverter, tag::Tag};
+use crate::models::CommandModelConverter;
+use flequit_model::models::ModelConverter;
+use flequit_model::models::tag::Tag;
+
+/// タグ検索用のリクエスト構造体
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TagSearchRequest {
+    pub name: Option<String>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
+}
 
 /// Tauriコマンド引数用のTag構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -13,6 +25,7 @@ pub struct TagCommand {
     pub updated_at: String,
 }
 
+#[async_trait]
 impl ModelConverter<Tag> for TagCommand {
     /// コマンド引数用（TagCommand）から内部モデル（Tag）に変換
     async fn to_model(&self) -> Result<Tag, String> {
@@ -27,9 +40,7 @@ impl ModelConverter<Tag> for TagCommand {
             .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
-        use crate::types::id_types::TagId;
-
-        Ok(crate::models::tag::Tag {
+        Ok(Tag {
             id: TagId::from(self.id.clone()),
             name: self.name.clone(),
             color: self.color.clone(),
@@ -40,15 +51,16 @@ impl ModelConverter<Tag> for TagCommand {
     }
 }
 
-/// Tauriコマンド引数用のTagSearchRequest構造体
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TagSearchRequest {
-    pub name: Option<String>,
-    pub color: Option<String>,
-    pub created_from: Option<String>,
-    pub created_to: Option<String>,
-    pub usage_count_min: Option<u32>,
-    pub limit: Option<usize>,
-    pub offset: Option<usize>,
-    pub order_by_popularity: Option<bool>,
+#[async_trait]
+impl CommandModelConverter<TagCommand> for Tag {
+    async fn to_command_model(&self) -> Result<TagCommand, String> {
+        Ok(TagCommand {
+            id: self.id.to_string(),
+            name: self.name.clone(),
+            color: self.color.clone(),
+            order_index: self.order_index,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+        })
+    }
 }

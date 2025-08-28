@@ -1,9 +1,12 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::project::Project;
+use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::project::Project;
 
 /// Project用SQLiteエンティティ定義
 ///
@@ -73,9 +76,9 @@ impl Related<super::task::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<Project> for Model {
     async fn to_domain_model(&self) -> Result<Project, String> {
-        use crate::types::project_types::ProjectStatus;
 
         // ステータス文字列をenumに変換
         let status = if let Some(status_str) = &self.status {
@@ -90,8 +93,6 @@ impl SqliteModelConverter<Project> for Model {
         } else {
             None
         };
-
-        use crate::types::id_types::{ProjectId, UserId};
 
         Ok(Project {
             id: ProjectId::from(self.id.clone()),
@@ -109,16 +110,17 @@ impl SqliteModelConverter<Project> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for Project {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let status_string = self.status.as_ref().map(|status| {
             match status {
-                crate::types::project_types::ProjectStatus::Planning => "planning",
-                crate::types::project_types::ProjectStatus::Active => "active",
-                crate::types::project_types::ProjectStatus::OnHold => "on_hold",
-                crate::types::project_types::ProjectStatus::Completed => "completed",
-                crate::types::project_types::ProjectStatus::Archived => "archived",
+                ProjectStatus::Planning => "planning",
+                ProjectStatus::Active => "active",
+                ProjectStatus::OnHold => "on_hold",
+                ProjectStatus::Completed => "completed",
+                ProjectStatus::Archived => "archived",
             }
             .to_string()
         });

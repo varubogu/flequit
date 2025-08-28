@@ -1,10 +1,9 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::command::task::TaskSearchRequest;
-use crate::models::task::{PartialTask, Task};
+use flequit_model::models::task::{PartialTask, Task};
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
-use crate::types::id_types::{ProjectId, TaskId};
-use crate::types::task_types::TaskStatus;
+use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
+use flequit_model::types::task_types::TaskStatus;
 use chrono::Utc;
 
 #[tracing::instrument(level = "trace")]
@@ -101,7 +100,6 @@ pub async fn assign_task(
     let repository = Repositories::new().await?;
 
     // タスクIDから TaskId 型に変換
-    use crate::types::id_types::{TaskId, UserId};
     let task_id_typed = TaskId::from(task_id.to_string());
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
@@ -144,7 +142,7 @@ pub async fn update_task_status(
     let repository = Repositories::new().await?;
 
     // タスクIDから TaskId 型に変換
-    use crate::types::id_types::TaskId;
+    use TaskId;
     let task_id_typed = TaskId::from(task_id.to_string());
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
@@ -178,7 +176,7 @@ pub async fn update_task_priority(
     let repository = Repositories::new().await?;
 
     // タスクIDから TaskId 型に変換
-    use crate::types::id_types::TaskId;
+    use TaskId;
     let task_id_typed = TaskId::from(task_id.to_string());
 
     if let Some(mut task) = repository.tasks.find_by_id(&task_id_typed).await? {
@@ -201,76 +199,4 @@ pub async fn update_task_priority(
     }
 
     Ok(())
-}
-
-#[tracing::instrument]
-pub async fn search_tasks(request: &TaskSearchRequest) -> Result<(Vec<Task>, usize), ServiceError> {
-    let repository = Repositories::new().await?;
-    let mut tasks = repository.tasks.find_all().await?;
-
-    // project_idでフィルタリング
-    if let Some(project_id) = &request.project_id {
-        if !project_id.trim().is_empty() {
-            tasks = tasks
-                .into_iter()
-                // .filter(|task| task.project_id.to_string() == *project_id)
-                .collect();
-        }
-    }
-
-    // タイトルでフィルタリング
-    if let Some(title) = &request.title {
-        if !title.trim().is_empty() {
-            let title_lower = title.to_lowercase();
-            tasks = tasks
-                .into_iter()
-                .filter(|task| task.title.to_lowercase().contains(&title_lower))
-                .collect();
-        }
-    }
-
-    // ステータスでフィルタリング
-    if let Some(status) = &request.status {
-        tasks = tasks
-            .into_iter()
-            .filter(|task| &task.status == status)
-            .collect();
-    }
-
-    // 担当者でフィルタリング
-    if let Some(assignee_id) = &request.assignee_id {
-        if !assignee_id.trim().is_empty() {
-            tasks = tasks
-                .into_iter()
-                .filter(|task| {
-                    task.assigned_user_ids
-                        .iter()
-                        .any(|id| id.to_string() == *assignee_id)
-                })
-                .collect();
-        }
-    }
-
-    // 優先度でフィルタリング
-    if let Some(priority_min) = request.priority_min {
-        tasks = tasks
-            .into_iter()
-            .filter(|task| task.priority >= priority_min)
-            .collect();
-    }
-
-    if let Some(priority_max) = request.priority_max {
-        tasks = tasks
-            .into_iter()
-            .filter(|task| task.priority <= priority_max)
-            .collect();
-    }
-
-    let total_count = tasks.len();
-    let offset = request.offset.unwrap_or(0);
-    let limit = request.limit.unwrap_or(50);
-
-    let paginated_tasks = tasks.into_iter().skip(offset).take(limit).collect();
-
-    Ok((paginated_tasks, total_count))
 }

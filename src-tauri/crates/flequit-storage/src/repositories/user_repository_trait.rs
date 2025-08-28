@@ -1,7 +1,6 @@
-use crate::models::user::User;
-use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::UserId;
 use async_trait::async_trait;
+use flequit_model::{models::user::User, types::id_types::UserId};
+use crate::repositories::base_repository_trait::Repository;
 
 /// 統合ユーザーリポジトリトレイト
 ///

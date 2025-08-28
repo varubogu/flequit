@@ -1,6 +1,6 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::RepositoryError;
-use crate::models::{
+use flequit_model::models::{
     project::{Member, Project},
     subtask::SubTask,
     tag::Tag,
@@ -9,8 +9,8 @@ use crate::models::{
 };
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::project_repository_trait::ProjectRepositoryTrait;
-use crate::types::id_types::{ProjectId, UserId};
-use crate::types::project_types::ProjectStatus;
+use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

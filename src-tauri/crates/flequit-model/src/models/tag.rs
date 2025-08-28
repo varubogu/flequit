@@ -12,7 +12,6 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::tag::TagCommand, CommandModelConverter};
 
 /// タグ情報を表現する構造体
 ///
@@ -84,15 +83,3 @@ pub struct Tag {
     pub updated_at: DateTime<Utc>,
 }
 
-impl CommandModelConverter<TagCommand> for Tag {
-    async fn to_command_model(&self) -> Result<TagCommand, String> {
-        Ok(TagCommand {
-            id: self.id.to_string(),
-            name: self.name.clone(),
-            color: self.color.clone(),
-            order_index: self.order_index,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
-}

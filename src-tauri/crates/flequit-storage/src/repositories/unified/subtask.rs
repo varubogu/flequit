@@ -6,13 +6,13 @@
 use async_trait::async_trait;
 use log::info;
 
+use flequit_model::models::subtask::SubTask;
+use flequit_model::types::id_types::SubTaskId;
 use crate::errors::RepositoryError;
-use crate::models::subtask::SubTask;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
 use crate::repositories::local_sqlite::subtask::SubtaskLocalSqliteRepository;
 use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
-use crate::types::id_types::SubTaskId;
 
 /// SubTaskRepositoryTrait実装の静的ディスパッチ対応enum
 #[derive(Debug)]

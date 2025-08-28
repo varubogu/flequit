@@ -1,10 +1,9 @@
 use log::info;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::command::task::TaskSearchRequest;
-use crate::models::task::{PartialTask, Task};
+use flequit_model::models::task::{PartialTask, Task};
 use crate::services::task_service;
-use crate::types::id_types::TaskId;
+use flequit_model::types::id_types::TaskId;
 
 #[tracing::instrument]
 pub async fn create_task(task: &Task) -> Result<bool, String> {
@@ -40,13 +39,5 @@ pub async fn delete_task(id: &TaskId) -> Result<bool, String> {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task: {:?}", e)),
-    }
-}
-
-#[tracing::instrument]
-pub async fn search_tasks(condition: &TaskSearchRequest) -> Result<Vec<Task>, String> {
-    match task_service::search_tasks(condition).await {
-        Ok((tasks, _)) => Ok(tasks),
-        Err(e) => Err(format!("Failed to search tasks: {:?}", e)),
     }
 }

@@ -1,9 +1,10 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::models::account::Account;
-use crate::models::command::ModelConverter;
-use crate::types::id_types::{AccountId, UserId};
+use flequit_model::models::{account::Account, ModelConverter};
+use crate::models::{CommandModelConverter};
+use flequit_model::types::id_types::{AccountId, UserId};
 
 /// Tauriコマンド引数用のAccount構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,6 +21,7 @@ pub struct AccountCommand {
     pub updated_at: String,
 }
 
+#[async_trait]
 impl ModelConverter<Account> for AccountCommand {
     /// コマンド引数用（AccountCommand）から内部モデル（Account）に変換
     async fn to_model(&self) -> Result<Account, String> {
@@ -34,7 +36,7 @@ impl ModelConverter<Account> for AccountCommand {
             .parse::<DateTime<Utc>>()
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
-        Ok(crate::models::account::Account {
+        Ok(Account {
             id: AccountId::from(
                 Uuid::parse_str(&self.id).map_err(|e| format!("Invalid account ID: {}", e))?,
             ),
@@ -49,6 +51,25 @@ impl ModelConverter<Account> for AccountCommand {
             is_active: self.is_active,
             created_at,
             updated_at,
+        })
+    }
+}
+
+#[async_trait]
+impl CommandModelConverter<AccountCommand> for Account {
+    /// ドメインモデル（Account）からコマンドモデル（AccountCommand）に変換
+    async fn to_command_model(&self) -> Result<AccountCommand, String> {
+        Ok(AccountCommand {
+            id: self.id.to_string(),
+            user_id: self.user_id.to_string(),
+            email: self.email.clone(),
+            display_name: self.display_name.clone(),
+            avatar_url: self.avatar_url.clone(),
+            provider: self.provider.clone(),
+            provider_id: self.provider_id.clone(),
+            is_active: self.is_active,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
         })
     }
 }

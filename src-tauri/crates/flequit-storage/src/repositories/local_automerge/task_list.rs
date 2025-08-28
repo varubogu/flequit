@@ -1,9 +1,9 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::RepositoryError;
-use crate::models::task_list::TaskList;
+use flequit_model::models::task_list::TaskList;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::task_list_repository_trait::TaskListRepositoryTrait;
-use crate::types::id_types::TaskListId;
+use flequit_model::types::id_types::TaskListId;
 use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;

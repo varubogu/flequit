@@ -1,9 +1,10 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::{models::task_list::TaskList, types::id_types::{ProjectId, TaskListId}};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::{models::task_list::TaskList, types::id_types::TaskListId};
 
 /// TaskList用SQLiteエンティティ定義
 ///
@@ -71,11 +72,12 @@ impl Related<super::task::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<TaskList> for Model {
     async fn to_domain_model(&self) -> Result<TaskList, String> {
         Ok(TaskList {
             id: TaskListId::from(self.id.clone()),
-            project_id: crate::types::id_types::ProjectId::from(self.project_id.clone()),
+            project_id: ProjectId::from(self.project_id.clone()),
             name: self.name.clone(),
             description: self.description.clone(),
             color: self.color.clone(),
@@ -88,6 +90,7 @@ impl SqliteModelConverter<TaskList> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for TaskList {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

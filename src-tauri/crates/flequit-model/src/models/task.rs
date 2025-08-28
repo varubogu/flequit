@@ -9,18 +9,17 @@
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
 use super::super::types::{
-    id_types::{SubTaskId, TagId, TaskId, TaskListId, UserId},
+    id_types::{TagId, TaskId, TaskListId, UserId},
     task_types::TaskStatus,
 };
 use super::datetime_calendar::RecurrenceRule;
 use super::tag::Tag;
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    command::task::TaskCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter,
-};
+use crate::{models::{subtask::SubTaskTree, ModelConverter}, types::id_types::ProjectId};
 
 /// 基本タスク情報を表現する構造体
 ///
@@ -77,9 +76,7 @@ pub struct Task {
     #[partially(omit)] // IDは更新対象外
     pub id: TaskId,
     /// 所属プロジェクトID
-    pub project_id: crate::types::id_types::ProjectId,
-    /// 親サブタスクID（タスクがサブタスクの一部の場合）
-    pub sub_task_id: Option<SubTaskId>,
+    pub project_id: ProjectId,
     /// 所属タスクリストID
     pub list_id: TaskListId,
     /// タスクタイトル（必須）
@@ -102,14 +99,14 @@ pub struct Task {
     pub is_range_date: Option<bool>,
     /// 繰り返しルール（定期タスク用）
     pub recurrence_rule: Option<RecurrenceRule>,
-    /// アサインされたユーザーIDリスト
-    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
-    /// 付与されたタグIDリスト
-    pub tag_ids: Vec<TagId>, // 付与されたタグIDの配列
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// アーカイブ状態フラグ
     pub is_archived: bool,
+    /// アサインされたユーザーIDリスト
+    pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
+    /// 付与されたタグIDリスト
+    pub tag_ids: Vec<TagId>, // 付与されたタグIDの配列
     /// タスク作成日時
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
@@ -190,9 +187,7 @@ pub struct TaskTree {
     /// タスクの一意識別子
     pub id: TaskId,
     /// 所属プロジェクトID
-    pub project_id: crate::types::id_types::ProjectId,
-    /// 親サブタスクID（タスクがサブタスクの一部の場合）
-    pub sub_task_id: Option<SubTaskId>, // 追加
+    pub project_id: ProjectId,
     /// 所属タスクリストID
     pub list_id: TaskListId,
     /// タスクタイトル（必須）
@@ -226,49 +221,19 @@ pub struct TaskTree {
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
     /// 所属するサブタスクの配列（SubTask構造体）
-    pub sub_tasks: Vec<super::subtask::SubTask>,
+    pub sub_tasks: Vec<SubTaskTree>,
     /// 付与されたタグの配列（Tag構造体の実体）
     pub tags: Vec<Tag>,
 }
 
-impl CommandModelConverter<TaskCommand> for Task {
-    async fn to_command_model(&self) -> Result<TaskCommand, String> {
-        Ok(TaskCommand {
-            id: self.id.to_string(),
-            project_id: self.project_id.to_string(),
-            sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
-            list_id: self.list_id.to_string(),
-            title: self.title.clone(),
-            description: self.description.clone(),
-            status: self.status.clone(),
-            priority: self.priority,
-            plan_start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
-            plan_end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
-            do_start_date: self.do_start_date.map(|d| d.to_rfc3339()),
-            do_end_date: self.do_end_date.map(|d| d.to_rfc3339()),
-            is_range_date: self.is_range_date,
-            recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self
-                .assigned_user_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect(),
-            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
-}
 
-impl FromTreeModel<Task> for TaskTree {
-    async fn from_tree_model(&self) -> Result<Task, String> {
+#[async_trait]
+impl ModelConverter<Task> for TaskTree {
+    async fn to_model(&self) -> Result<Task, String> {
         // TaskTreeからTaskに変換（関連データのsub_tasks, tagsは除く）
         Ok(Task {
             id: self.id.clone(),
             project_id: self.project_id.clone(),
-            sub_task_id: self.sub_task_id.clone(),
             list_id: self.list_id.clone(),
             title: self.title.clone(),
             description: self.description.clone(),
@@ -286,52 +251,6 @@ impl FromTreeModel<Task> for TaskTree {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
-        })
-    }
-}
-
-impl TreeCommandConverter<crate::models::command::task::TaskTreeCommand> for TaskTree {
-    async fn to_command_model(
-        &self,
-    ) -> Result<crate::models::command::task::TaskTreeCommand, String> {
-        // サブタスクをSubTaskTreeCommandに変換
-        let mut sub_task_tree_commands = Vec::new();
-        for sub_task in &self.sub_tasks {
-            // SubTaskはTreeCommandConverterを実装しているのでそれを使用
-            sub_task_tree_commands.push(TreeCommandConverter::<crate::models::command::subtask::SubTaskTreeCommand>::to_command_model(sub_task).await?);
-        }
-
-        // タグをコマンドモデルに変換
-        let mut tag_commands = Vec::new();
-        for tag in &self.tags {
-            tag_commands.push(tag.to_command_model().await?);
-        }
-
-        Ok(crate::models::command::task::TaskTreeCommand {
-            id: self.id.to_string(),
-            sub_task_id: self.sub_task_id.as_ref().map(|id| id.to_string()),
-            list_id: self.list_id.to_string(),
-            title: self.title.clone(),
-            description: self.description.clone(),
-            status: self.status.clone(),
-            priority: self.priority,
-            plan_start_date: self.plan_start_date.map(|d| d.to_rfc3339()),
-            plan_end_date: self.plan_end_date.map(|d| d.to_rfc3339()),
-            do_start_date: self.do_start_date.map(|d| d.to_rfc3339()),
-            do_end_date: self.do_end_date.map(|d| d.to_rfc3339()),
-            is_range_date: self.is_range_date,
-            recurrence_rule: self.recurrence_rule.clone(),
-            assigned_user_ids: self
-                .assigned_user_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-            sub_tasks: sub_task_tree_commands,
-            tags: tag_commands,
         })
     }
 }

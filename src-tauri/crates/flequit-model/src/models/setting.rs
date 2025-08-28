@@ -11,11 +11,6 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    command::setting::{LocalSettingsCommand, SettingCommand},
-    CommandModelConverter,
-};
-
 /// ローカル環境固有の設定情報を表現する構造体
 ///
 /// アプリケーション初期化時に使用される基本的な環境設定を管理します。
@@ -249,26 +244,4 @@ pub struct SettingResponse {
     pub data: Option<Setting>,
     /// エラー情報や追加メッセージ
     pub message: Option<String>,
-}
-
-impl CommandModelConverter<LocalSettingsCommand> for LocalSettings {
-    async fn to_command_model(&self) -> Result<LocalSettingsCommand, String> {
-        Ok(LocalSettingsCommand {
-            theme: self.theme.clone(),
-            language: self.language.clone(),
-        })
-    }
-}
-
-impl CommandModelConverter<SettingCommand> for Setting {
-    async fn to_command_model(&self) -> Result<SettingCommand, String> {
-        Ok(SettingCommand {
-            id: self.id.clone(),
-            key: self.key.clone(),
-            value: self.value.clone(),
-            data_type: self.data_type.clone(),
-            created_at: self.created_at.clone(),
-            updated_at: self.updated_at.clone(),
-        })
-    }
 }

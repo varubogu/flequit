@@ -10,6 +10,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 # Storage layer dependency
+flequit-model = { path = "../flequit-model" }
 flequit-storage = { path = "../flequit-storage" }
 
 # Serialization

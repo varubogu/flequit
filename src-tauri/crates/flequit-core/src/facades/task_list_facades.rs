@@ -1,8 +1,7 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::command::task_list::TaskListSearchRequest;
-use crate::models::task_list::{PartialTaskList, TaskList};
+use flequit_model::models::task_list::{PartialTaskList, TaskList};
 use crate::services::task_list_service;
-use crate::types::id_types::TaskListId;
+use flequit_model::types::id_types::TaskListId;
 
 #[tracing::instrument]
 pub async fn create_task_list(task_list: &TaskList) -> Result<bool, String> {
@@ -40,14 +39,5 @@ pub async fn delete_task_list(id: &TaskListId) -> Result<bool, String> {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete task list: {:?}", e)),
-    }
-}
-
-#[tracing::instrument]
-pub async fn search_task_lists(condition: &TaskListSearchRequest) -> Result<Vec<TaskList>, String> {
-    match task_list_service::search_task_lists(condition).await {
-        Ok(task_lists) => Ok(task_lists),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to search task lists: {:?}", e)),
     }
 }

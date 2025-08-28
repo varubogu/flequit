@@ -3,7 +3,7 @@
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::subtask_tag::{Column, Entity as SubtaskTagEntity};
-use crate::types::id_types::{SubTaskId, TagId};
+use flequit_model::types::id_types::{SubTaskId, TagId};
 use chrono::Utc;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter,

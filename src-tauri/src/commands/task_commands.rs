@@ -1,9 +1,9 @@
 use flequit_core::facades::task_facades;
-use flequit_core::models::command::task::{TaskCommand, TaskSearchRequest};
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::task::PartialTask;
-use flequit_core::models::CommandModelConverter;
-use flequit_core::types::id_types::TaskId;
+use crate::models::task::{TaskCommand, TaskSearchRequest};
+use flequit_model::models::ModelConverter;
+use flequit_model::models::task::PartialTask;
+use crate::models::CommandModelConverter;
+use flequit_model::types::id_types::TaskId;
 
 #[tracing::instrument]
 #[tauri::command]
@@ -44,15 +44,4 @@ pub async fn delete_task(id: String) -> Result<bool, String> {
         Err(err) => return Err(err.to_string()),
     };
     task_facades::delete_task(&task_id).await
-}
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn search_tasks(condition: TaskSearchRequest) -> Result<Vec<TaskCommand>, String> {
-    let results = task_facades::search_tasks(&condition).await?;
-    let mut command_results = Vec::new();
-    for task in results {
-        command_results.push(task.to_command_model().await?);
-    }
-    Ok(command_results)
 }

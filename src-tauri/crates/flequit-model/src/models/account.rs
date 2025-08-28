@@ -13,7 +13,6 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{command::account::AccountCommand, CommandModelConverter};
 
 /// 認証アカウント情報を表現する構造体
 ///
@@ -102,19 +101,3 @@ pub struct Account {
     pub updated_at: DateTime<Utc>,
 }
 
-impl CommandModelConverter<AccountCommand> for Account {
-    async fn to_command_model(&self) -> Result<AccountCommand, String> {
-        Ok(AccountCommand {
-            id: self.id.to_string(),
-            user_id: self.user_id.to_string(),
-            email: self.email.clone(),
-            display_name: self.display_name.clone(),
-            avatar_url: self.avatar_url.clone(),
-            provider: self.provider.clone(),
-            provider_id: self.provider_id.clone(),
-            is_active: self.is_active,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
-}

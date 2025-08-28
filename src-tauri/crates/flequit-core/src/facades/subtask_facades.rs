@@ -1,10 +1,7 @@
-use std::vec;
-
+use flequit_model::models::subtask::{PartialSubTask, SubTask};
+use flequit_model::types::id_types::SubTaskId;
 use crate::errors::service_error::ServiceError;
-use crate::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
-use crate::models::subtask::{PartialSubTask, SubTask};
 use crate::services::subtask_service;
-use crate::types::id_types::SubTaskId;
 
 #[tracing::instrument]
 pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
@@ -16,14 +13,9 @@ pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
 }
 
 #[tracing::instrument]
-pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubtaskCommand>, String> {
+pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubTask>, String> {
     match subtask_service::get_subtask(id).await {
-        Ok(Some(_subtask)) => {
-            // SubtaskからSubtaskCommandへの変換は後で実装
-            // 一時的にNoneを返す
-            Ok(None)
-        }
-        Ok(None) => Ok(None),
+        Ok(subtask) => Ok(subtask),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get subtask: {:?}", e)),
     }
@@ -48,12 +40,4 @@ pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete subtask: {:?}", e)),
     }
-}
-
-#[tracing::instrument]
-pub async fn search_sub_tasks(condition: &SubtaskSearchRequest) -> Result<Vec<SubTask>, String> {
-    // SubtaskServiceにはsearchメソッドがないため、一時的に空の結果を返す
-    // 将来的にはlist_subtasksを使用してフィルタリングを行う
-    let _ = condition;
-    Ok(vec![])
 }

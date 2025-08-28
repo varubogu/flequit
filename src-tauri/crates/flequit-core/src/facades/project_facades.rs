@@ -1,8 +1,7 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::command::project::ProjectSearchRequest;
-use crate::models::project::{PartialProject, Project};
+use flequit_model::models::project::{PartialProject, Project};
 use crate::services::project_service;
-use crate::types::id_types::ProjectId;
+use flequit_model::types::id_types::ProjectId;
 
 #[tracing::instrument]
 pub async fn create_project(project: &Project) -> Result<bool, String> {
@@ -41,13 +40,5 @@ pub async fn delete_project(id: &ProjectId) -> Result<bool, String> {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete project: {:?}", e)),
-    }
-}
-
-#[tracing::instrument]
-pub async fn search_projects(condition: &ProjectSearchRequest) -> Result<Vec<Project>, String> {
-    match project_service::search_projects(condition).await {
-        Ok((projects, _)) => Ok(projects),
-        Err(e) => Err(format!("Failed to search projects: {:?}", e)),
     }
 }

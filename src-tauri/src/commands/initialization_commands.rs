@@ -1,8 +1,8 @@
 use flequit_core::facades::initialization_facades;
-use flequit_core::models::command::account::AccountCommand;
-use flequit_core::models::command::project::ProjectTreeCommand;
-use flequit_core::models::setting::LocalSettings;
-use flequit_core::models::{CommandModelConverter, TreeCommandConverter};
+use crate::models::account::AccountCommand;
+use crate::models::project::ProjectTreeCommand;
+use crate::models::CommandModelConverter;
+use flequit_model::models::setting::LocalSettings;
 
 #[tracing::instrument]
 #[tauri::command]
@@ -16,7 +16,7 @@ pub async fn load_local_settings() -> Result<Option<LocalSettings>, String> {
 pub async fn load_current_account() -> Result<Option<AccountCommand>, String> {
     let account = initialization_facades::load_current_account().await?;
     match account {
-        Some(acc) => Ok(Some(acc.to_command_model().await?)),
+        Some(acc) => Ok(Option::from(acc.to_command_model().await?)),
         None => Ok(None),
     }
 }
@@ -27,9 +27,7 @@ pub async fn load_all_project_data() -> Result<Vec<ProjectTreeCommand>, String> 
     let project_trees = initialization_facades::load_all_project_trees().await?;
     let mut command_results = Vec::new();
     for project_tree in project_trees {
-        command_results.push(
-            TreeCommandConverter::<ProjectTreeCommand>::to_command_model(&project_tree).await?,
-        );
+        command_results.push(project_tree.to_command_model().await?);
     }
     Ok(command_results)
 }

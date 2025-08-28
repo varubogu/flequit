@@ -1,9 +1,9 @@
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::repository_error::RepositoryError;
-use crate::models::user::User;
+use flequit_model::models::user::User;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::user_repository_trait::UserRepositoryTrait;
-use crate::types::id_types::UserId;
+use flequit_model::types::id_types::UserId;
 use async_trait::async_trait;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;

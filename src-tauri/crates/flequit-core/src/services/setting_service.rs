@@ -1,9 +1,9 @@
 //! 設定関連のビジネスロジック
 use crate::errors::service_error::ServiceError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use crate::repositories::Repositories;
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use uuid::Uuid;
 
 // ---------------------------

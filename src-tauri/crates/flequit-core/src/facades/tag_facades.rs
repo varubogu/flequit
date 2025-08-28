@@ -1,8 +1,7 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::command::tag::TagSearchRequest;
-use crate::models::tag::{PartialTag, Tag};
+use flequit_model::models::tag::{PartialTag, Tag};
 use crate::services::tag_service;
-use crate::types::id_types::TagId;
+use flequit_model::types::id_types::TagId;
 
 #[tracing::instrument]
 pub async fn create_tag(tag: &Tag) -> Result<bool, String> {
@@ -40,20 +39,3 @@ pub async fn delete_tag(id: &TagId) -> Result<bool, String> {
         Err(e) => Err(format!("Failed to delete tag: {:?}", e)),
     }
 }
-
-#[tracing::instrument]
-pub async fn search_tags(condition: &TagSearchRequest) -> Result<Vec<Tag>, String> {
-    if let Some(name) = &condition.name {
-        match tag_service::search_tags_by_name(name).await {
-            Ok(tags) => Ok(tags),
-            Err(e) => Err(format!("Failed to search tags by name: {:?}", e)),
-        }
-    } else {
-        // 名前指定がない場合は全タグを取得
-        match tag_service::list_tags().await {
-            Ok(tags) => Ok(tags),
-            Err(e) => Err(format!("Failed to list tags: {:?}", e)),
-        }
-    }
-}
-

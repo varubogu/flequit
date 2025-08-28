@@ -601,6 +601,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "flequit-model"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "partially",
+ "serde",
+ "uuid",
+]
+
+[[package]]
 name = "flequit-storage"
 version = "0.1.0"
 dependencies = [
@@ -609,6 +620,7 @@ dependencies = [
  "automerge_repo",
  "chrono",
  "dirs",
+ "flequit-model",
  "futures",
  "log",
  "partially",

@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 pub mod account;
 pub mod custom_date_format;
 pub mod project;
@@ -69,6 +71,7 @@ pub mod view_item;
 /// - **書き込み最適化**: `to_sqlite_model()` はSea-ORMのActiveModelを活用
 /// - **バッチ処理**: 大量データ処理時の最適化可能
 /// - **インデックス活用**: SQLiteの検索最適化をサポート
+#[async_trait]
 pub trait SqliteModelConverter<T> {
     /// SQLiteモデルからドメインモデルに変換する
     ///
@@ -80,6 +83,7 @@ pub trait SqliteModelConverter<T> {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換を提供するトレイト
+#[async_trait]
 pub trait DomainToSqliteConverter<T> {
     /// ドメインモデルからSQLiteモデル（ActiveModel）に変換する
     ///

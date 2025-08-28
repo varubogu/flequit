@@ -1,11 +1,10 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::{models::task::Task, types::{id_types::{ProjectId, TaskId, TaskListId, UserId}, task_types::TaskStatus}};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::task::Task;
-use crate::types::id_types::{SubTaskId, TaskId, TaskListId};
-use crate::types::task_types::TaskStatus;
 
 /// Task用SQLiteエンティティ定義
 ///
@@ -17,9 +16,6 @@ pub struct Model {
     /// タスクの一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-
-    /// 親サブタスクID
-    pub sub_task_id: Option<String>,
 
     /// 所属プロジェクトID
     #[sea_orm(indexed)] // プロジェクト別検索用
@@ -117,6 +113,7 @@ impl Related<super::subtask::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<Task> for Model {
     async fn to_domain_model(&self) -> Result<Task, String> {
         // ステータス文字列をenumに変換
@@ -145,7 +142,7 @@ impl SqliteModelConverter<Task> for Model {
                 .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
             string_ids
                 .into_iter()
-                .map(crate::types::id_types::UserId::from)
+                .map(UserId::from)
                 .collect()
         } else {
             vec![]
@@ -157,11 +154,7 @@ impl SqliteModelConverter<Task> for Model {
 
         Ok(Task {
             id: TaskId::from(self.id.clone()),
-            project_id: crate::types::id_types::ProjectId::from(self.project_id.clone()),
-            sub_task_id: self
-                .sub_task_id
-                .as_ref()
-                .map(|id| SubTaskId::from(id.clone())),
+            project_id: ProjectId::from(self.project_id.clone()),
             list_id: TaskListId::from(self.list_id.clone()),
             title: self.title.clone(),
             description: self.description.clone(),
@@ -184,6 +177,7 @@ impl SqliteModelConverter<Task> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for Task {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
@@ -226,7 +220,6 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
 
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
-            sub_task_id: Set(self.sub_task_id.as_ref().map(|id| id.to_string())),
             project_id: Set(self.project_id.to_string()),
             list_id: Set(self.list_id.to_string()),
             title: Set(self.title.clone()),

@@ -1,12 +1,17 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::setting::{
+    CustomDateFormat,
+    DueDateButtons,
+    Settings,
+    TimeLabel,
+    ViewItem
+};
+use flequit_model::types::id_types::SettingsId;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::{
-    models::setting::{CustomDateFormat, DueDateButtons, Settings, TimeLabel, ViewItem},
-    types::id_types::SettingsId,
-};
 
 /// Settings用SQLiteエンティティ定義
 ///
@@ -77,6 +82,7 @@ pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<Settings> for Model {
     async fn to_domain_model(&self) -> Result<Settings, String> {
         // JSON文字列をパース
@@ -118,6 +124,7 @@ impl SqliteModelConverter<Settings> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for Settings {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // JSON文字列にシリアライズ

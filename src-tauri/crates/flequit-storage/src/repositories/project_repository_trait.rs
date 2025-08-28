@@ -1,7 +1,7 @@
-use crate::models::project::Project;
-use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::ProjectId;
 use async_trait::async_trait;
+use flequit_model::models::project::Project;
+use flequit_model::types::id_types::ProjectId;
+use crate::repositories::base_repository_trait::Repository;
 
 /// 統合プロジェクトリポジトリトレイト
 ///

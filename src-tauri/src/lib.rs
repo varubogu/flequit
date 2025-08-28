@@ -1,6 +1,7 @@
 // Module declarations
 mod commands;
 pub mod logger;
+pub mod models;
 
 // Re-export from flequit-core
 pub use flequit_core::*;
@@ -28,13 +29,11 @@ pub fn run() {
             task_commands::get_task,
             task_commands::update_task,
             task_commands::delete_task,
-            task_commands::search_tasks,
             // Project management commands
             project_commands::create_project,
             project_commands::get_project,
             project_commands::update_project,
             project_commands::delete_project,
-            project_commands::search_projects,
             // Setting management commands
             setting_commands::get_setting,
             setting_commands::get_all_settings,
@@ -63,19 +62,16 @@ pub fn run() {
             subtask_commands::get_sub_task,
             subtask_commands::update_sub_task,
             subtask_commands::delete_sub_task,
-            subtask_commands::search_sub_tasks,
             // Tag management commands
             tag_commands::create_tag,
             tag_commands::get_tag,
             tag_commands::update_tag,
             tag_commands::delete_tag,
-            tag_commands::search_tags,
             // TaskList commands
             task_list_commands::create_task_list,
             task_list_commands::get_task_list,
             task_list_commands::update_task_list,
             task_list_commands::delete_task_list,
-            task_list_commands::search_task_lists,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

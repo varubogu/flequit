@@ -1,9 +1,10 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::user::User;
+use flequit_model::{models::user::User, types::id_types::UserId};
 
 /// User用SQLiteエンティティ定義
 ///
@@ -53,10 +54,9 @@ pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<User> for Model {
     async fn to_domain_model(&self) -> Result<User, String> {
-        use crate::types::id_types::UserId;
-
         Ok(User {
             id: UserId::from(self.id.clone()),
             username: self.username.clone(),
@@ -73,6 +73,7 @@ impl SqliteModelConverter<User> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for User {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

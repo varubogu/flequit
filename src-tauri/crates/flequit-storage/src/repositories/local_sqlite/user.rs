@@ -6,10 +6,10 @@ use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::user::{ActiveModel as UserActiveModel, Column, Entity as UserEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::user::User;
+use flequit_model::models::user::User;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::user_repository_trait::UserRepositoryTrait;
-use crate::types::id_types::UserId;
+use flequit_model::types::id_types::UserId;
 use log::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,

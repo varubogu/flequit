@@ -1,12 +1,11 @@
-//! Settings統合リポジトリ
+use async_trait::async_trait;
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use flequit_model::types::id_types::SettingsId;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::local_automerge::settings::SettingsLocalAutomergeRepository;
 use crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
-use crate::types::id_types::SettingsId;
-use async_trait::async_trait;
 
 /// Settings用のリポジトリvariant（静的ディスパッチ用）
 #[derive(Debug, Clone)]

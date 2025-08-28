@@ -1,10 +1,11 @@
 use chrono::Utc;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::{account::Account, user::User};
+use flequit_model::models::account::Account;
+use flequit_model::models::user::User;
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::Repositories;
-use crate::types::id_types::UserId;
+use flequit_model::types::id_types::UserId;
 
 /// ユーザープロフィールの編集権限をチェック
 /// 自分のAccount.user_idにマッチするプロフィールのみ編集可能

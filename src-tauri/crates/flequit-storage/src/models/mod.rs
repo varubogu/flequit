@@ -20,10 +20,6 @@
 //! - [`datetime_calendar`] - 日時・カレンダー関連（繰り返しルール、期間など）
 //! - [`datetime_format`] - 日時フォーマット（表示形式、ロケール対応）
 //!
-//! ### Tauriコマンド用モデル（commandサブモジュール）
-//!
-//! - [`command`] - フロントエンド ⇔ バックエンド間のデータ交換用構造体
-//!
 //! ## 設計原則
 //!
 //! ### 型安全性
@@ -72,23 +68,10 @@
 //! - [`crate::repositories`] - データアクセス層（モデルの永続化）
 //! - [`crate::facades`] - フロントエンドインターフェース（コマンド用モデルを使用）
 
-pub mod account;
-pub mod command;
-pub mod datetime_calendar;
-pub mod datetime_format;
-pub mod initialized_data;
-pub mod project;
-pub mod setting;
-pub mod sqlite;
-pub mod subtask;
-pub mod tag;
-pub mod task;
-pub mod task_list;
-pub mod user;
+use async_trait::async_trait;
 
-pub trait CommandModelConverter<T> {
-    async fn to_command_model(&self) -> Result<T, String>;
-}
+pub mod sqlite;
+pub mod user;
 
 /// 通常モデルとTree系モデル間の相互変換を定義するトレイト
 ///
@@ -125,19 +108,14 @@ pub trait CommandModelConverter<T> {
 /// #     task_lists: vec![],
 /// # };
 /// #
-/// // ProjectTree → Project への変換  
+/// // ProjectTree → Project への変換
 /// let project: Project = project_tree.from_tree_model().await?;
 /// # Ok(())
 /// # }
 /// ```
 /// Tree系モデルから通常モデルに変換するトレイト
+#[async_trait]
 pub trait FromTreeModel<BaseModel> {
     /// Tree系モデルから通常モデルに変換（関連データは除く）
     async fn from_tree_model(&self) -> Result<BaseModel, String>;
-}
-
-/// Tree系モデルからコマンドモデルに変換するトレイト
-pub trait TreeCommandConverter<CommandModel> {
-    /// Tree系モデル → コマンドモデル（階層構造を含む）
-    async fn to_command_model(&self) -> Result<CommandModel, String>;
 }

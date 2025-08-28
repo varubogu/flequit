@@ -1,12 +1,16 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::account::Account;
-use crate::models::command::initialize::InitializedResult;
-use crate::models::project::ProjectTree;
-use crate::models::setting::{LocalSettings, Settings};
-use crate::models::TreeCommandConverter;
+use flequit_model::models::account::Account;
+use flequit_model::models::project::ProjectTree;
+use flequit_model::models::setting::{LocalSettings, Settings};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 use crate::repositories::Repositories;
+
+pub struct InitializedResult {
+    pub settings: Settings,
+    pub accounts: Vec<Account>,
+    pub projects: Vec<ProjectTree>,
+}
 
 pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
     // 他のservice関数を組み合わせて全データを取得
@@ -21,21 +25,10 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
         settings.language = local_settings.language;
     }
 
-    // ProjectTreeをProjectTreeCommandに変換
-    let mut project_tree_commands = Vec::new();
-    for project_tree in project_trees {
-        project_tree_commands.push(
-            project_tree
-                .to_command_model()
-                .await
-                .map_err(|e| ServiceError::InternalError(e))?,
-        );
-    }
-
     Ok(InitializedResult {
         settings,
         accounts,
-        projects: project_tree_commands,
+        projects: project_trees,
     })
 }
 

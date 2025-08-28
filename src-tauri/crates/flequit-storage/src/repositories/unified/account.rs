@@ -7,12 +7,12 @@ use async_trait::async_trait;
 use log::info;
 
 use crate::errors::RepositoryError;
-use crate::models::account::Account;
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::local_automerge::account::AccountLocalAutomergeRepository;
 use crate::repositories::local_sqlite::account::AccountLocalSqliteRepository;
-use crate::types::id_types::AccountId;
+use flequit_model::models::account::Account;
+use flequit_model::types::id_types::AccountId;
 
 /// AccountRepositoryTrait実装の静的ディスパッチ対応enum
 #[derive(Debug)]

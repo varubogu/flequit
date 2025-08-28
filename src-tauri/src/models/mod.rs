@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 pub mod account;
 pub mod initialize;
 pub mod project;
@@ -8,7 +10,7 @@ pub mod task;
 pub mod task_list;
 pub mod user;
 
-/// Tauriコマンド用モデルと内部ドメインモデル間の変換を提供するトレイト
+/// 内部ドメインモデルからTauriコマンド用モデルへの変換を提供するトレイト
 ///
 /// このトレイトは、Tauriのコマンド引数・戻り値で使用される構造体（String型の日時フィールドを持つ）と、
 /// アプリケーション内部で使用される構造体（DateTime<Utc>型の日時フィールドを持つ）間の
@@ -26,9 +28,9 @@ pub mod user;
 /// # use serde::{Serialize, Deserialize};
 /// # use chrono::{DateTime, Utc};
 ///
-/// // ModelConverterトレイトの定義例
-/// trait ModelConverter<T> {
-///     async fn to_model(&self) -> Result<T, String>;
+/// // CommandModelConverterトレイトの定義例
+/// trait CommandModelConverter<T> {
+///     async fn to_command_model(&self) -> Result<T, String>;
 /// }
 ///
 /// // Tauriコマンド用構造体
@@ -46,12 +48,11 @@ pub mod user;
 ///     created_at: DateTime<Utc>,
 /// }
 ///
-/// impl ModelConverter<Task> for TaskCommand {
-///     async fn to_model(&self) -> Result<Task, String> {
+/// impl CommandModelConverter<TaskCommand> for Task {
+///     async fn to_command_model(&self) -> Result<TaskCommand, String> {
 ///         Ok(Task {
 ///             id: self.id.clone(),
 ///             title: self.title.clone(),
-///             created_at: self.created_at.parse().map_err(|e: chrono::ParseError| e.to_string())?,
 ///         })
 ///     }
 /// }
@@ -59,14 +60,8 @@ pub mod user;
 ///
 /// # 型パラメータ
 ///
-/// * `T` - 変換対象の内部ドメインモデル型
-pub trait ModelConverter<T> {
-    /// Tauriコマンド用モデルから内部ドメインモデルに変換する
-    ///
-    /// # 戻り値
-    ///
-    /// * `Ok(T)` - 変換に成功した場合の内部ドメインモデル
-    /// * `Err(String)` - 変換に失敗した場合のエラーメッセージ
-    ///   （主に日時文字列のパースエラー）
-    async fn to_model(&self) -> Result<T, String>;
+/// * `T` - 変換先のTauriコマンド用構造体
+#[async_trait]
+pub trait CommandModelConverter<T> {
+    async fn to_command_model(&self) -> Result<T, String>;
 }

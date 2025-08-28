@@ -1,10 +1,11 @@
 use chrono::Utc;
+use flequit_model::types::task_types::TaskStatus;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::subtask::{PartialSubTask, SubTask};
+use flequit_model::models::subtask::{PartialSubTask, SubTask};
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
-use crate::types::id_types::SubTaskId;
+use flequit_model::types::id_types::SubTaskId;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
@@ -82,7 +83,6 @@ pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceErro
         subtask.completed = !subtask.completed;
 
         // ステータスも更新（completedフラグと連動）
-        use crate::types::task_types::TaskStatus;
         subtask.status = if subtask.completed {
             TaskStatus::Completed
         } else {

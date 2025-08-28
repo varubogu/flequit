@@ -1,10 +1,10 @@
 use chrono::Utc;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::account::{Account, PartialAccount};
+use flequit_model::models::account::{Account, PartialAccount};
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
-use crate::types::id_types::AccountId;
+use flequit_model::types::id_types::AccountId;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_account(account: &Account) -> Result<(), ServiceError> {

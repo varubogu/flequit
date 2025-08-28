@@ -1,11 +1,8 @@
-use futures::future::join_all;
-
 use flequit_core::facades::subtask_facades;
-use flequit_core::models::command::subtask::{SubtaskCommand, SubtaskSearchRequest};
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::subtask::PartialSubTask;
-use flequit_core::models::CommandModelConverter;
-use flequit_core::types::id_types::SubTaskId;
+use crate::models::subtask::SubtaskCommand;
+use flequit_model::models::{subtask::PartialSubTask, ModelConverter};
+use crate::models::CommandModelConverter;
+use flequit_model::types::id_types::SubTaskId;
 
 // Frontend compatibility aliases only
 #[tracing::instrument]
@@ -22,8 +19,12 @@ pub async fn get_sub_task(id: String) -> Result<Option<SubtaskCommand>, String> 
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let sub_task_id = SubTaskId::from(subtask_id);
-    subtask_facades::get_sub_task(&sub_task_id).await
+    match subtask_facades::get_sub_task(&subtask_id).await {
+        Ok(Some(subtask)) => Ok(Some(subtask.to_command_model().await?)),
+        Ok(None) => Ok(None),
+        Err(e) => Err(format!("Failed to get sub task: {}", e)),
+    }
+
 }
 
 #[tracing::instrument]
@@ -45,23 +46,4 @@ pub async fn delete_sub_task(id: String) -> Result<bool, String> {
     };
     let sub_task_id = SubTaskId::from(subtask_id);
     subtask_facades::delete_sub_task(&sub_task_id).await
-}
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn search_sub_tasks(
-    condition: SubtaskSearchRequest,
-) -> Result<Vec<SubtaskCommand>, String> {
-    let sub_tasks = match subtask_facades::search_sub_tasks(&condition).await {
-        Ok(sub_tasks) => sub_tasks,
-        Err(err) => {
-            return Err(err.to_string());
-        }
-    };
-    let command_model: Vec<_> = sub_tasks
-        .iter()
-        .map(async |sub_task| sub_task.to_command_model().await.unwrap())
-        .collect();
-    let command_model_result = join_all(command_model).await;
-    Ok(command_model_result)
 }

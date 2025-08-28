@@ -6,9 +6,9 @@ use super::tag::TagLocalSqliteRepository;
 use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::task::{Column, Entity as TaskEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::task::Task;
+use flequit_model::models::task::Task;
 use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::TaskId;
+use flequit_model::types::id_types::TaskId;
 use async_trait::async_trait;
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait,
@@ -151,7 +151,7 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
                 tracing::warn!("タスク保存時に存在しないタグID {}をスキップ", tag_id);
             }
         }
-        
+
         // 有効なタグIDのみで紐づけを更新
         self.task_tag_repository.update_task_tag_relations(&txn, &task.id, &valid_tag_ids).await?;
 
@@ -235,4 +235,3 @@ impl Repository<Task, TaskId> for TaskLocalSqliteRepository {
         Ok(count)
     }
 }
-

@@ -6,12 +6,12 @@ use super::tag::TagLocalSqliteRepository;
 use crate::errors::repository_error::RepositoryError;
 use crate::models::sqlite::subtask::{Column, Entity as SubtaskEntity};
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::subtask::SubTask;
+use flequit_model::models::subtask::SubTask;
 use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::SubTaskId;
+use flequit_model::types::id_types::SubTaskId;
 use async_trait::async_trait;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, ConnectionTrait, EntityTrait, 
+    ActiveModelTrait, ActiveValue, ColumnTrait, ConnectionTrait, EntityTrait,
     PaginatorTrait, QueryFilter, QueryOrder, Statement, TransactionTrait,
 };
 use std::sync::Arc;
@@ -48,10 +48,10 @@ impl SubtaskLocalSqliteRepository {
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-                
+
             // 紐づけテーブルからタグIDを取得
             subtask.tag_ids = self.subtask_tag_repository.find_tag_ids_by_subtask_id(&subtask.id).await?;
-            
+
             subtasks.push(subtask);
         }
 
@@ -78,10 +78,10 @@ impl SubtaskLocalSqliteRepository {
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-                
+
             // 紐づけテーブルからタグIDを取得
             subtask.tag_ids = self.subtask_tag_repository.find_tag_ids_by_subtask_id(&subtask.id).await?;
-            
+
             subtasks.push(subtask);
         }
 
@@ -94,10 +94,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn save(&self, subtask: &SubTask) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        
+
         // トランザクション開始
         let txn = db.begin().await?;
-        
+
         let mut active_model = subtask
             .to_sqlite_model()
             .await
@@ -127,7 +127,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
                 tracing::warn!("サブタスク保存時に存在しないタグID {}をスキップ", tag_id);
             }
         }
-        
+
         // 有効なタグIDのみで紐づけを更新
         self.subtask_tag_repository.update_subtask_tag_relations(&txn, &subtask.id, &valid_tag_ids).await?;
 
@@ -144,10 +144,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-            
+
             // 紐づけテーブルからタグIDを取得
             subtask.tag_ids = self.subtask_tag_repository.find_tag_ids_by_subtask_id(id).await?;
-            
+
             Ok(Some(subtask))
         } else {
             Ok(None)
@@ -169,10 +169,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
                 .to_domain_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-                
+
             // 紐づけテーブルからタグIDを取得
             subtask.tag_ids = self.subtask_tag_repository.find_tag_ids_by_subtask_id(&subtask.id).await?;
-            
+
             subtasks.push(subtask);
         }
 
@@ -182,10 +182,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
     async fn delete(&self, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await?;
-        
+
         // トランザクション開始
         let txn = db.begin().await?;
-        
+
         // 紐づけテーブルから削除（CASCADE制約があるが明示的に削除）
         let delete_tags_sql = format!("DELETE FROM subtask_tags WHERE subtask_id = ?");
         txn.execute(Statement::from_sql_and_values(
@@ -194,10 +194,10 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
             vec![id.to_string().into()],
         ))
         .await?;
-        
+
         // サブタスク本体を削除
         SubtaskEntity::delete_by_id(id.to_string()).exec(&txn).await?;
-        
+
         txn.commit().await?;
         Ok(())
     }
@@ -216,4 +216,3 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         Ok(count)
     }
 }
-

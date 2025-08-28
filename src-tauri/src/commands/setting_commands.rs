@@ -1,10 +1,10 @@
 //! 設定関連のTauriコマンド
 use flequit_core::facades::setting_facades;
-use flequit_core::models::command::setting::{
+use flequit_model::models::ModelConverter;
+use crate::models::setting::{
     CustomDateFormatCommand, SettingsCommand, TimeLabelCommand, ViewItemCommand,
 };
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::CommandModelConverter;
+use crate::models::CommandModelConverter;
 
 // ---------------------------
 // Settings (全体設定)

@@ -4,14 +4,14 @@
 
 use super::database_manager::DatabaseManager;
 use crate::errors::repository_error::RepositoryError;
-use crate::models::account::Account;
+use flequit_model::models::account::Account;
 use crate::models::sqlite::account::{
     ActiveModel as AccountActiveModel, Column, Entity as AccountEntity,
 };
 use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::AccountId;
+use flequit_model::types::id_types::AccountId;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
 };

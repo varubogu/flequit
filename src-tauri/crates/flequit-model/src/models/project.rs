@@ -13,13 +13,12 @@ use super::super::types::{
     id_types::{ProjectId, UserId},
     project_types::{MemberRole, ProjectStatus},
 };
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    command::project::ProjectCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter,
-};
+use crate::models::{task_list::TaskListTree, ModelConverter};
 
 /// 基本プロジェクト情報を表現する構造体
 ///
@@ -146,28 +145,13 @@ pub struct ProjectTree {
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
     /// 所属するタスクリスト一覧（タスク情報を含む）
-    pub task_lists: Vec<super::task_list::TaskListTree>,
+    pub task_lists: Vec<TaskListTree>,
 }
 
-impl CommandModelConverter<ProjectCommand> for Project {
-    async fn to_command_model(&self) -> Result<ProjectCommand, String> {
-        Ok(ProjectCommand {
-            id: self.id.to_string(),
-            name: self.name.clone(),
-            description: self.description.clone(),
-            color: self.color.clone(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            status: self.status.clone(),
-            owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
-}
 
-impl FromTreeModel<Project> for ProjectTree {
-    async fn from_tree_model(&self) -> Result<Project, String> {
+#[async_trait]
+impl ModelConverter<Project> for ProjectTree {
+    async fn to_model(&self) -> Result<Project, String> {
         // ProjectTreeからProjectに変換（関連データのtask_listsは除く）
         Ok(Project {
             id: self.id.clone(),
@@ -180,32 +164,6 @@ impl FromTreeModel<Project> for ProjectTree {
             owner_id: self.owner_id.clone(),
             created_at: self.created_at,
             updated_at: self.updated_at,
-        })
-    }
-}
-
-impl TreeCommandConverter<crate::models::command::project::ProjectTreeCommand> for ProjectTree {
-    async fn to_command_model(
-        &self,
-    ) -> Result<crate::models::command::project::ProjectTreeCommand, String> {
-        // タスクリストをコマンドモデルに変換
-        let mut task_list_commands = Vec::new();
-        for task_list in &self.task_lists {
-            task_list_commands.push(task_list.to_command_model().await?);
-        }
-
-        Ok(crate::models::command::project::ProjectTreeCommand {
-            id: self.id.to_string(),
-            name: self.name.clone(),
-            description: self.description.clone(),
-            color: self.color.clone(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            status: self.status.clone(),
-            owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-            task_lists: task_list_commands,
         })
     }
 }

@@ -1,9 +1,8 @@
 //! ViewItem用SQLiteモデル
 
-use crate::models::{
-    setting::ViewItem,
-    sqlite::{DomainToSqliteConverter, SqliteModelConverter},
-};
+use async_trait::async_trait;
+use flequit_model::models::setting::ViewItem;
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -25,6 +24,7 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
+#[async_trait]
 impl SqliteModelConverter<ViewItem> for Model {
     async fn to_domain_model(&self) -> Result<ViewItem, String> {
         Ok(ViewItem {
@@ -37,6 +37,7 @@ impl SqliteModelConverter<ViewItem> for Model {
     }
 }
 
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for ViewItem {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

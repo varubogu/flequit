@@ -1,0 +1,267 @@
+use flequit_model::models::ModelConverter;
+use crate::models::CommandModelConverter;
+use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{TagId, TaskId, UserId};
+use flequit_model::{models::datetime_calendar::RecurrenceRule, types::id_types::SubTaskId};
+use flequit_model::models::subtask::{SubTask, SubTaskTree};
+use flequit_model::types::task_types::TaskStatus;
+use serde::{Deserialize, Serialize};
+
+/// Tauriコマンド引数用のSubtask構造体（日時フィールドはString）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SubtaskCommand {
+    pub id: String,
+    pub task_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: TaskStatus,
+    pub priority: Option<i32>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
+    pub is_range_date: Option<bool>,
+    pub recurrence_rule: Option<RecurrenceRule>,
+    pub assigned_user_ids: Vec<String>,
+    pub tag_ids: Vec<String>,
+    pub order_index: i32,
+    pub completed: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[async_trait]
+impl ModelConverter<SubTask> for SubtaskCommand {
+    /// コマンド引数用（SubtaskCommand）から内部モデル（Subtask）に変換
+    async fn to_model(&self) -> Result<crate::models::subtask::SubTask, String> {
+        use chrono::{DateTime, Utc};
+
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid created_at format: {}", e))?;
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid updated_at format: {}", e))?;
+
+        let start_date = if let Some(ref date_str) = self.start_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid start_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let end_date = if let Some(ref date_str) = self.end_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid end_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+
+        Ok(SubTask {
+            id: SubTaskId::from(self.id.clone()),
+            task_id: TaskId::from(self.task_id.clone()),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            plan_start_date: start_date,
+            plan_end_date: end_date,
+            do_start_date: None,
+            do_end_date: None,
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| UserId::from(id.clone()))
+                .collect(),
+            tag_ids: self
+                .tag_ids
+                .iter()
+                .map(|id| TagId::from(id.clone()))
+                .collect(),
+            tags: vec![],
+            order_index: self.order_index,
+            completed: self.completed,
+            created_at,
+            updated_at,
+        })
+    }
+}
+
+#[async_trait]
+impl CommandModelConverter<SubtaskCommand> for SubTask {
+    /// ドメインモデル（SubTask）からコマンドモデル（SubtaskCommand）に変換
+    async fn to_command_model(&self) -> Result<SubtaskCommand, String> {
+        Ok(SubtaskCommand {
+            id: self.id.to_string(),
+            task_id: self.task_id.to_string(),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            start_date: self.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
+            end_date: self.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
+            order_index: self.order_index,
+            completed: self.completed,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+        })
+    }
+}
+
+/// Tauriコマンド戻り値用のSubTaskTree構造体（日時フィールドはString、階層構造含む）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SubTaskTreeCommand {
+    pub id: String,
+    pub task_id: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: TaskStatus,
+    pub priority: Option<i32>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
+    pub is_range_date: Option<bool>,
+    pub recurrence_rule: Option<RecurrenceRule>,
+    pub assigned_user_ids: Vec<String>,
+    pub order_index: i32,
+    pub completed: bool,
+    pub created_at: String,
+    pub updated_at: String,
+    pub tags: Vec<super::tag::TagCommand>,
+}
+
+impl SubTaskTreeCommand {
+    /// ドメインモデル（SubTask）からコマンドモデル（SubTaskTreeCommand）に変換
+    pub async fn from_domain_model(subtask: &SubTask) -> Result<SubTaskTreeCommand, String> {
+        let mut tag_commands = Vec::new();
+        for tag in &subtask.tags {
+            tag_commands.push(tag.to_command_model().await?);
+        }
+
+        Ok(SubTaskTreeCommand {
+            id: subtask.id.to_string(),
+            task_id: subtask.task_id.to_string(),
+            title: subtask.title.clone(),
+            description: subtask.description.clone(),
+            status: subtask.status.clone(),
+            priority: subtask.priority,
+            start_date: subtask.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
+            end_date: subtask.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            is_range_date: subtask.is_range_date,
+            recurrence_rule: subtask.recurrence_rule.clone(),
+            assigned_user_ids: subtask.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            order_index: subtask.order_index,
+            completed: subtask.completed,
+            created_at: subtask.created_at.to_rfc3339(),
+            updated_at: subtask.updated_at.to_rfc3339(),
+            tags: tag_commands,
+        })
+    }
+}
+
+#[async_trait]
+impl ModelConverter<SubTaskTree> for SubTaskTreeCommand {
+    /// コマンド引数用（SubTaskTreeCommand）から内部モデル（SubTaskTree）に変換
+    async fn to_model(&self) -> Result<SubTaskTree, String> {
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid created_at format: {}", e))?;
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid updated_at format: {}", e))?;
+
+        let plan_start_date = if let Some(ref date_str) = self.start_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid start_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let plan_end_date = if let Some(ref date_str) = self.end_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid end_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let mut tags = Vec::new();
+        for tag in &self.tags {
+            tags.push(tag.to_model().await?);
+        }
+
+        Ok(SubTaskTree {
+            id: SubTaskId::from(self.id.clone()),
+            task_id: TaskId::from(self.task_id.clone()),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            plan_start_date,
+            plan_end_date,
+            do_start_date: None,
+            do_end_date: None,
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            order_index: self.order_index,
+            completed: self.completed,
+            created_at,
+            updated_at,
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| UserId::from(id.clone()))
+                .collect(),
+            tags,
+        })
+    }
+}
+
+#[async_trait]
+impl CommandModelConverter<SubTaskTreeCommand> for SubTaskTree {
+    async fn to_command_model(&self) -> Result<SubTaskTreeCommand, String> {
+        let mut tag_commands = Vec::new();
+        for tag in &self.tags {
+            tag_commands.push(tag.to_command_model().await?);
+        }
+
+        Ok(SubTaskTreeCommand {
+            id: self.id.to_string(),
+            task_id: self.task_id.to_string(),
+            title: self.title.clone(),
+            description: self.description.clone(),
+            status: self.status.clone(),
+            priority: self.priority,
+            start_date: self.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
+            end_date: self.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            is_range_date: self.is_range_date,
+            recurrence_rule: self.recurrence_rule.clone(),
+            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            order_index: self.order_index,
+            completed: self.completed,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+            tags: tag_commands,
+        })
+    }
+}

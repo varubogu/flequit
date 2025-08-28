@@ -2,10 +2,10 @@
 
 use super::document_manager::{DocumentManager, DocumentType};
 use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use crate::repositories::base_repository_trait::Repository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
-use crate::types::id_types::SettingsId;
+use flequit_model::types::id_types::SettingsId;
 use async_trait::async_trait;
 use std::path::PathBuf;
 use std::sync::Arc;

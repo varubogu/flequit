@@ -1,9 +1,8 @@
 //! TimeLabel用SQLiteモデル
 
-use crate::models::{
-    setting::TimeLabel,
-    sqlite::{DomainToSqliteConverter, SqliteModelConverter},
-};
+use async_trait::async_trait;
+use flequit_model::models::setting::TimeLabel;
+use crate::models::sqlite::{DomainToSqliteConverter, SqliteModelConverter};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +22,7 @@ pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
+#[async_trait]
 impl SqliteModelConverter<TimeLabel> for Model {
     async fn to_domain_model(&self) -> Result<TimeLabel, String> {
         Ok(TimeLabel {
@@ -33,6 +33,7 @@ impl SqliteModelConverter<TimeLabel> for Model {
     }
 }
 
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for TimeLabel {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

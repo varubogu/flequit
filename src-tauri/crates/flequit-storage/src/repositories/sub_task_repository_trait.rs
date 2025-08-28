@@ -1,7 +1,7 @@
-use crate::models::subtask::SubTask;
-use crate::repositories::base_repository_trait::Repository;
-use crate::types::id_types::SubTaskId;
 use async_trait::async_trait;
+use flequit_model::models::subtask::SubTask;
+use flequit_model::types::id_types::SubTaskId;
+use crate::repositories::base_repository_trait::Repository;
 
 /// 統合サブタスクリポジトリトレイト
 ///

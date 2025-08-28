@@ -1,9 +1,8 @@
 use flequit_core::facades::project_facades;
-use flequit_core::models::command::project::{ProjectCommand, ProjectSearchRequest};
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::project::PartialProject;
-use flequit_core::models::CommandModelConverter;
-use flequit_core::types::id_types::ProjectId;
+use crate::models::project::{ProjectCommand, ProjectSearchRequest};
+use flequit_model::models::{project::PartialProject, ModelConverter};
+use crate::models::CommandModelConverter;
+use flequit_model::types::id_types::ProjectId;
 
 #[tracing::instrument]
 #[tauri::command]
@@ -36,17 +35,4 @@ pub async fn update_project(id: String, patch: PartialProject) -> Result<bool, S
 pub async fn delete_project(id: String) -> Result<bool, String> {
     let project_id = ProjectId::from(id);
     project_facades::delete_project(&project_id).await
-}
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn search_projects(
-    condition: ProjectSearchRequest,
-) -> Result<Vec<ProjectCommand>, String> {
-    let results = project_facades::search_projects(&condition).await?;
-    let mut command_results = Vec::new();
-    for project in results {
-        command_results.push(project.to_command_model().await?);
-    }
-    Ok(command_results)
 }

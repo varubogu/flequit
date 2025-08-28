@@ -1,10 +1,16 @@
 use crate::errors::service_error::ServiceError;
-use crate::models::account::Account;
-use crate::models::command::initialize::InitializedResult;
-use crate::models::project::ProjectTree;
-use crate::models::setting::LocalSettings;
-use crate::models::TreeCommandConverter;
+use flequit_model::models::account::Account;
+use flequit_model::models::project::ProjectTree;
+use flequit_model::models::setting::{LocalSettings, Settings};
 use crate::services::initialization_service;
+
+/// ドメインレベルでの初期化データを表現する構造体
+#[derive(Debug, Clone)]
+pub struct InitializationData {
+    pub settings: Settings,
+    pub accounts: Vec<Account>,
+    pub projects: Vec<ProjectTree>,
+}
 
 // エラー変換のヘルパー関数
 fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String> {
@@ -12,7 +18,7 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 }
 
 #[tracing::instrument]
-pub async fn load_all_data() -> Result<InitializedResult, String> {
+pub async fn load_all_data() -> Result<InitializationData, String> {
     // 他の関数を組み合わせて全データを取得
     let local_settings = load_local_settings().await?;
     let _current_account = load_current_account().await?; // 現在は使用しない
@@ -20,7 +26,7 @@ pub async fn load_all_data() -> Result<InitializedResult, String> {
     let accounts = load_all_account().await?;
 
     // LocalSettingsからSettingsを構築（一時的にLocalSettingsと同じ構造とする）
-    let settings = crate::models::setting::Settings {
+    let settings = Settings {
         theme: local_settings
             .as_ref()
             .map_or("system".to_string(), |s| s.theme.clone()),
@@ -30,21 +36,10 @@ pub async fn load_all_data() -> Result<InitializedResult, String> {
         ..Default::default()
     };
 
-    // ProjectTreeをProjectTreeCommandに変換
-    let mut project_tree_commands = Vec::new();
-    for project_tree in projects {
-        project_tree_commands.push(
-            project_tree
-                .to_command_model()
-                .await
-                .map_err(|e| format!("Failed to convert ProjectTree: {}", e))?,
-        );
-    }
-
-    Ok(InitializedResult {
+    Ok(InitializationData {
         settings,
         accounts,
-        projects: project_tree_commands,
+        projects,
     })
 }
 

@@ -1,10 +1,10 @@
 use chrono::Utc;
 
 use crate::errors::service_error::ServiceError;
-use crate::models::tag::{PartialTag, Tag};
+use flequit_model::models::tag::{PartialTag, Tag};
 use crate::repositories::base_repository_trait::{Patchable, Repository};
 use crate::repositories::Repositories;
-use crate::types::id_types::TagId;
+use flequit_model::types::id_types::TagId;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {

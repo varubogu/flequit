@@ -1,9 +1,12 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::subtask::SubTask;
+use flequit_model::types::id_types::{SubTaskId, TaskId, UserId};
+use flequit_model::types::task_types::TaskStatus;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::subtask::SubTask;
 
 /// Subtask用SQLiteエンティティ定義
 ///
@@ -86,9 +89,9 @@ impl Related<super::task::Entity> for Entity {
 impl ActiveModelBehavior for ActiveModel {}
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<SubTask> for Model {
     async fn to_domain_model(&self) -> Result<SubTask, String> {
-        use crate::types::task_types::TaskStatus;
 
         // ステータス文字列をenumに変換
         let status = match self.status.as_str() {
@@ -116,7 +119,7 @@ impl SqliteModelConverter<SubTask> for Model {
                 .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
             string_ids
                 .into_iter()
-                .map(crate::types::id_types::UserId::from)
+                .map(UserId::from)
                 .collect()
         } else {
             vec![]
@@ -125,8 +128,6 @@ impl SqliteModelConverter<SubTask> for Model {
         // タグIDリストは紐づけテーブル(subtask_tags)から取得するため、
         // SQLiteモデルでは空のベクターを設定
         let tag_ids = vec![];
-
-        use crate::types::id_types::{SubTaskId, TaskId};
 
         Ok(SubTask {
             id: SubTaskId::from(self.id.clone()),
@@ -153,15 +154,16 @@ impl SqliteModelConverter<SubTask> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for SubTask {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let status_string = match &self.status {
-            crate::types::task_types::TaskStatus::NotStarted => "not_started",
-            crate::types::task_types::TaskStatus::InProgress => "in_progress",
-            crate::types::task_types::TaskStatus::Waiting => "waiting",
-            crate::types::task_types::TaskStatus::Completed => "completed",
-            crate::types::task_types::TaskStatus::Cancelled => "cancelled",
+            TaskStatus::NotStarted => "not_started",
+            TaskStatus::InProgress => "in_progress",
+            TaskStatus::Waiting => "waiting",
+            TaskStatus::Completed => "completed",
+            TaskStatus::Cancelled => "cancelled",
         }
         .to_string();
 

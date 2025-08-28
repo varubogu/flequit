@@ -1,6 +1,6 @@
-use crate::errors::repository_error::RepositoryError;
-use crate::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
 use async_trait::async_trait;
+use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use crate::errors::repository_error::RepositoryError;
 
 /// 設定リポジトリのトレイト
 #[async_trait]

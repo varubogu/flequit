@@ -1,9 +1,10 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::{models::tag::Tag, types::id_types::TagId};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};
-use crate::models::tag::Tag;
 
 /// Tag用SQLiteエンティティ定義
 ///
@@ -53,10 +54,9 @@ impl ActiveModelBehavior for ActiveModel {
 }
 
 /// SQLiteモデルからドメインモデルへの変換
+#[async_trait]
 impl SqliteModelConverter<Tag> for Model {
     async fn to_domain_model(&self) -> Result<Tag, String> {
-        use crate::types::id_types::TagId;
-
         Ok(Tag {
             id: TagId::from(self.id.clone()),
             name: self.name.clone(),
@@ -69,6 +69,7 @@ impl SqliteModelConverter<Tag> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+#[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for Tag {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {

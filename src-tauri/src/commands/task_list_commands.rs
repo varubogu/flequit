@@ -1,10 +1,10 @@
 use flequit_core::facades::task_list_facades;
-use flequit_core::models::command::task_list::TaskListCommand;
-use flequit_core::models::command::task_list::TaskListSearchRequest;
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::task_list::PartialTaskList;
-use flequit_core::models::CommandModelConverter;
-use flequit_core::types::id_types::TaskListId;
+use crate::models::task_list::TaskListCommand;
+use crate::models::task_list::TaskListSearchRequest;
+use flequit_model::models::ModelConverter;
+use flequit_model::models::task_list::PartialTaskList;
+use crate::models::CommandModelConverter;
+use flequit_model::types::id_types::TaskListId;
 
 #[tracing::instrument]
 #[tauri::command]
@@ -45,17 +45,4 @@ pub async fn delete_task_list(id: String) -> Result<bool, String> {
         Err(e) => return Err(e.to_string()),
     };
     task_list_facades::delete_task_list(&task_list_id).await
-}
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn search_task_lists(
-    condition: TaskListSearchRequest,
-) -> Result<Vec<TaskListCommand>, String> {
-    let results = task_list_facades::search_task_lists(&condition).await?;
-    let mut command_results = Vec::new();
-    for task_list in results {
-        command_results.push(task_list.to_command_model().await?);
-    }
-    Ok(command_results)
 }

@@ -1,9 +1,9 @@
 use flequit_core::facades::tag_facades;
-use flequit_core::models::command::tag::{TagCommand, TagSearchRequest};
-use flequit_core::models::command::ModelConverter;
-use flequit_core::models::tag::PartialTag;
-use flequit_core::models::CommandModelConverter;
-use flequit_core::types::id_types::TagId;
+use crate::models::tag::{TagCommand, TagSearchRequest};
+use flequit_model::models::ModelConverter;
+use flequit_model::models::tag::PartialTag;
+use crate::models::CommandModelConverter;
+use flequit_model::types::id_types::TagId;
 
 #[tracing::instrument]
 #[tauri::command]
@@ -44,15 +44,4 @@ pub async fn delete_tag(id: String) -> Result<bool, String> {
         Err(e) => return Err(e.to_string()),
     };
     tag_facades::delete_tag(&tag_id).await
-}
-
-#[tracing::instrument]
-#[tauri::command]
-pub async fn search_tags(condition: TagSearchRequest) -> Result<Vec<TagCommand>, String> {
-    let results = tag_facades::search_tags(&condition).await?;
-    let mut command_results = Vec::new();
-    for tag in results {
-        command_results.push(tag.to_command_model().await?);
-    }
-    Ok(command_results)
 }

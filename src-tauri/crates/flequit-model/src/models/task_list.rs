@@ -9,13 +9,12 @@
 //! - `TaskListWithTasks`: タスクを含む完全なタスクリスト構造
 
 use super::super::types::id_types::TaskListId;
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    command::task_list::TaskListCommand, CommandModelConverter, FromTreeModel, TreeCommandConverter,
-};
+use crate::{models::ModelConverter, types::id_types::ProjectId};
 
 /// 基本タスクリスト情報を表現する構造体
 ///
@@ -79,7 +78,7 @@ pub struct TaskList {
     #[partially(omit)] // IDは更新対象外
     pub id: TaskListId,
     /// 所属プロジェクトの識別子
-    pub project_id: crate::types::id_types::ProjectId,
+    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -165,7 +164,7 @@ pub struct TaskListTree {
     /// タスクリストの一意識別子
     pub id: TaskListId,
     /// 所属プロジェクトの識別子
-    pub project_id: crate::types::id_types::ProjectId,
+    pub project_id: ProjectId,
     /// タスクリスト名（必須）
     pub name: String,
     /// タスクリストの詳細説明
@@ -184,24 +183,10 @@ pub struct TaskListTree {
     pub tasks: Vec<super::task::TaskTree>,
 }
 
-impl CommandModelConverter<TaskListCommand> for TaskList {
-    async fn to_command_model(&self) -> Result<TaskListCommand, String> {
-        Ok(TaskListCommand {
-            id: self.id.to_string(),
-            project_id: self.project_id.to_string(),
-            name: self.name.clone(),
-            description: self.description.clone(),
-            color: self.color.clone(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-        })
-    }
-}
 
-impl FromTreeModel<TaskList> for TaskListTree {
-    async fn from_tree_model(&self) -> Result<TaskList, String> {
+#[async_trait]
+impl ModelConverter<TaskList> for TaskListTree {
+    async fn to_model(&self) -> Result<TaskList, String> {
         // TaskListTreeからTaskListに変換（関連データのtasksは除く）
         Ok(TaskList {
             id: self.id.clone(),
@@ -213,31 +198,6 @@ impl FromTreeModel<TaskList> for TaskListTree {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
-        })
-    }
-}
-
-impl TreeCommandConverter<crate::models::command::task_list::TaskListTreeCommand> for TaskListTree {
-    async fn to_command_model(
-        &self,
-    ) -> Result<crate::models::command::task_list::TaskListTreeCommand, String> {
-        // タスクをコマンドモデルに変換
-        let mut task_commands = Vec::new();
-        for task in &self.tasks {
-            task_commands.push(task.to_command_model().await?);
-        }
-
-        Ok(crate::models::command::task_list::TaskListTreeCommand {
-            id: self.id.to_string(),
-            project_id: self.project_id.to_string(),
-            name: self.name.clone(),
-            description: self.description.clone(),
-            color: self.color.clone(),
-            order_index: self.order_index,
-            is_archived: self.is_archived,
-            created_at: self.created_at.to_rfc3339(),
-            updated_at: self.updated_at.to_rfc3339(),
-            tasks: task_commands,
         })
     }
 }
