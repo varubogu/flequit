@@ -12,9 +12,9 @@ use crate::repositories::base_repository_trait::Repository;
 /// # 使用方法
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::project::Project;
-/// # use flequit_lib::types::id_types::ProjectId;
-/// # use flequit_lib::repositories::project_repository_trait::ProjectRepositoryTrait;
+/// # use flequit_model::models::project::Project;
+/// # use flequit_model::types::id_types::ProjectId;
+/// # use flequit_storage::repositories::project_repository_trait::ProjectRepositoryTrait;
 /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 /// // Service層での使用例
 /// // let repository = SomeProjectRepository::new().await?;

@@ -4,7 +4,7 @@
 //! マイグレーションを実行する。
 
 use std::env;
-use flequit_strage::repositories::local_sqlite::{
+use flequit_storage::repositories::local_sqlite::{
     database_manager::DatabaseManager,
     hybrid_migration::HybridMigrator
 };

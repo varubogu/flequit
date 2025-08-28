@@ -37,8 +37,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::tag::Tag;
-/// # use flequit_lib::types::id_types::TagId;
+/// # use flequit_model::models::tag::Tag;
+/// # use flequit_model::types::id_types::TagId;
 ///
 /// let urgent_tag = Tag {
 ///     id: TagId::new(),

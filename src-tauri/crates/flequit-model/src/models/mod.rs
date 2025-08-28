@@ -42,8 +42,8 @@
 //! ## 使用例
 //!
 //! ```rust,no_run
-//! # use flequit_lib::models::project::Project;
-//! # use flequit_lib::types::id_types::{ProjectId, UserId};
+//! # use flequit_model::models::project::Project;
+//! # use flequit_model::types::id_types::{ProjectId, UserId};
 //! # use chrono::Utc;
 //!
 //! // 内部ドメインモデルの使用例
@@ -96,9 +96,9 @@ pub mod user;
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::project::{Project, ProjectTree};
-/// # use flequit_lib::models::FromTreeModel;
-/// # use flequit_lib::types::id_types::{ProjectId, UserId};
+/// # use flequit_model::models::project::{Project, ProjectTree};
+/// # use flequit_model::models::ModelConverter;
+/// # use flequit_model::types::id_types::{ProjectId, UserId};
 /// # use chrono::Utc;
 /// #
 /// # // 例として使用する関数
@@ -119,7 +119,7 @@ pub mod user;
 /// # };
 /// #
 /// // ProjectTree → Project への変換
-/// let project: Project = project_tree.from_tree_model().await?;
+/// let project: Project = project_tree.to_model().await?;
 /// # Ok(())
 /// # }
 /// ```

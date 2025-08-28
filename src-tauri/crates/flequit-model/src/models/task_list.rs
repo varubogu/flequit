@@ -56,8 +56,8 @@ use crate::{models::ModelConverter, types::id_types::ProjectId};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::task_list::TaskList;
-/// # use flequit_lib::types::id_types::{TaskListId, ProjectId};
+/// # use flequit_model::models::task_list::TaskList;
+/// # use flequit_model::types::id_types::{TaskListId, ProjectId};
 ///
 /// let task_list = TaskList {
 ///     id: TaskListId::new(),
@@ -139,9 +139,9 @@ pub struct TaskList {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::task_list::TaskListTree;
-/// # use flequit_lib::models::task::TaskTree;
-/// # use flequit_lib::types::id_types::{TaskListId, TaskId, ProjectId};
+/// # use flequit_model::models::task_list::TaskListTree;
+/// # use flequit_model::models::task::TaskTree;
+/// # use flequit_model::types::id_types::{TaskListId, TaskId, ProjectId};
 ///
 /// // プロジェクトダッシュボードでの使用例
 /// let detailed_list = TaskListTree {

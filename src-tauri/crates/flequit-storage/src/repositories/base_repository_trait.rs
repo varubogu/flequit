@@ -22,8 +22,8 @@ use partially::Partial;
 ///
 /// ```rust,no_run
 /// # use async_trait::async_trait;
-/// # use flequit_lib::repositories::base_repository_trait::Repository;
-/// # use flequit_lib::errors::RepositoryError;
+/// # use flequit_storage::repositories::base_repository_trait::Repository;
+/// # use flequit_storage::errors::RepositoryError;
 /// # struct Project;
 /// # struct ProjectId;
 /// # struct LocalSqliteProjectRepository;

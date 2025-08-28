@@ -42,8 +42,8 @@ use serde::{Deserialize, Serialize};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::account::Account;
-/// # use flequit_lib::types::id_types::{AccountId, UserId};
+/// # use flequit_model::models::account::Account;
+/// # use flequit_model::types::id_types::{AccountId, UserId};
 /// # use chrono::Utc;
 ///
 /// // Google認証アカウントの例

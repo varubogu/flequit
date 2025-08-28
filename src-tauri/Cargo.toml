@@ -15,10 +15,6 @@ default-run = "flequit"
 name = "flequit_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
-[[bin]]
-name = "migration_runner"
-path = "crates/flequit-storage/src/bin/migration_runner.rs"
-
 [workspace]
 members = [
     "crates/flequit-core",

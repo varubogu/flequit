@@ -8,6 +8,10 @@ description = "Storage layer for Flequit task management application"
 name = "flequit_storage"
 crate-type = ["rlib"]
 
+[[bin]]
+name = "migration_runner"
+path = "src/bin/migration_runner.rs"
+
 [dependencies]
 flequit-model = { path = "../flequit-model" }
 

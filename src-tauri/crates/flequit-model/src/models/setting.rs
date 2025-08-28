@@ -61,7 +61,7 @@ pub struct LocalSettings {
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::setting::Setting;
+/// # use flequit_model::models::setting::Setting;
 ///
 /// let setting = Setting {
 ///     id: "setting_theme".to_string(),

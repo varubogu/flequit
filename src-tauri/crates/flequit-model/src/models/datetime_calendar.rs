@@ -32,8 +32,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::datetime_calendar::DateCondition;
-/// # use flequit_lib::types::datetime_calendar_types::DateRelation;
+/// # use flequit_model::models::datetime_calendar::DateCondition;
+/// # use flequit_model::types::datetime_calendar_types::DateRelation;
 ///
 /// // 特定日以降の条件
 /// let after_condition = DateCondition {
@@ -75,8 +75,8 @@ pub struct DateCondition {
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::WeekdayCondition;
-/// # use flequit_lib::types::datetime_calendar_types::{DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::models::datetime_calendar::WeekdayCondition;
+/// # use flequit_model::types::datetime_calendar_types::{DayOfWeek, AdjustmentDirection, AdjustmentTarget};
 ///
 /// // 土曜日なら翌営業日（月曜日）に調整
 /// let weekend_adjustment = WeekdayCondition {
@@ -129,8 +129,8 @@ pub struct WeekdayCondition {
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::{RecurrenceAdjustment, DateCondition, WeekdayCondition};
-/// # use flequit_lib::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::models::datetime_calendar::{RecurrenceAdjustment, DateCondition, WeekdayCondition};
+/// # use flequit_model::types::datetime_calendar_types::{DateRelation, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
 /// # use chrono::Utc;
 ///
 /// let business_adjustment = RecurrenceAdjustment {
@@ -179,8 +179,8 @@ pub struct RecurrenceAdjustment {
 ///
 /// ## 毎月第2火曜日
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
-/// # use flequit_lib::types::datetime_calendar_types::{WeekOfMonth, DayOfWeek};
+/// # use flequit_model::models::datetime_calendar::RecurrenceDetails;
+/// # use flequit_model::types::datetime_calendar_types::{WeekOfMonth, DayOfWeek};
 ///
 /// let second_tuesday = RecurrenceDetails {
 ///     specific_date: None,
@@ -192,7 +192,7 @@ pub struct RecurrenceAdjustment {
 ///
 /// ## 毎月15日
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::RecurrenceDetails;
+/// # use flequit_model::models::datetime_calendar::RecurrenceDetails;
 ///
 /// let fifteenth_day = RecurrenceDetails {
 ///     specific_date: Some(15),
@@ -237,8 +237,8 @@ pub struct RecurrenceDetails {
 ///
 /// ## 毎週火・木
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::RecurrenceRule;
-/// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
+/// # use flequit_model::models::datetime_calendar::RecurrenceRule;
+/// # use flequit_model::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
 ///
 /// let weekly_rule = RecurrenceRule {
 ///     unit: RecurrenceUnit::Week,
@@ -253,8 +253,8 @@ pub struct RecurrenceDetails {
 ///
 /// ## 毎月最終営業日
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_calendar::{RecurrenceRule, RecurrenceDetails, RecurrenceAdjustment, WeekdayCondition};
-/// # use flequit_lib::types::datetime_calendar_types::{RecurrenceUnit, WeekOfMonth, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
+/// # use flequit_model::models::datetime_calendar::{RecurrenceRule, RecurrenceDetails, RecurrenceAdjustment, WeekdayCondition};
+/// # use flequit_model::types::datetime_calendar_types::{RecurrenceUnit, WeekOfMonth, DayOfWeek, AdjustmentDirection, AdjustmentTarget};
 ///
 /// let last_business_day = RecurrenceRule {
 ///     unit: RecurrenceUnit::Month,

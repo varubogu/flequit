@@ -40,8 +40,8 @@ use serde::{Deserialize, Serialize};
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_format::DateTimeFormat;
-/// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
+/// # use flequit_model::models::datetime_format::DateTimeFormat;
+/// # use flequit_model::types::datetime_format_types::DateTimeFormatGroup;
 ///
 /// // プリセットフォーマット
 /// let preset_format = DateTimeFormat {
@@ -105,8 +105,8 @@ pub struct DateTimeFormat {
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_format::AppPresetFormat;
-/// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
+/// # use flequit_model::models::datetime_format::AppPresetFormat;
+/// # use flequit_model::types::datetime_format_types::DateTimeFormatGroup;
 ///
 /// let standard_preset = AppPresetFormat {
 ///     id: -1,
@@ -160,8 +160,8 @@ pub struct AppPresetFormat {
 /// # 使用例
 ///
 /// ```rust,no_run
-/// # use flequit_lib::models::datetime_format::CustomDateTimeFormat;
-/// # use flequit_lib::types::datetime_format_types::DateTimeFormatGroup;
+/// # use flequit_model::models::datetime_format::CustomDateTimeFormat;
+/// # use flequit_model::types::datetime_format_types::DateTimeFormatGroup;
 ///
 /// let business_format = CustomDateTimeFormat {
 ///     id: "550e8400-e29b-41d4-a716-446655440000".to_string(),

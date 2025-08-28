@@ -56,8 +56,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::user::User;
-/// # use flequit_lib::types::id_types::UserId;
+/// # use flequit_model::models::user::User;
+/// # use flequit_model::types::id_types::UserId;
 ///
 /// let user = User {
 ///     id: UserId::new(),

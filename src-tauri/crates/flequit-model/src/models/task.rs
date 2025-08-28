@@ -147,20 +147,19 @@ pub struct Task {
 ///
 /// ```rust,no_run
 /// # use chrono::Utc;
-/// # use flequit_lib::models::task::TaskTree;
-/// # use flequit_lib::models::subtask::SubTask;
-/// # use flequit_lib::models::tag::Tag;
-/// # use flequit_lib::types::id_types::{TaskId, TaskListId, UserId, TagId, SubTaskId, ProjectId};
-/// # use flequit_lib::types::task_types::TaskStatus;
+/// # use flequit_model::models::task::TaskTree;
+/// # use flequit_model::models::subtask::SubTask;
+/// # use flequit_model::models::tag::Tag;
+/// # use flequit_model::types::id_types::{TaskId, TaskListId, UserId, TagId, ProjectId};
+/// # use flequit_model::types::task_types::TaskStatus;
 ///
 /// // タスク詳細画面での使用例
 /// let detailed_task = TaskTree {
 ///     id: TaskId::new(),
 ///     project_id: ProjectId::new(),
-///     sub_task_id: None,
 ///     list_id: TaskListId::new(),
 ///     title: "新機能の実装".to_string(),
-///     description: Some("詳細な説明".to_string()),
+///     description: Some("ユーザー管理機能を実装".to_string()),
 ///     status: TaskStatus::InProgress,
 ///     priority: 5,
 ///     plan_start_date: Some(Utc::now()),
@@ -174,12 +173,8 @@ pub struct Task {
 ///     is_archived: false,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
-///     sub_tasks: vec![
-///         // SubTask実体情報
-///     ],
-///     tags: vec![
-///         // Tag実体情報
-///     ],
+///     sub_tasks: vec![],
+///     tags: vec![],
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
