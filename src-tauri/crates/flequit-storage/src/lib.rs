@@ -4,6 +4,7 @@
 //! SQLite、Automerge、統合ストレージなど複数のストレージバックエンドをサポートします。
 
 pub mod errors;
+pub mod infrastructure;
 pub mod models;
 pub mod repositories;
 pub mod utils;

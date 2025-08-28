@@ -19,7 +19,7 @@ use flequit_model::models::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::project_types::MemberRole;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_storage::repositories::local_automerge::project::{
+use flequit_storage::infrastructure::local_automerge::project::{
     ProjectDocument, ProjectLocalAutomergeRepository,
 };
 

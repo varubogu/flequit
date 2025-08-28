@@ -3,8 +3,8 @@ use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, View
 use flequit_model::types::id_types::SettingsId;
 use crate::errors::repository_error::RepositoryError;
 use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::local_automerge::settings::SettingsLocalAutomergeRepository;
-use crate::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
+use crate::infrastructure::local_automerge::settings::SettingsLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::settings::SettingsLocalSqliteRepository;
 use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
 
 /// Settings用のリポジトリvariant（静的ディスパッチ用）

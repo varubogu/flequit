@@ -10,8 +10,8 @@ use flequit_model::models::user::User;
 use flequit_model::types::id_types::UserId;
 use crate::errors::RepositoryError;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::user::UserLocalAutomergeRepository;
-use crate::repositories::local_sqlite::user::UserLocalSqliteRepository;
+use crate::infrastructure::local_automerge::user::UserLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::user::UserLocalSqliteRepository;
 use crate::repositories::user_repository_trait::UserRepositoryTrait;
 
 /// UserRepositoryTrait実装の静的ディスパッチ対応enum

@@ -4,7 +4,7 @@
 //! 統合リポジトリからの永続化・同期要求に対応する。
 
 use crate::errors::repository_error::RepositoryError;
-use crate::repositories::local_automerge::{
+use crate::infrastructure::local_automerge::{
     account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
     settings::SettingsLocalAutomergeRepository, subtask::SubTaskLocalAutomergeRepository,
     tag::TagLocalAutomergeRepository, task::TaskLocalAutomergeRepository,

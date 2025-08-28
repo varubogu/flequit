@@ -18,11 +18,11 @@ use flequit_model::models::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::task_types::TaskStatus;
 use flequit_storage::repositories::base_repository_trait::Repository;
-use flequit_storage::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
-use flequit_storage::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
-use flequit_storage::repositories::local_automerge::tag::TagLocalAutomergeRepository;
-use flequit_storage::repositories::local_automerge::task::TaskLocalAutomergeRepository;
-use flequit_storage::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
+use flequit_storage::infrastructure::local_automerge::project::ProjectLocalAutomergeRepository;
+use flequit_storage::infrastructure::local_automerge::subtask::SubTaskLocalAutomergeRepository;
+use flequit_storage::infrastructure::local_automerge::tag::TagLocalAutomergeRepository;
+use flequit_storage::infrastructure::local_automerge::task::TaskLocalAutomergeRepository;
+use flequit_storage::infrastructure::local_automerge::task_list::TaskListLocalAutomergeRepository;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {

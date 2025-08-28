@@ -6,8 +6,8 @@ use flequit_model::models::{project::Project, task_list::TaskList, task::Task, t
 use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, TagId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::repositories::local_sqlite::{
+use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::infrastructure::local_sqlite::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,

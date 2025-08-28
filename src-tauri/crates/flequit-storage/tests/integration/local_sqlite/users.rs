@@ -4,8 +4,8 @@
 
 use flequit_model::models::user::User;
 use flequit_model::types::id_types::UserId;
-use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::repositories::local_sqlite::user::UserLocalSqliteRepository;
+use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::infrastructure::local_sqlite::user::UserLocalSqliteRepository;
 use flequit_storage::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;

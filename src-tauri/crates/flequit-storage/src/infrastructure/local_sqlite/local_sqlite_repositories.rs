@@ -4,7 +4,7 @@
 //! 統合リポジトリからの高速検索要求に対応する。
 
 use crate::errors::repository_error::RepositoryError;
-use crate::repositories::local_sqlite::{
+use crate::infrastructure::local_sqlite::{
     account::AccountLocalSqliteRepository, database_manager::DatabaseManager,
     project::ProjectLocalSqliteRepository, settings::SettingsLocalSqliteRepository,
     subtask::SubtaskLocalSqliteRepository, tag::TagLocalSqliteRepository,

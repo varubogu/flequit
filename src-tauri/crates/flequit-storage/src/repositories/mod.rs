@@ -1,5 +1,3 @@
-pub mod local_automerge;
-pub mod local_sqlite;
 
 pub mod account_repository_trait;
 pub mod base_repository_trait;
@@ -39,13 +37,13 @@ impl Repositories {
     #[tracing::instrument(level = "trace")]
     pub async fn new() -> Result<Self, RepositoryError> {
         // 保存用SQLiteリポジトリ群を作成
-        let save_sqlite_repos = crate::repositories::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;
+        let save_sqlite_repos = crate::infrastructure::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;
 
         // 検索用SQLiteリポジトリ群を作成
-        let search_sqlite_repos = crate::repositories::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;
+        let search_sqlite_repos = crate::infrastructure::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;
 
         // Automergeリポジトリ群を作成
-        let automerge_repos = crate::repositories::local_automerge::local_automerge_repositories::LocalAutomergeRepositories::new().await?;
+        let automerge_repos = crate::infrastructure::local_automerge::local_automerge_repositories::LocalAutomergeRepositories::new().await?;
 
         // 各UnifiedRepositoryを作成し、SQLiteとAutomergeリポジトリを追加
         let mut projects = ProjectUnifiedRepository::new(vec![], vec![]);

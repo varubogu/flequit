@@ -4,8 +4,8 @@
 
 use flequit_model::models::setting::{Settings, CustomDateFormat, DueDateButtons};
 use flequit_model::types::id_types::SettingsId;
-use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::repositories::local_sqlite::settings::SettingsLocalSqliteRepository;
+use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::infrastructure::local_sqlite::settings::SettingsLocalSqliteRepository;
 use flequit_storage::repositories::base_repository_trait::Repository;
 use flequit_storage::repositories::setting_repository_trait::SettingRepositoryTrait;
 use std::sync::Arc;

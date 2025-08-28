@@ -28,5 +28,5 @@ pub use task::TaskUnifiedRepository;
 pub use task_list::TaskListUnifiedRepository;
 pub use user::UserUnifiedRepository;
 
-pub use super::local_automerge::local_automerge_repositories::LocalAutomergeRepositories;
-pub use super::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories;
+pub use crate::infrastructure::local_automerge::local_automerge_repositories::LocalAutomergeRepositories;
+pub use crate::infrastructure::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories;

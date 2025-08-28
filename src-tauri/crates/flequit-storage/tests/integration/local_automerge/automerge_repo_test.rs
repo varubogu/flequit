@@ -6,8 +6,8 @@
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
-use flequit_storage::repositories::local_automerge::document_manager::{DocumentManager, DocumentType};
-use flequit_storage::repositories::local_automerge::file_storage::FileStorage;
+use flequit_storage::infrastructure::local_automerge::document_manager::{DocumentManager, DocumentType};
+use flequit_storage::infrastructure::local_automerge::file_storage::FileStorage;
 
 // TestPathGeneratorを使用するためのインポート
 use crate::test_utils::TestPathGenerator;

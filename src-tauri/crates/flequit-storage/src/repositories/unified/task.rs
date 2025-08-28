@@ -10,8 +10,8 @@ use flequit_model::types::id_types::TaskId;
 use flequit_model::models::task::Task;
 use crate::errors::RepositoryError;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::task::TaskLocalAutomergeRepository;
-use crate::repositories::local_sqlite::task::TaskLocalSqliteRepository;
+use crate::infrastructure::local_automerge::task::TaskLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::task::TaskLocalSqliteRepository;
 use crate::repositories::task_repository_trait::TaskRepositoryTrait;
 
 /// TaskRepositoryTrait実装の静的ディスパッチ対応enum

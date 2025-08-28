@@ -10,8 +10,8 @@ use flequit_model::models::tag::Tag;
 use flequit_model::types::id_types::TagId;
 use crate::errors::RepositoryError;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
-use crate::repositories::local_sqlite::tag::TagLocalSqliteRepository;
+use crate::infrastructure::local_automerge::tag::TagLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::tag::TagLocalSqliteRepository;
 use crate::repositories::tag_repository_trait::TagRepositoryTrait;
 
 /// TagRepositoryTrait実装の静的ディスパッチ対応enum

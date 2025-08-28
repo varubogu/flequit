@@ -4,8 +4,8 @@
 
 use flequit_model::models::tag::Tag;
 use flequit_model::types::id_types::TagId;
-use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::repositories::local_sqlite::tag::TagLocalSqliteRepository;
+use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::infrastructure::local_sqlite::tag::TagLocalSqliteRepository;
 use flequit_storage::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;

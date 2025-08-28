@@ -9,8 +9,8 @@ use log::info;
 use crate::errors::RepositoryError;
 use crate::repositories::account_repository_trait::AccountRepositoryTrait;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::account::AccountLocalAutomergeRepository;
-use crate::repositories::local_sqlite::account::AccountLocalSqliteRepository;
+use crate::infrastructure::local_automerge::account::AccountLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::account::AccountLocalSqliteRepository;
 use flequit_model::models::account::Account;
 use flequit_model::types::id_types::AccountId;
 

@@ -10,8 +10,8 @@ use flequit_model::models::subtask::SubTask;
 use flequit_model::types::id_types::SubTaskId;
 use crate::errors::RepositoryError;
 use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
-use crate::repositories::local_sqlite::subtask::SubtaskLocalSqliteRepository;
+use crate::infrastructure::local_automerge::subtask::SubTaskLocalAutomergeRepository;
+use crate::infrastructure::local_sqlite::subtask::SubtaskLocalSqliteRepository;
 use crate::repositories::sub_task_repository_trait::SubTaskRepositoryTrait;
 
 /// SubTaskRepositoryTrait実装の静的ディスパッチ対応enum
