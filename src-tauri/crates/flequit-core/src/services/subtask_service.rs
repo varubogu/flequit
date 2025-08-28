@@ -14,7 +14,7 @@ pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.sub_tasks.save(&new_data).await?;
 
     Ok(())
@@ -22,13 +22,13 @@ pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_subtask(subtask_id: &SubTaskId) -> Result<Option<SubTask>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.sub_tasks.find_by_id(subtask_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_subtasks = repository.sub_tasks.find_all().await?;
 
     // task_idでフィルタリング
@@ -45,7 +45,7 @@ pub async fn update_subtask(
     subtask_id: &SubTaskId,
     patch: &PartialSubTask,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -68,14 +68,14 @@ pub async fn update_subtask(
 
 #[tracing::instrument(level = "trace")]
 pub async fn delete_subtask(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.sub_tasks.delete(subtask_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // 既存のサブタスクを取得
     if let Some(mut subtask) = repository.sub_tasks.find_by_id(subtask_id).await? {

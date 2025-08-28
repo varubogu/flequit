@@ -27,7 +27,7 @@ pub async fn create_user(user: &User) -> Result<(), ServiceError> {
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.users.save(&new_data).await?;
 
     Ok(())
@@ -35,13 +35,13 @@ pub async fn create_user(user: &User) -> Result<(), ServiceError> {
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_user(user_id: &UserId) -> Result<Option<User>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.users.find_by_id(user_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     // UserLocalSqliteRepositoryのfind_by_emailメソッドを使用
     // 注意: これは統合リポジトリ経由では直接アクセスできないため、一時的にfind_allで検索
     let users = repository.users.find_all().await?;
@@ -52,12 +52,12 @@ pub async fn get_user_by_email(email: &str) -> Result<Option<User>, ServiceError
 
 #[tracing::instrument(level = "trace")]
 pub async fn list_users() -> Result<Vec<User>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.users.find_all().await?)
 }
 
 pub async fn update_user(user: &User) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.users.save(user).await?;
     Ok(())
 }
@@ -85,13 +85,13 @@ pub async fn update_user_with_permission_check(
     let mut updated_user = user.clone();
     updated_user.updated_at = Utc::now();
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.users.save(&updated_user).await?;
     Ok(())
 }
 
 pub async fn search_users(query: &str) -> Result<Vec<User>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let users = repository.users.find_all().await?;
 
     // ユーザー名、表示名、メールアドレス、自己紹介で部分一致検索
@@ -115,7 +115,7 @@ pub async fn search_users(query: &str) -> Result<Vec<User>, ServiceError> {
 }
 
 pub async fn is_email_exists(email: &str, exclude_id: Option<&str>) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let users = repository.users.find_all().await?;
 
     let exists = users.iter().any(|user| {
@@ -138,7 +138,7 @@ pub async fn update_user_profile(
     bio: &Option<String>,
     timezone: &Option<String>,
 ) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let user_id_typed = UserId::from(user_id.to_string());
 
     // 編集権限チェック
@@ -171,7 +171,7 @@ pub async fn update_user_profile(
 }
 
 pub async fn change_password(user_id: &str, new_password_hash: &str) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let user_id_typed = UserId::from(user_id.to_string());
 
     if let Some(mut user) = repository.users.find_by_id(&user_id_typed).await? {

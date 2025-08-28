@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 /// すべての設定項目を各リポジトリから取得し、Settings構造体として返します。
 pub async fn get_all_settings() -> Result<Settings, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // メインの設定を取得
     let base_settings = repository
@@ -52,7 +52,7 @@ pub async fn get_all_settings() -> Result<Settings, ServiceError> {
 
 /// 設定を保存します。
 pub async fn save_settings(settings: &Settings) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .save(settings)
@@ -115,7 +115,7 @@ pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), Serv
 // ---------------------------
 
 pub async fn get_custom_date_format(id: &str) -> Result<Option<CustomDateFormat>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_custom_date_format(id)
@@ -124,7 +124,7 @@ pub async fn get_custom_date_format(id: &str) -> Result<Option<CustomDateFormat>
 }
 
 pub async fn get_all_custom_date_formats() -> Result<Vec<CustomDateFormat>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_all_custom_date_formats()
@@ -138,7 +138,7 @@ pub async fn add_custom_date_format(
     if format.id.is_empty() {
         format.id = Uuid::new_v4().to_string();
     }
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .add_custom_date_format(&format)
@@ -150,7 +150,7 @@ pub async fn add_custom_date_format(
 pub async fn update_custom_date_format(
     format: CustomDateFormat,
 ) -> Result<CustomDateFormat, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .update_custom_date_format(&format)
@@ -160,7 +160,7 @@ pub async fn update_custom_date_format(
 }
 
 pub async fn delete_custom_date_format(id: &str) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .delete_custom_date_format(id)
@@ -173,7 +173,7 @@ pub async fn delete_custom_date_format(id: &str) -> Result<(), ServiceError> {
 // ---------------------------
 
 pub async fn get_time_label(id: &str) -> Result<Option<TimeLabel>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_time_label(id)
@@ -182,7 +182,7 @@ pub async fn get_time_label(id: &str) -> Result<Option<TimeLabel>, ServiceError>
 }
 
 pub async fn get_all_time_labels() -> Result<Vec<TimeLabel>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_all_time_labels()
@@ -194,7 +194,7 @@ pub async fn add_time_label(mut label: TimeLabel) -> Result<TimeLabel, ServiceEr
     if label.id.is_empty() {
         label.id = Uuid::new_v4().to_string();
     }
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .add_time_label(&label)
@@ -204,7 +204,7 @@ pub async fn add_time_label(mut label: TimeLabel) -> Result<TimeLabel, ServiceEr
 }
 
 pub async fn update_time_label(label: TimeLabel) -> Result<TimeLabel, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .update_time_label(&label)
@@ -214,7 +214,7 @@ pub async fn update_time_label(label: TimeLabel) -> Result<TimeLabel, ServiceErr
 }
 
 pub async fn delete_time_label(id: &str) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .delete_time_label(id)
@@ -227,7 +227,7 @@ pub async fn delete_time_label(id: &str) -> Result<(), ServiceError> {
 // ---------------------------
 
 pub async fn get_view_item(id: &str) -> Result<Option<ViewItem>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_view_item(id)
@@ -236,7 +236,7 @@ pub async fn get_view_item(id: &str) -> Result<Option<ViewItem>, ServiceError> {
 }
 
 pub async fn get_all_view_items() -> Result<Vec<ViewItem>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .get_all_view_items()
@@ -248,7 +248,7 @@ pub async fn add_view_item(mut item: ViewItem) -> Result<ViewItem, ServiceError>
     if item.id.is_empty() {
         item.id = Uuid::new_v4().to_string();
     }
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .add_view_item(&item)
@@ -258,7 +258,7 @@ pub async fn add_view_item(mut item: ViewItem) -> Result<ViewItem, ServiceError>
 }
 
 pub async fn update_view_item(item: ViewItem) -> Result<ViewItem, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .update_view_item(&item)
@@ -268,7 +268,7 @@ pub async fn update_view_item(item: ViewItem) -> Result<ViewItem, ServiceError> 
 }
 
 pub async fn delete_view_item(id: &str) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .settings
         .delete_view_item(id)

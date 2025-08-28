@@ -13,7 +13,7 @@ pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.tags.save(&new_data).await?;
 
     Ok(())
@@ -21,19 +21,19 @@ pub async fn create_tag(tag: &Tag) -> Result<(), ServiceError> {
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_tag(tag_id: &TagId) -> Result<Option<Tag>, ServiceError> {
-    let repository: Repositories = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.tags.find_by_id(tag_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn list_tags() -> Result<Vec<Tag>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.tags.find_all().await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -53,7 +53,7 @@ pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, Serv
 
 #[tracing::instrument(level = "trace")]
 pub async fn delete_tag(tag_id: &TagId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.tags.delete(tag_id).await?;
     Ok(())
 }
@@ -64,7 +64,7 @@ pub async fn search_tags_by_name(name: &str) -> Result<Vec<Tag>, ServiceError> {
         return Ok(Vec::new());
     }
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_tags = repository.tags.find_all().await?;
 
     let name_lower = name.to_lowercase();
@@ -78,7 +78,7 @@ pub async fn search_tags_by_name(name: &str) -> Result<Vec<Tag>, ServiceError> {
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_tag_usage_count(tag_id: &TagId) -> Result<u32, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let mut count = 0u32;
 
     // タスクでの使用回数をカウント
@@ -105,7 +105,7 @@ pub async fn is_tag_name_exists(
     name: &str,
     exclude_id: Option<&str>,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_tags = repository.tags.find_all().await?;
 
     let name_lower = name.to_lowercase();
@@ -129,7 +129,7 @@ pub async fn is_tag_name_exists(
 
 #[tracing::instrument(level = "trace")]
 pub async fn list_popular_tags(limit: u32) -> Result<Vec<Tag>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_tags = repository.tags.find_all().await?;
 
     if all_tags.is_empty() {

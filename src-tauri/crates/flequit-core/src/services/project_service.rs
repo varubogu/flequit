@@ -16,7 +16,7 @@ pub async fn create_project(project: &Project) -> Result<Project, ServiceError> 
         new_project.id = ProjectId::new();
     }
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.projects.save(&new_project).await?;
 
     Ok(new_project)
@@ -24,13 +24,13 @@ pub async fn create_project(project: &Project) -> Result<Project, ServiceError> 
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_project(project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.projects.find_by_id(project_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn list_projects() -> Result<Vec<Project>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.projects.find_all().await?)
 }
 
@@ -39,7 +39,7 @@ pub async fn update_project(
     project_id: &ProjectId,
     patch: &PartialProject,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -62,7 +62,7 @@ pub async fn update_project(
 
 #[tracing::instrument(level = "trace")]
 pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.projects.delete(project_id).await?;
     Ok(())
 }

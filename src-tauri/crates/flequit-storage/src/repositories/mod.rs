@@ -16,6 +16,8 @@ use crate::repositories::unified::{
     SubTaskUnifiedRepository, TagUnifiedRepository, TaskListUnifiedRepository,
     TaskUnifiedRepository, UserUnifiedRepository,
 };
+use std::sync::Arc;
+use tokio::sync::OnceCell;
 
 /// 統合リポジトリのメインエントリーポイント
 ///
@@ -32,10 +34,40 @@ pub struct Repositories {
     pub settings: SettingsUnifiedRepository,
 }
 
+// シングルトンインスタンスを保持
+static REPOSITORIES_INSTANCE: OnceCell<Arc<Repositories>> = OnceCell::const_new();
+
 impl Repositories {
-    /// 新しい統合リポジトリインスタンスを作成
+    /// シングルトンインスタンスを取得
+    /// 
+    /// アプリケーション全体で唯一のRepositoriesインスタンスを返します。
+    /// 初回呼び出し時に初期化が行われ、以降は同一インスタンスが返されます。
+    pub async fn instance() -> Arc<Self> {
+        REPOSITORIES_INSTANCE
+            .get_or_init(|| async {
+                let repositories = Self::create_instance().await
+                    .expect("Failed to initialize Repositories singleton");
+                Arc::new(repositories)
+            })
+            .await
+            .clone()
+    }
+
+    /// 新しい統合リポジトリインスタンスを作成（従来のメソッド - 非推奨）
+    /// 
+    /// # Deprecated
+    /// 
+    /// このメソッドは非推奨です。代わりに `Repositories::instance()` を使用してください。
+    /// シングルトンパターンによりリソース効率が大幅に改善されます。
+    #[deprecated(since = "0.1.0", note = "Use Repositories::instance() instead for better resource management")]
     #[tracing::instrument(level = "trace")]
     pub async fn new() -> Result<Self, RepositoryError> {
+        Self::create_instance().await
+    }
+
+    /// 内部的なRepositoriesインスタンス作成メソッド
+    #[tracing::instrument(level = "trace")]
+    async fn create_instance() -> Result<Self, RepositoryError> {
         // 保存用SQLiteリポジトリ群を作成
         let save_sqlite_repos = crate::infrastructure::local_sqlite::local_sqlite_repositories::LocalSqliteRepositories::new().await?;
 
@@ -93,5 +125,12 @@ impl Repositories {
             users,
             settings,
         })
+    }
+
+    /// テスト用のリセット機能（テスト環境でのみ使用）
+    #[cfg(test)]
+    pub fn reset_for_test() {
+        // OnceLockはリセットできないため、この機能は将来のテスト改善で検討
+        tracing::warn!("Repositories singleton reset requested, but not supported in current implementation");
     }
 }

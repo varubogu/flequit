@@ -8,27 +8,27 @@ use chrono::Utc;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_task(task: &Task) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.tasks.save(task).await?;
     Ok(())
 }
 
 #[tracing::instrument]
 pub async fn get_task(task_id: &TaskId) -> Result<Option<Task>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.tasks.find_by_id(task_id).await?)
 }
 
 #[tracing::instrument]
 pub async fn list_tasks(project_id: &ProjectId) -> Result<Vec<Task>, ServiceError> {
     let _ = project_id;
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.tasks.find_all().await?)
 }
 
 #[tracing::instrument]
 pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -48,7 +48,7 @@ pub async fn update_task(task_id: &TaskId, patch: &PartialTask) -> Result<bool, 
 
 #[tracing::instrument]
 pub async fn delete_task(task_id: &TaskId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.tasks.delete(task_id).await?;
     Ok(())
 }
@@ -58,7 +58,7 @@ pub async fn list_tasks_by_assignee(
     project_id: &str,
     user_id: &str,
 ) -> Result<Vec<Task>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_tasks = repository.tasks.find_all().await?;
 
     // user_idでフィルタリング
@@ -79,7 +79,7 @@ pub async fn list_tasks_by_status(
     project_id: &str,
     status: &TaskStatus,
 ) -> Result<Vec<Task>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_tasks = repository.tasks.find_all().await?;
 
     // statusでフィルタリング
@@ -97,7 +97,7 @@ pub async fn assign_task(
     task_id: &str,
     assignee_id: Option<String>,
 ) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // タスクIDから TaskId 型に変換
     let task_id_typed = TaskId::from(task_id.to_string());
@@ -139,7 +139,7 @@ pub async fn update_task_status(
     task_id: &str,
     status: &TaskStatus,
 ) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // タスクIDから TaskId 型に変換
     use TaskId;
@@ -173,7 +173,7 @@ pub async fn update_task_priority(
     task_id: &str,
     priority: i32,
 ) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // タスクIDから TaskId 型に変換
     use TaskId;

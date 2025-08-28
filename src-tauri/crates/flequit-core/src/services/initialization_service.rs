@@ -33,7 +33,7 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
 }
 
 pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // ローカル設定取得ロジック：設定データベースから取得
     let settings = repository
@@ -58,7 +58,7 @@ pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError
 }
 
 pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
@@ -82,7 +82,7 @@ pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
 }
 
 pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // 1. 全プロジェクトを取得
     let projects = repository
@@ -120,7 +120,7 @@ pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> 
 }
 
 pub async fn load_all_account() -> Result<Vec<Account>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository
         .accounts
         .find_all()

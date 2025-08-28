@@ -13,7 +13,7 @@ pub async fn create_account(account: &Account) -> Result<(), ServiceError> {
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.accounts.save(&new_data).await?;
 
     Ok(())
@@ -21,7 +21,7 @@ pub async fn create_account(account: &Account) -> Result<(), ServiceError> {
 
 #[tracing::instrument(level = "trace")]
 pub async fn get_account(account_id: &AccountId) -> Result<Option<Account>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.accounts.find_by_id(account_id).await?)
 }
 
@@ -30,7 +30,7 @@ pub async fn update_account(
     account_id: &AccountId,
     patch: &PartialAccount,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -53,7 +53,7 @@ pub async fn update_account(
 
 #[tracing::instrument(level = "trace")]
 pub async fn delete_account(account_id: &AccountId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.accounts.delete(account_id).await?;
     Ok(())
 }

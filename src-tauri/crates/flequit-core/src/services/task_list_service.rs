@@ -6,13 +6,13 @@ use crate::repositories::Repositories;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 
 pub async fn create_task_list(task_list: &TaskList) -> Result<(), ServiceError> {
-    let repository: Repositories = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.task_lists.save(task_list).await?;
     Ok(())
 }
 
 pub async fn get_task_list(list_id: &TaskListId) -> Result<Option<TaskList>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     Ok(repository.task_lists.find_by_id(list_id).await?)
 }
 
@@ -20,7 +20,7 @@ pub async fn update_task_list(
     task_list_id: &TaskListId,
     patch: &PartialTaskList,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // updated_atフィールドを自動設定したパッチを作成
     let mut updated_patch = patch.clone();
@@ -47,13 +47,13 @@ pub async fn update_task_list(
 }
 
 pub async fn delete_task_list(id: &TaskListId) -> Result<(), ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     repository.task_lists.delete(id).await?;
     Ok(())
 }
 
 pub async fn list_task_lists(_project_id: &str) -> Result<Vec<TaskList>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
     let all_task_lists = repository.task_lists.find_all().await?;
 
     // project_idでフィルタリング
@@ -72,7 +72,7 @@ pub async fn list_task_lists(_project_id: &str) -> Result<Vec<TaskList>, Service
 pub async fn get_task_lists_with_tasks(
     project_id: &ProjectId,
 ) -> Result<Vec<TaskListTree>, ServiceError> {
-    let repository = Repositories::new().await?;
+    let repository = Repositories::instance().await;
 
     // 1. プロジェクトのタスクリストを取得
     let task_lists = list_task_lists(&project_id.to_string()).await?;
