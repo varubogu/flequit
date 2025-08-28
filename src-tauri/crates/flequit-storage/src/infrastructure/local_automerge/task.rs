@@ -45,6 +45,12 @@ impl TaskLocalAutomergeRepository {
         })
     }
 
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    #[tracing::instrument(level = "trace")]
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
+
     /// 全タスクを取得
     #[tracing::instrument(level = "trace")]
     pub async fn list_tasks(&self) -> Result<Vec<Task>, RepositoryError> {

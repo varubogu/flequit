@@ -24,6 +24,11 @@ impl TaskListLocalAutomergeRepository {
         })
     }
 
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
+
     /// 全タスクリストを取得
     pub async fn list_task_lists(&self) -> Result<Vec<TaskList>, RepositoryError> {
         let task_lists = {

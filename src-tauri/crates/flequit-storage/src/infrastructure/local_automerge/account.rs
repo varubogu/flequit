@@ -25,6 +25,12 @@ impl AccountLocalAutomergeRepository {
         })
     }
 
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    #[tracing::instrument(level = "trace")]
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
+
     /// 全アカウントリストを取得
     #[tracing::instrument(level = "trace")]
     pub async fn list_users(&self) -> Result<Vec<Account>, RepositoryError> {

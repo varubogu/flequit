@@ -8,9 +8,11 @@ use crate::infrastructure::local_automerge::{
     account::AccountLocalAutomergeRepository, project::ProjectLocalAutomergeRepository,
     settings::SettingsLocalAutomergeRepository, subtask::SubTaskLocalAutomergeRepository,
     tag::TagLocalAutomergeRepository, task::TaskLocalAutomergeRepository,
-    task_list::TaskListLocalAutomergeRepository,
+    task_list::TaskListLocalAutomergeRepository, document_manager::DocumentManager,
 };
 use crate::utils::path_service::PathService;
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 /// Automergeリポジトリ群の統合管理
 ///
@@ -35,44 +37,54 @@ impl LocalAutomergeRepositories {
             RepositoryError::ConfigurationError(format!("Failed to get data directory: {}", e))
         })?;
 
+        // 1つのDocumentManagerを作成して全リポジトリで共有
+        let document_manager = Arc::new(Mutex::new(
+            DocumentManager::new(data_dir.clone()).map_err(|e| {
+                RepositoryError::ConfigurationError(format!(
+                    "Failed to create shared DocumentManager: {:?}",
+                    e
+                ))
+            })?
+        ));
+
         Ok(Self {
-            projects: ProjectLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            projects: ProjectLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create ProjectRepository: {:?}",
                     e
                 ))
             })?,
-            accounts: AccountLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            accounts: AccountLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create AccountRepository: {:?}",
                     e
                 ))
             })?,
-            settings: SettingsLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            settings: SettingsLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create SettingsRepository: {:?}",
                     e
                 ))
             })?,
-            task_lists: TaskListLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            task_lists: TaskListLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create TaskListRepository: {:?}",
                     e
                 ))
             })?,
-            tasks: TaskLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            tasks: TaskLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create TaskRepository: {:?}",
                     e
                 ))
             })?,
-            sub_tasks: SubTaskLocalAutomergeRepository::new(data_dir.clone()).map_err(|e| {
+            sub_tasks: SubTaskLocalAutomergeRepository::new_with_manager(document_manager.clone()).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create SubTaskRepository: {:?}",
                     e
                 ))
             })?,
-            tags: TagLocalAutomergeRepository::new(data_dir).map_err(|e| {
+            tags: TagLocalAutomergeRepository::new_with_manager(document_manager).map_err(|e| {
                 RepositoryError::ConfigurationError(format!(
                     "Failed to create TagRepository: {:?}",
                     e

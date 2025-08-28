@@ -29,6 +29,11 @@ impl SettingsLocalAutomergeRepository {
             document_manager: Arc::new(Mutex::new(document_manager)),
         })
     }
+
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
 }
 
 #[async_trait]

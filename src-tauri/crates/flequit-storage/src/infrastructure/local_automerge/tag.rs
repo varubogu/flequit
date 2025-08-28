@@ -24,6 +24,11 @@ impl TagLocalAutomergeRepository {
         })
     }
 
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
+
     /// 全タグを取得
     pub async fn list_tags(&self) -> Result<Vec<Tag>, RepositoryError> {
         let tags = {

@@ -94,6 +94,12 @@ impl ProjectLocalAutomergeRepository {
         })
     }
 
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    #[tracing::instrument(level = "trace")]
+    pub fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+        Ok(Self { document_manager })
+    }
+
     /// 全プロジェクトを取得（基本情報のみ）
     #[tracing::instrument(level = "trace")]
     pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
