@@ -2,6 +2,7 @@
 //!
 //! 正しいProject Document仕様に準拠したリポジトリの動作を検証
 
+use async_trait::async_trait;
 use chrono::Utc;
 use serde_json::Value;
 use std::path::PathBuf;
@@ -10,17 +11,17 @@ use crate::test_utils::{
     AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator,
 };
 
-use crate::models::project::{Member, Project};
-use crate::models::subtask::SubTask;
-use crate::models::tag::Tag;
-use crate::models::task::Task;
-use crate::models::task_list::TaskList;
-use crate::repositories::local_automerge::project::{
+use flequit_model::models::project::{Member, Project};
+use flequit_model::models::subtask::SubTask;
+use flequit_model::models::tag::Tag;
+use flequit_model::models::task::Task;
+use flequit_model::models::task_list::TaskList;
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::MemberRole;
+use flequit_model::types::task_types::TaskStatus;
+use flequit_storage::repositories::local_automerge::project::{
     ProjectDocument, ProjectLocalAutomergeRepository,
 };
-use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
-use crate::types::project_types::MemberRole;
-use crate::types::task_types::TaskStatus;
 
 /// テスト用ProjectDocumentRepositoryラッパー - automerge履歴出力機能付き
 struct TestProjectDocumentRepository {
@@ -146,6 +147,7 @@ impl TestProjectDocumentRepository {
     }
 }
 
+#[async_trait]
 impl AutomergeHistoryExporter for TestProjectDocumentRepository {
     async fn export_document_as_json(&self) -> Result<Value, Box<dyn std::error::Error>> {
         // 現在のプロジェクトIDが設定されている場合、実際のProject Documentを取得
@@ -261,7 +263,6 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     let task_1 = Task {
         id: TaskId::new(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_1.id,
         title: "タスク1".to_string(),
         description: Some("最初のテストタスク".to_string()),
@@ -284,7 +285,6 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     let task_2 = Task {
         id: TaskId::new(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_2.id,
         title: "タスク2".to_string(),
         description: Some("2番目のテストタスク".to_string()),

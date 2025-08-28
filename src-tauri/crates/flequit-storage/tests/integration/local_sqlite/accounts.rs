@@ -2,10 +2,11 @@
 //!
 //! testing.mdルール準拠のSQLiteアカウントリポジトリテスト
 
-use crate::models::account::Account;
-use crate::types::id_types::{AccountId, UserId};
-use crate::repositories::local_sqlite::account::AccountLocalSqliteRepository;
-use crate::repositories::base_repository_trait::Repository;
+use flequit_model::models::account::Account;
+use flequit_model::types::id_types::{AccountId, UserId};
+use flequit_storage::repositories::local_sqlite::account::AccountLocalSqliteRepository;
+use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -15,12 +16,12 @@ use crate::setup_sqlite_test;
 async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_account_create_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let account_repo = AccountLocalSqliteRepository::new(db_manager_arc);
-    
+
     // テストデータ作成
     let account_id = AccountId::from(Uuid::new_v4());
     let user_id = UserId::from(Uuid::new_v4());
@@ -36,10 +37,10 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // Create操作（saveメソッドを使用）
     account_repo.save(&account).await?;
-    
+
     // 作成確認
     let retrieved_account = account_repo.find_by_id(&account_id).await?;
     assert!(retrieved_account.is_some());
@@ -50,7 +51,7 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
     assert_eq!(retrieved_account.display_name, account.display_name);
     assert_eq!(retrieved_account.provider, account.provider);
     assert_eq!(retrieved_account.is_active, account.is_active);
-    
+
     Ok(())
 }
 
@@ -58,12 +59,12 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
 async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_account_read_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let account_repo = AccountLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
@@ -79,7 +80,7 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
     let account2 = Account {
@@ -94,11 +95,11 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     account_repo.save(&account1).await?;
     account_repo.save(&account2).await?;
-    
+
     // 1件目のみRead操作
     let retrieved_account = account_repo.find_by_id(&account_id1).await?;
     assert!(retrieved_account.is_some());
@@ -108,11 +109,11 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
     assert_eq!(retrieved_account.email, account1.email);
     assert_eq!(retrieved_account.provider, account1.provider);
     assert_eq!(retrieved_account.provider_id, account1.provider_id);
-    
+
     // 2件目が存在することも確認
     let retrieved_account2 = account_repo.find_by_id(&account_id2).await?;
     assert!(retrieved_account2.is_some());
-    
+
     Ok(())
 }
 
@@ -120,12 +121,12 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
 async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_account_update_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let account_repo = AccountLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
@@ -141,7 +142,7 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
     let account2 = Account {
@@ -156,17 +157,17 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     account_repo.save(&account1).await?;
     account_repo.save(&account2).await?;
-    
+
     // 1件目のUpdate操作 - 基本的なフィールドをテスト
     let mut updated_account = account1.clone();
     updated_account.is_active = false; // is_activeフィールドの更新をテスト
     updated_account.updated_at = chrono::Utc::now();
     account_repo.save(&updated_account).await?;
-    
+
     // 更新後の取得確認（1件目）- is_activeフィールドが更新されたことを確認
     let retrieved_updated = account_repo.find_by_id(&account_id1).await?;
     assert!(retrieved_updated.is_some());
@@ -175,7 +176,7 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
     // Account IDとuser_idは変更されないことを確認
     assert_eq!(retrieved_updated.id, account1.id);
     assert_eq!(retrieved_updated.user_id, account1.user_id);
-    
+
     // 2件目が変更されていないことを確認
     let retrieved_account2 = account_repo.find_by_id(&account_id2).await?;
     assert!(retrieved_account2.is_some());
@@ -183,7 +184,7 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
     assert_eq!(retrieved_account2.email, account2.email);
     assert_eq!(retrieved_account2.display_name, account2.display_name);
     assert_eq!(retrieved_account2.is_active, account2.is_active);
-    
+
     Ok(())
 }
 
@@ -191,12 +192,12 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
 async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_account_delete_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let account_repo = AccountLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
@@ -212,7 +213,7 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
     let account2 = Account {
@@ -227,24 +228,24 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     account_repo.save(&account1).await?;
     account_repo.save(&account2).await?;
-    
+
     // 1件目のみDelete操作
     account_repo.delete(&account_id1).await?;
-    
+
     // 削除確認（1件目）
     let deleted_check = account_repo.find_by_id(&account_id1).await?;
     assert!(deleted_check.is_none());
-    
+
     // 2件目が削除されていないことを確認
     let retrieved_account2 = account_repo.find_by_id(&account_id2).await?;
     assert!(retrieved_account2.is_some());
     let retrieved_account2 = retrieved_account2.unwrap();
     assert_eq!(retrieved_account2.email, account2.email);
-    
+
     Ok(())
 }
 
@@ -252,12 +253,12 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
 async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::error::Error>> {
     // プロバイダー固有のテスト（Google、GitHub、ローカル認証）
     let db_path = setup_sqlite_test!("test_account_provider_operations")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let account_repo = AccountLocalSqliteRepository::new(db_manager_arc);
-    
+
     // Google認証アカウント
     let google_account_id = AccountId::from(Uuid::new_v4());
     let google_user_id = UserId::from(Uuid::new_v4());
@@ -273,7 +274,7 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // GitHub認証アカウント
     let github_account_id = AccountId::from(Uuid::new_v4());
     let github_user_id = UserId::from(Uuid::new_v4());
@@ -289,7 +290,7 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // ローカル認証アカウント
     let local_account_id = AccountId::from(Uuid::new_v4());
     let local_user_id = UserId::from(Uuid::new_v4());
@@ -305,12 +306,12 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 全て保存
     account_repo.save(&google_account).await?;
     account_repo.save(&github_account).await?;
     account_repo.save(&local_account).await?;
-    
+
     // 各プロバイダーアカウントの取得確認
     let retrieved_google = account_repo.find_by_id(&google_account_id).await?;
     assert!(retrieved_google.is_some());
@@ -318,21 +319,21 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
     assert_eq!(retrieved_google.provider, "google");
     assert!(retrieved_google.provider_id.is_some());
     assert!(retrieved_google.avatar_url.is_some());
-    
+
     let retrieved_github = account_repo.find_by_id(&github_account_id).await?;
     assert!(retrieved_github.is_some());
     let retrieved_github = retrieved_github.unwrap();
     assert_eq!(retrieved_github.provider, "github");
     assert!(retrieved_github.provider_id.is_some());
     assert!(retrieved_github.avatar_url.is_some());
-    
+
     let retrieved_local = account_repo.find_by_id(&local_account_id).await?;
     assert!(retrieved_local.is_some());
     let retrieved_local = retrieved_local.unwrap();
     assert_eq!(retrieved_local.provider, "local");
     assert!(retrieved_local.provider_id.is_none());
     assert!(retrieved_local.avatar_url.is_none());
-    
+
     Ok(())
 }
 
@@ -341,17 +342,17 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 複数のテストが独立していることを確認
     let db_path1 = setup_sqlite_test!("test_account_repository_isolation_1")?;
     let db_path2 = setup_sqlite_test!("test_account_repository_isolation_2")?;
-    
+
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);
-    
+
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
-    let db_manager2 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
-    
+    let db_manager1 = DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
+    let db_manager2 = DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
+
     let account_repo1 = AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
     let account_repo2 = AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
-    
+
     // DB1にアカウント作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
@@ -368,11 +369,11 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         updated_at: chrono::Utc::now(),
     };
     account_repo1.save(&account1).await?;
-    
+
     // DB2からは見えないことを確認
     let not_found = account_repo2.find_by_id(&account_id1).await?;
     assert!(not_found.is_none());
-    
+
     // DB2にも別のアカウント作成
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
@@ -389,12 +390,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         updated_at: chrono::Utc::now(),
     };
     account_repo2.save(&account2).await?;
-    
+
     // DB1からは見えないことを確認
     let not_found = account_repo1.find_by_id(&account_id2).await?;
     assert!(not_found.is_none());
-    
+
     println!("✅ テストデータベース分離確認完了");
-    
+
     Ok(())
 }

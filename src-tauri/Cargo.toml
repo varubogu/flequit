@@ -19,6 +19,14 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 name = "migration_runner"
 path = "crates/flequit-storage/src/bin/migration_runner.rs"
 
+[workspace]
+members = [
+    "crates/flequit-core",
+    "crates/flequit-model",
+    "crates/flequit-storage",
+    "."
+]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

@@ -3,6 +3,7 @@
 //! テストフォルダパス取得、automerge履歴保存など、
 //! 統合テスト間で共通利用する機能を提供します。
 
+use async_trait::async_trait;
 use chrono::Utc;
 use serde_json::json;
 use std::{path::PathBuf, sync::{Arc, Mutex}};
@@ -24,7 +25,7 @@ impl TestPathGenerator {
 
         // ファイルパスから相対パス情報を抽出（testsディレクトリ以下）
         let path = std::path::Path::new(file_path);
-        
+
         // "tests/" 以降のパス部分を取得
         let relative_test_path = if let Some(tests_pos) = file_path.find("tests/") {
             let after_tests = &file_path[tests_pos + 6..]; // "tests/" の6文字をスキップ
@@ -36,7 +37,7 @@ impl TestPathGenerator {
 
         // 拡張子を除いたパス構造を取得
         let path_without_extension = relative_test_path.with_extension("");
-        
+
         // テストルール準拠のパス生成: <project_root>/.tmp/tests/cargo/[テスト階層]/[テスト関数名]/[実行日時]/
         PathBuf::from("../.tmp/tests/cargo")
             .join(path_without_extension)
@@ -119,6 +120,7 @@ macro_rules! setup_sqlite_test {
 /// automergeドキュメント履歴を管理するトレイト
 ///
 /// automergeを利用するテストで、１つ編集するごとにJSONスナップショットを出力する
+#[async_trait]
 pub trait AutomergeHistoryExporter {
     /// 現在のautomergeドキュメント状態をJSONとしてエクスポート
     async fn export_document_as_json(

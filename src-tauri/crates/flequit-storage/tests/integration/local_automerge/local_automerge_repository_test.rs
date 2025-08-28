@@ -10,19 +10,19 @@ use std::path::{Path, PathBuf};
 // TestPathGeneratorを使用するためのインポート
 use crate::test_utils::TestPathGenerator;
 
-use crate::models::project::Project;
-use crate::models::subtask::SubTask;
-use crate::models::tag::Tag;
-use crate::models::task::Task;
-use crate::models::task_list::TaskList;
-use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
-use crate::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
-use crate::repositories::local_automerge::tag::TagLocalAutomergeRepository;
-use crate::repositories::local_automerge::task::TaskLocalAutomergeRepository;
-use crate::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
-use crate::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
-use crate::types::task_types::TaskStatus;
+use flequit_model::models::project::Project;
+use flequit_model::models::subtask::SubTask;
+use flequit_model::models::tag::Tag;
+use flequit_model::models::task::Task;
+use flequit_model::models::task_list::TaskList;
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::task_types::TaskStatus;
+use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_storage::repositories::local_automerge::project::ProjectLocalAutomergeRepository;
+use flequit_storage::repositories::local_automerge::subtask::SubTaskLocalAutomergeRepository;
+use flequit_storage::repositories::local_automerge::tag::TagLocalAutomergeRepository;
+use flequit_storage::repositories::local_automerge::task::TaskLocalAutomergeRepository;
+use flequit_storage::repositories::local_automerge::task_list::TaskListLocalAutomergeRepository;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
@@ -882,7 +882,6 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "統合テスト用タスク".to_string(),
         description: Some("Automerge Repository統合テストのためのタスク".to_string()),

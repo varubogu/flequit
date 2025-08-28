@@ -243,7 +243,7 @@ impl Repository<User, UserId> for UserLocalAutomergeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::id_types::UserId;
+    use flequit_model::types::id_types::UserId;
     use chrono::Utc;
     use tempfile::TempDir;
 

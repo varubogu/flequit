@@ -2,10 +2,11 @@
 //!
 //! testing.mdルール準拠のSQLiteユーザーリポジトリテスト
 
-use crate::models::user::User;
-use crate::types::id_types::UserId;
-use crate::repositories::local_sqlite::user::UserLocalSqliteRepository;
-use crate::repositories::base_repository_trait::Repository;
+use flequit_model::models::user::User;
+use flequit_model::types::id_types::UserId;
+use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::repositories::local_sqlite::user::UserLocalSqliteRepository;
+use flequit_storage::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -15,12 +16,12 @@ use crate::setup_sqlite_test;
 async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_user_create_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
-    
+
     // テストデータ作成
     let user_id = UserId::from(Uuid::new_v4());
     let user = User {
@@ -35,10 +36,10 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // Create操作（saveメソッドを使用）
     user_repo.save(&user).await?;
-    
+
     // 作成確認
     let retrieved_user = user_repo.find_by_id(&user_id).await?;
     assert!(retrieved_user.is_some());
@@ -48,7 +49,7 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     assert_eq!(retrieved_user.display_name, user.display_name);
     assert_eq!(retrieved_user.email, user.email);
     assert_eq!(retrieved_user.is_active, user.is_active);
-    
+
     Ok(())
 }
 
@@ -56,12 +57,12 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
 async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_user_read_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
@@ -76,7 +77,7 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
@@ -90,11 +91,11 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     user_repo.save(&user1).await?;
     user_repo.save(&user2).await?;
-    
+
     // 1件目のみRead操作
     let retrieved_user = user_repo.find_by_id(&user_id1).await?;
     assert!(retrieved_user.is_some());
@@ -103,11 +104,11 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(retrieved_user.username, user1.username);
     assert_eq!(retrieved_user.display_name, user1.display_name);
     assert_eq!(retrieved_user.email, user1.email);
-    
+
     // 2件目が存在することも確認
     let retrieved_user2 = user_repo.find_by_id(&user_id2).await?;
     assert!(retrieved_user2.is_some());
-    
+
     Ok(())
 }
 
@@ -115,12 +116,12 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
 async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_user_update_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
@@ -135,7 +136,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
@@ -149,11 +150,11 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     user_repo.save(&user1).await?;
     user_repo.save(&user2).await?;
-    
+
     // 1件目のみUpdate操作
     let mut updated_user = user1.clone();
     updated_user.username = "updated_user1".to_string();
@@ -163,7 +164,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     updated_user.is_active = false;
     updated_user.updated_at = chrono::Utc::now();
     user_repo.save(&updated_user).await?;
-    
+
     // 更新後の取得確認（1件目）
     let retrieved_updated = user_repo.find_by_id(&user_id1).await?;
     assert!(retrieved_updated.is_some());
@@ -173,7 +174,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     assert_eq!(retrieved_updated.email, updated_user.email);
     assert_eq!(retrieved_updated.bio, updated_user.bio);
     assert_eq!(retrieved_updated.is_active, updated_user.is_active);
-    
+
     // 2件目が変更されていないことを確認
     let retrieved_user2 = user_repo.find_by_id(&user_id2).await?;
     assert!(retrieved_user2.is_some());
@@ -181,7 +182,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     assert_eq!(retrieved_user2.username, user2.username);
     assert_eq!(retrieved_user2.display_name, user2.display_name);
     assert_eq!(retrieved_user2.is_active, user2.is_active);
-    
+
     Ok(())
 }
 
@@ -189,12 +190,12 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
 async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
     let db_path = setup_sqlite_test!("test_user_delete_operation")?;
-    
+
     // リポジトリを初期化（非シングルトン）
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
-    
+
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
@@ -209,7 +210,7 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
@@ -223,24 +224,24 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    
+
     // 2件とも保存
     user_repo.save(&user1).await?;
     user_repo.save(&user2).await?;
-    
+
     // 1件目のみDelete操作
     user_repo.delete(&user_id1).await?;
-    
+
     // 削除確認（1件目）
     let deleted_check = user_repo.find_by_id(&user_id1).await?;
     assert!(deleted_check.is_none());
-    
+
     // 2件目が削除されていないことを確認
     let retrieved_user2 = user_repo.find_by_id(&user_id2).await?;
     assert!(retrieved_user2.is_some());
     let retrieved_user2 = retrieved_user2.unwrap();
     assert_eq!(retrieved_user2.username, user2.username);
-    
+
     Ok(())
 }
 
@@ -249,17 +250,17 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 複数のテストが独立していることを確認
     let db_path1 = setup_sqlite_test!("test_user_repository_isolation_1")?;
     let db_path2 = setup_sqlite_test!("test_user_repository_isolation_2")?;
-    
+
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);
-    
+
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
-    let db_manager2 = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
-    
+    let db_manager1 = DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
+    let db_manager2 = DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
+
     let user_repo1 = UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
     let user_repo2 = UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
-    
+
     // DB1にユーザー作成
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
@@ -275,11 +276,11 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         updated_at: chrono::Utc::now(),
     };
     user_repo1.save(&user1).await?;
-    
+
     // DB2からは見えないことを確認
     let not_found = user_repo2.find_by_id(&user_id1).await?;
     assert!(not_found.is_none());
-    
+
     // DB2にも別のユーザー作成
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
@@ -295,12 +296,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         updated_at: chrono::Utc::now(),
     };
     user_repo2.save(&user2).await?;
-    
+
     // DB1からは見えないことを確認
     let not_found = user_repo1.find_by_id(&user_id2).await?;
     assert!(not_found.is_none());
-    
+
     println!("✅ テストデータベース分離確認完了");
-    
+
     Ok(())
 }

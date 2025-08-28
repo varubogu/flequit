@@ -6,8 +6,8 @@
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
-use crate::repositories::local_automerge::document_manager::{DocumentManager, DocumentType};
-use crate::repositories::local_automerge::file_storage::FileStorage;
+use flequit_storage::repositories::local_automerge::document_manager::{DocumentManager, DocumentType};
+use flequit_storage::repositories::local_automerge::file_storage::FileStorage;
 
 // TestPathGeneratorを使用するためのインポート
 use crate::test_utils::TestPathGenerator;
@@ -518,7 +518,7 @@ use differential_update_helpers::*;
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     // TestPathGeneratorを使用して正しいパス構造を生成
     let test_dir = TestPathGenerator::generate_test_dir(file!(), test_name);
-    
+
     // プロジェクトルートを取得して相対パスを絶対パスに変換
     let current_dir = std::env::current_dir().expect("Failed to get current directory");
     let project_root = if current_dir.ends_with("src-tauri") {
@@ -526,7 +526,7 @@ fn create_persistent_test_dir(test_name: &str) -> PathBuf {
     } else {
         current_dir
     };
-    
+
     let final_dir = project_root.join(test_dir);
 
     if let Err(e) = std::fs::create_dir_all(&final_dir) {

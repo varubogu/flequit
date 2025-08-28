@@ -50,9 +50,10 @@ pub mod user;
 ///
 /// impl CommandModelConverter<TaskCommand> for Task {
 ///     async fn to_command_model(&self) -> Result<TaskCommand, String> {
-///         Ok(Task {
+///         Ok(TaskCommand {
 ///             id: self.id.clone(),
 ///             title: self.title.clone(),
+///             created_at: self.created_at.to_rfc3339(),
 ///         })
 ///     }
 /// }

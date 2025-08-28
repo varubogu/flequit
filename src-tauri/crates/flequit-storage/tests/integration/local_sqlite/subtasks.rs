@@ -2,17 +2,18 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクリポジトリテスト
 
-use crate::models::{project::Project, task_list::TaskList, task::Task, subtask::SubTask};
-use crate::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, UserId};
-use crate::types::project_types::ProjectStatus;
-use crate::types::task_types::TaskStatus;
-use crate::repositories::local_sqlite::{
+use flequit_model::models::{project::Project, task_list::TaskList, task::Task, subtask::SubTask};
+use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_model::types::task_types::TaskStatus;
+use flequit_storage::repositories::local_sqlite::database_manager::DatabaseManager;
+use flequit_storage::repositories::local_sqlite::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,
     subtask::SubtaskLocalSqliteRepository,
 };
-use crate::repositories::base_repository_trait::Repository;
+use flequit_storage::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
@@ -24,7 +25,7 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_subtask_create_operation")?;
 
     // リポジトリを初期化
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -67,7 +68,6 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "Create操作親タスク".to_string(),
         description: Some("Create操作テスト用親タスク".to_string()),
@@ -133,7 +133,7 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     let db_path = setup_sqlite_test!("test_subtask_read_operation")?;
 
     // リポジトリを初期化
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -176,7 +176,6 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "Read操作親タスク".to_string(),
         description: Some("Read操作テスト用親タスク".to_string()),
@@ -270,7 +269,7 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_subtask_update_operation")?;
 
     // リポジトリを初期化
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -313,7 +312,6 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "Update操作親タスク".to_string(),
         description: Some("Update操作テスト用親タスク".to_string()),
@@ -421,7 +419,7 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
     let db_path = setup_sqlite_test!("test_subtask_delete_operation")?;
 
     // リポジトリを初期化
-    let db_manager = crate::repositories::local_sqlite::database_manager::DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -464,7 +462,6 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
-        sub_task_id: None,
         list_id: task_list_id.clone(),
         title: "Delete操作親タスク".to_string(),
         description: Some("Delete操作テスト用親タスク".to_string()),
