@@ -1,5 +1,5 @@
 use flequit_core::facades::project_facades;
-use crate::models::project::{ProjectCommand, ProjectSearchRequest};
+use crate::models::project::ProjectCommand;
 use flequit_model::models::{project::PartialProject, ModelConverter};
 use crate::models::CommandModelConverter;
 use flequit_model::types::id_types::ProjectId;

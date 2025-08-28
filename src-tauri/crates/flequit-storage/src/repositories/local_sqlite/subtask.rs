@@ -11,7 +11,7 @@ use crate::repositories::base_repository_trait::Repository;
 use flequit_model::types::id_types::SubTaskId;
 use async_trait::async_trait;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, ConnectionTrait, EntityTrait,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait,
     PaginatorTrait, QueryFilter, QueryOrder, Statement, TransactionTrait,
 };
 use std::sync::Arc;
@@ -98,7 +98,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         // トランザクション開始
         let txn = db.begin().await?;
 
-        let mut active_model = subtask
+        let active_model = subtask
             .to_sqlite_model()
             .await
             .map_err(RepositoryError::Conversion)?;

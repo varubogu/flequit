@@ -1,5 +1,5 @@
 use flequit_core::facades::tag_facades;
-use crate::models::tag::{TagCommand, TagSearchRequest};
+use crate::models::tag::TagCommand;
 use flequit_model::models::ModelConverter;
 use flequit_model::models::tag::PartialTag;
 use crate::models::CommandModelConverter;

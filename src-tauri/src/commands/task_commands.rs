@@ -1,5 +1,5 @@
 use flequit_core::facades::task_facades;
-use crate::models::task::{TaskCommand, TaskSearchRequest};
+use crate::models::task::TaskCommand;
 use flequit_model::models::ModelConverter;
 use flequit_model::models::task::PartialTask;
 use crate::models::CommandModelConverter;

@@ -1,6 +1,5 @@
 use flequit_core::facades::task_list_facades;
 use crate::models::task_list::TaskListCommand;
-use crate::models::task_list::TaskListSearchRequest;
 use flequit_model::models::ModelConverter;
 use flequit_model::models::task_list::PartialTaskList;
 use crate::models::CommandModelConverter;
