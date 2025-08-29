@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task::Task, types::{id_types::{ProjectId, TaskId, TaskListId, UserId}, task_types::TaskStatus}};
+use flequit_model::{models::task::Task, types::{id_types::{ProjectId, TaskId, TaskListId}, task_types::TaskStatus}};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -51,11 +51,6 @@ pub struct Model {
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
 
-    /// 繰り返しルール（JSON形式）
-    pub recurrence_rule: Option<String>,
-
-    /// アサインされたユーザーIDリスト（JSON配列形式）
-    pub assigned_user_ids: Option<String>,
 
 
     /// 表示順序
@@ -126,27 +121,10 @@ impl SqliteModelConverter<Task> for Model {
             _ => return Err(format!("Unknown task status: {}", self.status)),
         };
 
-        // 繰り返しルールJSONをパース
-        let recurrence_rule = if let Some(rule_json) = &self.recurrence_rule {
-            Some(
-                serde_json::from_str(rule_json)
-                    .map_err(|e| format!("Failed to parse recurrence_rule: {}", e))?,
-            )
-        } else {
-            None
-        };
-
-        // アサインされたユーザーIDリストJSONをパース
-        let assigned_user_ids = if let Some(users_json) = &self.assigned_user_ids {
-            let string_ids: Vec<String> = serde_json::from_str(users_json)
-                .map_err(|e| format!("Failed to parse assigned_user_ids: {}", e))?;
-            string_ids
-                .into_iter()
-                .map(UserId::from)
-                .collect()
-        } else {
-            vec![]
-        };
+        // 繰り返しルールと担当ユーザーは紐づけテーブルから取得するため、
+        // SQLiteモデルでは空の値を設定
+        let recurrence_rule = None;
+        let assigned_user_ids = vec![];
 
         // タグIDリストは紐づけテーブル(task_tags)から取得するため、
         // SQLiteモデルでは空のベクターを設定
@@ -190,31 +168,8 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
         }
         .to_string();
 
-        // 繰り返しルールをJSONに変換
-        let recurrence_rule_json = if let Some(rule) = &self.recurrence_rule {
-            Some(
-                serde_json::to_string(rule)
-                    .map_err(|e| format!("Failed to serialize recurrence_rule: {}", e))?,
-            )
-        } else {
-            None
-        };
-
-        // アサインされたユーザーIDリストをJSONに変換
-        let assigned_user_ids_json = if !self.assigned_user_ids.is_empty() {
-            let string_ids: Vec<String> = self
-                .assigned_user_ids
-                .iter()
-                .map(|id| id.to_string())
-                .collect();
-            Some(
-                serde_json::to_string(&string_ids)
-                    .map_err(|e| format!("Failed to serialize assigned_user_ids: {}", e))?,
-            )
-        } else {
-            None
-        };
-
+        // 繰り返しルールと担当ユーザーは紐づけテーブルで管理するため、
+        // SQLiteのtasksテーブルには保存しない
         // タグIDリストは紐づけテーブル(task_tags)で管理するため、
         // SQLiteのtasksテーブルには保存しない
 
@@ -229,8 +184,6 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
             start_date: Set(self.plan_start_date),
             end_date: Set(self.plan_end_date),
             is_range_date: Set(self.is_range_date),
-            recurrence_rule: Set(recurrence_rule_json),
-            assigned_user_ids: Set(assigned_user_ids_json),
             order_index: Set(self.order_index),
             is_archived: Set(self.is_archived),
             created_at: Set(self.created_at),

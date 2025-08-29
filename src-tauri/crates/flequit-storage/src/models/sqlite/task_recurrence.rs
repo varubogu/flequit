@@ -2,20 +2,20 @@ use chrono::{DateTime, Utc};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-/// TaskAssignment用SQLiteエンティティ定義
+/// TaskRecurrence用SQLiteエンティティ定義
 ///
-/// タスクとユーザーの多対多関係を管理する紐づけテーブル
-/// 高速な検索・削除に最適化
+/// タスクと繰り返しルールの関係を管理する紐づけテーブル
+/// 繰り返しルールIDとの関連を管理
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
-#[sea_orm(table_name = "task_assignments")]
+#[sea_orm(table_name = "task_recurrence")]
 pub struct Model {
     /// タスクID
     #[sea_orm(primary_key, auto_increment = false)]
     pub task_id: String,
 
-    /// ユーザーID
+    /// 繰り返しルールID（将来的にルールIDで管理する想定）
     #[sea_orm(primary_key, auto_increment = false)]
-    pub user_id: String,
+    pub recurrence_rule_id: String,
 
     /// 作成日時
     pub created_at: DateTime<Utc>,
@@ -30,11 +30,11 @@ pub enum Relation {
     )]
     Task,
     #[sea_orm(
-        belongs_to = "super::user::Entity",
-        from = "Column::UserId",
-        to = "super::user::Column::Id"
+        belongs_to = "super::recurrence_rule::Entity",
+        from = "Column::RecurrenceRuleId",
+        to = "super::recurrence_rule::Column::Id"
     )]
-    User,
+    RecurrenceRule,
 }
 
 impl Related<super::task::Entity> for Entity {
@@ -43,9 +43,9 @@ impl Related<super::task::Entity> for Entity {
     }
 }
 
-impl Related<super::user::Entity> for Entity {
+impl Related<super::recurrence_rule::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::User.def()
+        Relation::RecurrenceRule.def()
     }
 }
 
