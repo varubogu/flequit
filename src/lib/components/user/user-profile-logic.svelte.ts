@@ -1,6 +1,8 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
+import { getBackendService } from '$lib/services/backend';
+import type { User as FullUser } from '$lib/types/user';
 
-// このコンポーネント専用のUser型（簡略版）
+// このコンポーネント専用のUser型（簡略版） - 後方互換性のため保持
 export interface User {
   id: string;
   name: string;
@@ -11,30 +13,37 @@ export interface User {
 export class UserProfileLogic {
   // Props
   user?: User | null;
+  fullUser?: FullUser | null; // 完全なユーザー情報
   onLogin?: () => void;
   onLogout?: () => void;
   onSettings?: () => void;
   onSwitchAccount?: () => void;
+  onUserUpdated?: (user: FullUser) => void;
 
   // State
   showMenu = $state(false);
   showSettings = $state(false);
+  showEditDialog = $state(false);
 
   // Translation service
   private translationService = getTranslationService();
 
   constructor(
     user?: User | null,
+    fullUser?: FullUser | null,
     onLogin?: () => void,
     onLogout?: () => void,
     onSettings?: () => void,
-    onSwitchAccount?: () => void
+    onSwitchAccount?: () => void,
+    onUserUpdated?: (user: FullUser) => void
   ) {
     this.user = user;
+    this.fullUser = fullUser;
     this.onLogin = onLogin;
     this.onLogout = onLogout;
     this.onSettings = onSettings;
     this.onSwitchAccount = onSwitchAccount;
+    this.onUserUpdated = onUserUpdated;
   }
 
   // Reactive messages
@@ -76,6 +85,31 @@ export class UserProfileLogic {
   handleSwitchAccount() {
     this.onSwitchAccount?.();
     this.showMenu = false;
+  }
+
+  handleEditProfile() {
+    this.showEditDialog = true;
+    this.showMenu = false;
+  }
+
+  handleEditDialogClose() {
+    this.showEditDialog = false;
+  }
+
+  async handleUserSaved(updatedUser: FullUser) {
+    try {
+      // Update local user data
+      if (this.user) {
+        this.user.name = updatedUser.display_name || updatedUser.username;
+        this.user.email = updatedUser.email || '';
+      }
+      this.fullUser = updatedUser;
+
+      // Notify parent component
+      this.onUserUpdated?.(updatedUser);
+    } catch (error) {
+      console.error('Failed to handle user save:', error);
+    }
   }
 
   // Close menu when clicking outside

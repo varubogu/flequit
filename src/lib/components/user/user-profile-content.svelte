@@ -1,9 +1,10 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import Card from '$lib/components/ui/card.svelte';
-  import { Settings, LogIn, LogOut, Users, ChevronUp } from 'lucide-svelte';
+  import { Settings, LogIn, LogOut, Users, ChevronUp, Edit } from 'lucide-svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import type { UserProfileLogic } from './user-profile-logic.svelte';
+  import UserProfileEditDialog from './user-profile-edit-dialog.svelte';
 
   interface Props {
     logic: UserProfileLogic;
@@ -100,6 +101,16 @@
             variant="ghost"
             size="sm"
             class="h-8 w-full justify-start gap-2 text-sm"
+            onclick={logic.handleEditProfile.bind(logic)}
+          >
+            <Edit class="h-4 w-4" />
+            プロフィール編集
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            class="h-8 w-full justify-start gap-2 text-sm"
             onclick={logic.handleSettings.bind(logic)}
           >
             <Settings class="h-4 w-4" />
@@ -153,3 +164,11 @@
     </Card>
   {/if}
 </div>
+
+<!-- プロフィール編集ダイアログ -->
+<UserProfileEditDialog
+  user={logic.fullUser}
+  isOpen={logic.showEditDialog}
+  onClose={logic.handleEditDialogClose.bind(logic)}
+  onSave={logic.handleUserSaved.bind(logic)}
+/>

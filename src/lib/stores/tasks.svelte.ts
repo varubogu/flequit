@@ -9,6 +9,7 @@ import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
+import { getBackendService } from '$lib/services/backend';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -247,7 +248,6 @@ export class TaskStore {
     const newTask: TaskWithSubTasks = {
       id: crypto.randomUUID(),
       sub_task_id: taskData.sub_task_id,
-      project_id: taskData.project_id || this.getProjectIdByListId(taskData.list_id!) || 'unknown-project',
       list_id: taskData.list_id,
       title: taskData.title || '',
       description: taskData.description,
@@ -400,7 +400,7 @@ export class TaskStore {
     this.isNewTaskMode = true;
     this.selectedTaskId = null;
     this.selectedSubTaskId = null;
-    
+
     const projectId = this.getProjectIdByListId(listId);
     if (!projectId) {
       console.error('Failed to find project for list:', listId);
@@ -413,7 +413,6 @@ export class TaskStore {
       description: '',
       status: 'not_started',
       priority: 0,
-      project_id: projectId,
       list_id: listId,
       assigned_user_ids: [],
       tag_ids: [],
@@ -478,11 +477,13 @@ export class TaskStore {
             task.tags.push(tag);
             task.updated_at = new SvelteDate();
 
-            // バックエンドに同期（タグ追加は定期保存に任せる）
+            // 即時保存：新しいtagging serviceを使用
             try {
-              await dataService.updateTaskWithSubTasks(taskId, { tags: task.tags });
+              const backend = await getBackendService();
+              await backend.tagging.createTaskTag(taskId, tag.id);
             } catch (error) {
               console.error('Failed to sync tag addition to backend:', error);
+              errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
             }
           }
           return;
@@ -501,11 +502,13 @@ export class TaskStore {
             task.tags.splice(tagIndex, 1);
             task.updated_at = new SvelteDate();
 
-            // バックエンドに同期（タグ削除は定期保存に任せる）
+            // 即時保存：新しいtagging serviceを使用
             try {
-              await dataService.updateTaskWithSubTasks(taskId, { tags: task.tags });
+              const backend = await getBackendService();
+              await backend.tagging.deleteTaskTag(taskId, tagId);
             } catch (error) {
               console.error('Failed to sync tag removal to backend:', error);
+              errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
             }
           }
           return;
@@ -549,9 +552,10 @@ export class TaskStore {
               subTask.tags.push(tag);
               subTask.updated_at = new SvelteDate();
 
-              // バックエンドに同期（サブタスクタグ追加は定期保存に任せる）
+              // 即時保存：新しいtagging serviceを使用
               try {
-                await dataService.addTagToSubTask(subTaskId, tag.id);
+                const backend = await getBackendService();
+                await backend.tagging.createSubtaskTag(subTaskId, tag.id);
               } catch (error) {
                 console.error('Failed to sync subtask tag addition to backend:', error);
                 errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
@@ -575,9 +579,10 @@ export class TaskStore {
               subTask.tags.splice(tagIndex, 1);
               subTask.updated_at = new SvelteDate();
 
-              // バックエンドに同期（サブタスクタグ削除は定期保存に任せる）
+              // 即時保存：新しいtagging serviceを使用
               try {
-                await dataService.removeTagFromSubTask(subTaskId, tagId);
+                const backend = await getBackendService();
+                await backend.tagging.deleteSubtaskTag(subTaskId, tagId);
               } catch (error) {
                 console.error('Failed to sync subtask tag removal to backend:', error);
                 errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);
