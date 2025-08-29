@@ -8,6 +8,9 @@ import { SettingWebService } from './setting-web-service';
 import { AccountWebService } from './account-web-service';
 import { AutoFetchWebService } from './auto-fetch-web-service';
 import { InitializationWebService } from './initialization-web-service';
+import { UserWebService } from './user-web-service';
+import { TaggingWebService } from './tagging-web-service';
+import { AssignmentWebService } from './assignment-web-service';
 
 /**
  * Web環境用のBackendService統合実装
@@ -22,4 +25,7 @@ export class BackendWebService implements BackendService {
   public readonly account = new AccountWebService();
   public readonly autoFetch = new AutoFetchWebService();
   public readonly initialization = new InitializationWebService();
+  public readonly user = new UserWebService();
+  public readonly tagging = new TaggingWebService();
+  public readonly assignment = new AssignmentWebService();
 }

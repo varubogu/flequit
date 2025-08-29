@@ -7,6 +7,9 @@ import type { SettingService } from './setting-service';
 import type { AccountService } from './account-service';
 import type { AutoFetchService } from './auto-fetch-service';
 import type { InitializationService } from './initialization-service';
+import type { UserService } from './user-service';
+import type { TaggingService } from './tagging-service';
+import type { AssignmentService } from './assignment-service';
 
 /**
  * 統合BackendServiceインターフェース
@@ -57,6 +60,21 @@ export interface BackendService {
    * 初期化サービス
    */
   initialization: InitializationService;
+
+  /**
+   * ユーザー管理サービス
+   */
+  user: UserService;
+
+  /**
+   * タグ関連付けサービス
+   */
+  tagging: TaggingService;
+
+  /**
+   * アサインメント（割り当て）サービス
+   */
+  assignment: AssignmentService;
 }
 
 /**
@@ -93,3 +111,6 @@ export type * from './setting-service';
 export type * from './account-service';
 export type * from './auto-fetch-service';
 export type * from './initialization-service';
+export type * from './user-service';
+export type * from './tagging-service';
+export type * from './assignment-service';
