@@ -1012,7 +1012,6 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
         recurrence_rule: None,
         assigned_user_ids: vec![],
         tag_ids: vec![],
-        tags: vec![],
         order_index: 1,
         completed: false,
         created_at: Utc::now(),

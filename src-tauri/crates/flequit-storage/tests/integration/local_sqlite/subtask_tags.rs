@@ -106,7 +106,6 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         recurrence_rule: None,
         assigned_user_ids: vec![],
         tag_ids: vec![], // 初期状態では空
-        tags: vec![],
         order_index: 1,
         completed: false,
         created_at: chrono::Utc::now(),
@@ -257,7 +256,6 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         recurrence_rule: None,
         assigned_user_ids: vec![],
         tag_ids: vec![],
-        tags: vec![],
         order_index: 1,
         completed: false,
         created_at: chrono::Utc::now(),

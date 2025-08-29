@@ -71,6 +71,7 @@
 use async_trait::async_trait;
 
 pub mod sqlite;
+pub mod automerge;
 pub mod user;
 
 /// 通常モデルとTree系モデル間の相互変換を定義するトレイト
