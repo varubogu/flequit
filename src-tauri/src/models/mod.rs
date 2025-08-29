@@ -1,11 +1,13 @@
 use async_trait::async_trait;
 
 pub mod account;
+pub mod assignment;
 pub mod initialize;
 pub mod project;
 pub mod setting;
 pub mod subtask;
 pub mod tag;
+pub mod tagging;
 pub mod task;
 pub mod task_list;
 pub mod user;

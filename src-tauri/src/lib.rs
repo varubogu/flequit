@@ -72,6 +72,21 @@ pub fn run() {
             task_list_commands::get_task_list,
             task_list_commands::update_task_list,
             task_list_commands::delete_task_list,
+            // User commands
+            user_commands::create_user,
+            user_commands::get_user,
+            user_commands::update_user,
+            user_commands::delete_user,
+            // Tagging commands
+            tagging_commands::create_task_tag,
+            tagging_commands::delete_task_tag,
+            tagging_commands::create_subtask_tag,
+            tagging_commands::delete_subtask_tag,
+            // Assignment commands
+            assignment_commands::create_task_assignment,
+            assignment_commands::delete_task_assignment,
+            assignment_commands::create_subtask_assignment,
+            assignment_commands::delete_subtask_assignment,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

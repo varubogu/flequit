@@ -7,8 +7,10 @@ use crate::errors::repository_error::RepositoryError;
 use crate::infrastructure::local_sqlite::{
     account::AccountLocalSqliteRepository, database_manager::DatabaseManager,
     project::ProjectLocalSqliteRepository, settings::SettingsLocalSqliteRepository,
-    subtask::SubtaskLocalSqliteRepository, tag::TagLocalSqliteRepository,
-    task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
+    subtask::SubtaskLocalSqliteRepository, subtask_assignments::SubtaskAssignmentLocalSqliteRepository,
+    subtask_tag::SubtaskTagLocalSqliteRepository, tag::TagLocalSqliteRepository,
+    task::TaskLocalSqliteRepository, task_assignments::TaskAssignmentLocalSqliteRepository,
+    task_list::TaskListLocalSqliteRepository, task_tag::TaskTagLocalSqliteRepository,
 };
 
 /// SQLiteリポジトリ群の統合管理
@@ -21,6 +23,10 @@ pub struct LocalSqliteRepositories {
     pub tasks: TaskLocalSqliteRepository,
     pub sub_tasks: SubtaskLocalSqliteRepository,
     pub tags: TagLocalSqliteRepository,
+    pub task_tags: TaskTagLocalSqliteRepository,
+    pub task_assignments: TaskAssignmentLocalSqliteRepository,
+    pub subtask_tags: SubtaskTagLocalSqliteRepository,
+    pub subtask_assignments: SubtaskAssignmentLocalSqliteRepository,
     pub accounts: AccountLocalSqliteRepository,
     pub settings: SettingsLocalSqliteRepository,
 }
@@ -38,6 +44,10 @@ impl LocalSqliteRepositories {
             tasks: TaskLocalSqliteRepository::new(db_manager.clone()),
             sub_tasks: SubtaskLocalSqliteRepository::new(db_manager.clone()),
             tags: TagLocalSqliteRepository::new(db_manager.clone()),
+            task_tags: TaskTagLocalSqliteRepository::new(db_manager.clone()),
+            task_assignments: TaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
+            subtask_tags: SubtaskTagLocalSqliteRepository::new(db_manager.clone()),
+            subtask_assignments: SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
             accounts: AccountLocalSqliteRepository::new(db_manager.clone()),
             settings: SettingsLocalSqliteRepository::new(db_manager),
         })

@@ -5,6 +5,7 @@ pub mod project_repository_trait;
 pub mod setting_repository_trait;
 pub mod sub_task_repository_trait;
 pub mod tag_repository_trait;
+pub mod tagging_repository_trait;
 pub mod task_list_repository_trait;
 pub mod task_repository_trait;
 pub mod unified;
