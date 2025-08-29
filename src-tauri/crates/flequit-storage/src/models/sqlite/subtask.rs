@@ -144,7 +144,6 @@ impl SqliteModelConverter<SubTask> for Model {
             recurrence_rule,
             assigned_user_ids,
             tag_ids,
-            tags: vec![],
             order_index: self.order_index,
             completed: self.completed,
             created_at: self.created_at,

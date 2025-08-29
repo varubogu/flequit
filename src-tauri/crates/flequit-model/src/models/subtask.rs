@@ -100,8 +100,6 @@ pub struct SubTask {
     pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 付与されたタグIDリスト（IDのみ）
     pub tag_ids: Vec<TagId>, // 付与されたタグIDの配列
-    /// 付与されたタグの配列（Tag構造体の実体）
-    pub tags: Vec<Tag>,
     /// 表示順序（昇順ソート用）
     pub order_index: i32,
     /// 完了フラグ（従来互換性のため保持）
@@ -179,7 +177,6 @@ impl ModelConverter<SubTask> for SubTaskTree {
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self.assigned_user_ids.clone(),
             tag_ids, // tagsから生成したIDリスト
-            tags: self.tags.clone(), // タグの実体も保持
             order_index: self.order_index,
             completed: self.completed,
             created_at: self.created_at,

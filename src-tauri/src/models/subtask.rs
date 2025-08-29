@@ -88,7 +88,6 @@ impl ModelConverter<SubTask> for SubtaskCommand {
                 .iter()
                 .map(|id| TagId::from(id.clone()))
                 .collect(),
-            tags: vec![],
             order_index: self.order_index,
             completed: self.completed,
             created_at,
@@ -144,8 +143,8 @@ pub struct SubTaskTreeCommand {
 }
 
 impl SubTaskTreeCommand {
-    /// ドメインモデル（SubTask）からコマンドモデル（SubTaskTreeCommand）に変換
-    pub async fn from_domain_model(subtask: &SubTask) -> Result<SubTaskTreeCommand, String> {
+    /// ドメインモデル（SubTaskTree）からコマンドモデル（SubTaskTreeCommand）に変換
+    pub async fn from_domain_model(subtask: &SubTaskTree) -> Result<SubTaskTreeCommand, String> {
         let mut tag_commands = Vec::new();
         for tag in &subtask.tags {
             tag_commands.push(tag.to_command_model().await?);
