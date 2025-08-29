@@ -59,7 +59,7 @@ pub async fn list_task_lists(_project_id: &str) -> Result<Vec<TaskList>, Service
     // project_idでフィルタリング
     let mut filtered_lists = all_task_lists
         .into_iter()
-        // .filter(|tl| tl.project_id.to_string() == project_id)
+        .filter(|tl| tl.project_id.to_string() == _project_id)
         .collect::<Vec<_>>();
 
     // order_indexでソート
