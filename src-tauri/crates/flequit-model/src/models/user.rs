@@ -16,7 +16,9 @@
 //! - **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
 //! - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
+use super::{assignment::{TaskAssignment, SubtaskAssignment}, ModelConverter};
 use super::super::types::id_types::UserId;
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
@@ -102,4 +104,101 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     /// プロフィール最終更新日時
     pub updated_at: DateTime<Utc>,
+}
+
+/// ユーザーとその割り当て情報を含むTree構造体
+///
+/// ユーザー情報に加えて、そのユーザーに割り当てられたタスクや
+/// サブタスクの情報を階層構造で管理します。
+/// フロントエンドでユーザーダッシュボードや担当一覧を表示する際に使用されます。
+///
+/// # フィールド
+///
+/// * `id` - ユーザーの公開識別子
+/// * `username` - ユニークユーザー名
+/// * `display_name` - 表示用名前（UI表示用）
+/// * `email` - メールアドレス（任意）
+/// * `avatar_url` - プロフィール画像URL（外部サービス由来）
+/// * `bio` - 自己紹介文（任意）
+/// * `timezone` - タイムゾーン（任意）
+/// * `is_active` - アクティブ状態
+/// * `created_at` - ユーザー作成日時
+/// * `updated_at` - プロフィール最終更新日時
+/// * `task_assignments` - このユーザーに割り当てられたタスクの一覧
+/// * `subtask_assignments` - このユーザーに割り当てられたサブタスクの一覧
+///
+/// # 使用例
+///
+/// ```rust,no_run
+/// # use chrono::Utc;
+/// # use flequit_model::models::user::UserTree;
+/// # use flequit_model::models::assignment::{TaskAssignment, SubtaskAssignment};
+/// # use flequit_model::types::id_types::{UserId, TaskId, SubTaskId};
+///
+/// let user_tree = UserTree {
+///     id: UserId::new(),
+///     username: "john_doe".to_string(),
+///     display_name: Some("John Doe".to_string()),
+///     email: Some("john@example.com".to_string()),
+///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
+///     bio: Some("Software developer".to_string()),
+///     timezone: Some("America/New_York".to_string()),
+///     is_active: true,
+///     created_at: Utc::now(),
+///     updated_at: Utc::now(),
+///     task_assignments: vec![
+///         TaskAssignment {
+///             task_id: TaskId::from("task_123".to_string()),
+///             user_id: UserId::from("user_456".to_string()),
+///             created_at: Utc::now(),
+///         }
+///     ],
+///     subtask_assignments: vec![],
+/// };
+/// ```
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserTree {
+    /// ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
+    pub id: UserId,
+    /// ユニークユーザー名（必須、@mention等で使用）
+    pub username: String,
+    /// 表示用名前（UI表示用、任意設定可能）
+    pub display_name: Option<String>,
+    /// メールアドレス（任意、通知や連絡で使用）
+    pub email: Option<String>,
+    /// プロフィール画像URL（外部サービス由来）
+    pub avatar_url: Option<String>,
+    /// 自己紹介文（任意）
+    pub bio: Option<String>,
+    /// タイムゾーン（任意）
+    pub timezone: Option<String>,
+    /// アクティブ状態（必須）
+    pub is_active: bool,
+    /// ユーザー作成日時
+    pub created_at: DateTime<Utc>,
+    /// プロフィール最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// このユーザーに割り当てられたタスクの一覧
+    pub task_assignments: Vec<TaskAssignment>,
+    /// このユーザーに割り当てられたサブタスクの一覧
+    pub subtask_assignments: Vec<SubtaskAssignment>,
+}
+
+#[async_trait]
+impl ModelConverter<User> for UserTree {
+    async fn to_model(&self) -> Result<User, String> {
+        // UserTreeからUser基本構造体に変換（関連データのtask_assignments, subtask_assignmentsは除く）
+        Ok(User {
+            id: self.id.clone(),
+            username: self.username.clone(),
+            display_name: self.display_name.clone(),
+            email: self.email.clone(),
+            avatar_url: self.avatar_url.clone(),
+            bio: self.bio.clone(),
+            timezone: self.timezone.clone(),
+            is_active: self.is_active,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+        })
+    }
 }
