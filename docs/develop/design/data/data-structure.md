@@ -83,7 +83,7 @@ CREATE TABLE projects (
     updated_at TEXT NOT NULL       -- DateTime<Utc> → TEXT (ISO 8601)
 );
 
--- Task テーブル例
+-- Task テーブル例（正規化済み）
 CREATE TABLE tasks (
     id TEXT PRIMARY KEY,           -- TaskId → TEXT (UUID)
     project_id TEXT NOT NULL,      -- ProjectId → TEXT (UUID)
@@ -96,11 +96,105 @@ CREATE TABLE tasks (
     due_date TEXT,                 -- Option<DateTime<Utc>> → TEXT (NULL許可)
     start_date TEXT,               -- Option<DateTime<Utc>> → TEXT (NULL許可)
     end_date TEXT,                 -- Option<DateTime<Utc>> → TEXT (NULL許可)
-    assignee_id TEXT,              -- Option<UserId> → TEXT (NULL許可)
     order_index INTEGER NOT NULL,  -- i32 → INTEGER
     is_archived INTEGER NOT NULL,  -- bool → INTEGER (0/1)
     created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
     updated_at TEXT NOT NULL       -- DateTime<Utc> → TEXT (ISO 8601)
+);
+
+-- タスク担当者紐づけテーブル（正規化）
+CREATE TABLE task_assignments (
+    task_id TEXT NOT NULL,         -- TaskId → TEXT (UUID)
+    user_id TEXT NOT NULL,         -- UserId → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (task_id, user_id),
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- サブタスク テーブル例（正規化済み）
+CREATE TABLE subtasks (
+    id TEXT PRIMARY KEY,           -- SubTaskId → TEXT (UUID)
+    task_id TEXT NOT NULL,         -- TaskId → TEXT (UUID)
+    title TEXT NOT NULL,           -- String → TEXT
+    description TEXT,              -- Option<String> → TEXT (NULL許可)
+    status TEXT NOT NULL,          -- TaskStatus → TEXT (enum文字列)
+    priority INTEGER,              -- Option<i32> → INTEGER (NULL許可)
+    plan_start_date TEXT,          -- Option<DateTime<Utc>> → TEXT (NULL許可)
+    plan_end_date TEXT,            -- Option<DateTime<Utc>> → TEXT (NULL許可)
+    do_start_date TEXT,            -- Option<DateTime<Utc>> → TEXT (NULL許可)
+    do_end_date TEXT,              -- Option<DateTime<Utc>> → TEXT (NULL許可)
+    is_range_date INTEGER,         -- Option<bool> → INTEGER (NULL許可)
+    order_index INTEGER NOT NULL,  -- i32 → INTEGER
+    completed INTEGER NOT NULL,    -- bool → INTEGER (0/1)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    updated_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+);
+
+-- サブタスク担当者紐づけテーブル（正規化）
+CREATE TABLE subtask_assignments (
+    subtask_id TEXT NOT NULL,      -- SubTaskId → TEXT (UUID)
+    user_id TEXT NOT NULL,         -- UserId → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (subtask_id, user_id),
+    FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- タスクタグ紐づけテーブル（正規化）
+CREATE TABLE task_tags (
+    task_id TEXT NOT NULL,         -- TaskId → TEXT (UUID)
+    tag_id TEXT NOT NULL,          -- TagId → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (task_id, tag_id),
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- サブタスクタグ紐づけテーブル（正規化）
+CREATE TABLE subtask_tags (
+    subtask_id TEXT NOT NULL,      -- SubTaskId → TEXT (UUID)
+    tag_id TEXT NOT NULL,          -- TagId → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (subtask_id, tag_id),
+    FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- 繰り返しルール テーブル（正規化）
+CREATE TABLE recurrence_rules (
+    id TEXT PRIMARY KEY,           -- String → TEXT (UUID)
+    unit TEXT NOT NULL,            -- RecurrenceUnit → TEXT (enum文字列: Minute/Hour/Day/Week/Month/Quarter/HalfYear/Year)
+    interval_value INTEGER NOT NULL, -- i32 → INTEGER
+    end_date TEXT,                 -- Option<DateTime<Utc>> → TEXT (NULL許可)
+    count INTEGER,                 -- Option<i32> → INTEGER (NULL許可)
+    by_weekday TEXT,               -- Option<String> → TEXT (NULL許可, カンマ区切り曜日リスト)
+    by_monthday TEXT,              -- Option<String> → TEXT (NULL許可, カンマ区切り日付リスト)
+    by_yearday TEXT,               -- Option<String> → TEXT (NULL許可, カンマ区切り年内日数リスト)
+    by_month TEXT,                 -- Option<String> → TEXT (NULL許可, カンマ区切り月リスト)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    updated_at TEXT NOT NULL       -- DateTime<Utc> → TEXT (ISO 8601)
+);
+
+-- タスク繰り返し関連付けテーブル（正規化）
+CREATE TABLE task_recurrences (
+    task_id TEXT NOT NULL,         -- TaskId → TEXT (UUID)
+    recurrence_rule_id TEXT NOT NULL, -- String → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (task_id, recurrence_rule_id),
+    FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (recurrence_rule_id) REFERENCES recurrence_rules(id) ON DELETE CASCADE
+);
+
+-- サブタスク繰り返し関連付けテーブル（正規化）
+CREATE TABLE subtask_recurrences (
+    subtask_id TEXT NOT NULL,      -- SubTaskId → TEXT (UUID)
+    recurrence_rule_id TEXT NOT NULL, -- String → TEXT (UUID)
+    created_at TEXT NOT NULL,      -- DateTime<Utc> → TEXT (ISO 8601)
+    PRIMARY KEY (subtask_id, recurrence_rule_id),
+    FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
+    FOREIGN KEY (recurrence_rule_id) REFERENCES recurrence_rules(id) ON DELETE CASCADE
 );
 ```
 
@@ -409,7 +503,6 @@ interface User {
       "plan_end_date": "2024-01-31T23:59:59.000Z",
       "do_start_date": "2024-01-01T09:00:00.000Z",
       "do_end_date": "2024-01-31T23:59:59.000Z",
-      "assignee_id": ["public-user-uuid-1"],
       "order_index": 1,
       "is_archived": false,
       "created_at": "2024-01-01T10:00:00.000Z",
@@ -429,10 +522,6 @@ interface User {
       "do_start_date": null,
       "do_end_date": null,
       "is_range_date": true,
-      "recurrence_rule": null,
-      "assigned_user_ids": ["public-user-uuid-1"],
-      "tag_ids": ["tag-uuid-1"],
-      "tags": [],
       "order_index": 1,
       "completed": false,
       "created_at": "2024-01-01T10:00:00.000Z",
@@ -514,7 +603,6 @@ interface Task {
   plan_end_date?: string;       // 予定終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   do_start_date?: string;       // 実開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   do_end_date?: string;         // 実終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
-  assignee_id?: string[];       // 担当者ユーザーID配列 (Rust: Vec<UserId> → TS: string[])
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
   is_archived: boolean;         // アーカイブ状態 (Rust: bool → TS: boolean)
   created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
@@ -536,10 +624,6 @@ interface SubTask {
   do_start_date?: string;       // 実開始日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   do_end_date?: string;         // 実終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
   is_range_date?: boolean;      // 期間指定フラグ (Rust: Option<bool> → TS: boolean | null)
-  recurrence_rule?: RecurrenceRule; // 繰り返しルール (Rust: Option<RecurrenceRule> → TS: RecurrenceRule | null)
-  assigned_user_ids: string[];  // 担当者ユーザーIDの配列 (Rust: Vec<UserId> → TS: string[])
-  tag_ids: string[];            // タグIDの配列 (Rust: Vec<TagId> → TS: string[])
-  tags: Tag[];                  // タグ一覧 (Rust: Vec<Tag> → TS: Tag[])
   order_index: number;          // 表示順序 (Rust: i32 → TS: number)
   completed: boolean;           // 完了状態 (Rust: bool → TS: boolean)
   created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
@@ -568,6 +652,141 @@ interface Member {
   role: "Owner" | "Admin" | "Member" | "Viewer"; // 権限役割 (Rust: MemberRole → TS: string)
   joined_at: string;            // 参加日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
   updated_at: string;           // 最終更新日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### TaskAssignment (担当者関連付け)
+```typescript
+interface TaskAssignment {
+  task_id: string;              // 担当タスクID (Rust: TaskId → TS: string)
+  user_id: string;              // 担当ユーザーID (Rust: UserId → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### SubtaskAssignment (サブタスク担当者関連付け)
+```typescript
+interface SubtaskAssignment {
+  subtask_id: string;           // 担当サブタスクID (Rust: SubTaskId → TS: string)
+  user_id: string;              // 担当ユーザーID (Rust: UserId → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### TaskTag (タスクタグ関連付け)
+```typescript
+interface TaskTag {
+  task_id: string;              // タグ付きタスクID (Rust: TaskId → TS: string)
+  tag_id: string;               // 適用タグID (Rust: TagId → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### SubtaskTag (サブタスクタグ関連付け)
+```typescript
+interface SubtaskTag {
+  subtask_id: string;           // タグ付きサブタスクID (Rust: SubTaskId → TS: string)
+  tag_id: string;               // 適用タグID (Rust: TagId → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### RecurrenceRule (繰り返しルール)
+```typescript
+interface RecurrenceRule {
+  id: string;                   // 繰り返しルールID (Rust: String → TS: string)
+  unit: "Minute" | "Hour" | "Day" | "Week" | "Month" | "Quarter" | "HalfYear" | "Year"; // 繰り返し単位 (Rust: RecurrenceUnit → TS: string)
+  interval_value: number;       // 繰り返し間隔 (Rust: i32 → TS: number)
+  end_date?: string;            // 終了日時（ISO 8601） (Rust: Option<DateTime<Utc>> → TS: string | null)
+  count?: number;               // 繰り返し回数 (Rust: Option<i32> → TS: number | null)
+  by_weekday?: string;          // 曜日指定（カンマ区切り） (Rust: Option<String> → TS: string | null)
+  by_monthday?: string;         // 月内日指定（カンマ区切り） (Rust: Option<String> → TS: string | null)
+  by_yearday?: string;          // 年内日指定（カンマ区切り） (Rust: Option<String> → TS: string | null)
+  by_month?: string;            // 月指定（カンマ区切り） (Rust: Option<String> → TS: string | null)
+  created_at: string;           // 作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+  updated_at: string;           // 最終更新日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### TaskRecurrence (タスク繰り返し関連付け)
+```typescript
+interface TaskRecurrence {
+  task_id: string;              // 繰り返しタスクID (Rust: TaskId → TS: string)
+  recurrence_rule_id: string;   // 繰り返しルールID (Rust: String → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+##### SubtaskRecurrence (サブタスク繰り返し関連付け)
+```typescript
+interface SubtaskRecurrence {
+  subtask_id: string;           // 繰り返しサブタスクID (Rust: SubTaskId → TS: string)
+  recurrence_rule_id: string;   // 繰り返しルールID (Rust: String → TS: string)
+  created_at: string;           // 関連付け作成日時（ISO 8601） (Rust: DateTime<Utc> → TS: string)
+}
+```
+
+## Tree構造体（階層表現）
+
+フロントエンドでの表示や操作に使用される、関連データを含んだ階層構造体です。
+
+##### UserTree (ユーザー + 割り当て情報)
+```typescript
+interface UserTree {
+  // User の全フィールド
+  id: string;
+  username: string;
+  display_name?: string;
+  email?: string;
+  avatar_url?: string;
+  bio?: string;
+  timezone?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  
+  // 関連データ
+  task_assignments: TaskAssignment[];     // このユーザーに割り当てられたタスク一覧
+  subtask_assignments: SubtaskAssignment[]; // このユーザーに割り当てられたサブタスク一覧
+}
+```
+
+##### TagTree (タグ + 関連付け情報)
+```typescript
+interface TagTree {
+  // Tag の全フィールド
+  id: string;
+  name: string;
+  color?: string;
+  order_index?: number;
+  created_at: string;
+  updated_at: string;
+  
+  // 関連データ
+  task_tags: TaskTag[];         // このタグが付与されたタスク一覧
+  subtask_tags: SubtaskTag[];   // このタグが付与されたサブタスク一覧
+}
+```
+
+##### RecurrenceRuleTree (繰り返しルール + 関連付け情報)
+```typescript
+interface RecurrenceRuleTree {
+  // RecurrenceRule の全フィールド
+  id: string;
+  unit: "Minute" | "Hour" | "Day" | "Week" | "Month" | "Quarter" | "HalfYear" | "Year";
+  interval_value: number;
+  end_date?: string;
+  count?: number;
+  by_weekday?: string;
+  by_monthday?: string;
+  by_yearday?: string;
+  by_month?: string;
+  created_at: string;
+  updated_at: string;
+  
+  // 関連データ
+  task_recurrences: TaskRecurrence[];       // この繰り返しルールが適用されたタスク一覧
+  subtask_recurrences: SubtaskRecurrence[]; // この繰り返しルールが適用されたサブタスク一覧
 }
 ```
 
@@ -621,8 +840,33 @@ const tasks: Task[] = await invoke('get_tasks', {
 // ユーザー一覧取得（配列形式） (Rust: Vec<User> → TS: User[])
 const users: User[] = await invoke('get_users');
 
-// 特定ユーザーのプロフィール取得
-const user: User | undefined = users.find(u => u.id === 'public-user-uuid-1');
+// ユーザーTree構造（担当タスク・サブタスク含む）を取得
+const userTree: UserTree = await invoke('get_user_with_assignments', {
+  userId: 'public-user-uuid-1'
+});
+
+// タグTree構造（関連タスク・サブタスク含む）を取得
+const tagTree: TagTree = await invoke('get_tag_with_relations', {
+  tagId: 'tag-uuid-1'
+});
+
+// タスクに担当者を割り当て（正規化された紐づけテーブル使用）
+await invoke('assign_task_to_user', {
+  taskId: 'task-uuid-1',
+  userId: 'public-user-uuid-1'
+});
+
+// サブタスクにタグを付与（正規化された紐づけテーブル使用）
+await invoke('add_tag_to_subtask', {
+  subtaskId: 'subtask-uuid-1',
+  tagId: 'tag-uuid-1'
+});
+
+// 繰り返しルールをタスクに関連付け
+await invoke('associate_recurrence_rule_to_task', {
+  taskId: 'task-uuid-1',
+  recurrenceRuleId: 'recurrence-rule-uuid-1'
+});
 
 // 自分のプロフィール更新（編集権限チェックあり）
 const updatedProfile: User = await invoke('update_user_profile', {
