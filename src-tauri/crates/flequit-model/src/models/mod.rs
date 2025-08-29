@@ -71,14 +71,17 @@
 use async_trait::async_trait;
 
 pub mod account;
+pub mod assignment;
 pub mod datetime_calendar;
 pub mod datetime_format;
 pub mod initialized_data;
 pub mod project;
+pub mod recurrence_association;
 pub mod search;
 pub mod setting;
 pub mod subtask;
 pub mod tag;
+pub mod tagging;
 pub mod task;
 pub mod task_list;
 pub mod user;
