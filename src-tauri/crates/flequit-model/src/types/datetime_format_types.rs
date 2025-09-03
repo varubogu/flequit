@@ -2,9 +2,10 @@
 use serde::{Deserialize, Serialize};
 
 /// 日付時刻のフォーマットグループを示します。
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum DateTimeFormatGroup {
     /// デフォルト設定
+    #[default]
     Default,
     /// プリセット選択
     Preset,

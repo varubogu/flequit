@@ -8,18 +8,20 @@
 //! - `Task`: 基本タスク情報（軽量、一般的な操作用）
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
-use super::super::types::{
+use crate::types::{
     id_types::{TagId, TaskId, TaskListId, UserId},
     task_types::TaskStatus,
 };
-use super::datetime_calendar::RecurrenceRule;
+use super::recurrence_rule::RecurrenceRule;
 use super::tag::Tag;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::{models::{subtask::SubTaskTree, ModelConverter}, types::id_types::ProjectId};
+use crate::models::ModelConverter;
+use crate::models::task_projects::subtask::SubTaskTree;
+use crate::types::id_types::ProjectId;
 
 /// 基本タスク情報を表現する構造体
 ///

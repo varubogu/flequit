@@ -74,6 +74,8 @@ pub enum DateRelation {
     Before,
     /// 指定日以前
     OnOrBefore,
+    /// 指定日と同じ
+    Same,
     /// 指定日以降
     OnOrAfter,
     /// 指定日より後
@@ -87,6 +89,8 @@ pub enum AdjustmentDirection {
     Previous,
     /// 次の日
     Next,
+    /// 最も近い日
+    Nearest,
 }
 
 /// 日付調整の対象となる日の種類を示します。
@@ -110,4 +114,6 @@ pub enum AdjustmentTarget {
     NonWeekendHoliday,
     /// 特定の曜日
     SpecificWeekday,
+    /// 指定した日数
+    Days,
 }

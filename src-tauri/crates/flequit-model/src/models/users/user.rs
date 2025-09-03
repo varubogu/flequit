@@ -16,13 +16,16 @@
 //! - **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
 //! - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
-use super::{assignment::{TaskAssignment, SubtaskAssignment}, ModelConverter};
-use super::super::types::id_types::UserId;
+use crate::models::ModelConverter;
+use crate::types::id_types::UserId;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
-
+use crate::models::task_projects::{
+    subtask_assignment::SubTaskAssignment,
+    task_assignment::TaskAssignment,
+};
 
 /// アプリケーションユーザー情報を表現する構造体
 ///
@@ -132,7 +135,8 @@ pub struct User {
 /// ```rust,no_run
 /// # use chrono::Utc;
 /// # use flequit_model::models::user::UserTree;
-/// # use flequit_model::models::assignment::{TaskAssignment, SubtaskAssignment};
+/// # use flequit_model::models::task_assignment::TaskAssignment;
+/// # use flequit_model::models::subtask_assignment::SubtaskAssignment;
 /// # use flequit_model::types::id_types::{UserId, TaskId, SubTaskId};
 ///
 /// let user_tree = UserTree {
@@ -181,7 +185,7 @@ pub struct UserTree {
     /// このユーザーに割り当てられたタスクの一覧
     pub task_assignments: Vec<TaskAssignment>,
     /// このユーザーに割り当てられたサブタスクの一覧
-    pub subtask_assignments: Vec<SubtaskAssignment>,
+    pub subtask_assignments: Vec<SubTaskAssignment>,
 }
 
 #[async_trait]

@@ -8,7 +8,7 @@
 //! ローカル認証によるユーザーアカウント情報を表現します。
 //! ユーザー情報とは分離され、認証に特化したデータを管理します。
 
-use super::super::types::id_types::{AccountId, UserId};
+use crate::types::id_types::{AccountId, UserId};
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
@@ -75,7 +75,7 @@ use serde::{Deserialize, Serialize};
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
-#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default,))]
 pub struct Account {
     /// アカウントの内部識別子（機密、外部公開禁止）
     #[partially(omit)] // IDは更新対象外
@@ -100,4 +100,3 @@ pub struct Account {
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
 }
-

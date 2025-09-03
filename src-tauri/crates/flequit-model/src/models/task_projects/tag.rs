@@ -7,8 +7,10 @@
 //! `Tag`構造体は、タスクやプロジェクトに付与するラベル情報を管理します。
 //! カテゴリ分けや検索性の向上、視覚的な識別に活用されます。
 
-use super::{tagging::{TaskTag, SubtaskTag}, ModelConverter};
-use super::super::types::id_types::TagId;
+use crate::models::ModelConverter;
+use super::task_tag::TaskTag;
+use super::subtask_tag::SubTaskTag;
+use crate::types::id_types::TagId;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
@@ -144,7 +146,7 @@ pub struct TagTree {
     /// このタグが付与されたタスクとの関連付け情報一覧
     pub task_tags: Vec<TaskTag>,
     /// このタグが付与されたサブタスクとの関連付け情報一覧
-    pub subtask_tags: Vec<SubtaskTag>,
+    pub subtask_tags: Vec<SubTaskTag>,
 }
 
 #[async_trait]
@@ -161,4 +163,3 @@ impl ModelConverter<Tag> for TagTree {
         })
     }
 }
-

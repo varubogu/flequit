@@ -8,11 +8,11 @@
 //! - `Subtask`: 基本サブタスク情報（軽量、一般的な操作用）
 //! - `SubTask`: タグ情報を含む完全なサブタスク構造
 
-use super::super::types::{
+use crate::types::{
     id_types::{SubTaskId, TagId, TaskId, UserId},
     task_types::TaskStatus,
 };
-use super::datetime_calendar::RecurrenceRule;
+use super::recurrence_rule::RecurrenceRule;
 use super::tag::Tag;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
@@ -155,13 +155,13 @@ pub struct SubTaskTree {
 #[async_trait]
 impl ModelConverter<SubTask> for SubTaskTree {
     /// SubTaskTreeからSubTaskに変換
-    /// 
+    ///
     /// タグ情報（tags）からタグIDリスト（tag_ids）を生成し、
     /// 関連データを含まない軽量な基本サブタスク構造に変換します。
     async fn to_model(&self) -> Result<SubTask, String> {
         // tagsからtag_idsを生成
         let tag_ids: Vec<TagId> = self.tags.iter().map(|tag| tag.id.clone()).collect();
-        
+
         Ok(SubTask {
             id: self.id.clone(),
             task_id: self.task_id.clone(),

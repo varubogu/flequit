@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 async-trait = "0.1.89"
 chrono = { version = "0.4.41", features = ["serde"] }
-partially = { version = "0.2.1", features = ["derive"] }
+partially = { version = "0.2.1", features = ["derive"]}
 serde = { version = "1.0.219", features = ["derive"] }
 uuid = { version = "1.18.0", features = ["serde", "v4"] }
+specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
+specta-typescript = "0.0.9"
+specta-jsdoc = "0.0.9"

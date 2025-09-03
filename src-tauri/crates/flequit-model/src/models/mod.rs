@@ -17,7 +17,7 @@
 //! - [`task_list`] - タスクリスト（タスクの分類・整理）
 //! - [`tag`] - タグ（ラベリング、カテゴライズ）
 //! - [`setting`] - 設定情報（アプリケーション設定、ローカル設定）
-//! - [`datetime_calendar`] - 日時・カレンダー関連（繰り返しルール、期間など）
+//! - [`recurrence`] - 日時・カレンダー関連（繰り返しルール、期間など）
 //! - [`datetime_format`] - 日時フォーマット（表示形式、ロケール対応）
 //!
 //! ## 設計原則
@@ -70,21 +70,14 @@
 
 use async_trait::async_trait;
 
-pub mod account;
-pub mod assignment;
-pub mod datetime_calendar;
-pub mod datetime_format;
+pub mod accounts;
+pub mod app_settings;
+pub mod task_projects;
+pub mod users;
 pub mod initialized_data;
-pub mod project;
-pub mod recurrence_association;
+
 pub mod search;
-pub mod setting;
-pub mod subtask;
-pub mod tag;
-pub mod tagging;
-pub mod task;
-pub mod task_list;
-pub mod user;
+
 
 /// 通常モデルとTree系モデル間の相互変換を定義するトレイト
 ///

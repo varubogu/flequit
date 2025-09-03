@@ -12,8 +12,6 @@ pub enum ProjectStatus {
     OnHold,
     /// 完了
     Completed,
-    /// アーカイブ済み
-    Archived,
 }
 
 /// プロジェクトメンバーの役割を示します。

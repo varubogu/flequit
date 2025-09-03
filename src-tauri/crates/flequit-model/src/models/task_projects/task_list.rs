@@ -8,7 +8,7 @@
 //! - `TaskList`: 基本タスクリスト情報（軽量、一般的な操作用）
 //! - `TaskListWithTasks`: タスクを含む完全なタスクリスト構造
 
-use super::super::types::id_types::TaskListId;
+use crate::types::id_types::TaskListId;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;

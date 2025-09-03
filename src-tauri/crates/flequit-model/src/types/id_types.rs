@@ -5,7 +5,9 @@ use uuid::Uuid;
 macro_rules! define_id {
     ($name:ident) => {
         #[derive(
-            Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize,
+            Debug, Clone, Copy, PartialEq, Eq, Hash,
+            PartialOrd, Ord,
+            Serialize, Deserialize,
         )]
         pub struct $name(pub Uuid);
 
@@ -42,6 +44,10 @@ macro_rules! define_id {
                 &self.0
             }
 
+            pub fn as_str(&self) -> String {
+                self.0.to_string()
+            }
+
             pub fn try_from_str(value: &str) -> Result<Self, uuid::Error> {
                 Ok(Self(Uuid::parse_str(value)?))
             }
@@ -63,3 +69,7 @@ define_id!(TagId);
 define_id!(AccountId);
 define_id!(UserId);
 define_id!(SettingsId);
+define_id!(MemberId);
+define_id!(DateConditionId);
+define_id!(DueDateButtonsId);
+define_id!(WeekdayConditionId);
