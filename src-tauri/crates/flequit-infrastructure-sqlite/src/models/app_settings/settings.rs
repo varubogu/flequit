@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::app_settings::datetime_format::DateTimeFormat;
 use flequit_model::models::app_settings::{
     due_date_buttons::DueDateButtons,
     settings::Settings,
@@ -52,7 +51,7 @@ pub struct Model {
     pub custom_due_days: String,
 
     /// カスタム日付フォーマット (JSON形式)
-    pub custom_date_formats: String,
+    pub date_format: String,
 
     /// 時刻ラベル (JSON形式)
     pub time_labels: String,
@@ -86,10 +85,6 @@ impl SqliteModelConverter<Settings> for Model {
         let custom_due_days: Vec<i32> = serde_json::from_str(&self.custom_due_days)
             .map_err(|e| format!("Failed to parse custom_due_days: {}", e))?;
 
-        let custom_date_formats: Vec<DateTimeFormat> =
-            serde_json::from_str(&self.custom_date_formats)
-                .map_err(|e| format!("Failed to parse custom_date_formats: {}", e))?;
-
         let time_labels: Vec<TimeLabel> = serde_json::from_str(&self.time_labels)
             .map_err(|e| format!("Failed to parse time_labels: {}", e))?;
 
@@ -109,7 +104,7 @@ impl SqliteModelConverter<Settings> for Model {
             background_color: self.background_color.clone(),
             week_start: self.week_start.clone(),
             timezone: self.timezone.clone(),
-            date_format: serde_json::from_str(&self.custom_date_formats)
+            date_format: serde_json::from_str(&self.date_format)
                 .unwrap_or_default(),
             custom_due_days,
             time_labels,
@@ -128,7 +123,7 @@ impl DomainToSqliteConverter<ActiveModel> for Settings {
         let custom_due_days_json = serde_json::to_string(&self.custom_due_days)
             .map_err(|e| format!("Failed to serialize custom_due_days: {}", e))?;
 
-        let custom_date_formats_json = serde_json::to_string(&self.date_format)
+        let date_formats_json = serde_json::to_string(&self.date_format)
             .map_err(|e| format!("Failed to serialize date_format: {}", e))?;
 
         let time_labels_json = serde_json::to_string(&self.time_labels)
@@ -151,7 +146,7 @@ impl DomainToSqliteConverter<ActiveModel> for Settings {
             week_start: Set(self.week_start.clone()),
             timezone: Set(self.timezone.clone()),
             custom_due_days: Set(custom_due_days_json),
-            custom_date_formats: Set(custom_date_formats_json),
+            date_format: Set(date_formats_json),
             time_labels: Set(time_labels_json),
             due_date_buttons: Set(due_date_buttons_json),
             view_items: Set(view_items_json),
