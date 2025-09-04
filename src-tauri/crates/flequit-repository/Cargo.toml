@@ -1,0 +1,43 @@
+[package]
+name = "flequit-repository"
+version = "0.1.0"
+edition = "2021"
+description = "Repository layer for Flequit task management application"
+
+[lib]
+name = "flequit_repository"
+crate-type = ["rlib"]
+
+[dependencies]
+flequit-types = { path = "../flequit-types" }
+flequit-model = { path = "../flequit-model" }
+
+# Database and ORM
+sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.142"
+
+# Async runtime
+tokio = { version = "1.47.1", features = ["full"] }
+async-trait = "0.1.88"
+futures = "0.3.31"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+dirs = "6.0.0"
+
+# Error handling
+thiserror = "2.0.16"
+
+# Partial update support
+partially = { version = "0.2.1", features = ["derive"] }
+
+# Logging
+log = "0.4"
+tracing = "0.1.41"
+
+[dev-dependencies]
+tempfile = "3.0"

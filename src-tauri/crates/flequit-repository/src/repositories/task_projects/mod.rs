@@ -1,0 +1,17 @@
+pub mod date_condition_repository_trait;
+pub mod member_repository_trait;
+pub mod project_repository_trait;
+pub mod recurrence_adjustment_repository_trait;
+pub mod recurrence_details_repository_trait;
+pub mod recurrence_rule_repository_trait;
+pub mod subtask_assignment_repository_trait;
+pub mod subtask_recurrence_repository_trait;
+pub mod subtask_repository_trait;
+pub mod subtask_tag_repository_trait;
+pub mod tag_repository_trait;
+pub mod task_assignment_repository_trait;
+pub mod task_list_repository_trait;
+pub mod task_recurrence_repository_trait;
+pub mod task_repository_trait;
+pub mod task_tag_repository_trait;
+pub mod weekday_condition_repository_trait;
