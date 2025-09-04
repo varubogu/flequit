@@ -1,0 +1,45 @@
+[package]
+name = "flequit-infrastructure-automerge"
+version = "0.1.0"
+edition = "2021"
+description = "Automerge infrastructure layer for Flequit task management application"
+
+[lib]
+name = "flequit_infrastructure_automerge"
+crate-type = ["rlib"]
+
+[dependencies]
+flequit-types = { path = "../flequit-types" }
+flequit-model = { path = "../flequit-model" }
+flequit-repository = { path = "../flequit-repository" }
+
+# Automerge for CRDT functionality
+automerge = "0.6.1"
+automerge_repo = "0.2.2"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.142"
+
+# Async runtime
+tokio = { version = "1.47.1", features = ["full"] }
+async-trait = "0.1.88"
+futures = "0.3.31"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+dirs = "6.0.0"
+
+# Error handling
+thiserror = "2.0.16"
+
+# Partial update support
+partially = { version = "0.2.1", features = ["derive"] }
+
+# Logging
+log = "0.4"
+tracing = "0.1.41"
+
+[dev-dependencies]
+tempfile = "3.0"

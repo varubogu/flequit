@@ -1,0 +1,53 @@
+#[derive(Debug, thiserror::Error)]
+pub enum AutomergeError {
+    #[error("Automerge error: {0}")]
+    AutomergeError(String),
+
+    #[error("Serialization error: {0}")]
+    SerializationError(String),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
+
+    #[error("Email conflict: {0}")]
+    EmailConflict(String),
+
+    #[error("User not found: {0}")]
+    UserNotFound(String),
+
+    #[error("IO error: {0}")]
+    IOError(String),
+
+    #[error("Data conversion error: {0}")]
+    ConversionError(String),
+
+    #[error("Connection error: {0}")]
+    ConnectionError(String),
+
+    #[error("Transaction error: {0}")]
+    TransactionError(String),
+
+    #[error("Invalid operation: {0}")]
+    InvalidOperation(String),
+
+    #[error("Validation error: {0}")]
+    ValidationError(String),
+
+    #[error("Configuration error: {0}")]
+    ConfigurationError(String),
+
+    #[error("Model conversion error: {0}")]
+    Conversion(String),
+
+    #[error("Constraint violation: {0}")]
+    ConstraintViolation(String),
+
+    #[error("Multiple errors: {0:?}")]
+    MultipleErrors(Vec<String>),
+
+    #[error("Export error: {0}")]
+    Export(String),
+
+    #[error("Storage error: {0}")]
+    StorageError(String),
+}
