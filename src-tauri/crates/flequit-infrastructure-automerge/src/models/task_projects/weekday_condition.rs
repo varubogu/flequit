@@ -81,7 +81,7 @@ impl WeekdayConditionAutomerge {
         });
 
         Self {
-            id: domain.id,
+            id: domain.id.to_string(),
             if_weekday: if_weekday_str.to_string(),
             then_direction: then_direction_str.to_string(),
             then_target: then_target_str.to_string(),
@@ -138,7 +138,7 @@ impl WeekdayConditionAutomerge {
         });
 
         Ok(WeekdayCondition {
-            id: self.id,
+            id: self.id.into(),
             if_weekday,
             then_direction,
             then_target,

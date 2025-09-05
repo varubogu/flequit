@@ -1,175 +1,173 @@
-//! WeekdayCondition用Automergeリポジトリ
+use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
-use super::super::document::Document;
 use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
-use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::weekday_condition_repository_trait::WeekdayConditionRepositoryTrait;
 use flequit_model::types::id_types::{WeekdayConditionId, ProjectId};
 use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
-use tokio::sync::Mutex;
-use log::info;
 
-/// WeekdayCondition Document構造（Automerge専用）
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WeekdayConditionDocument {
-    /// プロジェクト内の曜日条件一覧
-    pub weekday_conditions: Vec<WeekdayCondition>,
-}
-
-impl Default for WeekdayConditionDocument {
-    fn default() -> Self {
-        Self {
-            weekday_conditions: Vec::new(),
-        }
-    }
-}
-
+/// Automerge実装の曜日条件リポジトリ
+///
+/// `Repository<WeekdayCondition>`と`WeekdayConditionRepositoryTrait`を実装し、
+/// Automerge-Repoを使用した曜日条件管理を提供する。
+///
+/// # アーキテクチャ
+///
+/// ```text
+/// WeekdayConditionLocalAutomergeRepository (このクラス)
+///   | 委譲
+/// DocumentManager (プロジェクトごとのドキュメント管理)
+///   | データアクセス
+/// Automerge Documents
+/// ```
+///
+/// # 特徴
+///
+/// - **分散同期**: CRDTによる競合解決機能
+/// - **履歴管理**: すべての変更履歴を保持
+/// - **オフライン対応**: ローカル優先で同期可能
+/// - **JSON互換**: 構造化データの効率的な管理
+/// - **ステートレス**: プロジェクトIDは必要時に引数で受け取る
 #[derive(Debug)]
 pub struct WeekdayConditionLocalAutomergeRepository {
-    document: Document,
+    document_manager: Arc<tokio::sync::RwLock<DocumentManager>>,
 }
 
 impl WeekdayConditionLocalAutomergeRepository {
-    /// 新しいTaskRepositoryを作成
     #[tracing::instrument(level = "trace")]
-    pub async fn new(base_path: PathBuf, project_id: ProjectId) -> Result<Self, RepositoryError> {
-        let doc_type = &DocumentType::Project(project_id);
-        let mut document_manager = DocumentManager::new(base_path)?;
-        let doc = document_manager.get_or_create(doc_type).await?;
+    pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
+        let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
-            document: doc,
+            document_manager: Arc::new(tokio::sync::RwLock::new(document_manager)),
         })
     }
 
-    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    /// 指定されたプロジェクトのDocumentを取得または作成
     #[tracing::instrument(level = "trace")]
-    pub async fn new_with_manager(
-        document_manager: Arc<Mutex<DocumentManager>>,
-        project_id: ProjectId
-    ) -> Result<Self, RepositoryError> {
-        let doc_type = &DocumentType::Project(project_id);
-        let doc = {
-            let mut manager = document_manager.lock().await;
-            manager.get_or_create(doc_type).await?
-        };
-        Ok(Self {
-            document: doc,
-        })
+    async fn get_or_create_document(&self, project_id: &ProjectId) -> Result<Document, RepositoryError> {
+        let doc_type = DocumentType::Project(project_id.clone());
+        let mut manager = self.document_manager.write().await;
+        manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
+    /// 指定されたプロジェクトの全曜日条件を取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn list_weekday_conditions(&self, project_id: &ProjectId) -> Result<Vec<WeekdayCondition>, RepositoryError> {
+        let document = self.get_or_create_document(project_id).await?;
+        let weekday_conditions = document.load_data::<Vec<WeekdayCondition>>("weekday_conditions").await?;
+        if let Some(weekday_conditions) = weekday_conditions {
+            Ok(weekday_conditions)
+        } else {
+            Ok(Vec::new())
+        }
+    }
 
-    /// 曜日条件ドキュメントを取得または作成
-    async fn get_or_create_document(&self) -> Result<WeekdayConditionDocument, RepositoryError> {
-        let doc = &self.document;
+    /// IDで曜日条件を取得
+    #[tracing::instrument(level = "trace")]
+    pub async fn get_weekday_condition(&self, project_id: &ProjectId, condition_id: &str) -> Result<Option<WeekdayCondition>, RepositoryError> {
+        let weekday_conditions = self.list_weekday_conditions(project_id).await?;
+        Ok(weekday_conditions.into_iter().find(|w| w.id == condition_id.into()))
+    }
 
-        match doc.load_data::<WeekdayConditionDocument>("weekday_conditions").await? {
-            Some(document) => Ok(document),
-            None => {
-                // ドキュメントが存在しない場合は新規作成
-                let new_document = WeekdayConditionDocument::default();
-                doc.save_data("weekday_conditions", &new_document).await?;
-                Ok(new_document)
+    /// 曜日条件を作成または更新
+    #[tracing::instrument(level = "trace")]
+    pub async fn set_weekday_condition(&self, project_id: &ProjectId, weekday_condition: &WeekdayCondition) -> Result<(), RepositoryError> {
+        log::info!("set_weekday_condition - 開始: {:?}", weekday_condition.id);
+        let mut weekday_conditions = self.list_weekday_conditions(project_id).await?;
+        log::info!("set_weekday_condition - 現在の曜日条件数: {}", weekday_conditions.len());
+
+        // 既存の曜日条件を更新、または新規追加
+        if let Some(existing) = weekday_conditions.iter_mut().find(|w| w.id == weekday_condition.id) {
+            log::info!("set_weekday_condition - 既存曜日条件を更新: {:?}", weekday_condition.id);
+            *existing = weekday_condition.clone();
+        } else {
+            log::info!("set_weekday_condition - 新規曜日条件追加: {:?}", weekday_condition.id);
+            weekday_conditions.push(weekday_condition.clone());
+        }
+
+        let document = self.get_or_create_document(project_id).await?;
+        log::info!("set_weekday_condition - Document取得完了");
+        let result = document.save_data("weekday_conditions", &weekday_conditions).await;
+        match result {
+            Ok(_) => {
+                log::info!("set_weekday_condition - Automergeドキュメント保存完了");
+                Ok(())
+            },
+            Err(e) => {
+                log::error!("set_weekday_condition - Automergeドキュメント保存エラー: {:?}", e);
+                Err(RepositoryError::AutomergeError(e.to_string()))
             }
         }
     }
 
-    /// 曜日条件ドキュメントを保存
-    async fn save_document(&self, document: &WeekdayConditionDocument) -> Result<(), RepositoryError> {
-        let doc = &self.document;
-        doc.save_data("weekday_conditions", document).await?;
-        Ok(())
-    }
-}
+    /// 曜日条件を削除
+    #[tracing::instrument(level = "trace")]
+    pub async fn delete_weekday_condition(&self, project_id: &ProjectId, condition_id: &str) -> Result<bool, RepositoryError> {
+        let mut weekday_conditions = self.list_weekday_conditions(project_id).await?;
+        let initial_len = weekday_conditions.len();
+        weekday_conditions.retain(|w| w.id != condition_id.into());
 
-#[async_trait]
-impl Repository<WeekdayCondition, WeekdayConditionId> for WeekdayConditionLocalAutomergeRepository {
-    async fn save(&self, entity: &WeekdayCondition) -> Result<(), RepositoryError> {
-        info!("WeekdayConditionLocalAutomergeRepository::save - 曜日条件を保存");
-
-        let mut document = self.get_or_create_document().await?;
-
-        // 既存の曜日条件を更新するか、新規追加
-        if let Some(pos) = document
-            .weekday_conditions
-            .iter()
-            .position(|c| c.id == entity.id)
-        {
-            document.weekday_conditions[pos] = entity.clone();
+        if weekday_conditions.len() != initial_len {
+            let document = self.get_or_create_document(project_id).await?;
+            document.save_data("weekday_conditions", &weekday_conditions).await?;
+            Ok(true)
         } else {
-            document.weekday_conditions.push(entity.clone());
+            Ok(false)
         }
-
-        self.save_document(&document).await?;
-        Ok(())
-    }
-
-    async fn find_by_id(&self, id: &WeekdayConditionId) -> Result<Option<WeekdayCondition>, RepositoryError> {
-        info!("WeekdayConditionLocalAutomergeRepository::find_by_id - 曜日条件を検索");
-
-        let document = self.get_or_create_document().await?;
-
-        let weekday_condition = document
-            .weekday_conditions
-            .into_iter()
-            .find(|c| c.id.as_str() == id.as_str());
-
-        Ok(weekday_condition)
-    }
-
-    async fn find_all(&self) -> Result<Vec<WeekdayCondition>, RepositoryError> {
-        info!("WeekdayConditionLocalAutomergeRepository::find_all - 全曜日条件を取得");
-
-        let document = self.get_or_create_document().await?;
-        Ok(document.weekday_conditions)
-    }
-
-    async fn delete(&self, id: &WeekdayConditionId) -> Result<(), RepositoryError> {
-        info!("WeekdayConditionLocalAutomergeRepository::delete - 曜日条件を削除");
-
-        let mut document = self.get_or_create_document().await?;
-
-        document.weekday_conditions.retain(|c| c.id.as_str() != id.as_str());
-        self.save_document(&document).await?;
-        Ok(())
-    }
-
-    async fn exists(&self, id: &WeekdayConditionId) -> Result<bool, RepositoryError> {
-        let result = self.find_by_id(id).await?;
-        Ok(result.is_some())
-    }
-
-    async fn count(&self) -> Result<u64, RepositoryError> {
-        let weekday_conditions = self.find_all().await?;
-        Ok(weekday_conditions.len() as u64)
     }
 }
 
+// WeekdayConditionRepositoryTraitの実装
 #[async_trait]
-impl WeekdayConditionRepositoryTrait for WeekdayConditionLocalAutomergeRepository {
-    async fn get_weekday_condition(&self, id: &str) -> Result<Option<WeekdayCondition>, RepositoryError> {
-        let weekday_condition_id = WeekdayConditionId::from(id);
-        self.find_by_id(&weekday_condition_id).await
+impl WeekdayConditionRepositoryTrait for WeekdayConditionLocalAutomergeRepository {}
+
+#[async_trait]
+impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditionLocalAutomergeRepository {
+    #[tracing::instrument(level = "trace")]
+    async fn save(&self, project_id: &ProjectId, entity: &WeekdayCondition) -> Result<(), RepositoryError> {
+        log::info!("WeekdayConditionLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        let result = self.set_weekday_condition(project_id, entity).await;
+        if result.is_ok() {
+            log::info!("WeekdayConditionLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+        } else {
+            log::error!("WeekdayConditionLocalAutomergeRepository::save - エラー: {:?}", result);
+        }
+        result
     }
 
-    async fn get_all_weekday_conditions(&self) -> Result<Vec<WeekdayCondition>, RepositoryError> {
-        self.find_all().await
+    #[tracing::instrument(level = "trace")]
+    async fn find_by_id(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<Option<WeekdayCondition>, RepositoryError> {
+        self.get_weekday_condition(project_id, &id.to_string()).await
     }
 
-    async fn add_weekday_condition(&self, condition: &WeekdayCondition) -> Result<(), RepositoryError> {
-        self.save(condition).await
+    #[tracing::instrument(level = "trace")]
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<WeekdayCondition>, RepositoryError> {
+        self.list_weekday_conditions(project_id).await
     }
 
-    async fn update_weekday_condition(&self, condition: &WeekdayCondition) -> Result<(), RepositoryError> {
-        self.save(condition).await
+    #[tracing::instrument(level = "trace")]
+    async fn delete(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<(), RepositoryError> {
+        let deleted = self.delete_weekday_condition(project_id, &id.to_string()).await?;
+        if deleted {
+            Ok(())
+        } else {
+            Err(RepositoryError::NotFound(format!("WeekdayCondition not found: {}", id)))
+        }
     }
 
-    async fn delete_weekday_condition(&self, id: &str) -> Result<(), RepositoryError> {
-        let weekday_condition_id = WeekdayConditionId::from(id);
-        self.delete(&weekday_condition_id).await
+    #[tracing::instrument(level = "trace")]
+    async fn exists(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<bool, RepositoryError> {
+        let found = self.find_by_id(project_id, id).await?;
+        Ok(found.is_some())
+    }
+
+    #[tracing::instrument(level = "trace")]
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+        let weekday_conditions = self.find_all(project_id).await?;
+        Ok(weekday_conditions.len() as u64)
     }
 }

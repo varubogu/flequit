@@ -38,7 +38,7 @@ impl DateConditionAutomerge {
         };
 
         Self {
-            id: domain.id,
+            id: domain.id.to_string(),
             relation: relation_str.to_string(),
             reference_date: domain.reference_date,
             created_at: Utc::now(),
@@ -58,7 +58,7 @@ impl DateConditionAutomerge {
         };
 
         Ok(DateCondition {
-            id: self.id,
+            id: self.id.into(),
             relation,
             reference_date: self.reference_date,
         })

@@ -3,7 +3,7 @@ use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
 use flequit_model::models::users::user::User;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_repository::repositories::user_repository_trait::UserRepositoryTrait;
+use flequit_repository::repositories::users::user_repository_trait::UserRepositoryTrait;
 use flequit_model::types::id_types::UserId;
 use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;

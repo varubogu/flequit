@@ -51,3 +51,29 @@ pub enum AutomergeError {
     #[error("Storage error: {0}")]
     StorageError(String),
 }
+
+use flequit_types::errors::repository_error::RepositoryError;
+
+impl From<RepositoryError> for AutomergeError {
+    fn from(err: RepositoryError) -> Self {
+        match err {
+            RepositoryError::NotFound(msg) => AutomergeError::NotFound(msg),
+            RepositoryError::AutomergeError(msg) => AutomergeError::AutomergeError(msg),
+            RepositoryError::IOError(msg) => AutomergeError::IOError(msg),
+            RepositoryError::SerializationError(msg) => AutomergeError::SerializationError(msg),
+            RepositoryError::ValidationError(msg) => AutomergeError::ValidationError(msg),
+            RepositoryError::ConversionError(msg) => AutomergeError::ConversionError(msg),
+            RepositoryError::ConnectionError(msg) => AutomergeError::ConnectionError(msg),
+            RepositoryError::TransactionError(msg) => AutomergeError::TransactionError(msg),
+            RepositoryError::InvalidOperation(msg) => AutomergeError::InvalidOperation(msg),
+            RepositoryError::ConfigurationError(msg) => AutomergeError::ConfigurationError(msg),
+            RepositoryError::ConstraintViolation(msg) => AutomergeError::ConstraintViolation(msg),
+            RepositoryError::MultipleErrors(msgs) => AutomergeError::MultipleErrors(msgs),
+            RepositoryError::Export(msg) => AutomergeError::Export(msg),
+            RepositoryError::EmailConflict(msg) => AutomergeError::EmailConflict(msg),
+            RepositoryError::UserNotFound(msg) => AutomergeError::NotFound(msg),
+            _ => panic!("想定しないエラー RepositoryError={}", err),
+        }
+    }
+}
+

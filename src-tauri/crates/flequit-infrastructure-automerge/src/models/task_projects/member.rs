@@ -13,11 +13,11 @@ use serde::{Deserialize, Serialize};
 /// ユーザーとプロジェクト間のN:N関係を管理し、役割と参加日時を記録
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemberAutomerge {
+    /// メンバーID
+    pub id: String,
+
     /// メンバーのユーザーID
     pub user_id: String,
-
-    /// 所属プロジェクトID
-    pub project_id: String,
 
     /// プロジェクト内での役割（Owner、Member等）
     pub role: String,
@@ -40,8 +40,8 @@ impl MemberAutomerge {
         };
 
         Self {
+            id: domain.id.to_string(),
             user_id: domain.user_id.to_string(),
-            project_id: domain.project_id.to_string(),
             role: role_str.to_string(),
             joined_at: domain.joined_at,
             updated_at: domain.updated_at,
@@ -59,9 +59,8 @@ impl MemberAutomerge {
         };
 
         Ok(Member {
-            id: flequit_model::types::id_types::MemberId::from(format!("{}__{}", self.user_id, self.project_id)),
+            id: flequit_model::types::id_types::MemberId::from(self.id),
             user_id: UserId::from(self.user_id),
-            project_id: flequit_model::types::id_types::ProjectId::from(self.project_id),
             role,
             joined_at: self.joined_at,
             updated_at: self.updated_at,

@@ -8,7 +8,7 @@ use flequit_model::models::app_settings::{
 };
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::app_settings::SettingsRepositoryTrait;
-use flequit_model::types::id_types::{ProjectId, SettingsId};
+use flequit_model::types::id_types::SettingsId;
 use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
@@ -24,8 +24,8 @@ pub struct SettingsLocalAutomergeRepository {
 }
 
 impl SettingsLocalAutomergeRepository {
-    pub async fn new(base_path: PathBuf, project_id: ProjectId) -> Result<Self, RepositoryError> {
-        let doc_type = &DocumentType::Project(project_id);
+    pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
+        let doc_type = &DocumentType::Settings;
         let mut document_manager = DocumentManager::new(base_path)?;
         let doc = document_manager.get_or_create(doc_type).await?;
         Ok(Self {
@@ -35,10 +35,9 @@ impl SettingsLocalAutomergeRepository {
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
     pub async fn new_with_manager(
-        document_manager: Arc<Mutex<DocumentManager>>,
-        project_id: ProjectId
+        document_manager: Arc<Mutex<DocumentManager>>
     ) -> Result<Self, RepositoryError> {
-        let doc_type = &DocumentType::Project(project_id);
+        let doc_type = &DocumentType::Settings;
         let doc = {
             let mut manager = document_manager.lock().await;
             manager.get_or_create(doc_type).await?
