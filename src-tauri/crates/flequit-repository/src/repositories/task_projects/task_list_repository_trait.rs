@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::TaskListId;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::project_repository_trait::ProjectRepository;
 
 /// 統合タスクリストリポジトリトレイト
 ///
@@ -33,4 +33,6 @@ use crate::repositories::base_repository_trait::Repository;
 /// - 検索系操作: SQLite
 /// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
-pub trait TaskListRepositoryTrait: Repository<TaskList, TaskListId> + Send + Sync {}
+pub trait TaskListRepositoryTrait: ProjectRepository<TaskList, TaskListId> + Send + Sync {
+    // ProjectRepositoryのfind_allでプロジェクト内の全タスクリストを取得可能
+}

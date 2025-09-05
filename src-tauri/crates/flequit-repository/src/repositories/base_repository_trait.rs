@@ -1,6 +1,5 @@
 use flequit_types::errors::repository_error::RepositoryError;
 use async_trait::async_trait;
-use partially::Partial;
 
 /// 汎用的なリポジトリトレイト
 ///
@@ -10,6 +9,7 @@ use partially::Partial;
 /// # 型パラメータ
 ///
 /// * `T` - 管理するエンティティの型
+/// * `TId` - エンティティのID型
 ///
 /// # 設計思想
 ///
@@ -22,8 +22,8 @@ use partially::Partial;
 ///
 /// ```rust,no_run
 /// # use async_trait::async_trait;
-/// # use flequit_storage::repositories::base_repository_trait::Repository;
-/// # use flequit_storage::errors::RepositoryError;
+/// # use flequit_repository::repositories::base_repository_trait::Repository;
+/// # use flequit_types::errors::repository_error::RepositoryError;
 /// # struct Project;
 /// # struct ProjectId;
 /// # struct LocalSqliteProjectRepository;
@@ -106,107 +106,4 @@ where
     ///
     /// エンティティの総数、失敗時は`Err(RepositoryError)`
     async fn count(&self) -> Result<u64, RepositoryError>;
-}
-
-#[async_trait]
-pub trait RelationRepository<TRelation, TParentId, TChildId>: Send + Sync
-where
-    TRelation: Send + Sync,
-    TParentId: Send + Sync,
-    TChildId: Send + Sync,
-{
-    /// 紐づけを追加
-    ///
-    /// # 引数
-    ///
-    /// * `entity` - 保存するエンティティ
-    ///
-    /// # 戻り値
-    ///
-    /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn add(&self, parent_id: &TParentId, child_id: &TChildId) -> Result<(), RepositoryError>;
-
-    /// 紐づけを削除
-    ///
-    /// # 引数
-    ///
-    /// * `id` - 削除するエンティティのID
-    ///
-    /// # 戻り値
-    ///
-    /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn remove(&self, parent_id: &TParentId, child_id: &TChildId) -> Result<(), RepositoryError>;
-
-    /// 紐づけを全て削除
-    ///
-    /// # 引数
-    ///
-    /// * `parent_id` - 削除する親エンティティのID
-    ///
-    /// # 戻り値
-    ///
-    /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn remove_all(&self, parent_id: &TParentId) -> Result<(), RepositoryError>;
-
-    /// 紐づけ一覧を取得
-    ///
-    /// # 引数
-    ///
-    /// * `id` - エンティティのID
-    ///
-    /// # 戻り値
-    ///
-    /// エンティティが存在する場合は`Ok(Some(T))`、
-    /// 存在しない場合は`Ok(None)`、
-    /// エラー時は`Err(RepositoryError)`
-    async fn find_relations(&self, parent_id: &TParentId) -> Result<Vec<TRelation>, RepositoryError>;
-
-    async fn exists(&self, parent_id: &TParentId) -> Result<bool, RepositoryError>;
-
-    async fn count(&self, parent_id: &TParentId) -> Result<u64, RepositoryError>;
-}
-
-
-
-/// パッチ更新可能なリポジトリトレイト
-///
-/// Repository traitにパッチ更新機能を追加。
-/// ジェネリック型パラメータが含まれるためdyn compatibilityを考慮して分離。
-#[async_trait]
-pub trait Patchable<T, TId>: Repository<T, TId>
-where
-    T: Send + Sync,
-    TId: Send + Sync,
-{
-    /// パッチによる部分更新
-    ///
-    /// 指定されたIDのエンティティに対して、パッチで指定された
-    /// フィールドのみを更新する。内部では find_by_id → apply_some → save を実行。
-    ///
-    /// # 引数
-    ///
-    /// * `id` - 更新するエンティティのID
-    /// * `patch` - 更新するフィールド情報
-    ///
-    /// # 戻り値
-    ///
-    /// 実際に変更が発生した場合は`Ok(true)`、
-    /// 変更がなかった場合は`Ok(false)`、
-    /// エンティティが存在しない場合は`Ok(false)`、
-    /// エラー時は`Err(RepositoryError)`
-    async fn patch<P>(&self, id: &TId, patch: &P) -> Result<bool, RepositoryError>
-    where
-        P: Send + Sync + Clone,
-        T: Partial<Item = P> + Clone,
-    {
-        if let Some(mut entity) = self.find_by_id(id).await? {
-            let changed = entity.apply_some(patch.clone());
-            if changed {
-                self.save(&entity).await?;
-            }
-            Ok(changed)
-        } else {
-            Ok(false)
-        }
-    }
 }

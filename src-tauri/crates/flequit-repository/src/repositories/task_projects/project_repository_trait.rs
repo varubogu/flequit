@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use flequit_model::models::task_projects::project::Project;
 use flequit_model::types::id_types::ProjectId;
-use crate::repositories::base_repository_trait::Repository;
+use crate::project_repository_trait::ProjectRepository;
 
 /// 統合プロジェクトリポジトリトレイト
 ///
@@ -33,4 +33,4 @@ use crate::repositories::base_repository_trait::Repository;
 /// - 検索系操作: SQLite
 /// - 保存系操作: Automerge → SQLiteに同期
 #[async_trait]
-pub trait ProjectRepositoryTrait: Repository<Project, ProjectId> + Send + Sync {}
+pub trait ProjectRepositoryTrait: ProjectRepository<Project, ProjectId> + Send + Sync {}

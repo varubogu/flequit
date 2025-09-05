@@ -1,27 +1,14 @@
 use async_trait::async_trait;
 use flequit_model::models::task_projects::member::Member;
-use flequit_model::types::id_types::{UserId, ProjectId};
-use flequit_types::errors::repository_error::RepositoryError;
-use crate::repositories::base_repository_trait::Repository;
+use flequit_model::types::id_types::UserId;
+use crate::repositories::project_repository_trait::ProjectRepository;
 
 /// メンバーリポジトリのトレイト
 #[async_trait]
-pub trait MemberRepositoryTrait: Repository<Member, UserId> + Send + Sync {
-    /// 指定したIDのメンバーを取得
-    async fn get_member(&self, id: &UserId) -> Result<Option<Member>, RepositoryError>;
-
-    /// 指定プロジェクトのメンバー一覧を取得
-    async fn find_by_project_id(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError>;
-
-    /// すべてのメンバーを取得
-    async fn get_all_members(&self) -> Result<Vec<Member>, RepositoryError>;
-
-    /// メンバーを新規追加
-    async fn add_member(&self, member: &Member) -> Result<(), RepositoryError>;
-
-    /// メンバーを更新
-    async fn update_member(&self, member: &Member) -> Result<(), RepositoryError>;
-
-    /// メンバーを削除
-    async fn delete_member(&self, id: &UserId) -> Result<(), RepositoryError>;
+pub trait MemberRepositoryTrait: ProjectRepository<Member, UserId> + Send + Sync {
+    // ProjectRepositoryのメソッドを使用：
+    // - find_by_id: プロジェクト内でメンバーIDを検索
+    // - find_all: プロジェクト内の全メンバーを取得
+    // - save: メンバーを保存（追加・更新）
+    // - delete: メンバーを削除
 }

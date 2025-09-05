@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task::Task;
 use flequit_model::types::id_types::TaskId;
-use crate::repositories::base_repository_trait::Repository;
+use crate::repositories::project_repository_trait::ProjectRepository;
 
 /// 統合タスクリポジトリトレイト
 ///
@@ -15,4 +15,7 @@ use crate::repositories::base_repository_trait::Repository;
 /// ドメイン固有のメソッドのみを追加する最小限の設計。
 /// 複雑な検索・集計処理はService層で基本CRUDを組み合わせて実装。
 #[async_trait]
-pub trait TaskRepositoryTrait: Repository<Task, TaskId> + Send + Sync {}
+pub trait TaskRepositoryTrait: ProjectRepository<Task, TaskId> + Send + Sync {
+    // ProjectRepositoryのfind_allでプロジェクト内の全タスクを取得できるため、
+    // find_by_project_idは不要（find_allと同じ機能）
+}

@@ -3,6 +3,8 @@ use flequit_model::models::task_projects::subtask_recurrence::{SubTaskRecurrence
 use flequit_model::types::id_types::SubTaskId;
 use flequit_types::errors::repository_error::RepositoryError;
 
+use crate::project_relation_repository_trait::ProjectRelationRepository;
+
 /// サブタスク繰り返しルール関連付けリポジトリのトレイト
 ///
 /// サブタスクと繰り返しルール間の関連付けを管理するリポジトリ。
@@ -14,7 +16,7 @@ use flequit_types::errors::repository_error::RepositoryError;
 /// - **一対一関係**: 一つのサブタスクに一つの繰り返しルール
 /// - **日時管理**: 関連付けの作成日時を記録
 #[async_trait]
-pub trait SubtaskRecurrenceRepositoryTrait: Send + Sync {
+pub trait SubtaskRecurrenceRepositoryTrait: ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> + Send + Sync {
     /// サブタスクIDによる繰り返しルール関連付けを取得します。
     ///
     /// # 引数
