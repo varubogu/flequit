@@ -4,8 +4,8 @@ use super::super::database_manager::DatabaseManager;
 use crate::models::tag::{ActiveModel as TagActiveModel, Column, Entity as TagEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use flequit_model::models::task_projects::tag::Tag;
-use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_model::types::id_types::TagId;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_model::types::id_types::{ProjectId, TagId};
 use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
@@ -136,8 +136,8 @@ impl TagLocalSqliteRepository {
 }
 
 #[async_trait]
-impl Repository<Tag, TagId> for TagLocalSqliteRepository {
-    async fn save(&self, tag: &Tag) -> Result<(), RepositoryError> {
+impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
+    async fn save(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -185,7 +185,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         }
     }
 
-    async fn find_by_id(&self, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
+    async fn find_by_id(&self, project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -201,7 +201,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self) -> Result<Vec<Tag>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -223,7 +223,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         Ok(tags)
     }
 
-    async fn delete(&self, id: &TagId) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         TagEntity::delete_by_id(id.to_string()).exec(db).await
@@ -231,7 +231,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, id: &TagId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = TagEntity::find_by_id(id.to_string()).count(db).await
@@ -239,7 +239,7 @@ impl Repository<Tag, TagId> for TagLocalSqliteRepository {
         Ok(count > 0)
     }
 
-    async fn count(&self) -> Result<u64, RepositoryError> {
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = TagEntity::find().count(db).await

@@ -7,8 +7,8 @@ use crate::models::user::{ActiveModel as UserActiveModel, Column, Entity as User
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use flequit_model::models::users::user::User;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_repository::repositories::user_repository_trait::UserRepositoryTrait;
 use flequit_model::types::id_types::UserId;
+use flequit_repository::users::UserRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
 use log::info;

@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::member::Member,
-    types::{id_types::{MemberId, UserId, ProjectId}, project_types::MemberRole}
+    types::{id_types::{MemberId, UserId}, project_types::MemberRole}
 };
 use sea_orm::{entity::prelude::*};
 use serde::{Deserialize, Serialize};
@@ -25,10 +25,6 @@ pub struct Model {
     /// ユーザーID
     #[sea_orm(indexed)]
     pub user_id: String,
-
-    /// プロジェクトID
-    #[sea_orm(indexed)]
-    pub project_id: String,
 
     /// プロジェクト内での役割（Owner、Member等）
     #[sea_orm(indexed)]
@@ -61,7 +57,6 @@ impl SqliteModelConverter<Member> for Model {
         Ok(Member {
             id: MemberId::from(self.id.clone()),
             user_id: UserId::from(self.user_id.clone()),
-            project_id: ProjectId::from(self.project_id.clone()),
             role,
             joined_at: self.joined_at,
             updated_at: self.updated_at,
@@ -82,7 +77,6 @@ impl DomainToSqliteConverter<Model> for Member {
         Ok(Model {
             id: self.id.to_string(),
             user_id: self.user_id.to_string(),
-            project_id: self.project_id.to_string(),
             role: role_str.to_string(),
             joined_at: self.joined_at,
             updated_at: self.updated_at,

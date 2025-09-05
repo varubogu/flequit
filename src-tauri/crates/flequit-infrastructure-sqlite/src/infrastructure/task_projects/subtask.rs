@@ -6,8 +6,8 @@ use super::tag::TagLocalSqliteRepository;
 use crate::models::subtask::{Column, Entity as SubtaskEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use flequit_model::models::task_projects::subtask::SubTask;
-use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_model::types::id_types::SubTaskId;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
@@ -91,8 +91,8 @@ impl SubtaskLocalSqliteRepository {
 }
 
 #[async_trait]
-impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
-    async fn save(&self, subtask: &SubTask) -> Result<(), RepositoryError> {
+impl ProjectRepository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
+    async fn save(&self, project_id: &ProjectId, subtask: &SubTask) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -122,7 +122,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         for tag_id in &subtask.tag_ids {
             // タグが存在するかチェック
             let tag_repo = TagLocalSqliteRepository::new(self.db_manager.clone());
-            if let Ok(Some(_)) = tag_repo.find_by_id(tag_id).await {
+            if let Ok(Some(_)) = tag_repo.find_by_id(project_id, tag_id).await {
                 valid_tag_ids.push(tag_id.clone());
             } else {
                 tracing::warn!("サブタスク保存時に存在しないタグID {}をスキップ", tag_id);
@@ -136,7 +136,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
+    async fn find_by_id(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -155,7 +155,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self) -> Result<Vec<SubTask>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -180,7 +180,7 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         Ok(subtasks)
     }
 
-    async fn delete(&self, id: &SubTaskId) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -203,14 +203,14 @@ impl Repository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, id: &SubTaskId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = SubtaskEntity::find_by_id(id.to_string()).count(db).await.map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
-    async fn count(&self) -> Result<u64, RepositoryError> {
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = SubtaskEntity::find().count(db).await.map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

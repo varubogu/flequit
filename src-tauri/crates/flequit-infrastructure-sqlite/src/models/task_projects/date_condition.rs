@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::date_condition::DateCondition, types::datetime_calendar_types::DateRelation};
+use flequit_model::{models::task_projects::date_condition::DateCondition, types::{datetime_calendar_types::DateRelation, id_types::DateConditionId}};
 use sea_orm::{entity::prelude::*};
 use serde::{Deserialize, Serialize};
 
@@ -52,7 +52,7 @@ impl SqliteModelConverter<DateCondition> for Model {
         };
 
         Ok(DateCondition {
-            id: self.id.clone(),
+            id: DateConditionId::from(self.id.clone()),
             relation,
             reference_date: self.reference_date,
         })
@@ -71,7 +71,7 @@ impl DomainToSqliteConverter<Model> for DateCondition {
         };
 
         Ok(Model {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             relation: relation_str.to_string(),
             reference_date: self.reference_date,
             created_at: Utc::now(),

@@ -6,7 +6,7 @@ use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::member::{Column, Entity as MemberEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
-use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::member_repository_trait::MemberRepositoryTrait;
 use flequit_model::types::id_types::{UserId, ProjectId};
 use async_trait::async_trait;
@@ -27,9 +27,15 @@ impl MemberLocalSqliteRepository {
     }
 }
 
+
 #[async_trait]
-impl Repository<Member, UserId> for MemberLocalSqliteRepository {
-    async fn save(&self, entity: &Member) -> Result<(), RepositoryError> {
+impl MemberRepositoryTrait for MemberLocalSqliteRepository {
+}
+
+
+#[async_trait]
+impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
+    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -41,7 +47,6 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         let active_model = crate::models::task_projects::member::ActiveModel {
             id: Set(sqlite_model.id.clone()),
             user_id: Set(sqlite_model.user_id.clone()),
-            project_id: Set(sqlite_model.project_id.clone()),
             role: Set(sqlite_model.role.clone()),
             joined_at: Set(sqlite_model.joined_at),
             updated_at: Set(sqlite_model.updated_at),
@@ -52,7 +57,7 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: &UserId) -> Result<Option<Member>, RepositoryError> {
+    async fn find_by_id(&self, project_id: &ProjectId, id: &UserId) -> Result<Option<Member>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -72,7 +77,7 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self) -> Result<Vec<Member>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -91,7 +96,7 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(members)
     }
 
-    async fn delete(&self, id: &UserId) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -104,7 +109,7 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, id: &UserId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -117,57 +122,12 @@ impl Repository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(count > 0)
     }
 
-    async fn count(&self) -> Result<u64, RepositoryError> {
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
         let count = MemberEntity::find().count(db).await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count)
-    }
-}
-
-#[async_trait]
-impl MemberRepositoryTrait for MemberLocalSqliteRepository {
-    async fn get_member(&self, id: &UserId) -> Result<Option<Member>, RepositoryError> {
-        self.find_by_id(id).await
-    }
-
-    async fn find_by_project_id(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
-        let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
-
-        let models = MemberEntity::find()
-            .filter(Column::ProjectId.eq(project_id.as_str()))
-            .all(db)
-            .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-
-        let mut members = Vec::new();
-        for model in models {
-            let member = model
-                .to_domain_model()
-                .await
-                .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
-            members.push(member);
-        }
-
-        Ok(members)
-    }
-
-    async fn get_all_members(&self) -> Result<Vec<Member>, RepositoryError> {
-        self.find_all().await
-    }
-
-    async fn add_member(&self, member: &Member) -> Result<(), RepositoryError> {
-        self.save(member).await
-    }
-
-    async fn update_member(&self, member: &Member) -> Result<(), RepositoryError> {
-        self.save(member).await
-    }
-
-    async fn delete_member(&self, id: &UserId) -> Result<(), RepositoryError> {
-        self.delete(id).await
     }
 }

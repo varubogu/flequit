@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::weekday_condition::WeekdayCondition,
-    types::datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}
+    types::{datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}, id_types::WeekdayConditionId}
 };
 use sea_orm::{entity::prelude::*};
 use serde::{Deserialize, Serialize};
@@ -97,7 +97,7 @@ impl SqliteModelConverter<WeekdayCondition> for Model {
         });
 
         Ok(WeekdayCondition {
-            id: self.id.clone(),
+            id: WeekdayConditionId::from(self.id.clone()),
             if_weekday,
             then_direction,
             then_target,
@@ -150,7 +150,7 @@ impl DomainToSqliteConverter<Model> for WeekdayCondition {
         });
 
         Ok(Model {
-            id: self.id.clone(),
+            id: self.id.to_string(),
             if_weekday: if_weekday_str.to_string(),
             then_direction: then_direction_str.to_string(),
             then_target: then_target_str.to_string(),

@@ -10,7 +10,7 @@ use crate::models::account::{
     ActiveModel as AccountActiveModel, Column, Entity as AccountEntity,
 };
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
-use flequit_repository::repositories::account_repository_trait::AccountRepositoryTrait;
+use flequit_repository::repositories::accounts::account_repository_trait::AccountRepositoryTrait;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_model::types::id_types::AccountId;
 use sea_orm::{

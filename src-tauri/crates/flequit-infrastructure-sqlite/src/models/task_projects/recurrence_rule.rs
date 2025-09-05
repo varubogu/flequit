@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
+use flequit_model::{models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId};
 use flequit_model::types::datetime_calendar_types::RecurrenceUnit;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
@@ -87,6 +87,7 @@ impl SqliteModelConverter<RecurrenceRule> for Model {
         // 関連データは別途取得する想定（リポジトリ層で実装）
         // ここでは基本情報のみでドメインモデルを作成
         Ok(RecurrenceRule {
+            id: RecurrenceRuleId::from(self.id.clone()),
             unit,
             interval: self.interval,
             days_of_week: None, // 紐づけテーブルから取得
