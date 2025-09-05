@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use flequit_model::models::task_projects::subtask_recurrence::{SubTaskRecurrence, RecurrenceRuleId};
-use flequit_model::types::id_types::SubTaskId;
+use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
+use flequit_model::types::id_types::{RecurrenceRuleId, SubTaskId};
 use flequit_types::errors::repository_error::RepositoryError;
 
 use crate::project_relation_repository_trait::ProjectRelationRepository;
