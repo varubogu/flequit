@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use crate::types::datetime_calendar_types::DateRelation;
+use crate::types::{datetime_calendar_types::DateRelation, id_types::DateConditionId};
 
 /// 日付に基づく条件を表現する構造体
 ///
@@ -40,7 +40,7 @@ use crate::types::datetime_calendar_types::DateRelation;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateCondition {
     /// 条件の一意識別子
-    pub id: String,
+    pub id: DateConditionId,
     /// 基準日との関係性（前、後、同じ等）
     pub relation: DateRelation,
     /// 比較基準となる日付

@@ -6,10 +6,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::types::id_types::SubTaskId;
-
-/// 繰り返しルールID型定義
-pub type RecurrenceRuleId = String;
+use crate::types::id_types::{RecurrenceRuleId, SubTaskId};
 
 /// サブタスクと繰り返しルールの関連付けを表現するモデル
 ///

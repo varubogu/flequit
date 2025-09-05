@@ -7,6 +7,7 @@ use super::subtask_recurrence::SubTaskRecurrence;
 use super::task_recurrence::TaskRecurrence;
 use crate::models::ModelConverter;
 use crate::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
+use crate::types::id_types::RecurrenceRuleId;
 
 /// 統合繰り返しルールを表現する構造体
 ///
@@ -90,6 +91,8 @@ use crate::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
 /// 5. `end_date`または`max_occurrences`で終了判定
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecurrenceRule {
+    /// 繰り返しルールの一意識別子
+    pub id: RecurrenceRuleId,
     /// 繰り返し単位（日・週・月・年等）
     pub unit: RecurrenceUnit,
     /// 繰り返し間隔（2週毎なら2）
@@ -155,8 +158,8 @@ pub struct RecurrenceRule {
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecurrenceRuleTree {
-    /// 繰り返しルールの一意識別子（SQLiteで管理）
-    pub id: String,
+    /// 繰り返しルールの一意識別子
+    pub id: RecurrenceRuleId,
     /// 繰り返し単位（日・週・月・年等）
     pub unit: RecurrenceUnit,
     /// 繰り返し間隔（2週毎なら2）
@@ -182,6 +185,7 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleTree {
     async fn to_model(&self) -> Result<RecurrenceRule, String> {
         // RecurrenceRuleTreeからRecurrenceRule基本構造体に変換（関連データのtask_recurrences, subtask_recurrencesは除く）
         Ok(RecurrenceRule {
+            id: self.id.clone(),
             unit: self.unit.clone(),
             interval: self.interval,
             days_of_week: self.days_of_week.clone(),

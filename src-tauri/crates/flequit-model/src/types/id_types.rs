@@ -62,6 +62,7 @@ macro_rules! define_id {
 }
 
 define_id!(ProjectId);
+define_id!(RecurrenceRuleId);
 define_id!(TaskId);
 define_id!(TaskListId);
 define_id!(SubTaskId);

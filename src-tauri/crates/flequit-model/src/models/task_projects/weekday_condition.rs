@@ -3,7 +3,7 @@
 //! このモジュールは曜日に基づく条件調整を管理する構造体を定義します。
 
 use serde::{Deserialize, Serialize};
-use crate::types::datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek};
+use crate::types::{datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}, id_types::WeekdayConditionId};
 
 /// 曜日に基づく条件調整を表現する構造体
 ///
@@ -44,7 +44,7 @@ use crate::types::datetime_calendar_types::{AdjustmentDirection, AdjustmentTarge
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WeekdayCondition {
     /// 条件の一意識別子
-    pub id: String,
+    pub id: WeekdayConditionId,
     /// 判定対象の曜日
     pub if_weekday: DayOfWeek,
     /// 調整方向（前・後・最近等）

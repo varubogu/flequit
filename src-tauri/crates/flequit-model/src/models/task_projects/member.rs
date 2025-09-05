@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-use crate::types::id_types::{MemberId, UserId, ProjectId};
+use crate::types::id_types::{MemberId, UserId};
 use crate::types::project_types::MemberRole;
 
 /// プロジェクトメンバー情報を表現する構造体
@@ -28,8 +28,6 @@ pub struct Member {
     pub id: MemberId,
     /// メンバーのユーザーID
     pub user_id: UserId,
-    /// 所属プロジェクトID
-    pub project_id: ProjectId,
     /// プロジェクト内での役割（Owner、Member等）
     pub role: MemberRole,
     /// プロジェクト参加日時
