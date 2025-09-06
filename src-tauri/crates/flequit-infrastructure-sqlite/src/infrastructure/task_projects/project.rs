@@ -2,11 +2,11 @@
 
 use super::super::database_manager::DatabaseManager;
 use flequit_model::models::task_projects::project::Project;
+use flequit_repository::base_repository_trait::Repository;
 use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::project::{Column, Entity as ProjectEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_model::types::id_types::ProjectId;
 use async_trait::async_trait;
 use sea_orm::{
@@ -75,8 +75,8 @@ impl ProjectLocalSqliteRepository {
 }
 
 #[async_trait]
-impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, project: &Project) -> Result<(), RepositoryError> {
+impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
+    async fn save(&self,project: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalSqliteRepository::save - 開始: {:?}",
             project.id
@@ -115,7 +115,7 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, project_id: &ProjectId, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -132,7 +132,7 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Project>, RepositoryError> {
+    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -155,7 +155,7 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
         Ok(projects)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &ProjectId) -> Result<(), RepositoryError> {
+    async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -164,7 +164,7 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &ProjectId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -173,7 +173,7 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalSqliteRepository {
         Ok(count > 0)
     }
 
-    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

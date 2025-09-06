@@ -8,7 +8,7 @@ use flequit_model::models::task_projects::{
     task::Task,
     task_list::TaskList,
 };
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::base_repository_trait::Repository;
 use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
@@ -493,9 +493,9 @@ impl ProjectLocalAutomergeRepository {
 }
 
 #[async_trait]
-impl ProjectRepository<Project, ProjectId> for ProjectLocalAutomergeRepository {
+impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     #[tracing::instrument(level = "trace")]
-    async fn save(&self, project_id: &ProjectId, entity: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
@@ -516,32 +516,32 @@ impl ProjectRepository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+    async fn find_by_id(&self,id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         self.get_project(&id.to_string()).await
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<Project>, RepositoryError> {
+    async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // 一覧取得はProjectListLocalAutomergeRepositoryを使用してください
         Err(RepositoryError::NotFound("Use ProjectListLocalAutomergeRepository for project listing".to_string()))
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn delete(&self, _project_id: &ProjectId, id: &ProjectId) -> Result<(), RepositoryError> {
+    async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         // プロジェクトドキュメント自体を削除
         // 注意: プロジェクト一覧からの削除は別途ProjectListLocalAutomergeRepositoryで行ってください
         self.delete_project_document(id).await
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn exists(&self, project_id: &ProjectId, id: &ProjectId) -> Result<bool, RepositoryError> {
-        let found = self.find_by_id(project_id, id).await?;
+    async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
+        let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self) -> Result<u64, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // カウント取得はProjectListLocalAutomergeRepositoryを使用してください
         Err(RepositoryError::NotFound("Use ProjectListLocalAutomergeRepository for project counting".to_string()))

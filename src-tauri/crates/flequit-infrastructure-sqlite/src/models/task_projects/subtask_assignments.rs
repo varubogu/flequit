@@ -1,6 +1,11 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::subtask_assignment::SubTaskAssignment;
+use flequit_model::types::id_types::{SubTaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+
+use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// SubTaskAssignment用SQLiteエンティティ定義
 ///
@@ -50,3 +55,26 @@ impl Related<crate::models::user::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[async_trait]
+impl SqliteModelConverter<SubTaskAssignment> for Model {
+    async fn to_domain_model(&self) -> Result<SubTaskAssignment, String> {
+        Ok(SubTaskAssignment {
+            subtask_id: SubTaskId::from(self.subtask_id.clone()),
+            user_id: UserId::from(self.user_id.clone()),
+            created_at: self.created_at,
+        })
+    }
+}
+
+#[async_trait]
+impl DomainToSqliteConverter<ActiveModel> for SubTaskAssignment {
+    async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
+        use sea_orm::ActiveValue::Set;
+        Ok(ActiveModel {
+            subtask_id: Set(self.subtask_id.to_string()),
+            user_id: Set(self.user_id.to_string()),
+            created_at: Set(self.created_at),
+        })
+    }
+}

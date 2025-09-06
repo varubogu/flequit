@@ -1,6 +1,11 @@
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
+use flequit_model::types::id_types::{SubTaskId, TagId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+
+use super::{SqliteModelConverter, DomainToSqliteConverter};
 
 /// SubtaskTag用SQLiteエンティティ定義
 ///
@@ -50,3 +55,26 @@ impl Related<super::tag::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[async_trait]
+impl SqliteModelConverter<SubTaskTag> for Model {
+    async fn to_domain_model(&self) -> Result<SubTaskTag, String> {
+        Ok(SubTaskTag {
+            subtask_id: SubTaskId::from(self.subtask_id.clone()),
+            tag_id: TagId::from(self.tag_id.clone()),
+            created_at: self.created_at,
+        })
+    }
+}
+
+#[async_trait]
+impl DomainToSqliteConverter<ActiveModel> for SubTaskTag {
+    async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
+        use sea_orm::ActiveValue::Set;
+        Ok(ActiveModel {
+            subtask_id: Set(self.subtask_id.to_string()),
+            tag_id: Set(self.tag_id.to_string()),
+            created_at: Set(self.created_at),
+        })
+    }
+}
