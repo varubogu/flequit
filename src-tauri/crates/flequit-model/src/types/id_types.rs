@@ -74,3 +74,5 @@ define_id!(MemberId);
 define_id!(DateConditionId);
 define_id!(DueDateButtonsId);
 define_id!(WeekdayConditionId);
+define_id!(TaskRecurrenceId);
+define_id!(SubTaskRecurrenceId);
