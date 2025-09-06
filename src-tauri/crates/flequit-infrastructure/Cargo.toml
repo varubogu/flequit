@@ -1,0 +1,14 @@
+[package]
+name = "flequit-infrastructure"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+flequit-types = { path = "../flequit-types" }
+flequit-model = { path = "../flequit-model" }
+flequit-repository = { path = "../flequit-repository" }
+flequit-infrastructure-sqlite = { path = "../flequit-infrastructure-sqlite" }
+flequit-infrastructure-automerge = { path = "../flequit-infrastructure-automerge" }
+async-trait = "0.1"
+tracing = "0.1"
+log = "0.4"
