@@ -19,12 +19,12 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 #[derive(Debug)]
-pub struct SubtaskLocalSqliteRepository {
+pub struct SubTaskLocalSqliteRepository {
     db_manager: Arc<RwLock<DatabaseManager>>,
     subtask_tag_repository: SubtaskTagLocalSqliteRepository,
 }
 
-impl SubtaskLocalSqliteRepository {
+impl SubTaskLocalSqliteRepository {
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         let subtask_tag_repository = SubtaskTagLocalSqliteRepository::new(db_manager.clone());
         Self {
@@ -91,7 +91,7 @@ impl SubtaskLocalSqliteRepository {
 }
 
 #[async_trait]
-impl ProjectRepository<SubTask, SubTaskId> for SubtaskLocalSqliteRepository {
+impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
     async fn save(&self, project_id: &ProjectId, subtask: &SubTask) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
