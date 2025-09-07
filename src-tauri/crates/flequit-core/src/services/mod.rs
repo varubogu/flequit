@@ -1,6 +1,9 @@
 pub mod account_service;
 pub mod assignment_service;
+pub mod datetime_service;
+pub mod individual_service;
 pub mod initialization_service;
+pub mod recurrence_service;
 pub mod project_service;
 pub mod setting_service;
 pub mod subtask_service;

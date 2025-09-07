@@ -1,11 +1,13 @@
-use flequit_model::models::subtask::{PartialSubTask, SubTask};
-use flequit_model::types::id_types::SubTaskId;
-use crate::errors::service_error::ServiceError;
+use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
+use flequit_model::types::id_types::{SubTaskId, ProjectId};
+use flequit_types::errors::service_error::ServiceError;
+use flequit_infrastructure::InfrastructureRepositories;
 use crate::services::subtask_service;
 
 #[tracing::instrument]
-pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
-    match subtask_service::create_subtask(&subtask).await {
+pub async fn create_sub_task(project_id: &ProjectId, subtask: &SubTask) -> Result<bool, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match subtask_service::create_subtask(&repositories, project_id, &subtask).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create subtask: {:?}", e)),
@@ -13,8 +15,9 @@ pub async fn create_sub_task(subtask: &SubTask) -> Result<bool, String> {
 }
 
 #[tracing::instrument]
-pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubTask>, String> {
-    match subtask_service::get_subtask(id).await {
+pub async fn get_sub_task(project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match subtask_service::get_subtask(&repositories, project_id, id).await {
         Ok(subtask) => Ok(subtask),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get subtask: {:?}", e)),
@@ -23,10 +26,12 @@ pub async fn get_sub_task(id: &SubTaskId) -> Result<Option<SubTask>, String> {
 
 #[tracing::instrument]
 pub async fn update_sub_task(
+    project_id: &ProjectId,
     subtask_id: &SubTaskId,
     patch: &PartialSubTask,
 ) -> Result<bool, String> {
-    match subtask_service::update_subtask(subtask_id, patch).await {
+    let repositories = InfrastructureRepositories::instance().await;
+    match subtask_service::update_subtask(&repositories, project_id, subtask_id, patch).await {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask: {:?}", e)),
@@ -34,8 +39,9 @@ pub async fn update_sub_task(
 }
 
 #[tracing::instrument]
-pub async fn delete_sub_task(id: &SubTaskId) -> Result<bool, String> {
-    match subtask_service::delete_subtask(id).await {
+pub async fn delete_sub_task(project_id: &ProjectId, id: &SubTaskId) -> Result<bool, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match subtask_service::delete_subtask(&repositories, project_id, id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete subtask: {:?}", e)),

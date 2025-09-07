@@ -1,35 +1,33 @@
 use chrono::Utc;
 use flequit_model::types::task_types::TaskStatus;
 
-use crate::errors::service_error::ServiceError;
-use flequit_model::models::subtask::{PartialSubTask, SubTask};
-use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::Repositories;
-use flequit_model::types::id_types::SubTaskId;
+use flequit_types::errors::service_error::ServiceError;
+use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::types::id_types::{SubTaskId, ProjectId};
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_subtask(subtask: &SubTask) -> Result<(), ServiceError> {
+pub async fn create_subtask(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, subtask: &SubTask) -> Result<(), ServiceError> {
     let mut new_data = subtask.clone();
     let now = Utc::now();
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    let repository = Repositories::instance().await;
-    repository.sub_tasks.save(&new_data).await?;
+    repositories.sub_tasks().save(project_id, &new_data).await?;
 
     Ok(())
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_subtask(subtask_id: &SubTaskId) -> Result<Option<SubTask>, ServiceError> {
-    let repository = Repositories::instance().await;
-    Ok(repository.sub_tasks.find_by_id(subtask_id).await?)
+pub async fn get_subtask(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, subtask_id: &SubTaskId) -> Result<Option<SubTask>, ServiceError> {
+    Ok(repositories.sub_tasks().find_by_id(project_id, subtask_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> {
-    let repository = Repositories::instance().await;
-    let all_subtasks = repository.sub_tasks.find_all().await?;
+pub async fn list_subtasks(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, task_id: &str) -> Result<Vec<SubTask>, ServiceError> {
+    let all_subtasks = repositories.sub_tasks().find_all(project_id).await?;
 
     // task_idでフィルタリング
     let filtered_subtasks = all_subtasks
@@ -42,43 +40,25 @@ pub async fn list_subtasks(task_id: &str) -> Result<Vec<SubTask>, ServiceError> 
 
 #[tracing::instrument(level = "trace")]
 pub async fn update_subtask(
-    subtask_id: &SubTaskId,
-    patch: &PartialSubTask,
+    _repositories: &dyn InfrastructureRepositoriesTrait,
+    _project_id: &ProjectId,
+    _subtask_id: &SubTaskId,
+    _patch: &PartialSubTask,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::instance().await;
-
-    // updated_atフィールドを自動設定したパッチを作成
-    let mut updated_patch = patch.clone();
-    updated_patch.updated_at = Some(Utc::now());
-
-    let changed = repository
-        .sub_tasks
-        .patch(subtask_id, &updated_patch)
-        .await?;
-
-    if !changed {
-        // パッチ適用で変更がなかった場合、エンティティが存在するかチェック
-        if repository.sub_tasks.find_by_id(subtask_id).await?.is_none() {
-            return Err(ServiceError::NotFound("SubTask not found".to_string()));
-        }
-    }
-
-    Ok(changed)
+    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
+    Err(ServiceError::InternalError("SubTask patch method is not implemented".to_string()))
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_subtask(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
-    let repository = Repositories::instance().await;
-    repository.sub_tasks.delete(subtask_id).await?;
+pub async fn delete_subtask(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, subtask_id: &SubTaskId) -> Result<(), ServiceError> {
+    repositories.sub_tasks().delete(project_id, subtask_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceError> {
-    let repository = Repositories::instance().await;
-
+pub async fn toggle_completion(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, subtask_id: &SubTaskId) -> Result<(), ServiceError> {
     // 既存のサブタスクを取得
-    if let Some(mut subtask) = repository.sub_tasks.find_by_id(subtask_id).await? {
+    if let Some(mut subtask) = repositories.sub_tasks().find_by_id(project_id, subtask_id).await? {
         // 完了状態をトグル
         subtask.completed = !subtask.completed;
 
@@ -93,7 +73,7 @@ pub async fn toggle_completion(subtask_id: &SubTaskId) -> Result<(), ServiceErro
         subtask.updated_at = Utc::now();
 
         // 保存
-        repository.sub_tasks.save(&subtask).await?;
+        repositories.sub_tasks().save(project_id, &subtask).await?;
     }
 
     Ok(())

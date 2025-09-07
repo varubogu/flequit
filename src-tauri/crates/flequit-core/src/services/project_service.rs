@@ -1,12 +1,12 @@
-use crate::errors::service_error::ServiceError;
-use flequit_model::models::project::{PartialProject, Project};
-use crate::repositories::base_repository_trait::{Patchable, Repository};
-use crate::repositories::Repositories;
+use flequit_types::errors::service_error::ServiceError;
+use flequit_model::models::task_projects::project::{PartialProject, Project};
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::types::id_types::ProjectId;
 use chrono::Utc;
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_project(project: &Project) -> Result<Project, ServiceError> {
+pub async fn create_project(repositories: &dyn InfrastructureRepositoriesTrait, project: &Project) -> Result<Project, ServiceError> {
     let mut new_project = project.clone();
     let now = Utc::now();
     new_project.created_at = now;
@@ -16,53 +16,33 @@ pub async fn create_project(project: &Project) -> Result<Project, ServiceError> 
         new_project.id = ProjectId::new();
     }
 
-    let repository = Repositories::instance().await;
-    repository.projects.save(&new_project).await?;
+    repositories.projects().save(&new_project).await?;
 
     Ok(new_project)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_project(project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
-    let repository = Repositories::instance().await;
-    Ok(repository.projects.find_by_id(project_id).await?)
+pub async fn get_project(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
+    Ok(repositories.projects().find_by_id(project_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_projects() -> Result<Vec<Project>, ServiceError> {
-    let repository = Repositories::instance().await;
-    Ok(repository.projects.find_all().await?)
+pub async fn list_projects(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<Project>, ServiceError> {
+    Ok(repositories.projects().find_all().await?)
 }
 
 #[tracing::instrument(level = "trace")]
 pub async fn update_project(
-    project_id: &ProjectId,
-    patch: &PartialProject,
+    _repositories: &dyn InfrastructureRepositoriesTrait,
+    _project_id: &ProjectId,
+    _patch: &PartialProject,
 ) -> Result<bool, ServiceError> {
-    let repository = Repositories::instance().await;
-
-    // updated_atフィールドを自動設定したパッチを作成
-    let mut updated_patch = patch.clone();
-    updated_patch.updated_at = Some(Utc::now());
-
-    let changed = repository
-        .projects
-        .patch(project_id, &updated_patch)
-        .await?;
-
-    if !changed {
-        // パッチ適用で変更がなかった場合、エンティティが存在するかチェック
-        if repository.projects.find_by_id(project_id).await?.is_none() {
-            return Err(ServiceError::NotFound("Project not found".to_string()));
-        }
-    }
-
-    Ok(changed)
+    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
+    Err(ServiceError::InternalError("Project patch method is not implemented".to_string()))
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_project(project_id: &ProjectId) -> Result<(), ServiceError> {
-    let repository = Repositories::instance().await;
-    repository.projects.delete(project_id).await?;
+pub async fn delete_project(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId) -> Result<(), ServiceError> {
+    repositories.projects().delete(project_id).await?;
     Ok(())
 }

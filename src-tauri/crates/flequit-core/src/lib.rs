@@ -5,6 +5,3 @@
 
 pub mod facades;
 pub mod services;
-
-// ストレージレイヤーをre-export（型も含む）
-pub use flequit_storage::{errors, models as storage_models, repositories, utils};

@@ -1,10 +1,10 @@
-use crate::errors::service_error::ServiceError;
-use flequit_model::models::account::Account;
-use flequit_model::models::project::ProjectTree;
-use flequit_model::models::setting::{LocalSettings, Settings};
-use crate::repositories::base_repository_trait::Repository;
-use crate::repositories::setting_repository_trait::SettingRepositoryTrait;
-use crate::repositories::Repositories;
+use flequit_types::errors::service_error::ServiceError;
+use flequit_model::models::accounts::account::Account;
+use flequit_model::models::task_projects::project::ProjectTree;
+use flequit_model::models::app_settings::settings::Settings;
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::app_settings::settings_repository_trait::SettingsRepositoryTrait;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 
 pub struct InitializedResult {
     pub settings: Settings,
@@ -12,18 +12,11 @@ pub struct InitializedResult {
     pub projects: Vec<ProjectTree>,
 }
 
-pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
+pub async fn load_all_data(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<InitializedResult, ServiceError> {
     // 他のservice関数を組み合わせて全データを取得
-    let local_settings = load_local_settings().await?;
-    let accounts = load_all_account().await?;
-    let project_trees = load_all_project_trees().await?;
-
-    // LocalSettingsからSettingsを構築
-    let mut settings = Settings::default();
-    if let Some(local_settings) = local_settings {
-        settings.theme = local_settings.theme;
-        settings.language = local_settings.language;
-    }
+    let settings = load_local_settings(repositories).await?.unwrap_or_default();
+    let accounts = load_all_account(repositories).await?;
+    let project_trees = load_all_project_trees(repositories).await?;
 
     Ok(InitializedResult {
         settings,
@@ -32,38 +25,24 @@ pub async fn load_all_data() -> Result<InitializedResult, ServiceError> {
     })
 }
 
-pub async fn load_local_settings() -> Result<Option<LocalSettings>, ServiceError> {
-    let repository = Repositories::instance().await;
+pub async fn load_local_settings(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Option<Settings>, ServiceError> {
 
     // ローカル設定取得ロジック：設定データベースから取得
-    let settings = repository
-        .settings
+    let settings = repositories
+        .settings()
         .get_settings()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
 
-    let local_settings = if let Some(settings) = settings {
-        LocalSettings {
-            theme: settings.theme,
-            language: settings.language,
-        }
-    } else {
-        LocalSettings {
-            theme: "system".to_string(),
-            language: "ja".to_string(),
-        }
-    };
-
-    Ok(Some(local_settings))
+    Ok(settings)
 }
 
-pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
-    let repository = Repositories::instance().await;
+pub async fn load_current_account(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Option<Account>, ServiceError> {
 
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
-    let accounts = repository
-        .accounts
+    let accounts = repositories
+        .accounts()
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
@@ -81,12 +60,11 @@ pub async fn load_current_account() -> Result<Option<Account>, ServiceError> {
     }
 }
 
-pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> {
-    let repository = Repositories::instance().await;
+pub async fn load_all_project_trees(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<ProjectTree>, ServiceError> {
 
     // 1. 全プロジェクトを取得
-    let projects = repository
-        .projects
+    let projects = repositories
+        .projects()
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
@@ -97,7 +75,7 @@ pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> 
     for project in projects {
         // TaskListTreeを取得
         let task_lists =
-            crate::services::task_list_service::get_task_lists_with_tasks(&project.id).await?;
+            crate::services::task_list_service::get_task_lists_with_tasks(repositories, &project.id).await?;
 
         let project_tree = ProjectTree {
             id: project.id.clone(),
@@ -119,10 +97,9 @@ pub async fn load_all_project_trees() -> Result<Vec<ProjectTree>, ServiceError> 
     Ok(project_trees)
 }
 
-pub async fn load_all_account() -> Result<Vec<Account>, ServiceError> {
-    let repository = Repositories::instance().await;
-    repository
-        .accounts
+pub async fn load_all_account(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<Account>, ServiceError> {
+    repositories
+        .accounts()
         .find_all()
         .await
         .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))

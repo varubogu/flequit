@@ -1,11 +1,13 @@
-use crate::errors::service_error::ServiceError;
-use flequit_model::models::tag::{PartialTag, Tag};
+use flequit_types::errors::service_error::ServiceError;
+use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use crate::services::tag_service;
-use flequit_model::types::id_types::TagId;
+use flequit_model::types::id_types::{TagId, ProjectId};
+use flequit_infrastructure::InfrastructureRepositories;
 
 #[tracing::instrument]
-pub async fn create_tag(tag: &Tag) -> Result<bool, String> {
-    match tag_service::create_tag(tag).await {
+pub async fn create_tag(project_id: &ProjectId, tag: &Tag) -> Result<bool, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match tag_service::create_tag(&repositories, project_id, tag).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create tag: {:?}", e)),
@@ -13,8 +15,9 @@ pub async fn create_tag(tag: &Tag) -> Result<bool, String> {
 }
 
 #[tracing::instrument]
-pub async fn get_tag(id: &TagId) -> Result<Option<Tag>, String> {
-    match tag_service::get_tag(id).await {
+pub async fn get_tag(project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match tag_service::get_tag(&repositories, project_id, id).await {
         Ok(Some(tag)) => Ok(Some(tag)),
         Ok(None) => Ok(None),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
@@ -23,8 +26,9 @@ pub async fn get_tag(id: &TagId) -> Result<Option<Tag>, String> {
 }
 
 #[tracing::instrument]
-pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, String> {
-    match tag_service::update_tag(tag_id, patch).await {
+pub async fn update_tag(project_id: &ProjectId, tag_id: &TagId, patch: &PartialTag) -> Result<bool, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match tag_service::update_tag(&repositories, project_id, tag_id, patch).await {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update tag: {:?}", e)),
@@ -32,8 +36,9 @@ pub async fn update_tag(tag_id: &TagId, patch: &PartialTag) -> Result<bool, Stri
 }
 
 #[tracing::instrument]
-pub async fn delete_tag(id: &TagId) -> Result<bool, String> {
-    match tag_service::delete_tag(id).await {
+pub async fn delete_tag(project_id: &ProjectId, id: &TagId) -> Result<bool, String> {
+    let repositories = InfrastructureRepositories::instance().await;
+    match tag_service::delete_tag(&repositories, project_id, id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete tag: {:?}", e)),

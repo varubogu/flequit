@@ -1,6 +1,7 @@
 //! 設定関連のFacade
-use crate::errors::service_error::ServiceError;
-use flequit_model::models::setting::{CustomDateFormat, Settings, TimeLabel, ViewItem};
+use flequit_types::errors::service_error::ServiceError;
+use flequit_model::models::app_settings::{settings::Settings, time_label::TimeLabel, view_item::ViewItem};
+use flequit_infrastructure::InfrastructureRepositories;
 use crate::services::setting_service;
 
 // エラー変換のヘルパー関数
@@ -14,44 +15,54 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 
 #[tracing::instrument]
 pub async fn get_all_settings() -> Result<Settings, String> {
-    handle_service_error(setting_service::get_all_settings().await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::get_all_settings(&repositories).await)
 }
 
 #[tracing::instrument]
 pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), String> {
-    handle_service_error(setting_service::set_setting(key, value).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::set_setting(&repositories, key, value).await)
 }
 
 // ---------------------------
-// Custom Date Formats
+// Custom Date Formats (一時的に無効化)
 // ---------------------------
 
-#[tracing::instrument]
-pub async fn get_custom_date_format(id: &str) -> Result<Option<CustomDateFormat>, String> {
-    handle_service_error(setting_service::get_custom_date_format(id).await)
-}
+// NOTE: これらの関数はsetting_service.rsに実装されていないため、一時的にコメントアウト
+// TODO: setting_serviceでの実装が完了したら有効化する
 
-#[tracing::instrument]
-pub async fn get_all_custom_date_formats() -> Result<Vec<CustomDateFormat>, String> {
-    handle_service_error(setting_service::get_all_custom_date_formats().await)
-}
+// #[tracing::instrument]
+// pub async fn get_custom_date_format(id: &str) -> Result<Option<DateTimeFormat>, String> {
+//     let repositories = InfrastructureRepositories::instance().await;
+//     handle_service_error(setting_service::get_custom_date_format(&repositories, id).await)
+// }
 
-#[tracing::instrument]
-pub async fn add_custom_date_format(format: CustomDateFormat) -> Result<CustomDateFormat, String> {
-    handle_service_error(setting_service::add_custom_date_format(format).await)
-}
+// #[tracing::instrument]
+// pub async fn get_all_custom_date_formats() -> Result<Vec<DateTimeFormat>, String> {
+//     let repositories = InfrastructureRepositories::instance().await;
+//     handle_service_error(setting_service::get_all_custom_date_formats(&repositories).await)
+// }
 
-#[tracing::instrument]
-pub async fn update_custom_date_format(
-    format: CustomDateFormat,
-) -> Result<CustomDateFormat, String> {
-    handle_service_error(setting_service::update_custom_date_format(format).await)
-}
+// #[tracing::instrument]
+// pub async fn add_custom_date_format(format: DateTimeFormat) -> Result<DateTimeFormat, String> {
+//     let repositories = InfrastructureRepositories::instance().await;
+//     handle_service_error(setting_service::add_custom_date_format(&repositories, format).await)
+// }
 
-#[tracing::instrument]
-pub async fn delete_custom_date_format(id: &str) -> Result<(), String> {
-    handle_service_error(setting_service::delete_custom_date_format(id).await)
-}
+// #[tracing::instrument]
+// pub async fn update_custom_date_format(
+//     format: DateTimeFormat,
+// ) -> Result<DateTimeFormat, String> {
+//     let repositories = InfrastructureRepositories::instance().await;
+//     handle_service_error(setting_service::update_custom_date_format(&repositories, format).await)
+// }
+
+// #[tracing::instrument]
+// pub async fn delete_custom_date_format(id: &str) -> Result<(), String> {
+//     let repositories = InfrastructureRepositories::instance().await;
+//     handle_service_error(setting_service::delete_custom_date_format(&repositories, id).await)
+// }
 
 // ---------------------------
 // Time Labels
@@ -59,27 +70,32 @@ pub async fn delete_custom_date_format(id: &str) -> Result<(), String> {
 
 #[tracing::instrument]
 pub async fn get_time_label(id: &str) -> Result<Option<TimeLabel>, String> {
-    handle_service_error(setting_service::get_time_label(id).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::get_time_label(&repositories, id).await)
 }
 
 #[tracing::instrument]
 pub async fn get_all_time_labels() -> Result<Vec<TimeLabel>, String> {
-    handle_service_error(setting_service::get_all_time_labels().await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::get_all_time_labels(&repositories).await)
 }
 
 #[tracing::instrument]
 pub async fn add_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
-    handle_service_error(setting_service::add_time_label(label).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::add_time_label(&repositories, label).await)
 }
 
 #[tracing::instrument]
 pub async fn update_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
-    handle_service_error(setting_service::update_time_label(label).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::update_time_label(&repositories, label).await)
 }
 
 #[tracing::instrument]
 pub async fn delete_time_label(id: &str) -> Result<(), String> {
-    handle_service_error(setting_service::delete_time_label(id).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::delete_time_label(&repositories, id).await)
 }
 
 // ---------------------------
@@ -88,27 +104,32 @@ pub async fn delete_time_label(id: &str) -> Result<(), String> {
 
 #[tracing::instrument]
 pub async fn get_view_item(id: &str) -> Result<Option<ViewItem>, String> {
-    handle_service_error(setting_service::get_view_item(id).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::get_view_item(&repositories, id).await)
 }
 
 #[tracing::instrument]
 pub async fn get_all_view_items() -> Result<Vec<ViewItem>, String> {
-    handle_service_error(setting_service::get_all_view_items().await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::get_all_view_items(&repositories).await)
 }
 
 #[tracing::instrument]
 pub async fn add_view_item(item: ViewItem) -> Result<ViewItem, String> {
-    handle_service_error(setting_service::add_view_item(item).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::add_view_item(&repositories, item).await)
 }
 
 #[tracing::instrument]
 pub async fn update_view_item(item: ViewItem) -> Result<ViewItem, String> {
-    handle_service_error(setting_service::update_view_item(item).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::update_view_item(&repositories, item).await)
 }
 
 #[tracing::instrument]
 pub async fn delete_view_item(id: &str) -> Result<(), String> {
-    handle_service_error(setting_service::delete_view_item(id).await)
+    let repositories = InfrastructureRepositories::instance().await;
+    handle_service_error(setting_service::delete_view_item(&repositories, id).await)
 }
 
 // ---------------------------
@@ -118,7 +139,8 @@ pub async fn delete_view_item(id: &str) -> Result<(), String> {
 #[tracing::instrument]
 pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
     // 構造体から特定フィールドの値を文字列として返す（レガシー対応）
-    let settings = setting_service::get_all_settings()
+    let repositories = InfrastructureRepositories::instance().await;
+    let settings = setting_service::get_all_settings(&repositories)
         .await
         .map_err(|e| format!("{:?}", e))?;
 
@@ -131,7 +153,10 @@ pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
         "background_color" => Some(settings.background_color),
         "week_start" => Some(settings.week_start),
         "timezone" => Some(settings.timezone),
-        "date_format" => Some(settings.date_format),
+        "date_format" => {
+            // DateTimeFormat構造体を文字列に変換
+            Some(serde_json::to_string(&settings.date_format).unwrap_or_default())
+        },
         "last_selected_account" => Some(settings.last_selected_account),
         _ => None,
     };

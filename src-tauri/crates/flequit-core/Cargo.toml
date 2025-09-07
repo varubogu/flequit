@@ -10,8 +10,10 @@ crate-type = ["rlib"]
 
 [dependencies]
 # Storage layer dependency
+flequit-types = { path = "../flequit-types" }
 flequit-model = { path = "../flequit-model" }
-flequit-storage = { path = "../flequit-storage" }
+flequit-repository = { path = "../flequit-repository" }
+flequit-infrastructure = { path = "../flequit-infrastructure" }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
@@ -31,6 +33,3 @@ thiserror = "2.0.12"
 # Logging
 log = "0.4"
 tracing = "0.1.41"
-
-# Partial update support
-partially = { version = "0.2.1", features = ["derive"] }
