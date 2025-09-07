@@ -23,3 +23,5 @@ pub use task::TaskUnifiedRepository;
 pub use subtask::SubTaskUnifiedRepository;
 pub use task_list::TaskListUnifiedRepository;
 pub use tag::TagUnifiedRepository;
+pub use task_assignments::TaskAssignmentUnifiedRepository;
+pub use subtask_assignments::SubTaskAssignmentUnifiedRepository;

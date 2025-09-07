@@ -21,7 +21,7 @@ pub mod users;
 // 公開エクスポート（既存の互換性維持）
 pub use accounts::AccountUnifiedRepository;
 pub use app_settings::SettingsUnifiedRepository;
-pub use task_projects::{ProjectUnifiedRepository, SubTaskUnifiedRepository, TagUnifiedRepository, TaskUnifiedRepository, TaskListUnifiedRepository};
+pub use task_projects::{ProjectUnifiedRepository, SubTaskUnifiedRepository, TagUnifiedRepository, TaskUnifiedRepository, TaskListUnifiedRepository, TaskAssignmentUnifiedRepository, SubTaskAssignmentUnifiedRepository};
 pub use users::UserUnifiedRepository;
 
 // Infrastructure層リポジトリの再エクスポート
