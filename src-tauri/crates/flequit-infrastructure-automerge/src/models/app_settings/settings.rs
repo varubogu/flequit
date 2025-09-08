@@ -1,6 +1,11 @@
 use chrono::{DateTime, Utc};
-use flequit_model::models::app_settings::settings::Settings;
-use flequit_model::types::id_types::SettingsId;
+use flequit_model::models::app_settings::{
+    datetime_format::DateTimeFormat,
+    settings::Settings,
+    due_date_buttons::DueDateButtons,
+    time_label::TimeLabel,
+    view_item::ViewItem
+};
 use serde::{Deserialize, Serialize};
 
 /// Settings用Automergeエンティティ定義
@@ -36,19 +41,36 @@ pub struct SettingsDocument {
     /// タイムゾーン
     pub timezone: String,
 
+    /// カスタム期限日数 (JSON形式)
+    pub custom_due_days: String,
+
+    /// 日時フォーマット
+    pub datetime_format: String,
+
+    /// 時刻ラベル (JSON形式)
+    pub time_labels: String,
+
+    /// 期限日ボタン設定 (JSON形式)
+    pub due_date_buttons: String,
+
+    /// ビューアイテム (JSON形式)
+    pub view_items: String,
+
+    /// 最後に選択されたアカウントID
+    pub selected_account: String,
 
     /// 設定作成日時
     pub created_at: DateTime<Utc>,
 
-    /// 設定最終更新日時
+    /// 設定最終更日時
     pub updated_at: DateTime<Utc>,
 }
 
 impl SettingsDocument {
     /// ドメインモデルからAutomergeドキュメントに変換
-    pub fn from_domain_model(settings: Settings) -> Self {
-        Self {
-            id: settings.id.to_string(),
+    pub fn from_domain_model(settings: Settings) -> Result<Self, String> {
+        Ok(Self {
+            id: "app_settings".to_string(),
             theme: settings.theme,
             language: settings.language,
             font: settings.font,
@@ -57,17 +79,40 @@ impl SettingsDocument {
             background_color: settings.background_color,
             week_start: settings.week_start,
             timezone: settings.timezone,
-            // domain の Settings には作成/更新日時や上のレガシーフィールドが存在しないため
-            // Automerge 側のドキュメント生成時に現在時刻を設定する
+            custom_due_days: serde_json::to_string(&settings.custom_due_days)
+                .map_err(|e| format!("Failed to serialize custom_due_days: {}", e))?,
+            datetime_format: serde_json::to_string(&settings.datetime_format)
+                .map_err(|e| format!("Failed to serialize datetime_format: {}", e))?,
+            time_labels: serde_json::to_string(&settings.time_labels)
+                .map_err(|e| format!("Failed to serialize time_labels: {}", e))?,
+            due_date_buttons: serde_json::to_string(&settings.due_date_buttons)
+                .map_err(|e| format!("Failed to serialize due_date_buttons: {}", e))?,
+            view_items: serde_json::to_string(&settings.view_items)
+                .map_err(|e| format!("Failed to serialize view_items: {}", e))?,
+            selected_account: settings.selected_account,
             created_at: Utc::now(),
             updated_at: Utc::now(),
-        }
+        })
     }
 
     /// Automergeドキュメントからドメインモデルに変換
     pub fn to_domain_model(&self) -> Result<Settings, String> {
+        let custom_due_days: Vec<i32> = serde_json::from_str(&self.custom_due_days)
+            .map_err(|e| format!("Failed to parse custom_due_days: {}", e))?;
+
+        let datetime_format: DateTimeFormat = serde_json::from_str(&self.datetime_format)
+            .map_err(|e| format!("Failed to parse datetime_format: {}", e))?;
+
+        let time_labels: Vec<TimeLabel> = serde_json::from_str(&self.time_labels)
+            .map_err(|e| format!("Failed to parse time_labels: {}", e))?;
+
+        let due_date_buttons: Vec<DueDateButtons> = serde_json::from_str(&self.due_date_buttons)
+            .map_err(|e| format!("Failed to parse due_date_buttons: {}", e))?;
+
+        let view_items: Vec<ViewItem> = serde_json::from_str(&self.view_items)
+            .map_err(|e| format!("Failed to parse view_items: {}", e))?;
+
         Ok(Settings {
-            id: SettingsId::try_from_str(&self.id).map_err(|e| e.to_string())?,
             theme: self.theme.clone(),
             language: self.language.clone(),
             font: self.font.clone(),
@@ -76,12 +121,13 @@ impl SettingsDocument {
             background_color: self.background_color.clone(),
             week_start: self.week_start.clone(),
             timezone: self.timezone.clone(),
-            custom_due_days: vec![],
-            date_format: Default::default(),
-            time_labels: vec![],
-            due_date_buttons: vec![],
-            view_items: vec![],
-            last_selected_account: String::new(),
+            custom_due_days,
+            datetime_format,
+            datetime_formats: vec![], // 上位層で別途設定
+            time_labels,
+            due_date_buttons,
+            view_items,
+            selected_account: self.selected_account.clone(),
         })
     }
 }
