@@ -155,9 +155,9 @@ pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
         "timezone" => Some(settings.timezone),
         "date_format" => {
             // DateTimeFormat構造体を文字列に変換
-            Some(serde_json::to_string(&settings.date_format).unwrap_or_default())
+            Some(serde_json::to_string(&settings.datetime_format).unwrap_or_default())
         },
-        "last_selected_account" => Some(settings.last_selected_account),
+        "last_selected_account" => Some(settings.selected_account),
         _ => None,
     };
 

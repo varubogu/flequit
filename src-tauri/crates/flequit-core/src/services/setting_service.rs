@@ -26,7 +26,7 @@ pub async fn get_all_settings(repositories: &dyn InfrastructureRepositoriesTrait
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
     // let view_items = repository.settings().get_all_view_items().await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
-    
+
     // 一時的な仮実装
     let time_labels = Vec::new();
     let view_items = Vec::new();
@@ -74,11 +74,11 @@ pub async fn set_setting(repositories: &dyn InfrastructureRepositoriesTrait, key
         "date_format" => {
             // DateTimeFormat構造体に値を設定（簡単な例）
             if let Ok(format_data) = serde_json::from_value::<DateTimeFormat>(value) {
-                current_settings.date_format = format_data;
+                current_settings.datetime_format = format_data;
             }
         }
         "last_selected_account" => {
-            current_settings.last_selected_account = value.as_str().unwrap_or_default().to_string()
+            current_settings.selected_account = value.as_str().unwrap_or_default().to_string()
         }
         // JSONフィールドの場合
         "custom_due_days" => {
