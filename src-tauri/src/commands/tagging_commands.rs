@@ -1,12 +1,13 @@
 use flequit_core::facades::tagging_facades;
-use crate::models::tagging::{TaskTagCommand, SubtaskTagCommand};
+use crate::models::task_tag::TaskTagCommandModel;
+use crate::models::subtask_tag::SubtaskTagCommandModel;
 use flequit_model::types::id_types::{TaskId, SubTaskId, TagId};
 
 // TaskTag関連コマンド（CRUD）
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn create_task_tag(task_tag: TaskTagCommand) -> Result<bool, String> {
+pub async fn create_task_tag(task_tag: TaskTagCommandModel) -> Result<bool, String> {
     let task_id = TaskId::from(task_tag.task_id);
     let tag_id = TagId::from(task_tag.tag_id);
     tagging_facades::add_task_tag_relation(&task_id, &tag_id).await
@@ -24,7 +25,7 @@ pub async fn delete_task_tag(task_id: String, tag_id: String) -> Result<bool, St
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn create_subtask_tag(subtask_tag: SubtaskTagCommand) -> Result<bool, String> {
+pub async fn create_subtask_tag(subtask_tag: SubtaskTagCommandModel) -> Result<bool, String> {
     let subtask_id = SubTaskId::from(subtask_tag.subtask_id);
     let tag_id = TagId::from(subtask_tag.tag_id);
     tagging_facades::add_subtask_tag_relation(&subtask_id, &tag_id).await

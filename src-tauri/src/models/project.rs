@@ -6,23 +6,13 @@ use uuid::Uuid;
 use flequit_model::models::ModelConverter;
 
 use crate::models::{CommandModelConverter};
-use flequit_model::models::project::{Project, ProjectTree};
+use flequit_model::models::task_projects::project::{Project, ProjectTree};
 use flequit_model::types::id_types::{ProjectId, UserId};
 
-/// プロジェクト検索用のリクエスト構造体
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectSearchRequest {
-    pub name: Option<String>,
-    pub status: Option<ProjectStatus>,
-    pub owner_id: Option<String>,
-    pub is_archived: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
-}
 
 /// Tauriコマンド引数用のProject構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectCommand {
+pub struct ProjectCommandModel {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
@@ -36,7 +26,7 @@ pub struct ProjectCommand {
 }
 
 #[async_trait]
-impl ModelConverter<Project> for ProjectCommand {
+impl ModelConverter<Project> for ProjectCommandModel {
     /// コマンド引数用（ProjectCommand）から内部モデル（Project）に変換
     async fn to_model(&self) -> Result<Project, String> {
         use chrono::{DateTime, Utc};
@@ -73,10 +63,10 @@ impl ModelConverter<Project> for ProjectCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<ProjectCommand> for Project {
-    /// ドメインモデル（Account）からコマンドモデル（AccountCommand）に変換
-    async fn to_command_model(&self) -> Result<ProjectCommand, String> {
-        Ok(ProjectCommand {
+impl CommandModelConverter<ProjectCommandModel> for Project {
+    /// ドメインモデル（Project）からコマンドモデル（ProjectCommandModel）に変換
+    async fn to_command_model(&self) -> Result<ProjectCommandModel, String> {
+        Ok(ProjectCommandModel {
             id: self.id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),
@@ -93,7 +83,7 @@ impl CommandModelConverter<ProjectCommand> for Project {
 
 /// Tauriコマンド戻り値用のProjectTree構造体（日時フィールドはString、階層構造含む）
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProjectTreeCommand {
+pub struct ProjectTreeCommandModel {
     pub id: String,
     pub name: String,
     pub description: Option<String>,
@@ -104,11 +94,11 @@ pub struct ProjectTreeCommand {
     pub owner_id: Option<String>,
     pub created_at: String,
     pub updated_at: String,
-    pub task_lists: Vec<super::task_list::TaskListTreeCommand>,
+    pub task_lists: Vec<super::task_list::TaskListTreeCommandModel>,
 }
 
 #[async_trait]
-impl ModelConverter<ProjectTree> for ProjectTreeCommand {
+impl ModelConverter<ProjectTree> for ProjectTreeCommandModel {
     /// ドメインモデル（ProjectTree）からコマンドモデル（ProjectTreeCommand）に変換
     async fn to_model(&self) -> Result<ProjectTree, String> {
         let created_at = self
@@ -143,10 +133,10 @@ impl ModelConverter<ProjectTree> for ProjectTreeCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<ProjectTreeCommand> for ProjectTree {
-    /// ドメインモデル（Account）からコマンドモデル（AccountCommand）に変換
-    async fn to_command_model(&self) -> Result<ProjectTreeCommand, String> {
-        Ok(ProjectTreeCommand {
+impl CommandModelConverter<ProjectTreeCommandModel> for ProjectTree {
+    /// ドメインモデル（ProjectTree）からコマンドモデル（ProjectTreeCommandModel）に変換
+    async fn to_command_model(&self) -> Result<ProjectTreeCommandModel, String> {
+        Ok(ProjectTreeCommandModel {
             id: self.id.to_string(),
             name: self.name.clone(),
             description: self.description.clone(),

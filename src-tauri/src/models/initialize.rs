@@ -1,42 +1,44 @@
 use async_trait::async_trait;
 use flequit_model::models::ModelConverter;
-use crate::models::{project::ProjectTreeCommand, CommandModelConverter};
-use crate::models::account::AccountCommand;
+use crate::models::{project::ProjectTreeCommandModel, CommandModelConverter};
+use crate::models::account::AccountCommandModel;
+use crate::models::settings::SettingsCommandModel;
 use flequit_model::models::initialized_data::InitializedData;
-use flequit_model::models::project::ProjectTree;
-use flequit_model::models::setting::Settings;
+use flequit_model::models::task_projects::project::ProjectTree;
 use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド戻り値用の初期化結果構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InitializedResult {
-    pub settings: Settings,
-    pub accounts: Vec<AccountCommand>,
-    pub projects: Vec<ProjectTreeCommand>,
+    pub settings: SettingsCommandModel,
+    pub accounts: Vec<AccountCommandModel>,
+    pub projects: Vec<ProjectTreeCommandModel>,
 }
 
 #[async_trait]
 impl ModelConverter<InitializedData> for InitializedResult {
     /// ドメインデータからコマンドモデルに変換
     async fn to_model(&self) -> Result<InitializedData, String> {
-        let mut account_commands = Vec::new();
+        let settings = self.settings.clone().to_model().await?;
+
+        let mut accounts = Vec::new();
         for account in &self.accounts {
-            account_commands.push(account.to_model().await?);
+            accounts.push(account.to_model().await?);
         }
 
         // ProjectTreeCommandからProjectTreeに変換してからProjectに変換
-        let mut project_commands = Vec::new();
+        let mut projects = Vec::new();
         for project in &self.projects {
             let project_tree = project.to_model().await?;
             // ProjectTreeからProjectに変換（task_listsフィールドは無視）
             let project = project_tree.to_model().await?;
-            project_commands.push(project);
+            projects.push(project);
         }
 
         Ok(InitializedData {
-            settings: self.settings.clone(),
-            accounts: account_commands,
-            projects: project_commands,
+            settings,
+            accounts,
+            projects,
         })
     }
 }
@@ -44,6 +46,9 @@ impl ModelConverter<InitializedData> for InitializedResult {
 #[async_trait]
 impl CommandModelConverter<InitializedResult> for InitializedData {
     async fn to_command_model(&self) -> Result<InitializedResult, String> {
+
+        let settings = self.settings.clone().to_command_model().await?;
+
         // ProjectからProjectTreeに変換（task_listsは空）
         let project_trees: Vec<ProjectTree> = self
             .projects
@@ -63,6 +68,7 @@ impl CommandModelConverter<InitializedResult> for InitializedData {
             })
             .collect();
 
+
         // ProjectTreeをProjectTreeCommandに変換
         let mut project_tree_commands = Vec::new();
         for project_tree in project_trees {
@@ -76,7 +82,7 @@ impl CommandModelConverter<InitializedResult> for InitializedData {
         }
 
         Ok(InitializedResult {
-            settings: self.settings.clone(),
+            settings,
             accounts: account_commands,
             projects: project_tree_commands,
         })

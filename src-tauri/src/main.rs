@@ -9,10 +9,13 @@ fn main() {
 
     // アプリケーション開始ログ
     tracing::info!("🚀 Flequit application starting...");
-    
+
     // テストログ（デバッグ用）
     flequit_lib::logger::test_logging();
-    
+
+    // 型定義出力
+    flequit_lib::tauri_specta_output();
+
     flequit_lib::run()
 }
 

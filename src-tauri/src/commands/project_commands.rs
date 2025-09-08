@@ -1,12 +1,12 @@
 use flequit_core::facades::project_facades;
-use crate::models::project::ProjectCommand;
-use flequit_model::models::{project::PartialProject, ModelConverter};
+use crate::models::project::ProjectCommandModel;
+use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
 use crate::models::CommandModelConverter;
 use flequit_model::types::id_types::ProjectId;
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn create_project(project: ProjectCommand) -> Result<bool, String> {
+pub async fn create_project(project: ProjectCommandModel) -> Result<bool, String> {
     let internal_project = project.to_model().await?;
 
     project_facades::create_project(&internal_project).await
@@ -14,7 +14,7 @@ pub async fn create_project(project: ProjectCommand) -> Result<bool, String> {
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn get_project(id: String) -> Result<Option<ProjectCommand>, String> {
+pub async fn get_project(id: String) -> Result<Option<ProjectCommandModel>, String> {
     let project_id = ProjectId::from(id);
     let result = project_facades::get_project(&project_id).await?;
     match result {

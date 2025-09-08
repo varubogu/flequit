@@ -1,13 +1,13 @@
 use flequit_core::facades::account_facades;
-use flequit_model::models::account::PartialAccount;
+use flequit_model::models::accounts::account::PartialAccount;
 use flequit_model::models::ModelConverter;
-use crate::models::account::AccountCommand;
+use crate::models::account::AccountCommandModel;
 use crate::models::CommandModelConverter;
 use flequit_model::types::id_types::AccountId;
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn create_account(account: AccountCommand) -> Result<bool, String> {
+pub async fn create_account(account: AccountCommandModel) -> Result<bool, String> {
     let internal_account = account.to_model().await?;
 
     account_facades::create_account(&internal_account).await
@@ -15,7 +15,7 @@ pub async fn create_account(account: AccountCommand) -> Result<bool, String> {
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn get_account(id: String) -> Result<Option<AccountCommand>, String> {
+pub async fn get_account(id: String) -> Result<Option<AccountCommandModel>, String> {
     let account_id = AccountId::from(id);
     let result = account_facades::get_account(&account_id).await?;
     if let Some(account) = result {

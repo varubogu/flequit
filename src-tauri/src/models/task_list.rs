@@ -3,23 +3,15 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use flequit_model::models::ModelConverter;
+use crate::models::task::TaskTreeCommandModel;
 use crate::models::CommandModelConverter;
-use flequit_model::models::task_list::{TaskList, TaskListTree};
+use flequit_model::models::task_projects::task_list::{TaskList, TaskListTree};
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 
-/// タスクリスト検索用のリクエスト構造体
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskListSearchRequest {
-    pub project_id: Option<String>,
-    pub name: Option<String>,
-    pub is_archived: Option<bool>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
-}
 
-/// Tauriコマンド引数用のTaskList構造体（created_at/updated_atはString）
+/// Tauriコマンド引数用のTaskList構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskListCommand {
+pub struct TaskListCommandModel {
     pub id: String,
     pub project_id: String,
     pub name: String,
@@ -32,7 +24,7 @@ pub struct TaskListCommand {
 }
 
 #[async_trait]
-impl ModelConverter<TaskList> for TaskListCommand {
+impl ModelConverter<TaskList> for TaskListCommandModel {
     /// コマンド引数用（TaskListCommand）から内部モデル（TaskList）に変換
     async fn to_model(&self) -> Result<TaskList, String> {
         let created_at = self
@@ -59,9 +51,9 @@ impl ModelConverter<TaskList> for TaskListCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<TaskListCommand> for TaskList {
-    async fn to_command_model(&self) -> Result<TaskListCommand, String> {
-        Ok(TaskListCommand {
+impl CommandModelConverter<TaskListCommandModel> for TaskList {
+    async fn to_command_model(&self) -> Result<TaskListCommandModel, String> {
+        Ok(TaskListCommandModel {
             id: self.id.to_string(),
             project_id: self.project_id.to_string(),
             name: self.name.clone(),
@@ -76,9 +68,9 @@ impl CommandModelConverter<TaskListCommand> for TaskList {
 }
 
 
-/// Tauriコマンド戻り値用のTaskListTree構造体（日時フィールドはString、階層構造含む）
+/// Tauriコマンド戻り値用のTaskListTree構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TaskListTreeCommand {
+pub struct TaskListTreeCommandModel {
     pub id: String,
     pub project_id: String,
     pub name: String,
@@ -88,11 +80,11 @@ pub struct TaskListTreeCommand {
     pub is_archived: bool,
     pub created_at: String,
     pub updated_at: String,
-    pub tasks: Vec<super::task::TaskTreeCommand>,
+    pub tasks: Vec<TaskTreeCommandModel>,
 }
 
 #[async_trait]
-impl ModelConverter<TaskListTree> for TaskListTreeCommand {
+impl ModelConverter<TaskListTree> for TaskListTreeCommandModel {
     /// コマンド引数用（TaskListTreeCommand）から内部モデル（TaskListTree）に変換
     async fn to_model(&self) -> Result<TaskListTree, String> {
         let created_at = self
@@ -125,14 +117,14 @@ impl ModelConverter<TaskListTree> for TaskListTreeCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<TaskListTreeCommand> for TaskListTree {
-    async fn to_command_model(&self) -> Result<TaskListTreeCommand, String> {
+impl CommandModelConverter<TaskListTreeCommandModel> for TaskListTree {
+    async fn to_command_model(&self) -> Result<TaskListTreeCommandModel, String> {
         let mut task_commands = Vec::new();
         for task in &self.tasks {
             task_commands.push(task.to_command_model().await?);
         }
 
-        Ok(TaskListTreeCommand {
+        Ok(TaskListTreeCommandModel {
             id: self.id.to_string(),
             project_id: self.project_id.to_string(),
             name: self.name.clone(),

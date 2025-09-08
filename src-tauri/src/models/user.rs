@@ -1,18 +1,18 @@
+//! ユーザーコマンドモデル
+
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-
+use chrono::{DateTime, Utc};
 use flequit_model::models::ModelConverter;
+use flequit_model::models::users::user::User;
+use flequit_model::types::id_types::UserId;
 use crate::models::CommandModelConverter;
-use flequit_model::{models::user::User, types::id_types::UserId};
 
-/// Tauriコマンド引数用のUser構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UserCommand {
+pub struct UserCommandModel {
     pub id: String,
-    pub username: String,
-    pub display_name: Option<String>,
+    pub handle_id: String,
+    pub display_name: String,
     pub email: Option<String>,
     pub avatar_url: Option<String>,
     pub bio: Option<String>,
@@ -23,8 +23,8 @@ pub struct UserCommand {
 }
 
 #[async_trait]
-impl ModelConverter<User> for UserCommand {
-    /// コマンド引数用（UserCommand）から内部モデル（User）に変換
+impl ModelConverter<User> for UserCommandModel {
+    /// コマンド引数用（UserCommandModel）から内部モデル（User）に変換
     async fn to_model(&self) -> Result<User, String> {
         let created_at = self
             .created_at
@@ -36,10 +36,8 @@ impl ModelConverter<User> for UserCommand {
             .map_err(|e| format!("Invalid updated_at format: {}", e))?;
 
         Ok(User {
-            id: UserId::from(
-                Uuid::parse_str(&self.id).map_err(|e| format!("Invalid ID: {}", e))?,
-            ),
-            username: self.username.clone(),
+            id: UserId::from(self.id.clone()),
+            handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),
@@ -53,11 +51,12 @@ impl ModelConverter<User> for UserCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<UserCommand> for User {
-    async fn to_command_model(&self) -> Result<UserCommand, String> {
-        Ok(UserCommand {
+impl CommandModelConverter<UserCommandModel> for User {
+    /// ドメインモデル（User）からコマンドモデル（UserCommandModel）に変換
+    async fn to_command_model(&self) -> Result<UserCommandModel, String> {
+        Ok(UserCommandModel {
             id: self.id.to_string(),
-            username: self.username.clone(),
+            handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),

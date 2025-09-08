@@ -2,11 +2,17 @@
 mod commands;
 pub mod logger;
 pub mod models;
+pub mod state;
 
 // Re-export from flequit-core
 pub use flequit_core::*;
 
 use commands::*;
+use tauri_specta::collect_commands;
+use specta_typescript::Typescript;
+
+use crate::models::account::AccountCommandModel;
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -29,39 +35,47 @@ pub fn run() {
             task_commands::get_task,
             task_commands::update_task,
             task_commands::delete_task,
+            // Task recurrence commands
+            task_commands::create_task_recurrence,
+            task_commands::get_task_recurrence_by_task_id,
+            task_commands::delete_task_recurrence,
             // Project management commands
             project_commands::create_project,
             project_commands::get_project,
             project_commands::update_project,
             project_commands::delete_project,
             // Setting management commands
-            setting_commands::get_setting,
-            setting_commands::get_all_settings,
-            setting_commands::update_setting,
-            setting_commands::set_setting,
+            settings_commands::get_setting,
+            settings_commands::get_all_settings,
+            settings_commands::update_setting,
+            settings_commands::set_setting,
             // Custom Date Format commands
-            setting_commands::get_custom_date_format_setting,
-            setting_commands::get_all_custom_date_format_settings,
-            setting_commands::add_custom_date_format_setting,
-            setting_commands::update_custom_date_format_setting,
-            setting_commands::delete_custom_date_format_setting,
+            settings_commands::get_custom_date_format_setting,
+            settings_commands::get_all_custom_date_format_settings,
+            settings_commands::add_custom_date_format_setting,
+            settings_commands::update_custom_date_format_setting,
+            settings_commands::delete_custom_date_format_setting,
             // Time Label commands
-            setting_commands::get_time_label_setting,
-            setting_commands::get_all_time_label_settings,
-            setting_commands::add_time_label_setting,
-            setting_commands::update_time_label_setting,
-            setting_commands::delete_time_label_setting,
+            settings_commands::get_time_label_setting,
+            settings_commands::get_all_time_label_settings,
+            settings_commands::add_time_label_setting,
+            settings_commands::update_time_label_setting,
+            settings_commands::delete_time_label_setting,
             // View Item commands
-            setting_commands::get_view_item_setting,
-            setting_commands::get_all_view_item_settings,
-            setting_commands::add_view_item_setting,
-            setting_commands::update_view_item_setting,
-            setting_commands::delete_view_item_setting,
+            settings_commands::get_view_item_setting,
+            settings_commands::get_all_view_item_settings,
+            settings_commands::add_view_item_setting,
+            settings_commands::update_view_item_setting,
+            settings_commands::delete_view_item_setting,
             // Subtask management commands (frontend compatibility aliases)
             subtask_commands::create_sub_task,
             subtask_commands::get_sub_task,
             subtask_commands::update_sub_task,
             subtask_commands::delete_sub_task,
+            // Subtask recurrence commands
+            subtask_commands::create_subtask_recurrence,
+            subtask_commands::get_subtask_recurrence_by_subtask_id,
+            subtask_commands::delete_subtask_recurrence,
             // Tag management commands
             tag_commands::create_tag,
             tag_commands::get_tag,
@@ -87,7 +101,32 @@ pub fn run() {
             assignment_commands::delete_task_assignment,
             assignment_commands::create_subtask_assignment,
             assignment_commands::delete_subtask_assignment,
+            // Task recurrence management commands
+            task_commands::create_recurrence_rule,
+            task_commands::get_recurrence_rule,
+            task_commands::get_all_recurrence_rules,
+            task_commands::update_recurrence_rule,
+            task_commands::delete_recurrence_rule,
+            task_commands::create_recurrence_adjustment,
+            task_commands::get_recurrence_adjustments_by_rule_id,
+            task_commands::delete_recurrence_adjustment,
+            task_commands::create_recurrence_details,
+            task_commands::get_recurrence_details_by_rule_id,
+            task_commands::update_recurrence_details,
+            task_commands::delete_recurrence_details,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+pub fn tauri_specta_output() {
+    let builder = tauri_specta::Builder::<tauri::Wry>::new()
+        .commands(collect_commands![
+        ])
+        .typ::<AccountCommandModel>();
+
+    #[cfg(debug_assertions)]
+    builder
+            .export(Typescript::default(), "../src/lib/types/bindings.ts")
+            .expect("Failed to export typescript bindings");
 }

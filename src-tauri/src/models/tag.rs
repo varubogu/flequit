@@ -4,19 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::CommandModelConverter;
 use flequit_model::models::ModelConverter;
-use flequit_model::models::tag::Tag;
+use flequit_model::models::task_projects::tag::Tag;
 
-/// タグ検索用のリクエスト構造体
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TagSearchRequest {
-    pub name: Option<String>,
-    pub limit: Option<i32>,
-    pub offset: Option<i32>,
-}
 
 /// Tauriコマンド引数用のTag構造体（created_at/updated_atはString）
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TagCommand {
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+pub struct TagCommandModel {
     pub id: String,
     pub name: String,
     pub color: Option<String>,
@@ -26,7 +19,7 @@ pub struct TagCommand {
 }
 
 #[async_trait]
-impl ModelConverter<Tag> for TagCommand {
+impl ModelConverter<Tag> for TagCommandModel {
     /// コマンド引数用（TagCommand）から内部モデル（Tag）に変換
     async fn to_model(&self) -> Result<Tag, String> {
         use chrono::{DateTime, Utc};
@@ -52,9 +45,9 @@ impl ModelConverter<Tag> for TagCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<TagCommand> for Tag {
-    async fn to_command_model(&self) -> Result<TagCommand, String> {
-        Ok(TagCommand {
+impl CommandModelConverter<TagCommandModel> for Tag {
+    async fn to_command_model(&self) -> Result<TagCommandModel, String> {
+        Ok(TagCommandModel {
             id: self.id.to_string(),
             name: self.name.clone(),
             color: self.color.clone(),

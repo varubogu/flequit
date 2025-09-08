@@ -2,27 +2,38 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use flequit_model::models::{account::Account, ModelConverter};
-use crate::models::{CommandModelConverter};
+use flequit_model::models::accounts::account::Account;
+use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{AccountId, UserId};
+use crate::models::CommandModelConverter;
 
-/// Tauriコマンド引数用のAccount構造体（created_at/updated_atはString）
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AccountCommand {
+/// Tauriコマンド引数用のAccount構造体
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+pub struct AccountCommandModel {
+    /// アカウントID（非公開ID）
     pub id: String,
+    /// ユーザーID（公開ID）
     pub user_id: String,
+    /// メールアドレス
     pub email: Option<String>,
+    /// 表示名
     pub display_name: Option<String>,
+    /// アバターURL
     pub avatar_url: Option<String>,
+    /// 認証プロバイダー
     pub provider: String,
+    /// 認証プロバイダーID
     pub provider_id: Option<String>,
+    /// アクティブなプロジェクトか
     pub is_active: bool,
+    /// 作成日時
     pub created_at: String,
+    /// 更新日時
     pub updated_at: String,
 }
 
 #[async_trait]
-impl ModelConverter<Account> for AccountCommand {
+impl ModelConverter<Account> for AccountCommandModel {
     /// コマンド引数用（AccountCommand）から内部モデル（Account）に変換
     async fn to_model(&self) -> Result<Account, String> {
         use chrono::{DateTime, Utc};
@@ -56,10 +67,10 @@ impl ModelConverter<Account> for AccountCommand {
 }
 
 #[async_trait]
-impl CommandModelConverter<AccountCommand> for Account {
+impl CommandModelConverter<AccountCommandModel> for Account {
     /// ドメインモデル（Account）からコマンドモデル（AccountCommand）に変換
-    async fn to_command_model(&self) -> Result<AccountCommand, String> {
-        Ok(AccountCommand {
+    async fn to_command_model(&self) -> Result<AccountCommandModel, String> {
+        Ok(AccountCommandModel {
             id: self.id.to_string(),
             user_id: self.user_id.to_string(),
             email: self.email.clone(),

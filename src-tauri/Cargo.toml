@@ -19,25 +19,28 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 members = [
     "crates/flequit-core",
     "crates/flequit-model",
-    "crates/flequit-storage",
+    "crates/flequit-repository",
+    "crates/flequit-infrastructure-sqlite",
+    "crates/flequit-infrastructure-automerge",
     "."
-]
+, "crates/flequit-types", "crates/flequit-infrastructure"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.4.0", features = [] }
 
 [dependencies]
 # Internal crates
 flequit-model = { path = "crates/flequit-model" }
 flequit-core = { path = "crates/flequit-core" }
+flequit-infrastructure = { path = "crates/flequit-infrastructure" }
 
 # Tauri framework
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
+tauri = { version = "2.8.4", features = [] }
+tauri-plugin-opener = "2.5.0"
 
 # Serialization (for commands)
 serde = { version = "1", features = ["derive"] }
-serde_json = "1.0.142"
+serde_json = "1.0.143"
 
 # Async runtime
 tokio = { version = "1.47.1", features = ["full"] }
@@ -47,17 +50,21 @@ futures = "0.3.31"
 dirs = "6.0.0"
 
 # Error handling
-thiserror = "2.0.12"
+thiserror = "2.0.16"
 
 # Logging
 log = "0.4"
 env_logger = "0.11.8"
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter", "fmt", "time", "chrono"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter", "fmt", "time", "chrono"] }
 tracing-appender = "0.2.3"
-chrono = { version = "0.4.41", features = ["serde"] }
-uuid = { version = "1.18.0", features = ["serde", "v4"] }
-async-trait = "0.1.89"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.18", features = ["serde", "v4"] }
+async-trait = "0.1"
+specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
+tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+specta-typescript = "0.0.9"
+specta-jsdoc = "0.0.9"
 
 [dev-dependencies]
-tempfile = "3.0"
+tempfile = "3.21.0"
