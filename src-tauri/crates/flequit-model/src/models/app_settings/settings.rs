@@ -3,6 +3,7 @@
 //! このモジュールはアプリケーションの全設定項目を管理する構造体を定義します。
 
 use serde::{Deserialize, Serialize};
+
 use super::datetime_format::DateTimeFormat;
 use super::time_label::TimeLabel;
 use super::due_date_buttons::DueDateButtons;
@@ -14,8 +15,6 @@ use super::view_item::ViewItem;
 /// フロントエンドのSettings型に対応しています。
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
-    /// 設定ID（通常は固定値"app_settings"）
-    pub id: crate::types::id_types::SettingsId,
     // テーマ・外観設定
     /// UIテーマ（"system", "light", "dark"）
     pub theme: String,
@@ -37,8 +36,10 @@ pub struct Settings {
     pub timezone: String,
     /// カスタム期日日数
     pub custom_due_days: Vec<i32>,
-    /// 日時フォーマット
-    pub date_format: DateTimeFormat,
+    /// 選択した日時フォーマット
+    pub datetime_format: DateTimeFormat,
+    /// 日時フォーマット一覧
+    pub datetime_formats: Vec<DateTimeFormat>,
     /// 時刻ラベル
     pub time_labels: Vec<TimeLabel>,
 
@@ -50,13 +51,12 @@ pub struct Settings {
 
     // アカウント設定
     /// 最後に選択されたアカウントID
-    pub last_selected_account: String,
+    pub selected_account: String,
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            id: crate::types::id_types::SettingsId::from("app_settings"),
             theme: "system".to_string(),
             language: "ja".to_string(),
             font: "system".to_string(),
@@ -66,11 +66,12 @@ impl Default for Settings {
             week_start: "monday".to_string(),
             timezone: "Asia/Tokyo".to_string(),
             custom_due_days: vec![1, 3, 7, 14, 30],
-            date_format: DateTimeFormat::default(),
+            datetime_format: DateTimeFormat::default(),
+            datetime_formats: vec![],
             time_labels: vec![],
             due_date_buttons: vec![],
             view_items: vec![],
-            last_selected_account: String::new(),
+            selected_account: String::new(),
         }
     }
 }
