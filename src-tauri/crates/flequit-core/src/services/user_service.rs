@@ -92,10 +92,8 @@ pub async fn search_users(repositories: &dyn InfrastructureRepositoriesTrait, qu
     let filtered_users = users
         .into_iter()
         .filter(|user| {
-            user.username.to_lowercase().contains(&query.to_lowercase())
-                || user.display_name.as_ref().map_or(false, |dn| {
-                    dn.to_lowercase().contains(&query.to_lowercase())
-                })
+            user.handle_id.to_lowercase().contains(&query.to_lowercase())
+                || user.display_name.contains(&query.to_lowercase())
                 || user.email.as_ref().map_or(false, |email| {
                     email.to_lowercase().contains(&query.to_lowercase())
                 })
@@ -143,7 +141,7 @@ pub async fn update_user_profile(
 
     if let Some(mut user) = repositories.users().find_by_id(&user_id_typed).await? {
         if let Some(dn) = display_name {
-            user.display_name = Some(dn.clone());
+            user.display_name = dn.clone();
         }
         if let Some(avatar) = avatar_url {
             user.avatar_url = Some(avatar.clone());

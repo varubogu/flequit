@@ -53,12 +53,12 @@ impl UserLocalSqliteRepository {
     }
 
     /// ユーザー名でユーザーを検索
-    pub async fn find_by_username(&self, username: &str) -> Result<Option<User>, RepositoryError> {
+    pub async fn find_by_handle_id(&self, handle_id: &str) -> Result<Option<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
         if let Some(model) = UserEntity::find()
-            .filter(Column::Username.eq(username))
+            .filter(Column::HandleId.eq(handle_id))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
@@ -79,8 +79,8 @@ impl UserLocalSqliteRepository {
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
         let models = UserEntity::find()
-            .filter(Column::Username.contains(name))
-            .order_by_asc(Column::Username)
+            .filter(Column::HandleId.contains(name))
+            .order_by_asc(Column::HandleId)
             .all(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -172,7 +172,7 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
                 .await
                 .map_err(RepositoryError::Conversion)?;
 
-            active_model.username = new_active.username;
+            active_model.handle_id = new_active.handle_id;
             active_model.display_name = new_active.display_name;
             active_model.email = new_active.email;
             active_model.avatar_url = new_active.avatar_url;

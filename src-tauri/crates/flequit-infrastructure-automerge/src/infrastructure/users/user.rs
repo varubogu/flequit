@@ -96,7 +96,7 @@ impl UserLocalAutomergeRepository {
     /// ユーザー名でユーザーを検索
     pub async fn find_by_username(&self, username: &str) -> Result<Option<User>, RepositoryError> {
         let users = self.list_users().await?;
-        Ok(users.into_iter().find(|user| user.username == username))
+        Ok(users.into_iter().find(|user| user.handle_id == username))
     }
 
     /// ユーザー名でユーザーを検索（部分一致）
@@ -104,7 +104,7 @@ impl UserLocalAutomergeRepository {
         let users = self.list_users().await?;
         Ok(users
             .into_iter()
-            .filter(|user| user.username.contains(name))
+            .filter(|user| user.handle_id.contains(name))
             .collect())
     }
 
@@ -117,9 +117,7 @@ impl UserLocalAutomergeRepository {
         Ok(users
             .into_iter()
             .filter(|user| {
-                user.display_name
-                    .as_ref()
-                    .is_some_and(|dn| dn.contains(display_name))
+                user.display_name == display_name
             })
             .collect())
     }
@@ -264,8 +262,8 @@ mod tests {
         let test_user_id = UserId::new();
         let user = User {
             id: test_user_id,
-            username: "testuser".to_string(),
-            display_name: Some("Test User".to_string()),
+            handle_id: "testuser".to_string(),
+            display_name: "Test User".to_string(),
             email: Some("test@example.com".to_string()),
             avatar_url: None,
             bio: Some("Test bio".to_string()),
@@ -282,8 +280,8 @@ mod tests {
         let test_user_id2 = UserId::new();
         let user2 = User {
             id: test_user_id2,
-            username: "seconduser".to_string(),
-            display_name: Some("Second User".to_string()),
+            handle_id: "seconduser".to_string(),
+            display_name: "Second User".to_string(),
             email: Some("user2@example.com".to_string()),
             avatar_url: Some("https://example.com/avatar2.png".to_string()),
             bio: None,
@@ -306,9 +304,9 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(retrieved1.username, "testuser");
+        assert_eq!(retrieved1.handle_id, "testuser");
         assert_eq!(retrieved1.email, Some("test@example.com".to_string()));
-        assert_eq!(retrieved1.display_name, Some("Test User".to_string()));
+        assert_eq!(retrieved1.display_name, "Test User".to_string());
         assert!(retrieved1.is_active);
 
         let retrieved2 = repo
@@ -316,9 +314,9 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(retrieved2.username, "seconduser");
+        assert_eq!(retrieved2.handle_id, "seconduser");
         assert_eq!(retrieved2.email, Some("user2@example.com".to_string()));
-        assert_eq!(retrieved2.display_name, Some("Second User".to_string()));
+        assert_eq!(retrieved2.display_name, "Second User".to_string());
 
         // 検索テスト
         let found_by_email = repo.find_by_email("test@example.com").await.unwrap();
@@ -362,8 +360,8 @@ mod tests {
         let test_user_id = UserId::new();
         let user = User {
             id: test_user_id,
-            username: "repotestuser".to_string(),
-            display_name: Some("Repository Test User".to_string()),
+            handle_id: "repotestuser".to_string(),
+            display_name: "Repository Test User".to_string(),
             email: Some("repo_test@example.com".to_string()),
             avatar_url: None,
             bio: None,

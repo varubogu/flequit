@@ -90,9 +90,9 @@ pub struct User {
     #[partially(omit)] // IDは更新対象外
     pub id: UserId,
     /// ユニークユーザー名（必須、@mention等で使用）
-    pub username: String,
+    pub handle_id: String,
     /// 表示用名前（UI表示用、任意設定可能）
-    pub display_name: Option<String>,
+    pub display_name: String,
     /// メールアドレス（任意、通知や連絡で使用）
     pub email: Option<String>,
     /// プロフィール画像URL（外部サービス由来）
@@ -165,9 +165,9 @@ pub struct UserTree {
     /// ユーザーの公開識別子（他者から参照可能、プロジェクト共有用）
     pub id: UserId,
     /// ユニークユーザー名（必須、@mention等で使用）
-    pub username: String,
+    pub handle_id: String,
     /// 表示用名前（UI表示用、任意設定可能）
-    pub display_name: Option<String>,
+    pub display_name: String,
     /// メールアドレス（任意、通知や連絡で使用）
     pub email: Option<String>,
     /// プロフィール画像URL（外部サービス由来）
@@ -194,7 +194,7 @@ impl ModelConverter<User> for UserTree {
         // UserTreeからUser基本構造体に変換（関連データのtask_assignments, subtask_assignmentsは除く）
         Ok(User {
             id: self.id.clone(),
-            username: self.username.clone(),
+            handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),

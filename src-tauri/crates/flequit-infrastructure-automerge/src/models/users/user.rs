@@ -12,10 +12,10 @@ pub struct UserDocument {
     pub id: String,
 
     /// ユニークユーザー名（必須、@mention等で使用）
-    pub username: String,
+    pub handle_id: String,
 
     /// 表示用名前（UI表示用、任意設定可能）
-    pub display_name: Option<String>,
+    pub display_name: String,
 
     /// メールアドレス（任意、通知や連絡で使用）
     pub email: Option<String>,
@@ -44,7 +44,7 @@ impl UserDocument {
     pub fn from_domain_model(user: User) -> Self {
         Self {
             id: user.id.to_string(),
-            username: user.username,
+            handle_id: user.handle_id,
             display_name: user.display_name,
             email: user.email,
             avatar_url: user.avatar_url,
@@ -61,7 +61,7 @@ impl UserDocument {
         Ok(User {
             id: UserId::try_from_str(&self.id)
                 .map_err(|e| e.to_string())?,
-            username: self.username.clone(),
+            handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),

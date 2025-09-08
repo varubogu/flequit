@@ -19,10 +19,10 @@ pub struct Model {
 
     /// ユニークユーザー名（必須、@mention等で使用）
     #[sea_orm(indexed)] // 検索用インデックス
-    pub username: String,
+    pub handle_id: String,
 
     /// 表示用名前（UI表示用、任意設定可能）
-    pub display_name: Option<String>,
+    pub display_name: String,
 
     /// メールアドレス（任意、通知や連絡で使用）
     #[sea_orm(indexed)] // 検索用インデックス
@@ -59,7 +59,7 @@ impl SqliteModelConverter<User> for Model {
     async fn to_domain_model(&self) -> Result<User, String> {
         Ok(User {
             id: UserId::from(self.id.clone()),
-            username: self.username.clone(),
+            handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),
             avatar_url: self.avatar_url.clone(),
@@ -78,7 +78,7 @@ impl DomainToSqliteConverter<ActiveModel> for User {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
-            username: Set(self.username.clone()),
+            handle_id: Set(self.handle_id.clone()),
             display_name: Set(self.display_name.clone()),
             email: Set(self.email.clone()),
             avatar_url: Set(self.avatar_url.clone()),
