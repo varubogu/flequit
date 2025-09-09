@@ -20,6 +20,8 @@ pub struct SubtaskCommandModel {
     pub priority: Option<i32>,
     pub plan_start_date: Option<String>,
     pub plan_end_date: Option<String>,
+    pub do_start_date: Option<String>,
+    pub do_end_date: Option<String>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRuleCommandModel>,
     pub assigned_user_ids: Vec<String>,
@@ -65,6 +67,25 @@ impl ModelConverter<SubTask> for SubtaskCommandModel {
             None
         };
 
+        let do_start_date = if let Some(ref date_str) = self.do_start_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_start_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let do_end_date = if let Some(ref date_str) = self.do_end_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_end_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
 
         Ok(SubTask {
             id: SubTaskId::from(self.id.clone()),
@@ -75,8 +96,8 @@ impl ModelConverter<SubTask> for SubtaskCommandModel {
             priority: self.priority,
             plan_start_date: start_date,
             plan_end_date: end_date,
-            do_start_date: None,
-            do_end_date: None,
+            do_start_date,
+            do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: if let Some(ref rule) = self.recurrence_rule {
                 Some(rule.to_model().await?)
@@ -114,6 +135,8 @@ impl CommandModelConverter<SubtaskCommandModel> for SubTask {
             priority: self.priority,
             plan_start_date: self.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
             plan_end_date: self.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            do_start_date: self.do_start_date.as_ref().map(|d| d.to_rfc3339()),
+            do_end_date: self.do_end_date.as_ref().map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: if let Some(ref rule) = self.recurrence_rule {
                 Some(rule.to_command_model().await?)
@@ -141,6 +164,8 @@ pub struct SubTaskTreeCommandModel {
     pub priority: Option<i32>,
     pub plan_start_date: Option<String>,
     pub plan_end_date: Option<String>,
+    pub do_start_date: Option<String>,
+    pub do_end_date: Option<String>,
     pub is_range_date: Option<bool>,
     pub recurrence_rule: Option<RecurrenceRuleCommandModel>,
     pub assigned_user_ids: Vec<String>,
@@ -168,6 +193,8 @@ impl SubTaskTreeCommandModel {
             priority: subtask.priority,
             plan_start_date: subtask.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
             plan_end_date: subtask.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            do_start_date: subtask.do_start_date.as_ref().map(|d| d.to_rfc3339()),
+            do_end_date: subtask.do_end_date.as_ref().map(|d| d.to_rfc3339()),
             is_range_date: subtask.is_range_date,
             recurrence_rule: if let Some(ref rule) = subtask.recurrence_rule {
                 Some(rule.to_command_model().await?)
@@ -217,6 +244,26 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
             None
         };
 
+        let do_start_date = if let Some(ref date_str) = self.do_start_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_start_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        let do_end_date = if let Some(ref date_str) = self.do_end_date {
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid do_end_date format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
         let mut tags = Vec::new();
         for tag in &self.tags {
             tags.push(tag.to_model().await?);
@@ -231,8 +278,8 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
             priority: self.priority,
             plan_start_date,
             plan_end_date,
-            do_start_date: None,
-            do_end_date: None,
+            do_start_date,
+            do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule: if let Some(ref rule) = self.recurrence_rule {
                 Some(rule.to_model().await?)
@@ -270,6 +317,8 @@ impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
             priority: self.priority,
             plan_start_date: self.plan_start_date.as_ref().map(|d| d.to_rfc3339()),
             plan_end_date: self.plan_end_date.as_ref().map(|d| d.to_rfc3339()),
+            do_start_date: self.do_start_date.as_ref().map(|d| d.to_rfc3339()),
+            do_end_date: self.do_end_date.as_ref().map(|d| d.to_rfc3339()),
             is_range_date: self.is_range_date,
             recurrence_rule: if let Some(ref rule) = self.recurrence_rule {
                 Some(rule.to_command_model().await?)
