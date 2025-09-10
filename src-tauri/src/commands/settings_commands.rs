@@ -282,6 +282,7 @@ pub async fn update_setting(
 // =============================================================================
 
 /// 日時フォーマットを作成します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn create_datetime_format(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<bool, String> {
@@ -291,6 +292,7 @@ pub async fn create_datetime_format(state: State<'_, AppState>, format: DateTime
 }
 
 /// 日時フォーマットを取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_datetime_format(state: State<'_, AppState>, format_id: String) -> Result<Option<DateTimeFormatCommandModel>, String> {
@@ -303,6 +305,7 @@ pub async fn get_datetime_format(state: State<'_, AppState>, format_id: String) 
 }
 
 /// すべての日時フォーマットを取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_all_datetime_formats(state: State<'_, AppState>) -> Result<Vec<DateTimeFormatCommandModel>, String> {
@@ -316,6 +319,7 @@ pub async fn get_all_datetime_formats(state: State<'_, AppState>) -> Result<Vec<
 }
 
 /// 日時フォーマットを更新します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn update_datetime_format(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<bool, String> {
@@ -325,6 +329,7 @@ pub async fn update_datetime_format(state: State<'_, AppState>, format: DateTime
 }
 
 /// 日時フォーマットを削除します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn delete_datetime_format(state: State<'_, AppState>, format_id: String) -> Result<bool, String> {
@@ -337,6 +342,7 @@ pub async fn delete_datetime_format(state: State<'_, AppState>, format_id: Strin
 // =============================================================================
 
 /// 日付条件を作成します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn create_date_condition(state: State<'_, AppState>, condition: DateConditionCommandModel) -> Result<bool, String> {
@@ -346,6 +352,7 @@ pub async fn create_date_condition(state: State<'_, AppState>, condition: DateCo
 }
 
 /// 日付条件を取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_date_condition(state: State<'_, AppState>, condition_id: String) -> Result<Option<DateConditionCommandModel>, String> {
@@ -358,6 +365,7 @@ pub async fn get_date_condition(state: State<'_, AppState>, condition_id: String
 }
 
 /// すべての日付条件を取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_all_date_conditions(state: State<'_, AppState>) -> Result<Vec<DateConditionCommandModel>, String> {
@@ -371,6 +379,7 @@ pub async fn get_all_date_conditions(state: State<'_, AppState>) -> Result<Vec<D
 }
 
 /// 日付条件を更新します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn update_date_condition(state: State<'_, AppState>, condition: DateConditionCommandModel) -> Result<bool, String> {
@@ -380,6 +389,7 @@ pub async fn update_date_condition(state: State<'_, AppState>, condition: DateCo
 }
 
 /// 日付条件を削除します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn delete_date_condition(state: State<'_, AppState>, condition_id: String) -> Result<bool, String> {
@@ -388,6 +398,7 @@ pub async fn delete_date_condition(state: State<'_, AppState>, condition_id: Str
 }
 
 /// 日付条件を評価します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn evaluate_date_condition(state: State<'_, AppState>, condition_id: String, target_date: DateTime<Utc>) -> Result<bool, String> {
@@ -396,6 +407,7 @@ pub async fn evaluate_date_condition(state: State<'_, AppState>, condition_id: S
 }
 
 /// 曜日条件を作成します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn create_weekday_condition(state: State<'_, AppState>, condition: WeekdayConditionCommandModel) -> Result<bool, String> {
@@ -405,6 +417,7 @@ pub async fn create_weekday_condition(state: State<'_, AppState>, condition: Wee
 }
 
 /// 曜日条件を取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_weekday_condition(state: State<'_, AppState>, condition_id: String) -> Result<Option<WeekdayConditionCommandModel>, String> {
@@ -417,6 +430,7 @@ pub async fn get_weekday_condition(state: State<'_, AppState>, condition_id: Str
 }
 
 /// すべての曜日条件を取得します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_all_weekday_conditions(state: State<'_, AppState>) -> Result<Vec<WeekdayConditionCommandModel>, String> {
@@ -430,6 +444,7 @@ pub async fn get_all_weekday_conditions(state: State<'_, AppState>) -> Result<Ve
 }
 
 /// 曜日条件を更新します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn update_weekday_condition(state: State<'_, AppState>, condition: WeekdayConditionCommandModel) -> Result<bool, String> {
@@ -439,6 +454,7 @@ pub async fn update_weekday_condition(state: State<'_, AppState>, condition: Wee
 }
 
 /// 曜日条件を削除します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn delete_weekday_condition(state: State<'_, AppState>, condition_id: String) -> Result<bool, String> {
@@ -447,6 +463,7 @@ pub async fn delete_weekday_condition(state: State<'_, AppState>, condition_id: 
 }
 
 /// 曜日条件を評価します。
+#[allow(dead_code)]
 #[tracing::instrument]
 #[tauri::command]
 pub async fn evaluate_weekday_condition(state: State<'_, AppState>, condition_id: String, target_date: DateTime<Utc>) -> Result<bool, String> {

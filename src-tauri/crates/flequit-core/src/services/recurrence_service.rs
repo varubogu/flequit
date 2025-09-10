@@ -23,7 +23,10 @@ use chrono::Utc;
 
 /// 繰り返しルールを作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_rule(repositories: &dyn InfrastructureRepositoriesTrait, rule: RecurrenceRule) -> Result<(), ServiceError> {
+pub async fn create_recurrence_rule<R>(repositories: &R, rule: RecurrenceRule) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // バリデーション
     if rule.interval <= 0 {
@@ -46,7 +49,10 @@ pub async fn create_recurrence_rule(repositories: &dyn InfrastructureRepositorie
 
 /// 繰り返しルールを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_rule(repositories: &dyn InfrastructureRepositoriesTrait, rule_id: &str) -> Result<Option<RecurrenceRule>, ServiceError> {
+pub async fn get_recurrence_rule<R>(repositories: &R, rule_id: &str) -> Result<Option<RecurrenceRule>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     // let rule = repositories.recurrence_rules.find_by_id(rule_id).await
@@ -66,7 +72,10 @@ pub async fn get_recurrence_rule(repositories: &dyn InfrastructureRepositoriesTr
 
 /// すべての繰り返しルールを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_all_recurrence_rules(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<RecurrenceRule>, ServiceError> {
+pub async fn get_all_recurrence_rules<R>(repositories: &R) -> Result<Vec<RecurrenceRule>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     // let rules = repositories.recurrence_rules.find_all().await
@@ -86,7 +95,10 @@ pub async fn get_all_recurrence_rules(repositories: &dyn InfrastructureRepositor
 
 /// 繰り返しルールを更新します。
 #[tracing::instrument(level = "trace")]
-pub async fn update_recurrence_rule(repositories: &dyn InfrastructureRepositoriesTrait, rule: RecurrenceRule) -> Result<(), ServiceError> {
+pub async fn update_recurrence_rule<R>(repositories: &R, rule: RecurrenceRule) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // バリデーション
     if rule.interval <= 0 {
@@ -106,7 +118,10 @@ pub async fn update_recurrence_rule(repositories: &dyn InfrastructureRepositorie
 
 /// 繰り返しルールを削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_recurrence_rule(repositories: &dyn InfrastructureRepositoriesTrait, rule_id: &str) -> Result<(), ServiceError> {
+pub async fn delete_recurrence_rule<R>(repositories: &R, rule_id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     // repositories.recurrence_rules.delete(rule_id).await
@@ -121,7 +136,10 @@ pub async fn delete_recurrence_rule(repositories: &dyn InfrastructureRepositorie
 
 /// 繰り返し調整を作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_adjustment(repositories: &dyn InfrastructureRepositoriesTrait, adjustment: RecurrenceAdjustment) -> Result<(), ServiceError> {
+pub async fn create_recurrence_adjustment<R>(repositories: &R, adjustment: RecurrenceAdjustment) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // RecurrenceAdjustmentにはcreated_atフィールドが存在しないため、この処理は不要
 
@@ -131,7 +149,10 @@ pub async fn create_recurrence_adjustment(repositories: &dyn InfrastructureRepos
 
 /// 繰り返しルールIDによる調整一覧を取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_adjustments_by_rule_id(repositories: &dyn InfrastructureRepositoriesTrait, rule_id: &str) -> Result<Vec<RecurrenceAdjustment>, ServiceError> {
+pub async fn get_recurrence_adjustments_by_rule_id<R>(repositories: &R, rule_id: &str) -> Result<Vec<RecurrenceAdjustment>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 仮実装
     Ok(vec![])
@@ -139,7 +160,10 @@ pub async fn get_recurrence_adjustments_by_rule_id(repositories: &dyn Infrastruc
 
 /// 繰り返し調整を削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_recurrence_adjustment(repositories: &dyn InfrastructureRepositoriesTrait, adjustment_id: &str) -> Result<(), ServiceError> {
+pub async fn delete_recurrence_adjustment<R>(repositories: &R, adjustment_id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     Ok(())
@@ -151,7 +175,10 @@ pub async fn delete_recurrence_adjustment(repositories: &dyn InfrastructureRepos
 
 /// 繰り返し詳細を作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_details(repositories: &dyn InfrastructureRepositoriesTrait, details: RecurrenceDetails) -> Result<(), ServiceError> {
+pub async fn create_recurrence_details<R>(repositories: &R, details: RecurrenceDetails) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // RecurrenceDetailsにはcreated_at, updated_atフィールドが存在しないため、この処理は不要
 
@@ -161,7 +188,10 @@ pub async fn create_recurrence_details(repositories: &dyn InfrastructureReposito
 
 /// 繰り返しルールIDによる詳細を取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_details_by_rule_id(repositories: &dyn InfrastructureRepositoriesTrait, rule_id: &str) -> Result<Option<RecurrenceDetails>, ServiceError> {
+pub async fn get_recurrence_details_by_rule_id<R>(repositories: &R, rule_id: &str) -> Result<Option<RecurrenceDetails>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 仮実装
     Ok(None)
@@ -169,7 +199,10 @@ pub async fn get_recurrence_details_by_rule_id(repositories: &dyn Infrastructure
 
 /// 繰り返し詳細を更新します。
 #[tracing::instrument(level = "trace")]
-pub async fn update_recurrence_details(repositories: &dyn InfrastructureRepositoriesTrait, details: RecurrenceDetails) -> Result<(), ServiceError> {
+pub async fn update_recurrence_details<R>(repositories: &R, details: RecurrenceDetails) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     Ok(())
@@ -177,7 +210,10 @@ pub async fn update_recurrence_details(repositories: &dyn InfrastructureReposito
 
 /// 繰り返し詳細を削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_recurrence_details(repositories: &dyn InfrastructureRepositoriesTrait, details_id: &str) -> Result<(), ServiceError> {
+pub async fn delete_recurrence_details<R>(repositories: &R, details_id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     Ok(())
@@ -189,7 +225,10 @@ pub async fn delete_recurrence_details(repositories: &dyn InfrastructureReposito
 
 /// タスクに繰り返しルールを関連付けます。
 #[tracing::instrument(level = "trace")]
-pub async fn create_task_recurrence(repositories: &dyn InfrastructureRepositoriesTrait, task_id: &TaskId, recurrence_rule_id: &str) -> Result<(), ServiceError> {
+pub async fn create_task_recurrence<R>(repositories: &R, task_id: &TaskId, recurrence_rule_id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     let _task_recurrence = TaskRecurrence {
         task_id: task_id.clone(),
@@ -203,7 +242,10 @@ pub async fn create_task_recurrence(repositories: &dyn InfrastructureRepositorie
 
 /// タスクIDによる繰り返し関連付けを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_task_recurrence_by_task_id(repositories: &dyn InfrastructureRepositoriesTrait, task_id: &TaskId) -> Result<Option<TaskRecurrence>, ServiceError> {
+pub async fn get_task_recurrence_by_task_id<R>(repositories: &R, task_id: &TaskId) -> Result<Option<TaskRecurrence>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 仮実装
     Ok(None)
@@ -211,7 +253,10 @@ pub async fn get_task_recurrence_by_task_id(repositories: &dyn InfrastructureRep
 
 /// タスクの繰り返し関連付けを削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_task_recurrence(repositories: &dyn InfrastructureRepositoriesTrait, task_id: &TaskId) -> Result<(), ServiceError> {
+pub async fn delete_task_recurrence<R>(repositories: &R, task_id: &TaskId) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     Ok(())
@@ -223,7 +268,10 @@ pub async fn delete_task_recurrence(repositories: &dyn InfrastructureRepositorie
 
 /// サブタスクに繰り返しルールを関連付けます。
 #[tracing::instrument(level = "trace")]
-pub async fn create_subtask_recurrence(repositories: &dyn InfrastructureRepositoriesTrait, subtask_id: &SubTaskId, recurrence_rule_id: &str) -> Result<(), ServiceError> {
+pub async fn create_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId, recurrence_rule_id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     let _subtask_recurrence = SubTaskRecurrence {
         subtask_id: subtask_id.clone(),
@@ -237,7 +285,10 @@ pub async fn create_subtask_recurrence(repositories: &dyn InfrastructureReposito
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_subtask_recurrence_by_subtask_id(repositories: &dyn InfrastructureRepositoriesTrait, subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, ServiceError> {
+pub async fn get_subtask_recurrence_by_subtask_id<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 仮実装
     Ok(None)
@@ -245,7 +296,10 @@ pub async fn get_subtask_recurrence_by_subtask_id(repositories: &dyn Infrastruct
 
 /// サブタスクの繰り返し関連付けを削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_subtask_recurrence(repositories: &dyn InfrastructureRepositoriesTrait, subtask_id: &SubTaskId) -> Result<(), ServiceError> {
+pub async fn delete_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
 
     // 実際のリポジトリ実装待ち
     Ok(())
