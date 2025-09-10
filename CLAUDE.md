@@ -21,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/develop/design/database/` - データベース設計
 
 ### 開発ルール
+- 何かを修正を指示するように言われた場合、そのソースに関連する部分以外はすぐには修正せず、ユーザーに修正して良いか必ず許可を求めてください。
 - `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
 - 加えて、bunとcargoの両方で、ビルド時と全体テスト実行時はワーカー数を4に制限する（ユーザーの意図せぬ負荷を防ぐため）
   - cargo test -j 4
