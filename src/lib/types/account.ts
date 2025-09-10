@@ -6,10 +6,10 @@ export interface Account {
   id: string;
   /** 公開ユーザーID（他者から参照可能、プロジェクト共有用） */
   user_id: string;
-  /** メールアドレス */
-  email?: string;
   /** プロバイダー提供の表示名 */
   display_name?: string;
+  /** メールアドレス */
+  email?: string;
   /** アバター画像URL */
   avatar_url?: string;
   /** 認証プロバイダー名 */
@@ -19,9 +19,9 @@ export interface Account {
   /** アクティブ状態 */
   is_active: boolean;
   /** 作成日時 */
-  created_at: Date;
+  created_at: string;
   /** 更新日時 */
-  updated_at: Date;
+  updated_at: string;
 }
 
 /**
@@ -29,15 +29,15 @@ export interface Account {
  */
 export interface AccountPatch {
   /** メールアドレス */
-  email?: string | null;
+  email?: string;
   /** プロバイダー提供の表示名 */
-  display_name?: string | null;
+  display_name?: string;
   /** アバター画像URL */
-  avatar_url?: string | null;
+  avatar_url?: string;
   /** 認証プロバイダー名 */
   provider?: string;
   /** プロバイダー側ユーザーID */
-  provider_id?: string | null;
+  provider_id?: string;
   /** アクティブ状態 */
   is_active?: boolean;
 }

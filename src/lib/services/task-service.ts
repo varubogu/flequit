@@ -60,8 +60,8 @@ export class TaskService {
     formData: {
       title: string;
       description: string;
-      start_date?: Date;
-      end_date?: Date;
+      plan_start_date?: Date;
+      plan_end_date?: Date;
       is_range_date?: boolean;
       priority: number;
     }
@@ -70,8 +70,8 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority,
-      start_date: formData.start_date,
-      end_date: formData.end_date,
+      plan_start_date: formData.plan_start_date,
+      plan_end_date: formData.plan_end_date,
       is_range_date: formData.is_range_date || false
     };
 
@@ -96,7 +96,7 @@ export class TaskService {
     if (!task.recurrence_rule) return;
 
     // 基準日を決定（終了日があればそれを使用、なければ今日）
-    const baseDate = task.end_date || new Date();
+    const baseDate = task.plan_end_date || new Date();
 
     // 次回実行日を計算
     const nextDate = RecurrenceService.calculateNextDate(baseDate, task.recurrence_rule);
@@ -109,11 +109,11 @@ export class TaskService {
       description: task.description,
       status: 'not_started',
       priority: task.priority,
-      start_date:
-        task.is_range_date && task.start_date
-          ? new Date(nextDate.getTime() - (task.end_date!.getTime() - task.start_date.getTime()))
+      plan_start_date:
+        task.is_range_date && task.plan_start_date
+          ? new Date(nextDate.getTime() - (task.plan_end_date!.getTime() - task.plan_start_date.getTime()))
           : undefined,
-      end_date: nextDate,
+      plan_end_date: nextDate,
       is_range_date: task.is_range_date,
       recurrence_rule: task.recurrence_rule,
       order_index: 0,
@@ -192,8 +192,8 @@ export class TaskService {
     formData: {
       title: string;
       description: string;
-      start_date?: Date;
-      end_date?: Date;
+      plan_start_date?: Date;
+      plan_end_date?: Date;
       is_range_date?: boolean;
       priority: number;
     }
@@ -202,8 +202,8 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority || undefined,
-      start_date: formData.start_date,
-      end_date: formData.end_date,
+      plan_start_date: formData.plan_start_date,
+      plan_end_date: formData.plan_end_date,
       is_range_date: formData.is_range_date || false
     };
 
@@ -260,7 +260,7 @@ export class TaskService {
     }
 
     if (newDueDate) {
-      this.updateTask(taskId, { end_date: newDueDate });
+      this.updateTask(taskId, { plan_end_date: newDueDate });
     }
   }
 
@@ -293,7 +293,7 @@ export class TaskService {
     }
 
     if (newDueDate) {
-      this.updateSubTask(subTaskId, { end_date: newDueDate });
+      this.updateSubTask(subTaskId, { plan_end_date: newDueDate });
     }
   }
 

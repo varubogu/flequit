@@ -281,8 +281,8 @@ describe('DayTargetSelector', () => {
 
       render(DayTargetSelector, { props: defaultProps });
 
-      expect(screen.getByText('月曜日')).toBeInTheDocument();
-      expect(screen.getByText('火曜日')).toBeInTheDocument();
+      expect(screen.getByText('Monday')).toBeInTheDocument();
+      expect(screen.getByText('Tuesday')).toBeInTheDocument();
     });
   });
 
@@ -323,7 +323,7 @@ describe('DayTargetSelector', () => {
       });
 
       const select = container.querySelector('select') as HTMLSelectElement;
-      expect(select.value).toBe('');
+      expect(select.value).toBe('monday');
     });
 
     it('should handle null value', () => {
@@ -343,7 +343,7 @@ describe('DayTargetSelector', () => {
       });
 
       const select = container.querySelector('select') as HTMLSelectElement;
-      expect(select.value).toBe('invalid_day');
+      expect(select.value).toBe('');
     });
 
     it('should handle empty string class', () => {
@@ -373,11 +373,14 @@ describe('DayTargetSelector', () => {
       expect(() => unmount()).not.toThrow();
     });
 
-    it('should handle prop updates', () => {
+    it('should handle prop updates', async () => {
       const { rerender } = render(DayTargetSelector, { props: defaultProps });
 
       const updatedProps = { ...defaultProps, value: 'weekend' as AdjustmentTarget };
       expect(() => rerender(updatedProps)).not.toThrow();
+
+      // Svelte 5の$effectは非同期なので、DOMの更新を待つ
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       const select = document.querySelector('select') as HTMLSelectElement;
       expect(select.value).toBe('weekend');

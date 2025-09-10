@@ -81,7 +81,8 @@
     accountName: '',
     email: '',
     password: '',
-    serverUrl: ''
+    serverUrl: '',
+    lastSelectedAccount: 'local'
   });
 
   function handleCategorySelect(categoryId: string) {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { getBackendService } from '$lib/services/backend';
-  import type { User, UserPatch } from '$lib/types/user';
+  import type { User } from '$lib/types/user';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
@@ -9,7 +9,7 @@
   import Textarea from '$lib/components/ui/textarea.svelte';
   import {
     Dialog,
-    DialogContent, 
+    DialogContent,
     DialogHeader,
     DialogTitle,
     DialogFooter
@@ -37,7 +37,7 @@
   // Initialize form when user changes
   $effect(() => {
     if (user) {
-      username = user.username || '';
+      username = user.handle_id || '';
       displayName = user.display_name || '';
       email = user.email || '';
       bio = user.bio || '';
@@ -45,7 +45,7 @@
     }
   });
 
-  // Translation messages  
+  // Translation messages
   const editProfile = translationService.getMessage('edit_profile');
   const usernameLabel = translationService.getMessage('username');
   const displayNameLabel = translationService.getMessage('display_name');
@@ -67,30 +67,30 @@
     isSaving = true;
     try {
       const backend = await getBackendService();
-      
+
       // Create updated user object
       const updatedUser: User = {
         ...user,
-        username: username.trim() || user.username,
-        display_name: displayName.trim() || null,
-        email: email.trim() || null,
-        bio: bio.trim() || null,
-        timezone: timezone.trim() || null,
-        updated_at: new Date()
+        handle_id: username.trim() || user.handle_id,
+        display_name: displayName.trim() || user.display_name,
+        email: email.trim() || user.email,
+        bio: bio.trim() || user.bio,
+        timezone: timezone.trim() || user.timezone,
+        updated_at: new Date().toISOString()
       };
 
       // Save to backend
       const success = await backend.user.update(updatedUser);
-      
+
       if (success) {
         onSave?.(updatedUser);
         onClose();
       } else {
-        errorHandler.addError('プロフィール保存に失敗しました');
+        errorHandler.addError({ type: 'general', message: 'プロフィール保存に失敗しました', retryable: false });
       }
     } catch (error) {
       console.error('Failed to save user profile:', error);
-      errorHandler.addError('プロフィール保存中にエラーが発生しました');
+      errorHandler.addError({ type: 'general', message: 'プロフィール保存中にエラーが発生しました', retryable: false });
     } finally {
       isSaving = false;
     }
@@ -153,9 +153,7 @@
           <Textarea
             id="bio"
             bind:value={bio}
-            disabled={isSaving}
             placeholder="自己紹介を入力（任意）"
-            rows={3}
           />
         </div>
 

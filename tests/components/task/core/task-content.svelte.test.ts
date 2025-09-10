@@ -25,7 +25,7 @@ describe('TaskContent', () => {
     description: 'Test task description',
     status: 'not_started',
     priority: 1,
-    end_date: new Date('2024-02-15'),
+    plan_end_date: new Date('2024-02-15'),
     list_id: 'list-1',
     assigned_user_ids: [],
     tag_ids: ['tag-1'],
@@ -42,6 +42,8 @@ describe('TaskContent', () => {
         status: 'completed',
         order_index: 0,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -52,6 +54,8 @@ describe('TaskContent', () => {
         status: 'not_started',
         order_index: 1,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date(),
         updated_at: new Date()
       }
@@ -334,7 +338,8 @@ describe('TaskContent', () => {
         'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
       status: 'in_progress',
       priority: 3,
-      end_date: new Date('2024-03-01'),
+      plan_start_date: undefined,
+      plan_end_date: new Date('2024-03-01'),
       list_id: 'list-1',
       assigned_user_ids: [],
       tag_ids: [],
@@ -350,6 +355,8 @@ describe('TaskContent', () => {
         task_id: 'complex-task',
         order_index: i,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date(),
         updated_at: new Date()
       }))

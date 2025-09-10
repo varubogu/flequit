@@ -12,7 +12,7 @@ const mockTasks: TaskWithSubTasks[] = [
     description: 'A task for today',
     status: 'not_started',
     priority: 1,
-    end_date: new Date(),
+    plan_end_date: new Date(),
     order_index: 0,
     is_archived: false,
     created_at: new Date(),
@@ -46,7 +46,7 @@ const mockTasks: TaskWithSubTasks[] = [
     description: 'A task for the future',
     status: 'not_started',
     priority: 3,
-    end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+    plan_end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
     order_index: 0,
     is_archived: false,
     created_at: new Date(),
@@ -61,7 +61,9 @@ const mockTasks: TaskWithSubTasks[] = [
         order_index: 0,
         created_at: new Date(),
         updated_at: new Date(),
-        tags: []
+        tags: [],
+        completed: false,
+        assigned_user_ids: []
       }
     ],
     tags: [],
@@ -645,7 +647,7 @@ test('ViewService.getTasksForView: date range tests work correctly', () => {
     ...mockTasks[0],
     id: 'tomorrow-test',
     project_id: 'proj-1',
-    end_date: new Date(tomorrowStart.getTime() + 12 * 60 * 60 * 1000), // noon tomorrow
+    plan_end_date: new Date(tomorrowStart.getTime() + 12 * 60 * 60 * 1000), // noon tomorrow
     status: 'not_started' as const
   };
 

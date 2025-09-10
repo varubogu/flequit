@@ -95,9 +95,9 @@ export class TaskStore {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     return this.allTasks.filter((task) => {
-      if (!task.end_date) return false;
+      if (!task.plan_end_date) return false;
       // eslint-disable-next-line svelte/prefer-svelte-reactivity
-      const dueDate = new Date(task.end_date);
+      const dueDate = new Date(task.plan_end_date);
       return dueDate >= today && dueDate < tomorrow;
     });
   }
@@ -107,9 +107,9 @@ export class TaskStore {
     today.setHours(0, 0, 0, 0);
 
     return this.allTasks.filter((task) => {
-      if (!task.end_date || task.status === 'completed') return false;
+      if (!task.plan_end_date || task.status === 'completed') return false;
       // eslint-disable-next-line svelte/prefer-svelte-reactivity
-      const dueDate = new Date(task.end_date);
+      const dueDate = new Date(task.plan_end_date);
       return dueDate < today;
     });
   }
@@ -247,14 +247,15 @@ export class TaskStore {
 
     const newTask: TaskWithSubTasks = {
       id: crypto.randomUUID(),
+      project_id: taskData.project_id || '',
       sub_task_id: taskData.sub_task_id,
       list_id: taskData.list_id,
       title: taskData.title || '',
       description: taskData.description,
       status: taskData.status || 'not_started',
       priority: taskData.priority || 0,
-      start_date: taskData.start_date,
-      end_date: taskData.end_date,
+      plan_start_date: taskData.plan_start_date,
+      plan_end_date: taskData.plan_end_date,
       is_range_date: taskData.is_range_date || false,
       recurrence_rule: taskData.recurrence_rule,
       assigned_user_ids: taskData.assigned_user_ids || [],
@@ -409,6 +410,7 @@ export class TaskStore {
 
     this.newTaskData = {
       id: 'new-task',
+      project_id: projectId,
       title: '',
       description: '',
       status: 'not_started',

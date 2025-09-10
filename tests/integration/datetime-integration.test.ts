@@ -5,9 +5,9 @@ import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 // 日付・時刻管理のモック
 const mockDateTimeStore = {
   currentTimezone: 'Asia/Tokyo',
-  dateFormat: 'YYYY-MM-DD',
+  dateFormat: 'yyyy-MM-dd',
   timeFormat: 'HH:mm',
-  dateTimeFormat: 'YYYY-MM-DD HH:mm',
+  dateTimeFormat: 'yyyy-MM-dd HH:mm',
   locale: 'ja',
 
   formatDate: vi.fn((date: Date, format?: string) => {
@@ -19,11 +19,11 @@ const mockDateTimeStore = {
     const day = String(date.getDate()).padStart(2, '0');
 
     switch (formatStr) {
-      case 'YYYY-MM-DD':
+      case 'yyyy-MM-dd':
         return `${year}-${month}-${day}`;
-      case 'DD/MM/YYYY':
+      case 'dd/MM/yyyy':
         return `${day}/${month}/${year}`;
-      case 'MM/DD/YYYY':
+      case 'MM/dd/yyyy':
         return `${month}/${day}/${year}`;
       default:
         return `${year}-${month}-${day}`;
@@ -84,8 +84,8 @@ const mockTaskDateStore = {
     (
       taskId: string,
       dateData: {
-        start_date?: Date;
-        end_date?: Date;
+        plan_start_date?: Date;
+        plan_end_date?: Date;
         is_range_date?: boolean;
       }
     ) => {
@@ -109,18 +109,18 @@ const mockTaskDateStore = {
     nextDay.setDate(nextDay.getDate() + 1);
 
     return mockTaskDateStore.tasks.filter((task) => {
-      if (!task.end_date) return false;
+      if (!task.plan_end_date) return false;
 
-      const taskDate = new Date(task.end_date);
+      const taskDate = new Date(task.plan_end_date);
       return taskDate >= targetDate && taskDate < nextDay;
     });
   }),
 
   getTasksInRange: vi.fn((startDate: Date, endDate: Date) => {
     return mockTaskDateStore.tasks.filter((task) => {
-      if (!task.end_date) return false;
+      if (!task.plan_end_date) return false;
 
-      const taskDate = new Date(task.end_date);
+      const taskDate = new Date(task.plan_end_date);
       return taskDate >= startDate && taskDate <= endDate;
     });
   }),
@@ -130,9 +130,9 @@ const mockTaskDateStore = {
     now.setHours(0, 0, 0, 0);
 
     return mockTaskDateStore.tasks.filter((task) => {
-      if (!task.end_date || task.status === 'completed') return false;
+      if (!task.plan_end_date || task.status === 'completed') return false;
 
-      const taskDate = new Date(task.end_date);
+      const taskDate = new Date(task.plan_end_date);
       return taskDate < now;
     });
   })
@@ -264,7 +264,7 @@ describe('日付・時刻管理結合テスト', () => {
 
     // 初期状態にリセット
     mockDateTimeStore.currentTimezone = 'Asia/Tokyo';
-    mockDateTimeStore.dateFormat = 'YYYY-MM-DD';
+    mockDateTimeStore.dateFormat = 'yyyy-MM-dd';
     mockDateTimeStore.timeFormat = 'HH:mm';
     mockDateTimeStore.locale = 'ja';
 
@@ -276,7 +276,7 @@ describe('日付・時刻管理結合テスト', () => {
         list_id: 'list-1',
         status: 'not_started',
         priority: 1,
-        end_date: new Date('2024-01-15T09:00:00'),
+        plan_end_date: new Date('2024-01-15T09:00:00'),
         assigned_user_ids: [],
         tag_ids: [],
         created_at: new Date(),
@@ -293,7 +293,7 @@ describe('日付・時刻管理結合テスト', () => {
         list_id: 'list-1',
         status: 'not_started',
         priority: 2,
-        end_date: new Date('2024-01-10T15:30:00'),
+        plan_end_date: new Date('2024-01-10T15:30:00'),
         assigned_user_ids: [],
         tag_ids: [],
         created_at: new Date(),
@@ -310,8 +310,8 @@ describe('日付・時刻管理結合テスト', () => {
         list_id: 'list-1',
         status: 'in_progress',
         priority: 3,
-        start_date: new Date('2024-01-12T10:00:00'),
-        end_date: new Date('2024-01-18T17:00:00'),
+        plan_start_date: new Date('2024-01-12T10:00:00'),
+        plan_end_date: new Date('2024-01-18T17:00:00'),
         is_range_date: true,
         assigned_user_ids: [],
         tag_ids: [],
@@ -332,18 +332,18 @@ describe('日付・時刻管理結合テスト', () => {
   it('日付フォーマットの設定と表示が正しく動作する', () => {
     const testDate = new Date('2024-01-15T09:30:00');
 
-    // デフォルトフォーマット（YYYY-MM-DD）
+    // デフォルトフォーマット（yyyy-MM-dd）
     const defaultFormat = mockDateTimeStore.formatDate(testDate);
     expect(mockDateTimeStore.formatDate).toHaveBeenCalledWith(testDate);
     expect(defaultFormat).toBe('2024-01-15');
 
     // フォーマットを変更
-    mockDateTimeStore.updateDateFormat('DD/MM/YYYY');
-    const europeanFormat = mockDateTimeStore.formatDate(testDate, 'DD/MM/YYYY');
+    mockDateTimeStore.updateDateFormat('dd/MM/yyyy');
+    const europeanFormat = mockDateTimeStore.formatDate(testDate, 'dd/MM/yyyy');
     expect(europeanFormat).toBe('15/01/2024');
 
     // アメリカ式フォーマット
-    const americanFormat = mockDateTimeStore.formatDate(testDate, 'MM/DD/YYYY');
+    const americanFormat = mockDateTimeStore.formatDate(testDate, 'MM/dd/yyyy');
     expect(americanFormat).toBe('01/15/2024');
   });
 
@@ -377,26 +377,26 @@ describe('日付・時刻管理結合テスト', () => {
   it('タスクの日付設定が正しく動作する', () => {
     // 単一日付の設定
     const singleDateResult = mockTaskDateStore.setTaskDate('task-1', {
-      end_date: new Date('2024-01-20T10:00:00'),
+      plan_end_date: new Date('2024-01-20T10:00:00'),
       is_range_date: false
     });
 
     expect(mockTaskDateStore.setTaskDate).toHaveBeenCalledWith('task-1', {
-      end_date: new Date('2024-01-20T10:00:00'),
+      plan_end_date: new Date('2024-01-20T10:00:00'),
       is_range_date: false
     });
-    expect(singleDateResult?.end_date).toEqual(new Date('2024-01-20T10:00:00'));
+    expect(singleDateResult?.plan_end_date).toEqual(new Date('2024-01-20T10:00:00'));
     expect(singleDateResult?.is_range_date).toBe(false);
 
     // 範囲日付の設定
     const rangeDateResult = mockTaskDateStore.setTaskDate('task-2', {
-      start_date: new Date('2024-01-22T09:00:00'),
-      end_date: new Date('2024-01-25T17:00:00'),
+      plan_start_date: new Date('2024-01-22T09:00:00'),
+      plan_end_date: new Date('2024-01-25T17:00:00'),
       is_range_date: true
     });
 
-    expect(rangeDateResult?.start_date).toEqual(new Date('2024-01-22T09:00:00'));
-    expect(rangeDateResult?.end_date).toEqual(new Date('2024-01-25T17:00:00'));
+    expect(rangeDateResult?.plan_start_date).toEqual(new Date('2024-01-22T09:00:00'));
+    expect(rangeDateResult?.plan_end_date).toEqual(new Date('2024-01-25T17:00:00'));
     expect(rangeDateResult?.is_range_date).toBe(true);
   });
 
@@ -433,7 +433,7 @@ describe('日付・時刻管理結合テスト', () => {
     expect(mockTaskDateStore.getOverdueTasks).toHaveBeenCalled();
     expect(overdueTasks).toHaveLength(1);
     expect(overdueTasks[0].title).toBe('期限切れタスク');
-    expect(overdueTasks[0].end_date).toEqual(new Date('2024-01-10T15:30:00'));
+    expect(overdueTasks[0].plan_end_date).toEqual(new Date('2024-01-10T15:30:00'));
 
     vi.useRealTimers();
   });
@@ -609,7 +609,7 @@ describe('日付・時刻管理結合テスト', () => {
     // タスクの日付を今日に設定
     const today = new Date('2024-01-15');
     mockTaskDateStore.setTaskDate('task-2', {
-      end_date: today,
+      plan_end_date: today,
       is_range_date: false
     });
 
@@ -638,10 +638,10 @@ describe('日付・時刻管理結合テスト', () => {
       // 日付範囲フィルター
       if (conditions.dateRange) {
         results = results.filter((task) => {
-          if (!task.end_date) return false;
+          if (!task.plan_end_date) return false;
           return (
-            task.end_date >= conditions.dateRange!.start &&
-            task.end_date <= conditions.dateRange!.end
+            task.plan_end_date >= conditions.dateRange!.start &&
+            task.plan_end_date <= conditions.dateRange!.end
           );
         });
       }
@@ -650,8 +650,8 @@ describe('日付・時刻管理結合テスト', () => {
       if (conditions.includeOverdue === false) {
         const now = new Date();
         results = results.filter((task) => {
-          if (!task.end_date) return true;
-          return task.end_date >= now || task.status === 'completed';
+          if (!task.plan_end_date) return true;
+          return task.plan_end_date >= now || task.status === 'completed';
         });
       }
 
@@ -662,7 +662,7 @@ describe('日付・時刻管理結合テスト', () => {
 
       // 期限が設定されているタスクのみ
       if (conditions.hasDateOnly) {
-        results = results.filter((task) => task.end_date !== undefined);
+        results = results.filter((task) => task.plan_end_date !== undefined);
       }
 
       return results;
@@ -680,6 +680,6 @@ describe('日付・時刻管理結合テスト', () => {
 
     expect(thisWeekTasks).toHaveLength(2); // '今日のタスク'と'範囲指定タスク'
     expect(thisWeekTasks.every((task) => task.status !== 'completed')).toBe(true);
-    expect(thisWeekTasks.every((task) => task.end_date !== undefined)).toBe(true);
+    expect(thisWeekTasks.every((task) => task.plan_end_date !== undefined)).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import type { SubTask } from '$lib/types/sub-task';
 
 // 通知・ダイアログ管理のモック
 const mockDialogStore = {
@@ -206,25 +207,30 @@ const mockTaskService = {
           status: 'not_started',
           task_id: 'task-1',
           order_index: 0,
+          completed: false,
+          assigned_user_ids: [],
           created_at: new Date(),
           updated_at: new Date(),
           tags: []
-        }
+        } as SubTask
       ]
-    },
+    } as TaskWithSubTasks,
     {
       id: 'task-2',
       title: 'テストタスク2',
       status: 'completed',
       priority: 1,
       list_id: 'list-1',
+      project_id: 'project-1',
+      assigned_user_ids: [],
+      tag_ids: [],
       order_index: 1,
       is_archived: false,
       created_at: new Date(),
       updated_at: new Date(),
       tags: [],
       sub_tasks: []
-    }
+    } as TaskWithSubTasks
   ] as TaskWithSubTasks[],
 
   deleteTask: vi.fn((taskId: string) => {
@@ -416,6 +422,8 @@ describe('通知・アラート結合テスト', () => {
             order_index: 0,
             created_at: new Date(),
             updated_at: new Date(),
+            completed: false,
+            assigned_user_ids: [],
             tags: []
           }
         ]

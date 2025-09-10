@@ -39,8 +39,8 @@ describe('TaskDetailDialogs', () => {
     description: 'Test description',
     status: 'not_started' as const,
     priority: 2,
-    start_date: new Date('2024-01-01'),
-    end_date: new Date('2024-01-02'),
+    plan_start_date: new Date('2024-01-01'),
+    plan_end_date: new Date('2024-01-02'),
     is_range_date: true,
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
@@ -64,18 +64,20 @@ describe('TaskDetailDialogs', () => {
     task_id: 'task-1',
     created_at: new Date('2024-01-01'),
     updated_at: new Date('2024-01-01'),
-    start_date: new Date('2024-01-01'),
-    end_date: new Date('2024-01-02'),
+    plan_start_date: new Date('2024-01-01'),
+    plan_end_date: new Date('2024-01-02'),
     is_range_date: false,
     order_index: 0,
+    completed: false,
+    assigned_user_ids: [],
     tags: []
   };
 
   const mockEditForm = {
     title: 'Test Task',
     description: 'Test description',
-    start_date: new Date('2024-01-01'),
-    end_date: new Date('2024-01-02'),
+    plan_start_date: new Date('2024-01-01'),
+    plan_end_date: new Date('2024-01-02'),
     is_range_date: true,
     priority: 2
   };

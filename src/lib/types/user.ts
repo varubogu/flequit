@@ -14,9 +14,9 @@ export interface User {
   /** ユーザーの公開識別子（他者から参照可能、プロジェクト共有用） */
   id: string;
   /** ユニークユーザー名（必須、@mention等で使用） */
-  username: string;
-  /** 表示名（UI表示用、任意設定可能） */
-  display_name?: string;
+  handle_id: string;
+  /** 表示名（UI表示用、必須） */
+  display_name: string;
   /** メールアドレス（任意、通知や連絡で使用） */
   email?: string;
   /** アバターURL（外部サービス由来） */
@@ -28,9 +28,9 @@ export interface User {
   /** アクティブ状態（必須） */
   is_active: boolean;
   /** 作成日時 */
-  created_at: Date;
+  created_at: string;
   /** 更新日時 */
-  updated_at: Date;
+  updated_at: string;
 }
 
 /**
@@ -39,17 +39,17 @@ export interface User {
  */
 export interface UserPatch {
   /** ユニークユーザー名 */
-  username?: string;
+  handle_id?: string;
   /** 表示名 */
-  display_name?: string | null;
+  display_name?: string;
   /** メールアドレス */
-  email?: string | null;
+  email?: string;
   /** アバターURL */
-  avatar_url?: string | null;
+  avatar_url?: string;
   /** 自己紹介 */
-  bio?: string | null;
+  bio?: string;
   /** タイムゾーン */
-  timezone?: string | null;
+  timezone?: string;
   /** アクティブ状態 */
   is_active?: boolean;
 }

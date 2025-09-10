@@ -23,8 +23,8 @@
   // Style classes based on variant
   const baseClasses =
     'text-sm whitespace-nowrap flex-shrink-0 hover:bg-muted rounded px-1 py-0.5 transition-colors';
-  const colorClasses = task.end_date
-    ? getDueDateClass(task.end_date, task.status)
+  const colorClasses = task.plan_end_date
+    ? getDueDateClass(task.plan_end_date, task.status)
     : 'text-muted-foreground';
 
   function formatDateI18n(date: Date | undefined): string {
@@ -49,13 +49,13 @@
 
 {#if variant === 'compact'}
   <!-- Compact variant -->
-  {#if task.end_date}
+  {#if task.plan_end_date}
     <button
       class="{baseClasses} {colorClasses} {className}"
       onclick={handleDueDateClick}
       title="Click to change due date"
     >
-      {formatDateI18n(task.end_date)}
+      {formatDateI18n(task.plan_end_date)}
     </button>
   {:else}
     <button
@@ -69,8 +69,8 @@
 {:else}
   <!-- Full variant -->
   <button class="{baseClasses} {colorClasses} {className}" onclick={handleDueDateClick}>
-    {#if task.end_date}
-      {formatDateI18n(task.end_date)}
+    {#if task.plan_end_date}
+      {formatDateI18n(task.plan_end_date)}
     {:else}
       {selectDate()}
     {/if}

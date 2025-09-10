@@ -7,15 +7,17 @@ import { getDueDateClass } from '$lib/utils/datetime-utils';
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
   getTranslationService: () => ({
-    getMessage: (key: string) => () => {
-      const translations: Record<string, string> = {
-        today: 'Today',
-        tomorrow: 'Tomorrow',
-        yesterday: 'Yesterday',
-        add_date: 'Add Date',
-        select_date: 'Select Date'
+    getMessage: (key: string) => {
+      return () => {
+        const translations: Record<string, string> = {
+          today: 'Today',
+          tomorrow: 'Tomorrow',
+          yesterday: 'Yesterday',
+          add_date: 'Add Date',
+          select_date: 'Select Date'
+        };
+        return translations[key] || key;
       };
-      return translations[key] || key;
     }
   })
 }));
@@ -38,8 +40,8 @@ describe('DueDate', () => {
     description: 'Test description',
     status: 'not_started' as const,
     priority: 2,
-    start_date: new Date('2024-01-01'),
-    end_date: new Date('2024-01-02'),
+    plan_start_date: new Date('2024-01-01'),
+    plan_end_date: new Date('2024-01-02'),
     is_range_date: false,
     list_id: 'list-1',
     order_index: 0,
@@ -119,8 +121,8 @@ describe('DueDate', () => {
       expect(button?.textContent).toBeTruthy();
     });
 
-    it('should show "Add Date" when task has no end_date', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+    it('should show "Add Date" when task has no plan_end_date', () => {
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -137,7 +139,7 @@ describe('DueDate', () => {
     });
 
     it('should show proper title for task without date', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -166,8 +168,8 @@ describe('DueDate', () => {
       expect(button?.textContent).toBeTruthy();
     });
 
-    it('should show "Select Date" when task has no end_date', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+    it('should show "Select Date" when task has no plan_end_date', () => {
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate, variant: 'full' }
       });
@@ -190,7 +192,7 @@ describe('DueDate', () => {
     it('should show "Today" for today\'s date', () => {
       const todayTask = {
         ...baseTask,
-        end_date: new Date('2024-01-01T15:00:00Z') // Same day as mocked current time
+        plan_end_date: new Date('2024-01-01T00:00:00Z') // Same day as mocked current time
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: todayTask }
@@ -203,7 +205,7 @@ describe('DueDate', () => {
     it('should show "Tomorrow" for tomorrow\'s date', () => {
       const tomorrowTask = {
         ...baseTask,
-        end_date: new Date('2024-01-02T15:00:00Z') // Next day
+        plan_end_date: new Date('2024-01-02T00:00:00Z') // Next day
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: tomorrowTask }
@@ -216,7 +218,7 @@ describe('DueDate', () => {
     it('should show "Yesterday" for yesterday\'s date', () => {
       const yesterdayTask = {
         ...baseTask,
-        end_date: new Date('2023-12-31T15:00:00Z') // Previous day
+        plan_end_date: new Date('2023-12-31T00:00:00Z') // Previous day
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: yesterdayTask }
@@ -229,7 +231,7 @@ describe('DueDate', () => {
     it('should show formatted date for other dates', () => {
       const futureTask = {
         ...baseTask,
-        end_date: new Date('2024-01-05T15:00:00Z')
+        plan_end_date: new Date('2024-01-05T15:00:00Z')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: futureTask }
@@ -242,8 +244,8 @@ describe('DueDate', () => {
       expect(button?.textContent).not.toBe('Yesterday');
     });
 
-    it('should handle null end_date', () => {
-      const taskWithNullDate = { ...baseTask, end_date: undefined };
+    it('should handle null plan_end_date', () => {
+      const taskWithNullDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithNullDate }
       });
@@ -252,8 +254,8 @@ describe('DueDate', () => {
       expect(button?.textContent).toContain('Add Date');
     });
 
-    it('should handle undefined end_date', () => {
-      const taskWithUndefinedDate = { ...baseTask, end_date: undefined };
+    it('should handle undefined plan_end_date', () => {
+      const taskWithUndefinedDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithUndefinedDate }
       });
@@ -264,14 +266,14 @@ describe('DueDate', () => {
   });
 
   describe('styling and colors', () => {
-    it('should apply color classes from getDueDateClass when task has end_date', () => {
+    it('should apply color classes from getDueDateClass when task has plan_end_date', () => {
       render(DueDate, { props: defaultProps });
 
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(baseTask.end_date, baseTask.status);
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(baseTask.plan_end_date, baseTask.status);
     });
 
-    it('should apply muted color when task has no end_date', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+    it('should apply muted color when task has no plan_end_date', () => {
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -360,7 +362,7 @@ describe('DueDate', () => {
 
   describe('internationalization', () => {
     it('should use translation service for labels', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -370,7 +372,7 @@ describe('DueDate', () => {
     });
 
     it('should use translation service for full variant', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate, variant: 'full' }
       });
@@ -382,7 +384,7 @@ describe('DueDate', () => {
     it('should use translation service for relative dates', () => {
       const todayTask = {
         ...baseTask,
-        end_date: new Date('2024-01-01T15:00:00Z')
+        plan_end_date: new Date('2024-01-01T00:00:00Z')
       };
       render(DueDate, {
         props: { ...defaultProps, task: todayTask }
@@ -396,7 +398,7 @@ describe('DueDate', () => {
     it('should handle invalid date objects', () => {
       const taskWithInvalidDate = {
         ...baseTask,
-        end_date: new Date('invalid')
+        plan_end_date: new Date('invalid')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithInvalidDate }
@@ -408,7 +410,7 @@ describe('DueDate', () => {
     it('should handle very old dates', () => {
       const taskWithOldDate = {
         ...baseTask,
-        end_date: new Date('1900-01-01')
+        plan_end_date: new Date('1900-01-01')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithOldDate }
@@ -421,7 +423,7 @@ describe('DueDate', () => {
     it('should handle very future dates', () => {
       const taskWithFutureDate = {
         ...baseTask,
-        end_date: new Date('2100-12-31')
+        plan_end_date: new Date('2100-12-31')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithFutureDate }
@@ -435,7 +437,7 @@ describe('DueDate', () => {
       const minimalTask = {
         id: 'minimal',
         status: 'not_started',
-        end_date: undefined
+        plan_end_date: undefined
       } as TaskBase;
 
       const { container } = render(DueDate, {
@@ -476,7 +478,7 @@ describe('DueDate', () => {
     it('should handle prop updates', () => {
       const { rerender } = render(DueDate, { props: defaultProps });
 
-      const updatedTask = { ...baseTask, end_date: new Date('2024-01-03') };
+      const updatedTask = { ...baseTask, plan_end_date: new Date('2024-01-03') };
       const updatedProps = { ...defaultProps, task: updatedTask, variant: 'full' as const };
 
       expect(() => rerender(updatedProps)).not.toThrow();
@@ -492,7 +494,7 @@ describe('DueDate', () => {
     it('should handle task changes', () => {
       const { rerender } = render(DueDate, { props: defaultProps });
 
-      const newTask = { ...baseTask, id: 'new-task', end_date: undefined };
+      const newTask = { ...baseTask, id: 'new-task', plan_end_date: undefined };
       expect(() => rerender({ ...defaultProps, task: newTask })).not.toThrow();
     });
   });
@@ -542,7 +544,7 @@ describe('DueDate', () => {
     });
 
     it('should integrate with translation service', () => {
-      const taskWithoutDate = { ...baseTask, end_date: undefined };
+      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
       render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -558,7 +560,7 @@ describe('DueDate', () => {
       });
 
       expect(container.innerHTML).toBeTruthy();
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(completedTask.end_date, 4);
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(completedTask.plan_end_date, 'completed');
     });
   });
 });

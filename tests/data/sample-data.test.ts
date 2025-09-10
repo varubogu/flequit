@@ -188,8 +188,8 @@ describe('sample-data', () => {
       const allTasks = sampleData.flatMap((p) => p.task_lists.flatMap((l) => l.tasks));
 
       const overdueTasks = allTasks.filter((task) => {
-        if (!task.end_date || task.status === 'completed') return false;
-        const dueDate = new Date(task.end_date);
+        if (!task.plan_end_date || task.status === 'completed') return false;
+        const dueDate = new Date(task.plan_end_date);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate < today;
       });
@@ -206,8 +206,8 @@ describe('sample-data', () => {
       const allTasks = sampleData.flatMap((p) => p.task_lists.flatMap((l) => l.tasks));
 
       const todayTasks = allTasks.filter((task) => {
-        if (!task.end_date) return false;
-        const dueDate = new Date(task.end_date);
+        if (!task.plan_end_date) return false;
+        const dueDate = new Date(task.plan_end_date);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate >= today && dueDate < tomorrow;
       });

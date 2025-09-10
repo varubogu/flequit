@@ -23,7 +23,7 @@
   ];
 </script>
 
-<div class="pl-36">
+<div class="pl-36" data-testid="weekday-selector">
   <div role="group" aria-labelledby="weekdays-label">
     <span id="weekdays-label" class="text-muted-foreground mb-2 block text-sm">
       {repeatWeekdays()}

@@ -33,7 +33,7 @@ describe('TaskStore', () => {
             tag_ids: [],
             order_index: 0,
             is_archived: false,
-            end_date: new Date('2030-12-31'), // Far future date
+            plan_end_date: new Date('2030-12-31'), // Far future date
             created_at: new Date(),
             updated_at: new Date(),
             sub_tasks: [
@@ -43,6 +43,8 @@ describe('TaskStore', () => {
                 title: 'Test SubTask',
                 status: 'not_started',
                 order_index: 0,
+                completed: false,
+                assigned_user_ids: [],
                 created_at: new Date(),
                 updated_at: new Date(),
                 tags: []
@@ -61,7 +63,7 @@ describe('TaskStore', () => {
             tag_ids: [],
             order_index: 1,
             is_archived: false,
-            end_date: new Date('2020-01-01'), // Past date
+            plan_end_date: new Date('2020-01-01'), // Past date
             created_at: new Date(),
             updated_at: new Date(),
             sub_tasks: [],
@@ -78,7 +80,7 @@ describe('TaskStore', () => {
             tag_ids: [],
             order_index: 2,
             is_archived: false,
-            end_date: (() => {
+            plan_end_date: (() => {
               const today = new Date();
               today.setHours(23, 59, 59, 999); // Set to end of today
               return today;

@@ -63,4 +63,5 @@
   step="1"
   class="border-border bg-background text-foreground flex-1 rounded border p-2"
   placeholder="1"
+  data-testid="numeric-interval-input"
 />

@@ -91,9 +91,9 @@ const mockSearchStore = {
     // 日付範囲フィルター
     if (filters.dateRange.start || filters.dateRange.end) {
       results = results.filter((task) => {
-        if (!task.end_date) return false;
+        if (!task.plan_end_date) return false;
 
-        const taskDate = new Date(task.end_date);
+        const taskDate = new Date(task.plan_end_date);
 
         if (filters.dateRange.start && taskDate < filters.dateRange.start) {
           return false;
@@ -148,7 +148,7 @@ const mockTaskStore = {
       description: 'これは重要な作業です',
       status: 'not_started' as TaskStatus,
       priority: 3,
-      end_date: new Date('2024-01-15'),
+      plan_end_date: new Date('2024-01-15'),
       assigned_user_ids: [],
       tag_ids: ['tag-1', 'tag-2'],
       created_at: new Date(),
@@ -181,7 +181,7 @@ const mockTaskStore = {
       description: '毎日の定期作業',
       status: 'completed' as TaskStatus,
       priority: 1,
-      end_date: new Date('2024-01-10'),
+      plan_end_date: new Date('2024-01-10'),
       assigned_user_ids: [],
       tag_ids: ['tag-2'],
       created_at: new Date(),
@@ -207,7 +207,7 @@ const mockTaskStore = {
       description: '別プロジェクトの作業',
       status: 'in_progress' as TaskStatus,
       priority: 2,
-      end_date: new Date('2024-01-20'),
+      plan_end_date: new Date('2024-01-20'),
       assigned_user_ids: [],
       tag_ids: ['tag-3'],
       created_at: new Date(),
@@ -265,8 +265,8 @@ const mockViewStore = {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         filteredTasks = filteredTasks.filter((task) => {
-          if (!task.end_date) return false;
-          const taskDate = new Date(task.end_date);
+          if (!task.plan_end_date) return false;
+          const taskDate = new Date(task.plan_end_date);
           return taskDate >= today && taskDate < tomorrow;
         });
         break;
@@ -445,7 +445,7 @@ describe('検索・フィルタリング結合テスト', () => {
     const results = mockSearchStore.applyFilters(filters);
 
     expect(results).toHaveLength(1);
-    expect(results[0].title).toBe('重要なタスク'); // end_date: 2024-01-15
+    expect(results[0].title).toBe('重要なタスク'); // plan_end_date: 2024-01-15
   });
 
   it('複合フィルターが正しく動作する', () => {
@@ -637,7 +637,7 @@ describe('検索・フィルタリング結合テスト', () => {
           }
         ],
         list_id: `list-${i % 10}`,
-        end_date: new Date(),
+        plan_end_date: new Date(),
         created_at: new Date(),
         updated_at: new Date(),
         sub_tasks: [],

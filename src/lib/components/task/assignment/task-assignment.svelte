@@ -45,7 +45,7 @@
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError('サブタスクへのユーザー割り当てに失敗しました');
+          errorHandler.addError({ type: 'general', message: 'サブタスクへのユーザー割り当てに失敗しました', retryable: false });
         }
       } else {
         const success = await backend.assignment.createTaskAssignment(currentItem.id, userId);
@@ -53,12 +53,12 @@
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError('タスクへのユーザー割り当てに失敗しました');
+          errorHandler.addError({ type: 'general', message: 'タスクへのユーザー割り当てに失敗しました', retryable: false });
         }
       }
     } catch (error) {
       console.error('Failed to assign user:', error);
-      errorHandler.addError('ユーザー割り当て中にエラーが発生しました');
+      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て中にエラーが発生しました', retryable: false });
     } finally {
       isLoading = false;
     }
@@ -74,23 +74,23 @@
       if (isSubTask) {
         const success = await backend.assignment.deleteSubtaskAssignment(currentItem.id, userId);
         if (success) {
-          const updatedIds = assignedUserIds.filter(id => id !== userId);
+          const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError('サブタスクからのユーザー割り当て解除に失敗しました');
+          errorHandler.addError({ type: 'general', message: 'サブタスクからのユーザー割り当て解除に失敗しました', retryable: false });
         }
       } else {
         const success = await backend.assignment.deleteTaskAssignment(currentItem.id, userId);
         if (success) {
-          const updatedIds = assignedUserIds.filter(id => id !== userId);
+          const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);
         } else {
-          errorHandler.addError('タスクからのユーザー割り当て解除に失敗しました');
+          errorHandler.addError({ type: 'general', message: 'タスクからのユーザー割り当て解除に失敗しました', retryable: false });
         }
       }
     } catch (error) {
       console.error('Failed to unassign user:', error);
-      errorHandler.addError('ユーザー割り当て解除中にエラーが発生しました');
+      errorHandler.addError({ type: 'general', message: 'ユーザー割り当て解除中にエラーが発生しました', retryable: false });
     } finally {
       isLoading = false;
     }
@@ -105,7 +105,7 @@
   }
 
   function getUserDisplayName(user: User): string {
-    return user.display_name || user.username;
+    return user.display_name || user.handle_id;
   }
 
   function getUserInitials(user: User): string {

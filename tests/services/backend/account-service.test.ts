@@ -20,13 +20,15 @@ describe('AccountService Interface', () => {
 
     mockAccount = {
       id: 'account-123',
-      username: 'testuser',
+      user_id: 'user-456',
       display_name: 'Test User',
       email: 'test@example.com',
       avatar_url: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      provider_id: 'provider-123',
       is_active: true,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
     };
 
     vi.clearAllMocks();
@@ -53,9 +55,12 @@ describe('AccountService Interface', () => {
     it('should handle account with minimal data', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        name: 'Minimal User',
-        created_at: new Date(),
-        updated_at: new Date()
+        user_id: 'user-minimal',
+        display_name: 'Minimal User',
+        provider: 'local',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       service.create.mockResolvedValue(true);
 
@@ -69,7 +74,7 @@ describe('AccountService Interface', () => {
       const fullAccount = {
         ...mockAccount,
         email: 'full@example.com',
-        profile_image: 'https://example.com/full-avatar.png'
+        avatar_url: 'https://example.com/full-avatar.png'
       };
       service.create.mockResolvedValue(true);
 
@@ -82,7 +87,7 @@ describe('AccountService Interface', () => {
     it('should handle account with special characters in name', async () => {
       const specialNameAccount = {
         ...mockAccount,
-        name: 'ユーザー名 with émojis 🚀'
+        display_name: 'ユーザー名 with émojis 🚀'
       };
       service.create.mockResolvedValue(true);
 
@@ -140,9 +145,12 @@ describe('AccountService Interface', () => {
     it('should handle account without optional fields', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        name: 'Minimal User',
-        created_at: new Date(),
-        updated_at: new Date()
+        user_id: 'user-minimal',
+        display_name: 'Minimal User',
+        provider: 'local',
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       service.get.mockResolvedValue(minimalAccount);
 
@@ -150,14 +158,14 @@ describe('AccountService Interface', () => {
 
       expect(result).toEqual(minimalAccount);
       expect(result?.email).toBeUndefined();
-      expect(result?.profile_image).toBeUndefined();
+      expect(result?.avatar_url).toBeUndefined();
     });
 
     it('should handle account with all fields populated', async () => {
       const fullAccount = {
         ...mockAccount,
         email: 'complete@example.com',
-        profile_image: 'https://cdn.example.com/avatars/user123.jpg'
+        avatar_url: 'https://cdn.example.com/avatars/user123.jpg'
       };
       service.get.mockResolvedValue(fullAccount);
 
@@ -165,7 +173,7 @@ describe('AccountService Interface', () => {
 
       expect(result).toEqual(fullAccount);
       expect(result?.email).toBe('complete@example.com');
-      expect(result?.profile_image).toBe('https://cdn.example.com/avatars/user123.jpg');
+      expect(result?.avatar_url).toBe('https://cdn.example.com/avatars/user123.jpg');
     });
 
     it('should handle get error', async () => {

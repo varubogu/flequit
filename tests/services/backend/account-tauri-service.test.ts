@@ -18,13 +18,15 @@ describe('AccountTauriService', () => {
     service = new AccountTauriService();
     mockAccount = {
       id: 'account-123',
-      username: 'testuser',
+      user_id: 'user-456',
       email: 'test@example.com',
       display_name: 'Test User',
       avatar_url: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      provider_id: 'provider-123',
       is_active: true,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
     };
     vi.clearAllMocks();
   });

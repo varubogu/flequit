@@ -16,8 +16,8 @@ test('task creation workflow', () => {
         description: taskData.description || '',
         status: taskData.status || 'not_started',
         priority: taskData.priority || 1,
-        start_date: taskData.start_date,
-        end_date: taskData.end_date,
+        plan_start_date: taskData.plan_start_date,
+        plan_end_date: taskData.plan_end_date,
         is_range_date: taskData.is_range_date || false,
         recurrence_rule: taskData.recurrence_rule,
         order_index: taskData.order_index || 0,
@@ -120,6 +120,8 @@ test('subtask management workflow', () => {
             task_id: 'task-1',
             order_index: 0,
             tags: [],
+            completed: false,
+            assigned_user_ids: [],
             created_at: new Date(),
             updated_at: new Date()
           } as SubTask,
@@ -130,6 +132,8 @@ test('subtask management workflow', () => {
             task_id: 'task-1',
             order_index: 1,
             tags: [],
+            completed: false,
+            assigned_user_ids: [],
             created_at: new Date(),
             updated_at: new Date()
           } as SubTask

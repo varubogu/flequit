@@ -30,14 +30,12 @@ export interface SubTask {
   is_range_date?: boolean;
   /** 繰り返しルール */
   recurrence_rule?: RecurrenceRule;
-  /** 担当者IDの配列 */
-  assigned_user_ids: string[];
-  /** タグIDの配列 */
-  tag_ids: string[];
   /** 表示順序 */
   order_index: number;
   /** 完了状態 */
   completed: boolean;
+  /** 担当者ユーザーIDの配列 */
+  assigned_user_ids: string[];
   /** タグ一覧 */
   tags: Tag[];
   /** 作成日時 */

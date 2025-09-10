@@ -66,7 +66,7 @@
   ];
 </script>
 
-<div class="space-y-3 pl-36">
+<div class="space-y-3 pl-36" data-testid="advanced-recurrence-settings">
   <h4 class="font-medium">{advancedSettings()}</h4>
 
   <div class="grid grid-cols-2 gap-4">

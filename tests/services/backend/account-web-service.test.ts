@@ -12,13 +12,15 @@ describe('AccountWebService', () => {
 
     mockAccount = {
       id: 'account-123',
-      username: 'testuser',
+      user_id: 'user-456',
       display_name: 'Test User',
       email: 'test@example.com',
       avatar_url: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      provider_id: 'provider-123',
       is_active: true,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z'
     };
 
     // console.warnをモック化
@@ -44,11 +46,12 @@ describe('AccountWebService', () => {
     it('should handle account with minimal data', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        username: 'minimaluser',
+        user_id: 'user-minimal',
         display_name: 'Minimal User',
+        provider: 'local',
         is_active: true,
-        created_at: new Date(),
-        updated_at: new Date()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       const result = await service.create(minimalAccount);
@@ -114,7 +117,7 @@ describe('AccountWebService', () => {
     it('should handle update with changed fields', async () => {
       const updatedAccount = {
         ...mockAccount,
-        name: 'Updated Name',
+        display_name: 'Updated Name',
         email: 'updated@example.com'
       };
 
@@ -266,7 +269,7 @@ describe('AccountWebService', () => {
     it('should handle special characters in account data', async () => {
       const specialAccount = {
         ...mockAccount,
-        username: 'specialuser',
+        user_id: 'user-special',
         email: 'test+special@example.com'
       };
 
@@ -294,8 +297,8 @@ describe('AccountWebService', () => {
     it('should handle malformed account objects gracefully', async () => {
       const malformedAccount = {
         ...mockAccount,
-        created_at: 'invalid-date' as unknown as Date,
-        updated_at: null as unknown as Date
+        created_at: 'invalid-date',
+        updated_at: null as unknown as string
       };
 
       const createResult = await service.create(malformedAccount);

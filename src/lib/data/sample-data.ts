@@ -38,7 +38,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Check and respond to important emails',
               status: 'not_started',
               priority: 1,
-              end_date: today,
+              plan_end_date: today,
               assigned_user_ids: [],
               tag_ids: ['tag-1'],
               order_index: 0,
@@ -53,14 +53,16 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Review all unread emails in work account',
                   status: 'not_started',
                   priority: 2,
-                  start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
-                  end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
-                  // end_date is already set above
+                  plan_start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
+                  plan_end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
+                  // plan_end_date is already set above
                   recurrence_rule: {
                     unit: 'day',
                     interval: 1
                   },
                   order_index: 0,
+                  completed: false,
+                  assigned_user_ids: [],
                   tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
@@ -71,6 +73,8 @@ export function generateSampleData(): ProjectTree[] {
                   title: 'Reply to urgent messages',
                   status: 'not_started',
                   order_index: 1,
+                  completed: false,
+                  assigned_user_ids: [],
                   tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
@@ -94,7 +98,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Get ingredients for dinner tonight',
               status: 'not_started',
               priority: 2,
-              end_date: today,
+              plan_end_date: today,
               assigned_user_ids: [],
               tag_ids: ['tag-2'],
               order_index: 1,
@@ -120,7 +124,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'This task was due yesterday',
               status: 'not_started',
               priority: 3,
-              end_date: yesterday,
+              plan_end_date: yesterday,
               assigned_user_ids: [],
               tag_ids: [],
               order_index: 2,
@@ -150,7 +154,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Research destinations and book accommodation',
               status: 'in_progress',
               priority: 1,
-              end_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+              plan_end_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
               assigned_user_ids: [],
               tag_ids: [],
               order_index: 0,
@@ -200,7 +204,7 @@ export function generateSampleData(): ProjectTree[] {
               description: 'Implement login, signup, and password reset functionality',
               status: 'in_progress',
               priority: 1,
-              end_date: tomorrow,
+              plan_end_date: tomorrow,
               assigned_user_ids: [],
               tag_ids: [],
               order_index: 0,
@@ -215,8 +219,10 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create wireframes and mockups for login interface',
                   status: 'completed',
                   priority: 2,
-                  end_date: yesterday,
+                  plan_end_date: yesterday,
                   order_index: 0,
+                  completed: false,
+                  assigned_user_ids: [],
                   tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
@@ -228,8 +234,10 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create REST endpoints for authentication',
                   status: 'in_progress',
                   priority: 1,
-                  end_date: today,
+                  plan_end_date: today,
                   order_index: 1,
+                  completed: false,
+                  assigned_user_ids: [],
                   tags: [],
                   created_at: new Date(),
                   updated_at: new Date()
@@ -241,8 +249,10 @@ export function generateSampleData(): ProjectTree[] {
                   description: 'Create comprehensive test coverage for auth flow',
                   status: 'not_started',
                   priority: 2,
-                  end_date: tomorrow,
+                  plan_end_date: tomorrow,
                   order_index: 2,
+                  completed: false,
+                  assigned_user_ids: [],
                   tags: [],
                   created_at: new Date(),
                   updated_at: new Date()

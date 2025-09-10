@@ -1,7 +1,5 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import Button from '$lib/components/shared/button.svelte';
-  import Input from '$lib/components/ui/input.svelte';
 
   interface Props {
     settings: {
@@ -18,15 +16,7 @@
   const local_account = translationService.getMessage('local_account');
   const cloud_account = translationService.getMessage('cloud_account');
 
-  const organization = translationService.getMessage('organization');
-  const example_organization = translationService.getMessage('example_organization');
-  const account_icon = translationService.getMessage('account_icon');
-  const choose_file = translationService.getMessage('choose_file');
-  const account_name = translationService.getMessage('account_name');
-  const email_address = translationService.getMessage('email_address');
-  const server_url = translationService.getMessage('server_url');
   const local_account_description = translationService.getMessage('local_account_description');
-  const password = translationService.getMessage('password');
 </script>
 
 <section id="settings-account">

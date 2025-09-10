@@ -9,6 +9,9 @@ import { SettingTauriService } from '$lib/services/backend/tauri/setting-tauri-s
 import { AccountTauriService } from '$lib/services/backend/tauri/account-tauri-service';
 import { AutoFetchTauriService } from '$lib/services/backend/tauri/auto-fetch-tauri-service';
 import { InitializationTauriService } from '$lib/services/backend/tauri/initialization-tauri-service';
+import { UserTauriService } from '$lib/services/backend/tauri/user-tauri-service';
+import { TaggingTauriService } from '$lib/services/backend/tauri/tagging-tauri-service';
+import { AssignmentTauriService } from '$lib/services/backend/tauri/assignment-tauri-service';
 
 describe('BackendTauriService', () => {
   let service: BackendTauriService;
@@ -29,6 +32,9 @@ describe('BackendTauriService', () => {
       expect(service.account).toBeInstanceOf(AccountTauriService);
       expect(service.autoFetch).toBeInstanceOf(AutoFetchTauriService);
       expect(service.initialization).toBeInstanceOf(InitializationTauriService);
+      expect(service.user).toBeInstanceOf(UserTauriService);
+      expect(service.tagging).toBeInstanceOf(TaggingTauriService);
+      expect(service.assignment).toBeInstanceOf(AssignmentTauriService);
     });
 
     it('should have all services as readonly properties', () => {
@@ -67,6 +73,9 @@ describe('BackendTauriService', () => {
       expect(service).toHaveProperty('account');
       expect(service).toHaveProperty('autoFetch');
       expect(service).toHaveProperty('initialization');
+      expect(service).toHaveProperty('user');
+      expect(service).toHaveProperty('tagging');
+      expect(service).toHaveProperty('assignment');
     });
 
     it('should have all services with proper method signatures', () => {
@@ -126,6 +135,24 @@ describe('BackendTauriService', () => {
       expect(typeof service.initialization.loadAccount).toBe('function');
       expect(typeof service.initialization.loadProjectData).toBe('function');
       expect(typeof service.initialization.initializeAll).toBe('function');
+
+      // UserService interface
+      expect(typeof service.user.create).toBe('function');
+      expect(typeof service.user.get).toBe('function');
+      expect(typeof service.user.update).toBe('function');
+      expect(typeof service.user.delete).toBe('function');
+
+      // TaggingService interface
+      expect(typeof service.tagging.createTaskTag).toBe('function');
+      expect(typeof service.tagging.deleteTaskTag).toBe('function');
+      expect(typeof service.tagging.createSubtaskTag).toBe('function');
+      expect(typeof service.tagging.deleteSubtaskTag).toBe('function');
+
+      // AssignmentService interface
+      expect(typeof service.assignment.createTaskAssignment).toBe('function');
+      expect(typeof service.assignment.deleteTaskAssignment).toBe('function');
+      expect(typeof service.assignment.createSubtaskAssignment).toBe('function');
+      expect(typeof service.assignment.deleteSubtaskAssignment).toBe('function');
     });
   });
 
@@ -175,6 +202,21 @@ describe('BackendTauriService', () => {
       expect(service.initialization).toBeDefined();
       expect(typeof service.initialization.initializeAll).toBe('function');
     });
+
+    it('should provide working user service', () => {
+      expect(service.user).toBeDefined();
+      expect(typeof service.user.create).toBe('function');
+    });
+
+    it('should provide working tagging service', () => {
+      expect(service.tagging).toBeDefined();
+      expect(typeof service.tagging.createTaskTag).toBe('function');
+    });
+
+    it('should provide working assignment service', () => {
+      expect(service.assignment).toBeDefined();
+      expect(typeof service.assignment.createTaskAssignment).toBe('function');
+    });
   });
 
   describe('service interactions', () => {
@@ -189,7 +231,10 @@ describe('BackendTauriService', () => {
         service.setting,
         service.account,
         service.autoFetch,
-        service.initialization
+        service.initialization,
+        service.user,
+        service.tagging,
+        service.assignment
       ];
 
       // 全てのサービスが異なるインスタンスであることを確認
@@ -297,7 +342,10 @@ describe('BackendTauriService', () => {
         'setting',
         'account',
         'autoFetch',
-        'initialization'
+        'initialization',
+        'user',
+        'tagging',
+        'assignment'
       ];
 
       expect(serviceKeys.sort()).toEqual(expectedKeys.sort());
@@ -313,6 +361,9 @@ describe('BackendTauriService', () => {
       expect(Object.prototype.hasOwnProperty.call(service, 'account')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'autoFetch')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'initialization')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'user')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tagging')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'assignment')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });
   });
@@ -330,6 +381,9 @@ describe('BackendTauriService', () => {
       expect(service.account.constructor.name).toBe('AccountTauriService');
       expect(service.autoFetch.constructor.name).toBe('AutoFetchTauriService');
       expect(service.initialization.constructor.name).toBe('InitializationTauriService');
+      expect(service.user.constructor.name).toBe('UserTauriService');
+      expect(service.tagging.constructor.name).toBe('TaggingTauriService');
+      expect(service.assignment.constructor.name).toBe('AssignmentTauriService');
     });
 
     it('should maintain prototype chain integrity', () => {
@@ -343,6 +397,9 @@ describe('BackendTauriService', () => {
       expect(service.account instanceof AccountTauriService).toBe(true);
       expect(service.autoFetch instanceof AutoFetchTauriService).toBe(true);
       expect(service.initialization instanceof InitializationTauriService).toBe(true);
+      expect(service.user instanceof UserTauriService).toBe(true);
+      expect(service.tagging instanceof TaggingTauriService).toBe(true);
+      expect(service.assignment instanceof AssignmentTauriService).toBe(true);
     });
   });
 });

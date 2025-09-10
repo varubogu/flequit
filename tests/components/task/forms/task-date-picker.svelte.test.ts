@@ -27,8 +27,8 @@ describe('TaskDatePicker Component', () => {
     updated_at: new Date(),
     list_id: 'list-1',
     order_index: 0,
-    end_date: new Date('2024-01-15'),
-    start_date: undefined,
+    plan_end_date: new Date('2024-01-15'),
+    plan_start_date: undefined,
     is_range_date: false,
     is_archived: false,
     tags: [],
@@ -44,8 +44,10 @@ describe('TaskDatePicker Component', () => {
         order_index: 0,
         created_at: new Date(),
         updated_at: new Date(),
-        end_date: new Date('2024-01-16'),
-        start_date: undefined,
+        plan_end_date: new Date('2024-01-16'),
+        plan_start_date: undefined,
+        completed: false,
+        assigned_user_ids: [],
         is_range_date: false,
         tags: []
       }

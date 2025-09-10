@@ -53,7 +53,18 @@ describe('TaskAddForm', () => {
       getCurrentLocale: vi.fn().mockReturnValue('en'),
       setLocale: vi.fn(),
       reactiveMessage: vi.fn().mockImplementation((fn) => fn),
-      getMessage: vi.fn().mockReturnValue(() => 'mock-message'),
+      getMessage: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, () => string> = {
+          'task_title': () => 'Task title',
+          'add_task': () => 'Add task',
+          'cancel': () => 'Cancel',
+          'edit_task': () => 'Edit task',
+          'save_task': () => 'Save task',
+          'enter_task_title': () => 'Enter task title',
+          'task_title_placeholder': () => 'Task title'
+        };
+        return translations[key] || (() => key);
+      }),
       getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
     };
     setTranslationService(mockTranslationService);
@@ -116,7 +127,8 @@ describe('TaskAddForm', () => {
 
       await fireEvent.click(saveButton);
 
-      expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('');
+      // 空の入力の場合、addNewTaskは呼ばれない（早期リターン）
+      expect(mockTaskListService.addNewTask).not.toHaveBeenCalled();
       expect(onTaskAdded).not.toHaveBeenCalled();
       expect(mockTaskService.selectTask).not.toHaveBeenCalled();
     });
@@ -287,7 +299,7 @@ describe('TaskAddForm', () => {
   });
 
   describe('auto-focus functionality', () => {
-    test.skip('should auto-focus input on mount', async () => {
+    test('should auto-focus input on mount', async () => {
       render(TaskAddForm);
 
       await waitFor(() => {

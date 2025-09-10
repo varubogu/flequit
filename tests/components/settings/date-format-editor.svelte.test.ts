@@ -5,10 +5,10 @@ import DateFormatEditor from '$lib/components/settings/date-format/date-format-e
 // 依存関係のモック
 vi.mock('$lib/stores/datetime-format.svelte', () => ({
   dateTimeFormatStore: {
-    currentFormat: 'YYYY-MM-DD',
+    currentFormat: 'yyyy-MM-dd',
     allFormats: vi.fn(() => [
-      { id: '1', name: 'ISO Date', format: 'YYYY-MM-DD', group: 'プリセット' },
-      { id: '2', name: 'Custom Format', format: 'DD/MM/YYYY', group: 'カスタムフォーマット' }
+      { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット' },
+      { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット' }
     ]),
     setCurrentFormat: vi.fn(),
     addCustomFormat: vi.fn(() => 'new-id'),

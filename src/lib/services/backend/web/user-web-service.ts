@@ -1,4 +1,4 @@
-import type { User, UserPatch } from '$lib/types/user';
+import type { User } from '$lib/types/user';
 import type { UserService } from '$lib/services/backend/user-service';
 
 export class UserWebService implements UserService {

@@ -100,7 +100,7 @@
             >
               {subTask.title}
             </span>
-            {#if subTask.end_date}
+            {#if subTask.plan_end_date}
               <DueDate
                 task={subTask}
                 variant="full"

@@ -63,7 +63,7 @@ describe('TaskService - Drag & Drop', () => {
       TaskService.updateTaskDueDateForView(taskId, viewId);
 
       expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
-        end_date: new Date('2024-01-15T10:00:00Z')
+        plan_end_date: new Date('2024-01-15T10:00:00Z')
       });
     });
 
@@ -77,7 +77,7 @@ describe('TaskService - Drag & Drop', () => {
       expectedDate.setDate(expectedDate.getDate() + 1);
 
       expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
-        end_date: expectedDate
+        plan_end_date: expectedDate
       });
     });
 
@@ -91,7 +91,7 @@ describe('TaskService - Drag & Drop', () => {
       expectedDate.setDate(expectedDate.getDate() + 3);
 
       expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
-        end_date: expectedDate
+        plan_end_date: expectedDate
       });
     });
 
@@ -105,7 +105,7 @@ describe('TaskService - Drag & Drop', () => {
       expectedDate.setDate(expectedDate.getDate() + 7);
 
       expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
-        end_date: expectedDate
+        plan_end_date: expectedDate
       });
     });
 
@@ -118,7 +118,7 @@ describe('TaskService - Drag & Drop', () => {
       const expectedDate = new Date(2024, 1, 0); // 1月の最後の日
 
       expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
-        end_date: expectedDate
+        plan_end_date: expectedDate
       });
     });
 

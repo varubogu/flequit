@@ -44,8 +44,8 @@ describe('TaskItemContent', () => {
     description: 'Test description',
     status: 'not_started' as TaskStatus,
     priority: 2,
-    start_date: new Date('2024-01-01'),
-    end_date: new Date('2024-01-02'),
+    plan_start_date: new Date('2024-01-01'),
+    plan_end_date: new Date('2024-01-02'),
     is_range_date: true,
     list_id: 'list-1',
     assigned_user_ids: [],
@@ -70,6 +70,8 @@ describe('TaskItemContent', () => {
         task_id: 'task-1',
         order_index: 0,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date('2024-01-01'),
         updated_at: new Date('2024-01-01')
       }
@@ -325,6 +327,8 @@ describe('TaskItemContent', () => {
             task_id: 'task-1',
             order_index: 0,
             tags: [],
+            completed: false,
+            assigned_user_ids: [],
             created_at: new Date(),
             updated_at: new Date()
           },
@@ -336,6 +340,8 @@ describe('TaskItemContent', () => {
             task_id: 'task-1',
             order_index: 1,
             tags: [],
+            completed: false,
+            assigned_user_ids: [],
             created_at: new Date(),
             updated_at: new Date()
           },
@@ -347,6 +353,8 @@ describe('TaskItemContent', () => {
             task_id: 'task-1',
             order_index: 2,
             tags: [],
+            completed: true,
+            assigned_user_ids: [],
             created_at: new Date(),
             updated_at: new Date()
           }

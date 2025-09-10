@@ -74,6 +74,8 @@ describe('SubTaskList - Drag and Drop', () => {
         priority: 0,
         order_index: 0,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -86,6 +88,8 @@ describe('SubTaskList - Drag and Drop', () => {
         priority: 0,
         order_index: 1,
         tags: [],
+        completed: false,
+        assigned_user_ids: [],
         created_at: new Date(),
         updated_at: new Date()
       }

@@ -39,7 +39,7 @@
         return taskStore.allTasks.filter((t) => t.status === 'completed').length;
       case 'tomorrow':
         return taskStore.allTasks.filter((t) => {
-          if (t.status === 'completed' || !t.end_date) return false;
+          if (t.status === 'completed' || !t.plan_end_date) return false;
           const tomorrow = new SvelteDate();
           tomorrow.setDate(tomorrow.getDate() + 1);
           const tomorrowStart = new SvelteDate(
@@ -52,33 +52,33 @@
             tomorrow.getMonth(),
             tomorrow.getDate() + 1
           );
-          const dueDate = new Date(t.end_date);
+          const dueDate = new Date(t.plan_end_date);
           return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
         }).length;
       case 'next3days':
         return taskStore.allTasks.filter((t) => {
-          if (t.status === 'completed' || !t.end_date) return false;
+          if (t.status === 'completed' || !t.plan_end_date) return false;
           const today = new SvelteDate();
           const threeDaysLater = new SvelteDate();
           threeDaysLater.setDate(today.getDate() + 3);
-          const dueDate = new Date(t.end_date);
+          const dueDate = new Date(t.plan_end_date);
           return dueDate > today && dueDate <= threeDaysLater;
         }).length;
       case 'nextweek':
         return taskStore.allTasks.filter((t) => {
-          if (t.status === 'completed' || !t.end_date) return false;
+          if (t.status === 'completed' || !t.plan_end_date) return false;
           const today = new SvelteDate();
           const oneWeekLater = new SvelteDate();
           oneWeekLater.setDate(today.getDate() + 7);
-          const dueDate = new Date(t.end_date);
+          const dueDate = new Date(t.plan_end_date);
           return dueDate > today && dueDate <= oneWeekLater;
         }).length;
       case 'thismonth':
         return taskStore.allTasks.filter((t) => {
-          if (t.status === 'completed' || !t.end_date) return false;
+          if (t.status === 'completed' || !t.plan_end_date) return false;
           const today = new SvelteDate();
           const endOfMonth = new SvelteDate(today.getFullYear(), today.getMonth() + 1, 0);
-          const dueDate = new Date(t.end_date);
+          const dueDate = new Date(t.plan_end_date);
           return dueDate >= today && dueDate <= endOfMonth;
         }).length;
       default:

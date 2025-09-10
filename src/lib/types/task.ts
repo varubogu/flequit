@@ -13,10 +13,10 @@ export type TaskStatus = 'not_started' | 'in_progress' | 'waiting' | 'completed'
 export interface TaskBase {
   /** ステータス */
   status: TaskStatus;
-  /** 開始日 */
-  start_date?: Date;
-  /** 終了日（期日） */
-  end_date?: Date;
+  /** 予定開始日 */
+  plan_start_date?: Date;
+  /** 予定終了日 */
+  plan_end_date?: Date;
   /** 期日が範囲選択かどうか */
   is_range_date?: boolean;
 }
@@ -27,6 +27,8 @@ export interface TaskBase {
 export interface Task {
   /** タスクID */
   id: string;
+  /** プロジェクトID */
+  project_id: string;
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string;
   /** 所属タスクリストID */
@@ -79,6 +81,8 @@ export interface TaskWithSubTasks extends Task {
  * タスク検索条件
  */
 export interface TaskSearchCondition {
+  /** プロジェクトID */
+  project_id?: string;
   /** 所属タスクリストID */
   list_id?: string;
   /** タイトル */
@@ -95,6 +99,8 @@ export interface TaskSearchCondition {
  * タスク部分更新用のパッチインターフェース
  */
 export interface TaskPatch {
+  /** プロジェクトID */
+  project_id?: string;
   /** サブタスクID（サブタスクの場合） */
   sub_task_id?: string | null;
   /** 所属タスクリストID */

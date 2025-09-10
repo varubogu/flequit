@@ -1,6 +1,6 @@
 import type { Task } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTask, SubTaskPatch } from '$lib/types/sub-task';
 import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
@@ -168,19 +168,16 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
 
-    // Patch形式でのupdateに変更（Date型をstring型に変換）
-    const patchData: Partial<Task> = {
+    // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
+    const patchData: import('$lib/types/task').TaskPatch = {
       ...updates,
-      start_date: updates.start_date ? updates.start_date.toISOString() : updates.start_date,
-      end_date: updates.end_date ? updates.end_date.toISOString() : updates.end_date,
-      updated_at: new Date()
+      plan_start_date: updates.plan_start_date?.toISOString() ?? undefined,
+      plan_end_date: updates.plan_end_date?.toISOString() ?? undefined,
+      do_start_date: updates.do_start_date?.toISOString() ?? undefined,
+      do_end_date: updates.do_end_date?.toISOString() ?? undefined
     };
 
-    // tagsをtag_idsに変換（バックエンドはtag_idsを期待）
-    if (updates.tags) {
-      patchData.tag_ids = updates.tags.map(tag => tag.id);
-      delete patchData.tags; // tags フィールドを削除
-    }
+    // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
     console.log('DataService: calling backend.task.update');
     const success = await backend.task.update(taskId, patchData);
@@ -222,10 +219,9 @@ export class DataService {
           | 'completed'
           | 'cancelled') || 'not_started',
       priority: subTaskData.priority,
-      assigned_user_ids: [],
-      tag_ids: [],
       order_index: 0,
       completed: false,
+      assigned_user_ids: [],
       tags: [],
       created_at: new Date(),
       updated_at: new Date()
@@ -241,10 +237,10 @@ export class DataService {
     // Patch形式でのupdateに変更（Date型をstring型に変換）
     const patchData = {
       ...updates,
-      start_date: updates.start_date ? updates.start_date.toISOString() : updates.start_date,
-      end_date: updates.end_date ? updates.end_date.toISOString() : updates.end_date,
+      plan_start_date: updates.plan_start_date ? updates.plan_start_date.toISOString() : updates.plan_start_date,
+      plan_end_date: updates.plan_end_date ? updates.plan_end_date.toISOString() : updates.plan_end_date,
       updated_at: new Date()
-    };
+    } as SubTaskPatch;
 
     console.log('DataService: calling backend.subtask.update');
     const success = await backend.subtask.update(subTaskId, patchData);

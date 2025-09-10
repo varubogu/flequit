@@ -148,14 +148,14 @@ export class InitializationWebService implements InitializationService {
           ...task,
           created_at: new Date(task.created_at),
           updated_at: new Date(task.updated_at),
-          start_date: task.start_date ? new Date(task.start_date) : undefined,
-          end_date: task.end_date ? new Date(task.end_date) : undefined,
+          plan_start_date: task.plan_start_date ? new Date(task.plan_start_date) : undefined,
+          plan_end_date: task.plan_end_date ? new Date(task.plan_end_date) : undefined,
           sub_tasks: task.sub_tasks.map((subTask) => ({
             ...subTask,
             created_at: new Date(subTask.created_at),
             updated_at: new Date(subTask.updated_at),
-            start_date: subTask.start_date ? new Date(subTask.start_date) : undefined,
-            end_date: subTask.end_date ? new Date(subTask.end_date) : undefined
+            plan_start_date: subTask.plan_start_date ? new Date(subTask.plan_start_date) : undefined,
+            plan_end_date: subTask.plan_end_date ? new Date(subTask.plan_end_date) : undefined
           })),
           tags: task.tags.map((tag) => ({
             ...tag,

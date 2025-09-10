@@ -17,8 +17,8 @@ describe('TaskDescriptionEditor Component', () => {
     updated_at: new Date(),
     list_id: 'list-1',
     order_index: 0,
-    end_date: new Date('2024-01-15'),
-    start_date: undefined,
+    plan_start_date: undefined,
+    plan_end_date: new Date('2024-01-15'),
     is_range_date: false,
     sub_tasks: [],
     tags: [],
@@ -28,8 +28,8 @@ describe('TaskDescriptionEditor Component', () => {
   const mockFormData = {
     title: 'Test Task',
     description: 'Test description',
-    start_date: undefined,
-    end_date: new Date('2024-01-15'),
+    plan_start_date: undefined,
+    plan_end_date: new Date('2024-01-15'),
     is_range_date: false,
     priority: 2
   };

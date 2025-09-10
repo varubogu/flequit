@@ -242,7 +242,7 @@ describe('ProjectsService', () => {
 
       const result = ProjectsService.getProjectById('project-123');
 
-      expect(result).toEqual(mockProject);
+      expect(result).toEqual(mockProjectWithLists);
     });
 
     it('should return null when project not found', () => {
@@ -285,7 +285,12 @@ describe('ProjectsService', () => {
 
       const result = ProjectsService.getAllProjects();
 
-      expect(result).toEqual(projects);
+      // getAllProjects returns Project[] (without task_lists)
+      const expectedProjects = [
+        mockProject,
+        { ...mockProject, id: 'project-456', name: 'Project 2' }
+      ];
+      expect(result).toEqual(expectedProjects);
     });
 
     it('should return empty array when no projects', () => {
@@ -335,7 +340,7 @@ describe('ProjectsService', () => {
       const result = ProjectsService.searchProjectsByName('test');
 
       expect(result).toHaveLength(1);
-      expect(result[0]).toEqual(mockProjectWithLists);
+      expect(result[0]).toEqual(mockProject);
     });
 
     it('should return empty array when no matches', () => {
@@ -506,7 +511,7 @@ describe('ProjectsService', () => {
 
       const result = ProjectsService.searchProjectsByName('');
 
-      expect(result).toEqual([mockProjectWithLists]);
+      expect(result).toEqual([mockProject]);
     });
   });
 });

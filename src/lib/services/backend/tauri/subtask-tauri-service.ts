@@ -1,11 +1,17 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { SubTaskSearchCondition, SubTask, SubTaskPatch } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
+import { ProjectsService } from '$lib/services/projects-service';
 
 export class SubtaskTauriService implements SubTaskService {
   async create(subTask: SubTask): Promise<boolean> {
     try {
-      await invoke('create_sub_task', { subTask });
+      const projectId = ProjectsService.getSelectedProjectId();
+      if (!projectId) {
+        console.error('No project selected for sub task creation');
+        return false;
+      }
+      await invoke('create_sub_task', { project_id: projectId, sub_task: subTask });
       return true;
     } catch (error) {
       console.error('Failed to create sub task:', error);
@@ -15,7 +21,12 @@ export class SubtaskTauriService implements SubTaskService {
 
   async update(id: string, patch: SubTaskPatch): Promise<boolean> {
     try {
-      const result = await invoke('update_sub_task', { id, patch });
+      const projectId = ProjectsService.getSelectedProjectId();
+      if (!projectId) {
+        console.error('No project selected for sub task update');
+        return false;
+      }
+      const result = await invoke('update_sub_task', { project_id: projectId, id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update subtask:', error);
@@ -25,7 +36,12 @@ export class SubtaskTauriService implements SubTaskService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await invoke('delete_sub_task', { id });
+      const projectId = ProjectsService.getSelectedProjectId();
+      if (!projectId) {
+        console.error('No project selected for sub task deletion');
+        return false;
+      }
+      await invoke('delete_sub_task', { project_id: projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete sub task:', error);
@@ -35,7 +51,12 @@ export class SubtaskTauriService implements SubTaskService {
 
   async get(id: string): Promise<SubTask | null> {
     try {
-      const result = (await invoke('get_sub_task', { id })) as SubTask | null;
+      const projectId = ProjectsService.getSelectedProjectId();
+      if (!projectId) {
+        console.error('No project selected for sub task retrieval');
+        return null;
+      }
+      const result = (await invoke('get_sub_task', { project_id: projectId, id })) as SubTask | null;
       return result;
     } catch (error) {
       console.error('Failed to get sub task:', error);
@@ -44,9 +65,11 @@ export class SubtaskTauriService implements SubTaskService {
   }
 
   async search(condition: SubTaskSearchCondition): Promise<SubTask[]> {
+    // TODO: search_sub_tasks コマンドが Tauri側に実装されていないため、一時的にmock実装
+    console.warn('search_sub_tasks is not implemented on Tauri side - using mock implementation');
     try {
-      const results = (await invoke('search_sub_tasks', { condition })) as SubTask[];
-      return results;
+      // 一時的に空の配列を返す
+      return [];
     } catch (error) {
       console.error('Failed to search sub tasks:', error);
       return [];

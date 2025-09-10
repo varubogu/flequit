@@ -14,7 +14,7 @@
   let { user = null, onLogin, onLogout, onSettings, onSwitchAccount }: Props = $props();
 
   // Initialize logic
-  const logic = new UserProfileLogic(user, onLogin, onLogout, onSettings, onSwitchAccount);
+  const logic = new UserProfileLogic(user, null, onLogin, onLogout, onSettings, onSwitchAccount);
 
   // Setup click outside effect
   $effect(() => {

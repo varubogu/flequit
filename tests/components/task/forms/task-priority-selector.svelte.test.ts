@@ -6,8 +6,8 @@ describe('TaskPrioritySelector Component', () => {
   const mockFormData = {
     title: 'Test Task',
     description: 'Test description',
-    start_date: undefined,
-    end_date: new Date('2024-01-15'),
+    plan_start_date: undefined,
+    plan_end_date: new Date('2024-01-15'),
     is_range_date: false,
     priority: 2
   };

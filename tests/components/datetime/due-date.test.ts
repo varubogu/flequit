@@ -13,7 +13,7 @@ test('DueDate: renders formatted date when task has end_date', async () => {
   const testDate = new Date('2024-01-15');
 
   const task = createMockTask({
-    end_date: testDate,
+    plan_end_date: testDate,
     status: 'not_started'
   });
 
@@ -35,7 +35,7 @@ test("DueDate: renders 'Add date' when task has no end_date", async () => {
   const mockClick = vi.fn();
 
   const task = createMockTask({
-    end_date: undefined
+    plan_end_date: undefined
   });
 
   const { getByText, getByRole } = render(DueDate, {
@@ -55,7 +55,7 @@ test('DueDate: calls handleDueDateClick when clicked', async () => {
   const testDate = new Date('2024-01-15');
 
   const task = createMockTask({
-    end_date: testDate
+    plan_end_date: testDate
   });
 
   const { getByRole } = render(DueDate, {
@@ -76,7 +76,7 @@ test("DueDate: calls handleDueDateClick when 'Add date' button is clicked", asyn
   const mockClick = vi.fn();
 
   const task = createMockTask({
-    end_date: undefined
+    plan_end_date: undefined
   });
 
   const { getByRole } = render(DueDate, {
@@ -99,7 +99,7 @@ test('DueDate: applies correct CSS classes for overdue tasks', async () => {
   pastDate.setDate(pastDate.getDate() - 1); // Yesterday
 
   const task = createMockTask({
-    end_date: pastDate,
+    plan_end_date: pastDate,
     status: 'not_started'
   });
 
@@ -121,7 +121,7 @@ test("DueDate: applies correct CSS classes for today's tasks", async () => {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const task = createMockTask({
-    end_date: today,
+    plan_end_date: today,
     status: 'not_started'
   });
 
@@ -141,7 +141,7 @@ test("DueDate: applies muted styling for 'Add date' button", async () => {
   const mockClick = vi.fn();
 
   const task = createMockTask({
-    end_date: undefined
+    plan_end_date: undefined
   });
 
   const { getByRole } = render(DueDate, {

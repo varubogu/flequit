@@ -7,8 +7,8 @@
     formData: {
       title: string;
       description: string;
-      start_date: Date | undefined;
-      end_date: Date | undefined;
+      plan_start_date: Date | undefined;
+      plan_end_date: Date | undefined;
       is_range_date: boolean;
       priority: number;
     };

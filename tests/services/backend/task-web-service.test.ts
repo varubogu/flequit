@@ -52,11 +52,10 @@ describe('TaskWebService', () => {
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
       const patchData = {
-        ...mockTask,
-        start_date: mockTask.start_date?.toISOString(),
-        end_date: mockTask.end_date?.toISOString(),
-        created_at: mockTask.created_at.toISOString(),
-        updated_at: mockTask.updated_at.toISOString()
+        title: mockTask.title,
+        description: mockTask.description,
+        status: mockTask.status,
+        priority: mockTask.priority
       };
       const result = await service.update(mockTask.id, patchData);
 
@@ -112,11 +111,10 @@ describe('TaskWebService', () => {
 
     it('should return proper Promise types', async () => {
       const patchData = {
-        ...mockTask,
-        start_date: mockTask.start_date?.toISOString(),
-        end_date: mockTask.end_date?.toISOString(),
-        created_at: mockTask.created_at.toISOString(),
-        updated_at: mockTask.updated_at.toISOString()
+        title: mockTask.title,
+        description: mockTask.description,
+        status: mockTask.status,
+        priority: mockTask.priority
       };
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
@@ -139,11 +137,10 @@ describe('TaskWebService', () => {
   describe('concurrent operations', () => {
     it('should handle concurrent operations without side effects', async () => {
       const patchData = {
-        ...mockTask,
-        start_date: mockTask.start_date?.toISOString(),
-        end_date: mockTask.end_date?.toISOString(),
-        created_at: mockTask.created_at.toISOString(),
-        updated_at: mockTask.updated_at.toISOString()
+        title: mockTask.title,
+        description: mockTask.description,
+        status: mockTask.status,
+        priority: mockTask.priority
       };
       const operations = await Promise.all([
         service.create(mockTask),

@@ -14,7 +14,9 @@ vi.mock('$paraglide/runtime', () => ({
 
 vi.mock('$paraglide/messages.js', () => ({
   test_message: vi.fn(() => 'Test Message'),
-  hello: vi.fn((params: { name?: string } = {}) => `Hello ${params.name || 'World'}`)
+  hello: vi.fn((params: { name?: string } = {}) => `Hello ${params.name || 'World'}`),
+  // Add unknown_key as undefined to test error handling
+  unknown_key: undefined
 }));
 
 vi.mock('./backend', () => ({

@@ -16,6 +16,10 @@ export interface Project {
   order_index: number;
   /** アーカイブ状態 */
   is_archived: boolean;
+  /** プロジェクトのステータス */
+  status?: string;
+  /** プロジェクトオーナーのユーザーID */
+  owner_id?: string;
   /** 作成日時 */
   created_at: Date;
   /** 更新日時 */
@@ -64,4 +68,8 @@ export interface ProjectPatch {
   order_index?: number;
   /** アーカイブ状態 */
   is_archived?: boolean;
+  /** プロジェクトのステータス */
+  status?: string | null;
+  /** プロジェクトオーナーのユーザーID */
+  owner_id?: string | null;
 }

@@ -16,7 +16,7 @@ interface SettingsData {
     dateTimeFormat: string;
   };
   account: {
-    username: string;
+    handle_id: string;
     email: string;
   };
 }
@@ -32,12 +32,12 @@ const mockSettingsStore = {
       taskListDensity: 'comfortable'
     },
     dateFormat: {
-      dateFormat: 'YYYY-MM-DD',
+      dateFormat: 'yyyy-MM-dd',
       timeFormat: 'HH:mm',
-      dateTimeFormat: 'YYYY-MM-DD HH:mm'
+      dateTimeFormat: 'yyyy-MM-dd HH:mm'
     },
     account: {
-      username: 'testuser',
+      handle_id: 'testuser',
       email: 'test@example.com'
     }
   } as SettingsData,
@@ -91,12 +91,12 @@ const mockSettingsStore = {
         taskListDensity: 'comfortable'
       },
       dateFormat: {
-        dateFormat: 'YYYY-MM-DD',
+        dateFormat: 'yyyy-MM-dd',
         timeFormat: 'HH:mm',
-        dateTimeFormat: 'YYYY-MM-DD HH:mm'
+        dateTimeFormat: 'yyyy-MM-dd HH:mm'
       },
       account: {
-        username: '',
+        handle_id: '',
         email: ''
       }
     };
@@ -159,12 +159,12 @@ describe('設定ダイアログ結合テスト', () => {
         taskListDensity: 'comfortable'
       },
       dateFormat: {
-        dateFormat: 'YYYY-MM-DD',
+        dateFormat: 'yyyy-MM-dd',
         timeFormat: 'HH:mm',
-        dateTimeFormat: 'YYYY-MM-DD HH:mm'
+        dateTimeFormat: 'yyyy-MM-dd HH:mm'
       },
       account: {
-        username: 'testuser',
+        handle_id: 'testuser',
         email: 'test@example.com'
       }
     };
@@ -254,18 +254,18 @@ describe('設定ダイアログ結合テスト', () => {
     };
 
     // 日付フォーマット変更
-    const dateResult = changeDateFormat({ dateFormat: 'DD/MM/YYYY' });
-    expect(mockSettingsStore.updateDateFormat).toHaveBeenCalledWith({ dateFormat: 'DD/MM/YYYY' });
-    expect(dateResult.dateFormat).toBe('DD/MM/YYYY');
+    const dateResult = changeDateFormat({ dateFormat: 'dd/MM/yyyy' });
+    expect(mockSettingsStore.updateDateFormat).toHaveBeenCalledWith({ dateFormat: 'dd/MM/yyyy' });
+    expect(dateResult.dateFormat).toBe('dd/MM/yyyy');
 
     // 時刻フォーマット変更
     const timeResult = changeDateFormat({ timeFormat: 'hh:mm A' });
     expect(timeResult.timeFormat).toBe('hh:mm A');
-    expect(timeResult.dateFormat).toBe('DD/MM/YYYY'); // 前の変更が保持される
+    expect(timeResult.dateFormat).toBe('dd/MM/yyyy'); // 前の変更が保持される
 
     // 組み合わせフォーマット変更
-    const dateTimeResult = changeDateFormat({ dateTimeFormat: 'DD/MM/YYYY hh:mm A' });
-    expect(dateTimeResult.dateTimeFormat).toBe('DD/MM/YYYY hh:mm A');
+    const dateTimeResult = changeDateFormat({ dateTimeFormat: 'dd/MM/yyyy hh:mm A' });
+    expect(dateTimeResult.dateTimeFormat).toBe('dd/MM/yyyy hh:mm A');
   });
 
   it('アカウント設定の更新が正しく動作する', () => {
@@ -281,12 +281,12 @@ describe('設定ダイアログ結合テスト', () => {
     };
 
     const result = updateAccount({
-      username: 'newuser',
+      handle_id: 'newuser',
       email: 'newuser@example.com'
     });
 
     expect(mockSettingsStore.updateSettings).toHaveBeenCalled();
-    expect(result.username).toBe('newuser');
+    expect(result.handle_id).toBe('newuser');
     expect(result.email).toBe('newuser@example.com');
   });
 
@@ -395,9 +395,9 @@ describe('設定ダイアログ結合テスト', () => {
         taskListDensity: 'compact' as const
       },
       dateFormat: {
-        dateFormat: 'DD/MM/YYYY',
+        dateFormat: 'dd/MM/yyyy',
         timeFormat: 'hh:mm A',
-        dateTimeFormat: 'DD/MM/YYYY hh:mm A'
+        dateTimeFormat: 'dd/MM/yyyy hh:mm A'
       }
     };
 
@@ -408,7 +408,7 @@ describe('設定ダイアログ結合テスト', () => {
     expect(result.language).toBe('en');
     expect(result.ui.sidebarCollapsed).toBe(true);
     expect(result.ui.showCompletedTasks).toBe(false);
-    expect(result.dateFormat.dateFormat).toBe('DD/MM/YYYY');
+    expect(result.dateFormat.dateFormat).toBe('dd/MM/yyyy');
   });
 
   it('検索機能が設定項目をフィルタリングする', () => {

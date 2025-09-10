@@ -9,6 +9,9 @@ import { SettingWebService } from '$lib/services/backend/web/setting-web-service
 import { AccountWebService } from '$lib/services/backend/web/account-web-service';
 import { AutoFetchWebService } from '$lib/services/backend/web/auto-fetch-web-service';
 import { InitializationWebService } from '$lib/services/backend/web/initialization-web-service';
+import { UserWebService } from '$lib/services/backend/web/user-web-service';
+import { TaggingWebService } from '$lib/services/backend/web/tagging-web-service';
+import { AssignmentWebService } from '$lib/services/backend/web/assignment-web-service';
 
 describe('BackendWebService', () => {
   let service: BackendWebService;
@@ -28,6 +31,9 @@ describe('BackendWebService', () => {
       expect(service.account).toBeInstanceOf(AccountWebService);
       expect(service.autoFetch).toBeInstanceOf(AutoFetchWebService);
       expect(service.initialization).toBeInstanceOf(InitializationWebService);
+      expect(service.user).toBeInstanceOf(UserWebService);
+      expect(service.tagging).toBeInstanceOf(TaggingWebService);
+      expect(service.assignment).toBeInstanceOf(AssignmentWebService);
     });
 
     it('should have all services as readonly properties', () => {
@@ -55,6 +61,9 @@ describe('BackendWebService', () => {
       expect(service).toHaveProperty('account');
       expect(service).toHaveProperty('autoFetch');
       expect(service).toHaveProperty('initialization');
+      expect(service).toHaveProperty('user');
+      expect(service).toHaveProperty('tagging');
+      expect(service).toHaveProperty('assignment');
     });
 
     it('should have all services with proper method signatures', () => {
@@ -114,6 +123,24 @@ describe('BackendWebService', () => {
       expect(typeof service.initialization.loadAccount).toBe('function');
       expect(typeof service.initialization.loadProjectData).toBe('function');
       expect(typeof service.initialization.initializeAll).toBe('function');
+
+      // UserService interface
+      expect(typeof service.user.create).toBe('function');
+      expect(typeof service.user.get).toBe('function');
+      expect(typeof service.user.update).toBe('function');
+      expect(typeof service.user.delete).toBe('function');
+
+      // TaggingService interface
+      expect(typeof service.tagging.createTaskTag).toBe('function');
+      expect(typeof service.tagging.deleteTaskTag).toBe('function');
+      expect(typeof service.tagging.createSubtaskTag).toBe('function');
+      expect(typeof service.tagging.deleteSubtaskTag).toBe('function');
+
+      // AssignmentService interface
+      expect(typeof service.assignment.createTaskAssignment).toBe('function');
+      expect(typeof service.assignment.deleteTaskAssignment).toBe('function');
+      expect(typeof service.assignment.createSubtaskAssignment).toBe('function');
+      expect(typeof service.assignment.deleteSubtaskAssignment).toBe('function');
     });
   });
 
@@ -162,6 +189,21 @@ describe('BackendWebService', () => {
       expect(service.initialization).toBeDefined();
       expect(typeof service.initialization.initializeAll).toBe('function');
     });
+
+    it('should provide working user service', () => {
+      expect(service.user).toBeDefined();
+      expect(typeof service.user.create).toBe('function');
+    });
+
+    it('should provide working tagging service', () => {
+      expect(service.tagging).toBeDefined();
+      expect(typeof service.tagging.createTaskTag).toBe('function');
+    });
+
+    it('should provide working assignment service', () => {
+      expect(service.assignment).toBeDefined();
+      expect(typeof service.assignment.createTaskAssignment).toBe('function');
+    });
   });
 
   describe('service interactions', () => {
@@ -175,7 +217,10 @@ describe('BackendWebService', () => {
         service.setting,
         service.account,
         service.autoFetch,
-        service.initialization
+        service.initialization,
+        service.user,
+        service.tagging,
+        service.assignment
       ];
 
       for (let i = 0; i < services.length; i++) {
@@ -231,6 +276,9 @@ describe('BackendWebService', () => {
       expect(service.account.constructor.name).toBe('AccountWebService');
       expect(service.autoFetch.constructor.name).toBe('AutoFetchWebService');
       expect(service.initialization.constructor.name).toBe('InitializationWebService');
+      expect(service.user.constructor.name).toBe('UserWebService');
+      expect(service.tagging.constructor.name).toBe('TaggingWebService');
+      expect(service.assignment.constructor.name).toBe('AssignmentWebService');
     });
 
     it('should maintain prototype chain integrity', () => {
@@ -243,6 +291,9 @@ describe('BackendWebService', () => {
       expect(service.account instanceof AccountWebService).toBe(true);
       expect(service.autoFetch instanceof AutoFetchWebService).toBe(true);
       expect(service.initialization instanceof InitializationWebService).toBe(true);
+      expect(service.user instanceof UserWebService).toBe(true);
+      expect(service.tagging instanceof TaggingWebService).toBe(true);
+      expect(service.assignment instanceof AssignmentWebService).toBe(true);
     });
   });
 
@@ -258,7 +309,10 @@ describe('BackendWebService', () => {
         'setting',
         'account',
         'autoFetch',
-        'initialization'
+        'initialization',
+        'user',
+        'tagging',
+        'assignment'
       ];
 
       expect(serviceKeys.sort()).toEqual(expectedKeys.sort());
@@ -274,6 +328,9 @@ describe('BackendWebService', () => {
       expect(Object.prototype.hasOwnProperty.call(service, 'account')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'autoFetch')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'initialization')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'user')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'tagging')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'assignment')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });
   });

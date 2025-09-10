@@ -13,8 +13,8 @@
     editForm: {
       title: string;
       description: string;
-      start_date: Date | undefined;
-      end_date: Date | undefined;
+      plan_start_date: Date | undefined;
+      plan_end_date: Date | undefined;
       is_range_date: boolean;
       priority: number;
     };
@@ -77,8 +77,8 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={currentItem?.end_date ? currentItem.end_date.toISOString() : ''}
-  currentStartDate={currentItem?.start_date ? currentItem.start_date.toISOString() : ''}
+  currentDate={currentItem?.plan_end_date ? currentItem.plan_end_date.toISOString() : ''}
+  currentStartDate={currentItem?.plan_start_date ? currentItem.plan_start_date.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
   recurrenceRule={currentItem?.recurrence_rule}
@@ -116,8 +116,8 @@
 <RecurrenceDialog
   open={showRecurrenceDialog}
   recurrenceRule={currentItem?.recurrence_rule}
-  startDateTime={currentItem?.start_date}
-  endDateTime={currentItem?.end_date}
+  startDateTime={currentItem?.plan_start_date}
+  endDateTime={currentItem?.plan_end_date}
   isRangeDate={currentItem?.is_range_date}
   onSave={onRecurrenceChange}
   onOpenChange={onRecurrenceDialogClose}

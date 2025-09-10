@@ -50,6 +50,8 @@ describe('TaskStore - Selection Management', () => {
                   description: 'Test subdescription',
                   status: 'not_started',
                   order_index: 0,
+                  completed: false,
+                  assigned_user_ids: [],
                   created_at: new Date(),
                   updated_at: new Date(),
                   tags: []

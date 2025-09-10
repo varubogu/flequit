@@ -21,7 +21,15 @@ describe('NewTaskConfirmationDialog', () => {
       getCurrentLocale: vi.fn().mockReturnValue('en'),
       setLocale: vi.fn(),
       reactiveMessage: vi.fn().mockImplementation((fn) => fn),
-      getMessage: vi.fn().mockReturnValue(() => 'mock-message'),
+      getMessage: vi.fn().mockImplementation((key: string) => {
+        const translations: Record<string, () => string> = {
+          'confirm_discard_changes': () => 'Confirm discard changes',
+          'unsaved_task_message': () => 'Unsaved task message',
+          'keep_editing': () => 'Keep editing',
+          'discard_changes': () => 'Discard changes'
+        };
+        return translations[key] || (() => `mock-${key}`);
+      }),
       getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
     };
     setTranslationService(mockTranslationService);

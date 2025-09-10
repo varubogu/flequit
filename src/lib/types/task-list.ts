@@ -36,6 +36,8 @@ export interface TaskListWithTasks extends TaskList {
  * タスクリスト検索条件
  */
 export interface TaskListSearchCondition {
+  /** プロジェクトID */
+  project_id?: string;
   /** タスクリスト名 */
   name?: string;
   /** アーカイブ状態 */

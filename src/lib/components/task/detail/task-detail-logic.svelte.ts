@@ -19,8 +19,8 @@ export class TaskDetailLogic {
   editForm = $state({
     title: '',
     description: '',
-    start_date: undefined as Date | undefined,
-    end_date: undefined as Date | undefined,
+    plan_start_date: undefined as Date | undefined,
+    plan_end_date: undefined as Date | undefined,
     is_range_date: false,
     priority: 0
   });
@@ -71,8 +71,8 @@ export class TaskDetailLogic {
         this.editForm = {
           title: this.currentItem.title,
           description: this.currentItem.description || '',
-          start_date: this.currentItem.start_date,
-          end_date: this.currentItem.end_date,
+          plan_start_date: this.currentItem.plan_start_date,
+          plan_end_date: this.currentItem.plan_end_date,
           is_range_date: this.currentItem.is_range_date || false,
           priority: this.currentItem.priority || 0
         };
@@ -101,8 +101,8 @@ export class TaskDetailLogic {
           title: this.editForm.title,
           description: this.editForm.description || undefined,
           priority: this.editForm.priority,
-          start_date: this.editForm.start_date,
-          end_date: this.editForm.end_date,
+          plan_start_date: this.editForm.plan_start_date,
+          plan_end_date: this.editForm.plan_end_date,
           is_range_date: this.editForm.is_range_date
         };
 
@@ -176,24 +176,24 @@ export class TaskDetailLogic {
       if (range) {
         this.editForm = {
           ...this.editForm,
-          start_date: new SvelteDate(range.start),
-          end_date: new SvelteDate(range.end),
+          plan_start_date: new SvelteDate(range.start),
+          plan_end_date: new SvelteDate(range.end),
           is_range_date: true
         };
       } else {
-        const currentEndDate = this.editForm.end_date || new SvelteDate(dateTime);
+        const currentEndDate = this.editForm.plan_end_date || new SvelteDate(dateTime);
         this.editForm = {
           ...this.editForm,
-          start_date: currentEndDate,
-          end_date: currentEndDate,
+          plan_start_date: currentEndDate,
+          plan_end_date: currentEndDate,
           is_range_date: true
         };
       }
     } else {
       this.editForm = {
         ...this.editForm,
-        end_date: new SvelteDate(dateTime),
-        start_date: undefined,
+        plan_end_date: new SvelteDate(dateTime),
+        plan_start_date: undefined,
         is_range_date: false
       };
     }
@@ -204,8 +204,8 @@ export class TaskDetailLogic {
   handleDateClear() {
     this.editForm = {
       ...this.editForm,
-      start_date: undefined,
-      end_date: undefined,
+      plan_start_date: undefined,
+      plan_end_date: undefined,
       is_range_date: false
     };
     this.debouncedSave();

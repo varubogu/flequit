@@ -18,10 +18,9 @@ describe('SubtaskWebService', () => {
       description: 'Test subtask description',
       status: 'not_started',
       priority: 2,
-      assigned_user_ids: [],
-      tag_ids: [],
       order_index: 0,
       completed: false,
+      assigned_user_ids: [],
       tags: [],
       created_at: new Date('2024-01-01T00:00:00Z'),
       updated_at: new Date('2024-01-01T00:00:00Z')
@@ -56,8 +55,10 @@ describe('SubtaskWebService', () => {
     it('should return true and log warning for stub implementation', async () => {
       const patchData = {
         ...mockSubTask,
-        start_date: mockSubTask.start_date?.toISOString(),
-        end_date: mockSubTask.end_date?.toISOString(),
+        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
+        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
+        do_start_date: mockSubTask.do_start_date?.toISOString(),
+        do_end_date: mockSubTask.do_end_date?.toISOString(),
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };
@@ -120,8 +121,10 @@ describe('SubtaskWebService', () => {
     it('should return proper Promise types', async () => {
       const patchData = {
         ...mockSubTask,
-        start_date: mockSubTask.start_date?.toISOString(),
-        end_date: mockSubTask.end_date?.toISOString(),
+        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
+        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
+        do_start_date: mockSubTask.do_start_date?.toISOString(),
+        do_end_date: mockSubTask.do_end_date?.toISOString(),
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };
@@ -147,8 +150,10 @@ describe('SubtaskWebService', () => {
     it('should handle concurrent operations without side effects', async () => {
       const patchData = {
         ...mockSubTask,
-        start_date: mockSubTask.start_date?.toISOString(),
-        end_date: mockSubTask.end_date?.toISOString(),
+        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
+        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
+        do_start_date: mockSubTask.do_start_date?.toISOString(),
+        do_end_date: mockSubTask.do_end_date?.toISOString(),
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };

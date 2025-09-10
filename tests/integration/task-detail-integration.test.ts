@@ -180,8 +180,10 @@ const sampleTask: TaskWithSubTasks = {
   description: 'これはテスト用のタスクです',
   status: 'not_started',
   priority: 2,
-  start_date: new Date('2024-01-01'),
-  end_date: new Date('2024-01-05'),
+  plan_start_date: new Date('2024-01-01'),
+  plan_end_date: new Date('2024-01-05'),
+  do_start_date: new Date('2024-01-01'),
+  do_end_date: new Date('2024-01-05'),
   is_range_date: true,
   order_index: 0,
   is_archived: false,
@@ -198,6 +200,8 @@ const sampleTask: TaskWithSubTasks = {
       order_index: 0,
       created_at: new Date(),
       updated_at: new Date(),
+      completed: false,
+      assigned_user_ids: [],
       tags: []
     },
     {
@@ -208,6 +212,8 @@ const sampleTask: TaskWithSubTasks = {
       order_index: 1,
       created_at: new Date(),
       updated_at: new Date(),
+      completed: true,
+      assigned_user_ids: [],
       tags: []
     }
   ],
@@ -322,29 +328,29 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   it('タスクの日付設定が正しく動作する', async () => {
     mockTaskDetailStore.selectTask(sampleTask);
 
-    const newStartDate = new Date('2024-02-01');
-    const newEndDate = new Date('2024-02-10');
+    const newPlanStartDate = new Date('2024-02-01');
+    const newPlanEndDate = new Date('2024-02-10');
 
     // 日付範囲を設定
     const dateUpdate = await mockTaskService.updateTask('task-1', {
-      start_date: newStartDate,
-      end_date: newEndDate,
+      plan_start_date: newPlanStartDate,
+      plan_end_date: newPlanEndDate,
       is_range_date: true
     });
 
     expect(mockTaskService.updateTask).toHaveBeenCalledWith('task-1', {
-      start_date: newStartDate,
-      end_date: newEndDate,
+      plan_start_date: newPlanStartDate,
+      plan_end_date: newPlanEndDate,
       is_range_date: true
     });
-    expect(dateUpdate.start_date).toEqual(newStartDate);
-    expect(dateUpdate.end_date).toEqual(newEndDate);
+    expect(dateUpdate.plan_start_date).toEqual(newPlanStartDate);
+    expect(dateUpdate.plan_end_date).toEqual(newPlanEndDate);
     expect(dateUpdate.is_range_date).toBe(true);
 
     // 単一日付に変更
     const singleDateUpdate = await mockTaskService.updateTask('task-1', {
-      start_date: undefined,
-      end_date: newEndDate,
+      plan_start_date: undefined,
+      plan_end_date: newPlanEndDate,
       is_range_date: false
     });
 
@@ -563,7 +569,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
         errors.push('タイトルは100文字以下で入力してください');
       }
 
-      if (data.start_date && data.end_date && data.start_date > data.end_date) {
+      if (data.plan_start_date && data.plan_end_date && data.plan_start_date > data.plan_end_date) {
         errors.push('開始日は終了日より前の日付を設定してください');
       }
 
@@ -577,8 +583,8 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 有効なデータ
     const validData = {
       title: '有効なタスク',
-      start_date: new Date('2024-01-01'),
-      end_date: new Date('2024-01-05'),
+      plan_start_date: new Date('2024-01-01'),
+      plan_end_date: new Date('2024-01-05'),
       priority: 2
     };
 
@@ -589,8 +595,8 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 無効なデータ（空のタイトル）
     const invalidData = {
       title: '',
-      start_date: new Date('2024-01-05'),
-      end_date: new Date('2024-01-01'), // 開始日より前の終了日
+      plan_start_date: new Date('2024-01-05'),
+      plan_end_date: new Date('2024-01-01'), // 開始日より前の終了日
       priority: 10 // 範囲外の優先度
     };
 

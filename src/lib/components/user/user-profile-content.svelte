@@ -167,7 +167,7 @@
 
 <!-- プロフィール編集ダイアログ -->
 <UserProfileEditDialog
-  user={logic.fullUser}
+  user={logic.fullUser || null}
   isOpen={logic.showEditDialog}
   onClose={logic.handleEditDialogClose.bind(logic)}
   onSave={logic.handleUserSaved.bind(logic)}

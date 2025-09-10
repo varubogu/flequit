@@ -6,7 +6,16 @@ import type { ProjectTree } from '$lib/types/project';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({
-  getTranslationService: () => ({}) as unknown
+  getTranslationService: () => ({
+    getMessage: vi.fn((key: string) => {
+      const messages: Record<string, string> = {
+        'edit_task_list': 'Edit Task List',
+        'add_task': 'Add Task',
+        'delete_task_list': 'Delete Task List'
+      };
+      return messages[key] || key;
+    })
+  })
 }));
 
 // taskStoreのモック
@@ -69,8 +78,8 @@ describe('TaskListDisplay', () => {
             description: '',
             status: 'not_started',
             priority: 2,
-            start_date: undefined,
-            end_date: undefined,
+            plan_start_date: undefined,
+            plan_end_date: undefined,
             is_range_date: false,
             order_index: 0,
             is_archived: false,
