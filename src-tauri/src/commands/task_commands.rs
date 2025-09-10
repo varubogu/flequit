@@ -1,4 +1,5 @@
 use flequit_core::facades::{task_facades, recurrence_facades};
+use flequit_infrastructure::InfrastructureRepositories;
 use crate::models::{
     task::TaskCommandModel,
     task_recurrence::TaskRecurrenceCommandModel,
@@ -19,7 +20,8 @@ pub async fn create_task(task: TaskCommandModel) -> Result<bool, String> {
         Err(err) => return Err(err.to_string()),
     };
     let internal_task = task.to_model().await?;
-    task_facades::create_task(&project_id, &internal_task).await
+    let repositories = InfrastructureRepositories::instance().await;
+    task_facades::create_task(&repositories, &project_id, &internal_task).await
 }
 
 #[tracing::instrument]
@@ -33,7 +35,8 @@ pub async fn get_task(project_id: String, id: String) -> Result<Option<TaskComma
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let result = task_facades::get_task(&project_id, &task_id).await?;
+    let repositories = InfrastructureRepositories::instance().await;
+    let result = task_facades::get_task(&repositories, &project_id, &task_id).await?;
     match result {
         Some(task) => Ok(Some(task.to_command_model().await?)),
         None => Ok(None),
@@ -51,7 +54,8 @@ pub async fn update_task(project_id: String, id: String, patch: PartialTask) -> 
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    task_facades::update_task(&project_id, &task_id, &patch).await
+    let repositories = InfrastructureRepositories::instance().await;
+    task_facades::update_task(&repositories, &project_id, &task_id, &patch).await
 }
 
 #[tracing::instrument]
@@ -65,7 +69,8 @@ pub async fn delete_task(project_id: String, id: String) -> Result<bool, String>
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    task_facades::delete_task(&project_id, &task_id).await
+    let repositories = InfrastructureRepositories::instance().await;
+    task_facades::delete_task(&repositories, &project_id, &task_id).await
 }
 
 // =============================================================================

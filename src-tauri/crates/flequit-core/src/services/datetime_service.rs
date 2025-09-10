@@ -167,14 +167,3 @@ pub async fn evaluate_weekday_condition(repositories: &dyn InfrastructureReposit
     Ok(true) // 仮の結果
 }
 
-// =============================================================================
-// ヘルパー関数
-// =============================================================================
-
-/// 日時フォーマット文字列のバリデーション
-fn is_valid_datetime_format(format_string: &str) -> bool {
-    // 簡易的なバリデーション（実際はchronoでテストすべき）
-    !format_string.trim().is_empty() &&
-    (format_string.contains("%Y") || format_string.contains("%y")) &&
-    (format_string.contains("%m") || format_string.contains("%d"))
-}

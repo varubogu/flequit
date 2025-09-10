@@ -1,15 +1,17 @@
 use flequit_model::models::task_projects::{task_tag::TaskTag, subtask_tag::SubTaskTag};
 use flequit_model::types::id_types::{TaskId, SubTaskId, TagId};
 use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositories;
+use flequit_infrastructure::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
 use crate::services::tagging_service;
 
 /// TaskTag facades
 
 #[tracing::instrument(level = "trace")]
-pub async fn add_task_tag_relation(task_id: &TaskId, tag_id: &TagId) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match tagging_service::add_task_tag_relation(&repositories, task_id, tag_id).await {
+pub async fn add_task_tag_relation<R>(repositories: &R, task_id: &TaskId, tag_id: &TagId) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match tagging_service::add_task_tag_relation(repositories, task_id, tag_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add task-tag relation: {:?}", e)),
@@ -17,9 +19,11 @@ pub async fn add_task_tag_relation(task_id: &TaskId, tag_id: &TagId) -> Result<b
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn remove_task_tag_relation(task_id: &TaskId, tag_id: &TagId) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match tagging_service::remove_task_tag_relation(&repositories, task_id, tag_id).await {
+pub async fn remove_task_tag_relation<R>(repositories: &R, task_id: &TaskId, tag_id: &TagId) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match tagging_service::remove_task_tag_relation(repositories, task_id, tag_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to remove task-tag relation: {:?}", e)),
@@ -89,9 +93,11 @@ pub async fn get_all_task_tags() -> Result<Vec<TaskTag>, String> {
 /// SubtaskTag facades
 
 #[tracing::instrument(level = "trace")]
-pub async fn add_subtask_tag_relation(subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match tagging_service::add_subtask_tag_relation(&repositories, subtask_id, tag_id).await {
+pub async fn add_subtask_tag_relation<R>(repositories: &R, subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match tagging_service::add_subtask_tag_relation(repositories, subtask_id, tag_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add subtask-tag relation: {:?}", e)),
@@ -99,9 +105,11 @@ pub async fn add_subtask_tag_relation(subtask_id: &SubTaskId, tag_id: &TagId) ->
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn remove_subtask_tag_relation(subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match tagging_service::remove_subtask_tag_relation(&repositories, subtask_id, tag_id).await {
+pub async fn remove_subtask_tag_relation<R>(repositories: &R, subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match tagging_service::remove_subtask_tag_relation(repositories, subtask_id, tag_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to remove subtask-tag relation: {:?}", e)),

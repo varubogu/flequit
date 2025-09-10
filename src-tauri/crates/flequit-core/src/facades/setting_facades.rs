@@ -1,7 +1,7 @@
 //! 設定関連のFacade
 use flequit_types::errors::service_error::ServiceError;
 use flequit_model::models::app_settings::{settings::Settings, time_label::TimeLabel, view_item::ViewItem};
-use flequit_infrastructure::InfrastructureRepositories;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use crate::services::setting_service;
 
 // エラー変換のヘルパー関数
@@ -14,15 +14,19 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 // ---------------------------
 
 #[tracing::instrument]
-pub async fn get_all_settings() -> Result<Settings, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::get_all_settings(&repositories).await)
+pub async fn get_all_settings<R>(repositories: &R) -> Result<Settings, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::get_all_settings(repositories).await)
 }
 
 #[tracing::instrument]
-pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::set_setting(&repositories, key, value).await)
+pub async fn set_setting<R>(repositories: &R, key: &str, value: serde_json::Value) -> Result<(), String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::set_setting(repositories, key, value).await)
 }
 
 // ---------------------------
@@ -69,33 +73,43 @@ pub async fn set_setting(key: &str, value: serde_json::Value) -> Result<(), Stri
 // ---------------------------
 
 #[tracing::instrument]
-pub async fn get_time_label(id: &str) -> Result<Option<TimeLabel>, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::get_time_label(&repositories, id).await)
+pub async fn get_time_label<R>(repositories: &R, id: &str) -> Result<Option<TimeLabel>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::get_time_label(repositories, id).await)
 }
 
 #[tracing::instrument]
-pub async fn get_all_time_labels() -> Result<Vec<TimeLabel>, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::get_all_time_labels(&repositories).await)
+pub async fn get_all_time_labels<R>(repositories: &R) -> Result<Vec<TimeLabel>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::get_all_time_labels(repositories).await)
 }
 
 #[tracing::instrument]
-pub async fn add_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::add_time_label(&repositories, label).await)
+pub async fn add_time_label<R>(repositories: &R, label: TimeLabel) -> Result<TimeLabel, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::add_time_label(repositories, label).await)
 }
 
 #[tracing::instrument]
-pub async fn update_time_label(label: TimeLabel) -> Result<TimeLabel, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::update_time_label(&repositories, label).await)
+pub async fn update_time_label<R>(repositories: &R, label: TimeLabel) -> Result<TimeLabel, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::update_time_label(repositories, label).await)
 }
 
 #[tracing::instrument]
-pub async fn delete_time_label(id: &str) -> Result<(), String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::delete_time_label(&repositories, id).await)
+pub async fn delete_time_label<R>(repositories: &R, id: &str) -> Result<(), String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::delete_time_label(repositories, id).await)
 }
 
 // ---------------------------
@@ -103,33 +117,43 @@ pub async fn delete_time_label(id: &str) -> Result<(), String> {
 // ---------------------------
 
 #[tracing::instrument]
-pub async fn get_view_item(id: &str) -> Result<Option<ViewItem>, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::get_view_item(&repositories, id).await)
+pub async fn get_view_item<R>(repositories: &R, id: &str) -> Result<Option<ViewItem>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::get_view_item(repositories, id).await)
 }
 
 #[tracing::instrument]
-pub async fn get_all_view_items() -> Result<Vec<ViewItem>, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::get_all_view_items(&repositories).await)
+pub async fn get_all_view_items<R>(repositories: &R) -> Result<Vec<ViewItem>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::get_all_view_items(repositories).await)
 }
 
 #[tracing::instrument]
-pub async fn add_view_item(item: ViewItem) -> Result<ViewItem, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::add_view_item(&repositories, item).await)
+pub async fn add_view_item<R>(repositories: &R, item: ViewItem) -> Result<ViewItem, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::add_view_item(repositories, item).await)
 }
 
 #[tracing::instrument]
-pub async fn update_view_item(item: ViewItem) -> Result<ViewItem, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::update_view_item(&repositories, item).await)
+pub async fn update_view_item<R>(repositories: &R, item: ViewItem) -> Result<ViewItem, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::update_view_item(repositories, item).await)
 }
 
 #[tracing::instrument]
-pub async fn delete_view_item(id: &str) -> Result<(), String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    handle_service_error(setting_service::delete_view_item(&repositories, id).await)
+pub async fn delete_view_item<R>(repositories: &R, id: &str) -> Result<(), String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    handle_service_error(setting_service::delete_view_item(repositories, id).await)
 }
 
 // ---------------------------
@@ -137,10 +161,12 @@ pub async fn delete_view_item(id: &str) -> Result<(), String> {
 // ---------------------------
 
 #[tracing::instrument]
-pub async fn get_setting(key: &str) -> Result<Option<String>, String> {
+pub async fn get_setting<R>(repositories: &R, key: &str) -> Result<Option<String>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     // 構造体から特定フィールドの値を文字列として返す（レガシー対応）
-    let repositories = InfrastructureRepositories::instance().await;
-    let settings = setting_service::get_all_settings(&repositories)
+    let settings = setting_service::get_all_settings(repositories)
         .await
         .map_err(|e| format!("{:?}", e))?;
 

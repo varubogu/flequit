@@ -5,7 +5,7 @@
 
 use flequit_model::{models::task_projects::{recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails, recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence, task_recurrence::TaskRecurrence}, types::id_types::{SubTaskId, TaskId}};
 use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositories;
+use flequit_infrastructure::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
 use crate::services::recurrence_service;
 
 // 実際のドメインモデルを使用（Commandモデルは削除）
@@ -194,9 +194,11 @@ pub async fn delete_task_recurrence(task_id: &TaskId) -> Result<bool, String> {
 
 /// サブタスクに繰り返しルールを関連付けます。
 #[tracing::instrument(level = "trace")]
-pub async fn create_subtask_recurrence(subtask_id: &SubTaskId, recurrence_rule_id: &str) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match recurrence_service::create_subtask_recurrence(&repositories, subtask_id, recurrence_rule_id).await {
+pub async fn create_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId, recurrence_rule_id: &str) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match recurrence_service::create_subtask_recurrence(repositories, subtask_id, recurrence_rule_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create subtask recurrence: {:?}", e)),
@@ -205,9 +207,11 @@ pub async fn create_subtask_recurrence(subtask_id: &SubTaskId, recurrence_rule_i
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_subtask_recurrence_by_subtask_id(subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match recurrence_service::get_subtask_recurrence_by_subtask_id(&repositories, subtask_id).await {
+pub async fn get_subtask_recurrence_by_subtask_id<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match recurrence_service::get_subtask_recurrence_by_subtask_id(repositories, subtask_id).await {
         Ok(subtask_recurrence) => Ok(subtask_recurrence),
         Err(e) => Err(format!("Failed to get subtask recurrence: {:?}", e)),
     }
@@ -215,9 +219,11 @@ pub async fn get_subtask_recurrence_by_subtask_id(subtask_id: &SubTaskId) -> Res
 
 /// サブタスクの繰り返し関連付けを削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_subtask_recurrence(subtask_id: &SubTaskId) -> Result<bool, String> {
-    let repositories = InfrastructureRepositories::instance().await;
-    match recurrence_service::delete_subtask_recurrence(&repositories, subtask_id).await {
+pub async fn delete_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    match recurrence_service::delete_subtask_recurrence(repositories, subtask_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete subtask recurrence: {:?}", e)),

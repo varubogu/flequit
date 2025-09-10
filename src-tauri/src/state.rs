@@ -3,7 +3,7 @@ use tokio::sync::RwLock;
 use flequit_infrastructure::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
 
 /// アプリケーション全体で共有される状態
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AppState<R = InfrastructureRepositories> 
 where 
     R: InfrastructureRepositoriesTrait + Send + Sync + 'static 

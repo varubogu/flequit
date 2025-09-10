@@ -21,7 +21,9 @@ fn deletion_not_allowed_error() -> ServiceError {
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_user(repositories: &dyn InfrastructureRepositoriesTrait, user: &User) -> Result<(), ServiceError> {
+pub async fn create_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let mut new_data = user.clone();
     let now = Utc::now();
     new_data.created_at = now;
@@ -33,12 +35,16 @@ pub async fn create_user(repositories: &dyn InfrastructureRepositoriesTrait, use
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_user(repositories: &dyn InfrastructureRepositoriesTrait, user_id: &UserId) -> Result<Option<User>, ServiceError> {
+pub async fn get_user<R>(repositories: &R, user_id: &UserId) -> Result<Option<User>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     Ok(repositories.users().find_by_id(user_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_user_by_email(repositories: &dyn InfrastructureRepositoriesTrait, email: &str) -> Result<Option<User>, ServiceError> {
+pub async fn get_user_by_email<R>(repositories: &R, email: &str) -> Result<Option<User>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // UserLocalSqliteRepositoryのfind_by_emailメソッドを使用
     // 注意: これは統合リポジトリ経由では直接アクセスできないため、一時的にfind_allで検索
     let users = repositories.users().find_all().await?;
@@ -48,11 +54,15 @@ pub async fn get_user_by_email(repositories: &dyn InfrastructureRepositoriesTrai
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_users(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<User>, ServiceError> {
+pub async fn list_users<R>(repositories: &R) -> Result<Vec<User>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     Ok(repositories.users().find_all().await?)
 }
 
-pub async fn update_user(repositories: &dyn InfrastructureRepositoriesTrait, user: &User) -> Result<(), ServiceError> {
+pub async fn update_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories.users().save(user).await?;
     Ok(())
 }
@@ -65,11 +75,13 @@ pub async fn delete_user(_user_id: &UserId) -> Result<(), ServiceError> {
 
 /// 編集権限チェック付きでユーザープロフィールを更新
 /// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
-pub async fn update_user_with_permission_check(
-    repositories: &dyn InfrastructureRepositoriesTrait,
+pub async fn update_user_with_permission_check<R>(
+    repositories: &R,
     current_account: &Account,
     user: &User,
-) -> Result<(), ServiceError> {
+) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // 編集権限チェック
     if !can_edit_user_profile(current_account, &user.id).await {
         return Err(ServiceError::Forbidden(
@@ -85,7 +97,9 @@ pub async fn update_user_with_permission_check(
     Ok(())
 }
 
-pub async fn search_users(repositories: &dyn InfrastructureRepositoriesTrait, query: &str) -> Result<Vec<User>, ServiceError> {
+pub async fn search_users<R>(repositories: &R, query: &str) -> Result<Vec<User>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let users = repositories.users().find_all().await?;
 
     // ユーザー名、表示名、メールアドレス、自己紹介で部分一致検索
@@ -106,7 +120,9 @@ pub async fn search_users(repositories: &dyn InfrastructureRepositoriesTrait, qu
     Ok(filtered_users)
 }
 
-pub async fn is_email_exists(repositories: &dyn InfrastructureRepositoriesTrait, email: &str, exclude_id: Option<&str>) -> Result<bool, ServiceError> {
+pub async fn is_email_exists<R>(repositories: &R, email: &str, exclude_id: Option<&str>) -> Result<bool, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let users = repositories.users().find_all().await?;
 
     let exists = users.iter().any(|user| {
@@ -121,15 +137,17 @@ pub async fn is_email_exists(repositories: &dyn InfrastructureRepositoriesTrait,
 
 /// 編集権限チェック付きでユーザープロフィールを更新
 /// 自分のAccount.user_idにマッチするプロフィールのみ更新可能
-pub async fn update_user_profile(
-    repositories: &dyn InfrastructureRepositoriesTrait,
+pub async fn update_user_profile<R>(
+    repositories: &R,
     current_account: &Account,
     user_id: &str,
     display_name: &Option<String>,
     avatar_url: &Option<String>,
     bio: &Option<String>,
     timezone: &Option<String>,
-) -> Result<(), ServiceError> {
+) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let user_id_typed = UserId::from(user_id.to_string());
 
     // 編集権限チェック
@@ -161,7 +179,9 @@ pub async fn update_user_profile(
     }
 }
 
-pub async fn change_password(repositories: &dyn InfrastructureRepositoriesTrait, user_id: &str, new_password_hash: &str) -> Result<(), ServiceError> {
+pub async fn change_password<R>(repositories: &R, user_id: &str, new_password_hash: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let user_id_typed = UserId::from(user_id.to_string());
 
     if let Some(mut user) = repositories.users().find_by_id(&user_id_typed).await? {

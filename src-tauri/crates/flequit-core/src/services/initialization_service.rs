@@ -12,7 +12,9 @@ pub struct InitializedResult {
     pub projects: Vec<ProjectTree>,
 }
 
-pub async fn load_all_data(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<InitializedResult, ServiceError> {
+pub async fn load_all_data<R>(repositories: &R) -> Result<InitializedResult, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // 他のservice関数を組み合わせて全データを取得
     let settings = load_local_settings(repositories).await?.unwrap_or_default();
     let accounts = load_all_account(repositories).await?;
@@ -25,7 +27,9 @@ pub async fn load_all_data(repositories: &dyn InfrastructureRepositoriesTrait) -
     })
 }
 
-pub async fn load_local_settings(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Option<Settings>, ServiceError> {
+pub async fn load_local_settings<R>(repositories: &R) -> Result<Option<Settings>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
 
     // ローカル設定取得ロジック：設定データベースから取得
     let settings = repositories
@@ -37,7 +41,9 @@ pub async fn load_local_settings(repositories: &dyn InfrastructureRepositoriesTr
     Ok(settings)
 }
 
-pub async fn load_current_account(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Option<Account>, ServiceError> {
+pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
 
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
@@ -60,7 +66,9 @@ pub async fn load_current_account(repositories: &dyn InfrastructureRepositoriesT
     }
 }
 
-pub async fn load_all_project_trees(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<ProjectTree>, ServiceError> {
+pub async fn load_all_project_trees<R>(repositories: &R) -> Result<Vec<ProjectTree>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
 
     // 1. 全プロジェクトを取得
     let projects = repositories
@@ -97,7 +105,9 @@ pub async fn load_all_project_trees(repositories: &dyn InfrastructureRepositorie
     Ok(project_trees)
 }
 
-pub async fn load_all_account(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<Account>, ServiceError> {
+pub async fn load_all_account<R>(repositories: &R) -> Result<Vec<Account>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories
         .accounts()
         .find_all()

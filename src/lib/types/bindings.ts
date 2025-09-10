@@ -21,43 +21,43 @@ export const commands = {
 /**
  * Tauriコマンド引数用のAccount構造体
  */
-export type AccountCommandModel = {
+export type AccountCommandModel = { 
 /**
  * アカウントID（非公開ID）
  */
-id: string;
+id: string; 
 /**
  * ユーザーID（公開ID）
  */
-user_id: string;
+user_id: string; 
 /**
  * メールアドレス
  */
-email: string | null;
+email: string | null; 
 /**
  * 表示名
  */
-display_name: string | null;
+display_name: string | null; 
 /**
  * アバターURL
  */
-avatar_url: string | null;
+avatar_url: string | null; 
 /**
  * 認証プロバイダー
  */
-provider: string;
+provider: string; 
 /**
  * 認証プロバイダーID
  */
-provider_id: string | null;
+provider_id: string | null; 
 /**
  * アクティブなプロジェクトか
  */
-is_active: boolean;
+is_active: boolean; 
 /**
  * 作成日時
  */
-created_at: string;
+created_at: string; 
 /**
  * 更新日時
  */

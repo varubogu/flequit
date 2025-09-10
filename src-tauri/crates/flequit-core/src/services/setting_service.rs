@@ -11,7 +11,9 @@ use uuid::Uuid;
 // ---------------------------
 
 /// すべての設定項目を各リポジトリから取得し、Settings構造体として返します。
-pub async fn get_all_settings(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Settings, ServiceError> {
+pub async fn get_all_settings<R>(repositories: &R) -> Result<Settings, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
 
     // メインの設定を取得
     let base_settings = repositories
@@ -42,7 +44,9 @@ pub async fn get_all_settings(repositories: &dyn InfrastructureRepositoriesTrait
 }
 
 /// 設定を保存します。
-pub async fn save_settings(repositories: &dyn InfrastructureRepositoriesTrait, settings: &Settings) -> Result<(), ServiceError> {
+pub async fn save_settings<R>(repositories: &R, settings: &Settings) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories
         .settings()
         .save(settings)
@@ -51,7 +55,9 @@ pub async fn save_settings(repositories: &dyn InfrastructureRepositoriesTrait, s
 }
 
 /// 特定のキーの設定値を保存します（レガシー対応）。
-pub async fn set_setting(repositories: &dyn InfrastructureRepositoriesTrait, key: &str, value: serde_json::Value) -> Result<(), ServiceError> {
+pub async fn set_setting<R>(repositories: &R, key: &str, value: serde_json::Value) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // 現在の設定を取得
     let mut current_settings = get_all_settings(repositories).await?;
 
@@ -113,21 +119,27 @@ pub async fn set_setting(repositories: &dyn InfrastructureRepositoriesTrait, key
 // Time Labels (実装待ち - 一時的な仮実装)
 // ---------------------------
 
-pub async fn get_time_label(repositories: &dyn InfrastructureRepositoriesTrait, _id: &str) -> Result<Option<TimeLabel>, ServiceError> {
+pub async fn get_time_label<R>(repositories: &R, _id: &str) -> Result<Option<TimeLabel>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().get_time_label(id).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
     Ok(None)
 }
 
-pub async fn get_all_time_labels(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<TimeLabel>, ServiceError> {
+pub async fn get_all_time_labels<R>(repositories: &R) -> Result<Vec<TimeLabel>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().get_all_time_labels().await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
     Ok(Vec::new())
 }
 
-pub async fn add_time_label(repositories: &dyn InfrastructureRepositoriesTrait, mut label: TimeLabel) -> Result<TimeLabel, ServiceError> {
+pub async fn add_time_label<R>(repositories: &R, mut label: TimeLabel) -> Result<TimeLabel, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     if label.id.is_empty() {
         label.id = Uuid::new_v4().to_string();
     }
@@ -137,14 +149,18 @@ pub async fn add_time_label(repositories: &dyn InfrastructureRepositoriesTrait, 
     Ok(label)
 }
 
-pub async fn update_time_label(repositories: &dyn InfrastructureRepositoriesTrait, label: TimeLabel) -> Result<TimeLabel, ServiceError> {
+pub async fn update_time_label<R>(repositories: &R, label: TimeLabel) -> Result<TimeLabel, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().update_time_label(&label).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
     Ok(label)
 }
 
-pub async fn delete_time_label(repositories: &dyn InfrastructureRepositoriesTrait, _id: &str) -> Result<(), ServiceError> {
+pub async fn delete_time_label<R>(repositories: &R, _id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().delete_time_label(id).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
@@ -155,21 +171,27 @@ pub async fn delete_time_label(repositories: &dyn InfrastructureRepositoriesTrai
 // View Items (実装待ち - 一時的な仮実装)
 // ---------------------------
 
-pub async fn get_view_item(repositories: &dyn InfrastructureRepositoriesTrait, _id: &str) -> Result<Option<ViewItem>, ServiceError> {
+pub async fn get_view_item<R>(repositories: &R, _id: &str) -> Result<Option<ViewItem>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().get_view_item(id).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
     Ok(None)
 }
 
-pub async fn get_all_view_items(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<ViewItem>, ServiceError> {
+pub async fn get_all_view_items<R>(repositories: &R) -> Result<Vec<ViewItem>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().get_all_view_items().await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))
     Ok(Vec::new())
 }
 
-pub async fn add_view_item(repositories: &dyn InfrastructureRepositoriesTrait, mut item: ViewItem) -> Result<ViewItem, ServiceError> {
+pub async fn add_view_item<R>(repositories: &R, mut item: ViewItem) -> Result<ViewItem, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     if item.id.is_empty() {
         item.id = Uuid::new_v4().to_string();
     }
@@ -179,14 +201,18 @@ pub async fn add_view_item(repositories: &dyn InfrastructureRepositoriesTrait, m
     Ok(item)
 }
 
-pub async fn update_view_item(repositories: &dyn InfrastructureRepositoriesTrait, item: ViewItem) -> Result<ViewItem, ServiceError> {
+pub async fn update_view_item<R>(repositories: &R, item: ViewItem) -> Result<ViewItem, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().update_view_item(&item).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
     Ok(item)
 }
 
-pub async fn delete_view_item(repositories: &dyn InfrastructureRepositoriesTrait, _id: &str) -> Result<(), ServiceError> {
+pub async fn delete_view_item<R>(repositories: &R, _id: &str) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // let repository = InfrastructureRepositories::instance().await;
     // repository.settings().delete_view_item(id).await
     //     .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))

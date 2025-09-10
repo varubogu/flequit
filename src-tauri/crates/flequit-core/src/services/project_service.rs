@@ -6,7 +6,9 @@ use flequit_model::types::id_types::ProjectId;
 use chrono::Utc;
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_project(repositories: &dyn InfrastructureRepositoriesTrait, project: &Project) -> Result<Project, ServiceError> {
+pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<Project, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let mut new_project = project.clone();
     let now = Utc::now();
     new_project.created_at = now;
@@ -22,27 +24,35 @@ pub async fn create_project(repositories: &dyn InfrastructureRepositoriesTrait, 
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_project(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId) -> Result<Option<Project>, ServiceError> {
+pub async fn get_project<R>(repositories: &R, project_id: &ProjectId) -> Result<Option<Project>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     Ok(repositories.projects().find_by_id(project_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_projects(repositories: &dyn InfrastructureRepositoriesTrait) -> Result<Vec<Project>, ServiceError> {
+pub async fn list_projects<R>(repositories: &R) -> Result<Vec<Project>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     Ok(repositories.projects().find_all().await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_project(
-    _repositories: &dyn InfrastructureRepositoriesTrait,
+pub async fn update_project<R>(
+    _repositories: &R,
     _project_id: &ProjectId,
     _patch: &PartialProject,
-) -> Result<bool, ServiceError> {
+) -> Result<bool, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
     Err(ServiceError::InternalError("Project patch method is not implemented".to_string()))
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_project(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId) -> Result<(), ServiceError> {
+pub async fn delete_project<R>(repositories: &R, project_id: &ProjectId) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories.projects().delete(project_id).await?;
     Ok(())
 }

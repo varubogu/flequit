@@ -2,36 +2,45 @@ use flequit_model::models::task_projects::SubTaskTree;
 use flequit_types::errors::service_error::ServiceError;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 
-pub async fn create_task_list(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, task_list: &TaskList) -> Result<(), ServiceError> {
+pub async fn create_task_list<R>(repositories: &R, project_id: &ProjectId, task_list: &TaskList) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories.task_lists().save(project_id, task_list).await?;
     Ok(())
 }
 
-pub async fn get_task_list(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, list_id: &TaskListId) -> Result<Option<TaskList>, ServiceError> {
+pub async fn get_task_list<R>(repositories: &R, project_id: &ProjectId, list_id: &TaskListId) -> Result<Option<TaskList>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     Ok(repositories.task_lists().find_by_id(project_id, list_id).await?)
 }
 
-pub async fn update_task_list(
-    _repositories: &dyn InfrastructureRepositoriesTrait,
+pub async fn update_task_list<R>(
+    _repositories: &R,
     _project_id: &ProjectId,
     _task_list_id: &TaskListId,
     _patch: &PartialTaskList,
-) -> Result<bool, ServiceError> {
+) -> Result<bool, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
     Err(ServiceError::InternalError("TaskList patch method is not implemented".to_string()))
 }
 
-pub async fn delete_task_list(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId, id: &TaskListId) -> Result<(), ServiceError> {
+pub async fn delete_task_list<R>(repositories: &R, project_id: &ProjectId, id: &TaskListId) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     repositories.task_lists().delete(project_id, id).await?;
     Ok(())
 }
 
-pub async fn list_task_lists(repositories: &dyn InfrastructureRepositoriesTrait, project_id: &ProjectId) -> Result<Vec<TaskList>, ServiceError> {
+pub async fn list_task_lists<R>(repositories: &R, project_id: &ProjectId) -> Result<Vec<TaskList>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     let all_task_lists = repositories.task_lists().find_all(project_id).await?;
 
     // project_idでフィルタリングは不要（find_allで既にフィルタされている）
@@ -44,10 +53,12 @@ pub async fn list_task_lists(repositories: &dyn InfrastructureRepositoriesTrait,
 }
 
 /// プロジェクトIDからタスクを含むタスクリスト一覧を取得
-pub async fn get_task_lists_with_tasks(
-    repositories: &dyn InfrastructureRepositoriesTrait,
+pub async fn get_task_lists_with_tasks<R>(
+    repositories: &R,
     project_id: &ProjectId,
-) -> Result<Vec<TaskListTree>, ServiceError> {
+) -> Result<Vec<TaskListTree>, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync, {
     // 1. プロジェクトのタスクリストを取得
     let task_lists = list_task_lists(repositories, project_id).await?;
 

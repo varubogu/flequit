@@ -1,7 +1,6 @@
 pub mod account_facades;
 pub mod assignment_facades;
 pub mod datetime_facades;
-pub mod individual_facades;
 pub mod initialization_facades;
 pub mod recurrence_facades;
 pub mod project_facades;

@@ -4,20 +4,31 @@ use flequit_model::models::ModelConverter;
 use crate::models::account::AccountCommandModel;
 use crate::models::CommandModelConverter;
 use flequit_model::types::id_types::AccountId;
+use crate::state::AppState;
+use tauri::State;
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn create_account(account: AccountCommandModel) -> Result<bool, String> {
+pub async fn create_account(
+    state: State<'_, AppState>,
+    account: AccountCommandModel,
+) -> Result<bool, String> {
     let internal_account = account.to_model().await?;
-
-    account_facades::create_account(&internal_account).await
+    let repositories = state.repositories.read().await;
+    
+    account_facades::create_account(&*repositories, &internal_account).await
 }
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn get_account(id: String) -> Result<Option<AccountCommandModel>, String> {
+pub async fn get_account(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<Option<AccountCommandModel>, String> {
     let account_id = AccountId::from(id);
-    let result = account_facades::get_account(&account_id).await?;
+    let repositories = state.repositories.read().await;
+    
+    let result = account_facades::get_account(&*repositories, &account_id).await?;
     if let Some(account) = result {
         let command_model = account.to_command_model().await?;
         Ok(Some(command_model))
@@ -28,14 +39,25 @@ pub async fn get_account(id: String) -> Result<Option<AccountCommandModel>, Stri
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn update_account(id: String, patch: PartialAccount) -> Result<bool, String> {
+pub async fn update_account(
+    state: State<'_, AppState>,
+    id: String,
+    patch: PartialAccount,
+) -> Result<bool, String> {
     let account_id = AccountId::from(id);
-    account_facades::update_account(&account_id, &patch).await
+    let repositories = state.repositories.read().await;
+    
+    account_facades::update_account(&*repositories, &account_id, &patch).await
 }
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn delete_account(account_id: String) -> Result<bool, String> {
+pub async fn delete_account(
+    state: State<'_, AppState>,
+    account_id: String,
+) -> Result<bool, String> {
     let id = AccountId::from(account_id);
-    account_facades::delete_account(&id).await
+    let repositories = state.repositories.read().await;
+    
+    account_facades::delete_account(&*repositories, &id).await
 }
