@@ -105,14 +105,6 @@ impl ProjectLocalAutomergeRepository {
         manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
-    /// プロジェクト一覧を管理するSettingsドキュメントを取得または作成
-    #[tracing::instrument(level = "trace")]
-    async fn get_or_create_settings_document(&self) -> Result<Document, RepositoryError> {
-        let doc_type = DocumentType::Settings;
-        let mut manager = self.document_manager.write().await;
-        manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
-    }
-
     /// プロジェクトドキュメント全体を取得
     #[tracing::instrument(level = "trace")]
     pub async fn get_project_document(

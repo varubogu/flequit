@@ -334,7 +334,7 @@ mod tests {
 
     #[test]
     fn test_infrastructure_repositories_trait_implementation() {
-        let mut repos = InfrastructureRepositories::new();
+        let repos = InfrastructureRepositories::new();
 
         // トレイトメソッドが正常に呼び出せることをテスト
         let _accounts = repos.accounts();
