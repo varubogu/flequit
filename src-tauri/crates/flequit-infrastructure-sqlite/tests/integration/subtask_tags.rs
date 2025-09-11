@@ -19,7 +19,7 @@ use flequit_storage::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::setup_sqlite_test;
+use flequit_infrastructure_sqlite::setup_sqlite_test;
 
 #[tokio::test]
 async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error::Error>> {

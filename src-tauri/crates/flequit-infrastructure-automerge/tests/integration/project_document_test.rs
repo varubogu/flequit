@@ -7,7 +7,7 @@ use chrono::Utc;
 use serde_json::Value;
 use std::path::PathBuf;
 use flequit_model::models::member::Member;
-use crate::test_utils::{
+use flequit_infrastructure_automerge::{
     AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator,
 };
 
