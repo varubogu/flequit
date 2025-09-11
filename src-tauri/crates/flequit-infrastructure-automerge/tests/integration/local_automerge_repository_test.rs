@@ -8,7 +8,7 @@ use serde_json::json;
 use std::path::{Path, PathBuf};
 
 // TestPathGeneratorを使用するためのインポート
-use crate::test_utils::TestPathGenerator;
+use flequit_testing::TestPathGenerator;
 
 use flequit_model::models::project::Project;
 use flequit_model::models::subtask::SubTask;

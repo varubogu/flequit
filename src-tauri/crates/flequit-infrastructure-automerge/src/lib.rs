@@ -1,8 +1,7 @@
 pub mod errors;
 pub mod infrastructure;
 pub mod models;
-pub mod testing;
 
 // 公開API
 pub use infrastructure::LocalAutomergeRepositories;
-pub use testing::automerge::{AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator};
+// テスト支援は tests/ 側でのみ使用（本番ビルドに露出しない）

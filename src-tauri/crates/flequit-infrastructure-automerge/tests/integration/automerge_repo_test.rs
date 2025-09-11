@@ -10,7 +10,7 @@ use flequit_storage::infrastructure::local_automerge::document_manager::{Documen
 use flequit_storage::infrastructure::local_automerge::file_storage::FileStorage;
 
 // TestPathGeneratorを使用するためのインポート
-use flequit_infrastructure_automerge::TestPathGenerator;
+use flequit_testing::TestPathGenerator;
 
 /// テスト用DocumentManagerラッパー - 自動JSON履歴出力機能付き
 struct TestDocumentManager {

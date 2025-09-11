@@ -12,7 +12,7 @@ use sea_orm::{EntityTrait, PaginatorTrait};
 use uuid::Uuid;
 use std::sync::Arc;
 
-use flequit_infrastructure_sqlite::setup_sqlite_test;
+use crate::integration::support::sqlite::setup_sqlite_test;
 
 #[tokio::test]
 async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error>> {

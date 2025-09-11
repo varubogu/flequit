@@ -23,6 +23,7 @@ members = [
     "crates/flequit-infrastructure-sqlite",
     "crates/flequit-infrastructure-automerge",
     "crates/flequit-settings",
+    "crates/flequit-testing",
     "."
 , "crates/flequit-types", "crates/flequit-infrastructure"]
 

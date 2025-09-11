@@ -7,9 +7,46 @@ use chrono::Utc;
 use serde_json::Value;
 use std::path::PathBuf;
 use flequit_model::models::member::Member;
-use flequit_infrastructure_automerge::{
-    AutomergeHistoryExporter, AutomergeHistoryManager, TestPathGenerator,
-};
+use flequit_testing::TestPathGenerator;
+use async_trait::async_trait;
+use flequit_infrastructure_automerge::infrastructure::local_automerge::task_projects::project::ProjectLocalAutomergeRepository;
+use serde_json::Value;
+
+// 最低限のテスト用履歴エクスポートIFをローカルに定義（本番へ露出しない）
+#[async_trait]
+pub trait AutomergeHistoryExporter {
+    async fn export_document_as_json(&self) -> Result<Value, Box<dyn std::error::Error>>;
+}
+
+pub struct AutomergeHistoryManager {
+    step: usize,
+    json_history_dir: std::path::PathBuf,
+    test_name: String,
+}
+
+impl AutomergeHistoryManager {
+    pub fn new(json_history_dir: std::path::PathBuf, test_name: &str) -> Self {
+        Self { step: 0, json_history_dir, test_name: test_name.to_string() }
+    }
+    pub async fn export_history<T: AutomergeHistoryExporter + ?Sized>(&mut self, exporter: &T, action: &str, entity_type: &str) -> Result<(), Box<dyn std::error::Error>> {
+        self.step += 1;
+        let filename = format!("{:03}_{}_{}_{}.json", self.step, self.test_name, entity_type, action);
+        let export_path = self.json_history_dir.join(&filename);
+        match exporter.export_document_as_json().await {
+            Ok(json_data) => {
+                let output_data = serde_json::json!({
+                    "metadata": {"step": self.step, "test_name": self.test_name, "entity_type": entity_type, "action": action},
+                    "document_data": json_data
+                });
+                std::fs::write(&export_path, serde_json::to_string_pretty(&output_data)?)?;
+            }
+            Err(e) => {
+                println!("export failed: {}", e);
+            }
+        }
+        Ok(())
+    }
+}
 
 use flequit_model::models::project::Project;
 use flequit_model::models::subtask::SubTask;

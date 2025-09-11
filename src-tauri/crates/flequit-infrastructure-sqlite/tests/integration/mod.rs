@@ -12,3 +12,4 @@ mod users;
 
 // テーブル統合テスト
 mod integration_data;
+pub mod support;
