@@ -14,19 +14,28 @@ use flequit_infrastructure_sqlite::infrastructure::task_projects::{
 };
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
+use function_name::named;
 use uuid::Uuid;
 use std::sync::Arc;
 
 use flequit_testing::TestPathGenerator;
 
+use crate::integration::support::sqlite::SqliteTestHarness;
+
+#[named]
 #[tokio::test]
 async fn test_task_create_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_create_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -103,17 +112,20 @@ async fn test_task_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_task_read_operation() -> Result<(), Box<dyn std::error::Error>> {
-    // テストデータベース格納先ディレクトリを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_read_operation");
-    std::fs::create_dir_all(&db_path)?;
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
 
     // テストデータベースを作成
-    
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -217,14 +229,21 @@ async fn test_task_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_update_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
+
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
@@ -339,14 +358,20 @@ async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_task_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_delete_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());

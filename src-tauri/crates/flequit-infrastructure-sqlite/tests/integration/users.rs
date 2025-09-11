@@ -11,17 +11,24 @@ use uuid::Uuid;
 use std::sync::Arc;
 
 use flequit_testing::TestPathGenerator;
+use ::function_name::named;
 
 use crate::integration::support::sqlite::SqliteTestHarness;
 
+#[named]
 #[tokio::test]
 async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_create_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化（非シングルトン）
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
 
@@ -56,14 +63,20 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_read_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化（非シングルトン）
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
 
@@ -116,6 +129,7 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テンプレートディレクトリ
@@ -123,7 +137,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
 
     // テストデータベースを作成
-    let test_case = "test_user_update_operation";
+    let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
@@ -196,14 +210,21 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
+
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_delete_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化（非シングルトン）
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
 
@@ -256,13 +277,20 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
+
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // 複数のテストが独立していることを確認
-    let db_path1 = TestPathGenerator::generate_test_dir(file!(), "test_user_repository_isolation_1");
-    let db_path2 = TestPathGenerator::generate_test_dir(file!(), "test_user_repository_isolation_2");
-    std::fs::create_dir_all(&db_path1)?;
-    std::fs::create_dir_all(&db_path2)?;
+    let test_case = function_name!();
+    let output_dir1 = TestPathGenerator::generate_test_dir(file!(), test_case).join("1");
+    let output_dir2 = TestPathGenerator::generate_test_dir(file!(), test_case).join("2");
+    let db_path1 = SqliteTestHarness::copy_database_template(&template_dir, &output_dir1)?;
+    let db_path2 = SqliteTestHarness::copy_database_template(&template_dir, &output_dir2)?;
 
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);

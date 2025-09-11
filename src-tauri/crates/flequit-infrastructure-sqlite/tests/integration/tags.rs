@@ -11,15 +11,24 @@ use uuid::Uuid;
 use std::sync::Arc;
 
 use flequit_testing::TestPathGenerator;
+use function_name::named;
 
+use crate::integration::support::sqlite::SqliteTestHarness;
+
+#[named]
 #[tokio::test]
 async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_create_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
 
@@ -52,14 +61,20 @@ async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_read_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
 
@@ -107,14 +122,19 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_update_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
 
@@ -171,14 +191,19 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[named]
 #[tokio::test]
 async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_delete_operation");
-    std::fs::create_dir_all(&db_path)?;
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
 

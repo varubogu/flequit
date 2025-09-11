@@ -47,3 +47,4 @@ tracing = "0.1.41"
 [dev-dependencies]
 tempfile = "3.0"
 flequit-testing = { path = "../flequit-testing" }
+function_name = "0.3.0"
