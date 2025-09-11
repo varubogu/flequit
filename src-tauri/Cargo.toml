@@ -22,6 +22,7 @@ members = [
     "crates/flequit-repository",
     "crates/flequit-infrastructure-sqlite",
     "crates/flequit-infrastructure-automerge",
+    "crates/flequit-settings",
     "."
 , "crates/flequit-types", "crates/flequit-infrastructure"]
 
@@ -33,6 +34,7 @@ tauri-build = { version = "2.4.0", features = [] }
 flequit-model = { path = "crates/flequit-model" }
 flequit-core = { path = "crates/flequit-core" }
 flequit-infrastructure = { path = "crates/flequit-infrastructure" }
+flequit-settings = { path = "crates/flequit-settings" }
 
 # Tauri framework
 tauri = { version = "2.8.4", features = [] }

@@ -2,7 +2,7 @@
 //!
 //! このモジュールは設定、日時フォーマット、個別モデルのTauriコマンドを統合して定義します。
 
-use flequit_core::facades::{setting_facades, datetime_facades};
+use flequit_core::facades::datetime_facades;
 use flequit_model::models::ModelConverter;
 use crate::models::weekday_condition::WeekdayConditionCommandModel;
 use crate::state::AppState;
@@ -16,9 +16,74 @@ use crate::models::{
 };
 use crate::models::CommandModelConverter;
 use chrono::{DateTime, Utc};
+use flequit_settings::Settings;
+
 
 // ---------------------------
-// Settings (全体設定)
+// Settings Commands (flequit-settings crate)
+// ---------------------------
+
+/// 新しい設定管理APIで設定を読み込み
+///
+/// stateから設定を取得します。
+#[tracing::instrument]
+#[tauri::command]
+pub async fn load_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
+    let settings = state.settings.read().await.clone();
+    Ok(SettingsCommandModel::from(settings.to_command_model().await?))
+}
+
+/// 新しい設定管理APIで設定を保存
+#[tracing::instrument]
+#[tauri::command]
+pub async fn save_settings(state: State<'_, AppState>, settings: SettingsCommandModel) -> Result<(), String> {
+    let settings_model = settings.to_model().await?;
+
+    // stateの設定を更新
+    {
+        let mut state_settings = state.settings.write().await;
+        *state_settings = settings_model.clone();
+    }
+
+    // ファイルにも保存
+    state.settings_manager.save_settings(&settings_model)
+        .map_err(|e| format!("設定の保存に失敗: {}", e))?;
+
+    Ok(())
+}
+
+/// 設定ファイルが存在するかチェック
+#[tracing::instrument]
+#[tauri::command]
+pub async fn settings_file_exists(state: State<'_, AppState>) -> Result<bool, String> {
+    Ok(state.settings_manager.settings_exists())
+}
+
+/// デフォルト設定で設定ファイルを初期化
+#[tracing::instrument]
+#[tauri::command]
+pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Result<(), String> {
+    state.settings_manager.initialize_with_defaults()
+        .map_err(|e| format!("設定の初期化に失敗: {}", e))?;
+
+    // stateの設定もデフォルトにリセット
+    {
+        let mut state_settings = state.settings.write().await;
+        *state_settings = Settings::default();
+    }
+
+    Ok(())
+}
+
+/// 設定ファイルのパスを取得
+#[tracing::instrument]
+#[tauri::command]
+pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String, String> {
+    Ok(state.settings_manager.get_settings_path().display().to_string())
+}
+
+// ---------------------------
+// Legacy Settings (flequit-core facades)
 // ---------------------------
 
 /// アプリケーション設定（Settings）をすべて取得します。
@@ -27,10 +92,8 @@ use chrono::{DateTime, Utc};
 pub async fn get_all_settings(
     state: State<'_, AppState>,
 ) -> Result<SettingsCommandModel, String> {
-    let repositories = state.repositories.read().await;
-
-    let result = setting_facades::get_all_settings(&*repositories).await?;
-    Ok(result.to_command_model().await?)
+    let settings = state.settings.read().await;
+    settings.to_command_model().await.map_err(|e| e.to_string())
 }
 
 /// 特定のキーの設定値を保存します。
@@ -41,13 +104,16 @@ pub async fn set_setting(
     key: String,
     value: serde_json::Value,
 ) -> Result<(), String> {
-    let repositories = state.repositories.read().await;
+    let _repositories = state.repositories.read().await;
 
-    setting_facades::set_setting(&*repositories, &key, value).await
+    // TODO: setting_facadesの実装完了後に有効化
+    // setting_facades::set_setting(&*repositories, &key, value).await
+    let _ = (key, value); // 未使用警告を回避
+    Ok(())
 }
 
 // ---------------------------
-// Custom Date Formats
+// Date Formats
 // ---------------------------
 
 // NOTE: Custom Date Format機能は一時的に無効化されています
@@ -87,7 +153,8 @@ pub async fn add_custom_date_format_setting(
 pub async fn update_custom_date_format_setting(
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
-    // TODO: setting_facadesでの実装完了後に有効化
+    // TODO: datetime_facadesでの実装完了後に有効化
+    // datetime_facades::update_datetime_format(&*repositories, model).await
     Ok(format)
 }
 
@@ -95,7 +162,8 @@ pub async fn update_custom_date_format_setting(
 #[tracing::instrument]
 #[tauri::command]
 pub async fn delete_custom_date_format_setting(id: String) -> Result<(), String> {
-    // TODO: setting_facadesでの実装完了後に有効化
+    // TODO: datetime_facadesでの実装完了後に有効化
+    // datetime_facades::delete_datetime_format(&*repositories, format_id).await
     let _ = id; // 未使用警告を回避
     Ok(())
 }
@@ -111,11 +179,22 @@ pub async fn get_time_label_setting(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<Option<TimeLabelCommandModel>, String> {
-    let repositories = state.repositories.read().await;
+    let settings = state.settings.read().await;
 
-    let result = setting_facades::get_time_label(&*repositories, &id).await?;
-    match result {
-        Some(data) => Ok(Some(data.to_command_model().await?)),
+    // 設定から時刻ラベルを検索
+    let time_label = settings.time_labels.iter().find(|label| label.id == id);
+
+    match time_label {
+        Some(label) => {
+            // flequit-settingsのTimeLabelをCommandModelに変換
+            Ok(Some(TimeLabelCommandModel {
+                id: label.id.clone(),
+                name: label.name.clone(),
+                time: label.time.clone(),
+                color: label.color.clone(),
+                order: label.order,
+            }))
+        },
         None => Ok(None),
     }
 }
@@ -126,12 +205,17 @@ pub async fn get_time_label_setting(
 pub async fn get_all_time_label_settings(
     state: State<'_, AppState>,
 ) -> Result<Vec<TimeLabelCommandModel>, String> {
-    let repositories = state.repositories.read().await;
+    let settings = state.settings.read().await;
 
-    let results = setting_facades::get_all_time_labels(&*repositories).await?;
     let mut command_results = Vec::new();
-    for item in results {
-        command_results.push(item.to_command_model().await?);
+    for label in &settings.time_labels {
+        command_results.push(TimeLabelCommandModel {
+            id: label.id.clone(),
+            name: label.name.clone(),
+            time: label.time.clone(),
+            color: label.color.clone(),
+            order: label.order,
+        });
     }
     Ok(command_results)
 }
@@ -143,11 +227,25 @@ pub async fn add_time_label_setting(
     state: State<'_, AppState>,
     label: TimeLabelCommandModel,
 ) -> Result<TimeLabelCommandModel, String> {
-    let model = label.to_model().await?;
-    let repositories = state.repositories.read().await;
+    // flequit-settingsのTimeLabelに変換
+    let time_label = flequit_settings::TimeLabel {
+        id: label.id.clone(),
+        name: label.name.clone(),
+        time: label.time.clone(),
+        color: label.color.clone(),
+        order: label.order,
+    };
 
-    let result = setting_facades::add_time_label(&*repositories, model).await?;
-    Ok(result.to_command_model().await?)
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
+        settings.time_labels.push(time_label.clone());
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(label)
 }
 
 /// 時刻ラベルを更新します。
@@ -157,11 +255,32 @@ pub async fn update_time_label_setting(
     state: State<'_, AppState>,
     label: TimeLabelCommandModel,
 ) -> Result<TimeLabelCommandModel, String> {
-    let model = label.to_model().await?;
-    let repositories = state.repositories.read().await;
+    // flequit-settingsのTimeLabelに変換
+    let time_label = flequit_settings::TimeLabel {
+        id: label.id.clone(),
+        name: label.name.clone(),
+        time: label.time.clone(),
+        color: label.color.clone(),
+        order: label.order,
+    };
 
-    let result = setting_facades::update_time_label(&*repositories, model).await?;
-    Ok(result.to_command_model().await?)
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
+
+        // 既存の時刻ラベルを検索して更新
+        if let Some(existing_label) = settings.time_labels.iter_mut().find(|l| l.id == label.id) {
+            *existing_label = time_label.clone();
+        } else {
+            // 見つからない場合は追加
+            settings.time_labels.push(time_label.clone());
+        }
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(label)
 }
 
 /// 時刻ラベルを削除します。
@@ -171,9 +290,18 @@ pub async fn delete_time_label_setting(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<(), String> {
-    let repositories = state.repositories.read().await;
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
 
-    setting_facades::delete_time_label(&*repositories, &id).await
+        // 指定されたIDの時刻ラベルを削除
+        settings.time_labels.retain(|label| label.id != id);
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
 }
 
 // ---------------------------
@@ -187,11 +315,22 @@ pub async fn get_view_item_setting(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<Option<ViewItemCommandModel>, String> {
-    let repositories = state.repositories.read().await;
+    let settings = state.settings.read().await;
 
-    let result = setting_facades::get_view_item(&*repositories, &id).await?;
-    match result {
-        Some(data) => Ok(Some(data.to_command_model().await?)),
+    // 設定からビューアイテムを検索
+    let view_item = settings.view_items.iter().find(|item| item.id == id);
+
+    match view_item {
+        Some(item) => {
+            // flequit-settingsのViewItemをCommandModelに変換
+            Ok(Some(ViewItemCommandModel {
+                id: item.id.clone(),
+                label: item.label.clone(),
+                icon: item.icon.clone(),
+                visible: item.visible,
+                order: item.order,
+            }))
+        },
         None => Ok(None),
     }
 }
@@ -202,12 +341,17 @@ pub async fn get_view_item_setting(
 pub async fn get_all_view_item_settings(
     state: State<'_, AppState>,
 ) -> Result<Vec<ViewItemCommandModel>, String> {
-    let repositories = state.repositories.read().await;
+    let settings = state.settings.read().await;
 
-    let results = setting_facades::get_all_view_items(&*repositories).await?;
     let mut command_results = Vec::new();
-    for item in results {
-        command_results.push(item.to_command_model().await?);
+    for item in &settings.view_items {
+        command_results.push(ViewItemCommandModel {
+            id: item.id.clone(),
+            label: item.label.clone(),
+            icon: item.icon.clone(),
+            visible: item.visible,
+            order: item.order,
+        });
     }
     Ok(command_results)
 }
@@ -219,11 +363,25 @@ pub async fn add_view_item_setting(
     state: State<'_, AppState>,
     item: ViewItemCommandModel,
 ) -> Result<ViewItemCommandModel, String> {
-    let model = item.to_model().await?;
-    let repositories = state.repositories.read().await;
+    // flequit-settingsのViewItemに変換
+    let view_item = flequit_settings::ViewItem {
+        id: item.id.clone(),
+        label: item.label.clone(),
+        icon: item.icon.clone(),
+        visible: item.visible,
+        order: item.order,
+    };
 
-    let result = setting_facades::add_view_item(&*repositories, model).await?;
-    Ok(result.to_command_model().await?)
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
+        settings.view_items.push(view_item.clone());
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(item)
 }
 
 /// ビューアイテムを更新します。
@@ -233,11 +391,32 @@ pub async fn update_view_item_setting(
     state: State<'_, AppState>,
     item: ViewItemCommandModel,
 ) -> Result<ViewItemCommandModel, String> {
-    let model = item.to_model().await?;
-    let repositories = state.repositories.read().await;
+    // flequit-settingsのViewItemに変換
+    let view_item = flequit_settings::ViewItem {
+        id: item.id.clone(),
+        label: item.label.clone(),
+        icon: item.icon.clone(),
+        visible: item.visible,
+        order: item.order,
+    };
 
-    let result = setting_facades::update_view_item(&*repositories, model).await?;
-    Ok(result.to_command_model().await?)
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
+
+        // 既存のビューアイテムを検索して更新
+        if let Some(existing_item) = settings.view_items.iter_mut().find(|i| i.id == item.id) {
+            *existing_item = view_item.clone();
+        } else {
+            // 見つからない場合は追加
+            settings.view_items.push(view_item.clone());
+        }
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(item)
 }
 
 /// ビューアイテムを削除します。
@@ -247,9 +426,18 @@ pub async fn delete_view_item_setting(
     state: State<'_, AppState>,
     id: String,
 ) -> Result<(), String> {
-    let repositories = state.repositories.read().await;
+    // stateの設定を更新
+    {
+        let mut settings = state.settings.write().await;
 
-    setting_facades::delete_view_item(&*repositories, &id).await
+        // 指定されたIDのビューアイテムを削除
+        settings.view_items.retain(|item| item.id != id);
+
+        // ファイルにも保存
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
 }
 
 /// 特定のキーの設定値を取得します。
@@ -259,9 +447,23 @@ pub async fn get_setting(
     state: State<'_, AppState>,
     key: String,
 ) -> Result<Option<String>, String> {
-    let repositories = state.repositories.read().await;
+    let settings = state.settings.read().await;
 
-    setting_facades::get_setting(&*repositories, &key).await
+    // 基本的な設定値を取得
+    match key.as_str() {
+        "theme" => Ok(Some(settings.theme.clone())),
+        "language" => Ok(Some(settings.language.clone())),
+        "font" => Ok(Some(settings.font.clone())),
+        "font_size" => Ok(Some(settings.font_size.to_string())),
+        "font_color" => Ok(Some(settings.font_color.clone())),
+        "background_color" => Ok(Some(settings.background_color.clone())),
+        "week_start" => Ok(Some(settings.week_start.clone())),
+        "timezone" => Ok(Some(settings.timezone.clone())),
+        // 選択中の日時フォーマット（スカラー扱い）
+        "datetime_format" => Ok(Some(settings.datetime_format.format.clone())),
+        "custom_due_days" => Ok(Some(serde_json::to_string(&settings.custom_due_days).unwrap_or_default())),
+        _ => Ok(None),
+    }
 }
 
 /// 特定のキーの設定値を更新します。
@@ -272,9 +474,70 @@ pub async fn update_setting(
     key: String,
     value: serde_json::Value,
 ) -> Result<(), String> {
-    let repositories = state.repositories.read().await;
+    let mut settings = state.settings.write().await;
 
-    setting_facades::set_setting(&*repositories, &key, value).await
+    // 基本的な設定値を更新
+    match key.as_str() {
+        "theme" => {
+            if let Some(v) = value.as_str() {
+                settings.theme = v.to_string();
+            }
+        },
+        "language" => {
+            if let Some(v) = value.as_str() {
+                settings.language = v.to_string();
+            }
+        },
+        "font" => {
+            if let Some(v) = value.as_str() {
+                settings.font = v.to_string();
+            }
+        },
+        "font_size" => {
+            if let Some(v) = value.as_i64() {
+                settings.font_size = v as i32;
+            }
+        },
+        "font_color" => {
+            if let Some(v) = value.as_str() {
+                settings.font_color = v.to_string();
+            }
+        },
+        "background_color" => {
+            if let Some(v) = value.as_str() {
+                settings.background_color = v.to_string();
+            }
+        },
+        "week_start" => {
+            if let Some(v) = value.as_str() {
+                settings.week_start = v.to_string();
+            }
+        },
+        "timezone" => {
+            if let Some(v) = value.as_str() {
+                settings.timezone = v.to_string();
+            }
+        },
+        // 選択中の日時フォーマット（スカラー扱い）。id/name/group/orderは保持、formatのみ変更
+        "datetime_format" => {
+            if let Some(v) = value.as_str() {
+                settings.datetime_format.format = v.to_string();
+            }
+        },
+        "custom_due_days" => {
+            if let Ok(v) = serde_json::from_value::<Vec<i32>>(value) {
+                settings.custom_due_days = v;
+            }
+        },
+        _ => {
+            return Err(format!("Unknown setting key: {}", key));
+        }
+    }
+
+    // ファイルにも保存
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+
+    Ok(())
 }
 
 // =============================================================================
@@ -286,9 +549,8 @@ pub async fn update_setting(
 #[tracing::instrument]
 #[tauri::command]
 pub async fn create_datetime_format(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<bool, String> {
-    let model = format.to_model().await?;
-    let repositories = state.repositories.read().await;
-    datetime_facades::create_datetime_format(&*repositories, model).await
+    let _ = (state, format);
+    Err("Not implemented: datetime_facades::create_datetime_format".to_string())
 }
 
 /// 日時フォーマットを取得します。
@@ -296,12 +558,8 @@ pub async fn create_datetime_format(state: State<'_, AppState>, format: DateTime
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_datetime_format(state: State<'_, AppState>, format_id: String) -> Result<Option<DateTimeFormatCommandModel>, String> {
-    let repositories = state.repositories.read().await;
-    let result = datetime_facades::get_datetime_format(&*repositories, format_id).await?;
-    match result {
-        Some(data) => Ok(Some(data.to_command_model().await?)),
-        None => Ok(None),
-    }
+    let _ = (state, format_id);
+    Err("Not implemented: datetime_facades::get_datetime_format".to_string())
 }
 
 /// すべての日時フォーマットを取得します。
@@ -309,13 +567,8 @@ pub async fn get_datetime_format(state: State<'_, AppState>, format_id: String) 
 #[tracing::instrument]
 #[tauri::command]
 pub async fn get_all_datetime_formats(state: State<'_, AppState>) -> Result<Vec<DateTimeFormatCommandModel>, String> {
-    let repositories = state.repositories.read().await;
-    let results = datetime_facades::get_all_datetime_formats(&*repositories).await?;
-    let mut command_results = Vec::new();
-    for item in results {
-        command_results.push(item.to_command_model().await?);
-    }
-    Ok(command_results)
+    let _ = state;
+    Err("Not implemented: datetime_facades::get_all_datetime_formats".to_string())
 }
 
 /// 日時フォーマットを更新します。
@@ -323,9 +576,8 @@ pub async fn get_all_datetime_formats(state: State<'_, AppState>) -> Result<Vec<
 #[tracing::instrument]
 #[tauri::command]
 pub async fn update_datetime_format(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<bool, String> {
-    let model = format.to_model().await?;
-    let repositories = state.repositories.read().await;
-    datetime_facades::update_datetime_format(&*repositories, model).await
+    let _ = (state, format);
+    Err("Not implemented: datetime_facades::update_datetime_format".to_string())
 }
 
 /// 日時フォーマットを削除します。
@@ -333,8 +585,102 @@ pub async fn update_datetime_format(state: State<'_, AppState>, format: DateTime
 #[tracing::instrument]
 #[tauri::command]
 pub async fn delete_datetime_format(state: State<'_, AppState>, format_id: String) -> Result<bool, String> {
-    let repositories = state.repositories.read().await;
-    datetime_facades::delete_datetime_format(&*repositories, format_id).await
+    let _ = (state, format_id);
+    Err("Not implemented: datetime_facades::delete_datetime_format".to_string())
+}
+
+// =============================================================================
+// Settings: custom_due_days 配列 要素CRUD
+// =============================================================================
+
+/// custom_due_days に要素を追加
+#[tracing::instrument]
+#[tauri::command]
+pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
+    let mut settings = state.settings.write().await;
+    if !settings.custom_due_days.contains(&day) {
+        settings.custom_due_days.push(day);
+        settings.custom_due_days.sort();
+    }
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?
+    ;
+    Ok(())
+}
+
+/// custom_due_days の既存要素を新しい値で置換
+#[tracing::instrument]
+#[tauri::command]
+pub async fn update_custom_due_day(state: State<'_, AppState>, old_day: i32, new_day: i32) -> Result<(), String> {
+    let mut settings = state.settings.write().await;
+    if let Some(pos) = settings.custom_due_days.iter().position(|d| *d == old_day) {
+        settings.custom_due_days[pos] = new_day;
+        settings.custom_due_days.sort();
+        settings.custom_due_days.dedup();
+        state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    Err(format!("custom_due_days not found: {}", old_day))
+}
+
+/// custom_due_days から要素を削除
+#[tracing::instrument]
+#[tauri::command]
+pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
+    let mut settings = state.settings.write().await;
+    let before_len = settings.custom_due_days.len();
+    settings.custom_due_days.retain(|d| *d != day);
+    if settings.custom_due_days.len() == before_len {
+        return Err(format!("custom_due_days not found: {}", day));
+    }
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+// =============================================================================
+// Settings: datetime_formats 配列 要素CRUD（state直更新）
+// =============================================================================
+
+/// datetime_formats に要素を追加（id重複はエラー）
+#[tracing::instrument]
+#[tauri::command]
+pub async fn add_datetime_format_setting(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<DateTimeFormatCommandModel, String> {
+    let model = format.to_model().await?;
+    let mut settings = state.settings.write().await;
+    if settings.datetime_formats.iter().any(|f| f.id == model.id) {
+        return Err(format!("datetime_format id already exists: {}", model.id));
+    }
+    settings.datetime_formats.push(model);
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    Ok(format)
+}
+
+/// datetime_formats の要素を上書き（id一致で置換、なければ追加）
+#[tracing::instrument]
+#[tauri::command]
+pub async fn upsert_datetime_format_setting(state: State<'_, AppState>, format: DateTimeFormatCommandModel) -> Result<DateTimeFormatCommandModel, String> {
+    let model = format.to_model().await?;
+    let mut settings = state.settings.write().await;
+    if let Some(existing) = settings.datetime_formats.iter_mut().find(|f| f.id == model.id) {
+        *existing = model;
+    } else {
+        settings.datetime_formats.push(model);
+    }
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    Ok(format)
+}
+
+/// datetime_formats から要素を削除（id指定）
+#[tracing::instrument]
+#[tauri::command]
+pub async fn delete_datetime_format_setting(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    let mut settings = state.settings.write().await;
+    let before_len = settings.datetime_formats.len();
+    settings.datetime_formats.retain(|f| f.id != id);
+    if settings.datetime_formats.len() == before_len {
+        return Err("datetime_format id not found".to_string());
+    }
+    state.settings_manager.save_settings(&*settings).map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 // =============================================================================

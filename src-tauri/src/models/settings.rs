@@ -2,12 +2,12 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use flequit_model::models::ModelConverter;
-use flequit_model::models::app_settings::settings::Settings;
-use flequit_model::models::app_settings::datetime_format::DateTimeFormat;
-use flequit_model::models::app_settings::time_label::TimeLabel;
-use flequit_model::models::app_settings::due_date_buttons::DueDateButtons;
-use flequit_model::models::app_settings::view_item::ViewItem;
-use flequit_model::types::datetime_format_types::DateTimeFormatGroup;
+use flequit_settings::models::settings::Settings;
+use flequit_settings::models::datetime_format::DateTimeFormat;
+use flequit_settings::models::time_label::TimeLabel;
+use flequit_settings::models::due_date_buttons::DueDateButtons;
+use flequit_settings::models::view_item::ViewItem;
+use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;
 use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のSettings構造体（フラット構造）
@@ -32,9 +32,6 @@ pub struct SettingsCommandModel {
     // 表示設定
     pub due_date_buttons: Vec<DueDateButtons>,
     pub view_items: Vec<ViewItem>,
-
-    // アカウント設定
-    pub selected_account: String,
 }
 
 #[async_trait]
@@ -62,7 +59,6 @@ impl ModelConverter<Settings> for SettingsCommandModel {
             time_labels: self.time_labels.clone(),
             due_date_buttons: self.due_date_buttons.clone(),
             view_items: self.view_items.clone(),
-            selected_account: self.selected_account.clone(),
         })
     }
 }
@@ -86,7 +82,6 @@ impl CommandModelConverter<SettingsCommandModel> for Settings {
             time_labels: self.time_labels.clone(),
             due_date_buttons: self.due_date_buttons.clone(),
             view_items: self.view_items.clone(),
-            selected_account: self.selected_account.clone(),
         })
     }
 }

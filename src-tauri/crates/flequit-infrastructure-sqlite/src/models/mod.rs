@@ -2,14 +2,12 @@ use async_trait::async_trait;
 
 pub mod task_projects;
 pub mod accounts;
-pub mod app_settings;
 pub mod users;
 pub mod search;
 pub mod initialized_data;
 
 // Re-export individual modules for backward compatibility
 pub use accounts::account;
-pub use app_settings::{datetime_format, due_date_buttons, settings, time_label, view_item};
 pub use task_projects::{
     date_condition, member, project, recurrence_adjustment, recurrence_date_condition, recurrence_days_of_week,
     recurrence_detail, recurrence_rule, recurrence_weekday_condition, subtask,

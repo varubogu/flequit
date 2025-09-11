@@ -2,7 +2,8 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use flequit_model::models::ModelConverter;
-use flequit_model::models::app_settings::datetime_format::DateTimeFormat;
+use flequit_settings::models::datetime_format::DateTimeFormat;
+use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;
 use crate::models::CommandModelConverter;
 
 /// 日時フォーマットコマンド
@@ -25,11 +26,19 @@ pub struct DateTimeFormatCommandModel {
 impl ModelConverter<DateTimeFormat> for DateTimeFormatCommandModel {
     /// コマンド引数用（CustomDateFormatCommand）から内部モデル（CustomDateFormat）に変換
     async fn to_model(&self) -> Result<DateTimeFormat, String> {
+        let group = match self.group.to_lowercase().as_str() {
+            "default" => DateTimeFormatGroup::Default,
+            "preset" => DateTimeFormatGroup::Preset,
+            "custom" => DateTimeFormatGroup::Custom,
+            "custom_format" | "customformat" => DateTimeFormatGroup::CustomFormat,
+            other => return Err(format!("Unknown DateTimeFormat group: {}", other)),
+        };
+
         Ok(DateTimeFormat {
             id: self.id.clone(),
             name: self.name.clone(),
             format: self.format.clone(),
-            group: todo!(),
+            group,
             order: self.order.clone()
         })
     }
@@ -39,11 +48,18 @@ impl ModelConverter<DateTimeFormat> for DateTimeFormatCommandModel {
 impl CommandModelConverter<DateTimeFormatCommandModel> for DateTimeFormat {
     /// ドメインモデル（CustomDateFormat）からコマンドモデル（CustomDateFormatCommand）に変換
     async fn to_command_model(&self) -> Result<DateTimeFormatCommandModel, String> {
+        let group = match self.group.clone() {
+            DateTimeFormatGroup::Default => "default".to_string(),
+            DateTimeFormatGroup::Preset => "preset".to_string(),
+            DateTimeFormatGroup::Custom => "custom".to_string(),
+            DateTimeFormatGroup::CustomFormat => "custom_format".to_string(),
+        };
+
         Ok(DateTimeFormatCommandModel {
             id: self.id.clone(),
             name: self.name.clone(),
             format: self.format.clone(),
-            group: todo!(),
+            group,
             order: self.order.clone()
         })
     }

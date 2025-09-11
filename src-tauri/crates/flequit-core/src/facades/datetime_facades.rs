@@ -1,79 +1,14 @@
 //! 日時関連ファサード
 //!
-//! このモジュールは日時フォーマット、カスタム日時フォーマット、
-//! 日付条件、曜日条件のService層とのインターフェースを提供します。
+//! このモジュールは日付条件、曜日条件のService層とのインターフェースを提供します。
 
 use flequit_model::models::task_projects::{weekday_condition::WeekdayCondition};
 use flequit_model::models::task_projects::date_condition::DateCondition;
-use flequit_model::models::app_settings::datetime_format::DateTimeFormat;
 use flequit_types::errors::service_error::ServiceError;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use crate::services::datetime_service;
 use chrono::{DateTime, Utc};
 
-// Commandモデルをインポート
-// Command型は削除 - flequit-coreでは使用しない
-
-// =============================================================================
-// 日時フォーマット関連ファサード
-// =============================================================================
-
-#[tracing::instrument(level = "trace")]
-pub async fn create_datetime_format<R>(repositories: &R, format: DateTimeFormat) -> Result<bool, String>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-    match datetime_service::create_datetime_format(repositories, format).await {
-        Ok(_) => Ok(true),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to create datetime format: {:?}", e)),
-    }
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn get_datetime_format<R>(repositories: &R, format_id: String) -> Result<Option<DateTimeFormat>, String>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-    match datetime_service::get_datetime_format(repositories, &format_id).await {
-        Ok(format) => Ok(format),
-        Err(e) => Err(format!("Failed to get datetime format: {:?}", e)),
-    }
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn get_all_datetime_formats<R>(repositories: &R) -> Result<Vec<DateTimeFormat>, String>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-    match datetime_service::get_all_datetime_formats(repositories).await {
-        Ok(formats) => Ok(formats),
-        Err(e) => Err(format!("Failed to get all datetime formats: {:?}", e)),
-    }
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn update_datetime_format<R>(repositories: &R, format: DateTimeFormat) -> Result<bool, String>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-    match datetime_service::update_datetime_format(repositories, format).await {
-        Ok(_) => Ok(true),
-        Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to update datetime format: {:?}", e)),
-    }
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn delete_datetime_format<R>(repositories: &R, format_id: String) -> Result<bool, String>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-    match datetime_service::delete_datetime_format(repositories, &format_id).await {
-        Ok(_) => Ok(true),
-        Err(e) => Err(format!("Failed to delete datetime format: {:?}", e)),
-    }
-}
 
 // =============================================================================
 // 日付条件関連ファサード

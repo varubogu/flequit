@@ -1,4 +1,4 @@
-//! 統合設定モデル
+//! アプリケーション設定構造体
 //!
 //! このモジュールはアプリケーションの全設定項目を管理する構造体を定義します。
 
@@ -9,7 +9,7 @@ use super::time_label::TimeLabel;
 use super::due_date_buttons::DueDateButtons;
 use super::view_item::ViewItem;
 
-/// 統合設定構造体（フラット構造）
+/// アプリケーション設定構造体（フラット構造）
 ///
 /// アプリケーションの全設定項目を単一の構造体で管理します。
 /// フロントエンドのSettings型に対応しています。
@@ -49,9 +49,6 @@ pub struct Settings {
     /// ビューアイテム設定
     pub view_items: Vec<ViewItem>,
 
-    // アカウント設定
-    /// 最後に選択されたアカウントID
-    pub selected_account: String,
 }
 
 impl Default for Settings {
@@ -71,7 +68,6 @@ impl Default for Settings {
             time_labels: vec![],
             due_date_buttons: vec![],
             view_items: vec![],
-            selected_account: String::new(),
         }
     }
 }

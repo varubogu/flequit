@@ -71,7 +71,6 @@
 use async_trait::async_trait;
 
 pub mod accounts;
-pub mod app_settings;
 pub mod task_projects;
 pub mod users;
 pub mod initialized_data;

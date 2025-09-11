@@ -2,7 +2,6 @@ use async_trait::async_trait;
 use flequit_model::models::ModelConverter;
 use crate::models::{project::ProjectTreeCommandModel, CommandModelConverter};
 use crate::models::account::AccountCommandModel;
-use crate::models::settings::SettingsCommandModel;
 use flequit_model::models::initialized_data::InitializedData;
 use flequit_model::models::task_projects::project::ProjectTree;
 use serde::{Deserialize, Serialize};
@@ -10,7 +9,6 @@ use serde::{Deserialize, Serialize};
 /// Tauriコマンド戻り値用の初期化結果構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InitializedResult {
-    pub settings: SettingsCommandModel,
     pub accounts: Vec<AccountCommandModel>,
     pub projects: Vec<ProjectTreeCommandModel>,
 }
@@ -19,8 +17,6 @@ pub struct InitializedResult {
 impl ModelConverter<InitializedData> for InitializedResult {
     /// ドメインデータからコマンドモデルに変換
     async fn to_model(&self) -> Result<InitializedData, String> {
-        let settings = self.settings.clone().to_model().await?;
-
         let mut accounts = Vec::new();
         for account in &self.accounts {
             accounts.push(account.to_model().await?);
@@ -36,7 +32,6 @@ impl ModelConverter<InitializedData> for InitializedResult {
         }
 
         Ok(InitializedData {
-            settings,
             accounts,
             projects,
         })
@@ -46,8 +41,6 @@ impl ModelConverter<InitializedData> for InitializedResult {
 #[async_trait]
 impl CommandModelConverter<InitializedResult> for InitializedData {
     async fn to_command_model(&self) -> Result<InitializedResult, String> {
-
-        let settings = self.settings.clone().to_command_model().await?;
 
         // ProjectからProjectTreeに変換（task_listsは空）
         let project_trees: Vec<ProjectTree> = self
@@ -82,7 +75,6 @@ impl CommandModelConverter<InitializedResult> for InitializedData {
         }
 
         Ok(InitializedResult {
-            settings,
             accounts: account_commands,
             projects: project_tree_commands,
         })

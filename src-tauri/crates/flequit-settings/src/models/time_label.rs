@@ -13,4 +13,8 @@ pub struct TimeLabel {
     pub name: String,
     /// 時刻（HH:mm形式）
     pub time: String,
+    /// 色
+    pub color: String,
+    /// 順番
+    pub order: i32,
 }

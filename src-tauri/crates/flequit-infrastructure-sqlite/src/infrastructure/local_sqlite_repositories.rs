@@ -7,7 +7,6 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::infrastructure::{
     accounts::account::AccountLocalSqliteRepository, database_manager::DatabaseManager,
     task_projects::project::ProjectLocalSqliteRepository,
-    app_settings::settings::SettingsLocalSqliteRepository,
     task_projects::subtask::SubTaskLocalSqliteRepository,
     task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository,
     task_projects::subtask_tag::SubtaskTagLocalSqliteRepository,
@@ -23,6 +22,7 @@ use crate::infrastructure::{
 ///
 /// 各エンティティのSQLiteリポジトリを保持し、
 /// 検索系操作の高速実行を担当する。
+#[derive(Debug)]
 pub struct LocalSqliteRepositories {
     pub projects: ProjectLocalSqliteRepository,
     pub task_lists: TaskListLocalSqliteRepository,
@@ -35,7 +35,6 @@ pub struct LocalSqliteRepositories {
     pub subtask_assignments: SubtaskAssignmentLocalSqliteRepository,
     pub accounts: AccountLocalSqliteRepository,
     pub users: UserLocalSqliteRepository,
-    pub settings: SettingsLocalSqliteRepository,
 }
 
 impl LocalSqliteRepositories {
@@ -56,9 +55,59 @@ impl LocalSqliteRepositories {
             subtask_tags: SubtaskTagLocalSqliteRepository::new(db_manager.clone()),
             subtask_assignments: SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
             accounts: AccountLocalSqliteRepository::new(db_manager.clone()),
-            users: UserLocalSqliteRepository::new(db_manager.clone()),
-            settings: SettingsLocalSqliteRepository::new(db_manager),
+            users: UserLocalSqliteRepository::new(db_manager),
         })
+    }
+    
+    /// デフォルト設定でリポジトリ群を設定
+    #[tracing::instrument(level = "trace")]
+    pub async fn setup() -> Result<Self, Box<dyn std::error::Error>> {
+        Self::new().await.map_err(|e| e.into())
+    }
+    
+    /// プロジェクトリポジトリへのアクセス
+    pub fn projects(&self) -> &ProjectLocalSqliteRepository {
+        &self.projects
+    }
+    
+    /// アカウントリポジトリへのアクセス
+    pub fn accounts(&self) -> &AccountLocalSqliteRepository {
+        &self.accounts
+    }
+    
+    /// タスクリポジトリへのアクセス
+    pub fn tasks(&self) -> &TaskLocalSqliteRepository {
+        &self.tasks
+    }
+    
+    /// サブタスクリポジトリへのアクセス
+    pub fn sub_tasks(&self) -> &SubTaskLocalSqliteRepository {
+        &self.sub_tasks
+    }
+    
+    /// タグリポジトリへのアクセス
+    pub fn tags(&self) -> &TagLocalSqliteRepository {
+        &self.tags
+    }
+    
+    /// タスクリストリポジトリへのアクセス
+    pub fn task_lists(&self) -> &TaskListLocalSqliteRepository {
+        &self.task_lists
+    }
+    
+    /// ユーザーリポジトリへのアクセス
+    pub fn users(&self) -> &UserLocalSqliteRepository {
+        &self.users
+    }
+    
+    /// タスクアサインリポジトリへのアクセス
+    pub fn task_assignments(&self) -> &TaskAssignmentLocalSqliteRepository {
+        &self.task_assignments
+    }
+    
+    /// サブタスクアサインリポジトリへのアクセス
+    pub fn subtask_assignments(&self) -> &SubtaskAssignmentLocalSqliteRepository {
+        &self.subtask_assignments
     }
 }
 

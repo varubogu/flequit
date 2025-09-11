@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use flequit_model::models::ModelConverter;
-use flequit_model::models::app_settings::view_item::ViewItem;
+use flequit_settings::models::view_item::ViewItem;
 use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のViewItem構造体

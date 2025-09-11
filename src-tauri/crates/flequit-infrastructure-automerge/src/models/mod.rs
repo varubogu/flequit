@@ -5,7 +5,6 @@
 
 pub mod task_projects;
 pub mod accounts;
-pub mod app_settings;
 pub mod users;
 pub mod search;
 pub mod initialized_data;
@@ -18,7 +17,6 @@ pub use task_projects::{
     recurrence_weekday_condition, recurrence_days_of_week, weekday_condition,
 };
 pub use accounts::account;
-pub use app_settings::{datetime_format, due_date_buttons, settings, time_label, view_item};
 pub use users::user;
 
 // 再エクスポートして使いやすくする

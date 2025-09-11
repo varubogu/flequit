@@ -4,7 +4,6 @@
 //! 高速なクエリとリレーショナルなデータアクセスを提供
 
 pub mod accounts;
-pub mod app_settings;
 pub mod database_manager;
 pub mod hybrid_migration;
 pub mod local_sqlite_repositories;

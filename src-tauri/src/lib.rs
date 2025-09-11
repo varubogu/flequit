@@ -26,7 +26,7 @@ pub fn run() {
             .plugin(tauri_plugin_opener::init())
             .invoke_handler(tauri::generate_handler![
             // Initialization commands
-            initialization_commands::load_local_settings,
+            // initialization_commands::load_local_settings,
             initialization_commands::load_current_account,
             initialization_commands::load_all_project_data,
             initialization_commands::load_all_account,
@@ -49,11 +49,17 @@ pub fn run() {
             project_commands::get_project,
             project_commands::update_project,
             project_commands::delete_project,
-            // Setting management commands
+            // Setting management commands (legacy)
             settings_commands::get_setting,
             settings_commands::get_all_settings,
             settings_commands::update_setting,
             settings_commands::set_setting,
+            // New settings management commands (flequit-settings based)
+            settings_commands::load_settings,
+            settings_commands::save_settings,
+            settings_commands::settings_file_exists,
+            settings_commands::initialize_settings_with_defaults,
+            settings_commands::get_settings_file_path,
             // Custom Date Format commands
             settings_commands::get_custom_date_format_setting,
             settings_commands::get_all_custom_date_format_settings,

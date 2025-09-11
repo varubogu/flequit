@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use flequit_model::models::ModelConverter;
-use flequit_model::models::app_settings::time_label::TimeLabel;
+use flequit_settings::models::time_label::TimeLabel;
 use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のTimeLabel構造体
@@ -11,6 +11,8 @@ pub struct TimeLabelCommandModel {
     pub id: String,
     pub name: String,
     pub time: String,
+    pub color: String,
+    pub order: i32,
 }
 
 #[async_trait]
@@ -21,6 +23,8 @@ impl ModelConverter<TimeLabel> for TimeLabelCommandModel {
             id: self.id.clone(),
             name: self.name.clone(),
             time: self.time.clone(),
+            color: self.color.clone(),
+            order: self.order,
         })
     }
 }
@@ -33,6 +37,8 @@ impl CommandModelConverter<TimeLabelCommandModel> for TimeLabel {
             id: self.id.clone(),
             name: self.name.clone(),
             time: self.time.clone(),
+            color: self.color.clone(),
+            order: self.order,
         })
     }
 }

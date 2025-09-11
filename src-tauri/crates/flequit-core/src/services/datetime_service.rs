@@ -7,77 +7,10 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_types::errors::service_error::ServiceError;
 use chrono::{DateTime, Utc, Datelike};
 
-use flequit_model::models::{app_settings::datetime_format::DateTimeFormat, task_projects::{date_condition::DateCondition, weekday_condition::WeekdayCondition}};
+use flequit_model::models::task_projects::{date_condition::DateCondition, weekday_condition::WeekdayCondition};
 
 
 
-// =============================================================================
-// 日時フォーマット関連サービス
-// =============================================================================
-
-#[tracing::instrument(level = "trace")]
-pub async fn create_datetime_format<R>(repositories: &R, format_command: DateTimeFormat) -> Result<(), ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-
-    // バリデーション
-    if format_command.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError("フォーマット名が空です".to_string()));
-    }
-
-    if format_command.format.trim().is_empty() {
-        return Err(ServiceError::ValidationError("フォーマット文字列が空です".to_string()));
-    }
-
-    // 仮実装
-    Ok(())
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn get_datetime_format<R>(repositories: &R, format_id: &str) -> Result<Option<DateTimeFormat>, ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-
-    // 仮実装
-    Ok(None)
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn get_all_datetime_formats<R>(repositories: &R) -> Result<Vec<DateTimeFormat>, ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-
-    // 仮実装
-    Ok(vec![])
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn update_datetime_format<R>(repositories: &R, format_command: DateTimeFormat) -> Result<(), ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-
-    // バリデーション
-    if format_command.name.trim().is_empty() {
-        return Err(ServiceError::ValidationError("フォーマット名が空です".to_string()));
-    }
-
-    // 仮実装
-    Ok(())
-}
-
-#[tracing::instrument(level = "trace")]
-pub async fn delete_datetime_format<R>(repositories: &R, format_id: &str) -> Result<(), ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync,
-{
-
-    // 仮実装
-    Ok(())
-}
 
 // =============================================================================
 // 日付条件関連サービス

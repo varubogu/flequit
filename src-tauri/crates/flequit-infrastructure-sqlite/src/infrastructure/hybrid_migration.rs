@@ -7,18 +7,14 @@ use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Sta
 
 use crate::models::{
     account::Entity as AccountEntity,
-    datetime_format::Entity as CustomDateFormatEntity,
     project::Entity as ProjectEntity,
-    settings::Entity as SettingEntity,
     subtask::Entity as SubtaskEntity,
     subtask_tag::Entity as SubtaskTagEntity,
     tag::Entity as TagEntity,
     task::Entity as TaskEntity,
     task_list::Entity as TaskListEntity,
     task_tag::Entity as TaskTagEntity,
-    time_label::Entity as TimeLabelEntity,
     user::Entity as UserEntity,
-    view_item::Entity as ViewItemEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -85,12 +81,9 @@ impl HybridMigrator {
         let schema = Schema::new(DbBackend::Sqlite);
 
         let entities = vec![
-            ("settings", schema.create_table_from_entity(SettingEntity)),
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
-            (
-                "task_lists",
-                schema.create_table_from_entity(TaskListEntity),
+            ("task_lists", schema.create_table_from_entity(TaskListEntity),
             ),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
@@ -98,18 +91,6 @@ impl HybridMigrator {
             ("task_tags", schema.create_table_from_entity(TaskTagEntity)),
             ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
             ("users", schema.create_table_from_entity(UserEntity)),
-            (
-                "custom_date_formats",
-                schema.create_table_from_entity(CustomDateFormatEntity),
-            ),
-            (
-                "time_labels",
-                schema.create_table_from_entity(TimeLabelEntity),
-            ),
-            (
-                "view_items",
-                schema.create_table_from_entity(ViewItemEntity),
-            ),
         ];
 
         for (table_name, stmt) in entities {

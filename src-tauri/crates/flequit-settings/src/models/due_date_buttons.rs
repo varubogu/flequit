@@ -1,10 +1,17 @@
+//! 期日ボタン設定モデル
+
 use serde::{Deserialize, Serialize};
 
+/// 期日ボタン設定構造体
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DueDateButtons {
+    /// ボタンID
     pub id: String,
+    /// ボタン表示名
     pub name: String,
+    /// 表示/非表示フラグ
     pub is_visible: bool,
+    /// 表示順序
     pub display_order: i32,
 }
 

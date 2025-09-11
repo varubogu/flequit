@@ -7,7 +7,6 @@ use crate::errors::automerge_error::AutomergeError;
 use crate::infrastructure::{
     accounts::account::AccountLocalAutomergeRepository,
     task_projects::project::ProjectLocalAutomergeRepository,
-    app_settings::settings::SettingsLocalAutomergeRepository,
     task_projects::subtask::SubTaskLocalAutomergeRepository,
     task_projects::subtask_assignments::SubtaskAssignmentLocalAutomergeRepository,
     task_projects::subtask_tag::SubtaskTagLocalAutomergeRepository,
@@ -23,6 +22,7 @@ use crate::infrastructure::{
 ///
 /// 各エンティティのAutomergeリポジトリを保持し、
 /// 保存系操作の永続化を担当する。
+#[derive(Debug)]
 pub struct LocalAutomergeRepositories {
     pub projects: ProjectLocalAutomergeRepository,
     pub task_lists: TaskListLocalAutomergeRepository,
@@ -35,7 +35,6 @@ pub struct LocalAutomergeRepositories {
     pub subtask_assignments: SubtaskAssignmentLocalAutomergeRepository,
     pub accounts: AccountLocalAutomergeRepository,
     pub users: UserLocalAutomergeRepository,
-    pub settings: SettingsLocalAutomergeRepository,
 }
 
 impl LocalAutomergeRepositories {
@@ -53,9 +52,61 @@ impl LocalAutomergeRepositories {
             subtask_tags: SubtaskTagLocalAutomergeRepository::new(base_path.clone()).await?,
             subtask_assignments: SubtaskAssignmentLocalAutomergeRepository::new(base_path.clone()).await?,
             accounts: AccountLocalAutomergeRepository::new(base_path.clone()).await?,
-            users: UserLocalAutomergeRepository::new(base_path.clone()).await?,
-            settings: SettingsLocalAutomergeRepository::new(base_path.clone()).await?,
+            users: UserLocalAutomergeRepository::new(base_path).await?,
         })
+    }
+    
+    /// デフォルト設定でリポジトリ群を設定
+    #[tracing::instrument(level = "trace")]
+    pub async fn setup() -> Result<Self, Box<dyn std::error::Error>> {
+        // デフォルトのベースパスを使用
+        let base_path = std::env::temp_dir().join("flequit_automerge");
+        Self::new(base_path).await.map_err(|e| e.into())
+    }
+    
+    /// プロジェクトリポジトリへのアクセス
+    pub fn projects(&self) -> &ProjectLocalAutomergeRepository {
+        &self.projects
+    }
+    
+    /// アカウントリポジトリへのアクセス
+    pub fn accounts(&self) -> &AccountLocalAutomergeRepository {
+        &self.accounts
+    }
+    
+    /// タスクリポジトリへのアクセス
+    pub fn tasks(&self) -> &TaskLocalAutomergeRepository {
+        &self.tasks
+    }
+    
+    /// サブタスクリポジトリへのアクセス
+    pub fn sub_tasks(&self) -> &SubTaskLocalAutomergeRepository {
+        &self.sub_tasks
+    }
+    
+    /// タグリポジトリへのアクセス
+    pub fn tags(&self) -> &TagLocalAutomergeRepository {
+        &self.tags
+    }
+    
+    /// タスクリストリポジトリへのアクセス
+    pub fn task_lists(&self) -> &TaskListLocalAutomergeRepository {
+        &self.task_lists
+    }
+    
+    /// ユーザーリポジトリへのアクセス
+    pub fn users(&self) -> &UserLocalAutomergeRepository {
+        &self.users
+    }
+    
+    /// タスクアサインリポジトリへのアクセス
+    pub fn task_assignments(&self) -> &TaskAssignmentLocalAutomergeRepository {
+        &self.task_assignments
+    }
+    
+    /// サブタスクアサインリポジトリへのアクセス
+    pub fn subtask_assignments(&self) -> &SubtaskAssignmentLocalAutomergeRepository {
+        &self.subtask_assignments
     }
 }
 

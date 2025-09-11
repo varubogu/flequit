@@ -1,0 +1,29 @@
+[package]
+name = "flequit-settings"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# YAMLサポート
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+
+# エラーハンドリング
+thiserror = "1.0"
+
+# ファイルパス処理
+directories = "5.0"
+
+# 日時処理（設定値で使用）
+chrono = { version = "0.4", features = ["serde"] }
+
+# ログ
+log = "0.4"
+
+# Async runtime
+tokio = { version = "1.47.1", features = ["full"] }
+futures = "0.3.31"
+
+[dev-dependencies]
+# テスト用
+tempfile = "3.0"

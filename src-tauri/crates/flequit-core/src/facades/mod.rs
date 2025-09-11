@@ -4,7 +4,6 @@ pub mod datetime_facades;
 pub mod initialization_facades;
 pub mod recurrence_facades;
 pub mod project_facades;
-pub mod setting_facades;
 pub mod subtask_facades;
 pub mod tag_facades;
 pub mod tagging_facades;

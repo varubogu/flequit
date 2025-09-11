@@ -4,7 +4,6 @@ pub mod datetime_service;
 pub mod initialization_service;
 pub mod recurrence_service;
 pub mod project_service;
-pub mod setting_service;
 pub mod subtask_service;
 pub mod tag_service;
 pub mod tagging_service;

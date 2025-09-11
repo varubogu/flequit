@@ -1,13 +1,10 @@
 use flequit_types::errors::service_error::ServiceError;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::task_projects::project::ProjectTree;
-use flequit_model::models::app_settings::settings::Settings;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_repository::repositories::app_settings::settings_repository_trait::SettingsRepositoryTrait;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 
 pub struct InitializedResult {
-    pub settings: Settings,
     pub accounts: Vec<Account>,
     pub projects: Vec<ProjectTree>,
 }
@@ -16,29 +13,13 @@ pub async fn load_all_data<R>(repositories: &R) -> Result<InitializedResult, Ser
 where
     R: InfrastructureRepositoriesTrait + Send + Sync, {
     // 他のservice関数を組み合わせて全データを取得
-    let settings = load_local_settings(repositories).await?.unwrap_or_default();
     let accounts = load_all_account(repositories).await?;
     let project_trees = load_all_project_trees(repositories).await?;
 
     Ok(InitializedResult {
-        settings,
         accounts,
         projects: project_trees,
     })
-}
-
-pub async fn load_local_settings<R>(repositories: &R) -> Result<Option<Settings>, ServiceError>
-where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
-
-    // ローカル設定取得ロジック：設定データベースから取得
-    let settings = repositories
-        .settings()
-        .get_settings()
-        .await
-        .map_err(|e| ServiceError::InternalError(format!("Repository error: {:?}", e)))?;
-
-    Ok(settings)
 }
 
 pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>, ServiceError>

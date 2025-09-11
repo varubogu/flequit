@@ -2,8 +2,10 @@
 //!
 //! このモジュールは統合日時表示フォーマットを管理する構造体を定義します。
 
-use crate::types::datetime_format_types::DateTimeFormatGroup;
 use serde::{Deserialize, Serialize};
+
+use crate::types::datetime_format_types::DateTimeFormatGroup;
+
 
 /// 統合日時フォーマット情報を表現する構造体
 ///
@@ -29,31 +31,6 @@ use serde::{Deserialize, Serialize};
 /// - **多言語対応**: 国際化を前提とした表示名管理
 /// - **UI最適化**: フロントエンドでの選択・表示に最適化
 /// - **拡張性**: 新しいフォーマットグループの追加が容易
-///
-/// # 使用例
-///
-/// ```rust,no_run
-/// # use flequit_model::models::datetime_format::DateTimeFormat;
-/// # use flequit_model::types::datetime_format_types::DateTimeFormatGroup;
-///
-/// // プリセットフォーマット
-/// let preset_format = DateTimeFormat {
-///     id: "-1".to_string(),
-///     name: "標準（YYYY-MM-DD HH:mm）".to_string(),
-///     format: "%Y-%m-%d %H:%M".to_string(),
-///     group: DateTimeFormatGroup::Preset,
-///     order: 1,
-/// };
-///
-/// // カスタムフォーマット
-/// let custom_format = DateTimeFormat {
-///     id: "550e8400-e29b-41d4-a716-446655440000".to_string(),
-///     name: "業務用フォーマット".to_string(),
-///     format: "%Y年%m月%d日（%a）%H時%M分".to_string(),
-///     group: DateTimeFormatGroup::CustomFormat,
-///     order: 10,
-/// };
-/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DateTimeFormat {
     /// フォーマットの一意識別子（UUID文字列またはプリセットの負数文字列）
