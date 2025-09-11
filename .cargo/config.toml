@@ -1,0 +1,5 @@
+# このファイルをコピーし、config.local.tomlを作成してください。
+
+[env]
+# value にプロジェクトの絶対パスを指定する
+FLEQUIT_PROJECT_ROOT = { value = "" }
