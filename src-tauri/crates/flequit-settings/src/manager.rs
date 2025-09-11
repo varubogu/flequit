@@ -28,6 +28,12 @@ impl SettingsManager {
         Ok(Self { settings_path })
     }
 
+    /// テスト用：指定パスで設定マネージャーを作成
+    #[doc(hidden)]
+    pub fn new_with_path(settings_path: PathBuf) -> Self {
+        Self { settings_path }
+    }
+
     /// 設定ファイルパスを取得
     pub fn get_settings_path(&self) -> &PathBuf {
         &self.settings_path
@@ -86,6 +92,16 @@ impl SettingsManager {
                 warn!("YAML変換に失敗: {}", e);
                 SettingsError::YamlParseError { source: e }
             })?;
+
+        // 親ディレクトリが存在しない場合は作成
+        if let Some(parent_dir) = self.settings_path.parent() {
+            if !parent_dir.exists() {
+                std::fs::create_dir_all(parent_dir)
+                    .map_err(|_| SettingsError::DirectoryCreationError {
+                        path: parent_dir.display().to_string(),
+                    })?;
+            }
+        }
 
         // ファイルに書き込み
         std::fs::write(&self.settings_path, yaml_content)

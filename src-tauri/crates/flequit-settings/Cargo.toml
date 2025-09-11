@@ -27,3 +27,4 @@ futures = "0.3.31"
 [dev-dependencies]
 # テスト用
 tempfile = "3.0"
+flequit-testing = { path = "../flequit-testing" }

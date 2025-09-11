@@ -14,18 +14,21 @@
 //! ```rust,no_run
 //! use flequit_settings::{SettingsManager, Settings};
 //!
-//! // 設定マネージャーを作成（設定フォルダがない場合は自動作成）
-//! let settings_manager = SettingsManager::new().unwrap();
+//! #[tokio::main]
+//! async fn main() {
+//!     // 設定マネージャーを作成（設定フォルダがない場合は自動作成）
+//!     let settings_manager = SettingsManager::new().unwrap();
 //!
-//! // 設定を読み込み（ファイルがない場合は自動的にデフォルト設定ファイルを作成）
-//! let settings = settings_manager.load_settings().unwrap();
+//!     // 設定を読み込み（ファイルがない場合は自動的にデフォルト設定ファイルを作成）
+//!     let settings = settings_manager.load_settings().await.unwrap();
 //!
-//! // 設定を変更
-//! let mut new_settings = settings;
-//! new_settings.theme = "dark".to_string();
+//!     // 設定を変更
+//!     let mut new_settings = settings;
+//!     new_settings.theme = "dark".to_string();
 //!
-//! // 設定を保存
-//! settings_manager.save_settings(&new_settings).unwrap();
+//!     // 設定を保存
+//!     settings_manager.save_settings(&new_settings).unwrap();
+//! }
 //! ```
 //!
 //! # 自動初期化機能

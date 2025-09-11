@@ -1,14 +1,16 @@
 //! 統合テスト
 
 use flequit_settings::{SettingsManager, Settings};
-use tempfile::TempDir;
+use flequit_testing::TestPathGenerator;
+use log::info;
 use std::env;
 
 #[test]
 fn test_config_manager_creation() {
-    // テスト用の一時ディレクトリを設定
-    let temp_dir = TempDir::new().unwrap();
-    env::set_var("HOME", temp_dir.path());
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_config_manager_creation");
+    std::fs::create_dir_all(&test_dir).unwrap();
+    env::set_var("HOME", test_dir);
 
     let config_manager = SettingsManager::new();
     assert!(config_manager.is_ok());
@@ -43,11 +45,14 @@ fn test_settings_serialization() {
 
 #[tokio::test]
 async fn test_auto_create_config_file() {
-    // テスト用の一時ディレクトリを設定
-    let temp_dir = TempDir::new().unwrap();
-    env::set_var("HOME", temp_dir.path());
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_auto_create_config_file");
+    std::fs::create_dir_all(&test_dir).unwrap();
+    let test_settings_path = test_dir.join("test_auto_create.yml");
+    info!("Test settings path: {}", test_settings_path.display());
 
-    let config_manager = SettingsManager::new().unwrap();
+    // SettingsManagerをテスト用メソッドで作成（設定ディレクトリの自動作成を回避）
+    let config_manager = SettingsManager::new_with_path(test_settings_path.clone());
 
     // 初期状態では設定ファイルが存在しない
     assert!(!config_manager.settings_exists(), "初期状態では設定ファイルは存在しないはず");
@@ -73,15 +78,20 @@ async fn test_auto_create_config_file() {
 
 #[tokio::test]
 async fn test_config_file_with_folder_creation() {
-    // テスト用の一時ディレクトリを設定
-    let temp_dir = TempDir::new().unwrap();
-    env::set_var("HOME", temp_dir.path());
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_config_file_with_folder_creation");
+    let test_config_dir = test_dir.join("config_test_dir");
+    let test_settings_path = test_config_dir.join("test_folder_create.yml");
 
-    let settings_manager = SettingsManager::new().unwrap();
+    // SettingsManagerをテスト用メソッドで作成
+    let settings_manager = SettingsManager::new_with_path(test_settings_path.clone());
 
     // 設定ディレクトリとファイルが存在しないことを確認
     let config_path = settings_manager.get_settings_path();
     let config_dir = config_path.parent().unwrap();
+
+    assert!(!config_dir.exists(), "初期状態では設定ディレクトリは存在しないはず");
+    assert!(!config_path.exists(), "初期状態では設定ファイルは存在しないはず");
 
     // load_settingsを呼び出すと、ディレクトリとファイルの両方が作成される
     let settings = settings_manager.load_settings().await.unwrap();
