@@ -1,21 +1,9 @@
-use flequit_settings::Settings;
 use flequit_core::facades::initialization_facades;
 use crate::models::account::AccountCommandModel;
 use crate::models::project::ProjectTreeCommandModel;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use tauri::State;
-
-// #[tracing::instrument]
-// #[tauri::command]
-// pub async fn load_local_settings(
-//     state: State<'_, AppState>,
-// ) -> Result<Option<Settings>, String> {
-//     let repositories = state.repositories.read().await;
-
-//     let settings = initialization_facades::load_local_settings(&*repositories).await?;
-//     Ok(settings)
-// }
 
 #[tracing::instrument]
 #[tauri::command]
