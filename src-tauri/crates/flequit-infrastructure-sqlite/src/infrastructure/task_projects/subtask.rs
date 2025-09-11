@@ -136,7 +136,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
+    async fn find_by_id(&self, _project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -155,7 +155,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
+    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -180,7 +180,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         Ok(subtasks)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
+    async fn delete(&self, _project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -203,14 +203,14 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, _project_id: &ProjectId, id: &SubTaskId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = SubtaskEntity::find_by_id(id.to_string()).count(db).await.map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
-    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
         let count = SubtaskEntity::find().count(db).await.map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

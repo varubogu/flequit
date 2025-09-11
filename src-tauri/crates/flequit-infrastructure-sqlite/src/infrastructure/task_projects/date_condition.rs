@@ -29,7 +29,7 @@ impl DateConditionLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &DateCondition) -> Result<(), RepositoryError> {
+    async fn save(&self, _project_id: &ProjectId, entity: &DateCondition) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -51,7 +51,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(())
     }
 
-    async fn find_by_id(&self, project_id: &ProjectId, id: &DateConditionId) -> Result<Option<DateCondition>, RepositoryError> {
+    async fn find_by_id(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<Option<DateCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -71,7 +71,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<DateCondition>, RepositoryError> {
+    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<DateCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -90,7 +90,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(date_conditions)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &DateConditionId) -> Result<(), RepositoryError> {
+    async fn delete(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -103,7 +103,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &DateConditionId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -116,7 +116,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(count > 0)
     }
 
-    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 

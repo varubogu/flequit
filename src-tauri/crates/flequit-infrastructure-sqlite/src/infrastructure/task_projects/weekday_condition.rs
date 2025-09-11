@@ -29,7 +29,7 @@ impl WeekdayConditionLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditionLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &WeekdayCondition) -> Result<(), RepositoryError> {
+    async fn save(&self, _project_id: &ProjectId, entity: &WeekdayCondition) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -54,7 +54,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditio
         Ok(())
     }
 
-    async fn find_by_id(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<Option<WeekdayCondition>, RepositoryError> {
+    async fn find_by_id(&self, _project_id: &ProjectId, id: &WeekdayConditionId) -> Result<Option<WeekdayCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -74,7 +74,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditio
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<WeekdayCondition>, RepositoryError> {
+    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<WeekdayCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -93,7 +93,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditio
         Ok(weekday_conditions)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<(), RepositoryError> {
+    async fn delete(&self, _project_id: &ProjectId, id: &WeekdayConditionId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -106,7 +106,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditio
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &WeekdayConditionId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, _project_id: &ProjectId, id: &WeekdayConditionId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -119,7 +119,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId> for WeekdayConditio
         Ok(count > 0)
     }
 
-    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 

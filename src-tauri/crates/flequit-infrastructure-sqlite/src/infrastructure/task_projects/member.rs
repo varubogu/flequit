@@ -35,7 +35,7 @@ impl MemberRepositoryTrait for MemberLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
+    async fn save(&self, _project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -57,7 +57,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, project_id: &ProjectId, id: &UserId) -> Result<Option<Member>, RepositoryError> {
+    async fn find_by_id(&self, _project_id: &ProjectId, id: &UserId) -> Result<Option<Member>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -77,7 +77,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
+    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -96,7 +96,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(members)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
+    async fn delete(&self, _project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -109,7 +109,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, _project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
@@ -122,7 +122,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
         Ok(count > 0)
     }
 
-    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
 
