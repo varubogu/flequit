@@ -2,20 +2,23 @@
 //!
 //! testing.mdルール準拠のSQLiteユーザーリポジトリテスト
 
-use flequit_model::models::user::User;
+use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::infrastructure::local_sqlite::users::user::UserLocalSqliteRepository;
-use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use flequit_infrastructure_sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
+
+use crate::integration::support::sqlite::SqliteTestHarness;
 
 #[tokio::test]
 async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_user_create_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_create_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -26,8 +29,8 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user_id = UserId::from(Uuid::new_v4());
     let user = User {
         id: user_id.clone(),
-        username: "test_user1".to_string(),
-        display_name: Some("テストユーザー1".to_string()),
+        handle_id: "test_user1".to_string(),
+        display_name: "テストユーザー1".to_string(),
         email: Some("test1@example.com".to_string()),
         avatar_url: Some("https://example.com/avatar1.jpg".to_string()),
         bio: Some("Create操作のためのテストユーザーです".to_string()),
@@ -45,7 +48,7 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
     assert!(retrieved_user.is_some());
     let retrieved_user = retrieved_user.unwrap();
     assert_eq!(retrieved_user.id, user.id);
-    assert_eq!(retrieved_user.username, user.username);
+    assert_eq!(retrieved_user.handle_id, user.handle_id);
     assert_eq!(retrieved_user.display_name, user.display_name);
     assert_eq!(retrieved_user.email, user.email);
     assert_eq!(retrieved_user.is_active, user.is_active);
@@ -56,7 +59,8 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
 #[tokio::test]
 async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_user_read_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_read_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -67,8 +71,8 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
         id: user_id1.clone(),
-        username: "read_test_user1".to_string(),
-        display_name: Some("Read操作テストユーザー1".to_string()),
+        handle_id: "read_test_user1".to_string(),
+        display_name: "Read操作テストユーザー1".to_string(),
         email: Some("readtest1@example.com".to_string()),
         avatar_url: Some("https://example.com/read1.jpg".to_string()),
         bio: Some("Read操作のためのテストユーザー1".to_string()),
@@ -81,8 +85,8 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
-        username: "read_test_user2".to_string(),
-        display_name: Some("Read操作テストユーザー2".to_string()),
+        handle_id: "read_test_user2".to_string(),
+        display_name: "Read操作テストユーザー2".to_string(),
         email: Some("readtest2@example.com".to_string()),
         avatar_url: None,
         bio: None,
@@ -101,7 +105,7 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     assert!(retrieved_user.is_some());
     let retrieved_user = retrieved_user.unwrap();
     assert_eq!(retrieved_user.id, user1.id);
-    assert_eq!(retrieved_user.username, user1.username);
+    assert_eq!(retrieved_user.handle_id, user1.handle_id);
     assert_eq!(retrieved_user.display_name, user1.display_name);
     assert_eq!(retrieved_user.email, user1.email);
 
@@ -114,11 +118,17 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::test]
 async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_user_update_operation")?;
+    let test_case = "test_user_update_operation";
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
     // リポジトリを初期化（非シングルトン）
-    let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let user_repo = UserLocalSqliteRepository::new(db_manager_arc);
 
@@ -126,8 +136,8 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
         id: user_id1.clone(),
-        username: "update_test_user1".to_string(),
-        display_name: Some("Update操作テストユーザー1".to_string()),
+        handle_id: "update_test_user1".to_string(),
+        display_name: "Update操作テストユーザー1".to_string(),
         email: Some("updatetest1@example.com".to_string()),
         avatar_url: Some("https://example.com/update1.jpg".to_string()),
         bio: Some("Update操作のためのテストユーザー1".to_string()),
@@ -140,8 +150,8 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
-        username: "update_test_user2".to_string(),
-        display_name: Some("Update操作テストユーザー2".to_string()),
+        handle_id: "update_test_user2".to_string(),
+        display_name: "Update操作テストユーザー2".to_string(),
         email: Some("updatetest2@example.com".to_string()),
         avatar_url: None,
         bio: None,
@@ -157,8 +167,8 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
 
     // 1件目のみUpdate操作
     let mut updated_user = user1.clone();
-    updated_user.username = "updated_user1".to_string();
-    updated_user.display_name = Some("更新されたユーザー1".to_string());
+    updated_user.handle_id = "updated_user1".to_string();
+    updated_user.display_name = "更新されたユーザー1".to_string();
     updated_user.email = Some("updated1@example.com".to_string());
     updated_user.bio = Some("更新されたユーザーの説明".to_string());
     updated_user.is_active = false;
@@ -169,7 +179,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let retrieved_updated = user_repo.find_by_id(&user_id1).await?;
     assert!(retrieved_updated.is_some());
     let retrieved_updated = retrieved_updated.unwrap();
-    assert_eq!(retrieved_updated.username, updated_user.username);
+    assert_eq!(retrieved_updated.handle_id, updated_user.handle_id);
     assert_eq!(retrieved_updated.display_name, updated_user.display_name);
     assert_eq!(retrieved_updated.email, updated_user.email);
     assert_eq!(retrieved_updated.bio, updated_user.bio);
@@ -179,7 +189,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let retrieved_user2 = user_repo.find_by_id(&user_id2).await?;
     assert!(retrieved_user2.is_some());
     let retrieved_user2 = retrieved_user2.unwrap();
-    assert_eq!(retrieved_user2.username, user2.username);
+    assert_eq!(retrieved_user2.handle_id, user2.handle_id);
     assert_eq!(retrieved_user2.display_name, user2.display_name);
     assert_eq!(retrieved_user2.is_active, user2.is_active);
 
@@ -189,7 +199,8 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
 #[tokio::test]
 async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_user_delete_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_user_delete_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -200,8 +211,8 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
         id: user_id1.clone(),
-        username: "delete_test_user1".to_string(),
-        display_name: Some("Delete操作テストユーザー1".to_string()),
+        handle_id: "delete_test_user1".to_string(),
+        display_name:"Delete操作テストユーザー1".to_string(),
         email: Some("deletetest1@example.com".to_string()),
         avatar_url: Some("https://example.com/delete1.jpg".to_string()),
         bio: Some("Delete操作のためのテストユーザー1".to_string()),
@@ -214,8 +225,8 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
-        username: "delete_test_user2".to_string(),
-        display_name: Some("Delete操作テストユーザー2".to_string()),
+        handle_id: "delete_test_user2".to_string(),
+        display_name: "Delete操作テストユーザー2".to_string(),
         email: Some("deletetest2@example.com".to_string()),
         avatar_url: None,
         bio: None,
@@ -240,7 +251,7 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     let retrieved_user2 = user_repo.find_by_id(&user_id2).await?;
     assert!(retrieved_user2.is_some());
     let retrieved_user2 = retrieved_user2.unwrap();
-    assert_eq!(retrieved_user2.username, user2.username);
+    assert_eq!(retrieved_user2.handle_id, user2.handle_id);
 
     Ok(())
 }
@@ -248,8 +259,10 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
 #[tokio::test]
 async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 複数のテストが独立していることを確認
-    let db_path1 = setup_sqlite_test!("test_user_repository_isolation_1")?;
-    let db_path2 = setup_sqlite_test!("test_user_repository_isolation_2")?;
+    let db_path1 = TestPathGenerator::generate_test_dir(file!(), "test_user_repository_isolation_1");
+    let db_path2 = TestPathGenerator::generate_test_dir(file!(), "test_user_repository_isolation_2");
+    std::fs::create_dir_all(&db_path1)?;
+    std::fs::create_dir_all(&db_path2)?;
 
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);
@@ -265,8 +278,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     let user_id1 = UserId::from(Uuid::new_v4());
     let user1 = User {
         id: user_id1.clone(),
-        username: "db1_user".to_string(),
-        display_name: Some("DB1ユーザー".to_string()),
+        handle_id: "db1_user".to_string(),
+        display_name: "DB1ユーザー".to_string(),
         email: Some("db1@example.com".to_string()),
         avatar_url: None,
         bio: None,
@@ -285,8 +298,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     let user_id2 = UserId::from(Uuid::new_v4());
     let user2 = User {
         id: user_id2.clone(),
-        username: "db2_user".to_string(),
-        display_name: Some("DB2ユーザー".to_string()),
+        handle_id: "db2_user".to_string(),
+        display_name: "DB2ユーザー".to_string(),
         email: Some("db2@example.com".to_string()),
         avatar_url: None,
         bio: None,

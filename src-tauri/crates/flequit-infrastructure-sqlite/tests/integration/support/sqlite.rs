@@ -4,7 +4,18 @@ use flequit_testing::TestPathGenerator;
 pub struct SqliteTestHarness;
 
 impl SqliteTestHarness {
-    const TEMPLATE_DB_PATH: &'static str = ".tmp/tests/test_database.db";
+    const TEMPLATE_DB_PATH: &'static str = "test_database.db";
+
+    pub fn copy_database_template(
+        template_dir: &PathBuf,
+        output_dir_path: &PathBuf,
+    ) -> Result<PathBuf, Box<dyn std::error::Error>> {
+        let output_file_path = output_dir_path.join("test_database.db");
+        let template_file = template_dir.join(Self::TEMPLATE_DB_PATH);
+        std::fs::create_dir_all(&output_dir_path)?;
+        std::fs::copy(template_file, &output_file_path)?;
+        Ok(output_file_path)
+    }
 
     pub fn create_test_database(
         test_file_path: &str,

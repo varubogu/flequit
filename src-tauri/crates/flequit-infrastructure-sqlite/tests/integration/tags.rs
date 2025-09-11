@@ -2,25 +2,29 @@
 //!
 //! testing.mdルール準拠のSQLiteタグリポジトリテスト
 
-use flequit_model::models::tag::Tag;
-use flequit_model::types::id_types::TagId;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::infrastructure::local_sqlite::task_projects::tag::TagLocalSqliteRepository;
-use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_model::models::task_projects::tag::Tag;
+use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
+use flequit_repository::project_repository_trait::ProjectRepository;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::integration::support::sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
 
 #[tokio::test]
 async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_tag_create_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_create_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成（タグはプロジェクト内で管理される）
+    let project_id = ProjectId::from(Uuid::new_v4());
 
     // タグ作成
     let tag_id = TagId::from(Uuid::new_v4());
@@ -34,10 +38,10 @@ async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Create操作
-    tag_repo.save(&tag).await?;
+    tag_repo.save(&project_id, &tag).await?;
 
     // 作成確認
-    let retrieved = tag_repo.find_by_id(&tag_id).await?;
+    let retrieved = tag_repo.find_by_id(&project_id, &tag_id).await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, tag.id);
@@ -51,12 +55,16 @@ async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_tag_read_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_read_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成（タグはプロジェクト内で管理される）
+    let project_id = ProjectId::from(Uuid::new_v4());
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
@@ -80,11 +88,11 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // 2件とも保存
-    tag_repo.save(&tag1).await?;
-    tag_repo.save(&tag2).await?;
+    tag_repo.save(&project_id, &tag1).await?;
+    tag_repo.save(&project_id, &tag2).await?;
 
     // 1件目のみRead操作
-    let retrieved = tag_repo.find_by_id(&tag_id1).await?;
+    let retrieved = tag_repo.find_by_id(&project_id, &tag_id1).await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, tag1.id);
@@ -93,7 +101,7 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(retrieved.order_index, tag1.order_index);
 
     // 2件目が存在することも確認
-    let retrieved2 = tag_repo.find_by_id(&tag_id2).await?;
+    let retrieved2 = tag_repo.find_by_id(&project_id, &tag_id2).await?;
     assert!(retrieved2.is_some());
 
     Ok(())
@@ -102,12 +110,16 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_tag_update_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_update_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成（タグはプロジェクト内で管理される）
+    let project_id = ProjectId::from(Uuid::new_v4());
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
@@ -131,18 +143,18 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // 2件とも保存
-    tag_repo.save(&tag1).await?;
-    tag_repo.save(&tag2).await?;
+    tag_repo.save(&project_id, &tag1).await?;
+    tag_repo.save(&project_id, &tag2).await?;
 
     // 1件目のみUpdate操作
     let mut updated = tag1.clone();
     updated.name = "更新されたUpdate操作SQLiteタグ1".to_string();
     updated.color = Some("#009688".to_string());
     updated.order_index = Some(3);
-    tag_repo.save(&updated).await?;
+    tag_repo.save(&project_id, &updated).await?;
 
     // 更新後の取得確認（1件目）
-    let updated_result = tag_repo.find_by_id(&tag_id1).await?;
+    let updated_result = tag_repo.find_by_id(&project_id, &tag_id1).await?;
     assert!(updated_result.is_some());
     let updated_result = updated_result.unwrap();
     assert_eq!(updated_result.name, updated.name);
@@ -150,7 +162,7 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(updated_result.order_index, updated.order_index);
 
     // 2件目が変更されていないことを確認
-    let retrieved2 = tag_repo.find_by_id(&tag_id2).await?;
+    let retrieved2 = tag_repo.find_by_id(&project_id, &tag_id2).await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.name, tag2.name);
@@ -162,12 +174,16 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_tag_delete_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_tag_delete_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
     let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成（タグはプロジェクト内で管理される）
+    let project_id = ProjectId::from(Uuid::new_v4());
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
@@ -191,18 +207,18 @@ async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // 2件とも保存
-    tag_repo.save(&tag1).await?;
-    tag_repo.save(&tag2).await?;
+    tag_repo.save(&project_id, &tag1).await?;
+    tag_repo.save(&project_id, &tag2).await?;
 
     // 1件目のみDelete操作
-    tag_repo.delete(&tag_id1).await?;
+    tag_repo.delete(&project_id, &tag_id1).await?;
 
     // 削除確認（1件目）
-    let deleted_check = tag_repo.find_by_id(&tag_id1).await?;
+    let deleted_check = tag_repo.find_by_id(&project_id, &tag_id1).await?;
     assert!(deleted_check.is_none());
 
     // 2件目が削除されていないことを確認
-    let retrieved2 = tag_repo.find_by_id(&tag_id2).await?;
+    let retrieved2 = tag_repo.find_by_id(&project_id, &tag_id2).await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.name, tag2.name);

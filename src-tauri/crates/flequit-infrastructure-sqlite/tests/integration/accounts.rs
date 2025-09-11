@@ -2,20 +2,21 @@
 //!
 //! testing.mdルール準拠のSQLiteアカウントリポジトリテスト
 
-use flequit_model::models::account::Account;
+use flequit_model::models::accounts::account::Account;
 use flequit_model::types::id_types::{AccountId, UserId};
-use flequit_storage::infrastructure::local_sqlite::accounts::account::AccountLocalSqliteRepository;
-use flequit_storage::repositories::base_repository_trait::Repository;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::integration::support::sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
 
 #[tokio::test]
 async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_account_create_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_account_create_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -58,7 +59,8 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_account_read_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_account_read_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -120,7 +122,8 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
 #[tokio::test]
 async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_account_update_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_account_update_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -191,7 +194,8 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_account_delete_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_account_delete_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -252,7 +256,8 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::error::Error>> {
     // プロバイダー固有のテスト（Google、GitHub、ローカル認証）
-    let db_path = setup_sqlite_test!("test_account_provider_operations")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_account_provider_operations");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -340,8 +345,10 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
 #[tokio::test]
 async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 複数のテストが独立していることを確認
-    let db_path1 = setup_sqlite_test!("test_account_repository_isolation_1")?;
-    let db_path2 = setup_sqlite_test!("test_account_repository_isolation_2")?;
+    let db_path1 = TestPathGenerator::generate_test_dir(file!(), "test_account_repository_isolation_1");
+    std::fs::create_dir_all(&db_path1)?;
+    let db_path2 = TestPathGenerator::generate_test_dir(file!(), "test_account_repository_isolation_2");
+    std::fs::create_dir_all(&db_path2)?;
 
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);

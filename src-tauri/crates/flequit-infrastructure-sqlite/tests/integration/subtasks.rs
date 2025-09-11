@@ -2,27 +2,34 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクリポジトリテスト
 
-use flequit_model::models::{project::Project, task_list::TaskList, task::Task, subtask::SubTask};
+use flequit_model::models::task_projects::{
+    project::Project,
+    task_list::TaskList,
+    task::Task,
+    subtask::SubTask,
+};
 use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::infrastructure::local_sqlite::{
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,
-    subtask::SubtaskLocalSqliteRepository,
+    subtask::SubTaskLocalSqliteRepository,
 };
-use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_repository::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::integration::support::sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
 
 #[tokio::test]
 async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_subtask_create_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_subtask_create_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -30,7 +37,7 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
     let task_repo = TaskLocalSqliteRepository::new(db_manager_arc.clone());
-    let subtask_repo = SubtaskLocalSqliteRepository::new(db_manager_arc);
+    let subtask_repo = SubTaskLocalSqliteRepository::new(db_manager_arc);
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
@@ -61,7 +68,7 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&project_id, &task_list).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -86,7 +93,7 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&project_id, &task).await?;
 
     // サブタスク作成
     let subtask_id = SubTaskId::from(Uuid::new_v4());
@@ -112,10 +119,10 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // Create操作
-    subtask_repo.save(&subtask).await?;
+    subtask_repo.save(&project_id, &subtask).await?;
 
     // 作成確認
-    let retrieved = subtask_repo.find_by_id(&subtask_id).await?;
+    let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id).await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, subtask.id);
@@ -129,7 +136,8 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_subtask_read_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_subtask_read_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -137,7 +145,7 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
     let task_repo = TaskLocalSqliteRepository::new(db_manager_arc.clone());
-    let subtask_repo = SubtaskLocalSqliteRepository::new(db_manager_arc);
+    let subtask_repo = SubTaskLocalSqliteRepository::new(db_manager_arc);
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
@@ -168,7 +176,7 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&project_id, &task_list).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -193,7 +201,7 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&project_id, &task).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -241,11 +249,11 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     };
 
     // 2件とも保存
-    subtask_repo.save(&subtask1).await?;
-    subtask_repo.save(&subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1).await?;
+    subtask_repo.save(&project_id, &subtask2).await?;
 
     // 1件目のみRead操作
-    let retrieved = subtask_repo.find_by_id(&subtask_id1).await?;
+    let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, subtask1.id);
@@ -254,7 +262,7 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
     assert_eq!(retrieved.status, subtask1.status);
 
     // 2件目が存在することも確認
-    let retrieved2 = subtask_repo.find_by_id(&subtask_id2).await?;
+    let retrieved2 = subtask_repo.find_by_id(&project_id, &subtask_id2).await?;
     assert!(retrieved2.is_some());
 
     Ok(())
@@ -263,7 +271,8 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
 #[tokio::test]
 async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_subtask_update_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_subtask_update_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -271,7 +280,7 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
     let task_repo = TaskLocalSqliteRepository::new(db_manager_arc.clone());
-    let subtask_repo = SubtaskLocalSqliteRepository::new(db_manager_arc);
+    let subtask_repo = SubTaskLocalSqliteRepository::new(db_manager_arc);
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
@@ -302,7 +311,7 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&project_id, &task_list).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -327,7 +336,7 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&project_id, &task).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -375,8 +384,8 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // 2件とも保存
-    subtask_repo.save(&subtask1).await?;
-    subtask_repo.save(&subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1).await?;
+    subtask_repo.save(&project_id, &subtask2).await?;
 
     // 1件目のみUpdate操作
     let mut updated = subtask1.clone();
@@ -386,10 +395,10 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     updated.priority = Some(3);
     updated.completed = true;
     updated.do_end_date = Some(chrono::Utc::now());
-    subtask_repo.save(&updated).await?;
+    subtask_repo.save(&project_id, &updated).await?;
 
     // 更新後の取得確認（1件目）
-    let updated_result = subtask_repo.find_by_id(&subtask_id1).await?;
+    let updated_result = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
     assert!(updated_result.is_some());
     let updated_result = updated_result.unwrap();
     assert_eq!(updated_result.title, updated.title);
@@ -399,7 +408,7 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     assert_eq!(updated_result.completed, updated.completed);
 
     // 2件目が変更されていないことを確認
-    let retrieved2 = subtask_repo.find_by_id(&subtask_id2).await?;
+    let retrieved2 = subtask_repo.find_by_id(&project_id, &subtask_id2).await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.title, subtask2.title);
@@ -411,7 +420,8 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_subtask_delete_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_subtask_delete_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -419,7 +429,7 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
     let project_repo = ProjectLocalSqliteRepository::new(db_manager_arc.clone());
     let task_list_repo = TaskListLocalSqliteRepository::new(db_manager_arc.clone());
     let task_repo = TaskLocalSqliteRepository::new(db_manager_arc.clone());
-    let subtask_repo = SubtaskLocalSqliteRepository::new(db_manager_arc);
+    let subtask_repo = SubTaskLocalSqliteRepository::new(db_manager_arc);
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
@@ -450,7 +460,7 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&project_id, &task_list).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -475,7 +485,7 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&project_id, &task).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
@@ -523,18 +533,18 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
     };
 
     // 2件とも保存
-    subtask_repo.save(&subtask1).await?;
-    subtask_repo.save(&subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1).await?;
+    subtask_repo.save(&project_id, &subtask2).await?;
 
     // 1件目のみDelete操作
-    subtask_repo.delete(&subtask_id1).await?;
+    subtask_repo.delete(&project_id, &subtask_id1).await?;
 
     // 削除確認（1件目）
-    let deleted_check = subtask_repo.find_by_id(&subtask_id1).await?;
+    let deleted_check = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
     assert!(deleted_check.is_none());
 
     // 2件目が削除されていないことを確認
-    let retrieved2 = subtask_repo.find_by_id(&subtask_id2).await?;
+    let retrieved2 = subtask_repo.find_by_id(&project_id, &subtask_id2).await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.title, subtask2.title);

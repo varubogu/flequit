@@ -2,22 +2,23 @@
 //!
 //! testing.mdルール準拠のSQLiteプロジェクトリポジトリテスト
 
-use flequit_model::models::project::Project;
+use flequit_model::models::task_projects::project::Project;
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::infrastructure::local_sqlite::task_projects::project::ProjectLocalSqliteRepository;
-use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
 use sea_orm::{EntityTrait, PaginatorTrait};
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::integration::support::sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
 
 #[tokio::test]
 async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_project_create_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_project_create_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -57,7 +58,8 @@ async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_project_read_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_project_read_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -116,7 +118,8 @@ async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>>
 #[tokio::test]
 async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_project_update_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_project_update_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -184,7 +187,8 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_project_delete_operation")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_project_delete_operation");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -214,7 +218,7 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#FF9800".to_string()),
         order_index: 2,
         is_archived: false,
-        status: Some(ProjectStatus::Archived),
+        status: Some(ProjectStatus::Completed),
         owner_id: Some(UserId::from(Uuid::new_v4())),
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
@@ -243,8 +247,10 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
 #[tokio::test]
 async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // 複数のテストが独立していることを確認
-    let db_path1 = setup_sqlite_test!("test_repository_isolation_1")?;
-    let db_path2 = setup_sqlite_test!("test_repository_isolation_2")?;
+    let db_path1 = TestPathGenerator::generate_test_dir(file!(), "test_repository_isolation_1");
+    std::fs::create_dir_all(&db_path1)?;
+    let db_path2 = TestPathGenerator::generate_test_dir(file!(), "test_repository_isolation_2");
+    std::fs::create_dir_all(&db_path2)?;
 
     // 異なるデータベースパスを使用していることを確認
     assert_ne!(db_path1, db_path2);
@@ -304,7 +310,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::Error>> {
     // デバッグ用テスト - データが実際にファイルに保存されるかを確認
-    let db_path = setup_sqlite_test!("test_sqlite_data_persistence_debug")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_sqlite_data_persistence_debug");
+    std::fs::create_dir_all(&db_path)?;
 
     println!("🔍 デバッグテスト開始: {}", db_path.display());
 
@@ -346,14 +353,14 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
         let db_conn = db_manager_lock.get_connection().await?;
 
         // 直接SQLクエリでデータ確認
-        let count = flequit_storage::models::sqlite::project::Entity::find()
+        let count = flequit_infrastructure_sqlite::models::project::Entity::find()
             .count(db_conn)
             .await?;
 
         println!("📊 テーブル内のレコード数: {}", count);
 
         // 実際のレコードを確認
-        let all_records = flequit_storage::models::sqlite::project::Entity::find()
+        let all_records = flequit_infrastructure_sqlite::models::project::Entity::find()
             .all(db_conn)
             .await?;
 

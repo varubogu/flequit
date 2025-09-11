@@ -2,28 +2,30 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクタグリポジトリテスト
 
-use flequit_model::models::{project::Project, task_list::TaskList, task::Task, tag::Tag};
+use flequit_model::models::task_projects::{project::Project, task_list::TaskList, task::Task, tag::Tag};
 use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, TagId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_storage::infrastructure::local_sqlite::database_manager::DatabaseManager;
-use flequit_storage::infrastructure::local_sqlite::{
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
     task::TaskLocalSqliteRepository,
     tag::TagLocalSqliteRepository,
     task_tag::TaskTagLocalSqliteRepository,
 };
-use flequit_storage::repositories::base_repository_trait::Repository;
+use flequit_repository::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
 use uuid::Uuid;
 use std::sync::Arc;
 
-use crate::integration::support::sqlite::setup_sqlite_test;
+use flequit_testing::TestPathGenerator;
 
 #[tokio::test]
 async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_task_tag_relation_operations")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_tag_relation_operations");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -62,7 +64,7 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&task_list.project_id, &task_list).await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -86,7 +88,7 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&task.project_id, &task).await?;
 
     // テスト用タグ作成
     let tag1_id = TagId::from(Uuid::new_v4());
@@ -98,7 +100,7 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    tag_repo.save(&tag1).await?;
+    tag_repo.save(&project_id, &tag1).await?;
 
     let tag2_id = TagId::from(Uuid::new_v4());
     let tag2 = Tag {
@@ -109,7 +111,7 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    tag_repo.save(&tag2).await?;
+    tag_repo.save(&project_id, &tag2).await?;
 
     // 1. タスクとタグの関連付け追加テスト
     task_tag_repo.add_relation(&task_id, &tag1_id).await?;
@@ -149,7 +151,8 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
 #[tokio::test]
 async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
     // テストデータベースを作成
-    let db_path = setup_sqlite_test!("test_task_tag_bulk_update")?;
+    let db_path = TestPathGenerator::generate_test_dir(file!(), "test_task_tag_bulk_update");
+    std::fs::create_dir_all(&db_path)?;
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(db_path.to_string_lossy().to_string());
@@ -188,7 +191,7 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list).await?;
+    task_list_repo.save(&task_list.project_id, &task_list).await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -212,7 +215,7 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_repo.save(&task).await?;
+    task_repo.save(&task.project_id, &task).await?;
 
     // テスト用タグ作成
     let mut tag_ids = Vec::new();
@@ -226,7 +229,7 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
-        tag_repo.save(&tag).await?;
+        tag_repo.save(&project_id, &tag).await?;
         tag_ids.push(tag_id);
     }
 

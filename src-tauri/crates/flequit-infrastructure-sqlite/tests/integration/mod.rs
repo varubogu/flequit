@@ -1,7 +1,6 @@
 // テーブル単体でのテスト
 mod accounts;
 mod projects;
-mod settings;
 mod subtasks;
 mod subtask_tags;
 mod tags;
