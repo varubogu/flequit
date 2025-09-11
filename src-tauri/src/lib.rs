@@ -60,6 +60,13 @@ pub fn run() {
             settings_commands::settings_file_exists,
             settings_commands::initialize_settings_with_defaults,
             settings_commands::get_settings_file_path,
+            // Settings array item CRUD
+            settings_commands::add_custom_due_day,
+            settings_commands::update_custom_due_day,
+            settings_commands::delete_custom_due_day,
+            settings_commands::add_datetime_format_setting,
+            settings_commands::upsert_datetime_format_setting,
+            settings_commands::delete_datetime_format_setting,
             // Custom Date Format commands
             settings_commands::get_custom_date_format_setting,
             settings_commands::get_all_custom_date_format_settings,
