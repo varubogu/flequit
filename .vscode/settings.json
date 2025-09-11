@@ -10,6 +10,12 @@
   "eslint.experimental.useFlatConfig": true,
   "cSpell.words": [
     "chrono",
-    "flequit"
+    "CRDT",
+    "flequit",
+    "rlib",
+    "rustls",
+    "serde",
+    "sqlx",
+    "thiserror"
   ]
 }
