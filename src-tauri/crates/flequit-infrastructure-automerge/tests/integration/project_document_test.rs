@@ -611,13 +611,9 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
     let test_dir =
         TestPathGenerator::generate_test_dir(file!(), "test_multiple_projects_isolation");
     let automerge_dir = TestPathGenerator::create_automerge_dir(&test_dir)?;
-    let json_history_dir = TestPathGenerator::create_json_history_dir(&test_dir)?;
 
     println!("🚀 Multiple Projects Isolation Test Start");
     println!("💾 Test directory: {:?}", &test_dir);
-
-    // automerge履歴管理を初期化
-    let mut history_manager = AutomergeHistoryManager::new(json_history_dir, "isolation_test");
 
     let repository = TestProjectDocumentRepository::new(automerge_dir).await?;
     let project_id_1 = ProjectId::new();
