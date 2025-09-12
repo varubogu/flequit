@@ -16,6 +16,7 @@
     "rustls",
     "serde",
     "sqlx",
+    "tauri",
     "thiserror"
   ]
 }
