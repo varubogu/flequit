@@ -3,13 +3,22 @@
 //! 設定に基づいてバックエンドリポジトリを初期化・管理する
 
 use std::sync::Arc;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use tokio::sync::{RwLock, Mutex};
-
-use flequit_infrastructure_automerge::{LocalAutomergeRepositories, infrastructure::document_manager::DocumentManager};
+use flequit_infrastructure_automerge::LocalAutomergeRepositories;
+use flequit_infrastructure_automerge::infrastructure::document_manager::DocumentManager;
+use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
+use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
 
 use crate::unified::UnifiedConfig;
-use crate::unified::{AccountUnifiedRepository, ProjectUnifiedRepository};
+use crate::unified::{
+    AccountUnifiedRepository, ProjectUnifiedRepository, TaskUnifiedRepository, TaskListUnifiedRepository,
+    TagUnifiedRepository, SubTaskUnifiedRepository, UserUnifiedRepository,
+    TaskAssignmentUnifiedRepository, SubTaskAssignmentUnifiedRepository
+};
 
 /// Unified層のマネージャー
 ///
@@ -78,7 +87,7 @@ impl UnifiedManager {
             let base_path = std::env::temp_dir().join("flequit_automerge");
             let document_manager = DocumentManager::new(base_path)?;
             self.shared_document_manager = Some(Arc::new(Mutex::new(document_manager)));
-            
+
             // 共有DocumentManagerを使用してAutomergeリポジトリを初期化
             let automerge_repos = LocalAutomergeRepositories::setup_with_shared_manager(
                 self.shared_document_manager.clone().unwrap()
@@ -98,15 +107,48 @@ impl UnifiedManager {
     pub async fn create_project_unified_repository(
         &self,
     ) -> Result<ProjectUnifiedRepository, Box<dyn std::error::Error>> {
-        let repo = ProjectUnifiedRepository::default();
+        let mut repo = ProjectUnifiedRepository::default();
 
-        // 注意: リポジトリの実装がCloneを実装していないため、
-        // 各UnifiedRepositoryには参照を渡すのではなく、
-        // 新しいインスタンスを作成する方針で実装を簡略化する
-        // 実際の本格実装では、より効率的な方法を検討する必要がある
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            // DatabaseManagerを取得して新しいProjectLocalSqliteRepositoryを作成
+            let db_manager = DatabaseManager::instance().await?;
 
-        // 現在は最小限の実装として、デフォルトのリポジトリを返す
-        // TODO: 実際のSQLite・Automergeリポジトリインスタンスを設定する実装
+            // 検索にSQLiteリポジトリを追加
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = ProjectLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました");
+            }
+
+            // 保存にもSQLiteリポジトリを追加（設定により）
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = ProjectLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            // 新しいProjectLocalAutomergeRepositoryを作成
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                ProjectLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                ProjectLocalAutomergeRepository::new(base_path).await?
+            };
+
+            // 保存にAutomergeリポジトリを追加
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました");
+
+            // 必要に応じて検索にも追加可能（通常はSQLiteの方が高速）
+            // repo.add_automerge_for_search(automerge_repo);
+        }
+
+        tracing::info!("ProjectUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
 
         Ok(repo)
     }
@@ -115,15 +157,333 @@ impl UnifiedManager {
     pub async fn create_account_unified_repository(
         &self,
     ) -> Result<AccountUnifiedRepository, Box<dyn std::error::Error>> {
-        let repo = AccountUnifiedRepository::default();
+        let mut repo = AccountUnifiedRepository::default();
 
-        // TODO: 実際のSQLite・Automergeリポジトリインスタンスを設定する実装
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            // DatabaseManagerを取得して新しいAccountLocalSqliteRepositoryを作成
+            let db_manager = DatabaseManager::instance().await?;
+
+            // 検索にSQLiteリポジトリを追加
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = AccountLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（Account）");
+            }
+
+            // 保存にもSQLiteリポジトリを追加（設定により）
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = AccountLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（Account）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            // 新しいAccountLocalAutomergeRepositoryを作成
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                AccountLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                AccountLocalAutomergeRepository::new(base_path).await?
+            };
+
+            // 保存にAutomergeリポジトリを追加
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（Account）");
+        }
+
+        tracing::info!("AccountUnifiedRepository構築完了");
 
         Ok(repo)
     }
 
-    // 他のエンティティのUnifiedRepository作成メソッドも同様のパターンで実装
-    // (実装が長いため、必要に応じて別ファイルに分割することも検討)
+    /// タスク用UnifiedRepositoryを構築
+    pub async fn create_task_unified_repository(
+        &self,
+    ) -> Result<TaskUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
+
+        let mut repo = TaskUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            // 検索にSQLiteリポジトリを追加
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = TaskLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（Task）");
+            }
+
+            // 保存にもSQLiteリポジトリを追加（設定により）
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = TaskLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（Task）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                TaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                TaskLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（Task）");
+        }
+
+        tracing::info!("TaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
+
+    /// タスクリスト用UnifiedRepositoryを構築
+    pub async fn create_task_list_unified_repository(
+        &self,
+    ) -> Result<TaskListUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::TaskListLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::TaskListLocalAutomergeRepository;
+
+        let mut repo = TaskListUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            // 検索にSQLiteリポジトリを追加
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = TaskListLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（TaskList）");
+            }
+
+            // 保存にもSQLiteリポジトリを追加（設定により）
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = TaskListLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（TaskList）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                TaskListLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                TaskListLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（TaskList）");
+        }
+
+        tracing::info!("TaskListUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
+
+    /// Tag用UnifiedRepositoryを構築  
+    pub async fn create_tag_unified_repository(
+        &self,
+    ) -> Result<TagUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::tag::TagLocalAutomergeRepository;
+
+        let mut repo = TagUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = TagLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（Tag）");
+            }
+
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = TagLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（Tag）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                TagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                TagLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（Tag）");
+        }
+
+        tracing::info!("TagUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
+
+    /// SubTask用UnifiedRepositoryを構築
+    pub async fn create_sub_task_unified_repository(
+        &self,
+    ) -> Result<SubTaskUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask::SubTaskLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::subtask::SubTaskLocalAutomergeRepository;
+
+        let mut repo = SubTaskUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = SubTaskLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（SubTask）");
+            }
+
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = SubTaskLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（SubTask）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                SubTaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                SubTaskLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（SubTask）");
+        }
+
+        tracing::info!("SubTaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
+
+    /// User用UnifiedRepositoryを構築
+    pub async fn create_user_unified_repository(
+        &self,
+    ) -> Result<UserUnifiedRepository, Box<dyn std::error::Error>> {
+        // UserUnifiedRepositoryは最小限実装のため、単純に新しいインスタンスを返す
+        let repo = UserUnifiedRepository::new();
+        
+        tracing::info!("UserUnifiedRepository構築完了（最小限実装）");
+
+        Ok(repo)
+    }
+
+    /// TaskAssignment用UnifiedRepositoryを構築
+    pub async fn create_task_assignment_unified_repository(
+        &self,
+    ) -> Result<TaskAssignmentUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_assignments::TaskAssignmentLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::task_assignments::TaskAssignmentLocalAutomergeRepository;
+
+        let mut repo = TaskAssignmentUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = TaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（TaskAssignment）");
+            }
+
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = TaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（TaskAssignment）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                TaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                TaskAssignmentLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（TaskAssignment）");
+        }
+
+        tracing::info!("TaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
+
+    /// SubTaskAssignment用UnifiedRepositoryを構築
+    pub async fn create_sub_task_assignment_unified_repository(
+        &self,
+    ) -> Result<SubTaskAssignmentUnifiedRepository, Box<dyn std::error::Error>> {
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalAutomergeRepository;
+
+        let mut repo = SubTaskAssignmentUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（SubTaskAssignment）");
+            }
+
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（SubTaskAssignment）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                SubtaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                SubtaskAssignmentLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（SubTaskAssignment）");
+        }
+
+        tracing::info!("SubTaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+                      repo.save_repositories_count(), repo.search_repositories_count());
+
+        Ok(repo)
+    }
 
     /// 現在の設定を取得
     pub fn config(&self) -> &UnifiedConfig {

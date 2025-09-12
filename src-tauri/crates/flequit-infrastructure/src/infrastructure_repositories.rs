@@ -96,19 +96,26 @@ impl InfrastructureRepositories {
 
         let projects = unified_manager.create_project_unified_repository().await?;
         let accounts = unified_manager.create_account_unified_repository().await?;
+        let tasks = unified_manager.create_task_unified_repository().await?;
+        let task_lists = unified_manager.create_task_list_unified_repository().await?;
+        let tags = unified_manager.create_tag_unified_repository().await?;
+        let sub_tasks = unified_manager.create_sub_task_unified_repository().await?;
+        let users = unified_manager.create_user_unified_repository().await?;
+        let task_assignments = unified_manager.create_task_assignment_unified_repository().await?;
+        let subtask_assignments = unified_manager.create_sub_task_assignment_unified_repository().await?;
 
-        // 他のリポジトリも同様に作成する必要があるが、
-        // 現在はmanagerで実装されていない部分はデフォルトを使用
+        tracing::info!("全UnifiedRepositoryの構築完了");
+
         Ok(Self {
             accounts,
             projects,
-            tags: TagUnifiedRepository::default(),
-            tasks: TaskUnifiedRepository::default(),
-            task_lists: TaskListUnifiedRepository::default(),
-            sub_tasks: SubTaskUnifiedRepository::default(),
-            users: UserUnifiedRepository::default(),
-            task_assignments: TaskAssignmentUnifiedRepository::default(),
-            subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
+            tasks,
+            task_lists,
+            tags,
+            sub_tasks,
+            users,
+            task_assignments,
+            subtask_assignments,
             unified_manager,
         })
     }

@@ -189,6 +189,16 @@ impl TaskAssignmentUnifiedRepository {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(TaskAssignmentRepositoryVariant::Web(web_repo));
     }
+
+    /// 保存用リポジトリの数を取得
+    pub fn save_repositories_count(&self) -> usize {
+        self.save_repositories.len()
+    }
+
+    /// 検索用リポジトリの数を取得
+    pub fn search_repositories_count(&self) -> usize {
+        self.search_repositories.len()
+    }
 }
 
 impl TaskAssignmentRepositoryTrait for TaskAssignmentUnifiedRepository {}

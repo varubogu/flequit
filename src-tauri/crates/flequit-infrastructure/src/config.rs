@@ -4,8 +4,6 @@
 //! 外部クレートから設定値をセットして関数の引数として渡される想定。
 
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
-use tokio::fs;
 
 /// Infrastructure層の統合設定
 ///
@@ -66,108 +64,23 @@ impl InfrastructureConfig {
 
         Ok(())
     }
-
-    /// デフォルト設定ファイルのパスを取得
-    ///
-    /// ユーザーのホームディレクトリ配下の`.flequit`フォルダに設定ファイルを配置する。
-    pub fn default_config_path() -> PathBuf {
-        if let Some(home_dir) = dirs::home_dir() {
-            home_dir.join(".flequit").join("infrastructure_config.json")
-        } else {
-            // ホームディレクトリが取得できない場合は現在のディレクトリを使用
-            Path::new(".").join("infrastructure_config.json")
-        }
-    }
-
-    /// 設定ファイルから設定を読み込む
-    ///
-    /// # Arguments
-    /// * `config_path` - 設定ファイルのパス（Noneの場合はデフォルトパスを使用）
-    ///
-    /// # Returns
-    /// * `Ok(InfrastructureConfig)` - 読み込み成功
-    /// * `Err(String)` - 読み込み失敗
-    pub async fn load(config_path: Option<PathBuf>) -> Result<Self, String> {
-        let path = config_path.unwrap_or_else(Self::default_config_path);
-
-        if !path.exists() {
-            return Err(format!("設定ファイルが見つかりません: {}", path.display()));
-        }
-
-        let content = fs::read_to_string(&path)
-            .await
-            .map_err(|e| format!("設定ファイルの読み込みに失敗しました: {}", e))?;
-
-        let config: Self = serde_json::from_str(&content)
-            .map_err(|e| format!("設定ファイルの解析に失敗しました: {}", e))?;
-
-        config.validate()?;
-        Ok(config)
-    }
-
-    /// 設定ファイルから読み込むか、存在しない場合はデフォルト値を返す
-    ///
-    /// # Arguments
-    /// * `config_path` - 設定ファイルのパス（Noneの場合はデフォルトパスを使用）
-    ///
-    /// # Returns
-    /// * `Ok(InfrastructureConfig)` - 読み込み成功またはデフォルト値
-    /// * `Err(String)` - 読み込み失敗
-    pub async fn load_or_default(config_path: Option<PathBuf>) -> Result<Self, String> {
-        let path = config_path.unwrap_or_else(Self::default_config_path);
-
-        if path.exists() {
-            Self::load(Some(path)).await
-        } else {
-            tracing::info!(
-                "設定ファイルが存在しないため、デフォルト設定を使用します: {}",
-                path.display()
-            );
-            Ok(Self::default())
-        }
-    }
-
-    /// デフォルト設定ファイルを作成
-    ///
-    /// # Arguments
-    /// * `config_path` - 設定ファイルのパス（Noneの場合はデフォルトパスを使用）
-    ///
-    /// # Returns
-    /// * `Ok(InfrastructureConfig)` - 作成された設定
-    /// * `Err(String)` - 作成失敗
-    pub async fn create_default_config_file(config_path: Option<PathBuf>) -> Result<Self, String> {
-        let path = config_path.unwrap_or_else(Self::default_config_path);
-        let config = Self::default();
-
-        // 親ディレクトリを作成
-        if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)
-                .await
-                .map_err(|e| format!("設定ディレクトリの作成に失敗しました: {}", e))?;
-        }
-
-        // 設定ファイルを書き込み
-        let content = serde_json::to_string_pretty(&config)
-            .map_err(|e| format!("設定のシリアライズに失敗しました: {}", e))?;
-
-        fs::write(&path, content)
-            .await
-            .map_err(|e| format!("設定ファイルの書き込みに失敗しました: {}", e))?;
-
-        tracing::info!("デフォルト設定ファイルを作成しました: {}", path.display());
-        Ok(config)
-    }
 }
 
 impl Default for InfrastructureConfig {
+    /// デフォルト設定
+    ///
+    /// SQLite検索無効、SQLiteストレージ有効、Automergeストレージ有効
     fn default() -> Self {
         Self {
-            sqlite_search_enabled: true,
+            sqlite_search_enabled: false,
             sqlite_storage_enabled: true,
             automerge_storage_enabled: true,
         }
     }
 }
+
+// UnifiedConfigはInfrastructureConfigのエイリアス（後方互換性のため）
+pub type UnifiedConfig = InfrastructureConfig;
 
 #[cfg(test)]
 mod tests {
@@ -184,128 +97,26 @@ mod tests {
     #[test]
     fn test_infrastructure_config_default() {
         let config = InfrastructureConfig::default();
-        assert!(config.sqlite_search_enabled);
+        assert!(!config.sqlite_search_enabled);
         assert!(config.sqlite_storage_enabled);
         assert!(config.automerge_storage_enabled);
     }
 
     #[test]
     fn test_config_validation_success() {
-        let config = InfrastructureConfig::new(true, true, false);
+        let config = InfrastructureConfig::new(false, true, true);
         assert!(config.validate().is_ok());
-
-        let config2 = InfrastructureConfig::new(false, false, true);
-        assert!(config2.validate().is_ok());
     }
 
     #[test]
     fn test_config_validation_failure_no_storage() {
         let config = InfrastructureConfig::new(false, false, false);
-        let result = config.validate();
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("少なくとも1つのストレージ機能")
-        );
+        assert!(config.validate().is_err());
     }
 
     #[test]
     fn test_config_validation_failure_search_without_storage() {
         let config = InfrastructureConfig::new(true, false, true);
-        let result = config.validate();
-        assert!(result.is_err());
-        assert!(
-            result
-                .unwrap_err()
-                .contains("SQLite検索機能を使用する場合は")
-        );
-    }
-
-    #[test]
-    fn test_default_config_path() {
-        let path = InfrastructureConfig::default_config_path();
-        assert!(
-            path.to_string_lossy()
-                .contains("infrastructure_config.json")
-        );
-    }
-
-    #[tokio::test]
-    async fn test_create_default_config_file() {
-        let temp_dir = std::env::temp_dir();
-        let config_path = temp_dir.join("test_infrastructure_config.json");
-
-        // テスト用の設定ファイルを作成
-        let config = InfrastructureConfig::create_default_config_file(Some(config_path.clone()))
-            .await
-            .expect("設定ファイルの作成に失敗");
-
-        // 作成されたファイルが存在することを確認
-        assert!(config_path.exists());
-
-        // 作成された設定がデフォルト値であることを確認
-        assert_eq!(config, InfrastructureConfig::default());
-
-        // テスト用ファイルを削除
-        let _ = fs::remove_file(&config_path).await;
-    }
-
-    #[tokio::test]
-    async fn test_load_config_file() {
-        let temp_dir = std::env::temp_dir();
-        let config_path = temp_dir.join("test_load_infrastructure_config.json");
-
-        // テスト用の設定ファイルを作成
-        let original_config = InfrastructureConfig::new(true, false, true);
-        let content = serde_json::to_string_pretty(&original_config).unwrap();
-        fs::write(&config_path, content).await.unwrap();
-
-        // 設定ファイルを読み込み
-        let loaded_config = InfrastructureConfig::load(Some(config_path.clone()))
-            .await
-            .expect("設定ファイルの読み込みに失敗");
-
-        // 読み込まれた設定が元の設定と一致することを確認
-        assert_eq!(loaded_config, original_config);
-
-        // テスト用ファイルを削除
-        let _ = fs::remove_file(&config_path).await;
-    }
-
-    #[tokio::test]
-    async fn test_load_or_default_with_existing_file() {
-        let temp_dir = std::env::temp_dir();
-        let config_path = temp_dir.join("test_load_or_default_existing.json");
-
-        // テスト用の設定ファイルを作成
-        let original_config = InfrastructureConfig::new(false, true, false);
-        let content = serde_json::to_string_pretty(&original_config).unwrap();
-        fs::write(&config_path, content).await.unwrap();
-
-        // 設定ファイルを読み込み
-        let loaded_config = InfrastructureConfig::load_or_default(Some(config_path.clone()))
-            .await
-            .expect("設定ファイルの読み込みに失敗");
-
-        // 読み込まれた設定が元の設定と一致することを確認
-        assert_eq!(loaded_config, original_config);
-
-        // テスト用ファイルを削除
-        let _ = fs::remove_file(&config_path).await;
-    }
-
-    #[tokio::test]
-    async fn test_load_or_default_without_file() {
-        let temp_dir = std::env::temp_dir();
-        let config_path = temp_dir.join("non_existent_config.json");
-
-        // 存在しないファイルを指定してload_or_defaultを呼び出し
-        let config = InfrastructureConfig::load_or_default(Some(config_path))
-            .await
-            .expect("デフォルト設定の取得に失敗");
-
-        // デフォルト設定が返されることを確認
-        assert_eq!(config, InfrastructureConfig::default());
+        assert!(config.validate().is_err());
     }
 }
