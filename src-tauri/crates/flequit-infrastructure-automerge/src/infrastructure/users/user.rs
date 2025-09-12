@@ -117,7 +117,7 @@ impl UserLocalAutomergeRepository {
         Ok(users
             .into_iter()
             .filter(|user| {
-                user.display_name == display_name
+                user.display_name.contains(display_name)
             })
             .collect())
     }

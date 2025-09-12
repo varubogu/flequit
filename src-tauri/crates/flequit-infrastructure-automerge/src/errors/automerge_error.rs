@@ -50,6 +50,9 @@ pub enum AutomergeError {
 
     #[error("Storage error: {0}")]
     StorageError(String),
+
+    #[error("Invalid path: {0}")]
+    InvalidPath(String),
 }
 
 use flequit_types::errors::repository_error::RepositoryError;

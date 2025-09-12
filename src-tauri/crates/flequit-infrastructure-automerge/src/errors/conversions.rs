@@ -21,6 +21,7 @@ impl From<AutomergeError> for RepositoryError {
             AutomergeError::MultipleErrors(errs) => RepositoryError::MultipleErrors(errs),
             AutomergeError::AutomergeError(msg) => RepositoryError::AutomergeError(msg),
             AutomergeError::StorageError(msg) => RepositoryError::IOError(msg),
+            AutomergeError::InvalidPath(msg) => RepositoryError::InvalidOperation(msg),
         }
     }
 }

@@ -6,11 +6,20 @@ use async_trait::async_trait;
 use chrono::Utc;
 use serde_json::Value;
 use std::path::PathBuf;
-use flequit_model::models::member::Member;
+use flequit_model::models::task_projects::member::Member;
 use flequit_testing::TestPathGenerator;
-use async_trait::async_trait;
-use flequit_infrastructure_automerge::infrastructure::local_automerge::task_projects::project::ProjectLocalAutomergeRepository;
-use serde_json::Value;
+use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
+use flequit_model::models::task_projects::project::Project;
+use flequit_model::models::task_projects::subtask::SubTask;
+use flequit_model::models::task_projects::tag::Tag;
+use flequit_model::models::task_projects::task::Task;
+use flequit_model::models::task_projects::task_list::TaskList;
+use flequit_model::types::id_types::{MemberId, ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::MemberRole;
+use flequit_model::types::task_types::TaskStatus;
+use flequit_infrastructure_automerge::infrastructure::task_projects::project::{
+    ProjectDocument,
+};
 
 // 最低限のテスト用履歴エクスポートIFをローカルに定義（本番へ露出しない）
 #[async_trait]
@@ -48,17 +57,6 @@ impl AutomergeHistoryManager {
     }
 }
 
-use flequit_model::models::project::Project;
-use flequit_model::models::subtask::SubTask;
-use flequit_model::models::tag::Tag;
-use flequit_model::models::task::Task;
-use flequit_model::models::task_list::TaskList;
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
-use flequit_model::types::project_types::MemberRole;
-use flequit_model::types::task_types::TaskStatus;
-use flequit_storage::infrastructure::local_automerge::task_projects::project::{
-    ProjectDocument, ProjectLocalAutomergeRepository,
-};
 
 /// テスト用ProjectDocumentRepositoryラッパー - automerge履歴出力機能付き
 struct TestProjectDocumentRepository {
@@ -67,12 +65,14 @@ struct TestProjectDocumentRepository {
 }
 
 impl TestProjectDocumentRepository {
-    fn new(automerge_dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
-        let repository = ProjectLocalAutomergeRepository::new(automerge_dir)?;
-        Ok(Self {
-            inner: repository,
-            current_project_id: None,
-        })
+    async fn new(automerge_dir: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
+        match ProjectLocalAutomergeRepository::new(automerge_dir).await {
+            Ok(repository) => Ok(Self {
+                inner: repository,
+                current_project_id: None,
+            }),
+            Err(e) => Err(e.into()),
+        }
     }
 
     // 現在のプロジェクトIDを設定
@@ -224,7 +224,7 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         AutomergeHistoryManager::new(json_history_dir, "comprehensive_operations");
 
     // テスト用リポジトリラッパーを作成
-    let mut repository = TestProjectDocumentRepository::new(automerge_dir.clone())?;
+    let mut repository = TestProjectDocumentRepository::new(automerge_dir.clone()).await?;
     let project_id = ProjectId::new();
 
     // 現在のプロジェクトIDを設定（履歴出力用）
@@ -462,13 +462,15 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     println!("\n👥 Member Tests");
 
     let member_1 = Member {
-        user_id: UserId::new(),
-        role: MemberRole::Owner,
-        joined_at: Utc::now(),
-        updated_at: Utc::now(),
+        id: MemberId::new(),
+        user_id:UserId::new(),
+        role:MemberRole::Owner,
+        joined_at:Utc::now(),
+        updated_at:Utc::now(),
     };
 
     let member_2 = Member {
+        id: MemberId::new(),
         user_id: UserId::new(),
         role: MemberRole::Admin,
         joined_at: Utc::now(),
@@ -617,7 +619,7 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
     // automerge履歴管理を初期化
     let mut history_manager = AutomergeHistoryManager::new(json_history_dir, "isolation_test");
 
-    let mut repository = TestProjectDocumentRepository::new(automerge_dir)?;
+    let repository = TestProjectDocumentRepository::new(automerge_dir).await?;
     let project_id_1 = ProjectId::new();
     let project_id_2 = ProjectId::new();
 

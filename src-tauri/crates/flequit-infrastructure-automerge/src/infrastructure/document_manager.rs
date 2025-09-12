@@ -142,6 +142,89 @@ impl DocumentManager {
         doc.save_data(key, data).await
     }
 
+    /// ネストしたパスでデータを保存
+    pub async fn save_data_at_nested_path<T: serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+        data: &T,
+    ) -> Result<(), AutomergeError> {
+        if path.is_empty() {
+            return Err(AutomergeError::InvalidPath("Empty path provided".to_string()));
+        }
+
+        let doc = self.get_or_create(doc_type).await?;
+        
+        // まず基本キー（パスの最初の要素）で既存データを取得
+        let base_key = path[0];
+        let mut base_data: serde_json::Value = doc.load_data(base_key)
+            .await?
+            .unwrap_or(serde_json::json!({}));
+
+        // ネストしたパスに値を設定
+        let mut current = &mut base_data;
+        for &segment in &path[1..path.len()-1] {
+            if !current.is_object() {
+                *current = serde_json::json!({});
+            }
+            current = current.as_object_mut().unwrap().entry(segment).or_insert(serde_json::json!({}));
+        }
+
+        // 最終的な値を設定
+        if path.len() > 1 {
+            let final_key = path[path.len() - 1];
+            if !current.is_object() {
+                *current = serde_json::json!({});
+            }
+            let serialized_data = serde_json::to_value(data)
+                .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
+            current.as_object_mut().unwrap().insert(final_key.to_string(), serialized_data);
+        } else {
+            // パスの長さが1の場合は直接設定
+            base_data = serde_json::to_value(data)
+                .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
+        }
+
+        // 更新されたデータを保存
+        doc.save_data(base_key, &base_data).await
+    }
+
+    /// ネストしたパスからデータを読み込み
+    pub async fn load_data_at_nested_path<T: serde::de::DeserializeOwned + serde::Serialize>(
+        &mut self,
+        doc_type: &DocumentType,
+        path: &[&str],
+    ) -> Result<Option<T>, AutomergeError> {
+        if path.is_empty() {
+            return Err(AutomergeError::InvalidPath("Empty path provided".to_string()));
+        }
+
+        let doc = self.get_or_create(doc_type).await?;
+        
+        // まず基本キー（パスの最初の要素）でデータを取得
+        let base_key = path[0];
+        let base_data: Option<serde_json::Value> = doc.load_data(base_key).await?;
+
+        // データが存在しない場合はNoneを返す
+        let mut current = match base_data {
+            Some(data) => data,
+            None => return Ok(None),
+        };
+
+        // ネストしたパスを辿る
+        for &segment in &path[1..] {
+            current = match current.get(segment) {
+                Some(value) => value.clone(),
+                None => return Ok(None), // パスが存在しない場合はNone
+            };
+        }
+
+        // 最終的な値をデシリアライズ
+        serde_json::from_value(current)
+            .map(Some)
+            .map_err(|e| AutomergeError::SerializationError(e.to_string()))
+    }
+
     /// ドキュメントを削除
     pub fn delete(&mut self, doc_type: DocumentType) -> Result<(), AutomergeError> {
         self.documents.remove(&doc_type);
@@ -179,7 +262,7 @@ impl DocumentManager {
         }
 
         let document_types = self.list_document_types()?;
-        // let total_documents = document_types.len();
+        let total_documents = document_types.len();
 
         for doc_type in &document_types {
             let filename = format!("{}.json", doc_type.filename().replace(".automerge", ""));
@@ -188,31 +271,30 @@ impl DocumentManager {
                 doc.export_json(output_path, description)
                     .await?;
             }
-
         }
 
-        // // サマリーファイルを作成
-        // let summary = serde_json::json!({
-        //     "export_metadata": {
-        //         "exported_at": chrono::Utc::now().to_rfc3339(),
-        //         "description": description.unwrap_or("Batch document export"),
-        //         "total_documents": total_documents
-        //     },
-        //     "documents": document_types.iter().map(|dt| {
-        //         serde_json::json!({
-        //             "type": format!("{:?}", dt),
-        //             "filename": dt.filename(),
-        //             "json_file": format!("{}.json", dt.filename().replace(".automerge", ""))
-        //         })
-        //     }).collect::<Vec<_>>()
-        // });
+        // サマリーファイルを作成
+        let summary = serde_json::json!({
+            "export_metadata": {
+                "exported_at": chrono::Utc::now().to_rfc3339(),
+                "description": description.unwrap_or("Batch document export"),
+                "total_documents": total_documents
+            },
+            "documents": document_types.iter().map(|dt| {
+                serde_json::json!({
+                    "type": format!("{:?}", dt),
+                    "filename": dt.filename(),
+                    "json_file": format!("{}.json", dt.filename().replace(".automerge", ""))
+                })
+            }).collect::<Vec<_>>()
+        });
 
-        // let summary_path = output_dir.join("export_summary.json");
-        // let summary_string = serde_json::to_string_pretty(&summary)
-        //     .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
+        let summary_path = output_dir.join("export_summary.json");
+        let summary_string = serde_json::to_string_pretty(&summary)
+            .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
 
-        // std::fs::write(summary_path, summary_string)
-        //     .map_err(|e| AutomergeError::IOError(e.to_string()))?;
+        std::fs::write(summary_path, summary_string)
+            .map_err(|e| AutomergeError::IOError(e.to_string()))?;
 
         Ok(())
     }
