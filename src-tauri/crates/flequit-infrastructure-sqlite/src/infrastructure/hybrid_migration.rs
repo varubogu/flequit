@@ -6,15 +6,10 @@ use sea_orm::sea_query::{Index, SqliteQueryBuilder};
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Statement};
 
 use crate::models::{
-    account::Entity as AccountEntity,
-    project::Entity as ProjectEntity,
-    subtask::Entity as SubtaskEntity,
-    subtask_tag::Entity as SubtaskTagEntity,
-    tag::Entity as TagEntity,
-    task::Entity as TaskEntity,
-    task_list::Entity as TaskListEntity,
-    task_tag::Entity as TaskTagEntity,
-    user::Entity as UserEntity,
+    account::Entity as AccountEntity, project::Entity as ProjectEntity,
+    subtask::Entity as SubtaskEntity, subtask_tag::Entity as SubtaskTagEntity,
+    tag::Entity as TagEntity, task::Entity as TaskEntity, task_list::Entity as TaskListEntity,
+    task_tag::Entity as TaskTagEntity, user::Entity as UserEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -83,13 +78,18 @@ impl HybridMigrator {
         let entities = vec![
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
-            ("task_lists", schema.create_table_from_entity(TaskListEntity),
+            (
+                "task_lists",
+                schema.create_table_from_entity(TaskListEntity),
             ),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
             ("task_tags", schema.create_table_from_entity(TaskTagEntity)),
-            ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
+            (
+                "subtask_tags",
+                schema.create_table_from_entity(SubtaskTagEntity),
+            ),
             ("users", schema.create_table_from_entity(UserEntity)),
         ];
 

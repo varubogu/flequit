@@ -1,7 +1,10 @@
 //! 日付条件モデル用Automergeエンティティ
 
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::date_condition::DateCondition, types::datetime_calendar_types::DateRelation};
+use flequit_model::{
+    models::task_projects::date_condition::DateCondition,
+    types::datetime_calendar_types::DateRelation,
+};
 use serde::{Deserialize, Serialize};
 
 /// DateCondition用Automergeエンティティ

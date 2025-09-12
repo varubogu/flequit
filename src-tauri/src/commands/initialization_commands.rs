@@ -1,8 +1,8 @@
-use flequit_core::facades::initialization_facades;
 use crate::models::account::AccountCommandModel;
 use crate::models::project::ProjectTreeCommandModel;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
+use flequit_core::facades::initialization_facades;
 use tauri::State;
 
 #[tracing::instrument]

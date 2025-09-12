@@ -13,7 +13,6 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-
 /// 認証アカウント情報を表現する構造体
 ///
 /// 外部認証プロバイダーまたはローカル認証のアカウントデータを管理します。

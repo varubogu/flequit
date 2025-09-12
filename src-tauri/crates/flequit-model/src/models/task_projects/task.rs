@@ -8,12 +8,12 @@
 //! - `Task`: 基本タスク情報（軽量、一般的な操作用）
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
+use super::recurrence_rule::RecurrenceRule;
+use super::tag::Tag;
 use crate::types::{
     id_types::{TagId, TaskId, TaskListId, UserId},
     task_types::TaskStatus,
 };
-use super::recurrence_rule::RecurrenceRule;
-use super::tag::Tag;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
@@ -222,7 +222,6 @@ pub struct TaskTree {
     /// 付与されたタグの配列（Tag構造体の実体）
     pub tags: Vec<Tag>,
 }
-
 
 #[async_trait]
 impl ModelConverter<Task> for TaskTree {

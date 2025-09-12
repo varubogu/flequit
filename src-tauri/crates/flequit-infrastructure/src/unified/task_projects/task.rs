@@ -3,13 +3,13 @@
 use async_trait::async_trait;
 use log::info;
 
-use flequit_types::errors::repository_error::RepositoryError;
-use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
 use flequit_model::models::task_projects::task::Task;
-use flequit_model::types::id_types::{TaskId, ProjectId};
+use flequit_model::types::id_types::{ProjectId, TaskId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
+use flequit_types::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]
 pub enum TaskRepositoryVariant {
@@ -30,7 +30,11 @@ impl ProjectRepository<Task, TaskId> for TaskRepositoryVariant {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &TaskId,
+    ) -> Result<Option<Task>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_by_id(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.find_by_id(project_id, id).await,
@@ -133,12 +137,14 @@ impl TaskUnifiedRepository {
 
 impl TaskRepositoryTrait for TaskUnifiedRepository {}
 
-
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
-        info!("Saving task entity with ID: {} in project: {}", entity.id, project_id);
+        info!(
+            "Saving task entity with ID: {} in project: {}",
+            entity.id, project_id
+        );
 
         for repository in &self.save_repositories {
             repository.save(project_id, entity).await?;
@@ -148,7 +154,11 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &TaskId,
+    ) -> Result<Option<Task>, RepositoryError> {
         info!("Finding task by ID: {} in project: {}", id, project_id);
 
         for repository in &self.search_repositories {
@@ -184,7 +194,10 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
 
     #[tracing::instrument(level = "trace")]
     async fn exists(&self, project_id: &ProjectId, id: &TaskId) -> Result<bool, RepositoryError> {
-        info!("Checking if task exists with ID: {} in project: {}", id, project_id);
+        info!(
+            "Checking if task exists with ID: {} in project: {}",
+            id, project_id
+        );
 
         for repository in &self.search_repositories {
             if repository.exists(project_id, id).await? {

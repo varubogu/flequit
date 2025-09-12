@@ -14,5 +14,7 @@ pub mod unified;
 
 // 公開API
 pub use config::InfrastructureConfig;
-pub use infrastructure_repositories::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
+pub use infrastructure_repositories::{
+    InfrastructureRepositories, InfrastructureRepositoriesTrait,
+};
 pub use unified::*;

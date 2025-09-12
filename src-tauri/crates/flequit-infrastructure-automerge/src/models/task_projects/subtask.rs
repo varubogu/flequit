@@ -48,7 +48,10 @@ pub mod subtask_status {
     pub const CANCELLED: &str = "cancelled";
 
     pub fn is_valid(status: &str) -> bool {
-        matches!(status, NOT_STARTED | IN_PROGRESS | WAITING | COMPLETED | CANCELLED)
+        matches!(
+            status,
+            NOT_STARTED | IN_PROGRESS | WAITING | COMPLETED | CANCELLED
+        )
     }
 }
 
@@ -91,7 +94,8 @@ impl AutoMergeSubTask {
     }
 
     /// サブタスク情報を更新
-    pub fn update(&mut self,
+    pub fn update(
+        &mut self,
         title: Option<String>,
         description: Option<Option<String>>,
         status: Option<String>,
@@ -212,7 +216,8 @@ mod tests {
             None,
             None,
             0,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert_eq!(subtask.id, "subtask-1");
         assert_eq!(subtask.project_id, "project-1");
@@ -257,7 +262,8 @@ mod tests {
             None,
             None,
             0,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(subtask.belongs_to_project("project-1"));
         assert!(!subtask.belongs_to_project("project-2"));
@@ -282,12 +288,25 @@ mod tests {
             Some(past_date),
             None,
             0,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(subtask.is_overdue());
 
         // 完了させると期限切れではなくなる
-        subtask.update(None, None, Some(subtask_status::COMPLETED.to_string()), None, None, None, None, None, None).unwrap();
+        subtask
+            .update(
+                None,
+                None,
+                Some(subtask_status::COMPLETED.to_string()),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .unwrap();
         assert!(!subtask.is_overdue());
     }
 }

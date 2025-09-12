@@ -79,7 +79,6 @@ impl ActiveModelBehavior for ActiveModel {}
 #[async_trait]
 impl SqliteModelConverter<Project> for Model {
     async fn to_domain_model(&self) -> Result<Project, String> {
-
         // ステータス文字列をenumに変換
         let status = if let Some(status_str) = &self.status {
             match status_str.as_str() {

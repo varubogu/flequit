@@ -4,9 +4,12 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::member::Member,
-    types::{id_types::{MemberId, UserId}, project_types::MemberRole}
+    types::{
+        id_types::{MemberId, UserId},
+        project_types::MemberRole,
+    },
 };
-use sea_orm::{entity::prelude::*};
+use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};

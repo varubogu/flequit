@@ -12,7 +12,11 @@ pub trait ProjectRepository<T: Send + Sync, ID: Send + Sync>: Send + Sync {
     async fn save(&self, project_id: &ProjectId, entity: &T) -> Result<(), RepositoryError>;
 
     /// IDでエンティティを検索（プロジェクトスコープ内）
-    async fn find_by_id(&self, project_id: &ProjectId, id: &ID) -> Result<Option<T>, RepositoryError>;
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &ID,
+    ) -> Result<Option<T>, RepositoryError>;
 
     /// プロジェクト内の全エンティティを取得
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<T>, RepositoryError>;
@@ -27,7 +31,11 @@ pub trait ProjectRepository<T: Send + Sync, ID: Send + Sync>: Send + Sync {
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError>;
 
     /// プロジェクト内のエンティティを複数保存
-    async fn save_all(&self, project_id: &ProjectId, entities: &[T]) -> Result<(), RepositoryError> {
+    async fn save_all(
+        &self,
+        project_id: &ProjectId,
+        entities: &[T],
+    ) -> Result<(), RepositoryError> {
         for entity in entities {
             self.save(project_id, entity).await?;
         }

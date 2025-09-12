@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId};
 use flequit_model::types::datetime_calendar_types::RecurrenceUnit;
+use flequit_model::{
+    models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId,
+};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -113,7 +115,8 @@ impl DomainToSqliteConverter<ActiveModel> for RecurrenceRule {
             RecurrenceUnit::Quarter => "quarter",
             RecurrenceUnit::HalfYear => "half_year",
             RecurrenceUnit::Year => "year",
-        }.to_string();
+        }
+        .to_string();
 
         // IDは呼び出し元で設定する想定
         let id = uuid::Uuid::new_v4().to_string();

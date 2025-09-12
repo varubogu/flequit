@@ -183,7 +183,6 @@ pub struct TaskListTree {
     pub tasks: Vec<super::task::TaskTree>,
 }
 
-
 #[async_trait]
 impl ModelConverter<TaskList> for TaskListTree {
     async fn to_model(&self) -> Result<TaskList, String> {

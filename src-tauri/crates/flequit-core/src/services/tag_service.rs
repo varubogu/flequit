@@ -1,15 +1,20 @@
 use chrono::Utc;
 
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::task_projects::tag::{PartialTag, Tag};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
-use flequit_model::types::id_types::{TagId, ProjectId};
+use flequit_model::models::task_projects::tag::{PartialTag, Tag};
+use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_tag<R>(repositories: &R, project_id: &ProjectId, tag: &Tag) -> Result<(), ServiceError>
+pub async fn create_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag: &Tag,
+) -> Result<(), ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let mut new_data = tag.clone();
     let now = Utc::now();
     new_data.created_at = now;
@@ -22,42 +27,69 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_tag<R>(repositories: &R, project_id: &ProjectId, tag_id: &TagId) -> Result<Option<Tag>, ServiceError>
+pub async fn get_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+) -> Result<Option<Tag>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     Ok(repository.tags().find_by_id(project_id, tag_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_tags<R>(repositories: &R, project_id: &ProjectId) -> Result<Vec<Tag>, ServiceError>
+pub async fn list_tags<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+) -> Result<Vec<Tag>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     Ok(repository.tags().find_all(project_id).await?)
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_tag<R>(_repositories: &R, _project_id: &ProjectId, _tag_id: &TagId, _patch: &PartialTag) -> Result<bool, ServiceError>
+pub async fn update_tag<R>(
+    _repositories: &R,
+    _project_id: &ProjectId,
+    _tag_id: &TagId,
+    _patch: &PartialTag,
+) -> Result<bool, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError("Tag patch method is not implemented".to_string()))
+    Err(ServiceError::InternalError(
+        "Tag patch method is not implemented".to_string(),
+    ))
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_tag<R>(repositories: &R, project_id: &ProjectId, tag_id: &TagId) -> Result<(), ServiceError>
+pub async fn delete_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+) -> Result<(), ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     repository.tags().delete(project_id, tag_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn search_tags_by_name<R>(repositories: &R, project_id: &ProjectId, name: &str) -> Result<Vec<Tag>, ServiceError>
+pub async fn search_tags_by_name<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    name: &str,
+) -> Result<Vec<Tag>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     if name.trim().is_empty() {
         return Ok(Vec::new());
     }
@@ -75,9 +107,14 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_tag_usage_count<R>(repositories: &R, project_id: &ProjectId, tag_id: &TagId) -> Result<u32, ServiceError>
+pub async fn get_tag_usage_count<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+) -> Result<u32, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     let mut count = 0u32;
 
@@ -108,7 +145,8 @@ pub async fn is_tag_name_exists<R>(
     exclude_id: Option<&str>,
 ) -> Result<bool, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     let all_tags = repository.tags().find_all(project_id).await?;
 
@@ -132,9 +170,14 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn list_popular_tags<R>(repositories: &R, project_id: &ProjectId, limit: u32) -> Result<Vec<Tag>, ServiceError>
+pub async fn list_popular_tags<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    limit: u32,
+) -> Result<Vec<Tag>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     let repository = repositories;
     let all_tags = repository.tags().find_all(project_id).await?;
 

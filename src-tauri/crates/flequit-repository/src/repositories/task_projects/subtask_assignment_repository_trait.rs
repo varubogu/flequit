@@ -7,7 +7,9 @@ use flequit_model::types::id_types::{SubTaskId, UserId};
 use crate::repositories::project_relation_repository_trait::ProjectRelationRepository;
 
 #[async_trait]
-pub trait SubTaskAssignmentRepositoryTrait: ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId> {
+pub trait SubTaskAssignmentRepositoryTrait:
+    ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
+{
     // ProjectRelationRepositoryのメソッドを使用：
     // - add: プロジェクト内でサブタスクにユーザーを割り当て
     // - remove: プロジェクト内で割り当てを削除

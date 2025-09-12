@@ -1,11 +1,11 @@
 use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
+use async_trait::async_trait;
 use flequit_model::models::users::user::User;
+use flequit_model::types::id_types::UserId;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::users::user_repository_trait::UserRepositoryTrait;
-use flequit_model::types::id_types::UserId;
-use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::{Path, PathBuf};
 
@@ -21,18 +21,12 @@ impl UserLocalAutomergeRepository {
         let doc_type = &DocumentType::User;
         let mut document_manager = DocumentManager::new(base_path)?;
         let doc = document_manager.get_or_create(doc_type).await?;
-        Ok(Self {
-            document: doc,
-        })
+        Ok(Self { document: doc })
     }
 
     /// 全ユーザーリストを取得
     pub async fn list_users(&self) -> Result<Vec<User>, RepositoryError> {
-        let users = {
-            self.document
-                .load_data::<Vec<User>>("users")
-                .await?
-        };
+        let users = { self.document.load_data::<Vec<User>>("users").await? };
         if let Some(users) = users {
             Ok(users)
         } else {
@@ -59,8 +53,7 @@ impl UserLocalAutomergeRepository {
 
         {
             let doc = &self.document;
-            doc
-                .save_data("users", &users)
+            doc.save_data("users", &users)
                 .await
                 .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
         }
@@ -75,9 +68,7 @@ impl UserLocalAutomergeRepository {
         if users.len() != initial_len {
             {
                 let doc = &self.document;
-                doc
-                    .save_data("users", &users)
-                    .await?;
+                doc.save_data("users", &users).await?;
             };
             Ok(true)
         } else {
@@ -116,9 +107,7 @@ impl UserLocalAutomergeRepository {
         let users = self.list_users().await?;
         Ok(users
             .into_iter()
-            .filter(|user| {
-                user.display_name.contains(display_name)
-            })
+            .filter(|user| user.display_name.contains(display_name))
             .collect())
     }
 
@@ -160,9 +149,7 @@ impl UserLocalAutomergeRepository {
         // 既存のユーザーデータを削除して復元
         {
             let doc = &self.document;
-            doc
-                .save_data("users", &users)
-                .await?;
+            doc.save_data("users", &users).await?;
         }
 
         Ok(())
@@ -176,8 +163,7 @@ impl UserLocalAutomergeRepository {
         description: Option<&str>,
     ) -> Result<(), RepositoryError> {
         let doc = &self.document;
-        doc
-            .export_document_changes_history(&output_dir, description)
+        doc.export_document_changes_history(&output_dir, description)
             .await
             .map_err(|e| RepositoryError::Export(e.to_string()))
     }
@@ -190,8 +176,7 @@ impl UserLocalAutomergeRepository {
         description: Option<&str>,
     ) -> Result<(), RepositoryError> {
         let doc = &self.document;
-        doc
-            .export_json(&file_path, description)
+        doc.export_json(&file_path, description)
             .await
             .map_err(|e| RepositoryError::Export(e.to_string()))
     }
@@ -243,16 +228,16 @@ impl Repository<User, UserId> for UserLocalAutomergeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use flequit_model::types::id_types::UserId;
     use chrono::Utc;
+    use flequit_model::types::id_types::UserId;
     use tempfile::TempDir;
 
     #[tokio::test]
     async fn test_user_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = UserLocalAutomergeRepository::new(
-            temp_dir.path().to_path_buf()
-        ).await.unwrap();
+        let repo = UserLocalAutomergeRepository::new(temp_dir.path().to_path_buf())
+            .await
+            .unwrap();
 
         // 初期状態では空
         let users = repo.list_users().await.unwrap();
@@ -349,9 +334,9 @@ mod tests {
     #[tokio::test]
     async fn test_repository_trait_implementation() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = UserLocalAutomergeRepository::new(
-            temp_dir.path().to_path_buf()
-        ).await.unwrap();
+        let repo = UserLocalAutomergeRepository::new(temp_dir.path().to_path_buf())
+            .await
+            .unwrap();
 
         // Repository トレイトとして使用
         let repository: &dyn Repository<User, UserId> = &repo;

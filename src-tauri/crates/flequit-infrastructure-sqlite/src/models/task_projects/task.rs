@@ -1,6 +1,12 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::task::Task, types::{id_types::{ProjectId, TaskId, TaskListId}, task_types::TaskStatus}};
+use flequit_model::{
+    models::task_projects::task::Task,
+    types::{
+        id_types::{ProjectId, TaskId, TaskListId},
+        task_types::TaskStatus,
+    },
+};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -50,8 +56,6 @@ pub struct Model {
 
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
-
-
 
     /// 表示順序
     #[sea_orm(indexed)] // ソート用

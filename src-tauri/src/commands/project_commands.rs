@@ -1,9 +1,9 @@
-use flequit_core::facades::project_facades;
 use crate::models::project::ProjectCommandModel;
-use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
 use crate::models::CommandModelConverter;
-use flequit_model::types::id_types::ProjectId;
 use crate::state::AppState;
+use flequit_core::facades::project_facades;
+use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
+use flequit_model::types::id_types::ProjectId;
 use tauri::State;
 
 #[tracing::instrument]
@@ -47,10 +47,7 @@ pub async fn update_project(
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn delete_project(
-    state: State<'_, AppState>,
-    id: String,
-) -> Result<bool, String> {
+pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
     let project_id = ProjectId::from(id);
     project_facades::delete_project(&*repositories, &project_id).await

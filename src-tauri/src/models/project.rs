@@ -1,14 +1,13 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::ModelConverter;
 use flequit_model::types::project_types::ProjectStatus;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use flequit_model::models::ModelConverter;
 
-use crate::models::{CommandModelConverter};
+use crate::models::CommandModelConverter;
 use flequit_model::models::task_projects::project::{Project, ProjectTree};
 use flequit_model::types::id_types::{ProjectId, UserId};
-
 
 /// Tauriコマンド引数用のProject構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,9 +30,8 @@ impl ModelConverter<Project> for ProjectCommandModel {
     async fn to_model(&self) -> Result<Project, String> {
         use chrono::{DateTime, Utc};
 
-        let project_id =ProjectId::from(
-                Uuid::parse_str(&self.id)
-                .map_err(|e| format!("Invalid project ID: {}", e))?,
+        let project_id = ProjectId::from(
+            Uuid::parse_str(&self.id).map_err(|e| format!("Invalid project ID: {}", e))?,
         );
         let created_at = self
             .created_at

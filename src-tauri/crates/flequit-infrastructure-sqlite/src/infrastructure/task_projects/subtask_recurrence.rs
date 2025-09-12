@@ -1,12 +1,12 @@
 //! サブタスク繰り返しルール用SQLiteリポジトリ
 
 use async_trait::async_trait;
-use flequit_types::errors::repository_error::RepositoryError;
+use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_recurrence_repository_trait::SubtaskRecurrenceRepositoryTrait;
-use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
-use flequit_model::types::id_types::{SubTaskRecurrenceId, SubTaskId, RecurrenceRuleId, ProjectId};
+use flequit_types::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]
 pub struct SubtaskRecurrenceLocalSqliteRepository {
@@ -27,12 +27,18 @@ impl SubtaskRecurrenceLocalSqliteRepository {
 
 #[async_trait]
 impl SubtaskRecurrenceRepositoryTrait for SubtaskRecurrenceLocalSqliteRepository {
-    async fn find_by_subtask_id(&self, _subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
+    async fn find_by_subtask_id(
+        &self,
+        _subtask_id: &SubTaskId,
+    ) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(None)
     }
 
-    async fn find_by_recurrence_rule_id(&self, _recurrence_rule_id: &RecurrenceRuleId) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
+    async fn find_by_recurrence_rule_id(
+        &self,
+        _recurrence_rule_id: &RecurrenceRuleId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(vec![])
     }
@@ -52,7 +58,10 @@ impl SubtaskRecurrenceRepositoryTrait for SubtaskRecurrenceLocalSqliteRepository
         Ok(())
     }
 
-    async fn delete_by_recurrence_rule_id(&self, _recurrence_rule_id: &RecurrenceRuleId) -> Result<(), RepositoryError> {
+    async fn delete_by_recurrence_rule_id(
+        &self,
+        _recurrence_rule_id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError> {
         // TODO: 実装
         Ok(())
     }
@@ -70,7 +79,10 @@ impl Repository<SubTaskRecurrence, SubTaskRecurrenceId> for SubtaskRecurrenceLoc
         Ok(())
     }
 
-    async fn find_by_id(&self, _id: &SubTaskRecurrenceId) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        _id: &SubTaskRecurrenceId,
+    ) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(None)
     }
@@ -97,43 +109,79 @@ impl Repository<SubTaskRecurrence, SubTaskRecurrenceId> for SubtaskRecurrenceLoc
 }
 
 #[async_trait]
-impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> for SubtaskRecurrenceLocalSqliteRepository {
-    async fn add(&self, _project_id: &ProjectId, _parent_id: &SubTaskId, _child_id: &RecurrenceRuleId) -> Result<(), RepositoryError> {
+impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
+    for SubtaskRecurrenceLocalSqliteRepository
+{
+    async fn add(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+        _child_id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError> {
         // TODO: 実装
         Ok(())
     }
 
-    async fn remove(&self, _project_id: &ProjectId, _parent_id: &SubTaskId, _child_id: &RecurrenceRuleId) -> Result<(), RepositoryError> {
+    async fn remove(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+        _child_id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError> {
         // TODO: 実装
         Ok(())
     }
 
-    async fn remove_all(&self, _project_id: &ProjectId, _parent_id: &SubTaskId) -> Result<(), RepositoryError> {
+    async fn remove_all(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+    ) -> Result<(), RepositoryError> {
         // TODO: 実装
         Ok(())
     }
 
-    async fn find_relations(&self, _project_id: &ProjectId, _parent_id: &SubTaskId) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
+    async fn find_relations(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(vec![])
     }
 
-    async fn exists(&self, _project_id: &ProjectId, _parent_id: &SubTaskId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+    ) -> Result<bool, RepositoryError> {
         // TODO: 実装
         Ok(false)
     }
 
-    async fn count(&self, _project_id: &ProjectId, _parent_id: &SubTaskId) -> Result<u64, RepositoryError> {
+    async fn count(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+    ) -> Result<u64, RepositoryError> {
         // TODO: 実装
         Ok(0)
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
+    async fn find_all(
+        &self,
+        _project_id: &ProjectId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(vec![])
     }
 
-    async fn find_relation(&self, _project_id: &ProjectId, _parent_id: &SubTaskId, _child_id: &RecurrenceRuleId) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
+    async fn find_relation(
+        &self,
+        _project_id: &ProjectId,
+        _parent_id: &SubTaskId,
+        _child_id: &RecurrenceRuleId,
+    ) -> Result<Option<SubTaskRecurrence>, RepositoryError> {
         // TODO: 実装
         Ok(None)
     }

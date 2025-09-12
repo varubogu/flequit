@@ -5,13 +5,11 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 use flequit_infrastructure_automerge::LocalAutomergeRepositories;
+use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 
 use crate::unified::UnifiedConfig;
-use crate::unified::{
-    AccountUnifiedRepository, ProjectUnifiedRepository
-};
+use crate::unified::{AccountUnifiedRepository, ProjectUnifiedRepository};
 
 /// Unified層のマネージャー
 ///
@@ -48,7 +46,10 @@ impl UnifiedManager {
     }
 
     /// 設定を更新し、バックエンドを再構築する
-    pub async fn update_config(&mut self, new_config: UnifiedConfig) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn update_config(
+        &mut self,
+        new_config: UnifiedConfig,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         new_config.validate()?;
         self.config = new_config;
         self.initialize_backends().await?;
@@ -81,7 +82,9 @@ impl UnifiedManager {
     }
 
     /// プロジェクト用UnifiedRepositoryを構築
-    pub async fn create_project_unified_repository(&self) -> Result<ProjectUnifiedRepository, Box<dyn std::error::Error>> {
+    pub async fn create_project_unified_repository(
+        &self,
+    ) -> Result<ProjectUnifiedRepository, Box<dyn std::error::Error>> {
         let repo = ProjectUnifiedRepository::default();
 
         // 注意: リポジトリの実装がCloneを実装していないため、
@@ -96,7 +99,9 @@ impl UnifiedManager {
     }
 
     /// アカウント用UnifiedRepositoryを構築
-    pub async fn create_account_unified_repository(&self) -> Result<AccountUnifiedRepository, Box<dyn std::error::Error>> {
+    pub async fn create_account_unified_repository(
+        &self,
+    ) -> Result<AccountUnifiedRepository, Box<dyn std::error::Error>> {
         let repo = AccountUnifiedRepository::default();
 
         // TODO: 実際のSQLite・Automergeリポジトリインスタンスを設定する実装
@@ -141,7 +146,7 @@ mod tests {
         match result {
             Ok(_manager) => {
                 // 成功の場合のテスト
-            },
+            }
             Err(e) => {
                 // 초기화 실패는 테스트 환경에서 예상되는 경우
                 println!("初期化に失敗（テスト環境では正常）: {}", e);

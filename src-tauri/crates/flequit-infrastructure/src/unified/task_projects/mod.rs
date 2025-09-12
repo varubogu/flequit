@@ -4,24 +4,24 @@
 //! タスク管理の核心機能を提供する統合リポジトリ群。
 
 // 基本エンティティ
-pub mod project;
-pub mod task;
-pub mod subtask;
-pub mod task_list;
-pub mod tag;
 pub mod member;
+pub mod project;
+pub mod subtask;
+pub mod tag;
+pub mod task;
+pub mod task_list;
 
 // 関連テーブル
-pub mod task_tag;
+pub mod subtask_assignments;
 pub mod subtask_tag;
 pub mod task_assignments;
-pub mod subtask_assignments;
+pub mod task_tag;
 
 // 公開エクスポート
 pub use project::ProjectUnifiedRepository;
-pub use task::TaskUnifiedRepository;
 pub use subtask::SubTaskUnifiedRepository;
-pub use task_list::TaskListUnifiedRepository;
-pub use tag::TagUnifiedRepository;
-pub use task_assignments::TaskAssignmentUnifiedRepository;
 pub use subtask_assignments::SubTaskAssignmentUnifiedRepository;
+pub use tag::TagUnifiedRepository;
+pub use task::TaskUnifiedRepository;
+pub use task_assignments::TaskAssignmentUnifiedRepository;
+pub use task_list::TaskListUnifiedRepository;

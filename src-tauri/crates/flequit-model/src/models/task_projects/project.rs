@@ -18,8 +18,8 @@ use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::models::ModelConverter;
 use super::task_list::TaskListTree;
+use crate::models::ModelConverter;
 
 /// 基本プロジェクト情報を表現する構造体
 ///
@@ -117,7 +117,6 @@ pub struct ProjectTree {
     /// 所属するタスクリスト一覧（タスク情報を含む）
     pub task_lists: Vec<TaskListTree>,
 }
-
 
 #[async_trait]
 impl ModelConverter<Project> for ProjectTree {

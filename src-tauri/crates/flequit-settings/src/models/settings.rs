@@ -5,8 +5,8 @@
 use serde::{Deserialize, Serialize};
 
 use super::datetime_format::DateTimeFormat;
-use super::time_label::TimeLabel;
 use super::due_date_buttons::DueDateButtons;
+use super::time_label::TimeLabel;
 use super::view_item::ViewItem;
 
 /// アプリケーション設定構造体（フラット構造）
@@ -48,7 +48,6 @@ pub struct Settings {
     pub due_date_buttons: Vec<DueDateButtons>,
     /// ビューアイテム設定
     pub view_items: Vec<ViewItem>,
-
 }
 
 impl Default for Settings {

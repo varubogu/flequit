@@ -7,13 +7,13 @@ use async_trait::async_trait;
 use flequit_repository::patchable_trait::Patchable;
 use log::info;
 
-use flequit_types::errors::repository_error::RepositoryError;
-use flequit_repository::repositories::accounts::account_repository_trait::AccountRepositoryTrait;
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::types::id_types::AccountId;
+use flequit_repository::repositories::accounts::account_repository_trait::AccountRepositoryTrait;
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_types::errors::repository_error::RepositoryError;
 
 /// AccountRepositoryTrait実装の静的ディスパッチ対応enum
 #[derive(Debug)]

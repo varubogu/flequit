@@ -1,11 +1,15 @@
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList};
 use crate::services::task_list_service;
-use flequit_model::types::id_types::{TaskListId, ProjectId};
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList};
+use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument]
-pub async fn create_task_list<R>(repositories: &R, project_id: &ProjectId, task_list: &TaskList) -> Result<bool, String>
+pub async fn create_task_list<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task_list: &TaskList,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -17,7 +21,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn get_task_list<R>(repositories: &R, project_id: &ProjectId, id: &TaskListId) -> Result<Option<TaskList>, String>
+pub async fn get_task_list<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TaskListId,
+) -> Result<Option<TaskList>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -46,7 +54,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn delete_task_list<R>(repositories: &R, project_id: &ProjectId, id: &TaskListId) -> Result<bool, String>
+pub async fn delete_task_list<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TaskListId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

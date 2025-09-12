@@ -1,19 +1,19 @@
 //! Task用SQLiteリポジトリ
 
 use super::super::database_manager::DatabaseManager;
-use super::task_tag::TaskTagLocalSqliteRepository;
 use super::tag::TagLocalSqliteRepository;
+use super::task_tag::TaskTagLocalSqliteRepository;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task::{Column, Entity as TaskEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
-use flequit_model::models::task_projects::task::Task;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
-use flequit_model::types::id_types::{ProjectId, TaskId};
 use async_trait::async_trait;
+use flequit_model::models::task_projects::task::Task;
+use flequit_model::types::id_types::{ProjectId, TaskId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait,
-    PaginatorTrait, QueryFilter, QueryOrder, TransactionTrait,
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    TransactionTrait,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -35,7 +35,10 @@ impl TaskLocalSqliteRepository {
 
     pub async fn find_by_project(&self, project_id: &str) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskEntity::find()
             .filter(Column::ProjectId.eq(project_id))
@@ -53,7 +56,10 @@ impl TaskLocalSqliteRepository {
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 紐づけテーブルからタグIDを取得
-            task.tag_ids = self.task_tag_repository.find_tag_ids_by_task_id(&task.id).await?;
+            task.tag_ids = self
+                .task_tag_repository
+                .find_tag_ids_by_task_id(&task.id)
+                .await?;
 
             tasks.push(task);
         }
@@ -63,7 +69,10 @@ impl TaskLocalSqliteRepository {
 
     pub async fn find_by_task_list(&self, list_id: &str) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskEntity::find()
             .filter(Column::ListId.eq(list_id))
@@ -81,7 +90,10 @@ impl TaskLocalSqliteRepository {
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 紐づけテーブルからタグIDを取得
-            task.tag_ids = self.task_tag_repository.find_tag_ids_by_task_id(&task.id).await?;
+            task.tag_ids = self
+                .task_tag_repository
+                .find_tag_ids_by_task_id(&task.id)
+                .await?;
 
             tasks.push(task);
         }
@@ -91,7 +103,10 @@ impl TaskLocalSqliteRepository {
 
     pub async fn find_by_status(&self, status: &str) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskEntity::find()
             .filter(Column::Status.eq(status))
@@ -109,7 +124,10 @@ impl TaskLocalSqliteRepository {
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 紐づけテーブルからタグIDを取得
-            task.tag_ids = self.task_tag_repository.find_tag_ids_by_task_id(&task.id).await?;
+            task.tag_ids = self
+                .task_tag_repository
+                .find_tag_ids_by_task_id(&task.id)
+                .await?;
 
             tasks.push(task);
         }
@@ -123,10 +141,15 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, project_id: &ProjectId, task: &Task) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         // トランザクション開始
-        let txn = db.begin().await
+        let txn = db
+            .begin()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let active_model = task
@@ -135,17 +158,22 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         // 既存レコードを確認
-        let existing = TaskEntity::find_by_id(&task.id.to_string()).one(&txn)
+        let existing = TaskEntity::find_by_id(&task.id.to_string())
+            .one(&txn)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if existing.is_some() {
             // 既存レコードがある場合は更新
-            active_model.update(&txn).await
+            active_model
+                .update(&txn)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         } else {
             // 既存レコードがない場合は挿入
-            active_model.insert(&txn).await
+            active_model
+                .insert(&txn)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         }
 
@@ -162,19 +190,32 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
         }
 
         // 有効なタグIDのみで紐づけを更新
-        self.task_tag_repository.update_task_tag_relations(&txn, &task.id, &valid_tag_ids).await?;
+        self.task_tag_repository
+            .update_task_tag_relations(&txn, &task.id, &valid_tag_ids)
+            .await?;
 
-        txn.commit().await
+        txn.commit()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
-    async fn find_by_id(&self, _project_id: &ProjectId, id: &TaskId) -> Result<Option<Task>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        _project_id: &ProjectId,
+        id: &TaskId,
+    ) -> Result<Option<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        if let Some(model) = TaskEntity::find_by_id(id.to_string()).one(db).await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))? {
+        if let Some(model) = TaskEntity::find_by_id(id.to_string())
+            .one(db)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
+        {
             let mut task = model
                 .to_domain_model()
                 .await
@@ -191,7 +232,10 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
 
     async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskEntity::find()
             .filter(Column::IsArchived.eq(false))
@@ -208,7 +252,10 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 紐づけテーブルからタグIDを取得
-            task.tag_ids = self.task_tag_repository.find_tag_ids_by_task_id(&task.id).await?;
+            task.tag_ids = self
+                .task_tag_repository
+                .find_tag_ids_by_task_id(&task.id)
+                .await?;
 
             tasks.push(task);
         }
@@ -218,36 +265,56 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
 
     async fn delete(&self, _project_id: &ProjectId, id: &TaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         // トランザクション開始
-        let txn = db.begin().await
+        let txn = db
+            .begin()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         // 紐づけテーブルから削除
-        self.task_tag_repository.remove_all_relations_by_task_id(id).await?;
+        self.task_tag_repository
+            .remove_all_relations_by_task_id(id)
+            .await?;
 
         // タスク本体を削除
-        TaskEntity::delete_by_id(id.to_string()).exec(&txn).await
+        TaskEntity::delete_by_id(id.to_string())
+            .exec(&txn)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
-        txn.commit().await
+        txn.commit()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
     async fn exists(&self, _project_id: &ProjectId, id: &TaskId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
-        let count = TaskEntity::find_by_id(id.to_string()).count(db).await
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+        let count = TaskEntity::find_by_id(id.to_string())
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
     async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
-        let count = TaskEntity::find().count(db).await
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+        let count = TaskEntity::find()
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count)
     }

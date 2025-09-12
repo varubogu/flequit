@@ -1,12 +1,11 @@
-use flequit_core::facades::{subtask_facades, recurrence_facades};
 use crate::models::{
-    subtask::SubtaskCommandModel,
-    subtask_recurrence::SubtaskRecurrenceCommandModel,
+    subtask::SubtaskCommandModel, subtask_recurrence::SubtaskRecurrenceCommandModel,
     CommandModelConverter,
 };
-use flequit_model::models::{task_projects::subtask::PartialSubTask, ModelConverter};
-use flequit_model::types::id_types::{SubTaskId, ProjectId};
 use crate::state::AppState;
+use flequit_core::facades::{recurrence_facades, subtask_facades};
+use flequit_model::models::{task_projects::subtask::PartialSubTask, ModelConverter};
+use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use tauri::State;
 
 // Frontend compatibility aliases only
@@ -23,7 +22,7 @@ pub async fn create_sub_task(
     };
     let subtask_param = sub_task.to_model().await?;
     let repositories = state.repositories.read().await;
-    
+
     subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param).await
 }
 
@@ -43,7 +42,7 @@ pub async fn get_sub_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     match subtask_facades::get_sub_task(&*repositories, &project_id, &subtask_id).await {
         Ok(Some(subtask)) => Ok(Some(subtask.to_command_model().await?)),
         Ok(None) => Ok(None),
@@ -68,7 +67,7 @@ pub async fn update_sub_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch).await
 }
 
@@ -88,7 +87,7 @@ pub async fn delete_sub_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     subtask_facades::delete_sub_task(&*repositories, &project_id, &subtask_id).await
 }
 
@@ -105,8 +104,13 @@ pub async fn create_subtask_recurrence(
 ) -> Result<bool, String> {
     let subtask_id = SubTaskId::from(subtask_recurrence.subtask_id);
     let repositories = state.repositories.read().await;
-    
-    recurrence_facades::create_subtask_recurrence(&*repositories, &subtask_id, &subtask_recurrence.recurrence_rule_id).await
+
+    recurrence_facades::create_subtask_recurrence(
+        &*repositories,
+        &subtask_id,
+        &subtask_recurrence.recurrence_rule_id,
+    )
+    .await
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
@@ -118,8 +122,10 @@ pub async fn get_subtask_recurrence_by_subtask_id(
 ) -> Result<Option<SubtaskRecurrenceCommandModel>, String> {
     let subtask_id_typed = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
-    
-    let result = recurrence_facades::get_subtask_recurrence_by_subtask_id(&*repositories, &subtask_id_typed).await?;
+
+    let result =
+        recurrence_facades::get_subtask_recurrence_by_subtask_id(&*repositories, &subtask_id_typed)
+            .await?;
     match result {
         Some(subtask_recurrence) => Ok(Some(subtask_recurrence.to_command_model().await?)),
         None => Ok(None),
@@ -135,6 +141,6 @@ pub async fn delete_subtask_recurrence(
 ) -> Result<bool, String> {
     let subtask_id_typed = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
-    
+
     recurrence_facades::delete_subtask_recurrence(&*repositories, &subtask_id_typed).await
 }

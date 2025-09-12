@@ -2,21 +2,20 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクリポジトリテスト
 
-use flequit_model::models::task_projects::{project::Project, task_list::TaskList, task::Task};
-use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, UserId};
-use flequit_model::types::project_types::ProjectStatus;
-use flequit_model::types::task_types::TaskStatus;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
+    project::ProjectLocalSqliteRepository, task::TaskLocalSqliteRepository,
     task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
 };
+use flequit_model::models::task_projects::{project::Project, task::Task, task_list::TaskList};
+use flequit_model::types::id_types::{ProjectId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use function_name::named;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 
@@ -70,7 +69,9 @@ async fn test_task_create_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     // タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
@@ -160,7 +161,9 @@ async fn test_task_read_operation() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     // 2件のタスク作成
     let task_id1 = TaskId::from(Uuid::new_v4());
@@ -241,7 +244,6 @@ async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
 
-
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
     let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
@@ -278,7 +280,9 @@ async fn test_task_update_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     // 2件のタスク作成
     let task_id1 = TaskId::from(Uuid::new_v4());
@@ -406,7 +410,9 @@ async fn test_task_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     // 2件のタスク作成
     let task_id1 = TaskId::from(Uuid::new_v4());

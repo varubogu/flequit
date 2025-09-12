@@ -26,7 +26,10 @@ impl SettingsValidator {
         match theme {
             "system" | "light" | "dark" => Ok(()),
             _ => Err(SettingsError::ValidationError {
-                message: format!("無効なテーマ設定です: {}。有効な値: system, light, dark", theme),
+                message: format!(
+                    "無効なテーマ設定です: {}。有効な値: system, light, dark",
+                    theme
+                ),
             }),
         }
     }
@@ -54,7 +57,10 @@ impl SettingsValidator {
     fn validate_font_size(font_size: i32) -> SettingsResult<()> {
         if !(8..=72).contains(&font_size) {
             return Err(SettingsError::ValidationError {
-                message: format!("フォントサイズは8-72の範囲で設定してください: {}", font_size),
+                message: format!(
+                    "フォントサイズは8-72の範囲で設定してください: {}",
+                    font_size
+                ),
             });
         }
         Ok(())
@@ -65,7 +71,10 @@ impl SettingsValidator {
         match week_start {
             "sunday" | "monday" => Ok(()),
             _ => Err(SettingsError::ValidationError {
-                message: format!("無効な週開始設定です: {}。有効な値: sunday, monday", week_start),
+                message: format!(
+                    "無効な週開始設定です: {}。有効な値: sunday, monday",
+                    week_start
+                ),
             }),
         }
     }
@@ -80,7 +89,10 @@ impl SettingsValidator {
 
         // 基本的なタイムゾーン形式をチェック
         if !timezone.contains('/') && !timezone.starts_with("UTC") && timezone != "GMT" {
-            log::warn!("タイムゾーン形式が一般的でない可能性があります: {}", timezone);
+            log::warn!(
+                "タイムゾーン形式が一般的でない可能性があります: {}",
+                timezone
+            );
         }
 
         Ok(())
@@ -95,7 +107,8 @@ impl SettingsValidator {
                 });
             }
 
-            if days > 3650 { // 約10年
+            if days > 3650 {
+                // 約10年
                 return Err(SettingsError::ValidationError {
                     message: format!("期日日数が大きすぎます（最大3650日）: {}", days),
                 });
@@ -104,7 +117,10 @@ impl SettingsValidator {
 
         if custom_due_days.len() > 20 {
             return Err(SettingsError::ValidationError {
-                message: format!("カスタム期日日数の設定数が多すぎます（最大20個）: {}", custom_due_days.len()),
+                message: format!(
+                    "カスタム期日日数の設定数が多すぎます（最大20個）: {}",
+                    custom_due_days.len()
+                ),
             });
         }
 

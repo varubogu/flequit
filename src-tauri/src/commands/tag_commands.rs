@@ -1,10 +1,10 @@
-use flequit_core::facades::tag_facades;
 use crate::models::tag::TagCommandModel;
-use flequit_model::models::ModelConverter;
-use flequit_model::models::task_projects::tag::PartialTag;
 use crate::models::CommandModelConverter;
-use flequit_model::types::id_types::{TagId, ProjectId};
 use crate::state::AppState;
+use flequit_core::facades::tag_facades;
+use flequit_model::models::task_projects::tag::PartialTag;
+use flequit_model::models::ModelConverter;
+use flequit_model::types::id_types::{ProjectId, TagId};
 use tauri::State;
 
 #[tracing::instrument]
@@ -20,7 +20,7 @@ pub async fn create_tag(
     };
     let internal_tag = tag.to_model().await?;
     let repositories = state.repositories.read().await;
-    
+
     tag_facades::create_tag(&*repositories, &project_id, &internal_tag).await
 }
 
@@ -40,7 +40,7 @@ pub async fn get_tag(
         Err(e) => return Err(e.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     let result = tag_facades::get_tag(&*repositories, &project_id, &tag_id).await?;
     match result {
         Some(tag) => Ok(Some(tag.to_command_model().await?)),
@@ -65,7 +65,7 @@ pub async fn update_tag(
         Err(e) => return Err(e.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch).await
 }
 
@@ -85,6 +85,6 @@ pub async fn delete_tag(
         Err(e) => return Err(e.to_string()),
     };
     let repositories = state.repositories.read().await;
-    
+
     tag_facades::delete_tag(&*repositories, &project_id, &tag_id).await
 }

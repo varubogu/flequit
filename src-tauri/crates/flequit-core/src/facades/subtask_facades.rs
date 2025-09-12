@@ -1,11 +1,15 @@
-use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
-use flequit_model::types::id_types::{SubTaskId, ProjectId};
-use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use crate::services::subtask_service;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
+use flequit_model::types::id_types::{ProjectId, SubTaskId};
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument]
-pub async fn create_sub_task<R>(repositories: &R, project_id: &ProjectId, subtask: &SubTask) -> Result<bool, String>
+pub async fn create_sub_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    subtask: &SubTask,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -17,7 +21,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn get_sub_task<R>(repositories: &R, project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, String>
+pub async fn get_sub_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &SubTaskId,
+) -> Result<Option<SubTask>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -46,7 +54,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn delete_sub_task<R>(repositories: &R, project_id: &ProjectId, id: &SubTaskId) -> Result<bool, String>
+pub async fn delete_sub_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &SubTaskId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

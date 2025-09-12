@@ -4,13 +4,13 @@ use async_trait::async_trait;
 use flequit_repository::patchable_trait::Patchable;
 use log::info;
 
-use flequit_types::errors::repository_error::RepositoryError;
-use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
 use flequit_model::models::task_projects::project::Project;
 use flequit_model::types::id_types::ProjectId;
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
+use flequit_types::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]
 pub enum ProjectRepositoryVariant {
@@ -136,7 +136,10 @@ impl ProjectUnifiedRepository {
 impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
-        info!("ProjectUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存", self.save_repositories.len());
+        info!(
+            "ProjectUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
+            self.save_repositories.len()
+        );
 
         for repo in &self.save_repositories {
             repo.save(entity).await?;
@@ -169,7 +172,10 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
 
     #[tracing::instrument(level = "trace")]
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
-        info!("ProjectUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除", self.save_repositories.len());
+        info!(
+            "ProjectUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除",
+            self.save_repositories.len()
+        );
 
         for repo in &self.save_repositories {
             repo.delete(id).await?;

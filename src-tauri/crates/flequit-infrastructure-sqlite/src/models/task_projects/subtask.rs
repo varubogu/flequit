@@ -48,8 +48,6 @@ pub struct Model {
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
 
-
-
     /// 表示順序
     #[sea_orm(indexed)] // ソート用
     pub order_index: i32,
@@ -87,7 +85,6 @@ impl ActiveModelBehavior for ActiveModel {}
 #[async_trait]
 impl SqliteModelConverter<SubTask> for Model {
     async fn to_domain_model(&self) -> Result<SubTask, String> {
-
         // ステータス文字列をenumに変換
         let status = match self.status.as_str() {
             "not_started" => TaskStatus::NotStarted,

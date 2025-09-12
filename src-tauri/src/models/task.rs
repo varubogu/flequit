@@ -1,16 +1,15 @@
+use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::types::id_types::{ProjectId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::task_types::TaskStatus;
 use serde::{Deserialize, Serialize};
 
-use flequit_model::models::ModelConverter;
-use flequit_model::models::task_projects::task::Task;
 use crate::models::CommandModelConverter;
+use flequit_model::models::task_projects::task::Task;
+use flequit_model::models::ModelConverter;
 // TagのCommandModelConverter実装をimport
-
 
 /// Tauriコマンド引数用のTask構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,7 +154,6 @@ pub struct TaskTreeCommandModel {
 #[async_trait]
 impl ModelConverter<TaskTree> for TaskTreeCommandModel {
     async fn to_model(&self) -> Result<TaskTree, String> {
-
         let created_at = self
             .created_at
             .parse::<DateTime<Utc>>()
@@ -282,7 +280,11 @@ impl CommandModelConverter<TaskTreeCommandModel> for TaskTree {
             } else {
                 None
             },
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
@@ -316,7 +318,11 @@ impl CommandModelConverter<TaskCommandModel> for Task {
             } else {
                 None
             },
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             is_archived: self.is_archived,

@@ -1,5 +1,5 @@
 //! TaskList AutoMergeモデル
-//! 
+//!
 //! SQLite task_listsテーブルと同じ構造を持つAutoMerge用データ構造
 
 use chrono::{DateTime, Utc};
@@ -54,7 +54,8 @@ impl AutoMergeTaskList {
     }
 
     /// タスクリスト情報を更新
-    pub fn update(&mut self,
+    pub fn update(
+        &mut self,
         name: Option<String>,
         description: Option<Option<String>>,
         color: Option<Option<String>>,
@@ -92,14 +93,7 @@ impl AutoMergeTaskList {
 
 impl Default for AutoMergeTaskList {
     fn default() -> Self {
-        Self::new(
-            String::new(),
-            String::new(),
-            String::new(),
-            None,
-            None,
-            0,
-        )
+        Self::new(String::new(), String::new(), String::new(), None, None, 0)
     }
 }
 
@@ -157,7 +151,10 @@ mod tests {
         );
 
         assert_eq!(task_list.name, "Updated Name");
-        assert_eq!(task_list.description, Some("Updated Description".to_string()));
+        assert_eq!(
+            task_list.description,
+            Some("Updated Description".to_string())
+        );
         assert_eq!(task_list.color, Some("#FF00FF".to_string()));
         assert_eq!(task_list.order_index, 5);
         assert!(task_list.is_archived);

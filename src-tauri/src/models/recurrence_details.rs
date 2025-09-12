@@ -1,9 +1,9 @@
 //! 繰り返し詳細コマンドモデル
 
-use serde::{Deserialize, Serialize};
+use crate::models::CommandModelConverter;
 use flequit_model::models::task_projects::recurrence_details::RecurrenceDetails;
 use flequit_model::models::ModelConverter;
-use crate::models::CommandModelConverter;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecurrenceDetailsCommandModel {

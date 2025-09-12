@@ -3,8 +3,8 @@ use async_trait::async_trait;
 // 1構造体1ファイルに分割されたモジュール
 pub mod account;
 pub mod date_condition;
-pub mod datetime_format;
 pub mod datetime;
+pub mod datetime_format;
 pub mod due_date_buttons;
 pub mod individual;
 pub mod initialize;

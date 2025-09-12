@@ -59,8 +59,7 @@ impl UserDocument {
     /// Automergeドキュメントからドメインモデルに変換
     pub fn to_domain_model(&self) -> Result<User, String> {
         Ok(User {
-            id: UserId::try_from_str(&self.id)
-                .map_err(|e| e.to_string())?,
+            id: UserId::try_from_str(&self.id).map_err(|e| e.to_string())?,
             handle_id: self.handle_id.clone(),
             display_name: self.display_name.clone(),
             email: self.email.clone(),

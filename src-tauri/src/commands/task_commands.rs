@@ -1,16 +1,13 @@
-use flequit_core::facades::{task_facades, recurrence_facades};
 use crate::models::{
-    task::TaskCommandModel,
-    task_recurrence::TaskRecurrenceCommandModel,
-    recurrence_rule::RecurrenceRuleCommandModel,
     recurrence_adjustment::RecurrenceAdjustmentCommandModel,
-    recurrence_details::RecurrenceDetailsCommandModel,
-    CommandModelConverter,
+    recurrence_details::RecurrenceDetailsCommandModel, recurrence_rule::RecurrenceRuleCommandModel,
+    task::TaskCommandModel, task_recurrence::TaskRecurrenceCommandModel, CommandModelConverter,
 };
-use flequit_model::models::ModelConverter;
-use flequit_model::models::task_projects::task::PartialTask;
-use flequit_model::types::id_types::{TaskId, ProjectId};
 use crate::state::AppState;
+use flequit_core::facades::{recurrence_facades, task_facades};
+use flequit_model::models::task_projects::task::PartialTask;
+use flequit_model::models::ModelConverter;
+use flequit_model::types::id_types::{ProjectId, TaskId};
 use tauri::State;
 
 #[tracing::instrument]
@@ -103,7 +100,12 @@ pub async fn create_task_recurrence(
 ) -> Result<bool, String> {
     let task_id = TaskId::from(task_recurrence.task_id);
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_task_recurrence(&*repositories, &task_id, &task_recurrence.recurrence_rule_id).await
+    recurrence_facades::create_task_recurrence(
+        &*repositories,
+        &task_id,
+        &task_recurrence.recurrence_rule_id,
+    )
+    .await
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
@@ -115,7 +117,8 @@ pub async fn get_task_recurrence_by_task_id(
 ) -> Result<Option<TaskRecurrenceCommandModel>, String> {
     let task_id_typed = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
-    let result = recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &task_id_typed).await?;
+    let result =
+        recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &task_id_typed).await?;
     match result {
         Some(task_recurrence) => Ok(Some(task_recurrence.to_command_model().await?)),
         None => Ok(None),
@@ -227,7 +230,8 @@ pub async fn get_recurrence_adjustments_by_rule_id(
     rule_id: String,
 ) -> Result<Vec<RecurrenceAdjustmentCommandModel>, String> {
     let repositories = state.repositories.read().await;
-    let adjustments = recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, rule_id).await?;
+    let adjustments =
+        recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, rule_id).await?;
     let mut result = Vec::new();
     for adjustment in adjustments {
         result.push(adjustment.to_command_model().await?);
@@ -270,7 +274,8 @@ pub async fn get_recurrence_details_by_rule_id(
     rule_id: String,
 ) -> Result<Option<RecurrenceDetailsCommandModel>, String> {
     let repositories = state.repositories.read().await;
-    let details = recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, rule_id).await?;
+    let details =
+        recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, rule_id).await?;
     match details {
         Some(detail) => Ok(Some(detail.to_command_model().await?)),
         None => Ok(None),

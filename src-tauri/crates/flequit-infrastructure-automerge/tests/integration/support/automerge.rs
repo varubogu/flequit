@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use flequit_testing::TestPathGenerator;
+use std::path::PathBuf;
 
 pub struct AutomergeTestHarness;
 
@@ -22,17 +22,18 @@ impl AutomergeTestHarness {
         test_function_name: &str,
     ) -> Result<PathBuf, Box<dyn std::error::Error>> {
         let test_dir = TestPathGenerator::generate_test_dir(test_file_path, test_function_name);
-        
+
         // プロジェクトルートを FLEQUIT_PROJECT_ROOT 環境変数から取得（フォールバック付き）
         let project_root = std::env::var("FLEQUIT_PROJECT_ROOT")
             .map(std::path::PathBuf::from)
             .unwrap_or_else(|_| {
                 // フォールバック: 現在のディレクトリから推定
-                let current_dir = std::env::current_dir().expect("現在のディレクトリが取得できません");
+                let current_dir =
+                    std::env::current_dir().expect("現在のディレクトリが取得できません");
                 current_dir
-                    .parent()  // crates
-                    .and_then(|p| p.parent())  // src-tauri
-                    .and_then(|p| p.parent())  // プロジェクトルート
+                    .parent() // crates
+                    .and_then(|p| p.parent()) // src-tauri
+                    .and_then(|p| p.parent()) // プロジェクトルート
                     .expect("プロジェクトルートが見つかりません")
                     .to_path_buf()
             });

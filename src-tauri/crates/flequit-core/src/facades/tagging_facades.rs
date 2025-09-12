@@ -1,13 +1,17 @@
-use flequit_model::models::task_projects::{task_tag::TaskTag, subtask_tag::SubTaskTag};
-use flequit_model::types::id_types::{TaskId, SubTaskId, TagId};
-use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
 use crate::services::tagging_service;
+use flequit_infrastructure::{InfrastructureRepositories, InfrastructureRepositoriesTrait};
+use flequit_model::models::task_projects::{subtask_tag::SubTaskTag, task_tag::TaskTag};
+use flequit_model::types::id_types::{SubTaskId, TagId, TaskId};
+use flequit_types::errors::service_error::ServiceError;
 
 /// TaskTag facades
 
 #[tracing::instrument(level = "trace")]
-pub async fn add_task_tag_relation<R>(repositories: &R, task_id: &TaskId, tag_id: &TagId) -> Result<bool, String>
+pub async fn add_task_tag_relation<R>(
+    repositories: &R,
+    task_id: &TaskId,
+    tag_id: &TagId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -19,7 +23,11 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn remove_task_tag_relation<R>(repositories: &R, task_id: &TaskId, tag_id: &TagId) -> Result<bool, String>
+pub async fn remove_task_tag_relation<R>(
+    repositories: &R,
+    task_id: &TaskId,
+    tag_id: &TagId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -51,7 +59,10 @@ pub async fn get_task_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<TaskId>, Strin
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_task_tag_relations(task_id: &TaskId, tag_ids: &[TagId]) -> Result<bool, String> {
+pub async fn update_task_tag_relations(
+    task_id: &TaskId,
+    tag_ids: &[TagId],
+) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::update_task_tag_relations(&repositories, task_id, tag_ids).await {
         Ok(_) => Ok(true),
@@ -66,7 +77,10 @@ pub async fn remove_all_task_tags_by_task_id(task_id: &TaskId) -> Result<bool, S
     match tagging_service::remove_all_task_tags_by_task_id(&repositories, task_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to remove all task tags by task ID: {:?}", e)),
+        Err(e) => Err(format!(
+            "Failed to remove all task tags by task ID: {:?}",
+            e
+        )),
     }
 }
 
@@ -93,7 +107,11 @@ pub async fn get_all_task_tags() -> Result<Vec<TaskTag>, String> {
 /// SubtaskTag facades
 
 #[tracing::instrument(level = "trace")]
-pub async fn add_subtask_tag_relation<R>(repositories: &R, subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String>
+pub async fn add_subtask_tag_relation<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+    tag_id: &TagId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -105,7 +123,11 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn remove_subtask_tag_relation<R>(repositories: &R, subtask_id: &SubTaskId, tag_id: &TagId) -> Result<bool, String>
+pub async fn remove_subtask_tag_relation<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+    tag_id: &TagId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -137,7 +159,10 @@ pub async fn get_subtask_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<SubTaskId>,
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_subtask_tag_relations(subtask_id: &SubTaskId, tag_ids: &[TagId]) -> Result<bool, String> {
+pub async fn update_subtask_tag_relations(
+    subtask_id: &SubTaskId,
+    tag_ids: &[TagId],
+) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::update_subtask_tag_relations(&repositories, subtask_id, tag_ids).await {
         Ok(_) => Ok(true),
@@ -152,7 +177,10 @@ pub async fn remove_all_subtask_tags_by_subtask_id(subtask_id: &SubTaskId) -> Re
     match tagging_service::remove_all_subtask_tags_by_subtask_id(&repositories, subtask_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to remove all subtask tags by subtask ID: {:?}", e)),
+        Err(e) => Err(format!(
+            "Failed to remove all subtask tags by subtask ID: {:?}",
+            e
+        )),
     }
 }
 
@@ -162,7 +190,10 @@ pub async fn remove_all_subtask_tags_by_tag_id(tag_id: &TagId) -> Result<bool, S
     match tagging_service::remove_all_subtask_tags_by_tag_id(&repositories, tag_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
-        Err(e) => Err(format!("Failed to remove all subtask tags by tag ID: {:?}", e)),
+        Err(e) => Err(format!(
+            "Failed to remove all subtask tags by tag ID: {:?}",
+            e
+        )),
     }
 }
 

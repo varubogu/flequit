@@ -1,5 +1,5 @@
 //! Project AutoMergeモデル
-//! 
+//!
 //! SQLite projectテーブルと同じ構造を持つAutoMerge用データ構造
 
 use chrono::{DateTime, Utc};
@@ -58,7 +58,8 @@ impl AutoMergeProject {
     }
 
     /// プロジェクト情報を更新
-    pub fn update(&mut self, 
+    pub fn update(
+        &mut self,
         name: Option<String>,
         description: Option<Option<String>>,
         color: Option<Option<String>>,
@@ -94,15 +95,7 @@ impl AutoMergeProject {
 
 impl Default for AutoMergeProject {
     fn default() -> Self {
-        Self::new(
-            String::new(),
-            String::new(),
-            None,
-            None,
-            0,
-            None,
-            None,
-        )
+        Self::new(String::new(), String::new(), None, None, 0, None, None)
     }
 }
 

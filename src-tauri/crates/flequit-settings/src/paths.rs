@@ -43,10 +43,11 @@ impl SettingsPaths {
         let settings_dir = Self::get_settings_dir()?;
 
         if !settings_dir.exists() {
-            std::fs::create_dir_all(&settings_dir)
-                .map_err(|_| SettingsError::DirectoryCreationError {
+            std::fs::create_dir_all(&settings_dir).map_err(|_| {
+                SettingsError::DirectoryCreationError {
                     path: settings_dir.display().to_string(),
-                })?;
+                }
+            })?;
         }
 
         Ok(settings_dir)

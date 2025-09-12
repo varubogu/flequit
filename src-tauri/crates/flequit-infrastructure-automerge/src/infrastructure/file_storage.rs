@@ -37,7 +37,11 @@ impl FileStorage {
 
         match std::fs::read(&path) {
             Ok(data) => {
-                log::debug!("Successfully read document {} ({} bytes)", id.as_uuid_str(), data.len());
+                log::debug!(
+                    "Successfully read document {} ({} bytes)",
+                    id.as_uuid_str(),
+                    data.len()
+                );
                 Ok(Some(data))
             }
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
@@ -78,11 +82,14 @@ impl FileStorage {
                 Ok(document_ids)
             }
             Err(e) => {
-                log::error!("Failed to list documents in directory {:?}: {}", self.base_path, e);
-                Err(AutomergeError::StorageError(format!(
+                log::error!(
                     "Failed to list documents in directory {:?}: {}",
                     self.base_path,
                     e
+                );
+                Err(AutomergeError::StorageError(format!(
+                    "Failed to list documents in directory {:?}: {}",
+                    self.base_path, e
                 )))
             }
         }
@@ -101,7 +108,11 @@ impl FileStorage {
                 use std::io::Write;
                 match file.write_all(&changes) {
                     Ok(_) => {
-                        log::debug!("Successfully appended {} bytes to document {}", changes.len(), id.as_uuid_str());
+                        log::debug!(
+                            "Successfully appended {} bytes to document {}",
+                            changes.len(),
+                            id.as_uuid_str()
+                        );
                         match file.flush() {
                             Ok(_) => Ok(()),
                             Err(e) => {
@@ -125,7 +136,11 @@ impl FileStorage {
                 }
             }
             Err(e) => {
-                log::error!("Failed to open document {} for append: {}", id.as_uuid_str(), e);
+                log::error!(
+                    "Failed to open document {} for append: {}",
+                    id.as_uuid_str(),
+                    e
+                );
                 Err(AutomergeError::StorageError(format!(
                     "Failed to open document {} for append: {}",
                     id.as_uuid_str(),
@@ -141,7 +156,11 @@ impl FileStorage {
 
         match std::fs::write(&path, &full_doc) {
             Ok(_) => {
-                log::debug!("Successfully compacted document {} ({} bytes)", id.as_uuid_str(), full_doc.len());
+                log::debug!(
+                    "Successfully compacted document {} ({} bytes)",
+                    id.as_uuid_str(),
+                    full_doc.len()
+                );
                 Ok(())
             }
             Err(e) => {
@@ -166,7 +185,11 @@ impl Storage for FileStorage {
         Box::pin(async move {
             match std::fs::read(&path) {
                 Ok(data) => {
-                    log::debug!("Successfully read document {} ({} bytes)", id.as_uuid_str(), data.len());
+                    log::debug!(
+                        "Successfully read document {} ({} bytes)",
+                        id.as_uuid_str(),
+                        data.len()
+                    );
                     Ok(Some(data))
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
@@ -207,7 +230,11 @@ impl Storage for FileStorage {
                     Ok(document_ids)
                 }
                 Err(e) => {
-                    log::error!("Failed to list documents in directory {:?}: {}", base_path, e);
+                    log::error!(
+                        "Failed to list documents in directory {:?}: {}",
+                        base_path,
+                        e
+                    );
                     Err(StorageError::Error)
                 }
             }
@@ -230,11 +257,19 @@ impl Storage for FileStorage {
                     use std::io::Write;
                     match file.write_all(&changes) {
                         Ok(_) => {
-                            log::debug!("Successfully appended {} bytes to document {}", changes.len(), id.as_uuid_str());
+                            log::debug!(
+                                "Successfully appended {} bytes to document {}",
+                                changes.len(),
+                                id.as_uuid_str()
+                            );
                             match file.flush() {
                                 Ok(_) => Ok(()),
                                 Err(e) => {
-                                    log::error!("Failed to flush document {}: {}", id.as_uuid_str(), e);
+                                    log::error!(
+                                        "Failed to flush document {}: {}",
+                                        id.as_uuid_str(),
+                                        e
+                                    );
                                     Err(StorageError::Error)
                                 }
                             }
@@ -246,7 +281,11 @@ impl Storage for FileStorage {
                     }
                 }
                 Err(e) => {
-                    log::error!("Failed to open document {} for append: {}", id.as_uuid_str(), e);
+                    log::error!(
+                        "Failed to open document {} for append: {}",
+                        id.as_uuid_str(),
+                        e
+                    );
                     Err(StorageError::Error)
                 }
             }
@@ -262,7 +301,11 @@ impl Storage for FileStorage {
         Box::pin(async move {
             match std::fs::write(&path, &full_doc) {
                 Ok(_) => {
-                    log::debug!("Successfully compacted document {} ({} bytes)", id.as_uuid_str(), full_doc.len());
+                    log::debug!(
+                        "Successfully compacted document {} ({} bytes)",
+                        id.as_uuid_str(),
+                        full_doc.len()
+                    );
                     Ok(())
                 }
                 Err(e) => {

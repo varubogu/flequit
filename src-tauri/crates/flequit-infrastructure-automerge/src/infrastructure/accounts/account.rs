@@ -1,11 +1,11 @@
 use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
+use async_trait::async_trait;
 use flequit_model::models::accounts::account::Account;
+use flequit_model::types::id_types::AccountId;
 use flequit_repository::repositories::accounts::AccountRepositoryTrait;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_model::types::id_types::AccountId;
-use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -24,32 +24,26 @@ impl AccountLocalAutomergeRepository {
         let doc_type = &DocumentType::Account;
         let mut document_manager = DocumentManager::new(base_path)?;
         let doc = document_manager.get_or_create(doc_type).await?;
-        Ok(Self {
-            document: doc,
-        })
+        Ok(Self { document: doc })
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
     #[tracing::instrument(level = "trace")]
-    pub async fn new_with_manager(document_manager: Arc<Mutex<DocumentManager>>) -> Result<Self, RepositoryError> {
+    pub async fn new_with_manager(
+        document_manager: Arc<Mutex<DocumentManager>>,
+    ) -> Result<Self, RepositoryError> {
         let doc_type = &DocumentType::Account;
         let doc = {
             let mut manager = document_manager.lock().await;
             manager.get_or_create(doc_type).await?
         };
-        Ok(Self {
-            document: doc,
-        })
+        Ok(Self { document: doc })
     }
 
     /// 全アカウントリストを取得
     #[tracing::instrument(level = "trace")]
     pub async fn list_users(&self) -> Result<Vec<Account>, RepositoryError> {
-        let accounts = {
-            self.document
-                .load_data::<Vec<Account>>("accounts")
-                .await?
-        };
+        let accounts = { self.document.load_data::<Vec<Account>>("accounts").await? };
         if let Some(accounts) = accounts {
             Ok(accounts)
         } else {
@@ -78,8 +72,7 @@ impl AccountLocalAutomergeRepository {
 
         {
             let doc = &self.document;
-            doc
-                .save_data("accounts", &accounts)
+            doc.save_data("accounts", &accounts)
                 .await
                 .map_err(|e| RepositoryError::AutomergeError(e.to_string()))?
         }
@@ -96,9 +89,7 @@ impl AccountLocalAutomergeRepository {
         if accounts.len() != initial_len {
             {
                 let doc = &self.document;
-                doc
-                    .save_data("accounts", &accounts)
-                    .await?
+                doc.save_data("accounts", &accounts).await?
             };
             Ok(true)
         } else {
@@ -221,9 +212,7 @@ impl AccountLocalAutomergeRepository {
                 .map_err(|e| RepositoryError::SerializationError(e.to_string()))?;
 
             // 既存のアカウントデータを削除して復元
-            self.document
-                .save_data("accounts", &accounts)
-                .await?;
+            self.document.save_data("accounts", &accounts).await?;
         }
 
         // 現在のアカウントIDを復元
@@ -297,15 +286,17 @@ impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Utc;
     use flequit_model::types::id_types::AccountId;
     use flequit_model::types::id_types::UserId;
-    use chrono::Utc;
     use tempfile::TempDir;
 
     #[tokio::test]
     async fn test_account_repository() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).await.unwrap();
+        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf())
+            .await
+            .unwrap();
 
         // 初期状態では空
         let accounts = repo.list_users().await.unwrap();
@@ -406,7 +397,9 @@ mod tests {
     #[tokio::test]
     async fn test_repository_trait_implementation() {
         let temp_dir = TempDir::new().unwrap();
-        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf()).await.unwrap();
+        let repo = AccountLocalAutomergeRepository::new(temp_dir.path().to_path_buf())
+            .await
+            .unwrap();
 
         // Repository トレイトとして使用
         let repository: &dyn Repository<Account, AccountId> = &repo;

@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
+use crate::models::CommandModelConverter;
 use flequit_model::models::ModelConverter;
 use flequit_settings::models::view_item::ViewItem;
-use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のViewItem構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]

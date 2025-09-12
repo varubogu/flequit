@@ -4,22 +4,22 @@
 
 use async_trait::async_trait;
 use chrono::Utc;
-use serde_json::Value;
-use std::path::PathBuf;
-use flequit_model::models::task_projects::member::Member;
-use flequit_testing::TestPathGenerator;
+use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectDocument;
 use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
+use flequit_model::models::task_projects::member::Member;
 use flequit_model::models::task_projects::project::Project;
 use flequit_model::models::task_projects::subtask::SubTask;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::models::task_projects::task::Task;
 use flequit_model::models::task_projects::task_list::TaskList;
-use flequit_model::types::id_types::{MemberId, ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::id_types::{
+    MemberId, ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId,
+};
 use flequit_model::types::project_types::MemberRole;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_infrastructure_automerge::infrastructure::task_projects::project::{
-    ProjectDocument,
-};
+use flequit_testing::TestPathGenerator;
+use serde_json::Value;
+use std::path::PathBuf;
 
 // 最低限のテスト用履歴エクスポートIFをローカルに定義（本番へ露出しない）
 #[async_trait]
@@ -35,11 +35,23 @@ pub struct AutomergeHistoryManager {
 
 impl AutomergeHistoryManager {
     pub fn new(json_history_dir: std::path::PathBuf, test_name: &str) -> Self {
-        Self { step: 0, json_history_dir, test_name: test_name.to_string() }
+        Self {
+            step: 0,
+            json_history_dir,
+            test_name: test_name.to_string(),
+        }
     }
-    pub async fn export_history<T: AutomergeHistoryExporter + ?Sized>(&mut self, exporter: &T, action: &str, entity_type: &str) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn export_history<T: AutomergeHistoryExporter + ?Sized>(
+        &mut self,
+        exporter: &T,
+        action: &str,
+        entity_type: &str,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         self.step += 1;
-        let filename = format!("{:03}_{}_{}_{}.json", self.step, self.test_name, entity_type, action);
+        let filename = format!(
+            "{:03}_{}_{}_{}.json",
+            self.step, self.test_name, entity_type, action
+        );
         let export_path = self.json_history_dir.join(&filename);
         match exporter.export_document_as_json().await {
             Ok(json_data) => {
@@ -56,7 +68,6 @@ impl AutomergeHistoryManager {
         Ok(())
     }
 }
-
 
 /// テスト用ProjectDocumentRepositoryラッパー - automerge履歴出力機能付き
 struct TestProjectDocumentRepository {
@@ -463,10 +474,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
 
     let member_1 = Member {
         id: MemberId::new(),
-        user_id:UserId::new(),
-        role:MemberRole::Owner,
-        joined_at:Utc::now(),
-        updated_at:Utc::now(),
+        user_id: UserId::new(),
+        role: MemberRole::Owner,
+        joined_at: Utc::now(),
+        updated_at: Utc::now(),
     };
 
     let member_2 = Member {

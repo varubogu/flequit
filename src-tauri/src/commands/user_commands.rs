@@ -1,9 +1,9 @@
-use flequit_core::facades::user_facades;
 use crate::models::user::UserCommandModel;
-use flequit_model::models::ModelConverter;
 use crate::models::CommandModelConverter;
-use flequit_model::types::id_types::UserId;
 use crate::state::AppState;
+use flequit_core::facades::user_facades;
+use flequit_model::models::ModelConverter;
+use flequit_model::types::id_types::UserId;
 use tauri::State;
 
 #[tracing::instrument]
@@ -47,10 +47,7 @@ pub async fn update_user(
 
 #[tracing::instrument]
 #[tauri::command]
-pub async fn delete_user(
-    state: State<'_, AppState>,
-    user_id: String,
-) -> Result<bool, String> {
+pub async fn delete_user(state: State<'_, AppState>, user_id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
     let id = UserId::from(user_id);
     user_facades::delete_user(&*repositories, &id).await

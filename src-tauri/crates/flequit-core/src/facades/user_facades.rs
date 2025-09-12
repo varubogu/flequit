@@ -1,8 +1,8 @@
+use crate::services::user_service;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
-use crate::services::user_service;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_user<R>(repositories: &R, user: &User) -> Result<bool, String>

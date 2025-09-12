@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
+use crate::models::CommandModelConverter;
 use flequit_model::models::ModelConverter;
 use flequit_settings::models::datetime_format::DateTimeFormat;
 use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;
-use crate::models::CommandModelConverter;
 
 /// 日時フォーマットコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,7 +20,6 @@ pub struct DateTimeFormatCommandModel {
     /// 表示順序
     pub order: i32,
 }
-
 
 #[async_trait]
 impl ModelConverter<DateTimeFormat> for DateTimeFormatCommandModel {
@@ -39,7 +38,7 @@ impl ModelConverter<DateTimeFormat> for DateTimeFormatCommandModel {
             name: self.name.clone(),
             format: self.format.clone(),
             group,
-            order: self.order.clone()
+            order: self.order.clone(),
         })
     }
 }
@@ -60,7 +59,7 @@ impl CommandModelConverter<DateTimeFormatCommandModel> for DateTimeFormat {
             name: self.name.clone(),
             format: self.format.clone(),
             group,
-            order: self.order.clone()
+            order: self.order.clone(),
         })
     }
 }

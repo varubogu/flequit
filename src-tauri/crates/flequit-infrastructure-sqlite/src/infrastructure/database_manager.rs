@@ -75,9 +75,7 @@ impl DatabaseManager {
                     .sqlx_logging(false);
 
                 // データベースに接続
-                let db = Database::connect(opt)
-                    .await
-                    .map_err(SQLiteError::from)?;
+                let db = Database::connect(opt).await.map_err(SQLiteError::from)?;
 
                 // ハイブリッドマイグレーション実行
                 let migrator = super::hybrid_migration::HybridMigrator::new(db.clone());
@@ -86,10 +84,7 @@ impl DatabaseManager {
                 let needs_migration = !migrator.check_migration_status().await.unwrap_or(false);
 
                 if needs_migration {
-                    migrator
-                        .run_migration()
-                        .await
-                        .map_err(SQLiteError::from)?;
+                    migrator.run_migration().await.map_err(SQLiteError::from)?;
                 } else {
                     println!("ℹ️  マイグレーションは最新です");
                 }

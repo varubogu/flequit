@@ -10,6 +10,12 @@ use std::path::{Path, PathBuf};
 // TestPathGeneratorを使用するためのインポート
 use flequit_testing::TestPathGenerator;
 
+use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::task_projects::project_list_repository::ProjectListLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::task_projects::subtask::SubTaskLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::task_projects::tag::TagLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
+use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::TaskListLocalAutomergeRepository;
 use flequit_model::models::task_projects::project::Project;
 use flequit_model::models::task_projects::subtask::SubTask;
 use flequit_model::models::task_projects::tag::Tag;
@@ -17,14 +23,8 @@ use flequit_model::models::task_projects::task::Task;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::task_types::TaskStatus;
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::project_repository_trait::ProjectRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::project_list_repository::ProjectListLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::subtask::SubTaskLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::tag::TagLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::TaskListLocalAutomergeRepository;
+use flequit_repository::repositories::base_repository_trait::Repository;
 
 /// テスト結果の永続保存用ヘルパー関数
 fn create_persistent_test_dir(test_name: &str) -> PathBuf {
@@ -169,8 +169,11 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
     );
 
     // List操作テスト (ProjectListLocalAutomergeRepositoryを使用)
-    let project_list_repository = ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
-    project_list_repository.add_or_update_project(&updated).await?;
+    let project_list_repository =
+        ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
+    project_list_repository
+        .add_or_update_project(&updated)
+        .await?;
     let all_projects = project_list_repository.list_projects().await?;
     assert!(!all_projects.is_empty());
     assert!(all_projects.iter().any(|p| p.id == project_id));
@@ -230,12 +233,15 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
     println!("Creating {} projects concurrently", projects.len());
 
     // プロジェクトリストリポジトリを作成
-    let project_list_repository = ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
+    let project_list_repository =
+        ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
 
     // 並行作成
     for project in &projects {
         repository.save(project).await?;
-        project_list_repository.add_or_update_project(project).await?;
+        project_list_repository
+            .add_or_update_project(project)
+            .await?;
     }
 
     // 全プロジェクトの存在確認 (ProjectListLocalAutomergeRepositoryを使用)
@@ -260,7 +266,9 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
             updated_project.updated_at = Utc::now();
 
             repository.save(&updated_project).await?;
-            project_list_repository.add_or_update_project(&updated_project).await?;
+            project_list_repository
+                .add_or_update_project(&updated_project)
+                .await?;
         }
     }
 
@@ -319,7 +327,11 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     let stage1_export_path = &temp_dir_path.join("exports/stage1_project_creation.json");
     std::fs::create_dir_all(stage1_export_path.parent().unwrap())?;
     repository
-        .export_project_state(&project_id, &stage1_export_path, Some("Stage 1: 基本プロジェクト作成"))
+        .export_project_state(
+            &project_id,
+            &stage1_export_path,
+            Some("Stage 1: 基本プロジェクト作成"),
+        )
         .await?;
 
     // Stage 2: タグとメンバー追加
@@ -336,7 +348,11 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     // Stage 2の状態をエクスポート
     let stage2_export_path = &temp_dir_path.join("exports/stage2_tags_members.json");
     repository
-        .export_project_state(&project_id, &stage2_export_path, Some("Stage 2: タグとメンバー追加"))
+        .export_project_state(
+            &project_id,
+            &stage2_export_path,
+            Some("Stage 2: タグとメンバー追加"),
+        )
         .await?;
 
     // Stage 3: プロジェクト詳細拡張
@@ -442,11 +458,14 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト1作成完了: {}", project1.name);
 
     // Change 1をエクスポート
-    let change1_path = temp_dir_path
-        .join("project_changes/change_1_first_project.json");
+    let change1_path = temp_dir_path.join("project_changes/change_1_first_project.json");
     std::fs::create_dir_all(change1_path.parent().unwrap())?;
     repository
-        .export_project_state(&project1_id, &change1_path, Some("Change 1: First project created"))
+        .export_project_state(
+            &project1_id,
+            &change1_path,
+            Some("Change 1: First project created"),
+        )
         .await?;
 
     // プロジェクト2: 第二のプロジェクト追加
@@ -468,10 +487,13 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト2作成完了: {}", project2.name);
 
     // Change 2をエクスポート
-    let change2_path = temp_dir_path
-        .join("project_changes/change_2_second_project.json");
+    let change2_path = temp_dir_path.join("project_changes/change_2_second_project.json");
     repository
-        .export_project_state(&project2_id, &change2_path, Some("Change 2: Second project added"))
+        .export_project_state(
+            &project2_id,
+            &change2_path,
+            Some("Change 2: Second project added"),
+        )
         .await?;
 
     // プロジェクト1を更新（色変更とアーカイブ）
@@ -486,8 +508,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
 
     // Change 3をエクスポート
-    let change3_path = temp_dir_path
-        .join("project_changes/change_3_updated_first_project.json");
+    let change3_path = temp_dir_path.join("project_changes/change_3_updated_first_project.json");
     repository
         .export_project_state(
             &project1_id,
@@ -515,8 +536,7 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト3作成完了: {}", project3.name);
 
     // Change 4をエクスポート
-    let change4_path = temp_dir_path
-        .join("project_changes/change_4_complex_third_project.json");
+    let change4_path = temp_dir_path.join("project_changes/change_4_complex_third_project.json");
     repository
         .export_project_state(
             &project3_id,
@@ -535,19 +555,29 @@ async fn test_project_repository_json_export_with_detailed_changes(
     println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
 
     // Change 5をエクスポート
-    let change5_path = temp_dir_path
-        .join("project_changes/change_5_archived_second_project.json");
+    let change5_path = temp_dir_path.join("project_changes/change_5_archived_second_project.json");
     repository
-        .export_project_state(&project2_id, &change5_path, Some("Change 5: Second project archived"))
+        .export_project_state(
+            &project2_id,
+            &change5_path,
+            Some("Change 5: Second project archived"),
+        )
         .await?;
 
     // 最終検証 (ProjectListLocalAutomergeRepositoryを使用)
-    let project_list_repository = ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
+    let project_list_repository =
+        ProjectListLocalAutomergeRepository::new(automerge_dir.clone()).await?;
     // プロジェクトリストに全てのプロジェクトを追加
-    project_list_repository.add_or_update_project(&updated_project1).await?;
-    project_list_repository.add_or_update_project(&archived_project2).await?;
-    project_list_repository.add_or_update_project(&project3).await?;
-    
+    project_list_repository
+        .add_or_update_project(&updated_project1)
+        .await?;
+    project_list_repository
+        .add_or_update_project(&archived_project2)
+        .await?;
+    project_list_repository
+        .add_or_update_project(&project3)
+        .await?;
+
     let all_projects = project_list_repository.list_projects().await?;
     println!("📊 最終プロジェクト数: {}", all_projects.len());
     assert_eq!(all_projects.len(), 3);

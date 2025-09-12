@@ -3,15 +3,16 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_assignments::{Column, Entity as TaskAssignmentEntity};
-use flequit_model::models::task_projects::task_assignment::TaskAssignment;
-use flequit_model::types::id_types::{ProjectId, UserId, TaskId};
-use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
-use flequit_types::errors::repository_error::RepositoryError;
 use crate::models::SqliteModelConverter;
 use async_trait::async_trait;
 use chrono::Utc;
+use flequit_model::models::task_projects::task_assignment::TaskAssignment;
+use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
+use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
+use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait,
+    QueryFilter,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -32,7 +33,10 @@ impl TaskAssignmentLocalSqliteRepository {
         task_id: &TaskId,
     ) -> Result<Vec<UserId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskAssignmentEntity::find()
             .filter(Column::TaskId.eq(task_id.to_string()))
@@ -54,7 +58,10 @@ impl TaskAssignmentLocalSqliteRepository {
         user_id: &UserId,
     ) -> Result<Vec<TaskId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskAssignmentEntity::find()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -77,7 +84,10 @@ impl TaskAssignmentLocalSqliteRepository {
         user_id: &UserId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         // 既存の割り当てが存在するかチェック
         let existing = TaskAssignmentEntity::find()
@@ -95,7 +105,9 @@ impl TaskAssignmentLocalSqliteRepository {
                 created_at: Set(Utc::now()),
             };
 
-            active_model.insert(db).await
+            active_model
+                .insert(db)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         }
 
@@ -109,7 +121,10 @@ impl TaskAssignmentLocalSqliteRepository {
         user_id: &UserId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         TaskAssignmentEntity::delete_many()
             .filter(Column::TaskId.eq(task_id.to_string()))
@@ -127,7 +142,10 @@ impl TaskAssignmentLocalSqliteRepository {
         task_id: &TaskId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         TaskAssignmentEntity::delete_many()
             .filter(Column::TaskId.eq(task_id.to_string()))
@@ -144,7 +162,10 @@ impl TaskAssignmentLocalSqliteRepository {
         user_id: &UserId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         TaskAssignmentEntity::delete_many()
             .filter(Column::UserId.eq(user_id.to_string()))
@@ -187,22 +208,45 @@ impl TaskAssignmentLocalSqliteRepository {
 }
 
 #[async_trait]
-impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmentLocalSqliteRepository {
-    async fn add(&self, _project_id: &ProjectId, parent_id: &TaskId, child_id: &UserId) -> Result<(), RepositoryError> {
+impl ProjectRelationRepository<TaskAssignment, TaskId, UserId>
+    for TaskAssignmentLocalSqliteRepository
+{
+    async fn add(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &UserId,
+    ) -> Result<(), RepositoryError> {
         self.add_assignment(parent_id, child_id).await
     }
 
-    async fn remove(&self, _project_id: &ProjectId, parent_id: &TaskId, child_id: &UserId) -> Result<(), RepositoryError> {
+    async fn remove(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &UserId,
+    ) -> Result<(), RepositoryError> {
         self.remove_assignment(parent_id, child_id).await
     }
 
-    async fn remove_all(&self, _project_id: &ProjectId, parent_id: &TaskId) -> Result<(), RepositoryError> {
+    async fn remove_all(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<(), RepositoryError> {
         self.remove_all_assignments_by_task_id(parent_id).await
     }
 
-    async fn find_relations(&self, _project_id: &ProjectId, parent_id: &TaskId) -> Result<Vec<TaskAssignment>, RepositoryError> {
+    async fn find_relations(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<Vec<TaskAssignment>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskAssignmentEntity::find()
             .filter(Column::TaskId.eq(parent_id.to_string()))
@@ -212,16 +256,26 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
 
         let mut domain_models = Vec::new();
         for model in models {
-            let domain_model = model.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+            let domain_model = model
+                .to_domain_model()
+                .await
+                .map_err(|e| RepositoryError::ConversionError(e))?;
             domain_models.push(domain_model);
         }
 
         Ok(domain_models)
     }
 
-    async fn exists(&self, _project_id: &ProjectId, parent_id: &TaskId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let count = TaskAssignmentEntity::find()
             .filter(Column::TaskId.eq(parent_id.to_string()))
@@ -232,9 +286,16 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         Ok(count > 0)
     }
 
-    async fn count(&self, _project_id: &ProjectId, parent_id: &TaskId) -> Result<u64, RepositoryError> {
+    async fn count(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let count = TaskAssignmentEntity::find()
             .filter(Column::TaskId.eq(parent_id.to_string()))
@@ -245,9 +306,15 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         Ok(count)
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<TaskAssignment>, RepositoryError> {
+    async fn find_all(
+        &self,
+        _project_id: &ProjectId,
+    ) -> Result<Vec<TaskAssignment>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskAssignmentEntity::find()
             .all(db)
@@ -256,16 +323,27 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
 
         let mut domain_models = Vec::new();
         for model in models {
-            let domain_model = model.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+            let domain_model = model
+                .to_domain_model()
+                .await
+                .map_err(|e| RepositoryError::ConversionError(e))?;
             domain_models.push(domain_model);
         }
 
         Ok(domain_models)
     }
 
-    async fn find_relation(&self, _project_id: &ProjectId, parent_id: &TaskId, child_id: &UserId) -> Result<Option<TaskAssignment>, RepositoryError> {
+    async fn find_relation(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &UserId,
+    ) -> Result<Option<TaskAssignment>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let model = TaskAssignmentEntity::find()
             .filter(Column::TaskId.eq(parent_id.to_string()))
@@ -276,10 +354,13 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
 
         match model {
             Some(m) => {
-                let domain_model = m.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+                let domain_model = m
+                    .to_domain_model()
+                    .await
+                    .map_err(|e| RepositoryError::ConversionError(e))?;
                 Ok(Some(domain_model))
             }
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 }

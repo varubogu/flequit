@@ -1,11 +1,15 @@
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use crate::services::tag_service;
-use flequit_model::types::id_types::{TagId, ProjectId};
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::tag::{PartialTag, Tag};
+use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument]
-pub async fn create_tag<R>(repositories: &R, project_id: &ProjectId, tag: &Tag) -> Result<bool, String>
+pub async fn create_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag: &Tag,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -17,7 +21,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn get_tag<R>(repositories: &R, project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, String>
+pub async fn get_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TagId,
+) -> Result<Option<Tag>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -30,7 +38,12 @@ where
 }
 
 #[tracing::instrument]
-pub async fn update_tag<R>(repositories: &R, project_id: &ProjectId, tag_id: &TagId, patch: &PartialTag) -> Result<bool, String>
+pub async fn update_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+    patch: &PartialTag,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -42,7 +55,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn delete_tag<R>(repositories: &R, project_id: &ProjectId, id: &TagId) -> Result<bool, String>
+pub async fn delete_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TagId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

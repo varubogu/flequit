@@ -2,8 +2,8 @@
 //!
 //! このモジュールは個別モデルのTauriコマンドモデルを定義します。
 
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 /// アプリプリセットフォーマットコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]

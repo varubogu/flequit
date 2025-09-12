@@ -1,13 +1,13 @@
 //! TaskTag用Automergeリポジトリ
 
-use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
-use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
-use flequit_model::models::task_projects::task_tag::TaskTag;
-use flequit_repository::repositories::task_projects::task_tag_repository_trait::TaskTagRepositoryTrait;
-use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
+use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use chrono::Utc;
+use flequit_model::models::task_projects::task_tag::TaskTag;
+use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
+use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
+use flequit_repository::repositories::task_projects::task_tag_repository_trait::TaskTagRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::Arc};
@@ -35,10 +35,16 @@ impl TaskTagLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    async fn get_or_create_document(&self, project_id: &ProjectId) -> Result<Document, RepositoryError> {
+    async fn get_or_create_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Document, RepositoryError> {
         let document_type = DocumentType::Project(project_id.clone());
         let mut manager = self.document_manager.write().await;
-        manager.get_or_create(&document_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
+        manager
+            .get_or_create(&document_type)
+            .await
+            .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
     /// 指定タスクのタグIDリストを取得
@@ -48,9 +54,7 @@ impl TaskTagLocalAutomergeRepository {
         task_id: &TaskId,
     ) -> Result<Vec<TagId>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
-        let relations: Option<Vec<TaskTagRelation>> = document
-            .load_data("task_tags")
-            .await?;
+        let relations: Option<Vec<TaskTagRelation>> = document.load_data("task_tags").await?;
 
         if let Some(relations) = relations {
             let tag_ids = relations
@@ -71,9 +75,7 @@ impl TaskTagLocalAutomergeRepository {
         tag_id: &TagId,
     ) -> Result<Vec<TaskId>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
-        let relations: Option<Vec<TaskTagRelation>> = document
-            .load_data("task_tags")
-            .await?;
+        let relations: Option<Vec<TaskTagRelation>> = document.load_data("task_tags").await?;
 
         if let Some(relations) = relations {
             let task_ids = relations
@@ -97,15 +99,13 @@ impl TaskTagLocalAutomergeRepository {
         let document = self.get_or_create_document(project_id).await?;
 
         // 既存の関連リストを取得
-        let mut relations: Vec<TaskTagRelation> = document
-            .load_data("task_tags")
-            .await?
-            .unwrap_or_default();
+        let mut relations: Vec<TaskTagRelation> =
+            document.load_data("task_tags").await?.unwrap_or_default();
 
         // 既存の関連が存在するかチェック
-        let exists = relations.iter().any(|r| {
-            r.task_id == task_id.to_string() && r.tag_id == tag_id.to_string()
-        });
+        let exists = relations
+            .iter()
+            .any(|r| r.task_id == task_id.to_string() && r.tag_id == tag_id.to_string());
 
         if !exists {
             // 関連が存在しない場合のみ追加
@@ -131,15 +131,11 @@ impl TaskTagLocalAutomergeRepository {
         let document = self.get_or_create_document(project_id).await?;
 
         // 既存の関連リストを取得
-        let mut relations: Vec<TaskTagRelation> = document
-            .load_data("task_tags")
-            .await?
-            .unwrap_or_default();
+        let mut relations: Vec<TaskTagRelation> =
+            document.load_data("task_tags").await?.unwrap_or_default();
 
         // 指定された関連を削除
-        relations.retain(|r| {
-            !(r.task_id == task_id.to_string() && r.tag_id == tag_id.to_string())
-        });
+        relations.retain(|r| !(r.task_id == task_id.to_string() && r.tag_id == tag_id.to_string()));
 
         document.save_data("task_tags", &relations).await?;
 
@@ -155,10 +151,8 @@ impl TaskTagLocalAutomergeRepository {
         let document = self.get_or_create_document(project_id).await?;
 
         // 既存の関連リストを取得
-        let mut relations: Vec<TaskTagRelation> = document
-            .load_data("task_tags")
-            .await?
-            .unwrap_or_default();
+        let mut relations: Vec<TaskTagRelation> =
+            document.load_data("task_tags").await?.unwrap_or_default();
 
         // 指定されたタスクの全ての関連を削除
         relations.retain(|r| r.task_id != task_id.to_string());
@@ -177,10 +171,8 @@ impl TaskTagLocalAutomergeRepository {
         let document = self.get_or_create_document(project_id).await?;
 
         // 既存の関連リストを取得
-        let mut relations: Vec<TaskTagRelation> = document
-            .load_data("task_tags")
-            .await?
-            .unwrap_or_default();
+        let mut relations: Vec<TaskTagRelation> =
+            document.load_data("task_tags").await?.unwrap_or_default();
 
         // 指定されたタグの全ての関連を削除
         relations.retain(|r| r.tag_id != tag_id.to_string());
@@ -200,10 +192,8 @@ impl TaskTagLocalAutomergeRepository {
         let document = self.get_or_create_document(project_id).await?;
 
         // 既存の関連リストを取得
-        let mut relations: Vec<TaskTagRelation> = document
-            .load_data("task_tags")
-            .await?
-            .unwrap_or_default();
+        let mut relations: Vec<TaskTagRelation> =
+            document.load_data("task_tags").await?.unwrap_or_default();
 
         // 既存の関連付けを削除
         relations.retain(|r| r.task_id != task_id.to_string());
@@ -228,22 +218,41 @@ impl TaskTagRepositoryTrait for TaskTagLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalAutomergeRepository {
-    async fn add(&self, project_id: &ProjectId, parent_id: &TaskId, child_id: &TagId) -> Result<(), RepositoryError> {
+    async fn add(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &TagId,
+    ) -> Result<(), RepositoryError> {
         self.add_relation(project_id, parent_id, child_id).await
     }
 
-    async fn remove(&self, project_id: &ProjectId, parent_id: &TaskId, child_id: &TagId) -> Result<(), RepositoryError> {
+    async fn remove(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &TagId,
+    ) -> Result<(), RepositoryError> {
         self.remove_relation(project_id, parent_id, child_id).await
     }
 
-    async fn remove_all(&self, project_id: &ProjectId, parent_id: &TaskId) -> Result<(), RepositoryError> {
-        self.remove_all_relations_by_task_id(project_id, parent_id).await
+    async fn remove_all(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<(), RepositoryError> {
+        self.remove_all_relations_by_task_id(project_id, parent_id)
+            .await
     }
 
-    async fn find_relations(&self, project_id: &ProjectId, parent_id: &TaskId) -> Result<Vec<TaskTag>, RepositoryError> {
+    async fn find_relations(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<Vec<TaskTag>, RepositoryError> {
         let tag_ids = self.find_tag_ids_by_task_id(project_id, parent_id).await?;
         let mut relations = Vec::new();
-        
+
         // 各タグIDに対して TaskTag を作成
         for tag_id in tag_ids {
             let tag_relation = TaskTag {
@@ -253,25 +262,36 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalAutomerge
             };
             relations.push(tag_relation);
         }
-        
+
         Ok(relations)
     }
 
-    async fn exists(&self, project_id: &ProjectId, parent_id: &TaskId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<bool, RepositoryError> {
         let tag_ids = self.find_tag_ids_by_task_id(project_id, parent_id).await?;
         Ok(!tag_ids.is_empty())
     }
 
-    async fn count(&self, project_id: &ProjectId, parent_id: &TaskId) -> Result<u64, RepositoryError> {
+    async fn count(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<u64, RepositoryError> {
         let tag_ids = self.find_tag_ids_by_task_id(project_id, parent_id).await?;
         Ok(tag_ids.len() as u64)
     }
 
-    async fn find_relation(&self, project_id: &ProjectId, parent_id: &TaskId, child_id: &TagId) -> Result<Option<TaskTag>, RepositoryError> {
+    async fn find_relation(
+        &self,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+        child_id: &TagId,
+    ) -> Result<Option<TaskTag>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
-        let relations: Option<Vec<TaskTagRelation>> = document
-            .load_data("task_tags")
-            .await?;
+        let relations: Option<Vec<TaskTagRelation>> = document.load_data("task_tags").await?;
 
         if let Some(relations) = relations {
             if let Some(task_tag_relation) = relations
@@ -294,9 +314,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalAutomerge
 
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
-        let relations: Option<Vec<TaskTagRelation>> = document
-            .load_data("task_tags")
-            .await?;
+        let relations: Option<Vec<TaskTagRelation>> = document.load_data("task_tags").await?;
 
         if let Some(task_tag_relations) = relations {
             let task_tags = task_tag_relations

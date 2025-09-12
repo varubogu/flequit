@@ -2,29 +2,22 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクタグリポジトリテスト
 
-use flequit_model::models::task_projects::{
-    project::Project,
-    task_list::TaskList,
-    task::Task,
-    subtask::SubTask,
-    tag::Tag,
-};
-use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, TagId, UserId};
-use flequit_model::types::project_types::ProjectStatus;
-use flequit_model::types::task_types::TaskStatus;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
-    subtask::SubTaskLocalSqliteRepository,
-    tag::TagLocalSqliteRepository,
-    subtask_tag::SubtaskTagLocalSqliteRepository,
+    project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
+    subtask_tag::SubtaskTagLocalSqliteRepository, tag::TagLocalSqliteRepository,
+    task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
 };
+use flequit_model::models::task_projects::{
+    project::Project, subtask::SubTask, tag::Tag, task::Task, task_list::TaskList,
+};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 use function_name::named;
@@ -34,7 +27,6 @@ use crate::integration::support::sqlite::SqliteTestHarness;
 #[named]
 #[tokio::test]
 async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error::Error>> {
-
     // テンプレートディレクトリ
     let crate_name = env!("CARGO_PKG_NAME");
     let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
@@ -82,7 +74,9 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -159,30 +153,44 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
     subtask_tag_repo.add_relation(&subtask_id, &tag2_id).await?;
 
     // 2. サブタスクのタグ取得テスト
-    let subtask_tags = subtask_tag_repo.find_tag_ids_by_subtask_id(&subtask_id).await?;
+    let subtask_tags = subtask_tag_repo
+        .find_tag_ids_by_subtask_id(&subtask_id)
+        .await?;
     assert_eq!(subtask_tags.len(), 2);
     assert!(subtask_tags.contains(&tag1_id));
     assert!(subtask_tags.contains(&tag2_id));
 
     // 3. タグからサブタスクを検索テスト
-    let subtasks_with_tag1 = subtask_tag_repo.find_subtask_ids_by_tag_id(&tag1_id).await?;
+    let subtasks_with_tag1 = subtask_tag_repo
+        .find_subtask_ids_by_tag_id(&tag1_id)
+        .await?;
     assert_eq!(subtasks_with_tag1.len(), 1);
     assert_eq!(subtasks_with_tag1[0], subtask_id);
 
     // 4. 重複登録防止テスト
     subtask_tag_repo.add_relation(&subtask_id, &tag1_id).await?; // 既存の関連を再追加
-    let subtask_tags_after_duplicate = subtask_tag_repo.find_tag_ids_by_subtask_id(&subtask_id).await?;
+    let subtask_tags_after_duplicate = subtask_tag_repo
+        .find_tag_ids_by_subtask_id(&subtask_id)
+        .await?;
     assert_eq!(subtask_tags_after_duplicate.len(), 2); // 重複していない
 
     // 5. 個別削除テスト
-    subtask_tag_repo.remove_relation(&subtask_id, &tag1_id).await?;
-    let subtask_tags_after_remove = subtask_tag_repo.find_tag_ids_by_subtask_id(&subtask_id).await?;
+    subtask_tag_repo
+        .remove_relation(&subtask_id, &tag1_id)
+        .await?;
+    let subtask_tags_after_remove = subtask_tag_repo
+        .find_tag_ids_by_subtask_id(&subtask_id)
+        .await?;
     assert_eq!(subtask_tags_after_remove.len(), 1);
     assert_eq!(subtask_tags_after_remove[0], tag2_id);
 
     // 6. 全削除テスト
-    subtask_tag_repo.remove_all_relations_by_subtask_id(&subtask_id).await?;
-    let subtask_tags_after_clear = subtask_tag_repo.find_tag_ids_by_subtask_id(&subtask_id).await?;
+    subtask_tag_repo
+        .remove_all_relations_by_subtask_id(&subtask_id)
+        .await?;
+    let subtask_tags_after_clear = subtask_tag_repo
+        .find_tag_ids_by_subtask_id(&subtask_id)
+        .await?;
     assert_eq!(subtask_tags_after_clear.len(), 0);
 
     println!("✅ SubtaskTagリポジトリテスト完了");
@@ -237,7 +245,9 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -307,11 +317,15 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
     let db = db_manager_read.get_connection().await?;
 
     // 一括更新テスト
-    subtask_tag_repo.update_subtask_tag_relations(db, &subtask_id, &tag_ids).await?;
+    subtask_tag_repo
+        .update_subtask_tag_relations(db, &subtask_id, &tag_ids)
+        .await?;
     drop(db_manager_read); // 読み取りロックを解放
 
     // 結果確認
-    let assigned_tags = subtask_tag_repo.find_tag_ids_by_subtask_id(&subtask_id).await?;
+    let assigned_tags = subtask_tag_repo
+        .find_tag_ids_by_subtask_id(&subtask_id)
+        .await?;
     assert_eq!(assigned_tags.len(), 3);
     for tag_id in &tag_ids {
         assert!(assigned_tags.contains(tag_id));

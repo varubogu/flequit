@@ -2,13 +2,13 @@
 //!
 //! testing.mdルール準拠のSQLiteタグリポジトリテスト
 
-use flequit_model::models::task_projects::tag::Tag;
-use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
+use flequit_model::models::task_projects::tag::Tag;
+use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_repository::project_repository_trait::ProjectRepository;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 use function_name::named;

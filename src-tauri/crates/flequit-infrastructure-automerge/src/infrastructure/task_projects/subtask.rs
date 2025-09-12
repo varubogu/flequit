@@ -1,11 +1,11 @@
 use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
+use async_trait::async_trait;
 use flequit_model::models::task_projects::subtask::SubTask;
+use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::subtask_repository_trait::SubTaskRepositoryTrait;
-use flequit_model::types::id_types::{ProjectId, SubTaskId};
-use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -48,15 +48,24 @@ impl SubTaskLocalAutomergeRepository {
 
     /// 指定されたプロジェクトのDocumentを取得または作成
     #[tracing::instrument(level = "trace")]
-    async fn get_or_create_document(&self, project_id: &ProjectId) -> Result<Document, RepositoryError> {
+    async fn get_or_create_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Document, RepositoryError> {
         let doc_type = DocumentType::Project(project_id.clone());
         let mut manager = self.document_manager.write().await;
-        manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
+        manager
+            .get_or_create(&doc_type)
+            .await
+            .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
     /// 指定されたプロジェクトの全サブタスクを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn list_subtasks(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
+    pub async fn list_subtasks(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<SubTask>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let subtasks = document.load_data::<Vec<SubTask>>("subtasks").await?;
         if let Some(subtasks) = subtasks {
@@ -68,14 +77,22 @@ impl SubTaskLocalAutomergeRepository {
 
     /// IDでサブタスクを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn get_subtask(&self, project_id: &ProjectId, subtask_id: &str) -> Result<Option<SubTask>, RepositoryError> {
+    pub async fn get_subtask(
+        &self,
+        project_id: &ProjectId,
+        subtask_id: &str,
+    ) -> Result<Option<SubTask>, RepositoryError> {
         let subtasks = self.list_subtasks(project_id).await?;
         Ok(subtasks.into_iter().find(|st| st.id == subtask_id.into()))
     }
 
     /// サブタスクを作成または更新
     #[tracing::instrument(level = "trace")]
-    pub async fn set_subtask(&self, project_id: &ProjectId, subtask: &SubTask) -> Result<(), RepositoryError> {
+    pub async fn set_subtask(
+        &self,
+        project_id: &ProjectId,
+        subtask: &SubTask,
+    ) -> Result<(), RepositoryError> {
         log::info!("set_subtask - 開始: {:?}", subtask.id);
         let mut subtasks = self.list_subtasks(project_id).await?;
         log::info!("set_subtask - 現在のサブタスク数: {}", subtasks.len());
@@ -96,7 +113,7 @@ impl SubTaskLocalAutomergeRepository {
             Ok(_) => {
                 log::info!("set_subtask - Automergeドキュメント保存完了");
                 Ok(())
-            },
+            }
             Err(e) => {
                 log::error!("set_subtask - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
@@ -106,7 +123,11 @@ impl SubTaskLocalAutomergeRepository {
 
     /// サブタスクを削除
     #[tracing::instrument(level = "trace")]
-    pub async fn delete_subtask(&self, project_id: &ProjectId, subtask_id: &str) -> Result<bool, RepositoryError> {
+    pub async fn delete_subtask(
+        &self,
+        project_id: &ProjectId,
+        subtask_id: &str,
+    ) -> Result<bool, RepositoryError> {
         let mut subtasks = self.list_subtasks(project_id).await?;
         let initial_len = subtasks.len();
         subtasks.retain(|st| st.id != subtask_id.into());
@@ -121,7 +142,6 @@ impl SubTaskLocalAutomergeRepository {
     }
 }
 
-
 // SubTaskRepositoryTraitの実装
 #[async_trait]
 impl SubTaskRepositoryTrait for SubTaskLocalAutomergeRepository {}
@@ -130,18 +150,31 @@ impl SubTaskRepositoryTrait for SubTaskLocalAutomergeRepository {}
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, project_id: &ProjectId, entity: &SubTask) -> Result<(), RepositoryError> {
-        log::info!("SubTaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
+        log::info!(
+            "SubTaskLocalAutomergeRepository::save - 開始: {:?}",
+            entity.id
+        );
         let result = self.set_subtask(project_id, entity).await;
         if result.is_ok() {
-            log::info!("SubTaskLocalAutomergeRepository::save - 完了: {:?}", entity.id);
+            log::info!(
+                "SubTaskLocalAutomergeRepository::save - 完了: {:?}",
+                entity.id
+            );
         } else {
-            log::error!("SubTaskLocalAutomergeRepository::save - エラー: {:?}", result);
+            log::error!(
+                "SubTaskLocalAutomergeRepository::save - エラー: {:?}",
+                result
+            );
         }
         result
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<Option<SubTask>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &SubTaskId,
+    ) -> Result<Option<SubTask>, RepositoryError> {
         self.get_subtask(project_id, &id.to_string()).await
     }
 
@@ -156,12 +189,19 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         if deleted {
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("SubTask not found: {}", id)))
+            Err(RepositoryError::NotFound(format!(
+                "SubTask not found: {}",
+                id
+            )))
         }
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn exists(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        project_id: &ProjectId,
+        id: &SubTaskId,
+    ) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }

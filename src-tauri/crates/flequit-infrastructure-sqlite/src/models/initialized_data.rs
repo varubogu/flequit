@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// 初期化データのプレースホルダー
-/// 
+///
 /// アプリケーション初期化時に必要なデータを管理します
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InitializedData {

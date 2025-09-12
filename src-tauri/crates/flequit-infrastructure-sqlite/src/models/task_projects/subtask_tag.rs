@@ -5,7 +5,7 @@ use flequit_model::types::id_types::{SubTaskId, TagId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{SqliteModelConverter, DomainToSqliteConverter};
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 
 /// SubtaskTag用SQLiteエンティティ定義
 ///

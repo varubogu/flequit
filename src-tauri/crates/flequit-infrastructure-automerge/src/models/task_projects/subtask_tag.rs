@@ -1,5 +1,5 @@
 //! SubTaskTag AutoMergeモデル
-//! 
+//!
 //! SQLite subtask_tagsテーブルと同じ構造を持つAutoMerge用データ構造
 
 use chrono::{DateTime, Utc};
@@ -48,7 +48,10 @@ pub struct AutoMergeSubTaskTagCollection;
 
 impl AutoMergeSubTaskTagCollection {
     /// 指定されたサブタスクに関連付けられたすべてのタグIDを取得
-    pub fn get_tags_for_subtask(subtask_tags: &[AutoMergeSubTaskTag], subtask_id: &str) -> Vec<String> {
+    pub fn get_tags_for_subtask(
+        subtask_tags: &[AutoMergeSubTaskTag],
+        subtask_id: &str,
+    ) -> Vec<String> {
         subtask_tags
             .iter()
             .filter(|stt| stt.belongs_to_subtask(subtask_id))
@@ -72,7 +75,10 @@ impl AutoMergeSubTaskTagCollection {
         tag_id: String,
     ) -> bool {
         // 既に存在するかチェック
-        if subtask_tags.iter().any(|stt| stt.matches(&subtask_id, &tag_id)) {
+        if subtask_tags
+            .iter()
+            .any(|stt| stt.matches(&subtask_id, &tag_id))
+        {
             return false; // 既に存在する
         }
 
@@ -119,7 +125,7 @@ mod tests {
     #[test]
     fn test_new_subtask_tag() {
         let subtask_tag = AutoMergeSubTaskTag::new("subtask-1".to_string(), "tag-1".to_string());
-        
+
         assert_eq!(subtask_tag.subtask_id, "subtask-1");
         assert_eq!(subtask_tag.tag_id, "tag-1");
         assert!(subtask_tag.belongs_to_subtask("subtask-1"));
@@ -137,13 +143,15 @@ mod tests {
         ];
 
         // サブタスクのタグを取得
-        let subtask_1_tags = AutoMergeSubTaskTagCollection::get_tags_for_subtask(&subtask_tags, "subtask-1");
+        let subtask_1_tags =
+            AutoMergeSubTaskTagCollection::get_tags_for_subtask(&subtask_tags, "subtask-1");
         assert_eq!(subtask_1_tags.len(), 2);
         assert!(subtask_1_tags.contains(&"tag-1".to_string()));
         assert!(subtask_1_tags.contains(&"tag-2".to_string()));
 
         // タグのサブタスクを取得
-        let tag_1_subtasks = AutoMergeSubTaskTagCollection::get_subtasks_for_tag(&subtask_tags, "tag-1");
+        let tag_1_subtasks =
+            AutoMergeSubTaskTagCollection::get_subtasks_for_tag(&subtask_tags, "tag-1");
         assert_eq!(tag_1_subtasks.len(), 2);
         assert!(tag_1_subtasks.contains(&"subtask-1".to_string()));
         assert!(tag_1_subtasks.contains(&"subtask-2".to_string()));
@@ -167,12 +175,19 @@ mod tests {
         assert_eq!(subtask_tags.len(), 4);
 
         // 関連を削除
-        let removed = AutoMergeSubTaskTagCollection::remove_subtask_tag(&mut subtask_tags, "subtask-1", "tag-1");
+        let removed = AutoMergeSubTaskTagCollection::remove_subtask_tag(
+            &mut subtask_tags,
+            "subtask-1",
+            "tag-1",
+        );
         assert!(removed);
         assert_eq!(subtask_tags.len(), 3);
 
         // サブタスクのすべてのタグ関連を削除
-        let removed_count = AutoMergeSubTaskTagCollection::remove_all_tags_for_subtask(&mut subtask_tags, "subtask-1");
+        let removed_count = AutoMergeSubTaskTagCollection::remove_all_tags_for_subtask(
+            &mut subtask_tags,
+            "subtask-1",
+        );
         assert_eq!(removed_count, 1); // tag-2が削除された
         assert_eq!(subtask_tags.len(), 2);
     }

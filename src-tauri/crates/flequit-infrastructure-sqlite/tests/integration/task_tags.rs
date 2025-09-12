@@ -2,23 +2,23 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクタグリポジトリテスト
 
-use flequit_model::models::task_projects::{project::Project, task_list::TaskList, task::Task, tag::Tag};
-use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, TagId, UserId};
-use flequit_model::types::project_types::ProjectStatus;
-use flequit_model::types::task_types::TaskStatus;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
-    tag::TagLocalSqliteRepository,
+    project::ProjectLocalSqliteRepository, tag::TagLocalSqliteRepository,
+    task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
     task_tag::TaskTagLocalSqliteRepository,
 };
+use flequit_model::models::task_projects::{
+    project::Project, tag::Tag, task::Task, task_list::TaskList,
+};
+use flequit_model::types::id_types::{ProjectId, TagId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use function_name::named;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 
@@ -73,7 +73,9 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -149,7 +151,9 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
     assert_eq!(task_tags_after_remove[0], tag2_id);
 
     // 6. 全削除テスト
-    task_tag_repo.remove_all_relations_by_task_id(&task_id).await?;
+    task_tag_repo
+        .remove_all_relations_by_task_id(&task_id)
+        .await?;
     let task_tags_after_clear = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
     assert_eq!(task_tags_after_clear.len(), 0);
 
@@ -205,7 +209,9 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
     };
-    task_list_repo.save(&task_list.project_id, &task_list).await?;
+    task_list_repo
+        .save(&task_list.project_id, &task_list)
+        .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
     let task = Task {
@@ -252,7 +258,9 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
     let db = db_manager_read.get_connection().await?;
 
     // 一括更新テスト
-    task_tag_repo.update_task_tag_relations(db, &task_id, &tag_ids).await?;
+    task_tag_repo
+        .update_task_tag_relations(db, &task_id, &tag_ids)
+        .await?;
     drop(db_manager_read); // 読み取りロックを解放
 
     // 結果確認

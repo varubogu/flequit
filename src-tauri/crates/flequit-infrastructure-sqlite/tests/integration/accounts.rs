@@ -2,17 +2,17 @@
 //!
 //! testing.mdルール準拠のSQLiteアカウントリポジトリテスト
 
+use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::types::id_types::{AccountId, UserId};
-use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
+use crate::integration::support::sqlite::SqliteTestHarness;
 use flequit_testing::TestPathGenerator;
 use function_name::named;
-use crate::integration::support::sqlite::SqliteTestHarness;
 
 #[named]
 #[tokio::test]
@@ -144,7 +144,6 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
     let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
-
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(output_file_path.to_string_lossy().to_string());
@@ -393,11 +392,15 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     assert_ne!(output_file_path1, output_file_path2);
 
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = DatabaseManager::new_for_test(output_file_path1.to_string_lossy().to_string());
-    let db_manager2 = DatabaseManager::new_for_test(output_file_path2.to_string_lossy().to_string());
+    let db_manager1 =
+        DatabaseManager::new_for_test(output_file_path1.to_string_lossy().to_string());
+    let db_manager2 =
+        DatabaseManager::new_for_test(output_file_path2.to_string_lossy().to_string());
 
-    let account_repo1 = AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
-    let account_repo2 = AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
+    let account_repo1 =
+        AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
+    let account_repo2 =
+        AccountLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
 
     // DB1にアカウント作成
     let account_id1 = AccountId::from(Uuid::new_v4());

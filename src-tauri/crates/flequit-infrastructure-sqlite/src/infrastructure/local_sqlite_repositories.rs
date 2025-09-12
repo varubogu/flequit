@@ -10,12 +10,10 @@ use crate::infrastructure::{
     task_projects::subtask::SubTaskLocalSqliteRepository,
     task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository,
     task_projects::subtask_tag::SubtaskTagLocalSqliteRepository,
-    task_projects::tag::TagLocalSqliteRepository,
-    task_projects::task::TaskLocalSqliteRepository,
+    task_projects::tag::TagLocalSqliteRepository, task_projects::task::TaskLocalSqliteRepository,
     task_projects::task_assignments::TaskAssignmentLocalSqliteRepository,
     task_projects::task_list::TaskListLocalSqliteRepository,
-    task_projects::task_tag::TaskTagLocalSqliteRepository,
-    users::user::UserLocalSqliteRepository,
+    task_projects::task_tag::TaskTagLocalSqliteRepository, users::user::UserLocalSqliteRepository,
 };
 
 /// SQLiteリポジトリ群の統合管理
@@ -58,53 +56,53 @@ impl LocalSqliteRepositories {
             users: UserLocalSqliteRepository::new(db_manager),
         })
     }
-    
+
     /// デフォルト設定でリポジトリ群を設定
     #[tracing::instrument(level = "trace")]
     pub async fn setup() -> Result<Self, Box<dyn std::error::Error>> {
         Self::new().await.map_err(|e| e.into())
     }
-    
+
     /// プロジェクトリポジトリへのアクセス
     pub fn projects(&self) -> &ProjectLocalSqliteRepository {
         &self.projects
     }
-    
+
     /// アカウントリポジトリへのアクセス
     pub fn accounts(&self) -> &AccountLocalSqliteRepository {
         &self.accounts
     }
-    
+
     /// タスクリポジトリへのアクセス
     pub fn tasks(&self) -> &TaskLocalSqliteRepository {
         &self.tasks
     }
-    
+
     /// サブタスクリポジトリへのアクセス
     pub fn sub_tasks(&self) -> &SubTaskLocalSqliteRepository {
         &self.sub_tasks
     }
-    
+
     /// タグリポジトリへのアクセス
     pub fn tags(&self) -> &TagLocalSqliteRepository {
         &self.tags
     }
-    
+
     /// タスクリストリポジトリへのアクセス
     pub fn task_lists(&self) -> &TaskListLocalSqliteRepository {
         &self.task_lists
     }
-    
+
     /// ユーザーリポジトリへのアクセス
     pub fn users(&self) -> &UserLocalSqliteRepository {
         &self.users
     }
-    
+
     /// タスクアサインリポジトリへのアクセス
     pub fn task_assignments(&self) -> &TaskAssignmentLocalSqliteRepository {
         &self.task_assignments
     }
-    
+
     /// サブタスクアサインリポジトリへのアクセス
     pub fn subtask_assignments(&self) -> &SubtaskAssignmentLocalSqliteRepository {
         &self.subtask_assignments

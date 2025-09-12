@@ -5,9 +5,7 @@ use uuid::Uuid;
 macro_rules! define_id {
     ($name:ident) => {
         #[derive(
-            Debug, Clone, Copy, PartialEq, Eq, Hash,
-            PartialOrd, Ord,
-            Serialize, Deserialize,
+            Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize,
         )]
         pub struct $name(pub Uuid);
 

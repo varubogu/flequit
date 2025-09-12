@@ -23,7 +23,10 @@ impl SettingsManager {
         SettingsPaths::ensure_settings_dir_exists()?;
         let settings_path = SettingsPaths::get_settings_file_path()?;
 
-        debug!("SettingsManager initialized with path: {}", settings_path.display());
+        debug!(
+            "SettingsManager initialized with path: {}",
+            settings_path.display()
+        );
 
         Ok(Self { settings_path })
     }
@@ -51,23 +54,24 @@ impl SettingsManager {
             let default_settings = Settings::default();
             self.save_settings(&default_settings)?;
 
-            info!("デフォルト設定ファイルを作成しました: {}", self.settings_path.display());
+            info!(
+                "デフォルト設定ファイルを作成しました: {}",
+                self.settings_path.display()
+            );
             return Ok(default_settings);
         }
 
         debug!("設定ファイルを読み込み中: {}", self.settings_path.display());
 
-        let content = std::fs::read_to_string(&self.settings_path)
-            .map_err(|e| {
-                warn!("設定ファイルの読み取りに失敗: {}", e);
-                SettingsError::ReadError { source: e }
-            })?;
+        let content = std::fs::read_to_string(&self.settings_path).map_err(|e| {
+            warn!("設定ファイルの読み取りに失敗: {}", e);
+            SettingsError::ReadError { source: e }
+        })?;
 
-        let settings: Settings = serde_yaml::from_str(&content)
-            .map_err(|e| {
-                warn!("YAML解析に失敗: {}", e);
-                SettingsError::YamlParseError { source: e }
-            })?;
+        let settings: Settings = serde_yaml::from_str(&content).map_err(|e| {
+            warn!("YAML解析に失敗: {}", e);
+            SettingsError::YamlParseError { source: e }
+        })?;
 
         // 設定値を検証
         SettingsValidator::validate(&settings)?;
@@ -87,30 +91,29 @@ impl SettingsManager {
         SettingsValidator::validate(settings)?;
 
         // YAMLに変換
-        let yaml_content = serde_yaml::to_string(settings)
-            .map_err(|e| {
-                warn!("YAML変換に失敗: {}", e);
-                SettingsError::YamlParseError { source: e }
-            })?;
+        let yaml_content = serde_yaml::to_string(settings).map_err(|e| {
+            warn!("YAML変換に失敗: {}", e);
+            SettingsError::YamlParseError { source: e }
+        })?;
 
         // 親ディレクトリが存在しない場合は作成
         if let Some(parent_dir) = self.settings_path.parent() {
             if !parent_dir.exists() {
-                std::fs::create_dir_all(parent_dir)
-                    .map_err(|_| SettingsError::DirectoryCreationError {
+                std::fs::create_dir_all(parent_dir).map_err(|_| {
+                    SettingsError::DirectoryCreationError {
                         path: parent_dir.display().to_string(),
-                    })?;
+                    }
+                })?;
             }
         }
 
         // ファイルに書き込み
-        std::fs::write(&self.settings_path, yaml_content)
-            .map_err(|e| {
-                warn!("設定ファイルの書き込みに失敗: {}", e);
-                SettingsError::WriteError {
-                    path: self.settings_path.display().to_string(),
-                }
-            })?;
+        std::fs::write(&self.settings_path, yaml_content).map_err(|e| {
+            warn!("設定ファイルの書き込みに失敗: {}", e);
+            SettingsError::WriteError {
+                path: self.settings_path.display().to_string(),
+            }
+        })?;
 
         info!("設定ファイルの保存が完了しました");
         Ok(())

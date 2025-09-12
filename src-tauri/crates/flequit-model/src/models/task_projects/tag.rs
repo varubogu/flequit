@@ -7,15 +7,14 @@
 //! `Tag`構造体は、タスクやプロジェクトに付与するラベル情報を管理します。
 //! カテゴリ分けや検索性の向上、視覚的な識別に活用されます。
 
-use crate::models::ModelConverter;
-use super::task_tag::TaskTag;
 use super::subtask_tag::SubTaskTag;
+use super::task_tag::TaskTag;
+use crate::models::ModelConverter;
 use crate::types::id_types::TagId;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
-
 
 /// タグ情報を表現する構造体
 ///

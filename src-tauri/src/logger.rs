@@ -25,16 +25,19 @@ use tracing_subscriber::{
 /// # Arguments
 /// * `log_dir` - ログファイルを保存するディレクトリ
 /// * `app_name` - アプリケーション名（ログファイル名に使用）
-pub fn init_logger(log_dir: Option<PathBuf>, app_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn init_logger(
+    log_dir: Option<PathBuf>,
+    app_name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     // EnvFilterを作成する関数（再利用のため）
     fn create_env_filter() -> EnvFilter {
         EnvFilter::try_from_default_env()
             .or_else(|_| EnvFilter::try_new("info"))
             .unwrap()
             .add_directive("sqlx::query=warn".parse().unwrap()) // SQLクエリログを抑制
-            .add_directive("sea_orm=warn".parse().unwrap())      // Sea-ORMログを抑制
-            .add_directive("hyper=warn".parse().unwrap())        // HTTPライブラリログを抑制
-            .add_directive("tower=warn".parse().unwrap())        // Towerログを抑制
+            .add_directive("sea_orm=warn".parse().unwrap()) // Sea-ORMログを抑制
+            .add_directive("hyper=warn".parse().unwrap()) // HTTPライブラリログを抑制
+            .add_directive("tower=warn".parse().unwrap()) // Towerログを抑制
     }
 
     let registry = tracing_subscriber::registry();
@@ -67,10 +70,7 @@ pub fn init_logger(log_dir: Option<PathBuf>, app_name: &str) -> Result<(), Box<d
             .with_ansi(false) // ファイル出力ではANSIエスケープコードを無効化
             .with_filter(create_env_filter());
 
-        registry
-            .with(console_layer)
-            .with(file_layer)
-            .init();
+        registry.with(console_layer).with(file_layer).init();
 
         // ガードをstaticで保持（アプリケーションの終了まで保持する必要がある）
         std::mem::forget(_guard);
@@ -89,10 +89,10 @@ pub fn get_log_directory() -> Result<PathBuf, Box<dyn std::error::Error>> {
     let mut log_dir = dirs::data_local_dir()
         .or_else(|| dirs::data_dir())
         .ok_or("Could not determine data directory")?;
-    
+
     log_dir.push("flequit");
     log_dir.push("logs");
-    
+
     Ok(log_dir)
 }
 
@@ -110,7 +110,7 @@ pub fn test_logging() {
     tracing::info!("🔵 テスト情報メッセージ");
     tracing::debug!("🟢 テストデバッグメッセージ");
     tracing::trace!("⚪ テストトレースメッセージ");
-    
+
     log::error!("🔴 log!マクロテスト - エラー");
     log::warn!("🟡 log!マクロテスト - 警告");
     log::info!("🔵 log!マクロテスト - 情報");

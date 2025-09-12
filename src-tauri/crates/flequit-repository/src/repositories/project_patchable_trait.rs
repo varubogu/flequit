@@ -1,8 +1,8 @@
-use flequit_types::errors::repository_error::RepositoryError;
-use flequit_model::types::id_types::ProjectId;
-use async_trait::async_trait;
-use partially::Partial;
 use super::project_repository_trait::ProjectRepository;
+use async_trait::async_trait;
+use flequit_model::types::id_types::ProjectId;
+use flequit_types::errors::repository_error::RepositoryError;
+use partially::Partial;
 
 /// プロジェクトスコープでパッチ更新可能なリポジトリトレイト
 ///
@@ -52,7 +52,12 @@ where
     /// 変更がなかった場合は`Ok(false)`、
     /// エンティティが存在しない場合は`Ok(false)`、
     /// エラー時は`Err(RepositoryError)`
-    async fn patch<P>(&self, project_id: &ProjectId, id: &TId, patch: &P) -> Result<bool, RepositoryError>
+    async fn patch<P>(
+        &self,
+        project_id: &ProjectId,
+        id: &TId,
+        patch: &P,
+    ) -> Result<bool, RepositoryError>
     where
         P: Send + Sync + Clone,
         T: Partial<Item = P> + Clone,
@@ -83,7 +88,12 @@ where
     ///
     /// 実際に変更が発生したエンティティの数、
     /// エラー時は`Err(RepositoryError)`
-    async fn patch_many<P>(&self, project_id: &ProjectId, ids: &[TId], patch: &P) -> Result<u64, RepositoryError>
+    async fn patch_many<P>(
+        &self,
+        project_id: &ProjectId,
+        ids: &[TId],
+        patch: &P,
+    ) -> Result<u64, RepositoryError>
     where
         P: Send + Sync + Clone,
         T: Partial<Item = P> + Clone,

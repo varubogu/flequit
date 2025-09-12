@@ -1,8 +1,8 @@
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::task_projects::project::{PartialProject, Project};
 use crate::services::project_service;
-use flequit_model::types::id_types::ProjectId;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::project::{PartialProject, Project};
+use flequit_model::types::id_types::ProjectId;
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<bool, String>

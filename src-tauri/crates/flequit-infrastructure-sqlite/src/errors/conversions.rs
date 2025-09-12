@@ -1,6 +1,7 @@
-  use flequit_types::errors::repository_error::RepositoryError;
-  use crate::errors::sqlite_error::SQLiteError;
-  use sea_orm::DbErr;
+
+use crate::errors::sqlite_error::SQLiteError;
+use flequit_types::errors::repository_error::RepositoryError;
+use sea_orm::DbErr;
 
 // DbErr -> SqliteError (同じクレート内なので可能)
 impl From<DbErr> for SQLiteError {

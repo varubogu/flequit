@@ -1,24 +1,20 @@
 use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
-use flequit_model::models::task_projects::{
-    project::Project,
-    subtask::SubTask,
-    tag::Tag,
-    task::Task,
-    task_list::TaskList,
-};
-use flequit_repository::base_repository_trait::Repository;
-use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
-use flequit_model::types::id_types::{ProjectId, UserId};
-use flequit_model::types::project_types::ProjectStatus;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use flequit_model::models::task_projects::member::Member;
+use flequit_model::models::task_projects::{
+    project::Project, subtask::SubTask, tag::Tag, task::Task, task_list::TaskList,
+};
+use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_repository::base_repository_trait::Repository;
+use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use flequit_model::models::task_projects::member::Member;
 
 /// Project Document構造（data-structure.md仕様準拠）
 ///
@@ -99,10 +95,16 @@ impl ProjectLocalAutomergeRepository {
 
     /// 指定されたプロジェクトのDocumentを取得または作成
     #[tracing::instrument(level = "trace")]
-    async fn get_or_create_document(&self, project_id: &ProjectId) -> Result<Document, RepositoryError> {
+    async fn get_or_create_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Document, RepositoryError> {
         let doc_type = DocumentType::Project(project_id.clone());
         let mut manager = self.document_manager.write().await;
-        manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
+        manager
+            .get_or_create(&doc_type)
+            .await
+            .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
     /// プロジェクトドキュメント全体を取得
@@ -170,21 +172,41 @@ impl ProjectLocalAutomergeRepository {
         // 基本プロジェクト情報を個別に保存
         document.save_data("id", &project_document.id).await?;
         document.save_data("name", &project_document.name).await?;
-        document.save_data("description", &project_document.description).await?;
+        document
+            .save_data("description", &project_document.description)
+            .await?;
         document.save_data("color", &project_document.color).await?;
-        document.save_data("order_index", &project_document.order_index).await?;
-        document.save_data("is_archived", &project_document.is_archived).await?;
-        document.save_data("status", &project_document.status).await?;
-        document.save_data("owner_id", &project_document.owner_id).await?;
-        document.save_data("created_at", &project_document.created_at).await?;
-        document.save_data("updated_at", &project_document.updated_at).await?;
+        document
+            .save_data("order_index", &project_document.order_index)
+            .await?;
+        document
+            .save_data("is_archived", &project_document.is_archived)
+            .await?;
+        document
+            .save_data("status", &project_document.status)
+            .await?;
+        document
+            .save_data("owner_id", &project_document.owner_id)
+            .await?;
+        document
+            .save_data("created_at", &project_document.created_at)
+            .await?;
+        document
+            .save_data("updated_at", &project_document.updated_at)
+            .await?;
 
         // プロジェクト内エンティティを個別に保存
-        document.save_data("task_lists", &project_document.task_lists).await?;
+        document
+            .save_data("task_lists", &project_document.task_lists)
+            .await?;
         document.save_data("tasks", &project_document.tasks).await?;
-        document.save_data("subtasks", &project_document.subtasks).await?;
+        document
+            .save_data("subtasks", &project_document.subtasks)
+            .await?;
         document.save_data("tags", &project_document.tags).await?;
-        document.save_data("members", &project_document.members).await?;
+        document
+            .save_data("members", &project_document.members)
+            .await?;
 
         Ok(())
     }
@@ -213,13 +235,17 @@ impl ProjectLocalAutomergeRepository {
             members: Vec::new(),
         };
 
-        self.save_project_document(&project.id, &empty_document).await
+        self.save_project_document(&project.id, &empty_document)
+            .await
     }
 
     /// IDでプロジェクトを取得（プロジェクトドキュメントから基本情報のみ）
     #[tracing::instrument(level = "trace")]
     pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, RepositoryError> {
-        if let Some(document) = self.get_project_document(&ProjectId::from(project_id)).await? {
+        if let Some(document) = self
+            .get_project_document(&ProjectId::from(project_id))
+            .await?
+        {
             Ok(Some(Project {
                 id: ProjectId::from(document.id),
                 name: document.name,
@@ -446,10 +472,14 @@ impl ProjectLocalAutomergeRepository {
 
     /// プロジェクトドキュメント自体を削除
     #[tracing::instrument(level = "trace")]
-    pub async fn delete_project_document(&self, project_id: &ProjectId) -> Result<(), RepositoryError> {
+    pub async fn delete_project_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<(), RepositoryError> {
         let mut manager = self.document_manager.write().await;
         let doc_type = DocumentType::Project(project_id.clone());
-        manager.delete(doc_type)
+        manager
+            .delete(doc_type)
             .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
@@ -508,7 +538,7 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self,id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
+    async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         self.get_project(&id.to_string()).await
     }
 
@@ -516,7 +546,9 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // 一覧取得はProjectListLocalAutomergeRepositoryを使用してください
-        Err(RepositoryError::NotFound("Use ProjectListLocalAutomergeRepository for project listing".to_string()))
+        Err(RepositoryError::NotFound(
+            "Use ProjectListLocalAutomergeRepository for project listing".to_string(),
+        ))
     }
 
     #[tracing::instrument(level = "trace")]
@@ -536,7 +568,9 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
     async fn count(&self) -> Result<u64, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // カウント取得はProjectListLocalAutomergeRepositoryを使用してください
-        Err(RepositoryError::NotFound("Use ProjectListLocalAutomergeRepository for project counting".to_string()))
+        Err(RepositoryError::NotFound(
+            "Use ProjectListLocalAutomergeRepository for project counting".to_string(),
+        ))
     }
 }
 

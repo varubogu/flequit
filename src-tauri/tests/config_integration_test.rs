@@ -1,8 +1,8 @@
 //! 新しい設定管理API統合テスト
 
-use flequit_settings::{SettingsManager, Settings};
-use tempfile::TempDir;
+use flequit_settings::{Settings, SettingsManager};
 use std::env;
+use tempfile::TempDir;
 
 /// テスト用の一時ディレクトリ設定
 fn setup_test_env() -> TempDir {
@@ -31,7 +31,10 @@ async fn test_config_file_operations() {
     // 4. 設定ファイルパスの確認
     let config_path = config_manager.get_settings_path();
     assert!(config_path.exists(), "設定ファイルが実際に存在するはず");
-    assert!(config_path.to_string_lossy().ends_with("config.yml"), "ファイル名がconfig.ymlであるはず");
+    assert!(
+        config_path.to_string_lossy().ends_with("config.yml"),
+        "ファイル名がconfig.ymlであるはず"
+    );
 
     println!("✅ 設定ファイルパス: {}", config_path.display());
 }
@@ -95,7 +98,10 @@ async fn test_invalid_settings_validation() {
 
     // バリデーションエラーが発生することを確認
     let result = config_manager.save_settings(&invalid_settings);
-    assert!(result.is_err(), "無効な設定値でバリデーションエラーが発生するはず");
+    assert!(
+        result.is_err(),
+        "無効な設定値でバリデーションエラーが発生するはず"
+    );
 
     println!("✅ 設定値バリデーション動作確認");
 }

@@ -1,12 +1,12 @@
 //! ユーザーコマンドモデル
 
-use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use flequit_model::models::ModelConverter;
-use flequit_model::models::users::user::User;
-use flequit_model::types::id_types::UserId;
 use crate::models::CommandModelConverter;
+use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use flequit_model::models::users::user::User;
+use flequit_model::models::ModelConverter;
+use flequit_model::types::id_types::UserId;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCommandModel {

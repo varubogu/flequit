@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::datetime_format_types::DateTimeFormatGroup;
 
-
 /// 統合日時フォーマット情報を表現する構造体
 ///
 /// アプリケーション内で使用される日時表示フォーマットの統一管理を行います。

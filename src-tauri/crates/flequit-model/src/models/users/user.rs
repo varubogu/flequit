@@ -17,15 +17,14 @@
 //! - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
 use crate::models::ModelConverter;
+use crate::models::task_projects::{
+    subtask_assignment::SubTaskAssignment, task_assignment::TaskAssignment,
+};
 use crate::types::id_types::UserId;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
-use crate::models::task_projects::{
-    subtask_assignment::SubTaskAssignment,
-    task_assignment::TaskAssignment,
-};
 
 /// アプリケーションユーザー情報を表現する構造体
 ///

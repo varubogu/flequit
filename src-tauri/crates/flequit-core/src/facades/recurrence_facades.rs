@@ -3,10 +3,17 @@
 //! このモジュールは繰り返しルール、調整、詳細、タスク・サブタスク関連付けの
 //! Service層とのインターフェースを提供します。
 
-use flequit_model::{models::task_projects::{recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails, recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence, task_recurrence::TaskRecurrence}, types::id_types::{SubTaskId, TaskId}};
-use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use crate::services::recurrence_service;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::{
+    models::task_projects::{
+        recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
+        recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
+        task_recurrence::TaskRecurrence,
+    },
+    types::id_types::{SubTaskId, TaskId},
+};
+use flequit_types::errors::service_error::ServiceError;
 
 // 実際のドメインモデルを使用（Commandモデルは削除）
 // TODO: 繰り返しファサードで使用すべき適切なドメインモデルを確認して置換
@@ -17,7 +24,10 @@ use crate::services::recurrence_service;
 
 /// 繰り返しルールを作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_rule<R>(repositories: &R, rule: RecurrenceRule) -> Result<bool, String>
+pub async fn create_recurrence_rule<R>(
+    repositories: &R,
+    rule: RecurrenceRule,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -30,7 +40,10 @@ where
 
 /// 繰り返しルールを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_rule<R>(repositories: &R, rule_id: String) -> Result<Option<RecurrenceRule>, String>
+pub async fn get_recurrence_rule<R>(
+    repositories: &R,
+    rule_id: String,
+) -> Result<Option<RecurrenceRule>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -55,7 +68,10 @@ where
 
 /// 繰り返しルールを更新します。
 #[tracing::instrument(level = "trace")]
-pub async fn update_recurrence_rule<R>(repositories: &R, rule: RecurrenceRule) -> Result<bool, String>
+pub async fn update_recurrence_rule<R>(
+    repositories: &R,
+    rule: RecurrenceRule,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -85,7 +101,10 @@ where
 
 /// 繰り返し調整を作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_adjustment<R>(repositories: &R, adjustment: RecurrenceAdjustment) -> Result<bool, String>
+pub async fn create_recurrence_adjustment<R>(
+    repositories: &R,
+    adjustment: RecurrenceAdjustment,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -98,7 +117,10 @@ where
 
 /// 繰り返しルールIDによる調整一覧を取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_adjustments_by_rule_id<R>(repositories: &R, rule_id: String) -> Result<Vec<RecurrenceAdjustment>, String>
+pub async fn get_recurrence_adjustments_by_rule_id<R>(
+    repositories: &R,
+    rule_id: String,
+) -> Result<Vec<RecurrenceAdjustment>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -110,7 +132,10 @@ where
 
 /// 繰り返し調整を削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_recurrence_adjustment<R>(repositories: &R, adjustment_id: String) -> Result<bool, String>
+pub async fn delete_recurrence_adjustment<R>(
+    repositories: &R,
+    adjustment_id: String,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -127,7 +152,10 @@ where
 
 /// 繰り返し詳細を作成します。
 #[tracing::instrument(level = "trace")]
-pub async fn create_recurrence_details<R>(repositories: &R, details: RecurrenceDetails) -> Result<bool, String>
+pub async fn create_recurrence_details<R>(
+    repositories: &R,
+    details: RecurrenceDetails,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -140,7 +168,10 @@ where
 
 /// 繰り返しルールIDによる詳細を取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_recurrence_details_by_rule_id<R>(repositories: &R, rule_id: String) -> Result<Option<RecurrenceDetails>, String>
+pub async fn get_recurrence_details_by_rule_id<R>(
+    repositories: &R,
+    rule_id: String,
+) -> Result<Option<RecurrenceDetails>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -152,7 +183,10 @@ where
 
 /// 繰り返し詳細を更新します。
 #[tracing::instrument(level = "trace")]
-pub async fn update_recurrence_details<R>(repositories: &R, details: RecurrenceDetails) -> Result<bool, String>
+pub async fn update_recurrence_details<R>(
+    repositories: &R,
+    details: RecurrenceDetails,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -165,7 +199,10 @@ where
 
 /// 繰り返し詳細を削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_recurrence_details<R>(repositories: &R, details_id: String) -> Result<bool, String>
+pub async fn delete_recurrence_details<R>(
+    repositories: &R,
+    details_id: String,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -182,11 +219,17 @@ where
 
 /// タスクに繰り返しルールを関連付けます。
 #[tracing::instrument(level = "trace")]
-pub async fn create_task_recurrence<R>(repositories: &R, task_id: &TaskId, recurrence_rule_id: &str) -> Result<bool, String>
+pub async fn create_task_recurrence<R>(
+    repositories: &R,
+    task_id: &TaskId,
+    recurrence_rule_id: &str,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_task_recurrence(repositories, task_id, recurrence_rule_id).await {
+    match recurrence_service::create_task_recurrence(repositories, task_id, recurrence_rule_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create task recurrence: {:?}", e)),
@@ -195,7 +238,10 @@ where
 
 /// タスクIDによる繰り返し関連付けを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_task_recurrence_by_task_id<R>(repositories: &R, task_id: &TaskId) -> Result<Option<TaskRecurrence>, String>
+pub async fn get_task_recurrence_by_task_id<R>(
+    repositories: &R,
+    task_id: &TaskId,
+) -> Result<Option<TaskRecurrence>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -224,11 +270,21 @@ where
 
 /// サブタスクに繰り返しルールを関連付けます。
 #[tracing::instrument(level = "trace")]
-pub async fn create_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId, recurrence_rule_id: &str) -> Result<bool, String>
+pub async fn create_subtask_recurrence<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+    recurrence_rule_id: &str,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_subtask_recurrence(repositories, subtask_id, recurrence_rule_id).await {
+    match recurrence_service::create_subtask_recurrence(
+        repositories,
+        subtask_id,
+        recurrence_rule_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create subtask recurrence: {:?}", e)),
@@ -237,7 +293,10 @@ where
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
 #[tracing::instrument(level = "trace")]
-pub async fn get_subtask_recurrence_by_subtask_id<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, String>
+pub async fn get_subtask_recurrence_by_subtask_id<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+) -> Result<Option<SubTaskRecurrence>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -249,7 +308,10 @@ where
 
 /// サブタスクの繰り返し関連付けを削除します。
 #[tracing::instrument(level = "trace")]
-pub async fn delete_subtask_recurrence<R>(repositories: &R, subtask_id: &SubTaskId) -> Result<bool, String>
+pub async fn delete_subtask_recurrence<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

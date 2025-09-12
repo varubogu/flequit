@@ -47,15 +47,15 @@
 pub mod errors;
 pub mod manager;
 pub mod models;
-pub mod types;
 pub mod paths;
+pub mod types;
 pub mod validation;
 
 // 公開API
 pub use errors::{SettingsError, SettingsResult};
 pub use manager::SettingsManager;
-pub use models::settings::Settings;
 pub use models::datetime_format::DateTimeFormat;
-pub use models::time_label::TimeLabel;
 pub use models::due_date_buttons::DueDateButtons;
+pub use models::settings::Settings;
+pub use models::time_label::TimeLabel;
 pub use models::view_item::ViewItem;

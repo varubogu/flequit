@@ -1,8 +1,8 @@
+use crate::services::account_service;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::{Account, PartialAccount};
 use flequit_model::types::id_types::AccountId;
 use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
-use crate::services::account_service;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_account<R>(repositories: &R, account: &Account) -> Result<bool, String>
@@ -56,4 +56,3 @@ where
         Err(e) => Err(format!("Failed to delete account: {:?}", e)),
     }
 }
-

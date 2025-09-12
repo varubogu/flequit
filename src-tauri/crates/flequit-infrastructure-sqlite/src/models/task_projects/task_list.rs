@@ -1,6 +1,9 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::task_list::TaskList, types::id_types::{ProjectId, TaskListId}};
+use flequit_model::{
+    models::task_projects::task_list::TaskList,
+    types::id_types::{ProjectId, TaskListId},
+};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 

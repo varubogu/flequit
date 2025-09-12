@@ -3,13 +3,13 @@
 use async_trait::async_trait;
 use log::info;
 
-use flequit_types::errors::repository_error::RepositoryError;
-use flequit_repository::repositories::task_projects::tag_repository_trait::TagRepositoryTrait;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_infrastructure_automerge::infrastructure::task_projects::tag::TagLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
 use flequit_model::models::task_projects::tag::Tag;
-use flequit_model::types::id_types::{TagId, ProjectId};
+use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::task_projects::tag_repository_trait::TagRepositoryTrait;
+use flequit_types::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]
 pub enum TagRepositoryVariant {
@@ -30,7 +30,11 @@ impl ProjectRepository<Tag, TagId> for TagRepositoryVariant {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &TagId,
+    ) -> Result<Option<Tag>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_by_id(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.find_by_id(project_id, id).await,
@@ -133,12 +137,14 @@ impl TagUnifiedRepository {
 
 impl TagRepositoryTrait for TagUnifiedRepository {}
 
-
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
     #[tracing::instrument(level = "trace")]
     async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
-        info!("Saving tag entity with ID: {} in project: {}", entity.id, project_id);
+        info!(
+            "Saving tag entity with ID: {} in project: {}",
+            entity.id, project_id
+        );
 
         for repository in &self.save_repositories {
             repository.save(project_id, entity).await?;
@@ -148,7 +154,11 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &TagId,
+    ) -> Result<Option<Tag>, RepositoryError> {
         info!("Finding tag by ID: {} in project: {}", id, project_id);
 
         for repository in &self.search_repositories {
@@ -184,7 +194,10 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
 
     #[tracing::instrument(level = "trace")]
     async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
-        info!("Checking if tag exists with ID: {} in project: {}", id, project_id);
+        info!(
+            "Checking if tag exists with ID: {} in project: {}",
+            id, project_id
+        );
 
         for repository in &self.search_repositories {
             if repository.exists(project_id, id).await? {

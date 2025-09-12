@@ -2,30 +2,28 @@
 //!
 //! 複数エンティティにわたる統合テスト
 
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::{
+    project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
+    tag::TagLocalSqliteRepository, task::TaskLocalSqliteRepository,
+    task_list::TaskListLocalSqliteRepository,
+};
 use flequit_model::models::{
-    task_projects::project::Project, task_projects::task_list::TaskList, task_projects::task::Task, task_projects::subtask::SubTask, task_projects::tag::Tag
+    task_projects::project::Project, task_projects::subtask::SubTask, task_projects::tag::Tag,
+    task_projects::task::Task, task_projects::task_list::TaskList,
 };
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
 use flequit_model::types::task_types::TaskStatus;
-use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
-    subtask::SubTaskLocalSqliteRepository,
-    tag::TagLocalSqliteRepository
-};
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
-use flequit_testing::TestPathGenerator;
 use ::function_name::named;
+use flequit_testing::TestPathGenerator;
 
 use crate::integration::support::sqlite::SqliteTestHarness;
-
 
 #[named]
 #[tokio::test]
@@ -116,12 +114,20 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         updated_at: chrono::Utc::now(),
     };
 
-    task_list_repo.save(&task_list1.project_id,&task_list1).await?;
-    task_list_repo.save(&task_list2.project_id,&task_list2).await?;
+    task_list_repo
+        .save(&task_list1.project_id, &task_list1)
+        .await?;
+    task_list_repo
+        .save(&task_list2.project_id, &task_list2)
+        .await?;
 
     // タスクリスト取得確認
-    let retrieved_task_list1 = task_list_repo.find_by_id(&task_list1.project_id, &task_list_id1).await?;
-    let retrieved_task_list2 = task_list_repo.find_by_id(&task_list2.project_id, &task_list_id2).await?;
+    let retrieved_task_list1 = task_list_repo
+        .find_by_id(&task_list1.project_id, &task_list_id1)
+        .await?;
+    let retrieved_task_list2 = task_list_repo
+        .find_by_id(&task_list2.project_id, &task_list_id2)
+        .await?;
     assert!(retrieved_task_list1.is_some());
     assert!(retrieved_task_list2.is_some());
     assert_eq!(retrieved_task_list1.unwrap().name, task_list1.name);
@@ -282,7 +288,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
 
     let retrieved_updated_project1 = project_repo.find_by_id(&project_id1).await?;
     assert!(retrieved_updated_project1.is_some());
-    assert_eq!(retrieved_updated_project1.unwrap().name, updated_project1.name);
+    assert_eq!(
+        retrieved_updated_project1.unwrap().name,
+        updated_project1.name
+    );
 
     // === 削除テスト ===
     // 逆順で削除（依存関係を考慮）
@@ -304,12 +313,30 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     // 削除確認
     assert!(project_repo.find_by_id(&project_id1).await?.is_none());
     assert!(project_repo.find_by_id(&project_id2).await?.is_none());
-    assert!(task_list_repo.find_by_id(&project_id1, &task_list_id1).await?.is_none());
-    assert!(task_list_repo.find_by_id(&project_id2, &task_list_id2).await?.is_none());
-    assert!(task_repo.find_by_id(&project_id1, &task_id1).await?.is_none());
-    assert!(task_repo.find_by_id(&project_id2, &task_id2).await?.is_none());
-    assert!(subtask_repo.find_by_id(&project_id1, &subtask_id1).await?.is_none());
-    assert!(subtask_repo.find_by_id(&project_id2, &subtask_id2).await?.is_none());
+    assert!(task_list_repo
+        .find_by_id(&project_id1, &task_list_id1)
+        .await?
+        .is_none());
+    assert!(task_list_repo
+        .find_by_id(&project_id2, &task_list_id2)
+        .await?
+        .is_none());
+    assert!(task_repo
+        .find_by_id(&project_id1, &task_id1)
+        .await?
+        .is_none());
+    assert!(task_repo
+        .find_by_id(&project_id2, &task_id2)
+        .await?
+        .is_none());
+    assert!(subtask_repo
+        .find_by_id(&project_id1, &subtask_id1)
+        .await?
+        .is_none());
+    assert!(subtask_repo
+        .find_by_id(&project_id2, &subtask_id2)
+        .await?
+        .is_none());
     assert!(tag_repo.find_by_id(&project_id1, &tag_id1).await?.is_none());
     assert!(tag_repo.find_by_id(&project_id2, &tag_id2).await?.is_none());
 

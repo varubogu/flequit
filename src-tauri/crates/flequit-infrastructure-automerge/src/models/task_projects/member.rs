@@ -3,7 +3,7 @@
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::member::Member,
-    types::{id_types::UserId, project_types::MemberRole}
+    types::{id_types::UserId, project_types::MemberRole},
 };
 use serde::{Deserialize, Serialize};
 

@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use flequit_testing::TestPathGenerator;
+use std::path::PathBuf;
 
 pub struct SqliteTestHarness;
 
@@ -28,7 +28,9 @@ impl SqliteTestHarness {
 
         let test_db_path = test_dir_full.join("test.db");
 
-        let project_root = current_dir.parent().ok_or("プロジェクトルートが見つかりません ")?;
+        let project_root = current_dir
+            .parent()
+            .ok_or("プロジェクトルートが見つかりません ")?;
         let template_path = project_root.join(Self::TEMPLATE_DB_PATH);
         if !template_path.exists() {
             return Err(format!(

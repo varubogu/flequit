@@ -2,15 +2,15 @@
 //!
 //! testing.mdルール準拠のSQLiteプロジェクトリポジトリテスト
 
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
 use flequit_model::models::task_projects::project::Project;
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
-use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use sea_orm::{EntityTrait, PaginatorTrait};
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 use function_name::named;
@@ -28,7 +28,6 @@ async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error
     let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
-
 
     // リポジトリを初期化（非シングルトン）
     let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
@@ -184,7 +183,8 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
     // 1件目のみUpdate操作
     let mut updated_project = project1.clone();
     updated_project.name = "更新されたUpdate操作テストプロジェクト1".to_string();
-    updated_project.description = Some("更新されたUpdate操作のためのテストプロジェクト1".to_string());
+    updated_project.description =
+        Some("更新されたUpdate操作のためのテストプロジェクト1".to_string());
     updated_project.status = Some(ProjectStatus::Completed);
     project_repo.save(&updated_project).await?;
 
@@ -290,11 +290,15 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     assert_ne!(output_file_path1, output_file_path2);
 
     // それぞれのデータベースが独立して動作することを確認
-    let db_manager1 = DatabaseManager::new_for_test(output_file_path1.to_string_lossy().to_string());
-    let db_manager2 = DatabaseManager::new_for_test(output_file_path2.to_string_lossy().to_string());
+    let db_manager1 =
+        DatabaseManager::new_for_test(output_file_path1.to_string_lossy().to_string());
+    let db_manager2 =
+        DatabaseManager::new_for_test(output_file_path2.to_string_lossy().to_string());
 
-    let project_repo1 = ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
-    let project_repo2 = ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
+    let project_repo1 =
+        ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
+    let project_repo2 =
+        ProjectLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
 
     // DB1にプロジェクト作成
     let project_id1 = ProjectId::from(Uuid::new_v4());
@@ -384,7 +388,10 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
     // 保存直後の取得確認
     let retrieved = project_repo.find_by_id(&project_id).await?;
     assert!(retrieved.is_some());
-    println!("✅ メモリ内での取得成功: {}", retrieved.as_ref().unwrap().name);
+    println!(
+        "✅ メモリ内での取得成功: {}",
+        retrieved.as_ref().unwrap().name
+    );
 
     // データベース接続を明示的に確認
     {

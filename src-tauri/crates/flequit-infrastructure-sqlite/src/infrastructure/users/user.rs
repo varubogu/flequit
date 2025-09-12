@@ -3,14 +3,14 @@
 //! ユーザーデータのSQLiteベースでのCRUD操作を提供
 
 use super::super::database_manager::DatabaseManager;
+use crate::errors::sqlite_error::SQLiteError;
 use crate::models::user::{ActiveModel as UserActiveModel, Column, Entity as UserEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use flequit_model::models::users::user::User;
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_model::types::id_types::UserId;
+use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::users::UserRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
-use crate::errors::sqlite_error::SQLiteError;
 use log::info;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
@@ -34,7 +34,10 @@ impl UserLocalSqliteRepository {
     /// メールアドレスでユーザーを検索
     pub async fn find_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         if let Some(model) = UserEntity::find()
             .filter(Column::Email.eq(email))
@@ -53,9 +56,15 @@ impl UserLocalSqliteRepository {
     }
 
     /// ユーザー名でユーザーを検索
-    pub async fn find_by_handle_id(&self, handle_id: &str) -> Result<Option<User>, RepositoryError> {
+    pub async fn find_by_handle_id(
+        &self,
+        handle_id: &str,
+    ) -> Result<Option<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         if let Some(model) = UserEntity::find()
             .filter(Column::HandleId.eq(handle_id))
@@ -76,7 +85,10 @@ impl UserLocalSqliteRepository {
     /// 名前でユーザーを検索（部分一致）
     pub async fn find_by_name_partial(&self, name: &str) -> Result<Vec<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = UserEntity::find()
             .filter(Column::HandleId.contains(name))
@@ -103,7 +115,10 @@ impl UserLocalSqliteRepository {
         display_name: &str,
     ) -> Result<Vec<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = UserEntity::find()
             .filter(Column::DisplayName.contains(display_name))
@@ -127,7 +142,10 @@ impl UserLocalSqliteRepository {
     /// 最近作成されたユーザーを取得
     pub async fn find_recent_users(&self, limit: u64) -> Result<Vec<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = UserEntity::find()
             .order_by_desc(Column::CreatedAt)
@@ -155,13 +173,15 @@ impl UserRepositoryTrait for UserLocalSqliteRepository {}
 impl Repository<User, UserId> for UserLocalSqliteRepository {
     async fn save(&self, user: &User) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         // 既存のユーザーをチェック（IDで）
-        let existing = UserEntity::find_by_id(
-            user.id.to_string()
-        )
-            .one(db).await
+        let existing = UserEntity::find_by_id(user.id.to_string())
+            .one(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if let Some(existing_model) = existing {
@@ -181,8 +201,10 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
             active_model.is_active = new_active.is_active;
             active_model.updated_at = new_active.updated_at;
 
-            active_model.update(db).await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            active_model
+                .update(db)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
             Ok(())
         } else {
             // 新規作成
@@ -190,18 +212,26 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
                 .to_sqlite_model()
                 .await
                 .map_err(RepositoryError::Conversion)?;
-            active_model.insert(db).await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+            active_model
+                .insert(db)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
             Ok(())
         }
     }
 
     async fn find_by_id(&self, id: &UserId) -> Result<Option<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        if let Some(model) = UserEntity::find_by_id(id.to_string()).one(db).await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))? {
+        if let Some(model) = UserEntity::find_by_id(id.to_string())
+            .one(db)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
+        {
             let user = model
                 .to_domain_model()
                 .await
@@ -214,16 +244,24 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
 
     async fn delete(&self, id: &UserId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        UserEntity::delete_by_id(id.to_string()).exec(db).await
+        UserEntity::delete_by_id(id.to_string())
+            .exec(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
     async fn find_all(&self) -> Result<Vec<User>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = UserEntity::find()
             .order_by_asc(Column::CreatedAt)
@@ -248,9 +286,14 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         info!("{:?}", id);
 
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        let count = UserEntity::find_by_id(id.to_string()).count(db).await
+        let count = UserEntity::find_by_id(id.to_string())
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         Ok(count > 0)
@@ -260,9 +303,14 @@ impl Repository<User, UserId> for UserLocalSqliteRepository {
         info!("UserLocalSqliteRepository::count");
 
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        let count = UserEntity::find().count(db).await
+        let count = UserEntity::find()
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count)
     }

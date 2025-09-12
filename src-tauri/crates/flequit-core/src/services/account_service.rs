@@ -1,10 +1,10 @@
 use chrono::Utc;
 
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::accounts::account::{Account, PartialAccount};
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::accounts::account::{Account, PartialAccount};
 use flequit_model::types::id_types::AccountId;
+use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument(level = "trace")]
 pub async fn create_account<R>(repositories: &R, account: &Account) -> Result<(), ServiceError>
@@ -22,7 +22,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_account<R>(repositories: &R, account_id: &AccountId) -> Result<Option<Account>, ServiceError>
+pub async fn get_account<R>(
+    repositories: &R,
+    account_id: &AccountId,
+) -> Result<Option<Account>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -39,7 +42,9 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError("Account patch method is not implemented".to_string()))
+    Err(ServiceError::InternalError(
+        "Account patch method is not implemented".to_string(),
+    ))
 }
 
 #[tracing::instrument(level = "trace")]

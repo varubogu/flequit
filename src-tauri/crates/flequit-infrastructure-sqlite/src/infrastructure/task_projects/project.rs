@@ -1,14 +1,14 @@
 //! Project用SQLiteリポジトリ
 
 use super::super::database_manager::DatabaseManager;
-use flequit_model::models::task_projects::project::Project;
-use flequit_repository::base_repository_trait::Repository;
-use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::project::{Column, Entity as ProjectEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
-use flequit_model::types::id_types::ProjectId;
 use async_trait::async_trait;
+use flequit_model::models::task_projects::project::Project;
+use flequit_model::types::id_types::ProjectId;
+use flequit_repository::base_repository_trait::Repository;
+use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
 };
@@ -27,7 +27,9 @@ impl ProjectLocalSqliteRepository {
 
     pub async fn find_by_owner(&self, owner_id: &str) -> Result<Vec<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let models = ProjectEntity::find()
@@ -51,7 +53,9 @@ impl ProjectLocalSqliteRepository {
 
     pub async fn find_active_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let models = ProjectEntity::find()
@@ -76,14 +80,16 @@ impl ProjectLocalSqliteRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
-    async fn save(&self,project: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalSqliteRepository::save - 開始: {:?}",
             project.id
         );
         let db_manager = self.db_manager.read().await;
         log::info!("ProjectLocalSqliteRepository::save - DB Manager取得完了");
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         log::info!("ProjectLocalSqliteRepository::save - DB接続取得完了");
         let active_model = project
@@ -100,11 +106,15 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
 
         let result = if existing.is_some() {
             // 既存レコードがある場合は更新
-            active_model.update(db).await
+            active_model
+                .update(db)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
         } else {
             // 既存レコードがない場合は挿入
-            active_model.insert(db).await
+            active_model
+                .insert(db)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
         };
 
@@ -117,11 +127,16 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
 
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
-        if let Some(model) = ProjectEntity::find_by_id(id.to_string()).one(db).await
-                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))? {
+        if let Some(model) = ProjectEntity::find_by_id(id.to_string())
+            .one(db)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
+        {
             let project = model
                 .to_domain_model()
                 .await
@@ -134,7 +149,9 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let models = ProjectEntity::find()
@@ -157,27 +174,39 @@ impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
 
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-        ProjectEntity::delete_by_id(id.to_string()).exec(db).await
+        ProjectEntity::delete_by_id(id.to_string())
+            .exec(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-        let count = ProjectEntity::find_by_id(id.to_string()).count(db).await
+        let count = ProjectEntity::find_by_id(id.to_string())
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await
+        let db = db_manager
+            .get_connection()
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-        let count = ProjectEntity::find().count(db).await
+        let count = ProjectEntity::find()
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count)
     }

@@ -1,11 +1,11 @@
 use std::path::{Path, PathBuf};
 
+use crate::errors::automerge_error::AutomergeError;
+use crate::infrastructure::document_manager::DocumentType;
 use automerge::transaction::Transactable;
 use automerge::{ObjType, ReadDoc, ScalarValue};
 use automerge_repo::DocHandle;
 use flequit_model::types::id_types::ProjectId;
-use crate::errors::automerge_error::AutomergeError;
-use crate::infrastructure::document_manager::DocumentType;
 
 #[derive(Debug, Clone)]
 pub struct Document {
@@ -15,11 +15,11 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn new(base_path: PathBuf, doc_type: DocumentType, doc_handle: DocHandle) -> Document{
+    pub fn new(base_path: PathBuf, doc_type: DocumentType, doc_handle: DocHandle) -> Document {
         Self {
             base_path,
             doc_type,
-            handle: doc_handle
+            handle: doc_handle,
         }
     }
 
@@ -27,7 +27,7 @@ impl Document {
     pub fn project_id(&self) -> Option<ProjectId> {
         self.doc_type.project_id()
     }
-        /// ドキュメントにデータを保存
+    /// ドキュメントにデータを保存
     pub async fn save_data<T: serde::Serialize>(
         &self,
         key: &str,
@@ -36,7 +36,6 @@ impl Document {
         // デバッグモード時のJSON出力（保存前）
         #[cfg(debug_assertions)]
         {
-
             let json_value = serde_json::to_value(value)
                 .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
             log::debug!(
@@ -216,11 +215,7 @@ impl Document {
     }
 
     /// 特定のキーの値を更新
-    pub async fn update_value(
-        &self,
-        key: &str,
-        value: &str,
-    ) -> Result<(), AutomergeError> {
+    pub async fn update_value(&self, key: &str, value: &str) -> Result<(), AutomergeError> {
         let doc = self;
 
         doc.handle.with_doc_mut(|doc| {
@@ -235,9 +230,7 @@ impl Document {
     }
 
     /// ドキュメントの全データをJSONとして取得
-    pub async fn export_document_as_json(
-        &self,
-    ) -> Result<serde_json::Value, AutomergeError> {
+    pub async fn export_document_as_json(&self) -> Result<serde_json::Value, AutomergeError> {
         let doc = self;
 
         doc.handle.with_doc(|doc| {
@@ -624,10 +617,7 @@ impl Document {
     }
 
     /// ドキュメント全体を保存（互換性メソッド）
-    pub async fn save<T: serde::Serialize>(
-        &mut self,
-        value: &T,
-    ) -> Result<(), AutomergeError> {
+    pub async fn save<T: serde::Serialize>(&mut self, value: &T) -> Result<(), AutomergeError> {
         self.save_data("root", value).await
     }
 }

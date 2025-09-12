@@ -1,9 +1,9 @@
-use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
-use flequit_model::models::ModelConverter;
-use flequit_model::models::task_projects::task_assignment::TaskAssignment;
 use crate::models::CommandModelConverter;
+use async_trait::async_trait;
+use flequit_model::models::task_projects::task_assignment::TaskAssignment;
+use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{TaskId, UserId};
+use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド引数用のTaskAssignment構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]

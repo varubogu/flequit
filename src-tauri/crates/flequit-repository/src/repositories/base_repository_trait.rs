@@ -1,5 +1,5 @@
-use flequit_types::errors::repository_error::RepositoryError;
 use async_trait::async_trait;
+use flequit_types::errors::repository_error::RepositoryError;
 
 /// 汎用的なリポジトリトレイト
 ///

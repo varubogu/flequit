@@ -1,9 +1,9 @@
-use async_trait::async_trait;
-use flequit_model::models::ModelConverter;
-use crate::models::{project::ProjectTreeCommandModel, CommandModelConverter};
 use crate::models::account::AccountCommandModel;
+use crate::models::{project::ProjectTreeCommandModel, CommandModelConverter};
+use async_trait::async_trait;
 use flequit_model::models::initialized_data::InitializedData;
 use flequit_model::models::task_projects::project::ProjectTree;
+use flequit_model::models::ModelConverter;
 use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド戻り値用の初期化結果構造体（日時フィールドはString）
@@ -31,17 +31,13 @@ impl ModelConverter<InitializedData> for InitializedResult {
             projects.push(project);
         }
 
-        Ok(InitializedData {
-            accounts,
-            projects,
-        })
+        Ok(InitializedData { accounts, projects })
     }
 }
 
 #[async_trait]
 impl CommandModelConverter<InitializedResult> for InitializedData {
     async fn to_command_model(&self) -> Result<InitializedResult, String> {
-
         // ProjectからProjectTreeに変換（task_listsは空）
         let project_trees: Vec<ProjectTree> = self
             .projects
@@ -60,7 +56,6 @@ impl CommandModelConverter<InitializedResult> for InitializedData {
                 task_lists: Vec::new(), // 空のタスクリスト
             })
             .collect();
-
 
         // ProjectTreeをProjectTreeCommandに変換
         let mut project_tree_commands = Vec::new();

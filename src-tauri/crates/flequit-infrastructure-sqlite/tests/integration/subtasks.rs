@@ -2,26 +2,21 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクリポジトリテスト
 
-use flequit_model::models::task_projects::{
-    project::Project,
-    task_list::TaskList,
-    task::Task,
-    subtask::SubTask,
-};
-use flequit_model::types::id_types::{ProjectId, TaskListId, TaskId, SubTaskId, UserId};
-use flequit_model::types::project_types::ProjectStatus;
-use flequit_model::types::task_types::TaskStatus;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-    task::TaskLocalSqliteRepository,
-    subtask::SubTaskLocalSqliteRepository,
+    project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
+    task::TaskLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
 };
+use flequit_model::models::task_projects::{
+    project::Project, subtask::SubTask, task::Task, task_list::TaskList,
+};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TaskId, TaskListId, UserId};
+use flequit_model::types::project_types::ProjectStatus;
+use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use crate::integration::support::sqlite::SqliteTestHarness;
 use flequit_testing::TestPathGenerator;

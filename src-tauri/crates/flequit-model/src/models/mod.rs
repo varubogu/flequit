@@ -71,12 +71,11 @@
 use async_trait::async_trait;
 
 pub mod accounts;
+pub mod initialized_data;
 pub mod task_projects;
 pub mod users;
-pub mod initialized_data;
 
 pub mod search;
-
 
 /// 通常モデルとTree系モデル間の相互変換を定義するトレイト
 ///

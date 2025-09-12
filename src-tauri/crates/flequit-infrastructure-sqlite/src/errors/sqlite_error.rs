@@ -1,4 +1,3 @@
-
 #[derive(Debug, thiserror::Error)]
 pub enum SQLiteError {
     #[error("Automerge error: {0}")]
@@ -52,4 +51,3 @@ pub enum SQLiteError {
     #[error("Export error: {0}")]
     Export(String),
 }
-

@@ -15,8 +15,8 @@ pub mod manager;
 pub use crate::config::InfrastructureConfig as UnifiedConfig;
 
 // 統合リポジトリ群（サブフォルダ単位）
-pub mod task_projects;
 pub mod accounts;
+pub mod task_projects;
 pub mod users;
 
 // 将来追加予定のモジュール
@@ -28,9 +28,13 @@ pub use manager::UnifiedManager;
 
 // 公開エクスポート（既存の互換性維持）
 pub use accounts::AccountUnifiedRepository;
-pub use task_projects::{ProjectUnifiedRepository, SubTaskUnifiedRepository, TagUnifiedRepository, TaskUnifiedRepository, TaskListUnifiedRepository, TaskAssignmentUnifiedRepository, SubTaskAssignmentUnifiedRepository};
+pub use task_projects::{
+    ProjectUnifiedRepository, SubTaskAssignmentUnifiedRepository, SubTaskUnifiedRepository,
+    TagUnifiedRepository, TaskAssignmentUnifiedRepository, TaskListUnifiedRepository,
+    TaskUnifiedRepository,
+};
 pub use users::UserUnifiedRepository;
 
 // Infrastructure層リポジトリの再エクスポート
-pub use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 pub use flequit_infrastructure_automerge::LocalAutomergeRepositories;
+pub use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;

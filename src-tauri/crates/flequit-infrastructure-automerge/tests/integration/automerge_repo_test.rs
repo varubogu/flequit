@@ -6,7 +6,9 @@
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
-use flequit_infrastructure_automerge::infrastructure::document_manager::{DocumentManager, DocumentType};
+use flequit_infrastructure_automerge::infrastructure::document_manager::{
+    DocumentManager, DocumentType,
+};
 use flequit_infrastructure_automerge::infrastructure::file_storage::FileStorage;
 use flequit_model::types::id_types::ProjectId;
 
@@ -73,7 +75,10 @@ impl TestDocumentManager {
         value: &T,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // データを保存（ネストパス対応）
-        let result = self.inner.save_data_at_nested_path(doc_type, path, value).await;
+        let result = self
+            .inner
+            .save_data_at_nested_path(doc_type, path, value)
+            .await;
 
         // 成功した場合のみ履歴出力
         if result.is_ok() {
@@ -191,7 +196,10 @@ impl TestDocumentManager {
         });
 
         std::fs::write(&export_path, serde_json::to_string_pretty(&output_data)?)?;
-        println!("📄 Step {}: Exported JSON history to: {} (simplified)", step, filename);
+        println!(
+            "📄 Step {}: Exported JSON history to: {} (simplified)",
+            step, filename
+        );
 
         Ok(())
     }
@@ -210,7 +218,10 @@ impl TestDocumentManager {
                 .join(&doc_type.filename());
 
             // TODO: export_document_changes_history は現在のAPIで利用できないため、一時的にスキップ
-            println!("📝 Skipped detailed changes export for {:?} (not implemented)", doc_type);
+            println!(
+                "📝 Skipped detailed changes export for {:?} (not implemented)",
+                doc_type
+            );
         }
 
         Ok(())
@@ -600,7 +611,8 @@ async fn test_file_storage_basic_operations() -> Result<(), Box<dyn std::error::
 #[tokio::test]
 async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Error>> {
     // テンポラリディレクトリを作成
-    let manager_path = TestPathGenerator::generate_test_dir(file!(), "test_document_manager_creation");
+    let manager_path =
+        TestPathGenerator::generate_test_dir(file!(), "test_document_manager_creation");
     std::fs::create_dir_all(&manager_path)?;
 
     println!("テストディレクトリ: {:?}", manager_path);
@@ -633,7 +645,8 @@ async fn test_document_manager_creation() -> Result<(), Box<dyn std::error::Erro
 #[tokio::test]
 async fn test_multiple_document_types() -> Result<(), Box<dyn std::error::Error>> {
     // テンポラリディレクトリを作成
-    let manager_path = TestPathGenerator::generate_test_dir(file!(), "test_multiple_document_types");
+    let manager_path =
+        TestPathGenerator::generate_test_dir(file!(), "test_multiple_document_types");
     std::fs::create_dir_all(&manager_path)?;
 
     let mut manager = TestDocumentManager::new(&manager_path, "test_multiple_document_types")?;
@@ -906,9 +919,8 @@ async fn test_path_based_data_operations() -> Result<(), Box<dyn std::error::Err
         .await?;
 
     // パス指定でデータを読み込み
-    let loaded_data: Option<serde_json::Value> = manager
-        .load_data(&doc_type, "user.profile")
-        .await?;
+    let loaded_data: Option<serde_json::Value> =
+        manager.load_data(&doc_type, "user.profile").await?;
     assert!(loaded_data.is_some());
 
     let loaded = loaded_data.unwrap();
@@ -1232,7 +1244,9 @@ async fn test_json_export_functionality() -> Result<(), Box<dyn std::error::Erro
 
     // ドキュメントをJSONファイルにエクスポート
     let document = manager.get_or_create(&DocumentType::Settings).await?;
-    document.export_json(&json_file_path, Some("JSON export functionality test")).await?;
+    document
+        .export_json(&json_file_path, Some("JSON export functionality test"))
+        .await?;
     println!("📝 Document exported to file: {:?}", json_file_path);
 
     // ファイルが作成されたことを確認
@@ -1296,7 +1310,9 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
     // Stage1のドキュメントをエクスポート
     let stage1_path = json_output_dir.join("stage1_initial.json");
     let document = manager.get_or_create(&doc_type).await?;
-    document.export_json(&stage1_path, Some("Stage 1: Initial project setup")).await?;
+    document
+        .export_json(&stage1_path, Some("Stage 1: Initial project setup"))
+        .await?;
     println!("📝 Stage1 document exported to: {:?}", stage1_path);
 
     // Stage 2: タスク追加
@@ -1319,7 +1335,9 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
         .await?;
     // Stage2のドキュメントをエクスポート
     let stage2_path = json_output_dir.join("stage2_with_tasks.json");
-    document.export_json(&stage2_path, Some("Stage 2: Tasks added")).await?;
+    document
+        .export_json(&stage2_path, Some("Stage 2: Tasks added"))
+        .await?;
     println!("📝 Stage2 document exported to: {:?}", stage2_path);
 
     // Stage 3: 複数タスクとメンバー追加
@@ -1360,7 +1378,9 @@ async fn test_json_export_with_incremental_changes() -> Result<(), Box<dyn std::
         .await?;
     // Stage3のドキュメントをエクスポート
     let stage3_path = json_output_dir.join("stage3_full_project.json");
-    document.export_json(&stage3_path, Some("Stage 3: Full project with team")).await?;
+    document
+        .export_json(&stage3_path, Some("Stage 3: Full project with team"))
+        .await?;
     println!("📝 Stage3 document exported to: {:?}", stage3_path);
 
     // 全ドキュメントのエクスポートもテスト

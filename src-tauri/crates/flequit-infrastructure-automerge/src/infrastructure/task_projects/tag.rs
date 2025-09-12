@@ -1,11 +1,11 @@
 use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
+use async_trait::async_trait;
 use flequit_model::models::task_projects::tag::Tag;
+use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::tag_repository_trait::TagRepositoryTrait;
-use flequit_model::types::id_types::{ProjectId, TagId};
-use async_trait::async_trait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -48,10 +48,16 @@ impl TagLocalAutomergeRepository {
 
     /// 指定されたプロジェクトのDocumentを取得または作成
     #[tracing::instrument(level = "trace")]
-    async fn get_or_create_document(&self, project_id: &ProjectId) -> Result<Document, RepositoryError> {
+    async fn get_or_create_document(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Document, RepositoryError> {
         let doc_type = DocumentType::Project(project_id.clone());
         let mut manager = self.document_manager.write().await;
-        manager.get_or_create(&doc_type).await.map_err(|e| RepositoryError::AutomergeError(e.to_string()))
+        manager
+            .get_or_create(&doc_type)
+            .await
+            .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
     /// 指定されたプロジェクトの全タグを取得
@@ -68,7 +74,11 @@ impl TagLocalAutomergeRepository {
 
     /// IDでタグを取得
     #[tracing::instrument(level = "trace")]
-    pub async fn get_tag(&self, project_id: &ProjectId, tag_id: &str) -> Result<Option<Tag>, RepositoryError> {
+    pub async fn get_tag(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &str,
+    ) -> Result<Option<Tag>, RepositoryError> {
         let tags = self.list_tags(project_id).await?;
         Ok(tags.into_iter().find(|t| t.id == tag_id.into()))
     }
@@ -96,7 +106,7 @@ impl TagLocalAutomergeRepository {
             Ok(_) => {
                 log::info!("set_tag - Automergeドキュメント保存完了");
                 Ok(())
-            },
+            }
             Err(e) => {
                 log::error!("set_tag - Automergeドキュメント保存エラー: {:?}", e);
                 Err(RepositoryError::AutomergeError(e.to_string()))
@@ -106,7 +116,11 @@ impl TagLocalAutomergeRepository {
 
     /// タグを削除
     #[tracing::instrument(level = "trace")]
-    pub async fn delete_tag(&self, project_id: &ProjectId, tag_id: &str) -> Result<bool, RepositoryError> {
+    pub async fn delete_tag(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &str,
+    ) -> Result<bool, RepositoryError> {
         let mut tags = self.list_tags(project_id).await?;
         let initial_len = tags.len();
         tags.retain(|t| t.id != tag_id.into());
@@ -120,7 +134,6 @@ impl TagLocalAutomergeRepository {
         }
     }
 }
-
 
 // TagRepositoryTraitの実装
 #[async_trait]
@@ -141,7 +154,11 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
     }
 
     #[tracing::instrument(level = "trace")]
-    async fn find_by_id(&self, project_id: &ProjectId, id: &TagId) -> Result<Option<Tag>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        project_id: &ProjectId,
+        id: &TagId,
+    ) -> Result<Option<Tag>, RepositoryError> {
         self.get_tag(project_id, &id.to_string()).await
     }
 

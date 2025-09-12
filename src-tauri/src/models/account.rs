@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use crate::models::CommandModelConverter;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{AccountId, UserId};
-use crate::models::CommandModelConverter;
 
 /// Tauriコマンド引数用のAccount構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]

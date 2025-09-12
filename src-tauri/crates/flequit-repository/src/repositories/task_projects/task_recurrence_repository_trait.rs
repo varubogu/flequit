@@ -16,5 +16,6 @@ use crate::project_relation_repository_trait::ProjectRelationRepository;
 /// - **日時管理**: 関連付けの作成日時を記録
 #[async_trait]
 pub trait TaskRecurrenceRepositoryTrait:
-    ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> + Send + Sync {
+    ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId> + Send + Sync
+{
 }

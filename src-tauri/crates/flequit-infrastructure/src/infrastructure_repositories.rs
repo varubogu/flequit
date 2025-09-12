@@ -2,8 +2,8 @@
 //!
 //! Service層からアクセスするためのリポジトリ統合管理クラス
 
-use async_trait::async_trait;
 use crate::unified::*;
+use async_trait::async_trait;
 
 /// Infrastructure層統合リポジトリのトレイト定義
 ///
@@ -89,7 +89,9 @@ impl InfrastructureRepositories {
     ///
     /// 実際のアプリケーションで使用するためのセットアップされたリポジトリ群を返す
     #[tracing::instrument(level = "trace")]
-    pub async fn setup_with_sqlite_and_automerge(config: UnifiedConfig) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn setup_with_sqlite_and_automerge(
+        config: UnifiedConfig,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let unified_manager = UnifiedManager::from_config(config).await?;
 
         let projects = unified_manager.create_project_unified_repository().await?;
@@ -124,12 +126,21 @@ impl InfrastructureRepositories {
     ///
     /// 実行時に設定が変更された場合に呼び出す
     #[tracing::instrument(level = "trace")]
-    pub async fn update_config(&mut self, new_config: UnifiedConfig) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn update_config(
+        &mut self,
+        new_config: UnifiedConfig,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         self.unified_manager.update_config(new_config).await?;
 
         // リポジトリを再構築
-        self.projects = self.unified_manager.create_project_unified_repository().await?;
-        self.accounts = self.unified_manager.create_account_unified_repository().await?;
+        self.projects = self
+            .unified_manager
+            .create_project_unified_repository()
+            .await?;
+        self.accounts = self
+            .unified_manager
+            .create_account_unified_repository()
+            .await?;
 
         tracing::info!("Infrastructure repositories updated with new config");
         Ok(())
@@ -139,8 +150,6 @@ impl InfrastructureRepositories {
     pub fn config(&self) -> &UnifiedConfig {
         self.unified_manager.config()
     }
-
-
 }
 
 impl Default for InfrastructureRepositories {
@@ -255,7 +264,10 @@ pub mod mock {
 
         /// 呼び出しログを取得
         pub fn get_call_log(&self) -> Vec<String> {
-            self.call_log.lock().map(|log| log.clone()).unwrap_or_default()
+            self.call_log
+                .lock()
+                .map(|log| log.clone())
+                .unwrap_or_default()
         }
 
         /// 呼び出しログをクリア
@@ -329,8 +341,8 @@ pub mod mock {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::mock::MockInfrastructureRepositories;
+    use super::*;
 
     #[test]
     fn test_infrastructure_repositories_trait_implementation() {

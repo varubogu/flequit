@@ -1,11 +1,11 @@
-use flequit_model::models::ModelConverter;
+use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use crate::models::CommandModelConverter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::types::id_types::{TagId, TaskId, UserId};
-use crate::models::recurrence_rule::RecurrenceRuleCommandModel;
 use flequit_model::models::task_projects::subtask::{SubTask, SubTaskTree};
+use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::SubTaskId;
+use flequit_model::types::id_types::{TagId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
 use serde::{Deserialize, Serialize};
 
@@ -143,7 +143,11 @@ impl CommandModelConverter<SubtaskCommandModel> for SubTask {
             } else {
                 None
             },
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
             order_index: self.order_index,
             completed: self.completed,
@@ -178,7 +182,9 @@ pub struct SubTaskTreeCommandModel {
 
 impl SubTaskTreeCommandModel {
     /// ドメインモデル（SubTaskTree）からコマンドモデル（SubTaskTreeCommand）に変換
-    pub async fn from_domain_model(subtask: &SubTaskTree) -> Result<SubTaskTreeCommandModel, String> {
+    pub async fn from_domain_model(
+        subtask: &SubTaskTree,
+    ) -> Result<SubTaskTreeCommandModel, String> {
         let mut tag_commands = Vec::new();
         for tag in &subtask.tags {
             tag_commands.push(tag.to_command_model().await?);
@@ -201,7 +207,11 @@ impl SubTaskTreeCommandModel {
             } else {
                 None
             },
-            assigned_user_ids: subtask.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: subtask
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             order_index: subtask.order_index,
             completed: subtask.completed,
             created_at: subtask.created_at.to_rfc3339(),
@@ -325,7 +335,11 @@ impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
             } else {
                 None
             },
-            assigned_user_ids: self.assigned_user_ids.iter().map(|id| id.to_string()).collect(),
+            assigned_user_ids: self
+                .assigned_user_ids
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             order_index: self.order_index,
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),

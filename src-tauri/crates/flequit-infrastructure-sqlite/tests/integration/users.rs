@@ -2,16 +2,16 @@
 //!
 //! testing.mdルール準拠のSQLiteユーザーリポジトリテスト
 
-use flequit_model::models::users::user::User;
-use flequit_model::types::id_types::UserId;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
+use flequit_model::models::users::user::User;
+use flequit_model::types::id_types::UserId;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
-use flequit_testing::TestPathGenerator;
 use ::function_name::named;
+use flequit_testing::TestPathGenerator;
 
 use crate::integration::support::sqlite::SqliteTestHarness;
 
@@ -213,7 +213,6 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
 #[named]
 #[tokio::test]
 async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
-
     // テンプレートディレクトリ
     let crate_name = env!("CARGO_PKG_NAME");
     let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
@@ -233,7 +232,7 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
     let user1 = User {
         id: user_id1.clone(),
         handle_id: "delete_test_user1".to_string(),
-        display_name:"Delete操作テストユーザー1".to_string(),
+        display_name: "Delete操作テストユーザー1".to_string(),
         email: Some("deletetest1@example.com".to_string()),
         avatar_url: Some("https://example.com/delete1.jpg".to_string()),
         bio: Some("Delete操作のためのテストユーザー1".to_string()),
@@ -280,7 +279,6 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
 #[named]
 #[tokio::test]
 async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
-
     // テンプレートディレクトリ
     let crate_name = env!("CARGO_PKG_NAME");
     let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
@@ -299,8 +297,10 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     let db_manager1 = DatabaseManager::new_for_test(db_path1.to_string_lossy().to_string());
     let db_manager2 = DatabaseManager::new_for_test(db_path2.to_string_lossy().to_string());
 
-    let user_repo1 = UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
-    let user_repo2 = UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
+    let user_repo1 =
+        UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager1)));
+    let user_repo2 =
+        UserLocalSqliteRepository::new(Arc::new(tokio::sync::RwLock::new(db_manager2)));
 
     // DB1にユーザー作成
     let user_id1 = UserId::from(Uuid::new_v4());

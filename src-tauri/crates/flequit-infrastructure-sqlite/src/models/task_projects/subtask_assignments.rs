@@ -5,7 +5,7 @@ use flequit_model::types::id_types::{SubTaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{SqliteModelConverter, DomainToSqliteConverter};
+use super::{DomainToSqliteConverter, SqliteModelConverter};
 
 /// SubTaskAssignment用SQLiteエンティティ定義
 ///

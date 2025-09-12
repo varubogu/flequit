@@ -1,5 +1,5 @@
 //! Tag AutoMergeモデル
-//! 
+//!
 //! SQLite tagsテーブルと同じ構造を持つAutoMerge用データ構造
 
 use chrono::{DateTime, Utc};
@@ -54,7 +54,8 @@ impl AutoMergeTag {
     }
 
     /// タグ情報を更新
-    pub fn update(&mut self,
+    pub fn update(
+        &mut self,
         name: Option<String>,
         description: Option<Option<String>>,
         color: Option<Option<String>>,
@@ -97,14 +98,7 @@ impl AutoMergeTag {
 
 impl Default for AutoMergeTag {
     fn default() -> Self {
-        Self::new(
-            String::new(),
-            String::new(),
-            String::new(),
-            None,
-            None,
-            0,
-        )
+        Self::new(String::new(), String::new(), String::new(), None, None, 0)
     }
 }
 
@@ -113,7 +107,10 @@ pub struct AutoMergeTagCollection;
 
 impl AutoMergeTagCollection {
     /// プロジェクト内のアクティブなタグを取得
-    pub fn get_active_tags_for_project<'a>(tags: &'a [AutoMergeTag], project_id: &str) -> Vec<&'a AutoMergeTag> {
+    pub fn get_active_tags_for_project<'a>(
+        tags: &'a [AutoMergeTag],
+        project_id: &str,
+    ) -> Vec<&'a AutoMergeTag> {
         tags.iter()
             .filter(|tag| tag.belongs_to_project(project_id) && tag.is_active())
             .collect()
@@ -124,10 +121,8 @@ impl AutoMergeTagCollection {
         if name.is_empty() {
             return tags.iter().collect();
         }
-        
-        tags.iter()
-            .filter(|tag| tag.matches_name(name))
-            .collect()
+
+        tags.iter().filter(|tag| tag.matches_name(name)).collect()
     }
 
     /// 表示順序でソート
@@ -220,13 +215,35 @@ mod tests {
     #[test]
     fn test_collection_operations() {
         let tags = vec![
-            AutoMergeTag::new("tag-1".to_string(), "project-1".to_string(), "Important".to_string(), None, None, 2),
-            AutoMergeTag::new("tag-2".to_string(), "project-1".to_string(), "Urgent".to_string(), None, None, 1),
-            AutoMergeTag::new("tag-3".to_string(), "project-2".to_string(), "Normal".to_string(), None, None, 0),
+            AutoMergeTag::new(
+                "tag-1".to_string(),
+                "project-1".to_string(),
+                "Important".to_string(),
+                None,
+                None,
+                2,
+            ),
+            AutoMergeTag::new(
+                "tag-2".to_string(),
+                "project-1".to_string(),
+                "Urgent".to_string(),
+                None,
+                None,
+                1,
+            ),
+            AutoMergeTag::new(
+                "tag-3".to_string(),
+                "project-2".to_string(),
+                "Normal".to_string(),
+                None,
+                None,
+                0,
+            ),
         ];
 
         // プロジェクト別フィルタリング
-        let project_1_tags = AutoMergeTagCollection::get_active_tags_for_project(&tags, "project-1");
+        let project_1_tags =
+            AutoMergeTagCollection::get_active_tags_for_project(&tags, "project-1");
         assert_eq!(project_1_tags.len(), 2);
 
         // 名前検索

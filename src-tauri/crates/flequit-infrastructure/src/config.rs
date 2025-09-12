@@ -3,8 +3,8 @@
 //! flequit-infrastructureクレートで使用される設定構造体を定義する。
 //! 外部クレートから設定値をセットして関数の引数として渡される想定。
 
-use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
 use tokio::fs;
 
 /// Infrastructure層の統合設定
@@ -51,11 +51,17 @@ impl InfrastructureConfig {
     /// * `Err(String)` - 設定が無効な場合（エラーメッセージ）
     pub fn validate(&self) -> Result<(), String> {
         if !self.sqlite_storage_enabled && !self.automerge_storage_enabled {
-            return Err("少なくとも1つのストレージ機能（SQLiteまたはAutomerge）を有効にする必要があります".to_string());
+            return Err(
+                "少なくとも1つのストレージ機能（SQLiteまたはAutomerge）を有効にする必要があります"
+                    .to_string(),
+            );
         }
 
         if self.sqlite_search_enabled && !self.sqlite_storage_enabled {
-            return Err("SQLite検索機能を使用する場合は、SQLiteストレージ機能も有効にする必要があります".to_string());
+            return Err(
+                "SQLite検索機能を使用する場合は、SQLiteストレージ機能も有効にする必要があります"
+                    .to_string(),
+            );
         }
 
         Ok(())
@@ -113,7 +119,10 @@ impl InfrastructureConfig {
         if path.exists() {
             Self::load(Some(path)).await
         } else {
-            tracing::info!("設定ファイルが存在しないため、デフォルト設定を使用します: {}", path.display());
+            tracing::info!(
+                "設定ファイルが存在しないため、デフォルト設定を使用します: {}",
+                path.display()
+            );
             Ok(Self::default())
         }
     }
@@ -194,7 +203,11 @@ mod tests {
         let config = InfrastructureConfig::new(false, false, false);
         let result = config.validate();
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("少なくとも1つのストレージ機能"));
+        assert!(
+            result
+                .unwrap_err()
+                .contains("少なくとも1つのストレージ機能")
+        );
     }
 
     #[test]
@@ -202,13 +215,20 @@ mod tests {
         let config = InfrastructureConfig::new(true, false, true);
         let result = config.validate();
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("SQLite検索機能を使用する場合は"));
+        assert!(
+            result
+                .unwrap_err()
+                .contains("SQLite検索機能を使用する場合は")
+        );
     }
 
     #[test]
     fn test_default_config_path() {
         let path = InfrastructureConfig::default_config_path();
-        assert!(path.to_string_lossy().contains("infrastructure_config.json"));
+        assert!(
+            path.to_string_lossy()
+                .contains("infrastructure_config.json")
+        );
     }
 
     #[tokio::test]

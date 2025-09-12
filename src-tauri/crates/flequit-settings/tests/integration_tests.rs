@@ -1,6 +1,6 @@
 //! 統合テスト
 
-use flequit_settings::{SettingsManager, Settings};
+use flequit_settings::{Settings, SettingsManager};
 use flequit_testing::TestPathGenerator;
 use log::info;
 use std::env;
@@ -55,7 +55,10 @@ async fn test_auto_create_config_file() {
     let config_manager = SettingsManager::new_with_path(test_settings_path.clone());
 
     // 初期状態では設定ファイルが存在しない
-    assert!(!config_manager.settings_exists(), "初期状態では設定ファイルは存在しないはず");
+    assert!(
+        !config_manager.settings_exists(),
+        "初期状態では設定ファイルは存在しないはず"
+    );
 
     // load_settingsを呼び出すと自動的に設定ファイルが作成される
     let settings = config_manager.load_settings().await.unwrap();
@@ -66,8 +69,14 @@ async fn test_auto_create_config_file() {
     assert_eq!(settings.font_size, 14);
 
     // 設定ファイルが作成されていることを確認
-    assert!(config_manager.settings_exists(), "load_settings後は設定ファイルが存在するはず");
-    assert!(config_manager.get_settings_path().exists(), "設定ファイルが実際に存在するはず");
+    assert!(
+        config_manager.settings_exists(),
+        "load_settings後は設定ファイルが存在するはず"
+    );
+    assert!(
+        config_manager.get_settings_path().exists(),
+        "設定ファイルが実際に存在するはず"
+    );
 
     // 作成されたファイルを再読み込みして同じ内容が得られることを確認
     let reloaded_settings = config_manager.load_settings().await.unwrap();
@@ -79,7 +88,8 @@ async fn test_auto_create_config_file() {
 #[tokio::test]
 async fn test_config_file_with_folder_creation() {
     // プロジェクトルール準拠のテストディレクトリを作成
-    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_config_file_with_folder_creation");
+    let test_dir =
+        TestPathGenerator::generate_test_dir(file!(), "test_config_file_with_folder_creation");
     let test_config_dir = test_dir.join("config_test_dir");
     let test_settings_path = test_config_dir.join("test_folder_create.yml");
 
@@ -90,15 +100,24 @@ async fn test_config_file_with_folder_creation() {
     let config_path = settings_manager.get_settings_path();
     let config_dir = config_path.parent().unwrap();
 
-    assert!(!config_dir.exists(), "初期状態では設定ディレクトリは存在しないはず");
-    assert!(!config_path.exists(), "初期状態では設定ファイルは存在しないはず");
+    assert!(
+        !config_dir.exists(),
+        "初期状態では設定ディレクトリは存在しないはず"
+    );
+    assert!(
+        !config_path.exists(),
+        "初期状態では設定ファイルは存在しないはず"
+    );
 
     // load_settingsを呼び出すと、ディレクトリとファイルの両方が作成される
     let settings = settings_manager.load_settings().await.unwrap();
 
     // ディレクトリが作成されていることを確認
     assert!(config_dir.exists(), "設定ディレクトリが作成されているはず");
-    assert!(config_dir.is_dir(), "設定ディレクトリがディレクトリであるはず");
+    assert!(
+        config_dir.is_dir(),
+        "設定ディレクトリがディレクトリであるはず"
+    );
 
     // ファイルが作成されていることを確認
     assert!(config_path.exists(), "設定ファイルが作成されているはず");

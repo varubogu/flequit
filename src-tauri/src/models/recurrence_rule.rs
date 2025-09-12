@@ -1,12 +1,12 @@
 //! 繰り返しルールコマンドモデル
 
-use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
-use flequit_model::models::ModelConverter;
-use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
-use flequit_model::types::id_types::RecurrenceRuleId;
-use flequit_model::types::datetime_calendar_types::{RecurrenceUnit, DayOfWeek};
 use crate::models::CommandModelConverter;
+use async_trait::async_trait;
+use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
+use flequit_model::models::ModelConverter;
+use flequit_model::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
+use flequit_model::types::id_types::RecurrenceRuleId;
+use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド用の繰り返しルール構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -49,7 +49,8 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleCommandModel {
 
         // days_of_week文字列をDayOfWeekに変換
         let days_of_week = if let Some(ref days) = self.days_of_week {
-            let converted_days: Result<Vec<DayOfWeek>, String> = days.iter()
+            let converted_days: Result<Vec<DayOfWeek>, String> = days
+                .iter()
                 .map(|day| match day.as_str() {
                     "monday" => Ok(DayOfWeek::Monday),
                     "tuesday" => Ok(DayOfWeek::Tuesday),
@@ -68,8 +69,11 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleCommandModel {
 
         // 終了日の変換
         let end_date = if let Some(ref date_str) = self.end_date {
-            Some(date_str.parse::<DateTime<Utc>>()
-                .map_err(|e| format!("Invalid end_date format: {}", e))?)
+            Some(
+                date_str
+                    .parse::<DateTime<Utc>>()
+                    .map_err(|e| format!("Invalid end_date format: {}", e))?,
+            )
         } else {
             None
         };
@@ -106,7 +110,8 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
 
         // DayOfWeekを文字列に変換
         let days_of_week = if let Some(ref days) = self.days_of_week {
-            let converted_days: Vec<String> = days.iter()
+            let converted_days: Vec<String> = days
+                .iter()
                 .map(|day| match day {
                     DayOfWeek::Monday => "monday".to_string(),
                     DayOfWeek::Tuesday => "tuesday".to_string(),
@@ -127,11 +132,10 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
             unit,
             interval: self.interval,
             days_of_week,
-            details: None, // TODO: JSON文字列変換実装
+            details: None,    // TODO: JSON文字列変換実装
             adjustment: None, // TODO: JSON文字列変換実装
             end_date: self.end_date.as_ref().map(|d| d.to_rfc3339()),
             max_occurrences: self.max_occurrences,
         })
     }
 }
-

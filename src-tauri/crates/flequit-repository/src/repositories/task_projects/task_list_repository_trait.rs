@@ -1,7 +1,7 @@
+use crate::repositories::project_repository_trait::ProjectRepository;
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::TaskListId;
-use crate::repositories::project_repository_trait::ProjectRepository;
 
 /// 統合タスクリストリポジトリトレイト
 ///

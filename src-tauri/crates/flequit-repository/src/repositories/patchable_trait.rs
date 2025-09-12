@@ -1,7 +1,7 @@
-use flequit_types::errors::repository_error::RepositoryError;
-use async_trait::async_trait;
-use partially::Partial;
 use super::base_repository_trait::Repository;
+use async_trait::async_trait;
+use flequit_types::errors::repository_error::RepositoryError;
+use partially::Partial;
 
 /// パッチ更新可能なリポジトリトレイト
 ///

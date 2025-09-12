@@ -3,11 +3,10 @@
 //! build.rsから呼び出され、指定されたパスにSQLiteデータベースを作成し、
 //! マイグレーションを実行する。
 
-use std::env;
 use flequit_infrastructure_sqlite::infrastructure::{
-    database_manager::DatabaseManager,
-    hybrid_migration::HybridMigrator
+    database_manager::DatabaseManager, hybrid_migration::HybridMigrator,
 };
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

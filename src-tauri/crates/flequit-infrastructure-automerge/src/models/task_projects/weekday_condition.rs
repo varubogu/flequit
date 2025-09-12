@@ -3,7 +3,7 @@
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::weekday_condition::WeekdayCondition,
-    types::datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}
+    types::datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
 };
 use serde::{Deserialize, Serialize};
 

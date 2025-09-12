@@ -1,12 +1,12 @@
 // テーブル単体でのテスト
 mod accounts;
 mod projects;
-mod subtasks;
 mod subtask_tags;
+mod subtasks;
 mod tags;
 mod task_lists;
-mod tasks;
 mod task_tags;
+mod tasks;
 mod users;
 
 // テーブル統合テスト

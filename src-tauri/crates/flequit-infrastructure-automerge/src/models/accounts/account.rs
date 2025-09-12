@@ -61,10 +61,16 @@ impl AccountDocument {
     /// Automergeドキュメントからドメインモデルに変換
     pub fn to_domain_model(&self) -> Result<Account, RepositoryError> {
         Ok(Account {
-            id: AccountId::try_from_str(&self.id)
-                .map_err(|e| RepositoryError::from(crate::errors::automerge_error::AutomergeError::ConversionError(e.to_string())))?,
-            user_id: UserId::try_from_str(&self.user_id)
-                .map_err(|e| RepositoryError::from(crate::errors::automerge_error::AutomergeError::ConversionError(e.to_string())))?,
+            id: AccountId::try_from_str(&self.id).map_err(|e| {
+                RepositoryError::from(
+                    crate::errors::automerge_error::AutomergeError::ConversionError(e.to_string()),
+                )
+            })?,
+            user_id: UserId::try_from_str(&self.user_id).map_err(|e| {
+                RepositoryError::from(
+                    crate::errors::automerge_error::AutomergeError::ConversionError(e.to_string()),
+                )
+            })?,
             email: self.email.clone(),
             display_name: self.display_name.clone(),
             avatar_url: self.avatar_url.clone(),

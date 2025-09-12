@@ -2,7 +2,10 @@ use super::file_storage::FileStorage;
 use crate::{errors::automerge_error::AutomergeError, infrastructure::document::Document};
 use automerge_repo::RepoHandle;
 use flequit_model::types::id_types::ProjectId;
-use std::{collections::HashMap, path::{Path, PathBuf}};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 /// Automergeドキュメントタイプ（設計仕様準拠の4つ）
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -150,24 +153,31 @@ impl DocumentManager {
         data: &T,
     ) -> Result<(), AutomergeError> {
         if path.is_empty() {
-            return Err(AutomergeError::InvalidPath("Empty path provided".to_string()));
+            return Err(AutomergeError::InvalidPath(
+                "Empty path provided".to_string(),
+            ));
         }
 
         let doc = self.get_or_create(doc_type).await?;
-        
+
         // まず基本キー（パスの最初の要素）で既存データを取得
         let base_key = path[0];
-        let mut base_data: serde_json::Value = doc.load_data(base_key)
+        let mut base_data: serde_json::Value = doc
+            .load_data(base_key)
             .await?
             .unwrap_or(serde_json::json!({}));
 
         // ネストしたパスに値を設定
         let mut current = &mut base_data;
-        for &segment in &path[1..path.len()-1] {
+        for &segment in &path[1..path.len() - 1] {
             if !current.is_object() {
                 *current = serde_json::json!({});
             }
-            current = current.as_object_mut().unwrap().entry(segment).or_insert(serde_json::json!({}));
+            current = current
+                .as_object_mut()
+                .unwrap()
+                .entry(segment)
+                .or_insert(serde_json::json!({}));
         }
 
         // 最終的な値を設定
@@ -178,7 +188,10 @@ impl DocumentManager {
             }
             let serialized_data = serde_json::to_value(data)
                 .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
-            current.as_object_mut().unwrap().insert(final_key.to_string(), serialized_data);
+            current
+                .as_object_mut()
+                .unwrap()
+                .insert(final_key.to_string(), serialized_data);
         } else {
             // パスの長さが1の場合は直接設定
             base_data = serde_json::to_value(data)
@@ -196,11 +209,13 @@ impl DocumentManager {
         path: &[&str],
     ) -> Result<Option<T>, AutomergeError> {
         if path.is_empty() {
-            return Err(AutomergeError::InvalidPath("Empty path provided".to_string()));
+            return Err(AutomergeError::InvalidPath(
+                "Empty path provided".to_string(),
+            ));
         }
 
         let doc = self.get_or_create(doc_type).await?;
-        
+
         // まず基本キー（パスの最初の要素）でデータを取得
         let base_key = path[0];
         let base_data: Option<serde_json::Value> = doc.load_data(base_key).await?;
@@ -268,8 +283,7 @@ impl DocumentManager {
             let filename = format!("{}.json", doc_type.filename().replace(".automerge", ""));
             let output_path = output_dir.join(filename);
             if let Some(doc) = self.documents.get(doc_type) {
-                doc.export_json(output_path, description)
-                    .await?;
+                doc.export_json(output_path, description).await?;
             }
         }
 
@@ -319,7 +333,7 @@ mod tests {
         assert!(manager.exists(&doc_type));
     }
 
-        #[tokio::test]
+    #[tokio::test]
     async fn test_save_and_load_simple_data() {
         let temp_dir = TempDir::new().unwrap();
         let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
@@ -327,15 +341,10 @@ mod tests {
         let doc_type = DocumentType::Settings;
         let test_key = "test_key";
         let test_value = "test_value";
-        let doc = manager
-            .get_or_create(&doc_type)
-            .await.ok().unwrap();
+        let doc = manager.get_or_create(&doc_type).await.ok().unwrap();
 
         // データを保存
-        doc
-            .save_data(test_key, &test_value)
-            .await
-            .unwrap();
+        doc.save_data(test_key, &test_value).await.unwrap();
 
         // データを読み込み
         let loaded_value: Option<String> = doc.load_data(test_key).await.unwrap();
@@ -366,19 +375,13 @@ mod tests {
             }
         });
 
-        let doc = manager
-            .get_or_create(&doc_type)
-            .await.ok().unwrap();
+        let doc = manager.get_or_create(&doc_type).await.ok().unwrap();
 
         // データを保存
-        doc
-            .save_data(test_key, &test_data)
-            .await
-            .unwrap();
+        doc.save_data(test_key, &test_data).await.unwrap();
 
         // データを読み込み
-        let loaded_data: Option<serde_json::Value> =
-            doc.load_data(test_key).await.unwrap();
+        let loaded_data: Option<serde_json::Value> = doc.load_data(test_key).await.unwrap();
 
         assert!(loaded_data.is_some());
         let loaded = loaded_data.unwrap();
@@ -399,9 +402,7 @@ mod tests {
 
         let doc_type = DocumentType::Settings;
 
-        let doc = manager
-            .get_or_create(&doc_type)
-            .await.ok().unwrap();
+        let doc = manager.get_or_create(&doc_type).await.ok().unwrap();
 
         // 配列データを作成
         let test_array = json!([
@@ -411,14 +412,10 @@ mod tests {
         ]);
 
         // データを保存
-        doc
-            .save_data("items", &test_array)
-            .await
-            .unwrap();
+        doc.save_data("items", &test_array).await.unwrap();
 
         // データを読み込み
-        let loaded_array: Option<serde_json::Value> =
-            doc.load_data("items").await.unwrap();
+        let loaded_array: Option<serde_json::Value> = doc.load_data("items").await.unwrap();
 
         assert!(loaded_array.is_some());
         let loaded = loaded_array.unwrap();
@@ -441,15 +438,10 @@ mod tests {
         let mut manager = DocumentManager::new(temp_dir.path()).unwrap();
 
         let doc_type = DocumentType::Settings;
-        let doc = manager
-            .get_or_create(&doc_type)
-            .await.ok().unwrap();
+        let doc = manager.get_or_create(&doc_type).await.ok().unwrap();
 
         // 存在しないキーを読み込み
-        let loaded_value: Option<String> = doc
-            .load_data("nonexistent_key")
-            .await
-            .unwrap();
+        let loaded_value: Option<String> = doc.load_data("nonexistent_key").await.unwrap();
         assert_eq!(loaded_value, None);
     }
 }

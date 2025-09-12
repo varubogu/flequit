@@ -2,8 +2,11 @@
 //!
 //! このモジュールは曜日に基づく条件調整を管理する構造体を定義します。
 
+use crate::types::{
+    datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
+    id_types::WeekdayConditionId,
+};
 use serde::{Deserialize, Serialize};
-use crate::types::{datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}, id_types::WeekdayConditionId};
 
 /// 曜日に基づく条件調整を表現する構造体
 ///

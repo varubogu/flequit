@@ -1,5 +1,5 @@
-use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::automerge_error::AutomergeError;
+use flequit_types::errors::repository_error::RepositoryError;
 
 impl From<AutomergeError> for RepositoryError {
     fn from(err: AutomergeError) -> Self {

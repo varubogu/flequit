@@ -3,15 +3,16 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::subtask_tag::{Column, Entity as SubtaskTagEntity};
+use crate::models::SqliteModelConverter;
+use async_trait::async_trait;
+use chrono::Utc;
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_types::errors::repository_error::RepositoryError;
-use crate::models::SqliteModelConverter;
-use async_trait::async_trait;
-use chrono::Utc;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait,
+    QueryFilter,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -32,7 +33,10 @@ impl SubtaskTagLocalSqliteRepository {
         subtask_id: &SubTaskId,
     ) -> Result<Vec<TagId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskTagEntity::find()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -54,7 +58,10 @@ impl SubtaskTagLocalSqliteRepository {
         tag_id: &TagId,
     ) -> Result<Vec<SubTaskId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskTagEntity::find()
             .filter(Column::TagId.eq(tag_id.to_string()))
@@ -77,7 +84,10 @@ impl SubtaskTagLocalSqliteRepository {
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         // 既存の関連が存在するかチェック
         let existing = SubtaskTagEntity::find()
@@ -95,7 +105,9 @@ impl SubtaskTagLocalSqliteRepository {
                 created_at: Set(Utc::now()),
             };
 
-            active_model.insert(db).await
+            active_model
+                .insert(db)
+                .await
                 .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         }
 
@@ -109,7 +121,10 @@ impl SubtaskTagLocalSqliteRepository {
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         SubtaskTagEntity::delete_many()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -127,7 +142,10 @@ impl SubtaskTagLocalSqliteRepository {
         subtask_id: &SubTaskId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         SubtaskTagEntity::delete_many()
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
@@ -144,7 +162,10 @@ impl SubtaskTagLocalSqliteRepository {
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         SubtaskTagEntity::delete_many()
             .filter(Column::TagId.eq(tag_id.to_string()))
@@ -188,21 +209,42 @@ impl SubtaskTagLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocalSqliteRepository {
-    async fn add(&self, _project_id: &ProjectId, parent_id: &SubTaskId, child_id: &TagId) -> Result<(), RepositoryError> {
+    async fn add(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+        child_id: &TagId,
+    ) -> Result<(), RepositoryError> {
         self.add_relation(parent_id, child_id).await
     }
 
-    async fn remove(&self, _project_id: &ProjectId, parent_id: &SubTaskId, child_id: &TagId) -> Result<(), RepositoryError> {
+    async fn remove(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+        child_id: &TagId,
+    ) -> Result<(), RepositoryError> {
         self.remove_relation(parent_id, child_id).await
     }
 
-    async fn remove_all(&self, _project_id: &ProjectId, parent_id: &SubTaskId) -> Result<(), RepositoryError> {
+    async fn remove_all(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+    ) -> Result<(), RepositoryError> {
         self.remove_all_relations_by_subtask_id(parent_id).await
     }
 
-    async fn find_relations(&self, _project_id: &ProjectId, parent_id: &SubTaskId) -> Result<Vec<SubTaskTag>, RepositoryError> {
+    async fn find_relations(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+    ) -> Result<Vec<SubTaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskTagEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -212,16 +254,26 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
 
         let mut domain_models = Vec::new();
         for model in models {
-            let domain_model = model.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+            let domain_model = model
+                .to_domain_model()
+                .await
+                .map_err(|e| RepositoryError::ConversionError(e))?;
             domain_models.push(domain_model);
         }
 
         Ok(domain_models)
     }
 
-    async fn exists(&self, _project_id: &ProjectId, parent_id: &SubTaskId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+    ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let count = SubtaskTagEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -232,9 +284,16 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
         Ok(count > 0)
     }
 
-    async fn count(&self, _project_id: &ProjectId, parent_id: &SubTaskId) -> Result<u64, RepositoryError> {
+    async fn count(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+    ) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let count = SubtaskTagEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -247,7 +306,10 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
 
     async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<SubTaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskTagEntity::find()
             .all(db)
@@ -256,16 +318,27 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
 
         let mut domain_models = Vec::new();
         for model in models {
-            let domain_model = model.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+            let domain_model = model
+                .to_domain_model()
+                .await
+                .map_err(|e| RepositoryError::ConversionError(e))?;
             domain_models.push(domain_model);
         }
 
         Ok(domain_models)
     }
 
-    async fn find_relation(&self, _project_id: &ProjectId, parent_id: &SubTaskId, child_id: &TagId) -> Result<Option<SubTaskTag>, RepositoryError> {
+    async fn find_relation(
+        &self,
+        _project_id: &ProjectId,
+        parent_id: &SubTaskId,
+        child_id: &TagId,
+    ) -> Result<Option<SubTaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let model = SubtaskTagEntity::find()
             .filter(Column::SubtaskId.eq(parent_id.to_string()))
@@ -276,10 +349,13 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
 
         match model {
             Some(m) => {
-                let domain_model = m.to_domain_model().await.map_err(|e| RepositoryError::ConversionError(e))?;
+                let domain_model = m
+                    .to_domain_model()
+                    .await
+                    .map_err(|e| RepositoryError::ConversionError(e))?;
                 Ok(Some(domain_model))
             }
-            None => Ok(None)
+            None => Ok(None),
         }
     }
 }

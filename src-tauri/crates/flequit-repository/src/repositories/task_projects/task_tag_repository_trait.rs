@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_tag::TaskTag;
-use flequit_model::types::id_types::{TaskId, TagId};
+use flequit_model::types::id_types::{TagId, TaskId};
 
 use crate::repositories::project_relation_repository_trait::ProjectRelationRepository;
 

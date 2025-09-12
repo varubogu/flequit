@@ -1,8 +1,8 @@
-use flequit_types::errors::service_error::ServiceError;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::task_projects::project::ProjectTree;
 use flequit_repository::repositories::base_repository_trait::Repository;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_types::errors::service_error::ServiceError;
 
 pub struct InitializedResult {
     pub accounts: Vec<Account>,
@@ -11,7 +11,8 @@ pub struct InitializedResult {
 
 pub async fn load_all_data<R>(repositories: &R) -> Result<InitializedResult, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     // 他のservice関数を組み合わせて全データを取得
     let accounts = load_all_account(repositories).await?;
     let project_trees = load_all_project_trees(repositories).await?;
@@ -24,8 +25,8 @@ where
 
 pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
-
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
     let accounts = repositories
@@ -49,8 +50,8 @@ where
 
 pub async fn load_all_project_trees<R>(repositories: &R) -> Result<Vec<ProjectTree>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
-
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     // 1. 全プロジェクトを取得
     let projects = repositories
         .projects()
@@ -63,8 +64,11 @@ where
     // 2. 各プロジェクトに対してTaskListTreeを取得してProjectTreeを構築
     for project in projects {
         // TaskListTreeを取得
-        let task_lists =
-            crate::services::task_list_service::get_task_lists_with_tasks(repositories, &project.id).await?;
+        let task_lists = crate::services::task_list_service::get_task_lists_with_tasks(
+            repositories,
+            &project.id,
+        )
+        .await?;
 
         let project_tree = ProjectTree {
             id: project.id.clone(),
@@ -88,7 +92,8 @@ where
 
 pub async fn load_all_account<R>(repositories: &R) -> Result<Vec<Account>, ServiceError>
 where
-    R: InfrastructureRepositoriesTrait + Send + Sync, {
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
     repositories
         .accounts()
         .find_all()

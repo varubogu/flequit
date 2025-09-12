@@ -6,7 +6,10 @@ use flequit_types::errors::repository_error::RepositoryError;
 #[async_trait]
 pub trait RecurrenceRuleRepositoryTrait: Send + Sync {
     /// 指定したIDの繰り返しルールを取得
-    async fn get_recurrence_rule(&self, id: &str) -> Result<Option<RecurrenceRule>, RepositoryError>;
+    async fn get_recurrence_rule(
+        &self,
+        id: &str,
+    ) -> Result<Option<RecurrenceRule>, RepositoryError>;
 
     /// すべての繰り返しルールを取得
     async fn get_all_recurrence_rules(&self) -> Result<Vec<RecurrenceRule>, RepositoryError>;

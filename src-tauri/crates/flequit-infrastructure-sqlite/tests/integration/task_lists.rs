@@ -2,19 +2,18 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクリストリポジトリテスト
 
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use flequit_infrastructure_sqlite::infrastructure::task_projects::{
+    project::ProjectLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
+};
 use flequit_model::models::task_projects::{project::Project, task_list::TaskList};
 use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
-use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-use flequit_infrastructure_sqlite::infrastructure::task_projects::{
-    project::ProjectLocalSqliteRepository,
-    task_list::TaskListLocalSqliteRepository,
-};
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use function_name::named;
-use uuid::Uuid;
 use std::sync::Arc;
+use uuid::Uuid;
 
 use flequit_testing::TestPathGenerator;
 
@@ -31,7 +30,6 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
     let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
-
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
@@ -73,7 +71,9 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
     task_list_repo.save(&project_id, &task_list).await?;
 
     // 作成確認
-    let retrieved = task_list_repo.find_by_id(&project_id, &task_list_id).await?;
+    let retrieved = task_list_repo
+        .find_by_id(&project_id, &task_list_id)
+        .await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, task_list.id);
@@ -95,7 +95,6 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
     let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
-
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
@@ -151,7 +150,9 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
     task_list_repo.save(&project_id, &task_list2).await?;
 
     // 1件目のみRead操作
-    let retrieved = task_list_repo.find_by_id(&project_id, &task_list_id1).await?;
+    let retrieved = task_list_repo
+        .find_by_id(&project_id, &task_list_id1)
+        .await?;
     assert!(retrieved.is_some());
     let retrieved = retrieved.unwrap();
     assert_eq!(retrieved.id, task_list1.id);
@@ -160,7 +161,9 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
     assert_eq!(retrieved.color, task_list1.color);
 
     // 2件目が存在することも確認
-    let retrieved2 = task_list_repo.find_by_id(&project_id, &task_list_id2).await?;
+    let retrieved2 = task_list_repo
+        .find_by_id(&project_id, &task_list_id2)
+        .await?;
     assert!(retrieved2.is_some());
 
     Ok(())
@@ -177,7 +180,6 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
     let test_case = function_name!();
     let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
     let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
-
 
     // リポジトリを初期化
     let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
@@ -240,7 +242,9 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
     task_list_repo.save(&project_id, &updated).await?;
 
     // 更新後の取得確認（1件目）
-    let updated_result = task_list_repo.find_by_id(&project_id, &task_list_id1).await?;
+    let updated_result = task_list_repo
+        .find_by_id(&project_id, &task_list_id1)
+        .await?;
     assert!(updated_result.is_some());
     let updated_result = updated_result.unwrap();
     assert_eq!(updated_result.name, updated.name);
@@ -248,7 +252,9 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
     assert_eq!(updated_result.color, updated.color);
 
     // 2件目が変更されていないことを確認
-    let retrieved2 = task_list_repo.find_by_id(&project_id, &task_list_id2).await?;
+    let retrieved2 = task_list_repo
+        .find_by_id(&project_id, &task_list_id2)
+        .await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.name, task_list2.name);
@@ -326,11 +332,15 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
     task_list_repo.delete(&project_id, &task_list_id1).await?;
 
     // 削除確認（1件目）
-    let deleted_check = task_list_repo.find_by_id(&project_id, &task_list_id1).await?;
+    let deleted_check = task_list_repo
+        .find_by_id(&project_id, &task_list_id1)
+        .await?;
     assert!(deleted_check.is_none());
 
     // 2件目が削除されていないことを確認
-    let retrieved2 = task_list_repo.find_by_id(&project_id, &task_list_id2).await?;
+    let retrieved2 = task_list_repo
+        .find_by_id(&project_id, &task_list_id2)
+        .await?;
     assert!(retrieved2.is_some());
     let retrieved2 = retrieved2.unwrap();
     assert_eq!(retrieved2.name, task_list2.name);

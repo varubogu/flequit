@@ -2,20 +2,22 @@
 //!
 //! このモジュールは日付条件、曜日条件のService層とのインターフェースを提供します。
 
-use flequit_model::models::task_projects::{weekday_condition::WeekdayCondition};
-use flequit_model::models::task_projects::date_condition::DateCondition;
-use flequit_types::errors::service_error::ServiceError;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use crate::services::datetime_service;
 use chrono::{DateTime, Utc};
-
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::date_condition::DateCondition;
+use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
+use flequit_types::errors::service_error::ServiceError;
 
 // =============================================================================
 // 日付条件関連ファサード
 // =============================================================================
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_date_condition<R>(repositories: &R, condition: DateCondition) -> Result<bool, String>
+pub async fn create_date_condition<R>(
+    repositories: &R,
+    condition: DateCondition,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -27,7 +29,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_date_condition<R>(repositories: &R, condition_id: String) -> Result<Option<DateCondition>, String>
+pub async fn get_date_condition<R>(
+    repositories: &R,
+    condition_id: String,
+) -> Result<Option<DateCondition>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -49,7 +54,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_date_condition<R>(repositories: &R, condition: DateCondition) -> Result<bool, String>
+pub async fn update_date_condition<R>(
+    repositories: &R,
+    condition: DateCondition,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -61,7 +69,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_date_condition<R>(repositories: &R, condition_id: String) -> Result<bool, String>
+pub async fn delete_date_condition<R>(
+    repositories: &R,
+    condition_id: String,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -72,11 +83,16 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn evaluate_date_condition<R>(repositories: &R, condition_id: String, target_date: DateTime<Utc>) -> Result<bool, String>
+pub async fn evaluate_date_condition<R>(
+    repositories: &R,
+    condition_id: String,
+    target_date: DateTime<Utc>,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match datetime_service::evaluate_date_condition(repositories, &condition_id, target_date).await {
+    match datetime_service::evaluate_date_condition(repositories, &condition_id, target_date).await
+    {
         Ok(result) => Ok(result),
         Err(e) => Err(format!("Failed to evaluate date condition: {:?}", e)),
     }
@@ -87,7 +103,10 @@ where
 // =============================================================================
 
 #[tracing::instrument(level = "trace")]
-pub async fn create_weekday_condition<R>(repositories: &R, condition: WeekdayCondition) -> Result<bool, String>
+pub async fn create_weekday_condition<R>(
+    repositories: &R,
+    condition: WeekdayCondition,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -99,7 +118,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_weekday_condition<R>(repositories: &R, condition_id: String) -> Result<Option<WeekdayCondition>, String>
+pub async fn get_weekday_condition<R>(
+    repositories: &R,
+    condition_id: String,
+) -> Result<Option<WeekdayCondition>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -110,7 +132,9 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn get_all_weekday_conditions<R>(repositories: &R) -> Result<Vec<WeekdayCondition>, String>
+pub async fn get_all_weekday_conditions<R>(
+    repositories: &R,
+) -> Result<Vec<WeekdayCondition>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -121,7 +145,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn update_weekday_condition<R>(repositories: &R, condition: WeekdayCondition) -> Result<bool, String>
+pub async fn update_weekday_condition<R>(
+    repositories: &R,
+    condition: WeekdayCondition,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -133,7 +160,10 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn delete_weekday_condition<R>(repositories: &R, condition_id: String) -> Result<bool, String>
+pub async fn delete_weekday_condition<R>(
+    repositories: &R,
+    condition_id: String,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -144,11 +174,17 @@ where
 }
 
 #[tracing::instrument(level = "trace")]
-pub async fn evaluate_weekday_condition<R>(repositories: &R, condition_id: String, target_date: DateTime<Utc>) -> Result<bool, String>
+pub async fn evaluate_weekday_condition<R>(
+    repositories: &R,
+    condition_id: String,
+    target_date: DateTime<Utc>,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match datetime_service::evaluate_weekday_condition(repositories, &condition_id, target_date).await {
+    match datetime_service::evaluate_weekday_condition(repositories, &condition_id, target_date)
+        .await
+    {
         Ok(result) => Ok(result),
         Err(e) => Err(format!("Failed to evaluate weekday condition: {:?}", e)),
     }

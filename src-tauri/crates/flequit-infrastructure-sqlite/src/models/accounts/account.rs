@@ -60,7 +60,6 @@ impl ActiveModelBehavior for ActiveModel {}
 #[async_trait]
 impl SqliteModelConverter<Account> for Model {
     async fn to_domain_model(&self) -> Result<Account, String> {
-
         Ok(Account {
             id: AccountId::from(self.id.clone()),
             user_id: UserId::from(self.user_id.clone()),

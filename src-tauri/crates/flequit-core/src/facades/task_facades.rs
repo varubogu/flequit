@@ -1,13 +1,17 @@
 use log::info;
 
-use flequit_types::errors::service_error::ServiceError;
-use flequit_model::models::task_projects::task::{PartialTask, Task};
 use crate::services::task_service;
-use flequit_model::types::id_types::{TaskId, ProjectId};
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
+use flequit_model::models::task_projects::task::{PartialTask, Task};
+use flequit_model::types::id_types::{ProjectId, TaskId};
+use flequit_types::errors::service_error::ServiceError;
 
 #[tracing::instrument]
-pub async fn create_task<R>(repositories: &R, project_id: &ProjectId, task: &Task) -> Result<bool, String>
+pub async fn create_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task: &Task,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -19,7 +23,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn get_task<R>(repositories: &R, project_id: &ProjectId, id: &TaskId) -> Result<Option<Task>, String>
+pub async fn get_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TaskId,
+) -> Result<Option<Task>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -32,7 +40,12 @@ where
 }
 
 #[tracing::instrument]
-pub async fn update_task<R>(repositories: &R, project_id: &ProjectId, task_id: &TaskId, patch: &PartialTask) -> Result<bool, String>
+pub async fn update_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: &TaskId,
+    patch: &PartialTask,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -44,7 +57,11 @@ where
 }
 
 #[tracing::instrument]
-pub async fn delete_task<R>(repositories: &R, project_id: &ProjectId, id: &TaskId) -> Result<bool, String>
+pub async fn delete_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TaskId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {

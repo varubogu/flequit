@@ -1,8 +1,8 @@
-use flequit_types::errors::service_error::ServiceError;
+use crate::services::initialization_service;
+use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::task_projects::project::ProjectTree;
-use flequit_infrastructure::InfrastructureRepositoriesTrait;
-use crate::services::initialization_service;
+use flequit_types::errors::service_error::ServiceError;
 
 /// ドメインレベルでの初期化データを表現する構造体
 #[derive(Debug, Clone)]
@@ -23,7 +23,7 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 //     let _current_account = load_current_account().await?; // 現在は使用しない
 //     let projects = load_all_project_trees().await?;
 //     let accounts = load_all_account().await?;
-// 
+//
 //     Ok(InitializationData {
 //         accounts,
 //         projects,

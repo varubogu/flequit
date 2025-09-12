@@ -7,7 +7,9 @@ use flequit_model::types::id_types::{SubTaskId, TagId};
 use crate::repositories::project_relation_repository_trait::ProjectRelationRepository;
 
 #[async_trait]
-pub trait SubTaskTagRepositoryTrait: ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> {
+pub trait SubTaskTagRepositoryTrait:
+    ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
+{
     // ProjectRelationRepositoryのメソッドを使用：
     // - add: プロジェクト内でサブタスクにタグを紐付け
     // - remove: プロジェクト内でタグ紐付けを削除

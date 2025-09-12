@@ -16,7 +16,9 @@ use crate::project_relation_repository_trait::ProjectRelationRepository;
 /// - **一対一関係**: 一つのサブタスクに一つの繰り返しルール
 /// - **日時管理**: 関連付けの作成日時を記録
 #[async_trait]
-pub trait SubtaskRecurrenceRepositoryTrait: ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> + Send + Sync {
+pub trait SubtaskRecurrenceRepositoryTrait:
+    ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId> + Send + Sync
+{
     /// サブタスクIDによる繰り返しルール関連付けを取得します。
     ///
     /// # 引数
@@ -28,7 +30,10 @@ pub trait SubtaskRecurrenceRepositoryTrait: ProjectRelationRepository<SubTaskRec
     /// 関連付けが存在する場合は`Ok(Some(SubtaskRecurrence))`、
     /// 存在しない場合は`Ok(None)`、
     /// エラー時は`Err(RepositoryError)`
-    async fn find_by_subtask_id(&self, subtask_id: &SubTaskId) -> Result<Option<SubTaskRecurrence>, RepositoryError>;
+    async fn find_by_subtask_id(
+        &self,
+        subtask_id: &SubTaskId,
+    ) -> Result<Option<SubTaskRecurrence>, RepositoryError>;
 
     /// 繰り返しルールIDによる関連付け一覧を取得します。
     ///
@@ -39,7 +44,10 @@ pub trait SubtaskRecurrenceRepositoryTrait: ProjectRelationRepository<SubTaskRec
     /// # 戻り値
     ///
     /// 関連付けのベクター、失敗時は`Err(RepositoryError)`
-    async fn find_by_recurrence_rule_id(&self, recurrence_rule_id: &RecurrenceRuleId) -> Result<Vec<SubTaskRecurrence>, RepositoryError>;
+    async fn find_by_recurrence_rule_id(
+        &self,
+        recurrence_rule_id: &RecurrenceRuleId,
+    ) -> Result<Vec<SubTaskRecurrence>, RepositoryError>;
 
     /// すべてのサブタスク繰り返しルール関連付けを取得します。
     ///
@@ -79,7 +87,10 @@ pub trait SubtaskRecurrenceRepositoryTrait: ProjectRelationRepository<SubTaskRec
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn delete_by_recurrence_rule_id(&self, recurrence_rule_id: &RecurrenceRuleId) -> Result<(), RepositoryError>;
+    async fn delete_by_recurrence_rule_id(
+        &self,
+        recurrence_rule_id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError>;
 
     /// 特定のサブタスクに繰り返しルールが関連付けられているか確認します。
     ///

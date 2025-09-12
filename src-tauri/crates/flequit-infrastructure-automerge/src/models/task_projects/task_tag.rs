@@ -1,5 +1,5 @@
 //! TaskTag AutoMergeモデル
-//! 
+//!
 //! SQLite task_tagsテーブルと同じ構造を持つAutoMerge用データ構造
 
 use chrono::{DateTime, Utc};
@@ -92,20 +92,14 @@ impl AutoMergeTaskTagCollection {
     }
 
     /// 指定されたタスクのすべてのタグ関連を削除
-    pub fn remove_all_tags_for_task(
-        task_tags: &mut Vec<AutoMergeTaskTag>,
-        task_id: &str,
-    ) -> usize {
+    pub fn remove_all_tags_for_task(task_tags: &mut Vec<AutoMergeTaskTag>, task_id: &str) -> usize {
         let initial_len = task_tags.len();
         task_tags.retain(|tt| !tt.belongs_to_task(task_id));
         initial_len - task_tags.len()
     }
 
     /// 指定されたタグのすべてのタスク関連を削除
-    pub fn remove_all_tasks_for_tag(
-        task_tags: &mut Vec<AutoMergeTaskTag>,
-        tag_id: &str,
-    ) -> usize {
+    pub fn remove_all_tasks_for_tag(task_tags: &mut Vec<AutoMergeTaskTag>, tag_id: &str) -> usize {
         let initial_len = task_tags.len();
         task_tags.retain(|tt| !tt.has_tag(tag_id));
         initial_len - task_tags.len()
@@ -119,7 +113,7 @@ mod tests {
     #[test]
     fn test_new_task_tag() {
         let task_tag = AutoMergeTaskTag::new("task-1".to_string(), "tag-1".to_string());
-        
+
         assert_eq!(task_tag.task_id, "task-1");
         assert_eq!(task_tag.tag_id, "tag-1");
         assert!(task_tag.belongs_to_task("task-1"));
@@ -167,12 +161,14 @@ mod tests {
         assert_eq!(task_tags.len(), 4);
 
         // 関連を削除
-        let removed = AutoMergeTaskTagCollection::remove_task_tag(&mut task_tags, "task-1", "tag-1");
+        let removed =
+            AutoMergeTaskTagCollection::remove_task_tag(&mut task_tags, "task-1", "tag-1");
         assert!(removed);
         assert_eq!(task_tags.len(), 3);
 
         // タスクのすべてのタグ関連を削除
-        let removed_count = AutoMergeTaskTagCollection::remove_all_tags_for_task(&mut task_tags, "task-1");
+        let removed_count =
+            AutoMergeTaskTagCollection::remove_all_tags_for_task(&mut task_tags, "task-1");
         assert_eq!(removed_count, 1); // tag-2が削除された
         assert_eq!(task_tags.len(), 2);
     }

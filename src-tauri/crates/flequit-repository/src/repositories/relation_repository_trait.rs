@@ -1,5 +1,5 @@
-use flequit_types::errors::repository_error::RepositoryError;
 use async_trait::async_trait;
+use flequit_types::errors::repository_error::RepositoryError;
 
 /// 関係性管理リポジトリトレイト
 ///
@@ -64,7 +64,11 @@ where
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn remove(&self, parent_id: &TParentId, child_id: &TChildId) -> Result<(), RepositoryError>;
+    async fn remove(
+        &self,
+        parent_id: &TParentId,
+        child_id: &TChildId,
+    ) -> Result<(), RepositoryError>;
 
     /// 紐づけを全て削除
     ///
@@ -86,7 +90,10 @@ where
     /// # 戻り値
     ///
     /// リレーションエンティティのベクター、失敗時は`Err(RepositoryError)`
-    async fn find_relations(&self, parent_id: &TParentId) -> Result<Vec<TRelation>, RepositoryError>;
+    async fn find_relations(
+        &self,
+        parent_id: &TParentId,
+    ) -> Result<Vec<TRelation>, RepositoryError>;
 
     /// 紐づけが存在するかチェック
     ///

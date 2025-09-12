@@ -1,18 +1,16 @@
 //! DateCondition用SQLiteリポジトリ
 
 use super::super::database_manager::DatabaseManager;
-use flequit_model::models::task_projects::date_condition::DateCondition;
-use flequit_types::errors::repository_error::RepositoryError;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::date_condition::{Column, Entity as DateConditionEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use async_trait::async_trait;
+use flequit_model::models::task_projects::date_condition::DateCondition;
+use flequit_model::types::id_types::{DateConditionId, ProjectId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::date_condition_repository_trait::DateConditionRepositoryTrait;
-use flequit_model::types::id_types::{DateConditionId, ProjectId};
-use async_trait::async_trait;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set,
-};
+use flequit_types::errors::repository_error::RepositoryError;
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -29,9 +27,16 @@ impl DateConditionLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSqliteRepository {
-    async fn save(&self, _project_id: &ProjectId, entity: &DateCondition) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        _project_id: &ProjectId,
+        entity: &DateCondition,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let sqlite_model = entity
             .to_sqlite_model()
@@ -46,14 +51,23 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
             updated_at: Set(sqlite_model.updated_at),
         };
 
-        active_model.insert(db).await
+        active_model
+            .insert(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
-    async fn find_by_id(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<Option<DateCondition>, RepositoryError> {
+    async fn find_by_id(
+        &self,
+        _project_id: &ProjectId,
+        id: &DateConditionId,
+    ) -> Result<Option<DateCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         if let Some(model) = DateConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -71,11 +85,19 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         }
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<DateCondition>, RepositoryError> {
+    async fn find_all(
+        &self,
+        _project_id: &ProjectId,
+    ) -> Result<Vec<DateCondition>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        let models = DateConditionEntity::find().all(db).await
+        let models = DateConditionEntity::find()
+            .all(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let mut date_conditions = Vec::new();
@@ -90,9 +112,16 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(date_conditions)
     }
 
-    async fn delete(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<(), RepositoryError> {
+    async fn delete(
+        &self,
+        _project_id: &ProjectId,
+        id: &DateConditionId,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         DateConditionEntity::delete_many()
             .filter(Column::Id.eq(id.as_str()))
@@ -103,9 +132,16 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         Ok(())
     }
 
-    async fn exists(&self, _project_id: &ProjectId, id: &DateConditionId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        _project_id: &ProjectId,
+        id: &DateConditionId,
+    ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
         let count = DateConditionEntity::find()
             .filter(Column::Id.eq(id.as_str()))
@@ -118,14 +154,18 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
 
     async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
-        let db = db_manager.get_connection().await.map_err(|e| RepositoryError::from(e))?;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
 
-        let count = DateConditionEntity::find().count(db).await
+        let count = DateConditionEntity::find()
+            .count(db)
+            .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count)
     }
 }
 
 #[async_trait]
-impl DateConditionRepositoryTrait for DateConditionLocalSqliteRepository {
-}
+impl DateConditionRepositoryTrait for DateConditionLocalSqliteRepository {}

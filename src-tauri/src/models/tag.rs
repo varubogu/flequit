@@ -3,9 +3,8 @@ use flequit_model::types::id_types::TagId;
 use serde::{Deserialize, Serialize};
 
 use crate::models::CommandModelConverter;
-use flequit_model::models::ModelConverter;
 use flequit_model::models::task_projects::tag::Tag;
-
+use flequit_model::models::ModelConverter;
 
 /// Tauriコマンド引数用のTag構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]

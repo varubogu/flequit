@@ -10,18 +10,19 @@ impl TestPathGenerator {
     }
 
     pub fn generate_test_crate_dir(crate_name: &str) -> PathBuf {
-        Self::generate_test_base_dir()
-            .join(crate_name)
+        Self::generate_test_base_dir().join(crate_name)
     }
 
     pub fn generate_test_file_path_dir(crate_name: &str, file_path: &str) -> PathBuf {
-        Self::generate_test_crate_dir(crate_name)
-            .join(file_path)
+        Self::generate_test_crate_dir(crate_name).join(file_path)
     }
 
-    pub fn generate_test_case_path_dir(crate_name: &str, file_path: &str, test_function_name: &str) -> PathBuf {
-        Self::generate_test_file_path_dir(crate_name, file_path)
-            .join(test_function_name)
+    pub fn generate_test_case_path_dir(
+        crate_name: &str,
+        file_path: &str,
+        test_function_name: &str,
+    ) -> PathBuf {
+        Self::generate_test_file_path_dir(crate_name, file_path).join(test_function_name)
     }
 
     /// 実行されたテスト関数のファイルパスから、テストルール準拠のパスを生成

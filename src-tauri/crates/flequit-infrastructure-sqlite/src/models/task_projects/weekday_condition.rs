@@ -4,9 +4,12 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::weekday_condition::WeekdayCondition,
-    types::{datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek}, id_types::WeekdayConditionId}
+    types::{
+        datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
+        id_types::WeekdayConditionId,
+    },
 };
-use sea_orm::{entity::prelude::*};
+use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use super::{DomainToSqliteConverter, SqliteModelConverter};

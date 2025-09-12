@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
+use crate::models::CommandModelConverter;
 use flequit_model::models::task_projects::task_tag::TaskTag;
 use flequit_model::models::ModelConverter;
-use crate::models::CommandModelConverter;
-use flequit_model::types::id_types::{TaskId, TagId};
+use flequit_model::types::id_types::{TagId, TaskId};
 
 /// Tauriコマンド引数用のTaskTag構造体（created_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
