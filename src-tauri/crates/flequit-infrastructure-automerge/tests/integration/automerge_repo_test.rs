@@ -29,11 +29,8 @@ impl TestDocumentManager {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let manager = DocumentManager::new(base_path)?;
 
-        // エクスポート用ディレクトリを作成（各テストが既に個別パスを持っているため、直接json_historyを作成）
-        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
-        let base_export_dir = base_path
-            .join("json_history")
-            .join(&timestamp);
+        // エクスポート用ディレクトリを作成
+        let base_export_dir = base_path.join("json_history");
         std::fs::create_dir_all(&base_export_dir)?;
 
         println!(
