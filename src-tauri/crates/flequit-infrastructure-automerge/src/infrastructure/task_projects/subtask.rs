@@ -9,6 +9,7 @@ use flequit_repository::repositories::task_projects::subtask_repository_trait::S
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 /// Automerge実装のサブタスクリポジトリ
 ///
@@ -34,7 +35,7 @@ use std::sync::Arc;
 /// - **ステートレス**: プロジェクトIDは必要時に引数で受け取る
 #[derive(Debug)]
 pub struct SubTaskLocalAutomergeRepository {
-    document_manager: Arc<tokio::sync::RwLock<DocumentManager>>,
+    document_manager: Arc<Mutex<DocumentManager>>,
 }
 
 impl SubTaskLocalAutomergeRepository {
@@ -42,7 +43,17 @@ impl SubTaskLocalAutomergeRepository {
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
-            document_manager: Arc::new(tokio::sync::RwLock::new(document_manager)),
+            document_manager: Arc::new(Mutex::new(document_manager)),
+        })
+    }
+
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    #[tracing::instrument(level = "trace")]
+    pub async fn new_with_manager(
+        document_manager: Arc<Mutex<DocumentManager>>,
+    ) -> Result<Self, RepositoryError> {
+        Ok(Self {
+            document_manager,
         })
     }
 
@@ -53,7 +64,7 @@ impl SubTaskLocalAutomergeRepository {
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
         let doc_type = DocumentType::Project(project_id.clone());
-        let mut manager = self.document_manager.write().await;
+        let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&doc_type)
             .await

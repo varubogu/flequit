@@ -3,9 +3,9 @@
 //! 設定に基づいてバックエンドリポジトリを初期化・管理する
 
 use std::sync::Arc;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, Mutex};
 
-use flequit_infrastructure_automerge::LocalAutomergeRepositories;
+use flequit_infrastructure_automerge::{LocalAutomergeRepositories, infrastructure::document_manager::DocumentManager};
 use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 
 use crate::unified::UnifiedConfig;
@@ -19,6 +19,8 @@ pub struct UnifiedManager {
     config: UnifiedConfig,
     sqlite_repositories: Option<Arc<RwLock<LocalSqliteRepositories>>>,
     automerge_repositories: Option<Arc<RwLock<LocalAutomergeRepositories>>>,
+    /// 共有DocumentManager - Automerge Repoの重複を避けるため
+    shared_document_manager: Option<Arc<Mutex<DocumentManager>>>,
 }
 
 impl UnifiedManager {
@@ -28,6 +30,7 @@ impl UnifiedManager {
             config: UnifiedConfig::default(),
             sqlite_repositories: None,
             automerge_repositories: None,
+            shared_document_manager: None,
         }
     }
 
@@ -39,6 +42,7 @@ impl UnifiedManager {
             config: config.clone(),
             sqlite_repositories: None,
             automerge_repositories: None,
+            shared_document_manager: None,
         };
 
         manager.initialize_backends().await?;
@@ -70,11 +74,20 @@ impl UnifiedManager {
 
         // Automergeリポジトリの初期化
         if self.config.automerge_storage_enabled {
-            let automerge_repos = LocalAutomergeRepositories::setup().await?;
+            // 共有DocumentManagerを初期化
+            let base_path = std::env::temp_dir().join("flequit_automerge");
+            let document_manager = DocumentManager::new(base_path)?;
+            self.shared_document_manager = Some(Arc::new(Mutex::new(document_manager)));
+            
+            // 共有DocumentManagerを使用してAutomergeリポジトリを初期化
+            let automerge_repos = LocalAutomergeRepositories::setup_with_shared_manager(
+                self.shared_document_manager.clone().unwrap()
+            ).await?;
             self.automerge_repositories = Some(Arc::new(RwLock::new(automerge_repos)));
-            tracing::info!("Automergeリポジトリを初期化しました");
+            tracing::info!("Automergeリポジトリを共有DocumentManagerで初期化しました");
         } else {
             self.automerge_repositories = None;
+            self.shared_document_manager = None;
             tracing::info!("Automergeリポジトリを無効にしました");
         }
 

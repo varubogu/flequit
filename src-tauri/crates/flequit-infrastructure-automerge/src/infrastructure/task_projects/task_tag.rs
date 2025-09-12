@@ -11,7 +11,7 @@ use flequit_repository::repositories::task_projects::task_tag_repository_trait::
 use flequit_types::errors::repository_error::RepositoryError;
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::Arc};
-use tokio::sync::RwLock;
+use tokio::sync::Mutex;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TaskTagRelation {
@@ -22,7 +22,7 @@ struct TaskTagRelation {
 
 #[derive(Debug)]
 pub struct TaskTagLocalAutomergeRepository {
-    document_manager: Arc<RwLock<DocumentManager>>,
+    document_manager: Arc<Mutex<DocumentManager>>,
 }
 
 impl TaskTagLocalAutomergeRepository {
@@ -30,7 +30,16 @@ impl TaskTagLocalAutomergeRepository {
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
-            document_manager: Arc::new(RwLock::new(document_manager)),
+            document_manager: Arc::new(Mutex::new(document_manager)),
+        })
+    }
+
+    /// 共有DocumentManagerを使用して新しいインスタンスを作成
+    pub async fn new_with_manager(
+        document_manager: Arc<Mutex<DocumentManager>>,
+    ) -> Result<Self, RepositoryError> {
+        Ok(Self {
+            document_manager,
         })
     }
 
@@ -40,7 +49,7 @@ impl TaskTagLocalAutomergeRepository {
         project_id: &ProjectId,
     ) -> Result<Document, RepositoryError> {
         let document_type = DocumentType::Project(project_id.clone());
-        let mut manager = self.document_manager.write().await;
+        let mut manager = self.document_manager.lock().await;
         manager
             .get_or_create(&document_type)
             .await
