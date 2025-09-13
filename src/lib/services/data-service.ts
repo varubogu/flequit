@@ -35,6 +35,27 @@ export class DataService {
     return projectId;
   }
 
+  /**
+   * タスクIDからプロジェクトIDを取得します
+   * サブタスク作成時に親タスクのプロジェクトIDを取得するために使用します
+   */
+  private async getProjectIdByTaskId(taskId: string): Promise<string | null> {
+    // TaskStoreからタスクを検索してプロジェクトIDを取得
+    const { taskStore } = await import('$lib/stores/tasks.svelte');
+    return taskStore.getProjectIdByTaskId(taskId);
+  }
+
+  /**
+   * サブタスクIDからプロジェクトIDを取得します
+   * サブタスク更新・削除時に親タスクのプロジェクトIDを取得するために使用します
+   */
+  private async getProjectIdBySubTaskId(subTaskId: string): Promise<string | null> {
+    // TaskStoreからサブタスクを検索してプロジェクトIDを取得
+    const { taskStore } = await import('$lib/stores/tasks.svelte');
+    return taskStore.getProjectIdBySubTaskId(subTaskId);
+  }
+
+
   // プロジェクトデータの読み込み
   async loadProjectData(): Promise<ProjectTree[]> {
     const backend = await this.getBackend();
@@ -248,7 +269,11 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    const projectId = this.getProjectId();
+    // 親タスクからプロジェクトIDを取得
+    const projectId = await this.getProjectIdByTaskId(taskId);
+    if (!projectId) {
+      throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
+    }
     await backend.subtask.create(projectId, newSubTask);
     return newSubTask;
   }
@@ -266,7 +291,11 @@ export class DataService {
     } as SubTaskPatch;
 
     console.log('DataService: calling backend.subtask.update');
-    const projectId = this.getProjectId();
+    // サブタスクIDからプロジェクトIDを取得
+    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
+    if (!projectId) {
+      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+    }
     const success = await backend.subtask.update(projectId, subTaskId, patchData);
     console.log('DataService: backend.subtask.update result:', success);
 
@@ -279,7 +308,11 @@ export class DataService {
 
   async deleteSubTask(subTaskId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    const projectId = this.getProjectId();
+    // サブタスクIDからプロジェクトIDを取得
+    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
+    if (!projectId) {
+      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+    }
     return await backend.subtask.delete(projectId, subTaskId);
   }
 

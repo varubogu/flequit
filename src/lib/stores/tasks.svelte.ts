@@ -1047,6 +1047,42 @@ export class TaskStore {
     }
     return null;
   }
+  // Helper method to get project ID by task ID
+  getProjectIdByTaskId(taskId: string): string | null {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        const task = list.tasks.find((t) => t.id === taskId);
+        if (task) {
+          return project.id;
+        }
+      }
+    }
+    return null;
+  }
+
+  // Helper method to get task ID by subtask ID
+  getTaskIdBySubTaskId(subTaskId: string): string | null {
+    for (const project of this.projects) {
+      for (const list of project.task_lists) {
+        for (const task of list.tasks) {
+          const subTask = task.sub_tasks.find((st) => st.id === subTaskId);
+          if (subTask) {
+            return task.id;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  // Helper method to get project ID by subtask ID
+  getProjectIdBySubTaskId(subTaskId: string): string | null {
+    const taskId = this.getTaskIdBySubTaskId(subTaskId);
+    if (!taskId) {
+      return null;
+    }
+    return this.getProjectIdByTaskId(taskId);
+  }
 }
 
 // Create global store instance
