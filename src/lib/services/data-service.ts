@@ -175,7 +175,11 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    const projectId = this.getProjectId();
+    // タスクデータに含まれるproject_idを使用
+    const projectId = newTask.project_id;
+    if (!projectId) {
+      throw new Error('タスクにproject_idが設定されていません。');
+    }
     await backend.task.create(projectId, newTask);
     return newTask;
   }
