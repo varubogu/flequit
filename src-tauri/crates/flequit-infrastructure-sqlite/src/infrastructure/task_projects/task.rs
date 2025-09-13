@@ -138,7 +138,7 @@ impl TaskLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, task: &Task) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager

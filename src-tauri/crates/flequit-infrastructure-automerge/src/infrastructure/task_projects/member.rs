@@ -38,7 +38,7 @@ pub struct MemberLocalAutomergeRepository {
 }
 
 impl MemberLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -47,7 +47,7 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -61,7 +61,7 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全メンバーを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_members(
         &self,
         project_id: &ProjectId,
@@ -76,7 +76,7 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// IDでメンバーを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_member(
         &self,
         project_id: &ProjectId,
@@ -89,7 +89,7 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// メンバーを作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_member(
         &self,
         project_id: &ProjectId,
@@ -124,7 +124,7 @@ impl MemberLocalAutomergeRepository {
     }
 
     /// メンバーを削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_member(
         &self,
         project_id: &ProjectId,
@@ -150,7 +150,7 @@ impl MemberRepositoryTrait for MemberLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         log::info!(
             "MemberLocalAutomergeRepository::save - 開始: {:?}",
@@ -171,7 +171,7 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -180,12 +180,12 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         self.get_member(project_id, &id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         self.list_members(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         let deleted = self.delete_member(project_id, &id.to_string()).await?;
         if deleted {
@@ -198,13 +198,13 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let members = self.find_all(project_id).await?;
         Ok(members.len() as u64)

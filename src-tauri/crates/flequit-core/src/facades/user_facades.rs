@@ -4,7 +4,7 @@ use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_user<R>(repositories: &R, user: &User) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -16,7 +16,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user<R>(repositories: &R, id: &UserId) -> Result<Option<User>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -29,7 +29,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_user<R>(repositories: &R, user: &User) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -41,7 +41,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_user<R>(repositories: &R, id: &UserId) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -53,7 +53,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_users<R>(repositories: &R) -> Result<Vec<User>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -65,7 +65,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_by_email<R>(repositories: &R, email: &str) -> Result<Option<User>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -78,7 +78,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn search_users<R>(repositories: &R, query: &str) -> Result<Vec<User>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -90,7 +90,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn is_email_exists<R>(
     repositories: &R,
     email: &str,

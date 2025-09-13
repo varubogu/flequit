@@ -20,7 +20,7 @@ fn deletion_not_allowed_error() -> ServiceError {
     )
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -35,7 +35,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user<R>(repositories: &R, user_id: &UserId) -> Result<Option<User>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -43,7 +43,7 @@ where
     Ok(repositories.users().find_by_id(user_id).await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_by_email<R>(
     repositories: &R,
     email: &str,
@@ -59,7 +59,7 @@ where
         .find(|u| u.email.as_ref() == Some(&email.to_string())))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_users<R>(repositories: &R) -> Result<Vec<User>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

@@ -6,7 +6,7 @@ use flequit_model::models::{task_projects::project::PartialProject, ModelConvert
 use flequit_model::types::id_types::ProjectId;
 use tauri::State;
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_project(
     state: State<'_, AppState>,
@@ -18,7 +18,7 @@ pub async fn create_project(
     project_facades::create_project(&*repositories, &internal_project).await
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_project(
     state: State<'_, AppState>,
@@ -33,7 +33,7 @@ pub async fn get_project(
     }
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn update_project(
     state: State<'_, AppState>,
@@ -45,7 +45,7 @@ pub async fn update_project(
     project_facades::update_project(&*repositories, &project_id, &patch).await
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;

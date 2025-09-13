@@ -6,7 +6,7 @@ use flequit_types::errors::service_error::ServiceError;
 
 /// TaskTag facades
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_task_tag_relation<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -22,7 +22,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_task_tag_relation<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -38,7 +38,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag_ids_by_task_id(task_id: &TaskId) -> Result<Vec<TagId>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_tag_ids_by_task_id(&repositories, task_id).await {
@@ -48,7 +48,7 @@ pub async fn get_tag_ids_by_task_id(task_id: &TaskId) -> Result<Vec<TagId>, Stri
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_task_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<TaskId>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_task_ids_by_tag_id(&repositories, tag_id).await {
@@ -58,7 +58,7 @@ pub async fn get_task_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<TaskId>, Strin
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_task_tag_relations(
     task_id: &TaskId,
     tag_ids: &[TagId],
@@ -71,7 +71,7 @@ pub async fn update_task_tag_relations(
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_tags_by_task_id(task_id: &TaskId) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::remove_all_task_tags_by_task_id(&repositories, task_id).await {
@@ -84,7 +84,7 @@ pub async fn remove_all_task_tags_by_task_id(task_id: &TaskId) -> Result<bool, S
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_tags_by_tag_id(tag_id: &TagId) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::remove_all_task_tags_by_tag_id(&repositories, tag_id).await {
@@ -94,7 +94,7 @@ pub async fn remove_all_task_tags_by_tag_id(tag_id: &TagId) -> Result<bool, Stri
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_task_tags() -> Result<Vec<TaskTag>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_all_task_tags(&repositories).await {
@@ -106,7 +106,7 @@ pub async fn get_all_task_tags() -> Result<Vec<TaskTag>, String> {
 
 /// SubtaskTag facades
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_subtask_tag_relation<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -122,7 +122,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_subtask_tag_relation<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -138,7 +138,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag_ids_by_subtask_id(subtask_id: &SubTaskId) -> Result<Vec<TagId>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_tag_ids_by_subtask_id(&repositories, subtask_id).await {
@@ -148,7 +148,7 @@ pub async fn get_tag_ids_by_subtask_id(subtask_id: &SubTaskId) -> Result<Vec<Tag
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<SubTaskId>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_subtask_ids_by_tag_id(&repositories, tag_id).await {
@@ -158,7 +158,7 @@ pub async fn get_subtask_ids_by_tag_id(tag_id: &TagId) -> Result<Vec<SubTaskId>,
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_subtask_tag_relations(
     subtask_id: &SubTaskId,
     tag_ids: &[TagId],
@@ -171,7 +171,7 @@ pub async fn update_subtask_tag_relations(
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_tags_by_subtask_id(subtask_id: &SubTaskId) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::remove_all_subtask_tags_by_subtask_id(&repositories, subtask_id).await {
@@ -184,7 +184,7 @@ pub async fn remove_all_subtask_tags_by_subtask_id(subtask_id: &SubTaskId) -> Re
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_tags_by_tag_id(tag_id: &TagId) -> Result<bool, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::remove_all_subtask_tags_by_tag_id(&repositories, tag_id).await {
@@ -197,7 +197,7 @@ pub async fn remove_all_subtask_tags_by_tag_id(tag_id: &TagId) -> Result<bool, S
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_subtask_tags() -> Result<Vec<SubTaskTag>, String> {
     let repositories = InfrastructureRepositories::instance().await;
     match tagging_service::get_all_subtask_tags(&repositories).await {

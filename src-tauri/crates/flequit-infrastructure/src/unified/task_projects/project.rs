@@ -22,7 +22,7 @@ impl ProjectRepositoryTrait for ProjectRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(entity).await,
@@ -30,7 +30,7 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_by_id(id).await,
@@ -38,7 +38,7 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all().await,
@@ -46,7 +46,7 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete(id).await,
@@ -54,7 +54,7 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(id).await,
@@ -62,7 +62,7 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.count().await,
@@ -84,7 +84,7 @@ impl Default for ProjectUnifiedRepository {
 }
 
 impl ProjectUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<ProjectRepositoryVariant>,
         search_repositories: Vec<ProjectRepositoryVariant>,
@@ -95,37 +95,37 @@ impl ProjectUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: ProjectLocalSqliteRepository) {
         self.save_repositories
             .push(ProjectRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: ProjectLocalSqliteRepository) {
         self.search_repositories
             .push(ProjectRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(&mut self, automerge_repo: ProjectLocalAutomergeRepository) {
         self.save_repositories
             .push(ProjectRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_search(&mut self, automerge_repo: ProjectLocalAutomergeRepository) {
         self.search_repositories
             .push(ProjectRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(ProjectRepositoryVariant::Web(web_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(ProjectRepositoryVariant::Web(web_repo));
@@ -144,7 +144,7 @@ impl ProjectUnifiedRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         info!(
             "ProjectUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
@@ -157,7 +157,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_by_id - 検索用リポジトリから検索");
 
@@ -169,7 +169,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(None)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_all - 検索用リポジトリから取得");
 
@@ -180,7 +180,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         info!(
             "ProjectUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除",
@@ -193,7 +193,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         info!("ProjectUnifiedRepository::exists - 検索用リポジトリで存在確認");
 
@@ -205,7 +205,7 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(false)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         info!("ProjectUnifiedRepository::count - 検索用リポジトリの件数取得");
 

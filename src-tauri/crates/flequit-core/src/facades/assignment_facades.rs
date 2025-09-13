@@ -7,7 +7,7 @@ use flequit_types::errors::service_error::ServiceError;
 
 /// TaskAssignment facades
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_task_assignment<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -23,7 +23,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_task_assignment<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -39,7 +39,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_ids_by_task_id<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -54,7 +54,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_task_ids_by_user_id<R>(
     repositories: &R,
     user_id: &UserId,
@@ -69,7 +69,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_task_assignments<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -85,7 +85,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_assignments_by_task_id<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -103,7 +103,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_assignments_by_user_id<R>(
     repositories: &R,
     user_id: &UserId,
@@ -121,7 +121,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_task_assignments<R>(repositories: &R) -> Result<Vec<TaskAssignment>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -135,7 +135,7 @@ where
 
 /// SubtaskAssignment facades
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_subtask_assignment<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -151,7 +151,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_subtask_assignment<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -167,7 +167,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_ids_by_subtask_id<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -182,7 +182,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask_ids_by_user_id<R>(
     repositories: &R,
     user_id: &UserId,
@@ -197,7 +197,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_subtask_assignments<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -213,7 +213,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_assignments_by_subtask_id<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -233,7 +233,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_assignments_by_user_id<R>(
     repositories: &R,
     user_id: &UserId,
@@ -252,7 +252,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_subtask_assignments<R>(
     repositories: &R,
 ) -> Result<Vec<SubTaskAssignment>, String>

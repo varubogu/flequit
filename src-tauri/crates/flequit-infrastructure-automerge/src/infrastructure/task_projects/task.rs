@@ -39,7 +39,7 @@ pub struct TaskLocalAutomergeRepository {
 }
 
 impl TaskLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -48,7 +48,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -58,7 +58,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -72,7 +72,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全タスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tasks = document.load_data::<Vec<Task>>("tasks").await?;
@@ -84,7 +84,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// IDでタスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_task(
         &self,
         project_id: &ProjectId,
@@ -95,7 +95,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// タスクを作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_task(
         &self,
         project_id: &ProjectId,
@@ -130,7 +130,7 @@ impl TaskLocalAutomergeRepository {
     }
 
     /// タスクを削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_task(
         &self,
         project_id: &ProjectId,
@@ -156,7 +156,7 @@ impl TaskRepositoryTrait for TaskLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
         log::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_task(project_id, entity).await;
@@ -168,7 +168,7 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -177,12 +177,12 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         self.get_task(project_id, &id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         self.list_tasks(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &TaskId) -> Result<(), RepositoryError> {
         let deleted = self.delete_task(project_id, &id.to_string()).await?;
         if deleted {
@@ -192,13 +192,13 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, project_id: &ProjectId, id: &TaskId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let tasks = self.find_all(project_id).await?;
         Ok(tasks.len() as u64)

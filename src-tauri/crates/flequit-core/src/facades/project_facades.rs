@@ -4,7 +4,7 @@ use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::types::id_types::ProjectId;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -16,7 +16,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_project<R>(repositories: &R, id: &ProjectId) -> Result<Option<Project>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -29,7 +29,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_project<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -45,7 +45,7 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_project<R>(repositories: &R, id: &ProjectId) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

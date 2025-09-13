@@ -6,7 +6,7 @@ use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_task<R>(
     repositories: &R,
     project_id: &ProjectId,

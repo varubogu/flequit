@@ -19,7 +19,7 @@ pub struct AccountLocalAutomergeRepository {
 
 impl AccountLocalAutomergeRepository {
     /// 新しいAccountRepositoryを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let doc_type = &DocumentType::Account;
         let mut document_manager = DocumentManager::new(base_path)?;
@@ -28,7 +28,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -41,7 +41,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 全アカウントリストを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_users(&self) -> Result<Vec<Account>, RepositoryError> {
         let accounts = { self.document.load_data::<Vec<Account>>("accounts").await? };
         if let Some(accounts) = accounts {
@@ -52,14 +52,14 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// IDでアカウントを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_user(&self, account_id: &str) -> Result<Option<Account>, RepositoryError> {
         let accounts = self.list_users().await?;
         Ok(accounts.into_iter().find(|acc| acc.id == account_id.into()))
     }
 
     /// アカウントを作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_user(&self, account: &Account) -> Result<(), RepositoryError> {
         let mut accounts = self.list_users().await?;
 
@@ -80,7 +80,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// アカウントを削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_account(&self, account_id: &str) -> Result<bool, RepositoryError> {
         let mut accounts = self.list_users().await?;
         let initial_len = accounts.len();
@@ -98,7 +98,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントIDを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_current_account_id(&self) -> Result<Option<String>, RepositoryError> {
         self.document
             .load_data::<String>("current_account_id")
@@ -107,7 +107,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントIDを設定
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_current_account_id(
         &self,
         account_id: Option<&str>,
@@ -129,7 +129,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// 現在選択中のアカウントを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         if let Some(current_id) = self.get_current_account_id().await? {
             if !current_id.is_empty() {
@@ -143,7 +143,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// プロバイダーで検索
-    #[tracing::instrument(level = "trace")]
+
     pub async fn find_accounts_by_provider(
         &self,
         provider: &str,
@@ -156,14 +156,14 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// アクティブなアカウントのみを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
         let accounts = self.list_users().await?;
         Ok(accounts.into_iter().filter(|acc| acc.is_active).collect())
     }
 
     /// アカウントのバックアップを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn backup_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
         use std::fs;
 
@@ -188,7 +188,7 @@ impl AccountLocalAutomergeRepository {
     }
 
     /// バックアップからアカウントを復元
-    #[tracing::instrument(level = "trace")]
+
     pub async fn restore_accounts(&self, backup_path: &str) -> Result<(), RepositoryError> {
         use std::fs;
 
@@ -236,25 +236,25 @@ impl AccountRepositoryTrait for AccountLocalAutomergeRepository {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         // 既存のset_userメソッドを活用
         self.set_user(entity).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         // 既存のget_userメソッドを活用
         self.get_user(&id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         // 既存のlist_usersメソッドを活用
         self.list_users().await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         // 既存のdelete_accountメソッドを活用
         let deleted = self.delete_account(&id.to_string()).await?;
@@ -268,14 +268,14 @@ impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         // find_by_idを使って存在確認
         let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         // find_allを使って件数取得
         let accounts = self.find_all().await?;

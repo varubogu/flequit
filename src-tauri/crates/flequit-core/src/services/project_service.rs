@@ -5,7 +5,7 @@ use flequit_model::types::id_types::ProjectId;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<Project, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -24,7 +24,7 @@ where
     Ok(new_project)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_project<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -35,7 +35,7 @@ where
     Ok(repositories.projects().find_by_id(project_id).await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_projects<R>(repositories: &R) -> Result<Vec<Project>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -43,7 +43,7 @@ where
     Ok(repositories.projects().find_all().await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_project<R>(
     _repositories: &R,
     _project_id: &ProjectId,
@@ -58,7 +58,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_project<R>(repositories: &R, project_id: &ProjectId) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

@@ -17,7 +17,7 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 }
 
 // TODO: この関数はジェネリクス対応が必要だが、コマンドでは使用されていないためコメントアウト
-// #[tracing::instrument(skip(repositories))]
+
 // pub async fn load_all_data() -> Result<InitializationData, String> {
 //     // 他の関数を組み合わせて全データを取得
 //     let _current_account = load_current_account().await?; // 現在は使用しない
@@ -30,7 +30,7 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 //     })
 // }
 
-#[tracing::instrument(skip(repositories))]
+
 pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -38,7 +38,7 @@ where
     handle_service_error(initialization_service::load_current_account(repositories).await)
 }
 
-#[tracing::instrument(skip(repositories))]
+
 pub async fn load_all_project_trees<R>(repositories: &R) -> Result<Vec<ProjectTree>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -46,7 +46,7 @@ where
     handle_service_error(initialization_service::load_all_project_trees(repositories).await)
 }
 
-#[tracing::instrument(skip(repositories))]
+
 pub async fn load_all_account<R>(repositories: &R) -> Result<Vec<Account>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

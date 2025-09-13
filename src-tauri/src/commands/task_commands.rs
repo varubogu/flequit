@@ -10,7 +10,7 @@ use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TaskId};
 use tauri::State;
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_task(
     state: State<'_, AppState>,
@@ -25,7 +25,7 @@ pub async fn create_task(
     task_facades::create_task(&*repositories, &project_id, &internal_task).await
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_task(
     state: State<'_, AppState>,
@@ -48,7 +48,7 @@ pub async fn get_task(
     }
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn update_task(
     state: State<'_, AppState>,
@@ -68,7 +68,7 @@ pub async fn update_task(
     task_facades::update_task(&*repositories, &project_id, &task_id, &patch).await
 }
 
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_task(
     state: State<'_, AppState>,
@@ -92,7 +92,7 @@ pub async fn delete_task(
 // =============================================================================
 
 /// タスクに繰り返しルールを関連付けます。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_task_recurrence(
     state: State<'_, AppState>,
@@ -109,7 +109,7 @@ pub async fn create_task_recurrence(
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_task_recurrence_by_task_id(
     state: State<'_, AppState>,
@@ -126,7 +126,7 @@ pub async fn get_task_recurrence_by_task_id(
 }
 
 /// タスクの繰り返し関連付けを削除します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_task_recurrence(
     state: State<'_, AppState>,
@@ -142,7 +142,7 @@ pub async fn delete_task_recurrence(
 // =============================================================================
 
 /// 繰り返しルールを作成します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_recurrence_rule(
     state: State<'_, AppState>,
@@ -154,7 +154,7 @@ pub async fn create_recurrence_rule(
 }
 
 /// 繰り返しルールを取得します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_recurrence_rule(
     state: State<'_, AppState>,
@@ -169,7 +169,7 @@ pub async fn get_recurrence_rule(
 }
 
 /// すべての繰り返しルールを取得します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_all_recurrence_rules(
     state: State<'_, AppState>,
@@ -184,7 +184,7 @@ pub async fn get_all_recurrence_rules(
 }
 
 /// 繰り返しルールを更新します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn update_recurrence_rule(
     state: State<'_, AppState>,
@@ -196,7 +196,7 @@ pub async fn update_recurrence_rule(
 }
 
 /// 繰り返しルールを削除します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_recurrence_rule(
     state: State<'_, AppState>,
@@ -211,7 +211,7 @@ pub async fn delete_recurrence_rule(
 // =============================================================================
 
 /// 繰り返し調整を作成します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_recurrence_adjustment(
     state: State<'_, AppState>,
@@ -223,7 +223,7 @@ pub async fn create_recurrence_adjustment(
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_recurrence_adjustments_by_rule_id(
     state: State<'_, AppState>,
@@ -240,7 +240,7 @@ pub async fn get_recurrence_adjustments_by_rule_id(
 }
 
 /// 繰り返し調整を削除します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_recurrence_adjustment(
     state: State<'_, AppState>,
@@ -255,7 +255,7 @@ pub async fn delete_recurrence_adjustment(
 // =============================================================================
 
 /// 繰り返し詳細を作成します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn create_recurrence_details(
     state: State<'_, AppState>,
@@ -267,7 +267,7 @@ pub async fn create_recurrence_details(
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn get_recurrence_details_by_rule_id(
     state: State<'_, AppState>,
@@ -283,7 +283,7 @@ pub async fn get_recurrence_details_by_rule_id(
 }
 
 /// 繰り返し詳細を更新します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn update_recurrence_details(
     state: State<'_, AppState>,
@@ -295,7 +295,7 @@ pub async fn update_recurrence_details(
 }
 
 /// 繰り返し詳細を削除します。
-#[tracing::instrument(skip(state))]
+
 #[tauri::command]
 pub async fn delete_recurrence_details(
     state: State<'_, AppState>,

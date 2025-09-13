@@ -4,7 +4,6 @@ use flequit_model::models::accounts::account::{Account, PartialAccount};
 use flequit_model::types::id_types::AccountId;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
 pub async fn create_account<R>(repositories: &R, account: &Account) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -16,7 +15,6 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
 pub async fn get_account<R>(repositories: &R, id: &AccountId) -> Result<Option<Account>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -29,7 +27,6 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
 pub async fn update_account<R>(
     repositories: &R,
     account_id: &AccountId,
@@ -45,7 +42,6 @@ where
     }
 }
 
-#[tracing::instrument(level = "trace")]
 pub async fn delete_account<R>(repositories: &R, id: &AccountId) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

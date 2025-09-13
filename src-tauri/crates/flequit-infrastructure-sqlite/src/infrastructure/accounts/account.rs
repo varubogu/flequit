@@ -25,13 +25,13 @@ pub struct AccountLocalSqliteRepository {
 
 impl AccountLocalSqliteRepository {
     /// 新しいAccountRepositoryを作成
-    #[tracing::instrument]
+
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
 
     /// メールアドレスでアカウントを検索
-    #[tracing::instrument]
+
     pub async fn find_by_email(&self, email: &str) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -56,7 +56,7 @@ impl AccountLocalSqliteRepository {
     }
 
     /// プロバイダーとプロバイダーIDでアカウントを検索
-    #[tracing::instrument]
+
     pub async fn find_by_provider(
         &self,
         provider: &str,
@@ -86,7 +86,7 @@ impl AccountLocalSqliteRepository {
     }
 
     /// アクティブなアカウントを取得
-    #[tracing::instrument]
+
     pub async fn find_active_accounts(&self) -> Result<Vec<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -114,7 +114,7 @@ impl AccountLocalSqliteRepository {
     }
 
     /// 現在アクティブなアカウントを取得（最新のアクティブアカウント）
-    #[tracing::instrument]
+
     pub async fn find_current_account(&self) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -140,7 +140,7 @@ impl AccountLocalSqliteRepository {
     }
 
     /// アカウントをアクティブ化（他のアカウントは非アクティブ化）
-    #[tracing::instrument]
+
     pub async fn activate_account(&self, account_id: &str) -> Result<Account, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -179,7 +179,7 @@ impl AccountLocalSqliteRepository {
     }
 
     /// プロバイダー別のアカウント数を取得
-    #[tracing::instrument]
+
     pub async fn count_by_provider(&self, provider: &str) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -201,7 +201,7 @@ impl AccountRepositoryTrait for AccountLocalSqliteRepository {}
 
 #[async_trait::async_trait]
 impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
-    #[tracing::instrument]
+
     async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -252,7 +252,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         }
     }
 
-    #[tracing::instrument]
+
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -275,7 +275,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         }
     }
 
-    #[tracing::instrument]
+
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -290,7 +290,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         Ok(())
     }
 
-    #[tracing::instrument]
+
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -315,7 +315,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
 
         Ok(accounts)
     }
-    #[tracing::instrument]
+
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -329,7 +329,7 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         Ok(count > 0)
     }
 
-    #[tracing::instrument]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager

@@ -38,7 +38,7 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// 全プロジェクト一覧を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
         let document = self.get_or_create_settings_document().await?;
         let projects = document.load_data::<Vec<Project>>("projects").await?;
@@ -50,7 +50,7 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// プロジェクトをプロジェクト一覧に追加または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_or_update_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("add_or_update_project - 開始: {:?}", project.id);
 
@@ -92,7 +92,7 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// IDでプロジェクトを取得（一覧から）
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_project_from_list(
         &self,
         project_id: &str,
@@ -102,7 +102,7 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// プロジェクトをプロジェクト一覧から削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn remove_project_from_list(
         &self,
         project_id: &str,
@@ -121,14 +121,14 @@ impl ProjectListLocalAutomergeRepository {
     }
 
     /// プロジェクト数を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn count_projects(&self) -> Result<u64, RepositoryError> {
         let projects = self.list_projects().await?;
         Ok(projects.len() as u64)
     }
 
     /// プロジェクトが一覧に存在するかチェック
-    #[tracing::instrument(level = "trace")]
+
     pub async fn project_exists_in_list(
         &self,
         project_id: &ProjectId,

@@ -39,7 +39,7 @@ pub struct TagLocalAutomergeRepository {
 }
 
 impl TagLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -48,7 +48,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -58,7 +58,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -72,7 +72,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全タグを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tags = document.load_data::<Vec<Tag>>("tags").await?;
@@ -84,7 +84,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// IDでタグを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_tag(
         &self,
         project_id: &ProjectId,
@@ -95,7 +95,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// タグを作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         log::info!("set_tag - 開始: {:?}", tag.id);
         let mut tags = self.list_tags(project_id).await?;
@@ -126,7 +126,7 @@ impl TagLocalAutomergeRepository {
     }
 
     /// タグを削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_tag(
         &self,
         project_id: &ProjectId,
@@ -152,7 +152,7 @@ impl TagRepositoryTrait for TagLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
         log::info!("TagLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_tag(project_id, entity).await;
@@ -164,7 +164,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -173,12 +173,12 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         self.get_tag(project_id, &id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         self.list_tags(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         let deleted = self.delete_tag(project_id, &id.to_string()).await?;
         if deleted {
@@ -188,13 +188,13 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let tags = self.find_all(project_id).await?;
         Ok(tags.len() as u64)

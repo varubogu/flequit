@@ -23,7 +23,7 @@ impl SubTaskAssignmentRepositoryTrait for SubTaskAssignmentRepositoryVariant {}
 impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
     for SubTaskAssignmentRepositoryVariant
 {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -36,7 +36,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -49,7 +49,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -61,7 +61,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -73,7 +73,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -84,7 +84,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -96,7 +96,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -108,7 +108,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,
@@ -135,7 +135,7 @@ impl Default for SubTaskAssignmentUnifiedRepository {
 }
 
 impl SubTaskAssignmentUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<SubTaskAssignmentRepositoryVariant>,
         search_repositories: Vec<SubTaskAssignmentRepositoryVariant>,
@@ -146,13 +146,13 @@ impl SubTaskAssignmentUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: SubtaskAssignmentLocalSqliteRepository) {
         self.save_repositories
             .push(SubTaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(
         &mut self,
         automerge_repo: SubtaskAssignmentLocalAutomergeRepository,
@@ -163,13 +163,13 @@ impl SubTaskAssignmentUnifiedRepository {
             ));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: SubtaskAssignmentLocalSqliteRepository) {
         self.search_repositories
             .push(SubTaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_search(
         &mut self,
         automerge_repo: SubtaskAssignmentLocalAutomergeRepository,
@@ -180,13 +180,13 @@ impl SubTaskAssignmentUnifiedRepository {
             ));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(SubTaskAssignmentRepositoryVariant::Web(web_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(SubTaskAssignmentRepositoryVariant::Web(web_repo));
@@ -209,7 +209,7 @@ impl SubTaskAssignmentRepositoryTrait for SubTaskAssignmentUnifiedRepository {}
 impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
     for SubTaskAssignmentUnifiedRepository
 {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -228,7 +228,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -247,7 +247,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -265,7 +265,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -283,7 +283,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -297,7 +297,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -317,7 +317,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(false)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -335,7 +335,7 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,

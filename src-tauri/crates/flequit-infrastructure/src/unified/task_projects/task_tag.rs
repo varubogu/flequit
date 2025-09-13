@@ -21,7 +21,7 @@ impl TaskTagRepositoryTrait for TaskTagRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVariant {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -34,7 +34,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -47,7 +47,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -59,7 +59,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -71,7 +71,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
@@ -79,7 +79,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -91,7 +91,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -103,7 +103,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,
@@ -130,7 +130,7 @@ impl Default for TaskTagUnifiedRepository {
 }
 
 impl TaskTagUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<TaskTagRepositoryVariant>,
         search_repositories: Vec<TaskTagRepositoryVariant>,
@@ -141,25 +141,25 @@ impl TaskTagUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TaskTagLocalSqliteRepository) {
         self.save_repositories
             .push(TaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(&mut self, automerge_repo: TaskTagLocalAutomergeRepository) {
         self.save_repositories
             .push(TaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskTagLocalSqliteRepository) {
         self.search_repositories
             .push(TaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_search(&mut self, automerge_repo: TaskTagLocalAutomergeRepository) {
         self.search_repositories
             .push(TaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
@@ -170,7 +170,7 @@ impl TaskTagRepositoryTrait for TaskTagUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -189,7 +189,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -208,7 +208,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -226,7 +226,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -244,7 +244,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         info!("Finding all task tags in project: {}", project_id);
 
@@ -255,7 +255,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -275,7 +275,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(false)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -293,7 +293,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,

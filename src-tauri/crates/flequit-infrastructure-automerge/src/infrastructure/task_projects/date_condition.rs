@@ -38,7 +38,7 @@ pub struct DateConditionLocalAutomergeRepository {
 }
 
 impl DateConditionLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -47,7 +47,7 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -61,7 +61,7 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全日付条件を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_date_conditions(
         &self,
         project_id: &ProjectId,
@@ -78,7 +78,7 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// IDで日付条件を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_date_condition(
         &self,
         project_id: &ProjectId,
@@ -91,7 +91,7 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 日付条件を作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_date_condition(
         &self,
         project_id: &ProjectId,
@@ -143,7 +143,7 @@ impl DateConditionLocalAutomergeRepository {
     }
 
     /// 日付条件を削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_date_condition(
         &self,
         project_id: &ProjectId,
@@ -171,7 +171,7 @@ impl DateConditionRepositoryTrait for DateConditionLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(
         &self,
         project_id: &ProjectId,
@@ -196,7 +196,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -205,7 +205,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         self.get_date_condition(project_id, &id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -213,7 +213,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         self.list_date_conditions(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(
         &self,
         project_id: &ProjectId,
@@ -232,7 +232,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -242,7 +242,7 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let date_conditions = self.find_all(project_id).await?;
         Ok(date_conditions.len() as u64)

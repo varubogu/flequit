@@ -7,7 +7,7 @@ use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -26,7 +26,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -41,7 +41,7 @@ where
         .await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_subtasks<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -61,7 +61,7 @@ where
     Ok(filtered_subtasks)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_subtask<R>(
     _repositories: &R,
     _project_id: &ProjectId,
@@ -77,7 +77,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -93,7 +93,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn toggle_completion<R>(
     repositories: &R,
     project_id: &ProjectId,

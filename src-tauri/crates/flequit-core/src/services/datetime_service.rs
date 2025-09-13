@@ -15,7 +15,7 @@ use flequit_model::models::task_projects::{
 // 日付条件関連サービス
 // =============================================================================
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_date_condition<R>(
     repositories: &R,
     condition_command: DateCondition,
@@ -27,7 +27,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_date_condition<R>(
     repositories: &R,
     condition_id: &str,
@@ -39,7 +39,7 @@ where
     Ok(None)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_date_conditions<R>(
     repositories: &R,
 ) -> Result<Vec<DateCondition>, ServiceError>
@@ -50,7 +50,7 @@ where
     Ok(vec![])
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_date_condition<R>(
     repositories: &R,
     condition_command: DateCondition,
@@ -62,7 +62,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_date_condition<R>(
     repositories: &R,
     condition_id: &str,
@@ -74,7 +74,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn evaluate_date_condition<R>(
     repositories: &R,
     condition_id: &str,
@@ -91,7 +91,7 @@ where
 // 曜日条件関連サービス
 // =============================================================================
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_weekday_condition<R>(
     repositories: &R,
     condition: WeekdayCondition,
@@ -110,7 +110,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_weekday_condition<R>(
     repositories: &R,
     condition_id: &str,
@@ -122,7 +122,7 @@ where
     Ok(None)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_weekday_conditions<R>(
     repositories: &R,
 ) -> Result<Vec<WeekdayCondition>, ServiceError>
@@ -133,7 +133,7 @@ where
     Ok(vec![])
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_weekday_condition<R>(
     repositories: &R,
     condition_command: WeekdayCondition,
@@ -152,7 +152,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_weekday_condition<R>(
     repositories: &R,
     condition_id: &str,
@@ -164,7 +164,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn evaluate_weekday_condition<R>(
     repositories: &R,
     condition_id: &str,

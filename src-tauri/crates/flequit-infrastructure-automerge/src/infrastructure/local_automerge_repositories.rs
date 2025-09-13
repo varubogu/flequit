@@ -42,7 +42,7 @@ pub struct LocalAutomergeRepositories {
 
 impl LocalAutomergeRepositories {
     /// 新しいAutomergeリポジトリ群を作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: std::path::PathBuf) -> Result<Self, AutomergeError> {
         Ok(Self {
             projects: ProjectLocalAutomergeRepository::new(base_path.clone()).await?,
@@ -62,7 +62,7 @@ impl LocalAutomergeRepositories {
     }
 
     /// デフォルト設定でリポジトリ群を設定
-    #[tracing::instrument(level = "trace")]
+
     pub async fn setup() -> Result<Self, Box<dyn std::error::Error>> {
         // デフォルトのベースパスを使用
         let base_path = std::env::temp_dir().join("flequit_automerge");
@@ -70,7 +70,7 @@ impl LocalAutomergeRepositories {
     }
 
     /// 共有DocumentManagerを使用してリポジトリ群を設定
-    #[tracing::instrument(level = "trace")]
+
     pub async fn setup_with_shared_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, Box<dyn std::error::Error>> {

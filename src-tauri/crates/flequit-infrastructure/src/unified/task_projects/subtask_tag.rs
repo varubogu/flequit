@@ -21,7 +21,7 @@ impl SubTaskTagRepositoryTrait for SubTaskTagRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepositoryVariant {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -34,7 +34,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -47,7 +47,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -59,7 +59,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -71,7 +71,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTaskTag>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
@@ -79,7 +79,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -91,7 +91,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -103,7 +103,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,
@@ -130,7 +130,7 @@ impl Default for SubTaskTagUnifiedRepository {
 }
 
 impl SubTaskTagUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<SubTaskTagRepositoryVariant>,
         search_repositories: Vec<SubTaskTagRepositoryVariant>,
@@ -141,37 +141,37 @@ impl SubTaskTagUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: SubtaskTagLocalSqliteRepository) {
         self.save_repositories
             .push(SubTaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(&mut self, automerge_repo: SubtaskTagLocalAutomergeRepository) {
         self.save_repositories
             .push(SubTaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: SubtaskTagLocalSqliteRepository) {
         self.search_repositories
             .push(SubTaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_search(&mut self, automerge_repo: SubtaskTagLocalAutomergeRepository) {
         self.search_repositories
             .push(SubTaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(SubTaskTagRepositoryVariant::Web(web_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(SubTaskTagRepositoryVariant::Web(web_repo));
@@ -182,7 +182,7 @@ impl SubTaskTagRepositoryTrait for SubTaskTagUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -201,7 +201,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove(
         &self,
         project_id: &ProjectId,
@@ -220,7 +220,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -238,7 +238,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relations(
         &self,
         project_id: &ProjectId,
@@ -256,7 +256,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTaskTag>, RepositoryError> {
         info!("Finding all subtask tags in project: {}", project_id);
 
@@ -267,7 +267,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -287,7 +287,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         Ok(false)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -305,7 +305,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_relation(
         &self,
         project_id: &ProjectId,

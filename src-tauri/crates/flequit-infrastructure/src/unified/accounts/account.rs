@@ -28,7 +28,7 @@ impl AccountRepositoryTrait for AccountRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountRepositoryVariant {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(entity).await,
@@ -36,7 +36,7 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_by_id(id).await,
@@ -44,7 +44,7 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all().await,
@@ -52,7 +52,7 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete(id).await,
@@ -60,7 +60,7 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(id).await,
@@ -68,7 +68,7 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.count().await,
@@ -97,7 +97,7 @@ impl Default for AccountUnifiedRepository {
 
 impl AccountUnifiedRepository {
     /// 新しい統合リポジトリを作成
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<AccountRepositoryVariant>,
         search_repositories: Vec<AccountRepositoryVariant>,
@@ -109,40 +109,40 @@ impl AccountUnifiedRepository {
     }
 
     /// 保存用リポジトリリストを取得
-    #[tracing::instrument(level = "trace")]
+
     pub fn save_repositories(&self) -> &[AccountRepositoryVariant] {
         &self.save_repositories
     }
 
     /// 検索用リポジトリリストを取得
-    #[tracing::instrument(level = "trace")]
+
     pub fn search_repositories(&self) -> &[AccountRepositoryVariant] {
         &self.search_repositories
     }
 
     /// SQLiteリポジトリを保存用に追加
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
         self.save_repositories
             .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
     /// SQLiteリポジトリを検索用に追加
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: AccountLocalSqliteRepository) {
         self.search_repositories
             .push(AccountRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
     /// Automergeリポジトリを保存用に追加
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(&mut self, automerge_repo: AccountLocalAutomergeRepository) {
         self.save_repositories
             .push(AccountRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
     /// 便利メソッド: SQLiteを保存用と検索用の両方に追加
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_both(
         &mut self,
         sqlite_repo_save: AccountLocalSqliteRepository,
@@ -158,7 +158,7 @@ impl AccountUnifiedRepository {
 #[async_trait]
 impl Repository<Account, AccountId> for AccountUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         info!(
             "AccountUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
@@ -175,7 +175,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     }
 
     /// 検索用リポジトリ（通常はSQLiteのみ）から高速検索
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         info!("AccountUnifiedRepository::find_by_id - 検索用リポジトリから検索");
         info!("{:?}", id);
@@ -191,7 +191,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     }
 
     /// 検索用リポジトリ（通常はSQLiteのみ）から高速取得
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         info!("AccountUnifiedRepository::find_all - 検索用リポジトリから取得");
 
@@ -204,7 +204,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     }
 
     /// 保存用リポジトリ（SQLite + Automerge + α）から削除
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         info!(
             "AccountUnifiedRepository::delete - 保存用リポジトリ {} 箇所から削除",
@@ -221,7 +221,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     }
 
     /// 検索用リポジトリ（通常はSQLiteのみ）で存在確認
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         info!("AccountUnifiedRepository::exists - 検索用リポジトリで存在確認");
         info!("{:?}", id);
@@ -237,7 +237,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
     }
 
     /// 検索用リポジトリ（通常はSQLiteのみ）の件数を返す
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         info!("AccountUnifiedRepository::count - 検索用リポジトリの件数取得");
 

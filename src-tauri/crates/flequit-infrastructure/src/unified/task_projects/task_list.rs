@@ -21,7 +21,7 @@ impl TaskListRepositoryTrait for TaskListRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
@@ -29,7 +29,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -41,7 +41,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
@@ -49,7 +49,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete(project_id, id).await,
@@ -57,7 +57,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -69,7 +69,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.count(project_id).await,
@@ -91,7 +91,7 @@ impl Default for TaskListUnifiedRepository {
 }
 
 impl TaskListUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub fn new(
         save_repositories: Vec<TaskListRepositoryVariant>,
         search_repositories: Vec<TaskListRepositoryVariant>,
@@ -102,37 +102,37 @@ impl TaskListUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TaskListLocalSqliteRepository) {
         self.save_repositories
             .push(TaskListRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_save(&mut self, automerge_repo: TaskListLocalAutomergeRepository) {
         self.save_repositories
             .push(TaskListRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskListLocalSqliteRepository) {
         self.search_repositories
             .push(TaskListRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_automerge_for_search(&mut self, automerge_repo: TaskListLocalAutomergeRepository) {
         self.search_repositories
             .push(TaskListRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(TaskListRepositoryVariant::Web(web_repo));
     }
 
-    #[tracing::instrument(level = "trace")]
+
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(TaskListRepositoryVariant::Web(web_repo));
@@ -153,7 +153,7 @@ impl TaskListRepositoryTrait for TaskListUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
         info!(
             "Saving task list entity with ID: {} in project: {}",
@@ -167,7 +167,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -184,7 +184,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(None)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
         info!("Finding all task lists in project: {}", project_id);
 
@@ -195,7 +195,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
         info!(
             "Deleting task list with ID: {} in project: {}",
@@ -209,7 +209,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -229,7 +229,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(false)
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         info!("Counting task lists in project: {}", project_id);
 

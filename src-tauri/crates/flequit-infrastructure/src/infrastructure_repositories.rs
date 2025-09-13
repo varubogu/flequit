@@ -69,7 +69,7 @@ impl InfrastructureRepositories {
     /// 新しいInfrastructureRepositoriesを作成
     ///
     /// 各UnifiedRepositoryのデフォルト実装を使用する
-    #[tracing::instrument(level = "trace")]
+
     pub fn new() -> Self {
         Self {
             accounts: AccountUnifiedRepository::default(),
@@ -88,7 +88,7 @@ impl InfrastructureRepositories {
     /// SQLiteとAutomergeのリポジトリを設定した完全なInfrastructureRepositoriesを作成
     ///
     /// 実際のアプリケーションで使用するためのセットアップされたリポジトリ群を返す
-    #[tracing::instrument(level = "trace")]
+
     pub async fn setup_with_sqlite_and_automerge(
         config: UnifiedConfig,
     ) -> Result<Self, Box<dyn std::error::Error>> {
@@ -123,7 +123,7 @@ impl InfrastructureRepositories {
     /// シングルトンインスタンスを取得
     ///
     /// アプリケーション全体で共有されるInfrastructureRepositoriesインスタンスを返す
-    #[tracing::instrument(level = "trace")]
+
     pub async fn instance() -> Self {
         // TODO: 実際のシングルトン実装
         Self::new()
@@ -132,7 +132,7 @@ impl InfrastructureRepositories {
     /// 設定を更新し、バックエンドを再構築
     ///
     /// 実行時に設定が変更された場合に呼び出す
-    #[tracing::instrument(level = "trace")]
+
     pub async fn update_config(
         &mut self,
         new_config: UnifiedConfig,
@@ -203,7 +203,7 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         &self.subtask_assignments
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリの初期化処理
         // TODO: 実際のSQLiteとAutomergeの接続・初期化処理を実装
@@ -211,7 +211,7 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn cleanup(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリのクリーンアップ処理
         // TODO: 実際のSQLiteとAutomergeの接続クローズ処理を実装

@@ -6,7 +6,7 @@ use flequit_types::errors::service_error::ServiceError;
 
 /// TaskAssignmentサービス操作
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_task_assignment<R>(
     _repositories: &R,
     _task_id: &TaskId,
@@ -21,7 +21,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_task_assignment<R>(
     _repositories: &R,
     _task_id: &TaskId,
@@ -36,7 +36,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_ids_by_task_id<R>(
     _repositories: &R,
     _task_id: &TaskId,
@@ -48,7 +48,7 @@ where
     Ok(Vec::new()) // 一時的に空のベクタを返す
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_task_ids_by_user_id<R>(
     _repositories: &R,
     _user_id: &UserId,
@@ -60,7 +60,7 @@ where
     Ok(Vec::new()) // 一時的に空のベクタを返す
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_task_assignments<R>(
     _repositories: &R,
     _task_id: &TaskId,
@@ -75,7 +75,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_assignments_by_task_id<R>(
     _repositories: &R,
     _task_id: &TaskId,
@@ -89,7 +89,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_assignments_by_user_id<R>(
     _repositories: &R,
     _user_id: &UserId,
@@ -103,7 +103,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_task_assignments<R>(
     _repositories: &R,
 ) -> Result<Vec<TaskAssignment>, ServiceError>
@@ -116,7 +116,7 @@ where
 
 /// SubtaskAssignmentサービス操作
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_subtask_assignment<R>(
     _repositories: &R,
     _subtask_id: &SubTaskId,
@@ -131,7 +131,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_subtask_assignment<R>(
     _repositories: &R,
     _subtask_id: &SubTaskId,
@@ -146,7 +146,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_user_ids_by_subtask_id<R>(
     _repositories: &R,
     _subtask_id: &SubTaskId,
@@ -158,7 +158,7 @@ where
     Ok(Vec::new()) // 一時的に空のベクタを返す
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask_ids_by_user_id<R>(
     _repositories: &R,
     _user_id: &UserId,
@@ -170,7 +170,7 @@ where
     Ok(Vec::new()) // 一時的に空のベクタを返す
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_subtask_assignments<R>(
     _repositories: &R,
     _subtask_id: &SubTaskId,
@@ -185,7 +185,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_assignments_by_subtask_id<R>(
     _repositories: &R,
     _subtask_id: &SubTaskId,
@@ -199,7 +199,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_assignments_by_user_id<R>(
     _repositories: &R,
     _user_id: &UserId,
@@ -213,7 +213,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_subtask_assignments<R>(
     _repositories: &R,
 ) -> Result<Vec<SubTaskAssignment>, ServiceError>

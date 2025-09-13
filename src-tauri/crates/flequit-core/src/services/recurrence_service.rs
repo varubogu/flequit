@@ -20,7 +20,7 @@ use flequit_types::errors::service_error::ServiceError;
 // =============================================================================
 
 /// 繰り返しルールを作成します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_recurrence_rule<R>(
     repositories: &R,
     rule: RecurrenceRule,
@@ -52,7 +52,7 @@ where
 }
 
 /// 繰り返しルールを取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_recurrence_rule<R>(
     repositories: &R,
     rule_id: &str,
@@ -77,7 +77,7 @@ where
 }
 
 /// すべての繰り返しルールを取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_recurrence_rules<R>(
     repositories: &R,
 ) -> Result<Vec<RecurrenceRule>, ServiceError>
@@ -101,7 +101,7 @@ where
 }
 
 /// 繰り返しルールを更新します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_recurrence_rule<R>(
     repositories: &R,
     rule: RecurrenceRule,
@@ -130,7 +130,7 @@ where
 }
 
 /// 繰り返しルールを削除します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_recurrence_rule<R>(repositories: &R, rule_id: &str) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -147,7 +147,7 @@ where
 // =============================================================================
 
 /// 繰り返し調整を作成します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_recurrence_adjustment<R>(
     repositories: &R,
     adjustment: RecurrenceAdjustment,
@@ -162,7 +162,7 @@ where
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_recurrence_adjustments_by_rule_id<R>(
     repositories: &R,
     rule_id: &str,
@@ -175,7 +175,7 @@ where
 }
 
 /// 繰り返し調整を削除します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_recurrence_adjustment<R>(
     repositories: &R,
     adjustment_id: &str,
@@ -192,7 +192,7 @@ where
 // =============================================================================
 
 /// 繰り返し詳細を作成します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_recurrence_details<R>(
     repositories: &R,
     details: RecurrenceDetails,
@@ -207,7 +207,7 @@ where
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_recurrence_details_by_rule_id<R>(
     repositories: &R,
     rule_id: &str,
@@ -220,7 +220,7 @@ where
 }
 
 /// 繰り返し詳細を更新します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_recurrence_details<R>(
     repositories: &R,
     details: RecurrenceDetails,
@@ -233,7 +233,7 @@ where
 }
 
 /// 繰り返し詳細を削除します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_recurrence_details<R>(
     repositories: &R,
     details_id: &str,
@@ -250,7 +250,7 @@ where
 // =============================================================================
 
 /// タスクに繰り返しルールを関連付けます。
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_task_recurrence<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -270,7 +270,7 @@ where
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_task_recurrence_by_task_id<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -283,7 +283,7 @@ where
 }
 
 /// タスクの繰り返し関連付けを削除します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_task_recurrence<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -300,7 +300,7 @@ where
 // =============================================================================
 
 /// サブタスクに繰り返しルールを関連付けます。
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_subtask_recurrence<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -320,7 +320,7 @@ where
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask_recurrence_by_subtask_id<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -333,7 +333,7 @@ where
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_subtask_recurrence<R>(
     repositories: &R,
     subtask_id: &SubTaskId,

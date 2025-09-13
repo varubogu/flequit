@@ -6,7 +6,7 @@ use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -26,7 +26,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -39,7 +39,7 @@ where
     Ok(repository.tags().find_by_id(project_id, tag_id).await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_tags<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -51,7 +51,7 @@ where
     Ok(repository.tags().find_all(project_id).await?)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_tag<R>(
     _repositories: &R,
     _project_id: &ProjectId,
@@ -67,7 +67,7 @@ where
     ))
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn delete_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -81,7 +81,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn search_tags_by_name<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -106,7 +106,7 @@ where
     Ok(filtered_tags)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag_usage_count<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -137,7 +137,7 @@ where
     Ok(count)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn is_tag_name_exists<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -169,7 +169,7 @@ where
     Ok(false)
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn list_popular_tags<R>(
     repositories: &R,
     project_id: &ProjectId,

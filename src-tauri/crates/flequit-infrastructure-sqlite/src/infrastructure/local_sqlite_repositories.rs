@@ -37,7 +37,7 @@ pub struct LocalSqliteRepositories {
 
 impl LocalSqliteRepositories {
     /// 新しいSQLiteリポジトリ群を作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new() -> Result<Self, SQLiteError> {
         // シングルトンのデータベースマネージャーを取得
         let db_manager = DatabaseManager::instance().await?;
@@ -58,7 +58,7 @@ impl LocalSqliteRepositories {
     }
 
     /// デフォルト設定でリポジトリ群を設定
-    #[tracing::instrument(level = "trace")]
+
     pub async fn setup() -> Result<Self, Box<dyn std::error::Error>> {
         Self::new().await.map_err(|e| e.into())
     }

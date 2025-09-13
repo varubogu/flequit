@@ -86,7 +86,7 @@ pub struct ProjectLocalAutomergeRepository {
 
 impl ProjectLocalAutomergeRepository {
     /// 新しいProjectRepositoryを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -95,7 +95,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -105,7 +105,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -119,7 +119,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント全体を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_project_document(
         &self,
         project_id: &ProjectId,
@@ -172,7 +172,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント全体を保存
-    #[tracing::instrument(level = "trace")]
+
     pub async fn save_project_document(
         &self,
         project_id: &ProjectId,
@@ -223,7 +223,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// 空のプロジェクトドキュメントを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn create_empty_project_document(
         &self,
         project: &Project,
@@ -251,7 +251,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// IDでプロジェクトを取得（プロジェクトドキュメントから基本情報のみ）
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_project(&self, project_id: &str) -> Result<Option<Project>, RepositoryError> {
         if let Some(document) = self
             .get_project_document(&ProjectId::from(project_id))
@@ -275,7 +275,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトを作成または更新（基本情報のみ）
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("set_project - 開始: {:?}", project.id);
 
@@ -307,7 +307,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タスクリストを追加
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_task_list(
         &self,
         project_id: &ProjectId,
@@ -331,7 +331,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タスクを追加
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_task(
         &self,
         project_id: &ProjectId,
@@ -355,7 +355,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// サブタスクを追加
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_subtask(
         &self,
         project_id: &ProjectId,
@@ -379,7 +379,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// タグを追加
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         // プロジェクトドキュメントを取得または作成
         let mut document = if let Some(doc) = self.get_project_document(project_id).await? {
@@ -399,7 +399,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// メンバーを追加
-    #[tracing::instrument(level = "trace")]
+
     pub async fn add_member(
         &self,
         project_id: &ProjectId,
@@ -423,7 +423,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.tasks)
@@ -433,7 +433,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タスクリストを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_task_lists(
         &self,
         project_id: &ProjectId,
@@ -446,7 +446,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全サブタスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_subtasks(
         &self,
         project_id: &ProjectId,
@@ -459,7 +459,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全タグを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         if let Some(document) = self.get_project_document(project_id).await? {
             Ok(document.tags)
@@ -469,7 +469,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクト内の全メンバーを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_members(
         &self,
         project_id: &ProjectId,
@@ -482,7 +482,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// プロジェクトドキュメント自体を削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_project_document(
         &self,
         project_id: &ProjectId,
@@ -495,7 +495,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// JSON出力機能：プロジェクト変更履歴をエクスポート
-    #[tracing::instrument(level = "trace", skip(output_dir))]
+
     pub async fn export_project_changes_history<P: AsRef<Path>>(
         &self,
         project_id: &ProjectId,
@@ -510,7 +510,7 @@ impl ProjectLocalAutomergeRepository {
     }
 
     /// JSON出力機能：現在のプロジェクト状態をファイルにエクスポート
-    #[tracing::instrument(level = "trace", skip(file_path))]
+
     pub async fn export_project_state<P: AsRef<Path>>(
         &self,
         project_id: &ProjectId,
@@ -527,7 +527,7 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
@@ -548,12 +548,12 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         self.get_project(&id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // 一覧取得はProjectListLocalAutomergeRepositoryを使用してください
@@ -562,20 +562,20 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         ))
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         // プロジェクトドキュメント自体を削除
         // 注意: プロジェクト一覧からの削除は別途ProjectListLocalAutomergeRepositoryで行ってください
         self.delete_project_document(id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self) -> Result<u64, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
         // カウント取得はProjectListLocalAutomergeRepositoryを使用してください

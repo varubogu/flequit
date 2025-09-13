@@ -38,7 +38,7 @@ pub struct WeekdayConditionLocalAutomergeRepository {
 }
 
 impl WeekdayConditionLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -47,7 +47,7 @@ impl WeekdayConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -61,7 +61,7 @@ impl WeekdayConditionLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全曜日条件を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_weekday_conditions(
         &self,
         project_id: &ProjectId,
@@ -78,7 +78,7 @@ impl WeekdayConditionLocalAutomergeRepository {
     }
 
     /// IDで曜日条件を取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_weekday_condition(
         &self,
         project_id: &ProjectId,
@@ -91,7 +91,7 @@ impl WeekdayConditionLocalAutomergeRepository {
     }
 
     /// 曜日条件を作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_weekday_condition(
         &self,
         project_id: &ProjectId,
@@ -143,7 +143,7 @@ impl WeekdayConditionLocalAutomergeRepository {
     }
 
     /// 曜日条件を削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_weekday_condition(
         &self,
         project_id: &ProjectId,
@@ -173,7 +173,7 @@ impl WeekdayConditionRepositoryTrait for WeekdayConditionLocalAutomergeRepositor
 impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
     for WeekdayConditionLocalAutomergeRepository
 {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(
         &self,
         project_id: &ProjectId,
@@ -198,7 +198,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -208,7 +208,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
             .await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -216,7 +216,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         self.list_weekday_conditions(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(
         &self,
         project_id: &ProjectId,
@@ -235,7 +235,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -245,7 +245,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let weekday_conditions = self.find_all(project_id).await?;
         Ok(weekday_conditions.len() as u64)

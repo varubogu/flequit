@@ -5,7 +5,7 @@ use flequit_types::errors::service_error::ServiceError;
 
 /// TaskTagサービス操作
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_task_tag_relation<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -22,7 +22,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_task_tag_relation<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -37,7 +37,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag_ids_by_task_id<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -53,7 +53,7 @@ where
     Ok(Vec::new())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_task_ids_by_tag_id<R>(
     repositories: &R,
     tag_id: &TagId,
@@ -69,7 +69,7 @@ where
     Ok(Vec::new())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_task_tag_relations<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -85,7 +85,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_tags_by_task_id<R>(
     repositories: &R,
     task_id: &TaskId,
@@ -99,7 +99,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_task_tags_by_tag_id<R>(
     repositories: &R,
     tag_id: &TagId,
@@ -113,7 +113,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_task_tags<R>(repositories: &R) -> Result<Vec<TaskTag>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -128,7 +128,7 @@ where
 
 /// SubtaskTagサービス操作
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn add_subtask_tag_relation<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -143,7 +143,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_subtask_tag_relation<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -158,7 +158,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_tag_ids_by_subtask_id<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -174,7 +174,7 @@ where
     Ok(Vec::new())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_subtask_ids_by_tag_id<R>(
     repositories: &R,
     tag_id: &TagId,
@@ -190,7 +190,7 @@ where
     Ok(Vec::new())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn update_subtask_tag_relations<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -206,7 +206,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_tags_by_subtask_id<R>(
     repositories: &R,
     subtask_id: &SubTaskId,
@@ -221,7 +221,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn remove_all_subtask_tags_by_tag_id<R>(
     repositories: &R,
     tag_id: &TagId,
@@ -236,7 +236,7 @@ where
     Ok(())
 }
 
-#[tracing::instrument(level = "trace")]
+
 pub async fn get_all_subtask_tags<R>(repositories: &R) -> Result<Vec<SubTaskTag>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,

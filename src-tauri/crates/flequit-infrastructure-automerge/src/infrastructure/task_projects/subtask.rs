@@ -39,7 +39,7 @@ pub struct SubTaskLocalAutomergeRepository {
 }
 
 impl SubTaskLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -48,7 +48,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// 共有DocumentManagerを使用して新しいインスタンスを作成
-    #[tracing::instrument(level = "trace")]
+
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
@@ -58,7 +58,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
-    #[tracing::instrument(level = "trace")]
+
     async fn get_or_create_document(
         &self,
         project_id: &ProjectId,
@@ -72,7 +72,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全サブタスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn list_subtasks(
         &self,
         project_id: &ProjectId,
@@ -87,7 +87,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// IDでサブタスクを取得
-    #[tracing::instrument(level = "trace")]
+
     pub async fn get_subtask(
         &self,
         project_id: &ProjectId,
@@ -98,7 +98,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// サブタスクを作成または更新
-    #[tracing::instrument(level = "trace")]
+
     pub async fn set_subtask(
         &self,
         project_id: &ProjectId,
@@ -133,7 +133,7 @@ impl SubTaskLocalAutomergeRepository {
     }
 
     /// サブタスクを削除
-    #[tracing::instrument(level = "trace")]
+
     pub async fn delete_subtask(
         &self,
         project_id: &ProjectId,
@@ -159,7 +159,7 @@ impl SubTaskRepositoryTrait for SubTaskLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
-    #[tracing::instrument(level = "trace")]
+
     async fn save(&self, project_id: &ProjectId, entity: &SubTask) -> Result<(), RepositoryError> {
         log::info!(
             "SubTaskLocalAutomergeRepository::save - 開始: {:?}",
@@ -180,7 +180,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         result
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -189,12 +189,12 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         self.get_subtask(project_id, &id.to_string()).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         self.list_subtasks(project_id).await
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         let deleted = self.delete_subtask(project_id, &id.to_string()).await?;
         if deleted {
@@ -207,7 +207,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         }
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -217,7 +217,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         Ok(found.is_some())
     }
 
-    #[tracing::instrument(level = "trace")]
+
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let subtasks = self.find_all(project_id).await?;
         Ok(subtasks.len() as u64)
