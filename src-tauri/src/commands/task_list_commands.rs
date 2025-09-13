@@ -7,7 +7,7 @@ use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use tauri::State;
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_task_list(
     state: State<'_, AppState>,
@@ -23,7 +23,7 @@ pub async fn create_task_list(
     task_list_facades::create_task_list(&*repositories, &project_id, &internal_task_list).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_task_list(
     state: State<'_, AppState>,
@@ -48,7 +48,7 @@ pub async fn get_task_list(
     }
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_task_list(
     state: State<'_, AppState>,
@@ -69,7 +69,7 @@ pub async fn update_task_list(
     task_list_facades::update_task_list(&*repositories, &project_id, &task_list_id, &patch).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_task_list(
     state: State<'_, AppState>,

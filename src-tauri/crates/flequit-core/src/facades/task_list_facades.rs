@@ -4,7 +4,6 @@ use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList}
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument]
 pub async fn create_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -20,7 +19,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn get_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -36,7 +34,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn update_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -53,7 +50,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn delete_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,

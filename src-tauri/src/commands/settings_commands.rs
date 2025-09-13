@@ -23,7 +23,7 @@ use tauri::State;
 /// 新しい設定管理APIで設定を読み込み
 ///
 /// stateから設定を取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn load_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
     let settings = state.settings.read().await.clone();
@@ -33,7 +33,7 @@ pub async fn load_settings(state: State<'_, AppState>) -> Result<SettingsCommand
 }
 
 /// 新しい設定管理APIで設定を保存
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn save_settings(
     state: State<'_, AppState>,
@@ -57,14 +57,14 @@ pub async fn save_settings(
 }
 
 /// 設定ファイルが存在するかチェック
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn settings_file_exists(state: State<'_, AppState>) -> Result<bool, String> {
     Ok(state.settings_manager.settings_exists())
 }
 
 /// デフォルト設定で設定ファイルを初期化
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Result<(), String> {
     state
@@ -82,7 +82,7 @@ pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Re
 }
 
 /// 設定ファイルのパスを取得
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String, String> {
     Ok(state
@@ -97,7 +97,7 @@ pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String
 // ---------------------------
 
 /// アプリケーション設定（Settings）をすべて取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
     let settings = state.settings.read().await;
@@ -105,7 +105,7 @@ pub async fn get_all_settings(state: State<'_, AppState>) -> Result<SettingsComm
 }
 
 /// 特定のキーの設定値を保存します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn set_setting(
     state: State<'_, AppState>,
@@ -127,9 +127,10 @@ pub async fn set_setting(
 // NOTE: Custom Date Format機能は一時的に無効化されています
 // setting_facades::get_custom_date_formatが実装されていないため
 /// 指定されたIDのカスタム日付フォーマットを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_custom_date_format_setting(
+    state: State<'_, AppState>,
     id: String,
 ) -> Result<Option<DateTimeFormatCommandModel>, String> {
     // TODO: setting_facadesでの実装完了後に有効化
@@ -138,18 +139,21 @@ pub async fn get_custom_date_format_setting(
 }
 
 /// すべてのカスタム日付フォーマットを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
-pub async fn get_all_custom_date_format_settings() -> Result<Vec<DateTimeFormatCommandModel>, String>
+pub async fn get_all_custom_date_format_settings(
+    state: State<'_, AppState>,
+) -> Result<Vec<DateTimeFormatCommandModel>, String>
 {
     // TODO: setting_facadesでの実装完了後に有効化
     Ok(Vec::new())
 }
 
 /// カスタム日付フォーマットを追加します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_custom_date_format_setting(
+    state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
     // TODO: setting_facadesでの実装完了後に有効化
@@ -157,9 +161,10 @@ pub async fn add_custom_date_format_setting(
 }
 
 /// カスタム日付フォーマットを更新します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_custom_date_format_setting(
+    state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
     // TODO: datetime_facadesでの実装完了後に有効化
@@ -168,9 +173,12 @@ pub async fn update_custom_date_format_setting(
 }
 
 /// カスタム日付フォーマットを削除します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
-pub async fn delete_custom_date_format_setting(id: String) -> Result<(), String> {
+pub async fn delete_custom_date_format_setting(
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<(), String> {
     // TODO: datetime_facadesでの実装完了後に有効化
     // datetime_facades::delete_datetime_format(&*repositories, format_id).await
     let _ = id; // 未使用警告を回避
@@ -182,7 +190,7 @@ pub async fn delete_custom_date_format_setting(id: String) -> Result<(), String>
 // ---------------------------
 
 /// 指定されたIDの時刻ラベルを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_time_label_setting(
     state: State<'_, AppState>,
@@ -209,7 +217,7 @@ pub async fn get_time_label_setting(
 }
 
 /// すべての時刻ラベルを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_time_label_settings(
     state: State<'_, AppState>,
@@ -230,7 +238,7 @@ pub async fn get_all_time_label_settings(
 }
 
 /// 時刻ラベルを追加します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_time_label_setting(
     state: State<'_, AppState>,
@@ -261,7 +269,7 @@ pub async fn add_time_label_setting(
 }
 
 /// 時刻ラベルを更新します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_time_label_setting(
     state: State<'_, AppState>,
@@ -299,7 +307,7 @@ pub async fn update_time_label_setting(
 }
 
 /// 時刻ラベルを削除します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_time_label_setting(
     state: State<'_, AppState>,
@@ -327,7 +335,7 @@ pub async fn delete_time_label_setting(
 // ---------------------------
 
 /// 指定されたIDのビューアイテムを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_view_item_setting(
     state: State<'_, AppState>,
@@ -354,7 +362,7 @@ pub async fn get_view_item_setting(
 }
 
 /// すべてのビューアイテムを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_view_item_settings(
     state: State<'_, AppState>,
@@ -375,7 +383,7 @@ pub async fn get_all_view_item_settings(
 }
 
 /// ビューアイテムを追加します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_view_item_setting(
     state: State<'_, AppState>,
@@ -406,7 +414,7 @@ pub async fn add_view_item_setting(
 }
 
 /// ビューアイテムを更新します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_view_item_setting(
     state: State<'_, AppState>,
@@ -444,7 +452,7 @@ pub async fn update_view_item_setting(
 }
 
 /// ビューアイテムを削除します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_view_item_setting(
     state: State<'_, AppState>,
@@ -468,7 +476,7 @@ pub async fn delete_view_item_setting(
 }
 
 /// 特定のキーの設定値を取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_setting(
     state: State<'_, AppState>,
@@ -496,7 +504,7 @@ pub async fn get_setting(
 }
 
 /// 特定のキーの設定値を更新します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_setting(
     state: State<'_, AppState>,
@@ -578,7 +586,7 @@ pub async fn update_setting(
 
 /// 日時フォーマットを作成します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_datetime_format(
     state: State<'_, AppState>,
@@ -590,7 +598,7 @@ pub async fn create_datetime_format(
 
 /// 日時フォーマットを取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_datetime_format(
     state: State<'_, AppState>,
@@ -602,7 +610,7 @@ pub async fn get_datetime_format(
 
 /// すべての日時フォーマットを取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_datetime_formats(
     state: State<'_, AppState>,
@@ -613,7 +621,7 @@ pub async fn get_all_datetime_formats(
 
 /// 日時フォーマットを更新します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_datetime_format(
     state: State<'_, AppState>,
@@ -625,7 +633,7 @@ pub async fn update_datetime_format(
 
 /// 日時フォーマットを削除します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_datetime_format(
     state: State<'_, AppState>,
@@ -640,7 +648,7 @@ pub async fn delete_datetime_format(
 // =============================================================================
 
 /// custom_due_days に要素を追加
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
     let mut settings = state.settings.write().await;
@@ -656,7 +664,7 @@ pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<
 }
 
 /// custom_due_days の既存要素を新しい値で置換
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_custom_due_day(
     state: State<'_, AppState>,
@@ -678,7 +686,7 @@ pub async fn update_custom_due_day(
 }
 
 /// custom_due_days から要素を削除
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<(), String> {
     let mut settings = state.settings.write().await;
@@ -699,7 +707,7 @@ pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Resu
 // =============================================================================
 
 /// datetime_formats に要素を追加（id重複はエラー）
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_datetime_format_setting(
     state: State<'_, AppState>,
@@ -719,7 +727,7 @@ pub async fn add_datetime_format_setting(
 }
 
 /// datetime_formats の要素を上書き（id一致で置換、なければ追加）
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn upsert_datetime_format_setting(
     state: State<'_, AppState>,
@@ -744,7 +752,7 @@ pub async fn upsert_datetime_format_setting(
 }
 
 /// datetime_formats から要素を削除（id指定）
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_datetime_format_setting(
     state: State<'_, AppState>,
@@ -769,7 +777,7 @@ pub async fn delete_datetime_format_setting(
 
 /// 日付条件を作成します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_date_condition(
     state: State<'_, AppState>,
@@ -782,7 +790,7 @@ pub async fn create_date_condition(
 
 /// 日付条件を取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_date_condition(
     state: State<'_, AppState>,
@@ -798,7 +806,7 @@ pub async fn get_date_condition(
 
 /// すべての日付条件を取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_date_conditions(
     state: State<'_, AppState>,
@@ -814,7 +822,7 @@ pub async fn get_all_date_conditions(
 
 /// 日付条件を更新します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_date_condition(
     state: State<'_, AppState>,
@@ -827,7 +835,7 @@ pub async fn update_date_condition(
 
 /// 日付条件を削除します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_date_condition(
     state: State<'_, AppState>,
@@ -839,7 +847,7 @@ pub async fn delete_date_condition(
 
 /// 日付条件を評価します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn evaluate_date_condition(
     state: State<'_, AppState>,
@@ -852,7 +860,7 @@ pub async fn evaluate_date_condition(
 
 /// 曜日条件を作成します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_weekday_condition(
     state: State<'_, AppState>,
@@ -865,7 +873,7 @@ pub async fn create_weekday_condition(
 
 /// 曜日条件を取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_weekday_condition(
     state: State<'_, AppState>,
@@ -881,7 +889,7 @@ pub async fn get_weekday_condition(
 
 /// すべての曜日条件を取得します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_all_weekday_conditions(
     state: State<'_, AppState>,
@@ -897,7 +905,7 @@ pub async fn get_all_weekday_conditions(
 
 /// 曜日条件を更新します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_weekday_condition(
     state: State<'_, AppState>,
@@ -910,7 +918,7 @@ pub async fn update_weekday_condition(
 
 /// 曜日条件を削除します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_weekday_condition(
     state: State<'_, AppState>,
@@ -922,7 +930,7 @@ pub async fn delete_weekday_condition(
 
 /// 曜日条件を評価します。
 #[allow(dead_code)]
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn evaluate_weekday_condition(
     state: State<'_, AppState>,

@@ -19,7 +19,6 @@ where
     Ok(())
 }
 
-#[tracing::instrument]
 pub async fn get_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -31,7 +30,6 @@ where
     Ok(repositories.tasks().find_by_id(project_id, task_id).await?)
 }
 
-#[tracing::instrument]
 pub async fn list_tasks<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -42,7 +40,6 @@ where
     Ok(repositories.tasks().find_all(project_id).await?)
 }
 
-#[tracing::instrument]
 pub async fn update_task<R>(
     _repositories: &R,
     _project_id: &ProjectId,
@@ -58,7 +55,6 @@ where
     ))
 }
 
-#[tracing::instrument]
 pub async fn delete_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -71,7 +67,6 @@ where
     Ok(())
 }
 
-#[tracing::instrument]
 pub async fn list_tasks_by_assignee<R>(
     repositories: &R,
     project_id: &str,
@@ -96,7 +91,6 @@ where
     Ok(filtered_tasks)
 }
 
-#[tracing::instrument]
 pub async fn list_tasks_by_status<R>(
     repositories: &R,
     project_id: &str,
@@ -117,7 +111,6 @@ where
     Ok(filtered_tasks)
 }
 
-#[tracing::instrument]
 pub async fn assign_task<R>(
     repositories: &R,
     project_id: &str,
@@ -166,7 +159,6 @@ where
     Ok(())
 }
 
-#[tracing::instrument]
 pub async fn update_task_status<R>(
     repositories: &R,
     project_id: &str,
@@ -207,7 +199,6 @@ where
     Ok(())
 }
 
-#[tracing::instrument]
 pub async fn update_task_priority<R>(
     repositories: &R,
     project_id: &str,

@@ -6,7 +6,6 @@ use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::types::id_types::{ProjectId, TaskId};
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument]
 pub async fn create_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -22,7 +21,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn get_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -39,7 +37,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn update_task<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -56,7 +53,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn delete_task<R>(
     repositories: &R,
     project_id: &ProjectId,

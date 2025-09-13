@@ -6,7 +6,7 @@ use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::UserId;
 use tauri::State;
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_user(
     state: State<'_, AppState>,
@@ -17,7 +17,7 @@ pub async fn create_user(
     user_facades::create_user(&*repositories, &internal_user).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_user(
     state: State<'_, AppState>,
@@ -34,7 +34,7 @@ pub async fn get_user(
     }
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_user(
     state: State<'_, AppState>,
@@ -45,7 +45,7 @@ pub async fn update_user(
     user_facades::update_user(&*repositories, &internal_user).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_user(state: State<'_, AppState>, user_id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;

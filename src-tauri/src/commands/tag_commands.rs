@@ -7,7 +7,7 @@ use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TagId};
 use tauri::State;
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_tag(
     state: State<'_, AppState>,
@@ -24,7 +24,7 @@ pub async fn create_tag(
     tag_facades::create_tag(&*repositories, &project_id, &internal_tag).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_tag(
     state: State<'_, AppState>,
@@ -48,7 +48,7 @@ pub async fn get_tag(
     }
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_tag(
     state: State<'_, AppState>,
@@ -69,7 +69,7 @@ pub async fn update_tag(
     tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_tag(
     state: State<'_, AppState>,

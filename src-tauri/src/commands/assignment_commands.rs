@@ -7,7 +7,7 @@ use tauri::State;
 
 // TaskAssignment関連コマンド（CRUD）
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_task_assignment(
     state: State<'_, AppState>,
@@ -20,7 +20,7 @@ pub async fn create_task_assignment(
     assignment_facades::add_task_assignment(&*repositories, &task_id, &user_id).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_task_assignment(
     state: State<'_, AppState>,
@@ -36,7 +36,7 @@ pub async fn delete_task_assignment(
 
 // SubtaskAssignment関連コマンド（CRUD）
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_subtask_assignment(
     state: State<'_, AppState>,
@@ -49,7 +49,7 @@ pub async fn create_subtask_assignment(
     assignment_facades::add_subtask_assignment(&*repositories, &subtask_id, &user_id).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_subtask_assignment(
     state: State<'_, AppState>,

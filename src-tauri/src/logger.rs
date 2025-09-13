@@ -38,6 +38,10 @@ pub fn init_logger(
             .add_directive("sea_orm=warn".parse().unwrap()) // Sea-ORMログを抑制
             .add_directive("hyper=warn".parse().unwrap()) // HTTPライブラリログを抑制
             .add_directive("tower=warn".parse().unwrap()) // Towerログを抑制
+            .add_directive("automerge=warn".parse().unwrap()) // Automergeログを抑制
+            .add_directive("tauri=warn".parse().unwrap()) // Tauriフレームワークログを抑制
+            .add_directive("tauri::manager=error".parse().unwrap()) // Tauriマネージャーログを強く抑制
+            .add_directive("tauri_runtime=warn".parse().unwrap()) // Tauriランタイムログを抑制
     }
 
     let registry = tracing_subscriber::registry();

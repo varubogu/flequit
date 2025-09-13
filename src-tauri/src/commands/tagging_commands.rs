@@ -7,7 +7,7 @@ use tauri::State;
 
 // TaskTag関連コマンド（CRUD）
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_task_tag(
     state: State<'_, AppState>,
@@ -20,7 +20,7 @@ pub async fn create_task_tag(
     tagging_facades::add_task_tag_relation(&*repositories, &task_id, &tag_id).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_task_tag(
     state: State<'_, AppState>,
@@ -36,7 +36,7 @@ pub async fn delete_task_tag(
 
 // SubtaskTag関連コマンド（CRUD）
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_subtask_tag(
     state: State<'_, AppState>,
@@ -49,7 +49,7 @@ pub async fn create_subtask_tag(
     tagging_facades::add_subtask_tag_relation(&*repositories, &subtask_id, &tag_id).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_subtask_tag(
     state: State<'_, AppState>,

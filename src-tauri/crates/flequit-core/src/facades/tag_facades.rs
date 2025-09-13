@@ -4,7 +4,6 @@ use flequit_model::models::task_projects::tag::{PartialTag, Tag};
 use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_types::errors::service_error::ServiceError;
 
-#[tracing::instrument]
 pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -20,7 +19,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn get_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -37,7 +35,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn update_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -54,7 +51,6 @@ where
     }
 }
 
-#[tracing::instrument]
 pub async fn delete_tag<R>(
     repositories: &R,
     project_id: &ProjectId,

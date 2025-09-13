@@ -7,7 +7,7 @@ use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::AccountId;
 use tauri::State;
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_account(
     state: State<'_, AppState>,
@@ -19,7 +19,7 @@ pub async fn create_account(
     account_facades::create_account(&*repositories, &internal_account).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_account(
     state: State<'_, AppState>,
@@ -37,7 +37,7 @@ pub async fn get_account(
     }
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_account(
     state: State<'_, AppState>,
@@ -50,7 +50,7 @@ pub async fn update_account(
     account_facades::update_account(&*repositories, &account_id, &patch).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_account(
     state: State<'_, AppState>,

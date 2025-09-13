@@ -9,7 +9,7 @@ use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use tauri::State;
 
 // Frontend compatibility aliases only
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_sub_task(
     state: State<'_, AppState>,
@@ -26,7 +26,7 @@ pub async fn create_sub_task(
     subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_sub_task(
     state: State<'_, AppState>,
@@ -50,7 +50,7 @@ pub async fn get_sub_task(
     }
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_sub_task(
     state: State<'_, AppState>,
@@ -71,7 +71,7 @@ pub async fn update_sub_task(
     subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch).await
 }
 
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_sub_task(
     state: State<'_, AppState>,
@@ -96,7 +96,7 @@ pub async fn delete_sub_task(
 // =============================================================================
 
 /// サブタスクに繰り返しルールを関連付けます。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn create_subtask_recurrence(
     state: State<'_, AppState>,
@@ -114,7 +114,7 @@ pub async fn create_subtask_recurrence(
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_subtask_recurrence_by_subtask_id(
     state: State<'_, AppState>,
@@ -133,7 +133,7 @@ pub async fn get_subtask_recurrence_by_subtask_id(
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
-#[tracing::instrument]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_subtask_recurrence(
     state: State<'_, AppState>,
