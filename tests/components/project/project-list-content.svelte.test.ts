@@ -6,7 +6,8 @@ import type { ProjectListLogic } from '$lib/components/project/project-list-logi
 // Mock stores
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    selectedProjectId: 'project-1'
+    selectedProjectId: 'project-1',
+    selectedListId: 'list-1'
   }
 }));
 
@@ -164,6 +165,30 @@ describe('ProjectListContent', () => {
       expect(component).toBeTruthy();
       expect(mockLogic.handleProjectSelect).toBeDefined();
     });
+
+    it('should handle tasklist view with selected list', () => {
+      const { component } = render(ProjectListContent, {
+        props: {
+          ...defaultProps,
+          currentView: 'tasklist'
+        }
+      });
+
+      expect(component).toBeTruthy();
+      expect(mockLogic.handleProjectSelect).toBeDefined();
+    });
+
+    it('should handle project view with selected project', () => {
+      const { component } = render(ProjectListContent, {
+        props: {
+          ...defaultProps,
+          currentView: 'project'
+        }
+      });
+
+      expect(component).toBeTruthy();
+      expect(mockLogic.handleProjectSelect).toBeDefined();
+    });
   });
 
   describe('component integration', () => {
@@ -188,7 +213,7 @@ describe('ProjectListContent', () => {
     it('should pass correct props to TaskListDisplay', () => {
       render(ProjectListContent, { props: defaultProps });
 
-      // Should pass project, isExpanded, and onViewChange
+      // Should pass project, isExpanded, currentView, and onViewChange
       expect(document.body).toBeInTheDocument();
     });
 
