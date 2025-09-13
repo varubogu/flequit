@@ -24,7 +24,6 @@
   const editTask = translationService.getMessage('edit_task');
   const addTask = translationService.getMessage('add_task');
   const cancel = translationService.getMessage('cancel');
-  const taskTitle = translationService.getMessage('task_title');
   const taskTitlePlaceholder = translationService.getMessage('task_title_placeholder');
 
   // 自動フォーカス
@@ -43,7 +42,7 @@
 
   async function handleAddTask() {
     if (!newTaskTitle.trim()) return;
-    
+
     const newTaskId = await TaskListService.addNewTask(newTaskTitle);
     if (newTaskId) {
       newTaskTitle = '';
