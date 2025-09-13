@@ -5,14 +5,16 @@ use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::member::Member,
     types::{
-        id_types::{MemberId, UserId},
+        id_types::{MemberId, ProjectId, UserId},
         project_types::MemberRole,
     },
 };
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::DomainToSqliteConverterWithProjectId;
+
+use super::SqliteModelConverter;
 
 /// Member用SQLiteエンティティ定義
 ///
@@ -21,6 +23,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "project_members")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// メンバーID（主キー）
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
@@ -68,8 +74,8 @@ impl SqliteModelConverter<Member> for Model {
 }
 
 #[async_trait]
-impl DomainToSqliteConverter<Model> for Member {
-    async fn to_sqlite_model(&self) -> Result<Model, String> {
+impl DomainToSqliteConverterWithProjectId<Model> for Member {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
         let role_str = match self.role {
             MemberRole::Owner => "owner",
             MemberRole::Admin => "admin",
@@ -79,6 +85,7 @@ impl DomainToSqliteConverter<Model> for Member {
 
         Ok(Model {
             id: self.id.to_string(),
+            project_id: project_id.to_string(),
             user_id: self.user_id.to_string(),
             role: role_str.to_string(),
             joined_at: self.joined_at,

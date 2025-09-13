@@ -1,10 +1,12 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::tag::Tag, types::id_types::TagId};
+use flequit_model::{models::task_projects::tag::Tag, types::id_types::{ProjectId, TagId}};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverter, DomainToSqliteConverterWithProjectId};
+
+use super::SqliteModelConverter;
 
 /// Tag用SQLiteエンティティ定義
 ///
@@ -13,6 +15,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "tags")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// タグの一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
@@ -69,11 +75,30 @@ impl SqliteModelConverter<Tag> for Model {
 }
 
 /// ドメインモデルからSQLiteモデルへの変換
+/// 注意: project_idは別途設定する必要があります
 #[async_trait]
 impl DomainToSqliteConverter<ActiveModel> for Tag {
     async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
+            project_id: sea_orm::NotSet, // リポジトリ層で設定
+            name: Set(self.name.clone()),
+            color: Set(self.color.clone()),
+            order_index: Set(self.order_index),
+            usage_count: Set(0), // 新規作成時は0
+            created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+        })
+    }
+}
+
+/// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
+#[async_trait]
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for Tag {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+        Ok(ActiveModel {
+            id: Set(self.id.to_string()),
+            project_id: Set(project_id.to_string()),
             name: Set(self.name.clone()),
             color: Set(self.color.clone()),
             order_index: Set(self.order_index),

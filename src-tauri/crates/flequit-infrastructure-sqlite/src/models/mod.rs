@@ -8,6 +8,7 @@ pub mod users;
 
 // Re-export individual modules for backward compatibility
 pub use accounts::account;
+use flequit_model::types::id_types::ProjectId;
 pub use task_projects::{
     date_condition, member, project, recurrence_adjustment, recurrence_date_condition,
     recurrence_days_of_week, recurrence_detail, recurrence_rule, recurrence_weekday_condition,
@@ -94,4 +95,20 @@ pub trait DomainToSqliteConverter<T> {
     /// * `Ok(T)` - 変換に成功した場合のSQLite ActiveModel
     /// * `Err(String)` - 変換に失敗した場合のエラーメッセージ
     async fn to_sqlite_model(&self) -> Result<T, String>;
+}
+
+/// プロジェクトIDを受け取るドメインモデルからSQLiteモデルへの変換を提供するトレイト
+#[async_trait]
+pub trait DomainToSqliteConverterWithProjectId<T> {
+    /// ドメインモデルからSQLiteモデル（ActiveModel）に変換する（project_id付き）
+    ///
+    /// # 引数
+    ///
+    /// * `project_id` - プロジェクトID
+    ///
+    /// # 戻り値
+    ///
+    /// * `Ok(T)` - 変換に成功した場合のSQLite ActiveModel
+    /// * `Err(String)` - 変換に失敗した場合のエラーメッセージ
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<T, String>;
 }

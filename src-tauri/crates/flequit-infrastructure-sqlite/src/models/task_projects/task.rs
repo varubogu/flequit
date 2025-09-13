@@ -10,6 +10,8 @@ use flequit_model::{
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
+use crate::models::DomainToSqliteConverterWithProjectId;
+
 use super::{DomainToSqliteConverter, SqliteModelConverter};
 
 /// Task用SQLiteエンティティ定義
@@ -19,13 +21,13 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "tasks")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// タスクの一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-
-    /// 所属プロジェクトID
-    #[sea_orm(indexed)] // プロジェクト別検索用
-    pub project_id: String,
 
     /// 所属タスクリストID
     #[sea_orm(indexed)] // タスクリスト別検索用
@@ -83,8 +85,8 @@ pub enum Relation {
     Project,
     #[sea_orm(
         belongs_to = "super::task_list::Entity",
-        from = "Column::ListId",
-        to = "super::task_list::Column::Id"
+        from = "(Column::ProjectId, Column::ListId)",
+        to = "(super::task_list::Column::ProjectId, super::task_list::Column::Id)"
     )]
     TaskList,
     #[sea_orm(has_many = "super::subtask::Entity")]
@@ -180,6 +182,44 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
             project_id: Set(self.project_id.to_string()),
+            list_id: Set(self.list_id.to_string()),
+            title: Set(self.title.clone()),
+            description: Set(self.description.clone()),
+            status: Set(status_string),
+            priority: Set(self.priority),
+            start_date: Set(self.plan_start_date),
+            end_date: Set(self.plan_end_date),
+            is_range_date: Set(self.is_range_date),
+            order_index: Set(self.order_index),
+            is_archived: Set(self.is_archived),
+            created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+        })
+    }
+}
+
+/// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
+#[async_trait]
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for Task {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+        // enumを文字列に変換
+        let status_string = match &self.status {
+            TaskStatus::NotStarted => "not_started",
+            TaskStatus::InProgress => "in_progress",
+            TaskStatus::Waiting => "waiting",
+            TaskStatus::Completed => "completed",
+            TaskStatus::Cancelled => "cancelled",
+        }
+        .to_string();
+
+        // 繰り返しルールと担当ユーザーは紐づけテーブルで管理するため、
+        // SQLiteのtasksテーブルには保存しない
+        // タグIDリストは紐づけテーブル(task_tags)で管理するため、
+        // SQLiteのtasksテーブルには保存しない
+
+        Ok(ActiveModel {
+            id: Set(self.id.to_string()),
+            project_id: Set(project_id.to_string()),
             list_id: Set(self.list_id.to_string()),
             title: Set(self.title.clone()),
             description: Set(self.description.clone()),

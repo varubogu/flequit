@@ -12,13 +12,19 @@ use std::env;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() != 2 {
-        eprintln!("Usage: migration_runner <database_path>");
+    if args.len() < 2 || args.len() > 3 {
+        eprintln!("Usage: migration_runner <database_path> [--force]");
         std::process::exit(1);
     }
 
     let db_path = &args[1];
-    println!("🔧 マイグレーション実行開始: {}", db_path);
+    let force_mode = args.len() == 3 && args[2] == "--force";
+    
+    if force_mode {
+        println!("🔄 強制マイグレーション実行開始: {}", db_path);
+    } else {
+        println!("🔧 マイグレーション実行開始: {}", db_path);
+    }
 
     // 環境変数でデータベースパスを指定
     env::set_var("FLEQUIT_DB_PATH", db_path);
@@ -28,7 +34,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // マイグレーション実行
     let migrator = HybridMigrator::new(db_manager.get_connection().await?.clone());
-    migrator.run_migration().await?;
+    
+    if force_mode {
+        migrator.force_remigration().await?;
+    } else {
+        migrator.run_migration().await?;
+    }
 
     println!("✅ マイグレーション完了: {}", db_path);
 

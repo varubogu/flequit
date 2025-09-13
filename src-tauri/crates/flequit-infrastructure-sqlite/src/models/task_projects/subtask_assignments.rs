@@ -1,11 +1,13 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_assignment::SubTaskAssignment;
-use flequit_model::types::id_types::{SubTaskId, UserId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::DomainToSqliteConverterWithProjectId;
+
+use super::SqliteModelConverter;
 
 /// SubTaskAssignment用SQLiteエンティティ定義
 ///
@@ -14,6 +16,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "subtask_assignments")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// サブタスクID
     #[sea_orm(primary_key, auto_increment = false)]
     pub subtask_id: String,
@@ -30,8 +36,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::subtask::Entity",
-        from = "Column::SubtaskId",
-        to = "super::subtask::Column::Id"
+        from = "(Column::ProjectId, Column::SubtaskId)",
+        to = "(super::subtask::Column::ProjectId, super::subtask::Column::Id)"
     )]
     Subtask,
     #[sea_orm(
@@ -68,11 +74,12 @@ impl SqliteModelConverter<SubTaskAssignment> for Model {
 }
 
 #[async_trait]
-impl DomainToSqliteConverter<ActiveModel> for SubTaskAssignment {
-    async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for SubTaskAssignment {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
         use sea_orm::ActiveValue::Set;
         Ok(ActiveModel {
             subtask_id: Set(self.subtask_id.to_string()),
+            project_id: Set(project_id.to_string()),
             user_id: Set(self.user_id.to_string()),
             created_at: Set(self.created_at),
         })

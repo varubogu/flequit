@@ -3,7 +3,7 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::member::{Column, Entity as MemberEntity};
-use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::member::Member;
 use flequit_model::types::id_types::{ProjectId, UserId};
@@ -30,7 +30,7 @@ impl MemberRepositoryTrait for MemberLocalSqliteRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
-    async fn save(&self, _project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -38,12 +38,13 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         let sqlite_model = entity
-            .to_sqlite_model()
+            .to_sqlite_model_with_project_id(project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         let active_model = crate::models::task_projects::member::ActiveModel {
             id: Set(sqlite_model.id.clone()),
+            project_id: Set(project_id.to_string()),
             user_id: Set(sqlite_model.user_id.clone()),
             role: Set(sqlite_model.role.clone()),
             joined_at: Set(sqlite_model.joined_at),

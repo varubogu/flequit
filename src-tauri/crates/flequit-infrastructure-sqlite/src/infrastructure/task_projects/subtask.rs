@@ -5,7 +5,7 @@ use super::subtask_tag::SubtaskTagLocalSqliteRepository;
 use super::tag::TagLocalSqliteRepository;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::subtask::{Column, Entity as SubtaskEntity};
-use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::subtask::SubTask;
 use flequit_model::types::id_types::{ProjectId, SubTaskId};
@@ -120,12 +120,12 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         let active_model = subtask
-            .to_sqlite_model()
+            .to_sqlite_model_with_project_id(&project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         // 既存レコードを確認
-        let existing = SubtaskEntity::find_by_id(&subtask.id.to_string())
+        let existing = SubtaskEntity::find_by_id((project_id.to_string(), subtask.id.to_string()))
             .one(&txn)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -158,7 +158,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
 
         // 有効なタグIDのみで紐づけを更新
         self.subtask_tag_repository
-            .update_subtask_tag_relations(&txn, &subtask.id, &valid_tag_ids)
+            .update_subtask_tag_relations(&txn, &project_id, &subtask.id, &valid_tag_ids)
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
@@ -170,7 +170,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
 
     async fn find_by_id(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         id: &SubTaskId,
     ) -> Result<Option<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -179,7 +179,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        if let Some(model) = SubtaskEntity::find_by_id(id.to_string())
+        if let Some(model) = SubtaskEntity::find_by_id((project_id.to_string(), id.to_string()))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
@@ -201,7 +201,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -209,6 +209,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .order_by_asc(Column::OrderIndex)
             .all(db)
             .await
@@ -233,7 +234,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         Ok(subtasks)
     }
 
-    async fn delete(&self, _project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -257,7 +258,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
         .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         // サブタスク本体を削除
-        SubtaskEntity::delete_by_id(id.to_string())
+        SubtaskEntity::delete_by_id((project_id.to_string(), id.to_string()))
             .exec(&txn)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -270,7 +271,7 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
 
     async fn exists(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         id: &SubTaskId,
     ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -278,20 +279,21 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
-        let count = SubtaskEntity::find_by_id(id.to_string())
+        let count = SubtaskEntity::find_by_id((project_id.to_string(), id.to_string()))
             .count(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
-    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
         let count = SubtaskEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .count(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

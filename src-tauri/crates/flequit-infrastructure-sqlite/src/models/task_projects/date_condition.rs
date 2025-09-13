@@ -4,12 +4,12 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::date_condition::DateCondition,
-    types::{datetime_calendar_types::DateRelation, id_types::DateConditionId},
+    types::{datetime_calendar_types::DateRelation, id_types::{DateConditionId, ProjectId}},
 };
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 
 /// DateCondition用SQLiteエンティティ定義
 ///
@@ -18,6 +18,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "date_conditions")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// 条件の一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
@@ -63,8 +67,8 @@ impl SqliteModelConverter<DateCondition> for Model {
 }
 
 #[async_trait]
-impl DomainToSqliteConverter<Model> for DateCondition {
-    async fn to_sqlite_model(&self) -> Result<Model, String> {
+impl DomainToSqliteConverterWithProjectId<Model> for DateCondition {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
         let relation_str = match self.relation {
             DateRelation::Before => "before",
             DateRelation::OnOrBefore => "on_or_before",
@@ -75,6 +79,7 @@ impl DomainToSqliteConverter<Model> for DateCondition {
 
         Ok(Model {
             id: self.id.to_string(),
+            project_id: project_id.to_string(),
             relation: relation_str.to_string(),
             reference_date: self.reference_date,
             created_at: Utc::now(),

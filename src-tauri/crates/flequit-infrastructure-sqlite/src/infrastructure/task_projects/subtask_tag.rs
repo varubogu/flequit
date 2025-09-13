@@ -80,6 +80,7 @@ impl SubtaskTagLocalSqliteRepository {
     /// サブタスクとタグの関連付けを追加
     pub async fn add_relation(
         &self,
+        project_id: &ProjectId,
         subtask_id: &SubTaskId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
@@ -100,6 +101,7 @@ impl SubtaskTagLocalSqliteRepository {
         if existing.is_none() {
             // 関連が存在しない場合のみ追加
             let active_model = crate::models::subtask_tag::ActiveModel {
+                project_id: Set(project_id.to_string()),
                 subtask_id: Set(subtask_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
@@ -180,6 +182,7 @@ impl SubtaskTagLocalSqliteRepository {
     pub async fn update_subtask_tag_relations<C>(
         &self,
         db: &C,
+        project_id: &ProjectId,
         subtask_id: &SubTaskId,
         tag_ids: &[TagId],
     ) -> Result<(), SQLiteError>
@@ -195,6 +198,7 @@ impl SubtaskTagLocalSqliteRepository {
         // 新しい関連付けを追加
         for tag_id in tag_ids {
             let active_model = crate::models::subtask_tag::ActiveModel {
+                project_id: Set(project_id.to_string()),
                 subtask_id: Set(subtask_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
@@ -211,11 +215,11 @@ impl SubtaskTagLocalSqliteRepository {
 impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocalSqliteRepository {
     async fn add(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &TagId,
     ) -> Result<(), RepositoryError> {
-        self.add_relation(parent_id, child_id).await
+        self.add_relation(project_id, parent_id, child_id).await
     }
 
     async fn remove(

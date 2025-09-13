@@ -3,7 +3,7 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::tag::{ActiveModel as TagActiveModel, Column, Entity as TagEntity};
-use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverter, DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::types::id_types::{ProjectId, TagId};
@@ -101,14 +101,14 @@ impl TagLocalSqliteRepository {
         Ok(tags)
     }
 
-    pub async fn increment_usage(&self, tag_id: &str) -> Result<Tag, RepositoryError> {
+    pub async fn increment_usage(&self, project_id: &str, tag_id: &str) -> Result<Tag, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        let existing = TagEntity::find_by_id(tag_id)
+        let existing = TagEntity::find_by_id((project_id.to_string(), tag_id.to_string()))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
@@ -127,14 +127,14 @@ impl TagLocalSqliteRepository {
             .map_err(RepositoryError::Conversion)
     }
 
-    pub async fn decrement_usage(&self, tag_id: &str) -> Result<Tag, RepositoryError> {
+    pub async fn decrement_usage(&self, project_id: &str, tag_id: &str) -> Result<Tag, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        let existing = TagEntity::find_by_id(tag_id)
+        let existing = TagEntity::find_by_id((project_id.to_string(), tag_id.to_string()))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
@@ -156,7 +156,7 @@ impl TagLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
-    async fn save(&self, _project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -174,7 +174,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         }
 
         // IDで既存のタグをチェック
-        let existing = TagEntity::find_by_id(tag.id.to_string())
+        let existing = TagEntity::find_by_id((project_id.to_string(), tag.id.to_string()))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -200,7 +200,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         } else {
             // 新規作成
             let active_model = tag
-                .to_sqlite_model()
+                .to_sqlite_model_with_project_id(&project_id)
                 .await
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
             active_model
@@ -213,7 +213,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
 
     async fn find_by_id(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         id: &TagId,
     ) -> Result<Option<Tag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -222,7 +222,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        if let Some(model) = TagEntity::find_by_id(id.to_string())
+        if let Some(model) = TagEntity::find_by_id((project_id.to_string(), id.to_string()))
             .one(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
@@ -237,7 +237,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         }
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -245,6 +245,7 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = TagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .order_by_asc(Column::OrderIndex)
             .all(db)
             .await
@@ -262,39 +263,40 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
         Ok(tags)
     }
 
-    async fn delete(&self, _project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
-        TagEntity::delete_by_id(id.to_string())
+        TagEntity::delete_by_id((project_id.to_string(), id.to_string()))
             .exec(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
 
-    async fn exists(&self, _project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
+    async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
-        let count = TagEntity::find_by_id(id.to_string())
+        let count = TagEntity::find_by_id((project_id.to_string(), id.to_string()))
             .count(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
 
-    async fn count(&self, _project_id: &ProjectId) -> Result<u64, RepositoryError> {
+    async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
             .await
             .map_err(|e| RepositoryError::from(e))?;
         let count = TagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .count(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;

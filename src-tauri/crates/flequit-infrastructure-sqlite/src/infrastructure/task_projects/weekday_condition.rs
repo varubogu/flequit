@@ -3,7 +3,9 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::weekday_condition::{Column, Entity as WeekdayConditionEntity};
-use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{
+    DomainToSqliteConverterWithProjectId, SqliteModelConverter,
+};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
 use flequit_model::types::id_types::{ProjectId, WeekdayConditionId};
@@ -31,7 +33,7 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
 {
     async fn save(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         entity: &WeekdayCondition,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -41,12 +43,13 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
             .map_err(|e| RepositoryError::from(e))?;
 
         let sqlite_model = entity
-            .to_sqlite_model()
+            .to_sqlite_model_with_project_id(&project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         let active_model = crate::models::task_projects::weekday_condition::ActiveModel {
             id: Set(sqlite_model.id.clone()),
+            project_id: Set(sqlite_model.project_id.clone()),
             if_weekday: Set(sqlite_model.if_weekday.clone()),
             then_direction: Set(sqlite_model.then_direction.clone()),
             then_target: Set(sqlite_model.then_target.clone()),

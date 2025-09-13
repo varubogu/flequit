@@ -6,10 +6,20 @@ use sea_orm::sea_query::{Index, SqliteQueryBuilder};
 use sea_orm::{ConnectionTrait, DatabaseConnection, DbBackend, DbErr, Schema, Statement};
 
 use crate::models::{
-    account::Entity as AccountEntity, project::Entity as ProjectEntity,
-    subtask::Entity as SubtaskEntity, subtask_tag::Entity as SubtaskTagEntity,
-    tag::Entity as TagEntity, task::Entity as TaskEntity, task_list::Entity as TaskListEntity,
-    task_tag::Entity as TaskTagEntity, user::Entity as UserEntity,
+    account::Entity as AccountEntity,
+    project::Entity as ProjectEntity,
+    task_projects::{
+        member::Entity as MemberEntity,
+        subtask::Entity as SubtaskEntity,
+        subtask_tag::Entity as SubtaskTagEntity,
+        tag::Entity as TagEntity,
+        task::Entity as TaskEntity,
+        task_list::Entity as TaskListEntity,
+        task_tag::Entity as TaskTagEntity,
+        task_assignments::Entity as TaskAssignmentEntity,
+        subtask_assignments::Entity as SubtaskAssignmentEntity,
+    },
+    user::Entity as UserEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -78,19 +88,16 @@ impl HybridMigrator {
         let entities = vec![
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
-            (
-                "task_lists",
-                schema.create_table_from_entity(TaskListEntity),
-            ),
+            ("users", schema.create_table_from_entity(UserEntity)),
+            ("members", schema.create_table_from_entity(MemberEntity)),
+            ("task_lists", schema.create_table_from_entity(TaskListEntity)),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
             ("task_tags", schema.create_table_from_entity(TaskTagEntity)),
-            (
-                "subtask_tags",
-                schema.create_table_from_entity(SubtaskTagEntity),
-            ),
-            ("users", schema.create_table_from_entity(UserEntity)),
+            ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
+            ("task_assignments", schema.create_table_from_entity(TaskAssignmentEntity)),
+            ("subtask_assignments", schema.create_table_from_entity(SubtaskAssignmentEntity)),
         ];
 
         for (table_name, stmt) in entities {
@@ -131,56 +138,9 @@ impl HybridMigrator {
 
     /// Junction tables作成（テーブル生成時用）
     async fn create_junction_tables_sql(&self) -> Result<(), DbErr> {
-        // task_tagsテーブル作成
-        let task_tags_sql = r#"
-            CREATE TABLE IF NOT EXISTS task_tags (
-                task_id TEXT NOT NULL,
-                tag_id TEXT NOT NULL,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (task_id, tag_id),
-                FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
-                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-            );
-        "#;
-
-        self.db.execute_unprepared(task_tags_sql).await?;
-        println!("  📝 Junction table作成: task_tags");
-
-        // task_tagsインデックス作成
-        let task_tags_indexes = vec![
-            "CREATE INDEX IF NOT EXISTS idx_task_tags_task_id ON task_tags(task_id);",
-            "CREATE INDEX IF NOT EXISTS idx_task_tags_tag_id ON task_tags(tag_id);",
-        ];
-
-        for sql in task_tags_indexes {
-            self.db.execute_unprepared(sql).await?;
-        }
-
-        // subtask_tagsテーブル作成
-        let subtask_tags_sql = r#"
-            CREATE TABLE IF NOT EXISTS subtask_tags (
-                subtask_id TEXT NOT NULL,
-                tag_id TEXT NOT NULL,
-                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (subtask_id, tag_id),
-                FOREIGN KEY (subtask_id) REFERENCES subtasks(id) ON DELETE CASCADE,
-                FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
-            );
-        "#;
-
-        self.db.execute_unprepared(subtask_tags_sql).await?;
-        println!("  📝 Junction table作成: subtask_tags");
-
-        // subtask_tagsインデックス作成
-        let subtask_tags_indexes = vec![
-            "CREATE INDEX IF NOT EXISTS idx_subtask_tags_subtask_id ON subtask_tags(subtask_id);",
-            "CREATE INDEX IF NOT EXISTS idx_subtask_tags_tag_id ON subtask_tags(tag_id);",
-        ];
-
-        for sql in subtask_tags_indexes {
-            self.db.execute_unprepared(sql).await?;
-        }
-
+        // この関数は不要になりました（Sea-ORMのEntityで自動生成されるため）
+        // task_tags, subtask_tagsテーブルは既にEntityで定義済み
+        println!("  ℹ️  Junction tablesはEntityから自動生成されます");
         Ok(())
     }
 
@@ -323,13 +283,20 @@ impl HybridMigrator {
         // 警告表示
         println!("⚠️  注意: 全テーブルが削除されます");
 
-        // 全テーブル削除（逆順）
+        // 全テーブル削除（逆順：依存関係を考慮）
         let drop_tables = vec![
+            "DROP TABLE IF EXISTS subtask_assignments;",
+            "DROP TABLE IF EXISTS task_assignments;",
+            "DROP TABLE IF EXISTS subtask_tags;",
+            "DROP TABLE IF EXISTS task_tags;",
             "DROP TABLE IF EXISTS subtasks;",
             "DROP TABLE IF EXISTS tasks;",
+            "DROP TABLE IF EXISTS tags;",
             "DROP TABLE IF EXISTS task_lists;",
+            "DROP TABLE IF EXISTS members;",
             "DROP TABLE IF EXISTS projects;",
             "DROP TABLE IF EXISTS accounts;",
+            "DROP TABLE IF EXISTS users;",
             "DROP TABLE IF EXISTS settings;",
             "DROP TABLE IF EXISTS migrations;",
         ];

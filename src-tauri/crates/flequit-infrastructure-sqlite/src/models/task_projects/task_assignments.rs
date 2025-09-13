@@ -1,11 +1,13 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_assignment::TaskAssignment;
-use flequit_model::types::id_types::{TaskId, UserId};
+use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::DomainToSqliteConverterWithProjectId;
+
+use super::SqliteModelConverter;
 
 /// TaskAssignment用SQLiteエンティティ定義
 ///
@@ -14,6 +16,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "task_assignments")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// タスクID
     #[sea_orm(primary_key, auto_increment = false)]
     pub task_id: String,
@@ -30,8 +36,8 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::task::Entity",
-        from = "Column::TaskId",
-        to = "super::task::Column::Id"
+        from = "(Column::ProjectId, Column::TaskId)",
+        to = "(super::task::Column::ProjectId, super::task::Column::Id)"
     )]
     Task,
     #[sea_orm(
@@ -68,11 +74,12 @@ impl SqliteModelConverter<TaskAssignment> for Model {
 }
 
 #[async_trait]
-impl DomainToSqliteConverter<ActiveModel> for TaskAssignment {
-    async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskAssignment {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
         use sea_orm::ActiveValue::Set;
         Ok(ActiveModel {
             task_id: Set(self.task_id.to_string()),
+            project_id: Set(project_id.to_string()),
             user_id: Set(self.user_id.to_string()),
             created_at: Set(self.created_at),
         })

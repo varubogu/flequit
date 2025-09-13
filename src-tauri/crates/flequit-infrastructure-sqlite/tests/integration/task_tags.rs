@@ -125,36 +125,36 @@ async fn test_task_tag_relation_operations() -> Result<(), Box<dyn std::error::E
     tag_repo.save(&project_id, &tag2).await?;
 
     // 1. タスクとタグの関連付け追加テスト
-    task_tag_repo.add_relation(&task_id, &tag1_id).await?;
-    task_tag_repo.add_relation(&task_id, &tag2_id).await?;
+    task_tag_repo.add_relation(&project_id, &task_id, &tag1_id).await?;
+    task_tag_repo.add_relation(&project_id, &task_id, &tag2_id).await?;
 
     // 2. タスクのタグ取得テスト
-    let task_tags = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
+    let task_tags = task_tag_repo.find_tag_ids_by_task_id(&project_id, &task_id).await?;
     assert_eq!(task_tags.len(), 2);
     assert!(task_tags.contains(&tag1_id));
     assert!(task_tags.contains(&tag2_id));
 
     // 3. タグからタスクを検索テスト
-    let tasks_with_tag1 = task_tag_repo.find_task_ids_by_tag_id(&tag1_id).await?;
+    let tasks_with_tag1 = task_tag_repo.find_task_ids_by_tag_id(&project_id, &tag1_id).await?;
     assert_eq!(tasks_with_tag1.len(), 1);
     assert_eq!(tasks_with_tag1[0], task_id);
 
     // 4. 重複登録防止テスト
-    task_tag_repo.add_relation(&task_id, &tag1_id).await?; // 既存の関連を再追加
-    let task_tags_after_duplicate = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
+    task_tag_repo.add_relation(&project_id, &task_id, &tag1_id).await?; // 既存の関連を再追加
+    let task_tags_after_duplicate = task_tag_repo.find_tag_ids_by_task_id(&project_id, &task_id).await?;
     assert_eq!(task_tags_after_duplicate.len(), 2); // 重複していない
 
     // 5. 個別削除テスト
-    task_tag_repo.remove_relation(&task_id, &tag1_id).await?;
-    let task_tags_after_remove = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
+    task_tag_repo.remove_relation(&project_id, &task_id, &tag1_id).await?;
+    let task_tags_after_remove = task_tag_repo.find_tag_ids_by_task_id(&project_id, &task_id).await?;
     assert_eq!(task_tags_after_remove.len(), 1);
     assert_eq!(task_tags_after_remove[0], tag2_id);
 
     // 6. 全削除テスト
     task_tag_repo
-        .remove_all_relations_by_task_id(&task_id)
+        .remove_all_relations_by_task_id(&project_id, &task_id)
         .await?;
-    let task_tags_after_clear = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
+    let task_tags_after_clear = task_tag_repo.find_tag_ids_by_task_id(&project_id, &task_id).await?;
     assert_eq!(task_tags_after_clear.len(), 0);
 
     println!("✅ TaskTagリポジトリテスト完了");
@@ -259,12 +259,12 @@ async fn test_task_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>> {
 
     // 一括更新テスト
     task_tag_repo
-        .update_task_tag_relations(db, &task_id, &tag_ids)
+        .update_task_tag_relations(db, &project_id, &task_id, &tag_ids)
         .await?;
     drop(db_manager_read); // 読み取りロックを解放
 
     // 結果確認
-    let assigned_tags = task_tag_repo.find_tag_ids_by_task_id(&task_id).await?;
+    let assigned_tags = task_tag_repo.find_tag_ids_by_task_id(&project_id, &task_id).await?;
     assert_eq!(assigned_tags.len(), 3);
     for tag_id in &tag_ids {
         assert!(assigned_tags.contains(tag_id));

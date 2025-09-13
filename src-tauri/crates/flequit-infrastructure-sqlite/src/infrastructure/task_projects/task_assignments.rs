@@ -80,6 +80,7 @@ impl TaskAssignmentLocalSqliteRepository {
     /// タスクとユーザーの割り当てを追加
     pub async fn add_assignment(
         &self,
+        project_id: &ProjectId,
         task_id: &TaskId,
         user_id: &UserId,
     ) -> Result<(), RepositoryError> {
@@ -101,6 +102,7 @@ impl TaskAssignmentLocalSqliteRepository {
             // 割り当てが存在しない場合のみ追加
             let active_model = crate::models::task_assignments::ActiveModel {
                 task_id: Set(task_id.to_string()),
+                project_id: Set(project_id.to_string()),
                 user_id: Set(user_id.to_string()),
                 created_at: Set(Utc::now()),
             };
@@ -180,6 +182,7 @@ impl TaskAssignmentLocalSqliteRepository {
     pub async fn update_task_assignments<C>(
         &self,
         db: &C,
+        project_id: &ProjectId,
         task_id: &TaskId,
         user_ids: &[UserId],
     ) -> Result<(), SQLiteError>
@@ -196,6 +199,7 @@ impl TaskAssignmentLocalSqliteRepository {
         for user_id in user_ids {
             let active_model = crate::models::task_assignments::ActiveModel {
                 task_id: Set(task_id.to_string()),
+                project_id: Set(project_id.to_string()),
                 user_id: Set(user_id.to_string()),
                 created_at: Set(Utc::now()),
             };
@@ -213,11 +217,11 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId>
 {
     async fn add(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &UserId,
     ) -> Result<(), RepositoryError> {
-        self.add_assignment(parent_id, child_id).await
+        self.add_assignment(project_id, parent_id, child_id).await
     }
 
     async fn remove(

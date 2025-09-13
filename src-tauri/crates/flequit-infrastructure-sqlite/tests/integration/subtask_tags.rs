@@ -149,8 +149,8 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
     tag_repo.save(&project_id, &tag2).await?;
 
     // 1. サブタスクとタグの関連付け追加テスト
-    subtask_tag_repo.add_relation(&subtask_id, &tag1_id).await?;
-    subtask_tag_repo.add_relation(&subtask_id, &tag2_id).await?;
+    subtask_tag_repo.add_relation(&project_id, &subtask_id, &tag1_id).await?;
+    subtask_tag_repo.add_relation(&project_id, &subtask_id, &tag2_id).await?;
 
     // 2. サブタスクのタグ取得テスト
     let subtask_tags = subtask_tag_repo
@@ -168,7 +168,7 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
     assert_eq!(subtasks_with_tag1[0], subtask_id);
 
     // 4. 重複登録防止テスト
-    subtask_tag_repo.add_relation(&subtask_id, &tag1_id).await?; // 既存の関連を再追加
+    subtask_tag_repo.add_relation(&project_id, &subtask_id, &tag1_id).await?; // 既存の関連を再追加
     let subtask_tags_after_duplicate = subtask_tag_repo
         .find_tag_ids_by_subtask_id(&subtask_id)
         .await?;
@@ -318,7 +318,7 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
 
     // 一括更新テスト
     subtask_tag_repo
-        .update_subtask_tag_relations(db, &subtask_id, &tag_ids)
+        .update_subtask_tag_relations(db, &project_id, &subtask_id, &tag_ids)
         .await?;
     drop(db_manager_read); // 読み取りロックを解放
 

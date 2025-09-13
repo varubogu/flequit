@@ -6,13 +6,15 @@ use flequit_model::{
     models::task_projects::weekday_condition::WeekdayCondition,
     types::{
         datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
-        id_types::WeekdayConditionId,
+        id_types::{ProjectId, WeekdayConditionId},
     },
 };
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::DomainToSqliteConverterWithProjectId;
+
+use super::SqliteModelConverter;
 
 /// WeekdayCondition用SQLiteエンティティ定義
 ///
@@ -21,6 +23,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "weekday_conditions")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// 条件の一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
@@ -111,8 +117,8 @@ impl SqliteModelConverter<WeekdayCondition> for Model {
 }
 
 #[async_trait]
-impl DomainToSqliteConverter<Model> for WeekdayCondition {
-    async fn to_sqlite_model(&self) -> Result<Model, String> {
+impl DomainToSqliteConverterWithProjectId<Model> for WeekdayCondition {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
         let if_weekday_str = match self.if_weekday {
             DayOfWeek::Monday => "monday",
             DayOfWeek::Tuesday => "tuesday",
@@ -154,6 +160,7 @@ impl DomainToSqliteConverter<Model> for WeekdayCondition {
 
         Ok(Model {
             id: self.id.to_string(),
+            project_id: project_id.to_string(),
             if_weekday: if_weekday_str.to_string(),
             then_direction: then_direction_str.to_string(),
             then_target: then_target_str.to_string(),

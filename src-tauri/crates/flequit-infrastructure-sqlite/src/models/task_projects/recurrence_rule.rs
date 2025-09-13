@@ -1,13 +1,16 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::types::datetime_calendar_types::RecurrenceUnit;
+use flequit_model::types::id_types::ProjectId;
 use flequit_model::{
     models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId,
 };
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
-use super::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::DomainToSqliteConverterWithProjectId;
+
+use super::SqliteModelConverter;
 
 /// RecurrenceRule用SQLiteエンティティ定義
 ///
@@ -16,6 +19,10 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "recurrence_rules")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// 繰り返しルールの一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
@@ -103,8 +110,8 @@ impl SqliteModelConverter<RecurrenceRule> for Model {
 
 /// ドメインモデルからSQLiteモデルへの変換
 #[async_trait]
-impl DomainToSqliteConverter<ActiveModel> for RecurrenceRule {
-    async fn to_sqlite_model(&self) -> Result<ActiveModel, String> {
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for RecurrenceRule {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let unit_string = match &self.unit {
             RecurrenceUnit::Minute => "minute",
@@ -124,6 +131,7 @@ impl DomainToSqliteConverter<ActiveModel> for RecurrenceRule {
 
         Ok(ActiveModel {
             id: Set(id),
+            project_id: Set(project_id.to_string()),
             unit: Set(unit_string),
             interval: Set(self.interval),
             end_date: Set(self.end_date),

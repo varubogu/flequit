@@ -3,7 +3,7 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::date_condition::{Column, Entity as DateConditionEntity};
-use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::date_condition::DateCondition;
 use flequit_model::types::id_types::{DateConditionId, ProjectId};
@@ -29,7 +29,7 @@ impl DateConditionLocalSqliteRepository {
 impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSqliteRepository {
     async fn save(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         entity: &DateCondition,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -39,12 +39,13 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
             .map_err(|e| RepositoryError::from(e))?;
 
         let sqlite_model = entity
-            .to_sqlite_model()
+            .to_sqlite_model_with_project_id(&project_id)
             .await
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         let active_model = crate::models::task_projects::date_condition::ActiveModel {
             id: Set(sqlite_model.id.clone()),
+            project_id: Set(sqlite_model.project_id.to_string()),
             relation: Set(sqlite_model.relation.clone()),
             reference_date: Set(sqlite_model.reference_date),
             created_at: Set(sqlite_model.created_at),

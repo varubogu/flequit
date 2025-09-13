@@ -7,6 +7,8 @@ use flequit_model::{
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
+use crate::models::DomainToSqliteConverterWithProjectId;
+
 use super::{DomainToSqliteConverter, SqliteModelConverter};
 
 /// TaskList用SQLiteエンティティ定義
@@ -16,13 +18,13 @@ use super::{DomainToSqliteConverter, SqliteModelConverter};
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "task_lists")]
 pub struct Model {
+    /// プロジェクトID（SQLite統合テーブル用）
+    #[sea_orm(primary_key, auto_increment = false)]
+    pub project_id: String,
+
     /// タスクリストの一意識別子
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-
-    /// 所属プロジェクトID
-    #[sea_orm(indexed)] // プロジェクト別検索用
-    pub project_id: String,
 
     /// タスクリスト名
     pub name: String,
@@ -99,6 +101,24 @@ impl DomainToSqliteConverter<ActiveModel> for TaskList {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
             project_id: Set(self.project_id.to_string()),
+            name: Set(self.name.clone()),
+            description: Set(self.description.clone()),
+            color: Set(self.color.clone()),
+            order_index: Set(self.order_index),
+            is_archived: Set(self.is_archived),
+            created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+        })
+    }
+}
+
+/// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
+#[async_trait]
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskList {
+    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+        Ok(ActiveModel {
+            id: Set(self.id.to_string()),
+            project_id: Set(project_id.to_string()),
             name: Set(self.name.clone()),
             description: Set(self.description.clone()),
             color: Set(self.color.clone()),

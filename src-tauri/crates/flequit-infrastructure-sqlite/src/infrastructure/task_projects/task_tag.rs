@@ -30,6 +30,7 @@ impl TaskTagLocalSqliteRepository {
     /// 指定タスクのタグIDリストを取得
     pub async fn find_tag_ids_by_task_id(
         &self,
+        project_id: &ProjectId,
         task_id: &TaskId,
     ) -> Result<Vec<TagId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -39,6 +40,7 @@ impl TaskTagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(task_id.to_string()))
             .all(db)
             .await
@@ -55,6 +57,7 @@ impl TaskTagLocalSqliteRepository {
     /// 指定タグに関連するタスクIDリストを取得
     pub async fn find_task_ids_by_tag_id(
         &self,
+        project_id: &ProjectId,
         tag_id: &TagId,
     ) -> Result<Vec<TaskId>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -64,6 +67,7 @@ impl TaskTagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TagId.eq(tag_id.to_string()))
             .all(db)
             .await
@@ -80,6 +84,7 @@ impl TaskTagLocalSqliteRepository {
     /// タスクとタグの関連付けを追加
     pub async fn add_relation(
         &self,
+        project_id: &ProjectId,
         task_id: &TaskId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
@@ -101,6 +106,7 @@ impl TaskTagLocalSqliteRepository {
             // 関連が存在しない場合のみ追加
             let active_model = crate::models::task_tag::ActiveModel {
                 task_id: Set(task_id.to_string()),
+                project_id: Set(project_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
             };
@@ -117,6 +123,7 @@ impl TaskTagLocalSqliteRepository {
     /// タスクとタグの関連付けを削除
     pub async fn remove_relation(
         &self,
+        project_id: &ProjectId,
         task_id: &TaskId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
@@ -127,6 +134,7 @@ impl TaskTagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         TaskTagEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(task_id.to_string()))
             .filter(Column::TagId.eq(tag_id.to_string()))
             .exec(db)
@@ -139,6 +147,7 @@ impl TaskTagLocalSqliteRepository {
     /// 指定タスクの全ての関連付けを削除
     pub async fn remove_all_relations_by_task_id(
         &self,
+        project_id: &ProjectId,
         task_id: &TaskId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -148,6 +157,7 @@ impl TaskTagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         TaskTagEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(task_id.to_string()))
             .exec(db)
             .await
@@ -159,6 +169,7 @@ impl TaskTagLocalSqliteRepository {
     /// 指定タグの全ての関連付けを削除
     pub async fn remove_all_relations_by_tag_id(
         &self,
+        project_id: &ProjectId,
         tag_id: &TagId,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -168,6 +179,7 @@ impl TaskTagLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(e))?;
 
         TaskTagEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TagId.eq(tag_id.to_string()))
             .exec(db)
             .await
@@ -180,6 +192,7 @@ impl TaskTagLocalSqliteRepository {
     pub async fn update_task_tag_relations<C>(
         &self,
         db: &C,
+        project_id: &ProjectId,
         task_id: &TaskId,
         tag_ids: &[TagId],
     ) -> Result<(), SQLiteError>
@@ -196,6 +209,7 @@ impl TaskTagLocalSqliteRepository {
         for tag_id in tag_ids {
             let active_model = crate::models::task_tag::ActiveModel {
                 task_id: Set(task_id.to_string()),
+                project_id: Set(project_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
             };
@@ -211,33 +225,33 @@ impl TaskTagLocalSqliteRepository {
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRepository {
     async fn add(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &TagId,
     ) -> Result<(), RepositoryError> {
-        self.add_relation(parent_id, child_id).await
+        self.add_relation(project_id, parent_id, child_id).await
     }
 
     async fn remove(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &TagId,
     ) -> Result<(), RepositoryError> {
-        self.remove_relation(parent_id, child_id).await
+        self.remove_relation(project_id, parent_id, child_id).await
     }
 
     async fn remove_all(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_relations_by_task_id(parent_id).await
+        self.remove_all_relations_by_task_id(project_id, parent_id).await
     }
 
     async fn find_relations(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
     ) -> Result<Vec<TaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -247,6 +261,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(parent_id.to_string()))
             .all(db)
             .await
@@ -266,7 +281,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
 
     async fn exists(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
     ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -276,6 +291,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             .map_err(|e| RepositoryError::from(e))?;
 
         let count = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(parent_id.to_string()))
             .count(db)
             .await
@@ -286,7 +302,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
 
     async fn count(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
     ) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -296,6 +312,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             .map_err(|e| RepositoryError::from(e))?;
 
         let count = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(parent_id.to_string()))
             .count(db)
             .await
@@ -304,7 +321,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         Ok(count)
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -312,6 +329,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .all(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
@@ -330,7 +348,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
 
     async fn find_relation(
         &self,
-        _project_id: &ProjectId,
+        project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &TagId,
     ) -> Result<Option<TaskTag>, RepositoryError> {
@@ -341,6 +359,7 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
             .map_err(|e| RepositoryError::from(e))?;
 
         let model = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(parent_id.to_string()))
             .filter(Column::TagId.eq(child_id.to_string()))
             .one(db)
