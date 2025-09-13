@@ -15,10 +15,11 @@
   interface Props {
     project: ProjectTree;
     isExpanded: boolean;
+    currentView?: ViewType;
     onViewChange?: (view: ViewType) => void;
   }
 
-  let { project, isExpanded, onViewChange }: Props = $props();
+  let { project, isExpanded, currentView = 'all', onViewChange }: Props = $props();
 
   const translationService = getTranslationService();
   const editTaskList = translationService.getMessage('edit_task_list');
@@ -156,9 +157,14 @@
     {#each project.task_lists as list (list.id)}
       <ContextMenuWrapper items={createTaskListContextMenu(list)}>
         <Button
-          variant={taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
+          variant={currentView === 'tasklist' &&
+            taskStore.selectedListId === list.id ? 'secondary' : 'ghost'}
           size="sm"
-          class="flex h-auto w-full items-center justify-between p-2 text-xs transition-all duration-100 active:scale-100 active:brightness-[0.4]"
+          class={`${
+            currentView === 'tasklist' && taskStore.selectedListId === list.id
+              ? 'bg-primary/20 border-2 border-primary shadow-md shadow-primary/40 text-foreground'
+              : ''
+          } flex h-auto w-full items-center justify-between p-2 text-xs transition-all duration-100 active:scale-100 active:brightness-[0.4]`}
           onclick={() => handleTaskListSelect(list)}
           data-testid="tasklist-{list.id}"
           draggable="true"

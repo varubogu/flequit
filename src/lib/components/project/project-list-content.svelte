@@ -45,12 +45,23 @@
         <ContextMenuWrapper items={logic.createProjectContextMenu(project)}>
           <Button
             variant={(currentView === 'project' || currentView === 'tasklist') &&
-            taskStore.selectedProjectId === project.id
+            (taskStore.selectedProjectId === project.id ||
+              (currentView === 'tasklist' && taskStore.selectedListId && 
+               project.task_lists.some(list => list.id === taskStore.selectedListId)))
               ? 'secondary'
               : 'ghost'}
-            class={isCollapsed
-              ? 'flex h-auto w-full items-center justify-center py-2 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'
-              : 'flex h-auto w-full items-center justify-between py-3 pr-3 pl-1 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'}
+            class={`${
+              (currentView === 'project' || currentView === 'tasklist') &&
+              (taskStore.selectedProjectId === project.id ||
+                (currentView === 'tasklist' && taskStore.selectedListId && 
+                 project.task_lists.some(list => list.id === taskStore.selectedListId)))
+                ? 'bg-primary/20 border-2 border-primary shadow-md shadow-primary/40 text-foreground'
+                : ''
+            } ${
+              isCollapsed
+                ? 'flex h-auto w-full items-center justify-center py-2 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'
+                : 'flex h-auto w-full items-center justify-between py-3 pr-3 pl-1 text-sm transition-all duration-100 active:scale-100 active:brightness-[0.4]'
+            }`}
             onclick={() => logic.handleProjectSelect(project)}
             data-testid="project-{project.id}"
             draggable="true"
@@ -88,6 +99,7 @@
       <TaskListDisplay
         {project}
         isExpanded={logic.expandedProjects?.has(project.id) ?? false}
+        {currentView}
         {onViewChange}
       />
     {/if}

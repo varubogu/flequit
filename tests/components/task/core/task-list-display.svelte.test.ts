@@ -23,6 +23,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     selectedListId: null,
     selectList: vi.fn(),
+    selectProject: vi.fn(),
     addTaskList: vi.fn(),
     updateTaskList: vi.fn(),
     deleteTaskList: vi.fn(),
@@ -111,6 +112,7 @@ describe('TaskListDisplay', () => {
   const defaultProps = {
     project: mockProject,
     isExpanded: true,
+    currentView: 'tasklist' as const,
     onViewChange: vi.fn() as unknown as (view: string) => void
   };
 
