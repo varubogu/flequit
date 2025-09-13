@@ -35,7 +35,7 @@ describe('TagTauriService', () => {
     it('should successfully create a tag', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create(mockTag);
+      const result = await service.create('test-project-id', mockTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { tag: mockTag });
       expect(result).toBe(true);
@@ -45,7 +45,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create(mockTag);
+      const result = await service.create('test-project-id', mockTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { tag: mockTag });
       expect(result).toBe(false);
@@ -64,7 +64,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.create(minimalTag);
+      const result = await service.create('test-project-id', minimalTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { tag: minimalTag });
       expect(result).toBe(true);
@@ -82,7 +82,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.create(fullTag);
+      const result = await service.create('test-project-id', fullTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { tag: fullTag });
       expect(result).toBe(true);
@@ -93,7 +93,7 @@ describe('TagTauriService', () => {
     it('should successfully update a tag', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockTag.id, mockTag);
+      const result = await service.update('test-project-id', mockTag.id, mockTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: mockTag.id, patch: mockTag });
       expect(result).toBe(true);
@@ -103,7 +103,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockTag.id, mockTag);
+      const result = await service.update('test-project-id', mockTag.id, mockTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: mockTag.id, patch: mockTag });
       expect(result).toBe(false);
@@ -121,7 +121,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(updatedTag.id, updatedTag);
+      const result = await service.update('test-project-id', updatedTag.id, updatedTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: updatedTag.id, patch: updatedTag });
       expect(result).toBe(true);
@@ -136,7 +136,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.update(renamedTag.id, renamedTag);
+      const result = await service.update('test-project-id', renamedTag.id, renamedTag);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { id: renamedTag.id, patch: renamedTag });
       expect(result).toBe(true);
@@ -147,7 +147,7 @@ describe('TagTauriService', () => {
     it('should successfully delete a tag', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('tag-123');
+      const result = await service.delete('test-project-id', 'tag-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { id: 'tag-123' });
       expect(result).toBe(true);
@@ -157,7 +157,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('tag-123');
+      const result = await service.delete('test-project-id', 'tag-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { id: 'tag-123' });
       expect(result).toBe(false);
@@ -171,7 +171,7 @@ describe('TagTauriService', () => {
     it('should successfully retrieve a tag', async () => {
       mockInvoke.mockResolvedValue(mockTag);
 
-      const result = await service.get('tag-123');
+      const result = await service.get('test-project-id', 'tag-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { id: 'tag-123' });
       expect(result).toEqual(mockTag);
@@ -180,7 +180,7 @@ describe('TagTauriService', () => {
     it('should return null when tag not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('non-existent');
+      const result = await service.get('test-project-id', 'non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { id: 'non-existent' });
       expect(result).toBeNull();
@@ -190,7 +190,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('tag-123');
+      const result = await service.get('test-project-id', 'tag-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { id: 'tag-123' });
       expect(result).toBeNull();
@@ -205,7 +205,7 @@ describe('TagTauriService', () => {
       const mockTags = [mockTag];
       mockInvoke.mockResolvedValue(mockTags);
 
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: mockSearchCondition });
       expect(result).toEqual(mockTags);
@@ -214,7 +214,7 @@ describe('TagTauriService', () => {
     it('should return empty array when no tags found', async () => {
       mockInvoke.mockResolvedValue([]);
 
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: mockSearchCondition });
       expect(result).toEqual([]);
@@ -224,7 +224,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Search failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: mockSearchCondition });
       expect(result).toEqual([]);
@@ -238,7 +238,7 @@ describe('TagTauriService', () => {
       const mockTags = [mockTag];
       mockInvoke.mockResolvedValue(mockTags);
 
-      const result = await service.search(partialNameCondition);
+      const result = await service.search('test-project-id', partialNameCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: partialNameCondition });
       expect(result).toEqual(mockTags);
@@ -259,7 +259,7 @@ describe('TagTauriService', () => {
       ];
       mockInvoke.mockResolvedValue(allTags);
 
-      const result = await service.search(emptyCondition);
+      const result = await service.search('test-project-id', emptyCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: emptyCondition });
       expect(result).toEqual(allTags);
@@ -269,7 +269,7 @@ describe('TagTauriService', () => {
       const caseSensitiveCondition = { name: 'URGENT' };
       mockInvoke.mockResolvedValue([]);
 
-      const result = await service.search(caseSensitiveCondition);
+      const result = await service.search('test-project-id', caseSensitiveCondition);
 
       expect(mockInvoke).toHaveBeenCalledWith('search_tags', { condition: caseSensitiveCondition });
       expect(result).toEqual([]);
@@ -288,7 +288,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.create(specialCharTag);
+      const result = await service.create('test-project-id', specialCharTag);
 
       expect(result).toBe(true);
     });
@@ -317,7 +317,7 @@ describe('TagTauriService', () => {
           updated_at: new Date()
         };
 
-        const result = await service.create(colorTag);
+        const result = await service.create('test-project-id', colorTag);
         expect(result).toBe(true);
       }
     });
@@ -332,7 +332,7 @@ describe('TagTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.create(noColorTag);
+      const result = await service.create('test-project-id', noColorTag);
 
       expect(result).toBe(true);
     });
@@ -351,7 +351,7 @@ describe('TagTauriService', () => {
           updated_at: new Date()
         };
 
-        const result = await service.create(orderTag);
+        const result = await service.create('test-project-id', orderTag);
         expect(result).toBe(true);
       }
     });

@@ -77,3 +77,38 @@ export interface AccountInterface<T, TPatch = Partial<T>> {
    */
   delete(id: string): Promise<boolean>;
 }
+
+/**
+ * プロジェクト固有のCRUD操作インターフェース
+ */
+export interface ProjectCrudInterface<T, TPatch = Partial<T>> {
+  /**
+   * 新規作成
+   */
+  create(projectId: string, item: T): Promise<boolean>;
+
+  /**
+   * 部分更新
+   */
+  update(projectId: string, id: string, patch: TPatch): Promise<boolean>;
+
+  /**
+   * 削除
+   */
+  delete(projectId: string, id: string): Promise<boolean>;
+
+  /**
+   * 1件取得
+   */
+  get(projectId: string, id: string): Promise<T | null>;
+}
+
+/**
+ * プロジェクト固有の検索操作インターフェース
+ */
+export interface ProjectSearchInterface<T, TSearchCondition> {
+  /**
+   * 検索（複数件）
+   */
+  search(projectId: string, condition: TSearchCondition): Promise<T[]>;
+}

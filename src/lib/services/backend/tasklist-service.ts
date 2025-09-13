@@ -1,9 +1,9 @@
 import type { TaskListSearchCondition, TaskList, TaskListPatch } from '$lib/types/task-list';
-import type { CrudInterface, SearchInterface } from '$lib/types/crud-interface';
+import type { ProjectCrudInterface, ProjectSearchInterface } from '$lib/types/crud-interface';
 
 /**
  * タスクリスト管理用のバックエンドサービスインターフェース
  */
 export interface TaskListService
-  extends CrudInterface<TaskList, TaskListPatch>,
-    SearchInterface<TaskList, TaskListSearchCondition> {}
+  extends ProjectCrudInterface<TaskList, TaskListPatch>,
+    ProjectSearchInterface<TaskList, TaskListSearchCondition> {}

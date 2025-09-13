@@ -54,7 +54,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully create a subtask', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create(mockSubTask);
+      const result = await service.create('test-project-id', mockSubTask);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
         project_id: 'test-project-id', 
@@ -67,7 +67,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create(mockSubTask);
+      const result = await service.create('test-project-id', mockSubTask);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
         project_id: 'test-project-id', 
@@ -96,7 +96,7 @@ describe('SubtaskTauriService', () => {
         updated_at: new Date()
       };
 
-      const result = await service.create(minimalSubTask);
+      const result = await service.create('test-project-id', minimalSubTask);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
         project_id: 'test-project-id', 
@@ -119,7 +119,7 @@ describe('SubtaskTauriService', () => {
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };
-      const result = await service.update(mockSubTask.id, patchData);
+      const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
         project_id: 'test-project-id', 
@@ -142,7 +142,7 @@ describe('SubtaskTauriService', () => {
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };
-      const result = await service.update(mockSubTask.id, patchData);
+      const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
         project_id: 'test-project-id', 
@@ -174,7 +174,7 @@ describe('SubtaskTauriService', () => {
         updated_at: updatedSubTask.updated_at.toISOString()
       };
 
-      const result = await service.update(updatedSubTask.id, patchData);
+      const result = await service.update('test-project-id', updatedSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
         project_id: 'test-project-id', 
@@ -189,7 +189,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully delete a subtask', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('subtask-123');
+      const result = await service.delete('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', { 
         project_id: 'test-project-id', 
@@ -202,7 +202,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('subtask-123');
+      const result = await service.delete('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', { 
         project_id: 'test-project-id', 
@@ -219,7 +219,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully retrieve a subtask', async () => {
       mockInvoke.mockResolvedValue(mockSubTask);
 
-      const result = await service.get('subtask-123');
+      const result = await service.get('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
         project_id: 'test-project-id', 
@@ -231,7 +231,7 @@ describe('SubtaskTauriService', () => {
     it('should return null when subtask not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('non-existent');
+      const result = await service.get('test-project-id', 'non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
         project_id: 'test-project-id', 
@@ -244,7 +244,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('subtask-123');
+      const result = await service.get('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
         project_id: 'test-project-id', 
@@ -259,7 +259,7 @@ describe('SubtaskTauriService', () => {
 
   describe('search', () => {
     it('should return empty array as search is not implemented', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -267,7 +267,7 @@ describe('SubtaskTauriService', () => {
     });
 
     it('should return empty array when no subtasks found', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -275,7 +275,7 @@ describe('SubtaskTauriService', () => {
     });
 
     it('should return empty array when search fails', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -285,7 +285,7 @@ describe('SubtaskTauriService', () => {
     it('should handle search by parent task ID only', async () => {
       const taskOnlyCondition = { task_id: 'task-456' };
 
-      const result = await service.search(taskOnlyCondition);
+      const result = await service.search('test-project-id', taskOnlyCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -295,7 +295,7 @@ describe('SubtaskTauriService', () => {
     it('should handle search by status only', async () => {
       const statusOnlyCondition = { status: 'completed' as const };
 
-      const result = await service.search(statusOnlyCondition);
+      const result = await service.search('test-project-id', statusOnlyCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -310,7 +310,7 @@ describe('SubtaskTauriService', () => {
         title: 'Important'
       };
 
-      const result = await service.search(multiCriteriaCondition);
+      const result = await service.search('test-project-id', multiCriteriaCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -320,7 +320,7 @@ describe('SubtaskTauriService', () => {
     it('should handle empty search condition', async () => {
       const emptyCondition = {};
 
-      const result = await service.search(emptyCondition);
+      const result = await service.search('test-project-id', emptyCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
@@ -352,7 +352,7 @@ describe('SubtaskTauriService', () => {
         ]
       };
 
-      const result = await service.create(subTaskWithTags);
+      const result = await service.create('test-project-id', subTaskWithTags);
 
       expect(result).toBe(true);
     });
@@ -369,7 +369,7 @@ describe('SubtaskTauriService', () => {
         }
       };
 
-      const result = await service.create(subTaskWithRecurrence);
+      const result = await service.create('test-project-id', subTaskWithRecurrence);
 
       expect(result).toBe(true);
     });
@@ -377,7 +377,7 @@ describe('SubtaskTauriService', () => {
     it('should handle different priority values', async () => {
       const priorityCondition = { priority: 0 };
 
-      const result = await service.search(priorityCondition);
+      const result = await service.search('test-project-id', priorityCondition);
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();

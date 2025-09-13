@@ -42,7 +42,7 @@ describe('TaskWebService', () => {
 
   describe('create', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.create(mockTask);
+      const result = await service.create('test-project-id', mockTask);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTask not implemented', mockTask);
@@ -57,7 +57,7 @@ describe('TaskWebService', () => {
         status: mockTask.status,
         priority: mockTask.priority
       };
-      const result = await service.update(mockTask.id, patchData);
+      const result = await service.update('test-project-id', mockTask.id, patchData);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', mockTask.id, patchData);
@@ -66,7 +66,7 @@ describe('TaskWebService', () => {
 
   describe('delete', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.delete('task-123');
+      const result = await service.delete('test-project-id', 'task-123');
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -78,7 +78,7 @@ describe('TaskWebService', () => {
 
   describe('get', () => {
     it('should return null and log warning for stub implementation', async () => {
-      const result = await service.get('task-123');
+      const result = await service.get('test-project-id', 'task-123');
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -90,7 +90,7 @@ describe('TaskWebService', () => {
 
   describe('search', () => {
     it('should return empty array and log warning for stub implementation', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -118,11 +118,11 @@ describe('TaskWebService', () => {
       };
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
-          service.create(mockTask),
-          service.update(mockTask.id, patchData),
-          service.delete('task-123'),
-          service.get('task-123'),
-          service.search(mockSearchCondition)
+          service.create('test-project-id', mockTask),
+          service.update('test-project-id', mockTask.id, patchData),
+          service.delete('test-project-id', 'task-123'),
+          service.get('test-project-id', 'task-123'),
+          service.search('test-project-id', mockSearchCondition)
         ]
       );
 
@@ -143,11 +143,11 @@ describe('TaskWebService', () => {
         priority: mockTask.priority
       };
       const operations = await Promise.all([
-        service.create(mockTask),
-        service.get('task-123'),
-        service.update(mockTask.id, patchData),
-        service.delete('task-123'),
-        service.search(mockSearchCondition)
+        service.create('test-project-id', mockTask),
+        service.get('test-project-id', 'task-123'),
+        service.update('test-project-id', mockTask.id, patchData),
+        service.delete('test-project-id', 'task-123'),
+        service.search('test-project-id', mockSearchCondition)
       ]);
 
       expect(operations).toEqual([true, null, true, true, []]);

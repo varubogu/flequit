@@ -3,7 +3,7 @@ import type { TaggingService } from '$lib/services/backend/tagging-service';
 
 export class TaggingTauriService implements TaggingService {
   // Task Tag operations
-  async createTaskTag(taskId: string, tagId: string): Promise<boolean> {
+  async createTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean> {
     try {
       const taskTag = { task_id: taskId, tag_id: tagId };
       await invoke('create_task_tag', { taskTag });
@@ -14,7 +14,7 @@ export class TaggingTauriService implements TaggingService {
     }
   }
 
-  async deleteTaskTag(taskId: string, tagId: string): Promise<boolean> {
+  async deleteTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean> {
     try {
       await invoke('delete_task_tag', { task_id: taskId, tag_id: tagId });
       return true;
@@ -25,7 +25,7 @@ export class TaggingTauriService implements TaggingService {
   }
 
   // Subtask Tag operations
-  async createSubtaskTag(subtaskId: string, tagId: string): Promise<boolean> {
+  async createSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean> {
     try {
       const subtaskTag = { subtask_id: subtaskId, tag_id: tagId };
       await invoke('create_subtask_tag', { subtaskTag });
@@ -36,7 +36,7 @@ export class TaggingTauriService implements TaggingService {
     }
   }
 
-  async deleteSubtaskTag(subtaskId: string, tagId: string): Promise<boolean> {
+  async deleteSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean> {
     try {
       await invoke('delete_subtask_tag', { subtask_id: subtaskId, tag_id: tagId });
       return true;

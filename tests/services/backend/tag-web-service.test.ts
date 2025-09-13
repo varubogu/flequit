@@ -34,7 +34,7 @@ describe('TagWebService', () => {
 
   describe('create', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.create(mockTag);
+      const result = await service.create('test-project-id', mockTag);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTag not implemented', mockTag);
@@ -43,7 +43,7 @@ describe('TagWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockTag.id, mockTag);
+      const result = await service.update('test-project-id', mockTag.id, mockTag);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTag not implemented', mockTag.id, mockTag);
@@ -52,7 +52,7 @@ describe('TagWebService', () => {
 
   describe('delete', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.delete('tag-123');
+      const result = await service.delete('test-project-id', 'tag-123');
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTag not implemented', 'tag-123');
@@ -61,7 +61,7 @@ describe('TagWebService', () => {
 
   describe('get', () => {
     it('should return null and log warning for stub implementation', async () => {
-      const result = await service.get('tag-123');
+      const result = await service.get('test-project-id', 'tag-123');
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTag not implemented', 'tag-123');
@@ -70,7 +70,7 @@ describe('TagWebService', () => {
 
   describe('search', () => {
     it('should return empty array and log warning for stub implementation', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -92,11 +92,11 @@ describe('TagWebService', () => {
     it('should return proper Promise types', async () => {
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
-          service.create(mockTag),
-          service.update(mockTag.id, mockTag),
-          service.delete('tag-123'),
-          service.get('tag-123'),
-          service.search(mockSearchCondition)
+          service.create('test-project-id', mockTag),
+          service.update('test-project-id', mockTag.id, mockTag),
+          service.delete('test-project-id', 'tag-123'),
+          service.get('test-project-id', 'tag-123'),
+          service.search('test-project-id', mockSearchCondition)
         ]
       );
 
@@ -111,11 +111,11 @@ describe('TagWebService', () => {
   describe('concurrent operations', () => {
     it('should handle concurrent operations without side effects', async () => {
       const operations = await Promise.all([
-        service.create(mockTag),
-        service.get('tag-123'),
-        service.update(mockTag.id, mockTag),
-        service.delete('tag-123'),
-        service.search(mockSearchCondition)
+        service.create('test-project-id', mockTag),
+        service.get('test-project-id', 'tag-123'),
+        service.update('test-project-id', mockTag.id, mockTag),
+        service.delete('test-project-id', 'tag-123'),
+        service.search('test-project-id', mockSearchCondition)
       ]);
 
       expect(operations).toEqual([true, null, true, true, []]);

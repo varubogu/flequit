@@ -21,14 +21,19 @@ import '@testing-library/jest-dom';
 
 // Mock Svelte 5 reactivity classes
 (global as any).SvelteDate = class extends Date {
-  constructor(...args: any[]) {
+  constructor(...args: ConstructorParameters<typeof Date>) {
     super(...args);
   }
 };
 
 (global as any).SvelteMap = class extends Map {
-  constructor(entries?: readonly (readonly [unknown, unknown])[] | null) {
-    super(entries);
+  constructor(entries?: Iterable<readonly [unknown, unknown]> | null) {
+    super();
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
+    }
   }
 };
 

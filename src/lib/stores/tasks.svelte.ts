@@ -482,7 +482,7 @@ export class TaskStore {
             // 即時保存：新しいtagging serviceを使用
             try {
               const backend = await getBackendService();
-              await backend.tagging.createTaskTag(taskId, tag.id);
+              await backend.tagging.createTaskTag(project.id, taskId, tag.id);
             } catch (error) {
               console.error('Failed to sync tag addition to backend:', error);
               errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
@@ -507,7 +507,7 @@ export class TaskStore {
             // 即時保存：新しいtagging serviceを使用
             try {
               const backend = await getBackendService();
-              await backend.tagging.deleteTaskTag(taskId, tagId);
+              await backend.tagging.deleteTaskTag(project.id, taskId, tagId);
             } catch (error) {
               console.error('Failed to sync tag removal to backend:', error);
               errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
@@ -557,7 +557,7 @@ export class TaskStore {
               // 即時保存：新しいtagging serviceを使用
               try {
                 const backend = await getBackendService();
-                await backend.tagging.createSubtaskTag(subTaskId, tag.id);
+                await backend.tagging.createSubtaskTag(project.id, subTaskId, tag.id);
               } catch (error) {
                 console.error('Failed to sync subtask tag addition to backend:', error);
                 errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
@@ -584,7 +584,7 @@ export class TaskStore {
               // 即時保存：新しいtagging serviceを使用
               try {
                 const backend = await getBackendService();
-                await backend.tagging.deleteSubtaskTag(subTaskId, tagId);
+                await backend.tagging.deleteSubtaskTag(project.id, subTaskId, tagId);
               } catch (error) {
                 console.error('Failed to sync subtask tag removal to backend:', error);
                 errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);

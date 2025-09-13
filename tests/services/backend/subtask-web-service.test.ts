@@ -41,7 +41,7 @@ describe('SubtaskWebService', () => {
 
   describe('create', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.create(mockSubTask);
+      const result = await service.create('test-project-id', mockSubTask);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -62,7 +62,7 @@ describe('SubtaskWebService', () => {
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
       };
-      const result = await service.update(mockSubTask.id, patchData);
+      const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -75,7 +75,7 @@ describe('SubtaskWebService', () => {
 
   describe('delete', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.delete('subtask-123');
+      const result = await service.delete('test-project-id', 'subtask-123');
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('SubtaskWebService', () => {
 
   describe('get', () => {
     it('should return null and log warning for stub implementation', async () => {
-      const result = await service.get('subtask-123');
+      const result = await service.get('test-project-id', 'subtask-123');
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -99,7 +99,7 @@ describe('SubtaskWebService', () => {
 
   describe('search', () => {
     it('should return empty array and log warning for stub implementation', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -130,11 +130,11 @@ describe('SubtaskWebService', () => {
       };
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
-          service.create(mockSubTask),
-          service.update(mockSubTask.id, patchData),
-          service.delete('subtask-123'),
-          service.get('subtask-123'),
-          service.search(mockSearchCondition)
+          service.create('test-project-id', mockSubTask),
+          service.update('test-project-id', mockSubTask.id, patchData),
+          service.delete('test-project-id', 'subtask-123'),
+          service.get('test-project-id', 'subtask-123'),
+          service.search('test-project-id', mockSearchCondition)
         ]
       );
 
@@ -158,11 +158,11 @@ describe('SubtaskWebService', () => {
         updated_at: mockSubTask.updated_at.toISOString()
       };
       const operations = await Promise.all([
-        service.create(mockSubTask),
-        service.get('subtask-123'),
-        service.update(mockSubTask.id, patchData),
-        service.delete('subtask-123'),
-        service.search(mockSearchCondition)
+        service.create('test-project-id', mockSubTask),
+        service.get('test-project-id', 'subtask-123'),
+        service.update('test-project-id', mockSubTask.id, patchData),
+        service.delete('test-project-id', 'subtask-123'),
+        service.search('test-project-id', mockSearchCondition)
       ]);
 
       expect(operations).toEqual([true, null, true, true, []]);

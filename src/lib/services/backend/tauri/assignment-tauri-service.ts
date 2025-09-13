@@ -3,7 +3,7 @@ import type { AssignmentService } from '$lib/services/backend/assignment-service
 
 export class AssignmentTauriService implements AssignmentService {
   // Task Assignment operations
-  async createTaskAssignment(taskId: string, userId: string): Promise<boolean> {
+  async createTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean> {
     try {
       const taskAssignment = { task_id: taskId, user_id: userId };
       await invoke('create_task_assignment', { taskAssignment });
@@ -14,7 +14,7 @@ export class AssignmentTauriService implements AssignmentService {
     }
   }
 
-  async deleteTaskAssignment(taskId: string, userId: string): Promise<boolean> {
+  async deleteTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean> {
     try {
       await invoke('delete_task_assignment', { task_id: taskId, user_id: userId });
       return true;
@@ -25,7 +25,7 @@ export class AssignmentTauriService implements AssignmentService {
   }
 
   // Subtask Assignment operations
-  async createSubtaskAssignment(subtaskId: string, userId: string): Promise<boolean> {
+  async createSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
     try {
       const subtaskAssignment = { subtask_id: subtaskId, user_id: userId };
       await invoke('create_subtask_assignment', { subtaskAssignment });
@@ -36,7 +36,7 @@ export class AssignmentTauriService implements AssignmentService {
     }
   }
 
-  async deleteSubtaskAssignment(subtaskId: string, userId: string): Promise<boolean> {
+  async deleteSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
     try {
       await invoke('delete_subtask_assignment', { subtask_id: subtaskId, user_id: userId });
       return true;

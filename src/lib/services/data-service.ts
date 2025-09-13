@@ -7,6 +7,7 @@ import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
+import { ProjectsService } from '$lib/services/projects-service';
 
 /**
  * データ管理の中間サービス層
@@ -20,6 +21,18 @@ export class DataService {
       this.backend = await getBackendService();
     }
     return this.backend;
+  }
+
+  /**
+   * 現在選択中のプロジェクトIDを取得します
+   * プロジェクト固有の操作に必要なprojectIdを提供します
+   */
+  private getProjectId(): string {
+    const projectId = ProjectsService.getSelectedProjectId();
+    if (!projectId) {
+      throw new Error('プロジェクトが選択されていません。先にプロジェクトを選択してください。');
+    }
+    return projectId;
   }
 
   // プロジェクトデータの読み込み
@@ -110,7 +123,7 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    await backend.tasklist.create(newTaskList);
+    await backend.tasklist.create(projectId, newTaskList);
     return newTaskList;
   }
 
@@ -133,18 +146,20 @@ export class DataService {
       updated_at: new Date()
     };
 
-    const success = await backend.tasklist.update(taskListId, patchData);
+    const projectId = this.getProjectId();
+    const success = await backend.tasklist.update(projectId, taskListId, patchData);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.tasklist.get(taskListId);
+      return await backend.tasklist.get(projectId, taskListId);
     }
     return null;
   }
 
   async deleteTaskList(taskListId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.tasklist.delete(taskListId);
+    const projectId = this.getProjectId();
+    return await backend.tasklist.delete(projectId, taskListId);
   }
 
   // タスク管理
@@ -160,7 +175,8 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    await backend.task.create(newTask);
+    const projectId = this.getProjectId();
+    await backend.task.create(projectId, newTask);
     return newTask;
   }
 
@@ -180,19 +196,21 @@ export class DataService {
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
     console.log('DataService: calling backend.task.update');
-    const success = await backend.task.update(taskId, patchData);
+    const projectId = this.getProjectId();
+    const success = await backend.task.update(projectId, taskId, patchData);
     console.log('DataService: backend.task.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.task.get(taskId);
+      return await backend.task.get(projectId, taskId);
     }
     return null;
   }
 
   async deleteTask(taskId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.task.delete(taskId);
+    const projectId = this.getProjectId();
+    return await backend.task.delete(projectId, taskId);
   }
 
   // サブタスク管理
@@ -226,7 +244,8 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    await backend.subtask.create(newSubTask);
+    const projectId = this.getProjectId();
+    await backend.subtask.create(projectId, newSubTask);
     return newSubTask;
   }
 
@@ -243,19 +262,21 @@ export class DataService {
     } as SubTaskPatch;
 
     console.log('DataService: calling backend.subtask.update');
-    const success = await backend.subtask.update(subTaskId, patchData);
+    const projectId = this.getProjectId();
+    const success = await backend.subtask.update(projectId, subTaskId, patchData);
     console.log('DataService: backend.subtask.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.subtask.get(subTaskId);
+      return await backend.subtask.get(projectId, subTaskId);
     }
     return null;
   }
 
   async deleteSubTask(subTaskId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.subtask.delete(subTaskId);
+    const projectId = this.getProjectId();
+    return await backend.subtask.delete(projectId, subTaskId);
   }
 
   // タグ管理
@@ -269,7 +290,8 @@ export class DataService {
       created_at: new Date(),
       updated_at: new Date()
     };
-    await backend.tag.create(newTag);
+    const projectId = this.getProjectId();
+    await backend.tag.create(projectId, newTag);
     return newTag;
   }
 
@@ -284,19 +306,21 @@ export class DataService {
     };
 
     console.log('DataService: calling backend.tag.update');
-    const success = await backend.tag.update(tagId, patchData);
+    const projectId = this.getProjectId();
+    const success = await backend.tag.update(projectId, tagId, patchData);
     console.log('DataService: backend.tag.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.tag.get(tagId);
+      return await backend.tag.get(projectId, tagId);
     }
     return null;
   }
 
   async deleteTag(tagId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.tag.delete(tagId);
+    const projectId = this.getProjectId();
+    return await backend.tag.delete(projectId, tagId);
   }
 
   // 複合操作（TaskStoreで使用されているメソッド）
@@ -318,10 +342,11 @@ export class DataService {
     console.log('DataService: addTagToSubTask called', { subTaskId, tagId });
 
     // 既存のサブタスクを取得
-    const subTask = await backend.subtask.get(subTaskId);
+    const projectId = this.getProjectId();
+    const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // タグオブジェクトを取得
-    const tag = await backend.tag.get(tagId);
+    const tag = await backend.tag.get(projectId, tagId);
 
     // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
     if (!subTask) {
@@ -357,7 +382,8 @@ export class DataService {
     console.log('DataService: removeTagFromSubTask called', { subTaskId, tagId });
 
     // 既存のサブタスクを取得
-    const subTask = await backend.subtask.get(subTaskId);
+    const projectId = this.getProjectId();
+    const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // Web環境では既存データが取得できないため、空のタグ配列で更新
     if (!subTask) {

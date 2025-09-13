@@ -6,21 +6,21 @@ export interface AssignmentService {
   /**
    * タスクにユーザーを割り当て
    */
-  createTaskAssignment(taskId: string, userId: string): Promise<boolean>;
+  createTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean>;
 
   /**
    * タスクとユーザーの割り当てを削除
    */
-  deleteTaskAssignment(taskId: string, userId: string): Promise<boolean>;
+  deleteTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean>;
 
   // Subtask Assignment operations
   /**
    * サブタスクにユーザーを割り当て
    */
-  createSubtaskAssignment(subtaskId: string, userId: string): Promise<boolean>;
+  createSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean>;
 
   /**
    * サブタスクとユーザーの割り当てを削除
    */
-  deleteSubtaskAssignment(subtaskId: string, userId: string): Promise<boolean>;
+  deleteSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean>;
 }

@@ -2,6 +2,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { getBackendService } from '$lib/services/backend';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
+  import { ProjectsService } from '$lib/services/projects-service';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import type { User } from '$lib/types/user';
@@ -38,9 +39,15 @@
     isLoading = true;
     try {
       const backend = await getBackendService();
+      const projectId = ProjectsService.getSelectedProjectId();
+      
+      if (!projectId) {
+        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
+        return;
+      }
       
       if (isSubTask) {
-        const success = await backend.assignment.createSubtaskAssignment(currentItem.id, userId);
+        const success = await backend.assignment.createSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
@@ -48,7 +55,7 @@
           errorHandler.addError({ type: 'general', message: 'サブタスクへのユーザー割り当てに失敗しました', retryable: false });
         }
       } else {
-        const success = await backend.assignment.createTaskAssignment(currentItem.id, userId);
+        const success = await backend.assignment.createTaskAssignment(projectId, currentItem.id, userId);
         if (success) {
           const updatedIds = [...assignedUserIds, userId];
           onAssignmentUpdated?.(currentItem.id, updatedIds);
@@ -70,9 +77,15 @@
     isLoading = true;
     try {
       const backend = await getBackendService();
+      const projectId = ProjectsService.getSelectedProjectId();
+      
+      if (!projectId) {
+        errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
+        return;
+      }
       
       if (isSubTask) {
-        const success = await backend.assignment.deleteSubtaskAssignment(currentItem.id, userId);
+        const success = await backend.assignment.deleteSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
           const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);
@@ -80,7 +93,7 @@
           errorHandler.addError({ type: 'general', message: 'サブタスクからのユーザー割り当て解除に失敗しました', retryable: false });
         }
       } else {
-        const success = await backend.assignment.deleteTaskAssignment(currentItem.id, userId);
+        const success = await backend.assignment.deleteTaskAssignment(projectId, currentItem.id, userId);
         if (success) {
           const updatedIds = assignedUserIds.filter((id: string) => id !== userId);
           onAssignmentUpdated?.(currentItem.id, updatedIds);

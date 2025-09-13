@@ -3,7 +3,7 @@ import type { TaskListSearchCondition, TaskList, TaskListPatch } from '$lib/type
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
 export class TasklistTauriService implements TaskListService {
-  async create(taskList: TaskList): Promise<boolean> {
+  async create(projectId: string, taskList: TaskList): Promise<boolean> {
     try {
       await invoke('create_task_list', { taskList });
       return true;
@@ -13,9 +13,9 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async update(id: string, patch: TaskListPatch): Promise<boolean> {
+  async update(projectId: string, id: string, patch: TaskListPatch): Promise<boolean> {
     try {
-      const result = await invoke('update_task_list', { id, patch });
+      const result = await invoke('update_task_list', { project_id: projectId, id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update task list:', error);
@@ -23,9 +23,9 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(projectId: string, id: string): Promise<boolean> {
     try {
-      await invoke('delete_task_list', { id });
+      await invoke('delete_task_list', { project_id: projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete task list:', error);
@@ -33,9 +33,9 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async get(id: string): Promise<TaskList | null> {
+  async get(projectId: string, id: string): Promise<TaskList | null> {
     try {
-      const result = (await invoke('get_task_list', { id })) as TaskList | null;
+      const result = (await invoke('get_task_list', { project_id: projectId, id })) as TaskList | null;
       return result;
     } catch (error) {
       console.error('Failed to get task list:', error);
@@ -43,9 +43,9 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async search(condition: TaskListSearchCondition): Promise<TaskList[]> {
+  async search(projectId: string, condition: TaskListSearchCondition): Promise<TaskList[]> {
     try {
-      const results = (await invoke('search_task_lists', { condition })) as TaskList[];
+      const results = (await invoke('search_task_lists', { project_id: projectId, condition })) as TaskList[];
       return results;
     } catch (error) {
       console.error('Failed to search task lists:', error);

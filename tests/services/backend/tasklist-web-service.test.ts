@@ -38,7 +38,7 @@ describe('TasklistWebService', () => {
 
   describe('create', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.create(mockTaskList);
+      const result = await service.create('test-project-id', mockTaskList);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -50,7 +50,7 @@ describe('TasklistWebService', () => {
 
   describe('update', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.update(mockTaskList.id, mockTaskList);
+      const result = await service.update('test-project-id', mockTaskList.id, mockTaskList);
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -63,7 +63,7 @@ describe('TasklistWebService', () => {
 
   describe('delete', () => {
     it('should return true and log warning for stub implementation', async () => {
-      const result = await service.delete('tasklist-123');
+      const result = await service.delete('test-project-id', 'tasklist-123');
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -75,7 +75,7 @@ describe('TasklistWebService', () => {
 
   describe('get', () => {
     it('should return null and log warning for stub implementation', async () => {
-      const result = await service.get('tasklist-123');
+      const result = await service.get('test-project-id', 'tasklist-123');
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('TasklistWebService', () => {
 
   describe('search', () => {
     it('should return empty array and log warning for stub implementation', async () => {
-      const result = await service.search(mockSearchCondition);
+      const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -109,11 +109,11 @@ describe('TasklistWebService', () => {
     it('should return proper Promise types', async () => {
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
-          service.create(mockTaskList),
-          service.update(mockTaskList.id, mockTaskList),
-          service.delete('tasklist-123'),
-          service.get('tasklist-123'),
-          service.search(mockSearchCondition)
+          service.create('test-project-id', mockTaskList),
+          service.update('test-project-id', mockTaskList.id, mockTaskList),
+          service.delete('test-project-id', 'tasklist-123'),
+          service.get('test-project-id', 'tasklist-123'),
+          service.search('test-project-id', mockSearchCondition)
         ]
       );
 
@@ -128,11 +128,11 @@ describe('TasklistWebService', () => {
   describe('concurrent operations', () => {
     it('should handle concurrent operations without side effects', async () => {
       const operations = await Promise.all([
-        service.create(mockTaskList),
-        service.get('tasklist-123'),
-        service.update(mockTaskList.id, mockTaskList),
-        service.delete('tasklist-123'),
-        service.search(mockSearchCondition)
+        service.create('test-project-id', mockTaskList),
+        service.get('test-project-id', 'tasklist-123'),
+        service.update('test-project-id', mockTaskList.id, mockTaskList),
+        service.delete('test-project-id', 'tasklist-123'),
+        service.search('test-project-id', mockSearchCondition)
       ]);
 
       expect(operations).toEqual([true, null, true, true, []]);
