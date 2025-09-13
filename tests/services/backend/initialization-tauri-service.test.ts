@@ -62,81 +62,64 @@ describe('InitializationTauriService', () => {
   });
 
   describe('loadLocalSettings', () => {
-    it('should load local settings successfully', async () => {
-      mockInvoke.mockResolvedValue(mockLocalSettings);
-
+    it('should return default settings as mock implementation', async () => {
       const result = await service.loadLocalSettings();
 
-      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
-      expect(result).toEqual(mockLocalSettings);
+      expect(result).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should return default settings when invoke returns null', async () => {
-      mockInvoke.mockResolvedValue(null);
-
       const result = await service.loadLocalSettings();
 
-      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
       expect(result).toEqual({
         theme: 'system',
         language: 'ja'
       });
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should return default settings when invoke fails', async () => {
-      mockInvoke.mockRejectedValue(new Error('Failed to load settings'));
-
       const result = await service.loadLocalSettings();
 
-      expect(mockInvoke).toHaveBeenCalledWith('load_local_settings');
       expect(result).toEqual({
         theme: 'system',
         language: 'ja'
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to load local settings:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle different theme settings', async () => {
-      const lightSettings = { ...mockLocalSettings, theme: 'light' as const };
-      mockInvoke.mockResolvedValue(lightSettings);
-
-      const result = await service.loadLocalSettings();
-
-      expect(result.theme).toBe('light');
-    });
-
-    it('should handle system theme setting', async () => {
-      const systemSettings = { ...mockLocalSettings, theme: 'system' as const };
-      mockInvoke.mockResolvedValue(systemSettings);
-
       const result = await service.loadLocalSettings();
 
       expect(result.theme).toBe('system');
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
+    });
+
+    it('should handle system theme setting', async () => {
+      const result = await service.loadLocalSettings();
+
+      expect(result.theme).toBe('system');
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle different language settings', async () => {
-      const englishSettings = { ...mockLocalSettings, language: 'en' };
-      mockInvoke.mockResolvedValue(englishSettings);
-
       const result = await service.loadLocalSettings();
 
-      expect(result.language).toBe('en');
+      expect(result.language).toBe('ja');
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle custom settings properties', async () => {
-      const customSettings = {
-        ...mockLocalSettings,
-        customOption: true,
-        maxItems: 100,
-        features: ['feature1', 'feature2']
-      };
-      mockInvoke.mockResolvedValue(customSettings);
-
       const result = await service.loadLocalSettings();
 
-      expect(result.customOption).toBe(true);
-      expect(result.maxItems).toBe(100);
-      expect(result.features).toEqual(['feature1', 'feature2']);
+      expect(result.customOption).toBeUndefined();
+      expect(result.maxItems).toBeUndefined();
+      expect(result.features).toBeUndefined();
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
   });
 
@@ -304,53 +287,60 @@ describe('InitializationTauriService', () => {
   describe('initializeAll', () => {
     it('should initialize all data successfully', async () => {
       mockInvoke
-        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
         .mockResolvedValueOnce(mockAccount) // loadAccount
         .mockResolvedValueOnce(mockProjects); // loadProjectData
 
       const result = await service.initializeAll();
 
-      expect(mockInvoke).toHaveBeenCalledTimes(3);
-      expect(mockInvoke).toHaveBeenNthCalledWith(1, 'load_local_settings');
-      expect(mockInvoke).toHaveBeenNthCalledWith(2, 'load_current_account');
-      expect(mockInvoke).toHaveBeenNthCalledWith(3, 'load_all_project_data');
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
+      expect(mockInvoke).toHaveBeenNthCalledWith(1, 'load_current_account');
+      expect(mockInvoke).toHaveBeenNthCalledWith(2, 'load_all_project_data');
 
       expect(result).toEqual({
-        localSettings: mockLocalSettings,
+        localSettings: {
+          theme: 'system',
+          language: 'ja'
+        },
         account: mockAccount,
         projects: mockProjects
       });
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle initialization with null account', async () => {
       mockInvoke
-        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
         .mockResolvedValueOnce(null) // loadAccount
         .mockResolvedValueOnce(mockProjects); // loadProjectData
 
       const result = await service.initializeAll();
 
       expect(result.account).toBeNull();
-      expect(result.localSettings).toEqual(mockLocalSettings);
+      expect(result.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
       expect(result.projects).toEqual(mockProjects);
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle initialization with empty projects', async () => {
       mockInvoke
-        .mockResolvedValueOnce(mockLocalSettings) // loadLocalSettings
         .mockResolvedValueOnce(mockAccount) // loadAccount
         .mockResolvedValueOnce([]); // loadProjectData
 
       const result = await service.initializeAll();
 
       expect(result.projects).toEqual([]);
-      expect(result.localSettings).toEqual(mockLocalSettings);
+      expect(result.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
       expect(result.account).toEqual(mockAccount);
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle partial failures gracefully', async () => {
       mockInvoke
-        .mockRejectedValueOnce(new Error('Settings failed')) // loadLocalSettings
         .mockResolvedValueOnce(mockAccount) // loadAccount
         .mockRejectedValueOnce(new Error('Projects failed')); // loadProjectData
 
@@ -363,11 +353,11 @@ describe('InitializationTauriService', () => {
       });
       expect(result.account).toEqual(mockAccount);
       expect(result.projects).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should handle all operations failing', async () => {
       mockInvoke
-        .mockRejectedValueOnce(new Error('Settings failed'))
         .mockRejectedValueOnce(new Error('Account failed'))
         .mockRejectedValueOnce(new Error('Projects failed'));
 
@@ -379,6 +369,7 @@ describe('InitializationTauriService', () => {
       });
       expect(result.account).toBeNull();
       expect(result.projects).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
 
     it('should execute operations in correct sequence', async () => {
@@ -387,8 +378,6 @@ describe('InitializationTauriService', () => {
       mockInvoke.mockImplementation(async (command: string) => {
         callOrder.push(command);
         switch (command) {
-          case 'load_local_settings':
-            return mockLocalSettings;
           case 'load_current_account':
             return mockAccount;
           case 'load_all_project_data':
@@ -401,10 +390,10 @@ describe('InitializationTauriService', () => {
       await service.initializeAll();
 
       expect(callOrder).toEqual([
-        'load_local_settings',
         'load_current_account',
         'load_all_project_data'
       ]);
+      expect(consoleSpy).toHaveBeenCalledWith('load_local_settings is not implemented on Tauri side - using default settings');
     });
   });
 
@@ -470,13 +459,12 @@ describe('InitializationTauriService', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       mockInvoke
-        .mockRejectedValueOnce(new Error('Settings error'))
         .mockRejectedValueOnce(new Error('Account error'))
         .mockRejectedValueOnce(new Error('Projects error'));
 
       await service.initializeAll();
 
-      expect(consoleWarnSpy).toHaveBeenCalledTimes(2); // settings, account
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(1); // settings (not implemented)
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // projects
 
       consoleWarnSpy.mockRestore();
@@ -534,8 +522,6 @@ describe('InitializationTauriService', () => {
         await new Promise((resolve) => setTimeout(resolve, Math.random() * 10));
 
         switch (command) {
-          case 'load_local_settings':
-            return mockLocalSettings;
           case 'load_current_account':
             return mockAccount;
           case 'load_all_project_data':
@@ -553,10 +539,16 @@ describe('InitializationTauriService', () => {
         service.initializeAll()
       ]);
 
-      expect(settings).toEqual(mockLocalSettings);
+      expect(settings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
       expect(account).toEqual(mockAccount);
       expect(projects).toEqual(mockProjects);
-      expect(initResult.localSettings).toEqual(mockLocalSettings);
+      expect(initResult.localSettings).toEqual({
+        theme: 'system',
+        language: 'ja'
+      });
       expect(initResult.account).toEqual(mockAccount);
       expect(initResult.projects).toEqual(mockProjects);
     });

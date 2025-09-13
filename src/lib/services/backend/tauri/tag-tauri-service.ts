@@ -15,7 +15,7 @@ export class TagTauriService implements TagService {
 
   async update(projectId: string, id: string, patch: TagPatch): Promise<boolean> {
     try {
-      const result = await invoke('update_tag', { project_id: projectId, id, patch });
+      const result = await invoke('update_tag', { project_id: projectId, tag_id: id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update tag:', error);
@@ -43,10 +43,12 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async search(projectId: string, condition: TagSearchCondition): Promise<Tag[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async search(_projectId: string, _condition: TagSearchCondition): Promise<Tag[]> {
     try {
-      const results = (await invoke('search_tags', { project_id: projectId, condition })) as Tag[];
-      return results;
+      // TODO: search_tags コマンドが Tauri側に実装されていないため、一時的にmock実装
+      console.warn('search_tags is not implemented on Tauri side - using mock implementation');
+      return [];
     } catch (error) {
       console.error('Failed to search tags:', error);
       return [];

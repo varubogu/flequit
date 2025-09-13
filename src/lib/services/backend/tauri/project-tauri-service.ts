@@ -43,10 +43,12 @@ export class ProjectTauriService implements ProjectService {
     }
   }
 
-  async search(condition: ProjectSearchCondition): Promise<Project[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async search(_condition: ProjectSearchCondition): Promise<Project[]> {
     try {
-      const results = (await invoke('search_projects', { condition })) as Project[];
-      return results;
+      // TODO: search_projects コマンドが Tauri側に実装されていないため、一時的にmock実装
+      console.warn('search_projects is not implemented on Tauri side - using mock implementation');
+      return [];
     } catch (error) {
       console.error('Failed to search projects:', error);
       return [];

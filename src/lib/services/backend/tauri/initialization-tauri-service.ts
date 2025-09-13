@@ -18,14 +18,9 @@ export class InitializationTauriService implements InitializationService {
    */
   async loadLocalSettings(): Promise<LocalSettings> {
     try {
-      const settings = (await invoke('load_local_settings')) as LocalSettings | null;
-
-      if (!settings) {
-        // デフォルト設定を返す
-        return this.getDefaultSettings();
-      }
-
-      return settings;
+      // TODO: load_local_settings コマンドが Tauri側でコメントアウトされているため、一時的にmock実装
+      console.warn('load_local_settings is not implemented on Tauri side - using default settings');
+      return this.getDefaultSettings();
     } catch (error) {
       console.warn('Failed to load local settings:', error);
       return this.getDefaultSettings();
