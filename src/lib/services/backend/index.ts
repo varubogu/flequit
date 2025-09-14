@@ -10,6 +10,12 @@ import type { InitializationService } from './initialization-service';
 import type { UserService } from './user-service';
 import type { TaggingService } from './tagging-service';
 import type { AssignmentService } from './assignment-service';
+import type { RecurrenceRuleService } from './recurrence-rule-service';
+import type { TaskRecurrenceService } from './task-recurrence-service';
+import type { SubtaskRecurrenceService } from './subtask-recurrence-service';
+import type { RecurrenceAdjustmentService } from './recurrence-adjustment-service';
+import type { RecurrenceDetailsService } from './recurrence-details-service';
+import type { SettingsManagementService } from './settings-management-service';
 
 /**
  * 統合BackendServiceインターフェース
@@ -75,6 +81,36 @@ export interface BackendService {
    * アサインメント（割り当て）サービス
    */
   assignment: AssignmentService;
+
+  /**
+   * 繰り返しルール管理サービス
+   */
+  recurrenceRule: RecurrenceRuleService;
+
+  /**
+   * タスク繰り返し管理サービス
+   */
+  taskRecurrence: TaskRecurrenceService;
+
+  /**
+   * サブタスク繰り返し管理サービス
+   */
+  subtaskRecurrence: SubtaskRecurrenceService;
+
+  /**
+   * 繰り返し調整管理サービス
+   */
+  recurrenceAdjustment: RecurrenceAdjustmentService;
+
+  /**
+   * 繰り返し詳細管理サービス
+   */
+  recurrenceDetails: RecurrenceDetailsService;
+
+  /**
+   * 設定管理サービス
+   */
+  settingsManagement: SettingsManagementService;
 }
 
 /**
@@ -114,3 +150,9 @@ export type * from './initialization-service';
 export type * from './user-service';
 export type * from './tagging-service';
 export type * from './assignment-service';
+export type * from './recurrence-rule-service';
+export type * from './task-recurrence-service';
+export type * from './subtask-recurrence-service';
+export type * from './recurrence-adjustment-service';
+export type * from './recurrence-details-service';
+export type * from './settings-management-service';

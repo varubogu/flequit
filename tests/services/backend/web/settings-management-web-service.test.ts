@@ -25,11 +25,29 @@ describe('SettingsManagementWebService', () => {
       const settings: Settings = {
         theme: 'dark',
         language: 'ja',
-        custom_due_days: [1, 3, 7],
-        datetime_format: 'YYYY-MM-DD',
-        custom_date_formats: [],
-        time_labels: [],
-        view_items: []
+        font: 'system-ui',
+        fontSize: 14,
+        fontColor: '#000000',
+        backgroundColor: '#ffffff',
+        weekStart: 'sunday',
+        timezone: 'Asia/Tokyo',
+        dateFormat: 'YYYY-MM-DD',
+        customDueDays: [1, 3, 7],
+        customDateFormats: [],
+        timeLabels: [],
+        dueDateButtons: {
+          overdue: true,
+          today: true,
+          tomorrow: true,
+          threeDays: true,
+          thisWeek: true,
+          thisMonth: true,
+          thisQuarter: true,
+          thisYear: true,
+          thisYearEnd: true
+        },
+        viewItems: [],
+        lastSelectedAccount: ''
       };
 
       const result = await service.saveSettings(settings);
@@ -163,8 +181,7 @@ describe('SettingsManagementWebService', () => {
         const formatSetting: CustomDateFormat = {
           id: 'fmt1',
           name: 'Japanese Format',
-          format: 'YYYY年MM月DD日',
-          is_active: true
+          format: 'YYYY年MM月DD日'
         };
 
         const result = await service.addCustomDateFormatSetting(formatSetting);
@@ -179,8 +196,7 @@ describe('SettingsManagementWebService', () => {
         const formatSetting: CustomDateFormat = {
           id: 'fmt1',
           name: 'Updated Japanese Format',
-          format: 'YYYY/MM/DD',
-          is_active: false
+          format: 'YYYY/MM/DD'
         };
 
         const result = await service.updateCustomDateFormatSetting(formatSetting);
@@ -228,8 +244,7 @@ describe('SettingsManagementWebService', () => {
         const labelSetting: TimeLabel = {
           id: 'label1',
           name: 'Morning',
-          color: '#ffcc00',
-          is_active: true
+          time: '08:00'
         };
 
         const result = await service.addTimeLabelSetting(labelSetting);
@@ -244,8 +259,7 @@ describe('SettingsManagementWebService', () => {
         const labelSetting: TimeLabel = {
           id: 'label1',
           name: 'Updated Morning',
-          color: '#ff9900',
-          is_active: false
+          time: '09:00'
         };
 
         const result = await service.updateTimeLabelSetting(labelSetting);
@@ -292,8 +306,9 @@ describe('SettingsManagementWebService', () => {
       it('should log warning and return true', async () => {
         const itemSetting: ViewItem = {
           id: 'item1',
-          name: 'Task List',
-          is_visible: true,
+          label: 'Task List',
+          icon: 'list',
+          visible: true,
           order: 1
         };
 
@@ -308,8 +323,9 @@ describe('SettingsManagementWebService', () => {
       it('should log warning and return true', async () => {
         const itemSetting: ViewItem = {
           id: 'item1',
-          name: 'Updated Task List',
-          is_visible: false,
+          label: 'Updated Task List',
+          icon: 'list-updated',
+          visible: false,
           order: 2
         };
 

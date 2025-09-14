@@ -14,12 +14,10 @@ describe('RecurrenceDetailsWebService', () => {
   describe('create', () => {
     it('should log warning and return true', async () => {
       const details: RecurrenceDetails = {
-        id: 'details1',
-        recurrence_rule_id: 'rule1',
-        description: 'Daily standup meeting',
-        additional_info: 'Team sync meeting',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z'
+        specific_date: 15,
+        week_of_period: 'first',
+        weekday_of_week: 'monday',
+        date_conditions: ['before 2024-12-31']
       };
 
       const result = await service.create(details);
@@ -43,12 +41,10 @@ describe('RecurrenceDetailsWebService', () => {
   describe('update', () => {
     it('should log warning and return true', async () => {
       const details: RecurrenceDetails = {
-        id: 'details1',
-        recurrence_rule_id: 'rule1',
-        description: 'Updated description',
-        additional_info: 'Updated info',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-02T00:00:00Z'
+        specific_date: 20,
+        week_of_period: 'second',
+        weekday_of_week: 'tuesday',
+        date_conditions: ['after 2024-01-01']
       };
 
       const result = await service.update(details);
@@ -72,8 +68,9 @@ describe('RecurrenceDetailsWebService', () => {
   describe('search', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceDetailsSearchCondition = {
-        recurrence_rule_id: 'rule1',
-        description: 'meeting'
+        rule_id: 'rule1',
+        specific_date: 15,
+        week_of_period: 'first'
       };
 
       const result = await service.search(condition);

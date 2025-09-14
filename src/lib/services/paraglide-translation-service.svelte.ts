@@ -111,8 +111,8 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       }
 
       const setting: Setting = {
-        id: 'setting_locale',
-        key: 'locale',
+        id: 'setting_language',
+        key: 'language',
         value: locale,
         data_type: 'string',
         created_at: new Date(),
@@ -134,7 +134,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     try {
       // 統合初期化サービスから全設定を取得
       const allSettings = await settingsInitService.getAllSettings();
-      const localeSetting = settingsInitService.getSettingByKey(allSettings, 'locale');
+      const localeSetting = settingsInitService.getSettingByKey(allSettings, 'language');
 
       if (localeSetting) {
         paraglidSetLocale(localeSetting.value as Locale, { reload: false });

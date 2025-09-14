@@ -4,6 +4,7 @@ import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { TaskService } from '$lib/services/task-service';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';
+import { dataService } from '$lib/services/data-service';
 
 export class TaskDetailLogic {
   // Core derived states
@@ -344,15 +345,60 @@ export class TaskDetailLogic {
   }
 
   // Recurrence handling
-  handleRecurrenceChange(rule: RecurrenceRule | null) {
+  async handleRecurrenceChange(rule: RecurrenceRule | null) {
     if (!this.currentItem || this.isNewTaskMode) return;
 
-    const updates = { recurrence_rule: rule || undefined };
+    try {
+      if (rule) {
+        // 新しいRecurrenceRuleServiceを使って繰り返しルールを作成
+        const newRule = {
+          id: crypto.randomUUID(),
+          unit: rule.unit,
+          interval: rule.interval ?? 1,
+          days_of_week: rule.days_of_week,
+          details: rule.details ? JSON.stringify(rule.details) : undefined,
+          adjustment: rule.adjustment ? JSON.stringify(rule.adjustment) : undefined,
+          end_date: rule.end_date?.toISOString(),
+          max_occurrences: rule.max_occurrences
+        };
 
-    if (this.isSubTask) {
-      taskStore.updateSubTask(this.currentItem.id, updates);
-    } else {
-      taskStore.updateTask(this.currentItem.id, updates);
+        await dataService.createRecurrenceRule(newRule);
+
+        // タスクまたはサブタスクと繰り返しルールを関連付け
+        if (this.isSubTask) {
+          await dataService.createSubtaskRecurrence({
+            subtask_id: this.currentItem.id,
+            recurrence_rule_id: newRule.id
+          });
+        } else {
+          await dataService.createTaskRecurrence({
+            task_id: this.currentItem.id,
+            recurrence_rule_id: newRule.id
+          });
+        }
+
+        console.log(`Recurrence rule created and linked via new services for ${this.isSubTask ? 'subtask' : 'task'}: ${this.currentItem.id}`);
+      } else {
+        // 繰り返し設定を削除
+        if (this.isSubTask) {
+          await dataService.deleteSubtaskRecurrence(this.currentItem.id);
+        } else {
+          await dataService.deleteTaskRecurrence(this.currentItem.id);
+        }
+
+        console.log(`Recurrence rule removed via new services for ${this.isSubTask ? 'subtask' : 'task'}: ${this.currentItem.id}`);
+      }
+
+      // 既存のstoreも更新
+      const updates = { recurrence_rule: rule || undefined };
+
+      if (this.isSubTask) {
+        taskStore.updateSubTask(this.currentItem.id, updates);
+      } else {
+        taskStore.updateTask(this.currentItem.id, updates);
+      }
+    } catch (error) {
+      console.error('Failed to handle recurrence change via new services:', error);
     }
 
     this.showRecurrenceDialog = false;

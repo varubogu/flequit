@@ -86,7 +86,7 @@ describe('RecurrenceRuleWebService', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceRuleSearchCondition = {
         unit: 'day',
-        interval: 1
+        end_date: '2024-12-31'
       };
 
       const result = await service.search(condition);

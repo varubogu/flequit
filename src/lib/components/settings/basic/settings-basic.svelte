@@ -7,6 +7,7 @@
   import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
   import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
   import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
+  import { dataService } from '$lib/services/data-service';
 
   interface Props {
     settings: {
@@ -67,6 +68,46 @@
     console.log('Add custom due day');
   }
 
+  // 設定を保存する関数を追加
+  async function saveSettings() {
+    try {
+      const currentSettings = await dataService.loadSettings();
+      if (currentSettings) {
+        // 現在の設定を更新して保存
+        const updatedSettings = {
+          ...currentSettings,
+          weekStart: settings.weekStart as 'sunday' | 'monday',
+          timezone: settings.timezone,
+          dateFormat: settings.dateFormat,
+          customDueDays: settings.customDueDays
+        };
+        
+        await dataService.saveSettings(updatedSettings);
+        console.log('Settings saved successfully via SettingsManagementService');
+      } else {
+        console.warn('Could not load existing settings to update');
+      }
+    } catch (error) {
+      console.error('Failed to save settings via SettingsManagementService:', error);
+    }
+  }
+
+  // カスタム期日を追加する機能を実装
+  async function addCustomDueDayToSettings(days: number) {
+    try {
+      await dataService.addCustomDueDay(days);
+      console.log(`Added custom due day: ${days} days`);
+      
+      // 設定を再読み込みして反映
+      const updatedSettings = await dataService.loadSettings();
+      if (updatedSettings) {
+        settings.customDueDays = updatedSettings.customDueDays;
+      }
+    } catch (error) {
+      console.error('Failed to add custom due day:', error);
+    }
+  }
+
   function handleLanguageChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newLocale = target.value;
@@ -79,22 +120,55 @@
     const target = event.target as HTMLSelectElement;
     const newWeekStart = target.value;
     onWeekStartChange?.(newWeekStart);
+    // 新しいサービスで自動保存
+    saveSettings();
   }
 
   function handleTimezoneChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newTimezone = target.value;
     onTimezoneChange?.(newTimezone);
+    // 新しいサービスで自動保存
+    saveSettings();
   }
 
   function handleDateFormatChange(event: Event) {
     const target = event.target as HTMLInputElement;
     settingsStore.setDateFormat(target.value);
+    // 新しいサービスで自動保存
+    saveSettings();
   }
 
   function openDateFormatDialog() {
     showDateFormatDialog = true;
   }
+
+  // 設定を読み込む関数
+  async function loadSettings() {
+    try {
+      const loadedSettings = await dataService.loadSettings();
+      if (loadedSettings) {
+        // 読み込んだ設定を反映（初期化時は保存処理を避けるため、直接設定を更新）
+        if (loadedSettings.weekStart !== settings.weekStart) {
+          settings.weekStart = loadedSettings.weekStart;
+        }
+        if (loadedSettings.timezone !== settings.timezone) {
+          settings.timezone = loadedSettings.timezone;
+        }
+        
+        console.log('Settings loaded successfully from SettingsManagementService:', loadedSettings);
+      } else {
+        console.log('No settings found, using defaults');
+      }
+    } catch (error) {
+      console.error('Failed to load settings from SettingsManagementService:', error);
+    }
+  }
+
+  // コンポーネントマウント時に設定を読み込む
+  $effect(() => {
+    loadSettings();
+  });
 </script>
 
 <section id="settings-basic">

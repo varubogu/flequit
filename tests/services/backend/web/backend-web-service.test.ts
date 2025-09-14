@@ -312,7 +312,13 @@ describe('BackendWebService', () => {
         'initialization',
         'user',
         'tagging',
-        'assignment'
+        'assignment',
+        'recurrenceRule',
+        'taskRecurrence',
+        'subtaskRecurrence',
+        'recurrenceAdjustment',
+        'recurrenceDetails',
+        'settingsManagement'
       ];
 
       expect(serviceKeys.sort()).toEqual(expectedKeys.sort());
@@ -331,6 +337,12 @@ describe('BackendWebService', () => {
       expect(Object.prototype.hasOwnProperty.call(service, 'user')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'tagging')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'assignment')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceRule')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'taskRecurrence')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'subtaskRecurrence')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceAdjustment')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceDetails')).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(service, 'settingsManagement')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });
   });

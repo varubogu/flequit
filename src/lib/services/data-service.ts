@@ -5,6 +5,10 @@ import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
+import type { RecurrenceRule } from '$lib/types/recurrence-rule';
+import type { TaskRecurrence } from '$lib/types/task-recurrence';
+import type { SubtaskRecurrence } from '$lib/types/subtask-recurrence';
+import type { Settings } from '$lib/types/settings';
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
 import { ProjectsService } from '$lib/services/projects-service';
@@ -467,6 +471,95 @@ export class DataService {
       ...taskList,
       tasks: []
     };
+  }
+
+  // 繰り返しルール管理
+  async createRecurrenceRule(rule: RecurrenceRule): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.recurrenceRule.create(rule);
+  }
+
+  async getRecurrenceRule(ruleId: string): Promise<RecurrenceRule | null> {
+    const backend = await this.getBackend();
+    return await backend.recurrenceRule.get(ruleId);
+  }
+
+  async getAllRecurrenceRules(): Promise<RecurrenceRule[]> {
+    const backend = await this.getBackend();
+    return await backend.recurrenceRule.getAll();
+  }
+
+  async updateRecurrenceRule(rule: RecurrenceRule): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.recurrenceRule.update(rule);
+  }
+
+  async deleteRecurrenceRule(ruleId: string): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.recurrenceRule.delete(ruleId);
+  }
+
+  // タスク繰り返し管理
+  async createTaskRecurrence(taskRecurrence: TaskRecurrence): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.taskRecurrence.create(taskRecurrence);
+  }
+
+  async getTaskRecurrenceByTaskId(taskId: string): Promise<TaskRecurrence | null> {
+    const backend = await this.getBackend();
+    return await backend.taskRecurrence.getByTaskId(taskId);
+  }
+
+  async deleteTaskRecurrence(taskId: string): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.taskRecurrence.delete(taskId);
+  }
+
+  // サブタスク繰り返し管理
+  async createSubtaskRecurrence(subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.subtaskRecurrence.create(subtaskRecurrence);
+  }
+
+  async getSubtaskRecurrenceBySubtaskId(subtaskId: string): Promise<SubtaskRecurrence | null> {
+    const backend = await this.getBackend();
+    return await backend.subtaskRecurrence.getBySubtaskId(subtaskId);
+  }
+
+  async deleteSubtaskRecurrence(subtaskId: string): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.subtaskRecurrence.delete(subtaskId);
+  }
+
+  // 設定管理
+  async loadSettings(): Promise<Settings | null> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.loadSettings();
+  }
+
+  async saveSettings(settings: Settings): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.saveSettings(settings);
+  }
+
+  async settingsFileExists(): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.settingsFileExists();
+  }
+
+  async initializeSettingsWithDefaults(): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.initializeSettingsWithDefaults();
+  }
+
+  async getSettingsFilePath(): Promise<string> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.getSettingsFilePath();
+  }
+
+  async addCustomDueDay(days: number): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.addCustomDueDay(days);
   }
 }
 

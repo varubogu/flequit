@@ -11,6 +11,12 @@ import { InitializationWebService } from './initialization-web-service';
 import { UserWebService } from './user-web-service';
 import { TaggingWebService } from './tagging-web-service';
 import { AssignmentWebService } from './assignment-web-service';
+import { RecurrenceRuleWebService } from './recurrence-rule-web-service';
+import { TaskRecurrenceWebService } from './task-recurrence-web-service';
+import { SubtaskRecurrenceWebService } from './subtask-recurrence-web-service';
+import { RecurrenceAdjustmentWebService } from './recurrence-adjustment-web-service';
+import { RecurrenceDetailsWebService } from './recurrence-details-web-service';
+import { SettingsManagementWebService } from './settings-management-web-service';
 
 /**
  * Web環境用のBackendService統合実装
@@ -28,4 +34,10 @@ export class BackendWebService implements BackendService {
   public readonly user = new UserWebService();
   public readonly tagging = new TaggingWebService();
   public readonly assignment = new AssignmentWebService();
+  public readonly recurrenceRule = new RecurrenceRuleWebService();
+  public readonly taskRecurrence = new TaskRecurrenceWebService();
+  public readonly subtaskRecurrence = new SubtaskRecurrenceWebService();
+  public readonly recurrenceAdjustment = new RecurrenceAdjustmentWebService();
+  public readonly recurrenceDetails = new RecurrenceDetailsWebService();
+  public readonly settingsManagement = new SettingsManagementWebService();
 }
