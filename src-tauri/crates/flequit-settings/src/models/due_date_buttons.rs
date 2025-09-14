@@ -1,9 +1,11 @@
 //! 期日ボタン設定モデル
 
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 /// 期日ボタン設定構造体
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct DueDateButtons {
     /// ボタンID
     pub id: String,

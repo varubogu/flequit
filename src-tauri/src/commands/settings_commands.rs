@@ -6,14 +6,14 @@ use crate::models::weekday_condition::WeekdayConditionCommandModel;
 use crate::models::CommandModelConverter;
 use crate::models::{
     date_condition::DateConditionCommandModel, datetime_format::DateTimeFormatCommandModel,
-    settings::SettingsCommandModel, time_label::TimeLabelCommandModel,
+    settings::{SettingsCommandModel, PartialSettingsCommandModel}, time_label::TimeLabelCommandModel,
     view_item::ViewItemCommandModel,
 };
 use crate::state::AppState;
 use chrono::{DateTime, Utc};
 use flequit_core::facades::datetime_facades;
 use flequit_model::models::ModelConverter;
-use flequit_settings::Settings;
+use flequit_settings::{Settings, PartialSettings};
 use tauri::State;
 
 // ---------------------------
@@ -51,6 +51,7 @@ pub async fn save_settings(
     state
         .settings_manager
         .save_settings(&settings_model)
+        .await
         .map_err(|e| format!("設定の保存に失敗: {}", e))?;
 
     Ok(())
@@ -63,6 +64,33 @@ pub async fn settings_file_exists(state: State<'_, AppState>) -> Result<bool, St
     Ok(state.settings_manager.settings_exists())
 }
 
+/// 部分的な設定更新（差分更新）
+///
+/// PartialSettingsを使って必要な設定のみを更新します。
+#[tauri::command]
+pub async fn update_settings_partially(
+    state: State<'_, AppState>,
+    partial_settings: PartialSettingsCommandModel,
+) -> Result<SettingsCommandModel, String> {
+    let partial_model = partial_settings.to_model().await.map_err(|e| e.to_string())?;
+    
+    // 設定管理サービスで差分更新を実行
+    let updated_settings = state
+        .settings_manager
+        .update_settings_partially(&partial_model)
+        .await
+        .map_err(|e| format!("部分的な設定更新に失敗: {}", e))?;
+
+    // stateの設定も更新
+    {
+        let mut state_settings = state.settings.write().await;
+        *state_settings = updated_settings.clone();
+    }
+
+    // 更新された設定をコマンドモデルとして返す
+    Ok(SettingsCommandModel::from(updated_settings.to_command_model().await.map_err(|e| e.to_string())?))
+}
+
 /// デフォルト設定で設定ファイルを初期化
 
 #[tauri::command]
@@ -70,6 +98,7 @@ pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Re
     state
         .settings_manager
         .initialize_with_defaults()
+        .await
         .map_err(|e| format!("設定の初期化に失敗: {}", e))?;
 
     // stateの設定もデフォルトにリセット
@@ -262,6 +291,7 @@ pub async fn add_time_label_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -300,6 +330,7 @@ pub async fn update_time_label_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -324,6 +355,7 @@ pub async fn delete_time_label_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -407,6 +439,7 @@ pub async fn add_view_item_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -445,6 +478,7 @@ pub async fn update_view_item_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -469,6 +503,7 @@ pub async fn delete_view_item_setting(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
     }
 
@@ -511,59 +546,54 @@ pub async fn update_setting(
     key: String,
     value: serde_json::Value,
 ) -> Result<(), String> {
-    let mut settings = state.settings.write().await;
+    // PartialSettingsを作成して差分更新を使用
+    let mut partial = PartialSettings::default();
 
-    // 基本的な設定値を更新
+    // キーに応じて適切なフィールドを設定
     match key.as_str() {
         "theme" => {
             if let Some(v) = value.as_str() {
-                settings.theme = v.to_string();
+                partial.theme = Some(v.to_string());
             }
         }
         "language" => {
             if let Some(v) = value.as_str() {
-                settings.language = v.to_string();
+                partial.language = Some(v.to_string());
             }
         }
         "font" => {
             if let Some(v) = value.as_str() {
-                settings.font = v.to_string();
+                partial.font = Some(v.to_string());
             }
         }
         "font_size" => {
             if let Some(v) = value.as_i64() {
-                settings.font_size = v as i32;
+                partial.font_size = Some(v as i32);
             }
         }
         "font_color" => {
             if let Some(v) = value.as_str() {
-                settings.font_color = v.to_string();
+                partial.font_color = Some(v.to_string());
             }
         }
         "background_color" => {
             if let Some(v) = value.as_str() {
-                settings.background_color = v.to_string();
+                partial.background_color = Some(v.to_string());
             }
         }
         "week_start" => {
             if let Some(v) = value.as_str() {
-                settings.week_start = v.to_string();
+                partial.week_start = Some(v.to_string());
             }
         }
         "timezone" => {
             if let Some(v) = value.as_str() {
-                settings.timezone = v.to_string();
-            }
-        }
-        // 選択中の日時フォーマット（スカラー扱い）。id/name/group/orderは保持、formatのみ変更
-        "datetime_format" => {
-            if let Some(v) = value.as_str() {
-                settings.datetime_format.format = v.to_string();
+                partial.timezone = Some(v.to_string());
             }
         }
         "custom_due_days" => {
             if let Ok(v) = serde_json::from_value::<Vec<i32>>(value) {
-                settings.custom_due_days = v;
+                partial.custom_due_days = Some(v);
             }
         }
         _ => {
@@ -571,11 +601,18 @@ pub async fn update_setting(
         }
     }
 
-    // ファイルにも保存
-    state
+    // 設定管理サービスで差分更新を実行
+    let updated_settings = state
         .settings_manager
-        .save_settings(&*settings)
-        .map_err(|e| e.to_string())?;
+        .update_settings_partially(&partial)
+        .await
+        .map_err(|e| format!("設定の更新に失敗: {}", e))?;
+
+    // stateの設定も更新
+    {
+        let mut state_settings = state.settings.write().await;
+        *state_settings = updated_settings;
+    }
 
     Ok(())
 }
@@ -659,6 +696,7 @@ pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<
     state
         .settings_manager
         .save_settings(&*settings)
+        .await
         .map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -679,6 +717,7 @@ pub async fn update_custom_due_day(
         state
             .settings_manager
             .save_settings(&*settings)
+            .await
             .map_err(|e| e.to_string())?;
         return Ok(());
     }
@@ -698,6 +737,7 @@ pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Resu
     state
         .settings_manager
         .save_settings(&*settings)
+        .await
         .map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -722,6 +762,7 @@ pub async fn add_datetime_format_setting(
     state
         .settings_manager
         .save_settings(&*settings)
+        .await
         .map_err(|e| e.to_string())?;
     Ok(format)
 }
@@ -747,6 +788,7 @@ pub async fn upsert_datetime_format_setting(
     state
         .settings_manager
         .save_settings(&*settings)
+        .await
         .map_err(|e| e.to_string())?;
     Ok(format)
 }
@@ -767,6 +809,7 @@ pub async fn delete_datetime_format_setting(
     state
         .settings_manager
         .save_settings(&*settings)
+        .await
         .map_err(|e| e.to_string())?;
     Ok(())
 }

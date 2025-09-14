@@ -24,6 +24,8 @@ log = "0.4"
 tokio = { version = "1.47.1", features = ["full"] }
 futures = "0.3.31"
 
+partially = { version = "0.2.1", features = ["derive"]}
+
 [dev-dependencies]
 # テスト用
 tempfile = "3.0"

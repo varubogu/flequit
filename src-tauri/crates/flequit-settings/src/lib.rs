@@ -27,7 +27,7 @@
 //!     new_settings.theme = "dark".to_string();
 //!
 //!     // 設定を保存
-//!     settings_manager.save_settings(&new_settings).unwrap();
+//!     settings_manager.save_settings(&new_settings).await.unwrap();
 //! }
 //! ```
 //!
@@ -56,6 +56,6 @@ pub use errors::{SettingsError, SettingsResult};
 pub use manager::SettingsManager;
 pub use models::datetime_format::DateTimeFormat;
 pub use models::due_date_buttons::DueDateButtons;
-pub use models::settings::Settings;
+pub use models::settings::{Settings, PartialSettings};
 pub use models::time_label::TimeLabel;
 pub use models::view_item::ViewItem;

@@ -2,12 +2,14 @@
 //!
 //! このモジュールはタスク表示ビューのアイテム設定を管理する構造体を定義します。
 
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 /// ビューアイテム設定構造体
 ///
 /// タスク表示ビューの個別アイテム設定を管理します。
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct ViewItem {
     /// ビューアイテムのID
     pub id: String,

@@ -2,6 +2,7 @@
 //!
 //! このモジュールは統合日時表示フォーマットを管理する構造体を定義します。
 
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use crate::types::datetime_format_types::DateTimeFormatGroup;
@@ -30,7 +31,8 @@ use crate::types::datetime_format_types::DateTimeFormatGroup;
 /// - **多言語対応**: 国際化を前提とした表示名管理
 /// - **UI最適化**: フロントエンドでの選択・表示に最適化
 /// - **拡張性**: 新しいフォーマットグループの追加が容易
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default , Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct DateTimeFormat {
     /// フォーマットの一意識別子（UUID文字列またはプリセットの負数文字列）
     pub id: String, // UUIDまたは負の整数の文字列表現

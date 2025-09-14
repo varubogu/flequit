@@ -2,10 +2,12 @@
 //!
 //! このモジュールは時刻ラベルを管理する構造体を定義します。
 
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 /// 時刻ラベル構造体
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct TimeLabel {
     /// ラベルID
     pub id: String,

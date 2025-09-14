@@ -1,6 +1,6 @@
 //! 統合テスト
 
-use flequit_settings::{Settings, SettingsManager};
+use flequit_settings::{Settings, SettingsManager, PartialSettings};
 use flequit_testing::TestPathGenerator;
 use log::info;
 use std::env;
@@ -126,6 +126,107 @@ async fn test_config_file_with_folder_creation() {
     // デフォルト設定が正しく保存されていることを確認
     assert_eq!(settings.theme, "system");
     assert_eq!(settings.language, "ja");
+}
+
+#[tokio::test]
+async fn test_partial_settings_update() {
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_update");
+    std::fs::create_dir_all(&test_dir).unwrap();
+    let test_settings_path = test_dir.join("partial_update_test.yml");
+
+    // SettingsManagerをテスト用メソッドで作成
+    let settings_manager = SettingsManager::new_with_path(test_settings_path.clone());
+
+    // デフォルト設定をロード
+    let original_settings = settings_manager.load_settings().await.unwrap();
+    assert_eq!(original_settings.theme, "system");
+    assert_eq!(original_settings.language, "ja");
+    assert_eq!(original_settings.font_size, 14);
+
+    // 部分的な設定更新を実行
+    let partial_settings = PartialSettings {
+        theme: Some("dark".to_string()),
+        font_size: Some(16),
+        ..Default::default()
+    };
+
+    let updated_settings = settings_manager
+        .update_settings_partially(&partial_settings)
+        .await
+        .unwrap();
+
+    // 更新された値を確認
+    assert_eq!(updated_settings.theme, "dark");
+    assert_eq!(updated_settings.font_size, 16);
+    // 更新されていない値はそのまま保持されている
+    assert_eq!(updated_settings.language, "ja");
+    assert_eq!(updated_settings.week_start, "monday");
+    assert_eq!(updated_settings.timezone, "Asia/Tokyo");
+
+    // ファイルから再読み込みして永続化されていることを確認
+    let reloaded_settings = settings_manager.load_settings().await.unwrap();
+    assert_eq!(reloaded_settings.theme, "dark");
+    assert_eq!(reloaded_settings.font_size, 16);
+    assert_eq!(reloaded_settings.language, "ja");
+}
+
+#[tokio::test]
+async fn test_partial_settings_empty_update() {
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_empty_update");
+    std::fs::create_dir_all(&test_dir).unwrap();
+    let test_settings_path = test_dir.join("empty_partial_test.yml");
+
+    let settings_manager = SettingsManager::new_with_path(test_settings_path.clone());
+
+    // デフォルト設定をロード
+    let original_settings = settings_manager.load_settings().await.unwrap();
+
+    // 空の部分更新を実行（すべてのフィールドがNone）
+    let empty_partial = PartialSettings::default();
+    let updated_settings = settings_manager
+        .update_settings_partially(&empty_partial)
+        .await
+        .unwrap();
+
+    // 設定が変更されていないことを確認
+    assert_eq!(updated_settings.theme, original_settings.theme);
+    assert_eq!(updated_settings.language, original_settings.language);
+    assert_eq!(updated_settings.font_size, original_settings.font_size);
+    assert_eq!(updated_settings.week_start, original_settings.week_start);
+    assert_eq!(updated_settings.timezone, original_settings.timezone);
+}
+
+#[tokio::test]
+async fn test_partial_settings_array_fields() {
+    // プロジェクトルール準拠のテストディレクトリを作成
+    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_array_fields");
+    std::fs::create_dir_all(&test_dir).unwrap();
+    let test_settings_path = test_dir.join("array_fields_test.yml");
+
+    let settings_manager = SettingsManager::new_with_path(test_settings_path.clone());
+
+    // デフォルト設定をロード
+    let original_settings = settings_manager.load_settings().await.unwrap();
+    assert_eq!(original_settings.custom_due_days, vec![1, 3, 7, 14, 30]);
+
+    // 配列フィールドの部分更新
+    let partial_settings = PartialSettings {
+        custom_due_days: Some(vec![1, 2, 5, 10]),
+        ..Default::default()
+    };
+
+    let updated_settings = settings_manager
+        .update_settings_partially(&partial_settings)
+        .await
+        .unwrap();
+
+    // 配列が更新されていることを確認
+    assert_eq!(updated_settings.custom_due_days, vec![1, 2, 5, 10]);
+    // 他のフィールドは変更されていない
+    assert_eq!(updated_settings.theme, original_settings.theme);
+    assert_eq!(updated_settings.language, original_settings.language);
 }
 
 #[cfg(test)]

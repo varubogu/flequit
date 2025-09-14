@@ -1486,6 +1486,7 @@ dependencies = [
  "flequit-testing",
  "futures",
  "log",
+ "partially",
  "serde",
  "serde_yaml",
  "tempfile",

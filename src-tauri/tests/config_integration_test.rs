@@ -23,7 +23,7 @@ async fn test_config_file_operations() {
     assert!(!exists, "設定ファイルは初期状態では存在しないはず");
 
     // 3. デフォルト設定で初期化
-    config_manager.initialize_with_defaults().unwrap();
+    config_manager.initialize_with_defaults().await.unwrap();
 
     let exists_after_init = config_manager.settings_exists();
     assert!(exists_after_init, "初期化後は設定ファイルが存在するはず");
@@ -47,7 +47,7 @@ async fn test_settings_load_and_save() {
     let config_manager = SettingsManager::new().unwrap();
 
     // 2. デフォルト設定で初期化
-    config_manager.initialize_with_defaults().unwrap();
+    config_manager.initialize_with_defaults().await.unwrap();
 
     // 3. 設定を読み込み
     let settings = config_manager.load_settings().await.unwrap();
@@ -69,7 +69,7 @@ async fn test_settings_load_and_save() {
     modified_settings.font_size = 16;
     modified_settings.custom_due_days = vec![1, 7, 30];
 
-    config_manager.save_settings(&modified_settings).unwrap();
+    config_manager.save_settings(&modified_settings).await.unwrap();
     println!("✅ 設定保存成功");
 
     // 5. 保存した設定を再読み込みして確認
@@ -97,7 +97,7 @@ async fn test_invalid_settings_validation() {
     invalid_settings.week_start = "invalid_day".to_string(); // 無効な週開始日
 
     // バリデーションエラーが発生することを確認
-    let result = config_manager.save_settings(&invalid_settings);
+    let result = config_manager.save_settings(&invalid_settings).await;
     assert!(
         result.is_err(),
         "無効な設定値でバリデーションエラーが発生するはず"

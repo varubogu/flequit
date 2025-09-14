@@ -3,7 +3,7 @@
 //! このモジュールは設定の読み書きと管理を行います。
 
 use crate::errors::{SettingsError, SettingsResult};
-use crate::models::settings::Settings;
+use crate::models::settings::{Settings, PartialSettings};
 use crate::paths::SettingsPaths;
 use crate::validation::SettingsValidator;
 use log::{debug, info, warn};
@@ -52,7 +52,7 @@ impl SettingsManager {
 
             // デフォルト設定を作成・保存
             let default_settings = Settings::default();
-            self.save_settings(&default_settings)?;
+            self.save_settings(&default_settings).await?;
 
             info!(
                 "デフォルト設定ファイルを作成しました: {}",
@@ -84,7 +84,7 @@ impl SettingsManager {
     ///
     /// 設定をYAML形式で設定ファイルに保存します。
     /// 保存前に設定値の検証を行います。
-    pub fn save_settings(&self, settings: &Settings) -> SettingsResult<()> {
+    pub async fn save_settings(&self, settings: &Settings) -> SettingsResult<()> {
         debug!("設定を保存中: {}", self.settings_path.display());
 
         // 設定値を検証
@@ -127,7 +127,7 @@ impl SettingsManager {
     /// デフォルト設定でファイルを初期化
     ///
     /// 設定ファイルが存在しない場合に、デフォルト設定で新規作成します。
-    pub fn initialize_with_defaults(&self) -> SettingsResult<()> {
+    pub async fn initialize_with_defaults(&self) -> SettingsResult<()> {
         if self.settings_exists() {
             debug!("設定ファイルは既に存在します");
             return Ok(());
@@ -135,7 +135,78 @@ impl SettingsManager {
 
         info!("デフォルト設定で設定ファイルを初期化します");
         let default_settings = Settings::default();
-        self.save_settings(&default_settings)
+        self.save_settings(&default_settings).await
+    }
+
+    /// 部分的な設定更新を適用
+    ///
+    /// 既存の設定を読み込み、部分的な設定を適用してから保存します。
+    /// 設定ファイルが存在しない場合は自動的にデフォルト設定で初期化してから更新します。
+    pub async fn update_settings_partially(&self, partial: &PartialSettings) -> SettingsResult<Settings> {
+        debug!("部分的な設定更新を開始");
+
+        // 既存の設定を読み込み（存在しない場合はデフォルト設定を作成）
+        let mut current_settings = self.load_settings().await?;
+
+        // 部分的な設定を適用
+        self.apply_partial_settings(&mut current_settings, partial);
+
+        // 更新された設定を保存
+        self.save_settings(&current_settings).await?;
+
+        info!("部分的な設定更新が完了しました");
+        Ok(current_settings)
+    }
+
+    /// PartialSettingsを既存のSettingsに適用する内部メソッド
+    fn apply_partial_settings(&self, target: &mut Settings, partial: &PartialSettings) {
+        // テーマ・外観設定
+        if let Some(theme) = &partial.theme {
+            target.theme = theme.clone();
+        }
+        if let Some(language) = &partial.language {
+            target.language = language.clone();
+        }
+        if let Some(font) = &partial.font {
+            target.font = font.clone();
+        }
+        if let Some(font_size) = partial.font_size {
+            target.font_size = font_size;
+        }
+        if let Some(font_color) = &partial.font_color {
+            target.font_color = font_color.clone();
+        }
+        if let Some(background_color) = &partial.background_color {
+            target.background_color = background_color.clone();
+        }
+
+        // 基本設定
+        if let Some(week_start) = &partial.week_start {
+            target.week_start = week_start.clone();
+        }
+        if let Some(timezone) = &partial.timezone {
+            target.timezone = timezone.clone();
+        }
+        if let Some(custom_due_days) = &partial.custom_due_days {
+            target.custom_due_days = custom_due_days.clone();
+        }
+        if let Some(datetime_format) = &partial.datetime_format {
+            target.datetime_format = datetime_format.clone();
+        }
+        if let Some(datetime_formats) = &partial.datetime_formats {
+            target.datetime_formats = datetime_formats.clone();
+        }
+        if let Some(time_labels) = &partial.time_labels {
+            target.time_labels = time_labels.clone();
+        }
+
+        // 表示設定
+        if let Some(due_date_buttons) = &partial.due_date_buttons {
+            target.due_date_buttons = due_date_buttons.clone();
+        }
+        if let Some(view_items) = &partial.view_items {
+            target.view_items = view_items.clone();
+        }
     }
 }
 

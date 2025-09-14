@@ -2,6 +2,7 @@
 //!
 //! このモジュールはアプリケーションの全設定項目を管理する構造体を定義します。
 
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 use super::datetime_format::DateTimeFormat;
@@ -13,7 +14,8 @@ use super::view_item::ViewItem;
 ///
 /// アプリケーションの全設定項目を単一の構造体で管理します。
 /// フロントエンドのSettings型に対応しています。
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Settings {
     // テーマ・外観設定
     /// UIテーマ（"system", "light", "dark"）

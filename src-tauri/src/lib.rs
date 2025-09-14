@@ -57,6 +57,7 @@ pub fn run() {
                 // New settings management commands (flequit-settings based)
                 settings_commands::load_settings,
                 settings_commands::save_settings,
+                settings_commands::update_settings_partially,
                 settings_commands::settings_file_exists,
                 settings_commands::initialize_settings_with_defaults,
                 settings_commands::get_settings_file_path,
