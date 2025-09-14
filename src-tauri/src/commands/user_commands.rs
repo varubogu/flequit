@@ -1,8 +1,9 @@
-use crate::models::user::UserCommandModel;
+use crate::models::user::{UserCommandModel, PartialUserCommandModel};
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::user_facades;
 use flequit_model::models::ModelConverter;
+use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use tauri::State;
 
@@ -38,11 +39,33 @@ pub async fn get_user(
 #[tauri::command]
 pub async fn update_user(
     state: State<'_, AppState>,
-    user: UserCommandModel,
+    id: String,
+    patch: PartialUserCommandModel,
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
-    let internal_user = user.to_model().await?;
-    user_facades::update_user(&*repositories, &internal_user).await
+    let user_id = UserId::from(id);
+    
+    // 既存のユーザーを取得
+    let existing_user = match user_facades::get_user(&*repositories, &user_id).await? {
+        Some(user) => user,
+        None => return Err("User not found".to_string()),
+    };
+    
+    // PartialUserCommandModelから部分更新を適用した新しいUserを作成
+    let updated_user = User {
+        id: existing_user.id,
+        handle_id: patch.handle_id.unwrap_or(existing_user.handle_id),
+        display_name: patch.display_name.unwrap_or(existing_user.display_name),
+        email: patch.email.unwrap_or(existing_user.email),
+        avatar_url: patch.avatar_url.unwrap_or(existing_user.avatar_url),
+        bio: patch.bio.unwrap_or(existing_user.bio),
+        timezone: patch.timezone.unwrap_or(existing_user.timezone),
+        is_active: patch.is_active.unwrap_or(existing_user.is_active),
+        created_at: existing_user.created_at,
+        updated_at: chrono::Utc::now(), // 更新時刻を現在時刻に設定
+    };
+    
+    user_facades::update_user(&*repositories, &updated_user).await
 }
 
 

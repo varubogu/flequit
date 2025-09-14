@@ -139,3 +139,15 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
         })
     }
 }
+
+/// Tauri コマンド引数用の PartialRecurrenceRule 構造体（部分更新用）
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+pub struct PartialRecurrenceRuleCommandModel {
+    pub unit: Option<String>,
+    pub interval: Option<i32>,
+    pub days_of_week: Option<Option<Vec<String>>>,
+    pub details: Option<Option<String>>,
+    pub adjustment: Option<Option<String>>,
+    pub end_date: Option<Option<String>>,
+    pub max_occurrences: Option<Option<i32>>,
+}

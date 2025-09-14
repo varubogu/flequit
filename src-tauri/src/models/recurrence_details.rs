@@ -53,3 +53,12 @@ impl CommandModelConverter<RecurrenceDetailsCommandModel> for RecurrenceDetails 
         })
     }
 }
+
+/// Tauri コマンド引数用の PartialRecurrenceDetails 構造体（部分更新用）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PartialRecurrenceDetailsCommandModel {
+    pub specific_date: Option<Option<i32>>,
+    pub week_of_period: Option<Option<String>>,
+    pub weekday_of_week: Option<Option<String>>,
+    pub date_conditions: Option<Option<Vec<String>>>,
+}
