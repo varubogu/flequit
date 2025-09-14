@@ -352,16 +352,65 @@ class MainSettingsStore {
       throw new Error('Backend service not available');
     }
 
-    const setting: Setting = {
-      id: `setting_${key}`,
-      key,
-      value,
-      data_type: dataType,
-      created_at: new Date(),
-      updated_at: new Date()
-    };
+    // 新しい部分更新システムを使用するためのマッピング
+    const partialSettings = this.convertKeyValueToPartialSettings(key, value, dataType);
+    if (partialSettings) {
+      await backend.settingsManagement.updateSettingsPartially(partialSettings);
+    } else {
+      // 新しいSettingsに含まれない個別設定は従来のsetting serviceを使用
+      const setting: Setting = {
+        id: `setting_${key}`,
+        key,
+        value,
+        data_type: dataType,
+        created_at: new Date(),
+        updated_at: new Date()
+      };
+      await backend.setting.update(setting);
+    }
+  }
 
-    await backend.setting.update(setting);
+  private convertKeyValueToPartialSettings(key: string, value: string, dataType: Setting['data_type']): Partial<Settings> | null {
+    try {
+      switch (key) {
+        case 'theme':
+          return { theme: value as 'system' | 'light' | 'dark' };
+        case 'language':
+          return { language: value };
+        case 'font':
+          return { font: value };
+        case 'fontSize':
+          return { fontSize: parseInt(value, 10) };
+        case 'fontColor':
+          return { fontColor: value };
+        case 'backgroundColor':
+          return { backgroundColor: value };
+        case 'weekStart':
+          return { weekStart: value as 'sunday' | 'monday' };
+        case 'timezone':
+          return { timezone: value };
+        case 'dateFormat':
+          return { dateFormat: value };
+        case 'customDueDays':
+          return { customDueDays: JSON.parse(value) };
+        case 'customDateFormats':
+          return { customDateFormats: JSON.parse(value) };
+        case 'timeLabels':
+          return { timeLabels: JSON.parse(value) };
+        case 'dueDateButtons':
+          return { dueDateButtons: JSON.parse(value) };
+        case 'viewItems':
+          return { viewItems: JSON.parse(value) };
+        case 'lastSelectedAccount':
+          return { lastSelectedAccount: value };
+        default:
+          // 新しいSettingsに含まれないキーの場合はnullを返す
+          return null;
+      }
+    } catch (error) {
+      console.error(`Failed to convert key '${key}' with value '${value}':`, error);
+      return null;
+    }
   }
 
   private async loadSettings() {

@@ -18,6 +18,13 @@ export interface SettingsManagementService {
   saveSettings(settings: Settings): Promise<boolean>;
 
   /**
+   * 設定を部分的に更新する
+   * @param partialSettings 部分更新する設定
+   * @returns 更新された完全な設定オブジェクト
+   */
+  updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null>;
+
+  /**
    * 設定ファイルが存在するかチェックする
    * @returns ファイルの存在確認結果
    */

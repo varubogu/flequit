@@ -3,7 +3,7 @@
   import Select from '$lib/components/ui/select.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { format } from 'date-fns';
-  import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
+  import { getAvailableTimezones } from '$lib/stores/settings.svelte';
   import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
   import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
   import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
@@ -68,29 +68,6 @@
     console.log('Add custom due day');
   }
 
-  // 設定を保存する関数を追加
-  async function saveSettings() {
-    try {
-      const currentSettings = await dataService.loadSettings();
-      if (currentSettings) {
-        // 現在の設定を更新して保存
-        const updatedSettings = {
-          ...currentSettings,
-          weekStart: settings.weekStart as 'sunday' | 'monday',
-          timezone: settings.timezone,
-          dateFormat: settings.dateFormat,
-          customDueDays: settings.customDueDays
-        };
-        
-        await dataService.saveSettings(updatedSettings);
-        console.log('Settings saved successfully via SettingsManagementService');
-      } else {
-        console.warn('Could not load existing settings to update');
-      }
-    } catch (error) {
-      console.error('Failed to save settings via SettingsManagementService:', error);
-    }
-  }
 
   // カスタム期日を追加する機能を実装
   async function addCustomDueDayToSettings(days: number) {
@@ -116,27 +93,56 @@
     }
   }
 
-  function handleWeekStartChange(event: Event) {
+  async function handleWeekStartChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newWeekStart = target.value;
+    settings.weekStart = newWeekStart;
     onWeekStartChange?.(newWeekStart);
-    // 新しいサービスで自動保存
-    saveSettings();
+    // 新しい部分更新システムで直接保存
+    try {
+      const result = await dataService.updateSettingsPartially({ 
+        weekStart: newWeekStart as 'sunday' | 'monday'
+      });
+      if (result) {
+        console.log('Week start updated successfully');
+      }
+    } catch (error) {
+      console.error('Failed to update week start:', error);
+    }
   }
 
-  function handleTimezoneChange(event: Event) {
+  async function handleTimezoneChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newTimezone = target.value;
+    settings.timezone = newTimezone;
     onTimezoneChange?.(newTimezone);
-    // 新しいサービスで自動保存
-    saveSettings();
+    // 新しい部分更新システムで直接保存
+    try {
+      const result = await dataService.updateSettingsPartially({ 
+        timezone: newTimezone 
+      });
+      if (result) {
+        console.log('Timezone updated successfully');
+      }
+    } catch (error) {
+      console.error('Failed to update timezone:', error);
+    }
   }
 
-  function handleDateFormatChange(event: Event) {
+  async function handleDateFormatChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    settingsStore.setDateFormat(target.value);
-    // 新しいサービスで自動保存
-    saveSettings();
+    settings.dateFormat = target.value;
+    // 新しい部分更新システムで直接保存
+    try {
+      const result = await dataService.updateSettingsPartially({ 
+        dateFormat: target.value 
+      });
+      if (result) {
+        console.log('Date format updated successfully');
+      }
+    } catch (error) {
+      console.error('Failed to update date format:', error);
+    }
   }
 
   function openDateFormatDialog() {
@@ -220,7 +226,7 @@
             {/each}
           </select>
           <p class="text-muted-foreground mt-1 text-xs">
-            {currentEffectiveTimezone()}: {settingsStore.effectiveTimezone}
+            {currentEffectiveTimezone()}: {settings.timezone}
           </p>
         </div>
 

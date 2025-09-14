@@ -557,6 +557,11 @@ export class DataService {
     return await backend.settingsManagement.getSettingsFilePath();
   }
 
+  async updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null> {
+    const backend = await this.getBackend();
+    return await backend.settingsManagement.updateSettingsPartially(partialSettings);
+  }
+
   async addCustomDueDay(days: number): Promise<boolean> {
     const backend = await this.getBackend();
     return await backend.settingsManagement.addCustomDueDay(days);

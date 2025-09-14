@@ -110,16 +110,8 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
         throw new Error('Backend service not available');
       }
 
-      const setting: Setting = {
-        id: 'setting_language',
-        key: 'language',
-        value: locale,
-        data_type: 'string',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-
-      await backend.setting.update(setting);
+      // 新しい部分更新システムを使用
+      await backend.settingsManagement.updateSettingsPartially({ language: locale });
       console.log(`Locale '${locale}' saved successfully`);
     } catch (error) {
       console.error('Failed to save locale:', error);

@@ -14,6 +14,43 @@ export class SettingsManagementWebService implements SettingsManagementService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
+  async updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null> {
+    // TODO: Web API実装を追加
+    console.warn('Web backend: updateSettingsPartially not implemented', partialSettings);
+    // 仮実装として部分設定を含む基本設定を返す
+    const defaultSettings: Settings = {
+      theme: 'system',
+      language: 'ja',
+      weekStart: 'monday',
+      timezone: 'Asia/Tokyo',
+      dateFormat: 'yyyy年MM月dd日',
+      font: 'default',
+      fontSize: 14,
+      fontColor: 'default',
+      backgroundColor: 'default',
+      customDueDays: [1, 3, 7, 14, 30],
+      customDateFormats: [],
+      timeLabels: [],
+      viewItems: [],
+      dueDateButtons: {
+        overdue: true,
+        today: true,
+        tomorrow: true,
+        threeDays: true,
+        thisWeek: true,
+        thisMonth: true,
+        thisQuarter: false,
+        thisYear: false,
+        thisYearEnd: false
+      },
+      lastSelectedAccount: ''
+    };
+    
+    // 部分更新をマージ
+    const updatedSettings = { ...defaultSettings, ...partialSettings };
+    return updatedSettings;
+  }
+
   async settingsFileExists(): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: settingsFileExists not implemented');

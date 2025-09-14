@@ -1,12 +1,9 @@
 import { setMode, userPrefersMode } from 'mode-watcher';
-import { getBackendService } from '$lib/services/backend';
-import { settingsInitService } from '$lib/services/settings-init-service';
-import type { Setting } from '$lib/types/settings';
+import { dataService } from '$lib/services/data-service';
 
 type Theme = 'system' | 'light' | 'dark';
 
 class ThemeStore {
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
   private isInitialized = false;
 
   get currentTheme(): Theme {
@@ -19,13 +16,6 @@ class ThemeStore {
     this.saveTheme(theme);
   }
 
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
-    }
-    return this.backendService;
-  }
-
   private async saveTheme(theme: Theme) {
     // 初期化が完了していない場合は保存しない
     if (!this.isInitialized) {
@@ -33,22 +23,12 @@ class ThemeStore {
     }
 
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
+      const result = await dataService.updateSettingsPartially({ theme });
+      if (result) {
+        console.log(`Theme '${theme}' saved successfully`);
+      } else {
+        throw new Error('Failed to update theme setting');
       }
-
-      const setting: Setting = {
-        id: 'setting_theme',
-        key: 'theme',
-        value: theme,
-        data_type: 'string',
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-
-      await backend.setting.update(setting);
-      console.log(`Theme '${theme}' saved successfully`);
     } catch (error) {
       console.error('Failed to save theme:', error);
       // フォールバックとしてlocalStorageに保存
@@ -60,23 +40,18 @@ class ThemeStore {
 
   private async loadTheme() {
     try {
-      // 統合初期化サービスから全設定を取得
-      const allSettings = await settingsInitService.getAllSettings();
-      const themeSetting = settingsInitService.getSettingByKey(allSettings, 'theme');
+      // 新しい設定管理システムから全設定を取得
+      const settings = await dataService.loadSettings();
 
-      if (
-        themeSetting &&
-        (themeSetting.value === 'system' ||
-          themeSetting.value === 'light' ||
-          themeSetting.value === 'dark')
-      ) {
-        setMode(themeSetting.value as Theme);
-        console.log(`Theme loaded from backend: ${themeSetting.value}`);
+      if (settings?.theme && 
+          (settings.theme === 'system' || settings.theme === 'light' || settings.theme === 'dark')) {
+        setMode(settings.theme as Theme);
+        console.log(`Theme loaded from new settings system: ${settings.theme}`);
       } else {
-        console.log('No theme setting found in backend, using default');
+        console.log('No theme setting found, using default');
       }
     } catch (error) {
-      console.error('Failed to load theme from backend:', error);
+      console.error('Failed to load theme:', error);
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {

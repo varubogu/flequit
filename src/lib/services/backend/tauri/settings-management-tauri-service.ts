@@ -23,6 +23,16 @@ export class SettingsManagementTauriService implements SettingsManagementService
     }
   }
 
+  async updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null> {
+    try {
+      const result = (await invoke('update_settings_partially', { partialSettings })) as Settings | null;
+      return result;
+    } catch (error) {
+      console.error('Failed to update settings partially:', error);
+      return null;
+    }
+  }
+
   async settingsFileExists(): Promise<boolean> {
     try {
       const result = await invoke('settings_file_exists');

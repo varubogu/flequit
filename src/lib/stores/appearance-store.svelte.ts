@@ -1,6 +1,4 @@
-import { getBackendService } from '$lib/services/backend';
-import { settingsInitService } from '$lib/services/settings-init-service';
-import type { Setting } from '$lib/types/settings';
+import { dataService } from '$lib/services/data-service';
 
 export interface AppearanceSettings {
   font: string;
@@ -17,7 +15,6 @@ class AppearanceStore {
     backgroundColor: 'default'
   });
 
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
   private isInitialized = false;
 
   get settings(): AppearanceSettings {
@@ -26,42 +23,39 @@ class AppearanceStore {
 
   setFont(font: string): void {
     this._settings.font = font;
-    this.saveSingleSetting('appearance_font', font, 'string');
+    this.saveSettings({ font });
   }
 
   setFontSize(fontSize: number): void {
     this._settings.fontSize = fontSize;
-    this.saveSingleSetting('appearance_fontSize', fontSize.toString(), 'string');
+    this.saveSettings({ fontSize });
   }
 
   setFontColor(fontColor: string): void {
     this._settings.fontColor = fontColor;
-    this.saveSingleSetting('appearance_fontColor', fontColor, 'string');
+    this.saveSettings({ fontColor });
   }
 
   setBackgroundColor(backgroundColor: string): void {
     this._settings.backgroundColor = backgroundColor;
-    this.saveSingleSetting('appearance_backgroundColor', backgroundColor, 'string');
+    this.saveSettings({ backgroundColor });
   }
 
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
-    }
-    return this.backendService;
-  }
-
-  private async saveSingleSetting(key: string, value: string, dataType: Setting['data_type']) {
+  private async saveSettings(partialSettings: Partial<{ font: string; fontSize: number; fontColor: string; backgroundColor: string }>) {
     // 初期化が完了していない場合は保存しない
     if (!this.isInitialized) {
       return;
     }
 
     try {
-      await this.saveSetting(key, value, dataType);
-      console.log(`Appearance setting '${key}' saved successfully`);
+      const result = await dataService.updateSettingsPartially(partialSettings);
+      if (result) {
+        console.log('Appearance settings saved successfully:', partialSettings);
+      } else {
+        throw new Error('Failed to update settings');
+      }
     } catch (error) {
-      console.error(`Failed to save appearance setting '${key}':`, error);
+      console.error('Failed to save appearance settings:', error);
       // フォールバックとしてlocalStorageに保存
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('flequit-appearance', JSON.stringify(this._settings));
@@ -69,69 +63,32 @@ class AppearanceStore {
     }
   }
 
-  private async saveSetting(key: string, value: string, dataType: Setting['data_type']) {
-    const backend = await this.initBackendService();
-    if (!backend) {
-      throw new Error('Backend service not available');
-    }
-
-    const setting: Setting = {
-      id: `setting_${key}`,
-      key,
-      value,
-      data_type: dataType,
-      created_at: new Date(),
-      updated_at: new Date()
-    };
-
-    await backend.setting.update(setting);
-  }
-
   private async loadSettings() {
     try {
-      // 統合初期化サービスから全設定を取得
-      const allSettings = await settingsInitService.getAllSettings();
+      // 新しい設定管理システムから全設定を取得
+      const settings = await dataService.loadSettings();
 
-      let loadedCount = 0;
-
-      // 各設定を適用
-      for (const setting of allSettings) {
-        switch (setting.key) {
-          case 'appearance_font':
-            this._settings.font = setting.value;
-            loadedCount++;
-            break;
-
-          case 'appearance_fontSize': {
-            const fontSize = parseInt(setting.value, 10);
-            if (!isNaN(fontSize)) {
-              this._settings.fontSize = fontSize;
-              loadedCount++;
-            }
-            break;
-          }
-
-          case 'appearance_fontColor':
-            this._settings.fontColor = setting.value;
-            loadedCount++;
-            break;
-
-          case 'appearance_backgroundColor':
-            this._settings.backgroundColor = setting.value;
-            loadedCount++;
-            break;
+      if (settings) {
+        // 外観設定を適用
+        if (settings.font !== undefined) {
+          this._settings.font = settings.font;
         }
-      }
-
-      if (loadedCount > 0) {
-        console.log(
-          `Appearance settings loaded successfully from backend (${loadedCount} settings)`
-        );
+        if (settings.fontSize !== undefined) {
+          this._settings.fontSize = settings.fontSize;
+        }
+        if (settings.fontColor !== undefined) {
+          this._settings.fontColor = settings.fontColor;
+        }
+        if (settings.backgroundColor !== undefined) {
+          this._settings.backgroundColor = settings.backgroundColor;
+        }
+        
+        console.log('Appearance settings loaded successfully from new settings system');
       } else {
-        console.log('No appearance settings found in backend, using defaults');
+        console.log('No settings found, using defaults');
       }
     } catch (error) {
-      console.error('Failed to load appearance settings from backend:', error);
+      console.error('Failed to load appearance settings:', error);
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {
