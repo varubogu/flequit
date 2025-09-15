@@ -263,6 +263,8 @@ pub mod mock {
         pub users: UserUnifiedRepository,
         pub task_assignments: TaskAssignmentUnifiedRepository,
         pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
+        pub task_tags: TaskTagUnifiedRepository,
+        pub subtask_tags: SubTaskTagUnifiedRepository,
         pub unified_manager: UnifiedManager,
     }
 
@@ -279,6 +281,8 @@ pub mod mock {
                 users: UserUnifiedRepository::default(),
                 task_assignments: TaskAssignmentUnifiedRepository::default(),
                 subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
+                task_tags: TaskTagUnifiedRepository::default(),
+                subtask_tags: SubTaskTagUnifiedRepository::default(),
                 unified_manager: UnifiedManager::default(),
             }
         }
@@ -351,6 +355,16 @@ pub mod mock {
         fn subtask_assignments(&self) -> &SubTaskAssignmentUnifiedRepository {
             self.log_call("subtask_assignments");
             &self.subtask_assignments
+        }
+
+        fn task_tags(&self) -> &TaskTagUnifiedRepository {
+            self.log_call("task_tags");
+            &self.task_tags
+        }
+
+        fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository {
+            self.log_call("subtask_tags");
+            &self.subtask_tags
         }
 
         async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
