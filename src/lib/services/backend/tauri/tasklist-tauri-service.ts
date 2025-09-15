@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TaskListSearchCondition, TaskList, TaskListPatch } from '$lib/types/task-list';
+import type { TaskListSearchCondition, TaskList } from '$lib/types/task-list';
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
 export class TasklistTauriService implements TaskListService {
@@ -15,7 +15,7 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
-  async update(projectId: string, id: string, patch: TaskListPatch): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<TaskList>): Promise<boolean> {
     try {
       const result = await invoke('update_task_list', { projectId: projectId, id, patch });
       return result as boolean;

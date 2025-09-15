@@ -1,4 +1,4 @@
-import type { ProjectSearchCondition, Project, ProjectPatch } from '$lib/types/project';
+import type { ProjectSearchCondition, Project } from '$lib/types/project';
 import type { ProjectService } from '$lib/services/backend/project-service';
 
 export class ProjectWebService implements ProjectService {
@@ -8,7 +8,7 @@ export class ProjectWebService implements ProjectService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
-  async update(id: string, patch: ProjectPatch): Promise<boolean> {
+  async update(id: string, patch: Partial<Project>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: updateProject not implemented', id, patch);
     return true; // 警告を出しつつ正常終了として扱う

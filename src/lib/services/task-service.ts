@@ -311,7 +311,7 @@ export class TaskService {
    * 汎用パッチ更新 - Tauriバックエンドを使用
    */
   /*
-  static async updateTaskPatch(id: string, patch: TaskPatch): Promise<boolean> {
+  static async updatePartial<Task>(id: string, patch: Partial<Task>): Promise<boolean> {
     return await invoke<boolean>('update_task_patch', { id, patch });
   }
 
@@ -320,8 +320,8 @@ export class TaskService {
    */
   /*
   static async updateTaskTitle(id: string, title: string): Promise<boolean> {
-    const patch: TaskPatch = { title };
-    return await this.updateTaskPatch(id, patch);
+    const patch: Partial<Task> = { title };
+    return await this.updatePartial<Task>(id, patch);
   }
 
   /**
@@ -329,8 +329,8 @@ export class TaskService {
    */
   /*
   static async updateTaskStatusTauri(id: string, status: TaskStatus): Promise<boolean> {
-    const patch: TaskPatch = { status };
-    return await this.updateTaskPatch(id, patch);
+    const patch: Partial<Task> = { status };
+    return await this.updatePartial<Task>(id, patch);
   }
 
   /**
@@ -338,8 +338,8 @@ export class TaskService {
    */
   /*
   static async updateTaskDescription(id: string, description: string | null): Promise<boolean> {
-    const patch: TaskPatch = { description };
-    return await this.updateTaskPatch(id, patch);
+    const patch: Partial<Task> = { description };
+    return await this.updatePartial<Task>(id, patch);
   }
 
   /**
@@ -347,8 +347,8 @@ export class TaskService {
    */
   /*
   static async updateTaskPriority(id: string, priority: number): Promise<boolean> {
-    const patch: TaskPatch = { priority };
-    return await this.updateTaskPatch(id, patch);
+    const patch: Partial<Task> = { priority };
+    return await this.updatePartial<Task>(id, patch);
   }
 
   /**
@@ -356,10 +356,10 @@ export class TaskService {
    */
   /*
   static async updateTaskDueDate(id: string, end_date: Date | null): Promise<boolean> {
-    const patch: TaskPatch = { 
+    const patch: Partial<Task> = { 
       end_date: end_date ? end_date.toISOString() : null 
     };
-    return await this.updateTaskPatch(id, patch);
+    return await this.updatePartial<Task>(id, patch);
   }
   */
 }

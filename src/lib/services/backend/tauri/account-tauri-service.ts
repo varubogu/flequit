@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Account, AccountPatch } from '$lib/types/account';
+import type { Account } from '$lib/types/account';
 import type { AccountService } from '$lib/services/backend/account-service';
 
 export class AccountTauriService implements AccountService {
@@ -23,7 +23,7 @@ export class AccountTauriService implements AccountService {
     }
   }
 
-  async update(id: string, patch: AccountPatch): Promise<boolean> {
+  async update(id: string, patch: Partial<Account>): Promise<boolean> {
     try {
       const result = await invoke('update_account', { id, patch });
       return result as boolean;

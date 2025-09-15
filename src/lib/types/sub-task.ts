@@ -58,38 +58,3 @@ export interface SubTaskSearchCondition {
   priority?: number;
 }
 
-/**
- * サブタスク部分更新用のパッチインターフェース
- */
-export interface SubTaskPatch {
-  /** 親タスクID */
-  task_id?: string;
-  /** サブタスクタイトル */
-  title?: string;
-  /** サブタスクの説明 */
-  description?: string | null;
-  /** ステータス */
-  status?: TaskStatus;
-  /** 優先度 */
-  priority?: number | null;
-  /** 予定開始日 */
-  plan_start_date?: string | null;
-  /** 予定終了日 */
-  plan_end_date?: string | null;
-  /** 実開始日 */
-  do_start_date?: string | null;
-  /** 実終了日 */
-  do_end_date?: string | null;
-  /** 期日が範囲選択かどうか */
-  is_range_date?: boolean | null;
-  /** 繰り返しルール */
-  recurrence_rule?: RecurrenceRule | null;
-  /** 担当者IDの配列 */
-  assigned_user_ids?: string[];
-  /** タグIDの配列 */
-  tag_ids?: string[];
-  /** 表示順序 */
-  order_index?: number;
-  /** 完了状態 */
-  completed?: boolean;
-}

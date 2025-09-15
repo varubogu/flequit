@@ -1,4 +1,4 @@
-import type { Account, AccountPatch } from '$lib/types/account';
+import type { Account } from '$lib/types/account';
 import type { AccountService } from '$lib/services/backend/account-service';
 
 export class AccountWebService implements AccountService {
@@ -14,7 +14,7 @@ export class AccountWebService implements AccountService {
     return null; // 仮実装としてnullを返す
   }
 
-  async update(id: string, patch: AccountPatch): Promise<boolean> {
+  async update(id: string, patch: Partial<Account>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: updateAccount not implemented', id, patch);
     return false; // 仮実装として失敗を返す

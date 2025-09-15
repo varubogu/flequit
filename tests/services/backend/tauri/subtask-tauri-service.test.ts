@@ -118,7 +118,7 @@ describe('SubtaskTauriService', () => {
         do_end_date: mockSubTask.do_end_date?.toISOString(),
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
-      };
+      } as any;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
@@ -141,7 +141,7 @@ describe('SubtaskTauriService', () => {
         do_end_date: mockSubTask.do_end_date?.toISOString(),
         created_at: mockSubTask.created_at.toISOString(),
         updated_at: mockSubTask.updated_at.toISOString()
-      };
+      } as any;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
@@ -172,7 +172,7 @@ describe('SubtaskTauriService', () => {
         do_end_date: updatedSubTask.do_end_date?.toISOString(),
         created_at: updatedSubTask.created_at.toISOString(),
         updated_at: updatedSubTask.updated_at.toISOString()
-      };
+      } as any;
 
       const result = await service.update('test-project-id', updatedSubTask.id, patchData);
 

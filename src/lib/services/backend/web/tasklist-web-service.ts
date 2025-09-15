@@ -1,4 +1,4 @@
-import type { TaskListSearchCondition, TaskList, TaskListPatch } from '$lib/types/task-list';
+import type { TaskListSearchCondition, TaskList } from '$lib/types/task-list';
 import type { TaskListService } from '$lib/services/backend/tasklist-service';
 
 export class TasklistWebService implements TaskListService {
@@ -8,7 +8,7 @@ export class TasklistWebService implements TaskListService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
-  async update(projectId: string, id: string, patch: TaskListPatch): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<TaskList>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: updateTaskList not implemented', projectId, id, patch);
     return true; // 警告を出しつつ正常終了として扱う

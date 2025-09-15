@@ -1,9 +1,9 @@
-import type { TagSearchCondition, Tag, TagPatch } from '$lib/types/tag';
+import type { TagSearchCondition, Tag } from '$lib/types/tag';
 import type { ProjectCrudInterface, ProjectSearchInterface } from '../../types/crud-interface';
 
 /**
  * タグ管理用のバックエンドサービスインターフェース
  */
 export interface TagService 
-  extends ProjectCrudInterface<Tag, TagPatch>, 
+  extends ProjectCrudInterface<Tag, Partial<Tag>>, 
     ProjectSearchInterface<Tag, TagSearchCondition> {}

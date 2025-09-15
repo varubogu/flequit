@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TagSearchCondition, Tag, TagPatch } from '$lib/types/tag';
+import type { TagSearchCondition, Tag } from '$lib/types/tag';
 import type { TagService } from '$lib/services/backend/tag-service';
 
 export class TagTauriService implements TagService {
@@ -13,7 +13,7 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async update(projectId: string, id: string, patch: TagPatch): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<Tag>): Promise<boolean> {
     try {
       const result = await invoke('update_tag', { project_id: projectId, tag_id: id, patch });
       return result as boolean;

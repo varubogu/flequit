@@ -22,12 +22,3 @@ export interface MemberSearchCondition {
   role?: 'Owner' | 'Admin' | 'Member' | 'Viewer';
 }
 
-/**
- * メンバー部分更新用のパッチインターフェース
- */
-export interface MemberPatch {
-  /** メンバーのユーザーID */
-  user_id?: string;
-  /** 権限役割 */
-  role?: 'Owner' | 'Admin' | 'Member' | 'Viewer';
-}

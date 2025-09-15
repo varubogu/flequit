@@ -1,4 +1,4 @@
-import type { SubTaskSearchCondition, SubTask, SubTaskPatch } from '$lib/types/sub-task';
+import type { SubTaskSearchCondition, SubTask } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
 export class SubtaskWebService implements SubTaskService {
@@ -8,7 +8,7 @@ export class SubtaskWebService implements SubTaskService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
-  async update(projectId: string, id: string, patch: SubTaskPatch): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<SubTask>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: updateSubTask not implemented', projectId, id, patch);
     return true; // 警告を出しつつ正常終了として扱う

@@ -38,6 +38,12 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     /// サブタスクアサインリポジトリへのアクセス
     fn subtask_assignments(&self) -> &SubTaskAssignmentUnifiedRepository;
 
+    /// タスクタグリポジトリへのアクセス
+    fn task_tags(&self) -> &TaskTagUnifiedRepository;
+
+    /// サブタスクタグリポジトリへのアクセス
+    fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository;
+
     /// リポジトリの初期化処理
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
@@ -60,6 +66,8 @@ pub struct InfrastructureRepositories {
     pub users: UserUnifiedRepository,
     pub task_assignments: TaskAssignmentUnifiedRepository,
     pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
+    pub task_tags: TaskTagUnifiedRepository,
+    pub subtask_tags: SubTaskTagUnifiedRepository,
 
     // Unified層の設定・管理
     unified_manager: UnifiedManager,
@@ -81,6 +89,8 @@ impl InfrastructureRepositories {
             users: UserUnifiedRepository::default(),
             task_assignments: TaskAssignmentUnifiedRepository::default(),
             subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
+            task_tags: TaskTagUnifiedRepository::default(),
+            subtask_tags: SubTaskTagUnifiedRepository::default(),
             unified_manager: UnifiedManager::default(),
         }
     }
@@ -103,6 +113,8 @@ impl InfrastructureRepositories {
         let users = unified_manager.create_user_unified_repository().await?;
         let task_assignments = unified_manager.create_task_assignment_unified_repository().await?;
         let subtask_assignments = unified_manager.create_sub_task_assignment_unified_repository().await?;
+        let task_tags = TaskTagUnifiedRepository::default();
+        let subtask_tags = SubTaskTagUnifiedRepository::default();
 
         tracing::info!("全UnifiedRepositoryの構築完了");
 
@@ -116,6 +128,8 @@ impl InfrastructureRepositories {
             users,
             task_assignments,
             subtask_assignments,
+            task_tags,
+            subtask_tags,
             unified_manager,
         })
     }
@@ -203,6 +217,13 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         &self.subtask_assignments
     }
 
+    fn task_tags(&self) -> &TaskTagUnifiedRepository {
+        &self.task_tags
+    }
+
+    fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository {
+        &self.subtask_tags
+    }
 
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリの初期化処理

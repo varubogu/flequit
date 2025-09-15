@@ -1,4 +1,4 @@
-import type { RecurrenceRule, RecurrenceRulePatch, RecurrenceRuleSearchCondition } from '$lib/types/recurrence-rule';
+import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence-rule';
 
 /**
  * 繰り返しルール管理サービスのインターフェース

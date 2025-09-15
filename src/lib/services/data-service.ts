@@ -1,8 +1,7 @@
 import type { Task } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { SubTask, SubTaskPatch } from '$lib/types/sub-task';
-import type { TaskListPatch, TaskListWithTasks } from '$lib/types/task-list';
-import type { TaskList } from '$lib/types/task-list';
+import type { SubTask } from '$lib/types/sub-task';
+import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
 import type { RecurrenceRule } from '$lib/types/recurrence-rule';
@@ -155,7 +154,7 @@ export class DataService {
   async updateTaskList(
     projectId: string,
     taskListId: string,
-    updates: TaskListPatch
+    updates: Partial<TaskList>
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
 
@@ -206,13 +205,13 @@ export class DataService {
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
 
     // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
-    const patchData: import('$lib/types/task').TaskPatch = {
+    const patchData = {
       ...updates,
       plan_start_date: updates.plan_start_date?.toISOString() ?? undefined,
       plan_end_date: updates.plan_end_date?.toISOString() ?? undefined,
       do_start_date: updates.do_start_date?.toISOString() ?? undefined,
       do_end_date: updates.do_end_date?.toISOString() ?? undefined
-    };
+    } as any;
 
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
@@ -296,7 +295,7 @@ export class DataService {
       plan_start_date: updates.plan_start_date ? updates.plan_start_date.toISOString() : updates.plan_start_date,
       plan_end_date: updates.plan_end_date ? updates.plan_end_date.toISOString() : updates.plan_end_date,
       updated_at: new Date()
-    } as SubTaskPatch;
+    } as Partial<SubTask>;
 
     console.log('DataService: calling backend.subtask.update');
     // サブタスクIDからプロジェクトIDを取得

@@ -33,23 +33,3 @@ export interface User {
   updated_at: string;
 }
 
-/**
- * ユーザー部分更新用のパッチインターフェース
- * 自分のAccount.user_idにマッチするプロフィールのみ更新可能
- */
-export interface UserPatch {
-  /** ユニークユーザー名 */
-  handle_id?: string;
-  /** 表示名 */
-  display_name?: string;
-  /** メールアドレス */
-  email?: string;
-  /** アバターURL */
-  avatar_url?: string;
-  /** 自己紹介 */
-  bio?: string;
-  /** タイムゾーン */
-  timezone?: string;
-  /** アクティブ状態 */
-  is_active?: boolean;
-}

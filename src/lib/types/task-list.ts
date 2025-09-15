@@ -46,18 +46,3 @@ export interface TaskListSearchCondition {
   order_index?: number;
 }
 
-/**
- * タスクリスト部分更新用のパッチインターフェース
- */
-export interface TaskListPatch {
-  /** タスクリスト名 */
-  name?: string;
-  /** タスクリストの説明 */
-  description?: string | null;
-  /** タスクリストの色 */
-  color?: string | null;
-  /** 表示順序 */
-  order_index?: number;
-  /** アーカイブ状態 */
-  is_archived?: boolean;
-}

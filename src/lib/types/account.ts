@@ -24,20 +24,3 @@ export interface Account {
   updated_at: string;
 }
 
-/**
- * アカウント部分更新用のパッチインターフェース
- */
-export interface AccountPatch {
-  /** メールアドレス */
-  email?: string;
-  /** プロバイダー提供の表示名 */
-  display_name?: string;
-  /** アバター画像URL */
-  avatar_url?: string;
-  /** 認証プロバイダー名 */
-  provider?: string;
-  /** プロバイダー側ユーザーID */
-  provider_id?: string;
-  /** アクティブ状態 */
-  is_active?: boolean;
-}

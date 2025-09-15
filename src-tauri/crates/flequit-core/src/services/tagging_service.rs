@@ -1,6 +1,7 @@
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::{subtask_tag::SubTaskTag, task_tag::TaskTag};
-use flequit_model::types::id_types::{SubTaskId, TagId, TaskId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 /// TaskTagサービス操作
@@ -14,11 +15,13 @@ pub async fn add_task_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // リポジトリ経由でアクセス(実装待ち)
-    // repositories.task_tags.add_relation(task_id, tag_id).await
-    //     .map_err(|e| ServiceError::RepositoryError(format!("{:?}", e)))?;
-
-    // 一時的な仮実装 - 実際はリポジトリ層を経由する
+    // タスクが存在するプロジェクトIDを取得
+    let project_id = find_project_id_by_task_id(repositories, task_id).await?;
+    
+    // タスクタグ関係を追加
+    repositories.task_tags().add(&project_id, task_id, tag_id).await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to add task tag relation: {:?}", e)))?;
+    
     Ok(())
 }
 
@@ -31,9 +34,13 @@ pub async fn remove_task_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // リポジトリ経由でアクセス(実装待ち)
-    // repositories.task_tags.remove_relation(task_id, tag_id).await
-    //     .map_err(|e| ServiceError::RepositoryError(format!("{:?}", e)))?;
+    // タスクが存在するプロジェクトIDを取得
+    let project_id = find_project_id_by_task_id(repositories, task_id).await?;
+    
+    // タスクタグ関係を削除
+    repositories.task_tags().remove(&project_id, task_id, tag_id).await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to remove task tag relation: {:?}", e)))?;
+    
     Ok(())
 }
 
@@ -137,9 +144,13 @@ pub async fn add_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // リポジトリ経由でアクセス(実装待ち)
-    // repositories.subtask_tags.add_relation(subtask_id, tag_id).await
-    //     .map_err(|e| ServiceError::RepositoryError(format!("{:?}", e)))?;
+    // サブタスクが存在するプロジェクトIDを取得
+    let project_id = find_project_id_by_subtask_id(repositories, subtask_id).await?;
+    
+    // サブタスクタグ関係を追加
+    repositories.subtask_tags().add(&project_id, subtask_id, tag_id).await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to add subtask tag relation: {:?}", e)))?;
+    
     Ok(())
 }
 
@@ -152,9 +163,13 @@ pub async fn remove_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // リポジトリ経由でアクセス(実装待ち)
-    // repositories.subtask_tags.remove_relation(subtask_id, tag_id).await
-    //     .map_err(|e| ServiceError::RepositoryError(format!("{:?}", e)))?;
+    // サブタスクが存在するプロジェクトIDを取得
+    let project_id = find_project_id_by_subtask_id(repositories, subtask_id).await?;
+    
+    // サブタスクタグ関係を削除
+    repositories.subtask_tags().remove(&project_id, subtask_id, tag_id).await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to remove subtask tag relation: {:?}", e)))?;
+    
     Ok(())
 }
 
@@ -248,4 +263,52 @@ where
 
     // 一時的な仮実装
     Ok(Vec::new())
+}
+
+/// ヘルパー関数: タスクIDからプロジェクトIDを取得
+async fn find_project_id_by_task_id<R>(
+    repositories: &R,
+    task_id: &TaskId,
+) -> Result<ProjectId, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    // 全プロジェクトを取得してタスクを検索
+    let projects = repositories.projects().find_all().await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to get projects: {:?}", e)))?;
+    
+    for project in projects {
+        let tasks = repositories.tasks().find_all(&project.id).await
+            .map_err(|e| ServiceError::RepositoryError(format!("Failed to get tasks: {:?}", e)))?;
+        
+        if tasks.iter().any(|task| task.id == *task_id) {
+            return Ok(project.id);
+        }
+    }
+    
+    Err(ServiceError::ValidationError(format!("Task with ID {} not found in any project", task_id)))
+}
+
+/// ヘルパー関数: サブタスクIDからプロジェクトIDを取得
+async fn find_project_id_by_subtask_id<R>(
+    repositories: &R,
+    subtask_id: &SubTaskId,
+) -> Result<ProjectId, ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    // 全プロジェクトを取得してサブタスクを検索
+    let projects = repositories.projects().find_all().await
+        .map_err(|e| ServiceError::RepositoryError(format!("Failed to get projects: {:?}", e)))?;
+    
+    for project in projects {
+        let subtasks = repositories.sub_tasks().find_all(&project.id).await
+            .map_err(|e| ServiceError::RepositoryError(format!("Failed to get subtasks: {:?}", e)))?;
+        
+        if subtasks.iter().any(|subtask| subtask.id == *subtask_id) {
+            return Ok(project.id);
+        }
+    }
+    
+    Err(ServiceError::ValidationError(format!("SubTask with ID {} not found in any project", subtask_id)))
 }
