@@ -21,6 +21,9 @@
 
   let { project, isExpanded, currentView = 'all', onViewChange }: Props = $props();
 
+  // taskStore.projectsから直接参照して確実にリアクティブにする
+  let currentProject = $derived(taskStore.projects.find(p => p.id === project.id));
+
   const translationService = getTranslationService();
   const editTaskList = translationService.getMessage('edit_task_list');
   const addTask = translationService.getMessage('add_task');
@@ -152,9 +155,9 @@
   }
 </script>
 
-{#if isExpanded}
+{#if isExpanded && currentProject}
   <div class="mt-1 ml-4 space-y-1">
-    {#each project.task_lists as list (list.id)}
+    {#each currentProject.task_lists as list (list.id)}
       <ContextMenuWrapper items={createTaskListContextMenu(list)}>
         <Button
           variant={currentView === 'tasklist' &&

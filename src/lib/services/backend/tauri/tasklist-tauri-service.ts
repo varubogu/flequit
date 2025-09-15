@@ -7,7 +7,7 @@ export class TasklistTauriService implements TaskListService {
     try {
       // TaskListCommandModel形式でproject_idを設定
       const taskListWithProjectId = { ...taskList, project_id: projectId };
-      await invoke('create_task_list', { task_list: taskListWithProjectId });
+      await invoke('create_task_list', { projectId, taskList: taskListWithProjectId });
       return true;
     } catch (error) {
       console.error('Failed to create task list:', error);

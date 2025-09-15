@@ -17,7 +17,7 @@ export class TaskTauriService implements TaskService {
 
   async update(projectId: string, id: string, patch: TaskPatch): Promise<boolean> {
     try {
-      const result = await invoke('update_task', { projectId: projectId, id, patch });
+      const result = await invoke('update_task', { projectId, id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update task:', error);
