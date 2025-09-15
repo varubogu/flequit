@@ -278,7 +278,7 @@ describe('DataService', () => {
     test('updateTaskList should handle backend failure', async () => {
       mockBackendService.tasklist.update.mockResolvedValue(false);
 
-      const result = await dataService.updateTaskList('list-id', { name: 'Updated Name' });
+      const result = await dataService.updateTaskList('project-id', 'list-id', { name: 'Updated Name' });
 
       expect(result).toBeNull();
     });
@@ -467,7 +467,7 @@ describe('DataService', () => {
       };
       const createdTask = await dataService.createTask('list-id', taskData);
       
-      await dataService.deleteTaskWithSubTasks(createdTask.id);
+      await dataService.deleteTaskWithSubTasks(createdTask.id, 'project-id');
 
       // The method calls deleteTask internally, which uses the mock implementation
       // No need to verify backend calls since we're using mocks

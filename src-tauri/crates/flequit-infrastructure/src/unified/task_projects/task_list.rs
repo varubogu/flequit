@@ -8,6 +8,7 @@ use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::Tas
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 
@@ -18,6 +19,8 @@ pub enum TaskListRepositoryVariant {
 }
 
 impl TaskListRepositoryTrait for TaskListRepositoryVariant {}
+
+impl ProjectPatchable<TaskList, TaskListId> for TaskListRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
@@ -76,6 +79,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
             Self::LocalAutomerge(repo) => repo.count(project_id).await,
         }
     }
+
 }
 
 #[derive(Debug)]
@@ -150,6 +154,8 @@ impl TaskListUnifiedRepository {
 }
 
 impl TaskListRepositoryTrait for TaskListUnifiedRepository {}
+
+impl ProjectPatchable<TaskList, TaskListId> for TaskListUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
@@ -239,4 +245,5 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
             Ok(0)
         }
     }
+
 }

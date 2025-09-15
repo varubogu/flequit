@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
@@ -119,6 +120,8 @@ impl TaskListLocalAutomergeRepository {
 
 // Repository<TaskList, TaskListId> トレイトの実装
 impl TaskListRepositoryTrait for TaskListLocalAutomergeRepository {}
+
+impl ProjectPatchable<TaskList, TaskListId> for TaskListLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListLocalAutomergeRepository {

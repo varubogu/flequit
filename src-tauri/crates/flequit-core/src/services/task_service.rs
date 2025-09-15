@@ -4,6 +4,7 @@ use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_types::errors::service_error::ServiceError;
 
 
@@ -41,18 +42,15 @@ where
 }
 
 pub async fn update_task<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _task_id: &TaskId,
-    _patch: &PartialTask,
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: &TaskId,
+    patch: &PartialTask,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError(
-        "Task patch method is not implemented".to_string(),
-    ))
+    Ok(repositories.tasks().patch(project_id, task_id, patch).await?)
 }
 
 pub async fn delete_task<R>(

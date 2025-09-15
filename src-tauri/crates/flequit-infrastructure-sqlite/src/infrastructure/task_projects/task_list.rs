@@ -8,6 +8,8 @@ use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
@@ -197,3 +199,8 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         Ok(count)
     }
 }
+
+// TaskListRepositoryTraitの実装
+impl TaskListRepositoryTrait for TaskListLocalSqliteRepository {}
+
+impl ProjectPatchable<TaskList, TaskListId> for TaskListLocalSqliteRepository {}

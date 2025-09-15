@@ -168,7 +168,13 @@ export class ProjectsService {
     }
   ): Promise<TaskList | null> {
     try {
-      const updatedTaskList = await dataService.updateTaskList(taskListId, updates);
+      // taskListIdからprojectIdを取得
+      const projectId = taskStore.getProjectIdByListId(taskListId);
+      if (!projectId) {
+        throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
+      }
+      
+      const updatedTaskList = await dataService.updateTaskList(projectId, taskListId, updates);
       if (!updatedTaskList) return null;
 
       // ローカルストアも更新
@@ -183,7 +189,13 @@ export class ProjectsService {
   // タスクリスト削除
   static async deleteTaskList(taskListId: string): Promise<boolean> {
     try {
-      const success = await dataService.deleteTaskList(taskListId);
+      // taskListIdからprojectIdを取得
+      const projectId = taskStore.getProjectIdByListId(taskListId);
+      if (!projectId) {
+        throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
+      }
+      
+      const success = await dataService.deleteTaskList(projectId, taskListId);
       if (success) {
         // ローカルストアからも削除
         await taskStore.deleteTaskList(taskListId);

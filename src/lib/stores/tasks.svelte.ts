@@ -294,7 +294,7 @@ export class TaskStore {
 
           // バックエンドに同期（削除操作は即座に保存）
           try {
-            await dataService.deleteTaskWithSubTasks(taskId);
+            await dataService.deleteTaskWithSubTasks(taskId, project.id);
           } catch (error) {
             console.error('Failed to sync task deletion to backend:', error);
             errorHandler.addSyncError('タスク削除', 'task', taskId, error);
@@ -692,9 +692,15 @@ export class TaskStore {
   async updateTaskList(
     taskListId: string,
     updates: { name?: string; description?: string; color?: string }
-  ) {
+  ): Promise<TaskListWithTasks | null> {
     try {
-      const updatedTaskList = await dataService.updateTaskList(taskListId, updates);
+      // taskListIdからprojectIdを取得
+      const projectId = this.getProjectIdByListId(taskListId);
+      if (!projectId) {
+        throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
+      }
+      
+      const updatedTaskList = await dataService.updateTaskList(projectId, taskListId, updates);
       if (updatedTaskList) {
         for (const project of this.projects) {
           const listIndex = project.task_lists.findIndex((l) => l.id === taskListId);
@@ -703,12 +709,12 @@ export class TaskStore {
               ...project.task_lists[listIndex],
               ...updatedTaskList
             };
-            break;
+            // 更新された TaskListWithTasks を返す
+            return project.task_lists[listIndex];
           }
         }
       }
-      // 更新操作は定期保存に任せる
-      return updatedTaskList;
+      return null;
     } catch (error) {
       console.error('Failed to update task list:', error);
       return null;
@@ -717,7 +723,13 @@ export class TaskStore {
 
   async deleteTaskList(taskListId: string) {
     try {
-      const success = await dataService.deleteTaskList(taskListId);
+      // taskListIdからprojectIdを取得
+      const projectId = this.getProjectIdByListId(taskListId);
+      if (!projectId) {
+        throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
+      }
+      
+      const success = await dataService.deleteTaskList(projectId, taskListId);
       if (success) {
         for (const project of this.projects) {
           const listIndex = project.task_lists.findIndex((l) => l.id === taskListId);
@@ -930,7 +942,7 @@ export class TaskStore {
       taskList.updated_at = new SvelteDate();
 
       try {
-        await dataService.updateTaskList(taskList.id, { order_index: index });
+        await dataService.updateTaskList(projectId, taskList.id, { order_index: index });
       } catch (error) {
         console.error('Failed to sync task list order to backend:', error);
         errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
@@ -958,7 +970,7 @@ export class TaskStore {
           tl.updated_at = new SvelteDate();
 
           try {
-            await dataService.updateTaskList(tl.id, { order_index: index });
+            await dataService.updateTaskList(project.id, tl.id, { order_index: index });
           } catch (error) {
             console.error('Failed to sync source project task list order to backend:', error);
             errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
@@ -1001,9 +1013,8 @@ export class TaskStore {
       tl.updated_at = new SvelteDate();
 
       try {
-        await dataService.updateTaskList(tl.id, {
-          order_index: index,
-          project_id: tl.project_id
+        await dataService.updateTaskList(targetProject.id, tl.id, {
+          order_index: index
         });
       } catch (error) {
         console.error('Failed to sync target project task list order to backend:', error);

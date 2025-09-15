@@ -4,6 +4,7 @@ use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList,
 use flequit_model::models::task_projects::SubTaskTree;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_task_list<R>(
@@ -36,18 +37,15 @@ where
 }
 
 pub async fn update_task_list<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _task_list_id: &TaskListId,
-    _patch: &PartialTaskList,
+    repositories: &R,
+    project_id: &ProjectId,
+    task_list_id: &TaskListId,
+    patch: &PartialTaskList,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError(
-        "TaskList patch method is not implemented".to_string(),
-    ))
+    Ok(repositories.task_lists().patch(project_id, task_list_id, patch).await?)
 }
 
 pub async fn delete_task_list<R>(

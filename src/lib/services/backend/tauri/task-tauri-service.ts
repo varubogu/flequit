@@ -5,7 +5,9 @@ import type { TaskService } from '$lib/services/backend/task-service';
 export class TaskTauriService implements TaskService {
   async create(projectId: string, task: Task): Promise<boolean> {
     try {
-      await invoke('create_task', { task });
+      // TaskCommandModel形式でproject_idを設定
+      const taskWithProjectId = { ...task, project_id: projectId };
+      await invoke('create_task', { task: taskWithProjectId });
       return true;
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -15,7 +17,7 @@ export class TaskTauriService implements TaskService {
 
   async update(projectId: string, id: string, patch: TaskPatch): Promise<boolean> {
     try {
-      const result = await invoke('update_task', { project_id: projectId, id, patch });
+      const result = await invoke('update_task', { projectId: projectId, id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update task:', error);
@@ -25,7 +27,7 @@ export class TaskTauriService implements TaskService {
 
   async delete(projectId: string, id: string): Promise<boolean> {
     try {
-      await invoke('delete_task', { project_id: projectId, id });
+      await invoke('delete_task', { projectId: projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -35,7 +37,7 @@ export class TaskTauriService implements TaskService {
 
   async get(projectId: string, id: string): Promise<Task | null> {
     try {
-      const result = (await invoke('get_task', { project_id: projectId, id })) as Task | null;
+      const result = (await invoke('get_task', { projectId: projectId, id })) as Task | null;
       return result;
     } catch (error) {
       console.error('Failed to get task:', error);

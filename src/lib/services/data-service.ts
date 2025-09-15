@@ -1,7 +1,7 @@
 import type { Task } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
 import type { SubTask, SubTaskPatch } from '$lib/types/sub-task';
-import type { TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskListPatch, TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
@@ -153,15 +153,9 @@ export class DataService {
   }
 
   async updateTaskList(
+    projectId: string,
     taskListId: string,
-    updates: {
-      name?: string;
-      description?: string;
-      color?: string;
-      order_index?: number;
-      is_archived?: boolean;
-      project_id?: string;
-    }
+    updates: TaskListPatch
   ): Promise<TaskList | null> {
     const backend = await this.getBackend();
 
@@ -171,7 +165,6 @@ export class DataService {
       updated_at: new Date()
     };
 
-    const projectId = this.getProjectId();
     const success = await backend.tasklist.update(projectId, taskListId, patchData);
 
     if (success) {
@@ -181,9 +174,8 @@ export class DataService {
     return null;
   }
 
-  async deleteTaskList(taskListId: string): Promise<boolean> {
+  async deleteTaskList(projectId: string, taskListId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    const projectId = this.getProjectId();
     return await backend.tasklist.delete(projectId, taskListId);
   }
 
@@ -225,7 +217,11 @@ export class DataService {
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
     console.log('DataService: calling backend.task.update');
-    const projectId = this.getProjectId();
+    // タスクIDからプロジェクトIDを取得（他のメソッドと一貫性を保つ）
+    const projectId = await this.getProjectIdByTaskId(taskId);
+    if (!projectId) {
+      throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
+    }
     const success = await backend.task.update(projectId, taskId, patchData);
     console.log('DataService: backend.task.update result:', success);
 
@@ -236,10 +232,18 @@ export class DataService {
     return null;
   }
 
-  async deleteTask(taskId: string): Promise<boolean> {
+  async deleteTask(taskId: string, projectId?: string): Promise<boolean> {
     const backend = await this.getBackend();
-    const projectId = this.getProjectId();
-    return await backend.task.delete(projectId, taskId);
+    // プロジェクトIDが指定されていない場合のみ推定を試みる
+    let actualProjectId: string = projectId || '';
+    if (!actualProjectId) {
+      const foundProjectId = await this.getProjectIdByTaskId(taskId);
+      if (!foundProjectId) {
+        throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
+      }
+      actualProjectId = foundProjectId;
+    }
+    return await backend.task.delete(actualProjectId, taskId);
   }
 
   // サブタスク管理
@@ -374,16 +378,21 @@ export class DataService {
     await this.updateTask(taskId, updates);
   }
 
-  async deleteTaskWithSubTasks(taskId: string): Promise<void> {
-    await this.deleteTask(taskId);
+  async deleteTaskWithSubTasks(taskId: string, projectId: string): Promise<boolean> {
+    const backend = await this.getBackend();
+    return await backend.task.delete(projectId, taskId);
   }
 
   async addTagToSubTask(subTaskId: string, tagId: string): Promise<void> {
     const backend = await this.getBackend();
     console.log('DataService: addTagToSubTask called', { subTaskId, tagId });
 
-    // 既存のサブタスクを取得
-    const projectId = this.getProjectId();
+    // サブタスクIDからプロジェクトIDを取得
+    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
+    if (!projectId) {
+      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+    }
+    
     const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // タグオブジェクトを取得
@@ -422,8 +431,12 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: removeTagFromSubTask called', { subTaskId, tagId });
 
-    // 既存のサブタスクを取得
-    const projectId = this.getProjectId();
+    // サブタスクIDからプロジェクトIDを取得
+    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
+    if (!projectId) {
+      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+    }
+    
     const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // Web環境では既存データが取得できないため、空のタグ配列で更新
