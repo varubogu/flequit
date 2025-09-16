@@ -59,6 +59,17 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 
 詳細は `docs/develop/rules/coding-standards.md` を参照してください。
 
+### Tauri⇔フロントエンド通信規約
+
+**重要**: TauriはJavaScriptの`camelCase`パラメータをRustの`snake_case`に自動変換します。
+
+- **JavaScript側**: `camelCase`で記述（例：`projectId`, `taskAssignment`, `partialSettings`）
+- **Rust側**: `snake_case`で記述（例：`project_id`, `task_assignment`, `partial_settings`）
+- **戻り値統一**: void返却コマンドは成功時`true`、失敗時`false`を返す
+- **エラーハンドリング**: 統一されたパターンを使用
+
+詳細は `docs/develop/rules/coding-standards.md` の「Tauri⇔フロントエンド通信規約」セクションを参照。
+
 ### Rust部分について
 
 詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` を参照してください。

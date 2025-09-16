@@ -48,6 +48,131 @@ fn get_user_by_id(id: &str) {}       // snake_case
 struct TaskManager {}                // PascalCase
 ```
 
+### Tauri⇔フロントエンド通信規約
+
+#### 概要
+
+TauriはJavaScriptの`camelCase`パラメータをRustの`snake_case`に自動変換します。この仕組みを理解し、適切に活用することで、各言語の慣例に従ったコードを書きながら正しい通信を実現できます。
+
+#### パラメータ命名ルール
+
+**JavaScript側（camelCase）** ⇔ **Rust側（snake_case）** の対応：
+
+```typescript
+// JavaScript/TypeScript側 - camelCaseを使用
+await invoke('update_task', { 
+  projectId: 'project-123',        // Rust側: project_id
+  taskId: 'task-456',             // Rust側: task_id  
+  partialSettings: {...}          // Rust側: partial_settings
+});
+
+await invoke('create_task_assignment', {
+  taskAssignment: {               // Rust側: task_assignment
+    task_id: 'task-123',
+    user_id: 'user-456'
+  }
+});
+```
+
+```rust
+// Rust側 - snake_caseを使用
+#[tauri::command]
+pub async fn update_task(
+    project_id: String,           // JavaScript側: projectId
+    task_id: String,              // JavaScript側: taskId  
+    partial_settings: PartialSettings // JavaScript側: partialSettings
+) -> Result<bool, String> {
+    // 実装
+}
+
+#[tauri::command]
+pub async fn create_task_assignment(
+    task_assignment: TaskAssignment  // JavaScript側: taskAssignment
+) -> Result<bool, String> {
+    // 実装
+}
+```
+
+#### 戻り値の統一
+
+**void返却コマンドの戻り値統一**：
+
+```rust
+// Rust側 - 成功時は() (Unit型)を返す
+#[tauri::command]
+pub async fn save_settings(settings: Settings) -> Result<(), String> {
+    // 保存処理
+    Ok(()) // Unit型を返す
+}
+```
+
+```typescript
+// JavaScript側 - 成功時はtrueとして扱う
+async saveSettings(settings: Settings): Promise<boolean> {
+  try {
+    await invoke('save_settings', { settings });
+    return true; // void成功 = true
+  } catch (error) {
+    console.error('Failed to save settings:', error);
+    return false; // エラー = false
+  }
+}
+```
+
+#### エラーハンドリング統一
+
+```typescript
+// 統一されたエラーハンドリングパターン
+async function tauriServiceMethod<T>(
+  command: string, 
+  params?: object
+): Promise<T | null> {
+  try {
+    const result = await invoke(command, params) as T;
+    return result;
+  } catch (error) {
+    console.error(`Failed to execute ${command}:`, error);
+    return null;
+  }
+}
+
+// boolean返却の場合
+async function tauriBooleanMethod(
+  command: string, 
+  params?: object
+): Promise<boolean> {
+  try {
+    await invoke(command, params);
+    return true;
+  } catch (error) {
+    console.error(`Failed to execute ${command}:`, error);
+    return false;
+  }
+}
+```
+
+#### 実装チェックリスト
+
+**JavaScript/TypeScript実装時**:
+- [ ] パラメータ名は`camelCase`で記述
+- [ ] Rust側の`snake_case`関数パラメータに対応させる
+- [ ] void返却コマンドは成功時`true`、失敗時`false`を返す
+- [ ] エラーハンドリングを適切に実装
+- [ ] コンソールログでエラー内容を出力
+
+**Rust実装時**:
+- [ ] 関数パラメータは`snake_case`で記述  
+- [ ] JavaScript側の`camelCase`パラメータに対応
+- [ ] `Result<T, String>`でエラーハンドリング
+- [ ] 適切なエラーメッセージを提供
+
+#### 注意事項
+
+1. **自動変換の範囲**: Tauriの自動変換はパラメータ名のみ。構造体フィールド名やEnumバリアントは対象外
+2. **一貫性の維持**: プロジェクト全体で同じパターンを使用
+3. **型安全性**: TypeScriptの型定義とRustの構造体定義を一致させる
+4. **テスト**: 通信部分は実際のTauri環境でのテストを推奨
+
 ## TypeScript/Svelte 規約
 
 ### 型定義
