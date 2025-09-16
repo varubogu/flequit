@@ -11,7 +11,7 @@ use flequit_repository::repositories::project_repository_trait::ProjectRepositor
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder, TransactionTrait,
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -120,56 +120,6 @@ impl RecurrenceRuleLocalSqliteRepository {
         Ok(rules)
     }
 
-    /// RecurrenceRuleを保存（プライベートヘルパー）
-    async fn save_rule(&self, rule: &RecurrenceRule) -> Result<(), RepositoryError> {
-        let db_manager = self.db_manager.read().await;
-        let db = db_manager
-            .get_connection()
-            .await
-            .map_err(|e| RepositoryError::from(e))?;
-
-        // IDで既存のルールをチェック
-        // RecurrenceRuleはプロジェクトに依存しないが、SQLiteのテーブル構造上、
-        // 仮のプロジェクトIDを使用してテーブル構造に合わせる
-        let project_id = ProjectId::from("global");
-
-        let existing = RecurrenceRuleEntity::find_by_id((project_id.to_string(), rule.id.to_string()))
-            .one(db)
-            .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-
-        if let Some(existing_model) = existing {
-            // 更新
-            let mut active_model: RecurrenceRuleActiveModel = existing_model.into();
-            let new_active = rule
-                .to_sqlite_model_with_project_id(&project_id)
-                .await
-                .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
-
-            active_model.unit = new_active.unit;
-            active_model.interval = new_active.interval;
-            active_model.end_date = new_active.end_date;
-            active_model.max_occurrences = new_active.max_occurrences;
-            active_model.updated_at = new_active.updated_at;
-
-            active_model
-                .update(db)
-                .await
-                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-            Ok(())
-        } else {
-            // 新規作成
-            let active_model = rule
-                .to_sqlite_model_with_project_id(&project_id)
-                .await
-                .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
-            active_model
-                .insert(db)
-                .await
-                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
-            Ok(())
-        }
-    }
 }
 
 impl RecurrenceRuleRepositoryTrait for RecurrenceRuleLocalSqliteRepository {}

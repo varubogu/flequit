@@ -1,6 +1,10 @@
 use chrono::{DateTime, Utc};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
+use async_trait::async_trait;
+use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 
 /// TaskRecurrence用SQLiteエンティティ定義
 ///
@@ -54,3 +58,30 @@ impl Related<super::recurrence_rule::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[async_trait]
+impl SqliteModelConverter<TaskRecurrence> for Model {
+    async fn to_domain_model(&self) -> Result<TaskRecurrence, String> {
+        Ok(TaskRecurrence {
+            task_id: TaskId::from(self.task_id.clone()),
+            recurrence_rule_id: RecurrenceRuleId::from(self.recurrence_rule_id.clone()),
+            created_at: self.created_at,
+        })
+    }
+}
+
+#[async_trait]
+impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskRecurrence {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
+        use sea_orm::ActiveValue::Set;
+        Ok(ActiveModel {
+            project_id: Set(project_id.to_string()),
+            task_id: Set(self.task_id.to_string()),
+            recurrence_rule_id: Set(self.recurrence_rule_id.to_string()),
+            created_at: Set(self.created_at),
+        })
+    }
+}

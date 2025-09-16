@@ -141,19 +141,9 @@ impl InfrastructureRepositories {
         })
     }
 
-    /// シングルトンインスタンスを取得
-    ///
-    /// アプリケーション全体で共有されるInfrastructureRepositoriesインスタンスを返す
-
-    pub async fn instance() -> Self {
-        // TODO: 実際のシングルトン実装
-        Self::new()
-    }
-
     /// 設定を更新し、バックエンドを再構築
     ///
     /// 実行時に設定が変更された場合に呼び出す
-
     pub async fn update_config(
         &mut self,
         new_config: UnifiedConfig,

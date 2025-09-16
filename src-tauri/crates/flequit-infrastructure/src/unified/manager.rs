@@ -293,7 +293,7 @@ impl UnifiedManager {
         Ok(repo)
     }
 
-    /// Tag用UnifiedRepositoryを構築  
+    /// Tag用UnifiedRepositoryを構築
     pub async fn create_tag_unified_repository(
         &self,
     ) -> Result<TagUnifiedRepository, Box<dyn std::error::Error>> {
@@ -387,10 +387,48 @@ impl UnifiedManager {
     pub async fn create_user_unified_repository(
         &self,
     ) -> Result<UserUnifiedRepository, Box<dyn std::error::Error>> {
-        // UserUnifiedRepositoryは最小限実装のため、単純に新しいインスタンスを返す
-        let repo = UserUnifiedRepository::new();
-        
-        tracing::info!("UserUnifiedRepository構築完了（最小限実装）");
+        use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
+        use flequit_infrastructure_automerge::infrastructure::users::user::UserLocalAutomergeRepository;
+
+        let mut repo = UserUnifiedRepository::default();
+
+        // SQLiteリポジトリの設定
+        if self.config.sqlite_search_enabled || self.config.sqlite_storage_enabled {
+            let db_manager = DatabaseManager::instance().await?;
+
+            // 検索にSQLiteリポジトリを追加
+            if self.config.sqlite_search_enabled {
+                let sqlite_repo = UserLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_search(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを検索用に追加しました（User）");
+            }
+
+            // 保存にもSQLiteリポジトリを追加（設定により）
+            if self.config.sqlite_storage_enabled {
+                let sqlite_repo = UserLocalSqliteRepository::new(db_manager.clone());
+                repo.add_sqlite_for_save(sqlite_repo);
+                tracing::info!("SQLiteリポジトリを保存用に追加しました（User）");
+            }
+        }
+
+        // Automergeリポジトリの設定
+        if self.config.automerge_storage_enabled {
+            let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
+                UserLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+            } else {
+                let base_path = std::env::temp_dir().join("flequit_automerge");
+                UserLocalAutomergeRepository::new(base_path).await?
+            };
+
+            repo.add_automerge_for_save(automerge_repo);
+            tracing::info!("Automergeリポジトリを保存用に追加しました（User）");
+        }
+
+        tracing::info!(
+            "UserUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories().len(),
+            repo.search_repositories().len()
+        );
 
         Ok(repo)
     }
