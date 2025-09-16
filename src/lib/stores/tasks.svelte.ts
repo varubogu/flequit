@@ -373,6 +373,8 @@ export class TaskStore {
           if (subTaskIndex !== -1) {
             // バックアップとして削除するサブタスクを保持
             const deletedSubTask = task.sub_tasks[subTaskIndex];
+            // プロジェクトIDを事前に取得（削除前に取得する必要がある）
+            const projectId = project.id;
 
             // まずローカル状態から削除
             task.sub_tasks.splice(subTaskIndex, 1);
@@ -382,7 +384,7 @@ export class TaskStore {
 
             // バックエンドに同期（削除操作は即座に保存）
             try {
-              await dataService.deleteSubTask(subTaskId);
+              await dataService.deleteSubTask(subTaskId, projectId);
             } catch (error) {
               console.error('Failed to sync subtask deletion to backend:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);

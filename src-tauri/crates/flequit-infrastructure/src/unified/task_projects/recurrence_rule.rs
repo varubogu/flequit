@@ -7,7 +7,8 @@ use log::info;
 use flequit_infrastructure_automerge::infrastructure::task_projects::recurrence_rule::RecurrenceRuleLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::recurrence_rule::RecurrenceRuleLocalSqliteRepository;
 use flequit_model::{models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::{ProjectId, RecurrenceRuleId}};
-use flequit_repository::{project_relation_repository_trait::ProjectRelationRepository, project_repository_trait::ProjectRepository, repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait, task_projects::project_repository_trait::ProjectRepositoryTrait};
+use flequit_repository::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]

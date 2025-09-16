@@ -5,6 +5,7 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::types::id_types::{ProjectId, SubTaskId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_types::errors::service_error::ServiceError;
 
 
@@ -63,18 +64,17 @@ where
 
 
 pub async fn update_subtask<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _subtask_id: &SubTaskId,
-    _patch: &PartialSubTask,
+    repositories: &R,
+    project_id: &ProjectId,
+    subtask_id: &SubTaskId,
+    patch: &PartialSubTask,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError(
-        "SubTask patch method is not implemented".to_string(),
-    ))
+    // プロジェクトスコープでパッチによる部分更新を実行
+    let changed = repositories.sub_tasks().patch(project_id, subtask_id, patch).await?;
+    Ok(changed)
 }
 
 

@@ -27,7 +27,7 @@ export class TaskTauriService implements TaskService {
 
   async delete(projectId: string, id: string): Promise<boolean> {
     try {
-      await invoke('delete_task', { projectId: projectId, id });
+      await invoke('delete_task', { projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -37,7 +37,7 @@ export class TaskTauriService implements TaskService {
 
   async get(projectId: string, id: string): Promise<Task | null> {
     try {
-      const result = (await invoke('get_task', { projectId: projectId, id })) as Task | null;
+      const result = (await invoke('get_task', { projectId, id })) as Task | null;
       return result;
     } catch (error) {
       console.error('Failed to get task:', error);

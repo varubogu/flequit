@@ -3,6 +3,7 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::types::id_types::ProjectId;
 use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::patchable_trait::Patchable;
 use flequit_types::errors::service_error::ServiceError;
 
 
@@ -45,17 +46,16 @@ where
 
 
 pub async fn update_project<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _patch: &PartialProject,
+    repositories: &R,
+    project_id: &ProjectId,
+    patch: &PartialProject,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError(
-        "Project patch method is not implemented".to_string(),
-    ))
+    // パッチによる部分更新を実行
+    let changed = repositories.projects().patch(project_id, patch).await?;
+    Ok(changed)
 }
 
 

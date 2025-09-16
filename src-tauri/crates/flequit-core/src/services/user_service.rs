@@ -4,22 +4,14 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::service_error::ServiceError;
+use flequit_repository::repositories::base_repository_trait::Repository;
 
 /// ユーザープロフィールの編集権限をチェック
 /// 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 pub async fn can_edit_user_profile(current_account: &Account, target_user_id: &UserId) -> bool {
     current_account.user_id == *target_user_id
 }
-
-/// User Documentの特別な操作制約を実装するための削除制限エラー
-fn deletion_not_allowed_error() -> ServiceError {
-    ServiceError::ValidationError(
-        "User profile deletion is not allowed. User information is accumulated and cannot be deleted.".to_string()
-    )
-}
-
 
 pub async fn create_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
 where
@@ -77,8 +69,12 @@ where
 
 /// ユーザープロフィールの削除は設計上不可
 /// User Documentは情報蓄積方式のため削除操作は制限されています
-pub async fn delete_user(_user_id: &UserId) -> Result<(), ServiceError> {
-    Err(deletion_not_allowed_error())
+pub async fn delete_user<R>(repositories: &R, user_id: &UserId) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    repositories.users().delete(user_id).await?;
+    Ok(())
 }
 
 /// 編集権限チェック付きでユーザープロフィールを更新

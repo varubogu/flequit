@@ -313,14 +313,18 @@ export class DataService {
     return null;
   }
 
-  async deleteSubTask(subTaskId: string): Promise<boolean> {
+  async deleteSubTask(subTaskId: string, projectId?: string): Promise<boolean> {
     const backend = await this.getBackend();
-    // サブタスクIDからプロジェクトIDを取得
-    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
-    if (!projectId) {
-      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+    // プロジェクトIDが指定されていない場合のみ推定を試みる
+    let actualProjectId: string = projectId || '';
+    if (!actualProjectId) {
+      const foundProjectId = await this.getProjectIdBySubTaskId(subTaskId);
+      if (!foundProjectId) {
+        throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
+      }
+      actualProjectId = foundProjectId;
     }
-    return await backend.subtask.delete(projectId, subTaskId);
+    return await backend.subtask.delete(actualProjectId, subTaskId);
   }
 
   // タグ管理

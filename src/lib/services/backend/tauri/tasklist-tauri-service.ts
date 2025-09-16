@@ -17,7 +17,7 @@ export class TasklistTauriService implements TaskListService {
 
   async update(projectId: string, id: string, patch: Partial<TaskList>): Promise<boolean> {
     try {
-      const result = await invoke('update_task_list', { projectId: projectId, id, patch });
+      const result = await invoke('update_task_list', { projectId, id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update task list:', error);
@@ -27,7 +27,7 @@ export class TasklistTauriService implements TaskListService {
 
   async delete(projectId: string, id: string): Promise<boolean> {
     try {
-      await invoke('delete_task_list', { projectId: projectId, id });
+      await invoke('delete_task_list', { projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete task list:', error);
@@ -37,7 +37,7 @@ export class TasklistTauriService implements TaskListService {
 
   async get(projectId: string, id: string): Promise<TaskList | null> {
     try {
-      const result = (await invoke('get_task_list', { projectId: projectId, id })) as TaskList | null;
+      const result = (await invoke('get_task_list', { projectId, id })) as TaskList | null;
       return result;
     } catch (error) {
       console.error('Failed to get task list:', error);

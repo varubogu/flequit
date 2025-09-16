@@ -15,8 +15,8 @@ export class SettingsManagementTauriService implements SettingsManagementService
 
   async saveSettings(settings: Settings): Promise<boolean> {
     try {
-      const result = await invoke('save_settings', { settings });
-      return result as boolean;
+      await invoke('save_settings', { settings });
+      return true;
     } catch (error) {
       console.error('Failed to save settings:', error);
       return false;
@@ -45,8 +45,8 @@ export class SettingsManagementTauriService implements SettingsManagementService
 
   async initializeSettingsWithDefaults(): Promise<boolean> {
     try {
-      const result = await invoke('initialize_settings_with_defaults');
-      return result as boolean;
+      await invoke('initialize_settings_with_defaults');
+      return true;
     } catch (error) {
       console.error('Failed to initialize settings with defaults:', error);
       return false;

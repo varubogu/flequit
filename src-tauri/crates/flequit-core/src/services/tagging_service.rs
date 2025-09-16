@@ -71,7 +71,7 @@ where
 
 pub async fn get_task_ids_by_tag_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     tag_id: &TagId,
 ) -> Result<Vec<TaskId>, ServiceError>
 where
@@ -143,7 +143,7 @@ where
 
 pub async fn remove_all_task_tags_by_tag_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     tag_id: &TagId,
 ) -> Result<(), ServiceError>
 where
@@ -171,7 +171,7 @@ where
 
 pub async fn get_all_task_tags<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
 ) -> Result<Vec<TaskTag>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -254,7 +254,7 @@ where
 
 pub async fn get_subtask_ids_by_tag_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     tag_id: &TagId,
 ) -> Result<Vec<SubTaskId>, ServiceError>
 where
@@ -327,7 +327,7 @@ where
 
 pub async fn remove_all_subtask_tags_by_tag_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     tag_id: &TagId,
 ) -> Result<(), ServiceError>
 where
@@ -355,7 +355,7 @@ where
 
 pub async fn get_all_subtask_tags<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
 ) -> Result<Vec<SubTaskTag>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -377,7 +377,7 @@ where
 /// ヘルパー関数: タスクIDからプロジェクトIDを取得
 async fn find_project_id_by_task_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     task_id: &TaskId,
 ) -> Result<ProjectId, ServiceError>
 where
@@ -402,7 +402,7 @@ where
 /// ヘルパー関数: サブタスクIDからプロジェクトIDを取得
 async fn find_project_id_by_subtask_id<R>(
     repositories: &R,
-    project_id: &ProjectId,
+    _project_id: &ProjectId,
     subtask_id: &SubTaskId,
 ) -> Result<ProjectId, ServiceError>
 where

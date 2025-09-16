@@ -46,7 +46,7 @@ pub async fn delete_user<R>(repositories: &R, id: &UserId) -> Result<bool, Strin
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match user_service::delete_user(id).await {
+    match user_service::delete_user(repositories, id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete user: {:?}", e)),
