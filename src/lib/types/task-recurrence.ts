@@ -5,9 +5,9 @@
  */
 export interface TaskRecurrence {
   /** タスクID */
-  task_id: string;
+  taskId: string;
   /** 繰り返しルールID */
-  recurrence_rule_id: string;
+  recurrenceRuleId: string;
 }
 
 /**
@@ -15,7 +15,7 @@ export interface TaskRecurrence {
  */
 export interface TaskRecurrenceSearchCondition {
   /** タスクIDでの絞り込み */
-  task_id?: string;
+  taskId?: string;
   /** 繰り返しルールIDでの絞り込み */
-  recurrence_rule_id?: string;
+  recurrenceRuleId?: string;
 }

@@ -26,11 +26,11 @@
 
 {#if !isNewTaskMode}
   <div class="text-muted-foreground space-y-2 border-t pt-4 text-sm">
-    <div>{created()}: {formatDateTime(currentItem.created_at)}</div>
-    <div>{updated()}: {formatDateTime(currentItem.updated_at)}</div>
+    <div>{created()}: {formatDateTime(currentItem.createdAt)}</div>
+    <div>{updated()}: {formatDateTime(currentItem.updatedAt)}</div>
     <div>{isSubTask ? sub_task() : task()} ID: {currentItem.id}</div>
     {#if isSubTask && 'task_id' in currentItem}
-      <div>{parent_task_id()}: {currentItem.task_id}</div>
+      <div>{parent_task_id()}: {currentItem.taskId}</div>
       {#if onGoToParentTask}
         <Button variant="outline" size="sm" onclick={onGoToParentTask} class="mt-2">
           {go_to_parent_task()}

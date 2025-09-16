@@ -37,15 +37,15 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
       status: 'not_started',
       priority: 1,
       tags: [],
-      list_id: 'list-1',
-      order_index: 1,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
-      project_id: 'project-1',
-      assigned_user_ids: [],
-      tag_ids: []
+      listId: 'list-1',
+      orderIndex: 1,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
+      projectId: 'project-1',
+      assignedUserIds: [],
+      tagIds: []
     }
   ];
 
@@ -194,15 +194,15 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           status: 'not_started',
           priority: 1,
           tags: [],
-          list_id: 'list-1',
-          order_index: 1,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          sub_tasks: [],
-          project_id: 'project-1',
-          assigned_user_ids: [],
-          tag_ids: []
+          listId: 'list-1',
+          orderIndex: 1,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          subTasks: [],
+          projectId: 'project-1',
+          assignedUserIds: [],
+          tagIds: []
         },
         {
           id: 'long-task-2',
@@ -212,15 +212,15 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           status: 'completed',
           priority: 2,
           tags: [],
-          list_id: 'list-1',
-          order_index: 2,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          sub_tasks: [],
-          project_id: 'project-1',
-          assigned_user_ids: [],
-          tag_ids: []
+          listId: 'list-1',
+          orderIndex: 2,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          subTasks: [],
+          projectId: 'project-1',
+          assignedUserIds: [],
+          tagIds: []
         }
       ];
 
@@ -251,15 +251,15 @@ describe('TaskList - Responsive Sidebar Toggle', () => {
           status: 'not_started',
           priority: 1,
           tags: [],
-          list_id: 'list-1',
-          order_index: 1,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          sub_tasks: [],
-          project_id: 'project-1',
-          assigned_user_ids: [],
-          tag_ids: []
+          listId: 'list-1',
+          orderIndex: 1,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          subTasks: [],
+          projectId: 'project-1',
+          assignedUserIds: [],
+          tagIds: []
         }
       ];
 

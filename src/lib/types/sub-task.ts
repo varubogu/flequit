@@ -9,7 +9,7 @@ export interface SubTask {
   /** サブタスクID */
   id: string;
   /** 親タスクID */
-  task_id: string;
+  taskId: string;
   /** サブタスクタイトル */
   title: string;
   /** サブタスクの説明 */
@@ -19,29 +19,29 @@ export interface SubTask {
   /** 優先度 */
   priority?: number;
   /** 予定開始日 */
-  plan_start_date?: Date;
+  planStartDate?: Date;
   /** 予定終了日 */
-  plan_end_date?: Date;
+  planEndDate?: Date;
   /** 実開始日 */
-  do_start_date?: Date;
+  doStartDate?: Date;
   /** 実終了日 */
-  do_end_date?: Date;
+  doEndDate?: Date;
   /** 期日が範囲選択かどうか */
-  is_range_date?: boolean;
+  isRangeDate?: boolean;
   /** 繰り返しルール */
-  recurrence_rule?: RecurrenceRule;
+  recurrenceRule?: RecurrenceRule;
   /** 表示順序 */
-  order_index: number;
+  orderIndex: number;
   /** 完了状態 */
   completed: boolean;
   /** 担当者ユーザーIDの配列 */
-  assigned_user_ids: string[];
+  assignedUserIds: string[];
   /** タグ一覧 */
   tags: Tag[];
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -49,7 +49,7 @@ export interface SubTask {
  */
 export interface SubTaskSearchCondition {
   /** 親タスクID */
-  task_id?: string;
+  taskId?: string;
   /** タイトル */
   title?: string;
   /** ステータス */
@@ -57,4 +57,3 @@ export interface SubTaskSearchCondition {
   /** 優先度 */
   priority?: number;
 }
-

@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// アプリプリセットフォーマットコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppPresetFormatCommand {
     /// プリセットID
     pub id: String,
@@ -24,6 +25,7 @@ pub struct AppPresetFormatCommand {
 
 /// 期日ボタン設定コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DueDateButtonsCommand {
     /// 期限切れ
     pub overdue: bool,
@@ -47,6 +49,7 @@ pub struct DueDateButtonsCommand {
 
 /// ローカル設定コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LocalSettingsCommand {
     /// UIテーマ設定
     pub theme: String,
@@ -56,6 +59,7 @@ pub struct LocalSettingsCommand {
 
 /// メンバーコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MemberCommand {
     /// メンバーID
     pub id: String,
@@ -75,6 +79,7 @@ pub struct MemberCommand {
 
 /// 検索コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchCommand {
     /// 検索ID
     pub id: String,
@@ -92,6 +97,7 @@ pub struct SearchCommand {
 
 /// 設定レスポンスコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SettingResponseCommand {
     /// レスポンスID
     pub id: String,

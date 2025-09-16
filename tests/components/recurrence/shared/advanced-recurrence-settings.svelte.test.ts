@@ -34,9 +34,9 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 describe('AdvancedRecurrenceSettings', () => {
   const mockDetails: RecurrenceDetails = {
-    specific_date: undefined,
-    week_of_period: undefined,
-    weekday_of_week: undefined
+    specificDate: undefined,
+    weekOfPeriod: undefined,
+    weekdayOfWeek: undefined
   };
 
   const defaultProps = {
@@ -83,7 +83,7 @@ describe('AdvancedRecurrenceSettings', () => {
     it('should display current specific date value', () => {
       const detailsWithDate: RecurrenceDetails = {
         ...mockDetails,
-        specific_date: 15
+        specificDate: 15
       };
 
       render(AdvancedRecurrenceSettings, {
@@ -126,7 +126,7 @@ describe('AdvancedRecurrenceSettings', () => {
     it('should show weekday selector when week is selected', () => {
       const detailsWithWeek: RecurrenceDetails = {
         ...mockDetails,
-        week_of_period: 'first'
+        weekOfPeriod: 'first'
       };
 
       render(AdvancedRecurrenceSettings, {
@@ -148,7 +148,7 @@ describe('AdvancedRecurrenceSettings', () => {
     it('should render weekday options', () => {
       const detailsWithWeek: RecurrenceDetails = {
         ...mockDetails,
-        week_of_period: 'first'
+        weekOfPeriod: 'first'
       };
 
       render(AdvancedRecurrenceSettings, {

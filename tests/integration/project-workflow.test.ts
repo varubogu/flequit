@@ -15,10 +15,10 @@ const mockTaskStore = {
       name: projectData.name || '',
       description: projectData.description || '',
       color: projectData.color,
-      order_index: projectData.order_index || 0,
-      is_archived: projectData.is_archived || false,
-      created_at: new Date(),
-      updated_at: new Date()
+      orderIndex: projectData.orderIndex || 0,
+      isArchived: projectData.isArchived || false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as Project;
     mockTaskStore.projects.push(newProject);
     return newProject;
@@ -27,14 +27,14 @@ const mockTaskStore = {
   addTaskList: vi.fn((projectId: string, listData: Partial<TaskList>) => {
     const newList = {
       id: `list-${Date.now()}`,
-      project_id: projectId,
+      projectId: projectId,
       name: listData.name || '',
       description: listData.description,
       color: listData.color,
-      order_index: listData.order_index || 0,
-      is_archived: listData.is_archived || false,
-      created_at: new Date(),
-      updated_at: new Date()
+      orderIndex: listData.orderIndex || 0,
+      isArchived: listData.isArchived || false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as TaskList;
     mockTaskStore.taskLists.push(newList);
     return newList;
@@ -43,20 +43,20 @@ const mockTaskStore = {
   addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
     const newTask = {
       id: `task-${Date.now()}`,
-      sub_task_id: taskData.sub_task_id,
-      list_id: listId,
+      subTaskId: taskData.subTaskId,
+      listId: listId,
       title: taskData.title || '',
       description: taskData.description || '',
       status: taskData.status || 'not_started',
       priority: taskData.priority || 1,
-      plan_start_date: taskData.plan_start_date,
-      plan_end_date: taskData.plan_end_date,
-      is_range_date: taskData.is_range_date || false,
-      recurrence_rule: taskData.recurrence_rule,
-      order_index: taskData.order_index || 0,
-      is_archived: taskData.is_archived || false,
-      created_at: new Date(),
-      updated_at: new Date()
+      planStartDate: taskData.planStartDate,
+      planEndDate: taskData.planEndDate,
+      isRangeDate: taskData.isRangeDate || false,
+      recurrenceRule: taskData.recurrenceRule,
+      orderIndex: taskData.orderIndex || 0,
+      isArchived: taskData.isArchived || false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as Task;
     mockTaskStore.tasks.push(newTask);
     return newTask;
@@ -67,11 +67,11 @@ const mockTaskStore = {
   }),
 
   getTaskListsByProjectId: vi.fn((projectId: string) => {
-    return mockTaskStore.taskLists.filter((tl: TaskList) => tl.project_id === projectId);
+    return mockTaskStore.taskLists.filter((tl: TaskList) => tl.projectId === projectId);
   }),
 
   getTasksByListId: vi.fn((listId: string) => {
-    return mockTaskStore.tasks.filter((t: Task) => t.list_id === listId);
+    return mockTaskStore.tasks.filter((t: Task) => t.listId === listId);
   }),
 
   clear: vi.fn(() => {
@@ -229,10 +229,10 @@ describe('プロジェクトワークフロー結合テスト', () => {
           name: projectData.name || '',
           description: projectData.description || '',
           color: projectData.color,
-          order_index: projectData.order_index || 0,
-          is_archived: projectData.is_archived || false,
-          created_at: new Date(),
-          updated_at: new Date()
+          orderIndex: projectData.orderIndex || 0,
+          isArchived: projectData.isArchived || false,
+          createdAt: new Date(),
+          updatedAt: new Date()
         } as Project;
         localMockStore.projects.push(newProject);
         return newProject;
@@ -241,14 +241,14 @@ describe('プロジェクトワークフロー結合テスト', () => {
       addTaskList: (projectId: string, listData: Partial<TaskList>) => {
         const newList = {
           id: `list-${Date.now()}-${Math.random()}`,
-          project_id: projectId,
+          projectId: projectId,
           name: listData.name || '',
           description: listData.description,
           color: listData.color,
-          order_index: listData.order_index || 0,
-          is_archived: listData.is_archived || false,
-          created_at: new Date(),
-          updated_at: new Date()
+          orderIndex: listData.orderIndex || 0,
+          isArchived: listData.isArchived || false,
+          createdAt: new Date(),
+          updatedAt: new Date()
         } as TaskList;
         localMockStore.taskLists.push(newList);
         return newList;
@@ -259,7 +259,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
       },
 
       getTaskListsByProjectId: (projectId: string) => {
-        return localMockStore.taskLists.filter((tl: TaskList) => tl.project_id === projectId);
+        return localMockStore.taskLists.filter((tl: TaskList) => tl.projectId === projectId);
       }
     };
 
@@ -306,7 +306,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
 
     expect(allProject1Lists).toHaveLength(2);
     expect(allProject2Lists).toHaveLength(1);
-    expect(allProject1Lists.every((list) => list.project_id === project1.id)).toBe(true);
-    expect(allProject2Lists.every((list) => list.project_id === project2.id)).toBe(true);
+    expect(allProject1Lists.every((list) => list.projectId === project1.id)).toBe(true);
+    expect(allProject2Lists.every((list) => list.projectId === project2.id)).toBe(true);
   });
 });

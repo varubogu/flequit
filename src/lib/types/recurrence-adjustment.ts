@@ -5,9 +5,9 @@
  */
 export interface RecurrenceAdjustment {
   /** 日付条件のリスト（文字列表現） */
-  date_conditions: string[];
+  dateConditions: string[];
   /** 曜日条件のリスト（文字列表現） */
-  weekday_conditions: string[];
+  weekdayConditions: string[];
 }
 
 /**
@@ -15,9 +15,9 @@ export interface RecurrenceAdjustment {
  */
 export interface RecurrenceAdjustmentSearchCondition {
   /** 繰り返しルールIDでの絞り込み */
-  rule_id?: string;
+  ruleIid?: string;
   /** 日付条件での絞り込み */
-  date_conditions?: string[];
+  dateConditions?: string[];
   /** 曜日条件での絞り込み */
-  weekday_conditions?: string[];
+  weekdayConditions?: string[];
 }

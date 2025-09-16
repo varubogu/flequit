@@ -7,7 +7,7 @@ export class TaskListService {
       return null;
     }
 
-    const firstList = taskStore.projects[0].task_lists[0];
+    const firstList = taskStore.projects[0].taskLists[0];
     if (!firstList) {
       return null;
     }

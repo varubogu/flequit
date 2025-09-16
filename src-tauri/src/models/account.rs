@@ -9,6 +9,7 @@ use flequit_model::types::id_types::{AccountId, UserId};
 
 /// Tauriコマンド引数用のAccount構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct AccountCommandModel {
     /// アカウントID（非公開ID）
     pub id: String,

@@ -70,9 +70,9 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority,
-      plan_start_date: formData.plan_start_date,
-      plan_end_date: formData.plan_end_date,
-      is_range_date: formData.is_range_date || false
+      planStartDate: formData.plan_start_date,
+      planEndDate: formData.plan_end_date,
+      isRangeDate: formData.is_range_date || false
     };
 
     this.updateTask(taskId, updates);
@@ -82,7 +82,7 @@ export class TaskService {
     const currentTask = taskStore.getTaskById(taskId);
 
     // タスクが完了状態になった場合の繰り返し処理
-    if (newStatus === 'completed' && currentTask?.recurrence_rule) {
+    if (newStatus === 'completed' && currentTask?.recurrenceRule) {
       this.handleTaskCompletion(currentTask);
     }
 
@@ -93,31 +93,31 @@ export class TaskService {
    * タスク完了時の繰り返し処理
    */
   private static handleTaskCompletion(task: TaskWithSubTasks): void {
-    if (!task.recurrence_rule) return;
+    if (!task.recurrenceRule) return;
 
     // 基準日を決定（終了日があればそれを使用、なければ今日）
-    const baseDate = task.plan_end_date || new Date();
+    const baseDate = task.planEndDate || new Date();
 
     // 次回実行日を計算
-    const nextDate = RecurrenceService.calculateNextDate(baseDate, task.recurrence_rule);
+    const nextDate = RecurrenceService.calculateNextDate(baseDate, task.recurrenceRule);
     if (!nextDate) return; // 繰り返し終了
 
     // 新しいタスクを作成
     const newTaskData: Partial<Task> = {
-      list_id: task.list_id,
+      listId: task.listId,
       title: task.title,
       description: task.description,
       status: 'not_started',
       priority: task.priority,
-      plan_start_date:
-        task.is_range_date && task.plan_start_date
-          ? new Date(nextDate.getTime() - (task.plan_end_date!.getTime() - task.plan_start_date.getTime()))
+      planStartDate:
+        task.isRangeDate && task.planStartDate
+          ? new Date(nextDate.getTime() - (task.planEndDate!.getTime() - task.planStartDate.getTime()))
           : undefined,
-      plan_end_date: nextDate,
-      is_range_date: task.is_range_date,
-      recurrence_rule: task.recurrence_rule,
-      order_index: 0,
-      is_archived: false
+      planEndDate: nextDate,
+      isRangeDate: task.isRangeDate,
+      recurrenceRule: task.recurrenceRule,
+      orderIndex: 0,
+      isArchived: false
     };
 
     // 新しいタスクをストアに追加
@@ -130,11 +130,11 @@ export class TaskService {
   }
 
   static toggleSubTaskStatus(task: TaskWithSubTasks, subTaskId: string): void {
-    const subTask = task.sub_tasks.find((st) => st.id === subTaskId);
+    const subTask = task.subTasks.find((st) => st.id === subTaskId);
     if (!subTask) return;
 
     const newStatus: TaskStatus = subTask.status === 'completed' ? 'not_started' : 'completed';
-    const updatedSubTasks = task.sub_tasks.map((st) =>
+    const updatedSubTasks = task.subTasks.map((st) =>
       st.id === subTaskId ? { ...st, status: newStatus } : st
     );
 
@@ -158,16 +158,16 @@ export class TaskService {
     }
 
     return await taskStore.addTask(listId, {
-      project_id: projectId,
-      list_id: listId,
+      projectId: projectId,
+      listId: listId,
       title: taskData.title,
       description: taskData.description,
       status: 'not_started',
       priority: taskData.priority || 0,
-      assigned_user_ids: [],
-      tag_ids: [],
-      order_index: 0,
-      is_archived: false
+      assignedUserIds: [],
+      tagIds: [],
+      orderIndex: 0,
+      isArchived: false
     });
   }
 
@@ -202,9 +202,9 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority || undefined,
-      plan_start_date: formData.plan_start_date,
-      plan_end_date: formData.plan_end_date,
-      is_range_date: formData.is_range_date || false
+      planStartDate: formData.plan_start_date,
+      planEndDate: formData.plan_end_date,
+      isRangeDate: formData.is_range_date || false
     };
 
     this.updateSubTask(subTaskId, updates);
@@ -260,7 +260,7 @@ export class TaskService {
     }
 
     if (newDueDate) {
-      this.updateTask(taskId, { plan_end_date: newDueDate });
+      this.updateTask(taskId, { planEndDate: newDueDate });
     }
   }
 
@@ -293,7 +293,7 @@ export class TaskService {
     }
 
     if (newDueDate) {
-      this.updateSubTask(subTaskId, { plan_end_date: newDueDate });
+      this.updateSubTask(subTaskId, { planEndDate: newDueDate });
     }
   }
 
@@ -356,8 +356,8 @@ export class TaskService {
    */
   /*
   static async updateTaskDueDate(id: string, end_date: Date | null): Promise<boolean> {
-    const patch: Partial<Task> = { 
-      end_date: end_date ? end_date.toISOString() : null 
+    const patch: Partial<Task> = {
+      end_date: end_date ? end_date.toISOString() : null
     };
     return await this.updatePartial<Task>(id, patch);
   }

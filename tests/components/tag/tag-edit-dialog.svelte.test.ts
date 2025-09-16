@@ -13,8 +13,8 @@ describe('TagEditDialog', () => {
     id: 'test-tag',
     name: 'テストタグ',
     color: '#ff0000',
-    created_at: new Date(),
-    updated_at: new Date()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
   const defaultProps = {

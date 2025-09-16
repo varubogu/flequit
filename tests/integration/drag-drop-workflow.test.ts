@@ -101,9 +101,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       ]);
 
       // order_indexが正しく設定されているか確認
-      expect(taskStore.projects[0].order_index).toBe(0);
-      expect(taskStore.projects[1].order_index).toBe(1);
-      expect(taskStore.projects[2].order_index).toBe(2);
+      expect(taskStore.projects[0].orderIndex).toBe(0);
+      expect(taskStore.projects[1].orderIndex).toBe(1);
+      expect(taskStore.projects[2].orderIndex).toBe(2);
     });
 
     it('複数回の並び替えが正しく動作する', async () => {
@@ -140,7 +140,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(list1 && list2 && list3).toBeTruthy();
 
       // 初期順序を確認
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual([
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual([
         'リスト1',
         'リスト2',
         'リスト3'
@@ -149,16 +149,16 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       // リスト3を先頭に移動
       await taskStore.moveTaskListToPosition(list3!.id, project!.id, 0);
 
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual([
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual([
         'リスト3',
         'リスト1',
         'リスト2'
       ]);
 
       // order_indexが正しく設定されているか確認
-      expect(taskStore.projects[0].task_lists[0].order_index).toBe(0);
-      expect(taskStore.projects[0].task_lists[1].order_index).toBe(1);
-      expect(taskStore.projects[0].task_lists[2].order_index).toBe(2);
+      expect(taskStore.projects[0].taskLists[0].orderIndex).toBe(0);
+      expect(taskStore.projects[0].taskLists[1].orderIndex).toBe(1);
+      expect(taskStore.projects[0].taskLists[2].orderIndex).toBe(2);
     });
 
     it('タスクリストを別プロジェクトに移動できる', async () => {
@@ -174,18 +174,18 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(list1 && list2 && list3).toBeTruthy();
 
       // 初期状態を確認
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual(['リスト1', 'リスト2']);
-      expect(taskStore.projects[1].task_lists.map((l) => l.name)).toEqual(['リスト3']);
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リスト1', 'リスト2']);
+      expect(taskStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リスト3']);
 
       // リスト2をプロジェクト2に移動
       await taskStore.moveTaskListToProject(list2!.id, project2!.id);
 
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual(['リスト1']);
-      expect(taskStore.projects[1].task_lists.map((l) => l.name)).toEqual(['リスト3', 'リスト2']);
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リスト1']);
+      expect(taskStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リスト3', 'リスト2']);
 
       // プロジェクトIDが正しく更新されているか確認
-      const movedList = taskStore.projects[1].task_lists.find((l) => l.name === 'リスト2');
-      expect(movedList?.project_id).toBe(project2!.id);
+      const movedList = taskStore.projects[1].taskLists.find((l) => l.name === 'リスト2');
+      expect(movedList?.projectId).toBe(project2!.id);
     });
 
     it('タスクリストを別プロジェクトの指定位置に移動できる', async () => {
@@ -201,23 +201,23 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(listA && listB && listC).toBeTruthy();
 
       // 初期状態
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual(['リストA']);
-      expect(taskStore.projects[1].task_lists.map((l) => l.name)).toEqual(['リストB', 'リストC']);
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リストA']);
+      expect(taskStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リストB', 'リストC']);
 
       // リストAをプロジェクト2の先頭（リストBの前）に移動
       await taskStore.moveTaskListToPosition(listA!.id, project2!.id, 0);
 
-      expect(taskStore.projects[0].task_lists.map((l) => l.name)).toEqual([]);
-      expect(taskStore.projects[1].task_lists.map((l) => l.name)).toEqual([
+      expect(taskStore.projects[0].taskLists.map((l) => l.name)).toEqual([]);
+      expect(taskStore.projects[1].taskLists.map((l) => l.name)).toEqual([
         'リストA',
         'リストB',
         'リストC'
       ]);
 
       // order_indexが正しく設定されているか確認
-      expect(taskStore.projects[1].task_lists[0].order_index).toBe(0);
-      expect(taskStore.projects[1].task_lists[1].order_index).toBe(1);
-      expect(taskStore.projects[1].task_lists[2].order_index).toBe(2);
+      expect(taskStore.projects[1].taskLists[0].orderIndex).toBe(0);
+      expect(taskStore.projects[1].taskLists[1].orderIndex).toBe(1);
+      expect(taskStore.projects[1].taskLists[2].orderIndex).toBe(2);
     });
   });
 
@@ -244,7 +244,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       }).not.toThrow();
 
       // プロジェクトの状態は変わらない
-      expect(taskStore.projects[0].task_lists.length).toBe(0);
+      expect(taskStore.projects[0].taskLists.length).toBe(0);
     });
 
     it('範囲外のインデックスで移動しても安全に処理される', async () => {
@@ -275,7 +275,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
 
       expect(taskStore.projects.map((p) => p.name)).toEqual(['プロジェクト1', 'プロジェクト2']);
       // updated_atは変更されない（同じ位置への移動のため）
-      expect(taskStore.projects[0].updated_at).toEqual(initialProjects[0].updated_at);
+      expect(taskStore.projects[0].updatedAt).toEqual(initialProjects[0].updatedAt);
     });
   });
 
@@ -294,12 +294,12 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
         description: 'テスト用のタスク',
         priority: 2,
         status: 'not_started',
-        order_index: 0,
-        list_id: list1!.id,
-        is_archived: false,
-        project_id: project1!.id,
-        assigned_user_ids: [],
-        tag_ids: []
+        orderIndex: 0,
+        listId: list1!.id,
+        isArchived: false,
+        projectId: project1!.id,
+        assignedUserIds: [],
+        tagIds: []
       });
 
       expect(task1).toBeTruthy();
@@ -308,7 +308,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       await taskStore.moveTaskListToProject(list1!.id, project2!.id);
 
       // タスクが保持されているか確認
-      const movedList = taskStore.projects[1].task_lists[0];
+      const movedList = taskStore.projects[1].taskLists[0];
       expect(movedList.tasks.length).toBe(1);
       expect(movedList.tasks[0].title).toBe('テストタスク');
       expect(movedList.tasks[0].description).toBe('テスト用のタスク');
@@ -321,15 +321,15 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(project1 && project2).toBeTruthy();
 
       const initialDate = new Date('2023-01-01');
-      taskStore.projects[0].updated_at = initialDate;
-      taskStore.projects[1].updated_at = initialDate;
+      taskStore.projects[0].updatedAt = initialDate;
+      taskStore.projects[1].updatedAt = initialDate;
 
       // プロジェクトの並び替え
       await taskStore.moveProjectToPosition(project2!.id, 0);
 
       // updated_atが更新されている
-      expect(taskStore.projects[0].updated_at.getTime()).toBeGreaterThan(initialDate.getTime());
-      expect(taskStore.projects[1].updated_at.getTime()).toBeGreaterThan(initialDate.getTime());
+      expect(taskStore.projects[0].updatedAt.getTime()).toBeGreaterThan(initialDate.getTime());
+      expect(taskStore.projects[1].updatedAt.getTime()).toBeGreaterThan(initialDate.getTime());
     });
   });
 });

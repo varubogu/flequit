@@ -8,6 +8,7 @@ use flequit_model::types::id_types::{SubTaskId, TagId};
 
 /// Tauriコマンド引数用のSubtaskTag構造体（created_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubtaskTagCommandModel {
     pub subtask_id: String,
     pub tag_id: String,

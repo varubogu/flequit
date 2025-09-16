@@ -22,7 +22,7 @@
 <div class="flex w-full min-w-0 items-start gap-1 overflow-hidden">
   <div class="flex-shrink-0">
     <TaskAccordionToggle
-      hasSubTasks={task.sub_tasks.length > 0}
+      hasSubTasks={task.subTasks.length > 0}
       isExpanded={logic.showSubTasks}
       onToggle={logic.toggleSubTasksAccordion.bind(logic)}
     />
@@ -72,7 +72,7 @@
 </div>
 
 <!-- Sub-tasks Accordion -->
-{#if task.sub_tasks.length > 0 && logic.showSubTasks}
+{#if task.subTasks.length > 0 && logic.showSubTasks}
   <SubTaskList
     {task}
     subTaskDatePickerPosition={{ x: 0, y: 0 }}

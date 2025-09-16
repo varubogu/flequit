@@ -13,11 +13,11 @@ export interface Setting {
   /** 設定値 */
   value: string;
   /** データ型 */
-  data_type: 'string' | 'number' | 'boolean' | 'json';
+  dataType: 'string' | 'number' | 'boolean' | 'json';
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -29,19 +29,19 @@ export interface Account {
   /** メールアドレス */
   email?: string;
   /** 表示名 */
-  display_name?: string;
+  displayName?: string;
   /** アバターURL */
-  avatar_url?: string;
+  avatarUrl?: string;
   /** 認証プロバイダー */
   provider: 'local' | 'google' | 'github' | 'microsoft';
   /** プロバイダー固有ID */
-  provider_id?: string;
+  providerId?: string;
   /** アカウント有効状態 */
-  is_active: boolean;
+  isActive: boolean;
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**

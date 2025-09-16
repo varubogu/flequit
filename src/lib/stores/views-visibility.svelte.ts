@@ -189,9 +189,9 @@ class ViewsVisibilityStore {
         id: 'setting_views_visibility',
         key: 'views_visibility',
         value: JSON.stringify(this._configuration),
-        data_type: 'json',
-        created_at: new Date(),
-        updated_at: new Date()
+        dataType: 'json',
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       await backend.setting.update(setting);

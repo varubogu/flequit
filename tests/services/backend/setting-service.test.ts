@@ -21,9 +21,9 @@ describe('SettingService Interface', () => {
       id: 'setting-123',
       key: 'theme',
       value: 'dark',
-      data_type: 'string',
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      dataType: 'string',
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     vi.clearAllMocks();

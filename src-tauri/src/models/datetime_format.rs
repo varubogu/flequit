@@ -8,6 +8,7 @@ use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;
 
 /// 日時フォーマットコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DateTimeFormatCommandModel {
     /// フォーマットID
     pub id: String,

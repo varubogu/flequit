@@ -12,13 +12,13 @@ const mockTaskStore = {
   addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
     const newTask = {
       id: `task-${Date.now()}`,
-      list_id: listId,
+      listId: listId,
       title: taskData.title,
       description: taskData.description || '',
       status: taskData.status || 'not_started',
       priority: taskData.priority || 1,
-      created_at: new Date(),
-      updated_at: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       ...taskData
     } as Task;
     mockTaskStore.tasks.push(newTask);
@@ -31,7 +31,7 @@ const mockTaskStore = {
       mockTaskStore.tasks[taskIndex] = {
         ...mockTaskStore.tasks[taskIndex],
         ...updates,
-        updated_at: new Date()
+        updatedAt: new Date()
       };
       return mockTaskStore.tasks[taskIndex];
     }
@@ -48,7 +48,7 @@ const mockTaskStore = {
   }),
 
   getTasksByListId: vi.fn((listId: string) => {
-    return mockTaskStore.tasks.filter((t: Task) => t.list_id === listId);
+    return mockTaskStore.tasks.filter((t: Task) => t.listId === listId);
   })
 };
 
@@ -144,13 +144,13 @@ describe('タスクライフサイクル結合テスト', () => {
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
-          list_id: listId,
+          listId: listId,
           title: taskData.title,
           description: taskData.description || '',
           status: taskData.status || 'not_started',
           priority: taskData.priority || 1,
-          created_at: new Date(),
-          updated_at: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           ...taskData
         } as Task;
         localTaskStore.tasks.push(newTask);
@@ -163,7 +163,7 @@ describe('タスクライフサイクル結合テスト', () => {
           localTaskStore.tasks[taskIndex] = {
             ...localTaskStore.tasks[taskIndex],
             ...updates,
-            updated_at: new Date()
+            updatedAt: new Date()
           };
           return localTaskStore.tasks[taskIndex];
         }
@@ -180,7 +180,7 @@ describe('タスクライフサイクル結合テスト', () => {
       },
 
       getTasksByListId: (listId: string) => {
-        return localTaskStore.tasks.filter((t: Task) => t.list_id === listId);
+        return localTaskStore.tasks.filter((t: Task) => t.listId === listId);
       }
     };
 

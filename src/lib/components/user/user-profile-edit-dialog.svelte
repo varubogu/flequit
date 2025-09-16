@@ -37,8 +37,8 @@
   // Initialize form when user changes
   $effect(() => {
     if (user) {
-      username = user.handle_id || '';
-      displayName = user.display_name || '';
+      username = user.handleId || '';
+      displayName = user.displayName || '';
       email = user.email || '';
       bio = user.bio || '';
       timezone = user.timezone || '';
@@ -71,12 +71,12 @@
       // Create updated user object
       const updatedUser: User = {
         ...user,
-        handle_id: username.trim() || user.handle_id,
-        display_name: displayName.trim() || user.display_name,
+        handleId: username.trim() || user.handleId,
+        displayName: displayName.trim() || user.displayName,
         email: email.trim() || user.email,
         bio: bio.trim() || user.bio,
         timezone: timezone.trim() || user.timezone,
-        updated_at: new Date().toISOString()
+        updatedAt: new Date().toISOString()
       };
 
       // Save to backend

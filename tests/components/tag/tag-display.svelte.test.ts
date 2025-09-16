@@ -26,8 +26,8 @@ describe('TagDisplay', () => {
     id: '1',
     name: 'test-tag',
     color: '#ff0000',
-    created_at: new Date(),
-    updated_at: new Date()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
   const defaultProps = {
@@ -108,8 +108,8 @@ describe('TagDisplay', () => {
       id: '2',
       name: 'no-color-tag',
       color: undefined,
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     render(TagDisplay, {
@@ -159,8 +159,8 @@ describe('TagDisplay', () => {
       id: '3',
       name: 'different-tag',
       color: '#00ff00',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     render(TagDisplay, {

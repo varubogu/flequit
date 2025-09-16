@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// 日時フォーマットコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DateTimeFormatCommandModel {
     /// フォーマットID
     pub id: String,

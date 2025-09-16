@@ -10,32 +10,32 @@ describe('CommandTaskItem', () => {
     description: 'Test task description',
     status: 'not_started',
     priority: 3,
-    plan_start_date: new Date('2024-01-01'),
-    plan_end_date: new Date('2024-01-02'),
-    is_range_date: true,
-    list_id: 'list-1',
-    project_id: 'proj-1',
-    assigned_user_ids: [],
-    tag_ids: ['tag-1', 'tag-2'],
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-01-01'),
-    sub_tasks: [],
+    planStartDate: new Date('2024-01-01'),
+    planEndDate: new Date('2024-01-02'),
+    isRangeDate: true,
+    listId: 'list-1',
+    projectId: 'proj-1',
+    assignedUserIds: [],
+    tagIds: ['tag-1', 'tag-2'],
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    subTasks: [],
     tags: [
       {
         id: 'tag-1',
         name: 'urgent',
         color: '#ff0000',
-        created_at: new Date('2024-01-01'),
-        updated_at: new Date('2024-01-01')
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
       },
       {
         id: 'tag-2',
         name: 'work',
         color: '#00ff00',
-        created_at: new Date('2024-01-01'),
-        updated_at: new Date('2024-01-01')
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
       }
     ]
   };
@@ -71,18 +71,18 @@ describe('CommandTaskItem', () => {
         description: '',
         status: 'not_started',
         priority: 1,
-        plan_start_date: new Date(),
-        plan_end_date: new Date(),
-        is_range_date: false,
-        list_id: 'list-1',
-        project_id: 'proj-1',
-        assigned_user_ids: [],
-        tag_ids: [],
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-        sub_tasks: [],
+        planStartDate: new Date(),
+        planEndDate: new Date(),
+        isRangeDate: false,
+        listId: 'list-1',
+        projectId: 'proj-1',
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        subTasks: [],
         tags: []
       };
 
@@ -222,22 +222,22 @@ describe('CommandTaskItem', () => {
             id: 'tag-1',
             name: 'tag with spaces',
             color: '#ff0000',
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: 'tag-2',
             name: 'タグ',
             color: '#00ff00',
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: 'tag-3',
             name: 'tag&symbols!',
             color: '#0000ff',
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           }
         ]
       };
@@ -490,21 +490,21 @@ describe('CommandTaskItem', () => {
             id: 'tag-1',
             name: '',
             color: '#ff0000',
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: 'tag-2',
             name: 'test',
             color: undefined,
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           },
           {
             id: 'tag-3',
             name: 'no-color',
-            created_at: new Date('2024-01-01'),
-            updated_at: new Date('2024-01-01')
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
           }
         ]
       };

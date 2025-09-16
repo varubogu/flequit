@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド引数用のSubtask構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubtaskCommandModel {
     pub id: String,
     pub task_id: String,
@@ -159,6 +160,7 @@ impl CommandModelConverter<SubtaskCommandModel> for SubTask {
 
 /// Tauriコマンド戻り値用のSubTaskTree構造体（日時フィールドはString、階層構造含む）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubTaskTreeCommandModel {
     pub id: String,
     pub task_id: String,

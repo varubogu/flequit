@@ -24,22 +24,22 @@ describe('TaskService Interface', () => {
 
     mockTask = {
       id: 'task-123',
-      project_id: 'proj-1',
-      list_id: 'list-456',
+      projectId: 'proj-1',
+      listId: 'list-456',
       title: 'Test Task',
       description: 'Test task description',
       status: 'not_started',
       priority: 2,
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z'),
-      assigned_user_ids: [],
-      tag_ids: []
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      assignedUserIds: [],
+      tagIds: []
     };
 
     mockSearchCondition = {
-      list_id: 'list-456',
+      listId: 'list-456',
       status: 'not_started'
     };
 

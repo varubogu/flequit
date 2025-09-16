@@ -86,16 +86,16 @@ export class ProjectsService {
 
     return {
       ...project,
-      task_lists: project.task_lists.map((list) => ({
+      taskLists: project.taskLists.map((list) => ({
         id: list.id,
-        project_id: list.project_id,
+        project_id: list.projectId,
         name: list.name,
         description: list.description,
         color: list.color,
-        order_index: list.order_index,
-        is_archived: list.is_archived,
-        created_at: list.created_at,
-        updated_at: list.updated_at
+        order_index: list.orderIndex,
+        is_archived: list.isArchived,
+        created_at: list.createdAt,
+        updated_at: list.updatedAt
       }))
     };
   }
@@ -107,10 +107,10 @@ export class ProjectsService {
       name: project.name,
       description: project.description,
       color: project.color,
-      order_index: project.order_index,
-      is_archived: project.is_archived,
-      created_at: project.created_at,
-      updated_at: project.updated_at
+      order_index: project.orderIndex,
+      is_archived: project.isArchived,
+      created_at: project.createdAt,
+      updated_at: project.updatedAt
     }));
   }
 
@@ -173,7 +173,7 @@ export class ProjectsService {
       if (!projectId) {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
-      
+
       const updatedTaskList = await dataService.updateTaskList(projectId, taskListId, updates);
       if (!updatedTaskList) return null;
 
@@ -194,7 +194,7 @@ export class ProjectsService {
       if (!projectId) {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
-      
+
       const success = await dataService.deleteTaskList(projectId, taskListId);
       if (success) {
         // ローカルストアからも削除
@@ -217,25 +217,25 @@ export class ProjectsService {
     const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return null;
 
-    const taskList = project.task_lists.find((list) => list.name === name);
+    const taskList = project.taskLists.find((list) => list.name === name);
     return taskList?.id || null;
   }
 
   // タスクリスト取得（ID指定）
   static getTaskListById(taskListId: string): TaskList | null {
     for (const project of taskStore.projects) {
-      const taskList = project.task_lists.find((list) => list.id === taskListId);
+      const taskList = project.taskLists.find((list) => list.id === taskListId);
       if (taskList) {
         return {
           id: taskList.id,
-          project_id: taskList.project_id,
+          projectId: taskList.projectId,
           name: taskList.name,
           description: taskList.description,
           color: taskList.color,
-          order_index: taskList.order_index,
-          is_archived: taskList.is_archived,
-          created_at: taskList.created_at,
-          updated_at: taskList.updated_at
+          orderIndex: taskList.orderIndex,
+          isArchived: taskList.isArchived,
+          createdAt: taskList.createdAt,
+          updatedAt: taskList.updatedAt
         };
       }
     }
@@ -247,16 +247,16 @@ export class ProjectsService {
     const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return [];
 
-    return project.task_lists.map((list) => ({
+    return project.taskLists.map((list) => ({
       id: list.id,
-      project_id: list.project_id,
+      project_id: list.projectId,
       name: list.name,
       description: list.description,
       color: list.color,
-      order_index: list.order_index,
-      is_archived: list.is_archived,
-      created_at: list.created_at,
-      updated_at: list.updated_at
+      order_index: list.orderIndex,
+      is_archived: list.isArchived,
+      created_at: list.createdAt,
+      updated_at: list.updatedAt
     }));
   }
 
@@ -270,7 +270,7 @@ export class ProjectsService {
     const foundTaskLists: TaskList[] = [];
 
     for (const project of projects) {
-      const matchingLists = project.task_lists.filter(
+      const matchingLists = project.taskLists.filter(
         (list) =>
           list.name.toLowerCase().includes(lowercaseSearch) ||
           (list.description && list.description.toLowerCase().includes(lowercaseSearch))
@@ -279,14 +279,14 @@ export class ProjectsService {
       foundTaskLists.push(
         ...matchingLists.map((list) => ({
           id: list.id,
-          project_id: list.project_id,
+          project_id: list.projectId,
           name: list.name,
           description: list.description,
           color: list.color,
-          order_index: list.order_index,
-          is_archived: list.is_archived,
-          created_at: list.created_at,
-          updated_at: list.updated_at
+          order_index: list.orderIndex,
+          is_archived: list.isArchived,
+          created_at: list.createdAt,
+          updated_at: list.updatedAt
         }))
       );
     }
@@ -324,7 +324,7 @@ export class ProjectsService {
   // タスクリストのタスク数取得
   static getTaskCountByListId(taskListId: string): number {
     for (const project of taskStore.projects) {
-      const taskList = project.task_lists.find((list) => list.id === taskListId);
+      const taskList = project.taskLists.find((list) => list.id === taskListId);
       if (taskList) {
         return taskList.tasks.length;
       }
@@ -337,7 +337,7 @@ export class ProjectsService {
     const project = taskStore.projects.find((p) => p.id === projectId);
     if (!project) return 0;
 
-    return project.task_lists.reduce((total, list) => total + list.tasks.length, 0);
+    return project.taskLists.reduce((total, list) => total + list.tasks.length, 0);
   }
 
   // 選択中のプロジェクトID取得
@@ -363,33 +363,33 @@ export class ProjectsService {
         name: result.project.name,
         description: result.project.description,
         color: result.project.color,
-        order_index: result.project.order_index,
-        is_archived: result.project.is_archived,
-        created_at: result.project.created_at,
-        updated_at: result.project.updated_at
+        orderIndex: result.project.orderIndex,
+        isArchived: result.project.isArchived,
+        createdAt: result.project.createdAt,
+        updatedAt: result.project.updatedAt
       },
       taskList: {
         id: result.taskList.id,
-        project_id: result.taskList.project_id,
+        projectId: result.taskList.projectId,
         name: result.taskList.name,
         description: result.taskList.description,
         color: result.taskList.color,
-        order_index: result.taskList.order_index,
-        is_archived: result.taskList.is_archived,
-        created_at: result.taskList.created_at,
-        updated_at: result.taskList.updated_at
+        orderIndex: result.taskList.orderIndex,
+        isArchived: result.taskList.isArchived,
+        createdAt: result.taskList.createdAt,
+        updatedAt: result.taskList.updatedAt
       }
     };
   }
 
   // アーカイブ済みプロジェクトのフィルタリング
   static getActiveProjects(): Project[] {
-    return this.getAllProjects().filter((project) => !project.is_archived);
+    return this.getAllProjects().filter((project) => !project.isArchived);
   }
 
   // アーカイブ済みタスクリストのフィルタリング
   static getActiveTaskListsByProjectId(projectId: string): TaskList[] {
-    return this.getTaskListsByProjectId(projectId).filter((list) => !list.is_archived);
+    return this.getTaskListsByProjectId(projectId).filter((list) => !list.isArchived);
   }
 
   // プロジェクトのアーカイブ状態変更

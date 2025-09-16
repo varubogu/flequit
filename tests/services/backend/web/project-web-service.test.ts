@@ -16,15 +16,15 @@ describe('ProjectWebService', () => {
       name: 'Test Project',
       description: 'Test Description',
       color: '#FF5733',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockSearchCondition = {
       name: 'Test',
-      is_archived: false
+      isArchived: false
     };
 
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

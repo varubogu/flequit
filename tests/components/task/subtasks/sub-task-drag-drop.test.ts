@@ -52,46 +52,46 @@ Object.defineProperty(globalThis, 'DataTransfer', {
 describe('SubTaskList - Drag and Drop', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'proj-1',
-    list_id: 'list-1',
+    projectId: 'proj-1',
+    listId: 'list-1',
     title: 'Test Task',
     description: '',
     status: 'not_started',
     priority: 0,
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    assigned_user_ids: [],
-    tag_ids: [],
-    sub_tasks: [
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    assignedUserIds: [],
+    tagIds: [],
+    subTasks: [
       {
         id: 'subtask-1',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'Test SubTask 1',
         description: '',
         status: 'not_started',
         priority: 0,
-        order_index: 0,
+        orderIndex: 0,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: 'subtask-2',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'Test SubTask 2',
         description: '',
         status: 'not_started',
         priority: 0,
-        order_index: 1,
+        orderIndex: 1,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ],
     tags: []

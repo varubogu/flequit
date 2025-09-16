@@ -21,9 +21,9 @@ describe('TagTauriService', () => {
       id: 'tag-123',
       name: 'urgent',
       color: '#FF5733',
-      order_index: 0,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
     mockSearchCondition = {
       name: 'urgent'

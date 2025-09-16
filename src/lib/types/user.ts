@@ -14,22 +14,21 @@ export interface User {
   /** ユーザーの公開識別子（他者から参照可能、プロジェクト共有用） */
   id: string;
   /** ユニークユーザー名（必須、@mention等で使用） */
-  handle_id: string;
+  handleId: string;
   /** 表示名（UI表示用、必須） */
-  display_name: string;
+  displayName: string;
   /** メールアドレス（任意、通知や連絡で使用） */
   email?: string;
   /** アバターURL（外部サービス由来） */
-  avatar_url?: string;
+  avatarUrl?: string;
   /** 自己紹介文（任意） */
   bio?: string;
   /** タイムゾーン（任意） */
   timezone?: string;
   /** アクティブ状態（必須） */
-  is_active: boolean;
+  isActive: boolean;
   /** 作成日時 */
-  created_at: string;
+  createdAt: string;
   /** 更新日時 */
-  updated_at: string;
+  updatedAt: string;
 }
-

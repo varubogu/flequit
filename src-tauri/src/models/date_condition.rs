@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use crate::models::CommandModelConverter;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DateConditionCommandModel {
     pub id: String,
     pub relation: DateRelation,

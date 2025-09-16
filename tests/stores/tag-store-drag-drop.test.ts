@@ -34,9 +34,9 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
 
       // order_indexが正しく設定されているか確認
       const reorderedTags = tagStore.bookmarkedTagList;
-      expect(reorderedTags[0].order_index).toBe(0);
-      expect(reorderedTags[1].order_index).toBe(1);
-      expect(reorderedTags[2].order_index).toBe(2);
+      expect(reorderedTags[0].orderIndex).toBe(0);
+      expect(reorderedTags[1].orderIndex).toBe(1);
+      expect(reorderedTags[2].orderIndex).toBe(2);
     });
 
     it('複数回の並び替えが正しく動作する', () => {
@@ -91,11 +91,11 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
 
       // 最初のタグをブックマーク
       tagStore.addBookmark(tag1!.id);
-      expect(tagStore.tags.find((t) => t.id === tag1!.id)?.order_index).toBe(0);
+      expect(tagStore.tags.find((t) => t.id === tag1!.id)?.orderIndex).toBe(0);
 
       // 2番目のタグをブックマーク
       tagStore.addBookmark(tag2!.id);
-      expect(tagStore.tags.find((t) => t.id === tag2!.id)?.order_index).toBe(1);
+      expect(tagStore.tags.find((t) => t.id === tag2!.id)?.orderIndex).toBe(1);
     });
 
     it('ブックマークされていないタグは並び替え対象にならない', () => {
@@ -174,7 +174,7 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
 
       expect(tagStore.bookmarkedTagList.map((t) => t.name)).toEqual(['タグ1', 'タグ2']);
       // order_indexは変更されない（同じ位置への移動のため）
-      expect(tagStore.bookmarkedTagList[0].order_index).toBe(initialOrder[0].order_index);
+      expect(tagStore.bookmarkedTagList[0].orderIndex).toBe(initialOrder[0].orderIndex);
     });
   });
 
@@ -184,14 +184,14 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       const tag1: Tag = {
         id: 'tag-1',
         name: 'タグ1',
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       const tag2: Tag = {
         id: 'tag-2',
         name: 'タグ2',
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       tagStore.addTagWithId(tag1);
@@ -200,8 +200,8 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       tagStore.addBookmark(tag2.id);
 
       // order_indexが未設定であることを確認
-      expect(tag1.order_index).toBeUndefined();
-      expect(tag2.order_index).toBeUndefined();
+      expect(tag1.orderIndex).toBeUndefined();
+      expect(tag2.orderIndex).toBeUndefined();
 
       // 初期化を実行
       tagStore.initializeTagOrderIndices();
@@ -210,8 +210,8 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       const updatedTag1 = tagStore.tags.find((t) => t.id === tag1.id);
       const updatedTag2 = tagStore.tags.find((t) => t.id === tag2.id);
 
-      expect(updatedTag1?.order_index).toBe(0);
-      expect(updatedTag2?.order_index).toBe(1);
+      expect(updatedTag1?.orderIndex).toBe(0);
+      expect(updatedTag2?.orderIndex).toBe(1);
     });
 
     it('既にorder_indexが設定されているタグには影響しない', () => {
@@ -221,13 +221,13 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       tagStore.addBookmark(tag1!.id);
 
       // 手動でorder_indexを設定
-      tagStore.updateTag(tag1!.id, { order_index: 5 });
+      tagStore.updateTag(tag1!.id, { orderIndex: 5 });
 
       tagStore.initializeTagOrderIndices();
 
       // order_indexが変更されていないことを確認
       const updatedTag = tagStore.tags.find((t) => t.id === tag1!.id);
-      expect(updatedTag?.order_index).toBe(5);
+      expect(updatedTag?.orderIndex).toBe(5);
     });
   });
 
@@ -283,8 +283,8 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       tagStore.addBookmark(tag2!.id);
 
       const initialDate = new Date('2023-01-01');
-      tagStore.updateTag(tag1!.id, { updated_at: initialDate });
-      tagStore.updateTag(tag2!.id, { updated_at: initialDate });
+      tagStore.updateTag(tag1!.id, { updatedAt: initialDate });
+      tagStore.updateTag(tag2!.id, { updatedAt: initialDate });
 
       // 並び替え実行
       tagStore.moveBookmarkedTagToPosition(tag2!.id, 0);
@@ -293,8 +293,8 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
       const updatedTag1 = tagStore.tags.find((t) => t.id === tag1!.id);
       const updatedTag2 = tagStore.tags.find((t) => t.id === tag2!.id);
 
-      expect(updatedTag1?.updated_at.getTime()).toBeGreaterThan(initialDate.getTime());
-      expect(updatedTag2?.updated_at.getTime()).toBeGreaterThan(initialDate.getTime());
+      expect(updatedTag1?.updatedAt.getTime()).toBeGreaterThan(initialDate.getTime());
+      expect(updatedTag2?.updatedAt.getTime()).toBeGreaterThan(initialDate.getTime());
     });
   });
 });

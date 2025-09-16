@@ -10,20 +10,20 @@ vi.mock('lucide-svelte', () => ({
 
 describe('TagCompletionUI', () => {
   const mockTags: Tag[] = [
-    { id: 'tag-1', name: 'work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
+    { id: 'tag-1', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date() },
     {
       id: 'tag-2',
       name: 'personal',
       color: '#00ff00',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 'tag-3',
       name: 'urgent',
       color: undefined,
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ];
 
@@ -274,15 +274,15 @@ describe('TagCompletionUI', () => {
           id: 'tag-1',
           name: 'tag-with-dash',
           color: '#ff0000',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         {
           id: 'tag-2',
           name: 'tag with spaces',
           color: '#00ff00',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
@@ -382,13 +382,13 @@ describe('TagCompletionUI', () => {
 
     it('should handle tags without ids', () => {
       const tagsWithoutIds: Tag[] = [
-        { id: '', name: 'work', color: '#ff0000', created_at: new Date(), updated_at: new Date() },
+        { id: '', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date() },
         {
           id: null as unknown as string,
           name: 'personal',
           color: '#00ff00',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
@@ -408,8 +408,8 @@ describe('TagCompletionUI', () => {
           id: 'tag-1',
           name: 'A'.repeat(100),
           color: '#ff0000',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 

@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド戻り値用の初期化結果構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InitializedResult {
     pub accounts: Vec<AccountCommandModel>,
     pub projects: Vec<ProjectTreeCommandModel>,

@@ -180,41 +180,41 @@ test('TaskService.addTask: handles default priority', async () => {
 test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => {
   const task: TaskWithSubTasks = {
     id: 'task-123',
-    project_id: 'proj-1',
-    list_id: 'list-123',
+    projectId: 'proj-1',
+    listId: 'list-123',
     title: 'Test Task',
     status: 'not_started',
     priority: 0,
-    order_index: 0,
-    is_archived: false,
-    assigned_user_ids: [],
-    tag_ids: [],
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [
+    orderIndex: 0,
+    isArchived: false,
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [
       {
         id: 'subtask-1',
-        task_id: 'task-123',
+        taskId: 'task-123',
         title: 'Subtask 1',
         status: 'not_started',
-        order_index: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tags: [],
         completed: false,
-        assigned_user_ids: []
+        assignedUserIds: []
       },
       {
         id: 'subtask-2',
-        task_id: 'task-123',
+        taskId: 'task-123',
         title: 'Subtask 2',
         status: 'completed',
-        order_index: 1,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tags: [],
         completed: false,
-        assigned_user_ids: []
+        assignedUserIds: []
       }
     ],
     tags: []
@@ -223,7 +223,7 @@ test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => 
   // Toggle not_started to completed
   TaskService.toggleSubTaskStatus(task, 'subtask-1');
 
-  const expectedSubTasks = [{ ...task.sub_tasks[0], status: 'completed' }, task.sub_tasks[1]];
+  const expectedSubTasks = [{ ...task.subTasks[0], status: 'completed' }, task.subTasks[1]];
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith('task-123', {
     sub_tasks: expectedSubTasks
@@ -233,18 +233,18 @@ test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => 
 test('TaskService.toggleSubTaskStatus: handles non-existent subtask', () => {
   const task: TaskWithSubTasks = {
     id: 'task-123',
-    project_id: 'proj-1',
-    list_id: 'list-123',
+    projectId: 'proj-1',
+    listId: 'list-123',
     title: 'Test Task',
     status: 'not_started',
     priority: 0,
-    order_index: 0,
-    is_archived: false,
-    assigned_user_ids: [],
-    tag_ids: [],
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [],
+    orderIndex: 0,
+    isArchived: false,
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
     tags: []
   };
 

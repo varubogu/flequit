@@ -37,9 +37,9 @@ vi.mock('./shared/advanced-recurrence-settings.svelte', () => ({
 
 describe('RecurrenceIntervalSettings', () => {
   const mockDetails: RecurrenceDetails = {
-    specific_date: undefined,
-    week_of_period: undefined,
-    weekday_of_week: undefined
+    specificDate: undefined,
+    weekOfPeriod: undefined,
+    weekdayOfWeek: undefined
   };
 
   const defaultProps = {

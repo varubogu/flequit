@@ -191,26 +191,26 @@ const mockTaskService = {
       title: 'テストタスク1',
       status: 'not_started',
       priority: 1,
-      project_id: 'project-1',
-      list_id: 'list-1',
-      order_index: 0,
-      is_archived: false,
-      assigned_user_ids: [],
-      tag_ids: [],
-      created_at: new Date(),
-      updated_at: new Date(),
+      projectId: 'project-1',
+      listId: 'list-1',
+      orderIndex: 0,
+      isArchived: false,
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tags: [],
-      sub_tasks: [
+      subTasks: [
         {
           id: 'subtask-1',
           title: 'サブタスク1',
           status: 'not_started',
-          task_id: 'task-1',
-          order_index: 0,
+          taskId: 'task-1',
+          orderIndex: 0,
           completed: false,
-          assigned_user_ids: [],
-          created_at: new Date(),
-          updated_at: new Date(),
+          assignedUserIds: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tags: []
         } as SubTask
       ]
@@ -220,16 +220,16 @@ const mockTaskService = {
       title: 'テストタスク2',
       status: 'completed',
       priority: 1,
-      list_id: 'list-1',
-      project_id: 'project-1',
-      assigned_user_ids: [],
-      tag_ids: [],
-      order_index: 1,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      listId: 'list-1',
+      projectId: 'project-1',
+      assignedUserIds: [],
+      tagIds: [],
+      orderIndex: 1,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tags: [],
-      sub_tasks: []
+      subTasks: []
     } as TaskWithSubTasks
   ] as TaskWithSubTasks[],
 
@@ -245,9 +245,9 @@ const mockTaskService = {
   deleteSubTask: vi.fn((subTaskId: string, taskId: string) => {
     const task = mockTaskService.tasks.find((t) => t.id === taskId);
     if (task) {
-      const index = task.sub_tasks.findIndex((st) => st.id === subTaskId);
+      const index = task.subTasks.findIndex((st) => st.id === subTaskId);
       if (index !== -1) {
-        task.sub_tasks.splice(index, 1);
+        task.subTasks.splice(index, 1);
         return true;
       }
     }
@@ -257,7 +257,7 @@ const mockTaskService = {
   archiveTask: vi.fn((taskId: string) => {
     const task = mockTaskService.tasks.find((t) => t.id === taskId);
     if (task) {
-      task.is_archived = true;
+      task.isArchived = true;
       return true;
     }
     return false;
@@ -404,26 +404,26 @@ describe('通知・アラート結合テスト', () => {
         title: 'テストタスク1',
         status: 'not_started',
         priority: 1,
-        list_id: 'list-1',
-        project_id: 'project-1',
-        order_index: 0,
-        is_archived: false,
-        assigned_user_ids: [],
-        tag_ids: [],
-        created_at: new Date(),
-        updated_at: new Date(),
+        listId: 'list-1',
+        projectId: 'project-1',
+        orderIndex: 0,
+        isArchived: false,
+        assignedUserIds: [],
+        tagIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tags: [],
-        sub_tasks: [
+        subTasks: [
           {
             id: 'subtask-1',
             title: 'サブタスク1',
             status: 'not_started',
-            task_id: 'task-1',
-            order_index: 0,
-            created_at: new Date(),
-            updated_at: new Date(),
+            taskId: 'task-1',
+            orderIndex: 0,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             completed: false,
-            assigned_user_ids: [],
+            assignedUserIds: [],
             tags: []
           }
         ]
@@ -433,16 +433,16 @@ describe('通知・アラート結合テスト', () => {
         title: 'テストタスク2',
         status: 'completed',
         priority: 1,
-        project_id: 'project-1',
-        list_id: 'list-1',
-        order_index: 1,
-        is_archived: false,
-        assigned_user_ids: [],
-        tag_ids: [],
-        created_at: new Date(),
-        updated_at: new Date(),
+        projectId: 'project-1',
+        listId: 'list-1',
+        orderIndex: 1,
+        isArchived: false,
+        assignedUserIds: [],
+        tagIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tags: [],
-        sub_tasks: []
+        subTasks: []
       } as TaskWithSubTasks
     ];
   });
@@ -515,7 +515,7 @@ describe('通知・アラート結合テスト', () => {
 
     // 初期状態確認
     const initialTask = mockTaskService.tasks.find((t) => t.id === 'task-1');
-    expect(initialTask?.sub_tasks).toHaveLength(1);
+    expect(initialTask?.subTasks).toHaveLength(1);
 
     // 削除を確認
     mockDialogStore.confirmDialog(dialogId);
@@ -523,7 +523,7 @@ describe('通知・アラート結合テスト', () => {
     // サブタスクが削除されたことを確認
     expect(mockTaskService.deleteSubTask).toHaveBeenCalledWith('subtask-1', 'task-1');
     const updatedTask = mockTaskService.tasks.find((t) => t.id === 'task-1');
-    expect(updatedTask?.sub_tasks).toHaveLength(0);
+    expect(updatedTask?.subTasks).toHaveLength(0);
   });
 
   it('削除のキャンセルが正しく動作する', () => {

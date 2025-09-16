@@ -26,25 +26,25 @@ describe('SubtaskTauriService', () => {
     service = new SubtaskTauriService();
     mockSubTask = {
       id: 'subtask-123',
-      task_id: 'task-456',
+      taskId: 'task-456',
       title: 'Test SubTask',
       description: 'Test Description',
       status: 'not_started',
       priority: 2,
-      plan_start_date: new Date('2024-01-01T00:00:00Z'),
-      plan_end_date: new Date('2024-01-02T00:00:00Z'),
-      do_start_date: new Date('2024-01-01T00:00:00Z'),
-      do_end_date: new Date('2024-01-02T00:00:00Z'),
-      is_range_date: true,
-      order_index: 0,
+      planStartDate: new Date('2024-01-01T00:00:00Z'),
+      planEndDate: new Date('2024-01-02T00:00:00Z'),
+      doStartDate: new Date('2024-01-01T00:00:00Z'),
+      doEndDate: new Date('2024-01-02T00:00:00Z'),
+      isRangeDate: true,
+      orderIndex: 0,
       completed: false,
-      assigned_user_ids: [],
+      assignedUserIds: [],
       tags: [],
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
     mockSearchCondition = {
-      task_id: 'task-456',
+      taskId: 'task-456',
       status: 'not_started'
     };
     vi.clearAllMocks();
@@ -56,9 +56,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
-        project_id: 'test-project-id', 
-        sub_task: mockSubTask 
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
+        project_id: 'test-project-id',
+        sub_task: mockSubTask
       });
       expect(result).toBe(true);
     });
@@ -69,9 +69,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
-        project_id: 'test-project-id', 
-        sub_task: mockSubTask 
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
+        project_id: 'test-project-id',
+        sub_task: mockSubTask
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create sub task:', expect.any(Error));
@@ -98,9 +98,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.create('test-project-id', minimalSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', { 
-        project_id: 'test-project-id', 
-        sub_task: minimalSubTask 
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
+        project_id: 'test-project-id',
+        sub_task: minimalSubTask
       });
       expect(result).toBe(true);
     });
@@ -112,19 +112,19 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...mockSubTask,
-        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
-        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
-        do_start_date: mockSubTask.do_start_date?.toISOString(),
-        do_end_date: mockSubTask.do_end_date?.toISOString(),
-        created_at: mockSubTask.created_at.toISOString(),
-        updated_at: mockSubTask.updated_at.toISOString()
+        plan_start_date: mockSubTask.planStartDate?.toISOString(),
+        plan_end_date: mockSubTask.planEndDate?.toISOString(),
+        do_start_date: mockSubTask.doStartDate?.toISOString(),
+        do_end_date: mockSubTask.doEndDate?.toISOString(),
+        created_at: mockSubTask.createdAt.toISOString(),
+        updated_at: mockSubTask.updatedAt.toISOString()
       } as any;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
-        project_id: 'test-project-id', 
-        id: mockSubTask.id, 
-        patch: patchData 
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
+        project_id: 'test-project-id',
+        id: mockSubTask.id,
+        patch: patchData
       });
       expect(result).toBe(true);
     });
@@ -135,19 +135,19 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...mockSubTask,
-        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
-        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
-        do_start_date: mockSubTask.do_start_date?.toISOString(),
-        do_end_date: mockSubTask.do_end_date?.toISOString(),
-        created_at: mockSubTask.created_at.toISOString(),
-        updated_at: mockSubTask.updated_at.toISOString()
+        plan_start_date: mockSubTask.planStartDate?.toISOString(),
+        plan_end_date: mockSubTask.planEndDate?.toISOString(),
+        do_start_date: mockSubTask.doStartDate?.toISOString(),
+        do_end_date: mockSubTask.doEndDate?.toISOString(),
+        created_at: mockSubTask.createdAt.toISOString(),
+        updated_at: mockSubTask.updatedAt.toISOString()
       } as any;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
-        project_id: 'test-project-id', 
-        id: mockSubTask.id, 
-        patch: patchData 
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
+        project_id: 'test-project-id',
+        id: mockSubTask.id,
+        patch: patchData
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update subtask:', expect.any(Error));
@@ -166,20 +166,20 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...updatedSubTask,
-        plan_start_date: updatedSubTask.plan_start_date?.toISOString(),
-        plan_end_date: updatedSubTask.plan_end_date?.toISOString(),
-        do_start_date: updatedSubTask.do_start_date?.toISOString(),
-        do_end_date: updatedSubTask.do_end_date?.toISOString(),
-        created_at: updatedSubTask.created_at.toISOString(),
+        plan_start_date: updatedSubTask.planStartDate?.toISOString(),
+        plan_end_date: updatedSubTask.planEndDate?.toISOString(),
+        do_start_date: updatedSubTask.doStartDate?.toISOString(),
+        do_end_date: updatedSubTask.doEndDate?.toISOString(),
+        created_at: updatedSubTask.createdAt.toISOString(),
         updated_at: updatedSubTask.updated_at.toISOString()
       } as any;
 
       const result = await service.update('test-project-id', updatedSubTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', { 
-        project_id: 'test-project-id', 
-        id: updatedSubTask.id, 
-        patch: patchData 
+      expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
+        project_id: 'test-project-id',
+        id: updatedSubTask.id,
+        patch: patchData
       });
       expect(result).toBe(true);
     });
@@ -191,9 +191,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'subtask-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', { 
-        project_id: 'test-project-id', 
-        id: 'subtask-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
+        project_id: 'test-project-id',
+        id: 'subtask-123'
       });
       expect(result).toBe(true);
     });
@@ -204,9 +204,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'subtask-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', { 
-        project_id: 'test-project-id', 
-        id: 'subtask-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
+        project_id: 'test-project-id',
+        id: 'subtask-123'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete sub task:', expect.any(Error));
@@ -221,9 +221,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'subtask-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
-        project_id: 'test-project-id', 
-        id: 'subtask-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
+        project_id: 'test-project-id',
+        id: 'subtask-123'
       });
       expect(result).toEqual(mockSubTask);
     });
@@ -233,9 +233,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'non-existent');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
-        project_id: 'test-project-id', 
-        id: 'non-existent' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
+        project_id: 'test-project-id',
+        id: 'non-existent'
       });
       expect(result).toBeNull();
     });
@@ -246,9 +246,9 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'subtask-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', { 
-        project_id: 'test-project-id', 
-        id: 'subtask-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
+        project_id: 'test-project-id',
+        id: 'subtask-123'
       });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get sub task:', expect.any(Error));

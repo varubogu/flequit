@@ -17,11 +17,11 @@ describe('RecurrenceRuleWebService', () => {
         id: 'rule1',
         unit: 'day',
         interval: 1,
-        days_of_week: ['monday'],
+        daysOfWeek: ['monday'],
         details: 'Daily task',
         adjustment: 'none',
-        end_date: '2024-12-31',
-        max_occurrences: 10
+        endDate: '2024-12-31',
+        maxOccurrences: 10
       };
 
       const result = await service.create(rule);
@@ -57,11 +57,11 @@ describe('RecurrenceRuleWebService', () => {
         id: 'rule1',
         unit: 'week',
         interval: 2,
-        days_of_week: ['monday', 'friday'],
+        daysOfWeek: ['monday', 'friday'],
         details: 'Weekly task',
         adjustment: 'none',
-        end_date: '2024-12-31',
-        max_occurrences: 5
+        endDate: '2024-12-31',
+        maxOccurrences: 5
       };
 
       const result = await service.update(rule);
@@ -86,7 +86,7 @@ describe('RecurrenceRuleWebService', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceRuleSearchCondition = {
         unit: 'day',
-        end_date: '2024-12-31'
+        endDate: '2024-12-31'
       };
 
       const result = await service.search(condition);

@@ -40,14 +40,14 @@ describe('RecurrenceAdjustmentEditor', () => {
   const mockDateCondition: DateCondition = {
     id: 'date-1',
     relation: 'before' as DateRelation,
-    reference_date: new Date('2024-01-15')
+    referenceDate: new Date('2024-01-15')
   };
 
   const mockWeekdayCondition: WeekdayCondition = {
     id: 'weekday-1',
-    if_weekday: 'monday',
-    then_direction: 'next',
-    then_target: 'weekday'
+    ifWeekday: 'monday',
+    thenDirection: 'next',
+    thenTarget: 'weekday'
   };
 
   const defaultProps = {

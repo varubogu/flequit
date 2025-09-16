@@ -42,11 +42,11 @@ describe('InitializationTauriService', () => {
         name: 'Test Project',
         description: 'Test Description',
         color: '#FF5733',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date('2024-01-01T00:00:00Z'),
-        updated_at: new Date('2024-01-01T00:00:00Z'),
-        task_lists: []
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date('2024-01-01T00:00:00Z'),
+        updatedAt: new Date('2024-01-01T00:00:00Z'),
+        taskLists: []
       }
     ];
 
@@ -259,8 +259,8 @@ describe('InitializationTauriService', () => {
 
       const result = await service.loadProjectData();
 
-      expect(result[0].task_lists).toHaveLength(1);
-      expect(result[0].task_lists[0].name).toBe('To Do');
+      expect(result[0].taskLists).toHaveLength(1);
+      expect(result[0].taskLists[0].name).toBe('To Do');
     });
 
     it('should handle archived projects', async () => {
@@ -272,7 +272,7 @@ describe('InitializationTauriService', () => {
 
       const result = await service.loadProjectData();
 
-      expect(result[0].is_archived).toBe(true);
+      expect(result[0].isArchived).toBe(true);
     });
 
     it('should handle empty project list', async () => {

@@ -11,19 +11,19 @@ test('task creation workflow', () => {
     addTask: vi.fn((listId: string, taskData: Partial<Task>) => {
       const newTask = {
         id: `task-${Date.now()}`,
-        list_id: listId,
+        listId: listId,
         title: taskData.title || '',
         description: taskData.description || '',
         status: taskData.status || 'not_started',
         priority: taskData.priority || 1,
-        plan_start_date: taskData.plan_start_date,
-        plan_end_date: taskData.plan_end_date,
-        is_range_date: taskData.is_range_date || false,
-        recurrence_rule: taskData.recurrence_rule,
-        order_index: taskData.order_index || 0,
-        is_archived: taskData.is_archived || false,
-        created_at: new Date(),
-        updated_at: new Date()
+        planStartDate: taskData.planStartDate,
+        planEndDate: taskData.planEndDate,
+        isRangeDate: taskData.isRangeDate || false,
+        recurrenceRule: taskData.recurrenceRule,
+        orderIndex: taskData.orderIndex || 0,
+        isArchived: taskData.isArchived || false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       } as Task;
       mockStore.tasks.push(newTask);
       return newTask;
@@ -42,7 +42,7 @@ test('task creation workflow', () => {
 
   expect(mockStore.addTask).toHaveBeenCalledWith('list-123', taskData);
   expect(createdTask.title).toBe('新しいタスク');
-  expect(createdTask.list_id).toBe('list-123');
+  expect(createdTask.listId).toBe('list-123');
   expect(mockStore.tasks).toHaveLength(1);
 });
 
@@ -54,7 +54,7 @@ test('task status update workflow', () => {
         id: 'task-1',
         title: 'テストタスク',
         status: 'not_started' as const,
-        updated_at: new Date('2024-01-01')
+        updatedAt: new Date('2024-01-01')
       } as Partial<Task>
     ] as Partial<Task>[],
     updateTask: vi.fn((taskId: string, updates: Partial<Task>) => {
@@ -63,7 +63,7 @@ test('task status update workflow', () => {
         mockStore.tasks[taskIndex] = {
           ...mockStore.tasks[taskIndex],
           ...updates,
-          updated_at: new Date()
+          updatedAt: new Date()
         };
         return mockStore.tasks[taskIndex];
       }
@@ -76,7 +76,7 @@ test('task status update workflow', () => {
 
   expect(mockStore.updateTask).toHaveBeenCalledWith('task-1', { status: 'completed' });
   expect(updatedTask?.status).toBe('completed');
-  expect(updatedTask?.updated_at && updatedTask.updated_at > new Date('2024-01-01')).toBe(true);
+  expect(updatedTask?.updatedAt && updatedTask.updatedAt > new Date('2024-01-01')).toBe(true);
 });
 
 test('task deletion workflow', () => {
@@ -112,43 +112,43 @@ test('subtask management workflow', () => {
       {
         id: 'task-1',
         title: 'メインタスク',
-        sub_tasks: [
+        subTasks: [
           {
             id: 'sub-1',
             title: 'サブタスク1',
             status: 'not_started' as const,
-            task_id: 'task-1',
-            order_index: 0,
+            taskId: 'task-1',
+            orderIndex: 0,
             tags: [],
             completed: false,
-            assigned_user_ids: [],
-            created_at: new Date(),
-            updated_at: new Date()
+            assignedUserIds: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
           } as SubTask,
           {
             id: 'sub-2',
             title: 'サブタスク2',
             status: 'completed' as const,
-            task_id: 'task-1',
-            order_index: 1,
+            taskId: 'task-1',
+            orderIndex: 1,
             tags: [],
             completed: false,
-            assigned_user_ids: [],
-            created_at: new Date(),
-            updated_at: new Date()
+            assignedUserIds: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
           } as SubTask
         ]
       } as TaskWithSubTasks
     ] as TaskWithSubTasks[],
     updateSubTask: vi.fn((subTaskId: string, updates: Partial<SubTask>) => {
       for (const task of mockStore.tasks) {
-        const subTaskIndex = task.sub_tasks.findIndex((st) => st.id === subTaskId);
+        const subTaskIndex = task.subTasks.findIndex((st) => st.id === subTaskId);
         if (subTaskIndex >= 0) {
-          task.sub_tasks[subTaskIndex] = {
-            ...task.sub_tasks[subTaskIndex],
+          task.subTasks[subTaskIndex] = {
+            ...task.subTasks[subTaskIndex],
             ...updates
           };
-          return task.sub_tasks[subTaskIndex];
+          return task.subTasks[subTaskIndex];
         }
       }
       return null;
@@ -163,6 +163,6 @@ test('subtask management workflow', () => {
 
   // 全サブタスクの完了確認
   const task = mockStore.tasks[0];
-  const allCompleted = task.sub_tasks.every((st) => st.status === 'completed');
+  const allCompleted = task.subTasks.every((st) => st.status === 'completed');
   expect(allCompleted).toBe(true);
 });

@@ -6,14 +6,14 @@ describe('RecurrenceAdjustmentEditor', () => {
   const mockDateCondition: DateCondition = {
     id: 'date-1',
     relation: 'before',
-    reference_date: new Date('2024-01-15')
+    referenceDate: new Date('2024-01-15')
   };
 
   const mockWeekdayCondition: WeekdayCondition = {
     id: 'weekday-1',
-    if_weekday: 'monday',
-    then_direction: 'next',
-    then_target: 'weekday'
+    ifWeekday: 'monday',
+    thenDirection: 'next',
+    thenTarget: 'weekday'
   };
 
   const defaultProps = {
@@ -113,11 +113,11 @@ describe('RecurrenceAdjustmentEditor', () => {
       const condition: DateCondition = {
         id: `date-${relation}`,
         relation,
-        reference_date: new Date('2024-01-15')
+        referenceDate: new Date('2024-01-15')
       };
 
       expect(condition.relation).toBe(relation);
-      expect(condition.reference_date).toBeInstanceOf(Date);
+      expect(condition.referenceDate).toBeInstanceOf(Date);
     });
   });
 
@@ -134,9 +134,9 @@ describe('RecurrenceAdjustmentEditor', () => {
         ...conditionData
       };
 
-      expect(condition.if_weekday).toBe(conditionData.if_weekday);
-      expect(condition.then_direction).toBe(conditionData.then_direction);
-      expect(condition.then_target).toBe(conditionData.then_target);
+      expect(condition.ifWeekday).toBe(conditionData.if_weekday);
+      expect(condition.thenDirection).toBe(conditionData.then_direction);
+      expect(condition.thenTarget).toBe(conditionData.then_target);
     });
   });
 

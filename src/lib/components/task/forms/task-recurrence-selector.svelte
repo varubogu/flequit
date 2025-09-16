@@ -40,34 +40,34 @@
     })();
 
     // 週単位の場合の曜日指定
-    if (rule.unit === 'week' && rule.days_of_week?.length) {
-      const dayNames = rule.days_of_week.map((day) => getDayOfWeekText(day, true)).join(', ');
+    if (rule.unit === 'week' && rule.daysOfWeek?.length) {
+      const dayNames = rule.daysOfWeek.map((day) => getDayOfWeekText(day, true)).join(', ');
       text += ' ' + translationService.getMessage('recurrence_weekly_days', { days: dayNames })();
     }
 
     // 月単位の場合の詳細
     if (rule.unit === 'month') {
-      if (rule.details?.specific_date) {
-        const dayOfMonth = rule.details.specific_date;
+      if (rule.details?.specificDate) {
+        const dayOfMonth = rule.details.specificDate;
         const detail =
           translationService.getMessage('day_of_month', { day: dayOfMonth })() +
           getOrdinalSuffix(dayOfMonth);
         text += ' ' + translationService.getMessage('recurrence_monthly_detail', { detail })();
-      } else if (rule.details?.week_of_period && rule.details?.weekday_of_week) {
-        const detail = `${getWeekOfMonthText(rule.details.week_of_period)} ${getDayOfWeekText(rule.details.weekday_of_week, false)}`;
+      } else if (rule.details?.weekOfPeriod && rule.details?.weekdayOfWeek) {
+        const detail = `${getWeekOfMonthText(rule.details.weekOfPeriod)} ${getDayOfWeekText(rule.details.weekdayOfWeek, false)}`;
         text += ' ' + translationService.getMessage('recurrence_monthly_detail', { detail })();
       }
     }
 
     // 終了条件
-    if (rule.end_date) {
-      const endDate = new Date(rule.end_date).toLocaleDateString(getLocale());
+    if (rule.endDate) {
+      const endDate = new Date(rule.endDate).toLocaleDateString(getLocale());
       text += ' ' + translationService.getMessage('recurrence_end_date', { endDate })();
-    } else if (rule.max_occurrences) {
+    } else if (rule.maxOccurrences) {
       text +=
         ' ' +
         translationService.getMessage('recurrence_max_occurrences', {
-          count: rule.max_occurrences
+          count: rule.maxOccurrences
         })();
     }
 

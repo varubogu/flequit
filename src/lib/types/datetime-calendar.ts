@@ -61,7 +61,7 @@ export interface DateCondition {
   /** 日付の関係（より前/以前/以降/より後） */
   relation: DateRelation;
   /** 基準日 */
-  reference_date: Date;
+  referenceDate: Date;
 }
 
 /**
@@ -71,15 +71,15 @@ export interface WeekdayCondition {
   /** 条件ID */
   id: string;
   /** この曜日・種別なら */
-  if_weekday: DayOfWeek | AdjustmentTarget;
+  ifWeekday: DayOfWeek | AdjustmentTarget;
   /** 前/後に移動する方向 */
-  then_direction: AdjustmentDirection;
+  thenDirection: AdjustmentDirection;
   /** 移動先の種別（平日/休日/祝日/特定曜日） */
-  then_target: AdjustmentTarget;
+  thenTarget: AdjustmentTarget;
   /** 特定曜日を指定する場合の曜日 */
-  then_weekday?: DayOfWeek;
+  thenWeekday?: DayOfWeek;
   /** 日数を指定する場合の日数 */
-  then_days?: number;
+  thenDays?: number;
 }
 
 /**
@@ -87,9 +87,9 @@ export interface WeekdayCondition {
  */
 export interface RecurrenceAdjustment {
   /** 日付条件のリスト */
-  date_conditions: DateCondition[];
+  dateConditions: DateCondition[];
   /** 曜日条件のリスト */
-  weekday_conditions: WeekdayCondition[];
+  weekdayConditions: WeekdayCondition[];
 }
 
 /**
@@ -97,15 +97,15 @@ export interface RecurrenceAdjustment {
  */
 export interface RecurrenceDetails {
   /** 特定日付指定（例：毎月15日） */
-  specific_date?: number;
+  specificDate?: number;
 
   /** 週指定（第◯週） */
-  week_of_period?: WeekOfMonth;
+  weekOfPeriod?: WeekOfMonth;
   /** 週指定の曜日（第◯✕曜日） */
-  weekday_of_week?: DayOfWeek;
+  weekdayOfWeek?: DayOfWeek;
 
   /** 日付範囲条件 */
-  date_conditions?: DateCondition[];
+  dateConditions?: DateCondition[];
 }
 
 /**
@@ -118,7 +118,7 @@ export interface RecurrenceRule {
   interval: number;
 
   /** 週単位の場合の曜日指定 */
-  days_of_week?: DayOfWeek[];
+  daysOfWeek?: DayOfWeek[];
 
   /** 単位別詳細設定 */
   details?: RecurrenceDetails;
@@ -127,9 +127,9 @@ export interface RecurrenceRule {
   adjustment?: RecurrenceAdjustment;
 
   /** 繰り返し終了日 */
-  end_date?: Date;
+  endDate?: Date;
   /** 最大繰り返し回数 */
-  max_occurrences?: number;
+  maxOccurrences?: number;
 }
 
 /**

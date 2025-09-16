@@ -40,14 +40,14 @@ describe('DueDate', () => {
     description: 'Test description',
     status: 'not_started' as const,
     priority: 2,
-    plan_start_date: new Date('2024-01-01'),
-    plan_end_date: new Date('2024-01-02'),
-    is_range_date: false,
-    list_id: 'list-1',
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-01-01')
+    planStartDate: new Date('2024-01-01'),
+    planEndDate: new Date('2024-01-02'),
+    isRangeDate: false,
+    listId: 'list-1',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
   } as Task;
 
   const defaultProps = {
@@ -269,7 +269,7 @@ describe('DueDate', () => {
     it('should apply color classes from getDueDateClass when task has plan_end_date', () => {
       render(DueDate, { props: defaultProps });
 
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(baseTask.plan_end_date, baseTask.status);
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(baseTask.planEndDate, baseTask.status);
     });
 
     it('should apply muted color when task has no plan_end_date', () => {
@@ -437,7 +437,7 @@ describe('DueDate', () => {
       const minimalTask = {
         id: 'minimal',
         status: 'not_started',
-        plan_end_date: undefined
+        planEndDate: undefined
       } as TaskBase;
 
       const { container } = render(DueDate, {
@@ -560,7 +560,7 @@ describe('DueDate', () => {
       });
 
       expect(container.innerHTML).toBeTruthy();
-      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(completedTask.plan_end_date, 'completed');
+      expect(vi.mocked(getDueDateClass)).toHaveBeenCalledWith(completedTask.planEndDate, 'completed');
     });
   });
 });

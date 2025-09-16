@@ -8,6 +8,7 @@ use flequit_model::types::id_types::{TagId, TaskId};
 
 /// Tauriコマンド引数用のTaskTag構造体（created_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskTagCommandModel {
     pub task_id: String,
     pub tag_id: String,

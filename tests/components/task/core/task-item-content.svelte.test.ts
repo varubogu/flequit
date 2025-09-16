@@ -39,41 +39,41 @@ vi.mock('$lib/components/shared/context-menu-wrapper.svelte', () => ({
 describe('TaskItemContent', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'project-1',
+    projectId: 'project-1',
     title: 'Test Task',
     description: 'Test description',
     status: 'not_started' as TaskStatus,
     priority: 2,
-    plan_start_date: new Date('2024-01-01'),
-    plan_end_date: new Date('2024-01-02'),
-    is_range_date: true,
-    list_id: 'list-1',
-    assigned_user_ids: [],
-    tag_ids: [],
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-01-01'),
-    sub_tasks: [],
+    planStartDate: new Date('2024-01-01'),
+    planEndDate: new Date('2024-01-02'),
+    isRangeDate: true,
+    listId: 'list-1',
+    assignedUserIds: [],
+    tagIds: [],
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+    subTasks: [],
     tags: []
   };
 
   const mockTaskWithSubTasks: TaskWithSubTasks = {
     ...mockTask,
-    sub_tasks: [
+    subTasks: [
       {
         id: 'subtask-1',
         title: 'Test SubTask',
         description: 'Test subtask description',
         status: 'not_started' as TaskStatus,
         priority: 1,
-        task_id: 'task-1',
-        order_index: 0,
+        taskId: 'task-1',
+        orderIndex: 0,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date('2024-01-01'),
-        updated_at: new Date('2024-01-01')
+        assignedUserIds: [],
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
       }
     ]
   };

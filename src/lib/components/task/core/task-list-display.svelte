@@ -99,7 +99,7 @@
 
     if (dragData.type === 'tasklist') {
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
-      const targetIndex = project.task_lists.findIndex((tl) => tl.id === targetList.id);
+      const targetIndex = project.taskLists.findIndex((tl) => tl.id === targetList.id);
       await taskStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタスクリストにドロップ
@@ -157,7 +157,7 @@
 
 {#if isExpanded && currentProject}
   <div class="mt-1 ml-4 space-y-1">
-    {#each currentProject.task_lists as list (list.id)}
+    {#each currentProject.taskLists as list (list.id)}
       <ContextMenuWrapper items={createTaskListContextMenu(list)}>
         <Button
           variant={currentView === 'tasklist' &&

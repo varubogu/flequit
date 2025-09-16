@@ -100,7 +100,7 @@ export class UserProfileLogic {
     try {
       // Update local user data
       if (this.user) {
-        this.user.name = updatedUser.display_name || updatedUser.handle_id;
+        this.user.name = updatedUser.displayName || updatedUser.handleId;
         this.user.email = updatedUser.email || '';
       }
       this.fullUser = updatedUser;

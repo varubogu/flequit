@@ -39,19 +39,19 @@ beforeEach(() => {
     {
       id: 'project-1',
       name: 'Project 1',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: [
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: [
         {
           id: 'list-1',
-          project_id: 'project-1',
+          projectId: 'project-1',
           name: 'First List',
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: []
         }
       ]
@@ -113,11 +113,11 @@ test('TaskListService.addNewTask: returns null when no task lists exist', async 
     {
       id: 'project-1',
       name: 'Project 1',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: []
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: []
     }
   ];
 

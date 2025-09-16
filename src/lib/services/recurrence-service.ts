@@ -45,7 +45,7 @@ export class RecurrenceService {
     // 日付補正を適用
     if (
       rule.adjustment &&
-      (rule.adjustment.date_conditions.length > 0 || rule.adjustment.weekday_conditions.length > 0)
+      (rule.adjustment.dateConditions.length > 0 || rule.adjustment.weekdayConditions.length > 0)
     ) {
       nextDate = this.applyDateAdjustment(nextDate, rule.adjustment);
     }
@@ -62,13 +62,13 @@ export class RecurrenceService {
    * 週単位の次回日付計算
    */
   private static calculateWeeklyNext(baseDate: Date, rule: RecurrenceRule): Date | null {
-    if (!rule.days_of_week || rule.days_of_week.length === 0) {
+    if (!rule.daysOfWeek || rule.daysOfWeek.length === 0) {
       // 曜日指定がない場合は通常の週間隔
       baseDate.setDate(baseDate.getDate() + rule.interval * 7);
       return baseDate;
     }
 
-    const targetDays = rule.days_of_week.map((day) => this.dayOfWeekToNumber(day));
+    const targetDays = rule.daysOfWeek.map((day) => this.dayOfWeekToNumber(day));
     const currentDay = baseDate.getDay();
 
     // 今週の残りの対象曜日を探す
@@ -97,16 +97,16 @@ export class RecurrenceService {
     const currentDate = new Date(baseDate);
 
     // 新しい詳細設定を使用
-    if (rule.details?.specific_date) {
+    if (rule.details?.specificDate) {
       // 特定の日付指定
       currentDate.setMonth(currentDate.getMonth() + rule.interval);
       currentDate.setDate(
-        Math.min(rule.details.specific_date, this.getLastDayOfMonth(currentDate))
+        Math.min(rule.details.specificDate, this.getLastDayOfMonth(currentDate))
       );
       return currentDate;
     }
 
-    if (rule.details?.week_of_period && rule.details?.weekday_of_week) {
+    if (rule.details?.weekOfPeriod && rule.details?.weekdayOfWeek) {
       // 第X曜日指定（例：第2日曜日）
       return this.calculateWeekOfMonthNew(currentDate, rule);
     }
@@ -131,14 +131,14 @@ export class RecurrenceService {
    * 第X曜日の計算（例：第2日曜日）- 新しい型定義用
    */
   private static calculateWeekOfMonthNew(baseDate: Date, rule: RecurrenceRule): Date | null {
-    if (!rule.details?.week_of_period || !rule.details?.weekday_of_week) {
+    if (!rule.details?.weekOfPeriod || !rule.details?.weekdayOfWeek) {
       return null;
     }
 
-    const targetDay = this.dayOfWeekToNumber(rule.details.weekday_of_week);
+    const targetDay = this.dayOfWeekToNumber(rule.details.weekdayOfWeek);
     const nextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + rule.interval, 1);
 
-    if (rule.details.week_of_period === 'last') {
+    if (rule.details.weekOfPeriod === 'last') {
       // 最後の曜日
       const lastDay = this.getLastDayOfMonth(nextMonth);
       const lastDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), lastDay);
@@ -154,7 +154,7 @@ export class RecurrenceService {
     }
 
     // 第1-4週
-    const weekNumber = this.weekOfMonthToNumber(rule.details.week_of_period);
+    const weekNumber = this.weekOfMonthToNumber(rule.details.weekOfPeriod);
     const firstDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
     const firstDayOfWeek = firstDay.getDay();
 
@@ -184,7 +184,7 @@ export class RecurrenceService {
     let adjustedDate = new Date(date);
 
     // 日付条件をチェック
-    for (const condition of adjustment.date_conditions) {
+    for (const condition of adjustment.dateConditions) {
       if (this.checkDateCondition(adjustedDate, condition)) {
         // 日付条件に該当する場合、該当しないように調整
         adjustedDate = this.adjustDateForCondition(adjustedDate, condition);
@@ -192,7 +192,7 @@ export class RecurrenceService {
     }
 
     // 曜日条件をチェック
-    for (const condition of adjustment.weekday_conditions) {
+    for (const condition of adjustment.weekdayConditions) {
       if (this.checkWeekdayCondition(adjustedDate, condition)) {
         adjustedDate = this.applyWeekdayAdjustment(adjustedDate, condition);
       }
@@ -205,7 +205,7 @@ export class RecurrenceService {
    * 日付条件に基づいて日付を調整
    */
   private static adjustDateForCondition(date: Date, condition: DateCondition): Date {
-    const refDate = new Date(condition.reference_date);
+    const refDate = new Date(condition.referenceDate);
     const adjustedDate = new Date(date);
 
     switch (condition.relation) {
@@ -242,7 +242,7 @@ export class RecurrenceService {
    * 日付条件をチェック
    */
   private static checkDateCondition(date: Date, condition: DateCondition): boolean {
-    const refDate = new Date(condition.reference_date);
+    const refDate = new Date(condition.referenceDate);
 
     switch (condition.relation) {
       case 'before':
@@ -267,15 +267,15 @@ export class RecurrenceService {
     // 特定の曜日の場合
     if (
       ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].includes(
-        condition.if_weekday
+        condition.ifWeekday
       )
     ) {
-      const targetDay = this.dayOfWeekToNumber(condition.if_weekday as DayOfWeek);
+      const targetDay = this.dayOfWeekToNumber(condition.ifWeekday as DayOfWeek);
       return dayOfWeek === targetDay;
     }
 
     // その他の条件（平日、休日、祝日、非祝日など）の場合
-    switch (condition.if_weekday) {
+    switch (condition.ifWeekday) {
       case 'weekday':
         return dayOfWeek >= 1 && dayOfWeek <= 5; // 月曜日〜金曜日
       case 'weekend':
@@ -304,10 +304,10 @@ export class RecurrenceService {
     let adjustedDate = new Date(date);
     const dayOfWeek = date.getDay();
 
-    if (condition.then_target === 'specific_weekday' && condition.then_weekday) {
-      const targetWeekday = this.dayOfWeekToNumber(condition.then_weekday);
+    if (condition.thenTarget === 'specific_weekday' && condition.thenWeekday) {
+      const targetWeekday = this.dayOfWeekToNumber(condition.thenWeekday);
 
-      if (condition.then_direction === 'next') {
+      if (condition.thenDirection === 'next') {
         let daysToAdd = (targetWeekday - dayOfWeek + 7) % 7;
         if (daysToAdd === 0) daysToAdd = 7;
         adjustedDate.setDate(date.getDate() + daysToAdd);
@@ -316,32 +316,32 @@ export class RecurrenceService {
         if (daysToSubtract === 0) daysToSubtract = 7;
         adjustedDate.setDate(date.getDate() - daysToSubtract);
       }
-    } else if (condition.then_target === 'weekday') {
+    } else if (condition.thenTarget === 'weekday') {
       // 平日への移動
-      adjustedDate = this.moveToWeekday(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'weekend') {
+      adjustedDate = this.moveToWeekday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'weekend') {
       // 休日への移動
-      adjustedDate = this.moveToWeekend(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'holiday') {
+      adjustedDate = this.moveToWeekend(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'holiday') {
       // 祝日への移動
-      adjustedDate = this.moveToHoliday(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'non_holiday') {
+      adjustedDate = this.moveToHoliday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'non_holiday') {
       // 非祝日への移動
-      adjustedDate = this.moveToNonHoliday(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'weekend_only') {
+      adjustedDate = this.moveToNonHoliday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'weekend_only') {
       // 土日のみへの移動
-      adjustedDate = this.moveToWeekend(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'non_weekend') {
+      adjustedDate = this.moveToWeekend(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'non_weekend') {
       // 土日以外（平日）への移動
-      adjustedDate = this.moveToWeekday(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'weekend_holiday') {
+      adjustedDate = this.moveToWeekday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'weekend_holiday') {
       // 土日祝日への移動
-      adjustedDate = this.moveToWeekendOrHoliday(adjustedDate, condition.then_direction);
-    } else if (condition.then_target === 'non_weekend_holiday') {
+      adjustedDate = this.moveToWeekendOrHoliday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenTarget === 'non_weekend_holiday') {
       // 土日祝日以外への移動
-      adjustedDate = this.moveToNonWeekendHoliday(adjustedDate, condition.then_direction);
-    } else if (condition.then_days) {
-      const days = condition.then_direction === 'next' ? condition.then_days : -condition.then_days;
+      adjustedDate = this.moveToNonWeekendHoliday(adjustedDate, condition.thenDirection);
+    } else if (condition.thenDays) {
+      const days = condition.thenDirection === 'next' ? condition.thenDays : -condition.thenDays;
       adjustedDate.setDate(date.getDate() + days);
     }
 
@@ -352,7 +352,7 @@ export class RecurrenceService {
    * 繰り返し終了条件をチェック
    */
   private static shouldEndRecurrence(date: Date, rule: RecurrenceRule): boolean {
-    if (rule.end_date && date > rule.end_date) {
+    if (rule.endDate && date > rule.endDate) {
       return true;
     }
 
@@ -530,7 +530,7 @@ export class RecurrenceService {
     // 初回の日付にも補正条件を適用
     if (
       rule.adjustment &&
-      (rule.adjustment.date_conditions.length > 0 || rule.adjustment.weekday_conditions.length > 0)
+      (rule.adjustment.dateConditions.length > 0 || rule.adjustment.weekdayConditions.length > 0)
     ) {
       currentDate = this.applyDateAdjustment(currentDate, rule.adjustment);
     }

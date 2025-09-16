@@ -9,11 +9,11 @@ export interface Tag {
   /** タグの色 */
   color?: string;
   /** 表示順序 */
-  order_index?: number;
+  orderIndex?: number;
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -23,4 +23,3 @@ export interface TagSearchCondition {
   /** タグ名 */
   name?: string;
 }
-

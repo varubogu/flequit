@@ -31,7 +31,7 @@
 
   const translationService = getTranslationService();
   let subTaskCountText = $derived(
-    TaskListService.getTaskCountText(task.sub_tasks.length).replace('task', 'subtask')
+    TaskListService.getTaskCountText(task.subTasks.length).replace('task', 'subtask')
   );
 
   // Reactive messages
@@ -69,9 +69,9 @@
   {/if}
 
   <!-- Sub-task list -->
-  {#if task.sub_tasks.length > 0}
+  {#if task.subTasks.length > 0}
     <div class="space-y-2" class:mt-1={showSubTaskAddForm}>
-      {#each task.sub_tasks as subTask (subTask.id)}
+      {#each task.subTasks as subTask (subTask.id)}
         <Button
           variant="ghost"
           class="bg-card text-card-foreground flex h-auto w-full items-center justify-start gap-3 rounded border p-3 {selectedSubTaskId ===
@@ -100,7 +100,7 @@
             >
               {subTask.title}
             </span>
-            {#if subTask.plan_end_date}
+            {#if subTask.planEndDate}
               <DueDate
                 task={subTask}
                 variant="full"

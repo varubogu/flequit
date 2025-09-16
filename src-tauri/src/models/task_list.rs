@@ -10,6 +10,7 @@ use flequit_model::types::id_types::{ProjectId, TaskListId};
 
 /// Tauriコマンド引数用のTaskList構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskListCommandModel {
     pub id: String,
     pub project_id: String,
@@ -68,6 +69,7 @@ impl CommandModelConverter<TaskListCommandModel> for TaskList {
 
 /// Tauriコマンド戻り値用のTaskListTree構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskListTreeCommandModel {
     pub id: String,
     pub project_id: String,

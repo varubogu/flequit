@@ -7,11 +7,11 @@ import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {
     id: '1',
-    if_weekday: 'monday',
-    then_direction: 'next',
-    then_target: 'weekday',
-    then_weekday: undefined,
-    then_days: undefined
+    ifWeekday: 'monday',
+    thenDirection: 'next',
+    thenTarget: 'weekday',
+    thenWeekday: undefined,
+    thenDays: undefined
   };
 
   const defaultProps = {
@@ -28,9 +28,9 @@ describe('WeekdayConditionEditor', () => {
     // 複雑な外部依存のため基本的なテストのみ実装
     const props = defaultProps;
     expect(props.condition.id).toBe('1');
-    expect(props.condition.if_weekday).toBe('monday');
-    expect(props.condition.then_direction).toBe('next');
-    expect(props.condition.then_target).toBe('weekday');
+    expect(props.condition.ifWeekday).toBe('monday');
+    expect(props.condition.thenDirection).toBe('next');
+    expect(props.condition.thenTarget).toBe('weekday');
     expect(props.onUpdate).toBeInstanceOf(Function);
     expect(props.onRemove).toBeInstanceOf(Function);
   });
@@ -38,8 +38,8 @@ describe('WeekdayConditionEditor', () => {
   it('specific_weekdayターゲットの条件が正しく処理される', () => {
     const conditionWithSpecificWeekday: WeekdayCondition = {
       ...mockCondition,
-      then_target: 'specific_weekday',
-      then_weekday: 'friday'
+      thenTarget: 'specific_weekday',
+      thenWeekday: 'friday'
     };
 
     const props = {
@@ -47,8 +47,8 @@ describe('WeekdayConditionEditor', () => {
       condition: conditionWithSpecificWeekday
     };
 
-    expect(props.condition.then_target).toBe('specific_weekday');
-    expect(props.condition.then_weekday).toBe('friday');
+    expect(props.condition.thenTarget).toBe('specific_weekday');
+    expect(props.condition.thenWeekday).toBe('friday');
   });
 
   it('複数の条件タイプが正しく処理される', () => {

@@ -7,7 +7,7 @@ export interface TaskList {
   /** タスクリストID */
   id: string;
   /** プロジェクトID */
-  project_id: string;
+  projectId: string;
   /** タスクリスト名 */
   name: string;
   /** タスクリストの説明 */
@@ -15,13 +15,13 @@ export interface TaskList {
   /** タスクリストの色 */
   color?: string;
   /** 表示順序 */
-  order_index: number;
+  orderIndex: number;
   /** アーカイブ状態 */
-  is_archived: boolean;
+  isArchived: boolean;
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -37,12 +37,11 @@ export interface TaskListWithTasks extends TaskList {
  */
 export interface TaskListSearchCondition {
   /** プロジェクトID */
-  project_id?: string;
+  projectId?: string;
   /** タスクリスト名 */
   name?: string;
   /** アーカイブ状態 */
-  is_archived?: boolean;
+  isArchived?: boolean;
   /** 表示順序 */
-  order_index?: number;
+  orderIndex?: number;
 }
-

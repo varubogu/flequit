@@ -23,7 +23,7 @@ export class TagStore {
     const bookmarked = this.bookmarkedTags;
     return tags
       .filter((tag) => bookmarked.has(tag.id))
-      .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
+      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
   }
 
   // Actions
@@ -49,8 +49,8 @@ export class TagStore {
       id: crypto.randomUUID(),
       name: trimmedName,
       color: tagData.color,
-      created_at: new SvelteDate(),
-      updated_at: new SvelteDate()
+      createdAt: new SvelteDate(),
+      updatedAt: new SvelteDate()
     };
 
     this.tags.push(newTag);
@@ -79,8 +79,8 @@ export class TagStore {
       id: crypto.randomUUID(),
       name: trimmedName,
       color: tagData.color,
-      created_at: new SvelteDate(),
-      updated_at: new SvelteDate()
+      createdAt: new SvelteDate(),
+      updatedAt: new SvelteDate()
     };
 
     // まずローカル状態に追加
@@ -103,6 +103,37 @@ export class TagStore {
     return newTag;
   }
 
+  // プロジェクトIDを指定してタグを追加
+  addTagWithProject(tagData: { name: string; color?: string }, projectId: string): Tag | null {
+    const trimmedName = tagData.name.trim();
+    if (!trimmedName) {
+      return null;
+    }
+
+    const existingTag = this.tags.find(
+      (tag) => tag.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (existingTag) {
+      return existingTag;
+    }
+
+    const newTag: Tag = {
+      id: crypto.randomUUID(),
+      name: trimmedName,
+      color: tagData.color,
+      createdAt: new SvelteDate(),
+      updatedAt: new SvelteDate()
+    };
+
+    // まずローカル状態に追加
+    this.tags.push(newTag);
+
+    // バックエンドに同期（プロジェクトIDを指定）
+    this.syncAddTagToBackendWithProject(newTag, projectId);
+
+    return newTag;
+  }
+
   // バックエンド同期の内部メソッド
   private async syncAddTagToBackend(tag: Tag) {
     try {
@@ -110,6 +141,21 @@ export class TagStore {
     } catch (error) {
       console.error('Failed to sync new tag to backend:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
+    }
+  }
+
+  // プロジェクトIDを指定したバックエンド同期メソッド
+  private async syncAddTagToBackendWithProject(tag: Tag, projectId: string) {
+    try {
+      await dataService.createTag(tag, projectId);
+    } catch (error) {
+      console.error('Failed to sync new tag to backend:', error);
+      errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
+      // エラーが発生した場合はローカル状態から削除
+      const tagIndex = this.tags.findIndex((t) => t.id === tag.id);
+      if (tagIndex !== -1) {
+        this.tags.splice(tagIndex, 1);
+      }
     }
   }
 
@@ -134,7 +180,7 @@ export class TagStore {
       this.tags[tagIndex] = {
         ...this.tags[tagIndex],
         ...updates,
-        updated_at: new SvelteDate()
+        updatedAt: new SvelteDate()
       };
 
       // バックエンドに同期は非同期で実行（ファイア&フォーゲット）
@@ -162,7 +208,7 @@ export class TagStore {
       this.tags[tagIndex] = {
         ...this.tags[tagIndex],
         ...updates,
-        updated_at: new SvelteDate()
+        updatedAt: new SvelteDate()
       };
 
       // バックエンドに同期（更新操作は定期保存に任せる）
@@ -286,6 +332,21 @@ export class TagStore {
     return this.addTag({ name: trimmedName, color });
   }
 
+  // プロジェクトIDを指定してタグを作成・取得する版
+  getOrCreateTagWithProject(name: string, projectId: string, color?: string): Tag | null {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return null;
+    }
+
+    const existingTag = this.findTagByName(trimmedName);
+    if (existingTag) {
+      return existingTag;
+    }
+
+    return this.addTagWithProject({ name: trimmedName, color }, projectId);
+  }
+
   // Bookmark management methods
   toggleBookmark(tagId: string) {
     const newBookmarks = new SvelteSet(this.bookmarkedTags);
@@ -308,9 +369,9 @@ export class TagStore {
 
     // 新しくブックマークされたタグにorder_indexを設定
     const tag = this.tags.find((t) => t.id === tagId);
-    if (tag && tag.order_index === undefined) {
+    if (tag && tag.orderIndex === undefined) {
       const currentBookmarkedTags = this.bookmarkedTagList;
-      this.updateTag(tagId, { order_index: currentBookmarkedTags.length - 1 });
+      this.updateTag(tagId, { orderIndex: currentBookmarkedTags.length - 1 });
     }
   }
 
@@ -322,9 +383,9 @@ export class TagStore {
 
     // 初期化時はorder_indexもローカルで設定するのみ
     const tag = this.tags.find((t) => t.id === tagId);
-    if (tag && tag.order_index === undefined) {
+    if (tag && tag.orderIndex === undefined) {
       const currentBookmarkedTags = this.tags.filter((t) => newBookmarks.has(t.id));
-      tag.order_index = currentBookmarkedTags.length - 1;
+      tag.orderIndex = currentBookmarkedTags.length - 1;
     }
   }
 
@@ -354,7 +415,7 @@ export class TagStore {
 
     // order_indexを更新
     bookmarkedTags.forEach((tag, index) => {
-      this.updateTag(tag.id, { order_index: index });
+      this.updateTag(tag.id, { orderIndex: index });
     });
   }
 
@@ -371,8 +432,8 @@ export class TagStore {
     // 既存のブックマークされたタグにorder_indexを設定（まだ設定されていない場合）
     const bookmarkedTags = this.tags.filter((tag) => this.bookmarkedTags.has(tag.id));
     bookmarkedTags.forEach((tag, index) => {
-      if (tag.order_index === undefined) {
-        this.updateTag(tag.id, { order_index: index });
+      if (tag.orderIndex === undefined) {
+        this.updateTag(tag.id, { orderIndex: index });
       }
     });
   }

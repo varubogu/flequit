@@ -5,8 +5,9 @@ import type { TaskListService } from '$lib/services/backend/tasklist-service';
 export class TasklistTauriService implements TaskListService {
   async create(projectId: string, taskList: TaskList): Promise<boolean> {
     try {
-      // TaskListCommandModel形式でproject_idを設定
-      const taskListWithProjectId = { ...taskList, project_id: projectId };
+      // TaskListCommandModel形式でprojectIdを設定（キャメルケース）
+      const taskListWithProjectId = { ...taskList, projectId } as any;
+      delete (taskListWithProjectId as any).project_id;
       await invoke('create_task_list', { projectId, taskList: taskListWithProjectId });
       return true;
     } catch (error) {

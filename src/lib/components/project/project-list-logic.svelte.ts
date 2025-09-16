@@ -51,7 +51,7 @@ export class ProjectListLogic {
   }
 
   getProjectTaskCount(project: ProjectTree): number {
-    return project.task_lists.reduce((acc, list) => acc + list.tasks.length, 0);
+    return project.taskLists.reduce((acc, list) => acc + list.tasks.length, 0);
   }
 
   // Dialog handlers
@@ -128,8 +128,8 @@ export class ProjectListLogic {
       await taskStore.moveTaskListToProject(dragData.id, targetProject.id);
     } else if (dragData.type === 'task') {
       // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
-      if (targetProject.task_lists.length > 0) {
-        const defaultTaskList = targetProject.task_lists[0];
+      if (targetProject.taskLists.length > 0) {
+        const defaultTaskList = targetProject.taskLists[0];
         await taskStore.moveTaskToList(dragData.id, defaultTaskList.id);
       }
     }

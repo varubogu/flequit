@@ -32,7 +32,7 @@
   let selectedTaskListId = $state(currentTaskListId);
   let availableTaskLists = $derived(
     selectedProjectId
-      ? taskStore.projects.find((p) => p.id === selectedProjectId)?.task_lists || []
+      ? taskStore.projects.find((p) => p.id === selectedProjectId)?.taskLists || []
       : []
   );
 

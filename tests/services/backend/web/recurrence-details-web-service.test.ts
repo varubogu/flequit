@@ -14,10 +14,10 @@ describe('RecurrenceDetailsWebService', () => {
   describe('create', () => {
     it('should log warning and return true', async () => {
       const details: RecurrenceDetails = {
-        specific_date: 15,
-        week_of_period: 'first',
-        weekday_of_week: 'monday',
-        date_conditions: ['before 2024-12-31']
+        specificDate: 15,
+        weekOfPeriod: 'first',
+        weekdayOfWeek: 'monday',
+        dateConditions: ['before 2024-12-31']
       };
 
       const result = await service.create(details);
@@ -41,10 +41,10 @@ describe('RecurrenceDetailsWebService', () => {
   describe('update', () => {
     it('should log warning and return true', async () => {
       const details: RecurrenceDetails = {
-        specific_date: 20,
-        week_of_period: 'second',
-        weekday_of_week: 'tuesday',
-        date_conditions: ['after 2024-01-01']
+        specificDate: 20,
+        weekOfPeriod: 'second',
+        weekdayOfWeek: 'tuesday',
+        dateConditions: ['after 2024-01-01']
       };
 
       const result = await service.update(details);
@@ -68,9 +68,9 @@ describe('RecurrenceDetailsWebService', () => {
   describe('search', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceDetailsSearchCondition = {
-        rule_id: 'rule1',
-        specific_date: 15,
-        week_of_period: 'first'
+        ruleId: 'rule1',
+        specificDate: 15,
+        weekOfPeriod: 'first'
       };
 
       const result = await service.search(condition);

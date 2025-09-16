@@ -15,8 +15,8 @@ export class RecurrenceInitializer {
     const recurrenceLevel: RecurrenceLevel = !rule
       ? 'disabled'
       : (rule.adjustment &&
-            (rule.adjustment.date_conditions.length > 0 ||
-              rule.adjustment.weekday_conditions.length > 0)) ||
+            (rule.adjustment.dateConditions.length > 0 ||
+              rule.adjustment.weekdayConditions.length > 0)) ||
           (rule.details && Object.keys(rule.details).length > 0)
         ? 'advanced'
         : 'enabled';
@@ -25,13 +25,13 @@ export class RecurrenceInitializer {
     state.recurrenceLevel = recurrenceLevel;
     state.setUnit(rule?.unit || 'day');
     state.setInterval(rule?.interval || 1);
-    state.setDaysOfWeek(rule?.days_of_week || []);
+    state.setDaysOfWeek(rule?.daysOfWeek || []);
     state.setDetails(rule?.details || {});
-    state.endDate = rule?.end_date;
-    state.repeatCount = rule?.max_occurrences;
+    state.endDate = rule?.endDate;
+    state.repeatCount = rule?.maxOccurrences;
 
     // Initialize condition managers
-    dateConditionManager.setConditions(rule?.adjustment?.date_conditions || []);
-    weekdayConditionManager.setConditions(rule?.adjustment?.weekday_conditions || []);
+    dateConditionManager.setConditions(rule?.adjustment?.dateConditions || []);
+    weekdayConditionManager.setConditions(rule?.adjustment?.weekdayConditions || []);
   }
 }

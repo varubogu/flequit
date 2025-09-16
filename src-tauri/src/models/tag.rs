@@ -8,6 +8,7 @@ use flequit_model::models::ModelConverter;
 
 /// Tauriコマンド引数用のTag構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct TagCommandModel {
     pub id: String,
     pub name: String,

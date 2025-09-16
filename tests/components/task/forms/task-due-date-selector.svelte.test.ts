@@ -6,23 +6,23 @@ import type { TaskWithSubTasks } from '$lib/types/task';
 describe('TaskDueDateSelector Component', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'project-1',
+    projectId: 'project-1',
     title: 'Test Task',
     description: 'Test description',
     status: 'in_progress',
     priority: 2,
-    assigned_user_ids: [],
-    tag_ids: [],
-    created_at: new Date(),
-    updated_at: new Date(),
-    list_id: 'list-1',
-    order_index: 0,
-    plan_start_date: undefined,
-    plan_end_date: new Date('2024-01-15'),
-    is_range_date: false,
-    sub_tasks: [],
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    listId: 'list-1',
+    orderIndex: 0,
+    planStartDate: undefined,
+    planEndDate: new Date('2024-01-15'),
+    isRangeDate: false,
+    subTasks: [],
     tags: [],
-    is_archived: false
+    isArchived: false
   };
 
   const mockFormData = {

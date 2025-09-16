@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド用の繰り返しルール構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrenceRuleCommandModel {
     pub id: String,
     /// 繰り返し単位（"day", "week", "month", "year"等の文字列）
@@ -142,6 +143,7 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
 
 /// Tauri コマンド引数用の PartialRecurrenceRule 構造体（部分更新用）
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct PartialRecurrenceRuleCommandModel {
     pub unit: Option<String>,
     pub interval: Option<i32>,

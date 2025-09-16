@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// プロジェクト検索用のリクエスト構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectSearchRequest {
     pub name: Option<String>,
     pub status: Option<ProjectStatus>,

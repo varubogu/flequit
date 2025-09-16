@@ -64,7 +64,7 @@ describe('Project Management', () => {
 
         // プロジェクトを再取得してリアクティブ更新を確認
         const updatedProject = taskStore.projects.find((p) => p.id === project.id);
-        expect(updatedProject?.task_lists).toHaveLength(1);
+        expect(updatedProject?.taskLists).toHaveLength(1);
       }
     });
 
@@ -79,7 +79,7 @@ describe('Project Management', () => {
 
           // プロジェクトを再取得してリアクティブ更新を確認
           const updatedProject = taskStore.projects.find((p) => p.id === project.id);
-          const updatedTaskList = updatedProject?.task_lists.find((tl) => tl.id === taskList.id);
+          const updatedTaskList = updatedProject?.taskLists.find((tl) => tl.id === taskList.id);
           expect(updatedTaskList?.name).toBe('更新された名前');
         }
       }
@@ -96,7 +96,7 @@ describe('Project Management', () => {
 
           // プロジェクトを再取得してリアクティブ更新を確認
           const updatedProject = taskStore.projects.find((p) => p.id === project.id);
-          expect(updatedProject?.task_lists).toHaveLength(0);
+          expect(updatedProject?.taskLists).toHaveLength(0);
         }
       }
     });

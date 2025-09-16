@@ -29,7 +29,7 @@ id: string;
 /**
  * ユーザーID（公開ID）
  */
-user_id: string; 
+userId: string; 
 /**
  * メールアドレス
  */
@@ -37,11 +37,11 @@ email: string | null;
 /**
  * 表示名
  */
-display_name: string | null; 
+displayName: string | null; 
 /**
  * アバターURL
  */
-avatar_url: string | null; 
+avatarUrl: string | null; 
 /**
  * 認証プロバイダー
  */
@@ -49,19 +49,19 @@ provider: string;
 /**
  * 認証プロバイダーID
  */
-provider_id: string | null; 
+providerId: string | null; 
 /**
  * アクティブなプロジェクトか
  */
-is_active: boolean; 
+isActive: boolean; 
 /**
  * 作成日時
  */
-created_at: string; 
+createdAt: string; 
 /**
  * 更新日時
  */
-updated_at: string }
+updatedAt: string }
 
 /** tauri-specta globals **/
 

@@ -5,9 +5,9 @@ import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
 describe('RecurrenceIntervalEditor', () => {
   const mockDetails: RecurrenceDetails = {
-    specific_date: 15,
-    week_of_period: 'first',
-    weekday_of_week: 'monday'
+    specificDate: 15,
+    weekOfPeriod: 'first',
+    weekdayOfWeek: 'monday'
   };
 
   const defaultProps = {

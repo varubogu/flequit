@@ -76,8 +76,8 @@
 
     // If no specific list is selected, find the first available list
     for (const project of taskStore.projects) {
-      if (project.task_lists.length > 0) {
-        return project.task_lists[0].id;
+      if (project.taskLists.length > 0) {
+        return project.taskLists[0].id;
       }
     }
 

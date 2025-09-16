@@ -15,7 +15,7 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
 
   async get(ruleId: string): Promise<RecurrenceRule | null> {
     try {
-      const result = (await invoke('get_recurrence_rule', { rule_id: ruleId })) as RecurrenceRule | null;
+      const result = (await invoke('get_recurrence_rule', { ruleId })) as RecurrenceRule | null;
       return result;
     } catch (error) {
       console.error('Failed to get recurrence rule:', error);
@@ -45,7 +45,7 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
 
   async delete(ruleId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_recurrence_rule', { rule_id: ruleId });
+      const result = await invoke('delete_recurrence_rule', { ruleId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete recurrence rule:', error);

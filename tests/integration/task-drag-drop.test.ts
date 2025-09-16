@@ -78,16 +78,16 @@ describe('Task Drag & Drop Integration', () => {
       description: '',
       status: 'not_started' as const,
       priority: 1,
-      project_id: 'project-1',
-      assigned_user_ids: [],
-      tag_ids: [],
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
+      projectId: 'project-1',
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
       tags: [],
-      list_id: 'list-1',
-      order_index: 0,
-      is_archived: false
+      listId: 'list-1',
+      orderIndex: 0,
+      isArchived: false
     },
     {
       id: 'task-2',
@@ -95,16 +95,16 @@ describe('Task Drag & Drop Integration', () => {
       description: '',
       status: 'not_started' as const,
       priority: 2,
-      project_id: 'project-1',
-      assigned_user_ids: [],
-      tag_ids: [],
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
+      projectId: 'project-1',
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
       tags: [],
-      list_id: 'list-1',
-      order_index: 1,
-      is_archived: false
+      listId: 'list-1',
+      orderIndex: 1,
+      isArchived: false
     }
   ];
 

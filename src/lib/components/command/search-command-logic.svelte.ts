@@ -56,8 +56,8 @@ export function createSearchLogic(onClose: () => void) {
 
     if (!listId && taskStore.projects.length > 0) {
       const firstProject = taskStore.projects[0];
-      if (firstProject.task_lists.length > 0) {
-        listId = firstProject.task_lists[0].id;
+      if (firstProject.taskLists.length > 0) {
+        listId = firstProject.taskLists[0].id;
       }
     }
 

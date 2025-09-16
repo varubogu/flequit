@@ -116,13 +116,13 @@ describe('RecurrenceDialog', () => {
       unit: 'day',
       interval: 1,
       adjustment: {
-        date_conditions: [],
-        weekday_conditions: [
+        dateConditions: [],
+        weekdayConditions: [
           {
             id: 'test',
-            if_weekday: 'monday',
-            then_direction: 'next',
-            then_target: 'weekday'
+            ifWeekday: 'monday',
+            thenDirection: 'next',
+            thenTarget: 'weekday'
           }
         ]
       }

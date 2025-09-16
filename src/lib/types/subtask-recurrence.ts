@@ -5,9 +5,9 @@
  */
 export interface SubtaskRecurrence {
   /** サブタスクID */
-  subtask_id: string;
+  subtaskId: string;
   /** 繰り返しルールID */
-  recurrence_rule_id: string;
+  recurrenceRuleId: string;
 }
 
 /**
@@ -15,7 +15,7 @@ export interface SubtaskRecurrence {
  */
 export interface SubtaskRecurrenceSearchCondition {
   /** サブタスクIDでの絞り込み */
-  subtask_id?: string;
+  subtaskId?: string;
   /** 繰り返しルールIDでの絞り込み */
-  recurrence_rule_id?: string;
+  recurrenceRuleId?: string;
 }

@@ -58,14 +58,14 @@ export class TaskItemLogic {
     // Initialize derived states after task is set
     this.isSelected = $derived(taskStore.selectedTaskId === this.task.id);
     this.hasSelectedSubTask = $derived(
-      this.task.sub_tasks.some((st) => st.id === taskStore.selectedSubTaskId)
+      this.task.subTasks.some((st) => st.id === taskStore.selectedSubTaskId)
     );
     this.isActiveTask = $derived(this.isSelected || this.hasSelectedSubTask);
     this.completedSubTasks = $derived(
-      this.task.sub_tasks.filter((st) => st.status === 'completed').length
+      this.task.subTasks.filter((st) => st.status === 'completed').length
     );
     this.subTaskProgress = $derived(
-      calculateSubTaskProgress(this.completedSubTasks, this.task.sub_tasks.length)
+      calculateSubTaskProgress(this.completedSubTasks, this.task.subTasks.length)
     );
   }
 

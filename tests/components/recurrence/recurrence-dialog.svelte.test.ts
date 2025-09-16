@@ -42,11 +42,11 @@ describe('RecurrenceDialog', () => {
   const mockRecurrenceRule: RecurrenceRule = {
     unit: 'day',
     interval: 1,
-    days_of_week: [],
+    daysOfWeek: [],
     details: {
-      specific_date: undefined,
-      week_of_period: undefined,
-      weekday_of_week: undefined
+      specificDate: undefined,
+      weekOfPeriod: undefined,
+      weekdayOfWeek: undefined
     }
   };
 
@@ -73,28 +73,28 @@ describe('RecurrenceDialog', () => {
 
     it('should render dialog root component', () => {
       const { container } = render(RecurrenceDialog, { props: defaultProps });
-      
+
       // Since the component is mocked, just check it rendered successfully
       expect(container).toBeDefined();
     });
 
     it('should render dialog content', () => {
       const { container } = render(RecurrenceDialog, { props: defaultProps });
-      
+
       // Since the component is mocked, just check it rendered successfully
       expect(container).toBeDefined();
     });
 
     it('should render dialog header', () => {
       const { container } = render(RecurrenceDialog, { props: defaultProps });
-      
+
       // Since the component is mocked, just check it rendered successfully
       expect(container).toBeDefined();
     });
 
     it('should render dialog title', () => {
       const { container } = render(RecurrenceDialog, { props: defaultProps });
-      
+
       // Since the component is mocked, just check it rendered successfully
       expect(container).toBeDefined();
     });
@@ -191,11 +191,11 @@ describe('RecurrenceDialog', () => {
       const complexRule: RecurrenceRule = {
         unit: 'week',
         interval: 2,
-        days_of_week: ['monday', 'wednesday', 'friday'],
+        daysOfWeek: ['monday', 'wednesday', 'friday'],
         details: {
-          specific_date: 15,
-          week_of_period: 'second',
-          weekday_of_week: 'tuesday'
+          specificDate: 15,
+          weekOfPeriod: 'second',
+          weekdayOfWeek: 'tuesday'
         }
       };
 

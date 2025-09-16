@@ -26,17 +26,17 @@ export class RecurrenceRuleBuilder {
     const rule: RecurrenceRule = {
       unit,
       interval,
-      ...(unit === 'week' && daysOfWeek.length > 0 && { days_of_week: daysOfWeek }),
+      ...(unit === 'week' && daysOfWeek.length > 0 && { daysOfWeek: daysOfWeek }),
       ...(showAdvancedSettings && isComplexUnit && Object.keys(details).length > 0 && { details }),
       ...(showAdvancedSettings &&
         (dateConditions.length > 0 || weekdayConditions.length > 0) && {
           adjustment: {
-            date_conditions: dateConditions,
-            weekday_conditions: weekdayConditions
+            dateConditions: dateConditions,
+            weekdayConditions: weekdayConditions
           }
         }),
-      ...(endDate && { end_date: endDate }),
-      ...(repeatCount && repeatCount > 0 && { max_occurrences: repeatCount })
+      ...(endDate && { endDate: endDate }),
+      ...(repeatCount && repeatCount > 0 && { maxOccurrences: repeatCount })
     };
 
     return rule;

@@ -46,29 +46,29 @@ const mockProject: ProjectTree = {
   id: 'project-1',
   name: 'Work',
   color: '#ff0000',
-  order_index: 0,
-  is_archived: false,
-  created_at: new Date(),
-  updated_at: new Date(),
-  task_lists: [
+  orderIndex: 0,
+  isArchived: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  taskLists: [
     {
       id: 'list-1',
-      project_id: 'project-1',
+      projectId: 'project-1',
       name: 'Frontend',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks]
     },
     {
       id: 'list-2',
-      project_id: 'project-1',
+      projectId: 'project-1',
       name: 'Backend',
-      order_index: 1,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      orderIndex: 1,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tasks: [{ id: 'task-3' } as TaskWithSubTasks]
     }
   ]

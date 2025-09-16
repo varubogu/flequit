@@ -18,13 +18,13 @@ describe('RecurrenceDetailsTauriService', () => {
   beforeEach(() => {
     service = new RecurrenceDetailsTauriService();
     mockRecurrenceDetails = {
-      specific_date: 15,
-      week_of_period: 'Second',
-      weekday_of_week: 'Friday',
-      date_conditions: ['2024-01-15', '2024-02-15']
+      specificDate: 15,
+      weekOfPeriod: 'Second',
+      weekdayOfWeek: 'Friday',
+      dateConditions: ['2024-01-15', '2024-02-15']
     };
     mockSearchCondition = {
-      rule_id: 'rule-123'
+      ruleId: 'rule-123'
     };
     vi.clearAllMocks();
   });
@@ -35,8 +35,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.create(mockRecurrenceDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', { 
-        details: mockRecurrenceDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', {
+        details: mockRecurrenceDetails
       });
       expect(result).toBe(true);
     });
@@ -47,8 +47,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.create(mockRecurrenceDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', { 
-        details: mockRecurrenceDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', {
+        details: mockRecurrenceDetails
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create recurrence details:', expect.any(Error));
@@ -65,8 +65,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.create(minimalDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', { 
-        details: minimalDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', {
+        details: minimalDetails
       });
       expect(result).toBe(true);
     });
@@ -81,8 +81,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.create(weekDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', { 
-        details: weekDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', {
+        details: weekDetails
       });
       expect(result).toBe(true);
     });
@@ -96,8 +96,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.create(dateDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', { 
-        details: dateDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('create_recurrence_details', {
+        details: dateDetails
       });
       expect(result).toBe(true);
     });
@@ -109,8 +109,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.getByRuleId('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', { 
-        rule_id: 'rule-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', {
+        rule_id: 'rule-123'
       });
       expect(result).toEqual(mockRecurrenceDetails);
     });
@@ -120,8 +120,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.getByRuleId('non-existent');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', { 
-        rule_id: 'non-existent' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', {
+        rule_id: 'non-existent'
       });
       expect(result).toBeNull();
     });
@@ -132,8 +132,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.getByRuleId('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', { 
-        rule_id: 'rule-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', {
+        rule_id: 'rule-123'
       });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get recurrence details by rule ID:', expect.any(Error));
@@ -148,8 +148,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       for (const ruleId of ruleIds) {
         const result = await service.getByRuleId(ruleId);
-        expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', { 
-          rule_id: ruleId 
+        expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', {
+          rule_id: ruleId
         });
         expect(result).toEqual(mockRecurrenceDetails);
       }
@@ -162,8 +162,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.update(mockRecurrenceDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', { 
-        details: mockRecurrenceDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', {
+        details: mockRecurrenceDetails
       });
       expect(result).toBe(true);
     });
@@ -174,8 +174,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.update(mockRecurrenceDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', { 
-        details: mockRecurrenceDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', {
+        details: mockRecurrenceDetails
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update recurrence details:', expect.any(Error));
@@ -193,8 +193,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.update(updatedDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', { 
-        details: updatedDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', {
+        details: updatedDetails
       });
       expect(result).toBe(true);
     });
@@ -210,8 +210,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.update(updatedDetails);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', { 
-        details: updatedDetails 
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_details', {
+        details: updatedDetails
       });
       expect(result).toBe(true);
     });
@@ -223,8 +223,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.delete('details-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', { 
-        details_id: 'details-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', {
+        details_id: 'details-123'
       });
       expect(result).toBe(true);
     });
@@ -235,8 +235,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.delete('details-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', { 
-        details_id: 'details-123' 
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', {
+        details_id: 'details-123'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete recurrence details:', expect.any(Error));
@@ -249,8 +249,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.delete('non-existent');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', { 
-        details_id: 'non-existent' 
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_details', {
+        details_id: 'non-existent'
       });
       expect(result).toBe(false);
     });
@@ -304,8 +304,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const result = await service.getByRuleId('');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', { 
-        rule_id: '' 
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_details_by_rule_id', {
+        rule_id: ''
       });
       expect(result).toBeNull();
     });
@@ -361,10 +361,10 @@ describe('RecurrenceDetailsTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const operations = [
-        service.create({ specific_date: 1 }),
-        service.create({ week_of_period: 'First', weekday_of_week: 'Monday' }),
+        service.create({ specificDate: 1 }),
+        service.create({ weekOfPeriod: 'First', weekdayOfWeek: 'Monday' }),
         service.getByRuleId('rule-1'),
-        service.update({ specific_date: 15 }),
+        service.update({ specificDate: 15 }),
         service.delete('details-1')
       ];
 

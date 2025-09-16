@@ -35,7 +35,7 @@ export class UserTauriService implements UserService {
 
   async delete(userId: string): Promise<boolean> {
     try {
-      await invoke('delete_user', { user_id: userId });
+      await invoke('delete_user', { userId });
       return true;
     } catch (error) {
       console.error('Failed to delete user:', error);

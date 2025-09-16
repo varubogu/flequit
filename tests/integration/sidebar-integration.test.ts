@@ -68,21 +68,21 @@ const mockProjectStore = {
       name: 'プロジェクト１',
       description: '',
       color: '#3b82f6',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: [
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: [
         {
           id: 'list-1',
-          project_id: 'project-1',
+          projectId: 'project-1',
           name: 'タスクリスト１',
           description: '',
           color: undefined,
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: []
         }
       ]
@@ -92,11 +92,11 @@ const mockProjectStore = {
       name: 'プロジェクト２',
       description: '',
       color: '#10b981',
-      order_index: 1,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: []
+      orderIndex: 1,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: []
     }
   ] as ProjectTree[],
 
@@ -122,15 +122,15 @@ const mockTagStore = {
       id: 'tag-1',
       name: '重要',
       color: '#ef4444',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 'tag-2',
       name: '作業',
       color: '#3b82f6',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ] as Tag[],
 

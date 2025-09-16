@@ -5,7 +5,7 @@ import type { TagService } from '$lib/services/backend/tag-service';
 export class TagTauriService implements TagService {
   async create(projectId: string, tag: Tag): Promise<boolean> {
     try {
-      await invoke('create_tag', { project_id: projectId, tag });
+      await invoke('create_tag', { projectId, tag });
       return true;
     } catch (error) {
       console.error('Failed to create tag:', error);
@@ -15,7 +15,7 @@ export class TagTauriService implements TagService {
 
   async update(projectId: string, id: string, patch: Partial<Tag>): Promise<boolean> {
     try {
-      const result = await invoke('update_tag', { project_id: projectId, tag_id: id, patch });
+      const result = await invoke('update_tag', { projectId, tagId: id, patch });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update tag:', error);
@@ -25,7 +25,7 @@ export class TagTauriService implements TagService {
 
   async delete(projectId: string, id: string): Promise<boolean> {
     try {
-      await invoke('delete_tag', { project_id: projectId, id });
+      await invoke('delete_tag', { projectId, id });
       return true;
     } catch (error) {
       console.error('Failed to delete tag:', error);
@@ -35,7 +35,7 @@ export class TagTauriService implements TagService {
 
   async get(projectId: string, id: string): Promise<Tag | null> {
     try {
-      const result = (await invoke('get_tag', { project_id: projectId, id })) as Tag | null;
+      const result = (await invoke('get_tag', { projectId, id })) as Tag | null;
       return result;
     } catch (error) {
       console.error('Failed to get tag:', error);

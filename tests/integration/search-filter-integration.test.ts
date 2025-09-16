@@ -91,9 +91,9 @@ const mockSearchStore = {
     // 日付範囲フィルター
     if (filters.dateRange.start || filters.dateRange.end) {
       results = results.filter((task) => {
-        if (!task.plan_end_date) return false;
+        if (!task.planEndDate) return false;
 
-        const taskDate = new Date(task.plan_end_date);
+        const taskDate = new Date(task.planEndDate);
 
         if (filters.dateRange.start && taskDate < filters.dateRange.start) {
           return false;
@@ -111,7 +111,7 @@ const mockSearchStore = {
     if (filters.projectId) {
       results = results.filter((task) => {
         // プロジェクトIDからタスクを特定する処理のシミュレーション
-        return task.list_id.startsWith(filters.projectId!);
+        return task.listId.startsWith(filters.projectId!);
       });
     }
 
@@ -142,88 +142,88 @@ const mockTaskStore = {
   tasks: [
     {
       id: 'task-1',
-      project_id: 'project-1',
-      list_id: 'project-1-list-1',
+      projectId: 'project-1',
+      listId: 'project-1-list-1',
       title: '重要なタスク',
       description: 'これは重要な作業です',
       status: 'not_started' as TaskStatus,
       priority: 3,
-      plan_end_date: new Date('2024-01-15'),
-      assigned_user_ids: [],
-      tag_ids: ['tag-1', 'tag-2'],
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
+      planEndDate: new Date('2024-01-15'),
+      assignedUserIds: [],
+      tagIds: ['tag-1', 'tag-2'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
       tags: [
         {
           id: 'tag-1',
           name: '重要',
           color: '#ef4444',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         },
         {
           id: 'tag-2',
           name: '作業',
           color: '#3b82f6',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
-      order_index: 0,
-      is_archived: false
+      orderIndex: 0,
+      isArchived: false
     },
     {
       id: 'task-2',
-      project_id: 'project-1',
-      list_id: 'project-1-list-1',
+      projectId: 'project-1',
+      listId: 'project-1-list-1',
       title: '日常タスク',
       description: '毎日の定期作業',
       status: 'completed' as TaskStatus,
       priority: 1,
-      plan_end_date: new Date('2024-01-10'),
-      assigned_user_ids: [],
-      tag_ids: ['tag-2'],
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
+      planEndDate: new Date('2024-01-10'),
+      assignedUserIds: [],
+      tagIds: ['tag-2'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
       tags: [
         {
           id: 'tag-2',
           name: '作業',
           color: '#3b82f6',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
-      order_index: 1,
-      is_archived: false
+      orderIndex: 1,
+      isArchived: false
     },
     {
       id: 'task-3',
-      project_id: 'project-2',
-      list_id: 'project-2-list-1',
+      projectId: 'project-2',
+      listId: 'project-2-list-1',
       title: 'プロジェクト2のタスク',
       description: '別プロジェクトの作業',
       status: 'in_progress' as TaskStatus,
       priority: 2,
-      plan_end_date: new Date('2024-01-20'),
-      assigned_user_ids: [],
-      tag_ids: ['tag-3'],
-      created_at: new Date(),
-      updated_at: new Date(),
-      sub_tasks: [],
+      planEndDate: new Date('2024-01-20'),
+      assignedUserIds: [],
+      tagIds: ['tag-3'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      subTasks: [],
       tags: [
         {
           id: 'tag-3',
           name: '個人',
           color: '#10b981',
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
-      order_index: 0,
-      is_archived: false
+      orderIndex: 0,
+      isArchived: false
     }
   ] as TaskWithSubTasks[],
 
@@ -265,8 +265,8 @@ const mockViewStore = {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         filteredTasks = filteredTasks.filter((task) => {
-          if (!task.plan_end_date) return false;
-          const taskDate = new Date(task.plan_end_date);
+          if (!task.planEndDate) return false;
+          const taskDate = new Date(task.planEndDate);
           return taskDate >= today && taskDate < tomorrow;
         });
         break;
@@ -592,7 +592,7 @@ describe('検索・フィルタリング結合テスト', () => {
 
       if (options.hasSubTasks !== undefined) {
         results = results.filter((task) =>
-          options.hasSubTasks ? task.sub_tasks.length > 0 : task.sub_tasks.length === 0
+          options.hasSubTasks ? task.subTasks.length > 0 : task.subTasks.length === 0
         );
       }
 

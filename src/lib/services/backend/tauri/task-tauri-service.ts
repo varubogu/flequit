@@ -6,7 +6,7 @@ export class TaskTauriService implements TaskService {
   async create(projectId: string, task: Task): Promise<boolean> {
     try {
       // TaskCommandModel形式でproject_idを設定
-      const taskWithProjectId = { ...task, project_id: projectId };
+      const taskWithProjectId = { ...task, projectId };
       await invoke('create_task', { task: taskWithProjectId });
       return true;
     } catch (error) {

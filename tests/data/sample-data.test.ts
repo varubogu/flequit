@@ -30,15 +30,15 @@ describe('sample-data', () => {
 
       expect(typeof project.id).toBe('string');
       expect(typeof project.name).toBe('string');
-      expect(typeof project.order_index).toBe('number');
-      expect(typeof project.is_archived).toBe('boolean');
-      expect(project.created_at).toBeInstanceOf(Date);
-      expect(project.updated_at).toBeInstanceOf(Date);
-      expect(Array.isArray(project.task_lists)).toBe(true);
+      expect(typeof project.orderIndex).toBe('number');
+      expect(typeof project.isArchived).toBe('boolean');
+      expect(project.createdAt).toBeInstanceOf(Date);
+      expect(project.updatedAt).toBeInstanceOf(Date);
+      expect(Array.isArray(project.taskLists)).toBe(true);
     });
 
     test('should generate task lists with correct structure', () => {
-      const taskList = sampleData[0].task_lists[0];
+      const taskList = sampleData[0].taskLists[0];
 
       expect(taskList).toHaveProperty('id');
       expect(taskList).toHaveProperty('project_id');
@@ -50,17 +50,17 @@ describe('sample-data', () => {
       expect(taskList).toHaveProperty('tasks');
 
       expect(typeof taskList.id).toBe('string');
-      expect(typeof taskList.project_id).toBe('string');
+      expect(typeof taskList.projectId).toBe('string');
       expect(typeof taskList.name).toBe('string');
-      expect(typeof taskList.order_index).toBe('number');
-      expect(typeof taskList.is_archived).toBe('boolean');
-      expect(taskList.created_at).toBeInstanceOf(Date);
-      expect(taskList.updated_at).toBeInstanceOf(Date);
+      expect(typeof taskList.orderIndex).toBe('number');
+      expect(typeof taskList.isArchived).toBe('boolean');
+      expect(taskList.createdAt).toBeInstanceOf(Date);
+      expect(taskList.updatedAt).toBeInstanceOf(Date);
       expect(Array.isArray(taskList.tasks)).toBe(true);
     });
 
     test('should generate tasks with correct structure', () => {
-      const task = sampleData[0].task_lists[0].tasks[0];
+      const task = sampleData[0].taskLists[0].tasks[0];
 
       expect(task).toHaveProperty('id');
       expect(task).toHaveProperty('list_id');
@@ -75,17 +75,17 @@ describe('sample-data', () => {
       expect(task).toHaveProperty('tags');
 
       expect(typeof task.id).toBe('string');
-      expect(typeof task.list_id).toBe('string');
+      expect(typeof task.listId).toBe('string');
       expect(typeof task.title).toBe('string');
       expect(['not_started', 'in_progress', 'waiting', 'completed', 'cancelled']).toContain(
         task.status
       );
       expect(typeof task.priority).toBe('number');
-      expect(typeof task.order_index).toBe('number');
-      expect(typeof task.is_archived).toBe('boolean');
-      expect(task.created_at).toBeInstanceOf(Date);
-      expect(task.updated_at).toBeInstanceOf(Date);
-      expect(Array.isArray(task.sub_tasks)).toBe(true);
+      expect(typeof task.orderIndex).toBe('number');
+      expect(typeof task.isArchived).toBe('boolean');
+      expect(task.createdAt).toBeInstanceOf(Date);
+      expect(task.updatedAt).toBeInstanceOf(Date);
+      expect(Array.isArray(task.subTasks)).toBe(true);
       expect(Array.isArray(task.tags)).toBe(true);
     });
 
@@ -93,10 +93,10 @@ describe('sample-data', () => {
       // Find a task with subtasks
       let subtask = null;
       for (const project of sampleData) {
-        for (const list of project.task_lists) {
+        for (const list of project.taskLists) {
           for (const task of list.tasks) {
-            if (task.sub_tasks.length > 0) {
-              subtask = task.sub_tasks[0];
+            if (task.subTasks.length > 0) {
+              subtask = task.subTasks[0];
               break;
             }
           }
@@ -115,14 +115,14 @@ describe('sample-data', () => {
         expect(subtask).toHaveProperty('updated_at');
 
         expect(typeof subtask.id).toBe('string');
-        expect(typeof subtask.task_id).toBe('string');
+        expect(typeof subtask.taskId).toBe('string');
         expect(typeof subtask.title).toBe('string');
         expect(['not_started', 'in_progress', 'waiting', 'completed', 'cancelled']).toContain(
           subtask.status
         );
-        expect(typeof subtask.order_index).toBe('number');
-        expect(subtask.created_at).toBeInstanceOf(Date);
-        expect(subtask.updated_at).toBeInstanceOf(Date);
+        expect(typeof subtask.orderIndex).toBe('number');
+        expect(subtask.createdAt).toBeInstanceOf(Date);
+        expect(subtask.updatedAt).toBeInstanceOf(Date);
       }
     });
 
@@ -130,7 +130,7 @@ describe('sample-data', () => {
       // Find a task with tags
       let tag = null;
       for (const project of sampleData) {
-        for (const list of project.task_lists) {
+        for (const list of project.taskLists) {
           for (const task of list.tasks) {
             if (task.tags.length > 0) {
               tag = task.tags[0];
@@ -152,8 +152,8 @@ describe('sample-data', () => {
         expect(typeof tag.id).toBe('string');
         expect(typeof tag.name).toBe('string');
         expect(typeof tag.color).toBe('string');
-        expect(tag.created_at).toBeInstanceOf(Date);
-        expect(tag.updated_at).toBeInstanceOf(Date);
+        expect(tag.createdAt).toBeInstanceOf(Date);
+        expect(tag.updatedAt).toBeInstanceOf(Date);
       }
     });
   });
@@ -163,18 +163,18 @@ describe('sample-data', () => {
       const personalProject = sampleData.find((p) => p.name === 'Personal Tasks');
 
       expect(personalProject).toBeDefined();
-      expect(personalProject?.task_lists.length).toBeGreaterThan(0);
+      expect(personalProject?.taskLists.length).toBeGreaterThan(0);
     });
 
     test('should include work project', () => {
       const workProject = sampleData.find((p) => p.name === 'Work Project');
 
       expect(workProject).toBeDefined();
-      expect(workProject?.task_lists.length).toBeGreaterThan(0);
+      expect(workProject?.taskLists.length).toBeGreaterThan(0);
     });
 
     test('should include tasks with different statuses', () => {
-      const allTasks = sampleData.flatMap((p) => p.task_lists.flatMap((l) => l.tasks));
+      const allTasks = sampleData.flatMap((p) => p.taskLists.flatMap((l) => l.tasks));
 
       const statuses = [...new Set(allTasks.map((t) => t.status))];
       expect(statuses.length).toBeGreaterThan(1);
@@ -185,11 +185,11 @@ describe('sample-data', () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const allTasks = sampleData.flatMap((p) => p.task_lists.flatMap((l) => l.tasks));
+      const allTasks = sampleData.flatMap((p) => p.taskLists.flatMap((l) => l.tasks));
 
       const overdueTasks = allTasks.filter((task) => {
-        if (!task.plan_end_date || task.status === 'completed') return false;
-        const dueDate = new Date(task.plan_end_date);
+        if (!task.planEndDate || task.status === 'completed') return false;
+        const dueDate = new Date(task.planEndDate);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate < today;
       });
@@ -203,11 +203,11 @@ describe('sample-data', () => {
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const allTasks = sampleData.flatMap((p) => p.task_lists.flatMap((l) => l.tasks));
+      const allTasks = sampleData.flatMap((p) => p.taskLists.flatMap((l) => l.tasks));
 
       const todayTasks = allTasks.filter((task) => {
-        if (!task.plan_end_date) return false;
-        const dueDate = new Date(task.plan_end_date);
+        if (!task.planEndDate) return false;
+        const dueDate = new Date(task.planEndDate);
         dueDate.setHours(0, 0, 0, 0);
         return dueDate >= today && dueDate < tomorrow;
       });
@@ -219,17 +219,17 @@ describe('sample-data', () => {
   describe('data relationships', () => {
     test('should have correct project-list relationships', () => {
       for (const project of sampleData) {
-        for (const list of project.task_lists) {
-          expect(list.project_id).toBe(project.id);
+        for (const list of project.taskLists) {
+          expect(list.projectId).toBe(project.id);
         }
       }
     });
 
     test('should have correct list-task relationships', () => {
       for (const project of sampleData) {
-        for (const list of project.task_lists) {
+        for (const list of project.taskLists) {
           for (const task of list.tasks) {
-            expect(task.list_id).toBe(list.id);
+            expect(task.listId).toBe(list.id);
           }
         }
       }
@@ -237,10 +237,10 @@ describe('sample-data', () => {
 
     test('should have correct task-subtask relationships', () => {
       for (const project of sampleData) {
-        for (const list of project.task_lists) {
+        for (const list of project.taskLists) {
           for (const task of list.tasks) {
-            for (const subtask of task.sub_tasks) {
-              expect(subtask.task_id).toBe(task.id);
+            for (const subtask of task.subTasks) {
+              expect(subtask.taskId).toBe(task.id);
             }
           }
         }
@@ -257,7 +257,7 @@ describe('sample-data', () => {
     });
 
     test('should have unique IDs across task lists', () => {
-      const listIds = sampleData.flatMap((p) => p.task_lists.map((l) => l.id));
+      const listIds = sampleData.flatMap((p) => p.taskLists.map((l) => l.id));
       const uniqueListIds = [...new Set(listIds)];
 
       expect(uniqueListIds.length).toBe(listIds.length);
@@ -265,7 +265,7 @@ describe('sample-data', () => {
 
     test('should have unique IDs across tasks', () => {
       const taskIds = sampleData.flatMap((p) =>
-        p.task_lists.flatMap((l) => l.tasks.map((t) => t.id))
+        p.taskLists.flatMap((l) => l.tasks.map((t) => t.id))
       );
       const uniqueTaskIds = [...new Set(taskIds)];
 
@@ -274,7 +274,7 @@ describe('sample-data', () => {
 
     test('should have unique IDs across subtasks', () => {
       const subtaskIds = sampleData.flatMap((p) =>
-        p.task_lists.flatMap((l) => l.tasks.flatMap((t) => t.sub_tasks.map((st) => st.id)))
+        p.taskLists.flatMap((l) => l.tasks.flatMap((t) => t.subTasks.map((st) => st.id)))
       );
       const uniqueSubtaskIds = [...new Set(subtaskIds)];
 
@@ -283,16 +283,16 @@ describe('sample-data', () => {
 
     test('should have proper order indices', () => {
       for (const project of sampleData) {
-        expect(project.order_index).toBeGreaterThanOrEqual(0);
+        expect(project.orderIndex).toBeGreaterThanOrEqual(0);
 
-        for (const list of project.task_lists) {
-          expect(list.order_index).toBeGreaterThanOrEqual(0);
+        for (const list of project.taskLists) {
+          expect(list.orderIndex).toBeGreaterThanOrEqual(0);
 
           for (const task of list.tasks) {
-            expect(task.order_index).toBeGreaterThanOrEqual(0);
+            expect(task.orderIndex).toBeGreaterThanOrEqual(0);
 
-            for (const subtask of task.sub_tasks) {
-              expect(subtask.order_index).toBeGreaterThanOrEqual(0);
+            for (const subtask of task.subTasks) {
+              expect(subtask.orderIndex).toBeGreaterThanOrEqual(0);
             }
           }
         }

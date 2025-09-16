@@ -13,6 +13,7 @@ use flequit_model::models::ModelConverter;
 
 /// Tauriコマンド引数用のTask構造体（日時フィールドはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskCommandModel {
     pub id: String,
     pub project_id: String,
@@ -127,6 +128,7 @@ impl ModelConverter<Task> for TaskCommandModel {
 
 /// Tauriコマンド戻り値用のTaskTree構造体（日時フィールドはString、階層構造含む）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskTreeCommandModel {
     pub id: String,
     pub project_id: String,

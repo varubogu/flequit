@@ -5,7 +5,7 @@ import type { SubtaskRecurrenceService } from '$lib/services/backend/subtask-rec
 export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
   async create(subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
     try {
-      const result = await invoke('create_subtask_recurrence', { subtask_recurrence: subtaskRecurrence });
+      const result = await invoke('create_subtask_recurrence', { subtaskRecurrence });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create subtask recurrence:', error);
@@ -15,7 +15,7 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
 
   async getBySubtaskId(subtaskId: string): Promise<SubtaskRecurrence | null> {
     try {
-      const result = (await invoke('get_subtask_recurrence_by_subtask_id', { subtask_id: subtaskId })) as SubtaskRecurrence | null;
+      const result = (await invoke('get_subtask_recurrence_by_subtask_id', { subtaskId })) as SubtaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get subtask recurrence by subtask ID:', error);
@@ -25,7 +25,7 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
 
   async delete(subtaskId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_subtask_recurrence', { subtask_id: subtaskId });
+      const result = await invoke('delete_subtask_recurrence', { subtaskId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete subtask recurrence:', error);

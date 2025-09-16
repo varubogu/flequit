@@ -13,17 +13,17 @@ export interface Project {
   /** プロジェクトの色 */
   color?: string;
   /** 表示順序 */
-  order_index: number;
+  orderIndex: number;
   /** アーカイブ状態 */
-  is_archived: boolean;
+  isArchived: boolean;
   /** プロジェクトのステータス */
   status?: string;
   /** プロジェクトオーナーのユーザーID */
-  owner_id?: string;
+  ownerId?: string;
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -31,7 +31,7 @@ export interface Project {
  */
 export interface ProjectWithLists extends Project {
   /** プロジェクトに含まれるタスクリスト */
-  task_lists: TaskList[];
+  taskLists: TaskList[];
 }
 
 /**
@@ -41,9 +41,9 @@ export interface ProjectSearchCondition {
   /** プロジェクト名 */
   name?: string;
   /** アーカイブ状態 */
-  is_archived?: boolean;
+  isArchived?: boolean;
   /** 表示順序 */
-  order_index?: number;
+  orderIndex?: number;
 }
 
 /**
@@ -51,6 +51,5 @@ export interface ProjectSearchCondition {
  */
 export interface ProjectTree extends Project {
   /** タスクを含むタスクリスト */
-  task_lists: TaskListWithTasks[];
+  taskLists: TaskListWithTasks[];
 }
-

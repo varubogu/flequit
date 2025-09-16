@@ -12,9 +12,9 @@ import {
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {
     id: 'test-id',
-    if_weekday: 'monday',
-    then_direction: 'next',
-    then_target: 'weekday'
+    ifWeekday: 'monday',
+    thenDirection: 'next',
+    thenTarget: 'weekday'
   };
 
   const mockOnUpdate = vi.fn();
@@ -128,8 +128,8 @@ describe('WeekdayConditionEditor', () => {
       props: {
         condition: {
           ...mockCondition,
-          then_target: 'specific_weekday',
-          then_weekday: 'friday'
+          thenTarget: 'specific_weekday',
+          thenWeekday: 'friday'
         },
         onUpdate: mockOnUpdate,
         onRemove: mockOnRemove

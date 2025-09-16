@@ -66,7 +66,7 @@
     tagStore.updateTag(tag.id, {
       name: data.name,
       color: data.color,
-      updated_at: new Date()
+      updatedAt: new Date()
     });
   }
 

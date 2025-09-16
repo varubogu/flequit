@@ -15,9 +15,9 @@ describe('TagWebService', () => {
       id: 'tag-123',
       name: 'Work',
       color: '#3498DB',
-      order_index: 0,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockSearchCondition = {

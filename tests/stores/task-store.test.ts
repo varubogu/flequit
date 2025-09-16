@@ -8,45 +8,45 @@ describe('TaskStore', () => {
   const createMockProject = (): ProjectTree => ({
     id: 'project-1',
     name: 'Test Project',
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    task_lists: [
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    taskLists: [
       {
         id: 'list-1',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'Test List',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: [
           {
             id: 'task-1',
-            project_id: 'proj-1',
-            list_id: 'list-1',
+            projectId: 'proj-1',
+            listId: 'list-1',
             title: 'Test Task 1',
             status: 'not_started',
             priority: 1,
-            assigned_user_ids: [],
-            tag_ids: [],
-            order_index: 0,
-            is_archived: false,
-            plan_end_date: new Date('2030-12-31'), // Far future date
-            created_at: new Date(),
-            updated_at: new Date(),
-            sub_tasks: [
+            assignedUserIds: [],
+            tagIds: [],
+            orderIndex: 0,
+            isArchived: false,
+            planEndDate: new Date('2030-12-31'), // Far future date
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            subTasks: [
               {
                 id: 'subtask-1',
-                task_id: 'task-1',
+                taskId: 'task-1',
                 title: 'Test SubTask',
                 status: 'not_started',
-                order_index: 0,
+                orderIndex: 0,
                 completed: false,
-                assigned_user_ids: [],
-                created_at: new Date(),
-                updated_at: new Date(),
+                assignedUserIds: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
                 tags: []
               }
             ],
@@ -54,40 +54,40 @@ describe('TaskStore', () => {
           },
           {
             id: 'task-2',
-            project_id: 'proj-1',
-            list_id: 'list-1',
+            projectId: 'proj-1',
+            listId: 'list-1',
             title: 'Overdue Task',
             status: 'not_started',
             priority: 2,
-            assigned_user_ids: [],
-            tag_ids: [],
-            order_index: 1,
-            is_archived: false,
-            plan_end_date: new Date('2020-01-01'), // Past date
-            created_at: new Date(),
-            updated_at: new Date(),
-            sub_tasks: [],
+            assignedUserIds: [],
+            tagIds: [],
+            orderIndex: 1,
+            isArchived: false,
+            planEndDate: new Date('2020-01-01'), // Past date
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            subTasks: [],
             tags: []
           },
           {
             id: 'task-3',
-            project_id: 'proj-1',
-            list_id: 'list-1',
+            projectId: 'proj-1',
+            listId: 'list-1',
             title: 'Today Task',
             status: 'not_started',
             priority: 1,
-            assigned_user_ids: [],
-            tag_ids: [],
-            order_index: 2,
-            is_archived: false,
-            plan_end_date: (() => {
+            assignedUserIds: [],
+            tagIds: [],
+            orderIndex: 2,
+            isArchived: false,
+            planEndDate: (() => {
               const today = new Date();
               today.setHours(23, 59, 59, 999); // Set to end of today
               return today;
             })(),
-            created_at: new Date(),
-            updated_at: new Date(),
-            sub_tasks: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            subTasks: [],
             tags: []
           }
         ]
@@ -224,7 +224,7 @@ describe('TaskStore', () => {
       const updatedTask = store.allTasks.find((t) => t.id === 'task-1');
       expect(updatedTask?.title).toBe('Updated Task');
       expect(updatedTask?.status).toBe('completed');
-      expect(updatedTask?.updated_at.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
+      expect(updatedTask?.updatedAt.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
     });
 
     test('toggleTaskStatus should toggle between completed and not_started', () => {
@@ -257,9 +257,9 @@ describe('TaskStore', () => {
       expect(newTask).not.toBeNull();
       expect(newTask?.title).toBe('New Task');
       expect(newTask?.id).toBeDefined();
-      expect(newTask?.created_at).toBeDefined();
-      expect(newTask?.updated_at).toBeDefined();
-      expect(newTask?.sub_tasks).toEqual([]);
+      expect(newTask?.createdAt).toBeDefined();
+      expect(newTask?.updatedAt).toBeDefined();
+      expect(newTask?.subTasks).toEqual([]);
       expect(newTask?.tags).toEqual([]);
 
       const allTasks = store.allTasks;
@@ -268,15 +268,15 @@ describe('TaskStore', () => {
 
     test('addTask should return null for non-existent list', async () => {
       const result = await store.addTask('non-existent-list', {
-        project_id: 'non-existent-proj',
-        list_id: 'non-existent-list',
+        projectId: 'non-existent-proj',
+        listId: 'non-existent-list',
         title: 'New Task',
         status: 'not_started',
         priority: 1,
-        assigned_user_ids: [],
-        tag_ids: [],
-        order_index: 0,
-        is_archived: false
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 0,
+        isArchived: false
       });
 
       expect(result).toBeNull();
@@ -305,16 +305,16 @@ describe('TaskStore', () => {
       store.updateSubTask('subtask-1', { title: 'Updated SubTask', status: 'completed' });
 
       const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-      const updatedSubTask = parentTask?.sub_tasks.find((st) => st.id === 'subtask-1');
+      const updatedSubTask = parentTask?.subTasks.find((st) => st.id === 'subtask-1');
 
       expect(updatedSubTask?.title).toBe('Updated SubTask');
       expect(updatedSubTask?.status).toBe('completed');
-      expect(updatedSubTask?.updated_at.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
+      expect(updatedSubTask?.updatedAt.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
     });
 
     test('addSubTask should create new subtask with backend integration', async () => {
       const initialSubTaskCount =
-        store.allTasks.find((t) => t.id === 'task-1')?.sub_tasks.length || 0;
+        store.allTasks.find((t) => t.id === 'task-1')?.subTasks.length || 0;
 
       const newSubTask = await store.addSubTask('task-1', {
         title: 'New SubTask',
@@ -326,15 +326,15 @@ describe('TaskStore', () => {
       expect(newSubTask).not.toBeNull();
 
       const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-      expect(parentTask?.sub_tasks).toHaveLength(initialSubTaskCount + 1);
+      expect(parentTask?.subTasks).toHaveLength(initialSubTaskCount + 1);
 
-      const addedSubTask = parentTask?.sub_tasks.find((st) => st.title === 'New SubTask');
+      const addedSubTask = parentTask?.subTasks.find((st) => st.title === 'New SubTask');
       expect(addedSubTask?.title).toBe('New SubTask');
       expect(addedSubTask?.description).toBe('New subtask description');
       expect(addedSubTask?.status).toBe('in_progress');
       expect(addedSubTask?.priority).toBe(2);
       expect(addedSubTask?.id).toBeDefined();
-      expect(addedSubTask?.task_id).toBe('task-1');
+      expect(addedSubTask?.taskId).toBe('task-1');
     });
 
     test('addSubTask should handle creation failure gracefully', async () => {
@@ -349,7 +349,7 @@ describe('TaskStore', () => {
       // しかし、実際のタスクリストには追加されていない
       const allTasks = store.allTasks;
       const hasSubTaskInAnyTask = allTasks.some((task) =>
-        task.sub_tasks.some((subTask) => subTask.title === 'Failed SubTask')
+        task.subTasks.some((subTask) => subTask.title === 'Failed SubTask')
       );
       expect(hasSubTaskInAnyTask).toBe(false);
     });
@@ -360,7 +360,7 @@ describe('TaskStore', () => {
       store.deleteSubTask('subtask-1');
 
       const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-      expect(parentTask?.sub_tasks).toHaveLength(0);
+      expect(parentTask?.subTasks).toHaveLength(0);
       expect(store.selectedSubTaskId).toBeNull();
     });
   });
@@ -383,11 +383,11 @@ describe('TaskStore', () => {
         await store.addTagToSubTask(newSubTask.id, 'urgent');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
         expect(subTask?.tags).toHaveLength(1);
         expect(subTask?.tags[0].name).toBe('urgent');
-        expect(subTask?.updated_at).toBeInstanceOf(Date);
+        expect(subTask?.updatedAt).toBeInstanceOf(Date);
       }
     });
 
@@ -402,7 +402,7 @@ describe('TaskStore', () => {
         await store.addTagToSubTask(newSubTask.id, 'important');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
         expect(subTask?.tags).toHaveLength(1);
         expect(subTask?.tags[0].name).toBe('important');
@@ -419,7 +419,7 @@ describe('TaskStore', () => {
         await store.addTagToSubTask(newSubTask.id, 'temporary');
 
         let parentTask = store.allTasks.find((t) => t.id === 'task-1');
-        let subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        let subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
         expect(subTask?.tags).toHaveLength(1);
 
         // Remove tag
@@ -428,10 +428,10 @@ describe('TaskStore', () => {
           await store.removeTagFromSubTask(newSubTask.id, tagId);
 
           parentTask = store.allTasks.find((t) => t.id === 'task-1');
-          subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+          subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
           expect(subTask?.tags).toHaveLength(0);
-          expect(subTask?.updated_at).toBeInstanceOf(Date);
+          expect(subTask?.updatedAt).toBeInstanceOf(Date);
         }
       }
     });
@@ -446,7 +446,7 @@ describe('TaskStore', () => {
         await store.removeTagFromSubTask(newSubTask.id, 'non-existent-tag-id');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
         expect(subTask?.tags).toHaveLength(0);
       }

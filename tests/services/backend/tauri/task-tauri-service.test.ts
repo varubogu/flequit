@@ -26,26 +26,26 @@ describe('TaskTauriService', () => {
     service = new TaskTauriService();
     mockTask = {
       id: 'task-123',
-      project_id: 'proj-1',
-      list_id: 'list-456',
+      projectId: 'proj-1',
+      listId: 'list-456',
       title: 'Test Task',
       description: 'Test Description',
       status: 'not_started',
       priority: 1,
-      plan_start_date: new Date('2024-01-01T00:00:00Z'),
-      plan_end_date: new Date('2024-01-02T00:00:00Z'),
-      is_range_date: true,
-      assigned_user_ids: [],
-      tag_ids: [],
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      planStartDate: new Date('2024-01-01T00:00:00Z'),
+      planEndDate: new Date('2024-01-02T00:00:00Z'),
+      isRangeDate: true,
+      assignedUserIds: [],
+      tagIds: [],
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
     mockSearchCondition = {
-      list_id: 'list-456',
+      listId: 'list-456',
       status: 'not_started',
-      is_archived: false
+      isArchived: false
     };
     vi.clearAllMocks();
   });
@@ -83,10 +83,10 @@ describe('TaskTauriService', () => {
         description: mockTask.description,
         status: mockTask.status,
         priority: mockTask.priority,
-        plan_start_date: mockTask.plan_start_date?.toISOString(),
-        plan_end_date: mockTask.plan_end_date?.toISOString(),
-        do_start_date: mockTask.do_start_date?.toISOString(),
-        do_end_date: mockTask.do_end_date?.toISOString()
+        plan_start_date: mockTask.planStartDate?.toISOString(),
+        plan_end_date: mockTask.planEndDate?.toISOString(),
+        do_start_date: mockTask.doStartDate?.toISOString(),
+        do_end_date: mockTask.doEndDate?.toISOString()
       } as any;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
@@ -103,10 +103,10 @@ describe('TaskTauriService', () => {
         description: mockTask.description,
         status: mockTask.status,
         priority: mockTask.priority,
-        plan_start_date: mockTask.plan_start_date?.toISOString(),
-        plan_end_date: mockTask.plan_end_date?.toISOString(),
-        do_start_date: mockTask.do_start_date?.toISOString(),
-        do_end_date: mockTask.do_end_date?.toISOString()
+        plan_start_date: mockTask.planStartDate?.toISOString(),
+        plan_end_date: mockTask.planEndDate?.toISOString(),
+        do_start_date: mockTask.doStartDate?.toISOString(),
+        do_end_date: mockTask.doEndDate?.toISOString()
       } as any;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 

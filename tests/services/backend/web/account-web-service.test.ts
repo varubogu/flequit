@@ -12,15 +12,15 @@ describe('AccountWebService', () => {
 
     mockAccount = {
       id: 'account-123',
-      user_id: 'user-456',
-      display_name: 'Test User',
+      userId: 'user-456',
+      displayName: 'Test User',
       email: 'test@example.com',
-      avatar_url: 'https://example.com/avatar.jpg',
+      avatarUrl: 'https://example.com/avatar.jpg',
       provider: 'local',
-      provider_id: 'provider-123',
-      is_active: true,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-01T00:00:00Z'
+      providerId: 'provider-123',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
     };
 
     // console.warnをモック化

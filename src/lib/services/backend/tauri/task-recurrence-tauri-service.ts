@@ -5,7 +5,7 @@ import type { TaskRecurrenceService } from '$lib/services/backend/task-recurrenc
 export class TaskRecurrenceTauriService implements TaskRecurrenceService {
   async create(taskRecurrence: TaskRecurrence): Promise<boolean> {
     try {
-      const result = await invoke('create_task_recurrence', { task_recurrence: taskRecurrence });
+      const result = await invoke('create_task_recurrence', { taskRecurrence });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create task recurrence:', error);
@@ -15,7 +15,7 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
 
   async getByTaskId(taskId: string): Promise<TaskRecurrence | null> {
     try {
-      const result = (await invoke('get_task_recurrence_by_task_id', { task_id: taskId })) as TaskRecurrence | null;
+      const result = (await invoke('get_task_recurrence_by_task_id', { taskId })) as TaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get task recurrence by task ID:', error);
@@ -25,7 +25,7 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
 
   async delete(taskId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_task_recurrence', { task_id: taskId });
+      const result = await invoke('delete_task_recurrence', { taskId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete task recurrence:', error);

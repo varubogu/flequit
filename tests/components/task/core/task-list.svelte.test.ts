@@ -58,19 +58,19 @@ describe('TaskList', () => {
     description: 'Test description',
     status: 'not_started' as const,
     priority: 2,
-    plan_start_date: new Date('2024-01-01'),
-    plan_end_date: new Date('2024-01-02'),
-    is_range_date: true,
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-01-01'),
+    planStartDate: new Date('2024-01-01'),
+    planEndDate: new Date('2024-01-02'),
+    isRangeDate: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
     tags: [],
-    list_id: 'list-1',
-    order_index: 0,
-    is_archived: false,
-    sub_tasks: [],
-    project_id: 'project-1',
-    assigned_user_ids: [],
-    tag_ids: []
+    listId: 'list-1',
+    orderIndex: 0,
+    isArchived: false,
+    subTasks: [],
+    projectId: 'project-1',
+    assignedUserIds: [],
+    tagIds: []
   };
 
   const mockTasks: TaskWithSubTasks[] = [

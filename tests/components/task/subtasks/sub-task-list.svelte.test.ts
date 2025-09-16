@@ -22,60 +22,60 @@ vi.mock('$lib/utils/drag-drop', () => ({
 describe('SubTaskList', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'project-1',
-    sub_task_id: undefined,
-    list_id: 'list-1',
+    projectId: 'project-1',
+    subTaskId: undefined,
+    listId: 'list-1',
     title: 'Main Task',
     description: '',
     status: 'not_started',
     priority: 2,
-    plan_start_date: undefined,
-    plan_end_date: undefined,
-    is_range_date: false,
-    order_index: 0,
-    is_archived: false,
-    assigned_user_ids: [],
-    tag_ids: [],
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [
+    planStartDate: undefined,
+    planEndDate: undefined,
+    isRangeDate: false,
+    orderIndex: 0,
+    isArchived: false,
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [
       {
         id: 'subtask-1',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'First subtask',
         description: '',
         status: 'not_started',
         priority: 2,
-        plan_start_date: undefined,
-        plan_end_date: undefined,
-        do_start_date: undefined,
-        do_end_date: undefined,
-        is_range_date: false,
-        order_index: 0,
+        planStartDate: undefined,
+        planEndDate: undefined,
+        doStartDate: undefined,
+        doEndDate: undefined,
+        isRangeDate: false,
+        orderIndex: 0,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: 'subtask-2',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'Second subtask',
         description: '',
         status: 'completed',
         priority: 3,
-        plan_start_date: undefined,
-        plan_end_date: new Date('2024-12-25'),
-        do_start_date: undefined,
-        do_end_date: new Date('2024-12-25'),
-        is_range_date: false,
-        order_index: 1,
+        planStartDate: undefined,
+        planEndDate: new Date('2024-12-25'),
+        doStartDate: undefined,
+        doEndDate: new Date('2024-12-25'),
+        isRangeDate: false,
+        orderIndex: 1,
         tags: [],
         completed: true,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ],
     tags: []
@@ -250,7 +250,7 @@ describe('SubTaskList', () => {
   it('サブタスクが存在しない場合は何も表示されない', () => {
     const emptyTask: TaskWithSubTasks = {
       ...mockTask,
-      sub_tasks: []
+      subTasks: []
     };
 
     render(SubTaskList, {

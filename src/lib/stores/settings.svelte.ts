@@ -330,7 +330,7 @@ class MainSettingsStore {
     return this.backendService;
   }
 
-  private async saveSingleSetting(key: string, value: string, dataType: Setting['data_type']) {
+  private async saveSingleSetting(key: string, value: string, dataType: Setting['dataType']) {
     if (!this.isInitialized) {
       return;
     }
@@ -346,7 +346,7 @@ class MainSettingsStore {
     }
   }
 
-  private async saveSetting(key: string, value: string, dataType: Setting['data_type']) {
+  private async saveSetting(key: string, value: string, dataType: Setting['dataType']) {
     const backend = await this.initBackendService();
     if (!backend) {
       throw new Error('Backend service not available');
@@ -362,15 +362,15 @@ class MainSettingsStore {
         id: `setting_${key}`,
         key,
         value,
-        data_type: dataType,
-        created_at: new Date(),
-        updated_at: new Date()
+        dataType: dataType,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       await backend.setting.update(setting);
     }
   }
 
-  private convertKeyValueToPartialSettings(key: string, value: string, dataType: Setting['data_type']): Partial<Settings> | null {
+  private convertKeyValueToPartialSettings(key: string, value: string, dataType: Setting['dataType']): Partial<Settings> | null {
     try {
       switch (key) {
         case 'theme':
@@ -473,7 +473,7 @@ class MainSettingsStore {
             loadedCount++;
             break;
           case 'customDateFormats':
-            if (setting.data_type === 'json') {
+            if (setting.dataType === 'json') {
               try {
                 this._settings.customDateFormats = JSON.parse(setting.value);
                 loadedCount++;
@@ -483,7 +483,7 @@ class MainSettingsStore {
             }
             break;
           case 'timeLabels':
-            if (setting.data_type === 'json') {
+            if (setting.dataType === 'json') {
               try {
                 this._settings.timeLabels = JSON.parse(setting.value);
                 loadedCount++;
@@ -495,7 +495,7 @@ class MainSettingsStore {
 
           // 表示設定
           case 'dueDateButtons':
-            if (setting.data_type === 'json') {
+            if (setting.dataType === 'json') {
               try {
                 this._settings.dueDateButtons = {
                   ...this._settings.dueDateButtons,
@@ -509,7 +509,7 @@ class MainSettingsStore {
             break;
           case 'viewItems':
           case 'views_visibility':
-            if (setting.data_type === 'json') {
+            if (setting.dataType === 'json') {
               try {
                 const parsedData = JSON.parse(setting.value);
                 // views_visibilityの場合は viewItems プロパティから取得

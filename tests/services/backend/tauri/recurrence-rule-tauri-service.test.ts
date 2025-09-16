@@ -21,9 +21,9 @@ describe('RecurrenceRuleTauriService', () => {
       id: 'rule-123',
       unit: 'week',
       interval: 2,
-      days_of_week: ['monday', 'wednesday', 'friday'],
-      end_date: '2024-12-31T23:59:59Z',
-      max_occurrences: 20
+      daysOfWeek: ['monday', 'wednesday', 'friday'],
+      endDate: '2024-12-31T23:59:59Z',
+      maxOccurrences: 20
     };
     mockSearchCondition = {
       unit: 'week'

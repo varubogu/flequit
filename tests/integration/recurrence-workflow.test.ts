@@ -30,26 +30,26 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
       createRecurrenceInstances: async (task: Partial<Task>, rule: RecurrenceRule) => {
         const instances: Task[] = [];
-        const baseDate = task.plan_end_date || new Date();
-        const limit = rule.max_occurrences || 5;
+        const baseDate = task.planEndDate || new Date();
+        const limit = rule.maxOccurrences || 5;
         const dates = mockRecurrenceService.generateRecurrenceDates(baseDate, rule, limit);
 
         dates.forEach((date, index) => {
           instances.push({
             id: `${task.id}-instance-${index}`,
-            list_id: task.list_id || '',
+            listId: task.listId || '',
             title: `${task.title || 'タスク'} (${index + 1}回目)`,
             description: task.description || '',
             status: 'not_started' as const,
             priority: task.priority || 1,
-            plan_start_date: task.plan_start_date,
-            plan_end_date: date,
-            is_range_date: task.is_range_date || false,
-            recurrence_rule: task.recurrence_rule,
-            order_index: task.order_index || 0,
-            is_archived: task.is_archived || false,
-            created_at: new Date(),
-            updated_at: new Date(),
+            planStartDate: task.planStartDate,
+            planEndDate: date,
+            isRangeDate: task.isRangeDate || false,
+            recurrenceRule: task.recurrenceRule,
+            orderIndex: task.orderIndex || 0,
+            isArchived: task.isArchived || false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             recurrence_parent_id: task.id
           } as TaskWithRecurrenceParent);
         });
@@ -70,22 +70,22 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask: Task = {
           id: `task-${Date.now()}`,
-          list_id: listId,
-          project_id: taskData.project_id || 'project-1',
+          listId: listId,
+          projectId: taskData.projectId || 'project-1',
           title: taskData.title || '',
           description: taskData.description || '',
           status: taskData.status || 'not_started',
           priority: taskData.priority || 1,
-          plan_start_date: taskData.plan_start_date,
-          plan_end_date: taskData.plan_end_date,
-          is_range_date: taskData.is_range_date || false,
-          recurrence_rule: taskData.recurrence_rule,
-          assigned_user_ids: taskData.assigned_user_ids || [],
-          tag_ids: taskData.tag_ids || [],
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date()
+          planStartDate: taskData.planStartDate,
+          planEndDate: taskData.planEndDate,
+          isRangeDate: taskData.isRangeDate || false,
+          recurrenceRule: taskData.recurrenceRule,
+          assignedUserIds: taskData.assignedUserIds || [],
+          tagIds: taskData.tagIds || [],
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
         mockTaskStore.tasks.push(newTask);
         return newTask;
@@ -97,7 +97,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
             ...updates,
-            updated_at: new Date()
+            updatedAt: new Date()
           };
           return mockTaskStore.tasks[taskIndex];
         }
@@ -125,14 +125,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     const recurrenceRule = {
       unit: 'day',
       interval: 1,
-      max_occurrences: 5
+      maxOccurrences: 5
     } as RecurrenceRule;
 
     const taskData = {
       title: '毎日のタスク',
       description: '毎日実行するテストタスク',
       due_date: new Date('2024-01-01'),
-      recurrence_rule: recurrenceRule
+      recurrenceRule: recurrenceRule
     } as Partial<Task>;
 
     const task = mockTaskStore.addTask('test-list-1', taskData);
@@ -162,9 +162,9 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     expect(mockTaskStore.recurrenceTasks).toHaveLength(5);
 
     // ルールを週1回に変更
-    const newRule = { unit: 'week' as const, interval: 1, max_occurrences: 3 } as RecurrenceRule;
+    const newRule = { unit: 'week' as const, interval: 1, maxOccurrences: 3 } as RecurrenceRule;
     await mockRecurrenceService.updateRecurrenceRule(task.id, newRule);
-    mockTaskStore.updateTask(task.id, { recurrence_rule: newRule });
+    mockTaskStore.updateTask(task.id, { recurrenceRule: newRule });
 
     // 新しいインスタンスを生成
     const newInstances = await mockRecurrenceService.createRecurrenceInstances(task, newRule);
@@ -194,15 +194,15 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}-${Math.random()}`,
-          list_id: listId,
+          listId: listId,
           title: taskData.title,
           description: taskData.description || '',
           status: taskData.status || 'not_started',
           priority: taskData.priority || 1,
-          plan_end_date: taskData.plan_end_date,
-          recurrence_rule: taskData.recurrence_rule,
-          created_at: new Date(),
-          updated_at: new Date(),
+          planEndDate: taskData.planEndDate,
+          recurrenceRule: taskData.recurrenceRule,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           ...taskData
         } as Task;
         mockTaskStore.tasks.push(newTask);
@@ -224,14 +224,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     const mockRecurrenceService = {
       createRecurrenceInstances: async (task: Partial<Task>, rule: RecurrenceRule) => {
         const instances: Task[] = [];
-        const count = rule.max_occurrences || 5;
+        const count = rule.maxOccurrences || 5;
 
         for (let i = 0; i < count; i++) {
           instances.push({
             id: `${task.id}-instance-${i}`,
             ...task,
             title: `${task.title} (${i + 1}回目)`,
-            plan_end_date: new Date(),
+            planEndDate: new Date(),
             status: 'not_started',
             recurrence_parent_id: task.id
           } as TaskWithRecurrenceParent);
@@ -245,14 +245,14 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     const weekdaysRule = {
       unit: 'week',
       interval: 1,
-      days_of_week: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-      max_occurrences: 10
+      daysOfWeek: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+      maxOccurrences: 10
     } as RecurrenceRule;
 
     const weekdaysTask = mockTaskStore.addTask('test-list-1', {
       title: '平日タスク',
-      recurrence_rule: weekdaysRule,
-      plan_end_date: new Date('2024-01-01')
+      recurrenceRule: weekdaysRule,
+      planEndDate: new Date('2024-01-01')
     });
 
     const weekdaysInstances = await mockRecurrenceService.createRecurrenceInstances(
@@ -278,13 +278,13 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       unit: 'month',
       interval: 1,
       details: { day_of_month: 15 },
-      max_occurrences: 6
+      maxOccurrences: 6
     } as RecurrenceRule;
 
     const monthlyTask = mockTaskStore.addTask('test-list-1', {
       title: '毎月15日タスク',
-      recurrence_rule: monthlyRule,
-      plan_end_date: new Date('2024-01-01')
+      recurrenceRule: monthlyRule,
+      planEndDate: new Date('2024-01-01')
     });
 
     const monthlyInstances = await mockRecurrenceService.createRecurrenceInstances(
@@ -324,11 +324,11 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}`,
-          list_id: listId,
+          listId: listId,
           title: taskData.title,
-          recurrence_rule: taskData.recurrence_rule,
-          created_at: new Date(),
-          updated_at: new Date(),
+          recurrenceRule: taskData.recurrenceRule,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           ...taskData
         } as Task;
         mockTaskStore.tasks.push(newTask);
@@ -344,7 +344,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
         }
 
         // 過去の終了日の検証
-        if (rule.end_date && rule.end_date < new Date()) {
+        if (rule.endDate && rule.endDate < new Date()) {
           return []; // 空配列を返す
         }
 
@@ -371,7 +371,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
 
       const task = mockTaskStore.addTask('test-list-1', {
         title: '無効なタスク',
-        recurrence_rule: invalidRule
+        recurrenceRule: invalidRule
       });
 
       await mockRecurrenceService.createRecurrenceInstances(task, invalidRule);
@@ -394,13 +394,13 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
       const pastRule = {
         unit: 'day',
         interval: 1,
-        end_date: new Date('2020-01-01') // 過去の日付
+        endDate: new Date('2020-01-01') // 過去の日付
       } as RecurrenceRule;
 
       const task = mockTaskStore.addTask('test-list-1', {
         title: '過去終了日タスク',
-        recurrence_rule: pastRule,
-        plan_end_date: new Date()
+        recurrenceRule: pastRule,
+        planEndDate: new Date()
       });
 
       const instances = await mockRecurrenceService.createRecurrenceInstances(task, pastRule);

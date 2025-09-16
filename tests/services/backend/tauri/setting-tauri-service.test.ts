@@ -20,9 +20,9 @@ describe('SettingTauriService', () => {
       id: 'setting-123',
       key: 'theme',
       value: 'dark',
-      data_type: 'string',
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      dataType: 'string',
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
     vi.clearAllMocks();
   });
@@ -93,7 +93,7 @@ describe('SettingTauriService', () => {
       const themeSettings = result.find((s) => s.key === 'theme');
       expect(themeSettings).toBeDefined();
       expect(themeSettings?.value).toBe('dark');
-      expect(themeSettings?.data_type).toBe('string');
+      expect(themeSettings?.dataType).toBe('string');
     });
 
     it('should return empty array when no settings found', async () => {

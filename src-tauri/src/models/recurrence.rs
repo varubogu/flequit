@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 
 /// 繰り返しルール作成コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrenceRuleCommandModel {
     /// ルールID
     pub id: String,
@@ -21,6 +22,7 @@ pub struct RecurrenceRuleCommandModel {
 
 /// 繰り返し調整作成コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrenceAdjustmentCommandModel {
     /// 調整ID
     pub id: String,
@@ -36,6 +38,7 @@ pub struct RecurrenceAdjustmentCommandModel {
 
 /// 繰り返し詳細作成コマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrenceDetailsCommandModel {
     /// 詳細ID
     pub id: String,
@@ -55,6 +58,7 @@ pub struct RecurrenceDetailsCommandModel {
 
 /// タスク繰り返し関連付けコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskRecurrenceCommandModel {
     /// タスクID
     pub task_id: String,
@@ -64,6 +68,7 @@ pub struct TaskRecurrenceCommandModel {
 
 /// サブタスク繰り返し関連付けコマンド
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubtaskRecurrenceCommandModel {
     /// サブタスクID
     pub subtask_id: String,

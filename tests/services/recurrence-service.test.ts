@@ -65,7 +65,7 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          specific_date: 15
+          specificDate: 15
         }
       };
 
@@ -100,7 +100,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 1,
-        days_of_week: ['wednesday', 'friday']
+        daysOfWeek: ['wednesday', 'friday']
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -112,7 +112,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 1,
-        days_of_week: ['monday', 'wednesday']
+        daysOfWeek: ['monday', 'wednesday']
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -125,8 +125,8 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          week_of_period: 'second',
-          weekday_of_week: 'sunday'
+          weekOfPeriod: 'second',
+          weekdayOfWeek: 'sunday'
         }
       };
 
@@ -141,8 +141,8 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          week_of_period: 'last',
-          weekday_of_week: 'friday'
+          weekOfPeriod: 'last',
+          weekdayOfWeek: 'friday'
         }
       };
 
@@ -167,7 +167,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
-        end_date: new Date('2024-12-01')
+        endDate: new Date('2024-12-01')
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -202,16 +202,16 @@ describe('RecurrenceService', () => {
         unit: 'day',
         interval: 1,
         adjustment: {
-          weekday_conditions: [
+          weekdayConditions: [
             {
               id: 'test-weekday-1',
-              if_weekday: 'sunday', // 次の日（日曜日）をチェック
-              then_target: 'specific_weekday',
-              then_weekday: 'monday',
-              then_direction: 'next'
+              ifWeekday: 'sunday', // 次の日（日曜日）をチェック
+              thenTarget: 'specific_weekday',
+              thenWeekday: 'monday',
+              thenDirection: 'next'
             }
           ],
-          date_conditions: []
+          dateConditions: []
         }
       };
 
@@ -226,14 +226,14 @@ describe('RecurrenceService', () => {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [
+          dateConditions: [
             {
               id: 'test-date-1',
-              reference_date: new Date('2024-01-02'),
+              referenceDate: new Date('2024-01-02'),
               relation: 'on_or_after'
             }
           ],
-          weekday_conditions: []
+          weekdayConditions: []
         }
       };
 
@@ -266,7 +266,7 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          specific_date: 31
+          specificDate: 31
         }
       };
 
@@ -282,8 +282,8 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          week_of_period: 'fourth',
-          weekday_of_week: 'saturday'
+          weekOfPeriod: 'fourth',
+          weekdayOfWeek: 'saturday'
         }
       };
 
@@ -297,7 +297,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 2,
-        days_of_week: ['monday']
+        daysOfWeek: ['monday']
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -325,7 +325,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
-        end_date: new Date('2024-01-03')
+        endDate: new Date('2024-01-03')
       };
 
       const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 10);
@@ -337,7 +337,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 1,
-        days_of_week: ['wednesday', 'friday']
+        daysOfWeek: ['wednesday', 'friday']
       };
 
       const dates = RecurrenceService.generateRecurrenceDates(startDate, rule, 4);
@@ -367,19 +367,19 @@ describe('RecurrenceService', () => {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [
+          dateConditions: [
             {
               id: 'test-date-1',
-              reference_date: new Date('2024-01-02'),
+              referenceDate: new Date('2024-01-02'),
               relation: 'on_or_after'
             },
             {
               id: 'test-date-2',
-              reference_date: new Date('2024-01-05'),
+              referenceDate: new Date('2024-01-05'),
               relation: 'before'
             }
           ],
-          weekday_conditions: []
+          weekdayConditions: []
         }
       };
 
@@ -393,23 +393,23 @@ describe('RecurrenceService', () => {
         unit: 'day',
         interval: 1,
         adjustment: {
-          weekday_conditions: [
+          weekdayConditions: [
             {
               id: 'test-weekday-1',
-              if_weekday: 'saturday',
-              then_target: 'specific_weekday',
-              then_weekday: 'monday',
-              then_direction: 'next'
+              ifWeekday: 'saturday',
+              thenTarget: 'specific_weekday',
+              thenWeekday: 'monday',
+              thenDirection: 'next'
             },
             {
               id: 'test-weekday-2',
-              if_weekday: 'sunday',
-              then_target: 'specific_weekday',
-              then_weekday: 'monday',
-              then_direction: 'next'
+              ifWeekday: 'sunday',
+              thenTarget: 'specific_weekday',
+              thenWeekday: 'monday',
+              thenDirection: 'next'
             }
           ],
-          date_conditions: []
+          dateConditions: []
         }
       };
 
@@ -423,7 +423,7 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: -1,
         details: {
-          specific_date: 31
+          specificDate: 31
         }
       };
 
@@ -449,7 +449,7 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 3,
-        days_of_week: ['tuesday', 'thursday']
+        daysOfWeek: ['tuesday', 'thursday']
       };
 
       const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -462,8 +462,8 @@ describe('RecurrenceService', () => {
         unit: 'month',
         interval: 1,
         details: {
-          week_of_period: 'fourth',
-          weekday_of_week: 'thursday'
+          weekOfPeriod: 'fourth',
+          weekdayOfWeek: 'thursday'
         }
       };
 
@@ -515,17 +515,17 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'weekend', // 休日なら
-        then_direction: 'next',
-        then_target: 'weekday' // 次の平日へ
+        ifWeekday: 'weekend', // 休日なら
+        thenDirection: 'next',
+        thenTarget: 'weekday' // 次の平日へ
       };
 
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -543,17 +543,17 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'holiday', // 祝日なら
-        then_direction: 'next',
-        then_target: 'non_holiday' // 次の非祝日へ
+        ifWeekday: 'holiday', // 祝日なら
+        thenDirection: 'next',
+        thenTarget: 'non_holiday' // 次の非祝日へ
       };
 
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -570,17 +570,17 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'weekend_only', // 土日なら
-        then_direction: 'next',
-        then_target: 'non_weekend' // 次の土日以外（平日）へ
+        ifWeekday: 'weekend_only', // 土日なら
+        thenDirection: 'next',
+        thenTarget: 'non_weekend' // 次の土日以外（平日）へ
       };
 
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -597,17 +597,17 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'weekend_holiday', // 土日祝日なら
-        then_direction: 'next',
-        then_target: 'non_weekend_holiday' // 次の土日祝日以外へ
+        ifWeekday: 'weekend_holiday', // 土日祝日なら
+        thenDirection: 'next',
+        thenTarget: 'non_weekend_holiday' // 次の土日祝日以外へ
       };
 
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 1,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -623,18 +623,18 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'saturday',
-        then_direction: 'next',
-        then_target: 'specific_weekday',
-        then_weekday: 'monday'
+        ifWeekday: 'saturday',
+        thenDirection: 'next',
+        thenTarget: 'specific_weekday',
+        thenWeekday: 'monday'
       };
 
       const rule: RecurrenceRule = {
         unit: 'day',
         interval: 7, // 1週間間隔
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -665,18 +665,18 @@ describe('RecurrenceService', () => {
       // 補正条件ありの場合
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'saturday',
-        then_direction: 'next',
-        then_target: 'specific_weekday',
-        then_weekday: 'monday'
+        ifWeekday: 'saturday',
+        thenDirection: 'next',
+        thenTarget: 'specific_weekday',
+        thenWeekday: 'monday'
       };
 
       const ruleWithAdjustment: RecurrenceRule = {
         unit: 'day',
         interval: 7,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -696,18 +696,18 @@ describe('RecurrenceService', () => {
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'saturday',
-        then_direction: 'next',
-        then_target: 'specific_weekday',
-        then_weekday: 'monday'
+        ifWeekday: 'saturday',
+        thenDirection: 'next',
+        thenTarget: 'specific_weekday',
+        thenWeekday: 'monday'
       };
 
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 1,
         adjustment: {
-          date_conditions: [],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -715,9 +715,9 @@ describe('RecurrenceService', () => {
 
       // 曜日条件が設定されていることを確認
       expect(dates.length).toBeGreaterThan(0);
-      expect(rule.adjustment?.weekday_conditions).toHaveLength(1);
-      expect(rule.adjustment?.weekday_conditions[0].if_weekday).toBe('saturday');
-      expect(rule.adjustment?.weekday_conditions[0].then_weekday).toBe('monday');
+      expect(rule.adjustment?.weekdayConditions).toHaveLength(1);
+      expect(rule.adjustment?.weekdayConditions[0].ifWeekday).toBe('saturday');
+      expect(rule.adjustment?.weekdayConditions[0].thenWeekday).toBe('monday');
     });
 
     it('複数の補正条件設定が機能することを確認', () => {
@@ -727,22 +727,22 @@ describe('RecurrenceService', () => {
       const dateCondition: DateCondition = {
         id: generateRandomId(),
         relation: 'after',
-        reference_date: referenceDate
+        referenceDate: referenceDate
       };
 
       const weekdayCondition: WeekdayCondition = {
         id: generateRandomId(),
-        if_weekday: 'saturday',
-        then_direction: 'next',
-        then_target: 'weekday'
+        ifWeekday: 'saturday',
+        thenDirection: 'next',
+        thenTarget: 'weekday'
       };
 
       const rule: RecurrenceRule = {
         unit: 'week',
         interval: 1,
         adjustment: {
-          date_conditions: [dateCondition],
-          weekday_conditions: [weekdayCondition]
+          dateConditions: [dateCondition],
+          weekdayConditions: [weekdayCondition]
         }
       };
 
@@ -750,10 +750,10 @@ describe('RecurrenceService', () => {
 
       // 複数の補正条件が設定されていることを確認
       expect(dates.length).toBeGreaterThan(0);
-      expect(rule.adjustment?.date_conditions).toHaveLength(1);
-      expect(rule.adjustment?.weekday_conditions).toHaveLength(1);
-      expect(rule.adjustment?.date_conditions[0].relation).toBe('after');
-      expect(rule.adjustment?.weekday_conditions[0].then_target).toBe('weekday');
+      expect(rule.adjustment?.dateConditions).toHaveLength(1);
+      expect(rule.adjustment?.weekdayConditions).toHaveLength(1);
+      expect(rule.adjustment?.dateConditions[0].relation).toBe('after');
+      expect(rule.adjustment?.weekdayConditions[0].thenTarget).toBe('weekday');
     });
   });
 
@@ -788,8 +788,8 @@ describe('RecurrenceService', () => {
           unit: 'month',
           interval: 1,
           details: {
-            week_of_period: 'first',
-            weekday_of_week: 'monday'
+            weekOfPeriod: 'first',
+            weekdayOfWeek: 'monday'
           }
         };
 
@@ -811,8 +811,8 @@ describe('RecurrenceService', () => {
           unit: 'month',
           interval: 1,
           details: {
-            week_of_period: 'second',
-            weekday_of_week: 'sunday'
+            weekOfPeriod: 'second',
+            weekdayOfWeek: 'sunday'
           }
         };
 
@@ -832,7 +832,7 @@ describe('RecurrenceService', () => {
         const rule: RecurrenceRule = {
           unit: 'week',
           interval: 1,
-          days_of_week: ['monday']
+          daysOfWeek: ['monday']
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -848,7 +848,7 @@ describe('RecurrenceService', () => {
         const rule: RecurrenceRule = {
           unit: 'week',
           interval: 1,
-          days_of_week: ['monday', 'wednesday', 'friday']
+          daysOfWeek: ['monday', 'wednesday', 'friday']
         };
 
         const nextDate = RecurrenceService.calculateNextDate(baseDate, rule);
@@ -866,13 +866,13 @@ describe('RecurrenceService', () => {
           unit: 'day',
           interval: 1,
           adjustment: {
-            date_conditions: [],
-            weekday_conditions: [
+            dateConditions: [],
+            weekdayConditions: [
               {
                 id: 'weekend-to-weekday',
-                if_weekday: 'weekend',
-                then_direction: 'next',
-                then_target: 'weekday'
+                ifWeekday: 'weekend',
+                thenDirection: 'next',
+                thenTarget: 'weekday'
               }
             ]
           }

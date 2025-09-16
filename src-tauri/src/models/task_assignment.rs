@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド引数用のTaskAssignment構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct TaskAssignmentCommandModel {
     pub task_id: String,
     pub user_id: String,

@@ -32,7 +32,7 @@ describe('TaskRecurrenceSelector', () => {
           'minute_plural': () => 'minutes',
           'hour': () => 'hour',
           'hour_plural': () => 'hours',
-          'day': () => 'day', 
+          'day': () => 'day',
           'day_plural': () => 'days',
           'week': () => 'week',
           'week_plural': () => 'weeks',
@@ -152,7 +152,7 @@ describe('TaskRecurrenceSelector', () => {
     const recurrenceRule: RecurrenceRule = {
       unit: 'week',
       interval: 1,
-      days_of_week: ['monday', 'wednesday', 'friday'] as DayOfWeek[]
+      daysOfWeek: ['monday', 'wednesday', 'friday'] as DayOfWeek[]
     };
 
     render(TaskRecurrenceSelector, {
@@ -171,7 +171,7 @@ describe('TaskRecurrenceSelector', () => {
       unit: 'month',
       interval: 1,
       details: {
-        specific_date: 15
+        specificDate: 15
       }
     };
 
@@ -191,8 +191,8 @@ describe('TaskRecurrenceSelector', () => {
       unit: 'month',
       interval: 1,
       details: {
-        week_of_period: 'first' as WeekOfMonth,
-        weekday_of_week: 'monday' as DayOfWeek
+        weekOfPeriod: 'first' as WeekOfMonth,
+        weekdayOfWeek: 'monday' as DayOfWeek
       }
     };
 
@@ -212,7 +212,7 @@ describe('TaskRecurrenceSelector', () => {
     const recurrenceRule: RecurrenceRule = {
       unit: 'day',
       interval: 1,
-      end_date: endDate
+      endDate: endDate
     };
 
     render(TaskRecurrenceSelector, {
@@ -230,7 +230,7 @@ describe('TaskRecurrenceSelector', () => {
     const recurrenceRule: RecurrenceRule = {
       unit: 'day',
       interval: 1,
-      max_occurrences: 10
+      maxOccurrences: 10
     };
 
     render(TaskRecurrenceSelector, {

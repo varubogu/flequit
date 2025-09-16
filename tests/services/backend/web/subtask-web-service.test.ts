@@ -13,21 +13,21 @@ describe('SubtaskWebService', () => {
 
     mockSubTask = {
       id: 'subtask-123',
-      task_id: 'task-456',
+      taskId: 'task-456',
       title: 'Test SubTask',
       description: 'Test subtask description',
       status: 'not_started',
       priority: 2,
-      order_index: 0,
+      orderIndex: 0,
       completed: false,
-      assigned_user_ids: [],
+      assignedUserIds: [],
       tags: [],
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockSearchCondition = {
-      task_id: 'task-456',
+      taskId: 'task-456',
       status: 'not_started'
     };
 
@@ -55,12 +55,12 @@ describe('SubtaskWebService', () => {
     it('should return true and log warning for stub implementation', async () => {
       const patchData = {
         ...mockSubTask,
-        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
-        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
-        do_start_date: mockSubTask.do_start_date?.toISOString(),
-        do_end_date: mockSubTask.do_end_date?.toISOString(),
-        created_at: mockSubTask.created_at.toISOString(),
-        updated_at: mockSubTask.updated_at.toISOString()
+        plan_start_date: mockSubTask.planStartDate?.toISOString(),
+        plan_end_date: mockSubTask.planEndDate?.toISOString(),
+        do_start_date: mockSubTask.doStartDate?.toISOString(),
+        do_end_date: mockSubTask.doEndDate?.toISOString(),
+        created_at: mockSubTask.createdAt.toISOString(),
+        updated_at: mockSubTask.updatedAt.toISOString()
       } as any;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
@@ -121,12 +121,12 @@ describe('SubtaskWebService', () => {
     it('should return proper Promise types', async () => {
       const patchData = {
         ...mockSubTask,
-        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
-        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
-        do_start_date: mockSubTask.do_start_date?.toISOString(),
-        do_end_date: mockSubTask.do_end_date?.toISOString(),
-        created_at: mockSubTask.created_at.toISOString(),
-        updated_at: mockSubTask.updated_at.toISOString()
+        plan_start_date: mockSubTask.planStartDate?.toISOString(),
+        plan_end_date: mockSubTask.planEndDate?.toISOString(),
+        do_start_date: mockSubTask.doStartDate?.toISOString(),
+        do_end_date: mockSubTask.doEndDate?.toISOString(),
+        created_at: mockSubTask.createdAt.toISOString(),
+        updated_at: mockSubTask.updatedAt.toISOString()
       } as any;
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
@@ -150,12 +150,12 @@ describe('SubtaskWebService', () => {
     it('should handle concurrent operations without side effects', async () => {
       const patchData = {
         ...mockSubTask,
-        plan_start_date: mockSubTask.plan_start_date?.toISOString(),
-        plan_end_date: mockSubTask.plan_end_date?.toISOString(),
-        do_start_date: mockSubTask.do_start_date?.toISOString(),
-        do_end_date: mockSubTask.do_end_date?.toISOString(),
-        created_at: mockSubTask.created_at.toISOString(),
-        updated_at: mockSubTask.updated_at.toISOString()
+        plan_start_date: mockSubTask.planStartDate?.toISOString(),
+        plan_end_date: mockSubTask.planEndDate?.toISOString(),
+        do_start_date: mockSubTask.doStartDate?.toISOString(),
+        do_end_date: mockSubTask.doEndDate?.toISOString(),
+        created_at: mockSubTask.createdAt.toISOString(),
+        updated_at: mockSubTask.updatedAt.toISOString()
       } as any;
       const operations = await Promise.all([
         service.create('test-project-id', mockSubTask),

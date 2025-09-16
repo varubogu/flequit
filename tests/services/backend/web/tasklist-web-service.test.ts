@@ -13,19 +13,19 @@ describe('TasklistWebService', () => {
 
     mockTaskList = {
       id: 'tasklist-123',
-      project_id: 'project-456',
+      projectId: 'project-456',
       name: 'Development Tasks',
       description: 'Tasks related to development work',
       color: '#3498DB',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockSearchCondition = {
-      project_id: 'project-456',
-      is_archived: false
+      projectId: 'project-456',
+      isArchived: false
     };
 
     consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

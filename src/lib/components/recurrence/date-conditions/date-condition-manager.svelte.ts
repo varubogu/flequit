@@ -9,7 +9,7 @@ export class DateConditionManager {
     const newCondition: DateCondition = {
       id: generateRandomId(),
       relation: 'before',
-      reference_date: new SvelteDate()
+      referenceDate: new SvelteDate()
     };
     this.conditions.push(newCondition);
   }

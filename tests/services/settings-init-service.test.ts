@@ -22,33 +22,33 @@ describe('SettingsInitService', () => {
       id: 'setting_1',
       key: 'locale',
       value: 'en',
-      data_type: 'string' as const,
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-01')
+      dataType: 'string' as const,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01')
     },
     {
       id: 'setting_2',
       key: 'theme',
       value: 'dark',
-      data_type: 'string' as const,
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-01')
+      dataType: 'string' as const,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01')
     },
     {
       id: 'setting_3',
       key: 'sidebar_collapsed',
       value: 'true',
-      data_type: 'boolean' as const,
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-01')
+      dataType: 'boolean' as const,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01')
     },
     {
       id: 'setting_4',
       key: 'sidebar_width',
       value: '300',
-      data_type: 'number' as const,
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-01')
+      dataType: 'number' as const,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01')
     }
   ];
 
@@ -182,13 +182,13 @@ describe('SettingsInitService', () => {
   describe('data validation', () => {
     it('should handle various setting data types', () => {
       const stringResult = service.getSettingByKey(mockSettings, 'locale');
-      expect(stringResult?.data_type).toBe('string');
+      expect(stringResult?.dataType).toBe('string');
 
       const booleanResult = service.getSettingByKey(mockSettings, 'sidebar_collapsed');
-      expect(booleanResult?.data_type).toBe('boolean');
+      expect(booleanResult?.dataType).toBe('boolean');
 
       const numberResult = service.getSettingByKey(mockSettings, 'sidebar_width');
-      expect(numberResult?.data_type).toBe('number');
+      expect(numberResult?.dataType).toBe('number');
     });
 
     it('should maintain setting object structure', () => {

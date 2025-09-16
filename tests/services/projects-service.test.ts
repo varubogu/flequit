@@ -54,22 +54,22 @@ describe('ProjectsService', () => {
       name: 'Test Project',
       description: 'Test Description',
       color: '#FF5733',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockTaskList = {
       id: 'list-123',
-      project_id: 'project-123',
+      projectId: 'project-123',
       name: 'Test List',
       description: 'Test List Description',
       color: '#00FF00',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date('2024-01-01T00:00:00Z'),
+      updatedAt: new Date('2024-01-01T00:00:00Z')
     };
 
     mockTaskListWithTasks = {
@@ -79,7 +79,7 @@ describe('ProjectsService', () => {
 
     mockProjectWithLists = {
       ...mockProject,
-      task_lists: [mockTaskListWithTasks]
+      taskLists: [mockTaskListWithTasks]
     };
 
     vi.clearAllMocks();
@@ -439,7 +439,7 @@ describe('ProjectsService', () => {
       const result = ProjectsService.getActiveProjects();
 
       expect(result).toHaveLength(2);
-      expect(result.every((p) => !p.is_archived)).toBe(true);
+      expect(result.every((p) => !p.isArchived)).toBe(true);
     });
 
     it('should return empty array when all projects are archived', () => {
@@ -459,11 +459,11 @@ describe('ProjectsService', () => {
     it('should successfully archive a project', async () => {
       vi.mocked(mockDataService.updateProject).mockResolvedValue({
         ...mockProject,
-        is_archived: true
+        isArchived: true
       });
       vi.mocked(mockTaskStore.updateProject).mockResolvedValue({
         ...mockProject,
-        is_archived: true
+        isArchived: true
       });
 
       const result = await ProjectsService.archiveProject('project-123', true);

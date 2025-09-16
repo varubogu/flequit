@@ -32,7 +32,7 @@
     {#if isSubTask}<span class="text-muted-foreground text-xs">{optional()}</span>{/if}
   </label>
   <DueDate
-    task={{ ...currentItem, plan_end_date: formData.plan_end_date }}
+    task={{ ...currentItem, planEndDate: formData.plan_end_date }}
     variant="full"
     handleDueDateClick={onDueDateClick}
   />

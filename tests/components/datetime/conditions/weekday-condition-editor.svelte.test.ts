@@ -38,9 +38,9 @@ vi.mock('$lib/components/datetime/calendar/day-target-selector.svelte', () => ({
 describe('WeekdayConditionEditor', () => {
   const mockCondition: WeekdayCondition = {
     id: 'weekday-1',
-    if_weekday: 'monday' as DayOfWeek,
-    then_direction: 'next' as AdjustmentDirection,
-    then_target: 'weekday' as AdjustmentTarget
+    ifWeekday: 'monday' as DayOfWeek,
+    thenDirection: 'next' as AdjustmentDirection,
+    thenTarget: 'weekday' as AdjustmentTarget
   };
 
   const defaultProps = {
@@ -62,21 +62,21 @@ describe('WeekdayConditionEditor', () => {
 
     it('should render main container', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const mainDiv = container.querySelector('div');
       expect(mainDiv).toBeInTheDocument();
     });
 
     it('should render select element for direction', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeInTheDocument();
     });
 
     it('should render remove button', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const button = container.querySelector('button[type="button"]');
       expect(button).toBeInTheDocument();
     });
@@ -85,7 +85,7 @@ describe('WeekdayConditionEditor', () => {
   describe('Japanese language layout', () => {
     it('should render Japanese text when locale is ja-JP', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(container.textContent).toContain('なら');
       expect(container.textContent).toContain('の');
       expect(container.textContent).toContain('にずらす');
@@ -95,14 +95,14 @@ describe('WeekdayConditionEditor', () => {
   describe('form interactions', () => {
     it('should display correct initial direction value', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select?.value).toBe('next');
     });
 
     it('should render direction options', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const options = container.querySelectorAll('option');
       expect(options).toHaveLength(2);
       expect(options[0]).toHaveAttribute('value', 'previous');
@@ -121,7 +121,7 @@ describe('WeekdayConditionEditor', () => {
       };
 
       const { container } = render(WeekdayConditionEditor, { props: differentProps });
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select?.value).toBe('previous');
     });
@@ -145,7 +145,7 @@ describe('WeekdayConditionEditor', () => {
   describe('styling', () => {
     it('should apply correct CSS classes to main container', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const mainDiv = container.querySelector('div');
       expect(mainDiv).toHaveClass('border-border');
       expect(mainDiv).toHaveClass('bg-card');
@@ -160,7 +160,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should apply correct CSS classes to select element', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toHaveClass('border-border');
       expect(select).toHaveClass('bg-background');
@@ -172,7 +172,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should apply correct CSS classes to remove button', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const button = container.querySelector('button[type="button"]');
       expect(button).toHaveClass('text-destructive');
       expect(button).toHaveClass('hover:bg-destructive/10');
@@ -185,17 +185,17 @@ describe('WeekdayConditionEditor', () => {
   describe('accessibility', () => {
     it('should have accessible remove button', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const button = container.querySelector('button[type="button"]');
       expect(button).toHaveAttribute('aria-label', 'Remove condition');
     });
 
     it('should have semantic form elements', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const select = container.querySelector('select');
       expect(select).toBeInTheDocument();
-      
+
       const button = container.querySelector('button');
       expect(button).toHaveAttribute('type', 'button');
     });
@@ -204,13 +204,13 @@ describe('WeekdayConditionEditor', () => {
   describe('component lifecycle', () => {
     it('should mount and unmount cleanly', () => {
       const { unmount } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       expect(() => unmount()).not.toThrow();
     });
 
     it('should handle prop updates', () => {
       const { rerender } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       const updatedProps = {
         ...defaultProps,
         condition: {
@@ -224,9 +224,9 @@ describe('WeekdayConditionEditor', () => {
 
     it('should maintain state consistency', () => {
       const { container, rerender } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       rerender(defaultProps);
-      
+
       const select = container.querySelector('select') as HTMLSelectElement;
       expect(select?.value).toBe('next');
     });
@@ -281,7 +281,7 @@ describe('WeekdayConditionEditor', () => {
   describe('integration', () => {
     it('should integrate with translation service', () => {
       const { container } = render(WeekdayConditionEditor, { props: defaultProps });
-      
+
       // Should use translated labels for direction options
       const options = container.querySelectorAll('option');
       expect(options[0]).toHaveTextContent('前の');
@@ -305,7 +305,7 @@ describe('WeekdayConditionEditor', () => {
 
     it('should work with all weekday values', () => {
       const weekdays: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
+
       weekdays.forEach((weekday) => {
         const weekdayProps = {
           ...defaultProps,

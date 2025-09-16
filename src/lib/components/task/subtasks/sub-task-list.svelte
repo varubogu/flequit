@@ -46,7 +46,7 @@
 </script>
 
 <div class="mt-2 ml-10 space-y-2">
-  {#each task.sub_tasks as subTask (subTask.id)}
+  {#each task.subTasks as subTask (subTask.id)}
     <div
       role="button"
       tabindex="0"

@@ -14,8 +14,8 @@ describe('SubtaskRecurrenceWebService', () => {
   describe('create', () => {
     it('should log warning and return true', async () => {
       const subtaskRecurrence: SubtaskRecurrence = {
-        subtask_id: 'subtask1',
-        recurrence_rule_id: 'rule1'
+        subtaskId: 'subtask1',
+        recurrenceRuleId: 'rule1'
       };
 
       const result = await service.create(subtaskRecurrence);
@@ -50,8 +50,8 @@ describe('SubtaskRecurrenceWebService', () => {
   describe('search', () => {
     it('should log warning and return empty array', async () => {
       const condition: SubtaskRecurrenceSearchCondition = {
-        subtask_id: 'subtask1',
-        recurrence_rule_id: 'rule1'
+        subtaskId: 'subtask1',
+        recurrenceRuleId: 'rule1'
       };
 
       const result = await service.search(condition);

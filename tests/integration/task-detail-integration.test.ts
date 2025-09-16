@@ -78,28 +78,28 @@ const mockTaskService = {
     return {
       id: taskId,
       ...updates,
-      updated_at: new Date()
+      updatedAt: new Date()
     } as TaskWithSubTasks;
   }),
 
   updateSubTask: vi.fn(async (subTaskId: string, taskId: string, updates: Partial<SubTask>) => {
     return {
       id: subTaskId,
-      task_id: taskId,
+      taskId: taskId,
       ...updates,
-      updated_at: new Date()
+      updatedAt: new Date()
     } as SubTask;
   }),
 
   addSubTask: vi.fn(async (taskId: string, subTaskData: Partial<SubTask>) => {
     return {
       id: `subtask-${Date.now()}`,
-      task_id: taskId,
+      taskId: taskId,
       title: subTaskData.title || '',
       status: subTaskData.status || 'not_started',
-      order_index: subTaskData.order_index || 0,
-      created_at: new Date(),
-      updated_at: new Date(),
+      orderIndex: subTaskData.orderIndex || 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tags: [],
       ...subTaskData
     } as SubTask;
@@ -133,22 +133,22 @@ const mockTagStore = {
       id: 'tag-1',
       name: '重要',
       color: '#ef4444',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 'tag-2',
       name: '作業',
       color: '#3b82f6',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     },
     {
       id: 'tag-3',
       name: '個人',
       color: '#10b981',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ] as Tag[],
 
@@ -163,8 +163,8 @@ const mockTagStore = {
       id: `tag-${Date.now()}`,
       name: tagData.name,
       color: tagData.color || '#6b7280',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     } as Tag;
     mockTagStore.availableTags.push(newTag);
     return newTag;
@@ -174,46 +174,46 @@ const mockTagStore = {
 // テスト用のサンプルタスク
 const sampleTask: TaskWithSubTasks = {
   id: 'task-1',
-  project_id: 'proj-1',
-  list_id: 'list-1',
+  projectId: 'proj-1',
+  listId: 'list-1',
   title: 'サンプルタスク',
   description: 'これはテスト用のタスクです',
   status: 'not_started',
   priority: 2,
-  plan_start_date: new Date('2024-01-01'),
-  plan_end_date: new Date('2024-01-05'),
-  do_start_date: new Date('2024-01-01'),
-  do_end_date: new Date('2024-01-05'),
-  is_range_date: true,
-  order_index: 0,
-  is_archived: false,
-  assigned_user_ids: [],
-  tag_ids: ['tag-1', 'tag-2'],
-  created_at: new Date('2024-01-01'),
-  updated_at: new Date('2024-01-01'),
-  sub_tasks: [
+  planStartDate: new Date('2024-01-01'),
+  planEndDate: new Date('2024-01-05'),
+  doStartDate: new Date('2024-01-01'),
+  doEndDate: new Date('2024-01-05'),
+  isRangeDate: true,
+  orderIndex: 0,
+  isArchived: false,
+  assignedUserIds: [],
+  tagIds: ['tag-1', 'tag-2'],
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+  subTasks: [
     {
       id: 'subtask-1',
-      task_id: 'task-1',
+      taskId: 'task-1',
       title: 'サブタスク1',
       status: 'not_started',
-      order_index: 0,
-      created_at: new Date(),
-      updated_at: new Date(),
+      orderIndex: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       completed: false,
-      assigned_user_ids: [],
+      assignedUserIds: [],
       tags: []
     },
     {
       id: 'subtask-2',
-      task_id: 'task-1',
+      taskId: 'task-1',
       title: 'サブタスク2',
       status: 'completed',
-      order_index: 1,
-      created_at: new Date(),
-      updated_at: new Date(),
+      orderIndex: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       completed: true,
-      assigned_user_ids: [],
+      assignedUserIds: [],
       tags: []
     }
   ],
@@ -222,8 +222,8 @@ const sampleTask: TaskWithSubTasks = {
       id: 'tag-1',
       name: '重要',
       color: '#ef4444',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     }
   ]
 };
@@ -266,7 +266,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   });
 
   it('サブタスク選択時に詳細情報が正しく表示される', () => {
-    const subTask = sampleTask.sub_tasks[0];
+    const subTask = sampleTask.subTasks[0];
 
     // サブタスクを選択
     const selectedSubTask = mockTaskDetailStore.selectSubTask(subTask);
@@ -333,9 +333,9 @@ describe('タスク詳細ダイアログ結合テスト', () => {
 
     // 日付範囲を設定
     const dateUpdate = await mockTaskService.updateTask('task-1', {
-      plan_start_date: newPlanStartDate,
-      plan_end_date: newPlanEndDate,
-      is_range_date: true
+      planStartDate: newPlanStartDate,
+      planEndDate: newPlanEndDate,
+      isRangeDate: true
     });
 
     expect(mockTaskService.updateTask).toHaveBeenCalledWith('task-1', {
@@ -343,18 +343,18 @@ describe('タスク詳細ダイアログ結合テスト', () => {
       plan_end_date: newPlanEndDate,
       is_range_date: true
     });
-    expect(dateUpdate.plan_start_date).toEqual(newPlanStartDate);
-    expect(dateUpdate.plan_end_date).toEqual(newPlanEndDate);
-    expect(dateUpdate.is_range_date).toBe(true);
+    expect(dateUpdate.planStartDate).toEqual(newPlanStartDate);
+    expect(dateUpdate.planEndDate).toEqual(newPlanEndDate);
+    expect(dateUpdate.isRangeDate).toBe(true);
 
     // 単一日付に変更
     const singleDateUpdate = await mockTaskService.updateTask('task-1', {
-      plan_start_date: undefined,
-      plan_end_date: newPlanEndDate,
-      is_range_date: false
+      planStartDate: undefined,
+      planEndDate: newPlanEndDate,
+      isRangeDate: false
     });
 
-    expect(singleDateUpdate.is_range_date).toBe(false);
+    expect(singleDateUpdate.isRangeDate).toBe(false);
   });
 
   it('サブタスクの追加・編集・削除が正しく動作する', async () => {
@@ -370,7 +370,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
 
     expect(mockTaskService.addSubTask).toHaveBeenCalledWith('task-1', newSubTaskData);
     expect(addedSubTask.title).toBe('新しいサブタスク');
-    expect(addedSubTask.task_id).toBe('task-1');
+    expect(addedSubTask.taskId).toBe('task-1');
     expect(addedSubTask.status).toBe('not_started');
 
     // サブタスクを編集
@@ -485,7 +485,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     expect(mockTaskDetailStore.selectedSubTask).toBe(null);
 
     // サブタスクに切り替え
-    const subTask = sampleTask.sub_tasks[0];
+    const subTask = sampleTask.subTasks[0];
     mockTaskDetailStore.selectSubTask(subTask);
     expect(mockTaskDetailStore.selectedTask).toBe(null);
     expect(mockTaskDetailStore.selectedSubTask).toEqual(subTask);
@@ -500,10 +500,10 @@ describe('タスク詳細ダイアログ結合テスト', () => {
   it('サブタスクの進捗と親タスクの同期', () => {
     // サブタスクの進捗計算のシミュレーション
     const calculateTaskProgress = (task: TaskWithSubTasks) => {
-      const totalSubTasks = task.sub_tasks.length;
+      const totalSubTasks = task.subTasks.length;
       if (totalSubTasks === 0) return { progress: 0, allCompleted: false };
 
-      const completedSubTasks = task.sub_tasks.filter((st) => st.status === 'completed').length;
+      const completedSubTasks = task.subTasks.filter((st) => st.status === 'completed').length;
       const progress = Math.round((completedSubTasks / totalSubTasks) * 100);
       const allCompleted = completedSubTasks === totalSubTasks;
 
@@ -521,7 +521,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 全サブタスクが完了した場合のシミュレーション
     const allCompletedTask = {
       ...sampleTask,
-      sub_tasks: sampleTask.sub_tasks.map((st) => ({ ...st, status: 'completed' as TaskStatus }))
+      sub_tasks: sampleTask.subTasks.map((st) => ({ ...st, status: 'completed' as TaskStatus }))
     };
 
     const allCompletedProgress = calculateTaskProgress(allCompletedTask);
@@ -569,7 +569,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
         errors.push('タイトルは100文字以下で入力してください');
       }
 
-      if (data.plan_start_date && data.plan_end_date && data.plan_start_date > data.plan_end_date) {
+      if (data.planStartDate && data.planEndDate && data.planStartDate > data.planEndDate) {
         errors.push('開始日は終了日より前の日付を設定してください');
       }
 

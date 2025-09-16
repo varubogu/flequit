@@ -6,69 +6,69 @@ import type { TaskWithSubTasks } from '../../src/lib/types/task';
 const mockTasks: TaskWithSubTasks[] = [
   {
     id: 'task-1',
-    project_id: 'proj-1',
-    list_id: 'list-1',
+    projectId: 'proj-1',
+    listId: 'list-1',
     title: 'Today Task',
     description: 'A task for today',
     status: 'not_started',
     priority: 1,
-    plan_end_date: new Date(),
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [],
-    tags: [{ id: 'tag-1', name: 'urgent', created_at: new Date(), updated_at: new Date() }],
-    assigned_user_ids: [],
-    tag_ids: ['tag-1']
+    planEndDate: new Date(),
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
+    tags: [{ id: 'tag-1', name: 'urgent', createdAt: new Date(), updatedAt: new Date() }],
+    assignedUserIds: [],
+    tagIds: ['tag-1']
   },
   {
     id: 'task-2',
-    project_id: 'proj-1',
-    list_id: 'list-1',
+    projectId: 'proj-1',
+    listId: 'list-1',
     title: 'Completed Task',
     status: 'completed',
     priority: 2,
-    order_index: 1,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [],
+    orderIndex: 1,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
     tags: [],
-    assigned_user_ids: [],
-    tag_ids: []
+    assignedUserIds: [],
+    tagIds: []
   },
   {
     id: 'task-3',
-    project_id: 'proj-1',
-    list_id: 'list-2',
+    projectId: 'proj-1',
+    listId: 'list-2',
     title: 'Future Task',
     description: 'A task for the future',
     status: 'not_started',
     priority: 3,
-    plan_end_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [
+    planEndDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [
       {
         id: 'sub-1',
-        task_id: 'task-3',
+        taskId: 'task-3',
         title: 'Subtask search test',
         description: 'Contains searchable text',
         status: 'not_started',
-        order_index: 0,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tags: [],
         completed: false,
-        assigned_user_ids: []
+        assignedUserIds: []
       }
     ],
     tags: [],
-    assigned_user_ids: [],
-    tag_ids: []
+    assignedUserIds: [],
+    tagIds: []
   }
 ];
 

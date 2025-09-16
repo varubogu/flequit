@@ -8,17 +8,17 @@ interface TauriSettingsCommand {
   theme: string;
   language: string;
   font: string;
-  font_size: number;
-  font_color: string;
-  background_color: string;
+  fontSize: number;
+  fontColor: string;
+  backgroundColor: string;
   // 基本設定
-  week_start: string;
+  weekStart: string;
   timezone: string;
-  date_format: string;
-  custom_due_days: number[];
+  dateFormat: string;
+  customDueDays: number[];
   // 表示設定
   // アカウント設定
-  last_selected_account: string;
+  lastSelectedAccount: string;
 }
 
 export class SettingTauriService implements SettingService {
@@ -55,7 +55,7 @@ export class SettingTauriService implements SettingService {
             id: `setting-${key}`,
             key,
             value: typeof value === 'string' ? value : JSON.stringify(value),
-            data_type:
+            dataType:
               typeof value === 'string'
                 ? 'string'
                 : typeof value === 'number'
@@ -63,8 +63,8 @@ export class SettingTauriService implements SettingService {
                   : typeof value === 'boolean'
                     ? 'boolean'
                     : 'json',
-            created_at: now,
-            updated_at: now
+            createdAt: now,
+            updatedAt: now
           });
         }
       });
@@ -80,15 +80,15 @@ export class SettingTauriService implements SettingService {
     try {
       // valueをJSON Valueに変換
       let jsonValue: string | number | boolean | object;
-      if (setting.data_type === 'json') {
+      if (setting.dataType === 'json') {
         try {
           jsonValue = JSON.parse(setting.value);
         } catch {
           jsonValue = setting.value;
         }
-      } else if (setting.data_type === 'number') {
+      } else if (setting.dataType === 'number') {
         jsonValue = parseFloat(setting.value);
-      } else if (setting.data_type === 'boolean') {
+      } else if (setting.dataType === 'boolean') {
         jsonValue = setting.value === 'true';
       } else {
         jsonValue = setting.value;

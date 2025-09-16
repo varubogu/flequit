@@ -11,6 +11,7 @@ use flequit_model::types::id_types::{ProjectId, UserId};
 
 /// Tauriコマンド引数用のProject構造体（created_at/updated_atはString）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectCommandModel {
     pub id: String,
     pub name: String,
@@ -81,6 +82,7 @@ impl CommandModelConverter<ProjectCommandModel> for Project {
 
 /// Tauriコマンド戻り値用のProjectTree構造体（日時フィールドはString、階層構造含む）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ProjectTreeCommandModel {
     pub id: String,
     pub name: String,

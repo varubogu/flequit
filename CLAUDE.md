@@ -26,6 +26,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 加えて、bunとcargoの両方で、ビルド時と全体テスト実行時はワーカー数を4に制限する（ユーザーの意図せぬ負荷を防ぐため）
   - cargo test -j 4
   - bun run test    # こちらは設定ファイルで設定済みなので意識しなくても良い
+- フロントエンドの型チェックは`bun check`で行ってください（`bun run check`, `bun run typecheck`は使用しない）
+- フロントエンドのlintは`bun run lint`で行ってください（`bun lint`, `bun run check`, `bun run typecheck`は使用しない）
 
 ### 要件定義
 - `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）

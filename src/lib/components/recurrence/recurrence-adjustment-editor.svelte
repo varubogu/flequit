@@ -73,10 +73,10 @@
 
         <input
           type="date"
-          value={condition.reference_date.toISOString().split('T')[0]}
+          value={condition.referenceDate.toISOString().split('T')[0]}
           onchange={(e) => {
             const target = e.target as HTMLInputElement;
-            onDateConditionUpdate(condition.id, { reference_date: new Date(target.value) });
+            onDateConditionUpdate(condition.id, { referenceDate: new Date(target.value) });
           }}
           class="border-border bg-background text-foreground rounded border p-1"
         />

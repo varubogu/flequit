@@ -14,11 +14,11 @@ export interface TaskBase {
   /** ステータス */
   status: TaskStatus;
   /** 予定開始日 */
-  plan_start_date?: Date;
+  planStartDate?: Date;
   /** 予定終了日 */
-  plan_end_date?: Date;
+  planEndDate?: Date;
   /** 期日が範囲選択かどうか */
-  is_range_date?: boolean;
+  isRangeDate?: boolean;
 }
 
 /**
@@ -28,11 +28,11 @@ export interface Task {
   /** タスクID */
   id: string;
   /** プロジェクトID */
-  project_id: string;
+  projectId: string;
   /** サブタスクID（サブタスクの場合） */
-  sub_task_id?: string;
+  subTaskId?: string;
   /** 所属タスクリストID */
-  list_id: string;
+  listId: string;
   /** タスクタイトル */
   title: string;
   /** タスクの説明 */
@@ -42,29 +42,29 @@ export interface Task {
   /** 優先度 */
   priority: number;
   /** 予定開始日 */
-  plan_start_date?: Date;
+  planStartDate?: Date;
   /** 予定終了日 */
-  plan_end_date?: Date;
+  planEndDate?: Date;
   /** 実開始日 */
-  do_start_date?: Date;
+  doStartDate?: Date;
   /** 実終了日 */
-  do_end_date?: Date;
+  doEndDate?: Date;
   /** 期日が範囲選択かどうか */
-  is_range_date?: boolean;
+  isRangeDate?: boolean;
   /** 繰り返しルール */
-  recurrence_rule?: RecurrenceRule;
+  recurrenceRule?: RecurrenceRule;
   /** 担当者ユーザーIDの配列 */
-  assigned_user_ids: string[];
+  assignedUserIds: string[];
   /** タグIDの配列 */
-  tag_ids: string[];
+  tagIds: string[];
   /** 表示順序 */
-  order_index: number;
+  orderIndex: number;
   /** アーカイブ状態 */
-  is_archived: boolean;
+  isArchived: boolean;
   /** 作成日時 */
-  created_at: Date;
+  createdAt: Date;
   /** 更新日時 */
-  updated_at: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -72,7 +72,7 @@ export interface Task {
  */
 export interface TaskWithSubTasks extends Task {
   /** サブタスク一覧 */
-  sub_tasks: SubTask[];
+  subTasks: SubTask[];
   /** タグ一覧 */
   tags: Tag[];
 }
@@ -82,9 +82,9 @@ export interface TaskWithSubTasks extends Task {
  */
 export interface TaskSearchCondition {
   /** プロジェクトID */
-  project_id?: string;
+  projectId?: string;
   /** 所属タスクリストID */
-  list_id?: string;
+  listId?: string;
   /** タイトル */
   title?: string;
   /** ステータス */
@@ -92,6 +92,5 @@ export interface TaskSearchCondition {
   /** 優先度 */
   priority?: number;
   /** アーカイブ状態 */
-  is_archived?: boolean;
+  isArchived?: boolean;
 }
-

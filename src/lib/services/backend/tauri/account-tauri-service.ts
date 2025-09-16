@@ -35,7 +35,7 @@ export class AccountTauriService implements AccountService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await invoke('delete_account', { account_id: id });
+      await invoke('delete_account', { accountId: id });
       return true;
     } catch (error) {
       console.error('Failed to delete account:', error);

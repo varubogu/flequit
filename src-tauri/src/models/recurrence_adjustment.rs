@@ -6,6 +6,7 @@ use flequit_model::models::ModelConverter;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecurrenceAdjustmentCommandModel {
     pub date_conditions: Vec<String>,    // 簡略化
     pub weekday_conditions: Vec<String>, // 簡略化

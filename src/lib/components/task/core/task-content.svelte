@@ -19,7 +19,7 @@
   const subtasksCompleted = $derived(
     translationService.getMessage('subtasks_completed', {
       completed: completedSubTasks,
-      total: task.sub_tasks.length
+      total: task.subTasks.length
     })
   );
 
@@ -55,7 +55,7 @@
   {/if}
 
   <!-- Sub-tasks preview -->
-  {#if task.sub_tasks.length > 0}
+  {#if task.subTasks.length > 0}
     <div class="mt-2">
       <div class="text-muted-foreground text-xs">
         {subtasksCompleted()}

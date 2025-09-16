@@ -9,6 +9,7 @@ use flequit_model::types::id_types::UserId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserCommandModel {
     pub id: String,
     pub handle_id: String,
@@ -71,6 +72,7 @@ impl CommandModelConverter<UserCommandModel> for User {
 
 /// Tauri コマンド引数用の PartialUser 構造体（部分更新用）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PartialUserCommandModel {
     pub handle_id: Option<String>,
     pub display_name: Option<String>,

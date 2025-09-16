@@ -78,7 +78,7 @@
       <input
         id="specific-date-input"
         type="number"
-        value={details?.specific_date}
+        value={details?.specificDate}
         min="1"
         max="31"
         class="border-border bg-background text-foreground w-full rounded border p-2"
@@ -94,7 +94,7 @@
       </label>
       <select
         id="week-of-period-select"
-        value={details?.week_of_period}
+        value={details?.weekOfPeriod}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekOfPeriodChange}
       >
@@ -106,14 +106,14 @@
     </div>
   </div>
 
-  {#if details?.week_of_period}
+  {#if details?.weekOfPeriod}
     <div>
       <label for="weekday-of-week-select" class="text-muted-foreground text-sm">
         {weekdayOfWeek()}
       </label>
       <select
         id="weekday-of-week-select"
-        value={details?.weekday_of_week}
+        value={details?.weekdayOfWeek}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekdayOfWeekChange}
       >

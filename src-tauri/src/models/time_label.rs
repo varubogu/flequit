@@ -7,6 +7,7 @@ use flequit_settings::models::time_label::TimeLabel;
 
 /// Tauriコマンド引数用のTimeLabel構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct TimeLabelCommandModel {
     pub id: String,
     pub name: String,

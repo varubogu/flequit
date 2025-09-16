@@ -14,70 +14,70 @@ export function generateSampleData(): ProjectTree[] {
       name: 'Personal Tasks',
       description: 'Personal todo items and tasks',
       color: '#3b82f6',
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: [
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: [
         {
           id: 'list-1',
-          project_id: 'project-1',
+          projectId: 'project-1',
           name: 'Daily Tasks',
           description: 'Tasks for today',
           color: '#10b981',
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: [
             {
               id: 'task-1',
-              project_id: 'project-1',
-              list_id: 'list-1',
+              projectId: 'project-1',
+              listId: 'list-1',
               title: 'Review morning emails',
               description: 'Check and respond to important emails',
               status: 'not_started',
               priority: 1,
-              plan_end_date: today,
-              assigned_user_ids: [],
-              tag_ids: ['tag-1'],
-              order_index: 0,
-              is_archived: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-              sub_tasks: [
+              planEndDate: today,
+              assignedUserIds: [],
+              tagIds: ['tag-1'],
+              orderIndex: 0,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              subTasks: [
                 {
                   id: 'subtask-1',
-                  task_id: 'task-1',
+                  taskId: 'task-1',
                   title: 'Check work inbox',
                   description: 'Review all unread emails in work account',
                   status: 'not_started',
                   priority: 2,
-                  plan_start_date: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
-                  plan_end_date: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
+                  planStartDate: new Date(today.getTime() + 60 * 60 * 1000), // 1 hour from now
+                  planEndDate: new Date(today.getTime() + 3 * 60 * 60 * 1000), // 3 hours from now
                   // plan_end_date is already set above
-                  recurrence_rule: {
+                  recurrenceRule: {
                     unit: 'day',
                     interval: 1
                   },
-                  order_index: 0,
+                  orderIndex: 0,
                   completed: false,
-                  assigned_user_ids: [],
+                  assignedUserIds: [],
                   tags: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 },
                 {
                   id: 'subtask-2',
-                  task_id: 'task-1',
+                  taskId: 'task-1',
                   title: 'Reply to urgent messages',
                   status: 'not_started',
-                  order_index: 1,
+                  orderIndex: 1,
                   completed: false,
-                  assigned_user_ids: [],
+                  assignedUserIds: [],
                   tags: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ],
               tags: [
@@ -85,90 +85,90 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'tag-1',
                   name: 'work',
                   color: '#f59e0b',
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ]
             },
             {
               id: 'task-2',
-              project_id: 'project-1',
-              list_id: 'list-1',
+              projectId: 'project-1',
+              listId: 'list-1',
               title: 'Buy groceries',
               description: 'Get ingredients for dinner tonight',
               status: 'not_started',
               priority: 2,
-              plan_end_date: today,
-              assigned_user_ids: [],
-              tag_ids: ['tag-2'],
-              order_index: 1,
-              is_archived: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-              sub_tasks: [],
+              planEndDate: today,
+              assignedUserIds: [],
+              tagIds: ['tag-2'],
+              orderIndex: 1,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              subTasks: [],
               tags: [
                 {
                   id: 'tag-2',
                   name: 'personal',
                   color: '#8b5cf6',
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ]
             },
             {
               id: 'task-3',
-              project_id: 'project-1',
-              list_id: 'list-1',
+              projectId: 'project-1',
+              listId: 'list-1',
               title: 'Overdue task example',
               description: 'This task was due yesterday',
               status: 'not_started',
               priority: 3,
-              plan_end_date: yesterday,
-              assigned_user_ids: [],
-              tag_ids: [],
-              order_index: 2,
-              is_archived: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-              sub_tasks: [],
+              planEndDate: yesterday,
+              assignedUserIds: [],
+              tagIds: [],
+              orderIndex: 2,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              subTasks: [],
               tags: []
             }
           ]
         },
         {
           id: 'list-2',
-          project_id: 'project-1',
+          projectId: 'project-1',
           name: 'This Week',
           description: 'Tasks for this week',
-          order_index: 1,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 1,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: [
             {
               id: 'task-4',
-              project_id: 'project-1',
-              list_id: 'list-2',
+              projectId: 'project-1',
+              listId: 'list-2',
               title: 'Plan weekend trip',
               description: 'Research destinations and book accommodation',
               status: 'in_progress',
               priority: 1,
-              plan_end_date: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-              assigned_user_ids: [],
-              tag_ids: [],
-              order_index: 0,
-              is_archived: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-              sub_tasks: [],
+              planEndDate: new Date(today.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+              assignedUserIds: [],
+              tagIds: [],
+              orderIndex: 0,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              subTasks: [],
               tags: [
                 {
                   id: 'tag-3',
                   name: 'travel',
                   color: '#06b6d4',
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ]
             }
@@ -181,81 +181,81 @@ export function generateSampleData(): ProjectTree[] {
       name: 'Work Project',
       description: 'Tasks related to work projects',
       color: '#ef4444',
-      order_index: 1,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
-      task_lists: [
+      orderIndex: 1,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      taskLists: [
         {
           id: 'list-3',
-          project_id: 'project-2',
+          projectId: 'project-2',
           name: 'Sprint Tasks',
           description: 'Current sprint backlog',
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: [
             {
               id: 'task-5',
-              project_id: 'project-2',
-              list_id: 'list-3',
+              projectId: 'project-2',
+              listId: 'list-3',
               title: 'Complete user authentication feature',
               description: 'Implement login, signup, and password reset functionality',
               status: 'in_progress',
               priority: 1,
-              plan_end_date: tomorrow,
-              assigned_user_ids: [],
-              tag_ids: [],
-              order_index: 0,
-              is_archived: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-              sub_tasks: [
+              planEndDate: tomorrow,
+              assignedUserIds: [],
+              tagIds: [],
+              orderIndex: 0,
+              isArchived: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              subTasks: [
                 {
                   id: 'subtask-3',
-                  task_id: 'task-5',
+                  taskId: 'task-5',
                   title: 'Design login UI',
                   description: 'Create wireframes and mockups for login interface',
                   status: 'completed',
                   priority: 2,
-                  plan_end_date: yesterday,
-                  order_index: 0,
+                  planEndDate: yesterday,
+                  orderIndex: 0,
                   completed: false,
-                  assigned_user_ids: [],
+                  assignedUserIds: [],
                   tags: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 },
                 {
                   id: 'subtask-4',
-                  task_id: 'task-5',
+                  taskId: 'task-5',
                   title: 'Implement backend API',
                   description: 'Create REST endpoints for authentication',
                   status: 'in_progress',
                   priority: 1,
-                  plan_end_date: today,
-                  order_index: 1,
+                  planEndDate: today,
+                  orderIndex: 1,
                   completed: false,
-                  assigned_user_ids: [],
+                  assignedUserIds: [],
                   tags: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 },
                 {
                   id: 'subtask-5',
-                  task_id: 'task-5',
+                  taskId: 'task-5',
                   title: 'Write unit tests',
                   description: 'Create comprehensive test coverage for auth flow',
                   status: 'not_started',
                   priority: 2,
-                  plan_end_date: tomorrow,
-                  order_index: 2,
+                  planEndDate: tomorrow,
+                  orderIndex: 2,
                   completed: false,
-                  assigned_user_ids: [],
+                  assignedUserIds: [],
                   tags: [],
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ],
               tags: [
@@ -263,15 +263,15 @@ export function generateSampleData(): ProjectTree[] {
                   id: 'tag-4',
                   name: 'development',
                   color: '#10b981',
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 },
                 {
                   id: 'tag-5',
                   name: 'high-priority',
                   color: '#ef4444',
-                  created_at: new Date(),
-                  updated_at: new Date()
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 }
               ]
             }

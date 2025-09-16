@@ -10,47 +10,47 @@ describe('TaskDetailSubTasks Component', () => {
     description: '',
     status: 'not_started',
     priority: 2,
-    created_at: new Date(),
-    updated_at: new Date(),
-    list_id: 'list-1',
-    order_index: 0,
-    plan_start_date: undefined,
-    plan_end_date: undefined,
-    is_range_date: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    listId: 'list-1',
+    orderIndex: 0,
+    planStartDate: undefined,
+    planEndDate: undefined,
+    isRangeDate: false,
     tags: [],
-    is_archived: false,
-    project_id: 'project-1',
-    assigned_user_ids: [],
-    tag_ids: [],
-    sub_tasks: [
+    isArchived: false,
+    projectId: 'project-1',
+    assignedUserIds: [],
+    tagIds: [],
+    subTasks: [
       {
         id: 'subtask-1',
         title: 'SubTask 1',
         status: 'not_started',
-        task_id: 'task-1',
-        order_index: 0,
+        taskId: 'task-1',
+        orderIndex: 0,
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date(),
-        plan_start_date: undefined,
-        plan_end_date: new Date('2024-01-15'),
-        is_range_date: false,
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        planStartDate: undefined,
+        planEndDate: new Date('2024-01-15'),
+        isRangeDate: false,
         tags: []
       },
       {
         id: 'subtask-2',
         title: 'SubTask 2',
         status: 'completed',
-        task_id: 'task-1',
-        order_index: 1,
+        taskId: 'task-1',
+        orderIndex: 1,
         completed: true,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date(),
-        plan_start_date: undefined,
-        plan_end_date: undefined,
-        is_range_date: false,
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        planStartDate: undefined,
+        planEndDate: undefined,
+        isRangeDate: false,
         tags: []
       }
     ]
@@ -58,7 +58,7 @@ describe('TaskDetailSubTasks Component', () => {
 
   const mockTaskWithoutSubTasks: TaskWithSubTasks = {
     ...mockTask,
-    sub_tasks: []
+    subTasks: []
   };
 
   let onSubTaskClick: ReturnType<typeof vi.fn>;

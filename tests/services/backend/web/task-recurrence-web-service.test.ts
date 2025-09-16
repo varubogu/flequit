@@ -14,8 +14,8 @@ describe('TaskRecurrenceWebService', () => {
   describe('create', () => {
     it('should log warning and return true', async () => {
       const taskRecurrence: TaskRecurrence = {
-        task_id: 'task1',
-        recurrence_rule_id: 'rule1'
+        taskId: 'task1',
+        recurrenceRuleId: 'rule1'
       };
 
       const result = await service.create(taskRecurrence);
@@ -50,8 +50,8 @@ describe('TaskRecurrenceWebService', () => {
   describe('search', () => {
     it('should log warning and return empty array', async () => {
       const condition: TaskRecurrenceSearchCondition = {
-        task_id: 'task1',
-        recurrence_rule_id: 'rule1'
+        taskId: 'task1',
+        recurrenceRuleId: 'rule1'
       };
 
       const result = await service.search(condition);

@@ -44,25 +44,25 @@
       if (range) {
         taskStore.updateTask(task.id, {
           ...task,
-          plan_start_date: new Date(range.start),
-          plan_end_date: new Date(range.end),
-          is_range_date: true
+          planStartDate: new Date(range.start),
+          planEndDate: new Date(range.end),
+          isRangeDate: true
         });
       } else {
-        const currentEndDate = task.plan_end_date || new Date(dateTime);
+        const currentEndDate = task.planEndDate || new Date(dateTime);
         taskStore.updateTask(task.id, {
           ...task,
-          plan_start_date: currentEndDate,
-          plan_end_date: currentEndDate,
-          is_range_date: true
+          planStartDate: currentEndDate,
+          planEndDate: currentEndDate,
+          isRangeDate: true
         });
       }
     } else {
       taskStore.updateTask(task.id, {
         ...task,
-        plan_end_date: new Date(dateTime),
-        plan_start_date: undefined,
-        is_range_date: false
+        planEndDate: new Date(dateTime),
+        planStartDate: undefined,
+        isRangeDate: false
       });
     }
   }
@@ -70,9 +70,9 @@
   function handleDateClear() {
     taskStore.updateTask(task.id, {
       ...task,
-      plan_start_date: undefined,
-      plan_end_date: undefined,
-      is_range_date: false
+      planStartDate: undefined,
+      planEndDate: undefined,
+      isRangeDate: false
     });
   }
 
@@ -103,30 +103,30 @@
     if (!editingSubTaskId) return;
 
     const { dateTime, range, isRangeDate } = data;
-    const subTaskIndex = task.sub_tasks.findIndex((st) => st.id === editingSubTaskId);
+    const subTaskIndex = task.subTasks.findIndex((st) => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
     if (isRangeDate) {
       if (range) {
         taskStore.updateSubTask(editingSubTaskId, {
-          plan_start_date: new Date(range.start),
-          plan_end_date: new Date(range.end),
-          is_range_date: true
+          planStartDate: new Date(range.start),
+          planEndDate: new Date(range.end),
+          isRangeDate: true
         });
       } else {
-        const subTask = task.sub_tasks[subTaskIndex];
-        const currentEndDate = subTask.plan_end_date || new Date(dateTime);
+        const subTask = task.subTasks[subTaskIndex];
+        const currentEndDate = subTask.planEndDate || new Date(dateTime);
         taskStore.updateSubTask(editingSubTaskId, {
-          plan_start_date: currentEndDate,
-          plan_end_date: currentEndDate,
-          is_range_date: true
+          planStartDate: currentEndDate,
+          planEndDate: currentEndDate,
+          isRangeDate: true
         });
       }
     } else {
       taskStore.updateSubTask(editingSubTaskId, {
-        plan_end_date: new Date(dateTime),
-        plan_start_date: undefined,
-        is_range_date: false
+        planEndDate: new Date(dateTime),
+        planStartDate: undefined,
+        isRangeDate: false
       });
     }
   }
@@ -135,9 +135,9 @@
     if (!editingSubTaskId) return;
 
     taskStore.updateSubTask(editingSubTaskId, {
-      plan_start_date: undefined,
-      plan_end_date: undefined,
-      is_range_date: false
+      planStartDate: undefined,
+      planEndDate: undefined,
+      isRangeDate: false
     });
   }
 
@@ -153,10 +153,10 @@
 <!-- Main Task Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={task.plan_end_date ? task.plan_end_date.toISOString() : ''}
-  currentStartDate={task.plan_start_date ? task.plan_start_date.toISOString() : ''}
+  currentDate={task.planEndDate ? task.planEndDate.toISOString() : ''}
+  currentStartDate={task.planStartDate ? task.planStartDate.toISOString() : ''}
   position={datePickerPosition}
-  isRangeDate={task.is_range_date || false}
+  isRangeDate={task.isRangeDate || false}
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
@@ -166,14 +166,14 @@
 <InlineDatePicker
   show={showSubTaskDatePicker}
   currentDate={editingSubTaskId
-    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.plan_end_date?.toISOString() || ''
+    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.planEndDate?.toISOString() || ''
     : ''}
   currentStartDate={editingSubTaskId
-    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.plan_start_date?.toISOString() || ''
+    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.planStartDate?.toISOString() || ''
     : ''}
   position={subTaskDatePickerPosition}
   isRangeDate={editingSubTaskId
-    ? task.sub_tasks.find((st) => st.id === editingSubTaskId)?.is_range_date || false
+    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.isRangeDate || false
     : false}
   onchange={handleSubTaskDateChange}
   onclear={handleSubTaskDateClear}

@@ -31,12 +31,12 @@
   const isJapanese = $derived(currentLanguage.startsWith('ja'));
 
   function handleConditionChange(value: DayOfWeek | AdjustmentTarget) {
-    onUpdate({ if_weekday: value });
+    onUpdate({ ifWeekday: value });
   }
 
   function handleDirectionChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    onUpdate({ then_direction: target.value as AdjustmentDirection });
+    onUpdate({ thenDirection: target.value as AdjustmentDirection });
   }
 
   function handleTargetChange(value: DayOfWeek | AdjustmentTarget) {
@@ -44,13 +44,13 @@
       ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].includes(value)
     ) {
       onUpdate({
-        then_target: 'specific_weekday',
-        then_weekday: value as DayOfWeek
+        thenTarget: 'specific_weekday',
+        thenWeekday: value as DayOfWeek
       });
     } else {
       onUpdate({
-        then_target: value as AdjustmentTarget,
-        then_weekday: undefined
+        thenTarget: value as AdjustmentTarget,
+        thenWeekday: undefined
       });
     }
   }
@@ -59,11 +59,11 @@
 <div class="border-border bg-card flex flex-wrap items-center gap-2 rounded border p-3">
   {#if isJapanese}
     <!-- 日本語順：{条件}なら{方向}の{対象}にずらす -->
-    <DayTargetSelector value={condition.if_weekday} onchange={handleConditionChange} />
+    <DayTargetSelector value={condition.ifWeekday} onchange={handleConditionChange} />
     <span class="text-sm">なら</span>
 
     <select
-      value={condition.then_direction}
+      value={condition.thenDirection}
       onchange={handleDirectionChange}
       class="border-border bg-background text-foreground rounded border p-1"
     >
@@ -74,20 +74,20 @@
     <span class="text-sm">の</span>
 
     <DayTargetSelector
-      value={condition.then_target === 'specific_weekday' && condition.then_weekday
-        ? condition.then_weekday
-        : condition.then_target}
+      value={condition.thenTarget === 'specific_weekday' && condition.thenWeekday
+        ? condition.thenWeekday
+        : condition.thenTarget}
       onchange={handleTargetChange}
     />
     <span class="text-sm">にずらす</span>
   {:else}
     <!-- 英語順：If {条件}, move to {方向} {対象} -->
     <span class="text-sm">If</span>
-    <DayTargetSelector value={condition.if_weekday} onchange={handleConditionChange} />
+    <DayTargetSelector value={condition.ifWeekday} onchange={handleConditionChange} />
     <span class="text-sm">, move to</span>
 
     <select
-      value={condition.then_direction}
+      value={condition.thenDirection}
       onchange={handleDirectionChange}
       class="border-border bg-background text-foreground rounded border p-1"
     >
@@ -97,9 +97,9 @@
     </select>
 
     <DayTargetSelector
-      value={condition.then_target === 'specific_weekday' && condition.then_weekday
-        ? condition.then_weekday
-        : condition.then_target}
+      value={condition.thenTarget === 'specific_weekday' && condition.thenWeekday
+        ? condition.thenWeekday
+        : condition.thenTarget}
       onchange={handleTargetChange}
     />
   {/if}

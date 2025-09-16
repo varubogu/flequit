@@ -21,7 +21,7 @@
   <div class="w-full">
     <div class="flex w-full items-start">
       {#if !isCollapsed}
-        {#if project.task_lists.length > 0}
+        {#if project.taskLists.length > 0}
           <Button
             variant="ghost"
             size="icon"
@@ -46,15 +46,15 @@
           <Button
             variant={(currentView === 'project' || currentView === 'tasklist') &&
             (taskStore.selectedProjectId === project.id ||
-              (currentView === 'tasklist' && taskStore.selectedListId && 
-               project.task_lists.some(list => list.id === taskStore.selectedListId)))
+              (currentView === 'tasklist' && taskStore.selectedListId &&
+               project.taskLists.some(list => list.id === taskStore.selectedListId)))
               ? 'secondary'
               : 'ghost'}
             class={`${
               (currentView === 'project' || currentView === 'tasklist') &&
               (taskStore.selectedProjectId === project.id ||
-                (currentView === 'tasklist' && taskStore.selectedListId && 
-                 project.task_lists.some(list => list.id === taskStore.selectedListId)))
+                (currentView === 'tasklist' && taskStore.selectedListId &&
+                 project.taskLists.some(list => list.id === taskStore.selectedListId)))
                 ? 'bg-primary/20 border-2 border-primary shadow-md shadow-primary/40 text-foreground'
                 : ''
             } ${

@@ -55,55 +55,55 @@ describe('TaskListDisplay', () => {
     name: 'Test Project',
     description: 'Test Description',
     color: '#3b82f6',
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    task_lists: [
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    taskLists: [
       {
         id: 'list-1',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'Task List 1',
         description: 'Description 1',
         color: '#ef4444',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: [
           {
             id: 'task-1',
-            sub_task_id: undefined,
-            list_id: 'list-1',
+            subTaskId: undefined,
+            listId: 'list-1',
             title: 'Task 1',
             description: '',
             status: 'not_started',
             priority: 2,
-            plan_start_date: undefined,
-            plan_end_date: undefined,
-            is_range_date: false,
-            order_index: 0,
-            is_archived: false,
-            created_at: new Date(),
-            updated_at: new Date(),
-            sub_tasks: [],
+            planStartDate: undefined,
+            planEndDate: undefined,
+            isRangeDate: false,
+            orderIndex: 0,
+            isArchived: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            subTasks: [],
             tags: [],
-            project_id: 'project-1',
-            assigned_user_ids: [],
-            tag_ids: []
+            projectId: 'project-1',
+            assignedUserIds: [],
+            tagIds: []
           }
         ]
       },
       {
         id: 'list-2',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'Task List 2',
         description: 'Description 2',
         color: '#10b981',
-        order_index: 1,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 1,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: []
       }
     ]
@@ -347,7 +347,7 @@ describe('TaskListDisplay', () => {
   it('空のプロジェクトでもエラーが発生しない', () => {
     const emptyProject: ProjectTree = {
       ...mockProject,
-      task_lists: []
+      taskLists: []
     };
 
     expect(() => {

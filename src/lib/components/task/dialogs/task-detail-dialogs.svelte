@@ -77,11 +77,11 @@
 <!-- Inline Date Picker -->
 <InlineDatePicker
   show={showDatePicker}
-  currentDate={currentItem?.plan_end_date ? currentItem.plan_end_date.toISOString() : ''}
-  currentStartDate={currentItem?.plan_start_date ? currentItem.plan_start_date.toISOString() : ''}
+  currentDate={currentItem?.planEndDate ? currentItem.planEndDate.toISOString() : ''}
+  currentStartDate={currentItem?.planStartDate ? currentItem.planStartDate.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
-  recurrenceRule={currentItem?.recurrence_rule}
+  recurrenceRule={currentItem?.recurrenceRule}
   onchange={onDateChange}
   onclear={onDateClear}
   onclose={onDatePickerClose}
@@ -115,10 +115,10 @@
 <!-- 繰り返し設定ダイアログ -->
 <RecurrenceDialog
   open={showRecurrenceDialog}
-  recurrenceRule={currentItem?.recurrence_rule}
-  startDateTime={currentItem?.plan_start_date}
-  endDateTime={currentItem?.plan_end_date}
-  isRangeDate={currentItem?.is_range_date}
+  recurrenceRule={currentItem?.recurrenceRule}
+  startDateTime={currentItem?.planStartDate}
+  endDateTime={currentItem?.planEndDate}
+  isRangeDate={currentItem?.isRangeDate}
   onSave={onRecurrenceChange}
   onOpenChange={onRecurrenceDialogClose}
 />

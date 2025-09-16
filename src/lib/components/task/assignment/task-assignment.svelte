@@ -16,18 +16,18 @@
     onAssignmentUpdated?: (itemId: string, assignedUsers: string[]) => void;
   }
 
-  let { 
-    task, 
-    subTask, 
-    availableUsers = [], 
-    onAssignmentUpdated 
+  let {
+    task,
+    subTask,
+    availableUsers = [],
+    onAssignmentUpdated
   }: Props = $props();
 
   const translationService = getTranslationService();
 
   let currentItem = $derived(subTask || task);
   let isSubTask = $derived(!!subTask);
-  let assignedUserIds = $derived(currentItem?.assigned_user_ids || []);
+  let assignedUserIds = $derived(currentItem?.assignedUserIds || []);
   let isLoading = $state(false);
 
   // Translation messages
@@ -40,12 +40,12 @@
     try {
       const backend = await getBackendService();
       const projectId = ProjectsService.getSelectedProjectId();
-      
+
       if (!projectId) {
         errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
         return;
       }
-      
+
       if (isSubTask) {
         const success = await backend.assignment.createSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
@@ -78,12 +78,12 @@
     try {
       const backend = await getBackendService();
       const projectId = ProjectsService.getSelectedProjectId();
-      
+
       if (!projectId) {
         errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
         return;
       }
-      
+
       if (isSubTask) {
         const success = await backend.assignment.deleteSubtaskAssignment(projectId, currentItem.id, userId);
         if (success) {
@@ -118,7 +118,7 @@
   }
 
   function getUserDisplayName(user: User): string {
-    return user.display_name || user.handle_id;
+    return user.displayName || user.handleId;
   }
 
   function getUserInitials(user: User): string {
@@ -146,9 +146,9 @@
           <div class="flex items-center gap-2 rounded-md border px-2 py-1 text-sm">
             <!-- ユーザーアバター -->
             <div class="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-              {#if user.avatar_url}
+              {#if user.avatarUrl}
                 <img
-                  src={user.avatar_url}
+                  src={user.avatarUrl}
                   alt={getUserDisplayName(user)}
                   class="h-full w-full rounded-full object-cover"
                 />
@@ -156,9 +156,9 @@
                 {getUserInitials(user)}
               {/if}
             </div>
-            
+
             <span>{getUserDisplayName(user)}</span>
-            
+
             <!-- 割り当て解除ボタン -->
             <Button
               variant="ghost"
@@ -192,9 +192,9 @@
               <UserPlus class="h-3 w-3 mr-1" />
               <div class="flex items-center gap-1">
                 <div class="flex h-4 w-4 items-center justify-center rounded-full bg-muted text-xs">
-                  {#if user.avatar_url}
+                  {#if user.avatarUrl}
                     <img
-                      src={user.avatar_url}
+                      src={user.avatarUrl}
                       alt={getUserDisplayName(user)}
                       class="h-full w-full rounded-full object-cover"
                     />

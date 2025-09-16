@@ -84,10 +84,10 @@ export class DataService {
       name: projectData.name,
       description: projectData.description,
       color: projectData.color,
-      order_index: projectData.order_index ?? 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date()
+      orderIndex: projectData.order_index ?? 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     await backend.project.create(newProject);
     return newProject;
@@ -138,14 +138,14 @@ export class DataService {
     const backend = await this.getBackend();
     const newTaskList: TaskList = {
       id: crypto.randomUUID(),
-      project_id: projectId,
+      projectId: projectId,
       name: taskListData.name,
       description: taskListData.description,
       color: taskListData.color,
-      order_index: taskListData.order_index ?? 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date()
+      orderIndex: taskListData.order_index ?? 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     await backend.tasklist.create(projectId, newTaskList);
     return newTaskList;
@@ -187,12 +187,12 @@ export class DataService {
     const newTask: Task = {
       id: crypto.randomUUID(),
       ...taskData,
-      list_id: listId,
-      created_at: new Date(),
-      updated_at: new Date()
+      listId: listId,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     // タスクデータに含まれるproject_idを使用
-    const projectId = newTask.project_id;
+    const projectId = newTask.projectId;
     if (!projectId) {
       throw new Error('タスクにproject_idが設定されていません。');
     }
@@ -207,10 +207,10 @@ export class DataService {
     // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
     const patchData = {
       ...updates,
-      plan_start_date: updates.plan_start_date?.toISOString() ?? undefined,
-      plan_end_date: updates.plan_end_date?.toISOString() ?? undefined,
-      do_start_date: updates.do_start_date?.toISOString() ?? undefined,
-      do_end_date: updates.do_end_date?.toISOString() ?? undefined
+      plan_start_date: updates.planStartDate?.toISOString() ?? undefined,
+      plan_end_date: updates.planEndDate?.toISOString() ?? undefined,
+      do_start_date: updates.doStartDate?.toISOString() ?? undefined,
+      do_end_date: updates.doEndDate?.toISOString() ?? undefined
     } as any;
 
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
@@ -258,7 +258,7 @@ export class DataService {
     const backend = await this.getBackend();
     const newSubTask: SubTask = {
       id: crypto.randomUUID(),
-      task_id: taskId,
+      taskId: taskId,
       title: subTaskData.title,
       description: subTaskData.description,
       status:
@@ -269,12 +269,12 @@ export class DataService {
           | 'completed'
           | 'cancelled') || 'not_started',
       priority: subTaskData.priority,
-      order_index: 0,
+      orderIndex: 0,
       completed: false,
-      assigned_user_ids: [],
+      assignedUserIds: [],
       tags: [],
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     // 親タスクからプロジェクトIDを取得
     const projectId = await this.getProjectIdByTaskId(taskId);
@@ -292,9 +292,9 @@ export class DataService {
     // Patch形式でのupdateに変更（Date型をstring型に変換）
     const patchData = {
       ...updates,
-      plan_start_date: updates.plan_start_date ? updates.plan_start_date.toISOString() : updates.plan_start_date,
-      plan_end_date: updates.plan_end_date ? updates.plan_end_date.toISOString() : updates.plan_end_date,
-      updated_at: new Date()
+      planStartDate: updates.planStartDate ? updates.planStartDate.toISOString() : updates.planStartDate,
+      planEndDate: updates.planEndDate ? updates.planEndDate.toISOString() : updates.planEndDate,
+      updatedAt: new Date()
     } as Partial<SubTask>;
 
     console.log('DataService: calling backend.subtask.update');
@@ -328,18 +328,19 @@ export class DataService {
   }
 
   // タグ管理
-  async createTag(tagData: { name: string; color?: string; order_index?: number }): Promise<Tag> {
+  async createTag(tagData: { name: string; color?: string; order_index?: number }, projectId?: string): Promise<Tag> {
     const backend = await this.getBackend();
     const newTag: Tag = {
       id: crypto.randomUUID(),
       name: tagData.name,
       color: tagData.color,
-      order_index: tagData.order_index || 0,
-      created_at: new Date(),
-      updated_at: new Date()
+      orderIndex: tagData.order_index || 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    const projectId = this.getProjectId();
-    await backend.tag.create(projectId, newTag);
+    // プロジェクトIDが指定されていない場合のみ、選択中のプロジェクトIDを取得
+    const actualProjectId = projectId || this.getProjectId();
+    await backend.tag.create(actualProjectId, newTag);
     return newTag;
   }
 
@@ -395,7 +396,7 @@ export class DataService {
     if (!projectId) {
       throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
     }
-    
+
     const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // タグオブジェクトを取得
@@ -409,8 +410,8 @@ export class DataService {
         ({
           id: tagId,
           name: `Tag-${tagId}`, // 仮の名前
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         } as Tag);
       await this.updateSubTask(subTaskId, { tags: [tagToUse] });
       return;
@@ -439,7 +440,7 @@ export class DataService {
     if (!projectId) {
       throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
     }
-    
+
     const subTask = await backend.subtask.get(projectId, subTaskId);
 
     // Web環境では既存データが取得できないため、空のタグ配列で更新
@@ -469,7 +470,7 @@ export class DataService {
     const project = await this.createProject(projectData);
     return {
       ...project,
-      task_lists: []
+      taskLists: []
     };
   }
 

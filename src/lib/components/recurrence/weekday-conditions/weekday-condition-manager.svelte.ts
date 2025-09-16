@@ -7,9 +7,9 @@ export class WeekdayConditionManager {
   addCondition() {
     const newCondition: WeekdayCondition = {
       id: generateRandomId(),
-      if_weekday: 'monday',
-      then_direction: 'next',
-      then_target: 'weekday'
+      ifWeekday: 'monday',
+      thenDirection: 'next',
+      thenTarget: 'weekday'
     };
     this.conditions.push(newCondition);
   }

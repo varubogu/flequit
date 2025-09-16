@@ -9,34 +9,34 @@ describe('サブタスクとタグ管理の結合テスト', () => {
   const createMockProject = (): ProjectTree => ({
     id: 'project-1',
     name: 'Test Project',
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    task_lists: [
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    taskLists: [
       {
         id: 'list-1',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'Test List',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: [
           {
             id: 'task-1',
-            project_id: 'project-1',
-            list_id: 'list-1',
+            projectId: 'project-1',
+            listId: 'list-1',
             title: 'Parent Task',
             status: 'not_started',
             priority: 1,
-            order_index: 0,
-            is_archived: false,
-            assigned_user_ids: [],
-            tag_ids: [],
-            created_at: new Date(),
-            updated_at: new Date(),
-            sub_tasks: [],
+            orderIndex: 0,
+            isArchived: false,
+            assignedUserIds: [],
+            tagIds: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            subTasks: [],
             tags: []
           }
         ]
@@ -77,7 +77,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
         store.addTagToSubTask(newSubTask.id, 'urgent');
 
         const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
         expect(subTask?.tags).toHaveLength(1);
         expect(subTask?.tags[0].name).toBe('urgent');
@@ -104,7 +104,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       });
 
       let parentTask = store.getTaskById('task-1');
-      const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+      const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
       expect(subTask?.title).toBe('Updated SubTask');
       expect(subTask?.status).toBe('completed');
@@ -114,7 +114,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       await store.deleteSubTask(newSubTask.id);
 
       parentTask = store.getTaskById('task-1');
-      expect(parentTask?.sub_tasks).toHaveLength(0);
+      expect(parentTask?.subTasks).toHaveLength(0);
     });
 
     test('複数のサブタスクと複数のタグの管理', async () => {
@@ -152,8 +152,8 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
         const parentTask = store.getTaskById('task-1');
 
-        const st1 = parentTask?.sub_tasks.find((st) => st.id === subTask1.id);
-        const st2 = parentTask?.sub_tasks.find((st) => st.id === subTask2.id);
+        const st1 = parentTask?.subTasks.find((st) => st.id === subTask1.id);
+        const st2 = parentTask?.subTasks.find((st) => st.id === subTask2.id);
 
         expect(st1?.tags).toHaveLength(2);
         expect(st1?.tags.map((t) => t.name)).toContain('urgent');
@@ -169,7 +169,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
           store.removeTagFromSubTask(subTask1.id, urgentTagId);
 
           const updatedTask = store.getTaskById('task-1');
-          const updatedSt1 = updatedTask?.sub_tasks.find((st) => st.id === subTask1.id);
+          const updatedSt1 = updatedTask?.subTasks.find((st) => st.id === subTask1.id);
 
           expect(updatedSt1?.tags).toHaveLength(1);
           expect(updatedSt1?.tags[0].name).toBe('work');
@@ -190,7 +190,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
         store.addTagToSubTask(newSubTask.id, 'subtask-tag');
 
         const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
 
         // タスクとサブタスクのタグは独立している
         expect(parentTask?.tags).toHaveLength(1);
@@ -216,7 +216,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
         // サブタスクは削除されている
         const parentTask = store.getTaskById('task-1');
-        expect(parentTask?.sub_tasks).toHaveLength(1);
+        expect(parentTask?.subTasks).toHaveLength(1);
 
         // サブタスクを削除
         await store.deleteSubTask(newSubTask.id);
@@ -227,7 +227,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
         // サブタスクは削除されている
         const updatedParentTask = store.getTaskById('task-1');
-        expect(updatedParentTask?.sub_tasks).toHaveLength(0);
+        expect(updatedParentTask?.subTasks).toHaveLength(0);
       }
     });
 
@@ -246,7 +246,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
         // タグが正常に追加されることを確認
         const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.sub_tasks.find((st) => st.id === newSubTask.id);
+        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
         expect(subTask?.tags).toHaveLength(1);
 
         // エラーハンドラーが呼ばれていないことを確認（正常時）
@@ -273,7 +273,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       // しかし、実際のタスクリストには追加されていない
       const allTasks = store.allTasks;
       const hasSubTaskInAnyTask = allTasks.some((task) =>
-        task.sub_tasks.some((subTask) => subTask.title === 'Failed SubTask')
+        task.subTasks.some((subTask) => subTask.title === 'Failed SubTask')
       );
       expect(hasSubTaskInAnyTask).toBe(false);
     });
@@ -286,7 +286,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
       // 既存のデータに変更がないことを確認
       const parentTask = store.getTaskById('task-1');
-      expect(parentTask?.sub_tasks).toHaveLength(0);
+      expect(parentTask?.subTasks).toHaveLength(0);
     });
 
     test('存在しないサブタスクを削除しようとした場合', async () => {
@@ -295,7 +295,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
       // 既存のデータに変更がないことを確認
       const parentTask = store.getTaskById('task-1');
-      expect(parentTask?.sub_tasks).toHaveLength(0);
+      expect(parentTask?.subTasks).toHaveLength(0);
     });
   });
 });

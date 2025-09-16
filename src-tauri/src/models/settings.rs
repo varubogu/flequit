@@ -12,6 +12,7 @@ use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;
 
 /// Tauriコマンド引数用のSettings構造体（フラット構造）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SettingsCommandModel {
     // テーマ・外観設定
     pub theme: String,
@@ -88,6 +89,7 @@ impl CommandModelConverter<SettingsCommandModel> for Settings {
 
 /// Tauriコマンド引数用のPartialSettings構造体（部分更新用）
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PartialSettingsCommandModel {
     // テーマ・外観設定
     pub theme: Option<String>,

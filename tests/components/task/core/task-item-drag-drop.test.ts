@@ -35,20 +35,20 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 describe('TaskItem - Drag & Drop', () => {
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'project-1',
+    projectId: 'project-1',
     title: 'Test Task',
     description: '',
     status: 'not_started' as const,
     priority: 1,
-    assigned_user_ids: [],
-    tag_ids: [],
-    created_at: new Date(),
-    updated_at: new Date(),
-    sub_tasks: [],
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
     tags: [],
-    list_id: 'list-1',
-    order_index: 0,
-    is_archived: false
+    listId: 'list-1',
+    orderIndex: 0,
+    isArchived: false
   };
 
   beforeEach(() => {

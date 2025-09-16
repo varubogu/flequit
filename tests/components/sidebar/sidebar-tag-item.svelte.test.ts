@@ -28,8 +28,8 @@ describe('SidebarTagItem Component', () => {
     id: 'tag-1',
     name: 'Work',
     color: '#ff0000',
-    created_at: new Date(),
-    updated_at: new Date()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
   let onRemoveFromBookmarks: ReturnType<typeof vi.fn>;

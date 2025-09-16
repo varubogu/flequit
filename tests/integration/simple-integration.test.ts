@@ -16,12 +16,12 @@ describe('シンプルな結合テスト', () => {
       addTask: (listId: string, taskData: Partial<Task>) => {
         const newTask = {
           id: `task-${Date.now()}`,
-          list_id: listId,
+          listId: listId,
           title: taskData.title,
           description: taskData.description || '',
           status: taskData.status || 'not_started',
-          created_at: new Date(),
-          updated_at: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           ...taskData
         } as Task;
         mockTaskStore.tasks.push(newTask);
@@ -34,7 +34,7 @@ describe('シンプルな結合テスト', () => {
           mockTaskStore.tasks[taskIndex] = {
             ...mockTaskStore.tasks[taskIndex],
             ...updates,
-            updated_at: new Date()
+            updatedAt: new Date()
           };
           return mockTaskStore.tasks[taskIndex];
         }
@@ -101,7 +101,7 @@ describe('シンプルな結合テスト', () => {
           id: `project-${Date.now()}`,
           name: projectData.name,
           description: projectData.description || '',
-          created_at: new Date(),
+          createdAt: new Date(),
           ...projectData
         } as Project;
         hierarchyStore.projects.push(project);
@@ -112,8 +112,8 @@ describe('シンプルな結合テスト', () => {
         const list = {
           id: `list-${Date.now()}`,
           name: listData.name,
-          project_id: projectId,
-          created_at: new Date(),
+          projectId: projectId,
+          createdAt: new Date(),
           ...listData
         } as TaskList;
         hierarchyStore.taskLists.push(list);
@@ -124,9 +124,9 @@ describe('シンプルな結合テスト', () => {
         const task = {
           id: `task-${Date.now()}`,
           title: taskData.title,
-          list_id: listId,
+          listId: listId,
           status: taskData.status || 'not_started',
-          created_at: new Date(),
+          createdAt: new Date(),
           ...taskData
         } as Task;
         hierarchyStore.tasks.push(task);
@@ -176,8 +176,8 @@ describe('シンプルな結合テスト', () => {
     expect(hierarchyStore.tasks).toHaveLength(1);
 
     // 階層関係の確認
-    expect(task.list_id).toBe(taskList.id);
-    expect(taskList.project_id).toBe(project.id);
+    expect(task.listId).toBe(taskList.id);
+    expect(taskList.projectId).toBe(project.id);
   });
 
   it('設定変更がUI状態に反映される', async () => {

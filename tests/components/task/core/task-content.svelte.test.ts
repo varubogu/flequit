@@ -14,50 +14,50 @@ describe('TaskContent', () => {
     id: 'tag-1',
     name: 'Test Tag',
     color: '#ff0000',
-    created_at: new Date(),
-    updated_at: new Date()
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
 
   const mockTask: TaskWithSubTasks = {
     id: 'task-1',
-    project_id: 'project-1',
+    projectId: 'project-1',
     title: 'Test Task',
     description: 'Test task description',
     status: 'not_started',
     priority: 1,
-    plan_end_date: new Date('2024-02-15'),
-    list_id: 'list-1',
-    assigned_user_ids: [],
-    tag_ids: ['tag-1'],
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
+    planEndDate: new Date('2024-02-15'),
+    listId: 'list-1',
+    assignedUserIds: [],
+    tagIds: ['tag-1'],
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     tags: [mockTag],
-    sub_tasks: [
+    subTasks: [
       {
         id: 'sub-1',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'Sub Task 1',
         status: 'completed',
-        order_index: 0,
+        orderIndex: 0,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: 'sub-2',
-        task_id: 'task-1',
+        taskId: 'task-1',
         title: 'Sub Task 2',
         status: 'not_started',
-        order_index: 1,
+        orderIndex: 1,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ]
   };
@@ -165,8 +165,8 @@ describe('TaskContent', () => {
       id: 'tag-2',
       name: 'Second Tag',
       color: '#00ff00',
-      created_at: new Date(),
-      updated_at: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
     const taskWithMultipleTags = {
@@ -332,23 +332,23 @@ describe('TaskContent', () => {
   it('複雑なタスク構成が処理される', () => {
     const complexTask: TaskWithSubTasks = {
       id: 'complex-task',
-      project_id: 'project-1',
+      projectId: 'project-1',
       title: 'Complex Task with Multiple Features',
       description:
         'This is a complex task with multiple sub-tasks, tags, and other features to test the component thoroughly.',
       status: 'in_progress',
       priority: 3,
-      plan_start_date: undefined,
-      plan_end_date: new Date('2024-03-01'),
-      list_id: 'list-1',
-      assigned_user_ids: [],
-      tag_ids: [],
-      order_index: 0,
-      is_archived: false,
-      created_at: new Date(),
-      updated_at: new Date(),
+      planStartDate: undefined,
+      planEndDate: new Date('2024-03-01'),
+      listId: 'list-1',
+      assignedUserIds: [],
+      tagIds: [],
+      orderIndex: 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       tags: [mockTag],
-      sub_tasks: Array.from({ length: 5 }, (_, i) => ({
+      subTasks: Array.from({ length: 5 }, (_, i) => ({
         id: `sub-${i}`,
         title: `Sub Task ${i + 1}`,
         status: i < 2 ? ('completed' as const) : ('not_started' as const),
@@ -369,7 +369,7 @@ describe('TaskContent', () => {
       subTaskProgress: 40
     };
 
-    expect(props.task.sub_tasks).toHaveLength(5);
+    expect(props.task.subTasks).toHaveLength(5);
     expect(props.completedSubTasks).toBe(2);
     expect(props.subTaskProgress).toBe(40);
   });

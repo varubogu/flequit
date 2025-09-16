@@ -76,8 +76,8 @@ describe('DataService', () => {
       expect(result.description).toBe(projectData.description);
       expect(result.color).toBe(projectData.color);
       expect(result.id).toBeDefined();
-      expect(result.created_at).toBeDefined();
-      expect(result.updated_at).toBeDefined();
+      expect(result.createdAt).toBeDefined();
+      expect(result.updatedAt).toBeDefined();
       // Mock dataService doesn't use backend, so this expectation is removed
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
@@ -92,7 +92,7 @@ describe('DataService', () => {
 
       expect(result).toBeDefined();
       expect(result.name).toBe(projectData.name);
-      expect(result.task_lists).toEqual([]);
+      expect(result.taskLists).toEqual([]);
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
 
@@ -124,7 +124,7 @@ describe('DataService', () => {
         color: '#FF0000'
       };
       const createdProject = await dataService.createProject(projectData);
-      
+
       const result = await dataService.deleteProject(createdProject.id);
 
       expect(result).toBe(true);
@@ -144,7 +144,7 @@ describe('DataService', () => {
 
       expect(result).toBeDefined();
       expect(result.name).toBe(taskListData.name);
-      expect(result.project_id).toBe('project-id');
+      expect(result.projectId).toBe('project-id');
       // expect(mockBackendService.tasklist.create).toHaveBeenCalledOnce();
     });
 
@@ -180,7 +180,7 @@ describe('DataService', () => {
 
       expect(result).toBeDefined();
       expect(result.title).toBe(taskData.title);
-      expect(result.list_id).toBe('list-id');
+      expect(result.listId).toBe('list-id');
       // expect(mockBackendService.task.create).toHaveBeenCalledOnce();
     });
 
@@ -222,7 +222,7 @@ describe('DataService', () => {
 
       expect(result).toBeDefined();
       expect(result.title).toBe(subTaskData.title);
-      expect(result.task_id).toBe('task-id');
+      expect(result.taskId).toBe('task-id');
       // expect(mockBackendService.subtask.create).toHaveBeenCalledOnce();
     });
   });
@@ -316,10 +316,10 @@ describe('DataService', () => {
         description: 'Test Description'
       };
       const createdSubTask = await dataService.createSubTask('task-id', subTaskData);
-      
+
       // Then add tag to it
       await dataService.addTagToSubTask(createdSubTask.id, 'tag-id');
-      
+
       // The mock implementation adds tags to the existing subtask
       // No need to verify backend calls since we're using mocks
       expect(true).toBe(true); // Test passes if no error is thrown
@@ -353,7 +353,7 @@ describe('DataService', () => {
     test('addTagToSubTask should handle missing subtask (Web environment)', async () => {
       // In mock environment, missing subtask case is handled by the mock
       await dataService.addTagToSubTask('nonexistent-subtask-id', 'tag-id');
-      
+
       // The mock handles missing subtasks gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
     });
@@ -361,7 +361,7 @@ describe('DataService', () => {
     test('addTagToSubTask should handle missing tag by creating fallback', async () => {
       // In mock environment, missing tag case is handled by the mock
       await dataService.addTagToSubTask('subtask-id', 'nonexistent-tag-id');
-      
+
       // The mock handles missing tags gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
     });
@@ -388,13 +388,13 @@ describe('DataService', () => {
       // First create a subtask and add a tag to it
       const subTaskData = { title: 'Test SubTask', description: 'Test Description' };
       const createdSubTask = await dataService.createSubTask('task-id', subTaskData);
-      
+
       // Add tag first
       await dataService.addTagToSubTask(createdSubTask.id, 'tag-id');
-      
+
       // Then remove it
       await dataService.removeTagFromSubTask(createdSubTask.id, 'tag-id');
-      
+
       // The mock implementation handles tag removal
       expect(true).toBe(true); // Test passes if no error is thrown
     });
@@ -402,7 +402,7 @@ describe('DataService', () => {
     test('removeTagFromSubTask should handle missing subtask (Web environment)', async () => {
       // In mock environment, missing subtask case is handled by the mock
       await dataService.removeTagFromSubTask('nonexistent-subtask-id', 'tag-id');
-      
+
       // The mock handles missing subtasks gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
     });
@@ -466,7 +466,7 @@ describe('DataService', () => {
         is_archived: false
       };
       const createdTask = await dataService.createTask('list-id', taskData);
-      
+
       await dataService.deleteTaskWithSubTasks(createdTask.id, 'project-id');
 
       // The method calls deleteTask internally, which uses the mock implementation
@@ -481,8 +481,8 @@ describe('DataService', () => {
 
       const result = await dataService.createProject(projectData);
 
-      expect(result.order_index).toBe(0);
-      expect(result.is_archived).toBe(false);
+      expect(result.orderIndex).toBe(0);
+      expect(result.isArchived).toBe(false);
     });
 
     test('createTaskList should use default order_index if not provided', async () => {
@@ -490,8 +490,8 @@ describe('DataService', () => {
 
       const result = await dataService.createTaskList('project-id', taskListData);
 
-      expect(result.order_index).toBe(0);
-      expect(result.is_archived).toBe(false);
+      expect(result.orderIndex).toBe(0);
+      expect(result.isArchived).toBe(false);
     });
 
     test('createSubTask should use default status if not provided', async () => {
@@ -500,7 +500,7 @@ describe('DataService', () => {
       const result = await dataService.createSubTask('task-id', subTaskData);
 
       expect(result.status).toBe('not_started');
-      expect(result.order_index).toBe(0);
+      expect(result.orderIndex).toBe(0);
       expect(result.tags).toEqual([]);
     });
 
@@ -509,7 +509,7 @@ describe('DataService', () => {
 
       const result = await dataService.createTag(tagData);
 
-      expect(result.order_index).toBe(0);
+      expect(result.orderIndex).toBe(0);
     });
   });
 });

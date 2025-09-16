@@ -7,6 +7,7 @@ use flequit_settings::models::view_item::ViewItem;
 
 /// Tauriコマンド引数用のViewItem構造体
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
 pub struct ViewItemCommandModel {
     pub id: String,
     pub label: String,

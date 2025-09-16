@@ -14,8 +14,8 @@ describe('RecurrenceAdjustmentWebService', () => {
   describe('create', () => {
     it('should log warning and return true', async () => {
       const adjustment: RecurrenceAdjustment = {
-        date_conditions: ['before 2024-01-01'],
-        weekday_conditions: ['if monday then next weekday']
+        dateConditions: ['before 2024-01-01'],
+        weekdayConditions: ['if monday then next weekday']
       };
 
       const result = await service.create(adjustment);
@@ -50,8 +50,8 @@ describe('RecurrenceAdjustmentWebService', () => {
   describe('search', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceAdjustmentSearchCondition = {
-        rule_id: 'rule1',
-        date_conditions: ['before 2024-01-01']
+        ruleIid: 'rule1',
+        dateConditions: ['before 2024-01-01']
       };
 
       const result = await service.search(condition);

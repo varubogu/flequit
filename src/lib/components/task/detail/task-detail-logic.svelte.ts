@@ -72,9 +72,9 @@ export class TaskDetailLogic {
         this.editForm = {
           title: this.currentItem.title,
           description: this.currentItem.description || '',
-          plan_start_date: this.currentItem.plan_start_date,
-          plan_end_date: this.currentItem.plan_end_date,
-          is_range_date: this.currentItem.is_range_date || false,
+          plan_start_date: this.currentItem.planStartDate,
+          plan_end_date: this.currentItem.planEndDate,
+          is_range_date: this.currentItem.isRangeDate || false,
           priority: this.currentItem.priority || 0
         };
       }
@@ -85,7 +85,7 @@ export class TaskDetailLogic {
   getProjectInfo() {
     if (this.isNewTaskMode || !this.currentItem) return null;
     if (this.isSubTask && 'task_id' in this.currentItem) {
-      return taskStore.getTaskProjectAndList(this.currentItem.task_id);
+      return taskStore.getTaskProjectAndList(this.currentItem.taskId);
     } else {
       return taskStore.getTaskProjectAndList(this.currentItem.id);
     }
@@ -280,7 +280,7 @@ export class TaskDetailLogic {
 
   handleGoToParentTask() {
     if (this.isSubTask && this.currentItem && 'task_id' in this.currentItem) {
-      TaskService.selectTask(this.currentItem.task_id);
+      TaskService.selectTask(this.currentItem.taskId);
     }
   }
 
@@ -294,7 +294,7 @@ export class TaskDetailLogic {
 
     if (this.isSubTask) {
       if ('task_id' in this.currentItem) {
-        await taskStore.moveTaskToList(this.currentItem.task_id, data.taskListId);
+        await taskStore.moveTaskToList(this.currentItem.taskId, data.taskListId);
       }
     } else {
       await taskStore.moveTaskToList(this.currentItem.id, data.taskListId);
@@ -355,11 +355,11 @@ export class TaskDetailLogic {
           id: crypto.randomUUID(),
           unit: rule.unit,
           interval: rule.interval ?? 1,
-          days_of_week: rule.days_of_week,
+          days_of_week: rule.daysOfWeek,
           details: rule.details ? JSON.stringify(rule.details) : undefined,
           adjustment: rule.adjustment ? JSON.stringify(rule.adjustment) : undefined,
-          end_date: rule.end_date?.toISOString(),
-          max_occurrences: rule.max_occurrences
+          end_date: rule.endDate?.toISOString(),
+          max_occurrences: rule.maxOccurrences
         };
 
         await dataService.createRecurrenceRule(newRule);
@@ -367,13 +367,13 @@ export class TaskDetailLogic {
         // タスクまたはサブタスクと繰り返しルールを関連付け
         if (this.isSubTask) {
           await dataService.createSubtaskRecurrence({
-            subtask_id: this.currentItem.id,
-            recurrence_rule_id: newRule.id
+            subtaskId: this.currentItem.id,
+            recurrenceRuleId: newRule.id
           });
         } else {
           await dataService.createTaskRecurrence({
-            task_id: this.currentItem.id,
-            recurrence_rule_id: newRule.id
+            taskId: this.currentItem.id,
+            recurrenceRuleId: newRule.id
           });
         }
 

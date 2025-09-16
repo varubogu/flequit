@@ -132,7 +132,7 @@ export class ViewService {
     // If a specific list is selected, show only tasks from that list
     if (taskStore.selectedListId) {
       for (const project of taskStore.projects) {
-        const list = project.task_lists.find((l) => l.id === taskStore.selectedListId);
+        const list = project.taskLists.find((l) => l.id === taskStore.selectedListId);
         if (list) {
           return list.tasks;
         }
@@ -146,7 +146,7 @@ export class ViewService {
       if (!project) {
         return [];
       }
-      return project.task_lists.flatMap((l) => l.tasks);
+      return project.taskLists.flatMap((l) => l.tasks);
     }
 
     return [];
@@ -156,7 +156,7 @@ export class ViewService {
     // If a specific list is selected, show "プロジェクト名 > タスクリスト名"
     if (taskStore.selectedListId) {
       for (const project of taskStore.projects) {
-        const list = project.task_lists.find((l) => l.id === taskStore.selectedListId);
+        const list = project.taskLists.find((l) => l.id === taskStore.selectedListId);
         if (list) {
           return `${project.name} > ${list.name}`;
         }
@@ -187,9 +187,9 @@ export class ViewService {
     );
 
     return taskStore.allTasks.filter((task) => {
-      if (task.status === 'completed' || !task.plan_end_date) return false;
+      if (task.status === 'completed' || !task.planEndDate) return false;
 
-      const dueDate = new Date(task.plan_end_date);
+      const dueDate = new Date(task.planEndDate);
       return dueDate >= tomorrowStart && dueDate < tomorrowEnd;
     });
   }
@@ -200,9 +200,9 @@ export class ViewService {
     threeDaysLater.setDate(today.getDate() + 3);
 
     return taskStore.allTasks.filter((task) => {
-      if (task.status === 'completed' || !task.plan_end_date) return false;
+      if (task.status === 'completed' || !task.planEndDate) return false;
 
-      const dueDate = new Date(task.plan_end_date);
+      const dueDate = new Date(task.planEndDate);
       return dueDate > today && dueDate <= threeDaysLater;
     });
   }
@@ -213,9 +213,9 @@ export class ViewService {
     oneWeekLater.setDate(today.getDate() + 7);
 
     return taskStore.allTasks.filter((task) => {
-      if (task.status === 'completed' || !task.plan_end_date) return false;
+      if (task.status === 'completed' || !task.planEndDate) return false;
 
-      const dueDate = new Date(task.plan_end_date);
+      const dueDate = new Date(task.planEndDate);
       return dueDate > today && dueDate <= oneWeekLater;
     });
   }
@@ -225,9 +225,9 @@ export class ViewService {
     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
     return taskStore.allTasks.filter((task) => {
-      if (task.status === 'completed' || !task.plan_end_date) return false;
+      if (task.status === 'completed' || !task.planEndDate) return false;
 
-      const dueDate = new Date(task.plan_end_date);
+      const dueDate = new Date(task.planEndDate);
       return dueDate >= today && dueDate <= endOfMonth;
     });
   }
@@ -259,7 +259,7 @@ export class ViewService {
       (task) =>
         task.title.toLowerCase().includes(query) ||
         task.description?.toLowerCase().includes(query) ||
-        task.sub_tasks.some(
+        task.subTasks.some(
           (subTask) =>
             subTask.title.toLowerCase().includes(query) ||
             subTask.description?.toLowerCase().includes(query)

@@ -8,6 +8,7 @@ use flequit_model::types::id_types::{RecurrenceRuleId, SubTaskId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SubtaskRecurrenceCommandModel {
     pub subtask_id: String,
     pub recurrence_rule_id: String,
