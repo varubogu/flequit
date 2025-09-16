@@ -12,6 +12,7 @@ pub mod task;
 pub mod task_list;
 
 // 関連テーブル
+pub mod recurrence_rule;
 pub mod subtask_assignments;
 pub mod subtask_tag;
 pub mod task_assignments;
@@ -19,6 +20,7 @@ pub mod task_tag;
 
 // 公開エクスポート
 pub use project::ProjectUnifiedRepository;
+pub use recurrence_rule::RecurrenceRuleUnifiedRepository;
 pub use subtask::SubTaskUnifiedRepository;
 pub use subtask_assignments::SubTaskAssignmentUnifiedRepository;
 pub use subtask_tag::SubTaskTagUnifiedRepository;

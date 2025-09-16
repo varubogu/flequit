@@ -7,7 +7,7 @@ use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, task_facades};
 use flequit_model::models::task_projects::task::PartialTask;
 use flequit_model::models::ModelConverter;
-use flequit_model::types::id_types::{ProjectId, TaskId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
 use tauri::State;
 
 
@@ -96,14 +96,21 @@ pub async fn delete_task(
 #[tauri::command]
 pub async fn create_task_recurrence(
     state: State<'_, AppState>,
+    project_id: String,
     task_recurrence: TaskRecurrenceCommandModel,
 ) -> Result<bool, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let task_id = TaskId::from(task_recurrence.task_id);
     let repositories = state.repositories.read().await;
+    let recurrence_rule_id = RecurrenceRuleId::from(task_recurrence.recurrence_rule_id);
     recurrence_facades::create_task_recurrence(
         &*repositories,
+        &project_id,
         &task_id,
-        &task_recurrence.recurrence_rule_id,
+        &recurrence_rule_id,
     )
     .await
 }
@@ -113,12 +120,17 @@ pub async fn create_task_recurrence(
 #[tauri::command]
 pub async fn get_task_recurrence_by_task_id(
     state: State<'_, AppState>,
+    project_id: String,
     task_id: String,
 ) -> Result<Option<TaskRecurrenceCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let task_id_typed = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
     let result =
-        recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &task_id_typed).await?;
+        recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &project_id, &task_id_typed).await?;
     match result {
         Some(task_recurrence) => Ok(Some(task_recurrence.to_command_model().await?)),
         None => Ok(None),
@@ -130,11 +142,16 @@ pub async fn get_task_recurrence_by_task_id(
 #[tauri::command]
 pub async fn delete_task_recurrence(
     state: State<'_, AppState>,
+    project_id: String,
     task_id: String,
 ) -> Result<bool, String> {
-    let task_id_typed = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
-    recurrence_facades::delete_task_recurrence(&*repositories, &task_id_typed).await
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let task_id_typed = TaskId::from(task_id);
+    recurrence_facades::delete_task_recurrence(&*repositories, &project_id, &task_id_typed).await
 }
 
 // =============================================================================
@@ -146,11 +163,16 @@ pub async fn delete_task_recurrence(
 #[tauri::command]
 pub async fn create_recurrence_rule(
     state: State<'_, AppState>,
+    project_id: String,
     rule: RecurrenceRuleCommandModel,
 ) -> Result<bool, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let internal_rule = rule.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_recurrence_rule(&*repositories, internal_rule).await
+    recurrence_facades::create_recurrence_rule(&*repositories, &project_id, internal_rule).await
 }
 
 /// 繰り返しルールを取得します。
@@ -158,10 +180,15 @@ pub async fn create_recurrence_rule(
 #[tauri::command]
 pub async fn get_recurrence_rule(
     state: State<'_, AppState>,
+    project_id: String,
     rule_id: String,
 ) -> Result<Option<RecurrenceRuleCommandModel>, String> {
     let repositories = state.repositories.read().await;
-    let rule = recurrence_facades::get_recurrence_rule(&*repositories, rule_id).await?;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let rule = recurrence_facades::get_recurrence_rule(&*repositories, &project_id, rule_id).await?;
     match rule {
         Some(r) => Ok(Some(r.to_command_model().await?)),
         None => Ok(None),
@@ -173,9 +200,14 @@ pub async fn get_recurrence_rule(
 #[tauri::command]
 pub async fn get_all_recurrence_rules(
     state: State<'_, AppState>,
+    project_id: String,
 ) -> Result<Vec<RecurrenceRuleCommandModel>, String> {
     let repositories = state.repositories.read().await;
-    let rules = recurrence_facades::get_all_recurrence_rules(&*repositories).await?;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let rules = recurrence_facades::get_all_recurrence_rules(&*repositories, &project_id).await?;
     let mut result = Vec::new();
     for rule in rules {
         result.push(rule.to_command_model().await?);
@@ -188,11 +220,16 @@ pub async fn get_all_recurrence_rules(
 #[tauri::command]
 pub async fn update_recurrence_rule(
     state: State<'_, AppState>,
+    project_id: String,
     rule: RecurrenceRuleCommandModel,
 ) -> Result<bool, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let internal_rule = rule.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::update_recurrence_rule(&*repositories, internal_rule).await
+    recurrence_facades::update_recurrence_rule(&*repositories, &project_id, internal_rule).await
 }
 
 /// 繰り返しルールを削除します。
@@ -200,10 +237,15 @@ pub async fn update_recurrence_rule(
 #[tauri::command]
 pub async fn delete_recurrence_rule(
     state: State<'_, AppState>,
+    project_id: String,
     rule_id: String,
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
-    recurrence_facades::delete_recurrence_rule(&*repositories, rule_id).await
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    recurrence_facades::delete_recurrence_rule(&*repositories, &project_id, rule_id).await
 }
 
 // =============================================================================
@@ -215,11 +257,16 @@ pub async fn delete_recurrence_rule(
 #[tauri::command]
 pub async fn create_recurrence_adjustment(
     state: State<'_, AppState>,
+    project_id: String,
     adjustment: RecurrenceAdjustmentCommandModel,
 ) -> Result<bool, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let internal_adjustment = adjustment.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_recurrence_adjustment(&*repositories, internal_adjustment).await
+    recurrence_facades::create_recurrence_adjustment(&*repositories, &project_id, internal_adjustment).await
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
@@ -227,11 +274,16 @@ pub async fn create_recurrence_adjustment(
 #[tauri::command]
 pub async fn get_recurrence_adjustments_by_rule_id(
     state: State<'_, AppState>,
+    project_id: String,
     rule_id: String,
 ) -> Result<Vec<RecurrenceAdjustmentCommandModel>, String> {
     let repositories = state.repositories.read().await;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let adjustments =
-        recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, rule_id).await?;
+        recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, &project_id, rule_id).await?;
     let mut result = Vec::new();
     for adjustment in adjustments {
         result.push(adjustment.to_command_model().await?);
@@ -244,10 +296,15 @@ pub async fn get_recurrence_adjustments_by_rule_id(
 #[tauri::command]
 pub async fn delete_recurrence_adjustment(
     state: State<'_, AppState>,
+    project_id: String,
     adjustment_id: String,
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
-    recurrence_facades::delete_recurrence_adjustment(&*repositories, adjustment_id).await
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    recurrence_facades::delete_recurrence_adjustment(&*repositories, &project_id, adjustment_id).await
 }
 
 // =============================================================================
@@ -259,11 +316,16 @@ pub async fn delete_recurrence_adjustment(
 #[tauri::command]
 pub async fn create_recurrence_details(
     state: State<'_, AppState>,
+    project_id: String,
     details: RecurrenceDetailsCommandModel,
 ) -> Result<bool, String> {
-    let internal_details = details.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_recurrence_details(&*repositories, internal_details).await
+    let internal_details = details.to_model().await?;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    recurrence_facades::create_recurrence_details(&*repositories, &project_id, internal_details).await
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
@@ -271,11 +333,16 @@ pub async fn create_recurrence_details(
 #[tauri::command]
 pub async fn get_recurrence_details_by_rule_id(
     state: State<'_, AppState>,
+    project_id: String,
     rule_id: String,
 ) -> Result<Option<RecurrenceDetailsCommandModel>, String> {
     let repositories = state.repositories.read().await;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
     let details =
-        recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, rule_id).await?;
+        recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, &project_id, rule_id).await?;
     match details {
         Some(detail) => Ok(Some(detail.to_command_model().await?)),
         None => Ok(None),
@@ -287,11 +354,16 @@ pub async fn get_recurrence_details_by_rule_id(
 #[tauri::command]
 pub async fn update_recurrence_details(
     state: State<'_, AppState>,
+    project_id: String,
     details: RecurrenceDetailsCommandModel,
 ) -> Result<bool, String> {
-    let internal_details = details.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::update_recurrence_details(&*repositories, internal_details).await
+    let internal_details = details.to_model().await?;
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    recurrence_facades::update_recurrence_details(&*repositories, &project_id, internal_details).await
 }
 
 /// 繰り返し詳細を削除します。
@@ -299,8 +371,17 @@ pub async fn update_recurrence_details(
 #[tauri::command]
 pub async fn delete_recurrence_details(
     state: State<'_, AppState>,
+    project_id: String,
     details_id: String,
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
-    recurrence_facades::delete_recurrence_details(&*repositories, details_id).await
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let details_id = match RecurrenceRuleId::try_from_str(&details_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    recurrence_facades::delete_recurrence_details(&*repositories, &project_id, &details_id).await
 }

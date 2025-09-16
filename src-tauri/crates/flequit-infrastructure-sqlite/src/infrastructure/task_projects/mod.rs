@@ -1,6 +1,7 @@
 pub mod date_condition;
 pub mod member;
 pub mod project;
+pub mod recurrence_rule;
 pub mod subtask;
 pub mod subtask_assignments;
 pub mod subtask_recurrence;

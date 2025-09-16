@@ -11,7 +11,7 @@ use flequit_model::{
         recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
         task_recurrence::TaskRecurrence,
     },
-    types::id_types::{SubTaskId, TaskId},
+    types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId},
 };
 use flequit_types::errors::service_error::ServiceError;
 
@@ -26,12 +26,13 @@ use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_recurrence_rule<R>(
     repositories: &R,
+    project_id: &ProjectId,
     rule: RecurrenceRule,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_recurrence_rule(repositories, rule).await {
+    match recurrence_service::create_recurrence_rule(repositories, project_id, rule).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create recurrence rule: {:?}", e)),
@@ -42,12 +43,13 @@ where
 
 pub async fn get_recurrence_rule<R>(
     repositories: &R,
+    project_id: &ProjectId,
     rule_id: String,
 ) -> Result<Option<RecurrenceRule>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_recurrence_rule(repositories, &rule_id).await {
+    match recurrence_service::get_recurrence_rule(repositories, project_id, &rule_id).await {
         Ok(rule) => Ok(rule),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get recurrence rule: {:?}", e)),
@@ -56,11 +58,11 @@ where
 
 /// すべての繰り返しルールを取得します。
 
-pub async fn get_all_recurrence_rules<R>(repositories: &R) -> Result<Vec<RecurrenceRule>, String>
+pub async fn get_all_recurrence_rules<R>(repositories: &R, project_id: &ProjectId) -> Result<Vec<RecurrenceRule>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_all_recurrence_rules(repositories).await {
+    match recurrence_service::get_all_recurrence_rules(repositories, project_id).await {
         Ok(rules) => Ok(rules),
         Err(e) => Err(format!("Failed to get all recurrence rules: {:?}", e)),
     }
@@ -70,12 +72,13 @@ where
 
 pub async fn update_recurrence_rule<R>(
     repositories: &R,
+    project_id: &ProjectId,
     rule: RecurrenceRule,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::update_recurrence_rule(repositories, rule).await {
+    match recurrence_service::update_recurrence_rule(repositories, project_id, rule.clone()).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update recurrence rule: {:?}", e)),
@@ -84,11 +87,11 @@ where
 
 /// 繰り返しルールを削除します。
 
-pub async fn delete_recurrence_rule<R>(repositories: &R, rule_id: String) -> Result<bool, String>
+pub async fn delete_recurrence_rule<R>(repositories: &R, project_id: &ProjectId, rule_id: String) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_recurrence_rule(repositories, &rule_id).await {
+    match recurrence_service::delete_recurrence_rule(repositories, project_id, &rule_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete recurrence rule: {:?}", e)),
@@ -103,12 +106,13 @@ where
 
 pub async fn create_recurrence_adjustment<R>(
     repositories: &R,
+    project_id: &ProjectId,
     adjustment: RecurrenceAdjustment,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_recurrence_adjustment(repositories, adjustment).await {
+    match recurrence_service::create_recurrence_adjustment(repositories, project_id, adjustment).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create recurrence adjustment: {:?}", e)),
@@ -119,12 +123,13 @@ where
 
 pub async fn get_recurrence_adjustments_by_rule_id<R>(
     repositories: &R,
+    project_id: &ProjectId,
     rule_id: String,
 ) -> Result<Vec<RecurrenceAdjustment>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_recurrence_adjustments_by_rule_id(repositories, &rule_id).await {
+    match recurrence_service::get_recurrence_adjustments_by_rule_id(repositories, project_id, &rule_id).await {
         Ok(adjustments) => Ok(adjustments),
         Err(e) => Err(format!("Failed to get recurrence adjustments: {:?}", e)),
     }
@@ -134,12 +139,13 @@ where
 
 pub async fn delete_recurrence_adjustment<R>(
     repositories: &R,
+    project_id: &ProjectId,
     adjustment_id: String,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_recurrence_adjustment(repositories, &adjustment_id).await {
+    match recurrence_service::delete_recurrence_adjustment(repositories, project_id, &adjustment_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete recurrence adjustment: {:?}", e)),
@@ -154,12 +160,13 @@ where
 
 pub async fn create_recurrence_details<R>(
     repositories: &R,
+    project_id: &ProjectId,
     details: RecurrenceDetails,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_recurrence_details(repositories, details).await {
+    match recurrence_service::create_recurrence_details(repositories, project_id, details).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create recurrence details: {:?}", e)),
@@ -170,12 +177,13 @@ where
 
 pub async fn get_recurrence_details_by_rule_id<R>(
     repositories: &R,
+    project_id: &ProjectId,
     rule_id: String,
 ) -> Result<Option<RecurrenceDetails>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_recurrence_details_by_rule_id(repositories, &rule_id).await {
+    match recurrence_service::get_recurrence_details_by_rule_id(repositories, project_id, &rule_id).await {
         Ok(details) => Ok(details),
         Err(e) => Err(format!("Failed to get recurrence details: {:?}", e)),
     }
@@ -185,12 +193,13 @@ where
 
 pub async fn update_recurrence_details<R>(
     repositories: &R,
+    project_id: &ProjectId,
     details: RecurrenceDetails,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::update_recurrence_details(repositories, details).await {
+    match recurrence_service::update_recurrence_details(repositories, project_id, details).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update recurrence details: {:?}", e)),
@@ -201,12 +210,13 @@ where
 
 pub async fn delete_recurrence_details<R>(
     repositories: &R,
-    details_id: String,
+    project_id: &ProjectId,
+    details_id: &RecurrenceRuleId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_recurrence_details(repositories, &details_id).await {
+    match recurrence_service::delete_recurrence_details(repositories, project_id, &details_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete recurrence details: {:?}", e)),
@@ -221,13 +231,14 @@ where
 
 pub async fn create_task_recurrence<R>(
     repositories: &R,
+    project_id: &ProjectId,
     task_id: &TaskId,
-    recurrence_rule_id: &str,
+    recurrence_rule_id: &RecurrenceRuleId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_task_recurrence(repositories, task_id, recurrence_rule_id)
+    match recurrence_service::create_task_recurrence(repositories, project_id, task_id, &recurrence_rule_id)
         .await
     {
         Ok(_) => Ok(true),
@@ -240,12 +251,13 @@ where
 
 pub async fn get_task_recurrence_by_task_id<R>(
     repositories: &R,
+    project_id: &ProjectId,
     task_id: &TaskId,
 ) -> Result<Option<TaskRecurrence>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_task_recurrence_by_task_id(repositories, task_id).await {
+    match recurrence_service::get_task_recurrence_by_task_id(repositories, project_id, &task_id).await {
         Ok(task_recurrence) => Ok(task_recurrence),
         Err(e) => Err(format!("Failed to get task recurrence: {:?}", e)),
     }
@@ -253,11 +265,15 @@ where
 
 /// タスクの繰り返し関連付けを削除します。
 
-pub async fn delete_task_recurrence<R>(repositories: &R, task_id: &TaskId) -> Result<bool, String>
+pub async fn delete_task_recurrence<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: &TaskId,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_task_recurrence(repositories, task_id).await {
+    match recurrence_service::delete_task_recurrence(repositories, project_id, &task_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete task recurrence: {:?}", e)),
@@ -272,18 +288,19 @@ where
 
 pub async fn create_subtask_recurrence<R>(
     repositories: &R,
+    project_id: &ProjectId,
     subtask_id: &SubTaskId,
-    recurrence_rule_id: &str,
+    recurrence_rule_id: &RecurrenceRuleId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     match recurrence_service::create_subtask_recurrence(
         repositories,
-        subtask_id,
-        recurrence_rule_id,
-    )
-    .await
+        project_id,
+        &subtask_id,
+        &recurrence_rule_id,
+    ).await
     {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
@@ -295,12 +312,13 @@ where
 
 pub async fn get_subtask_recurrence_by_subtask_id<R>(
     repositories: &R,
+    project_id: &ProjectId,
     subtask_id: &SubTaskId,
 ) -> Result<Option<SubTaskRecurrence>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::get_subtask_recurrence_by_subtask_id(repositories, subtask_id).await {
+    match recurrence_service::get_subtask_recurrence_by_subtask_id(repositories, project_id, &subtask_id).await {
         Ok(subtask_recurrence) => Ok(subtask_recurrence),
         Err(e) => Err(format!("Failed to get subtask recurrence: {:?}", e)),
     }
@@ -310,12 +328,13 @@ where
 
 pub async fn delete_subtask_recurrence<R>(
     repositories: &R,
+    project_id: &ProjectId,
     subtask_id: &SubTaskId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::delete_subtask_recurrence(repositories, subtask_id).await {
+    match recurrence_service::delete_subtask_recurrence(repositories, project_id, &subtask_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to delete subtask recurrence: {:?}", e)),

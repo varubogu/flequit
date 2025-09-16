@@ -32,6 +32,9 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     /// ユーザーリポジトリへのアクセス
     fn users(&self) -> &UserUnifiedRepository;
 
+    /// 繰り返しルールリポジトリへのアクセス
+    fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository;
+
     /// タスクアサインリポジトリへのアクセス
     fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository;
 
@@ -64,6 +67,7 @@ pub struct InfrastructureRepositories {
     pub task_lists: TaskListUnifiedRepository,
     pub sub_tasks: SubTaskUnifiedRepository,
     pub users: UserUnifiedRepository,
+    pub recurrence_rules: RecurrenceRuleUnifiedRepository,
     pub task_assignments: TaskAssignmentUnifiedRepository,
     pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
     pub task_tags: TaskTagUnifiedRepository,
@@ -87,6 +91,7 @@ impl InfrastructureRepositories {
             task_lists: TaskListUnifiedRepository::default(),
             sub_tasks: SubTaskUnifiedRepository::default(),
             users: UserUnifiedRepository::default(),
+            recurrence_rules: RecurrenceRuleUnifiedRepository::default(),
             task_assignments: TaskAssignmentUnifiedRepository::default(),
             subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
             task_tags: TaskTagUnifiedRepository::default(),
@@ -111,6 +116,7 @@ impl InfrastructureRepositories {
         let tags = unified_manager.create_tag_unified_repository().await?;
         let sub_tasks = unified_manager.create_sub_task_unified_repository().await?;
         let users = unified_manager.create_user_unified_repository().await?;
+        let recurrence_rules = RecurrenceRuleUnifiedRepository::default();
         let task_assignments = unified_manager.create_task_assignment_unified_repository().await?;
         let subtask_assignments = unified_manager.create_sub_task_assignment_unified_repository().await?;
         let task_tags = TaskTagUnifiedRepository::default();
@@ -126,6 +132,7 @@ impl InfrastructureRepositories {
             tags,
             sub_tasks,
             users,
+            recurrence_rules,
             task_assignments,
             subtask_assignments,
             task_tags,
@@ -209,6 +216,10 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         &self.users
     }
 
+    fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository {
+        &self.recurrence_rules
+    }
+
     fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository {
         &self.task_assignments
     }
@@ -261,6 +272,7 @@ pub mod mock {
         pub task_lists: TaskListUnifiedRepository,
         pub sub_tasks: SubTaskUnifiedRepository,
         pub users: UserUnifiedRepository,
+        pub recurrence_rules: RecurrenceRuleUnifiedRepository,
         pub task_assignments: TaskAssignmentUnifiedRepository,
         pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
         pub task_tags: TaskTagUnifiedRepository,
@@ -279,6 +291,7 @@ pub mod mock {
                 task_lists: TaskListUnifiedRepository::default(),
                 sub_tasks: SubTaskUnifiedRepository::default(),
                 users: UserUnifiedRepository::default(),
+                recurrence_rules: RecurrenceRuleUnifiedRepository::default(),
                 task_assignments: TaskAssignmentUnifiedRepository::default(),
                 subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
                 task_tags: TaskTagUnifiedRepository::default(),
@@ -345,6 +358,11 @@ pub mod mock {
         fn users(&self) -> &UserUnifiedRepository {
             self.log_call("users");
             &self.users
+        }
+
+        fn recurrence_rules(&self) -> &RecurrenceRuleUnifiedRepository {
+            self.log_call("recurrence_rules");
+            &self.recurrence_rules
         }
 
         fn task_assignments(&self) -> &TaskAssignmentUnifiedRepository {
