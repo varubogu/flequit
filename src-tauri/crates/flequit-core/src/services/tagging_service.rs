@@ -19,12 +19,12 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // タスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
+    let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
 
     // タスクタグ関係を追加
     repositories
         .task_tags()
-        .add(&project_id, task_id, tag_id).await
+        .add(&actual_project_id, task_id, tag_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -41,10 +41,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // タスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
+    let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
 
     // タスクタグ関係を削除
-    repositories.task_tags().remove(&project_id, task_id, tag_id).await
+    repositories.task_tags().remove(&actual_project_id, task_id, tag_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -107,15 +107,15 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // タスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
+    let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
 
     // 既存のタスクタグ関係をすべて削除
-    repositories.task_tags().remove_all(&project_id, task_id).await
+    repositories.task_tags().remove_all(&actual_project_id, task_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     // 新しいタグとの関係を作成
     for tag_id in tag_ids {
-        repositories.task_tags().add(&project_id, task_id, tag_id).await
+        repositories.task_tags().add(&actual_project_id, task_id, tag_id).await
             .map_err(|e| ServiceError::Repository(e))?;
     }
 
@@ -132,10 +132,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // タスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
+    let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
 
     // プロジェクト内のタスクタグ関係をすべて削除
-    repositories.task_tags().remove_all(&project_id, task_id).await
+    repositories.task_tags().remove_all(&actual_project_id, task_id).await
         .map_err(|e| ServiceError::Repository(e))?;
     Ok(())
 }
@@ -203,10 +203,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // サブタスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
 
     // サブタスクタグ関係を追加
-    repositories.subtask_tags().add(&project_id, subtask_id, tag_id).await
+    repositories.subtask_tags().add(&actual_project_id, subtask_id, tag_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -223,10 +223,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // サブタスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
 
     // サブタスクタグ関係を削除
-    repositories.subtask_tags().remove(&project_id, subtask_id, tag_id).await
+    repositories.subtask_tags().remove(&actual_project_id, subtask_id, tag_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -242,10 +242,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // サブタスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
 
     // サブタスクタグ関係から TagID を取得
-    let subtask_tags = repositories.subtask_tags().find_relations(&project_id, subtask_id).await
+    let subtask_tags = repositories.subtask_tags().find_relations(&actual_project_id, subtask_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(subtask_tags.into_iter().map(|t| t.tag_id).collect())
@@ -290,15 +290,15 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // サブタスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
 
     // 既存のサブタスクタグ関係をすべて削除
-    repositories.subtask_tags().remove_all(&project_id, subtask_id).await
+    repositories.subtask_tags().remove_all(&actual_project_id, subtask_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     // 新しいタグとの関係を作成
     for tag_id in tag_ids {
-        repositories.subtask_tags().add(&project_id, subtask_id, tag_id).await
+        repositories.subtask_tags().add(&actual_project_id, subtask_id, tag_id).await
             .map_err(|e| ServiceError::Repository(e))?;
     }
 
@@ -315,10 +315,10 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // サブタスクが存在するプロジェクトIDを取得
-    let project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
 
     // プロジェクト内のサブタスクタグ関係をすべて削除
-    repositories.subtask_tags().remove_all(&project_id, subtask_id).await
+    repositories.subtask_tags().remove_all(&actual_project_id, subtask_id).await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())

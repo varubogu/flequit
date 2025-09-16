@@ -469,13 +469,14 @@ export class TaskStore {
 
   // Tag management methods
   async addTagToTask(taskId: string, tagName: string) {
-    const tag = tagStore.getOrCreateTag(tagName);
-    if (!tag) return;
-
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         const task = list.tasks.find((t) => t.id === taskId);
         if (task) {
+          // プロジェクトIDを指定してタグを取得または作成
+          const tag = tagStore.getOrCreateTagWithProject(tagName, project.id);
+          if (!tag) return;
+
           // Check if tag already exists on this task (by name, not ID)
           if (!task.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
             task.tags.push(tag);
@@ -522,8 +523,8 @@ export class TaskStore {
   }
 
   addTagToNewTask(tagName: string) {
-    if (this.newTaskData) {
-      const tag = tagStore.getOrCreateTag(tagName);
+    if (this.newTaskData && this.selectedProjectId) {
+      const tag = tagStore.getOrCreateTagWithProject(tagName, this.selectedProjectId);
       if (!tag) return;
 
       // Check if tag already exists on this task (by name, not ID)
