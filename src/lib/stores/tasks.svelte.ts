@@ -1,6 +1,6 @@
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
@@ -10,6 +10,7 @@ import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
 import { getBackendService } from '$lib/services/backend';
+import { getTagsFromIds } from '$lib/utils/tag-utils';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -121,25 +122,46 @@ export class TaskStore {
 
   // データ読み込み専用メソッド（保存処理なし）
   loadProjectsData(projects: ProjectTree[]) {
-    this.projects = projects;
-
-    // Extract and register all tags from sample data to tag store
+    // プロジェクトレベルのタグ情報を先に処理
     const allTags = new SvelteMap<string, Tag>();
-
+    
     projects.forEach((project) => {
-      project.taskLists.forEach((list) => {
-        list.tasks.forEach((task) => {
-          task.tags.forEach((tag) => {
-            allTags.set(tag.id, tag);
-          });
+      // プロジェクトのallTagsフィールドからタグストアに登録
+      if (project.allTags) {
+        project.allTags.forEach((tag) => {
+          allTags.set(tag.id, tag);
         });
-      });
+      }
     });
 
     // Register tags in tag store with their original IDs
     allTags.forEach((tag) => {
       tagStore.addTagWithId(tag);
     });
+
+    // タグIDからタグオブジェクトへの変換マップを作成
+    const tagMap = new Map<string, Tag>();
+    allTags.forEach((tag) => {
+      tagMap.set(tag.id, tag);
+    });
+
+    // プロジェクトデータを変換（tagIdsからtagsを生成）
+    const convertedProjects = projects.map((project) => ({
+      ...project,
+      taskLists: project.taskLists.map((list) => ({
+        ...list,
+        tasks: list.tasks.map((task) => ({
+          ...task,
+          tags: getTagsFromIds(task.tagIds || [], Array.from(allTags.values())),
+          subTasks: task.subTasks?.map((subTask) => ({
+            ...subTask,
+            tags: getTagsFromIds(subTask.tagIds || [], Array.from(allTags.values()))
+          })) || []
+        }))
+      }))
+    }));
+
+    this.projects = convertedProjects;
 
     // Add initial bookmarks for common tags (initialization only, no backend sync)
     const workTag = tagStore.tags.find((tag) => tag.name === 'work');
@@ -547,7 +569,7 @@ export class TaskStore {
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         for (const task of list.tasks) {
-          const subTask = task.subTasks.find((st) => st.id === subTaskId);
+          const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags;
           if (subTask) {
             // プロジェクトIDを指定してタグを取得または作成
             const tag = tagStore.getOrCreateTagWithProject(tagName, project.id);
@@ -578,7 +600,7 @@ export class TaskStore {
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         for (const task of list.tasks) {
-          const subTask = task.subTasks.find((st) => st.id === subTaskId);
+          const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags;
           if (subTask) {
             const tagIndex = subTask.tags.findIndex((t) => t.id === tagId);
             if (tagIndex !== -1) {
@@ -786,7 +808,7 @@ export class TaskStore {
           }
 
           // Remove from all subtasks
-          for (const subTask of task.subTasks) {
+          for (const subTask of task.subTasks as SubTaskWithTags[]) {
             const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === tagId);
             if (subTaskTagIndex !== -1) {
               subTask.tags.splice(subTaskTagIndex, 1);
@@ -811,7 +833,7 @@ export class TaskStore {
           }
 
           // Update in subtasks
-          for (const subTask of task.subTasks) {
+          for (const subTask of task.subTasks as SubTaskWithTags[]) {
             const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === updatedTag.id);
             if (subTaskTagIndex !== -1) {
               subTask.tags[subTaskTagIndex] = { ...updatedTag };

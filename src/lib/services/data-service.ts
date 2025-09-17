@@ -1,6 +1,6 @@
-import type { Task } from '$lib/types/task';
+import type { Task, TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { SubTask } from '$lib/types/sub-task';
+import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
@@ -58,6 +58,30 @@ export class DataService {
     return taskStore.getProjectIdBySubTaskId(subTaskId);
   }
 
+  /**
+   * タグIDリストをタグオブジェクトリストに変換します
+   */
+  private convertTagIdsToTags(tagIds: string[], allTags: Tag[]): Tag[] {
+    const tagMap = new Map(allTags.map(tag => [tag.id, tag]));
+    return tagIds.map(tagId => tagMap.get(tagId)).filter((tag): tag is Tag => tag !== undefined);
+  }
+
+  /**
+   * タスクのtagIdsをtagsに変換してTaskWithSubTasksに変換します
+   */
+  private convertTaskToTaskWithSubTasks(task: Task, allTags: Tag[], subTasks: SubTask[]): TaskWithSubTasks {
+    const tags = this.convertTagIdsToTags(task.tagIds, allTags);
+    const subTasksWithTags: SubTaskWithTags[] = subTasks.map(subTask => ({
+      ...subTask,
+      tags: this.convertTagIdsToTags(subTask.tagIds, allTags)
+    }));
+
+    return {
+      ...task,
+      tags,
+      subTasks: subTasksWithTags
+    };
+  }
 
   // プロジェクトデータの読み込み
   async loadProjectData(): Promise<ProjectTree[]> {
@@ -272,7 +296,7 @@ export class DataService {
       orderIndex: 0,
       completed: false,
       assignedUserIds: [],
-      tags: [],
+      tagIds: [],
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -413,7 +437,8 @@ export class DataService {
           createdAt: new Date(),
           updatedAt: new Date()
         } as Tag);
-      await this.updateSubTask(subTaskId, { tags: [tagToUse] });
+      // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
+      console.warn('SubTask update with tags is not supported in current type definition');
       return;
     }
 
@@ -422,13 +447,9 @@ export class DataService {
       return;
     }
 
-    // タグが既に存在しない場合のみ追加
-    const currentTags = subTask.tags || [];
-    const tagExists = currentTags.some((t) => t.id === tagId);
-    if (!tagExists) {
-      const updatedTags = [...currentTags, tag];
-      await this.updateSubTask(subTaskId, { tags: updatedTags });
-    }
+    // Note: 新しいシステムではtagIdsを使用してタグを管理します
+    // この関数は古いタグシステム用で、新しいシステムでは tasks.svelte.ts の addTagToSubTask を使用してください
+    console.warn('addTagToSubTask is deprecated, use tasks.svelte.ts addTagToSubTask instead');
   }
 
   async removeTagFromSubTask(subTaskId: string, tagId: string): Promise<void> {
@@ -448,16 +469,14 @@ export class DataService {
       console.log(
         'DataService: SubTask not found in backend (Web environment), attempting tag removal'
       );
-      await this.updateSubTask(subTaskId, { tags: [] });
+      // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
+      console.warn('SubTask update with tags is not supported in current type definition');
       return;
     }
 
-    // タグIDが存在する場合のみ削除
-    const currentTags = subTask.tags || [];
-    const filteredTags = currentTags.filter((tag) => tag.id !== tagId);
-    if (filteredTags.length !== currentTags.length) {
-      await this.updateSubTask(subTaskId, { tags: filteredTags });
-    }
+    // Note: 新しいシステムではtagIdsを使用してタグを管理します
+    // この関数は古いタグシステム用で、新しいシステムでは tasks.svelte.ts の removeTagFromSubTask を使用してください
+    console.warn('removeTagFromSubTask is deprecated, use tasks.svelte.ts removeTagFromSubTask instead');
   }
 
   // TaskStore向けの型変換メソッド
@@ -470,7 +489,8 @@ export class DataService {
     const project = await this.createProject(projectData);
     return {
       ...project,
-      taskLists: []
+      taskLists: [],
+      allTags: []  // 空のタグ配列を追加
     };
   }
 

@@ -18,6 +18,24 @@ export function generateSampleData(): ProjectTree[] {
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      allTags: [
+        {
+          id: 'tag-1',
+          name: 'urgent',
+          color: '#ef4444',
+          orderIndex: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'tag-2',
+          name: 'work',
+          color: '#3b82f6',
+          orderIndex: 1,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ],
       taskLists: [
         {
           id: 'list-1',
@@ -63,7 +81,7 @@ export function generateSampleData(): ProjectTree[] {
                   orderIndex: 0,
                   completed: false,
                   assignedUserIds: [],
-                  tags: [],
+                  tagIds: [],
                   createdAt: new Date(),
                   updatedAt: new Date()
                 },
@@ -75,7 +93,7 @@ export function generateSampleData(): ProjectTree[] {
                   orderIndex: 1,
                   completed: false,
                   assignedUserIds: [],
-                  tags: [],
+                  tagIds: [],
                   createdAt: new Date(),
                   updatedAt: new Date()
                 }
@@ -185,6 +203,24 @@ export function generateSampleData(): ProjectTree[] {
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      allTags: [
+        {
+          id: 'tag-3',
+          name: 'development',
+          color: '#10b981',
+          orderIndex: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          id: 'tag-4',
+          name: 'high-priority',
+          color: '#f59e0b',
+          orderIndex: 1,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ],
       taskLists: [
         {
           id: 'list-3',
@@ -223,7 +259,7 @@ export function generateSampleData(): ProjectTree[] {
                   orderIndex: 0,
                   completed: false,
                   assignedUserIds: [],
-                  tags: [],
+                  tagIds: [],
                   createdAt: new Date(),
                   updatedAt: new Date()
                 },
@@ -238,7 +274,7 @@ export function generateSampleData(): ProjectTree[] {
                   orderIndex: 1,
                   completed: false,
                   assignedUserIds: [],
-                  tags: [],
+                  tagIds: [],
                   createdAt: new Date(),
                   updatedAt: new Date()
                 },
@@ -253,7 +289,7 @@ export function generateSampleData(): ProjectTree[] {
                   orderIndex: 2,
                   completed: false,
                   assignedUserIds: [],
-                  tags: [],
+                  tagIds: [],
                   createdAt: new Date(),
                   updatedAt: new Date()
                 }

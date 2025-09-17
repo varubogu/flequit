@@ -150,7 +150,7 @@ pub struct TaskTreeCommandModel {
     pub created_at: String,
     pub updated_at: String,
     pub sub_tasks: Vec<super::subtask::SubTaskTreeCommandModel>,
-    pub tags: Vec<super::tag::TagCommandModel>,
+    pub tag_ids: Vec<String>,
 }
 
 #[async_trait]
@@ -211,10 +211,6 @@ impl ModelConverter<TaskTree> for TaskTreeCommandModel {
             subtasks.push(subtask.to_model().await?);
         }
 
-        let mut tags = Vec::new();
-        for tag in &self.tags {
-            tags.push(tag.to_model().await?);
-        }
 
         Ok(TaskTree {
             id: TaskId::from(self.id.clone()),
@@ -244,7 +240,7 @@ impl ModelConverter<TaskTree> for TaskTreeCommandModel {
             created_at,
             updated_at,
             sub_tasks: subtasks,
-            tags: tags,
+            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
         })
     }
 }
@@ -258,10 +254,6 @@ impl CommandModelConverter<TaskTreeCommandModel> for TaskTree {
             subtask_commands.push(subtask.to_command_model().await?);
         }
 
-        let mut tag_commands = Vec::new();
-        for tag in &self.tags {
-            tag_commands.push(tag.to_command_model().await?);
-        }
 
         Ok(TaskTreeCommandModel {
             id: self.id.to_string(),
@@ -292,7 +284,7 @@ impl CommandModelConverter<TaskTreeCommandModel> for TaskTree {
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
             sub_tasks: subtask_commands,
-            tags: tag_commands,
+            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
     }
 }

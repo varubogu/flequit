@@ -28,8 +28,41 @@ pub async fn load_all_project_data(
 
     let project_trees = initialization_facades::load_all_project_trees(&*repositories).await?;
     let mut command_results = Vec::new();
+    
     for project_tree in project_trees {
-        command_results.push(project_tree.to_command_model().await?);
+        // プロジェクト内の全タグを取得
+        use flequit_core::services::tag_service;
+        let all_tags = tag_service::list_tags(&*repositories, &project_tree.id).await
+            .map_err(|e| e.to_string())?;
+        
+        // タグをCommandModelに変換
+        let mut tag_commands = Vec::new();
+        for tag in all_tags {
+            tag_commands.push(tag.to_command_model().await?);
+        }
+        
+        // ProjectTreeCommandModelを手動で構築（タグ付き）
+        let mut task_list_commands = Vec::new();
+        for task_list in &project_tree.task_lists {
+            task_list_commands.push(task_list.to_command_model().await?);
+        }
+        
+        let project_tree_command = ProjectTreeCommandModel {
+            id: project_tree.id.to_string(),
+            name: project_tree.name,
+            description: project_tree.description,
+            color: project_tree.color,
+            order_index: project_tree.order_index,
+            is_archived: project_tree.is_archived,
+            status: project_tree.status,
+            owner_id: project_tree.owner_id.map(|id| id.to_string()),
+            created_at: project_tree.created_at.to_rfc3339(),
+            updated_at: project_tree.updated_at.to_rfc3339(),
+            task_lists: task_list_commands,
+            all_tags: tag_commands,
+        };
+        
+        command_results.push(project_tree_command);
     }
     Ok(command_results)
 }

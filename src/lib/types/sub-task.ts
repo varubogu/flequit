@@ -36,12 +36,20 @@ export interface SubTask {
   completed: boolean;
   /** 担当者ユーザーIDの配列 */
   assignedUserIds: string[];
-  /** タグ一覧 */
-  tags: Tag[];
+  /** タグIDの配列 */
+  tagIds: string[];
   /** 作成日時 */
   createdAt: Date;
   /** 更新日時 */
   updatedAt: Date;
+}
+
+/**
+ * タグを含むサブタスク（UIコンポーネント用）
+ */
+export interface SubTaskWithTags extends SubTask {
+  /** タグ一覧 */
+  tags: Tag[];
 }
 
 /**

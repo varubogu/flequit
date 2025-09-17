@@ -133,8 +133,8 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
             unit,
             interval: self.interval,
             days_of_week,
-            details: None,    // TODO: JSON文字列変換実装
-            adjustment: None, // TODO: JSON文字列変換実装
+            details: None,
+            adjustment: None,
             end_date: self.end_date.as_ref().map(|d| d.to_rfc3339()),
             max_occurrences: self.max_occurrences,
         })

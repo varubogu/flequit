@@ -1,7 +1,8 @@
-use crate::models::task_list::TaskListCommandModel;
+use crate::models::task_list::{TaskListCommandModel, TaskListTreeCommandModel};
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::task_list_facades;
+use flequit_core::services::task_list_service;
 use flequit_model::models::task_projects::task_list::PartialTaskList;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
@@ -87,4 +88,27 @@ pub async fn delete_task_list(
     let repositories = state.repositories.read().await;
 
     task_list_facades::delete_task_list(&*repositories, &project_id, &task_list_id).await
+}
+
+
+#[tauri::command]
+pub async fn get_task_lists_with_tasks(
+    state: State<'_, AppState>,
+    project_id: String,
+) -> Result<Vec<TaskListTreeCommandModel>, String> {
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    let task_lists_with_tasks = task_list_service::get_task_lists_with_tasks(&*repositories, &project_id).await
+        .map_err(|e| e.to_string())?;
+    
+    let mut result = Vec::new();
+    for task_list in task_lists_with_tasks {
+        result.push(task_list.to_command_model().await?);
+    }
+    
+    Ok(result)
 }

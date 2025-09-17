@@ -49,6 +49,7 @@ pub fn run() {
                 project_commands::get_project,
                 project_commands::update_project,
                 project_commands::delete_project,
+                project_commands::get_project_with_tasks_and_tags,
                 // Setting management commands (legacy)
                 settings_commands::get_setting,
                 settings_commands::get_all_settings,
@@ -105,6 +106,7 @@ pub fn run() {
                 task_list_commands::get_task_list,
                 task_list_commands::update_task_list,
                 task_list_commands::delete_task_list,
+                task_list_commands::get_task_lists_with_tasks,
                 // User commands
                 user_commands::create_user,
                 user_commands::get_user,
@@ -116,10 +118,10 @@ pub fn run() {
                 tagging_commands::create_subtask_tag,
                 tagging_commands::delete_subtask_tag,
                 // Assignment commands
-                assignment_commands::create_task_assignment,
-                assignment_commands::delete_task_assignment,
-                assignment_commands::create_subtask_assignment,
-                assignment_commands::delete_subtask_assignment,
+                task_assignment_commands::create_task_assignment,
+                task_assignment_commands::delete_task_assignment,
+                subtask_assignment_commands::create_subtask_assignment,
+                subtask_assignment_commands::delete_subtask_assignment,
                 // Task recurrence management commands
                 task_commands::create_recurrence_rule,
                 task_commands::get_recurrence_rule,

@@ -1,4 +1,5 @@
 import type { TaskList, TaskListWithTasks } from './task-list';
+import type { Tag } from './tag';
 
 /**
  * プロジェクト
@@ -52,4 +53,6 @@ export interface ProjectSearchCondition {
 export interface ProjectTree extends Project {
   /** タスクを含むタスクリスト */
   taskLists: TaskListWithTasks[];
+  /** プロジェクト内の全タグ（フロントエンド側でタグID→タグオブジェクト変換用） */
+  allTags: Tag[];
 }

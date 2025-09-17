@@ -89,108 +89,87 @@ where
     // 1. プロジェクトのタスクリストを取得
     let task_lists = list_task_lists(repositories, project_id).await?;
 
+    // 2. プロジェクト内の全タグを1回だけ取得（パフォーマンス最適化）
+    let all_tags = repositories.tags().find_all(project_id).await?;
+    let tag_map: std::collections::HashMap<_, _> = all_tags.into_iter()
+        .map(|tag| (tag.id.clone(), tag))
+        .collect();
+
+    // 3. プロジェクト内の全タスクとサブタスクを一括取得（パフォーマンス最適化）
+    let all_tasks = repositories.tasks().find_all(project_id).await?;
+    let all_subtasks = repositories.sub_tasks().find_all(project_id).await?;
+
     let mut task_lists_with_tasks = Vec::new();
 
-    // 2. 各タスクリストに対してタスクを取得
+    // 4. 各タスクリストに対してタスクを取得
     for task_list in task_lists {
         // タスクリストに属するタスクを取得
-        let tasks = repositories
-            .tasks()
-            .find_all(project_id)
-            .await?
-            .into_iter()
+        let tasks = all_tasks
+            .iter()
             .filter(|task| task.list_id == task_list.id)
             .collect::<Vec<_>>();
 
         let mut tasks_with_subtasks = Vec::new();
 
-        // 3. 各タスクにサブタスクとタグを追加
+        // 5. 各タスクにサブタスクとタグを追加
         for task in tasks {
             // サブタスクを取得
-            let subtasks = repositories
-                .sub_tasks()
-                .find_all(project_id)
-                .await?
-                .into_iter()
+            let subtasks = all_subtasks
+                .iter()
                 .filter(|subtask| subtask.task_id == task.id)
                 .collect::<Vec<_>>();
 
-            // タグを取得（タスクに関連付けられたタグ）
-            let tags = if !task.tag_ids.is_empty() {
-                repositories
-                    .tags()
-                    .find_all(project_id)
-                    .await?
-                    .into_iter()
-                    .filter(|tag| task.tag_ids.contains(&tag.id))
-                    .collect::<Vec<_>>()
-            } else {
-                Vec::new()
-            };
 
             // SubTaskからSubTaskTreeに変換
             let mut sub_task_trees = Vec::new();
             for subtask in subtasks {
-                // サブタスクに関連するタグを取得
-                let subtask_tags = if !subtask.tag_ids.is_empty() {
-                    repositories
-                        .tags()
-                        .find_all(project_id)
-                        .await?
-                        .into_iter()
-                        .filter(|tag| subtask.tag_ids.contains(&tag.id))
-                        .collect::<Vec<_>>()
-                } else {
-                    Vec::new()
-                };
-
                 let sub_task_tree = SubTaskTree {
-                    id: subtask.id,
-                    task_id: subtask.task_id,
-                    title: subtask.title,
-                    description: subtask.description,
-                    status: subtask.status,
+                    id: subtask.id.clone(),
+                    task_id: subtask.task_id.clone(),
+                    title: subtask.title.clone(),
+                    description: subtask.description.clone(),
+                    status: subtask.status.clone(),
                     priority: subtask.priority,
                     plan_start_date: subtask.plan_start_date,
                     plan_end_date: subtask.plan_end_date,
                     do_start_date: subtask.do_start_date,
                     do_end_date: subtask.do_end_date,
                     is_range_date: subtask.is_range_date,
-                    recurrence_rule: subtask.recurrence_rule,
+                    recurrence_rule: subtask.recurrence_rule.clone(),
                     order_index: subtask.order_index,
                     completed: subtask.completed,
                     created_at: subtask.created_at,
                     updated_at: subtask.updated_at,
-                    assigned_user_ids: subtask.assigned_user_ids,
-                    tags: subtask_tags,
+                    assigned_user_ids: subtask.assigned_user_ids.clone(),
+                    tag_ids: subtask.tag_ids.clone(),
                 };
                 sub_task_trees.push(sub_task_tree);
             }
 
-            let tasktree = TaskTree {
-                id: task.id,
-                project_id: task.project_id,
-                list_id: task.list_id,
-                title: task.title,
-                description: task.description,
-                status: task.status,
+            let task_tree = TaskTree {
+                id: task.id.clone(),
+                project_id: task.project_id.clone(),
+                list_id: task.list_id.clone(),
+                title: task.title.clone(),
+                description: task.description.clone(),
+                status: task.status.clone(),
                 priority: task.priority,
                 plan_start_date: task.plan_start_date,
                 plan_end_date: task.plan_end_date,
                 do_start_date: task.do_start_date,
                 do_end_date: task.do_end_date,
                 is_range_date: task.is_range_date,
-                recurrence_rule: task.recurrence_rule,
-                assigned_user_ids: task.assigned_user_ids,
+                recurrence_rule: task.recurrence_rule.clone(),
+                assigned_user_ids: task.assigned_user_ids.clone(),
                 order_index: task.order_index,
                 is_archived: task.is_archived,
                 created_at: task.created_at,
                 updated_at: task.updated_at,
                 sub_tasks: sub_task_trees,
-                tags,
+                tag_ids: task.tag_ids.clone(),
             };
 
-            tasks_with_subtasks.push(tasktree);
+            tasks_with_subtasks.push(task_tree);
         }
 
         // TaskListTreeを構築

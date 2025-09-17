@@ -9,7 +9,6 @@
 //! - `TaskWithSubTasks`: サブタスクとタグ情報を含む完全なタスク構造
 
 use super::recurrence_rule::RecurrenceRule;
-use super::tag::Tag;
 use crate::types::{
     id_types::{TagId, TaskId, TaskListId, UserId},
     task_types::TaskStatus,
@@ -219,14 +218,14 @@ pub struct TaskTree {
     pub updated_at: DateTime<Utc>,
     /// 所属するサブタスクの配列（SubTask構造体）
     pub sub_tasks: Vec<SubTaskTree>,
-    /// 付与されたタグの配列（Tag構造体の実体）
-    pub tags: Vec<Tag>,
+    /// 付与されたタグIDの配列
+    pub tag_ids: Vec<TagId>,
 }
 
 #[async_trait]
 impl ModelConverter<Task> for TaskTree {
     async fn to_model(&self) -> Result<Task, String> {
-        // TaskTreeからTaskに変換（関連データのsub_tasks, tagsは除く）
+        // TaskTreeからTaskに変換（関連データのsub_tasks, tag_idsは直接使用）
         Ok(Task {
             id: self.id.clone(),
             project_id: self.project_id.clone(),
@@ -242,7 +241,7 @@ impl ModelConverter<Task> for TaskTree {
             is_range_date: self.is_range_date,
             recurrence_rule: self.recurrence_rule.clone(),
             assigned_user_ids: self.assigned_user_ids.clone(),
-            tag_ids: self.tags.iter().map(|tag| tag.id.clone()).collect(), // タグの実体からIDを取得
+            tag_ids: self.tag_ids.clone(), // タグIDリストをそのまま使用
             order_index: self.order_index,
             is_archived: self.is_archived,
             created_at: self.created_at,

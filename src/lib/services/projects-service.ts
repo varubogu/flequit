@@ -88,14 +88,14 @@ export class ProjectsService {
       ...project,
       taskLists: project.taskLists.map((list) => ({
         id: list.id,
-        project_id: list.projectId,
+        projectId: list.projectId,
         name: list.name,
         description: list.description,
         color: list.color,
-        order_index: list.orderIndex,
-        is_archived: list.isArchived,
-        created_at: list.createdAt,
-        updated_at: list.updatedAt
+        orderIndex: list.orderIndex,
+        isArchived: list.isArchived,
+        createdAt: list.createdAt,
+        updatedAt: list.updatedAt
       }))
     };
   }
@@ -107,10 +107,10 @@ export class ProjectsService {
       name: project.name,
       description: project.description,
       color: project.color,
-      order_index: project.orderIndex,
-      is_archived: project.isArchived,
-      created_at: project.createdAt,
-      updated_at: project.updatedAt
+      orderIndex: project.orderIndex,
+      isArchived: project.isArchived,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt
     }));
   }
 
@@ -249,14 +249,14 @@ export class ProjectsService {
 
     return project.taskLists.map((list) => ({
       id: list.id,
-      project_id: list.projectId,
+      projectId: list.projectId,
       name: list.name,
       description: list.description,
       color: list.color,
-      order_index: list.orderIndex,
-      is_archived: list.isArchived,
-      created_at: list.createdAt,
-      updated_at: list.updatedAt
+      orderIndex: list.orderIndex,
+      isArchived: list.isArchived,
+      createdAt: list.createdAt,
+      updatedAt: list.updatedAt
     }));
   }
 
@@ -279,14 +279,14 @@ export class ProjectsService {
       foundTaskLists.push(
         ...matchingLists.map((list) => ({
           id: list.id,
-          project_id: list.projectId,
+          projectId: list.projectId,
           name: list.name,
           description: list.description,
           color: list.color,
-          order_index: list.orderIndex,
-          is_archived: list.isArchived,
-          created_at: list.createdAt,
-          updated_at: list.updatedAt
+          orderIndex: list.orderIndex,
+          isArchived: list.isArchived,
+          createdAt: list.createdAt,
+          updatedAt: list.updatedAt
         }))
       );
     }

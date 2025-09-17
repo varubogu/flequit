@@ -179,7 +179,7 @@ pub struct SubTaskTreeCommandModel {
     pub completed: bool,
     pub created_at: String,
     pub updated_at: String,
-    pub tags: Vec<super::tag::TagCommandModel>,
+    pub tag_ids: Vec<String>,
 }
 
 impl SubTaskTreeCommandModel {
@@ -187,10 +187,6 @@ impl SubTaskTreeCommandModel {
     pub async fn from_domain_model(
         subtask: &SubTaskTree,
     ) -> Result<SubTaskTreeCommandModel, String> {
-        let mut tag_commands = Vec::new();
-        for tag in &subtask.tags {
-            tag_commands.push(tag.to_command_model().await?);
-        }
 
         Ok(SubTaskTreeCommandModel {
             id: subtask.id.to_string(),
@@ -218,7 +214,7 @@ impl SubTaskTreeCommandModel {
             completed: subtask.completed,
             created_at: subtask.created_at.to_rfc3339(),
             updated_at: subtask.updated_at.to_rfc3339(),
-            tags: tag_commands,
+            tag_ids: subtask.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
     }
 }
@@ -276,10 +272,6 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
             None
         };
 
-        let mut tags = Vec::new();
-        for tag in &self.tags {
-            tags.push(tag.to_model().await?);
-        }
 
         Ok(SubTaskTree {
             id: SubTaskId::from(self.id.clone()),
@@ -307,7 +299,7 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
                 .iter()
                 .map(|id| UserId::from(id.clone()))
                 .collect(),
-            tags,
+            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
         })
     }
 }
@@ -315,10 +307,6 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
 #[async_trait]
 impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
     async fn to_command_model(&self) -> Result<SubTaskTreeCommandModel, String> {
-        let mut tag_commands = Vec::new();
-        for tag in &self.tags {
-            tag_commands.push(tag.to_command_model().await?);
-        }
 
         Ok(SubTaskTreeCommandModel {
             id: self.id.to_string(),
@@ -346,7 +334,7 @@ impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
-            tags: tag_commands,
+            tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
     }
 }

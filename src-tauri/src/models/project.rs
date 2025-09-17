@@ -95,6 +95,7 @@ pub struct ProjectTreeCommandModel {
     pub created_at: String,
     pub updated_at: String,
     pub task_lists: Vec<super::task_list::TaskListTreeCommandModel>,
+    pub all_tags: Vec<super::tag::TagCommandModel>,
 }
 
 #[async_trait]
@@ -114,6 +115,11 @@ impl ModelConverter<ProjectTree> for ProjectTreeCommandModel {
         let mut task_list_commands = Vec::new();
         for task_list in &self.task_lists {
             task_list_commands.push(task_list.to_model().await?);
+        }
+
+        let mut tag_commands = Vec::new();
+        for tag in &self.all_tags {
+            tag_commands.push(tag.to_model().await?);
         }
 
         Ok(ProjectTree {
@@ -154,6 +160,7 @@ impl CommandModelConverter<ProjectTreeCommandModel> for ProjectTree {
                 }
                 task_list_commands
             },
+            all_tags: Vec::new(), // ProjectTreeにはall_tagsフィールドがないため空のVecを返す
         })
     }
 }
