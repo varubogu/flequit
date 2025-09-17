@@ -1,12 +1,13 @@
 pub mod account_facades;
-pub mod assignment_facades;
 pub mod datetime_facades;
 pub mod initialization_facades;
 pub mod project_facades;
 pub mod recurrence_facades;
+pub mod subtask_assignment_facades;
 pub mod subtask_facades;
 pub mod tag_facades;
 pub mod tagging_facades;
+pub mod task_assignment_facades;
 pub mod task_facades;
 pub mod task_list_facades;
 pub mod user_facades;
