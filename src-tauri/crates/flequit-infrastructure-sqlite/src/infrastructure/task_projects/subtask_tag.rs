@@ -92,6 +92,7 @@ impl SubtaskTagLocalSqliteRepository {
 
         // 既存の関連が存在するかチェック
         let existing = SubtaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::SubtaskId.eq(subtask_id.to_string()))
             .filter(Column::TagId.eq(tag_id.to_string()))
             .one(db)
@@ -101,11 +102,16 @@ impl SubtaskTagLocalSqliteRepository {
         if existing.is_none() {
             // 関連が存在しない場合のみ追加
             let active_model = crate::models::subtask_tag::ActiveModel {
-                project_id: Set(project_id.to_string()),
                 subtask_id: Set(subtask_id.to_string()),
+                project_id: Set(project_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
             };
+
+            log::info!(
+                "SQLite SubtaskTag INSERT - project: {}, subtask: {}, tag: {}",
+                project_id, subtask_id, tag_id
+            );
 
             active_model
                 .insert(db)

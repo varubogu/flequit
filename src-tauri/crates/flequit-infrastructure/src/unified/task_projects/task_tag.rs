@@ -164,6 +164,14 @@ impl TaskTagUnifiedRepository {
         self.search_repositories
             .push(TaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
+
+    pub fn save_repositories_count(&self) -> usize {
+        self.save_repositories.len()
+    }
+
+    pub fn search_repositories_count(&self) -> usize {
+        self.search_repositories.len()
+    }
 }
 
 impl TaskTagRepositoryTrait for TaskTagUnifiedRepository {}
@@ -182,8 +190,15 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
             project_id, parent_id, child_id
         );
 
-        for repository in &self.save_repositories {
+        info!(
+            "TaskTagUnifiedRepository::add - save_repositories count: {}",
+            self.save_repositories.len()
+        );
+
+        for (i, repository) in self.save_repositories.iter().enumerate() {
+            info!("TaskTagUnifiedRepository::add - calling repository {}: {:?}", i, std::any::type_name_of_val(repository));
             repository.add(project_id, parent_id, child_id).await?;
+            info!("TaskTagUnifiedRepository::add - repository {} completed", i);
         }
 
         Ok(())

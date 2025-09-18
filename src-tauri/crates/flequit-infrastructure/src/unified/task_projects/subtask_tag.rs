@@ -176,6 +176,14 @@ impl SubTaskTagUnifiedRepository {
         // 将来のWeb実装用の拡張ポイント
         // self.search_repositories.push(SubTaskTagRepositoryVariant::Web(web_repo));
     }
+
+    pub fn save_repositories_count(&self) -> usize {
+        self.save_repositories.len()
+    }
+
+    pub fn search_repositories_count(&self) -> usize {
+        self.search_repositories.len()
+    }
 }
 
 impl SubTaskTagRepositoryTrait for SubTaskTagUnifiedRepository {}

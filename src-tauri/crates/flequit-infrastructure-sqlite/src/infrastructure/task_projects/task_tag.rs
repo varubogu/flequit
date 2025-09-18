@@ -96,6 +96,7 @@ impl TaskTagLocalSqliteRepository {
 
         // 既存の関連が存在するかチェック
         let existing = TaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .filter(Column::TaskId.eq(task_id.to_string()))
             .filter(Column::TagId.eq(tag_id.to_string()))
             .one(db)
@@ -110,6 +111,11 @@ impl TaskTagLocalSqliteRepository {
                 tag_id: Set(tag_id.to_string()),
                 created_at: Set(Utc::now()),
             };
+
+            log::info!(
+                "SQLite TaskTag INSERT - project: {}, task: {}, tag: {}",
+                project_id, task_id, tag_id
+            );
 
             active_model
                 .insert(db)

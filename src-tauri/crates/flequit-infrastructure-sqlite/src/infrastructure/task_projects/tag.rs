@@ -152,6 +152,30 @@ impl TagLocalSqliteRepository {
             .await
             .map_err(RepositoryError::Conversion)
     }
+
+    pub async fn find_by_name_in_project(&self, project_id: &ProjectId, name: &str) -> Result<Option<Tag>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+
+        if let Some(model) = TagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::Name.eq(name))
+            .one(db)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
+        {
+            let tag = model
+                .to_domain_model()
+                .await
+                .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
+            Ok(Some(tag))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 #[async_trait]

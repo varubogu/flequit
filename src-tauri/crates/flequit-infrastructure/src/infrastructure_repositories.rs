@@ -119,8 +119,8 @@ impl InfrastructureRepositories {
         let recurrence_rules = RecurrenceRuleUnifiedRepository::default();
         let task_assignments = unified_manager.create_task_assignment_unified_repository().await?;
         let subtask_assignments = unified_manager.create_sub_task_assignment_unified_repository().await?;
-        let task_tags = TaskTagUnifiedRepository::default();
-        let subtask_tags = SubTaskTagUnifiedRepository::default();
+        let task_tags = unified_manager.create_task_tag_unified_repository().await?;
+        let subtask_tags = unified_manager.create_sub_task_tag_unified_repository().await?;
 
         tracing::info!("全UnifiedRepositoryの構築完了");
 

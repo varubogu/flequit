@@ -117,6 +117,9 @@ pub fn run() {
                 tagging_commands::delete_task_tag,
                 tagging_commands::create_subtask_tag,
                 tagging_commands::delete_subtask_tag,
+                // Name-based atomic tagging commands
+                tagging_commands::create_task_tag_by_name,
+                tagging_commands::create_subtask_tag_by_name,
                 // Assignment commands
                 task_assignment_commands::create_task_assignment,
                 task_assignment_commands::delete_task_assignment,
