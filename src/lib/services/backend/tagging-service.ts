@@ -1,3 +1,5 @@
+import type { Tag } from "$lib/types/tag";
+
 /**
  * タギング（タグ付け）管理サービスインターフェース
  */
@@ -6,7 +8,7 @@ export interface TaggingService {
   /**
    * タスクにタグを関連付け
    */
-  createTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean>;
+  createTaskTag(projectId: string, taskId: string, tagName: string): Promise<Tag>;
 
   /**
    * タスクとタグの関連付けを削除

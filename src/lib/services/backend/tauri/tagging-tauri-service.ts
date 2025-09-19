@@ -1,20 +1,15 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { TaggingService } from '$lib/services/backend/tagging-service';
+import type { Tag } from '$lib/types/tag';
 
 export class TaggingTauriService implements TaggingService {
   // Task Tag operations
-  async createTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean> {
+  async createTaskTag(projectId: string, taskId: string, tagName: string): Promise<Tag> {
     try {
-      const taskTag = {
-        taskId: taskId,
-        tagId: tagId,
-        createdAt: new Date().toISOString()
-      };
-      await invoke('create_task_tag', { projectId, taskTag });
-      return true;
+      return await invoke('create_task_tag', { projectId, taskId, tagName });
     } catch (error) {
       console.error('Failed to create task tag:', error);
-      return false;
+      throw error;
     }
   }
 

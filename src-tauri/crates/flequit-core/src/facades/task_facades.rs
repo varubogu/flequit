@@ -96,7 +96,7 @@ pub async fn add_task_tag<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     tag_name: &str,
-) -> Result<bool, String>
+) -> Result<Tag, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -108,8 +108,8 @@ where
     };
 
     // 2) 無ければ作成
-    let tag_id: TagId = if let Some(tag) = existing {
-        tag.id
+    let tag: Tag = if let Some(existing_tag) = existing {
+        existing_tag
     } else {
         let now = Utc::now();
         let new_tag = Tag {
@@ -121,15 +121,15 @@ where
             updated_at: now,
         };
         match tag_service::create_tag(repositories, project_id, &new_tag).await {
-            Ok(_) => new_tag.id,
+            Ok(_) => new_tag,
             Err(ServiceError::ValidationError(msg)) => return Err(msg),
             Err(e) => return Err(format!("Failed to create tag: {:?}", e)),
         }
     };
 
     // 3) 関連付け
-    match task_tag_service::add_task_tag_relation(repositories, project_id, task_id, &tag_id).await {
-        Ok(_) => Ok(true),
+    match task_tag_service::add_task_tag_relation(repositories, project_id, task_id, &tag.id).await {
+        Ok(_) => Ok(tag),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add task-tag relation: {:?}", e)),
     }

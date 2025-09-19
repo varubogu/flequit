@@ -124,7 +124,7 @@ export class TaskStore {
   loadProjectsData(projects: ProjectTree[]) {
     // プロジェクトレベルのタグ情報を先に処理
     const allTags = new SvelteMap<string, Tag>();
-    
+
     projects.forEach((project) => {
       // プロジェクトのallTagsフィールドからタグストアに登録
       if (project.allTags) {
@@ -495,24 +495,28 @@ export class TaskStore {
       for (const list of project.taskLists) {
         const task = list.tasks.find((t) => t.id === taskId);
         if (task) {
-          // プロジェクトIDを指定してタグを取得または作成
-          const tag = tagStore.getOrCreateTagWithProject(tagName, project.id);
-          if (!tag) return;
 
           // Check if tag already exists on this task (by name, not ID)
-          if (!task.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
-            task.tags.push(tag);
-            task.updatedAt = new SvelteDate();
-
+          if (!task.tags.some((t) => t.name.toLowerCase() === tagName.toLowerCase())) {
+            // すでにタグが存在する場合は何もしない
+            return;
+          } else {
             // 即時保存：新しいtagging serviceを使用
+            let tag: Tag;
             try {
               const backend = await getBackendService();
-              await backend.tagging.createTaskTag(project.id, taskId, tag.id);
+              tag = await backend.tagging.createTaskTag(project.id, taskId, tagName);
             } catch (error) {
               console.error('Failed to sync tag addition to backend:', error);
               errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
+              return;
             }
+            task.tags.push(tag);
           }
+          return;
+        }
+        else {
+          console.error('Failed to find task:', taskId);
           return;
         }
       }
