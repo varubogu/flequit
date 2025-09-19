@@ -52,7 +52,10 @@ pub async fn save_settings(
         .settings_manager
         .save_settings(&settings_model)
         .await
-        .map_err(|e| format!("設定の保存に失敗: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "save_settings", error = %e);
+            format!("設定の保存に失敗: {}", e)
+        })?;
 
     Ok(())
 }
@@ -73,13 +76,16 @@ pub async fn update_settings_partially(
     partial_settings: PartialSettingsCommandModel,
 ) -> Result<SettingsCommandModel, String> {
     let partial_model = partial_settings.to_model().await.map_err(|e| e.to_string())?;
-    
+
     // 設定管理サービスで差分更新を実行
     let updated_settings = state
         .settings_manager
         .update_settings_partially(&partial_model)
         .await
-        .map_err(|e| format!("部分的な設定更新に失敗: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "update_settings_partially", error = %e);
+            format!("部分的な設定更新に失敗: {}", e)
+        })?;
 
     // stateの設定も更新
     {
@@ -99,7 +105,10 @@ pub async fn initialize_settings_with_defaults(state: State<'_, AppState>) -> Re
         .settings_manager
         .initialize_with_defaults()
         .await
-        .map_err(|e| format!("設定の初期化に失敗: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "initialize_settings_with_defaults", error = %e);
+            format!("設定の初期化に失敗: {}", e)
+        })?;
 
     // stateの設定もデフォルトにリセット
     {
@@ -130,7 +139,10 @@ pub async fn get_settings_file_path(state: State<'_, AppState>) -> Result<String
 #[tauri::command]
 pub async fn get_all_settings(state: State<'_, AppState>) -> Result<SettingsCommandModel, String> {
     let settings = state.settings.read().await;
-    settings.to_command_model().await.map_err(|e| e.to_string())
+    settings.to_command_model().await.map_err(|e| {
+        tracing::error!(target: "commands::settings", command = "get_all_settings", error = %e);
+        e.to_string()
+    })
 }
 
 /// 特定のキーの設定値を保存します。
@@ -159,7 +171,7 @@ pub async fn set_setting(
 
 #[tauri::command]
 pub async fn get_custom_date_format_setting(
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
     id: String,
 ) -> Result<Option<DateTimeFormatCommandModel>, String> {
     // TODO: setting_facadesでの実装完了後に有効化
@@ -171,7 +183,7 @@ pub async fn get_custom_date_format_setting(
 
 #[tauri::command]
 pub async fn get_all_custom_date_format_settings(
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
 ) -> Result<Vec<DateTimeFormatCommandModel>, String>
 {
     // TODO: setting_facadesでの実装完了後に有効化
@@ -182,7 +194,7 @@ pub async fn get_all_custom_date_format_settings(
 
 #[tauri::command]
 pub async fn add_custom_date_format_setting(
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
     // TODO: setting_facadesでの実装完了後に有効化
@@ -193,7 +205,7 @@ pub async fn add_custom_date_format_setting(
 
 #[tauri::command]
 pub async fn update_custom_date_format_setting(
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
     format: DateTimeFormatCommandModel,
 ) -> Result<DateTimeFormatCommandModel, String> {
     // TODO: datetime_facadesでの実装完了後に有効化
@@ -205,7 +217,7 @@ pub async fn update_custom_date_format_setting(
 
 #[tauri::command]
 pub async fn delete_custom_date_format_setting(
-    state: State<'_, AppState>,
+    _state: State<'_, AppState>,
     id: String,
 ) -> Result<(), String> {
     // TODO: datetime_facadesでの実装完了後に有効化
@@ -288,11 +300,14 @@ pub async fn add_time_label_setting(
         settings.time_labels.push(time_label.clone());
 
         // ファイルにも保存
-        state
+    state
             .settings_manager
             .save_settings(&*settings)
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                tracing::error!(target: "commands::settings", command = "add_time_label_setting", error = %e);
+                e.to_string()
+            })?;
     }
 
     Ok(label)
@@ -331,7 +346,10 @@ pub async fn update_time_label_setting(
             .settings_manager
             .save_settings(&*settings)
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                tracing::error!(target: "commands::settings", command = "update_time_label_setting", error = %e);
+                e.to_string()
+            })?;
     }
 
     Ok(label)
@@ -356,7 +374,10 @@ pub async fn delete_time_label_setting(
             .settings_manager
             .save_settings(&*settings)
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                tracing::error!(target: "commands::settings", command = "delete_time_label_setting", error = %e);
+                e.to_string()
+            })?;
     }
 
     Ok(())
@@ -606,7 +627,10 @@ pub async fn update_setting(
         .settings_manager
         .update_settings_partially(&partial)
         .await
-        .map_err(|e| format!("設定の更新に失敗: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "update_setting", key = %key, error = %e);
+            format!("設定の更新に失敗: {}", e)
+        })?;
 
     // stateの設定も更新
     {
@@ -697,7 +721,10 @@ pub async fn add_custom_due_day(state: State<'_, AppState>, day: i32) -> Result<
         .settings_manager
         .save_settings(&*settings)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "add_custom_due_day", error = %e);
+            e.to_string()
+        })?;
     Ok(())
 }
 
@@ -718,7 +745,10 @@ pub async fn update_custom_due_day(
             .settings_manager
             .save_settings(&*settings)
             .await
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| {
+                tracing::error!(target: "commands::settings", command = "update_custom_due_day", error = %e);
+                e.to_string()
+            })?;
         return Ok(());
     }
     Err(format!("custom_due_days not found: {}", old_day))
@@ -738,7 +768,10 @@ pub async fn delete_custom_due_day(state: State<'_, AppState>, day: i32) -> Resu
         .settings_manager
         .save_settings(&*settings)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "delete_custom_due_day", error = %e);
+            e.to_string()
+        })?;
     Ok(())
 }
 
@@ -763,7 +796,10 @@ pub async fn add_datetime_format_setting(
         .settings_manager
         .save_settings(&*settings)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "add_datetime_format_setting", error = %e);
+            e.to_string()
+        })?;
     Ok(format)
 }
 
@@ -789,7 +825,10 @@ pub async fn upsert_datetime_format_setting(
         .settings_manager
         .save_settings(&*settings)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "upsert_datetime_format_setting", error = %e);
+            e.to_string()
+        })?;
     Ok(format)
 }
 
@@ -810,7 +849,10 @@ pub async fn delete_datetime_format_setting(
         .settings_manager
         .save_settings(&*settings)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(target: "commands::settings", command = "delete_datetime_format_setting", error = %e);
+            e.to_string()
+        })?;
     Ok(())
 }
 

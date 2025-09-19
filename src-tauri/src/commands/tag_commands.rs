@@ -21,7 +21,12 @@ pub async fn create_tag(
     let internal_tag = tag.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    tag_facades::create_tag(&*repositories, &project_id, &internal_tag).await
+    tag_facades::create_tag(&*repositories, &project_id, &internal_tag)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::tag", command = "create_tag", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 
@@ -41,7 +46,12 @@ pub async fn get_tag(
     };
     let repositories = state.repositories.read().await;
 
-    let result = tag_facades::get_tag(&*repositories, &project_id, &tag_id).await?;
+    let result = tag_facades::get_tag(&*repositories, &project_id, &tag_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::tag", command = "get_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
+            e
+        })?;
     match result {
         Some(tag) => Ok(Some(tag.to_command_model().await?)),
         None => Ok(None),
@@ -66,7 +76,12 @@ pub async fn update_tag(
     };
     let repositories = state.repositories.read().await;
 
-    tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch).await
+    tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::tag", command = "update_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
+            e
+        })
 }
 
 
@@ -86,5 +101,10 @@ pub async fn delete_tag(
     };
     let repositories = state.repositories.read().await;
 
-    tag_facades::delete_tag(&*repositories, &project_id, &tag_id).await
+    tag_facades::delete_tag(&*repositories, &project_id, &tag_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::tag", command = "delete_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
+            e
+        })
 }

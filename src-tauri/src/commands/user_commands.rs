@@ -15,7 +15,12 @@ pub async fn create_user(
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
     let internal_user = user.to_model().await?;
-    user_facades::create_user(&*repositories, &internal_user).await
+    user_facades::create_user(&*repositories, &internal_user)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::user", command = "create_user", error = %e);
+            e
+        })
 }
 
 
@@ -26,7 +31,12 @@ pub async fn get_user(
 ) -> Result<Option<UserCommandModel>, String> {
     let repositories = state.repositories.read().await;
     let user_id = UserId::from(id);
-    let result = user_facades::get_user(&*repositories, &user_id).await?;
+    let result = user_facades::get_user(&*repositories, &user_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::user", command = "get_user", user_id = %user_id, error = %e);
+            e
+        })?;
     if let Some(user) = result {
         let command_model = user.to_command_model().await?;
         Ok(Some(command_model))
@@ -44,13 +54,13 @@ pub async fn update_user(
 ) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
     let user_id = UserId::from(id);
-    
+
     // 既存のユーザーを取得
     let existing_user = match user_facades::get_user(&*repositories, &user_id).await? {
         Some(user) => user,
         None => return Err("User not found".to_string()),
     };
-    
+
     // PartialUserCommandModelから部分更新を適用した新しいUserを作成
     let updated_user = User {
         id: existing_user.id,
@@ -64,8 +74,13 @@ pub async fn update_user(
         created_at: existing_user.created_at,
         updated_at: chrono::Utc::now(), // 更新時刻を現在時刻に設定
     };
-    
-    user_facades::update_user(&*repositories, &updated_user).await
+
+    user_facades::update_user(&*repositories, &updated_user)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::user", command = "update_user", user_id = %user_id, error = %e);
+            e
+        })
 }
 
 
@@ -73,5 +88,10 @@ pub async fn update_user(
 pub async fn delete_user(state: State<'_, AppState>, user_id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
     let id = UserId::from(user_id);
-    user_facades::delete_user(&*repositories, &id).await
+    user_facades::delete_user(&*repositories, &id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::user", command = "delete_user", user_id = %id, error = %e);
+            e
+        })
 }

@@ -23,7 +23,12 @@ pub async fn create_sub_task(
     let subtask_param = sub_task.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param).await
+    subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::subtask", command = "create_sub_task", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 
@@ -46,7 +51,10 @@ pub async fn get_sub_task(
     match subtask_facades::get_sub_task(&*repositories, &project_id, &subtask_id).await {
         Ok(Some(subtask)) => Ok(Some(subtask.to_command_model().await?)),
         Ok(None) => Ok(None),
-        Err(e) => Err(format!("Failed to get sub task: {}", e)),
+        Err(e) => {
+            tracing::error!(target: "commands::subtask", command = "get_sub_task", project_id = %project_id, subtask_id = %subtask_id, error = %e);
+            Err(format!("Failed to get sub task: {}", e))
+        },
     }
 }
 
@@ -68,7 +76,12 @@ pub async fn update_sub_task(
     };
     let repositories = state.repositories.read().await;
 
-    subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch).await
+    subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::subtask", command = "update_sub_task", project_id = %project_id, subtask_id = %subtask_id, error = %e);
+            e
+        })
 }
 
 
@@ -88,7 +101,12 @@ pub async fn delete_sub_task(
     };
     let repositories = state.repositories.read().await;
 
-    subtask_facades::delete_sub_task(&*repositories, &project_id, &subtask_id).await
+    subtask_facades::delete_sub_task(&*repositories, &project_id, &subtask_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::subtask", command = "delete_sub_task", project_id = %project_id, subtask_id = %subtask_id, error = %e);
+            e
+        })
 }
 
 // =============================================================================
@@ -118,6 +136,10 @@ pub async fn create_subtask_recurrence(
         &recurrence_rule_id,
     )
     .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::subtask", command = "create_subtask_recurrence", project_id = %project_id, subtask_id = %subtask_id, recurrence_rule_id = %recurrence_rule_id, error = %e);
+        e
+    })
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
@@ -137,7 +159,11 @@ pub async fn get_subtask_recurrence_by_subtask_id(
 
     let result =
         recurrence_facades::get_subtask_recurrence_by_subtask_id(&*repositories, &project_id, &subtask_id_typed)
-            .await?;
+            .await
+            .map_err(|e| {
+                tracing::error!(target: "commands::subtask", command = "get_subtask_recurrence_by_subtask_id", project_id = %project_id, subtask_id = %subtask_id_typed, error = %e);
+                e
+            })?;
     match result {
         Some(subtask_recurrence) => Ok(Some(subtask_recurrence.to_command_model().await?)),
         None => Ok(None),
@@ -159,5 +185,10 @@ pub async fn delete_subtask_recurrence(
     };
     let subtask_id_typed = SubTaskId::from(subtask_id);
 
-    recurrence_facades::delete_subtask_recurrence(&*repositories, &project_id, &subtask_id_typed).await
+    recurrence_facades::delete_subtask_recurrence(&*repositories, &project_id, &subtask_id_typed)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::subtask", command = "delete_subtask_recurrence", project_id = %project_id, subtask_id = %subtask_id_typed, error = %e);
+            e
+        })
 }

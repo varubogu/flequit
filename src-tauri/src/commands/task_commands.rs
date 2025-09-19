@@ -22,7 +22,12 @@ pub async fn create_task(
     };
     let internal_task = task.to_model().await?;
     let repositories = state.repositories.read().await;
-    task_facades::create_task(&*repositories, &project_id, &internal_task).await
+    task_facades::create_task(&*repositories, &project_id, &internal_task)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "create_task", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 
@@ -41,7 +46,12 @@ pub async fn get_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    let result = task_facades::get_task(&*repositories, &project_id, &task_id).await?;
+    let result = task_facades::get_task(&*repositories, &project_id, &task_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "get_task", project_id = %project_id, task_id = %task_id, error = %e);
+            e
+        })?;
     match result {
         Some(task) => Ok(Some(task.to_command_model().await?)),
         None => Ok(None),
@@ -65,7 +75,12 @@ pub async fn update_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    task_facades::update_task(&*repositories, &project_id, &task_id, &patch).await
+    task_facades::update_task(&*repositories, &project_id, &task_id, &patch)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "update_task", project_id = %project_id, task_id = %task_id, error = %e);
+            e
+        })
 }
 
 
@@ -84,7 +99,12 @@ pub async fn delete_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    task_facades::delete_task(&*repositories, &project_id, &task_id).await
+    task_facades::delete_task(&*repositories, &project_id, &task_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "delete_task", project_id = %project_id, task_id = %task_id, error = %e);
+            e
+        })
 }
 
 // =============================================================================
@@ -113,6 +133,10 @@ pub async fn create_task_recurrence(
         &recurrence_rule_id,
     )
     .await
+    .map_err(|e| {
+        tracing::error!(target: "commands::task", command = "create_task_recurrence", project_id = %project_id, task_id = %task_id, recurrence_rule_id = %recurrence_rule_id, error = %e);
+        e
+    })
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
@@ -130,7 +154,12 @@ pub async fn get_task_recurrence_by_task_id(
     let task_id_typed = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
     let result =
-        recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &project_id, &task_id_typed).await?;
+        recurrence_facades::get_task_recurrence_by_task_id(&*repositories, &project_id, &task_id_typed)
+            .await
+            .map_err(|e| {
+                tracing::error!(target: "commands::task", command = "get_task_recurrence_by_task_id", project_id = %project_id, task_id = %task_id_typed, error = %e);
+                e
+            })?;
     match result {
         Some(task_recurrence) => Ok(Some(task_recurrence.to_command_model().await?)),
         None => Ok(None),
@@ -151,7 +180,12 @@ pub async fn delete_task_recurrence(
         Err(err) => return Err(err.to_string()),
     };
     let task_id_typed = TaskId::from(task_id);
-    recurrence_facades::delete_task_recurrence(&*repositories, &project_id, &task_id_typed).await
+    recurrence_facades::delete_task_recurrence(&*repositories, &project_id, &task_id_typed)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "delete_task_recurrence", project_id = %project_id, task_id = %task_id_typed, error = %e);
+            e
+        })
 }
 
 // =============================================================================
@@ -172,7 +206,12 @@ pub async fn create_recurrence_rule(
     };
     let internal_rule = rule.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_recurrence_rule(&*repositories, &project_id, internal_rule).await
+    recurrence_facades::create_recurrence_rule(&*repositories, &project_id, internal_rule)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "create_recurrence_rule", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 /// 繰り返しルールを取得します。
@@ -188,7 +227,12 @@ pub async fn get_recurrence_rule(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let rule = recurrence_facades::get_recurrence_rule(&*repositories, &project_id, rule_id).await?;
+    let rule = recurrence_facades::get_recurrence_rule(&*repositories, &project_id, rule_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "get_recurrence_rule", project_id = %project_id, error = %e);
+            e
+        })?;
     match rule {
         Some(r) => Ok(Some(r.to_command_model().await?)),
         None => Ok(None),
@@ -207,7 +251,12 @@ pub async fn get_all_recurrence_rules(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let rules = recurrence_facades::get_all_recurrence_rules(&*repositories, &project_id).await?;
+    let rules = recurrence_facades::get_all_recurrence_rules(&*repositories, &project_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "get_all_recurrence_rules", project_id = %project_id, error = %e);
+            e
+        })?;
     let mut result = Vec::new();
     for rule in rules {
         result.push(rule.to_command_model().await?);
@@ -229,7 +278,12 @@ pub async fn update_recurrence_rule(
     };
     let internal_rule = rule.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::update_recurrence_rule(&*repositories, &project_id, internal_rule).await
+    recurrence_facades::update_recurrence_rule(&*repositories, &project_id, internal_rule)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "update_recurrence_rule", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 /// 繰り返しルールを削除します。
@@ -245,7 +299,12 @@ pub async fn delete_recurrence_rule(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    recurrence_facades::delete_recurrence_rule(&*repositories, &project_id, rule_id).await
+    recurrence_facades::delete_recurrence_rule(&*repositories, &project_id, rule_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "delete_recurrence_rule", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 // =============================================================================
@@ -266,7 +325,12 @@ pub async fn create_recurrence_adjustment(
     };
     let internal_adjustment = adjustment.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::create_recurrence_adjustment(&*repositories, &project_id, internal_adjustment).await
+    recurrence_facades::create_recurrence_adjustment(&*repositories, &project_id, internal_adjustment)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "create_recurrence_adjustment", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 /// 繰り返しルールIDによる調整一覧を取得します。
@@ -283,7 +347,12 @@ pub async fn get_recurrence_adjustments_by_rule_id(
         Err(err) => return Err(err.to_string()),
     };
     let adjustments =
-        recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, &project_id, rule_id).await?;
+        recurrence_facades::get_recurrence_adjustments_by_rule_id(&*repositories, &project_id, rule_id)
+            .await
+            .map_err(|e| {
+                tracing::error!(target: "commands::task", command = "get_recurrence_adjustments_by_rule_id", project_id = %project_id, error = %e);
+                e
+            })?;
     let mut result = Vec::new();
     for adjustment in adjustments {
         result.push(adjustment.to_command_model().await?);
@@ -304,7 +373,12 @@ pub async fn delete_recurrence_adjustment(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    recurrence_facades::delete_recurrence_adjustment(&*repositories, &project_id, adjustment_id).await
+    recurrence_facades::delete_recurrence_adjustment(&*repositories, &project_id, adjustment_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "delete_recurrence_adjustment", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 // =============================================================================
@@ -325,7 +399,12 @@ pub async fn create_recurrence_details(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    recurrence_facades::create_recurrence_details(&*repositories, &project_id, internal_details).await
+    recurrence_facades::create_recurrence_details(&*repositories, &project_id, internal_details)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "create_recurrence_details", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 /// 繰り返しルールIDによる詳細を取得します。
@@ -342,7 +421,12 @@ pub async fn get_recurrence_details_by_rule_id(
         Err(err) => return Err(err.to_string()),
     };
     let details =
-        recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, &project_id, rule_id).await?;
+        recurrence_facades::get_recurrence_details_by_rule_id(&*repositories, &project_id, rule_id)
+            .await
+            .map_err(|e| {
+                tracing::error!(target: "commands::task", command = "get_recurrence_details_by_rule_id", project_id = %project_id, error = %e);
+                e
+            })?;
     match details {
         Some(detail) => Ok(Some(detail.to_command_model().await?)),
         None => Ok(None),
@@ -363,7 +447,12 @@ pub async fn update_recurrence_details(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    recurrence_facades::update_recurrence_details(&*repositories, &project_id, internal_details).await
+    recurrence_facades::update_recurrence_details(&*repositories, &project_id, internal_details)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "update_recurrence_details", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 /// 繰り返し詳細を削除します。
@@ -383,5 +472,10 @@ pub async fn delete_recurrence_details(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    recurrence_facades::delete_recurrence_details(&*repositories, &project_id, &details_id).await
+    recurrence_facades::delete_recurrence_details(&*repositories, &project_id, &details_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "delete_recurrence_details", project_id = %project_id, error = %e);
+            e
+        })
 }

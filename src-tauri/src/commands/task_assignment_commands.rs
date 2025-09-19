@@ -17,7 +17,12 @@ pub async fn create_task_assignment(
     let task_id = TaskId::from(task_assignment.task_id);
     let user_id = UserId::from(task_assignment.user_id);
     let repositories = state.repositories.read().await;
-    facades::add(&*repositories, &project_id, &task_id, &user_id).await
+    facades::add(&*repositories, &project_id, &task_id, &user_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_assignment", command = "create_task_assignment", project_id = %project_id, task_id = %task_id, user_id = %user_id, error = %e);
+            e
+        })
 }
 
 #[tauri::command]
@@ -34,5 +39,10 @@ pub async fn delete_task_assignment(
     let task_id_typed = TaskId::from(task_id);
     let user_id_typed = UserId::from(user_id);
     let repositories = state.repositories.read().await;
-    facades::remove(&*repositories, &project_id_typed, &task_id_typed, &user_id_typed).await
+    facades::remove(&*repositories, &project_id_typed, &task_id_typed, &user_id_typed)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_assignment", command = "delete_task_assignment", project_id = %project_id_typed, task_id = %task_id_typed, user_id = %user_id_typed, error = %e);
+            e
+        })
 }

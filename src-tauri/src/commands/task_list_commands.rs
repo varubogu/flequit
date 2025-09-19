@@ -21,7 +21,12 @@ pub async fn create_task_list(
     let internal_task_list = task_list.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    task_list_facades::create_task_list(&*repositories, &project_id, &internal_task_list).await
+    task_list_facades::create_task_list(&*repositories, &project_id, &internal_task_list)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_list", command = "create_task_list", project_id = %project_id, error = %e);
+            e
+        })
 }
 
 
@@ -42,7 +47,12 @@ pub async fn get_task_list(
     let repositories = state.repositories.read().await;
 
     let result =
-        task_list_facades::get_task_list(&*repositories, &project_id, &task_list_id).await?;
+        task_list_facades::get_task_list(&*repositories, &project_id, &task_list_id)
+            .await
+            .map_err(|e| {
+                tracing::error!(target: "commands::task_list", command = "get_task_list", project_id = %project_id, task_list_id = %task_list_id, error = %e);
+                e
+            })?;
     match result {
         Some(task_list) => Ok(Some(task_list.to_command_model().await?)),
         None => Ok(None),
@@ -67,7 +77,12 @@ pub async fn update_task_list(
     };
     let repositories = state.repositories.read().await;
 
-    task_list_facades::update_task_list(&*repositories, &project_id, &task_list_id, &patch).await
+    task_list_facades::update_task_list(&*repositories, &project_id, &task_list_id, &patch)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_list", command = "update_task_list", project_id = %project_id, task_list_id = %task_list_id, error = %e);
+            e
+        })
 }
 
 
@@ -87,7 +102,12 @@ pub async fn delete_task_list(
     };
     let repositories = state.repositories.read().await;
 
-    task_list_facades::delete_task_list(&*repositories, &project_id, &task_list_id).await
+    task_list_facades::delete_task_list(&*repositories, &project_id, &task_list_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_list", command = "delete_task_list", project_id = %project_id, task_list_id = %task_list_id, error = %e);
+            e
+        })
 }
 
 
@@ -102,13 +122,17 @@ pub async fn get_task_lists_with_tasks(
     };
     let repositories = state.repositories.read().await;
 
-    let task_lists_with_tasks = task_list_service::get_task_lists_with_tasks(&*repositories, &project_id).await
-        .map_err(|e| e.to_string())?;
-    
+    let task_lists_with_tasks = task_list_service::get_task_lists_with_tasks(&*repositories, &project_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task_list", command = "get_task_lists_with_tasks", project_id = %project_id, error = %e);
+            e.to_string()
+        })?;
+
     let mut result = Vec::new();
     for task_list in task_lists_with_tasks {
         result.push(task_list.to_command_model().await?);
     }
-    
+
     Ok(result)
 }

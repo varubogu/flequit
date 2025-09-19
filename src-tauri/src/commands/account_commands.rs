@@ -15,8 +15,12 @@ pub async fn create_account(
 ) -> Result<bool, String> {
     let internal_account = account.to_model().await?;
     let repositories = state.repositories.read().await;
-
-    account_facades::create_account(&*repositories, &internal_account).await
+    account_facades::create_account(&*repositories, &internal_account)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::account", command = "create_account", error = %e);
+            e
+        })
 }
 
 
@@ -28,7 +32,12 @@ pub async fn get_account(
     let account_id = AccountId::from(id);
     let repositories = state.repositories.read().await;
 
-    let result = account_facades::get_account(&*repositories, &account_id).await?;
+    let result = account_facades::get_account(&*repositories, &account_id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::account", command = "get_account", account_id = %account_id, error = %e);
+            e
+        })?;
     if let Some(account) = result {
         let command_model = account.to_command_model().await?;
         Ok(Some(command_model))
@@ -47,7 +56,12 @@ pub async fn update_account(
     let account_id = AccountId::from(id);
     let repositories = state.repositories.read().await;
 
-    account_facades::update_account(&*repositories, &account_id, &patch).await
+    account_facades::update_account(&*repositories, &account_id, &patch)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::account", command = "update_account", account_id = %account_id, error = %e);
+            e
+        })
 }
 
 
@@ -59,5 +73,10 @@ pub async fn delete_account(
     let id = AccountId::from(account_id);
     let repositories = state.repositories.read().await;
 
-    account_facades::delete_account(&*repositories, &id).await
+    account_facades::delete_account(&*repositories, &id)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::account", command = "delete_account", account_id = %id, error = %e);
+            e
+        })
 }
