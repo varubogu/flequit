@@ -5,31 +5,31 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node-terminal",
       "name": "web debug",
+      "type": "node-terminal",
       "command": "bun run dev",
       "request": "launch"
     },
     {
-      "type": "node-terminal",
       "name": "web tauri debug",
+      "type": "node-terminal",
       "command": "bun run tauri dev",
       "request": "launch"
     },
     {
+      "name": "tauri debug",
       "type": "lldb",
       "request": "launch",
-      "name": "tauri debug",
       "cargo": {
         "args": ["build", "--manifest-path=./src-tauri/Cargo.toml", "--no-default-features"]
       },
       // `beforeDevCommand` のタスクを使用する場合は、`.vscode/tasks.json` で設定する必要があります。
-      "preLaunchTask": "ui:dev"
+      "preLaunchTask": "ui:build"
     },
     {
+      "name": "Tauri prod debug",
       "type": "lldb",
       "request": "launch",
-      "name": "Tauri prod debug",
       "cargo": {
         "args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
       },
@@ -37,10 +37,10 @@
       "preLaunchTask": "ui:build"
     },
     {
+      "name": "Debug File",
       "type": "bun",
       "internalConsoleOptions": "neverOpen",
       "request": "launch",
-      "name": "Debug File",
       "program": "${file}",
       "cwd": "${workspaceFolder}",
       "stopOnEntry": false,
