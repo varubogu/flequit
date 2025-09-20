@@ -368,7 +368,7 @@ export class DataService {
     return newTag;
   }
 
-  async updateTag(tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
+  async updateTag(tagId: string, updates: Partial<Tag>, projectId?: string): Promise<Tag | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTag called with backend:', backend.constructor.name);
 
@@ -379,13 +379,13 @@ export class DataService {
     };
 
     console.log('DataService: calling backend.tag.update');
-    const projectId = this.getProjectId();
-    const success = await backend.tag.update(projectId, tagId, patchData);
+    const actualProjectId = projectId || this.getProjectId();
+    const success = await backend.tag.update(actualProjectId, tagId, patchData);
     console.log('DataService: backend.tag.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.tag.get(projectId, tagId);
+      return await backend.tag.get(actualProjectId, tagId);
     }
     return null;
   }

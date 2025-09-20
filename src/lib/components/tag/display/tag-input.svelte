@@ -9,6 +9,7 @@
     tags: Tag[];
     placeholder?: string;
     class?: string;
+    projectId?: string;
     ontagAdded?: (tagName: string) => void;
     ontagRemoved?: (tagId: string) => void;
   }
@@ -17,6 +18,7 @@
     tags = [],
     placeholder = reactiveMessage(m.add_tags_placeholder as (...args: unknown[]) => string)(),
     class: className = '',
+    projectId,
     ontagAdded,
     ontagRemoved
   }: Props = $props();
@@ -90,7 +92,7 @@
   {/if}
 
   <!-- Input field wrapped with TagCompletionProvider -->
-  <TagCompletionProvider ontagDetected={handleTagCompletion}>
+  <TagCompletionProvider ontagDetected={handleTagCompletion} projectId={projectId}>
     <input
       bind:this={inputElement}
       type="text"

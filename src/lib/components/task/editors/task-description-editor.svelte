@@ -30,6 +30,19 @@
   }: Props = $props();
 
   const translationService = getTranslationService();
+
+  // Get project ID for tag creation
+  const projectId = $derived(() => {
+    if (isNewTaskMode) {
+      return taskStore.selectedProjectId;
+    } else if (isSubTask) {
+      return taskStore.getProjectIdBySubTaskId(currentItem.id);
+    } else if ('list_id' in currentItem) {
+      return taskStore.getProjectIdByTaskId(currentItem.id);
+    }
+    return undefined;
+  });
+
   function handleDescriptionInput(event: CustomEvent<{ value: string }>) {
     onDescriptionChange(event.detail.value);
   }
@@ -61,7 +74,7 @@
     {description()}
     {#if isSubTask}<span class="text-muted-foreground text-xs">{optional()}</span>{/if}
   </label>
-  <TagCompletionProvider ontagDetected={handleTagDetected}>
+  <TagCompletionProvider ontagDetected={handleTagDetected} projectId={projectId() || undefined}>
     <Textarea
       id="task-description"
       class="min-h-24 w-full"

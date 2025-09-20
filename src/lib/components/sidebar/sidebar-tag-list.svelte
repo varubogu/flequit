@@ -60,6 +60,18 @@
     selectedTag = null;
   }
 
+  async function onEditSave(data: { name: string; color: string }) {
+    if (selectedTag) {
+      // Get project ID for this tag
+      const projectId = await tagStore.getProjectIdByTagId(selectedTag.id);
+      tagStore.updateTag(selectedTag.id, {
+        name: data.name,
+        color: data.color
+      }, projectId || undefined);
+    }
+    onEditComplete();
+  }
+
   function onDeleteConfirm() {
     if (selectedTag) {
       tagStore.deleteTag(selectedTag.id, (tagId) => {
@@ -160,12 +172,7 @@
   open={showEditDialog}
   tag={selectedTag}
   onclose={onEditComplete}
-  onsave={(data) => {
-    if (selectedTag) {
-      tagStore.updateTag(selectedTag.id, { name: data.name, color: data.color });
-    }
-    onEditComplete();
-  }}
+  onsave={onEditSave}
 />
 
 <!-- Delete Confirmation Dialog -->

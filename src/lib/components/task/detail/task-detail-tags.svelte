@@ -1,13 +1,13 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import type { SubTask } from '$lib/types/sub-task';
+  import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
   interface Props {
     task: TaskWithSubTasks | null;
-    subTask: SubTask | null;
+    subTask: SubTaskWithTags | null;
     isNewTaskMode?: boolean;
   }
 
@@ -16,6 +16,18 @@
   const translationService = getTranslationService();
   let currentItem = $derived(subTask || task);
   let isSubTask = $derived(!!subTask);
+
+  // Get project ID for tag creation
+  const projectId = $derived(() => {
+    if (isNewTaskMode) {
+      return taskStore.selectedProjectId;
+    } else if (isSubTask && currentItem) {
+      return taskStore.getProjectIdBySubTaskId(currentItem.id);
+    } else if (task) {
+      return taskStore.getProjectIdByTaskId(task.id);
+    }
+    return undefined;
+  });
 
   // Reactive messages
   const tags = translationService.getMessage('tags');
@@ -48,6 +60,6 @@
 {#if currentItem}
   <div>
     <h3 class="mb-2 block text-sm font-medium">{tags()}</h3>
-    <TagInput tags={currentItem.tags} ontagAdded={handleTagAdded} ontagRemoved={handleTagRemoved} />
+    <TagInput tags={currentItem.tags || []} projectId={projectId() || undefined} ontagAdded={handleTagAdded} ontagRemoved={handleTagRemoved} />
   </div>
 {/if}

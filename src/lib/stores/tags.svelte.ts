@@ -62,7 +62,7 @@ export class TagStore {
   }
 
   // async版（新しいバックエンド連携用）
-  async addTagAsync(tagData: { name: string; color?: string }): Promise<Tag | null> {
+  async addTagAsync(tagData: { name: string; color?: string }, projectId?: string): Promise<Tag | null> {
     const trimmedName = tagData.name.trim();
     if (!trimmedName) {
       return null;
@@ -88,7 +88,7 @@ export class TagStore {
 
     // バックエンドに同期（作成操作は即座に保存）
     try {
-      await dataService.createTag(newTag);
+      await dataService.createTag(newTag, projectId);
     } catch (error) {
       console.error('Failed to sync new tag to backend:', error);
       errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
@@ -174,7 +174,7 @@ export class TagStore {
   }
 
   // 同期版（既存のテストとの互換性のため）
-  updateTag(tagId: string, updates: Partial<Tag>) {
+  updateTag(tagId: string, updates: Partial<Tag>, projectId?: string) {
     const tagIndex = this.tags.findIndex((tag) => tag.id === tagId);
     if (tagIndex !== -1) {
       this.tags[tagIndex] = {
@@ -184,7 +184,7 @@ export class TagStore {
       };
 
       // バックエンドに同期は非同期で実行（ファイア&フォーゲット）
-      this.syncUpdateTagToBackend(tagId, updates);
+      this.syncUpdateTagToBackend(tagId, updates, projectId);
 
       // Dispatch custom event to notify task store about tag update
       if (typeof window !== 'undefined') {
@@ -234,9 +234,9 @@ export class TagStore {
   }
 
   // バックエンド同期の内部メソッド
-  private async syncUpdateTagToBackend(tagId: string, updates: Partial<Tag>) {
+  private async syncUpdateTagToBackend(tagId: string, updates: Partial<Tag>, projectId?: string) {
     try {
-      await dataService.updateTag(tagId, updates);
+      await dataService.updateTag(tagId, updates, projectId);
     } catch (error) {
       console.error('Failed to sync tag update to backend:', error);
       errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
@@ -436,6 +436,13 @@ export class TagStore {
         this.updateTag(tag.id, { orderIndex: index });
       }
     });
+  }
+
+  // タグIDからプロジェクトIDを取得するヘルパーメソッド
+  async getProjectIdByTagId(tagId: string): Promise<string | null> {
+    // TaskStoreからタスクを検索してプロジェクトIDを取得
+    const { taskStore } = await import('$lib/stores/tasks.svelte');
+    return taskStore.getProjectIdByTagId(tagId);
   }
 }
 

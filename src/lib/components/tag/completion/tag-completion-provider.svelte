@@ -6,13 +6,14 @@
   interface Props {
     children: Snippet;
     ontagDetected?: (event: CustomEvent<TagDetectionData>) => void;
+    projectId?: string;
     class?: string;
   }
 
-  let { children, ontagDetected, class: className = '' }: Props = $props();
+  let { children, ontagDetected, projectId, class: className = '' }: Props = $props();
 
-  // Initialize logic with tag detection callback
-  const logic = new TagCompletionLogic(ontagDetected);
+  // Initialize logic with tag detection callback and project ID
+  const logic = new TagCompletionLogic(ontagDetected, projectId);
 
   // Set up event listeners on child elements
   let containerElement: HTMLDivElement;

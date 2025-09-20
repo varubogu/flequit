@@ -27,10 +27,12 @@ export class TagCompletionLogic implements KeyHandlerCallbacks {
 
   private onTagDetected?: (event: CustomEvent<TagDetectionData>) => void;
   private keyHandler: TagCompletionKeyHandler;
+  private projectId?: string;
 
-  constructor(onTagDetected?: (event: CustomEvent<TagDetectionData>) => void) {
+  constructor(onTagDetected?: (event: CustomEvent<TagDetectionData>) => void, projectId?: string) {
     this.onTagDetected = onTagDetected;
     this.keyHandler = new TagCompletionKeyHandler(this);
+    this.projectId = projectId;
   }
 
   // KeyHandlerCallbacks implementation
@@ -136,8 +138,10 @@ export class TagCompletionLogic implements KeyHandlerCallbacks {
       return;
     }
 
-    // Create the tag in the store
-    const createdTag = tagStore.getOrCreateTag(storeTagName);
+    // Create the tag in the store with project ID if available
+    const createdTag = this.projectId
+      ? tagStore.getOrCreateTagWithProject(storeTagName, this.projectId)
+      : tagStore.getOrCreateTag(storeTagName);
     if (!createdTag) return;
 
     TagElementUpdater.updateElementWithTag(

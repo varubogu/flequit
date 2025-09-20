@@ -62,12 +62,14 @@
     showDeleteDialog = true;
   }
 
-  function handleEditSave(data: { name: string; color: string }) {
+  async function handleEditSave(data: { name: string; color: string }) {
+    // Get project ID for this tag
+    const projectId = await tagStore.getProjectIdByTagId(tag.id);
     tagStore.updateTag(tag.id, {
       name: data.name,
       color: data.color,
       updatedAt: new Date()
-    });
+    }, projectId || undefined);
   }
 
   function handleDeleteConfirm() {

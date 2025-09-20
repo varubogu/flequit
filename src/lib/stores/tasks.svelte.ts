@@ -140,7 +140,7 @@ export class TaskStore {
     });
 
     // タグIDからタグオブジェクトへの変換マップを作成
-    const tagMap = new Map<string, Tag>();
+    const tagMap = new SvelteMap<string, Tag>();
     allTags.forEach((tag) => {
       tagMap.set(tag.id, tag);
     });
@@ -1135,6 +1135,27 @@ export class TaskStore {
       return null;
     }
     return this.getProjectIdByTaskId(taskId);
+  }
+
+  // Helper method to get project ID by tag ID
+  getProjectIdByTagId(tagId: string): string | null {
+    for (const project of this.projects) {
+      for (const list of project.taskLists) {
+        for (const task of list.tasks) {
+          // Check if tag exists on this task
+          if (task.tags.some((tag) => tag.id === tagId)) {
+            return project.id;
+          }
+          // Check if tag exists on subtasks
+          for (const subTask of task.subTasks as SubTaskWithTags[]) {
+            if (subTask.tags && subTask.tags.some((tag: Tag) => tag.id === tagId)) {
+              return project.id;
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 }
 
