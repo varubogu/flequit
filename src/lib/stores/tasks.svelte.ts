@@ -574,34 +574,42 @@ export class TaskStore {
   }
 
   async addTagToSubTask(subTaskId: string, tagName: string) {
+    const trimmed = tagName.trim();
+    if (!trimmed) {
+      console.warn('Empty tag name provided');
+      return;
+    }
+
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         for (const task of list.tasks) {
           const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags;
           if (subTask) {
-            // プロジェクトIDを指定してタグを取得または作成
-            const tag = tagStore.getOrCreateTagWithProject(tagName, project.id);
-            if (!tag) return;
-
             // Check if tag already exists on this subtask (by name, not ID)
-            if (!subTask.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
-              subTask.tags.push(tag);
-              subTask.updatedAt = new SvelteDate();
-
-              // 即時保存：新しいtagging serviceを使用
-              try {
-                const backend = await getBackendService();
-                await backend.tagging.createSubtaskTag(project.id, subTaskId, tag.id);
-              } catch (error) {
-                console.error('Failed to sync subtask tag addition to backend:', error);
-                errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
-              }
+            if (subTask.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
+              // すでにタグが存在する場合は何もしない
+              return;
             }
+
+            // 即時保存：新しいtagging serviceを使用
+            let tag: Tag;
+            try {
+              console.debug('[addTagToSubTask] invoking backend create_subtask_tag', { projectId: project.id, subTaskId, tagName: trimmed });
+              const backend = await getBackendService();
+              tag = await backend.tagging.createSubtaskTag(project.id, subTaskId, trimmed);
+            } catch (error) {
+              console.error('Failed to sync subtask tag addition to backend:', error);
+              errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
+              return;
+            }
+            subTask.tags.push(tag);
             return;
           }
         }
       }
     }
+
+    console.error('Failed to find subtask:', subTaskId);
   }
 
   async removeTagFromSubTask(subTaskId: string, tagId: string) {

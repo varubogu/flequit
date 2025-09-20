@@ -85,12 +85,12 @@ where
     }
 }
 
-pub async fn add_subtask_tag_by_name<R>(
+pub async fn add_subtask_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
     subtask_id: &SubTaskId,
     tag_name: &str,
-) -> Result<bool, String>
+) -> Result<Tag, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -102,8 +102,8 @@ where
     };
 
     // 2) 無ければ作成
-    let tag_id: TagId = if let Some(tag) = existing {
-        tag.id
+    let tag: Tag = if let Some(existing_tag) = existing {
+        existing_tag
     } else {
         use uuid::Uuid;
         let now = chrono::Utc::now();
@@ -116,15 +116,15 @@ where
             updated_at: now,
         };
         match tag_service::create_tag(repositories, project_id, &new_tag).await {
-            Ok(_) => new_tag.id,
+            Ok(_) => new_tag,
             Err(ServiceError::ValidationError(msg)) => return Err(msg),
             Err(e) => return Err(format!("Failed to create tag: {:?}", e)),
         }
     };
 
     // 3) 関連付け
-    match subtask_tag_service::add_subtask_tag_relation(repositories, project_id, subtask_id, &tag_id).await {
-        Ok(_) => Ok(true),
+    match subtask_tag_service::add_subtask_tag_relation(repositories, project_id, subtask_id, &tag.id).await {
+        Ok(_) => Ok(tag),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add subtask-tag relation: {:?}", e)),
     }

@@ -24,18 +24,12 @@ export class TaggingTauriService implements TaggingService {
   }
 
   // Subtask Tag operations
-  async createSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean> {
+  async createSubtaskTag(projectId: string, subtaskId: string, tagName: string): Promise<Tag> {
     try {
-      const subtaskTag = {
-        subtaskId: subtaskId,
-        tagId: tagId,
-        createdAt: new Date().toISOString()
-      };
-      await invoke('create_subtask_tag', { projectId, subtaskTag });
-      return true;
+      return await invoke('create_subtask_tag', { projectId, subtaskId, tagName });
     } catch (error) {
       console.error('Failed to create subtask tag:', error);
-      return false;
+      throw error;
     }
   }
 

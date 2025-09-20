@@ -1,5 +1,5 @@
 use crate::models::CommandModelConverter;
-use crate::models::{subtask_tag::SubtaskTagCommandModel, tag::TagCommandModel};
+use crate::models::tag::TagCommandModel;
 use crate::state::AppState;
 use flequit_core::facades::{task_facades, subtask_facades};
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId};
@@ -84,19 +84,19 @@ pub async fn create_subtask_tag_by_name(
     project_id: String,
     subtask_id: String,
     tag_name: String,
-) -> Result<bool, String> {
+) -> Result<TagCommandModel, String> {
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
     let subtask_id = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
-    subtask_facades::add_subtask_tag_by_name(&*repositories, &project_id, &subtask_id, &tag_name)
-        .await
-        .map_err(|e| {
-            tracing::error!(target: "commands::tagging", command = "create_subtask_tag_by_name", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
-            e
-        })
+    let result = subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name).await;
+    if let Err(e) = result {
+        tracing::error!(target: "commands::tagging", command = "create_subtask_tag_by_name", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
+        return Err(e);
+    }
+    Ok(result.unwrap().to_command_model().await?)
 }
 
 // 名前指定の削除は行わず、削除はID厳格指定の既存コマンドを使用する
@@ -105,22 +105,22 @@ pub async fn create_subtask_tag_by_name(
 pub async fn create_subtask_tag(
     state: State<'_, AppState>,
     project_id: String,
-    subtask_tag: SubtaskTagCommandModel,
-) -> Result<bool, String> {
+    subtask_id: String,
+    tag_name: String,
+) -> Result<TagCommandModel, String> {
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let subtask_id = SubTaskId::from(subtask_tag.subtask_id);
-    let tag_id = TagId::from(subtask_tag.tag_id);
+    let subtask_id = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
 
-    subtask_facades::add_subtask_tag_relation(&*repositories, &project_id, &subtask_id, &tag_id)
-        .await
-        .map_err(|e| {
-            tracing::error!(target: "commands::tagging", command = "create_subtask_tag", project_id = %project_id, subtask_id = %subtask_id, tag_id = %tag_id, error = %e);
-            e
-        })
+    let result = subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name).await;
+    if let Err(e) = result {
+        tracing::error!(target: "commands::tagging", command = "create_subtask_tag", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
+        return Err(e);
+    }
+    Ok(result.unwrap().to_command_model().await?)
 }
 
 

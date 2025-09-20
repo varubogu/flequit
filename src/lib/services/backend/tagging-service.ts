@@ -19,7 +19,7 @@ export interface TaggingService {
   /**
    * サブタスクにタグを関連付け
    */
-  createSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean>;
+  createSubtaskTag(projectId: string, subtaskId: string, tagName: string): Promise<Tag>;
 
   /**
    * サブタスクとタグの関連付けを削除
