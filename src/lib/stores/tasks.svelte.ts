@@ -491,36 +491,40 @@ export class TaskStore {
 
   // Tag management methods
   async addTagToTask(taskId: string, tagName: string) {
+    const trimmed = tagName.trim();
+    if (!trimmed) {
+      console.warn('Empty tag name provided');
+      return;
+    }
+
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         const task = list.tasks.find((t) => t.id === taskId);
         if (task) {
-
           // Check if tag already exists on this task (by name, not ID)
-          if (!task.tags.some((t) => t.name.toLowerCase() === tagName.toLowerCase())) {
+          if (task.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
             // すでにタグが存在する場合は何もしない
             return;
-          } else {
-            // 即時保存：新しいtagging serviceを使用
-            let tag: Tag;
-            try {
-              const backend = await getBackendService();
-              tag = await backend.tagging.createTaskTag(project.id, taskId, tagName);
-            } catch (error) {
-              console.error('Failed to sync tag addition to backend:', error);
-              errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
-              return;
-            }
-            task.tags.push(tag);
           }
-          return;
-        }
-        else {
-          console.error('Failed to find task:', taskId);
+
+          // 即時保存：新しいtagging serviceを使用
+          let tag: Tag;
+          try {
+            console.debug('[addTagToTask] invoking backend create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
+            const backend = await getBackendService();
+            tag = await backend.tagging.createTaskTag(project.id, taskId, trimmed);
+          } catch (error) {
+            console.error('Failed to sync tag addition to backend:', error);
+            errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
+            return;
+          }
+          task.tags.push(tag);
           return;
         }
       }
     }
+
+    console.error('Failed to find task:', taskId);
   }
 
   async removeTagFromTask(taskId: string, tagId: string) {
