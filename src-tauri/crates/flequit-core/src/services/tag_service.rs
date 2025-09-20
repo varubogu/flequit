@@ -53,18 +53,40 @@ where
 
 
 pub async fn update_tag<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _tag_id: &TagId,
-    _patch: &PartialTag,
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+    patch: &PartialTag,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // TODO: Infrastructure層にpatchメソッドが実装されたら有効化
-    Err(ServiceError::InternalError(
-        "Tag patch method is not implemented".to_string(),
-    ))
+    // 既存のタグを取得
+    if let Some(mut tag) = repositories
+        .tags()
+        .find_by_id(project_id, tag_id)
+        .await?
+    {
+        // パッチデータで更新
+        if let Some(name) = &patch.name {
+            tag.name = name.clone();
+        }
+        if let Some(color) = &patch.color {
+            tag.color = color.clone();
+        }
+        if let Some(order_index) = patch.order_index {
+            tag.order_index = order_index;
+        }
+
+        // 更新日時を設定
+        tag.updated_at = Utc::now();
+
+        // 保存
+        repositories.tags().save(project_id, &tag).await?;
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }
 
 
