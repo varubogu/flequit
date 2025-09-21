@@ -118,6 +118,32 @@ export class TaskDetailLogic {
     }, 500);
   }
 
+  // 即座に保存するメソッド（日付変更などでタスク一覧との同期が必要な場合）
+  saveImmediately() {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+
+    if (this.currentItem) {
+      const updates = {
+        title: this.editForm.title,
+        description: this.editForm.description || undefined,
+        priority: this.editForm.priority,
+        plan_start_date: this.editForm.plan_start_date,
+        plan_end_date: this.editForm.plan_end_date,
+        is_range_date: this.editForm.is_range_date
+      };
+
+      if (this.isNewTaskMode) {
+        taskStore.updateNewTaskData(updates);
+      } else if (this.isSubTask) {
+        taskStore.updateSubTask(this.currentItem.id, updates);
+      } else {
+        taskStore.updateTask(this.currentItem.id, updates);
+      }
+    }
+  }
+
   handleFormChange() {
     this.debouncedSave();
   }
@@ -199,7 +225,8 @@ export class TaskDetailLogic {
       };
     }
 
-    this.debouncedSave();
+    // 日付変更は即座に保存してタスク一覧に反映させる
+    this.saveImmediately();
   }
 
   handleDateClear() {
@@ -209,7 +236,8 @@ export class TaskDetailLogic {
       plan_end_date: undefined,
       is_range_date: false
     };
-    this.debouncedSave();
+    // 日付クリアも即座に保存してタスク一覧に反映させる
+    this.saveImmediately();
   }
 
   handleDatePickerClose() {
