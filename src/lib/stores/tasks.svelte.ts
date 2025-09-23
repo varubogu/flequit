@@ -373,7 +373,9 @@ export class TaskStore {
         for (const list of project.taskLists) {
           const task = list.tasks.find((t) => t.id === taskId);
           if (task) {
-            task.subTasks.push(newSubTask);
+            // UIでの操作用に tags を必ず初期化して保持（SubTaskWithTagsとして扱う）
+            const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
+            task.subTasks.push(subTaskWithTags);
             // 作成操作は即座に保存
             return newSubTask;
           }

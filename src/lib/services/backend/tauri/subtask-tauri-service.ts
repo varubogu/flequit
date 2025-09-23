@@ -1,9 +1,9 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubTaskSearchCondition, SubTask, SubTaskWithTags } from '$lib/types/sub-task';
+import type { SubTaskSearchCondition, SubTask } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
-  async create(projectId: string, subTask: SubTaskWithTags): Promise<boolean> {
+  async create(projectId: string, subTask: SubTask): Promise<boolean> {
     try {
       // SubTaskからSubtaskCommandModel形式に変換
       const subTaskCommandModel = {
@@ -20,7 +20,7 @@ export class SubtaskTauriService implements SubTaskService {
         isRangeDate: subTask.isRangeDate,
         recurrenceRule: subTask.recurrenceRule,
         assignedUserIds: subTask.assignedUserIds,
-        tagIds: subTask.tags.map(tag => tag.id), // Tag[] -> string[]
+        tagIds: subTask.tagIds,
         orderIndex: subTask.orderIndex,
         completed: subTask.completed,
         createdAt: subTask.createdAt.toISOString(),
@@ -35,7 +35,7 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<SubTaskWithTags>): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<SubTask>): Promise<boolean> {
     try {
       // Partial<SubTask>からSubtaskCommandModel形式に変換
       const subtaskPatchCommandModel = {
@@ -46,11 +46,8 @@ export class SubtaskTauriService implements SubTaskService {
         doEndDate: patch.doEndDate?.toISOString(),
         createdAt: patch.createdAt?.toISOString(),
         updatedAt: patch.updatedAt?.toISOString(),
-        tagIds: patch.tags?.map(tag => tag.id), // Tag[] -> string[]
+        tagIds: patch.tagIds,
       };
-
-      // tagsフィールドを削除（tag_idsに変換済み）
-      delete (subtaskPatchCommandModel as any).tags;
 
       const result = await invoke('update_sub_task', { projectId, id, patch: subtaskPatchCommandModel });
       return result as boolean;
