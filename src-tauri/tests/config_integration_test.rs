@@ -7,7 +7,10 @@ use tempfile::TempDir;
 /// テスト用の一時ディレクトリ設定
 fn setup_test_env() -> TempDir {
     let temp_dir = TempDir::new().unwrap();
+    // Linux (WSL含む) 環境ではdirectoriesクレートはXDG_CONFIG_HOMEを優先するため、
+    // HOMEと併せてXDG_CONFIG_HOMEも一時ディレクトリ配下に明示する
     env::set_var("HOME", temp_dir.path());
+    env::set_var("XDG_CONFIG_HOME", temp_dir.path().join(".config"));
     temp_dir
 }
 
@@ -32,8 +35,8 @@ async fn test_config_file_operations() {
     let config_path = config_manager.get_settings_path();
     assert!(config_path.exists(), "設定ファイルが実際に存在するはず");
     assert!(
-        config_path.to_string_lossy().ends_with("config.yml"),
-        "ファイル名がconfig.ymlであるはず"
+        config_path.to_string_lossy().ends_with("settings.yml"),
+        "ファイル名がsettings.ymlであるはず"
     );
 
     println!("✅ 設定ファイルパス: {}", config_path.display());
