@@ -1,0 +1,17 @@
+---
+description: バックエンド固有のルール
+globs:
+  - "src-tauri/**/*.rs"
+  - "src-tauri/**/*.toml"
+alwaysApply: true
+---
+
+# バックエンド固有ルール
+
+## Rust部分について
+
+詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` を参照してください。
+
+## モジュールの関連性
+
+詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` の「アーキテクチャ構成」セクションを参照してください。

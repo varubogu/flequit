@@ -1,0 +1,19 @@
+---
+description: プロジェクト概要
+globs:
+alwaysApply: true
+---
+
+# プロジェクト概要
+
+## アプリケーション概要
+
+Tauri製のタスク管理デスクトップアプリケーション。プロジェクト管理や人とタスクのやり取りも可能。現在はローカル動作（SQLite）想定だが、将来的にはWeb同期、クラウドストレージ同期も対応予定。同期時に競合が起きないようにAutoMergeベースのデータ管理システムを採用する。
+
+## 技術スタック
+
+詳細は `docs/develop/design/tech-stack.md` を参照してください。
+
+## プロジェクト構造
+
+詳細は `docs/develop/design/tech-stack.md` を参照してください。

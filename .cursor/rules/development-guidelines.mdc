@@ -1,0 +1,44 @@
+---
+description: 開発ガイドライン
+globs:
+alwaysApply: true
+---
+
+# 開発ガイドライン
+
+## 設計ドキュメントについて
+
+詳細な設計や仕様については、以下のdocsディレクトリ配下のドキュメントを参照してください：
+
+### アーキテクチャ・設計
+- `docs/develop/design/architecture.md` - 全体アーキテクチャ
+- `docs/develop/design/data/` - データ関連設計
+  - `data-structure.md` - データ構造仕様
+  - `data-security.md` - セキュリティ設計
+  - `tauri-automerge-repo-dataflow.md` - データフロー設計
+  - `partial-update-implementation.md` - 部分更新システム実装詳細
+- `docs/develop/design/frontend/` - フロントエンド設計
+- `docs/develop/design/database/` - データベース設計
+
+### 開発ルール
+- `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
+
+### 要件定義
+- `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
+
+### テスト
+- `docs/develop/design/testing.md` - テスト戦略とガイドライン
+
+必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
+
+## コーディング規約
+
+詳細は `docs/develop/rules/coding-standards.md` を参照してください。
+
+## 開発ワークフロー
+
+詳細は `docs/develop/rules/workflow.md` を参照してください。
+
+## コマンド一覧
+
+詳細は `docs/develop/commands.md` を参照してください。

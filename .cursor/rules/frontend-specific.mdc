@@ -1,0 +1,23 @@
+---
+description: フロントエンド固有のルール
+globs:
+  - "src/**/*.svelte"
+  - "src/**/*.ts"
+  - "src/**/*.js"
+alwaysApply: true
+---
+
+# フロントエンド固有ルール
+
+## Svelte 5 設計パターン
+
+詳細は `docs/develop/design/frontend/svelte5-patterns.md` を参照してください。
+
+## 国際化システム
+
+詳細は `docs/develop/design/frontend/i18n-system.md` を参照してください。
+
+## バックエンド（Tauri呼び出し）について
+
+commandのパラメータは`camelCase`で記述します。（自動的に変換される）
+ただしパラメータがオブジェクトの場合、プロパティは`snake_case`で記述します。
