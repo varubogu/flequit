@@ -468,7 +468,7 @@ describe('ProjectsService', () => {
 
       const result = await ProjectsService.archiveProject('project-123', true);
 
-      expect(vi.mocked(mockDataService.$1
+      expect(vi.mocked(mockDataService.updateProject)).toHaveBeenCalledWith('project-123', {
         is_archived: true
       });
       expect(result).toBe(true);

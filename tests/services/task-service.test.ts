@@ -98,8 +98,8 @@ test('TaskService.updateTaskFromForm: handles empty description', () => {
     title: 'Title Only',
     description: undefined,
     priority: 2,
-    plan$1: undefined,
-    plan$1: undefined,
+    planStartDate: undefined,
+    planEndDate: undefined,
     isRangeDate: false
   });
 });
@@ -143,11 +143,11 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', asy
     description: 'Task Description',
     status: 'not_started',
     priority: 2,
-    order_index: 0,
-    is_archived: false,
-    listId: 'project-123',
-    assigned_user_ids: [],
-    tag_ids: []
+    orderIndex: 0,
+    isArchived: false,
+    projectId: 'project-123',
+    assignedUserIds: [],
+    tagIds: []
   });
   expect(result).toBe(mockReturnTask);
 });
@@ -169,11 +169,11 @@ test('TaskService.addTask: handles default priority', async () => {
     description: undefined,
     status: 'not_started',
     priority: 0,
-    order_index: 0,
-    is_archived: false,
-    listId: 'project-123',
-    assigned_user_ids: [],
-    tag_ids: []
+    orderIndex: 0,
+    isArchived: false,
+    projectId: 'project-123',
+    assignedUserIds: [],
+    tagIds: []
   });
 });
 

@@ -82,6 +82,7 @@ describe('SubtaskWebService', () => {
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: deleteSubTask not implemented',
+        'test-project-id',
         'subtask-123'
       );
     });
@@ -92,9 +93,10 @@ describe('SubtaskWebService', () => {
       const result = await service.get('test-project-id', 'subtask-123');
 
       expect(result).toBeNull();
-      expect($1
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: getSubTask not implemented (called for data retrieval)',
         'test-project-id',
-        $3
+        'subtask-123'
       );
     });
   });
@@ -104,9 +106,10 @@ describe('SubtaskWebService', () => {
       const result = await service.search('test-project-id', mockSearchCondition);
 
       expect(result).toEqual([]);
-      expect($1
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Web backend: searchSubTasks not implemented',
         'test-project-id',
-        $3
+        mockSearchCondition
       );
     });
   });
