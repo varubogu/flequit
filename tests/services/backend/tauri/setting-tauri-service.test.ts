@@ -162,7 +162,7 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
         key: numberSetting.key,
-        value: '14'
+        value: 14
       });
       expect(result).toBe(true);
     });
@@ -181,7 +181,7 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
         key: jsonSetting.key,
-        value: '{"theme": "dark", "notifications": true}'
+        value: { theme: 'dark', notifications: true }
       });
       expect(result).toBe(true);
     });

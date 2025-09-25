@@ -124,7 +124,7 @@ describe('ProjectsService', () => {
 
   describe('updateProject', () => {
     it('should successfully update a project', async () => {
-      const updates = { name: 'Updated Project', is_archived: true };
+      const updates = { name: 'Updated Project', isArchived: true };
 
       vi.mocked(mockDataService.updateProject).mockResolvedValue({ ...mockProject, ...updates });
       vi.mocked(mockTaskStore.updateProject).mockResolvedValue({ ...mockProject, ...updates });
@@ -262,7 +262,7 @@ describe('ProjectsService', () => {
 
       expect(result).toEqual({
         ...mockProject,
-        task_lists: [mockTaskList]
+        taskLists: [mockTaskList]
       });
     });
 
@@ -285,7 +285,7 @@ describe('ProjectsService', () => {
 
       const result = ProjectsService.getAllProjects();
 
-      // getAllProjects returns Project[] (without task_lists)
+      // getAllProjects returns Project[] (without taskLists)
       const expectedProjects = [
         mockProject,
         { ...mockProject, id: 'project-456', name: 'Project 2' }
@@ -431,8 +431,8 @@ describe('ProjectsService', () => {
     it('should return only non-archived projects', () => {
       const projects = [
         mockProjectWithLists,
-        { ...mockProjectWithLists, id: 'project-456', is_archived: true },
-        { ...mockProjectWithLists, id: 'project-789', is_archived: false }
+        { ...mockProjectWithLists, id: 'project-456', isArchived: true },
+        { ...mockProjectWithLists, id: 'project-789', isArchived: false }
       ];
       mockTaskStore.projects = projects;
 
@@ -444,8 +444,8 @@ describe('ProjectsService', () => {
 
     it('should return empty array when all projects are archived', () => {
       const projects = [
-        { ...mockProjectWithLists, is_archived: true },
-        { ...mockProjectWithLists, id: 'project-456', is_archived: true }
+        { ...mockProjectWithLists, isArchived: true },
+        { ...mockProjectWithLists, id: 'project-456', isArchived: true }
       ];
       mockTaskStore.projects = projects;
 
@@ -468,7 +468,7 @@ describe('ProjectsService', () => {
 
       const result = await ProjectsService.archiveProject('project-123', true);
 
-      expect(vi.mocked(mockDataService.updateProject)).toHaveBeenCalledWith('project-123', {
+      expect(vi.mocked(mockDataService.$1
         is_archived: true
       });
       expect(result).toBe(true);

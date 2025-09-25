@@ -76,8 +76,8 @@ describe('WeekdayConditionEditor', () => {
     ] as const;
 
     weekdays.forEach((weekday) => {
-      const condition = { ...mockCondition, if_weekday: weekday };
-      expect(condition.if_weekday).toBe(weekday);
+      const condition = { ...mockCondition, ifWeekday: weekday };
+      expect(condition.ifWeekday).toBe(weekday);
     });
   });
 });

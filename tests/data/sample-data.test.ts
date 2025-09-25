@@ -22,11 +22,11 @@ describe('sample-data', () => {
       expect(project).toHaveProperty('name');
       expect(project).toHaveProperty('description');
       expect(project).toHaveProperty('color');
-      expect(project).toHaveProperty('order_index');
-      expect(project).toHaveProperty('is_archived');
-      expect(project).toHaveProperty('created_at');
-      expect(project).toHaveProperty('updated_at');
-      expect(project).toHaveProperty('task_lists');
+      expect(project).toHaveProperty('orderIndex');
+      expect(project).toHaveProperty('isArchived');
+      expect(project).toHaveProperty('createdAt');
+      expect(project).toHaveProperty('updatedAt');
+      expect(project).toHaveProperty('taskLists');
 
       expect(typeof project.id).toBe('string');
       expect(typeof project.name).toBe('string');
@@ -41,12 +41,12 @@ describe('sample-data', () => {
       const taskList = sampleData[0].taskLists[0];
 
       expect(taskList).toHaveProperty('id');
-      expect(taskList).toHaveProperty('project_id');
+      expect(taskList).toHaveProperty('projectId');
       expect(taskList).toHaveProperty('name');
-      expect(taskList).toHaveProperty('order_index');
-      expect(taskList).toHaveProperty('is_archived');
-      expect(taskList).toHaveProperty('created_at');
-      expect(taskList).toHaveProperty('updated_at');
+      expect(taskList).toHaveProperty('orderIndex');
+      expect(taskList).toHaveProperty('isArchived');
+      expect(taskList).toHaveProperty('createdAt');
+      expect(taskList).toHaveProperty('updatedAt');
       expect(taskList).toHaveProperty('tasks');
 
       expect(typeof taskList.id).toBe('string');
@@ -63,15 +63,15 @@ describe('sample-data', () => {
       const task = sampleData[0].taskLists[0].tasks[0];
 
       expect(task).toHaveProperty('id');
-      expect(task).toHaveProperty('list_id');
+      expect(task).toHaveProperty('listId');
       expect(task).toHaveProperty('title');
       expect(task).toHaveProperty('status');
       expect(task).toHaveProperty('priority');
-      expect(task).toHaveProperty('order_index');
-      expect(task).toHaveProperty('is_archived');
-      expect(task).toHaveProperty('created_at');
-      expect(task).toHaveProperty('updated_at');
-      expect(task).toHaveProperty('sub_tasks');
+      expect(task).toHaveProperty('orderIndex');
+      expect(task).toHaveProperty('isArchived');
+      expect(task).toHaveProperty('createdAt');
+      expect(task).toHaveProperty('updatedAt');
+      expect(task).toHaveProperty('subTasks');
       expect(task).toHaveProperty('tags');
 
       expect(typeof task.id).toBe('string');
@@ -107,12 +107,12 @@ describe('sample-data', () => {
 
       if (subtask) {
         expect(subtask).toHaveProperty('id');
-        expect(subtask).toHaveProperty('task_id');
+        expect(subtask).toHaveProperty('taskId');
         expect(subtask).toHaveProperty('title');
         expect(subtask).toHaveProperty('status');
-        expect(subtask).toHaveProperty('order_index');
-        expect(subtask).toHaveProperty('created_at');
-        expect(subtask).toHaveProperty('updated_at');
+        expect(subtask).toHaveProperty('orderIndex');
+        expect(subtask).toHaveProperty('createdAt');
+        expect(subtask).toHaveProperty('updatedAt');
 
         expect(typeof subtask.id).toBe('string');
         expect(typeof subtask.taskId).toBe('string');
@@ -146,8 +146,8 @@ describe('sample-data', () => {
         expect(tag).toHaveProperty('id');
         expect(tag).toHaveProperty('name');
         expect(tag).toHaveProperty('color');
-        expect(tag).toHaveProperty('created_at');
-        expect(tag).toHaveProperty('updated_at');
+        expect(tag).toHaveProperty('createdAt');
+        expect(tag).toHaveProperty('updatedAt');
 
         expect(typeof tag.id).toBe('string');
         expect(typeof tag.name).toBe('string');

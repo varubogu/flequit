@@ -66,9 +66,9 @@ test('TaskService.updateTaskFromForm: converts form data and calls updateTask', 
   const formData = {
     title: 'New Title',
     description: 'New Description',
-    plan_start_date: new Date('2024-01-15'),
-    plan_end_date: new Date('2024-01-20'),
-    is_range_date: true,
+    planStartDate: new Date('2024-01-15'),
+    planEndDate: new Date('2024-01-20'),
+    isRangeDate: true,
     priority: 1
   };
 
@@ -78,9 +78,9 @@ test('TaskService.updateTaskFromForm: converts form data and calls updateTask', 
     title: 'New Title',
     description: 'New Description',
     priority: 1,
-    plan_start_date: new Date('2024-01-15'),
-    plan_end_date: new Date('2024-01-20'),
-    is_range_date: true
+    planStartDate: new Date('2024-01-15'),
+    planEndDate: new Date('2024-01-20'),
+    isRangeDate: true
   });
 });
 
@@ -98,9 +98,9 @@ test('TaskService.updateTaskFromForm: handles empty description', () => {
     title: 'Title Only',
     description: undefined,
     priority: 2,
-    start_date: undefined,
-    end_date: undefined,
-    is_range_date: false
+    plan$1: undefined,
+    plan$1: undefined,
+    isRangeDate: false
   });
 });
 
@@ -138,14 +138,14 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', asy
   const result = await TaskService.addTask(listId, taskData);
 
   expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
-    list_id: listId,
+    listId: listId,
     title: 'New Task',
     description: 'Task Description',
     status: 'not_started',
     priority: 2,
     order_index: 0,
     is_archived: false,
-    project_id: 'project-123',
+    listId: 'project-123',
     assigned_user_ids: [],
     tag_ids: []
   });
@@ -164,14 +164,14 @@ test('TaskService.addTask: handles default priority', async () => {
   await TaskService.addTask(listId, taskData);
 
   expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
-    list_id: listId,
+    listId: listId,
     title: 'Task Without Priority',
     description: undefined,
     status: 'not_started',
     priority: 0,
     order_index: 0,
     is_archived: false,
-    project_id: 'project-123',
+    listId: 'project-123',
     assigned_user_ids: [],
     tag_ids: []
   });
@@ -258,9 +258,9 @@ test('TaskService.updateSubTaskFromForm: converts form data and calls updateSubT
   const formData = {
     title: 'Updated Subtask',
     description: 'Updated Description',
-    plan_start_date: new Date('2024-01-15'),
-    plan_end_date: new Date('2024-01-20'),
-    is_range_date: true,
+    planStartDate: new Date('2024-01-15'),
+    planEndDate: new Date('2024-01-20'),
+    isRangeDate: true,
     priority: 2
   };
 
@@ -270,9 +270,9 @@ test('TaskService.updateSubTaskFromForm: converts form data and calls updateSubT
     title: 'Updated Subtask',
     description: 'Updated Description',
     priority: 2,
-    plan_start_date: new Date('2024-01-15'),
-    plan_end_date: new Date('2024-01-20'),
-    is_range_date: true
+    planStartDate: new Date('2024-01-15'),
+    planEndDate: new Date('2024-01-20'),
+    isRangeDate: true
   });
 });
 
@@ -491,7 +491,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for today view', ()
   TaskService.updateTaskDueDateForView(taskId, 'today');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
-    plan_end_date: expect.objectContaining({
+    planEndDate: expect.objectContaining({
       getDate: today.getDate,
       getMonth: today.getMonth,
       getFullYear: today.getFullYear
@@ -505,7 +505,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for tomorrow view',
   TaskService.updateTaskDueDateForView(taskId, 'tomorrow');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
-    plan_end_date: expect.any(Date)
+    planEndDate: expect.any(Date)
   });
 });
 
@@ -515,7 +515,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for next3days view'
   TaskService.updateTaskDueDateForView(taskId, 'next3days');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
-    plan_end_date: expect.any(Date)
+    planEndDate: expect.any(Date)
   });
 });
 
@@ -525,7 +525,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for nextweek view',
   TaskService.updateTaskDueDateForView(taskId, 'nextweek');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
-    plan_end_date: expect.any(Date)
+    planEndDate: expect.any(Date)
   });
 });
 
@@ -535,7 +535,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for thismonth view'
   TaskService.updateTaskDueDateForView(taskId, 'thismonth');
 
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
-    plan_end_date: expect.any(Date)
+    planEndDate: expect.any(Date)
   });
 });
 
@@ -554,7 +554,7 @@ test('TaskService.updateSubTaskDueDateForView: updates due date for subtask', ()
   TaskService.updateSubTaskDueDateForView(subTaskId, taskId, 'today');
 
   expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
-    plan_end_date: expect.any(Date)
+    planEndDate: expect.any(Date)
   });
 });
 
@@ -562,12 +562,12 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
-    project_id: 'proj-1',
+    listId: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
-    list_id: 'list-123',
-    plan_end_date: new Date('2024-01-15'),
-    recurrence_rule: {
+    listId: 'list-123',
+    planEndDate: new Date('2024-01-15'),
+    listId: {
       unit: 'day',
       interval: 1
     }
@@ -580,16 +580,16 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   TaskService.changeTaskStatus(taskId, 'completed');
 
   expect(mockRecurrenceService.calculateNextDate).toHaveBeenCalledWith(
-    mockRecurringTask.plan_end_date,
-    mockRecurringTask.recurrence_rule
+    mockRecurringTask.planEndDate,
+    mockRecurringTask.listId
   );
   expect(mockTaskStore.createRecurringTask).toHaveBeenCalledWith(
     expect.objectContaining({
-      list_id: 'list-123',
+      listId: 'list-123',
       title: 'Recurring Task',
       status: 'not_started',
-      plan_end_date: nextDate,
-      recurrence_rule: mockRecurringTask.recurrence_rule
+      planEndDate: nextDate,
+      listId: mockRecurringTask.listId
     })
   );
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
@@ -609,12 +609,12 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
-    project_id: 'proj-1',
+    listId: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
-    list_id: 'list-123',
-    plan_end_date: new Date('2024-01-15'),
-    recurrence_rule: {
+    listId: 'list-123',
+    planEndDate: new Date('2024-01-15'),
+    listId: {
       unit: 'day',
       interval: 1
     }
@@ -638,14 +638,14 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
 
   const mockRecurringTask = {
     id: taskId,
-    project_id: 'proj-1',
+    listId: 'proj-1',
     title: 'Range Task',
     status: 'not_started',
-    list_id: 'list-123',
-    plan_start_date: startDate,
-    plan_end_date: endDate,
-    is_range_date: true,
-    recurrence_rule: {
+    listId: 'list-123',
+    planStartDate: startDate,
+    planEndDate: endDate,
+    isRangeDate: true,
+    listId: {
       unit: 'day',
       interval: 1
     }
@@ -658,9 +658,9 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
 
   expect(mockTaskStore.createRecurringTask).toHaveBeenCalledWith(
     expect.objectContaining({
-      plan_start_date: new Date('2024-01-11'), // 5日間の範囲を維持
-      plan_end_date: nextDate,
-      is_range_date: true
+      planStartDate: new Date('2024-01-11'), // 5日間の範囲を維持
+      planEndDate: nextDate,
+      isRangeDate: true
     })
   );
 });

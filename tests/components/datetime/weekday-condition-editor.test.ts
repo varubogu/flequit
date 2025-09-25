@@ -78,7 +78,7 @@ describe('WeekdayConditionEditor', () => {
     // selectの値を変更
     fireEvent.change(conditionSelect, { target: { value: 'tuesday' } });
 
-    expect(mockOnUpdate).toHaveBeenCalledWith({ if_weekday: 'tuesday' });
+    expect(mockOnUpdate).toHaveBeenCalledWith({ ifWeekday: 'tuesday' });
   });
 
   it('方向変更時にonUpdateが呼ばれる', () => {
@@ -105,7 +105,7 @@ describe('WeekdayConditionEditor', () => {
 
     fireEvent.change(directionSelect!, { target: { value: 'previous' } });
 
-    expect(mockOnUpdate).toHaveBeenCalledWith({ then_direction: 'previous' });
+    expect(mockOnUpdate).toHaveBeenCalledWith({ thenDirection: 'previous' });
   });
 
   it('削除ボタンクリック時にonRemoveが呼ばれる', () => {
@@ -143,8 +143,8 @@ describe('WeekdayConditionEditor', () => {
     fireEvent.change(targetSelect, { target: { value: 'saturday' } });
 
     expect(mockOnUpdate).toHaveBeenCalledWith({
-      then_target: 'specific_weekday',
-      then_weekday: 'saturday'
+      thenTarget: 'specific_weekday',
+      thenWeekday: 'saturday'
     });
   });
 });
