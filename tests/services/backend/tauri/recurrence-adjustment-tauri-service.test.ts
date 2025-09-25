@@ -114,7 +114,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.getByRuleId('rule-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_adjustments_by_rule_id', {
-        rule_id: 'rule-123'
+        ruleId: 'rule-123'
       });
       expect(result).toEqual(mockAdjustments);
     });
@@ -125,7 +125,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.getByRuleId('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_adjustments_by_rule_id', {
-        rule_id: 'non-existent'
+        ruleId: 'non-existent'
       });
       expect(result).toEqual([]);
     });
@@ -137,7 +137,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.getByRuleId('rule-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_adjustments_by_rule_id', {
-        rule_id: 'rule-123'
+        ruleId: 'rule-123'
       });
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get recurrence adjustments by rule ID:', expect.any(Error));
@@ -153,7 +153,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       for (const ruleId of ruleIds) {
         const result = await service.getByRuleId(ruleId);
         expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_adjustments_by_rule_id', {
-          rule_id: ruleId
+          ruleId
         });
         expect(result).toEqual([mockRecurrenceAdjustment]);
       }
@@ -167,7 +167,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.delete('adjustment-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_adjustment', {
-        adjustment_id: 'adjustment-123'
+        adjustmentId: 'adjustment-123'
       });
       expect(result).toBe(true);
     });
@@ -179,7 +179,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.delete('adjustment-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_adjustment', {
-        adjustment_id: 'adjustment-123'
+        adjustmentId: 'adjustment-123'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete recurrence adjustment:', expect.any(Error));
@@ -193,7 +193,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.delete('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_adjustment', {
-        adjustment_id: 'non-existent'
+        adjustmentId: 'non-existent'
       });
       expect(result).toBe(false);
     });
@@ -258,7 +258,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
       const result = await service.getByRuleId('');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_adjustments_by_rule_id', {
-        rule_id: ''
+        ruleId: ''
       });
       expect(result).toEqual([]);
     });

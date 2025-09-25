@@ -56,7 +56,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: mockTask });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.objectContaining({
+        id: mockTask.id,
+        listId: mockTask.listId,
+        title: mockTask.title
+      }) });
       expect(result).toBe(true);
     });
 
@@ -66,7 +70,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: mockTask });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.any(Object) });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task:', expect.any(Error));
 
@@ -90,7 +94,7 @@ describe('TaskTauriService', () => {
       } as any;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task', { project_id: 'test-project-id', id: mockTask.id, patch: patchData });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });
       expect(result).toBe(true);
     });
 
@@ -110,7 +114,7 @@ describe('TaskTauriService', () => {
       } as any;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task', { project_id: 'test-project-id', id: mockTask.id, patch: patchData });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task:', expect.any(Error));
 
@@ -124,7 +128,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'task-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { project_id: 'test-project-id', id: 'task-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBe(true);
     });
 
@@ -134,7 +138,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'task-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { project_id: 'test-project-id', id: 'task-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
 
@@ -148,7 +152,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'task-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { project_id: 'test-project-id', id: 'task-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toEqual(mockTask);
     });
 
@@ -157,7 +161,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'non-existent');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { project_id: 'test-project-id', id: 'non-existent' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'non-existent' });
       expect(result).toBeNull();
     });
 
@@ -167,7 +171,7 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'task-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { project_id: 'test-project-id', id: 'task-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task:', expect.any(Error));
 

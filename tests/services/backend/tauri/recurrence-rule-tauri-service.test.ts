@@ -96,7 +96,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { rule_id: 'rule-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { ruleId: 'rule-123' });
       expect(result).toEqual(mockRecurrenceRule);
     });
 
@@ -105,7 +105,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('non-existent');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { rule_id: 'non-existent' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { ruleId: 'non-existent' });
       expect(result).toBeNull();
     });
 
@@ -115,7 +115,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.get('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { rule_id: 'rule-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_recurrence_rule', { ruleId: 'rule-123' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get recurrence rule:', expect.any(Error));
 
@@ -215,7 +215,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.delete('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { rule_id: 'rule-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { ruleId: 'rule-123' });
       expect(result).toBe(true);
     });
 
@@ -225,7 +225,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const result = await service.delete('rule-123');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { rule_id: 'rule-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_recurrence_rule', { ruleId: 'rule-123' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete recurrence rule:', expect.any(Error));
 

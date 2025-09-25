@@ -154,7 +154,7 @@ describe('SettingTauriService', () => {
       const numberSetting = {
         ...mockSetting,
         key: 'font_size',
-        value: '14',
+        value: 14,
         data_type: 'number' as const
       };
 
@@ -162,7 +162,7 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
         key: numberSetting.key,
-        value: 14
+        value: '14'
       });
       expect(result).toBe(true);
     });
@@ -173,7 +173,7 @@ describe('SettingTauriService', () => {
       const jsonSetting = {
         ...mockSetting,
         key: 'custom_config',
-        value: '{"theme": "dark", "notifications": true}',
+        value: { theme: 'dark', notifications: true },
         data_type: 'json' as const
       };
 
@@ -181,7 +181,7 @@ describe('SettingTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('update_setting', {
         key: jsonSetting.key,
-        value: { theme: 'dark', notifications: true }
+        value: '{"theme": "dark", "notifications": true}'
       });
       expect(result).toBe(true);
     });

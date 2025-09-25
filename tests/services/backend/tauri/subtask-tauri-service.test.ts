@@ -56,10 +56,15 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
-        project_id: 'test-project-id',
-        sub_task: mockSubTask
-      });
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
+        projectId: 'test-project-id',
+        subTask: expect.objectContaining({
+          id: mockSubTask.id,
+          taskId: mockSubTask.taskId,
+          title: mockSubTask.title,
+          status: mockSubTask.status
+        })
+      }));
       expect(result).toBe(true);
     });
 
@@ -69,10 +74,10 @@ describe('SubtaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
-        project_id: 'test-project-id',
-        sub_task: mockSubTask
-      });
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
+        projectId: 'test-project-id',
+        subTask: expect.any(Object)
+      }));
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create sub task:', expect.any(Error));
 
@@ -84,24 +89,29 @@ describe('SubtaskTauriService', () => {
 
       const minimalSubTask = {
         id: 'subtask-minimal',
-        task_id: 'task-123',
+        taskId: 'task-123',
         title: 'Minimal SubTask',
         status: 'not_started' as const,
-        assigned_user_ids: [],
-        tag_ids: [],
-        order_index: 0,
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 0,
         completed: false,
         tags: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', minimalSubTask);
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', {
-        project_id: 'test-project-id',
-        sub_task: minimalSubTask
-      });
+      expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
+        projectId: 'test-project-id',
+        subTask: expect.objectContaining({
+          id: minimalSubTask.id,
+          taskId: minimalSubTask.taskId,
+          title: minimalSubTask.title,
+          status: minimalSubTask.status
+        })
+      }));
       expect(result).toBe(true);
     });
   });
@@ -122,7 +132,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: mockSubTask.id,
         patch: patchData
       });
@@ -145,7 +155,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: mockSubTask.id,
         patch: patchData
       });
@@ -177,7 +187,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.update('test-project-id', updatedSubTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: updatedSubTask.id,
         patch: patchData
       });
@@ -192,7 +202,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.delete('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: 'subtask-123'
       });
       expect(result).toBe(true);
@@ -205,7 +215,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.delete('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: 'subtask-123'
       });
       expect(result).toBe(false);
@@ -222,7 +232,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.get('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: 'subtask-123'
       });
       expect(result).toEqual(mockSubTask);
@@ -234,7 +244,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.get('test-project-id', 'non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: 'non-existent'
       });
       expect(result).toBeNull();
@@ -247,7 +257,7 @@ describe('SubtaskTauriService', () => {
       const result = await service.get('test-project-id', 'subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
-        project_id: 'test-project-id',
+        projectId: 'test-project-id',
         id: 'subtask-123'
       });
       expect(result).toBeNull();

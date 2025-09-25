@@ -34,7 +34,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.create(mockTaskRecurrence);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
-        task_recurrence: mockTaskRecurrence
+        taskRecurrence: mockTaskRecurrence
       });
       expect(result).toBe(true);
     });
@@ -46,7 +46,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.create(mockTaskRecurrence);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
-        task_recurrence: mockTaskRecurrence
+        taskRecurrence: mockTaskRecurrence
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task recurrence:', expect.any(Error));
@@ -58,16 +58,16 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const testCases = [
-        { task_id: 'task-1', recurrence_rule_id: 'rule-1' },
-        { task_id: 'task-2', recurrence_rule_id: 'rule-2' },
-        { task_id: 'task-3', recurrence_rule_id: 'rule-1' }
+        { taskId: 'task-1', recurrenceRuleId: 'rule-1' },
+        { taskId: 'task-2', recurrenceRuleId: 'rule-2' },
+        { taskId: 'task-3', recurrenceRuleId: 'rule-1' }
       ];
 
       for (const testCase of testCases) {
         const result = await service.create(testCase);
         expect(result).toBe(true);
         expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
-          task_recurrence: testCase
+          taskRecurrence: testCase
         });
       }
     });
@@ -80,7 +80,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.getByTaskId('task-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
-        task_id: 'task-123'
+        taskId: 'task-123'
       });
       expect(result).toEqual(mockTaskRecurrence);
     });
@@ -91,7 +91,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.getByTaskId('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
-        task_id: 'non-existent'
+        taskId: 'non-existent'
       });
       expect(result).toBeNull();
     });
@@ -103,7 +103,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.getByTaskId('task-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
-        task_id: 'task-123'
+        taskId: 'task-123'
       });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task recurrence by task ID:', expect.any(Error));
@@ -119,7 +119,7 @@ describe('TaskRecurrenceTauriService', () => {
       for (const taskId of taskIds) {
         const result = await service.getByTaskId(taskId);
         expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
-          task_id: taskId
+          taskId
         });
         expect(result).toEqual(mockTaskRecurrence);
       }
@@ -133,7 +133,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.delete('task-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
-        task_id: 'task-123'
+        taskId: 'task-123'
       });
       expect(result).toBe(true);
     });
@@ -145,7 +145,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.delete('task-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
-        task_id: 'task-123'
+        taskId: 'task-123'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task recurrence:', expect.any(Error));
@@ -159,7 +159,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.delete('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
-        task_id: 'non-existent'
+        taskId: 'non-existent'
       });
       expect(result).toBe(false);
     });
@@ -221,7 +221,7 @@ describe('TaskRecurrenceTauriService', () => {
       const result = await service.getByTaskId('');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
-        task_id: ''
+        taskId: ''
       });
       expect(result).toBeNull();
     });

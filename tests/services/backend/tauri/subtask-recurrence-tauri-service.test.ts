@@ -34,7 +34,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.create(mockSubtaskRecurrence);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_subtask_recurrence', {
-        subtask_recurrence: mockSubtaskRecurrence
+        subtaskRecurrence: mockSubtaskRecurrence
       });
       expect(result).toBe(true);
     });
@@ -46,7 +46,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.create(mockSubtaskRecurrence);
 
       expect(mockInvoke).toHaveBeenCalledWith('create_subtask_recurrence', {
-        subtask_recurrence: mockSubtaskRecurrence
+        subtaskRecurrence: mockSubtaskRecurrence
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create subtask recurrence:', expect.any(Error));
@@ -58,16 +58,16 @@ describe('SubtaskRecurrenceTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const testCases = [
-        { subtask_id: 'subtask-1', recurrence_rule_id: 'rule-1' },
-        { subtask_id: 'subtask-2', recurrence_rule_id: 'rule-2' },
-        { subtask_id: 'subtask-3', recurrence_rule_id: 'rule-1' }
+        { subtaskId: 'subtask-1', recurrenceRuleId: 'rule-1' },
+        { subtaskId: 'subtask-2', recurrenceRuleId: 'rule-2' },
+        { subtaskId: 'subtask-3', recurrenceRuleId: 'rule-1' }
       ];
 
       for (const testCase of testCases) {
         const result = await service.create(testCase);
         expect(result).toBe(true);
         expect(mockInvoke).toHaveBeenCalledWith('create_subtask_recurrence', {
-          subtask_recurrence: testCase
+          subtaskRecurrence: testCase
         });
       }
     });
@@ -80,7 +80,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.getBySubtaskId('subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_subtask_recurrence_by_subtask_id', {
-        subtask_id: 'subtask-123'
+        subtaskId: 'subtask-123'
       });
       expect(result).toEqual(mockSubtaskRecurrence);
     });
@@ -91,7 +91,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.getBySubtaskId('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_subtask_recurrence_by_subtask_id', {
-        subtask_id: 'non-existent'
+        subtaskId: 'non-existent'
       });
       expect(result).toBeNull();
     });
@@ -103,7 +103,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.getBySubtaskId('subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_subtask_recurrence_by_subtask_id', {
-        subtask_id: 'subtask-123'
+        subtaskId: 'subtask-123'
       });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get subtask recurrence by subtask ID:', expect.any(Error));
@@ -119,7 +119,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       for (const subtaskId of subtaskIds) {
         const result = await service.getBySubtaskId(subtaskId);
         expect(mockInvoke).toHaveBeenCalledWith('get_subtask_recurrence_by_subtask_id', {
-          subtask_id: subtaskId
+          subtaskId
         });
         expect(result).toEqual(mockSubtaskRecurrence);
       }
@@ -133,7 +133,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.delete('subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_subtask_recurrence', {
-        subtask_id: 'subtask-123'
+        subtaskId: 'subtask-123'
       });
       expect(result).toBe(true);
     });
@@ -145,7 +145,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.delete('subtask-123');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_subtask_recurrence', {
-        subtask_id: 'subtask-123'
+        subtaskId: 'subtask-123'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete subtask recurrence:', expect.any(Error));
@@ -159,7 +159,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.delete('non-existent');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_subtask_recurrence', {
-        subtask_id: 'non-existent'
+        subtaskId: 'non-existent'
       });
       expect(result).toBe(false);
     });
@@ -221,7 +221,7 @@ describe('SubtaskRecurrenceTauriService', () => {
       const result = await service.getBySubtaskId('');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_subtask_recurrence_by_subtask_id', {
-        subtask_id: ''
+        subtaskId: ''
       });
       expect(result).toBeNull();
     });
@@ -230,8 +230,8 @@ describe('SubtaskRecurrenceTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const longSubtaskRecurrence = {
-        subtask_id: 'subtask-' + 'a'.repeat(100),
-        recurrence_rule_id: 'rule-' + 'b'.repeat(100)
+        subtaskId: 'subtask-' + 'a'.repeat(100),
+        recurrenceRuleId: 'rule-' + 'b'.repeat(100)
       };
 
       const result = await service.create(longSubtaskRecurrence);
@@ -264,8 +264,8 @@ describe('SubtaskRecurrenceTauriService', () => {
 
       for (const ruleId of ruleIds) {
         const subtaskRecurrence = {
-          subtask_id: 'subtask-test',
-          recurrence_rule_id: ruleId
+          subtaskId: 'subtask-test',
+          recurrenceRuleId: ruleId
         };
 
         const result = await service.create(subtaskRecurrence);
