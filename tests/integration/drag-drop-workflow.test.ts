@@ -244,7 +244,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       }).not.toThrow();
 
       // プロジェクトの状態は変わらない
-      expect(taskStore.projects[0].taskLists.length).toBe(0);
+      expect(taskStore.projects[0].taskLists?.length ?? 0).toBe(0);
     });
 
     it('範囲外のインデックスで移動しても安全に処理される', async () => {

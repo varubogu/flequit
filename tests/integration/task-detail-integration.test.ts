@@ -15,17 +15,17 @@ const mockTaskDetailStore = {
     description: '',
     status: 'not_started' as TaskStatus,
     priority: 1,
-    start_date: undefined,
-    end_date: undefined,
-    is_range_date: false
+    startDate: undefined,
+    endDate: undefined,
+    isRangeDate: false
   },
 
   editFormData: {
     title: '',
     description: '',
-    start_date: undefined as Date | undefined,
-    end_date: undefined as Date | undefined,
-    is_range_date: false,
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    isRangeDate: false,
     priority: 0
   },
 
@@ -51,9 +51,9 @@ const mockTaskDetailStore = {
       description: '',
       status: 'not_started',
       priority: 1,
-      start_date: undefined,
-      end_date: undefined,
-      is_range_date: false
+      startDate: undefined,
+      endDate: undefined,
+      isRangeDate: false
     };
     return mockTaskDetailStore.newTaskData;
   }),
@@ -241,9 +241,9 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     mockTaskDetailStore.editFormData = {
       title: '',
       description: '',
-      start_date: undefined,
-      end_date: undefined,
-      is_range_date: false,
+      startDate: undefined,
+      endDate: undefined,
+      isRangeDate: false,
       priority: 0
     };
   });
@@ -339,9 +339,9 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     });
 
     expect(mockTaskService.updateTask).toHaveBeenCalledWith('task-1', {
-      plan_start_date: newPlanStartDate,
-      plan_end_date: newPlanEndDate,
-      is_range_date: true
+      planStartDate: newPlanStartDate,
+      planEndDate: newPlanEndDate,
+      isRangeDate: true
     });
     expect(dateUpdate.planStartDate).toEqual(newPlanStartDate);
     expect(dateUpdate.planEndDate).toEqual(newPlanEndDate);
@@ -468,14 +468,14 @@ describe('タスク詳細ダイアログ結合テスト', () => {
 
     // 日付フィールドを更新
     const dateForm = mockTaskDetailStore.updateEditForm({
-      start_date: new Date('2024-03-01'),
-      end_date: new Date('2024-03-05'),
-      is_range_date: true
+      startDate: new Date('2024-03-01'),
+      endDate: new Date('2024-03-05'),
+      isRangeDate: true
     });
 
-    expect(dateForm.start_date).toEqual(new Date('2024-03-01'));
-    expect(dateForm.end_date).toEqual(new Date('2024-03-05'));
-    expect(dateForm.is_range_date).toBe(true);
+    expect(dateForm.startDate).toEqual(new Date('2024-03-01'));
+    expect(dateForm.endDate).toEqual(new Date('2024-03-05'));
+    expect(dateForm.isRangeDate).toBe(true);
   });
 
   it('タスクとサブタスクの切り替えが正しく動作する', () => {
@@ -521,7 +521,7 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 全サブタスクが完了した場合のシミュレーション
     const allCompletedTask = {
       ...sampleTask,
-      sub_tasks: sampleTask.subTasks.map((st) => ({ ...st, status: 'completed' as TaskStatus }))
+      subTasks: sampleTask.subTasks.map((st) => ({ ...st, status: 'completed' as TaskStatus }))
     };
 
     const allCompletedProgress = calculateTaskProgress(allCompletedTask);
@@ -583,8 +583,8 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 有効なデータ
     const validData = {
       title: '有効なタスク',
-      plan_start_date: new Date('2024-01-01'),
-      plan_end_date: new Date('2024-01-05'),
+      planStartDate: new Date('2024-01-01'),
+      planEndDate: new Date('2024-01-05'),
       priority: 2
     };
 
@@ -595,8 +595,8 @@ describe('タスク詳細ダイアログ結合テスト', () => {
     // 無効なデータ（空のタイトル）
     const invalidData = {
       title: '',
-      plan_start_date: new Date('2024-01-05'),
-      plan_end_date: new Date('2024-01-01'), // 開始日より前の終了日
+      planStartDate: new Date('2024-01-05'),
+      planEndDate: new Date('2024-01-01'), // 開始日より前の終了日
       priority: 10 // 範囲外の優先度
     };
 

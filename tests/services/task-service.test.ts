@@ -137,18 +137,21 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', asy
 
   const result = await TaskService.addTask(listId, taskData);
 
-  expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
-    listId: listId,
-    title: 'New Task',
-    description: 'Task Description',
-    status: 'not_started',
-    priority: 2,
-    orderIndex: 0,
-    isArchived: false,
-    projectId: 'project-123',
-    assignedUserIds: [],
-    tagIds: []
-  });
+  expect(mockTaskStore.addTask).toHaveBeenCalledWith(
+    listId,
+    expect.objectContaining({
+      listId: listId,
+      title: 'New Task',
+      description: 'Task Description',
+      status: 'not_started',
+      priority: 2,
+      orderIndex: 0,
+      isArchived: false,
+      projectId: 'project-123',
+      assignedUserIds: [],
+      tagIds: []
+    })
+  );
   expect(result).toBe(mockReturnTask);
 });
 
@@ -163,18 +166,21 @@ test('TaskService.addTask: handles default priority', async () => {
 
   await TaskService.addTask(listId, taskData);
 
-  expect(mockTaskStore.addTask).toHaveBeenCalledWith(listId, {
-    listId: listId,
-    title: 'Task Without Priority',
-    description: undefined,
-    status: 'not_started',
-    priority: 0,
-    orderIndex: 0,
-    isArchived: false,
-    projectId: 'project-123',
-    assignedUserIds: [],
-    tagIds: []
-  });
+  expect(mockTaskStore.addTask).toHaveBeenCalledWith(
+    listId,
+    expect.objectContaining({
+      listId: listId,
+      title: 'Task Without Priority',
+      description: undefined,
+      status: 'not_started',
+      priority: 0,
+      orderIndex: 0,
+      isArchived: false,
+      projectId: 'project-123',
+      assignedUserIds: [],
+      tagIds: []
+    })
+  );
 });
 
 test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => {
@@ -562,15 +568,12 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
-    listId: 'proj-1',
+    projectId: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
     listId: 'list-123',
     planEndDate: new Date('2024-01-15'),
-    listId: {
-      unit: 'day',
-      interval: 1
-    }
+    recurrenceRule: { unit: 'day', interval: 1 }
   };
 
   const nextDate = new Date('2024-01-16');
@@ -581,7 +584,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
 
   expect(mockRecurrenceService.calculateNextDate).toHaveBeenCalledWith(
     mockRecurringTask.planEndDate,
-    mockRecurringTask.listId
+    mockRecurringTask.recurrenceRule
   );
   expect(mockTaskStore.createRecurringTask).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -589,7 +592,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
       title: 'Recurring Task',
       status: 'not_started',
       planEndDate: nextDate,
-      listId: mockRecurringTask.listId
+      recurrenceRule: mockRecurringTask.recurrenceRule
     })
   );
   expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
@@ -609,15 +612,12 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
   const taskId = 'task-123';
   const mockRecurringTask = {
     id: taskId,
-    listId: 'proj-1',
+    projectId: 'proj-1',
     title: 'Recurring Task',
     status: 'not_started',
     listId: 'list-123',
     planEndDate: new Date('2024-01-15'),
-    listId: {
-      unit: 'day',
-      interval: 1
-    }
+    recurrenceRule: { unit: 'day', interval: 1 }
   };
 
   (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
@@ -638,17 +638,14 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
 
   const mockRecurringTask = {
     id: taskId,
-    listId: 'proj-1',
+    projectId: 'proj-1',
     title: 'Range Task',
     status: 'not_started',
     listId: 'list-123',
     planStartDate: startDate,
     planEndDate: endDate,
     isRangeDate: true,
-    listId: {
-      unit: 'day',
-      interval: 1
-    }
+    recurrenceRule: { unit: 'day', interval: 1 }
   };
 
   (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);

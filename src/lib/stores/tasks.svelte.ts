@@ -717,13 +717,16 @@ export class TaskStore {
       const project = this.projects.find((p) => p.id === projectId);
       const taskListWithOrderIndex = {
         ...taskList,
-        order_index: project ? project.taskLists.length : 0
+        order_index: project?.taskLists?.length ?? 0
       };
       const newTaskList = await dataService.createTaskListWithTasks(
         projectId,
         taskListWithOrderIndex
       );
       if (project) {
+        if (!project.taskLists) {
+          project.taskLists = [] as any;
+        }
         project.taskLists.push(newTaskList);
       }
       return newTaskList;
@@ -1000,15 +1003,17 @@ export class TaskStore {
     let sourceProject: ProjectTree | null = null;
 
     for (const project of this.projects) {
-      const taskListIndex = project.taskLists.findIndex((tl) => tl.id === taskListId);
+      const projectTaskLists = project.taskLists || [];
+      const taskListIndex = projectTaskLists.findIndex((tl) => tl.id === taskListId);
       if (taskListIndex !== -1) {
-        taskListToMove = project.taskLists[taskListIndex];
+        taskListToMove = projectTaskLists[taskListIndex];
         sourceProject = project;
+        project.taskLists = projectTaskLists;
         project.taskLists.splice(taskListIndex, 1);
         project.updatedAt = new SvelteDate();
 
         // Update order indices in source project and sync to backend
-        for (let index = 0; index < project.taskLists.length; index++) {
+        for (let index = 0; index < (project.taskLists || []).length; index++) {
           const tl = project.taskLists[index];
           tl.orderIndex = index;
           tl.updatedAt = new SvelteDate();
@@ -1030,6 +1035,7 @@ export class TaskStore {
     const targetProject = this.projects.find((p) => p.id === targetProjectId);
     if (!targetProject) {
       // Restore to original project if target not found
+      if (!sourceProject.taskLists) sourceProject.taskLists = [] as any;
       sourceProject.taskLists.push(taskListToMove);
       return;
     }
@@ -1042,16 +1048,18 @@ export class TaskStore {
     if (
       targetIndex !== undefined &&
       targetIndex >= 0 &&
-      targetIndex <= targetProject.taskLists.length
+      targetIndex <= (targetProject.taskLists ? targetProject.taskLists.length : 0)
     ) {
+      if (!targetProject.taskLists) targetProject.taskLists = [] as any;
       targetProject.taskLists.splice(targetIndex, 0, taskListToMove);
     } else {
+      if (!targetProject.taskLists) targetProject.taskLists = [] as any;
       targetProject.taskLists.push(taskListToMove);
     }
 
     // Update order indices in target project and sync to backend
     targetProject.updatedAt = new SvelteDate();
-    for (let index = 0; index < targetProject.taskLists.length; index++) {
+    for (let index = 0; index < (targetProject.taskLists || []).length; index++) {
       const tl = targetProject.taskLists[index];
       tl.orderIndex = index;
       tl.updatedAt = new SvelteDate();

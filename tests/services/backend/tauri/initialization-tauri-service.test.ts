@@ -224,11 +224,11 @@ describe('InitializationTauriService', () => {
           name: 'Second Project',
           description: 'Another project',
           color: '#00FF00',
-          order_index: 1,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
-          task_lists: []
+          orderIndex: 1,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          taskLists: []
         }
       ];
       mockInvoke.mockResolvedValue(multipleProjects);
@@ -242,15 +242,15 @@ describe('InitializationTauriService', () => {
     it('should handle projects with task lists', async () => {
       const projectWithLists = {
         ...mockProjects[0],
-        task_lists: [
+        taskLists: [
           {
             id: 'list-1',
-            project_id: 'project-123',
+            projectId: 'project-123',
             name: 'To Do',
-            order_index: 0,
-            is_archived: false,
-            created_at: new Date(),
-            updated_at: new Date(),
+            orderIndex: 0,
+            isArchived: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
             tasks: []
           }
         ]
@@ -266,7 +266,7 @@ describe('InitializationTauriService', () => {
     it('should handle archived projects', async () => {
       const archivedProject = {
         ...mockProjects[0],
-        is_archived: true
+        isArchived: true
       };
       mockInvoke.mockResolvedValue([archivedProject]);
 

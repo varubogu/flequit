@@ -198,8 +198,8 @@ describe('SettingsInitService', () => {
       expect(setting).toHaveProperty('key');
       expect(setting).toHaveProperty('value');
       expect(setting).toHaveProperty('dataType');
-      expect(setting).toHaveProperty('created_at');
-      expect(setting).toHaveProperty('updated_at');
+      expect(setting).toHaveProperty('createdAt');
+      expect(setting).toHaveProperty('updatedAt');
     });
   });
 
