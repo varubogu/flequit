@@ -61,7 +61,7 @@ export interface DateCondition {
   /** 日付の関係（より前/以前/以降/より後） */
   relation: DateRelation;
   /** 基準日 */
-  referenceDate: Date;
+  referenceDate?: Date;
 }
 
 /**
