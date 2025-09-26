@@ -6,8 +6,10 @@ use flequit_model::models::accounts::account::PartialAccount;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::AccountId;
 use tauri::State;
+use tracing::instrument;
 
 
+#[instrument(level = "info", skip(state, account), fields(account_id = %account.id))]
 #[tauri::command]
 pub async fn create_account(
     state: State<'_, AppState>,
@@ -24,6 +26,7 @@ pub async fn create_account(
 }
 
 
+#[instrument(level = "info", skip(state), fields(account_id = %id))]
 #[tauri::command]
 pub async fn get_account(
     state: State<'_, AppState>,
@@ -47,6 +50,7 @@ pub async fn get_account(
 }
 
 
+#[instrument(level = "info", skip(state, patch), fields(account_id = %id))]
 #[tauri::command]
 pub async fn update_account(
     state: State<'_, AppState>,
@@ -65,6 +69,7 @@ pub async fn update_account(
 }
 
 
+#[instrument(level = "info", skip(state), fields(account_id = %account_id))]
 #[tauri::command]
 pub async fn delete_account(
     state: State<'_, AppState>,

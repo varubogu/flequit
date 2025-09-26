@@ -4,8 +4,10 @@ use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::initialization_facades;
 use tauri::State;
+use tracing::instrument;
 
 
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn load_current_account(
     state: State<'_, AppState>,
@@ -25,6 +27,7 @@ pub async fn load_current_account(
 }
 
 
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn load_all_project_data(
     state: State<'_, AppState>,
@@ -82,6 +85,7 @@ pub async fn load_all_project_data(
 }
 
 
+#[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn load_all_account(
     state: State<'_, AppState>,

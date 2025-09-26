@@ -6,8 +6,10 @@ use flequit_model::models::task_projects::tag::PartialTag;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TagId};
 use tauri::State;
+use tracing::instrument;
 
 
+#[instrument(level = "info", skip(state, tag), fields(project_id = %project_id, tag_id = %tag.id))]
 #[tauri::command]
 pub async fn create_tag(
     state: State<'_, AppState>,
@@ -30,6 +32,7 @@ pub async fn create_tag(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, tag_id = %id))]
 #[tauri::command]
 pub async fn get_tag(
     state: State<'_, AppState>,
@@ -59,6 +62,7 @@ pub async fn get_tag(
 }
 
 
+#[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn update_tag(
     state: State<'_, AppState>,
@@ -85,6 +89,7 @@ pub async fn update_tag(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, tag_id = %id))]
 #[tauri::command]
 pub async fn delete_tag(
     state: State<'_, AppState>,

@@ -7,8 +7,10 @@ use flequit_model::models::task_projects::task_list::PartialTaskList;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
 use tauri::State;
+use tracing::instrument;
 
 
+#[instrument(level = "info", skip(state, task_list), fields(project_id = %task_list.project_id))]
 #[tauri::command]
 pub async fn create_task_list(
     state: State<'_, AppState>,
@@ -30,6 +32,7 @@ pub async fn create_task_list(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, task_list_id = %id))]
 #[tauri::command]
 pub async fn get_task_list(
     state: State<'_, AppState>,
@@ -60,6 +63,7 @@ pub async fn get_task_list(
 }
 
 
+#[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, task_list_id = %id))]
 #[tauri::command]
 pub async fn update_task_list(
     state: State<'_, AppState>,
@@ -86,6 +90,7 @@ pub async fn update_task_list(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, task_list_id = %id))]
 #[tauri::command]
 pub async fn delete_task_list(
     state: State<'_, AppState>,
@@ -111,6 +116,7 @@ pub async fn delete_task_list(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id))]
 #[tauri::command]
 pub async fn get_task_lists_with_tasks(
     state: State<'_, AppState>,

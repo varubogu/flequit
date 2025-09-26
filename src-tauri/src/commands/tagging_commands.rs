@@ -4,10 +4,12 @@ use crate::state::AppState;
 use flequit_core::facades::{task_facades, subtask_facades};
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId};
 use tauri::State;
+use tracing::instrument;
 
 // TaskTag関連コマンド（CRUD）
 
 
+#[instrument(level = "info", skip(state, tag_name), fields(project_id = %project_id, task_id = %task_id))]
 #[tauri::command]
 pub async fn create_task_tag(
     state: State<'_, AppState>,
@@ -31,6 +33,7 @@ pub async fn create_task_tag(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %task_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn delete_task_tag(
     state: State<'_, AppState>,
@@ -57,6 +60,7 @@ pub async fn delete_task_tag(
 // SubtaskTag関連コマンド（CRUD）
 
 
+#[instrument(level = "info", skip(state, tag_name), fields(project_id = %project_id, task_id = %task_id))]
 #[tauri::command]
 pub async fn create_task_tag_by_name(
     state: State<'_, AppState>,
@@ -78,6 +82,7 @@ pub async fn create_task_tag_by_name(
     Ok(result.unwrap().to_command_model().await?)
 }
 
+#[instrument(level = "info", skip(state, tag_name), fields(project_id = %project_id, subtask_id = %subtask_id))]
 #[tauri::command]
 pub async fn create_subtask_tag_by_name(
     state: State<'_, AppState>,
@@ -101,6 +106,7 @@ pub async fn create_subtask_tag_by_name(
 
 // 名前指定の削除は行わず、削除はID厳格指定の既存コマンドを使用する
 
+#[instrument(level = "info", skip(state, tag_name), fields(project_id = %project_id, subtask_id = %subtask_id))]
 #[tauri::command]
 pub async fn create_subtask_tag(
     state: State<'_, AppState>,
@@ -124,6 +130,7 @@ pub async fn create_subtask_tag(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %subtask_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn delete_subtask_tag(
     state: State<'_, AppState>,

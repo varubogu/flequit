@@ -6,8 +6,10 @@ use flequit_core::services::{task_list_service, tag_service};
 use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
 use flequit_model::types::id_types::ProjectId;
 use tauri::State;
+use tracing::instrument;
 
 
+#[instrument(level = "info", skip(state, project), fields(project_id = %project.id))]
 #[tauri::command]
 pub async fn create_project(
     state: State<'_, AppState>,
@@ -25,6 +27,7 @@ pub async fn create_project(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
 pub async fn get_project(
     state: State<'_, AppState>,
@@ -45,6 +48,7 @@ pub async fn get_project(
 }
 
 
+#[instrument(level = "info", skip(state, patch), fields(project_id = %id))]
 #[tauri::command]
 pub async fn update_project(
     state: State<'_, AppState>,
@@ -62,6 +66,7 @@ pub async fn update_project(
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
 pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bool, String> {
     let repositories = state.repositories.read().await;
@@ -75,6 +80,7 @@ pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bo
 }
 
 
+#[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
 pub async fn get_project_with_tasks_and_tags(
     state: State<'_, AppState>,
