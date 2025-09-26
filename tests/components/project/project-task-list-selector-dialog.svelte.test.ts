@@ -15,7 +15,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
       {
         id: 'project-1',
         name: 'Project 1',
-        task_lists: [
+        taskLists: [
           { id: 'list-1', name: 'Task List 1' },
           { id: 'list-2', name: 'Task List 2' }
         ]
@@ -23,7 +23,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
       {
         id: 'project-2',
         name: 'Project 2',
-        task_lists: [{ id: 'list-3', name: 'Task List 3' }]
+        taskLists: [{ id: 'list-3', name: 'Task List 3' }]
       }
     ]
   }

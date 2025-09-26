@@ -43,6 +43,7 @@ describe('TasklistWebService', () => {
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: createTaskList not implemented',
+        'test-project-id',
         mockTaskList
       );
     });
@@ -55,6 +56,7 @@ describe('TasklistWebService', () => {
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: updateTaskList not implemented',
+        'test-project-id',
         mockTaskList.id,
         mockTaskList
       );
@@ -68,6 +70,7 @@ describe('TasklistWebService', () => {
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: deleteTaskList not implemented',
+        'test-project-id',
         'tasklist-123'
       );
     });
@@ -80,6 +83,7 @@ describe('TasklistWebService', () => {
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: getTaskList not implemented',
+        'test-project-id',
         'tasklist-123'
       );
     });
@@ -92,6 +96,7 @@ describe('TasklistWebService', () => {
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: searchTaskLists not implemented',
+        'test-project-id',
         mockSearchCondition
       );
     });

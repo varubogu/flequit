@@ -76,29 +76,29 @@ const mockProjects = [
   {
     id: 'project-1',
     name: 'Project Alpha',
-    order_index: 0,
-    is_archived: false,
-    created_at: new Date(),
-    updated_at: new Date(),
-    task_lists: [
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    taskLists: [
       {
         id: 'list-1',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'List A',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: [mockTasks[0], mockTasks[1]]
       },
       {
         id: 'list-2',
-        project_id: 'project-1',
+        projectId: 'project-1',
         name: 'List B',
-        order_index: 1,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date(),
+        orderIndex: 1,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
         tasks: [mockTasks[2]]
       }
     ]
@@ -299,8 +299,8 @@ test("ViewService.getTasksForView: returns tomorrow tasks for 'tomorrow' view", 
   const tomorrowTask = {
     ...mockTasks[0],
     id: 'tomorrow-task',
-    project_id: 'proj-1',
-    end_date: tomorrow,
+    projectId: 'proj-1',
+    planEndDate: tomorrow,
     status: 'not_started' as const
   };
 
@@ -318,8 +318,8 @@ test("ViewService.getTasksForView: returns next 3 days tasks for 'next3days' vie
   const next3DaysTask = {
     ...mockTasks[0],
     id: 'next3days-task',
-    project_id: 'proj-1',
-    end_date: twoDaysLater,
+    projectId: 'proj-1',
+    planEndDate: twoDaysLater,
     status: 'not_started' as const
   };
 
@@ -337,8 +337,8 @@ test("ViewService.getTasksForView: returns next week tasks for 'nextweek' view",
   const nextWeekTask = {
     ...mockTasks[0],
     id: 'nextweek-task',
-    project_id: 'proj-1',
-    end_date: fiveDaysLater,
+    projectId: 'proj-1',
+    planEndDate: fiveDaysLater,
     status: 'not_started' as const
   };
 
@@ -356,8 +356,8 @@ test("ViewService.getTasksForView: returns this month tasks for 'thismonth' view
   const thisMonthTask = {
     ...mockTasks[0],
     id: 'thismonth-task',
-    project_id: 'proj-1',
-    end_date: endOfMonth,
+    projectId: 'proj-1',
+    planEndDate: endOfMonth,
     status: 'not_started' as const
   };
 
@@ -576,8 +576,8 @@ test('ViewService.getTasksForView: filters out completed tasks from time-based v
   const completedTomorrowTask = {
     ...mockTasks[0],
     id: 'completed-tomorrow-task',
-    project_id: 'proj-1',
-    end_date: tomorrow,
+    projectId: 'proj-1',
+    planEndDate: tomorrow,
     status: 'completed' as const
   };
 
@@ -592,8 +592,8 @@ test('ViewService.getTasksForView: filters out tasks without end_date from time-
   const taskWithoutDate = {
     ...mockTasks[0],
     id: 'no-date-task',
-    project_id: 'proj-1',
-    end_date: undefined
+    projectId: 'proj-1',
+    planEndDate: undefined
   };
 
   vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, taskWithoutDate]);
@@ -646,8 +646,8 @@ test('ViewService.getTasksForView: date range tests work correctly', () => {
   const tomorrowTask = {
     ...mockTasks[0],
     id: 'tomorrow-test',
-    project_id: 'proj-1',
-    plan_end_date: new Date(tomorrowStart.getTime() + 12 * 60 * 60 * 1000), // noon tomorrow
+    projectId: 'proj-1',
+    planEndDate: new Date(tomorrowStart.getTime() + 12 * 60 * 60 * 1000), // noon tomorrow
     status: 'not_started' as const
   };
 
@@ -664,8 +664,8 @@ test('ViewService.getTasksForView: edge case for end of month calculation', () =
   const taskAtEndOfMonth = {
     ...mockTasks[0],
     id: 'end-of-month-task',
-    project_id: 'proj-1',
-    end_date: endOfMonth,
+    projectId: 'proj-1',
+    planEndDate: endOfMonth,
     status: 'not_started' as const
   };
 

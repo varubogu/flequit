@@ -30,7 +30,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     projects: [
       {
         id: 'project-1',
-        task_lists: [{ id: 'list-1', name: 'Default List' }]
+        taskLists: [{ id: 'list-1', name: 'Default List' }]
       }
     ],
     startNewTaskMode: vi.fn()

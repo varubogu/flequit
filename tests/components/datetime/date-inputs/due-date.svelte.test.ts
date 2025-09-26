@@ -122,7 +122,7 @@ describe('DueDate', () => {
     });
 
     it('should show "Add Date" when task has no plan_end_date', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -139,7 +139,7 @@ describe('DueDate', () => {
     });
 
     it('should show proper title for task without date', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -169,7 +169,7 @@ describe('DueDate', () => {
     });
 
     it('should show "Select Date" when task has no plan_end_date', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate, variant: 'full' }
       });
@@ -192,7 +192,7 @@ describe('DueDate', () => {
     it('should show "Today" for today\'s date', () => {
       const todayTask = {
         ...baseTask,
-        plan_end_date: new Date('2024-01-01T00:00:00Z') // Same day as mocked current time
+        planEndDate: new Date('2024-01-01T00:00:00Z') // Same day as mocked current time
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: todayTask }
@@ -205,7 +205,7 @@ describe('DueDate', () => {
     it('should show "Tomorrow" for tomorrow\'s date', () => {
       const tomorrowTask = {
         ...baseTask,
-        plan_end_date: new Date('2024-01-02T00:00:00Z') // Next day
+        planEndDate: new Date('2024-01-02T00:00:00Z') // Next day
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: tomorrowTask }
@@ -218,7 +218,7 @@ describe('DueDate', () => {
     it('should show "Yesterday" for yesterday\'s date', () => {
       const yesterdayTask = {
         ...baseTask,
-        plan_end_date: new Date('2023-12-31T00:00:00Z') // Previous day
+        planEndDate: new Date('2023-12-31T00:00:00Z') // Previous day
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: yesterdayTask }
@@ -231,7 +231,7 @@ describe('DueDate', () => {
     it('should show formatted date for other dates', () => {
       const futureTask = {
         ...baseTask,
-        plan_end_date: new Date('2024-01-05T15:00:00Z')
+        planEndDate: new Date('2024-01-05T15:00:00Z')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: futureTask }
@@ -245,7 +245,7 @@ describe('DueDate', () => {
     });
 
     it('should handle null plan_end_date', () => {
-      const taskWithNullDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithNullDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithNullDate }
       });
@@ -255,7 +255,7 @@ describe('DueDate', () => {
     });
 
     it('should handle undefined plan_end_date', () => {
-      const taskWithUndefinedDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithUndefinedDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithUndefinedDate }
       });
@@ -273,7 +273,7 @@ describe('DueDate', () => {
     });
 
     it('should apply muted color when task has no plan_end_date', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
@@ -362,29 +362,29 @@ describe('DueDate', () => {
 
   describe('internationalization', () => {
     it('should use translation service for labels', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
-      render(DueDate, {
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
+      const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });
 
-      // Translation service should be called for addDateLabel
-      expect(screen.getByText(/Add Date/)).toBeInTheDocument();
+      const button = container.querySelector('button');
+      expect(button?.textContent).toContain('Add Date');
     });
 
     it('should use translation service for full variant', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
-      render(DueDate, {
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
+      const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate, variant: 'full' }
       });
 
-      // Translation service should be called for selectDate
-      expect(screen.getByText('Select Date')).toBeInTheDocument();
+      const button = container.querySelector('button');
+      expect(button?.textContent).toBe('Select Date');
     });
 
     it('should use translation service for relative dates', () => {
       const todayTask = {
         ...baseTask,
-        plan_end_date: new Date('2024-01-01T00:00:00Z')
+        planEndDate: new Date('2024-01-01T00:00:00Z')
       };
       render(DueDate, {
         props: { ...defaultProps, task: todayTask }
@@ -398,7 +398,7 @@ describe('DueDate', () => {
     it('should handle invalid date objects', () => {
       const taskWithInvalidDate = {
         ...baseTask,
-        plan_end_date: new Date('invalid')
+        planEndDate: new Date('invalid')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithInvalidDate }
@@ -410,7 +410,7 @@ describe('DueDate', () => {
     it('should handle very old dates', () => {
       const taskWithOldDate = {
         ...baseTask,
-        plan_end_date: new Date('1900-01-01')
+        planEndDate: new Date('1900-01-01')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithOldDate }
@@ -423,7 +423,7 @@ describe('DueDate', () => {
     it('should handle very future dates', () => {
       const taskWithFutureDate = {
         ...baseTask,
-        plan_end_date: new Date('2100-12-31')
+        planEndDate: new Date('2100-12-31')
       };
       const { container } = render(DueDate, {
         props: { ...defaultProps, task: taskWithFutureDate }
@@ -478,7 +478,7 @@ describe('DueDate', () => {
     it('should handle prop updates', () => {
       const { rerender } = render(DueDate, { props: defaultProps });
 
-      const updatedTask = { ...baseTask, plan_end_date: new Date('2024-01-03') };
+      const updatedTask = { ...baseTask, planEndDate: new Date('2024-01-03') };
       const updatedProps = { ...defaultProps, task: updatedTask, variant: 'full' as const };
 
       expect(() => rerender(updatedProps)).not.toThrow();
@@ -494,7 +494,7 @@ describe('DueDate', () => {
     it('should handle task changes', () => {
       const { rerender } = render(DueDate, { props: defaultProps });
 
-      const newTask = { ...baseTask, id: 'new-task', plan_end_date: undefined };
+      const newTask = { ...baseTask, id: 'new-task', planEndDate: undefined };
       expect(() => rerender({ ...defaultProps, task: newTask })).not.toThrow();
     });
   });
@@ -544,7 +544,7 @@ describe('DueDate', () => {
     });
 
     it('should integrate with translation service', () => {
-      const taskWithoutDate = { ...baseTask, plan_end_date: undefined };
+      const taskWithoutDate = { ...baseTask, planEndDate: undefined };
       render(DueDate, {
         props: { ...defaultProps, task: taskWithoutDate }
       });

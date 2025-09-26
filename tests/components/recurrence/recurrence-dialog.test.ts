@@ -243,7 +243,7 @@ describe('RecurrenceDialog', () => {
       expect.objectContaining({
         unit: 'day',
         interval: 1,
-        max_occurrences: 3
+        maxOccurrences: 3
       })
     );
   });
@@ -274,7 +274,7 @@ describe('RecurrenceDialog', () => {
       expect(countInput.value).toBe('58'); // DOM上では"."が無視されるため
 
       // 保存される値を確認（自動保存）
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ max_occurrences: 58 }));
+      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ maxOccurrences: 58 }));
     });
 
     it('0を入力するとフィールドがクリアされる', async () => {

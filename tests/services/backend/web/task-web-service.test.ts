@@ -45,7 +45,7 @@ describe('TaskWebService', () => {
       const result = await service.create('test-project-id', mockTask);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTask not implemented', mockTask);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTask not implemented', 'test-project-id', mockTask);
     });
   });
 
@@ -60,7 +60,7 @@ describe('TaskWebService', () => {
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', mockTask.id, patchData);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', 'test-project-id', mockTask.id, patchData);
     });
   });
 
@@ -71,6 +71,7 @@ describe('TaskWebService', () => {
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: deleteTask not implemented',
+        'test-project-id',
         'task-123'
       );
     });
@@ -83,6 +84,7 @@ describe('TaskWebService', () => {
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: getTask not implemented (called for data retrieval)',
+        'test-project-id',
         'task-123'
       );
     });
@@ -95,6 +97,7 @@ describe('TaskWebService', () => {
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
         'Web backend: searchTasks not implemented',
+        'test-project-id',
         mockSearchCondition
       );
     });

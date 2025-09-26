@@ -116,7 +116,7 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_direction: 'previous' as AdjustmentDirection
+          thenDirection: 'previous' as AdjustmentDirection
         }
       };
 
@@ -131,8 +131,8 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_target: 'specific_weekday' as AdjustmentTarget,
-          then_weekday: 'friday' as DayOfWeek
+          thenTarget: 'specific_weekday' as AdjustmentTarget,
+          thenWeekday: 'friday' as DayOfWeek
         }
       };
 
@@ -215,7 +215,7 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_direction: 'previous' as AdjustmentDirection
+          thenDirection: 'previous' as AdjustmentDirection
         }
       };
 
@@ -238,7 +238,7 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_weekday: undefined
+          thenWeekday: undefined
         }
       };
 
@@ -252,9 +252,9 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           id: 'minimal',
-          if_weekday: 'monday' as DayOfWeek,
-          then_direction: 'next' as AdjustmentDirection,
-          then_target: 'weekday' as AdjustmentTarget
+          ifWeekday: 'monday' as DayOfWeek,
+          thenDirection: 'next' as AdjustmentDirection,
+          thenTarget: 'weekday' as AdjustmentTarget
         }
       };
 
@@ -268,7 +268,7 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_direction: 'invalid' as AdjustmentDirection
+          thenDirection: 'invalid' as AdjustmentDirection
         }
       };
 
@@ -293,8 +293,8 @@ describe('WeekdayConditionEditor', () => {
         ...defaultProps,
         condition: {
           ...mockCondition,
-          then_target: 'holiday' as AdjustmentTarget,
-          then_weekday: undefined
+          thenTarget: 'holiday' as AdjustmentTarget,
+          thenWeekday: undefined
         }
       };
 
@@ -311,7 +311,7 @@ describe('WeekdayConditionEditor', () => {
           ...defaultProps,
           condition: {
             ...mockCondition,
-            if_weekday: weekday
+            ifWeekday: weekday
           }
         };
 

@@ -76,8 +76,8 @@ describe('DataService', () => {
       expect(result.description).toBe(projectData.description);
       expect(result.color).toBe(projectData.color);
       expect(result.id).toBeDefined();
-      expect(result.createdAt).toBeDefined();
-      expect(result.updatedAt).toBeDefined();
+      expect((result as any).created_at).toBeDefined();
+      expect((result as any).updated_at).toBeDefined();
       // Mock dataService doesn't use backend, so this expectation is removed
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
@@ -91,8 +91,8 @@ describe('DataService', () => {
       const result = await dataService.createProjectTree(projectData);
 
       expect(result).toBeDefined();
-      expect(result.name).toBe(projectData.name);
-      expect(result.taskLists).toEqual([]);
+      expect((result as any).name).toBe(projectData.name);
+      expect((result as any).task_lists).toEqual([]);
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
 
@@ -143,8 +143,8 @@ describe('DataService', () => {
       const result = await dataService.createTaskList('project-id', taskListData);
 
       expect(result).toBeDefined();
-      expect(result.name).toBe(taskListData.name);
-      expect(result.projectId).toBe('project-id');
+      expect((result as any).name).toBe(taskListData.name);
+      expect((result as any).project_id).toBe('project-id');
       // expect(mockBackendService.tasklist.create).toHaveBeenCalledOnce();
     });
 
@@ -179,8 +179,8 @@ describe('DataService', () => {
       const result = await dataService.createTask('list-id', taskData);
 
       expect(result).toBeDefined();
-      expect(result.title).toBe(taskData.title);
-      expect(result.listId).toBe('list-id');
+      expect((result as any).title).toBe(taskData.title);
+      expect((result as any).list_id).toBe('list-id');
       // expect(mockBackendService.task.create).toHaveBeenCalledOnce();
     });
 
@@ -221,8 +221,8 @@ describe('DataService', () => {
       const result = await dataService.createSubTask('task-id', subTaskData);
 
       expect(result).toBeDefined();
-      expect(result.title).toBe(subTaskData.title);
-      expect(result.taskId).toBe('task-id');
+      expect((result as any).title).toBe(subTaskData.title);
+      expect((result as any).task_id).toBe('task-id');
       // expect(mockBackendService.subtask.create).toHaveBeenCalledOnce();
     });
   });
@@ -481,8 +481,8 @@ describe('DataService', () => {
 
       const result = await dataService.createProject(projectData);
 
-      expect(result.orderIndex).toBe(0);
-      expect(result.isArchived).toBe(false);
+      expect((result as any).order_index).toBe(0);
+      expect((result as any).is_archived).toBe(false);
     });
 
     test('createTaskList should use default order_index if not provided', async () => {
@@ -490,8 +490,8 @@ describe('DataService', () => {
 
       const result = await dataService.createTaskList('project-id', taskListData);
 
-      expect(result.orderIndex).toBe(0);
-      expect(result.isArchived).toBe(false);
+      expect((result as any).order_index).toBe(0);
+      expect((result as any).is_archived).toBe(false);
     });
 
     test('createSubTask should use default status if not provided', async () => {
@@ -499,9 +499,9 @@ describe('DataService', () => {
 
       const result = await dataService.createSubTask('task-id', subTaskData);
 
-      expect(result.status).toBe('not_started');
-      expect(result.orderIndex).toBe(0);
-      expect(result.tags).toEqual([]);
+      expect((result as any).status).toBe('not_started');
+      expect((result as any).order_index).toBe(0);
+      expect((result as any).tags).toEqual([]);
     });
 
     test('createTag should use default order_index if not provided', async () => {
@@ -509,7 +509,7 @@ describe('DataService', () => {
 
       const result = await dataService.createTag(tagData);
 
-      expect(result.orderIndex).toBe(0);
+      expect((result as any).order_index).toBe(0);
     });
   });
 });

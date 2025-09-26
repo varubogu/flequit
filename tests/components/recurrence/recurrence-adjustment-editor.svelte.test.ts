@@ -163,7 +163,7 @@ describe('RecurrenceAdjustmentEditor', () => {
       await user.type(dateInput, '2024-02-20');
 
       expect(defaultProps.onDateConditionUpdate).toHaveBeenCalledWith('date-1', {
-        reference_date: new Date('2024-02-20')
+        referenceDate: new Date('2024-02-20')
       });
     });
 
@@ -226,7 +226,7 @@ describe('RecurrenceAdjustmentEditor', () => {
           {
             id: 'date-2',
             relation: 'after' as DateRelation,
-            reference_date: new Date('2024-02-01')
+            referenceDate: new Date('2024-02-01')
           }
         ]
       };
@@ -267,17 +267,17 @@ describe('RecurrenceAdjustmentEditor', () => {
           {
             id: 'date-1',
             relation: 'before' as DateRelation,
-            reference_date: new Date('2024-01-01')
+            referenceDate: new Date('2024-01-01')
           },
           {
             id: 'date-2',
             relation: 'after' as DateRelation,
-            reference_date: new Date('2024-02-01')
+            referenceDate: new Date('2024-02-01')
           },
           {
             id: 'date-3',
             relation: 'on_or_before' as DateRelation,
-            reference_date: new Date('2024-03-01')
+            referenceDate: new Date('2024-03-01')
           }
         ]
       };
@@ -460,7 +460,7 @@ describe('RecurrenceAdjustmentEditor', () => {
           {
             id: 'date-1',
             relation: 'before' as DateRelation,
-            reference_date: new Date('2024-01-01') // Use valid date instead
+            referenceDate: new Date('2024-01-01') // Use valid date instead
           }
         ]
       };
@@ -476,7 +476,7 @@ describe('RecurrenceAdjustmentEditor', () => {
         dateConditions: [{
           id: 'date-1',
           relation: 'before' as DateRelation,
-          reference_date: new Date('2024-01-01')
+          referenceDate: new Date('2024-01-01')
         }] // Use complete object instead
       };
 

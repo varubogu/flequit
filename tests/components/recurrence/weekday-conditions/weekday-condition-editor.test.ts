@@ -123,9 +123,9 @@ describe('RecurrenceAdjustmentEditor', () => {
 
   it('WeekdayConditionの異なるプロパティが処理される', () => {
     const conditions = [
-      { if_weekday: 'monday', then_direction: 'next', then_target: 'weekday' },
-      { if_weekday: 'tuesday', then_direction: 'previous', then_target: 'weekend' },
-      { if_weekday: 'wednesday', then_direction: 'next', then_target: 'holiday' }
+      { ifWeekday: 'monday', thenDirection: 'next', thenTarget: 'weekday' },
+      { ifWeekday: 'tuesday', thenDirection: 'previous', thenTarget: 'weekend' },
+      { ifWeekday: 'wednesday', thenDirection: 'next', thenTarget: 'holiday' }
     ] as const;
 
     conditions.forEach((conditionData, index) => {
@@ -134,9 +134,9 @@ describe('RecurrenceAdjustmentEditor', () => {
         ...conditionData
       };
 
-      expect(condition.ifWeekday).toBe(conditionData.if_weekday);
-      expect(condition.thenDirection).toBe(conditionData.then_direction);
-      expect(condition.thenTarget).toBe(conditionData.then_target);
+      expect(condition.ifWeekday).toBe(conditionData.ifWeekday);
+      expect(condition.thenDirection).toBe(conditionData.thenDirection);
+      expect(condition.thenTarget).toBe(conditionData.thenTarget);
     });
   });
 
