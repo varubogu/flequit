@@ -60,9 +60,9 @@ export class TaskService {
     formData: {
       title: string;
       description: string;
-      plan_start_date?: Date;
-      plan_end_date?: Date;
-      is_range_date?: boolean;
+      planStartDate?: Date;
+      planEndDate?: Date;
+      isRangeDate?: boolean;
       priority: number;
     }
   ): void {
@@ -70,9 +70,9 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority,
-      planStartDate: formData.plan_start_date,
-      planEndDate: formData.plan_end_date,
-      isRangeDate: formData.is_range_date || false
+      planStartDate: formData.planStartDate,
+      planEndDate: formData.planEndDate,
+      isRangeDate: formData.isRangeDate || false
     };
 
     this.updateTask(taskId, updates);
@@ -167,7 +167,9 @@ export class TaskService {
       assignedUserIds: [],
       tagIds: [],
       orderIndex: 0,
-      isArchived: false
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
   }
 
@@ -192,9 +194,9 @@ export class TaskService {
     formData: {
       title: string;
       description: string;
-      plan_start_date?: Date;
-      plan_end_date?: Date;
-      is_range_date?: boolean;
+      planStartDate?: Date;
+      planEndDate?: Date;
+      isRangeDate?: boolean;
       priority: number;
     }
   ): void {
@@ -202,9 +204,9 @@ export class TaskService {
       title: formData.title,
       description: formData.description || undefined,
       priority: formData.priority || undefined,
-      planStartDate: formData.plan_start_date,
-      planEndDate: formData.plan_end_date,
-      isRangeDate: formData.is_range_date || false
+      planStartDate: formData.planStartDate,
+      planEndDate: formData.planEndDate,
+      isRangeDate: formData.isRangeDate || false
     };
 
     this.updateSubTask(subTaskId, updates);
