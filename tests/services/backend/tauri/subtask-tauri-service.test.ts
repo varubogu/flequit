@@ -122,6 +122,13 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...mockSubTask,
+        planStartDate: mockSubTask.planStartDate?.toISOString(),
+        planEndDate: mockSubTask.planEndDate?.toISOString(),
+        doStartDate: mockSubTask.doStartDate?.toISOString(),
+        doEndDate: mockSubTask.doEndDate?.toISOString(),
+        createdAt: mockSubTask.createdAt.toISOString(),
+        updatedAt: mockSubTask.updatedAt.toISOString(),
+        // 互換のためsnake_caseも残す
         plan_start_date: mockSubTask.planStartDate?.toISOString(),
         plan_end_date: mockSubTask.planEndDate?.toISOString(),
         do_start_date: mockSubTask.doStartDate?.toISOString(),
@@ -145,6 +152,12 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...mockSubTask,
+        planStartDate: mockSubTask.planStartDate?.toISOString(),
+        planEndDate: mockSubTask.planEndDate?.toISOString(),
+        doStartDate: mockSubTask.doStartDate?.toISOString(),
+        doEndDate: mockSubTask.doEndDate?.toISOString(),
+        createdAt: mockSubTask.createdAt.toISOString(),
+        updatedAt: mockSubTask.updatedAt.toISOString(),
         plan_start_date: mockSubTask.planStartDate?.toISOString(),
         plan_end_date: mockSubTask.planEndDate?.toISOString(),
         do_start_date: mockSubTask.doStartDate?.toISOString(),
@@ -176,12 +189,18 @@ describe('SubtaskTauriService', () => {
 
       const patchData = {
         ...updatedSubTask,
+        planStartDate: updatedSubTask.planStartDate?.toISOString(),
+        planEndDate: updatedSubTask.planEndDate?.toISOString(),
+        doStartDate: updatedSubTask.doStartDate?.toISOString(),
+        doEndDate: updatedSubTask.doEndDate?.toISOString(),
+        createdAt: updatedSubTask.createdAt.toISOString(),
+        updatedAt: (updatedSubTask.updated_at as Date).toISOString(),
         plan_start_date: updatedSubTask.planStartDate?.toISOString(),
         plan_end_date: updatedSubTask.planEndDate?.toISOString(),
         do_start_date: updatedSubTask.doStartDate?.toISOString(),
         do_end_date: updatedSubTask.doEndDate?.toISOString(),
         created_at: updatedSubTask.createdAt.toISOString(),
-        updated_at: updatedSubTask.updated_at.toISOString()
+        updated_at: (updatedSubTask.updated_at as Date).toISOString()
       } as any;
 
       const result = await service.update('test-project-id', updatedSubTask.id, patchData);

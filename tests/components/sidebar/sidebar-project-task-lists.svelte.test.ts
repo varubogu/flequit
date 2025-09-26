@@ -23,6 +23,7 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   const { writable } = await import('svelte/store');
   const original = (await importOriginal()) as Record<string, unknown>;
   const tasksWritable = writable({
+    projects: [],
     selectedListId: null
   });
 
@@ -34,7 +35,8 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       set: tasksWritable.set,
       update: tasksWritable.update,
       selectList: vi.fn(),
-      selectedListId: null
+      selectedListId: null,
+      projects: []
     }
   };
 });
@@ -79,6 +81,7 @@ describe('TaskListDisplay Component', () => {
     setTranslationService(createUnitTestTranslationService());
     vi.clearAllMocks();
     mockTaskStore.selectedListId = null;
+    mockTaskStore.projects = [mockProject as any];
   });
 
   const setTaskStoreData = (data: { selectedListId?: string | null }) => {
@@ -135,14 +138,16 @@ describe('TaskListDisplay Component', () => {
 
     render(TaskListDisplay, {
       project: mockProject,
-      isExpanded: true
+      isExpanded: true,
+      currentView: 'tasklist' as const
     });
 
-    const frontendButton = screen.getByText('Frontend').closest('button');
-    const backendButton = screen.getByText('Backend').closest('button');
+    const frontendButton = screen.getByTestId('tasklist-list-1');
+    const backendButton = screen.getByTestId('tasklist-list-2');
 
-    expect(frontendButton).toHaveClass('bg-secondary');
-    expect(backendButton).not.toHaveClass('bg-secondary');
+    // 選択中のタスクリストは強調クラスが付与される
+    expect(frontendButton).toHaveClass('bg-primary/20', 'border-2', 'border-primary', 'shadow-md', 'shadow-primary/40', 'text-foreground');
+    expect(backendButton).not.toHaveClass('bg-primary/20', 'border-2', 'border-primary', 'shadow-md', 'shadow-primary/40', 'text-foreground');
   });
 
   test('should open context menu on right-click', async () => {
@@ -163,7 +168,11 @@ describe('TaskListDisplay Component', () => {
   });
 
   test('should render empty list when project has no task lists', () => {
-    const emptyProject = { ...mockProject, task_lists: [] };
+    const emptyProject = { ...mockProject, taskLists: [] } as ProjectTree;
+
+    // currentProject参照のため、ストアにも同じプロジェクトを反映
+    setTaskStoreData({});
+    mockTaskStore.projects = [emptyProject as any];
 
     render(TaskListDisplay, {
       project: emptyProject,
@@ -175,28 +184,32 @@ describe('TaskListDisplay Component', () => {
   });
 
   test('should handle task list with zero tasks', () => {
-    const projectWithEmptyList = {
+    const projectWithEmptyList: ProjectTree = {
       ...mockProject,
-      task_lists: [
+      taskLists: [
         {
           id: 'empty-list',
-          project_id: 'project-1',
+          projectId: 'project-1',
           name: 'Empty List',
-          order_index: 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date(),
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
           tasks: []
-        }
+        } as any
       ]
-    };
+    } as ProjectTree;
+
+    // ストアにも反映
+    setTaskStoreData({});
+    mockTaskStore.projects = [projectWithEmptyList as any];
 
     render(TaskListDisplay, {
       project: projectWithEmptyList,
       isExpanded: true
     });
 
-    const emptyListButton = screen.getByText('Empty List').closest('button');
-    expect(emptyListButton?.textContent).toContain('0');
+    const emptyListButton = screen.getByTestId('tasklist-empty-list');
+    expect(emptyListButton.textContent).toContain('0');
   });
 });

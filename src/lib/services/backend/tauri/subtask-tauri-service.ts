@@ -37,16 +37,31 @@ export class SubtaskTauriService implements SubTaskService {
 
   async update(projectId: string, id: string, patch: Partial<SubTask>): Promise<boolean> {
     try {
-      // Partial<SubTask>からSubtaskCommandModel形式に変換
+      // Partial<SubTask>からSubtaskCommandModel形式に変換（Date/ISO文字列両対応）
+      const toIsoString = (v: unknown): string | undefined => {
+        if (!v) return undefined;
+        if (v instanceof Date) return v.toISOString();
+        if (typeof v === 'string') return v; // 既にISO文字列とみなす
+        return undefined;
+      };
+
       const subtaskPatchCommandModel = {
         ...patch,
-        planStartDate: patch.planStartDate?.toISOString(),
-        planEndDate: patch.planEndDate?.toISOString(),
-        doStartDate: patch.doStartDate?.toISOString(),
-        doEndDate: patch.doEndDate?.toISOString(),
-        createdAt: patch.createdAt?.toISOString(),
-        updatedAt: patch.updatedAt?.toISOString(),
-        tagIds: patch.tagIds,
+        planStartDate: toIsoString((patch as any).planStartDate ?? (patch as any).plan_start_date),
+        planEndDate: toIsoString((patch as any).planEndDate ?? (patch as any).plan_end_date),
+        doStartDate: toIsoString((patch as any).doStartDate ?? (patch as any).do_start_date),
+        doEndDate: toIsoString((patch as any).doEndDate ?? (patch as any).do_end_date),
+        createdAt: toIsoString((patch as any).createdAt ?? (patch as any).created_at),
+        updatedAt: toIsoString((patch as any).updatedAt ?? (patch as any).updated_at),
+        tagIds: (patch as any).tagIds ?? (patch as any).tag_ids,
+      } as Partial<SubTask> & {
+        planStartDate?: string;
+        planEndDate?: string;
+        doStartDate?: string;
+        doEndDate?: string;
+        createdAt?: string;
+        updatedAt?: string;
+        tagIds?: string[];
       };
 
       const result = await invoke('update_sub_task', { projectId, id, patch: subtaskPatchCommandModel });

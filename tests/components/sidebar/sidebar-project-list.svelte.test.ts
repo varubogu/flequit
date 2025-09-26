@@ -216,7 +216,7 @@ describe('SidebarProjectList Component', () => {
     render(SidebarProjectList, { currentView: 'project', onViewChange });
 
     const workButton = screen.getByText('Work').closest('button');
-    expect(workButton).toHaveClass('bg-secondary');
+    expect(workButton).toHaveClass('bg-primary/20', 'border-2', 'border-primary', 'shadow-md', 'shadow-primary/40', 'text-foreground');
   });
 
   test('should not show toggle button for projects without task lists', () => {

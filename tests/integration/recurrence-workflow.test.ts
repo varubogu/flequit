@@ -131,7 +131,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     const taskData = {
       title: '毎日のタスク',
       description: '毎日実行するテストタスク',
-      due_date: new Date('2024-01-01'),
+      planEndDate: new Date('2024-01-01'),
       recurrenceRule: recurrenceRule
     } as Partial<Task>;
 
@@ -140,10 +140,10 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     expect(task).toEqual(
       expect.objectContaining({
         title: '毎日のタスク',
-        recurrence_rule: expect.objectContaining({
+        recurrenceRule: expect.objectContaining({
           unit: 'day',
           interval: 1,
-          max_occurrences: 5
+          maxOccurrences: 5
         })
       })
     );
@@ -264,9 +264,9 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     expect(weekdaysTask).toEqual(
       expect.objectContaining({
         title: '平日タスク',
-        recurrence_rule: expect.objectContaining({
+        recurrenceRule: expect.objectContaining({
           unit: 'week',
-          days_of_week: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+          daysOfWeek: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
         })
       })
     );
@@ -296,7 +296,7 @@ describe('繰り返しタスクワークフロー結合テスト', () => {
     expect(monthlyTask).toEqual(
       expect.objectContaining({
         title: '毎月15日タスク',
-        recurrence_rule: expect.objectContaining({
+        recurrenceRule: expect.objectContaining({
           unit: 'month',
           details: { day_of_month: 15 }
         })

@@ -20,7 +20,7 @@ vi.mock('$lib/components/shared/context-menu-wrapper.svelte', () => ({
   default: () => ({ $$: { fragment: null } })
 }));
 
-vi.mock('$lib/components/task/task-list-display.svelte', () => ({
+vi.mock('$lib/components/task/core/task-list-display.svelte', () => ({
   default: () => ({ $$: { fragment: null } })
 }));
 

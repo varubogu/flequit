@@ -98,7 +98,7 @@ describe('タスクライフサイクル結合テスト', () => {
       expect.objectContaining({
         title: '新しいタスク',
         status: 'not_started',
-        list_id: 'test-list-1'
+        listId: 'test-list-1'
       })
     );
 
@@ -121,7 +121,7 @@ describe('タスクライフサイクル結合テスト', () => {
       expect.objectContaining({
         title: '更新されたタスク',
         status: 'completed',
-        list_id: 'test-list-1'
+        listId: 'test-list-1'
       })
     );
 

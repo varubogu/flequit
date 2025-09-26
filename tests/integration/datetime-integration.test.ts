@@ -84,9 +84,9 @@ const mockTaskDateStore = {
     (
       taskId: string,
       dateData: {
-        plan_start_date?: Date;
-        plan_end_date?: Date;
-        is_range_date?: boolean;
+        planStartDate?: Date;
+        planEndDate?: Date;
+        isRangeDate?: boolean;
       }
     ) => {
       const taskIndex = mockTaskDateStore.tasks.findIndex((t) => t.id === taskId);
@@ -377,22 +377,22 @@ describe('日付・時刻管理結合テスト', () => {
   it('タスクの日付設定が正しく動作する', () => {
     // 単一日付の設定
     const singleDateResult = mockTaskDateStore.setTaskDate('task-1', {
-      plan_end_date: new Date('2024-01-20T10:00:00'),
-      is_range_date: false
+      planEndDate: new Date('2024-01-20T10:00:00'),
+      isRangeDate: false
     });
 
     expect(mockTaskDateStore.setTaskDate).toHaveBeenCalledWith('task-1', {
-      plan_end_date: new Date('2024-01-20T10:00:00'),
-      is_range_date: false
+      planEndDate: new Date('2024-01-20T10:00:00'),
+      isRangeDate: false
     });
     expect(singleDateResult?.planEndDate).toEqual(new Date('2024-01-20T10:00:00'));
     expect(singleDateResult?.isRangeDate).toBe(false);
 
     // 範囲日付の設定
     const rangeDateResult = mockTaskDateStore.setTaskDate('task-2', {
-      plan_start_date: new Date('2024-01-22T09:00:00'),
-      plan_end_date: new Date('2024-01-25T17:00:00'),
-      is_range_date: true
+      planStartDate: new Date('2024-01-22T09:00:00'),
+      planEndDate: new Date('2024-01-25T17:00:00'),
+      isRangeDate: true
     });
 
     expect(rangeDateResult?.planStartDate).toEqual(new Date('2024-01-22T09:00:00'));
@@ -609,8 +609,8 @@ describe('日付・時刻管理結合テスト', () => {
     // タスクの日付を今日に設定
     const today = new Date('2024-01-15');
     mockTaskDateStore.setTaskDate('task-2', {
-      plan_end_date: today,
-      is_range_date: false
+      planEndDate: today,
+      isRangeDate: false
     });
 
     // カレンダーで今日を選択

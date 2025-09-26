@@ -62,7 +62,7 @@ describe('シンプルな結合テスト', () => {
       expect.objectContaining({
         title: '新しいタスク',
         status: 'not_started',
-        list_id: 'list-1'
+        listId: 'list-1'
       })
     );
     expect(mockTaskStore.tasks).toHaveLength(1);
@@ -156,7 +156,7 @@ describe('シンプルな結合テスト', () => {
     expect(taskList).toEqual(
       expect.objectContaining({
         name: '新リスト',
-        project_id: project.id
+        projectId: project.id
       })
     );
     expect(hierarchyStore.taskLists).toHaveLength(1);
@@ -169,7 +169,7 @@ describe('シンプルな結合テスト', () => {
     expect(task).toEqual(
       expect.objectContaining({
         title: '新タスク',
-        list_id: taskList.id,
+        listId: taskList.id,
         status: 'not_started'
       })
     );

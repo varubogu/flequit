@@ -115,7 +115,14 @@ vi.mock('$lib/services/data-service', () => {
   const mockTaskLists = new Map();
   const mockTasks = new Map();
   const mockSubTasks = new Map();
-  
+  // settings mock state
+  let mockSettings = {
+    weekStart: 'monday',
+    timezone: 'UTC',
+    dateFormat: 'yyyy-MM-dd HH:mm',
+    customDueDays: [] as number[]
+  };
+
   return {
     dataService: {
       // Project methods
@@ -183,14 +190,14 @@ vi.mock('$lib/services/data-service', () => {
           tasks: []
         };
         mockTaskLists.set(newTaskList.id, newTaskList);
-        
+
         // Add to project if exists
         const project = mockProjects.get(projectId);
         if (project) {
           project.task_lists.push(newTaskList);
           mockProjects.set(projectId, project);
         }
-        
+
         return newTaskList;
       },
 
@@ -331,6 +338,40 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       async initializeAll() {
+        return true;
+      },
+
+      // Settings Management methods (for settings components/tests)
+      async loadSettings() {
+        return { ...mockSettings };
+      },
+      async saveSettings(settings: any) {
+        mockSettings = { ...mockSettings, ...settings };
+        return true;
+      },
+      async settingsFileExists() {
+        return true;
+      },
+      async initializeSettingsWithDefaults() {
+        mockSettings = {
+          weekStart: 'monday',
+          timezone: 'UTC',
+          dateFormat: 'yyyy-MM-dd HH:mm',
+          customDueDays: []
+        };
+        return true;
+      },
+      async getSettingsFilePath() {
+        return '/tmp/settings.json';
+      },
+      async updateSettingsPartially(partial: Partial<typeof mockSettings>) {
+        mockSettings = { ...mockSettings, ...partial };
+        return { ...mockSettings };
+      },
+      async addCustomDueDay(days: number) {
+        if (!mockSettings.customDueDays.includes(days)) {
+          mockSettings.customDueDays.push(days);
+        }
         return true;
       },
 

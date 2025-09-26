@@ -167,7 +167,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
     expect(taskList).toEqual(
       expect.objectContaining({
         name: '新しいタスクリスト',
-        project_id: project.id
+        projectId: project.id
       })
     );
 
@@ -190,7 +190,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
       expect.objectContaining({
         title: '新しいタスク',
         status: 'not_started',
-        list_id: taskList.id
+        listId: taskList.id
       })
     );
 

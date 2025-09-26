@@ -1,5 +1,57 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TaskStore } from '$lib/stores/tasks.svelte';
+import type { ProjectTree } from '$lib/types/project';
+import type { TaskListWithTasks } from '$lib/types/task-list';
+
+// dataServiceのモック
+vi.mock('$lib/services/data-service', () => {
+  return {
+    dataService: {
+      createProjectTree: async (project: { name: string; description?: string; color?: string }) => {
+        return {
+          id: crypto.randomUUID(),
+          name: project.name,
+          description: project.description ?? '',
+          color: project.color ?? '#3b82f6',
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          taskLists: []
+        } as ProjectTree;
+      },
+      updateProject: async (_projectId: string, updates: Record<string, unknown>) => {
+        return {
+          ...updates,
+          updatedAt: new Date()
+        } as Partial<ProjectTree>;
+      },
+      deleteProject: async () => true,
+
+      createTaskListWithTasks: async (_projectId: string, taskList: { name: string; description?: string; color?: string }) => {
+        return {
+          id: crypto.randomUUID(),
+          projectId: _projectId,
+          name: taskList.name,
+          description: taskList.description,
+          color: taskList.color,
+          orderIndex: 0,
+          isArchived: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          tasks: []
+        } as TaskListWithTasks;
+      },
+      updateTaskList: async (_projectId: string, _taskListId: string, updates: { name?: string; description?: string; color?: string }) => {
+        return {
+          ...updates,
+          updatedAt: new Date()
+        } as Partial<TaskListWithTasks>;
+      },
+      deleteTaskList: async () => true
+    }
+  };
+});
 
 describe('Project Management', () => {
   let taskStore: TaskStore;

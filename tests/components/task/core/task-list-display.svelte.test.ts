@@ -21,6 +21,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 // taskStoreのモック
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
+    projects: [],
     selectedListId: null,
     selectList: vi.fn(),
     selectProject: vi.fn(),
@@ -118,6 +119,15 @@ describe('TaskListDisplay', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // currentProject依存のためprojectsに対象プロジェクトを挿入
+    import('$lib/stores/tasks.svelte').then(({ taskStore }) => {
+      taskStore.projects = [
+        {
+          ...mockProject,
+          taskLists: mockProject.taskLists
+        }
+      ] as any;
+    });
   });
 
   it('isExpanded=falseの場合は何も表示されない', () => {
