@@ -6,10 +6,7 @@ import type {
   InitializationResult
 } from '../initialization-service';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskListWithTasks } from '$lib/types/task-list';
-import type { TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from '$lib/types/sub-task';
-import type { Tag } from '$lib/types/tag';
+import { hydrateDatesDeep } from '$lib/utils/hydrate-dates';
 
 /**
  * Tauri版初期化サービス
@@ -52,8 +49,7 @@ export class InitializationTauriService implements InitializationService {
   async loadProjectData(): Promise<ProjectTree[]> {
     try {
       const projects = (await invoke('load_all_project_data')) as ProjectTree[];
-      const parsed = projects ? this.parseProjectDates(projects) : [];
-      return parsed;
+      return projects ? hydrateDatesDeep(projects) : [];
     } catch (error) {
       console.error('Failed to load project data:', error);
       return [];
@@ -86,54 +82,4 @@ export class InitializationTauriService implements InitializationService {
     };
   }
 
-  /**
-   * Tauriから取得したProjectTree群の日時フィールドをDate型へ復元する
-   * Web版の実装と同等の責務を担う
-   */
-  private parseProjectDates(projects: ProjectTree[]): ProjectTree[] {
-    const toDate = (value: unknown): Date | undefined => {
-      if (!value) return undefined;
-      const d = new Date(value as string | number | Date);
-      return isNaN(d.getTime()) ? undefined : d;
-    };
-
-    return projects.map((project) => ({
-      ...project,
-      createdAt: toDate((project as unknown as Record<string, unknown>).createdAt) || new Date(),
-      updatedAt: toDate((project as unknown as Record<string, unknown>).updatedAt) || new Date(),
-      taskLists: (project.taskLists as TaskListWithTasks[]).map((taskList) => ({
-        ...taskList,
-        createdAt: toDate((taskList as unknown as Record<string, unknown>).createdAt) || new Date(),
-        updatedAt: toDate((taskList as unknown as Record<string, unknown>).updatedAt) || new Date(),
-        tasks: (taskList.tasks as TaskWithSubTasks[]).map((task) => ({
-          ...task,
-          createdAt: toDate((task as unknown as Record<string, unknown>).createdAt) || new Date(),
-          updatedAt: toDate((task as unknown as Record<string, unknown>).updatedAt) || new Date(),
-          planStartDate: toDate((task as unknown as Record<string, unknown>).planStartDate),
-          planEndDate: toDate((task as unknown as Record<string, unknown>).planEndDate),
-          doStartDate: toDate((task as unknown as Record<string, unknown>).doStartDate),
-          doEndDate: toDate((task as unknown as Record<string, unknown>).doEndDate),
-          subTasks: (task.subTasks as SubTask[]).map((subTask) => ({
-            ...subTask,
-            createdAt: toDate((subTask as unknown as Record<string, unknown>).createdAt) || new Date(),
-            updatedAt: toDate((subTask as unknown as Record<string, unknown>).updatedAt) || new Date(),
-            planStartDate: toDate((subTask as unknown as Record<string, unknown>).planStartDate),
-            planEndDate: toDate((subTask as unknown as Record<string, unknown>).planEndDate),
-            doStartDate: toDate((subTask as unknown as Record<string, unknown>).doStartDate),
-            doEndDate: toDate((subTask as unknown as Record<string, unknown>).doEndDate)
-          })),
-          tags: (task.tags as Tag[])?.map((tag) => ({
-            ...tag,
-            createdAt: toDate((tag as unknown as Record<string, unknown>).createdAt) || new Date(),
-            updatedAt: toDate((tag as unknown as Record<string, unknown>).updatedAt) || new Date()
-          }))
-        }))
-      })),
-      allTags: (project.allTags as Tag[]).map((tag) => ({
-        ...tag,
-        createdAt: toDate((tag as unknown as Record<string, unknown>).createdAt) || new Date(),
-        updatedAt: toDate((tag as unknown as Record<string, unknown>).updatedAt) || new Date()
-      }))
-    }));
-  }
 }
