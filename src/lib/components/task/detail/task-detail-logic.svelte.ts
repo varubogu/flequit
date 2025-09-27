@@ -84,7 +84,7 @@ export class TaskDetailLogic {
   // Project info getter
   getProjectInfo() {
     if (this.isNewTaskMode || !this.currentItem) return null;
-    if (this.isSubTask && 'task_id' in this.currentItem) {
+    if (this.isSubTask && 'taskId' in this.currentItem) {
       return taskStore.getTaskProjectAndList(this.currentItem.taskId);
     } else {
       return taskStore.getTaskProjectAndList(this.currentItem.id);
@@ -307,7 +307,7 @@ export class TaskDetailLogic {
   }
 
   handleGoToParentTask() {
-    if (this.isSubTask && this.currentItem && 'task_id' in this.currentItem) {
+    if (this.isSubTask && this.currentItem && 'taskId' in this.currentItem) {
       TaskService.selectTask(this.currentItem.taskId);
     }
   }
@@ -321,7 +321,7 @@ export class TaskDetailLogic {
     if (!this.currentItem || this.isNewTaskMode) return;
 
     if (this.isSubTask) {
-      if ('task_id' in this.currentItem) {
+      if ('taskId' in this.currentItem) {
         await taskStore.moveTaskToList(this.currentItem.taskId, data.taskListId);
       }
     } else {
@@ -418,7 +418,7 @@ export class TaskDetailLogic {
       }
 
       // 既存のstoreも更新
-      const updates = { recurrence_rule: rule || undefined };
+      const updates = { recurrenceRule: rule || undefined };
 
       if (this.isSubTask) {
         taskStore.updateSubTask(this.currentItem.id, updates);

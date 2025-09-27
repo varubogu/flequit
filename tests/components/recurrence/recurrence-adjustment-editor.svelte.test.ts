@@ -247,9 +247,9 @@ describe('RecurrenceAdjustmentEditor', () => {
           mockWeekdayCondition,
           {
             id: 'weekday-2',
-            if_weekday: 'tuesday' as const,
-            then_direction: 'previous' as const,
-            then_target: 'holiday' as const
+            ifWeekday: 'tuesday' as const,
+            thenDirection: 'previous' as const,
+            thenTarget: 'holiday' as const
           }
         ]
       };

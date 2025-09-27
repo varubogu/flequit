@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '$lib/stores/tasks.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskListWithTasks } from '$lib/types/task-list';

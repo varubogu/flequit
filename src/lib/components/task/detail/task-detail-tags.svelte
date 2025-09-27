@@ -5,9 +5,10 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
+  type SubTaskForProps = SubTask | SubTaskWithTags;
   interface Props {
     task: TaskWithSubTasks | null;
-    subTask: SubTaskWithTags | null;
+    subTask: SubTaskForProps | null;
     isNewTaskMode?: boolean;
   }
 

@@ -29,7 +29,7 @@
     <div>{created()}: {formatDateTime(currentItem.createdAt)}</div>
     <div>{updated()}: {formatDateTime(currentItem.updatedAt)}</div>
     <div>{isSubTask ? sub_task() : task()} ID: {currentItem.id}</div>
-    {#if isSubTask && 'task_id' in currentItem}
+    {#if isSubTask && 'taskId' in currentItem}
       <div>{parent_task_id()}: {currentItem.taskId}</div>
       {#if onGoToParentTask}
         <Button variant="outline" size="sm" onclick={onGoToParentTask} class="mt-2">

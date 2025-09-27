@@ -417,14 +417,14 @@ test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters
   const mockSubTask = {
     id: 'subtask-123',
     title: 'New Subtask',
-    task_id: taskId,
+    taskId: taskId,
     status: 'not_started' as const,
-    order_index: 0,
+    orderIndex: 0,
     tags: [],
-    created_at: new Date(),
-    updated_at: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     completed: false,
-    assigned_user_ids: []
+    assignedUserIds: []
   };
   vi.mocked(mockTaskStore.addSubTask).mockImplementation(() => Promise.resolve(mockSubTask));
 

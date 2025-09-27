@@ -299,7 +299,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
         isArchived: false,
         projectId: project1!.id,
         assignedUserIds: [],
-        tagIds: []
+        tagIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(task1).toBeTruthy();

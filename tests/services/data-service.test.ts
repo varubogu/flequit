@@ -169,11 +169,14 @@ describe('DataService', () => {
         description: 'Test Description',
         status: 'not_started' as const,
         priority: 1,
-        project_id: 'project-1',
-        assigned_user_ids: [],
-        tag_ids: [],
-        order_index: 0,
-        is_archived: false
+        projectId: 'project-1',
+        listId: 'list-id',
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await dataService.createTask('list-id', taskData);
@@ -429,19 +432,19 @@ describe('DataService', () => {
     test('createTaskWithSubTasks should create task', async () => {
       const taskData = {
         id: 'task-id',
-        list_id: 'list-id',
-        project_id: 'project-1',
+        listId: 'list-id',
+        projectId: 'project-1',
         title: 'Test Task',
         status: 'not_started' as const,
         priority: 1,
-        order_index: 0,
-        assigned_user_ids: [],
-        tag_ids: [],
+        orderIndex: 0,
+        assignedUserIds: [],
+        tagIds: [],
         tags: [],
-        sub_tasks: [],
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date()
+        subTasks: [],
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       await dataService.createTaskWithSubTasks('list-id', taskData);
@@ -455,15 +458,18 @@ describe('DataService', () => {
       // First create a task to delete
       const taskData = {
         title: 'Test Task',
-        project_id: 'project-1',
+        projectId: 'project-1',
+        listId: 'list-id',
         status: 'not_started' as const,
         priority: 1,
-        order_index: 0,
-        assigned_user_ids: [],
-        tag_ids: [],
+        orderIndex: 0,
+        assignedUserIds: [],
+        tagIds: [],
         tags: [],
-        sub_tasks: [],
-        is_archived: false
+        subTasks: [],
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       const createdTask = await dataService.createTask('list-id', taskData);
 

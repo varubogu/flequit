@@ -58,8 +58,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const minimalAdjustment = {
-        date_conditions: [],
-        weekday_conditions: []
+        dateConditions: [],
+        weekdayConditions: []
       };
 
       const result = await service.create(minimalAdjustment);
@@ -74,8 +74,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const dateOnlyAdjustment = {
-        date_conditions: ['2024-06-15', '2024-06-20'],
-        weekday_conditions: []
+        dateConditions: ['2024-06-15', '2024-06-20'],
+        weekdayConditions: []
       };
 
       const result = await service.create(dateOnlyAdjustment);
@@ -90,8 +90,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const weekdayOnlyAdjustment = {
-        date_conditions: [],
-        weekday_conditions: ['tuesday', 'thursday', 'saturday']
+        dateConditions: [],
+        weekdayConditions: ['tuesday', 'thursday', 'saturday']
       };
 
       const result = await service.create(weekdayOnlyAdjustment);
@@ -267,8 +267,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const longAdjustment = {
-        date_conditions: Array.from({ length: 100 }, (_, i) => `2024-01-${String(i + 1).padStart(2, '0')}`),
-        weekday_conditions: Array.from({ length: 50 }, (_, i) => `weekday-${i}`)
+        dateConditions: Array.from({ length: 100 }, (_, i) => `2024-01-${String(i + 1).padStart(2, '0')}`),
+        weekdayConditions: Array.from({ length: 50 }, (_, i) => `weekday-${i}`)
       };
 
       const result = await service.create(longAdjustment);
@@ -305,8 +305,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       ];
 
       const adjustment = {
-        date_conditions: dateFormats,
-        weekday_conditions: []
+        dateConditions: dateFormats,
+        weekdayConditions: []
       };
 
       const result = await service.create(adjustment);

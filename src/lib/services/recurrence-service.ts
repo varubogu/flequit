@@ -205,6 +205,9 @@ export class RecurrenceService {
    * 日付条件に基づいて日付を調整
    */
   private static adjustDateForCondition(date: Date, condition: DateCondition): Date {
+    if (!condition.referenceDate) {
+      return date;
+    }
     const refDate = new Date(condition.referenceDate);
     const adjustedDate = new Date(date);
 
@@ -242,6 +245,9 @@ export class RecurrenceService {
    * 日付条件をチェック
    */
   private static checkDateCondition(date: Date, condition: DateCondition): boolean {
+    if (!condition.referenceDate) {
+      return false;
+    }
     const refDate = new Date(condition.referenceDate);
 
     switch (condition.relation) {

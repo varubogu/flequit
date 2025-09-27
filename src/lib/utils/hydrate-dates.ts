@@ -31,7 +31,7 @@ export function hydrateDatesDeep<T>(input: T): T {
 
   // プレーンオブジェクト
   const obj = input as PlainObject;
-  const out: PlainObject = Array.isArray(obj) ? [] : {};
+  const out: PlainObject = {};
   for (const [k, v] of Object.entries(obj)) {
     let next = v;
     if (shouldHydrateKey(k)) {

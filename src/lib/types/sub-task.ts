@@ -37,7 +37,9 @@ export interface SubTask {
   /** 担当者ユーザーIDの配列 */
   assignedUserIds: string[];
   /** タグIDの配列 */
-  tagIds: string[];
+  tagIds?: string[];
+  /** タグ一覧（UI用途の便宜プロパティ） */
+  tags?: Tag[];
   /** 作成日時 */
   createdAt: Date;
   /** 更新日時 */

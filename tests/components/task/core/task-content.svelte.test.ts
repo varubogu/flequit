@@ -352,13 +352,13 @@ describe('TaskContent', () => {
         id: `sub-${i}`,
         title: `Sub Task ${i + 1}`,
         status: i < 2 ? ('completed' as const) : ('not_started' as const),
-        task_id: 'complex-task',
-        order_index: i,
+        taskId: 'complex-task',
+        orderIndex: i,
         tags: [],
         completed: false,
-        assigned_user_ids: [],
-        created_at: new Date(),
-        updated_at: new Date()
+        assignedUserIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }))
     };
 

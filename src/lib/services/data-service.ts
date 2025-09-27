@@ -61,9 +61,10 @@ export class DataService {
   /**
    * タグIDリストをタグオブジェクトリストに変換します
    */
-  private convertTagIdsToTags(tagIds: string[], allTags: Tag[]): Tag[] {
+  private convertTagIdsToTags(tagIds: string[] | undefined, allTags: Tag[]): Tag[] {
+    const safeIds = tagIds ?? [];
     const tagMap = new Map(allTags.map(tag => [tag.id, tag]));
-    return tagIds.map(tagId => tagMap.get(tagId)).filter((tag): tag is Tag => tag !== undefined);
+    return safeIds.map(tagId => tagMap.get(tagId)).filter((tag): tag is Tag => tag !== undefined);
   }
 
   /**

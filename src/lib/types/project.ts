@@ -54,5 +54,5 @@ export interface ProjectTree extends Project {
   /** タスクを含むタスクリスト */
   taskLists: TaskListWithTasks[];
   /** プロジェクト内の全タグ（フロントエンド側でタグID→タグオブジェクト変換用） */
-  allTags: Tag[];
+  allTags?: Tag[];
 }

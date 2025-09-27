@@ -113,9 +113,9 @@ describe('SettingsInitService', () => {
           id: 'setting_5',
           key: 'locale',
           value: 'ja',
-          data_type: 'string' as const,
-          created_at: new Date('2024-01-02'),
-          updated_at: new Date('2024-01-02')
+          dataType: 'string' as const,
+          createdAt: new Date('2024-01-02'),
+          updatedAt: new Date('2024-01-02')
         }
       ];
 
@@ -216,9 +216,9 @@ describe('SettingsInitService', () => {
           id: 'setting_special',
           key: 'test.key-with_special',
           value: 'test',
-          data_type: 'string' as const,
-          created_at: new Date(),
-          updated_at: new Date()
+          dataType: 'string' as const,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
@@ -232,9 +232,9 @@ describe('SettingsInitService', () => {
           id: 'setting_num',
           key: '123numeric',
           value: 'test',
-          data_type: 'string' as const,
-          created_at: new Date(),
-          updated_at: new Date()
+          dataType: 'string' as const,
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ];
 
@@ -249,9 +249,9 @@ describe('SettingsInitService', () => {
         id: `setting_${i}`,
         key: `key_${i}`,
         value: `value_${i}`,
-        data_type: 'string' as const,
-        created_at: new Date(),
-        updated_at: new Date()
+        dataType: 'string' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }));
 
       const start = performance.now();
@@ -267,9 +267,9 @@ describe('SettingsInitService', () => {
         id: `setting_${i}`,
         key: i % 2 === 0 ? `even_${i}` : `odd_${i}`,
         value: `value_${i}`,
-        data_type: 'string' as const,
-        created_at: new Date(),
-        updated_at: new Date()
+        dataType: 'string' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }));
 
       const start = performance.now();
