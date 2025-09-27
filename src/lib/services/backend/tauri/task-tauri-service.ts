@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Task, TaskSearchCondition } from '$lib/types/task';
+import type { Task } from '$lib/types/task';
 import type { TaskService } from '$lib/services/backend/task-service';
 
 export class TaskTauriService implements TaskService {
@@ -45,7 +45,7 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async search(projectId: string, condition: TaskSearchCondition): Promise<Task[]> {
+  async search(): Promise<Task[]> {
     // TODO: search_tasks コマンドが Tauri側に実装されていないため、一時的にmock実装
     console.warn('search_tasks is not implemented on Tauri side - using mock implementation');
     try {

@@ -6,8 +6,8 @@ export class TasklistTauriService implements TaskListService {
   async create(projectId: string, taskList: TaskList): Promise<boolean> {
     try {
       // TaskListCommandModel形式でprojectIdを設定（キャメルケース）
-      const taskListWithProjectId = { ...taskList, projectId } as any;
-      delete (taskListWithProjectId as any).project_id;
+      const taskListWithProjectId = { ...taskList, projectId } as Record<string, unknown>;
+      delete (taskListWithProjectId as Record<string, unknown>).project_id;
       await invoke('create_task_list', { projectId, taskList: taskListWithProjectId });
       return true;
     } catch (error) {

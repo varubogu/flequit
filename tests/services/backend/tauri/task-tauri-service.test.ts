@@ -91,7 +91,7 @@ describe('TaskTauriService', () => {
         plan_end_date: mockTask.planEndDate?.toISOString(),
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
-      } as any;
+      } as Record<string, unknown>;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });
@@ -111,7 +111,7 @@ describe('TaskTauriService', () => {
         plan_end_date: mockTask.planEndDate?.toISOString(),
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
-      } as any;
+      } as Record<string, unknown>;
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });

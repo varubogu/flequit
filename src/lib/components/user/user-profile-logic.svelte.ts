@@ -1,5 +1,4 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import { getBackendService } from '$lib/services/backend';
 import type { User as FullUser } from '$lib/types/user';
 
 // このコンポーネント専用のUser型（簡略版） - 後方互換性のため保持

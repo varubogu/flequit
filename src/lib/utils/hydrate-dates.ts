@@ -3,7 +3,7 @@
 
 type PlainObject = Record<string, unknown>;
 
-const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})([Tt ](\d{2}):(\d{2})(:(\d{2})(\.(\d{1,6}))?)?([Zz]|([+\-](\d{2}):(\d{2})))?)?$/;
+const ISO_DATE_REGEX = /^(\d{4})-(\d{2})-(\d{2})([Tt ](\d{2}):(\d{2})(:(\d{2})(\.(\d{1,6}))?)?([Zz]|([+-](\d{2}):(\d{2})))?)?$/;
 
 const shouldHydrateKey = (key: string): boolean => {
   // 命名規約: createdAt / updatedAt / ...At / ...Date

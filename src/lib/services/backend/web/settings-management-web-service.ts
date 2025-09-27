@@ -45,7 +45,7 @@ export class SettingsManagementWebService implements SettingsManagementService {
       },
       lastSelectedAccount: ''
     };
-    
+
     // 部分更新をマージ
     const updatedSettings = { ...defaultSettings, ...partialSettings };
     return updatedSettings;
@@ -89,13 +89,13 @@ export class SettingsManagementWebService implements SettingsManagementService {
   }
 
   // 日時フォーマット管理
-  async addDateTimeFormatSetting(formatSetting: any): Promise<boolean> {
+  async addDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: addDateTimeFormatSetting not implemented', formatSetting);
     return true; // 警告を出しつつ正常終了として扱う
   }
 
-  async upsertDateTimeFormatSetting(formatSetting: any): Promise<boolean> {
+  async upsertDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
     // TODO: Web API実装を追加
     console.warn('Web backend: upsertDateTimeFormatSetting not implemented', formatSetting);
     return true; // 警告を出しつつ正常終了として扱う

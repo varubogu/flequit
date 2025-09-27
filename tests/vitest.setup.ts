@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 
 // Mock Svelte 5 reactivity system
-(global as any).$state = (initialValue?: unknown) => {
+(global as Record<string, unknown>).$state = (initialValue?: unknown) => {
   let value = initialValue;
   return {
     get value() { return value; },
@@ -10,23 +10,23 @@ import '@testing-library/jest-dom';
 };
 
 // Mock Svelte 5 derived
-(global as any).$derived = (fn: () => unknown) => {
+(global as Record<string, unknown>).$derived = (fn: () => unknown) => {
   return fn();
 };
 
 // Mock Svelte 5 effect
-(global as any).$effect = (fn: () => void | (() => void)) => {
+(global as Record<string, unknown>).$effect = (fn: () => void | (() => void)) => {
   fn();
 };
 
 // Mock Svelte 5 reactivity classes
-(global as any).SvelteDate = class extends Date {
+(global as Record<string, unknown>).SvelteDate = class extends Date {
   constructor(...args: ConstructorParameters<typeof Date>) {
     super(...args);
   }
 };
 
-(global as any).SvelteMap = class extends Map {
+(global as Record<string, unknown>).SvelteMap = class extends Map {
   constructor(entries?: Iterable<readonly [unknown, unknown]> | null) {
     super();
     if (entries) {
@@ -37,7 +37,7 @@ import '@testing-library/jest-dom';
   }
 };
 
-(global as any).SvelteSet = class extends Set {
+(global as Record<string, unknown>).SvelteSet = class extends Set {
   constructor(values?: readonly unknown[] | null) {
     super(values);
   }
@@ -126,7 +126,7 @@ vi.mock('$lib/services/data-service', () => {
   return {
     dataService: {
       // Project methods
-      async createProject(projectData: any) {
+      async createProject(projectData: Record<string, unknown>) {
         const newProject = {
           id: crypto.randomUUID(),
           ...projectData,
@@ -139,7 +139,7 @@ vi.mock('$lib/services/data-service', () => {
         return newProject;
       },
 
-      async createProjectTree(projectData: any) {
+      async createProjectTree(projectData: Record<string, unknown>) {
         const newProject = {
           id: crypto.randomUUID(),
           ...projectData,
@@ -151,7 +151,7 @@ vi.mock('$lib/services/data-service', () => {
         return newProject;
       },
 
-      async updateProject(projectId: string, updates: any) {
+      async updateProject(projectId: string, updates: Record<string, unknown>) {
         const project = mockProjects.get(projectId);
         if (project) {
           const updated = { ...project, ...updates, updated_at: new Date() };
@@ -166,7 +166,7 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // TaskList methods
-      async createTaskList(projectId: string, taskListData: any) {
+      async createTaskList(projectId: string, taskListData: Record<string, unknown>) {
         const newTaskList = {
           id: crypto.randomUUID(),
           project_id: projectId,
@@ -180,7 +180,7 @@ vi.mock('$lib/services/data-service', () => {
         return newTaskList;
       },
 
-      async createTaskListWithTasks(projectId: string, taskListData: any) {
+      async createTaskListWithTasks(projectId: string, taskListData: Record<string, unknown>) {
         const newTaskList = {
           id: crypto.randomUUID(),
           project_id: projectId,
@@ -201,7 +201,7 @@ vi.mock('$lib/services/data-service', () => {
         return newTaskList;
       },
 
-      async updateTaskList(taskListId: string, updates: any) {
+      async updateTaskList(taskListId: string, updates: Record<string, unknown>) {
         const taskList = mockTaskLists.get(taskListId);
         if (taskList) {
           const updated = { ...taskList, ...updates, updated_at: new Date() };
@@ -217,7 +217,7 @@ vi.mock('$lib/services/data-service', () => {
           // Remove from project
           const project = mockProjects.get(taskList.project_id);
           if (project) {
-            const index = project.task_lists.findIndex((tl: any) => tl.id === taskListId);
+            const index = project.task_lists.findIndex((tl: Record<string, unknown>) => tl.id === taskListId);
             if (index !== -1) {
               project.task_lists.splice(index, 1);
               mockProjects.set(project.id, project);
@@ -230,7 +230,7 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // Task methods
-      async createTask(listId: string, taskData: any) {
+      async createTask(listId: string, taskData: Record<string, unknown>) {
         const newTask = {
           id: crypto.randomUUID(),
           list_id: listId,
@@ -248,7 +248,7 @@ vi.mock('$lib/services/data-service', () => {
         return newTask;
       },
 
-      async createTaskWithSubTasks(listId: string, taskData: any) {
+      async createTaskWithSubTasks(listId: string, taskData: Record<string, unknown>) {
         const newTask = {
           ...taskData,
           created_at: new Date(),
@@ -258,7 +258,7 @@ vi.mock('$lib/services/data-service', () => {
         return newTask;
       },
 
-      async updateTaskWithSubTasks(taskId: string, updates: any) {
+      async updateTaskWithSubTasks(taskId: string, updates: Record<string, unknown>) {
         const task = mockTasks.get(taskId);
         if (task) {
           const updated = { ...task, ...updates, updated_at: new Date() };
@@ -272,7 +272,7 @@ vi.mock('$lib/services/data-service', () => {
         return mockTasks.delete(taskId);
       },
 
-      async updateTask(taskId: string, updates: any) {
+      async updateTask(taskId: string, updates: Record<string, unknown>) {
         const task = mockTasks.get(taskId);
         if (task) {
           const updated = { ...task, ...updates, updated_at: new Date() };
@@ -283,7 +283,7 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // SubTask methods
-      async createSubTask(taskId: string, subTaskData: any) {
+      async createSubTask(taskId: string, subTaskData: Record<string, unknown>) {
         const newSubTask = {
           id: crypto.randomUUID(),
           task_id: taskId,
@@ -302,7 +302,7 @@ vi.mock('$lib/services/data-service', () => {
         return newSubTask;
       },
 
-      async updateSubTask(subTaskId: string, updates: any) {
+      async updateSubTask(subTaskId: string, updates: Record<string, unknown>) {
         const subTask = mockSubTasks.get(subTaskId);
         if (subTask) {
           const updated = { ...subTask, ...updates, updated_at: new Date() };
@@ -317,7 +317,7 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // Tag methods
-      async createTag(tagData: any) {
+      async createTag(tagData: Record<string, unknown>) {
         return {
           id: crypto.randomUUID(),
           ...tagData,
@@ -327,7 +327,7 @@ vi.mock('$lib/services/data-service', () => {
         };
       },
 
-      async updateTag(tagId: string, updates: any) {
+      async updateTag() {
         // Mock implementation - just return success
         return true;
       },
@@ -345,7 +345,7 @@ vi.mock('$lib/services/data-service', () => {
       async loadSettings() {
         return { ...mockSettings };
       },
-      async saveSettings(settings: any) {
+      async saveSettings(settings: Record<string, unknown>) {
         mockSettings = { ...mockSettings, ...settings };
         return true;
       },

@@ -81,7 +81,7 @@ describe('TaskListDisplay Component', () => {
     setTranslationService(createUnitTestTranslationService());
     vi.clearAllMocks();
     mockTaskStore.selectedListId = null;
-    mockTaskStore.projects = [mockProject as any];
+    mockTaskStore.projects = [mockProject as Record<string, unknown>];
   });
 
   const setTaskStoreData = (data: { selectedListId?: string | null }) => {
@@ -172,7 +172,7 @@ describe('TaskListDisplay Component', () => {
 
     // currentProject参照のため、ストアにも同じプロジェクトを反映
     setTaskStoreData({});
-    mockTaskStore.projects = [emptyProject as any];
+    mockTaskStore.projects = [emptyProject as Record<string, unknown>];
 
     render(TaskListDisplay, {
       project: emptyProject,
@@ -196,13 +196,13 @@ describe('TaskListDisplay Component', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           tasks: []
-        } as any
+        } as Record<string, unknown>
       ]
     } as ProjectTree;
 
     // ストアにも反映
     setTaskStoreData({});
-    mockTaskStore.projects = [projectWithEmptyList as any];
+    mockTaskStore.projects = [projectWithEmptyList as Record<string, unknown>];
 
     render(TaskListDisplay, {
       project: projectWithEmptyList,

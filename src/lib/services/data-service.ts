@@ -236,7 +236,7 @@ export class DataService {
       plan_end_date: updates.planEndDate?.toISOString() ?? undefined,
       do_start_date: updates.doStartDate?.toISOString() ?? undefined,
       do_end_date: updates.doEndDate?.toISOString() ?? undefined
-    } as any;
+    } as Record<string, unknown>;
 
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
@@ -438,6 +438,9 @@ export class DataService {
           createdAt: new Date(),
           updatedAt: new Date()
         } as Tag);
+
+      // タグを使用してサブタスクを更新
+      subTask.tags = [tagToUse];
       // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
       console.warn('SubTask update with tags is not supported in current type definition');
       return;

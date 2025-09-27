@@ -725,7 +725,7 @@ export class TaskStore {
       );
       if (project) {
         if (!project.taskLists) {
-          project.taskLists = [] as any;
+          project.taskLists = [] as TaskList[];
         }
         project.taskLists.push(newTaskList);
       }
@@ -1035,7 +1035,7 @@ export class TaskStore {
     const targetProject = this.projects.find((p) => p.id === targetProjectId);
     if (!targetProject) {
       // Restore to original project if target not found
-      if (!sourceProject.taskLists) sourceProject.taskLists = [] as any;
+      if (!sourceProject.taskLists) sourceProject.taskLists = [] as TaskList[];
       sourceProject.taskLists.push(taskListToMove);
       return;
     }
@@ -1050,10 +1050,10 @@ export class TaskStore {
       targetIndex >= 0 &&
       targetIndex <= (targetProject.taskLists ? targetProject.taskLists.length : 0)
     ) {
-      if (!targetProject.taskLists) targetProject.taskLists = [] as any;
+      if (!targetProject.taskLists) targetProject.taskLists = [] as TaskList[];
       targetProject.taskLists.splice(targetIndex, 0, taskListToMove);
     } else {
-      if (!targetProject.taskLists) targetProject.taskLists = [] as any;
+      if (!targetProject.taskLists) targetProject.taskLists = [] as TaskList[];
       targetProject.taskLists.push(taskListToMove);
     }
 

@@ -71,14 +71,14 @@ export interface SettingsManagementService {
    * @param formatSetting 日時フォーマット設定
    * @returns 成功したかどうか
    */
-  addDateTimeFormatSetting(formatSetting: any): Promise<boolean>;
+  addDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean>;
 
   /**
    * 日時フォーマット設定を更新/挿入する
    * @param formatSetting 日時フォーマット設定
    * @returns 成功したかどうか
    */
-  upsertDateTimeFormatSetting(formatSetting: any): Promise<boolean>;
+  upsertDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean>;
 
   /**
    * 日時フォーマット設定を削除する

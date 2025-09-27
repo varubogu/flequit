@@ -69,7 +69,7 @@ describe('TaskRecurrenceSelector', () => {
           'fourth': () => 'fourth',
           'last': () => 'last'
         };
-        const fn = translations[key] || ((p) => `mock-${key}`);
+        const fn = translations[key] || (() => `mock-${key}`);
         return () => fn(params);
       }),
       getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])

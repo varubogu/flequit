@@ -11,7 +11,6 @@ import type {
 import * as m from '$paraglide/messages.js';
 import { getBackendService } from './backend';
 import { settingsInitService } from './settings-init-service';
-import type { Setting } from '$lib/types/settings';
 
 /**
  * Paraglideを使用した翻訳サービスの実装

@@ -95,7 +95,7 @@ export class SettingsManagementTauriService implements SettingsManagementService
   }
 
   // 日時フォーマット管理
-  async addDateTimeFormatSetting(formatSetting: any): Promise<boolean> {
+  async addDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
     try {
       const result = await invoke('add_datetime_format_setting', { format_setting: formatSetting });
       return result as boolean;
@@ -105,7 +105,7 @@ export class SettingsManagementTauriService implements SettingsManagementService
     }
   }
 
-  async upsertDateTimeFormatSetting(formatSetting: any): Promise<boolean> {
+  async upsertDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
     try {
       const result = await invoke('upsert_datetime_format_setting', { format_setting: formatSetting });
       return result as boolean;

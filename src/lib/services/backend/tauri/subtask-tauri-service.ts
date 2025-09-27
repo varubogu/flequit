@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { SubTaskSearchCondition, SubTask } from '$lib/types/sub-task';
+import type { SubTask } from '$lib/types/sub-task';
 import type { SubTaskService } from '$lib/services/backend/subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
@@ -45,15 +45,16 @@ export class SubtaskTauriService implements SubTaskService {
         return undefined;
       };
 
+      const patchRecord = patch as Record<string, unknown>;
       const subtaskPatchCommandModel = {
         ...patch,
-        planStartDate: toIsoString((patch as any).planStartDate ?? (patch as any).plan_start_date),
-        planEndDate: toIsoString((patch as any).planEndDate ?? (patch as any).plan_end_date),
-        doStartDate: toIsoString((patch as any).doStartDate ?? (patch as any).do_start_date),
-        doEndDate: toIsoString((patch as any).doEndDate ?? (patch as any).do_end_date),
-        createdAt: toIsoString((patch as any).createdAt ?? (patch as any).created_at),
-        updatedAt: toIsoString((patch as any).updatedAt ?? (patch as any).updated_at),
-        tagIds: (patch as any).tagIds ?? (patch as any).tag_ids,
+        planStartDate: toIsoString(patchRecord.planStartDate ?? patchRecord.plan_start_date),
+        planEndDate: toIsoString(patchRecord.planEndDate ?? patchRecord.plan_end_date),
+        doStartDate: toIsoString(patchRecord.doStartDate ?? patchRecord.do_start_date),
+        doEndDate: toIsoString(patchRecord.doEndDate ?? patchRecord.do_end_date),
+        createdAt: toIsoString(patchRecord.createdAt ?? patchRecord.created_at),
+        updatedAt: toIsoString(patchRecord.updatedAt ?? patchRecord.updated_at),
+        tagIds: patchRecord.tagIds ?? patchRecord.tag_ids,
       } as Partial<SubTask> & {
         planStartDate?: string;
         planEndDate?: string;
@@ -92,7 +93,7 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async search(projectId: string, condition: SubTaskSearchCondition): Promise<SubTask[]> {
+  async search(): Promise<SubTask[]> {
     // TODO: search_sub_tasks コマンドが Tauri側に実装されていないため、一時的にmock実装
     console.warn('search_sub_tasks is not implemented on Tauri side - using mock implementation');
     try {

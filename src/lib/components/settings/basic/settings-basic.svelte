@@ -69,21 +69,6 @@
   }
 
 
-  // カスタム期日を追加する機能を実装
-  async function addCustomDueDayToSettings(days: number) {
-    try {
-      await dataService.addCustomDueDay(days);
-      console.log(`Added custom due day: ${days} days`);
-      
-      // 設定を再読み込みして反映
-      const updatedSettings = await dataService.loadSettings();
-      if (updatedSettings) {
-        settings.customDueDays = updatedSettings.customDueDays;
-      }
-    } catch (error) {
-      console.error('Failed to add custom due day:', error);
-    }
-  }
 
   function handleLanguageChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -100,7 +85,7 @@
     onWeekStartChange?.(newWeekStart);
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({ 
+      const result = await dataService.updateSettingsPartially({
         weekStart: newWeekStart as 'sunday' | 'monday'
       });
       if (result) {
@@ -118,8 +103,8 @@
     onTimezoneChange?.(newTimezone);
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({ 
-        timezone: newTimezone 
+      const result = await dataService.updateSettingsPartially({
+        timezone: newTimezone
       });
       if (result) {
         console.log('Timezone updated successfully');
@@ -134,8 +119,8 @@
     settings.dateFormat = target.value;
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({ 
-        dateFormat: target.value 
+      const result = await dataService.updateSettingsPartially({
+        dateFormat: target.value
       });
       if (result) {
         console.log('Date format updated successfully');
@@ -161,7 +146,7 @@
         if (loadedSettings.timezone !== settings.timezone) {
           settings.timezone = loadedSettings.timezone;
         }
-        
+
         console.log('Settings loaded successfully from SettingsManagementService:', loadedSettings);
       } else {
         console.log('No settings found, using defaults');

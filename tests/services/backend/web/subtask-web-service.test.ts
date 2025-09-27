@@ -62,7 +62,7 @@ describe('SubtaskWebService', () => {
         do_end_date: mockSubTask.doEndDate?.toISOString(),
         created_at: mockSubTask.createdAt.toISOString(),
         updated_at: mockSubTask.updatedAt.toISOString()
-      } as any;
+      } as Record<string, unknown>;
       const result = await service.update('test-project-id', mockSubTask.id, patchData);
 
       expect(result).toBe(true);
@@ -132,7 +132,7 @@ describe('SubtaskWebService', () => {
         do_end_date: mockSubTask.doEndDate?.toISOString(),
         created_at: mockSubTask.createdAt.toISOString(),
         updated_at: mockSubTask.updatedAt.toISOString()
-      } as any;
+      } as Record<string, unknown>;
       const [createResult, updateResult, deleteResult, getResult, searchResult] = await Promise.all(
         [
           service.create('test-project-id', mockSubTask),
@@ -161,7 +161,7 @@ describe('SubtaskWebService', () => {
         do_end_date: mockSubTask.doEndDate?.toISOString(),
         created_at: mockSubTask.createdAt.toISOString(),
         updated_at: mockSubTask.updatedAt.toISOString()
-      } as any;
+      } as Record<string, unknown>;
       const operations = await Promise.all([
         service.create('test-project-id', mockSubTask),
         service.get('test-project-id', 'subtask-123'),

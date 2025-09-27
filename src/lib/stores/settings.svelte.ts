@@ -370,7 +370,7 @@ class MainSettingsStore {
     }
   }
 
-  private convertKeyValueToPartialSettings(key: string, value: string, dataType: Setting['dataType']): Partial<Settings> | null {
+  private convertKeyValueToPartialSettings(key: string, value: string): Partial<Settings> | null {
     try {
       switch (key) {
         case 'theme':

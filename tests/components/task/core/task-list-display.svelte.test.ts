@@ -126,7 +126,7 @@ describe('TaskListDisplay', () => {
           ...mockProject,
           taskLists: mockProject.taskLists
         }
-      ] as any;
+      ] as Record<string, unknown>;
     });
   });
 
