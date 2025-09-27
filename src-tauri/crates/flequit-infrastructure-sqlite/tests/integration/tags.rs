@@ -250,3 +250,180 @@ async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[named]
+#[tokio::test]
+async fn test_tag_unique_constraint_across_projects() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
+    // テストデータベースを作成
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
+
+    // リポジトリを初期化
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
+    let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
+    let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // 2つの異なるプロジェクトIDを作成
+    let project_id1 = ProjectId::from(Uuid::new_v4());
+    let project_id2 = ProjectId::from(Uuid::new_v4());
+
+    // 同じ名前のタグを異なるプロジェクトで作成
+    let tag_id1 = TagId::from(Uuid::new_v4());
+    let tag1 = Tag {
+        id: tag_id1.clone(),
+        name: "共通タグ名".to_string(),
+        color: Some("#FF9800".to_string()),
+        order_index: Some(1),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+    };
+
+    let tag_id2 = TagId::from(Uuid::new_v4());
+    let tag2 = Tag {
+        id: tag_id2.clone(),
+        name: "共通タグ名".to_string(), // 同じ名前
+        color: Some("#E91E63".to_string()),
+        order_index: Some(1),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+    };
+
+    // 異なるプロジェクトで同じ名前のタグを作成（成功するはず）
+    tag_repo.save(&project_id1, &tag1).await?;
+    tag_repo.save(&project_id2, &tag2).await?;
+
+    // 両方のタグが正常に作成されたことを確認
+    let retrieved1 = tag_repo.find_by_id(&project_id1, &tag_id1).await?;
+    assert!(retrieved1.is_some());
+    assert_eq!(retrieved1.unwrap().name, "共通タグ名");
+
+    let retrieved2 = tag_repo.find_by_id(&project_id2, &tag_id2).await?;
+    assert!(retrieved2.is_some());
+    assert_eq!(retrieved2.unwrap().name, "共通タグ名");
+
+    println!("✅ 異なるプロジェクトで同じ名前のタグ作成テスト完了");
+    Ok(())
+}
+
+#[named]
+#[tokio::test]
+async fn test_tag_unique_constraint_within_project() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
+    // テストデータベースを作成
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
+
+    // リポジトリを初期化
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
+    let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
+    let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成
+    let project_id = ProjectId::from(Uuid::new_v4());
+
+    // 最初のタグを作成
+    let tag_id1 = TagId::from(Uuid::new_v4());
+    let tag1 = Tag {
+        id: tag_id1.clone(),
+        name: "重複テストタグ".to_string(),
+        color: Some("#FF9800".to_string()),
+        order_index: Some(1),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+    };
+
+    // 同じプロジェクト内で同じ名前のタグを作成
+    let tag_id2 = TagId::from(Uuid::new_v4());
+    let tag2 = Tag {
+        id: tag_id2.clone(),
+        name: "重複テストタグ".to_string(), // 同じ名前
+        color: Some("#E91E63".to_string()),
+        order_index: Some(2),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+    };
+
+    // 最初のタグを保存
+    tag_repo.save(&project_id, &tag1).await?;
+
+    // 同じプロジェクト内で同じ名前のタグを保存（重複チェックにより無視されるはず）
+    tag_repo.save(&project_id, &tag2).await?;
+
+    // 最初のタグが存在することを確認
+    let retrieved1 = tag_repo.find_by_id(&project_id, &tag_id1).await?;
+    assert!(retrieved1.is_some());
+    assert_eq!(retrieved1.unwrap().name, "重複テストタグ");
+
+    // 2番目のタグは存在しないことを確認（重複により無視された）
+    let retrieved2 = tag_repo.find_by_id(&project_id, &tag_id2).await?;
+    assert!(retrieved2.is_none());
+
+    // プロジェクト内のタグ数を確認（1つのみ）
+    let all_tags = tag_repo.find_all(&project_id).await?;
+    assert_eq!(all_tags.len(), 1);
+    assert_eq!(all_tags[0].id, tag_id1);
+
+    println!("✅ 同じプロジェクト内での重複タグ名テスト完了");
+    Ok(())
+}
+
+#[named]
+#[tokio::test]
+async fn test_tag_update_with_same_name() -> Result<(), Box<dyn std::error::Error>> {
+    // テンプレートディレクトリ
+    let crate_name = env!("CARGO_PKG_NAME");
+    let template_dir = TestPathGenerator::generate_test_crate_dir(crate_name);
+
+    // テストデータベースを作成
+    let test_case = function_name!();
+    let output_dir = TestPathGenerator::generate_test_dir(file!(), test_case);
+    let output_file_path = SqliteTestHarness::copy_database_template(&template_dir, &output_dir)?;
+
+    // リポジトリを初期化
+    let db_manager = DatabaseManager::new_for_test(&output_file_path.to_string_lossy().to_string());
+    let db_manager_arc = Arc::new(tokio::sync::RwLock::new(db_manager));
+    let tag_repo = TagLocalSqliteRepository::new(db_manager_arc);
+
+    // プロジェクトIDを作成
+    let project_id = ProjectId::from(Uuid::new_v4());
+
+    // タグを作成
+    let tag_id = TagId::from(Uuid::new_v4());
+    let mut tag = Tag {
+        id: tag_id.clone(),
+        name: "更新テストタグ".to_string(),
+        color: Some("#FF9800".to_string()),
+        order_index: Some(1),
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+    };
+
+    // 最初の保存
+    tag_repo.save(&project_id, &tag).await?;
+
+    // 同じタグの名前を変更して更新
+    tag.name = "更新されたタグ名".to_string();
+    tag.color = Some("#E91E63".to_string());
+    tag.updated_at = chrono::Utc::now();
+
+    tag_repo.save(&project_id, &tag).await?;
+
+    // 更新されたタグを取得して確認
+    let retrieved = tag_repo.find_by_id(&project_id, &tag_id).await?;
+    assert!(retrieved.is_some());
+    let retrieved = retrieved.unwrap();
+    assert_eq!(retrieved.name, "更新されたタグ名");
+    assert_eq!(retrieved.color, Some("#E91E63".to_string()));
+
+    println!("✅ タグ更新テスト完了");
+    Ok(())
+}
