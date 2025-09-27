@@ -314,7 +314,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
         Ok(count)
     }
 
-    async fn find_all(&self, _project_id: &ProjectId) -> Result<Vec<SubTaskTag>, RepositoryError> {
+    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTaskTag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -322,6 +322,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubtaskTagLocal
             .map_err(|e| RepositoryError::from(e))?;
 
         let models = SubtaskTagEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
             .all(db)
             .await
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
