@@ -7,12 +7,55 @@ vi.mock('../../src/lib/services/backend/index', () => ({
   getBackendService: vi.fn()
 }));
 
+// モックバックエンドサービスの型定義
+interface MockBackendService {
+  project: {
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    search: ReturnType<typeof vi.fn>;
+  };
+  tasklist: {
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    search: ReturnType<typeof vi.fn>;
+  };
+  task: {
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    search: ReturnType<typeof vi.fn>;
+  };
+  subtask: {
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    search: ReturnType<typeof vi.fn>;
+  };
+  tag: {
+    create: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    search: ReturnType<typeof vi.fn>;
+  };
+  initialization: {
+    loadProjectData: ReturnType<typeof vi.fn>;
+  };
+}
+
 describe('DataService', () => {
-  let mockBackendService: Record<string, unknown>;
+  let mockBackendService: MockBackendService;
 
   beforeEach(async () => {
     // DataServiceのbackendキャッシュをリセット
-    (dataService as Record<string, unknown>).backend = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (dataService as any).backend = null;
 
     // モックバックエンドサービスの設定
     mockBackendService = {
@@ -56,7 +99,8 @@ describe('DataService', () => {
       }
     };
 
-    vi.mocked(backendIndex.getBackendService).mockResolvedValue(mockBackendService);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(backendIndex.getBackendService).mockResolvedValue(mockBackendService as any);
   });
 
   describe('Project operations', () => {
@@ -74,8 +118,10 @@ describe('DataService', () => {
       expect(result.description).toBe(projectData.description);
       expect(result.color).toBe(projectData.color);
       expect(result.id).toBeDefined();
-      expect((result as Record<string, unknown>).created_at).toBeDefined();
-      expect((result as Record<string, unknown>).updated_at).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).created_at).toBeDefined();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).updated_at).toBeDefined();
       // Mock dataService doesn't use backend, so this expectation is removed
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
@@ -89,8 +135,10 @@ describe('DataService', () => {
       const result = await dataService.createProjectTree(projectData);
 
       expect(result).toBeDefined();
-      expect((result as Record<string, unknown>).name).toBe(projectData.name);
-      expect((result as Record<string, unknown>).task_lists).toEqual([]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).name).toBe(projectData.name);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).task_lists).toEqual([]);
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
 
@@ -141,8 +189,10 @@ describe('DataService', () => {
       const result = await dataService.createTaskList('project-id', taskListData);
 
       expect(result).toBeDefined();
-      expect((result as Record<string, unknown>).name).toBe(taskListData.name);
-      expect((result as Record<string, unknown>).project_id).toBe('project-id');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).name).toBe(taskListData.name);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).project_id).toBe('project-id');
       // expect(mockBackendService.tasklist.create).toHaveBeenCalledOnce();
     });
 
@@ -180,8 +230,10 @@ describe('DataService', () => {
       const result = await dataService.createTask('list-id', taskData);
 
       expect(result).toBeDefined();
-      expect((result as Record<string, unknown>).title).toBe(taskData.title);
-      expect((result as Record<string, unknown>).list_id).toBe('list-id');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).title).toBe(taskData.title);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).list_id).toBe('list-id');
       // expect(mockBackendService.task.create).toHaveBeenCalledOnce();
     });
 
@@ -222,8 +274,10 @@ describe('DataService', () => {
       const result = await dataService.createSubTask('task-id', subTaskData);
 
       expect(result).toBeDefined();
-      expect((result as Record<string, unknown>).title).toBe(subTaskData.title);
-      expect((result as Record<string, unknown>).task_id).toBe('task-id');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).title).toBe(subTaskData.title);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).task_id).toBe('task-id');
       // expect(mockBackendService.subtask.create).toHaveBeenCalledOnce();
     });
   });
@@ -485,8 +539,10 @@ describe('DataService', () => {
 
       const result = await dataService.createProject(projectData);
 
-      expect((result as Record<string, unknown>).order_index).toBe(0);
-      expect((result as Record<string, unknown>).is_archived).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).order_index).toBe(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).is_archived).toBe(false);
     });
 
     test('createTaskList should use default order_index if not provided', async () => {
@@ -494,8 +550,10 @@ describe('DataService', () => {
 
       const result = await dataService.createTaskList('project-id', taskListData);
 
-      expect((result as Record<string, unknown>).order_index).toBe(0);
-      expect((result as Record<string, unknown>).is_archived).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).order_index).toBe(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).is_archived).toBe(false);
     });
 
     test('createSubTask should use default status if not provided', async () => {
@@ -503,9 +561,12 @@ describe('DataService', () => {
 
       const result = await dataService.createSubTask('task-id', subTaskData);
 
-      expect((result as Record<string, unknown>).status).toBe('not_started');
-      expect((result as Record<string, unknown>).order_index).toBe(0);
-      expect((result as Record<string, unknown>).tags).toEqual([]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).status).toBe('not_started');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).order_index).toBe(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).tags).toEqual([]);
     });
 
     test('createTag should use default order_index if not provided', async () => {
@@ -513,7 +574,8 @@ describe('DataService', () => {
 
       const result = await dataService.createTag(tagData);
 
-      expect((result as Record<string, unknown>).order_index).toBe(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((result as any).order_index).toBe(0);
     });
   });
 });

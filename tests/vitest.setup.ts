@@ -251,6 +251,7 @@ vi.mock('$lib/services/data-service', () => {
       async createTaskWithSubTasks(listId: string, taskData: Record<string, unknown>) {
         const newTask = {
           ...taskData,
+          id: taskData.id || `task-${Date.now()}`,
           created_at: new Date(),
           updated_at: new Date()
         };

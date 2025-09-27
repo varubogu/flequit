@@ -430,17 +430,7 @@ export class DataService {
     // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
     if (!subTask) {
       console.log('DataService: SubTask not found in backend (Web environment), updating with tag');
-      const tagToUse =
-        tag ||
-        ({
-          id: tagId,
-          name: `Tag-${tagId}`, // 仮の名前
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } as Tag);
 
-      // タグを使用してサブタスクを更新
-      subTask.tags = [tagToUse];
       // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
       console.warn('SubTask update with tags is not supported in current type definition');
       return;

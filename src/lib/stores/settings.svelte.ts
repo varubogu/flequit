@@ -353,7 +353,7 @@ class MainSettingsStore {
     }
 
     // 新しい部分更新システムを使用するためのマッピング
-    const partialSettings = this.convertKeyValueToPartialSettings(key, value, dataType);
+    const partialSettings = this.convertKeyValueToPartialSettings(key, value);
     if (partialSettings) {
       await backend.settingsManagement.updateSettingsPartially(partialSettings);
     } else {

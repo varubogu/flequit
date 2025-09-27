@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskTauriService } from '$lib/services/backend/tauri/task-tauri-service';
-import type { Task, TaskSearchCondition } from '$lib/types/task';
+import type { Task } from '$lib/types/task';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -20,7 +20,6 @@ const mockInvoke = vi.mocked(await import('@tauri-apps/api/core')).invoke;
 describe('TaskTauriService', () => {
   let service: TaskTauriService;
   let mockTask: Task;
-  let mockSearchCondition: TaskSearchCondition;
 
   beforeEach(() => {
     service = new TaskTauriService();
@@ -41,11 +40,6 @@ describe('TaskTauriService', () => {
       isArchived: false,
       createdAt: new Date('2024-01-01T00:00:00Z'),
       updatedAt: new Date('2024-01-01T00:00:00Z')
-    };
-    mockSearchCondition = {
-      listId: 'list-456',
-      status: 'not_started',
-      isArchived: false
     };
     vi.clearAllMocks();
   });
@@ -183,7 +177,7 @@ describe('TaskTauriService', () => {
     it('should return empty array as mock implementation', async () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const result = await service.search('test-project-id', mockSearchCondition);
+      const result = await service.search();
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('search_tasks is not implemented on Tauri side - using mock implementation');
@@ -192,10 +186,9 @@ describe('TaskTauriService', () => {
     });
 
     it('should handle search with empty condition', async () => {
-      const emptyCondition = {};
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const result = await service.search('test-project-id', emptyCondition);
+      const result = await service.search();
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith('search_tasks is not implemented on Tauri side - using mock implementation');
