@@ -160,6 +160,20 @@ impl HybridMigrator {
         self.db.execute_unprepared(&sql).await?;
         println!("  🔗 複合ユニークインデックス作成: accounts(provider, provider_id)");
 
+        // tags: (project_id, name) 複合ユニーク
+        let tag_unique_index = Index::create()
+            .name("idx_tags_project_name")
+            .table(TagEntity)
+            .col(crate::models::task_projects::tag::Column::ProjectId)
+            .col(crate::models::task_projects::tag::Column::Name)
+            .unique()
+            .if_not_exists()
+            .to_owned();
+
+        let sql = tag_unique_index.to_string(SqliteQueryBuilder);
+        self.db.execute_unprepared(&sql).await?;
+        println!("  🔗 複合ユニークインデックス作成: tags(project_id, name)");
+
         Ok(())
     }
 

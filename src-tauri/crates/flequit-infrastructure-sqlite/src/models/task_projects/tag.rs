@@ -24,7 +24,7 @@ pub struct Model {
     pub id: String,
 
     /// タグ名
-    #[sea_orm(indexed, unique)] // 名前検索用、重複防止
+    #[sea_orm(indexed)] // 名前検索用
     pub name: String,
 
     /// タグの色（16進数カラーコード）

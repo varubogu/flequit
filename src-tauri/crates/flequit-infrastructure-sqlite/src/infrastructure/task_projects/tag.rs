@@ -187,8 +187,8 @@ impl ProjectRepository<Tag, TagId> for TagLocalSqliteRepository {
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        // 名前での重複チェック
-        let existing_by_name = self.find_by_name(&tag.name).await?;
+        // 名前での重複チェック（プロジェクト内のみ）
+        let existing_by_name = self.find_by_name_in_project(project_id, &tag.name).await?;
         if let Some(existing_tag) = existing_by_name {
             if existing_tag.id != tag.id {
                 // 既存の同名タグがある場合は、何もせずに正常終了
