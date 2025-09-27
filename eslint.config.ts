@@ -44,7 +44,8 @@ export default tseslint.config(
       'src-tauri/',
       'package-lock.json',
       'playwright-report/',
-      'test-results/'
+      'test-results/',
+      'src/lib/types/bindings.ts'
     ]
   }
 );
