@@ -65,10 +65,10 @@ describe('TasklistTauriService', () => {
         id: 'tasklist-minimal',
         projectId: 'test-project-id',
         name: 'Basic List',
-        order_index: 0,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date()
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', minimalTaskList);
@@ -86,10 +86,10 @@ describe('TasklistTauriService', () => {
         name: 'Complete List',
         description: 'Full description with details',
         color: '#E74C3C',
-        order_index: 5,
-        is_archived: false,
-        created_at: new Date(),
-        updated_at: new Date()
+        orderIndex: 5,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', fullTaskList);
@@ -128,7 +128,7 @@ describe('TasklistTauriService', () => {
       const renamedTaskList = {
         ...mockTaskList,
         name: 'Updated Development Tasks',
-        updated_at: new Date()
+        updatedAt: new Date()
       };
 
       const result = await service.update('test-project-id', renamedTaskList.id, renamedTaskList);
@@ -142,8 +142,8 @@ describe('TasklistTauriService', () => {
 
       const archivedTaskList = {
         ...mockTaskList,
-        is_archived: true,
-        updated_at: new Date()
+        isArchived: true,
+        updatedAt: new Date()
       };
 
       const result = await service.update('test-project-id', archivedTaskList.id, archivedTaskList);
@@ -308,7 +308,7 @@ describe('TasklistTauriService', () => {
     });
 
     it('should handle search with order index criteria', async () => {
-      const orderCondition = { order_index: 5 };
+      const orderCondition = { orderIndex: 5 };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search('test-project-id', orderCondition);

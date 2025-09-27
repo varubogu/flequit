@@ -190,7 +190,7 @@ describe('TaskRecurrenceTauriService', () => {
     });
 
     it('should handle search with task_id condition', async () => {
-      const condition = { task_id: 'task-123' };
+      const condition = { taskId: 'task-123' };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search(condition);
@@ -202,7 +202,7 @@ describe('TaskRecurrenceTauriService', () => {
     });
 
     it('should handle search with recurrence_rule_id condition', async () => {
-      const condition = { recurrence_rule_id: 'rule-456' };
+      const condition = { recurrenceRuleId: 'rule-456' };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search(condition);
@@ -230,8 +230,8 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const longTaskRecurrence = {
-        task_id: 'task-' + 'a'.repeat(100),
-        recurrence_rule_id: 'rule-' + 'b'.repeat(100)
+        taskId: 'task-' + 'a'.repeat(100),
+        recurrenceRuleId: 'rule-' + 'b'.repeat(100)
       };
 
       const result = await service.create(longTaskRecurrence);

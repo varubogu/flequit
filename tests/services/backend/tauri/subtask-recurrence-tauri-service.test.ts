@@ -190,7 +190,7 @@ describe('SubtaskRecurrenceTauriService', () => {
     });
 
     it('should handle search with subtask_id condition', async () => {
-      const condition = { subtask_id: 'subtask-123' };
+      const condition = { subtaskId: 'subtask-123' };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search(condition);
@@ -202,7 +202,7 @@ describe('SubtaskRecurrenceTauriService', () => {
     });
 
     it('should handle search with recurrence_rule_id condition', async () => {
-      const condition = { recurrence_rule_id: 'rule-456' };
+      const condition = { recurrenceRuleId: 'rule-456' };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search(condition);

@@ -224,7 +224,7 @@ describe('RecurrenceAdjustmentTauriService', () => {
     });
 
     it('should handle search with rule_id condition', async () => {
-      const condition = { rule_id: 'rule-123' };
+      const condition = { ruleIid: 'rule-123' };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await service.search(condition);
@@ -237,8 +237,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
 
     it('should handle search with date and weekday conditions', async () => {
       const condition = {
-        date_conditions: ['2024-01-01'],
-        weekday_conditions: ['monday']
+        dateConditions: ['2024-01-01'],
+        weekdayConditions: ['monday']
       };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -328,8 +328,8 @@ describe('RecurrenceAdjustmentTauriService', () => {
       ];
 
       const adjustment = {
-        date_conditions: [],
-        weekday_conditions: weekdayFormats
+        dateConditions: [],
+        weekdayConditions: weekdayFormats
       };
 
       const result = await service.create(adjustment);

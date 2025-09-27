@@ -60,8 +60,8 @@ describe('TagTauriService', () => {
       const minimalTag = {
         id: 'tag-minimal',
         name: 'basic',
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', minimalTag);
@@ -77,9 +77,9 @@ describe('TagTauriService', () => {
         id: 'tag-full',
         name: 'complete',
         color: '#00FF00',
-        order_index: 5,
-        created_at: new Date(),
-        updated_at: new Date()
+        orderIndex: 5,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', fullTag);
@@ -118,7 +118,7 @@ describe('TagTauriService', () => {
       const updatedTag = {
         ...mockTag,
         color: '#0066CC',
-        updated_at: new Date()
+        updatedAt: new Date()
       };
 
       const result = await service.update('test-project-id', updatedTag.id, updatedTag);
@@ -133,7 +133,7 @@ describe('TagTauriService', () => {
       const renamedTag = {
         ...mockTag,
         name: 'high-priority',
-        updated_at: new Date()
+        updatedAt: new Date()
       };
 
       const result = await service.update('test-project-id', renamedTag.id, renamedTag);
@@ -233,8 +233,8 @@ describe('TagTauriService', () => {
         id: 'tag-special',
         name: '重要！@#$%',
         color: '#FF0000',
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', specialCharTag);
@@ -262,8 +262,8 @@ describe('TagTauriService', () => {
           id: `tag-${color.slice(1)}`,
           name: `color-${color}`,
           color,
-          created_at: new Date(),
-          updated_at: new Date()
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
 
         const result = await service.create('test-project-id', colorTag);
@@ -277,8 +277,8 @@ describe('TagTauriService', () => {
       const noColorTag = {
         id: 'tag-no-color',
         name: 'no-color',
-        created_at: new Date(),
-        updated_at: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.create('test-project-id', noColorTag);
@@ -295,9 +295,9 @@ describe('TagTauriService', () => {
         const orderTag = {
           id: `tag-order-${orderIndex}`,
           name: `order-${orderIndex}`,
-          order_index: orderIndex,
-          created_at: new Date(),
-          updated_at: new Date()
+          orderIndex: orderIndex,
+          createdAt: new Date(),
+          updatedAt: new Date()
         };
 
         const result = await service.create('test-project-id', orderTag);

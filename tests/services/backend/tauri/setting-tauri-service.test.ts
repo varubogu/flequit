@@ -154,8 +154,8 @@ describe('SettingTauriService', () => {
       const numberSetting = {
         ...mockSetting,
         key: 'font_size',
-        value: 14,
-        data_type: 'number' as const
+        value: '14',
+        dataType: 'number' as const
       };
 
       const result = await service.update(numberSetting);
@@ -173,8 +173,8 @@ describe('SettingTauriService', () => {
       const jsonSetting = {
         ...mockSetting,
         key: 'custom_config',
-        value: { theme: 'dark', notifications: true },
-        data_type: 'json' as const
+        value: JSON.stringify({ theme: 'dark', notifications: true }),
+        dataType: 'json' as const
       };
 
       const result = await service.update(jsonSetting);
@@ -216,9 +216,9 @@ describe('SettingTauriService', () => {
         id: 'minimal-setting',
         key: 'test',
         value: 'value',
-        data_type: 'string' as const,
-        created_at: new Date(),
-        updated_at: new Date()
+        dataType: 'string' as const,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const result = await service.update(minimalSetting);

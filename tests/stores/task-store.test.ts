@@ -241,15 +241,17 @@ describe('TaskStore', () => {
 
     test('addTask should add a new task to the specified list', async () => {
       const newTaskData = {
-        project_id: 'proj-1',
-        list_id: 'list-1',
+        projectId: 'proj-1',
+        listId: 'list-1',
         title: 'New Task',
         status: 'not_started' as const,
         priority: 1,
-        assigned_user_ids: [],
-        tag_ids: [],
-        order_index: 3,
-        is_archived: false
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 3,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
 
       const newTask = await store.addTask('list-1', newTaskData);
@@ -276,7 +278,9 @@ describe('TaskStore', () => {
         assignedUserIds: [],
         tagIds: [],
         orderIndex: 0,
-        isArchived: false
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
 
       expect(result).toBeNull();

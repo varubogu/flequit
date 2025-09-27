@@ -60,7 +60,7 @@ describe('RecurrenceDetailsTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const minimalDetails = {
-        specific_date: 1
+        specificDate: 1
       };
 
       const result = await service.create(minimalDetails);
@@ -75,8 +75,8 @@ describe('RecurrenceDetailsTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const weekDetails = {
-        week_of_period: 'Third',
-        weekday_of_week: 'Monday'
+        weekOfPeriod: 'Third',
+        weekdayOfWeek: 'Monday'
       };
 
       const result = await service.create(weekDetails);
@@ -91,7 +91,7 @@ describe('RecurrenceDetailsTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const dateDetails = {
-        date_conditions: ['2024-03-15', '2024-06-15', '2024-09-15']
+        dateConditions: ['2024-03-15', '2024-06-15', '2024-09-15']
       };
 
       const result = await service.create(dateDetails);
@@ -188,7 +188,7 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const updatedDetails = {
         ...mockRecurrenceDetails,
-        specific_date: 25
+        specificDate: 25
       };
 
       const result = await service.update(updatedDetails);
@@ -204,8 +204,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       const updatedDetails = {
         ...mockRecurrenceDetails,
-        week_of_period: 'First',
-        weekday_of_week: 'Sunday'
+        weekOfPeriod: 'First',
+        weekdayOfWeek: 'Sunday'
       };
 
       const result = await service.update(updatedDetails);
@@ -282,10 +282,10 @@ describe('RecurrenceDetailsTauriService', () => {
 
     it('should handle search with various conditions', async () => {
       const condition = {
-        rule_id: 'rule-123',
-        specific_date: 15,
-        week_of_period: 'Second',
-        weekday_of_week: 'Friday'
+        ruleId: 'rule-123',
+        specificDate: 15,
+        weekOfPeriod: 'Second',
+        weekdayOfWeek: 'Friday'
       };
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
@@ -317,7 +317,7 @@ describe('RecurrenceDetailsTauriService', () => {
 
       for (const specificDate of dateValues) {
         const details = {
-          specific_date: specificDate
+          specificDate: specificDate
         };
 
         const result = await service.create(details);
@@ -332,8 +332,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       for (const weekOfPeriod of weekPeriods) {
         const details = {
-          week_of_period: weekOfPeriod,
-          weekday_of_week: 'Monday'
+          weekOfPeriod: weekOfPeriod,
+          weekdayOfWeek: 'Monday'
         };
 
         const result = await service.create(details);
@@ -348,8 +348,8 @@ describe('RecurrenceDetailsTauriService', () => {
 
       for (const weekdayOfWeek of weekdays) {
         const details = {
-          week_of_period: 'First',
-          weekday_of_week: weekdayOfWeek
+          weekOfPeriod: 'First',
+          weekdayOfWeek: weekdayOfWeek
         };
 
         const result = await service.create(details);
@@ -379,7 +379,7 @@ describe('RecurrenceDetailsTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const longDetails = {
-        date_conditions: Array.from({ length: 50 }, (_, i) => `2024-${String((i % 12) + 1).padStart(2, '0')}-15`)
+        dateConditions: Array.from({ length: 50 }, (_, i) => `2024-${String((i % 12) + 1).padStart(2, '0')}-15`)
       };
 
       const result = await service.create(longDetails);

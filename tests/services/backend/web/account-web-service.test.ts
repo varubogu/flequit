@@ -46,12 +46,12 @@ describe('AccountWebService', () => {
     it('should handle account with minimal data', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        user_id: 'user-minimal',
-        display_name: 'Minimal User',
+        userId: 'user-minimal',
+        displayName: 'Minimal User',
         provider: 'local',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
       const result = await service.create(minimalAccount);

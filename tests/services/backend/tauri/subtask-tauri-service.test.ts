@@ -312,7 +312,7 @@ describe('SubtaskTauriService', () => {
     });
 
     it('should handle search by parent task ID only', async () => {
-      const taskOnlyCondition = { task_id: 'task-456' };
+      const taskOnlyCondition = { taskId: 'task-456' };
 
       const result = await service.search('test-project-id', taskOnlyCondition);
 
@@ -333,7 +333,7 @@ describe('SubtaskTauriService', () => {
 
     it('should handle search with multiple criteria', async () => {
       const multiCriteriaCondition = {
-        task_id: 'task-456',
+        taskId: 'task-456',
         status: 'in_progress' as const,
         priority: 2,
         title: 'Important'
@@ -368,15 +368,15 @@ describe('SubtaskTauriService', () => {
             id: 'tag-1',
             name: 'urgent',
             color: '#FF0000',
-            created_at: new Date(),
-            updated_at: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
           },
           {
             id: 'tag-2',
             name: 'review',
             color: '#00FF00',
-            created_at: new Date(),
-            updated_at: new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
           }
         ]
       };
