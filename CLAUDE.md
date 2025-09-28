@@ -28,6 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - bun run test    # こちらは設定ファイルで設定済みなので意識しなくても良い
 - フロントエンドの型チェックは`bun check`で行ってください（`bun run check`, `bun run typecheck`は使用しない）
 - フロントエンドのlintは`bun run lint`で行ってください（`bun lint`, `bun run check`, `bun run typecheck`は使用しない）
+- コマンドを実行してファイルやディレクトリが存在しないと言われた場合、カレントディレクトリを`pwd`で確認してください。
 
 ### 要件定義
 - `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
