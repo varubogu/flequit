@@ -144,18 +144,18 @@ impl TestDocumentManager {
         self.inner.list_document_types().map_err(|e| e.into())
     }
 
-    /// ドキュメント削除（履歴出力付き）
-    fn delete_document(
-        &mut self,
-        doc_type: DocumentType,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        self.inner.delete(doc_type).map_err(|e| e.into())
-    }
+    // /// ドキュメント削除（履歴出力付き）
+    // fn delete_document(
+    //     &mut self,
+    //     doc_type: DocumentType,
+    // ) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.inner.delete(doc_type).map_err(|e| e.into())
+    // }
 
-    /// キャッシュクリア
-    fn clear_cache(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.inner.clear_cache().map_err(|e| e.into())
-    }
+    // /// キャッシュクリア
+    // fn clear_cache(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.inner.clear_cache().map_err(|e| e.into())
+    // }
 
     /// 現在の状態をJSONファイルに出力
     async fn export_current_state(
@@ -212,10 +212,10 @@ impl TestDocumentManager {
         println!("🏁 Finalizing test: {}", self.test_name);
 
         for doc_type in doc_types {
-            let changes_dir = self
-                .base_export_dir
-                .join("detailed_changes")
-                .join(&doc_type.filename());
+            // let changes_dir = self
+            //     .base_export_dir
+            //     .join("detailed_changes")
+            //     .join(&doc_type.filename());
 
             // TODO: export_document_changes_history は現在のAPIで利用できないため、一時的にスキップ
             println!(

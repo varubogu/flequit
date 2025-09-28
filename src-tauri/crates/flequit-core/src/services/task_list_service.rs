@@ -90,10 +90,10 @@ where
     let task_lists = list_task_lists(repositories, project_id).await?;
 
     // 2. プロジェクト内の全タグを1回だけ取得（パフォーマンス最適化）
-    let all_tags = repositories.tags().find_all(project_id).await?;
-    let tag_map: std::collections::HashMap<_, _> = all_tags.into_iter()
-        .map(|tag| (tag.id.clone(), tag))
-        .collect();
+    // let all_tags = repositories.tags().find_all(project_id).await?;
+    // let tag_map: std::collections::HashMap<_, _> = all_tags.into_iter()
+    //     .map(|tag| (tag.id.clone(), tag))
+    //     .collect();
 
     // 3. プロジェクト内の全タスクとサブタスクを一括取得（パフォーマンス最適化）
     let all_tasks = repositories.tasks().find_all(project_id).await?;

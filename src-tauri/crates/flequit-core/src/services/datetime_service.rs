@@ -17,8 +17,8 @@ use flequit_model::models::task_projects::{
 
 
 pub async fn create_date_condition<R>(
-    repositories: &R,
-    condition_command: DateCondition,
+    _repositories: &R,
+    _condition_command: DateCondition,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -29,8 +29,8 @@ where
 
 
 pub async fn get_date_condition<R>(
-    repositories: &R,
-    condition_id: &str,
+    _repositories: &R,
+    _condition_id: &str,
 ) -> Result<Option<DateCondition>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -41,7 +41,7 @@ where
 
 
 pub async fn get_all_date_conditions<R>(
-    repositories: &R,
+    _repositories: &R,
 ) -> Result<Vec<DateCondition>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -52,8 +52,8 @@ where
 
 
 pub async fn update_date_condition<R>(
-    repositories: &R,
-    condition_command: DateCondition,
+    _repositories: &R,
+    _condition_command: DateCondition,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -64,8 +64,8 @@ where
 
 
 pub async fn delete_date_condition<R>(
-    repositories: &R,
-    condition_id: &str,
+    _repositories: &R,
+    _condition_id: &str,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -76,9 +76,9 @@ where
 
 
 pub async fn evaluate_date_condition<R>(
-    repositories: &R,
-    condition_id: &str,
-    target_date: DateTime<Utc>,
+    _repositories: &R,
+    _condition_id: &str,
+    _target_date: DateTime<Utc>,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -93,7 +93,7 @@ where
 
 
 pub async fn create_weekday_condition<R>(
-    repositories: &R,
+    _repositories: &R,
     condition: WeekdayCondition,
 ) -> Result<(), ServiceError>
 where
@@ -112,8 +112,8 @@ where
 
 
 pub async fn get_weekday_condition<R>(
-    repositories: &R,
-    condition_id: &str,
+    _repositories: &R,
+    _condition_id: &str,
 ) -> Result<Option<WeekdayCondition>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -124,7 +124,7 @@ where
 
 
 pub async fn get_all_weekday_conditions<R>(
-    repositories: &R,
+    _repositories: &R,
 ) -> Result<Vec<WeekdayCondition>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -135,7 +135,7 @@ where
 
 
 pub async fn update_weekday_condition<R>(
-    repositories: &R,
+    _repositories: &R,
     condition_command: WeekdayCondition,
 ) -> Result<(), ServiceError>
 where
@@ -154,8 +154,8 @@ where
 
 
 pub async fn delete_weekday_condition<R>(
-    repositories: &R,
-    condition_id: &str,
+    _repositories: &R,
+    _condition_id: &str,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -166,8 +166,8 @@ where
 
 
 pub async fn evaluate_weekday_condition<R>(
-    repositories: &R,
-    condition_id: &str,
+    _repositories: &R,
+    _condition_id: &str,
     target_date: DateTime<Utc>,
 ) -> Result<bool, ServiceError>
 where
