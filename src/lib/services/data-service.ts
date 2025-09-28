@@ -314,13 +314,15 @@ export class DataService {
     const backend = await this.getBackend();
     console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
 
-    // Patch形式でのupdateに変更（Date型をstring型に変換）
+    // Patch形式でのupdateに変更（Date型をstring型に変換し、フィールド名も変換）
     const patchData = {
       ...updates,
-      planStartDate: updates.planStartDate ? updates.planStartDate.toISOString() : updates.planStartDate,
-      planEndDate: updates.planEndDate ? updates.planEndDate.toISOString() : updates.planEndDate,
-      updatedAt: new Date()
-    } as Partial<SubTask>;
+      plan_start_date: updates.planStartDate?.toISOString() ?? undefined,
+      plan_end_date: updates.planEndDate?.toISOString() ?? undefined,
+      do_start_date: updates.doStartDate?.toISOString() ?? undefined,
+      do_end_date: updates.doEndDate?.toISOString() ?? undefined,
+      updated_at: new Date()
+    } as Record<string, unknown>;
 
     console.log('DataService: calling backend.subtask.update');
     // サブタスクIDからプロジェクトIDを取得

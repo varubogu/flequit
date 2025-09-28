@@ -344,12 +344,7 @@ export class TaskStore {
 
             // バックエンドに同期（更新操作は定期保存に任せる）
             try {
-              await dataService.updateSubTask(subTaskId, {
-                title: updates.title,
-                description: updates.description,
-                status: updates.status,
-                priority: updates.priority
-              });
+              await dataService.updateSubTask(subTaskId, updates);
             } catch (error) {
               console.error('Failed to sync subtask update to backend:', error);
               errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);

@@ -32,7 +32,7 @@ use partially::Partial;
 pub trait ProjectPatchable<T, TId>: ProjectRepository<T, TId>
 where
     T: Send + Sync,
-    TId: Send + Sync,
+    TId: Send + Sync + std::fmt::Debug,
 {
     /// プロジェクトスコープでのパッチによる部分更新
     ///
