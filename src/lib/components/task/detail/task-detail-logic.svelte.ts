@@ -102,9 +102,9 @@ export class TaskDetailLogic {
           title: this.editForm.title,
           description: this.editForm.description || undefined,
           priority: this.editForm.priority,
-          plan_start_date: this.editForm.plan_start_date,
-          plan_end_date: this.editForm.plan_end_date,
-          is_range_date: this.editForm.is_range_date
+          planStartDate: this.editForm.plan_start_date,
+          planEndDate: this.editForm.plan_end_date,
+          isRangeDate: this.editForm.is_range_date
         };
 
         if (this.isNewTaskMode) {
@@ -129,9 +129,9 @@ export class TaskDetailLogic {
         title: this.editForm.title,
         description: this.editForm.description || undefined,
         priority: this.editForm.priority,
-        plan_start_date: this.editForm.plan_start_date,
-        plan_end_date: this.editForm.plan_end_date,
-        is_range_date: this.editForm.is_range_date
+        planStartDate: this.editForm.plan_start_date,
+        planEndDate: this.editForm.plan_end_date,
+        isRangeDate: this.editForm.is_range_date
       };
 
       if (this.isNewTaskMode) {
