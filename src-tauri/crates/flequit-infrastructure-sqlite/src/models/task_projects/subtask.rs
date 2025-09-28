@@ -51,6 +51,14 @@ pub struct Model {
     #[sea_orm(indexed)] // 日時範囲検索用
     pub plan_end_date: Option<DateTime<Utc>>,
 
+    /// 実開始日時
+    #[sea_orm(indexed)] // 日時範囲検索用
+    pub do_start_date: Option<DateTime<Utc>>,
+
+    /// 実終了日時
+    #[sea_orm(indexed)] // 日時範囲検索用
+    pub do_end_date: Option<DateTime<Utc>>,
+
     /// 期間指定フラグ
     pub is_range_date: Option<bool>,
 
@@ -119,8 +127,8 @@ impl SqliteModelConverter<SubTask> for Model {
             priority: self.priority,
             plan_start_date: self.plan_start_date,
             plan_end_date: self.plan_end_date,
-            do_start_date: None,
-            do_end_date: None,
+            do_start_date: self.do_start_date,
+            do_end_date: self.do_end_date,
             is_range_date: self.is_range_date,
             recurrence_rule,
             assigned_user_ids,
@@ -162,6 +170,8 @@ impl DomainToSqliteConverter<ActiveModel> for SubTask {
             priority: Set(self.priority),
             plan_start_date: Set(self.plan_start_date),
             plan_end_date: Set(self.plan_end_date),
+            do_start_date: Set(self.do_start_date),
+            do_end_date: Set(self.do_end_date),
             is_range_date: Set(self.is_range_date),
             order_index: Set(self.order_index),
             completed: Set(self.completed),
@@ -200,6 +210,8 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for SubTask {
             priority: Set(self.priority),
             plan_start_date: Set(self.plan_start_date),
             plan_end_date: Set(self.plan_end_date),
+            do_start_date: Set(self.do_start_date),
+            do_end_date: Set(self.do_end_date),
             is_range_date: Set(self.is_range_date),
             order_index: Set(self.order_index),
             completed: Set(self.completed),

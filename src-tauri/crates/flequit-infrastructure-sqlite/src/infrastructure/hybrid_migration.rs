@@ -44,15 +44,19 @@ impl HybridMigrator {
         self.auto_generate_tables().await?;
         println!("✅ 自動生成テーブル作成完了");
 
-        // 3. 手動補完（複合制約、CASCADE等）
+        // 3. スキーマ更新（新しいカラム追加等）
+        self.update_schema().await?;
+        println!("✅ スキーマ更新完了");
+
+        // 4. 手動補完（複合制約、CASCADE等）
         self.apply_manual_supplements().await?;
         println!("✅ 手動補完適用完了");
 
-        // 4. 初期データ挿入
+        // 5. 初期データ挿入
         self.insert_initial_data().await?;
         println!("✅ 初期データ挿入完了");
 
-        // 5. マイグレーション完了記録
+        // 6. マイグレーション完了記録
         self.record_migration_completion().await?;
         println!("🎉 ハイブリッドマイグレーション完了");
 
@@ -118,6 +122,58 @@ impl HybridMigrator {
 
         // Junction tablesを手動で作成（Entityが不要なため）
         self.create_junction_tables_sql().await?;
+
+        Ok(())
+    }
+
+    /// スキーマ更新：新しいカラム追加等
+    async fn update_schema(&self) -> Result<(), DbErr> {
+        // 1. subtasksテーブルにdo_start_dateとdo_end_dateカラムを追加
+        self.add_subtask_do_date_columns().await?;
+
+        Ok(())
+    }
+
+    /// subtasksテーブルにdo_start_dateとdo_end_dateカラムを追加
+    async fn add_subtask_do_date_columns(&self) -> Result<(), DbErr> {
+        // SQLiteでは列の追加が制限されているため、既存の列があるかチェックしてから追加
+        let check_columns_sql = r#"
+            SELECT name FROM pragma_table_info('subtasks') WHERE name IN ('do_start_date', 'do_end_date');
+        "#;
+
+        let _result = self.db.execute_unprepared(check_columns_sql).await?;
+
+        // プラグマの結果を確認（簡易版）
+        // 実際のカラム確認は別の方法が必要だが、ここではエラーがないことで判定
+
+        // do_start_dateカラムを追加
+        let add_do_start_date_sql = r#"
+            ALTER TABLE subtasks ADD COLUMN do_start_date timestamp_with_timezone_text;
+        "#;
+
+        // do_end_dateカラムを追加
+        let add_do_end_date_sql = r#"
+            ALTER TABLE subtasks ADD COLUMN do_end_date timestamp_with_timezone_text;
+        "#;
+
+        // カラム追加（既に存在する場合はエラーをキャッチ）
+        if let Err(e) = self.db.execute_unprepared(add_do_start_date_sql).await {
+            if !e.to_string().contains("duplicate column name") {
+                return Err(e);
+            }
+            println!("  ℹ️  do_start_dateカラムは既に存在します");
+        } else {
+            println!("  📝 do_start_dateカラムを追加しました");
+        }
+
+        if let Err(e) = self.db.execute_unprepared(add_do_end_date_sql).await {
+            if !e.to_string().contains("duplicate column name") {
+                return Err(e);
+            }
+            println!("  ℹ️  do_end_dateカラムは既に存在します");
+        } else {
+            println!("  📝 do_end_dateカラムを追加しました");
+        }
 
         Ok(())
     }
