@@ -21,7 +21,7 @@ export class RecurrenceRuleBuilder {
   ): RecurrenceRule | null {
     if (recurrenceLevel === 'disabled') return null;
 
-    const isComplexUnit = ['year', 'half_year', 'quarter', 'month', 'week'].includes(unit);
+    const isComplexUnit = ['year', 'halfyear', 'quarter', 'month', 'week'].includes(unit);
 
     const rule: RecurrenceRule = {
       unit,

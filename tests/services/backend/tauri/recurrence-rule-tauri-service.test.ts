@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RecurrenceRuleTauriService } from '$lib/services/backend/tauri/recurrence-rule-tauri-service';
-import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence-rule';
+import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -19,14 +19,14 @@ describe('RecurrenceRuleTauriService', () => {
     service = new RecurrenceRuleTauriService();
     mockRecurrenceRule = {
       id: 'rule-123',
-      unit: 'week',
+      unit: 'week' as const,
       interval: 2,
       daysOfWeek: ['monday', 'wednesday', 'friday'],
-      endDate: '2024-12-31T23:59:59Z',
+      endDate: new Date('2024-12-31T23:59:59Z'),
       maxOccurrences: 20
     };
     mockSearchCondition = {
-      unit: 'week'
+      unit: 'week' as const
     };
     vi.clearAllMocks();
   });
@@ -59,7 +59,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const minimalRule = {
         id: 'rule-minimal',
-        unit: 'day',
+        unit: 'day' as const,
         interval: 1
       };
 
@@ -72,15 +72,21 @@ describe('RecurrenceRuleTauriService', () => {
     it('should handle recurrence rule with all optional fields', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const fullRule = {
+      const fullRule: RecurrenceRule = {
         id: 'rule-full',
         unit: 'month',
         interval: 3,
-        days_of_week: ['monday', 'tuesday'],
-        details: '{"pattern": "custom"}',
-        adjustment: '{"offset": 1}',
-        end_date: '2025-06-30T23:59:59Z',
-        max_occurrences: 10
+        daysOfWeek: ['monday', 'tuesday'],
+        pattern: {
+          monthly: {
+            dayOfMonth: 15
+          }
+        },
+        adjustment: {
+          holidayAdjustment: 'after'
+        },
+        endDate: new Date('2025-06-30T23:59:59Z'),
+        maxOccurrences: 10
       };
 
       const result = await service.create(fullRule);
@@ -199,7 +205,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const updatedRule = {
         ...mockRecurrenceRule,
-        unit: 'month'
+        unit: 'month' as const
       };
 
       const result = await service.update(updatedRule);
@@ -262,7 +268,7 @@ describe('RecurrenceRuleTauriService', () => {
     it('should handle different recurrence units', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const units = ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year'];
+      const units = ['minute', 'hour', 'day', 'week', 'month', 'quarter', 'halfyear', 'year'] as const;
 
       for (const unit of units) {
         const unitRule = {
@@ -321,7 +327,7 @@ describe('RecurrenceRuleTauriService', () => {
 
       const minimalRule = {
         id: 'rule-no-optional',
-        unit: 'day',
+        unit: 'day' as const,
         interval: 1
       };
 

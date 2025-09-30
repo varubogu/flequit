@@ -99,7 +99,7 @@ export class RecurrenceDialogAdvancedLogic {
   set displayCount(value: number) {
     this.previewManager.setDisplayCount(value);
   }
-  isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(this.unit));
+  isComplexUnit = $derived(['year', 'halfyear', 'quarter', 'month', 'week'].includes(this.unit));
 
   // Messages
   recurrenceSettings = this.translationService.getMessage('recurrence_settings');

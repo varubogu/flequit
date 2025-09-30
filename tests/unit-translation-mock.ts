@@ -87,6 +87,7 @@ export const unitTestTranslations = {
   quarter_plural: 'TEST_QUARTER_PLURAL',
   half_year: 'TEST_HALF_YEAR',
   half_year_plural: 'TEST_HALF_YEAR_PLURAL',
+  halfyear: 'TEST_HALF_YEAR',
   every_interval_unit: 'TEST_EVERY_INTERVAL_UNIT',
   recurrence_weekly_days: 'TEST_RECURRENCE_WEEKLY_DAYS',
   recurrence_monthly_detail: 'TEST_RECURRENCE_MONTHLY_DETAIL',

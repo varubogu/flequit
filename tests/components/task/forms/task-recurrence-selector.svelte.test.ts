@@ -42,7 +42,7 @@ describe('TaskRecurrenceSelector', () => {
           'year_plural': () => 'years',
           'quarter': () => 'quarter',
           'quarter_plural': () => 'quarters',
-          'half_year': () => 'half year',
+          'halfyear': () => 'half year',
           'half_year_plural': () => 'half years',
           'recurrence_weekly_days': (p) => `on ${p?.days || 'days'}`,
           'recurrence_monthly_detail': (p) => `on ${p?.detail || 'detail'}`,
@@ -297,7 +297,7 @@ describe('TaskRecurrenceSelector', () => {
 
   it('半年単位の繰り返し設定が表示される', () => {
     const recurrenceRule: RecurrenceRule = {
-      unit: 'half_year',
+      unit: 'halfyear',
       interval: 1
     };
 

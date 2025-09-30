@@ -84,7 +84,7 @@
         week: 'week_plural',
         month: 'month_plural',
         quarter: 'quarter_plural',
-        half_year: 'half_year_plural',
+        halfyear: 'half_year_plural',
         year: 'year_plural'
       };
       return translationService.getMessage(unitMapPlural[unit] || unit)();
@@ -97,7 +97,7 @@
       week: 'week',
       month: 'month',
       quarter: 'quarter',
-      half_year: 'half_year',
+      halfyear: 'halfyear',
       year: 'year'
     };
     return translationService.getMessage(unitMap[unit] || unit)();

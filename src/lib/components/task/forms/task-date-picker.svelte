@@ -37,7 +37,7 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: RecurrenceRule;
+    recurrenceRule?: RecurrenceRule | null;
   }) {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
@@ -48,7 +48,7 @@
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
           isRangeDate: true,
-          recurrenceRule: recurrenceRule
+          recurrenceRule: recurrenceRule ?? undefined
         });
       } else {
         const currentEndDate = task.planEndDate || new Date(dateTime);
@@ -57,7 +57,7 @@
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
           isRangeDate: true,
-          recurrenceRule: recurrenceRule
+          recurrenceRule: recurrenceRule ?? undefined
         });
       }
     } else {
@@ -66,7 +66,7 @@
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
         isRangeDate: false,
-        recurrenceRule: recurrenceRule
+        recurrenceRule: recurrenceRule ?? undefined
       });
     }
   }
@@ -103,7 +103,7 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: RecurrenceRule;
+    recurrenceRule?: RecurrenceRule | null;
   }) {
     if (!editingSubTaskId) return;
 
@@ -117,7 +117,7 @@
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
           isRangeDate: true,
-          recurrenceRule: recurrenceRule
+          recurrenceRule: recurrenceRule ?? undefined
         });
       } else {
         const subTask = task.subTasks[subTaskIndex];
@@ -126,7 +126,7 @@
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
           isRangeDate: true,
-          recurrenceRule: recurrenceRule
+          recurrenceRule: recurrenceRule ?? undefined
         });
       }
     } else {
@@ -134,7 +134,7 @@
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
         isRangeDate: false,
-        recurrenceRule: recurrenceRule
+        recurrenceRule: recurrenceRule ?? undefined
       });
     }
   }

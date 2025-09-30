@@ -33,7 +33,7 @@ export class RecurrenceService {
       case 'quarter':
         nextDate.setMonth(nextDate.getMonth() + rule.interval * 3);
         break;
-      case 'half_year':
+      case 'halfyear':
         nextDate.setMonth(nextDate.getMonth() + rule.interval * 6);
         break;
       case 'year':

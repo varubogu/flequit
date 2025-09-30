@@ -4,12 +4,9 @@ import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
-import type { RecurrenceRule } from '$lib/types/recurrence-rule';
-import type { TaskRecurrence } from '$lib/types/task-recurrence';
-import type { SubtaskRecurrence } from '$lib/types/subtask-recurrence';
+import type { RecurrenceRule } from '$lib/types/recurrence';
+import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-reference';
 import type { Settings } from '$lib/types/settings';
-import type { UnifiedRecurrenceRule } from '$lib/types/unified-recurrence';
-import { toTauriRecurrenceRule } from '$lib/utils/recurrence-converter';
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
 import { ProjectsService } from '$lib/services/projects-service';
@@ -240,10 +237,9 @@ export class DataService {
       do_end_date: updates.doEndDate?.toISOString() ?? undefined
     } as Record<string, unknown>;
 
-    // recurrenceRuleを統一型からTauri形式に変換
+    // recurrenceRuleはそのまま送信（Tauriが自動変換）
     if (updates.recurrenceRule !== undefined) {
-      const tauriRule = toTauriRecurrenceRule(updates.recurrenceRule as UnifiedRecurrenceRule);
-      patchData.recurrence_rule = tauriRule;
+      patchData.recurrence_rule = updates.recurrenceRule;
     }
 
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
@@ -332,10 +328,9 @@ export class DataService {
       updated_at: new Date()
     } as Record<string, unknown>;
 
-    // recurrenceRuleを統一型からTauri形式に変換
+    // recurrenceRuleはそのまま送信（Tauriが自動変換）
     if (updates.recurrenceRule !== undefined) {
-      const tauriRule = toTauriRecurrenceRule(updates.recurrenceRule as UnifiedRecurrenceRule);
-      patchData.recurrence_rule = tauriRule;
+      patchData.recurrence_rule = updates.recurrenceRule;
     }
 
     console.log('DataService: calling backend.subtask.update');

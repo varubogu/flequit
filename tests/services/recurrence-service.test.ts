@@ -87,7 +87,7 @@ describe('RecurrenceService', () => {
     it('半年単位の繰り返し計算', () => {
       const baseDate = new Date('2024-01-01');
       const rule: RecurrenceRule = {
-        unit: 'half_year',
+        unit: 'halfyear',
         interval: 1
       };
 

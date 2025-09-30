@@ -1,7 +1,7 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskStatus } from '$lib/types/task';
-import type { UnifiedRecurrenceRule } from '$lib/types/unified-recurrence';
-import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import type { RecurrenceRule } from '$lib/types/recurrence';
+import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
 import {
   fromLegacyRecurrenceRule,
   toLegacyRecurrenceRule
@@ -29,7 +29,13 @@ export class TaskDetailLogic {
     plan_end_date: undefined as Date | undefined,
     is_range_date: false,
     priority: 0,
-    recurrenceRule: undefined as UnifiedRecurrenceRule | undefined
+    recurrenceRule: undefined as RecurrenceRule | undefined
+  });
+
+  // UI層に渡すための変換済みフォーム
+  editFormForUI = $derived({
+    ...this.editForm,
+    recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
   });
 
   // UI states
@@ -207,7 +213,7 @@ export class TaskDetailLogic {
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: RecurrenceRule;
+    recurrenceRule?: LegacyRecurrenceRule | null;
   }) {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
@@ -393,7 +399,7 @@ export class TaskDetailLogic {
   }
 
   // Recurrence handling
-  async handleRecurrenceChange(rule: RecurrenceRule | null) {
+  async handleRecurrenceChange(rule: LegacyRecurrenceRule | null) {
 
     if (!this.currentItem || this.isNewTaskMode) {
       return;

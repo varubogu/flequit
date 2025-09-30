@@ -1,4 +1,4 @@
-import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/subtask-recurrence';
+import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 
 /**
  * サブタスク繰り返し関連付け管理サービスのインターフェース

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/task-recurrence';
+import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 import type { TaskRecurrenceService } from '$lib/services/backend/task-recurrence-service';
 
 export class TaskRecurrenceTauriService implements TaskRecurrenceService {

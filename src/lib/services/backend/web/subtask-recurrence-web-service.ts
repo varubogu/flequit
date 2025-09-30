@@ -1,4 +1,4 @@
-import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/subtask-recurrence';
+import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 import type { SubtaskRecurrenceService } from '$lib/services/backend/subtask-recurrence-service';
 
 export class SubtaskRecurrenceWebService implements SubtaskRecurrenceService {

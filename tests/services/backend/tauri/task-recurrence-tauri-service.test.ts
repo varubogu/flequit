@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskRecurrenceTauriService } from '$lib/services/backend/tauri/task-recurrence-tauri-service';
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/task-recurrence';
+import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 
 // Mock Tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({

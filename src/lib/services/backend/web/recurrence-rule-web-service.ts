@@ -1,4 +1,4 @@
-import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence-rule';
+import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 import type { RecurrenceRuleService } from '$lib/services/backend/recurrence-rule-service';
 
 export class RecurrenceRuleWebService implements RecurrenceRuleService {

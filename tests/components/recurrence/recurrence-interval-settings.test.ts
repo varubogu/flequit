@@ -44,7 +44,7 @@ describe('RecurrenceIntervalEditor', () => {
       'week',
       'month',
       'quarter',
-      'half_year',
+      'halfyear',
       'year'
     ];
 
@@ -140,7 +140,7 @@ describe('RecurrenceIntervalEditor', () => {
   });
 
   it('特定のユニットで複雑な設定が必要かを判定する', () => {
-    const complexUnits: RecurrenceUnit[] = ['year', 'half_year', 'quarter', 'month', 'week'];
+    const complexUnits: RecurrenceUnit[] = ['year', 'halfyear', 'quarter', 'month', 'week'];
     const simpleUnits: RecurrenceUnit[] = ['minute', 'hour', 'day'];
 
     complexUnits.forEach((unit) => {
@@ -150,7 +150,7 @@ describe('RecurrenceIntervalEditor', () => {
         showAdvancedSettings: true
       };
 
-      expect(['year', 'half_year', 'quarter', 'month', 'week']).toContain(props.unit);
+      expect(['year', 'halfyear', 'quarter', 'month', 'week']).toContain(props.unit);
     });
 
     simpleUnits.forEach((unit) => {

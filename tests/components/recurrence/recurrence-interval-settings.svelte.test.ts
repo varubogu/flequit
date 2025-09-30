@@ -16,6 +16,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
         month: 'Month',
         quarter: 'Quarter',
         half_year: 'Half Year',
+        halfyear: 'Half Year',
         year: 'Year'
       };
       return translations[key] || key;
@@ -288,7 +289,7 @@ describe('RecurrenceIntervalSettings', () => {
     });
 
     it('should show advanced settings for all complex units', () => {
-      const complexUnits: RecurrenceUnit[] = ['year', 'half_year', 'quarter', 'month', 'week'];
+      const complexUnits: RecurrenceUnit[] = ['year', 'halfyear', 'quarter', 'month', 'week'];
 
       complexUnits.forEach((unit) => {
         const { container, unmount } = render(RecurrenceIntervalSettings, {
@@ -326,7 +327,7 @@ describe('RecurrenceIntervalSettings', () => {
 
   describe('complex unit detection', () => {
     it('should correctly identify complex units', () => {
-      const complexUnits: RecurrenceUnit[] = ['year', 'half_year', 'quarter', 'month', 'week'];
+      const complexUnits: RecurrenceUnit[] = ['year', 'halfyear', 'quarter', 'month', 'week'];
 
       complexUnits.forEach((unit) => {
         const { container, unmount } = render(RecurrenceIntervalSettings, {

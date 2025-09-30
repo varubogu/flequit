@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RecurrenceRuleWebService } from '$lib/services/backend/web/recurrence-rule-web-service';
-import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence-rule';
+import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 
 describe('RecurrenceRuleWebService', () => {
   let service: RecurrenceRuleWebService;
@@ -16,12 +16,7 @@ describe('RecurrenceRuleWebService', () => {
       const rule: RecurrenceRule = {
         id: 'rule1',
         unit: 'day',
-        interval: 1,
-        daysOfWeek: ['monday'],
-        details: 'Daily task',
-        adjustment: 'none',
-        endDate: '2024-12-31',
-        maxOccurrences: 10
+        interval: 1
       };
 
       const result = await service.create(rule);
@@ -58,9 +53,7 @@ describe('RecurrenceRuleWebService', () => {
         unit: 'week',
         interval: 2,
         daysOfWeek: ['monday', 'friday'],
-        details: 'Weekly task',
-        adjustment: 'none',
-        endDate: '2024-12-31',
+        endDate: new Date('2024-12-31'),
         maxOccurrences: 5
       };
 
@@ -86,7 +79,7 @@ describe('RecurrenceRuleWebService', () => {
     it('should log warning and return empty array', async () => {
       const condition: RecurrenceRuleSearchCondition = {
         unit: 'day',
-        endDate: '2024-12-31'
+        endDate: new Date('2024-12-31')
       };
 
       const result = await service.search(condition);

@@ -1,4 +1,4 @@
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/task-recurrence';
+import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 
 /**
  * タスク繰り返し関連付け管理サービスのインターフェース

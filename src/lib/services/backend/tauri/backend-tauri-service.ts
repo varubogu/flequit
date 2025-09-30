@@ -14,8 +14,6 @@ import { AssignmentTauriService } from './assignment-tauri-service';
 import { RecurrenceRuleTauriService } from './recurrence-rule-tauri-service';
 import { TaskRecurrenceTauriService } from './task-recurrence-tauri-service';
 import { SubtaskRecurrenceTauriService } from './subtask-recurrence-tauri-service';
-import { RecurrenceAdjustmentTauriService } from './recurrence-adjustment-tauri-service';
-import { RecurrenceDetailsTauriService } from './recurrence-details-tauri-service';
 import { SettingsManagementTauriService } from './settings-management-tauri-service';
 
 /**
@@ -37,7 +35,5 @@ export class BackendTauriService implements BackendService {
   public readonly recurrenceRule = new RecurrenceRuleTauriService();
   public readonly taskRecurrence = new TaskRecurrenceTauriService();
   public readonly subtaskRecurrence = new SubtaskRecurrenceTauriService();
-  public readonly recurrenceAdjustment = new RecurrenceAdjustmentTauriService();
-  public readonly recurrenceDetails = new RecurrenceDetailsTauriService();
   public readonly settingsManagement = new SettingsManagementTauriService();
 }

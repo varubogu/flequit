@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TaskRecurrenceWebService } from '$lib/services/backend/web/task-recurrence-web-service';
-import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/task-recurrence';
+import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/recurrence-reference';
 
 describe('TaskRecurrenceWebService', () => {
   let service: TaskRecurrenceWebService;

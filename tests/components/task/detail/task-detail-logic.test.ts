@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TaskDetailLogic } from '$lib/components/task/detail/task-detail-logic.svelte';
-import type { RecurrenceRule } from '$lib/types/recurrence-rule';
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
 /**
  * TaskDetailLogic Unit Tests
@@ -101,7 +101,8 @@ describe('TaskDetailLogic', () => {
 
       // Verify method can be called with recurrenceRule parameter
       // (This is a type-level check - runtime behavior is tested in integration tests)
-      const validCallSignature = (data: {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const validCallSignature = (_data: {
         date: string;
         dateTime: string;
         range?: { start: string; end: string };

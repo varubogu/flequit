@@ -53,11 +53,11 @@
     { value: 'week', label: translationService.getMessage('week') },
     { value: 'month', label: translationService.getMessage('month') },
     { value: 'quarter', label: translationService.getMessage('quarter') },
-    { value: 'half_year', label: translationService.getMessage('half_year') },
+    { value: 'halfyear', label: translationService.getMessage('halfyear') },
     { value: 'year', label: translationService.getMessage('year') }
   ];
 
-  const isComplexUnit = $derived(['year', 'half_year', 'quarter', 'month', 'week'].includes(unit));
+  const isComplexUnit = $derived(['year', 'halfyear', 'quarter', 'month', 'week'].includes(unit));
 </script>
 
 <div class="space-y-3">

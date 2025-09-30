@@ -81,7 +81,7 @@
 <!-- All Dialogs -->
 <TaskDetailDialogs
   currentItem={logic.currentItem}
-  editForm={logic.editForm}
+  editForm={logic.editFormForUI}
   showDatePicker={logic.showDatePicker}
   datePickerPosition={logic.datePickerPosition}
   showConfirmationDialog={logic.showConfirmationDialog}

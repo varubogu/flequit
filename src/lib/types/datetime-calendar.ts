@@ -44,7 +44,7 @@ export type RecurrenceUnit =
   | 'week'
   | 'month'
   | 'quarter'
-  | 'half_year'
+  | 'halfyear'
   | 'year';
 
 /**
