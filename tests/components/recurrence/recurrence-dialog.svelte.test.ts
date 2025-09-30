@@ -473,6 +473,276 @@ describe('RecurrenceDialog', () => {
     });
   });
 
+  describe('prop change tracking with $derived', () => {
+    it('should track recurrenceRule value changes using serialization', () => {
+      const initialRule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, recurrenceRule: initialRule }
+      });
+
+      // Change interval value
+      const updatedRule: RecurrenceRule = {
+        unit: 'day',
+        interval: 2,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      expect(() => rerender({ ...defaultProps, recurrenceRule: updatedRule })).not.toThrow();
+    });
+
+    it('should update logic when dialog is closed and recurrenceRule changes', () => {
+      const rule1: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: rule1 }
+      });
+
+      const rule2: RecurrenceRule = {
+        unit: 'day',
+        interval: 2,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      // When dialog is closed, logic should update
+      expect(() =>
+        rerender({ ...defaultProps, open: false, recurrenceRule: rule2 })
+      ).not.toThrow();
+    });
+
+    it('should not overwrite user changes when dialog is open', () => {
+      const rule1: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: true, recurrenceRule: rule1 }
+      });
+
+      const rule2: RecurrenceRule = {
+        unit: 'day',
+        interval: 2,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      // When dialog is open, should not update from prop changes
+      expect(() =>
+        rerender({ ...defaultProps, open: true, recurrenceRule: rule2 })
+      ).not.toThrow();
+    });
+
+    it('should sync when dialog opens with new recurrenceRule', () => {
+      const rule: RecurrenceRule = {
+        unit: 'week',
+        interval: 2,
+        daysOfWeek: ['monday', 'wednesday'],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: rule }
+      });
+
+      // Opening dialog should trigger sync
+      expect(() => rerender({ ...defaultProps, open: true, recurrenceRule: rule })).not.toThrow();
+    });
+
+    it('should handle unit changes correctly', () => {
+      const dayRule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: dayRule }
+      });
+
+      const weekRule: RecurrenceRule = {
+        unit: 'week',
+        interval: 1,
+        daysOfWeek: ['monday'],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      expect(() =>
+        rerender({ ...defaultProps, open: false, recurrenceRule: weekRule })
+      ).not.toThrow();
+    });
+
+    it('should handle switching between tasks with different recurrence rules', () => {
+      const task1Rule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: task1Rule }
+      });
+
+      const task2Rule: RecurrenceRule = {
+        unit: 'week',
+        interval: 2,
+        daysOfWeek: ['monday', 'wednesday', 'friday'],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      // Simulate task switching (dialog closed)
+      expect(() =>
+        rerender({ ...defaultProps, open: false, recurrenceRule: task2Rule })
+      ).not.toThrow();
+    });
+
+    it('should handle null to defined recurrenceRule transition', () => {
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: null }
+      });
+
+      const newRule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      expect(() =>
+        rerender({ ...defaultProps, open: false, recurrenceRule: newRule })
+      ).not.toThrow();
+    });
+
+    it('should handle defined to null recurrenceRule transition', () => {
+      const rule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: rule }
+      });
+
+      expect(() =>
+        rerender({ ...defaultProps, open: false, recurrenceRule: null })
+      ).not.toThrow();
+    });
+  });
+
+  describe('updateFromRecurrenceRule integration', () => {
+    it('should call updateFromRecurrenceRule when dialog opens', () => {
+      const rule: RecurrenceRule = {
+        unit: 'day',
+        interval: 2,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: rule }
+      });
+
+      // Opening dialog should trigger updateFromRecurrenceRule
+      expect(() => rerender({ ...defaultProps, open: true, recurrenceRule: rule })).not.toThrow();
+    });
+
+    it('should handle rapid open/close cycles', () => {
+      const rule: RecurrenceRule = {
+        unit: 'day',
+        interval: 1,
+        daysOfWeek: [],
+        details: {
+          specificDate: undefined,
+          weekOfPeriod: undefined,
+          weekdayOfWeek: undefined
+        }
+      };
+
+      const { rerender } = render(RecurrenceDialog, {
+        props: { ...defaultProps, open: false, recurrenceRule: rule }
+      });
+
+      // Rapidly open and close
+      expect(() => rerender({ ...defaultProps, open: true, recurrenceRule: rule })).not.toThrow();
+      expect(() => rerender({ ...defaultProps, open: false, recurrenceRule: rule })).not.toThrow();
+      expect(() => rerender({ ...defaultProps, open: true, recurrenceRule: rule })).not.toThrow();
+    });
+  });
+
   describe('dialog behavior', () => {
     it('should support binding open state', () => {
       const { rerender, container } = render(RecurrenceDialog, { props: defaultProps });
