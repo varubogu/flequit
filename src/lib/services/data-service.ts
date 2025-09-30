@@ -8,6 +8,8 @@ import type { RecurrenceRule } from '$lib/types/recurrence-rule';
 import type { TaskRecurrence } from '$lib/types/task-recurrence';
 import type { SubtaskRecurrence } from '$lib/types/subtask-recurrence';
 import type { Settings } from '$lib/types/settings';
+import type { UnifiedRecurrenceRule } from '$lib/types/unified-recurrence';
+import { toTauriRecurrenceRule } from '$lib/utils/recurrence-converter';
 import { getBackendService } from '$lib/services/backend/index';
 import type { BackendService } from '$lib/services/backend/index';
 import { ProjectsService } from '$lib/services/projects-service';
@@ -238,6 +240,12 @@ export class DataService {
       do_end_date: updates.doEndDate?.toISOString() ?? undefined
     } as Record<string, unknown>;
 
+    // recurrenceRuleを統一型からTauri形式に変換
+    if (updates.recurrenceRule !== undefined) {
+      const tauriRule = toTauriRecurrenceRule(updates.recurrenceRule as UnifiedRecurrenceRule);
+      patchData.recurrence_rule = tauriRule;
+    }
+
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
     console.log('DataService: calling backend.task.update');
@@ -323,6 +331,12 @@ export class DataService {
       do_end_date: updates.doEndDate?.toISOString() ?? undefined,
       updated_at: new Date()
     } as Record<string, unknown>;
+
+    // recurrenceRuleを統一型からTauri形式に変換
+    if (updates.recurrenceRule !== undefined) {
+      const tauriRule = toTauriRecurrenceRule(updates.recurrenceRule as UnifiedRecurrenceRule);
+      patchData.recurrence_rule = tauriRule;
+    }
 
     console.log('DataService: calling backend.subtask.update');
     // サブタスクIDからプロジェクトIDを取得

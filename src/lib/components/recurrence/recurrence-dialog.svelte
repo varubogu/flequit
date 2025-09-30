@@ -26,6 +26,7 @@
   }: Props = $props();
 
   // Initialize logic
+
   const logic = new RecurrenceDialogAdvancedLogic(
     recurrenceRule,
     onSave,
@@ -33,6 +34,28 @@
     endDateTime,
     isRangeDate
   );
+
+  // Create a serialized version of recurrenceRule to track value changes
+  let serializedRule = $derived(JSON.stringify(recurrenceRule));
+
+  // Track open state changes and sync on open
+  $effect(() => {
+    // Re-initialize when dialog opens to sync with latest props
+    if (open) {
+      logic.updateFromRecurrenceRule(recurrenceRule);
+    }
+  });
+
+  // Sync recurrenceRule prop changes with logic (only when dialog is closed)
+  $effect(() => {
+    // Accessing serializedRule to track changes
+    const currentSerialized = serializedRule;
+
+    // Only update when dialog is closed to avoid overwriting user's changes
+    if (!open) {
+      logic.updateFromRecurrenceRule(recurrenceRule);
+    }
+  });
 </script>
 
 <Dialog.Root bind:open {onOpenChange}>

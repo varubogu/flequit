@@ -3,6 +3,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
+  import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {
@@ -15,6 +16,7 @@
   let { task, completedSubTasks, subTaskProgress, handleDueDateClick }: Props = $props();
 
   const translationService = getTranslationService();
+
   // Reactive messages
   const subtasksCompleted = $derived(
     translationService.getMessage('subtasks_completed', {

@@ -49,7 +49,9 @@
       } else {
         newValue = parseInt(sanitizedInput, 10);
       }
-      if (onchange) onchange(newValue);
+      if (onchange) {
+        onchange(newValue);
+      }
     }, 0);
   }
 </script>

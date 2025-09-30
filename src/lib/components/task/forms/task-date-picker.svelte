@@ -37,8 +37,9 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
+    recurrenceRule?: any; // RecurrenceRule | null を追加
   }) {
-    const { dateTime, range, isRangeDate } = data;
+    const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
     if (isRangeDate) {
       if (range) {
@@ -46,7 +47,8 @@
           ...task,
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
-          isRangeDate: true
+          isRangeDate: true,
+          recurrenceRule: recurrenceRule
         });
       } else {
         const currentEndDate = task.planEndDate || new Date(dateTime);
@@ -54,7 +56,8 @@
           ...task,
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
-          isRangeDate: true
+          isRangeDate: true,
+          recurrenceRule: recurrenceRule
         });
       }
     } else {
@@ -62,7 +65,8 @@
         ...task,
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
-        isRangeDate: false
+        isRangeDate: false,
+        recurrenceRule: recurrenceRule
       });
     }
   }
@@ -99,10 +103,11 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
+    recurrenceRule?: any; // RecurrenceRule | null を追加
   }) {
     if (!editingSubTaskId) return;
 
-    const { dateTime, range, isRangeDate } = data;
+    const { dateTime, range, isRangeDate, recurrenceRule } = data;
     const subTaskIndex = task.subTasks.findIndex((st) => st.id === editingSubTaskId);
     if (subTaskIndex === -1) return;
 
@@ -111,7 +116,8 @@
         taskStore.updateSubTask(editingSubTaskId, {
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
-          isRangeDate: true
+          isRangeDate: true,
+          recurrenceRule: recurrenceRule
         });
       } else {
         const subTask = task.subTasks[subTaskIndex];
@@ -119,14 +125,16 @@
         taskStore.updateSubTask(editingSubTaskId, {
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
-          isRangeDate: true
+          isRangeDate: true,
+          recurrenceRule: recurrenceRule
         });
       }
     } else {
       taskStore.updateSubTask(editingSubTaskId, {
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
-        isRangeDate: false
+        isRangeDate: false,
+        recurrenceRule: recurrenceRule
       });
     }
   }
@@ -157,6 +165,7 @@
   currentStartDate={task.planStartDate ? task.planStartDate.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={task.isRangeDate || false}
+  recurrenceRule={task.recurrenceRule}
   onchange={handleDateChange}
   onclear={handleDateClear}
   onclose={handleDatePickerClose}
@@ -175,6 +184,9 @@
   isRangeDate={editingSubTaskId
     ? task.subTasks.find((st) => st.id === editingSubTaskId)?.isRangeDate || false
     : false}
+  recurrenceRule={editingSubTaskId
+    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.recurrenceRule
+    : null}
   onchange={handleSubTaskDateChange}
   onclear={handleSubTaskDateClear}
   onclose={handleSubTaskDatePickerClose}

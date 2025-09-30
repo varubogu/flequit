@@ -28,7 +28,9 @@
     <select
       bind:value
       class="border-border bg-background text-foreground w-full rounded border p-2"
-      {onchange}
+      onchange={(e) => {
+        onchange?.(e);
+      }}
     >
       {#each recurrenceLevelOptions as option (option.value)}
         <option value={option.value}>{option.label()}</option>

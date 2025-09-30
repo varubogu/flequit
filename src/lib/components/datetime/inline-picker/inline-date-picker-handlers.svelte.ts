@@ -96,7 +96,7 @@ export class InlineDatePickerHandlers {
 
   handleRangeInputChange() {
     if (this.state.startDate || this.state.endDate) {
-      const eventDetail = {
+      this.onchange?.({
         date: this.state.startDate || this.state.endDate || '',
         dateTime: `${this.state.startDate || this.state.endDate || ''}T${this.state.startTime}`,
         range:
@@ -108,9 +108,7 @@ export class InlineDatePickerHandlers {
             : undefined,
         isRangeDate: true,
         recurrenceRule: this.state.currentRecurrenceRule
-      };
-
-      this.onchange?.(eventDetail);
+      });
     }
   }
 

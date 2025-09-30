@@ -113,6 +113,15 @@ export class RecurrenceDialogAdvancedLogic {
     );
   }
 
+  /**
+   * Update state from new recurrenceRule prop
+   * Called when the recurrenceRule prop changes externally
+   */
+  updateFromRecurrenceRule(recurrenceRule?: RecurrenceRule | null) {
+    this.recurrenceRule = recurrenceRule;
+    this.initializeState();
+  }
+
   private setupEffect() {
     $effect(() => {
       if (this.showBasicSettings) {
@@ -140,7 +149,9 @@ export class RecurrenceDialogAdvancedLogic {
 
   handleImmediateSave() {
     const rule = this.buildRecurrenceRule();
-    this.onSave?.(rule);
+    if (this.onSave) {
+      this.onSave(rule);
+    }
   }
 
   updatePreview() {

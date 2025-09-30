@@ -1,10 +1,14 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskStatus } from '$lib/types/task';
+import type { UnifiedRecurrenceRule } from '$lib/types/unified-recurrence';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+import {
+  fromLegacyRecurrenceRule,
+  toLegacyRecurrenceRule
+} from '$lib/utils/recurrence-converter';
 import { TaskService } from '$lib/services/task-service';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { dataService } from '$lib/services/data-service';
 
 export class TaskDetailLogic {
   // Core derived states
@@ -16,6 +20,7 @@ export class TaskDetailLogic {
   isSubTask = $derived(!!this.subTask);
   isNewTaskMode = $derived(taskStore.isNewTaskMode);
 
+
   // Form state
   editForm = $state({
     title: '',
@@ -23,7 +28,8 @@ export class TaskDetailLogic {
     plan_start_date: undefined as Date | undefined,
     plan_end_date: undefined as Date | undefined,
     is_range_date: false,
-    priority: 0
+    priority: 0,
+    recurrenceRule: undefined as UnifiedRecurrenceRule | undefined
   });
 
   // UI states
@@ -75,7 +81,8 @@ export class TaskDetailLogic {
           plan_start_date: this.currentItem.planStartDate,
           plan_end_date: this.currentItem.planEndDate,
           is_range_date: this.currentItem.isRangeDate || false,
-          priority: this.currentItem.priority || 0
+          priority: this.currentItem.priority || 0,
+          recurrenceRule: fromLegacyRecurrenceRule(this.currentItem.recurrenceRule)
         };
       }
     });
@@ -104,7 +111,8 @@ export class TaskDetailLogic {
           priority: this.editForm.priority,
           planStartDate: this.editForm.plan_start_date,
           planEndDate: this.editForm.plan_end_date,
-          isRangeDate: this.editForm.is_range_date
+          isRangeDate: this.editForm.is_range_date,
+          recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
         };
 
         if (this.isNewTaskMode) {
@@ -125,13 +133,16 @@ export class TaskDetailLogic {
     }
 
     if (this.currentItem) {
+      const convertedRule = toLegacyRecurrenceRule(this.editForm.recurrenceRule);
+
       const updates = {
         title: this.editForm.title,
         description: this.editForm.description || undefined,
         priority: this.editForm.priority,
         planStartDate: this.editForm.plan_start_date,
         planEndDate: this.editForm.plan_end_date,
-        isRangeDate: this.editForm.is_range_date
+        isRangeDate: this.editForm.is_range_date,
+        recurrenceRule: convertedRule
       };
 
       if (this.isNewTaskMode) {
@@ -196,8 +207,9 @@ export class TaskDetailLogic {
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
+    recurrenceRule?: any;
   }) {
-    const { dateTime, range, isRangeDate } = data;
+    const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
     if (isRangeDate) {
       if (range) {
@@ -222,6 +234,14 @@ export class TaskDetailLogic {
         plan_end_date: new SvelteDate(dateTime),
         plan_start_date: undefined,
         is_range_date: false
+      };
+    }
+
+    // recurrenceRuleが渡された場合、editFormを更新
+    if (recurrenceRule !== undefined) {
+      this.editForm = {
+        ...this.editForm,
+        recurrenceRule: fromLegacyRecurrenceRule(recurrenceRule)
       };
     }
 
@@ -374,65 +394,31 @@ export class TaskDetailLogic {
 
   // Recurrence handling
   async handleRecurrenceChange(rule: RecurrenceRule | null) {
-    if (!this.currentItem || this.isNewTaskMode) return;
 
-    try {
-      if (rule) {
-        // 新しいRecurrenceRuleServiceを使って繰り返しルールを作成
-        const newRule = {
-          id: crypto.randomUUID(),
-          unit: rule.unit,
-          interval: rule.interval ?? 1,
-          days_of_week: rule.daysOfWeek,
-          details: rule.details ? JSON.stringify(rule.details) : undefined,
-          adjustment: rule.adjustment ? JSON.stringify(rule.adjustment) : undefined,
-          end_date: rule.endDate?.toISOString(),
-          max_occurrences: rule.maxOccurrences
-        };
-
-        await dataService.createRecurrenceRule(newRule);
-
-        // タスクまたはサブタスクと繰り返しルールを関連付け
-        if (this.isSubTask) {
-          await dataService.createSubtaskRecurrence({
-            subtaskId: this.currentItem.id,
-            recurrenceRuleId: newRule.id
-          });
-        } else {
-          await dataService.createTaskRecurrence({
-            taskId: this.currentItem.id,
-            recurrenceRuleId: newRule.id
-          });
-        }
-
-        console.log(`Recurrence rule created and linked via new services for ${this.isSubTask ? 'subtask' : 'task'}: ${this.currentItem.id}`);
-      } else {
-        // 繰り返し設定を削除
-        if (this.isSubTask) {
-          await dataService.deleteSubtaskRecurrence(this.currentItem.id);
-        } else {
-          await dataService.deleteTaskRecurrence(this.currentItem.id);
-        }
-
-        console.log(`Recurrence rule removed via new services for ${this.isSubTask ? 'subtask' : 'task'}: ${this.currentItem.id}`);
-      }
-
-      // 既存のstoreも更新
-      const updates = { recurrenceRule: rule || undefined };
-
-      if (this.isSubTask) {
-        taskStore.updateSubTask(this.currentItem.id, updates);
-      } else {
-        taskStore.updateTask(this.currentItem.id, updates);
-      }
-    } catch (error) {
-      console.error('Failed to handle recurrence change via new services:', error);
+    if (!this.currentItem || this.isNewTaskMode) {
+      return;
     }
+
+    // 既存のRecurrenceRule型から統一型に変換
+    const unifiedRule = fromLegacyRecurrenceRule(rule);
+
+    // editFormを即座に更新
+    this.editForm.recurrenceRule = unifiedRule;
+
+    // 既存の繰り返し設定処理アプローチを維持：TaskStore経由でTauriのupdate_taskを呼ぶ
+    // これによりPartialTaskのrecurrence_ruleフィールドとしてTauriに送信される
+    this.saveImmediately();
 
     this.showRecurrenceDialog = false;
   }
 
-  handleRecurrenceDialogClose() {
-    this.showRecurrenceDialog = false;
+  handleRecurrenceDialogClose(open?: boolean) {
+    // openパラメータが渡された場合（onOpenChangeから呼ばれた場合）
+    if (typeof open === 'boolean') {
+      this.showRecurrenceDialog = open;
+    } else {
+      // 直接呼ばれた場合（従来の動作）
+      this.showRecurrenceDialog = false;
+    }
   }
 }

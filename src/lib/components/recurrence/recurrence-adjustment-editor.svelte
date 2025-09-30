@@ -50,7 +50,9 @@
   <div class="space-y-2">
     <div class="flex items-center justify-between">
       <h4 class="font-medium">{dateConditionsLabel()}</h4>
-      <Button size="sm" onclick={onDateConditionAdd}>
+      <Button size="sm" onclick={() => {
+        onDateConditionAdd();
+      }}>
         <Plus class="mr-1 h-4 w-4" />
         {add()}
       </Button>
@@ -83,7 +85,9 @@
 
         <button
           type="button"
-          onclick={() => onDateConditionRemove(condition.id)}
+          onclick={() => {
+            onDateConditionRemove(condition.id);
+          }}
           class="text-destructive hover:bg-destructive/10 rounded p-1"
         >
           <X class="h-4 w-4" />
@@ -96,7 +100,9 @@
   <div class="space-y-2">
     <div class="flex items-center justify-between">
       <h4 class="font-medium">{weekdayConditionsLabel()}</h4>
-      <Button size="sm" onclick={onWeekdayConditionAdd}>
+      <Button size="sm" onclick={() => {
+        onWeekdayConditionAdd();
+      }}>
         <Plus class="mr-1 h-4 w-4" />
         {add()}
       </Button>

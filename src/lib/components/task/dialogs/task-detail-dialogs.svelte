@@ -17,6 +17,7 @@
       plan_end_date: Date | undefined;
       is_range_date: boolean;
       priority: number;
+      recurrenceRule?: any;
     };
     showDatePicker: boolean;
     datePickerPosition: { x: number; y: number };
@@ -45,7 +46,7 @@
     onProjectTaskListChange: (data: { projectId: string; taskListId: string }) => void;
     onProjectTaskListDialogClose: () => void;
     onRecurrenceChange: (rule: RecurrenceRule | null) => void;
-    onRecurrenceDialogClose: () => void;
+    onRecurrenceDialogClose: (open?: boolean) => void;
   }
 
   let {
@@ -81,7 +82,7 @@
   currentStartDate={currentItem?.planStartDate ? currentItem.planStartDate.toISOString() : ''}
   position={datePickerPosition}
   isRangeDate={editForm.is_range_date}
-  recurrenceRule={currentItem?.recurrenceRule}
+  recurrenceRule={editForm.recurrenceRule}
   onchange={onDateChange}
   onclear={onDateClear}
   onclose={onDatePickerClose}
