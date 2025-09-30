@@ -37,6 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/develop/design/testing.md` - テスト戦略とガイドライン
 
 必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
+テストについて、まず単一ファイルを実行して、問題がないことを確認してから、全体を実行してください。
 
 ## アプリケーション概要
 
