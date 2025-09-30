@@ -207,7 +207,7 @@ export class TaskDetailLogic {
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: any;
+    recurrenceRule?: RecurrenceRule;
   }) {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 

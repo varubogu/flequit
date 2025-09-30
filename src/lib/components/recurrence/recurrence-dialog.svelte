@@ -48,9 +48,6 @@
 
   // Sync recurrenceRule prop changes with logic (only when dialog is closed)
   $effect(() => {
-    // Accessing serializedRule to track changes
-    const currentSerialized = serializedRule;
-
     // Only update when dialog is closed to avoid overwriting user's changes
     if (!open) {
       logic.updateFromRecurrenceRule(recurrenceRule);

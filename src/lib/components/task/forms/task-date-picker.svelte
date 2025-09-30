@@ -3,7 +3,7 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
-
+  import type { RecurrenceRule } from '$lib/types/datetime-calendar';
   interface Props {
     task: TaskWithSubTasks;
   }
@@ -37,7 +37,7 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: any; // RecurrenceRule | null を追加
+    recurrenceRule?: RecurrenceRule;
   }) {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
@@ -103,7 +103,7 @@
     dateTime: string;
     range?: { start: string; end: string };
     isRangeDate: boolean;
-    recurrenceRule?: any; // RecurrenceRule | null を追加
+    recurrenceRule?: RecurrenceRule;
   }) {
     if (!editingSubTaskId) return;
 

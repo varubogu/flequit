@@ -17,7 +17,7 @@
       plan_end_date: Date | undefined;
       is_range_date: boolean;
       priority: number;
-      recurrenceRule?: any;
+      recurrenceRule?: RecurrenceRule;
     };
     showDatePicker: boolean;
     datePickerPosition: { x: number; y: number };
