@@ -13,7 +13,6 @@
     daysOfWeek: DayOfWeek[];
     details: RecurrenceDetails;
     showAdvancedSettings: boolean;
-    onchange?: (event: Event) => void;
     ontoggleDayOfWeek?: (day: DayOfWeek) => void;
     onunitchange?: (unit: RecurrenceUnit) => void;
     onintervalchange?: (interval: number) => void;
@@ -26,7 +25,6 @@
     daysOfWeek,
     details,
     showAdvancedSettings,
-    onchange,
     ontoggleDayOfWeek,
     onunitchange,
     onintervalchange,
@@ -36,7 +34,6 @@
   function handleUnitChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     onunitchange?.(target.value as RecurrenceUnit);
-    onchange?.(event);
   }
 
   function handleIntervalChange(newInterval: number) {
@@ -53,7 +50,7 @@
     { value: 'week', label: translationService.getMessage('week') },
     { value: 'month', label: translationService.getMessage('month') },
     { value: 'quarter', label: translationService.getMessage('quarter') },
-    { value: 'halfyear', label: translationService.getMessage('halfyear') },
+    { value: 'halfyear', label: translationService.getMessage('half_year') },
     { value: 'year', label: translationService.getMessage('year') }
   ];
 
@@ -84,6 +81,6 @@
 
   <!-- 複雑な単位の詳細設定 -->
   {#if showAdvancedSettings && isComplexUnit}
-    <AdvancedRecurrenceSettings {details} {onchange} {ondetailschange} />
+    <AdvancedRecurrenceSettings {details} {ondetailschange} />
   {/if}
 </div>

@@ -4,10 +4,9 @@
 
   type Props = {
     value: RecurrenceLevel;
-    onchange?: (event: Event) => void;
   };
 
-  let { value = $bindable(), onchange }: Props = $props();
+  let { value = $bindable() }: Props = $props();
 
   const translationService = getTranslationService();
   const recurrence = translationService.getMessage('recurrence');
@@ -28,9 +27,6 @@
     <select
       bind:value
       class="border-border bg-background text-foreground w-full rounded border p-2"
-      onchange={(e) => {
-        onchange?.(e);
-      }}
     >
       {#each recurrenceLevelOptions as option (option.value)}
         <option value={option.value}>{option.label()}</option>

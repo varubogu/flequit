@@ -35,20 +35,24 @@
     isRangeDate
   );
 
-  // Track open state changes and sync on open
-  $effect(() => {
-    // Re-initialize when dialog opens to sync with latest props
-    if (open) {
-      logic.updateFromRecurrenceRule(recurrenceRule);
-    }
-  });
+  // Track open state changes
+  let previousOpen = $state(open);
 
-  // Sync recurrenceRule prop changes with logic (only when dialog is closed)
   $effect(() => {
-    // Only update when dialog is closed to avoid overwriting user's changes
-    if (!open) {
+    // Dialog opened - initialize with latest props
+    if (open && !previousOpen) {
       logic.updateFromRecurrenceRule(recurrenceRule);
     }
+
+    // Dialog closed - save changes
+    if (!open && previousOpen) {
+      const rule = logic.buildRecurrenceRule();
+      if (onSave) {
+        onSave(rule);
+      }
+    }
+
+    previousOpen = open;
   });
 </script>
 

@@ -6,17 +6,15 @@
 
   type Props = {
     details?: RecurrenceDetails;
-    onchange?: (event: Event) => void;
     ondetailschange?: (details: RecurrenceDetails) => void;
   };
 
-  let { details, onchange, ondetailschange }: Props = $props();
+  let { details, ondetailschange }: Props = $props();
 
   function handleSpecificDateChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const newDetails = { ...(details || {}), specific_date: target.valueAsNumber || undefined };
     ondetailschange?.(newDetails);
-    onchange?.(event);
   }
 
   function handleWeekOfPeriodChange(event: Event) {
@@ -26,7 +24,6 @@
       week_of_period: (target.value as WeekOfMonth) || undefined
     };
     ondetailschange?.(newDetails);
-    onchange?.(event);
   }
 
   function handleWeekdayOfWeekChange(event: Event) {
@@ -36,7 +33,6 @@
       weekday_of_week: (target.value as DayOfWeek) || undefined
     };
     ondetailschange?.(newDetails);
-    onchange?.(event);
   }
 
   const translationService = getTranslationService();

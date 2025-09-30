@@ -3,10 +3,9 @@
 
   type Props = {
     value: number | undefined;
-    oninput?: (event: Event) => void;
   };
 
-  let { value = $bindable(), oninput }: Props = $props();
+  let { value = $bindable() }: Props = $props();
 
   const translationService = getTranslationService();
   const repeatCountLabel = translationService.getMessage('repeat_count');
@@ -83,10 +82,6 @@
         } else {
           value = numValue;
         }
-      }
-
-      if (oninput) {
-        oninput(event);
       }
     }, 0);
   }

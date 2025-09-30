@@ -147,13 +147,6 @@ export class RecurrenceDialogAdvancedLogic {
     );
   }
 
-  handleImmediateSave() {
-    const rule = this.buildRecurrenceRule();
-    if (this.onSave) {
-      this.onSave(rule);
-    }
-  }
-
   updatePreview() {
     const rule = this.buildRecurrenceRule();
     this.previewManager.updatePreview(rule, this.startDateTime, this.endDateTime);
@@ -162,57 +155,46 @@ export class RecurrenceDialogAdvancedLogic {
   // Event Handlers
   toggleDayOfWeek(day: DayOfWeek) {
     this.state.toggleDayOfWeek(day);
-    this.handleImmediateSave();
   }
 
   addDateCondition() {
     this.dateConditionManager.addCondition();
-    this.handleImmediateSave();
   }
 
   removeDateCondition(id: string) {
     this.dateConditionManager.removeCondition(id);
-    this.handleImmediateSave();
   }
 
   updateDateCondition(id: string, updates: Partial<DateCondition>) {
     this.dateConditionManager.updateCondition(id, updates);
-    this.handleImmediateSave();
   }
 
   addWeekdayCondition() {
     this.weekdayConditionManager.addCondition();
-    this.handleImmediateSave();
   }
 
   removeWeekdayCondition(id: string) {
     this.weekdayConditionManager.removeCondition(id);
-    this.handleImmediateSave();
   }
 
   updateWeekdayCondition(id: string, updates: Partial<WeekdayCondition>) {
     this.weekdayConditionManager.updateCondition(id, updates);
-    this.handleImmediateSave();
   }
 
   // セッター関数
   setUnit(unit: RecurrenceUnit) {
     this.state.setUnit(unit);
-    this.handleImmediateSave();
   }
 
   setInterval(interval: number) {
     this.state.setInterval(interval);
-    this.handleImmediateSave();
   }
 
   setDaysOfWeek(daysOfWeek: DayOfWeek[]) {
     this.state.setDaysOfWeek(daysOfWeek);
-    this.handleImmediateSave();
   }
 
   setDetails(details: RecurrenceDetails) {
     this.state.setDetails(details);
-    this.handleImmediateSave();
   }
 }

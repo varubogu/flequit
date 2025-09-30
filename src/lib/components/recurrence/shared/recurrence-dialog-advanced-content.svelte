@@ -18,23 +18,16 @@
   <div class="flex max-h-[calc(85vh-120px)] flex-wrap gap-6 overflow-y-auto">
     <!-- 設定パネル -->
     <div class="min-w-[480px] flex-1 space-y-6 overflow-y-auto">
-      <RecurrenceLevelSelector
-        bind:value={logic.recurrenceLevel}
-        onchange={logic.handleImmediateSave.bind(logic)}
-      />
+      <RecurrenceLevelSelector bind:value={logic.recurrenceLevel} />
 
       {#if logic.showBasicSettings}
-        <RecurrenceCountSettings
-          bind:value={logic.repeatCount}
-          oninput={logic.handleImmediateSave.bind(logic)}
-        />
+        <RecurrenceCountSettings bind:value={logic.repeatCount} />
         <RecurrenceIntervalSettings
           unit={logic.unit}
           interval={logic.interval}
           daysOfWeek={logic.daysOfWeek}
           details={logic.details}
           showAdvancedSettings={logic.showAdvancedSettings}
-          onchange={logic.handleImmediateSave.bind(logic)}
           ontoggleDayOfWeek={logic.toggleDayOfWeek.bind(logic)}
           onunitchange={logic.setUnit.bind(logic)}
           onintervalchange={logic.setInterval.bind(logic)}
