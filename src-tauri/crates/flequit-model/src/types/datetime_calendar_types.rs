@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 /// 繰り返しタスクの単位を示します。
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum RecurrenceUnit {
     /// 分単位
     Minute,
@@ -35,6 +36,7 @@ pub enum RecurrenceLevel {
 
 /// 曜日を示します。
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum DayOfWeek {
     /// 日曜日
     Sunday,

@@ -18,6 +18,9 @@ use crate::models::{
         task_tag::Entity as TaskTagEntity,
         task_assignments::Entity as TaskAssignmentEntity,
         subtask_assignments::Entity as SubtaskAssignmentEntity,
+        recurrence_rule::Entity as RecurrenceRuleEntity,
+        task_recurrence::Entity as TaskRecurrenceEntity,
+        subtask_recurrence::Entity as SubtaskRecurrenceEntity,
     },
     user::Entity as UserEntity,
 };
@@ -102,6 +105,9 @@ impl HybridMigrator {
             ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
             ("task_assignments", schema.create_table_from_entity(TaskAssignmentEntity)),
             ("subtask_assignments", schema.create_table_from_entity(SubtaskAssignmentEntity)),
+            ("recurrence_rules", schema.create_table_from_entity(RecurrenceRuleEntity)),
+            ("task_recurrence", schema.create_table_from_entity(TaskRecurrenceEntity)),
+            ("subtask_recurrence", schema.create_table_from_entity(SubtaskRecurrenceEntity)),
         ];
 
         for (table_name, stmt) in entities {
@@ -355,6 +361,9 @@ impl HybridMigrator {
 
         // 全テーブル削除（逆順：依存関係を考慮）
         let drop_tables = vec![
+            "DROP TABLE IF EXISTS task_recurrence;",
+            "DROP TABLE IF EXISTS subtask_recurrence;",
+            "DROP TABLE IF EXISTS recurrence_rules;",
             "DROP TABLE IF EXISTS subtask_assignments;",
             "DROP TABLE IF EXISTS task_assignments;",
             "DROP TABLE IF EXISTS subtask_tags;",
