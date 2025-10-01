@@ -8,7 +8,8 @@ export default defineConfig({
     alias: {
       $lib: '/src/lib',
       $paraglide: '/src/paraglide'
-    }
+    },
+    conditions: process.env.VITEST ? ['browser'] : undefined
   },
   test: {
     environment: 'jsdom',

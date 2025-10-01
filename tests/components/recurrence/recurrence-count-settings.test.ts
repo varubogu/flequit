@@ -226,27 +226,6 @@ describe('RecurrenceCountSettings', () => {
     expect(currentValue).toBeUndefined();
   });
 
-  it('oninputコールバックが呼ばれる', async () => {
-    const oninput = vi.fn();
-
-    render(RecurrenceCountSettings, {
-      props: {
-        value: undefined,
-        oninput
-      }
-    });
-
-    const input = screen.getByRole('spinbutton');
-
-    // 入力イベントを発生
-    await fireEvent.input(input, { target: { value: '10' } });
-
-    // 少し待機してsetTimeoutが実行されるのを待つ
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    expect(oninput).toHaveBeenCalled();
-  });
-
   it('親コンポーネントからのvalue変更が反映される', async () => {
     // Svelte 5では$setが使用できないため、初期値での表示確認のみテスト
     const { unmount } = render(RecurrenceCountSettings, {

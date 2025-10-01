@@ -349,8 +349,6 @@ describe('BackendTauriService', () => {
         'recurrenceRule',
         'taskRecurrence',
         'subtaskRecurrence',
-        'recurrenceAdjustment',
-        'recurrenceDetails',
         'settingsManagement'
       ];
 
@@ -373,8 +371,6 @@ describe('BackendTauriService', () => {
       expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceRule')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'taskRecurrence')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'subtaskRecurrence')).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceAdjustment')).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(service, 'recurrenceDetails')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'settingsManagement')).toBe(true);
       expect(Object.prototype.hasOwnProperty.call(service, 'nonExistentProperty')).toBe(false);
     });

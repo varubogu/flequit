@@ -1,12 +1,9 @@
 import '@testing-library/jest-dom';
 
 // Mock Svelte 5 reactivity system
+// $stateはクラスフィールド宣言で使われる場合、初期値を直接返す
 (global as Record<string, unknown>).$state = (initialValue?: unknown) => {
-  let value = initialValue;
-  return {
-    get value() { return value; },
-    set value(newValue) { value = newValue; }
-  };
+  return initialValue;
 };
 
 // Mock Svelte 5 derived

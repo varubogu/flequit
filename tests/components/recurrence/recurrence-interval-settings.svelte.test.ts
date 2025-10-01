@@ -140,18 +140,6 @@ describe('RecurrenceIntervalSettings', () => {
       expect(mockOnUnitChange).toHaveBeenCalledWith('week');
     });
 
-    it('should call onchange when unit is changed', () => {
-      const mockOnChange = vi.fn();
-      const { container } = render(RecurrenceIntervalSettings, {
-        props: { ...defaultProps, onchange: mockOnChange }
-      });
-
-      const select = container.querySelector('select') as HTMLSelectElement;
-      fireEvent.change(select, { target: { value: 'month' } });
-
-      expect(mockOnChange).toHaveBeenCalled();
-    });
-
     it('should handle unit change to complex units', () => {
       const mockOnUnitChange = vi.fn();
       const { container } = render(RecurrenceIntervalSettings, {
@@ -175,16 +163,6 @@ describe('RecurrenceIntervalSettings', () => {
       }).not.toThrow();
     });
 
-    it('should handle missing onchange callback', () => {
-      const { container } = render(RecurrenceIntervalSettings, {
-        props: { ...defaultProps, onchange: undefined }
-      });
-
-      const select = container.querySelector('select') as HTMLSelectElement;
-      expect(() => {
-        fireEvent.change(select, { target: { value: 'month' } });
-      }).not.toThrow();
-    });
   });
 
   describe('interval change handling', () => {

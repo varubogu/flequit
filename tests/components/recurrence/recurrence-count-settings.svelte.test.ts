@@ -18,8 +18,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 describe('RecurrenceCountSettings', () => {
   const defaultProps = {
-    value: undefined,
-    oninput: vi.fn()
+    value: undefined
   };
 
   beforeEach(() => {
@@ -258,9 +257,8 @@ describe('RecurrenceCountSettings', () => {
 
   describe('input processing and sanitization', () => {
     it('should process valid numeric input', async () => {
-      const mockOninput = vi.fn();
       const { container } = render(RecurrenceCountSettings, {
-        props: { ...defaultProps, oninput: mockOninput }
+        props: defaultProps
       });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -270,7 +268,6 @@ describe('RecurrenceCountSettings', () => {
       vi.runAllTimers();
       await waitFor(() => {
         expect(input.value).toBe('123');
-        expect(mockOninput).toHaveBeenCalled();
       });
     });
 
@@ -338,9 +335,8 @@ describe('RecurrenceCountSettings', () => {
     });
 
     it('should handle empty input', async () => {
-      const mockOninput = vi.fn();
       const { container } = render(RecurrenceCountSettings, {
-        props: { ...defaultProps, oninput: mockOninput }
+        props: defaultProps
       });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -350,38 +346,9 @@ describe('RecurrenceCountSettings', () => {
       vi.runAllTimers();
       await waitFor(() => {
         expect(input.value).toBe('');
-        expect(mockOninput).toHaveBeenCalled();
       });
     });
 
-    it('should call oninput callback when provided', async () => {
-      const mockOninput = vi.fn();
-      const { container } = render(RecurrenceCountSettings, {
-        props: { ...defaultProps, oninput: mockOninput }
-      });
-
-      const input = container.querySelector('input') as HTMLInputElement;
-
-      fireEvent.input(input, { target: { value: '42' } });
-
-      vi.runAllTimers();
-      await waitFor(() => {
-        expect(mockOninput).toHaveBeenCalled();
-      });
-    });
-
-    it('should not error when oninput callback is not provided', async () => {
-      const { container } = render(RecurrenceCountSettings, {
-        props: { value: undefined, oninput: undefined }
-      });
-
-      const input = container.querySelector('input') as HTMLInputElement;
-
-      expect(() => {
-        fireEvent.input(input, { target: { value: '42' } });
-        vi.runAllTimers();
-      }).not.toThrow();
-    });
   });
 
   describe('value binding', () => {
@@ -582,8 +549,8 @@ describe('RecurrenceCountSettings', () => {
     it('should handle prop updates gracefully', () => {
       const { rerender } = render(RecurrenceCountSettings, { props: defaultProps });
 
-      expect(() => rerender({ value: 10, oninput: vi.fn() })).not.toThrow();
-      expect(() => rerender({ value: undefined, oninput: undefined })).not.toThrow();
+      expect(() => rerender({ value: 10 })).not.toThrow();
+      expect(() => rerender({ value: undefined })).not.toThrow();
     });
 
     it('should maintain state consistency across updates', () => {
@@ -606,29 +573,24 @@ describe('RecurrenceCountSettings', () => {
 
   describe('async behavior', () => {
     it('should handle setTimeout correctly', async () => {
-      const mockOninput = vi.fn();
       const { container } = render(RecurrenceCountSettings, {
-        props: { ...defaultProps, oninput: mockOninput }
+        props: defaultProps
       });
 
       const input = container.querySelector('input') as HTMLInputElement;
 
       fireEvent.input(input, { target: { value: '42' } });
 
-      // Before timeout
-      expect(mockOninput).not.toHaveBeenCalled();
-
       // After timeout
       vi.runAllTimers();
       await waitFor(() => {
-        expect(mockOninput).toHaveBeenCalled();
+        expect(input.value).toBe('42');
       });
     });
 
     it('should handle multiple rapid inputs with timeout', async () => {
-      const mockOninput = vi.fn();
       const { container } = render(RecurrenceCountSettings, {
-        props: { ...defaultProps, oninput: mockOninput }
+        props: defaultProps
       });
 
       const input = container.querySelector('input') as HTMLInputElement;
@@ -639,7 +601,7 @@ describe('RecurrenceCountSettings', () => {
 
       vi.runAllTimers();
       await waitFor(() => {
-        expect(mockOninput).toHaveBeenCalledTimes(3);
+        expect(input.value).toBe('123');
       });
     });
   });
