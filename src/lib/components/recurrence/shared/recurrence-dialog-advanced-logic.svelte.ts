@@ -31,6 +31,10 @@ export class RecurrenceDialogAdvancedLogic {
   // Translation service
   private translationService = getTranslationService();
 
+  // Flags for preventing unwanted saves
+  private isInitializing = false;
+  private isSaving = false;
+
   constructor(
     recurrenceRule?: RecurrenceRule | null,
     onSave?: (rule: RecurrenceRule | null) => void,
@@ -38,6 +42,7 @@ export class RecurrenceDialogAdvancedLogic {
     endDateTime?: Date,
     isRangeDate?: boolean
   ) {
+    this.isInitializing = true;
     this.recurrenceRule = recurrenceRule;
     this.onSave = onSave;
     this.startDateTime = startDateTime;
@@ -46,6 +51,12 @@ export class RecurrenceDialogAdvancedLogic {
 
     this.initializeState();
     this.setupEffect();
+    this.setupAutoSaveEffect();
+
+    // Clear the initialization flag after setup completes
+    queueMicrotask(() => {
+      this.isInitializing = false;
+    });
   }
 
   // Property getters for external access
@@ -118,8 +129,14 @@ export class RecurrenceDialogAdvancedLogic {
    * Called when the recurrenceRule prop changes externally
    */
   updateFromRecurrenceRule(recurrenceRule?: RecurrenceRule | null) {
+    this.isInitializing = true;
     this.recurrenceRule = recurrenceRule;
     this.initializeState();
+
+    // Clear the flag after initialization completes
+    queueMicrotask(() => {
+      this.isInitializing = false;
+    });
   }
 
   private setupEffect() {
@@ -129,6 +146,41 @@ export class RecurrenceDialogAdvancedLogic {
       } else {
         this.previewManager.clearPreview();
       }
+    });
+  }
+
+  private setupAutoSaveEffect() {
+    $effect(() => {
+      // Track all state changes by referencing them
+      const level = this.state.recurrenceLevel;
+      const unit = this.state.unit;
+      const interval = this.state.interval;
+      const days = this.state.daysOfWeek;
+      const details = this.state.details;
+      const endDate = this.state.endDate;
+      const count = this.state.repeatCount;
+      const dateConds = this.dateConditionManager.conditions;
+      const weekdayConds = this.weekdayConditionManager.conditions;
+
+      // Skip during initialization or saving
+      if (this.isInitializing || this.isSaving) return;
+
+      // Skip if onSave is not provided
+      if (!this.onSave) return;
+
+      // Save the current rule
+      this.saveCurrentRule();
+    });
+  }
+
+  private saveCurrentRule() {
+    this.isSaving = true;
+    const rule = this.buildRecurrenceRule();
+    this.onSave?.(rule);
+
+    // Clear the flag after save completes
+    queueMicrotask(() => {
+      this.isSaving = false;
     });
   }
 

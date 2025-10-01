@@ -9,6 +9,7 @@ import {
 import { TaskService } from '$lib/services/task-service';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';
+import { getBackendService } from '$lib/services/backend/index';
 
 export class TaskDetailLogic {
   // Core derived states
@@ -400,7 +401,6 @@ export class TaskDetailLogic {
 
   // Recurrence handling
   async handleRecurrenceChange(rule: LegacyRecurrenceRule | null) {
-
     if (!this.currentItem || this.isNewTaskMode) {
       return;
     }
@@ -411,9 +411,51 @@ export class TaskDetailLogic {
     // editFormを即座に更新
     this.editForm.recurrenceRule = unifiedRule;
 
-    // 既存の繰り返し設定処理アプローチを維持：TaskStore経由でTauriのupdate_taskを呼ぶ
-    // これによりPartialTaskのrecurrence_ruleフィールドとしてTauriに送信される
-    this.saveImmediately();
+    // BackendServiceを取得
+    const backend = await getBackendService();
+
+    try {
+      if (rule === null) {
+        // 繰り返しルールを削除
+        if (this.isSubTask) {
+          await backend.subtaskRecurrence.delete(this.currentItem.id);
+        } else {
+          await backend.taskRecurrence.delete(this.currentItem.id);
+        }
+      } else {
+        // 既存の繰り返し関連付けを確認
+        const existing = this.isSubTask
+          ? await backend.subtaskRecurrence.getBySubtaskId(this.currentItem.id)
+          : await backend.taskRecurrence.getByTaskId(this.currentItem.id);
+
+        if (existing) {
+          // 既存のRecurrenceRuleを更新
+          await backend.recurrenceRule.update({ ...unifiedRule!, id: existing.recurrenceRuleId });
+        } else {
+          // 新規RecurrenceRuleを作成
+          const ruleId = crypto.randomUUID();
+          await backend.recurrenceRule.create({ ...unifiedRule!, id: ruleId });
+
+          // 関連付けを作成
+          if (this.isSubTask) {
+            await backend.subtaskRecurrence.create({
+              subtaskId: this.currentItem.id,
+              recurrenceRuleId: ruleId
+            });
+          } else {
+            await backend.taskRecurrence.create({
+              taskId: this.currentItem.id,
+              recurrenceRuleId: ruleId
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save recurrence rule:', error);
+      // エラー時はUIに反映しない（元の値に戻す）
+      // currentItem.recurrenceRuleはLegacy型なので変換が必要
+      this.editForm.recurrenceRule = fromLegacyRecurrenceRule(this.currentItem.recurrenceRule);
+    }
 
     this.showRecurrenceDialog = false;
   }

@@ -35,21 +35,13 @@
     isRangeDate
   );
 
-  // Track open state changes
+  // Track open state for initialization
   let previousOpen = $state(open);
 
   $effect(() => {
     // Dialog opened - initialize with latest props
     if (open && !previousOpen) {
       logic.updateFromRecurrenceRule(recurrenceRule);
-    }
-
-    // Dialog closed - save changes
-    if (!open && previousOpen) {
-      const rule = logic.buildRecurrenceRule();
-      if (onSave) {
-        onSave(rule);
-      }
     }
 
     previousOpen = open;

@@ -161,13 +161,8 @@ export class InlineDatePickerHandlers {
 
   handleRecurrenceSave(rule: RecurrenceRule | null) {
     this.state.currentRecurrenceRule = rule;
-
-    // 現在の日付情報と一緒に繰り返し設定も通知
-    if (this.state.useRangeMode) {
-      this.handleRangeInputChange();
-    } else {
-      this.handleDateChange();
-    }
+    // 繰り返しルールは TaskDetailLogic.handleRecurrenceChange で
+    // 専用サービスを使って保存されるため、ここでは onchange を呼ばない
   }
 
   handleRecurrenceDialogClose() {
