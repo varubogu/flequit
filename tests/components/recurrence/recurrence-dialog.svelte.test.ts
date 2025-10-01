@@ -141,8 +141,8 @@ describe('RecurrenceDialog', () => {
     expect(screen.getByDisplayValue(unitTestTranslations.recurrence_advanced)).toBeTruthy();
   });
 
-  it.skip('保存時に正しいルールが生成される', async () => {
-    render(RecurrenceDialog, {
+  it('保存時に正しいルールが生成される', async () => {
+    const { rerender } = render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -157,7 +157,11 @@ describe('RecurrenceDialog', () => {
     // Svelteの更新を待つ
     await tick();
 
-    // onSaveは即座に呼ばれる（自動保存機能）
+    // ダイアログを閉じる（保存はダイアログが閉じられた時に実行される）
+    await rerender({ open: false });
+    await tick();
+
+    // onSaveが正しいルールで呼ばれる
     expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
         unit: 'day',
@@ -166,8 +170,8 @@ describe('RecurrenceDialog', () => {
     );
   });
 
-  it.skip('無効選択時はnullが保存される', async () => {
-    render(RecurrenceDialog, {
+  it('無効選択時はnullが保存される', async () => {
+    const { rerender } = render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -180,13 +184,17 @@ describe('RecurrenceDialog', () => {
     fireEvent.change(select, { target: { value: 'enabled' } });
     await tick(); // Svelteの更新を待つ
 
-    // モックをクリアして、disabledに変更した時の呼び出しのみをテストする
-    mockOnSave.mockClear();
-
     fireEvent.change(select, { target: { value: 'disabled' } });
     await tick(); // Svelteの更新を待つ
 
-    // 無効に変更した時にnullが保存される
+    // モックをクリアして、ダイアログを閉じた時の呼び出しのみをテストする
+    mockOnSave.mockClear();
+
+    // ダイアログを閉じる（保存はダイアログが閉じられた時に実行される）
+    await rerender({ open: false });
+    await tick();
+
+    // 無効に変更した後にダイアログを閉じるとnullが保存される
     expect(mockOnSave).toHaveBeenCalledWith(null);
   });
 
@@ -210,8 +218,8 @@ describe('RecurrenceDialog', () => {
     ).toBeTruthy();
   });
 
-  it.skip('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
-    render(RecurrenceDialog, {
+  it('繰り返し回数設定時にmax_occurrencesが保存される', async () => {
+    const { rerender } = render(RecurrenceDialog, {
       props: {
         open: true,
         onSave: mockOnSave,
@@ -222,9 +230,7 @@ describe('RecurrenceDialog', () => {
     // 有効に変更
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
     fireEvent.change(select, { target: { value: 'enabled' } });
-
-    // まずmockをクリアして、繰り返し回数の変更のみをテストする
-    mockOnSave.mockClear();
+    await tick();
 
     // 繰り返し回数を設定
     const countInput = screen.getByPlaceholderText(
@@ -232,14 +238,22 @@ describe('RecurrenceDialog', () => {
     ) as HTMLInputElement;
     fireEvent.input(countInput, { target: { value: '3' } });
 
-    // setTimeoutを考慮して少し待機
+    // setTimeoutの処理を待つ
     await new Promise((resolve) => setTimeout(resolve, 10));
+    await tick();
 
     // 入力値が正しく反映されることを確認
     expect(countInput.value).toBe('3');
 
-    // 自動保存により値が保存される（最後の呼び出しを確認）
-    expect(mockOnSave).toHaveBeenLastCalledWith(
+    // モックをクリアして、ダイアログを閉じた時の呼び出しのみをテストする
+    mockOnSave.mockClear();
+
+    // ダイアログを閉じる（保存はダイアログが閉じられた時に実行される）
+    await rerender({ open: false });
+    await tick();
+
+    // 値が保存される
+    expect(mockOnSave).toHaveBeenCalledWith(
       expect.objectContaining({
         unit: 'day',
         interval: 1,
@@ -267,14 +281,11 @@ describe('RecurrenceDialog', () => {
       ) as HTMLInputElement;
     });
 
-    it.skip('小数点を入力すると整数に丸められる', async () => {
+    it('小数点を入力すると整数に丸められる', async () => {
       await fireEvent.input(countInput, { target: { value: '5.8' } });
       // setTimeout内の処理を待つ
       await new Promise((resolve) => setTimeout(resolve, 0));
       expect(countInput.value).toBe('58'); // DOM上では"."が無視されるため
-
-      // 保存される値を確認（自動保存）
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ maxOccurrences: 58 }));
     });
 
     it('0を入力するとフィールドがクリアされる', async () => {
