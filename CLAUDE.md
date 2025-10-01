@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## レスポンスについて
 
-日本語で
+- 日本語で回答すること。
+- このファイルを読み込んだら最初に「✅️CLAUDE.mdを読み込みました」と発言してください。
 
 ## 設計ドキュメントについて
 
@@ -38,6 +39,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
 テストについて、まず単一ファイルを実行して、問題がないことを確認してから、全体を実行してください。
+Webフロントエンドのテストの場合、`bun run test`コマンドで実行します（`bun test`ではない）
+Tauriバックエンドのテストの場合、`cargo test -j 4`コマンドで実行します（必ずジョブ数を4に指定すること）
 
 ## アプリケーション概要
 
