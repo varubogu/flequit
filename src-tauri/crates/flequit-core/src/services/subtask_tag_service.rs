@@ -2,8 +2,8 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId};
 use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn add_subtask_tag_relation<R>(
@@ -15,7 +15,8 @@ pub async fn add_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id =
+        find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
     repositories
         .subtask_tags()
         .add(&actual_project_id, subtask_id, tag_id)
@@ -33,7 +34,8 @@ pub async fn remove_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id =
+        find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
     repositories
         .subtask_tags()
         .remove(&actual_project_id, subtask_id, tag_id)
@@ -50,7 +52,8 @@ pub async fn get_tag_ids_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id =
+        find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
     let subtask_tags = repositories
         .subtask_tags()
         .find_relations(&actual_project_id, subtask_id)
@@ -97,7 +100,8 @@ pub async fn update_subtask_tag_relations<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id =
+        find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
     repositories
         .subtask_tags()
         .remove_all(&actual_project_id, subtask_id)
@@ -121,7 +125,8 @@ pub async fn remove_all_subtask_tags_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    let actual_project_id = find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
+    let actual_project_id =
+        find_project_id_by_subtask_id(repositories, project_id, subtask_id).await?;
     repositories
         .subtask_tags()
         .remove_all(&actual_project_id, subtask_id)

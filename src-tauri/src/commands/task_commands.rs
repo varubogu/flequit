@@ -11,7 +11,6 @@ use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
 use tauri::State;
 use tracing::instrument;
 
-
 #[instrument(level = "info", skip(state, task), fields(project_id = %task.project_id, task_id = %task.id))]
 #[tauri::command]
 pub async fn create_task(
@@ -31,7 +30,6 @@ pub async fn create_task(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %id))]
 #[tauri::command]
@@ -61,7 +59,6 @@ pub async fn get_task(
     }
 }
 
-
 #[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, task_id = %id))]
 #[tauri::command]
 pub async fn update_task(
@@ -86,7 +83,6 @@ pub async fn update_task(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %id))]
 #[tauri::command]

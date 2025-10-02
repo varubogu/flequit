@@ -6,7 +6,6 @@ use flequit_model::types::id_types::{ProjectId, TagId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
-
 pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -26,7 +25,6 @@ where
     Ok(())
 }
 
-
 pub async fn get_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -39,7 +37,6 @@ where
     Ok(repository.tags().find_by_id(project_id, tag_id).await?)
 }
 
-
 pub async fn list_tags<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -51,7 +48,6 @@ where
     Ok(repository.tags().find_all(project_id).await?)
 }
 
-
 pub async fn update_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -62,11 +58,7 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // 既存のタグを取得
-    if let Some(mut tag) = repositories
-        .tags()
-        .find_by_id(project_id, tag_id)
-        .await?
-    {
+    if let Some(mut tag) = repositories.tags().find_by_id(project_id, tag_id).await? {
         // パッチデータで更新
         if let Some(name) = &patch.name {
             tag.name = name.clone();
@@ -89,7 +81,6 @@ where
     }
 }
 
-
 pub async fn delete_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -102,7 +93,6 @@ where
     repository.tags().delete(project_id, tag_id).await?;
     Ok(())
 }
-
 
 pub async fn search_tags_by_name<R>(
     repositories: &R,
@@ -127,7 +117,6 @@ where
 
     Ok(filtered_tags)
 }
-
 
 pub async fn get_tag_usage_count<R>(
     repositories: &R,
@@ -159,7 +148,6 @@ where
     Ok(count)
 }
 
-
 pub async fn is_tag_name_exists<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -190,7 +178,6 @@ where
 
     Ok(false)
 }
-
 
 pub async fn list_popular_tags<R>(
     repositories: &R,

@@ -2,12 +2,11 @@ use crate::models::project::{ProjectCommandModel, ProjectTreeCommandModel};
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::project_facades;
-use flequit_core::services::{task_list_service, tag_service};
+use flequit_core::services::{tag_service, task_list_service};
 use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
 use flequit_model::types::id_types::ProjectId;
 use tauri::State;
 use tracing::instrument;
-
 
 #[instrument(level = "info", skip(state, project), fields(project_id = %project.id))]
 #[tauri::command]
@@ -25,7 +24,6 @@ pub async fn create_project(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
@@ -47,7 +45,6 @@ pub async fn get_project(
     }
 }
 
-
 #[instrument(level = "info", skip(state, patch), fields(project_id = %id))]
 #[tauri::command]
 pub async fn update_project(
@@ -65,7 +62,6 @@ pub async fn update_project(
         })
 }
 
-
 #[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
 pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bool, String> {
@@ -78,7 +74,6 @@ pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bo
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]

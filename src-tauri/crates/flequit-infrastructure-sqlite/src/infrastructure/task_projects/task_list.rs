@@ -7,8 +7,8 @@ use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
@@ -76,10 +76,11 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
             .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
         // 既存レコードを確認
-        let existing = TaskListEntity::find_by_id((project_id.to_string(), task_list.id.to_string()))
-            .one(db)
-            .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        let existing =
+            TaskListEntity::find_by_id((project_id.to_string(), task_list.id.to_string()))
+                .one(db)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if existing.is_some() {
             // 既存レコードがある場合は更新
@@ -150,11 +151,7 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         Ok(task_lists)
     }
 
-    async fn delete(
-        &self,
-        project_id: &ProjectId,
-        id: &TaskListId,
-    ) -> Result<(), RepositoryError> {
+    async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

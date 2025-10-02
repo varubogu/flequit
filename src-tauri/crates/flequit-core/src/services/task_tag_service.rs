@@ -2,8 +2,8 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task_tag::TaskTag;
 use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
 use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn add_task_tag_relation<R>(

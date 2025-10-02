@@ -5,7 +5,7 @@ use crate::models::CommandModelConverter;
 use flequit_model::models::ModelConverter;
 use flequit_settings::models::datetime_format::DateTimeFormat;
 use flequit_settings::models::due_date_buttons::DueDateButtons;
-use flequit_settings::models::settings::{Settings, PartialSettings};
+use flequit_settings::models::settings::{PartialSettings, Settings};
 use flequit_settings::models::time_label::TimeLabel;
 use flequit_settings::models::view_item::ViewItem;
 use flequit_settings::types::datetime_format_types::DateTimeFormatGroup;

@@ -5,15 +5,17 @@
 use crate::models::weekday_condition::WeekdayConditionCommandModel;
 use crate::models::CommandModelConverter;
 use crate::models::{
-    date_condition::DateConditionCommandModel, datetime_format::DateTimeFormatCommandModel,
-    settings::{SettingsCommandModel, PartialSettingsCommandModel}, time_label::TimeLabelCommandModel,
+    date_condition::DateConditionCommandModel,
+    datetime_format::DateTimeFormatCommandModel,
+    settings::{PartialSettingsCommandModel, SettingsCommandModel},
+    time_label::TimeLabelCommandModel,
     view_item::ViewItemCommandModel,
 };
 use crate::state::AppState;
 use chrono::{DateTime, Utc};
 use flequit_core::facades::datetime_facades;
 use flequit_model::models::ModelConverter;
-use flequit_settings::{Settings, PartialSettings};
+use flequit_settings::{PartialSettings, Settings};
 use tauri::State;
 use tracing::instrument;
 
@@ -80,7 +82,10 @@ pub async fn update_settings_partially(
     state: State<'_, AppState>,
     partial_settings: PartialSettingsCommandModel,
 ) -> Result<SettingsCommandModel, String> {
-    let partial_model = partial_settings.to_model().await.map_err(|e| e.to_string())?;
+    let partial_model = partial_settings
+        .to_model()
+        .await
+        .map_err(|e| e.to_string())?;
 
     // 設定管理サービスで差分更新を実行
     let updated_settings = state
@@ -99,7 +104,12 @@ pub async fn update_settings_partially(
     }
 
     // 更新された設定をコマンドモデルとして返す
-    Ok(SettingsCommandModel::from(updated_settings.to_command_model().await.map_err(|e| e.to_string())?))
+    Ok(SettingsCommandModel::from(
+        updated_settings
+            .to_command_model()
+            .await
+            .map_err(|e| e.to_string())?,
+    ))
 }
 
 /// デフォルト設定で設定ファイルを初期化
@@ -194,8 +204,7 @@ pub async fn get_custom_date_format_setting(
 #[tauri::command]
 pub async fn get_all_custom_date_format_settings(
     _state: State<'_, AppState>,
-) -> Result<Vec<DateTimeFormatCommandModel>, String>
-{
+) -> Result<Vec<DateTimeFormatCommandModel>, String> {
     // TODO: setting_facadesでの実装完了後に有効化
     Ok(Vec::new())
 }
@@ -316,7 +325,7 @@ pub async fn add_time_label_setting(
         settings.time_labels.push(time_label.clone());
 
         // ファイルにも保存
-    state
+        state
             .settings_manager
             .save_settings(&*settings)
             .await
@@ -672,7 +681,6 @@ pub async fn update_setting(
 
 /// 日時フォーマットを作成します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, format))]
 #[tauri::command]
 pub async fn create_datetime_format(
@@ -685,7 +693,6 @@ pub async fn create_datetime_format(
 
 /// 日時フォーマットを取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_datetime_format(
@@ -698,7 +705,6 @@ pub async fn get_datetime_format(
 
 /// すべての日時フォーマットを取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_datetime_formats(
@@ -710,7 +716,6 @@ pub async fn get_all_datetime_formats(
 
 /// 日時フォーマットを更新します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, format))]
 #[tauri::command]
 pub async fn update_datetime_format(
@@ -723,7 +728,6 @@ pub async fn update_datetime_format(
 
 /// 日時フォーマットを削除します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, format_id))]
 #[tauri::command]
 pub async fn delete_datetime_format(
@@ -895,7 +899,6 @@ pub async fn delete_datetime_format_setting(
 
 /// 日付条件を作成します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition))]
 #[tauri::command]
 pub async fn create_date_condition(
@@ -909,7 +912,6 @@ pub async fn create_date_condition(
 
 /// 日付条件を取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id))]
 #[tauri::command]
 pub async fn get_date_condition(
@@ -926,7 +928,6 @@ pub async fn get_date_condition(
 
 /// すべての日付条件を取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_date_conditions(
@@ -943,7 +944,6 @@ pub async fn get_all_date_conditions(
 
 /// 日付条件を更新します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition))]
 #[tauri::command]
 pub async fn update_date_condition(
@@ -957,7 +957,6 @@ pub async fn update_date_condition(
 
 /// 日付条件を削除します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id))]
 #[tauri::command]
 pub async fn delete_date_condition(
@@ -970,7 +969,6 @@ pub async fn delete_date_condition(
 
 /// 日付条件を評価します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id, target_date))]
 #[tauri::command]
 pub async fn evaluate_date_condition(
@@ -984,7 +982,6 @@ pub async fn evaluate_date_condition(
 
 /// 曜日条件を作成します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition))]
 #[tauri::command]
 pub async fn create_weekday_condition(
@@ -998,7 +995,6 @@ pub async fn create_weekday_condition(
 
 /// 曜日条件を取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id))]
 #[tauri::command]
 pub async fn get_weekday_condition(
@@ -1015,7 +1011,6 @@ pub async fn get_weekday_condition(
 
 /// すべての曜日条件を取得します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn get_all_weekday_conditions(
@@ -1032,7 +1027,6 @@ pub async fn get_all_weekday_conditions(
 
 /// 曜日条件を更新します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition))]
 #[tauri::command]
 pub async fn update_weekday_condition(
@@ -1046,7 +1040,6 @@ pub async fn update_weekday_condition(
 
 /// 曜日条件を削除します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id))]
 #[tauri::command]
 pub async fn delete_weekday_condition(
@@ -1059,7 +1052,6 @@ pub async fn delete_weekday_condition(
 
 /// 曜日条件を評価します。
 #[allow(dead_code)]
-
 #[instrument(level = "info", skip(state, condition_id, target_date))]
 #[tauri::command]
 pub async fn evaluate_weekday_condition(

@@ -3,10 +3,9 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
-
 
 pub async fn create_task<R>(
     repositories: &R,
@@ -50,7 +49,10 @@ pub async fn update_task<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    Ok(repositories.tasks().patch(project_id, task_id, patch).await?)
+    Ok(repositories
+        .tasks()
+        .patch(project_id, task_id, patch)
+        .await?)
 }
 
 pub async fn delete_task<R>(

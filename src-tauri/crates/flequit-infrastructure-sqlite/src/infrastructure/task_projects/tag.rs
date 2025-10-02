@@ -3,7 +3,9 @@
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::tag::{ActiveModel as TagActiveModel, Column, Entity as TagEntity};
-use crate::models::{DomainToSqliteConverter, DomainToSqliteConverterWithProjectId, SqliteModelConverter};
+use crate::models::{
+    DomainToSqliteConverter, DomainToSqliteConverterWithProjectId, SqliteModelConverter,
+};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::types::id_types::{ProjectId, TagId};
@@ -101,7 +103,11 @@ impl TagLocalSqliteRepository {
         Ok(tags)
     }
 
-    pub async fn increment_usage(&self, project_id: &str, tag_id: &str) -> Result<Tag, RepositoryError> {
+    pub async fn increment_usage(
+        &self,
+        project_id: &str,
+        tag_id: &str,
+    ) -> Result<Tag, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -127,7 +133,11 @@ impl TagLocalSqliteRepository {
             .map_err(RepositoryError::Conversion)
     }
 
-    pub async fn decrement_usage(&self, project_id: &str, tag_id: &str) -> Result<Tag, RepositoryError> {
+    pub async fn decrement_usage(
+        &self,
+        project_id: &str,
+        tag_id: &str,
+    ) -> Result<Tag, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -153,7 +163,11 @@ impl TagLocalSqliteRepository {
             .map_err(RepositoryError::Conversion)
     }
 
-    pub async fn find_by_name_in_project(&self, project_id: &ProjectId, name: &str) -> Result<Option<Tag>, RepositoryError> {
+    pub async fn find_by_name_in_project(
+        &self,
+        project_id: &ProjectId,
+        name: &str,
+    ) -> Result<Option<Tag>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

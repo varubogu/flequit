@@ -38,7 +38,6 @@ pub struct DateConditionLocalAutomergeRepository {
 }
 
 impl DateConditionLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -171,7 +170,6 @@ impl DateConditionRepositoryTrait for DateConditionLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAutomergeRepository {
-
     async fn save(
         &self,
         project_id: &ProjectId,
@@ -196,7 +194,6 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -205,14 +202,12 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         self.get_date_condition(project_id, &id.to_string()).await
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
     ) -> Result<Vec<DateCondition>, RepositoryError> {
         self.list_date_conditions(project_id).await
     }
-
 
     async fn delete(
         &self,
@@ -232,7 +227,6 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         }
     }
 
-
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -241,7 +235,6 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalAut
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let date_conditions = self.find_all(project_id).await?;

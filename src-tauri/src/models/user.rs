@@ -3,7 +3,7 @@
 use crate::models::CommandModelConverter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::users::user::{User, PartialUser};
+use flequit_model::models::users::user::{PartialUser, User};
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::UserId;
 use serde::{Deserialize, Serialize};

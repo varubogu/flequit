@@ -56,6 +56,6 @@ pub use errors::{SettingsError, SettingsResult};
 pub use manager::SettingsManager;
 pub use models::datetime_format::DateTimeFormat;
 pub use models::due_date_buttons::DueDateButtons;
-pub use models::settings::{Settings, PartialSettings};
+pub use models::settings::{PartialSettings, Settings};
 pub use models::time_label::TimeLabel;
 pub use models::view_item::ViewItem;

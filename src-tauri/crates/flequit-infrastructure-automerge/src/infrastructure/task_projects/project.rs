@@ -99,9 +99,7 @@ impl ProjectLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
@@ -527,7 +525,6 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
-
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
@@ -548,11 +545,9 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         result
     }
 
-
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         self.get_project(&id.to_string()).await
     }
-
 
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外
@@ -562,19 +557,16 @@ impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
         ))
     }
 
-
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         // プロジェクトドキュメント自体を削除
         // 注意: プロジェクト一覧からの削除は別途ProjectListLocalAutomergeRepositoryで行ってください
         self.delete_project_document(id).await
     }
 
-
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         // 注意: この実装は個別プロジェクト管理の範囲外

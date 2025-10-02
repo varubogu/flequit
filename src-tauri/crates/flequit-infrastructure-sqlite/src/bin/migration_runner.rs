@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let db_path = &args[1];
     let force_mode = args.len() == 3 && args[2] == "--force";
-    
+
     if force_mode {
         println!("🔄 強制マイグレーション実行開始: {}", db_path);
     } else {
@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // マイグレーション実行
     let migrator = HybridMigrator::new(db_manager.get_connection().await?.clone());
-    
+
     if force_mode {
         migrator.force_remigration().await?;
     } else {

@@ -6,7 +6,6 @@ use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::patchable_trait::Patchable;
 use flequit_types::errors::service_error::ServiceError;
 
-
 pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<Project, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -25,7 +24,6 @@ where
     Ok(new_project)
 }
 
-
 pub async fn get_project<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -36,14 +34,12 @@ where
     Ok(repositories.projects().find_by_id(project_id).await?)
 }
 
-
 pub async fn list_projects<R>(repositories: &R) -> Result<Vec<Project>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     Ok(repositories.projects().find_all().await?)
 }
-
 
 pub async fn update_project<R>(
     repositories: &R,
@@ -57,7 +53,6 @@ where
     let changed = repositories.projects().patch(project_id, patch).await?;
     Ok(changed)
 }
-
 
 pub async fn delete_project<R>(repositories: &R, project_id: &ProjectId) -> Result<(), ServiceError>
 where

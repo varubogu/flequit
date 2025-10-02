@@ -2,23 +2,23 @@
 //!
 //! 設定に基づいてバックエンドリポジトリを初期化・管理する
 
-use std::sync::Arc;
-use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-use tokio::sync::{RwLock, Mutex};
 use flequit_infrastructure_automerge::LocalAutomergeRepositories;
+use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
 use flequit_infrastructure_automerge::infrastructure::document_manager::DocumentManager;
 use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
-use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
+use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
-use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
+use std::sync::Arc;
+use tokio::sync::{Mutex, RwLock};
 
 use crate::unified::UnifiedConfig;
 use crate::unified::{
-    AccountUnifiedRepository, ProjectUnifiedRepository, TaskUnifiedRepository, TaskListUnifiedRepository,
-    TagUnifiedRepository, SubTaskUnifiedRepository, UserUnifiedRepository,
-    TaskAssignmentUnifiedRepository, SubTaskAssignmentUnifiedRepository,
-    TaskTagUnifiedRepository, SubTaskTagUnifiedRepository,
+    AccountUnifiedRepository, ProjectUnifiedRepository, SubTaskAssignmentUnifiedRepository,
+    SubTaskTagUnifiedRepository, SubTaskUnifiedRepository, TagUnifiedRepository,
+    TaskAssignmentUnifiedRepository, TaskListUnifiedRepository, TaskTagUnifiedRepository,
+    TaskUnifiedRepository, UserUnifiedRepository,
 };
 
 /// Unified層のマネージャー
@@ -91,8 +91,9 @@ impl UnifiedManager {
 
             // 共有DocumentManagerを使用してAutomergeリポジトリを初期化
             let automerge_repos = LocalAutomergeRepositories::setup_with_shared_manager(
-                self.shared_document_manager.clone().unwrap()
-            ).await?;
+                self.shared_document_manager.clone().unwrap(),
+            )
+            .await?;
             self.automerge_repositories = Some(Arc::new(RwLock::new(automerge_repos)));
             tracing::info!("Automergeリポジトリを共有DocumentManagerで初期化しました");
         } else {
@@ -148,8 +149,11 @@ impl UnifiedManager {
             // repo.add_automerge_for_search(automerge_repo);
         }
 
-        tracing::info!("ProjectUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "ProjectUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -204,8 +208,8 @@ impl UnifiedManager {
     pub async fn create_task_unified_repository(
         &self,
     ) -> Result<TaskUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
 
         let mut repo = TaskUnifiedRepository::default();
 
@@ -241,8 +245,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（Task）");
         }
 
-        tracing::info!("TaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "TaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -251,8 +258,8 @@ impl UnifiedManager {
     pub async fn create_task_list_unified_repository(
         &self,
     ) -> Result<TaskListUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::TaskListLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::TaskListLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::TaskListLocalSqliteRepository;
 
         let mut repo = TaskListUnifiedRepository::default();
 
@@ -288,8 +295,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（TaskList）");
         }
 
-        tracing::info!("TaskListUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "TaskListUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -298,8 +308,8 @@ impl UnifiedManager {
     pub async fn create_tag_unified_repository(
         &self,
     ) -> Result<TagUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::tag::TagLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
 
         let mut repo = TagUnifiedRepository::default();
 
@@ -333,8 +343,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（Tag）");
         }
 
-        tracing::info!("TagUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "TagUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -343,8 +356,8 @@ impl UnifiedManager {
     pub async fn create_sub_task_unified_repository(
         &self,
     ) -> Result<SubTaskUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask::SubTaskLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::subtask::SubTaskLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask::SubTaskLocalSqliteRepository;
 
         let mut repo = SubTaskUnifiedRepository::default();
 
@@ -378,8 +391,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（SubTask）");
         }
 
-        tracing::info!("SubTaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "SubTaskUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -388,8 +404,8 @@ impl UnifiedManager {
     pub async fn create_user_unified_repository(
         &self,
     ) -> Result<UserUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::users::user::UserLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
 
         let mut repo = UserUnifiedRepository::default();
 
@@ -438,8 +454,8 @@ impl UnifiedManager {
     pub async fn create_task_assignment_unified_repository(
         &self,
     ) -> Result<TaskAssignmentUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_assignments::TaskAssignmentLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::task_assignments::TaskAssignmentLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_assignments::TaskAssignmentLocalSqliteRepository;
 
         let mut repo = TaskAssignmentUnifiedRepository::default();
 
@@ -463,7 +479,8 @@ impl UnifiedManager {
         // Automergeリポジトリの設定
         if self.config.automerge_storage_enabled {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
-                TaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+                TaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
+                    .await?
             } else {
                 let base_path = std::env::temp_dir().join("flequit_automerge");
                 TaskAssignmentLocalAutomergeRepository::new(base_path).await?
@@ -473,8 +490,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（TaskAssignment）");
         }
 
-        tracing::info!("TaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "TaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -483,8 +503,8 @@ impl UnifiedManager {
     pub async fn create_sub_task_assignment_unified_repository(
         &self,
     ) -> Result<SubTaskAssignmentUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_assignments::SubtaskAssignmentLocalSqliteRepository;
 
         let mut repo = SubTaskAssignmentUnifiedRepository::default();
 
@@ -508,7 +528,8 @@ impl UnifiedManager {
         // Automergeリポジトリの設定
         if self.config.automerge_storage_enabled {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
-                SubtaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
+                SubtaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
+                    .await?
             } else {
                 let base_path = std::env::temp_dir().join("flequit_automerge");
                 SubtaskAssignmentLocalAutomergeRepository::new(base_path).await?
@@ -518,8 +539,11 @@ impl UnifiedManager {
             tracing::info!("Automergeリポジトリを保存用に追加しました（SubTaskAssignment）");
         }
 
-        tracing::info!("SubTaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
-                      repo.save_repositories_count(), repo.search_repositories_count());
+        tracing::info!(
+            "SubTaskAssignmentUnifiedRepository構築完了 - 保存用: {} 検索用: {} リポジトリ",
+            repo.save_repositories_count(),
+            repo.search_repositories_count()
+        );
 
         Ok(repo)
     }
@@ -528,8 +552,8 @@ impl UnifiedManager {
     pub async fn create_task_tag_unified_repository(
         &self,
     ) -> Result<TaskTagUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_tag::TaskTagLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::task_tag::TaskTagLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::task_tag::TaskTagLocalSqliteRepository;
 
         let mut repo = TaskTagUnifiedRepository::default();
 
@@ -577,8 +601,8 @@ impl UnifiedManager {
     pub async fn create_sub_task_tag_unified_repository(
         &self,
     ) -> Result<SubTaskTagUnifiedRepository, Box<dyn std::error::Error>> {
-        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_tag::SubtaskTagLocalSqliteRepository;
         use flequit_infrastructure_automerge::infrastructure::task_projects::subtask_tag::SubtaskTagLocalAutomergeRepository;
+        use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_tag::SubtaskTagLocalSqliteRepository;
 
         let mut repo = SubTaskTagUnifiedRepository::default();
 

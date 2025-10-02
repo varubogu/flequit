@@ -30,7 +30,6 @@ fn handle_service_error<T>(result: Result<T, ServiceError>) -> Result<T, String>
 //     })
 // }
 
-
 pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -38,14 +37,12 @@ where
     handle_service_error(initialization_service::load_current_account(repositories).await)
 }
 
-
 pub async fn load_all_project_trees<R>(repositories: &R) -> Result<Vec<ProjectTree>, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     handle_service_error(initialization_service::load_all_project_trees(repositories).await)
 }
-
 
 pub async fn load_all_account<R>(repositories: &R) -> Result<Vec<Account>, String>
 where

@@ -5,13 +5,13 @@
 
 use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_model::models::task_projects::{
     recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
     recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
     task_recurrence::TaskRecurrence,
 };
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId};
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 // Command models are not available in core layer - using domain models directly
@@ -46,8 +46,10 @@ where
         }
     }
 
-    repositories.recurrence_rules()
-        .save(project_id, &rule).await
+    repositories
+        .recurrence_rules()
+        .save(project_id, &rule)
+        .await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -66,7 +68,8 @@ where
     // 実際のリポジトリ実装待ち
     let rule = repositories
         .recurrence_rules()
-        .find_by_id(project_id, &RecurrenceRuleId::from(rule_id.to_string())).await
+        .find_by_id(project_id, &RecurrenceRuleId::from(rule_id.to_string()))
+        .await
         .map_err(|e| ServiceError::Repository(e))?;
 
     // 実際のリポジトリ実装待ち
@@ -116,7 +119,10 @@ where
         }
     }
 
-    repositories.recurrence_rules().save(project_id, &rule).await
+    repositories
+        .recurrence_rules()
+        .save(project_id, &rule)
+        .await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())
@@ -132,7 +138,10 @@ pub async fn delete_recurrence_rule<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    repositories.recurrence_rules().delete(project_id, &RecurrenceRuleId::from(rule_id.to_string())).await
+    repositories
+        .recurrence_rules()
+        .delete(project_id, &RecurrenceRuleId::from(rule_id.to_string()))
+        .await
         .map_err(|e| ServiceError::Repository(e))?;
 
     Ok(())

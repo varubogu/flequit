@@ -72,7 +72,10 @@ async fn test_settings_load_and_save() {
     modified_settings.font_size = 16;
     modified_settings.custom_due_days = vec![1, 7, 30];
 
-    config_manager.save_settings(&modified_settings).await.unwrap();
+    config_manager
+        .save_settings(&modified_settings)
+        .await
+        .unwrap();
     println!("✅ 設定保存成功");
 
     // 5. 保存した設定を再読み込みして確認

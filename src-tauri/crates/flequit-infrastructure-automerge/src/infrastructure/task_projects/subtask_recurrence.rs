@@ -1,7 +1,7 @@
 //! サブタスク繰り返しルール用Automergeリポジトリ
 
-use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
+use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use chrono::Utc;
 use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;

@@ -39,7 +39,6 @@ pub struct TagLocalAutomergeRepository {
 }
 
 impl TagLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -52,9 +51,7 @@ impl TagLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
@@ -152,7 +149,6 @@ impl TagRepositoryTrait for TagLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
         log::info!("TagLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_tag(project_id, entity).await;
@@ -164,7 +160,6 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -173,11 +168,9 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         self.get_tag(project_id, &id.to_string()).await
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         self.list_tags(project_id).await
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         let deleted = self.delete_tag(project_id, &id.to_string()).await?;
@@ -188,12 +181,10 @@ impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
         }
     }
 
-
     async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let tags = self.find_all(project_id).await?;

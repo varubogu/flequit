@@ -4,8 +4,8 @@ use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task::Task;
 use flequit_model::types::id_types::{ProjectId, TaskId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
@@ -40,7 +40,6 @@ pub struct TaskLocalAutomergeRepository {
 }
 
 impl TaskLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -53,9 +52,7 @@ impl TaskLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
@@ -159,7 +156,6 @@ impl ProjectPatchable<Task, TaskId> for TaskLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
         log::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_task(project_id, entity).await;
@@ -171,7 +167,6 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -180,11 +175,9 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         self.get_task(project_id, &id.to_string()).await
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         self.list_tasks(project_id).await
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &TaskId) -> Result<(), RepositoryError> {
         let deleted = self.delete_task(project_id, &id.to_string()).await?;
@@ -195,12 +188,10 @@ impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
         }
     }
 
-
     async fn exists(&self, project_id: &ProjectId, id: &TaskId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let tasks = self.find_all(project_id).await?;

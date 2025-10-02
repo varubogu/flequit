@@ -201,7 +201,10 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
 /// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<ActiveModel> for Task {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let status_string = match &self.status {
             TaskStatus::NotStarted => "not_started",

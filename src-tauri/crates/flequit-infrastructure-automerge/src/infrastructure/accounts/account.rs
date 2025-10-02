@@ -236,24 +236,20 @@ impl AccountRepositoryTrait for AccountLocalAutomergeRepository {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
-
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         // 既存のset_userメソッドを活用
         self.set_user(entity).await
     }
-
 
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         // 既存のget_userメソッドを活用
         self.get_user(&id.to_string()).await
     }
 
-
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         // 既存のlist_usersメソッドを活用
         self.list_users().await
     }
-
 
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         // 既存のdelete_accountメソッドを活用
@@ -268,13 +264,11 @@ impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
         }
     }
 
-
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         // find_by_idを使って存在確認
         let found = self.find_by_id(id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         // find_allを使って件数取得

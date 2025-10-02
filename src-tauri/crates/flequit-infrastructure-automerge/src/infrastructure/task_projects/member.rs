@@ -38,7 +38,6 @@ pub struct MemberLocalAutomergeRepository {
 }
 
 impl MemberLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -150,7 +149,6 @@ impl MemberRepositoryTrait for MemberLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         log::info!(
             "MemberLocalAutomergeRepository::save - 開始: {:?}",
@@ -171,7 +169,6 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -180,11 +177,9 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         self.get_member(project_id, &id.to_string()).await
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         self.list_members(project_id).await
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         let deleted = self.delete_member(project_id, &id.to_string()).await?;
@@ -198,12 +193,10 @@ impl ProjectRepository<Member, UserId> for MemberLocalAutomergeRepository {
         }
     }
 
-
     async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let members = self.find_all(project_id).await?;

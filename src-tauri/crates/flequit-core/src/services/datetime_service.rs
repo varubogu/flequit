@@ -15,7 +15,6 @@ use flequit_model::models::task_projects::{
 // 日付条件関連サービス
 // =============================================================================
 
-
 pub async fn create_date_condition<R>(
     _repositories: &R,
     _condition_command: DateCondition,
@@ -26,7 +25,6 @@ where
     // 仮実装
     Ok(())
 }
-
 
 pub async fn get_date_condition<R>(
     _repositories: &R,
@@ -39,7 +37,6 @@ where
     Ok(None)
 }
 
-
 pub async fn get_all_date_conditions<R>(
     _repositories: &R,
 ) -> Result<Vec<DateCondition>, ServiceError>
@@ -49,7 +46,6 @@ where
     // 仮実装
     Ok(vec![])
 }
-
 
 pub async fn update_date_condition<R>(
     _repositories: &R,
@@ -62,7 +58,6 @@ where
     Ok(())
 }
 
-
 pub async fn delete_date_condition<R>(
     _repositories: &R,
     _condition_id: &str,
@@ -73,7 +68,6 @@ where
     // 仮実装
     Ok(())
 }
-
 
 pub async fn evaluate_date_condition<R>(
     _repositories: &R,
@@ -90,7 +84,6 @@ where
 // =============================================================================
 // 曜日条件関連サービス
 // =============================================================================
-
 
 pub async fn create_weekday_condition<R>(
     _repositories: &R,
@@ -110,7 +103,6 @@ where
     Ok(())
 }
 
-
 pub async fn get_weekday_condition<R>(
     _repositories: &R,
     _condition_id: &str,
@@ -122,7 +114,6 @@ where
     Ok(None)
 }
 
-
 pub async fn get_all_weekday_conditions<R>(
     _repositories: &R,
 ) -> Result<Vec<WeekdayCondition>, ServiceError>
@@ -132,7 +123,6 @@ where
     // 仮実装
     Ok(vec![])
 }
-
 
 pub async fn update_weekday_condition<R>(
     _repositories: &R,
@@ -152,7 +142,6 @@ where
     Ok(())
 }
 
-
 pub async fn delete_weekday_condition<R>(
     _repositories: &R,
     _condition_id: &str,
@@ -163,7 +152,6 @@ where
     // 仮実装
     Ok(())
 }
-
 
 pub async fn evaluate_weekday_condition<R>(
     _repositories: &R,

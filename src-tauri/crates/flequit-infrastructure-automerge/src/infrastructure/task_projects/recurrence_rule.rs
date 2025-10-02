@@ -146,7 +146,9 @@ impl RecurrenceRuleLocalAutomergeRepository {
 impl RecurrenceRuleRepositoryTrait for RecurrenceRuleLocalAutomergeRepository {}
 
 #[async_trait]
-impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocalAutomergeRepository {
+impl ProjectRepository<RecurrenceRule, RecurrenceRuleId>
+    for RecurrenceRuleLocalAutomergeRepository
+{
     /// 指定したIDの繰り返しルールを取得
     async fn find_by_id(
         &self,
@@ -157,26 +159,44 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
     }
 
     /// すべての繰り返しルールを取得
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<RecurrenceRule>, RepositoryError> {
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<RecurrenceRule>, RepositoryError> {
         self.list_recurrence_rules(project_id).await
     }
 
     /// 繰り返しルールを新規追加
-    async fn save(&self, project_id: &ProjectId, entity: &RecurrenceRule) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        entity: &RecurrenceRule,
+    ) -> Result<(), RepositoryError> {
         self.set_recurrence_rule(project_id, entity).await
     }
 
     /// 繰り返しルールを削除
-    async fn delete(&self, project_id: &ProjectId, id: &RecurrenceRuleId) -> Result<(), RepositoryError> {
+    async fn delete(
+        &self,
+        project_id: &ProjectId,
+        id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError> {
         let deleted = self.delete_rule(project_id, id).await?;
         if deleted {
             Ok(())
         } else {
-            Err(RepositoryError::NotFound(format!("RecurrenceRule not found: {}", id)))
+            Err(RepositoryError::NotFound(format!(
+                "RecurrenceRule not found: {}",
+                id
+            )))
         }
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &RecurrenceRuleId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        project_id: &ProjectId,
+        id: &RecurrenceRuleId,
+    ) -> Result<bool, RepositoryError> {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }

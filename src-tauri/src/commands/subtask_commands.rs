@@ -33,7 +33,6 @@ pub async fn create_sub_task(
         })
 }
 
-
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %id))]
 #[tauri::command]
 pub async fn get_sub_task(
@@ -57,10 +56,9 @@ pub async fn get_sub_task(
         Err(e) => {
             tracing::error!(target: "commands::subtask", command = "get_sub_task", project_id = %project_id, subtask_id = %subtask_id, error = %e);
             Err(format!("Failed to get sub task: {}", e))
-        },
+        }
     }
 }
-
 
 #[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, subtask_id = %id))]
 #[tauri::command]
@@ -87,7 +85,6 @@ pub async fn update_sub_task(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, subtask_id = %id))]
 #[tauri::command]

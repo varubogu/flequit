@@ -75,7 +75,10 @@ impl SqliteModelConverter<TaskAssignment> for Model {
 
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskAssignment {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
         use sea_orm::ActiveValue::Set;
         Ok(ActiveModel {
             task_id: Set(self.task_id.to_string()),

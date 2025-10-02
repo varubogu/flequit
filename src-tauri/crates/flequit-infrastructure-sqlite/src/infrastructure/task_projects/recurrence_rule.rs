@@ -2,7 +2,9 @@
 
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
-use crate::models::task_projects::recurrence_rule::{ActiveModel as RecurrenceRuleActiveModel, Column, Entity as RecurrenceRuleEntity};
+use crate::models::task_projects::recurrence_rule::{
+    ActiveModel as RecurrenceRuleActiveModel, Column, Entity as RecurrenceRuleEntity,
+};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
@@ -11,7 +13,7 @@ use flequit_repository::repositories::project_repository_trait::ProjectRepositor
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -67,7 +69,10 @@ impl RecurrenceRuleLocalSqliteRepository {
     }
 
     /// 間隔でRecurrenceRuleを検索
-    pub async fn find_by_interval(&self, interval: i32) -> Result<Vec<RecurrenceRule>, RepositoryError> {
+    pub async fn find_by_interval(
+        &self,
+        interval: i32,
+    ) -> Result<Vec<RecurrenceRule>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -119,14 +124,17 @@ impl RecurrenceRuleLocalSqliteRepository {
 
         Ok(rules)
     }
-
 }
 
 impl RecurrenceRuleRepositoryTrait for RecurrenceRuleLocalSqliteRepository {}
 
 #[async_trait]
 impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, rule: &RecurrenceRule) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        project_id: &ProjectId,
+        rule: &RecurrenceRule,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -134,10 +142,11 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
             .map_err(|e| RepositoryError::from(e))?;
 
         // 既存レコードを確認
-        let existing = RecurrenceRuleEntity::find_by_id((project_id.to_string(), rule.id.to_string()))
-            .one(db)
-            .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        let existing =
+            RecurrenceRuleEntity::find_by_id((project_id.to_string(), rule.id.to_string()))
+                .one(db)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if let Some(existing_model) = existing {
             // 更新
@@ -190,10 +199,11 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
             .await
             .map_err(|e| RepositoryError::from(e))?;
 
-        if let Some(model) = RecurrenceRuleEntity::find_by_id((project_id.to_string(), id.to_string()))
-            .one(db)
-            .await
-            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
+        if let Some(model) =
+            RecurrenceRuleEntity::find_by_id((project_id.to_string(), id.to_string()))
+                .one(db)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?
         {
             let rule = model
                 .to_domain_model()
@@ -205,7 +215,10 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         }
     }
 
-    async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<RecurrenceRule>, RepositoryError> {
+    async fn find_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<RecurrenceRule>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -231,7 +244,11 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         Ok(rules)
     }
 
-    async fn delete(&self, project_id: &ProjectId, id: &RecurrenceRuleId) -> Result<(), RepositoryError> {
+    async fn delete(
+        &self,
+        project_id: &ProjectId,
+        id: &RecurrenceRuleId,
+    ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -245,7 +262,11 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
         Ok(())
     }
 
-    async fn exists(&self, project_id: &ProjectId, id: &RecurrenceRuleId) -> Result<bool, RepositoryError> {
+    async fn exists(
+        &self,
+        project_id: &ProjectId,
+        id: &RecurrenceRuleId,
+    ) -> Result<bool, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

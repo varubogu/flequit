@@ -1,7 +1,7 @@
 //! タスク繰り返しルール用Automergeリポジトリ
 
-use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
+use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use chrono::Utc;
 use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
@@ -53,13 +53,21 @@ impl TaskRecurrenceLocalAutomergeRepository {
             .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
-    async fn load_all(&self, project_id: &ProjectId) -> Result<Vec<TaskRecurrenceRelation>, RepositoryError> {
+    async fn load_all(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskRecurrenceRelation>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
-        let list: Option<Vec<TaskRecurrenceRelation>> = document.load_data("task_recurrences").await?;
+        let list: Option<Vec<TaskRecurrenceRelation>> =
+            document.load_data("task_recurrences").await?;
         Ok(list.unwrap_or_default())
     }
 
-    async fn save_all(&self, project_id: &ProjectId, list: &[TaskRecurrenceRelation]) -> Result<(), RepositoryError> {
+    async fn save_all(
+        &self,
+        project_id: &ProjectId,
+        list: &[TaskRecurrenceRelation],
+    ) -> Result<(), RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         document
             .save_data("task_recurrences", &list)

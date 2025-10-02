@@ -3,8 +3,8 @@ use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
 use flequit_model::models::task_projects::SubTaskTree;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_task_list<R>(
@@ -45,7 +45,10 @@ pub async fn update_task_list<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    Ok(repositories.task_lists().patch(project_id, task_list_id, patch).await?)
+    Ok(repositories
+        .task_lists()
+        .patch(project_id, task_list_id, patch)
+        .await?)
 }
 
 pub async fn delete_task_list<R>(
@@ -118,7 +121,6 @@ where
                 .iter()
                 .filter(|subtask| subtask.task_id == task.id)
                 .collect::<Vec<_>>();
-
 
             // SubTaskからSubTaskTreeに変換
             let mut sub_task_trees = Vec::new();

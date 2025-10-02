@@ -1,6 +1,7 @@
 use log::info;
 
 use crate::services::{tag_service, task_service, task_tag_service};
+use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
@@ -8,7 +9,6 @@ use flequit_model::models::task_projects::task_tag::TaskTag;
 use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
 use flequit_types::errors::service_error::ServiceError;
 use uuid::Uuid;
-use chrono::Utc;
 
 pub async fn create_task<R>(
     repositories: &R,
@@ -128,7 +128,8 @@ where
     };
 
     // 3) 関連付け
-    match task_tag_service::add_task_tag_relation(repositories, project_id, task_id, &tag.id).await {
+    match task_tag_service::add_task_tag_relation(repositories, project_id, task_id, &tag.id).await
+    {
         Ok(_) => Ok(tag),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add task-tag relation: {:?}", e)),
@@ -144,7 +145,9 @@ pub async fn remove_task_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match task_tag_service::remove_task_tag_relation(repositories, project_id, task_id, tag_id).await {
+    match task_tag_service::remove_task_tag_relation(repositories, project_id, task_id, tag_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to remove task-tag relation: {:?}", e)),
@@ -190,7 +193,9 @@ pub async fn update_task_tag_relations<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match task_tag_service::update_task_tag_relations(repositories, project_id, task_id, tag_ids).await {
+    match task_tag_service::update_task_tag_relations(repositories, project_id, task_id, tag_ids)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task-tag relations: {:?}", e)),
@@ -205,7 +210,8 @@ pub async fn remove_all_task_tags_by_task_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match task_tag_service::remove_all_task_tags_by_task_id(repositories, project_id, task_id).await {
+    match task_tag_service::remove_all_task_tags_by_task_id(repositories, project_id, task_id).await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!(

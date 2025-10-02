@@ -4,10 +4,9 @@ use flequit_model::types::task_types::TaskStatus;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::types::id_types::{ProjectId, SubTaskId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
-
 
 pub async fn create_subtask<R>(
     repositories: &R,
@@ -27,7 +26,6 @@ where
     Ok(())
 }
 
-
 pub async fn get_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -41,7 +39,6 @@ where
         .find_by_id(project_id, subtask_id)
         .await?)
 }
-
 
 pub async fn list_subtasks<R>(
     repositories: &R,
@@ -62,7 +59,6 @@ where
     Ok(filtered_subtasks)
 }
 
-
 pub async fn update_subtask<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -73,10 +69,12 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     // プロジェクトスコープでパッチによる部分更新を実行
-    let changed = repositories.sub_tasks().patch(project_id, subtask_id, patch).await?;
+    let changed = repositories
+        .sub_tasks()
+        .patch(project_id, subtask_id, patch)
+        .await?;
     Ok(changed)
 }
-
 
 pub async fn delete_subtask<R>(
     repositories: &R,
@@ -92,7 +90,6 @@ where
         .await?;
     Ok(())
 }
-
 
 pub async fn toggle_completion<R>(
     repositories: &R,

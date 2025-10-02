@@ -201,7 +201,6 @@ impl AccountRepositoryTrait for AccountLocalSqliteRepository {}
 
 #[async_trait::async_trait]
 impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
-
     async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -252,7 +251,6 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         }
     }
 
-
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -275,7 +273,6 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
         }
     }
 
-
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -289,7 +286,6 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(())
     }
-
 
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
@@ -328,7 +324,6 @@ impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
         Ok(count > 0)
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         let db_manager = self.db_manager.read().await;

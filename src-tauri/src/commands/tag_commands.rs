@@ -8,7 +8,6 @@ use flequit_model::types::id_types::{ProjectId, TagId};
 use tauri::State;
 use tracing::instrument;
 
-
 #[instrument(level = "info", skip(state, tag), fields(project_id = %project_id, tag_id = %tag.id))]
 #[tauri::command]
 pub async fn create_tag(
@@ -30,7 +29,6 @@ pub async fn create_tag(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, tag_id = %id))]
 #[tauri::command]
@@ -61,7 +59,6 @@ pub async fn get_tag(
     }
 }
 
-
 #[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, tag_id = %tag_id))]
 #[tauri::command]
 pub async fn update_tag(
@@ -87,7 +84,6 @@ pub async fn update_tag(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(project_id = %project_id, tag_id = %id))]
 #[tauri::command]

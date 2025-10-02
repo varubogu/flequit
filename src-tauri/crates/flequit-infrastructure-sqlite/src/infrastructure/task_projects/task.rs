@@ -9,8 +9,8 @@ use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task::Task;
 use flequit_model::types::id_types::{ProjectId, TaskId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
@@ -35,7 +35,10 @@ impl TaskLocalSqliteRepository {
         }
     }
 
-    pub async fn find_by_project(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn find_by_project(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -69,7 +72,11 @@ impl TaskLocalSqliteRepository {
         Ok(tasks)
     }
 
-    pub async fn find_by_task_list(&self, project_id: &ProjectId, list_id: &str) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn find_by_task_list(
+        &self,
+        project_id: &ProjectId,
+        list_id: &str,
+    ) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -103,7 +110,11 @@ impl TaskLocalSqliteRepository {
         Ok(tasks)
     }
 
-    pub async fn find_by_status(&self, project_id: &ProjectId, status: &str) -> Result<Vec<Task>, RepositoryError> {
+    pub async fn find_by_status(
+        &self,
+        project_id: &ProjectId,
+        status: &str,
+    ) -> Result<Vec<Task>, RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -140,7 +151,6 @@ impl TaskLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
-
     async fn save(&self, project_id: &ProjectId, task: &Task) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -224,7 +234,10 @@ impl ProjectRepository<Task, TaskId> for TaskLocalSqliteRepository {
                 .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
 
             // 紐づけテーブルからタグIDを取得
-            task.tag_ids = self.task_tag_repository.find_tag_ids_by_task_id(project_id, id).await?;
+            task.tag_ids = self
+                .task_tag_repository
+                .find_tag_ids_by_task_id(project_id, id)
+                .await?;
 
             Ok(Some(task))
         } else {

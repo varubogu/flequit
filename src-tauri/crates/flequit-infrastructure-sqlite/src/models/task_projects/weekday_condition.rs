@@ -118,7 +118,10 @@ impl SqliteModelConverter<WeekdayCondition> for Model {
 
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<Model> for WeekdayCondition {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Model, String> {
         let if_weekday_str = match self.if_weekday {
             DayOfWeek::Monday => "monday",
             DayOfWeek::Tuesday => "tuesday",

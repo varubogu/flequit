@@ -5,8 +5,7 @@
 
 use crate::errors::automerge_error::AutomergeError;
 use crate::infrastructure::{
-    accounts::account::AccountLocalAutomergeRepository,
-    document_manager::DocumentManager,
+    accounts::account::AccountLocalAutomergeRepository, document_manager::DocumentManager,
     task_projects::project::ProjectLocalAutomergeRepository,
     task_projects::subtask::SubTaskLocalAutomergeRepository,
     task_projects::subtask_assignments::SubtaskAssignmentLocalAutomergeRepository,
@@ -75,16 +74,32 @@ impl LocalAutomergeRepositories {
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         Ok(Self {
-            projects: ProjectLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            task_lists: TaskListLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
+            projects: ProjectLocalAutomergeRepository::new_with_manager(document_manager.clone())
+                .await?,
+            task_lists: TaskListLocalAutomergeRepository::new_with_manager(
+                document_manager.clone(),
+            )
+            .await?,
             tasks: TaskLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            sub_tasks: SubTaskLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
+            sub_tasks: SubTaskLocalAutomergeRepository::new_with_manager(document_manager.clone())
+                .await?,
             tags: TagLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            task_tags: TaskTagLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            task_assignments: TaskAssignmentLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            subtask_tags: SubtaskTagLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            subtask_assignments: SubtaskAssignmentLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
-            accounts: AccountLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
+            task_tags: TaskTagLocalAutomergeRepository::new_with_manager(document_manager.clone())
+                .await?,
+            task_assignments: TaskAssignmentLocalAutomergeRepository::new_with_manager(
+                document_manager.clone(),
+            )
+            .await?,
+            subtask_tags: SubtaskTagLocalAutomergeRepository::new_with_manager(
+                document_manager.clone(),
+            )
+            .await?,
+            subtask_assignments: SubtaskAssignmentLocalAutomergeRepository::new_with_manager(
+                document_manager.clone(),
+            )
+            .await?,
+            accounts: AccountLocalAutomergeRepository::new_with_manager(document_manager.clone())
+                .await?,
             users: UserLocalAutomergeRepository::new_with_manager(document_manager).await?,
         })
     }

@@ -187,7 +187,6 @@ impl SubTaskTreeCommandModel {
     pub async fn from_domain_model(
         subtask: &SubTaskTree,
     ) -> Result<SubTaskTreeCommandModel, String> {
-
         Ok(SubTaskTreeCommandModel {
             id: subtask.id.to_string(),
             task_id: subtask.task_id.to_string(),
@@ -272,7 +271,6 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
             None
         };
 
-
         Ok(SubTaskTree {
             id: SubTaskId::from(self.id.clone()),
             task_id: TaskId::from(self.task_id.clone()),
@@ -299,7 +297,11 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
                 .iter()
                 .map(|id| UserId::from(id.clone()))
                 .collect(),
-            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
+            tag_ids: self
+                .tag_ids
+                .iter()
+                .map(|id| TagId::from(id.clone()))
+                .collect(),
         })
     }
 }
@@ -307,7 +309,6 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
 #[async_trait]
 impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
     async fn to_command_model(&self) -> Result<SubTaskTreeCommandModel, String> {
-
         Ok(SubTaskTreeCommandModel {
             id: self.id.to_string(),
             task_id: self.task_id.to_string(),

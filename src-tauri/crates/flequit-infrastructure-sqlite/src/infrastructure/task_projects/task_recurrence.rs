@@ -10,7 +10,9 @@ use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::task_recurrence_repository_trait::TaskRecurrenceRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
+};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

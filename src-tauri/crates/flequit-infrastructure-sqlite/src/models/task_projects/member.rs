@@ -75,7 +75,10 @@ impl SqliteModelConverter<Member> for Model {
 
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<Model> for Member {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Model, String> {
         let role_str = match self.role {
             MemberRole::Owner => "owner",
             MemberRole::Admin => "admin",

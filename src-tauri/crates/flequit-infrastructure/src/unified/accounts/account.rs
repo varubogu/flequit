@@ -28,14 +28,12 @@ impl AccountRepositoryTrait for AccountRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountRepositoryVariant {
-
     async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(entity).await,
             Self::LocalAutomerge(repo) => repo.save(entity).await,
         }
     }
-
 
     async fn find_by_id(&self, id: &AccountId) -> Result<Option<Account>, RepositoryError> {
         match self {
@@ -44,14 +42,12 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self) -> Result<Vec<Account>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all().await,
             Self::LocalAutomerge(repo) => repo.find_all().await,
         }
     }
-
 
     async fn delete(&self, id: &AccountId) -> Result<(), RepositoryError> {
         match self {
@@ -60,14 +56,12 @@ impl Repository<Account, AccountId> for AccountRepositoryVariant {
         }
     }
 
-
     async fn exists(&self, id: &AccountId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(id).await,
             Self::LocalAutomerge(repo) => repo.exists(id).await,
         }
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         match self {

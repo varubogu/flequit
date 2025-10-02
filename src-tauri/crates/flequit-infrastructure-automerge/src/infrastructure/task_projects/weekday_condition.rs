@@ -38,7 +38,6 @@ pub struct WeekdayConditionLocalAutomergeRepository {
 }
 
 impl WeekdayConditionLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -173,7 +172,6 @@ impl WeekdayConditionRepositoryTrait for WeekdayConditionLocalAutomergeRepositor
 impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
     for WeekdayConditionLocalAutomergeRepository
 {
-
     async fn save(
         &self,
         project_id: &ProjectId,
@@ -198,7 +196,6 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -208,14 +205,12 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
             .await
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
     ) -> Result<Vec<WeekdayCondition>, RepositoryError> {
         self.list_weekday_conditions(project_id).await
     }
-
 
     async fn delete(
         &self,
@@ -235,7 +230,6 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         }
     }
 
-
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -244,7 +238,6 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let weekday_conditions = self.find_all(project_id).await?;

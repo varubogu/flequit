@@ -22,14 +22,12 @@ impl ProjectRepositoryTrait for ProjectRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
-
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(entity).await,
             Self::LocalAutomerge(repo) => repo.save(entity).await,
         }
     }
-
 
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         match self {
@@ -38,14 +36,12 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all().await,
             Self::LocalAutomerge(repo) => repo.find_all().await,
         }
     }
-
 
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         match self {
@@ -54,14 +50,12 @@ impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
         }
     }
 
-
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(id).await,
             Self::LocalAutomerge(repo) => repo.exists(id).await,
         }
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         match self {
@@ -84,7 +78,6 @@ impl Default for ProjectUnifiedRepository {
 }
 
 impl ProjectUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<ProjectRepositoryVariant>,
         search_repositories: Vec<ProjectRepositoryVariant>,
@@ -95,36 +88,30 @@ impl ProjectUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: ProjectLocalSqliteRepository) {
         self.save_repositories
             .push(ProjectRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: ProjectLocalSqliteRepository) {
         self.search_repositories
             .push(ProjectRepositoryVariant::LocalSqlite(sqlite_repo));
     }
 
-
     pub fn add_automerge_for_save(&mut self, automerge_repo: ProjectLocalAutomergeRepository) {
         self.save_repositories
             .push(ProjectRepositoryVariant::LocalAutomerge(automerge_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: ProjectLocalAutomergeRepository) {
         self.search_repositories
             .push(ProjectRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(ProjectRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -144,7 +131,6 @@ impl ProjectUnifiedRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
-
     async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
         info!(
             "ProjectUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
@@ -157,7 +143,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(())
     }
 
-
     async fn find_by_id(&self, id: &ProjectId) -> Result<Option<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_by_id - 検索用リポジトリから検索");
 
@@ -169,7 +154,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(None)
     }
 
-
     async fn find_all(&self) -> Result<Vec<Project>, RepositoryError> {
         info!("ProjectUnifiedRepository::find_all - 検索用リポジトリから取得");
 
@@ -179,7 +163,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
             Ok(vec![])
         }
     }
-
 
     async fn delete(&self, id: &ProjectId) -> Result<(), RepositoryError> {
         info!(
@@ -193,7 +176,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         Ok(())
     }
 
-
     async fn exists(&self, id: &ProjectId) -> Result<bool, RepositoryError> {
         info!("ProjectUnifiedRepository::exists - 検索用リポジトリで存在確認");
 
@@ -204,7 +186,6 @@ impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
         }
         Ok(false)
     }
-
 
     async fn count(&self) -> Result<u64, RepositoryError> {
         info!("ProjectUnifiedRepository::count - 検索用リポジトリの件数取得");

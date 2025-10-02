@@ -1,6 +1,6 @@
 //! 統合テスト
 
-use flequit_settings::{Settings, SettingsManager, PartialSettings};
+use flequit_settings::{PartialSettings, Settings, SettingsManager};
 use flequit_testing::TestPathGenerator;
 use log::info;
 use std::env;
@@ -174,7 +174,8 @@ async fn test_partial_settings_update() {
 #[tokio::test]
 async fn test_partial_settings_empty_update() {
     // プロジェクトルール準拠のテストディレクトリを作成
-    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_empty_update");
+    let test_dir =
+        TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_empty_update");
     std::fs::create_dir_all(&test_dir).unwrap();
     let test_settings_path = test_dir.join("empty_partial_test.yml");
 
@@ -201,7 +202,8 @@ async fn test_partial_settings_empty_update() {
 #[tokio::test]
 async fn test_partial_settings_array_fields() {
     // プロジェクトルール準拠のテストディレクトリを作成
-    let test_dir = TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_array_fields");
+    let test_dir =
+        TestPathGenerator::generate_test_dir(file!(), "test_partial_settings_array_fields");
     std::fs::create_dir_all(&test_dir).unwrap();
     let test_settings_path = test_dir.join("array_fields_test.yml");
 

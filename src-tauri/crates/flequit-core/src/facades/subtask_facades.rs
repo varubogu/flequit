@@ -78,7 +78,14 @@ pub async fn add_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::add_subtask_tag_relation(repositories, project_id, subtask_id, tag_id).await {
+    match subtask_tag_service::add_subtask_tag_relation(
+        repositories,
+        project_id,
+        subtask_id,
+        tag_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add subtask-tag relation: {:?}", e)),
@@ -123,7 +130,14 @@ where
     };
 
     // 3) 関連付け
-    match subtask_tag_service::add_subtask_tag_relation(repositories, project_id, subtask_id, &tag.id).await {
+    match subtask_tag_service::add_subtask_tag_relation(
+        repositories,
+        project_id,
+        subtask_id,
+        &tag.id,
+    )
+    .await
+    {
         Ok(_) => Ok(tag),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to add subtask-tag relation: {:?}", e)),
@@ -139,7 +153,14 @@ pub async fn remove_subtask_tag_relation<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::remove_subtask_tag_relation(repositories, project_id, subtask_id, tag_id).await {
+    match subtask_tag_service::remove_subtask_tag_relation(
+        repositories,
+        project_id,
+        subtask_id,
+        tag_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to remove subtask-tag relation: {:?}", e)),
@@ -154,7 +175,8 @@ pub async fn get_tag_ids_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::get_tag_ids_by_subtask_id(repositories, project_id, subtask_id).await {
+    match subtask_tag_service::get_tag_ids_by_subtask_id(repositories, project_id, subtask_id).await
+    {
         Ok(tag_ids) => Ok(tag_ids),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to get tag IDs by subtask ID: {:?}", e)),
@@ -185,7 +207,14 @@ pub async fn update_subtask_tag_relations<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::update_subtask_tag_relations(repositories, project_id, subtask_id, tag_ids).await {
+    match subtask_tag_service::update_subtask_tag_relations(
+        repositories,
+        project_id,
+        subtask_id,
+        tag_ids,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask-tag relations: {:?}", e)),
@@ -200,7 +229,13 @@ pub async fn remove_all_subtask_tags_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::remove_all_subtask_tags_by_subtask_id(repositories, project_id, subtask_id).await {
+    match subtask_tag_service::remove_all_subtask_tags_by_subtask_id(
+        repositories,
+        project_id,
+        subtask_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!(
@@ -218,7 +253,9 @@ pub async fn remove_all_subtask_tags_by_tag_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_tag_service::remove_all_subtask_tags_by_tag_id(repositories, project_id, tag_id).await {
+    match subtask_tag_service::remove_all_subtask_tags_by_tag_id(repositories, project_id, tag_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!(

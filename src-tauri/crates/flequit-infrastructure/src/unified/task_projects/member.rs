@@ -18,14 +18,12 @@ pub enum MemberRepositoryVariant {
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberRepositoryVariant {
-
     async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
         }
     }
-
 
     async fn find_by_id(
         &self,
@@ -38,14 +36,12 @@ impl ProjectRepository<Member, UserId> for MemberRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
         }
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         match self {
@@ -54,14 +50,12 @@ impl ProjectRepository<Member, UserId> for MemberRepositoryVariant {
         }
     }
 
-
     async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.exists(project_id, id).await,
         }
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         match self {
@@ -84,7 +78,6 @@ impl Default for MemberUnifiedRepository {
 }
 
 impl MemberUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<MemberRepositoryVariant>,
         search_repositories: Vec<MemberRepositoryVariant>,
@@ -95,24 +88,20 @@ impl MemberUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: MemberLocalSqliteRepository) {
         self.save_repositories
             .push(MemberRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(&mut self, automerge_repo: MemberLocalAutomergeRepository) {
         self.save_repositories
             .push(MemberRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: MemberLocalSqliteRepository) {
         self.search_repositories
             .push(MemberRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: MemberLocalAutomergeRepository) {
         self.search_repositories
@@ -122,7 +111,6 @@ impl MemberUnifiedRepository {
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
         info!(
             "Saving member entity with ID: {} in project: {}",
@@ -135,7 +123,6 @@ impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn find_by_id(
         &self,
@@ -153,7 +140,6 @@ impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
         Ok(None)
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Member>, RepositoryError> {
         info!("Finding all members in project: {}", project_id);
 
@@ -164,7 +150,6 @@ impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
         }
     }
 
-
     async fn delete(&self, project_id: &ProjectId, id: &UserId) -> Result<(), RepositoryError> {
         info!("Deleting member with ID: {} in project: {}", id, project_id);
 
@@ -174,7 +159,6 @@ impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn exists(&self, project_id: &ProjectId, id: &UserId) -> Result<bool, RepositoryError> {
         info!(
@@ -190,7 +174,6 @@ impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
 
         Ok(false)
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         info!("Counting members in project: {}", project_id);

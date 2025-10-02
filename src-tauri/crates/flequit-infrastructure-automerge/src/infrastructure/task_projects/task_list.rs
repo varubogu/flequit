@@ -3,8 +3,8 @@ use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
@@ -32,9 +32,7 @@ impl TaskListLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成

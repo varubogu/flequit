@@ -1,10 +1,10 @@
-use chrono::{DateTime, Utc};
-use sea_orm::entity::prelude::*;
-use serde::{Deserialize, Serialize};
+use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
-use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
+use sea_orm::entity::prelude::*;
+use serde::{Deserialize, Serialize};
 
 /// TaskRecurrence用SQLiteエンティティ定義
 ///

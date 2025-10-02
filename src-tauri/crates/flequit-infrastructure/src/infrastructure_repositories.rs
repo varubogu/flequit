@@ -112,15 +112,23 @@ impl InfrastructureRepositories {
         let projects = unified_manager.create_project_unified_repository().await?;
         let accounts = unified_manager.create_account_unified_repository().await?;
         let tasks = unified_manager.create_task_unified_repository().await?;
-        let task_lists = unified_manager.create_task_list_unified_repository().await?;
+        let task_lists = unified_manager
+            .create_task_list_unified_repository()
+            .await?;
         let tags = unified_manager.create_tag_unified_repository().await?;
         let sub_tasks = unified_manager.create_sub_task_unified_repository().await?;
         let users = unified_manager.create_user_unified_repository().await?;
         let recurrence_rules = RecurrenceRuleUnifiedRepository::default();
-        let task_assignments = unified_manager.create_task_assignment_unified_repository().await?;
-        let subtask_assignments = unified_manager.create_sub_task_assignment_unified_repository().await?;
+        let task_assignments = unified_manager
+            .create_task_assignment_unified_repository()
+            .await?;
+        let subtask_assignments = unified_manager
+            .create_sub_task_assignment_unified_repository()
+            .await?;
         let task_tags = unified_manager.create_task_tag_unified_repository().await?;
-        let subtask_tags = unified_manager.create_sub_task_tag_unified_repository().await?;
+        let subtask_tags = unified_manager
+            .create_sub_task_tag_unified_repository()
+            .await?;
 
         tracing::info!("全UnifiedRepositoryの構築完了");
 
@@ -232,7 +240,6 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         tracing::info!("Infrastructure repositories initialized");
         Ok(())
     }
-
 
     async fn cleanup(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリのクリーンアップ処理

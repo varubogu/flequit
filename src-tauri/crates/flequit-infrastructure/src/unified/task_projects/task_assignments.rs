@@ -21,7 +21,6 @@ impl TaskAssignmentRepositoryTrait for TaskAssignmentRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmentRepositoryVariant {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -33,7 +32,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id).await,
         }
     }
-
 
     async fn remove(
         &self,
@@ -47,7 +45,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         }
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -58,7 +55,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Self::LocalAutomerge(repo) => repo.remove_all(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relations(
         &self,
@@ -71,7 +67,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         }
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -81,7 +76,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
         }
     }
-
 
     async fn exists(
         &self,
@@ -94,7 +88,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         }
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -105,7 +98,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Self::LocalAutomerge(repo) => repo.count(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relation(
         &self,
@@ -133,7 +125,6 @@ impl Default for TaskAssignmentUnifiedRepository {
 }
 
 impl TaskAssignmentUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<TaskAssignmentRepositoryVariant>,
         search_repositories: Vec<TaskAssignmentRepositoryVariant>,
@@ -144,12 +135,10 @@ impl TaskAssignmentUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TaskAssignmentLocalSqliteRepository) {
         self.save_repositories
             .push(TaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(
         &mut self,
@@ -161,12 +150,10 @@ impl TaskAssignmentUnifiedRepository {
             ));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskAssignmentLocalSqliteRepository) {
         self.search_repositories
             .push(TaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(
         &mut self,
@@ -178,12 +165,10 @@ impl TaskAssignmentUnifiedRepository {
             ));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(TaskAssignmentRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -205,7 +190,6 @@ impl TaskAssignmentRepositoryTrait for TaskAssignmentUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmentUnifiedRepository {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -223,7 +207,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
 
         Ok(())
     }
-
 
     async fn remove(
         &self,
@@ -243,7 +226,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         Ok(())
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -260,7 +242,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
 
         Ok(())
     }
-
 
     async fn find_relations(
         &self,
@@ -279,7 +260,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         }
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -292,7 +272,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Ok(Vec::new())
         }
     }
-
 
     async fn exists(
         &self,
@@ -313,7 +292,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         Ok(false)
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -330,7 +308,6 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
             Ok(0)
         }
     }
-
 
     async fn find_relation(
         &self,

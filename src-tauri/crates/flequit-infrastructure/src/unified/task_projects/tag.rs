@@ -21,14 +21,12 @@ impl TagRepositoryTrait for TagRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagRepositoryVariant {
-
     async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
         }
     }
-
 
     async fn find_by_id(
         &self,
@@ -41,14 +39,12 @@ impl ProjectRepository<Tag, TagId> for TagRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
         }
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         match self {
@@ -57,14 +53,12 @@ impl ProjectRepository<Tag, TagId> for TagRepositoryVariant {
         }
     }
 
-
     async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.exists(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.exists(project_id, id).await,
         }
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         match self {
@@ -87,7 +81,6 @@ impl Default for TagUnifiedRepository {
 }
 
 impl TagUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<TagRepositoryVariant>,
         search_repositories: Vec<TagRepositoryVariant>,
@@ -98,36 +91,30 @@ impl TagUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TagLocalSqliteRepository) {
         self.save_repositories
             .push(TagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(&mut self, automerge_repo: TagLocalAutomergeRepository) {
         self.save_repositories
             .push(TagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TagLocalSqliteRepository) {
         self.search_repositories
             .push(TagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: TagLocalAutomergeRepository) {
         self.search_repositories
             .push(TagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(TagRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -149,7 +136,6 @@ impl TagRepositoryTrait for TagUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
         info!(
             "Saving tag entity with ID: {} in project: {}",
@@ -162,7 +148,6 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn find_by_id(
         &self,
@@ -180,7 +165,6 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
         Ok(None)
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         info!("Finding all tags in project: {}", project_id);
 
@@ -191,7 +175,6 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
         }
     }
 
-
     async fn delete(&self, project_id: &ProjectId, id: &TagId) -> Result<(), RepositoryError> {
         info!("Deleting tag with ID: {} in project: {}", id, project_id);
 
@@ -201,7 +184,6 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn exists(&self, project_id: &ProjectId, id: &TagId) -> Result<bool, RepositoryError> {
         info!(
@@ -217,7 +199,6 @@ impl ProjectRepository<Tag, TagId> for TagUnifiedRepository {
 
         Ok(false)
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         info!("Counting tags in project: {}", project_id);

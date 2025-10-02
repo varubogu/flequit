@@ -11,7 +11,9 @@ use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_recurrence_repository_trait::SubtaskRecurrenceRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
+};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 

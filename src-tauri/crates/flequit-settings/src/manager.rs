@@ -3,7 +3,7 @@
 //! このモジュールは設定の読み書きと管理を行います。
 
 use crate::errors::{SettingsError, SettingsResult};
-use crate::models::settings::{Settings, PartialSettings};
+use crate::models::settings::{PartialSettings, Settings};
 use crate::paths::SettingsPaths;
 use crate::validation::SettingsValidator;
 use log::{debug, info, warn};
@@ -142,7 +142,10 @@ impl SettingsManager {
     ///
     /// 既存の設定を読み込み、部分的な設定を適用してから保存します。
     /// 設定ファイルが存在しない場合は自動的にデフォルト設定で初期化してから更新します。
-    pub async fn update_settings_partially(&self, partial: &PartialSettings) -> SettingsResult<Settings> {
+    pub async fn update_settings_partially(
+        &self,
+        partial: &PartialSettings,
+    ) -> SettingsResult<Settings> {
         debug!("部分的な設定更新を開始");
 
         // 既存の設定を読み込み（存在しない場合はデフォルト設定を作成）

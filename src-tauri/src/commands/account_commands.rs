@@ -8,7 +8,6 @@ use flequit_model::types::id_types::AccountId;
 use tauri::State;
 use tracing::instrument;
 
-
 #[instrument(level = "info", skip(state, account), fields(account_id = %account.id))]
 #[tauri::command]
 pub async fn create_account(
@@ -24,7 +23,6 @@ pub async fn create_account(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(account_id = %id))]
 #[tauri::command]
@@ -49,7 +47,6 @@ pub async fn get_account(
     }
 }
 
-
 #[instrument(level = "info", skip(state, patch), fields(account_id = %id))]
 #[tauri::command]
 pub async fn update_account(
@@ -67,7 +64,6 @@ pub async fn update_account(
             e
         })
 }
-
 
 #[instrument(level = "info", skip(state), fields(account_id = %account_id))]
 #[tauri::command]

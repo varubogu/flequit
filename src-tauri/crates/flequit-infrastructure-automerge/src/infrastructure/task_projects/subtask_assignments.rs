@@ -39,9 +39,7 @@ impl SubtaskAssignmentLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成

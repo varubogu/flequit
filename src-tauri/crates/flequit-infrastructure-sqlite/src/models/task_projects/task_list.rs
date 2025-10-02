@@ -115,7 +115,10 @@ impl DomainToSqliteConverter<ActiveModel> for TaskList {
 /// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskList {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
             project_id: Set(project_id.to_string()),

@@ -110,7 +110,9 @@ impl SubtaskTagLocalSqliteRepository {
 
             log::info!(
                 "SQLite SubtaskTag INSERT - project: {}, subtask: {}, tag: {}",
-                project_id, subtask_id, tag_id
+                project_id,
+                subtask_id,
+                tag_id
             );
 
             active_model

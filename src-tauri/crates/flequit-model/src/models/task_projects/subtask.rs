@@ -158,7 +158,6 @@ impl ModelConverter<SubTask> for SubTaskTree {
     /// タグID情報（tag_ids）をそのまま使用し、
     /// 関連データを含まない軽量な基本サブタスク構造に変換します。
     async fn to_model(&self) -> Result<SubTask, String> {
-
         Ok(SubTask {
             id: self.id.clone(),
             task_id: self.task_id.clone(),

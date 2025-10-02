@@ -4,7 +4,6 @@ use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::types::id_types::ProjectId;
 use flequit_types::errors::service_error::ServiceError;
 
-
 pub async fn create_project<R>(repositories: &R, project: &Project) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -15,7 +14,6 @@ where
         Err(e) => Err(format!("Failed to create project: {:?}", e)),
     }
 }
-
 
 pub async fn get_project<R>(repositories: &R, id: &ProjectId) -> Result<Option<Project>, String>
 where
@@ -28,7 +26,6 @@ where
         Err(e) => Err(format!("Failed to get project: {:?}", e)),
     }
 }
-
 
 pub async fn update_project<R>(
     repositories: &R,
@@ -44,7 +41,6 @@ where
         Err(e) => Err(format!("Failed to update project: {:?}", e)),
     }
 }
-
 
 pub async fn delete_project<R>(repositories: &R, id: &ProjectId) -> Result<bool, String>
 where

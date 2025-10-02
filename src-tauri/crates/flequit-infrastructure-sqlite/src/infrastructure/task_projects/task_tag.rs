@@ -114,7 +114,9 @@ impl TaskTagLocalSqliteRepository {
 
             log::info!(
                 "SQLite TaskTag INSERT - project: {}, task: {}, tag: {}",
-                project_id, task_id, tag_id
+                project_id,
+                task_id,
+                tag_id
             );
 
             active_model
@@ -252,7 +254,8 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         project_id: &ProjectId,
         parent_id: &TaskId,
     ) -> Result<(), RepositoryError> {
-        self.remove_all_relations_by_task_id(project_id, parent_id).await
+        self.remove_all_relations_by_task_id(project_id, parent_id)
+            .await
     }
 
     async fn find_relations(

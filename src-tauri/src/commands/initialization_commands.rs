@@ -6,7 +6,6 @@ use flequit_core::facades::initialization_facades;
 use tauri::State;
 use tracing::instrument;
 
-
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
 pub async fn load_current_account(
@@ -25,7 +24,6 @@ pub async fn load_current_account(
         None => Ok(None),
     }
 }
-
 
 #[instrument(level = "info", skip(state))]
 #[tauri::command]
@@ -83,7 +81,6 @@ pub async fn load_all_project_data(
     }
     Ok(command_results)
 }
-
 
 #[instrument(level = "info", skip(state))]
 #[tauri::command]

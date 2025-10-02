@@ -4,7 +4,10 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::date_condition::DateCondition,
-    types::{datetime_calendar_types::DateRelation, id_types::{DateConditionId, ProjectId}},
+    types::{
+        datetime_calendar_types::DateRelation,
+        id_types::{DateConditionId, ProjectId},
+    },
 };
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -68,7 +71,10 @@ impl SqliteModelConverter<DateCondition> for Model {
 
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<Model> for DateCondition {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<Model, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Model, String> {
         let relation_str = match self.relation {
             DateRelation::Before => "before",
             DateRelation::OnOrBefore => "on_or_before",

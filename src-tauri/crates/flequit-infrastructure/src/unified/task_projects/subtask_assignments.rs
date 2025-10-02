@@ -23,7 +23,6 @@ impl SubTaskAssignmentRepositoryTrait for SubTaskAssignmentRepositoryVariant {}
 impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
     for SubTaskAssignmentRepositoryVariant
 {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -35,7 +34,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id).await,
         }
     }
-
 
     async fn remove(
         &self,
@@ -49,7 +47,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -60,7 +57,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Self::LocalAutomerge(repo) => repo.remove_all(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relations(
         &self,
@@ -73,7 +69,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -83,7 +78,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
         }
     }
-
 
     async fn exists(
         &self,
@@ -96,7 +90,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -107,7 +100,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Self::LocalAutomerge(repo) => repo.count(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relation(
         &self,
@@ -135,7 +127,6 @@ impl Default for SubTaskAssignmentUnifiedRepository {
 }
 
 impl SubTaskAssignmentUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<SubTaskAssignmentRepositoryVariant>,
         search_repositories: Vec<SubTaskAssignmentRepositoryVariant>,
@@ -146,12 +137,10 @@ impl SubTaskAssignmentUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: SubtaskAssignmentLocalSqliteRepository) {
         self.save_repositories
             .push(SubTaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(
         &mut self,
@@ -163,12 +152,10 @@ impl SubTaskAssignmentUnifiedRepository {
             ));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: SubtaskAssignmentLocalSqliteRepository) {
         self.search_repositories
             .push(SubTaskAssignmentRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(
         &mut self,
@@ -180,12 +167,10 @@ impl SubTaskAssignmentUnifiedRepository {
             ));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(SubTaskAssignmentRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -209,7 +194,6 @@ impl SubTaskAssignmentRepositoryTrait for SubTaskAssignmentUnifiedRepository {}
 impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
     for SubTaskAssignmentUnifiedRepository
 {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -227,7 +211,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
 
         Ok(())
     }
-
 
     async fn remove(
         &self,
@@ -247,7 +230,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(())
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -264,7 +246,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
 
         Ok(())
     }
-
 
     async fn find_relations(
         &self,
@@ -283,7 +264,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         }
     }
 
-
     async fn find_all(
         &self,
         project_id: &ProjectId,
@@ -296,7 +276,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Ok(Vec::new())
         }
     }
-
 
     async fn exists(
         &self,
@@ -317,7 +296,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         Ok(false)
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -334,7 +312,6 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             Ok(0)
         }
     }
-
 
     async fn find_relation(
         &self,

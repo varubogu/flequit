@@ -9,18 +9,13 @@ use crate::models::{
     account::Entity as AccountEntity,
     project::Entity as ProjectEntity,
     task_projects::{
-        member::Entity as MemberEntity,
-        subtask::Entity as SubtaskEntity,
-        subtask_tag::Entity as SubtaskTagEntity,
-        tag::Entity as TagEntity,
-        task::Entity as TaskEntity,
-        task_list::Entity as TaskListEntity,
-        task_tag::Entity as TaskTagEntity,
-        task_assignments::Entity as TaskAssignmentEntity,
-        subtask_assignments::Entity as SubtaskAssignmentEntity,
-        recurrence_rule::Entity as RecurrenceRuleEntity,
-        task_recurrence::Entity as TaskRecurrenceEntity,
+        member::Entity as MemberEntity, recurrence_rule::Entity as RecurrenceRuleEntity,
+        subtask::Entity as SubtaskEntity, subtask_assignments::Entity as SubtaskAssignmentEntity,
         subtask_recurrence::Entity as SubtaskRecurrenceEntity,
+        subtask_tag::Entity as SubtaskTagEntity, tag::Entity as TagEntity,
+        task::Entity as TaskEntity, task_assignments::Entity as TaskAssignmentEntity,
+        task_list::Entity as TaskListEntity, task_recurrence::Entity as TaskRecurrenceEntity,
+        task_tag::Entity as TaskTagEntity,
     },
     user::Entity as UserEntity,
 };
@@ -97,17 +92,38 @@ impl HybridMigrator {
             ("projects", schema.create_table_from_entity(ProjectEntity)),
             ("users", schema.create_table_from_entity(UserEntity)),
             ("members", schema.create_table_from_entity(MemberEntity)),
-            ("task_lists", schema.create_table_from_entity(TaskListEntity)),
+            (
+                "task_lists",
+                schema.create_table_from_entity(TaskListEntity),
+            ),
             ("tasks", schema.create_table_from_entity(TaskEntity)),
             ("subtasks", schema.create_table_from_entity(SubtaskEntity)),
             ("tags", schema.create_table_from_entity(TagEntity)),
             ("task_tags", schema.create_table_from_entity(TaskTagEntity)),
-            ("subtask_tags", schema.create_table_from_entity(SubtaskTagEntity)),
-            ("task_assignments", schema.create_table_from_entity(TaskAssignmentEntity)),
-            ("subtask_assignments", schema.create_table_from_entity(SubtaskAssignmentEntity)),
-            ("recurrence_rules", schema.create_table_from_entity(RecurrenceRuleEntity)),
-            ("task_recurrence", schema.create_table_from_entity(TaskRecurrenceEntity)),
-            ("subtask_recurrence", schema.create_table_from_entity(SubtaskRecurrenceEntity)),
+            (
+                "subtask_tags",
+                schema.create_table_from_entity(SubtaskTagEntity),
+            ),
+            (
+                "task_assignments",
+                schema.create_table_from_entity(TaskAssignmentEntity),
+            ),
+            (
+                "subtask_assignments",
+                schema.create_table_from_entity(SubtaskAssignmentEntity),
+            ),
+            (
+                "recurrence_rules",
+                schema.create_table_from_entity(RecurrenceRuleEntity),
+            ),
+            (
+                "task_recurrence",
+                schema.create_table_from_entity(TaskRecurrenceEntity),
+            ),
+            (
+                "subtask_recurrence",
+                schema.create_table_from_entity(SubtaskRecurrenceEntity),
+            ),
         ];
 
         for (table_name, stmt) in entities {

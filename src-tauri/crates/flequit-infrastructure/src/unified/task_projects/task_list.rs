@@ -7,8 +7,8 @@ use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::TaskListLocalSqliteRepository;
 use flequit_model::models::task_projects::task_list::TaskList;
 use flequit_model::types::id_types::{ProjectId, TaskListId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 
@@ -24,14 +24,12 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
-
     async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
         }
     }
-
 
     async fn find_by_id(
         &self,
@@ -44,7 +42,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
@@ -52,14 +49,12 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-
     async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.delete(project_id, id).await,
         }
     }
-
 
     async fn exists(
         &self,
@@ -72,14 +67,12 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
         }
     }
 
-
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.count(project_id).await,
             Self::LocalAutomerge(repo) => repo.count(project_id).await,
         }
     }
-
 }
 
 #[derive(Debug)]
@@ -95,7 +88,6 @@ impl Default for TaskListUnifiedRepository {
 }
 
 impl TaskListUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<TaskListRepositoryVariant>,
         search_repositories: Vec<TaskListRepositoryVariant>,
@@ -106,36 +98,30 @@ impl TaskListUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TaskListLocalSqliteRepository) {
         self.save_repositories
             .push(TaskListRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(&mut self, automerge_repo: TaskListLocalAutomergeRepository) {
         self.save_repositories
             .push(TaskListRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskListLocalSqliteRepository) {
         self.search_repositories
             .push(TaskListRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: TaskListLocalAutomergeRepository) {
         self.search_repositories
             .push(TaskListRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(TaskListRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -159,7 +145,6 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
         info!(
             "Saving task list entity with ID: {} in project: {}",
@@ -172,7 +157,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn find_by_id(
         &self,
@@ -190,7 +174,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(None)
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskList>, RepositoryError> {
         info!("Finding all task lists in project: {}", project_id);
 
@@ -200,7 +183,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
             Ok(vec![])
         }
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
         info!(
@@ -214,7 +196,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn exists(
         &self,
@@ -235,7 +216,6 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
         Ok(false)
     }
 
-
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         info!("Counting task lists in project: {}", project_id);
 
@@ -245,5 +225,4 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
             Ok(0)
         }
     }
-
 }

@@ -111,7 +111,10 @@ impl SqliteModelConverter<RecurrenceRule> for Model {
 /// ドメインモデルからSQLiteモデルへの変換
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<ActiveModel> for RecurrenceRule {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
         // enumを文字列に変換
         let unit_string = match &self.unit {
             RecurrenceUnit::Minute => "minute",

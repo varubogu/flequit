@@ -211,7 +211,6 @@ impl ModelConverter<TaskTree> for TaskTreeCommandModel {
             subtasks.push(subtask.to_model().await?);
         }
 
-
         Ok(TaskTree {
             id: TaskId::from(self.id.clone()),
             project_id: ProjectId::from(self.project_id.clone()),
@@ -240,7 +239,11 @@ impl ModelConverter<TaskTree> for TaskTreeCommandModel {
             created_at,
             updated_at,
             sub_tasks: subtasks,
-            tag_ids: self.tag_ids.iter().map(|id| TagId::from(id.clone())).collect(),
+            tag_ids: self
+                .tag_ids
+                .iter()
+                .map(|id| TagId::from(id.clone()))
+                .collect(),
         })
     }
 }
@@ -253,7 +256,6 @@ impl CommandModelConverter<TaskTreeCommandModel> for TaskTree {
         for subtask in &self.sub_tasks {
             subtask_commands.push(subtask.to_command_model().await?);
         }
-
 
         Ok(TaskTreeCommandModel {
             id: self.id.to_string(),

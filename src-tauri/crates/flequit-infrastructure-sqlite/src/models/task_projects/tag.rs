@@ -1,6 +1,9 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::{models::task_projects::tag::Tag, types::id_types::{ProjectId, TagId}};
+use flequit_model::{
+    models::task_projects::tag::Tag,
+    types::id_types::{ProjectId, TagId},
+};
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
 
@@ -95,7 +98,10 @@ impl DomainToSqliteConverter<ActiveModel> for Tag {
 /// プロジェクトID付きのドメインモデルからSQLiteモデルへの変換
 #[async_trait]
 impl DomainToSqliteConverterWithProjectId<ActiveModel> for Tag {
-    async fn to_sqlite_model_with_project_id(&self, project_id: &ProjectId) -> Result<ActiveModel, String> {
+    async fn to_sqlite_model_with_project_id(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<ActiveModel, String> {
         Ok(ActiveModel {
             id: Set(self.id.to_string()),
             project_id: Set(project_id.to_string()),

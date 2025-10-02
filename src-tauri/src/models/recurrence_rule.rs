@@ -79,14 +79,33 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleCommandModel {
             None
         };
 
+        // adjustmentの変換（JSON文字列からデシリアライズ）
+        let adjustment = if let Some(ref adj_str) = self.adjustment {
+            Some(
+                serde_json::from_str(adj_str)
+                    .map_err(|e| format!("Invalid adjustment format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        // detailsの変換（JSON文字列からデシリアライズ）
+        let details = if let Some(ref det_str) = self.details {
+            Some(
+                serde_json::from_str(det_str)
+                    .map_err(|e| format!("Invalid details format: {}", e))?,
+            )
+        } else {
+            None
+        };
+
         Ok(RecurrenceRule {
             id: RecurrenceRuleId::from(self.id.clone()),
             unit,
             interval: self.interval,
             days_of_week,
-            // TODO: details と adjustment の実装は後で追加（JSON文字列からの変換が複雑なため）
-            details: None,
-            adjustment: None,
+            details,
+            adjustment,
             end_date,
             max_occurrences: self.max_occurrences,
         })
@@ -128,13 +147,33 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
             None
         };
 
+        // adjustmentのシリアライズ（JSON文字列に変換）
+        let adjustment = if let Some(ref adj) = self.adjustment {
+            Some(
+                serde_json::to_string(adj)
+                    .map_err(|e| format!("Failed to serialize adjustment: {}", e))?,
+            )
+        } else {
+            None
+        };
+
+        // detailsのシリアライズ（JSON文字列に変換）
+        let details = if let Some(ref det) = self.details {
+            Some(
+                serde_json::to_string(det)
+                    .map_err(|e| format!("Failed to serialize details: {}", e))?,
+            )
+        } else {
+            None
+        };
+
         Ok(RecurrenceRuleCommandModel {
             id: self.id.to_string(),
             unit,
             interval: self.interval,
             days_of_week,
-            details: None,
-            adjustment: None,
+            details,
+            adjustment,
             end_date: self.end_date.as_ref().map(|d| d.to_rfc3339()),
             max_occurrences: self.max_occurrences,
         })

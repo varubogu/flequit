@@ -75,7 +75,8 @@ pub async fn update<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match service::update_subtask_assignments(repositories, project_id, subtask_id, user_ids).await {
+    match service::update_subtask_assignments(repositories, project_id, subtask_id, user_ids).await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask assignments: {:?}", e)),
@@ -90,7 +91,13 @@ pub async fn remove_all_by_subtask_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match service::remove_all_subtask_assignments_by_subtask_id(repositories, project_id, subtask_id).await {
+    match service::remove_all_subtask_assignments_by_subtask_id(
+        repositories,
+        project_id,
+        subtask_id,
+    )
+    .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!(
@@ -108,7 +115,9 @@ pub async fn remove_all_by_user_id<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match service::remove_all_subtask_assignments_by_user_id(repositories, project_id, user_id).await {
+    match service::remove_all_subtask_assignments_by_user_id(repositories, project_id, user_id)
+        .await
+    {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!(

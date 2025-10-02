@@ -21,7 +21,6 @@ impl TaskTagRepositoryTrait for TaskTagRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVariant {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -33,7 +32,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
             Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id).await,
         }
     }
-
 
     async fn remove(
         &self,
@@ -47,7 +45,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -58,7 +55,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
             Self::LocalAutomerge(repo) => repo.remove_all(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relations(
         &self,
@@ -71,14 +67,12 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
             Self::LocalAutomerge(repo) => repo.find_all(project_id).await,
         }
     }
-
 
     async fn exists(
         &self,
@@ -91,7 +85,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
         }
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -102,7 +95,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagRepositoryVari
             Self::LocalAutomerge(repo) => repo.count(project_id, parent_id).await,
         }
     }
-
 
     async fn find_relation(
         &self,
@@ -130,7 +122,6 @@ impl Default for TaskTagUnifiedRepository {
 }
 
 impl TaskTagUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<TaskTagRepositoryVariant>,
         search_repositories: Vec<TaskTagRepositoryVariant>,
@@ -141,24 +132,20 @@ impl TaskTagUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: TaskTagLocalSqliteRepository) {
         self.save_repositories
             .push(TaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(&mut self, automerge_repo: TaskTagLocalAutomergeRepository) {
         self.save_repositories
             .push(TaskTagRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: TaskTagLocalSqliteRepository) {
         self.search_repositories
             .push(TaskTagRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: TaskTagLocalAutomergeRepository) {
         self.search_repositories
@@ -178,7 +165,6 @@ impl TaskTagRepositoryTrait for TaskTagUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedRepository {
-
     async fn add(
         &self,
         project_id: &ProjectId,
@@ -196,14 +182,17 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         );
 
         for (i, repository) in self.save_repositories.iter().enumerate() {
-            info!("TaskTagUnifiedRepository::add - calling repository {}: {:?}", i, std::any::type_name_of_val(repository));
+            info!(
+                "TaskTagUnifiedRepository::add - calling repository {}: {:?}",
+                i,
+                std::any::type_name_of_val(repository)
+            );
             repository.add(project_id, parent_id, child_id).await?;
             info!("TaskTagUnifiedRepository::add - repository {} completed", i);
         }
 
         Ok(())
     }
-
 
     async fn remove(
         &self,
@@ -223,7 +212,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(())
     }
 
-
     async fn remove_all(
         &self,
         project_id: &ProjectId,
@@ -240,7 +228,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
 
         Ok(())
     }
-
 
     async fn find_relations(
         &self,
@@ -259,7 +246,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<TaskTag>, RepositoryError> {
         info!("Finding all task tags in project: {}", project_id);
 
@@ -269,7 +255,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
             Ok(Vec::new())
         }
     }
-
 
     async fn exists(
         &self,
@@ -290,7 +275,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
         Ok(false)
     }
 
-
     async fn count(
         &self,
         project_id: &ProjectId,
@@ -307,7 +291,6 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagUnifiedReposit
             Ok(0)
         }
     }
-
 
     async fn find_relation(
         &self,

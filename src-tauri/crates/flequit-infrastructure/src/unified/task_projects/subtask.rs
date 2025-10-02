@@ -7,8 +7,8 @@ use flequit_infrastructure_automerge::infrastructure::task_projects::subtask::Su
 use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask::SubTaskLocalSqliteRepository;
 use flequit_model::models::task_projects::subtask::SubTask;
 use flequit_model::types::id_types::{ProjectId, SubTaskId};
-use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
+use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::subtask_repository_trait::SubTaskRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 
@@ -22,14 +22,12 @@ impl SubTaskRepositoryTrait for SubTaskRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskRepositoryVariant {
-
     async fn save(&self, project_id: &ProjectId, entity: &SubTask) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
             Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
         }
     }
-
 
     async fn find_by_id(
         &self,
@@ -42,7 +40,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskRepositoryVariant {
         }
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.find_all(project_id).await,
@@ -50,14 +47,12 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskRepositoryVariant {
         }
     }
 
-
     async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         match self {
             Self::LocalSqlite(repo) => repo.delete(project_id, id).await,
             Self::LocalAutomerge(repo) => repo.delete(project_id, id).await,
         }
     }
-
 
     async fn exists(
         &self,
@@ -69,7 +64,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskRepositoryVariant {
             Self::LocalAutomerge(repo) => repo.exists(project_id, id).await,
         }
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         match self {
@@ -92,7 +86,6 @@ impl Default for SubTaskUnifiedRepository {
 }
 
 impl SubTaskUnifiedRepository {
-
     pub fn new(
         save_repositories: Vec<SubTaskRepositoryVariant>,
         search_repositories: Vec<SubTaskRepositoryVariant>,
@@ -103,36 +96,30 @@ impl SubTaskUnifiedRepository {
         }
     }
 
-
     pub fn add_sqlite_for_save(&mut self, sqlite_repo: SubTaskLocalSqliteRepository) {
         self.save_repositories
             .push(SubTaskRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_save(&mut self, automerge_repo: SubTaskLocalAutomergeRepository) {
         self.save_repositories
             .push(SubTaskRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_sqlite_for_search(&mut self, sqlite_repo: SubTaskLocalSqliteRepository) {
         self.search_repositories
             .push(SubTaskRepositoryVariant::LocalSqlite(sqlite_repo));
     }
-
 
     pub fn add_automerge_for_search(&mut self, automerge_repo: SubTaskLocalAutomergeRepository) {
         self.search_repositories
             .push(SubTaskRepositoryVariant::LocalAutomerge(automerge_repo));
     }
 
-
     pub fn add_web_for_save(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
         // self.save_repositories.push(SubTaskRepositoryVariant::Web(web_repo));
     }
-
 
     pub fn add_web_for_search(&mut self, _web_repo: impl std::fmt::Debug + Send + Sync + 'static) {
         // 将来のWeb実装用の拡張ポイント
@@ -157,7 +144,6 @@ impl ProjectPatchable<SubTask, SubTaskId> for SubTaskUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &SubTask) -> Result<(), RepositoryError> {
         info!(
             "Saving subtask entity with ID: {} in project: {}",
@@ -170,7 +156,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn find_by_id(
         &self,
@@ -188,7 +173,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
         Ok(None)
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         info!("Finding all subtasks in project: {}", project_id);
 
@@ -198,7 +182,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
             Ok(vec![])
         }
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         info!(
@@ -212,7 +195,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
 
         Ok(())
     }
-
 
     async fn exists(
         &self,
@@ -232,7 +214,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskUnifiedRepository {
 
         Ok(false)
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         info!("Counting subtasks in project: {}", project_id);

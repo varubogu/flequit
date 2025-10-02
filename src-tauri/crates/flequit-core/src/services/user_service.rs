@@ -4,8 +4,8 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::accounts::account::Account;
 use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
-use flequit_types::errors::service_error::ServiceError;
 use flequit_repository::repositories::base_repository_trait::Repository;
+use flequit_types::errors::service_error::ServiceError;
 
 /// ユーザープロフィールの編集権限をチェック
 /// 自分のAccount.user_idにマッチするプロフィールのみ編集可能
@@ -27,14 +27,12 @@ where
     Ok(())
 }
 
-
 pub async fn get_user<R>(repositories: &R, user_id: &UserId) -> Result<Option<User>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     Ok(repositories.users().find_by_id(user_id).await?)
 }
-
 
 pub async fn get_user_by_email<R>(
     repositories: &R,
@@ -50,7 +48,6 @@ where
         .into_iter()
         .find(|u| u.email.as_ref() == Some(&email.to_string())))
 }
-
 
 pub async fn list_users<R>(repositories: &R) -> Result<Vec<User>, ServiceError>
 where

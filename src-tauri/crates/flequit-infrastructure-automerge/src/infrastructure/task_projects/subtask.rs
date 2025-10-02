@@ -39,7 +39,6 @@ pub struct SubTaskLocalAutomergeRepository {
 }
 
 impl SubTaskLocalAutomergeRepository {
-
     pub async fn new(base_path: PathBuf) -> Result<Self, RepositoryError> {
         let document_manager = DocumentManager::new(base_path)?;
         Ok(Self {
@@ -52,9 +51,7 @@ impl SubTaskLocalAutomergeRepository {
     pub async fn new_with_manager(
         document_manager: Arc<Mutex<DocumentManager>>,
     ) -> Result<Self, RepositoryError> {
-        Ok(Self {
-            document_manager,
-        })
+        Ok(Self { document_manager })
     }
 
     /// 指定されたプロジェクトのDocumentを取得または作成
@@ -159,7 +156,6 @@ impl SubTaskRepositoryTrait for SubTaskLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
-
     async fn save(&self, project_id: &ProjectId, entity: &SubTask) -> Result<(), RepositoryError> {
         log::info!(
             "SubTaskLocalAutomergeRepository::save - 開始: {:?}",
@@ -180,7 +176,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         result
     }
 
-
     async fn find_by_id(
         &self,
         project_id: &ProjectId,
@@ -189,11 +184,9 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         self.get_subtask(project_id, &id.to_string()).await
     }
 
-
     async fn find_all(&self, project_id: &ProjectId) -> Result<Vec<SubTask>, RepositoryError> {
         self.list_subtasks(project_id).await
     }
-
 
     async fn delete(&self, project_id: &ProjectId, id: &SubTaskId) -> Result<(), RepositoryError> {
         let deleted = self.delete_subtask(project_id, &id.to_string()).await?;
@@ -207,7 +200,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         }
     }
 
-
     async fn exists(
         &self,
         project_id: &ProjectId,
@@ -216,7 +208,6 @@ impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalAutomergeRepository {
         let found = self.find_by_id(project_id, id).await?;
         Ok(found.is_some())
     }
-
 
     async fn count(&self, project_id: &ProjectId) -> Result<u64, RepositoryError> {
         let subtasks = self.find_all(project_id).await?;
