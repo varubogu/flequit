@@ -6,6 +6,7 @@
  */
 
 import type { SvelteDate } from 'svelte/reactivity';
+import type { DateCondition, WeekdayCondition } from './datetime-calendar';
 
 // ========================================
 // 基本列挙型
@@ -113,6 +114,18 @@ export interface RecurrenceAdjustment {
 	 * - before: 前の有効日に移動
 	 */
 	monthEndAdjustment?: 'none' | 'lastDay' | 'before';
+
+	/**
+	 * 日付条件のリスト
+	 * UI層の高度な設定で使用される条件
+	 */
+	dateConditions?: DateCondition[];
+
+	/**
+	 * 曜日条件のリスト
+	 * UI層の高度な設定で使用される条件
+	 */
+	weekdayConditions?: WeekdayCondition[];
 }
 
 // ========================================

@@ -52,7 +52,11 @@ export function fromLegacyRecurrenceRule(
         console.warn('Failed to parse recurrence adjustment:', e);
       }
     } else {
-      unified.adjustment = legacy.adjustment as RecurrenceAdjustment;
+      // Legacy型のadjustmentをunified型にマッピング
+      unified.adjustment = {
+        dateConditions: legacy.adjustment.dateConditions,
+        weekdayConditions: legacy.adjustment.weekdayConditions
+      };
     }
   }
 
@@ -88,8 +92,8 @@ export function toLegacyRecurrenceRule(
   // 補正条件の変換 - 既存型の構造に合わせる
   if (unified.adjustment) {
     legacy.adjustment = {
-      dateConditions: [],
-      weekdayConditions: []
+      dateConditions: unified.adjustment.dateConditions || [],
+      weekdayConditions: unified.adjustment.weekdayConditions || []
     };
   }
 
