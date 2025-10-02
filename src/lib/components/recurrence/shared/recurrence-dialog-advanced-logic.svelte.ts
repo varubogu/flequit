@@ -103,6 +103,10 @@ export class RecurrenceDialogAdvancedLogic {
   // Property setters
   set recurrenceLevel(value: RecurrenceLevel) {
     this.state.recurrenceLevel = value;
+    // レベル変更時に即座に保存
+    if (!this.isInitializing) {
+      this.saveCurrentRule();
+    }
   }
   set repeatCount(value: number | undefined) {
     this.state.repeatCount = value;

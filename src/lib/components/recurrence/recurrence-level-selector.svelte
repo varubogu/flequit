@@ -4,9 +4,16 @@
 
   type Props = {
     value: RecurrenceLevel;
+    onchange?: (value: RecurrenceLevel) => void;
   };
 
-  let { value = $bindable() }: Props = $props();
+  let { value = $bindable(), onchange }: Props = $props();
+
+  function handleChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    value = target.value as RecurrenceLevel;
+    onchange?.(value);
+  }
 
   const translationService = getTranslationService();
   const recurrence = translationService.getMessage('recurrence');
@@ -25,7 +32,8 @@
   <h3 class="w-32 flex-shrink-0 text-lg font-semibold">{recurrence()}</h3>
   <div class="flex-1">
     <select
-      bind:value
+      value={value}
+      onchange={handleChange}
       class="border-border bg-background text-foreground w-full rounded border p-2"
     >
       {#each recurrenceLevelOptions as option (option.value)}
