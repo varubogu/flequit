@@ -18,9 +18,9 @@ describe('TaskRecurrenceWebService', () => {
         recurrenceRuleId: 'rule1'
       };
 
-      const result = await service.create(taskRecurrence);
+      const result = await service.create('test-project', taskRecurrence);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTaskRecurrence not implemented', taskRecurrence);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTaskRecurrence not implemented', { projectId: 'test-project', taskRecurrence });
       expect(result).toBe(true);
     });
   });
@@ -29,9 +29,9 @@ describe('TaskRecurrenceWebService', () => {
     it('should log warning and return null', async () => {
       const taskId = 'task1';
 
-      const result = await service.getByTaskId(taskId);
+      const result = await service.getByTaskId('test-project', taskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTaskRecurrenceByTaskId not implemented', taskId);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTaskRecurrenceByTaskId not implemented', { projectId: 'test-project', taskId });
       expect(result).toBeNull();
     });
   });
@@ -40,9 +40,9 @@ describe('TaskRecurrenceWebService', () => {
     it('should log warning and return true', async () => {
       const taskId = 'task1';
 
-      const result = await service.delete(taskId);
+      const result = await service.delete('test-project', taskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTaskRecurrence not implemented', taskId);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTaskRecurrence not implemented', { projectId: 'test-project', taskId });
       expect(result).toBe(true);
     });
   });
@@ -54,9 +54,9 @@ describe('TaskRecurrenceWebService', () => {
         recurrenceRuleId: 'rule1'
       };
 
-      const result = await service.search(condition);
+      const result = await service.search('test-project', condition);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchTaskRecurrences not implemented', condition);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchTaskRecurrences not implemented', { projectId: 'test-project', condition });
       expect(result).toEqual([]);
     });
   });

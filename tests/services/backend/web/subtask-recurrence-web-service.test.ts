@@ -18,9 +18,9 @@ describe('SubtaskRecurrenceWebService', () => {
         recurrenceRuleId: 'rule1'
       };
 
-      const result = await service.create(subtaskRecurrence);
+      const result = await service.create('test-project', subtaskRecurrence);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createSubtaskRecurrence not implemented', subtaskRecurrence);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createSubtaskRecurrence not implemented', { projectId: 'test-project', subtaskRecurrence });
       expect(result).toBe(true);
     });
   });
@@ -29,9 +29,9 @@ describe('SubtaskRecurrenceWebService', () => {
     it('should log warning and return null', async () => {
       const subtaskId = 'subtask1';
 
-      const result = await service.getBySubtaskId(subtaskId);
+      const result = await service.getBySubtaskId('test-project', subtaskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSubtaskRecurrenceBySubtaskId not implemented', subtaskId);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSubtaskRecurrenceBySubtaskId not implemented', { projectId: 'test-project', subtaskId });
       expect(result).toBeNull();
     });
   });
@@ -40,9 +40,9 @@ describe('SubtaskRecurrenceWebService', () => {
     it('should log warning and return true', async () => {
       const subtaskId = 'subtask1';
 
-      const result = await service.delete(subtaskId);
+      const result = await service.delete('test-project', subtaskId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteSubtaskRecurrence not implemented', subtaskId);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteSubtaskRecurrence not implemented', { projectId: 'test-project', subtaskId });
       expect(result).toBe(true);
     });
   });
@@ -54,9 +54,9 @@ describe('SubtaskRecurrenceWebService', () => {
         recurrenceRuleId: 'rule1'
       };
 
-      const result = await service.search(condition);
+      const result = await service.search('test-project', condition);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchSubtaskRecurrences not implemented', condition);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchSubtaskRecurrences not implemented', { projectId: 'test-project', condition });
       expect(result).toEqual([]);
     });
   });
