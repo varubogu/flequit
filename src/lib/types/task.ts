@@ -1,4 +1,4 @@
-import type { RecurrenceRule } from './datetime-calendar';
+import type { RecurrenceRule } from './recurrence';
 import type { SubTask } from './sub-task';
 import type { Tag } from './tag';
 

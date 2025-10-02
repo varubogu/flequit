@@ -64,8 +64,10 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          specificDate: 15
+        pattern: {
+          monthly: {
+            dayOfMonth: 15
+          }
         }
       };
 
@@ -124,9 +126,11 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          weekOfPeriod: 'second',
-          weekdayOfWeek: 'sunday'
+        pattern: {
+          monthly: {
+            weekOfMonth: 2,
+            dayOfWeek: 'sunday'
+          }
         }
       };
 
@@ -140,9 +144,11 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          weekOfPeriod: 'last',
-          weekdayOfWeek: 'friday'
+        pattern: {
+          monthly: {
+            weekOfMonth: 5,
+            dayOfWeek: 'friday'
+          }
         }
       };
 
@@ -265,8 +271,10 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          specificDate: 31
+        pattern: {
+          monthly: {
+            dayOfMonth: 31
+          }
         }
       };
 
@@ -281,9 +289,11 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          weekOfPeriod: 'fourth',
-          weekdayOfWeek: 'saturday'
+        pattern: {
+          monthly: {
+            weekOfMonth: 4,
+            dayOfWeek: 'saturday'
+          }
         }
       };
 
@@ -422,8 +432,10 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: -1,
-        details: {
-          specificDate: 31
+        pattern: {
+          monthly: {
+            dayOfMonth: 31
+          }
         }
       };
 
@@ -461,9 +473,11 @@ describe('RecurrenceService', () => {
       const rule: RecurrenceRule = {
         unit: 'month',
         interval: 1,
-        details: {
-          weekOfPeriod: 'fourth',
-          weekdayOfWeek: 'thursday'
+        pattern: {
+          monthly: {
+            weekOfMonth: 4,
+            dayOfWeek: 'thursday'
+          }
         }
       };
 
@@ -716,8 +730,8 @@ describe('RecurrenceService', () => {
       // 曜日条件が設定されていることを確認
       expect(dates.length).toBeGreaterThan(0);
       expect(rule.adjustment?.weekdayConditions).toHaveLength(1);
-      expect(rule.adjustment?.weekdayConditions[0].ifWeekday).toBe('saturday');
-      expect(rule.adjustment?.weekdayConditions[0].thenWeekday).toBe('monday');
+      expect(rule.adjustment?.weekdayConditions?.[0].ifWeekday).toBe('saturday');
+      expect(rule.adjustment?.weekdayConditions?.[0].thenWeekday).toBe('monday');
     });
 
     it('複数の補正条件設定が機能することを確認', () => {
@@ -752,8 +766,8 @@ describe('RecurrenceService', () => {
       expect(dates.length).toBeGreaterThan(0);
       expect(rule.adjustment?.dateConditions).toHaveLength(1);
       expect(rule.adjustment?.weekdayConditions).toHaveLength(1);
-      expect(rule.adjustment?.dateConditions[0].relation).toBe('after');
-      expect(rule.adjustment?.weekdayConditions[0].thenTarget).toBe('weekday');
+      expect(rule.adjustment?.dateConditions?.[0].relation).toBe('after');
+      expect(rule.adjustment?.weekdayConditions?.[0].thenTarget).toBe('weekday');
     });
   });
 
@@ -787,9 +801,11 @@ describe('RecurrenceService', () => {
         const rule: RecurrenceRule = {
           unit: 'month',
           interval: 1,
-          details: {
-            weekOfPeriod: 'first',
-            weekdayOfWeek: 'monday'
+          pattern: {
+            monthly: {
+              weekOfMonth: 1,
+              dayOfWeek: 'monday'
+            }
           }
         };
 
@@ -810,9 +826,11 @@ describe('RecurrenceService', () => {
         const rule: RecurrenceRule = {
           unit: 'month',
           interval: 1,
-          details: {
-            weekOfPeriod: 'second',
-            weekdayOfWeek: 'sunday'
+          pattern: {
+            monthly: {
+              weekOfMonth: 2,
+              dayOfWeek: 'sunday'
+            }
           }
         };
 

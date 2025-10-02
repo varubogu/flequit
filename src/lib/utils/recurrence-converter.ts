@@ -1,11 +1,11 @@
 /**
  * 繰り返し設定型変換ユーティリティ
  *
- * UI側とTauri側、既存型との間での型変換を行います。
- * データの整合性を保ちながら安全な変換を提供します。
+ * @deprecated 型統一により、このファイルの変換関数は不要になりました。
+ * 直接 RecurrenceRule 型を使用してください。
+ * 後方互換性のため、パススルー関数として残しています。
  */
 
-import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
 import type {
   RecurrenceRule,
   RecurrenceUnit,
@@ -15,89 +15,25 @@ import type {
 } from '$lib/types/recurrence';
 
 /**
- * 既存のUI側RecurrenceRule型から統一型への変換
+ * パススルー関数（後方互換性のため）
+ * @deprecated 直接 RecurrenceRule を使用してください
  */
 export function fromLegacyRecurrenceRule(
-  legacy: LegacyRecurrenceRule | null | undefined
+  rule: RecurrenceRule | null | undefined
 ): RecurrenceRule | undefined {
-  if (!legacy) return undefined;
-
-  const unified: RecurrenceRule = {
-    unit: legacy.unit as RecurrenceUnit,
-    interval: legacy.interval || 1,
-    daysOfWeek: legacy.daysOfWeek as DayOfWeek[] | undefined,
-    endDate: legacy.endDate,
-    maxOccurrences: legacy.maxOccurrences
-  };
-
-  // 詳細設定の変換
-  if (legacy.details) {
-    if (typeof legacy.details === 'string') {
-      try {
-        unified.pattern = JSON.parse(legacy.details) as RecurrencePattern;
-      } catch (e) {
-        console.warn('Failed to parse recurrence details:', e);
-      }
-    } else {
-      unified.pattern = legacy.details as RecurrencePattern;
-    }
-  }
-
-  // 補正条件の変換
-  if (legacy.adjustment) {
-    if (typeof legacy.adjustment === 'string') {
-      try {
-        unified.adjustment = JSON.parse(legacy.adjustment) as RecurrenceAdjustment;
-      } catch (e) {
-        console.warn('Failed to parse recurrence adjustment:', e);
-      }
-    } else {
-      // Legacy型のadjustmentをunified型にマッピング
-      unified.adjustment = {
-        dateConditions: legacy.adjustment.dateConditions,
-        weekdayConditions: legacy.adjustment.weekdayConditions
-      };
-    }
-  }
-
-  return unified;
+  // 型統一により、変換不要でそのまま返す
+  return rule || undefined;
 }
 
 /**
- * 統一型から既存のUI側RecurrenceRule型への変換
+ * パススルー関数（後方互換性のため）
+ * @deprecated 直接 RecurrenceRule を使用してください
  */
 export function toLegacyRecurrenceRule(
-  unified: RecurrenceRule | null | undefined
-): LegacyRecurrenceRule | undefined {
-  if (!unified) return undefined;
-
-  const legacy: LegacyRecurrenceRule = {
-    unit: unified.unit as LegacyRecurrenceRule['unit'],
-    interval: unified.interval,
-    daysOfWeek: unified.daysOfWeek as LegacyRecurrenceRule['daysOfWeek'],
-    endDate: unified.endDate,
-    maxOccurrences: unified.maxOccurrences
-  };
-
-  // 詳細設定の変換 - 既存型の構造に合わせる
-  if (unified.pattern) {
-    legacy.details = {
-      specificDate: unified.pattern.monthly?.dayOfMonth,
-      weekOfPeriod: unified.pattern.monthly?.weekOfMonth as NonNullable<LegacyRecurrenceRule['details']>['weekOfPeriod'],
-      weekdayOfWeek: unified.pattern.monthly?.dayOfWeek as NonNullable<LegacyRecurrenceRule['details']>['weekdayOfWeek'],
-      dateConditions: []
-    };
-  }
-
-  // 補正条件の変換 - 既存型の構造に合わせる
-  if (unified.adjustment) {
-    legacy.adjustment = {
-      dateConditions: unified.adjustment.dateConditions || [],
-      weekdayConditions: unified.adjustment.weekdayConditions || []
-    };
-  }
-
-  return legacy;
+  rule: RecurrenceRule | null | undefined
+): RecurrenceRule | undefined {
+  // 型統一により、変換不要でそのまま返す
+  return rule || undefined;
 }
 
 /**

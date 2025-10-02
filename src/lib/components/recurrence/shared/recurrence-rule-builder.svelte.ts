@@ -1,10 +1,5 @@
-import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
-import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
-import type { DayOfWeek } from '$lib/types/datetime-calendar';
-import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
-import type { DateCondition } from '$lib/types/datetime-calendar';
-import type { WeekdayCondition } from '$lib/types/datetime-calendar';
+import type { RecurrenceRule, RecurrencePattern, RecurrenceUnit, DayOfWeek } from '$lib/types/recurrence';
+import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
 
 export class RecurrenceRuleBuilder {
   buildRule(
@@ -12,7 +7,7 @@ export class RecurrenceRuleBuilder {
     unit: RecurrenceUnit,
     interval: number,
     daysOfWeek: DayOfWeek[],
-    details: RecurrenceDetails,
+    pattern: RecurrencePattern,
     dateConditions: DateCondition[],
     weekdayConditions: WeekdayCondition[],
     endDate: Date | undefined,
@@ -27,7 +22,7 @@ export class RecurrenceRuleBuilder {
       unit,
       interval,
       ...(unit === 'week' && daysOfWeek.length > 0 && { daysOfWeek: daysOfWeek }),
-      ...(showAdvancedSettings && isComplexUnit && Object.keys(details).length > 0 && { details }),
+      ...(showAdvancedSettings && isComplexUnit && Object.keys(pattern).length > 0 && { pattern }),
       ...(showAdvancedSettings &&
         (dateConditions.length > 0 || weekdayConditions.length > 0) && {
           adjustment: {

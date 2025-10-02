@@ -45,7 +45,7 @@ export class RecurrenceService {
     // 日付補正を適用
     if (
       rule.adjustment &&
-      (rule.adjustment.dateConditions.length > 0 || rule.adjustment.weekdayConditions.length > 0)
+      ((rule.adjustment.dateConditions?.length ?? 0) > 0 || (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
       nextDate = this.applyDateAdjustment(nextDate, rule.adjustment);
     }
@@ -97,16 +97,16 @@ export class RecurrenceService {
     const currentDate = new Date(baseDate);
 
     // 新しい詳細設定を使用
-    if (rule.details?.specificDate) {
+    if (rule.pattern?.monthly?.dayOfMonth) {
       // 特定の日付指定
       currentDate.setMonth(currentDate.getMonth() + rule.interval);
       currentDate.setDate(
-        Math.min(rule.details.specificDate, this.getLastDayOfMonth(currentDate))
+        Math.min(rule.pattern.monthly.dayOfMonth, this.getLastDayOfMonth(currentDate))
       );
       return currentDate;
     }
 
-    if (rule.details?.weekOfPeriod && rule.details?.weekdayOfWeek) {
+    if (rule.pattern?.monthly?.weekOfMonth && rule.pattern?.monthly?.dayOfWeek) {
       // 第X曜日指定（例：第2日曜日）
       return this.calculateWeekOfMonthNew(currentDate, rule);
     }
@@ -131,15 +131,18 @@ export class RecurrenceService {
    * 第X曜日の計算（例：第2日曜日）- 新しい型定義用
    */
   private static calculateWeekOfMonthNew(baseDate: Date, rule: RecurrenceRule): Date | null {
-    if (!rule.details?.weekOfPeriod || !rule.details?.weekdayOfWeek) {
+    if (!rule.pattern?.monthly?.weekOfMonth || !rule.pattern?.monthly?.dayOfWeek) {
       return null;
     }
 
-    const targetDay = this.dayOfWeekToNumber(rule.details.weekdayOfWeek);
+    const targetDay = this.dayOfWeekToNumber(rule.pattern.monthly.dayOfWeek);
     const nextMonth = new Date(baseDate.getFullYear(), baseDate.getMonth() + rule.interval, 1);
 
-    if (rule.details.weekOfPeriod === 'last') {
-      // 最後の曜日
+    // 統一型では weekOfMonth は 1-5 の数値
+    const weekNumber = rule.pattern.monthly.weekOfMonth;
+
+    if (weekNumber === 5) {
+      // 第5週 = 最後の曜日として扱う
       const lastDay = this.getLastDayOfMonth(nextMonth);
       const lastDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), lastDay);
       const lastDayOfWeek = lastDate.getDay();
@@ -154,7 +157,6 @@ export class RecurrenceService {
     }
 
     // 第1-4週
-    const weekNumber = this.weekOfMonthToNumber(rule.details.weekOfPeriod);
     const firstDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
     const firstDayOfWeek = firstDay.getDay();
 
@@ -184,17 +186,21 @@ export class RecurrenceService {
     let adjustedDate = new Date(date);
 
     // 日付条件をチェック
-    for (const condition of adjustment.dateConditions) {
-      if (this.checkDateCondition(adjustedDate, condition)) {
-        // 日付条件に該当する場合、該当しないように調整
-        adjustedDate = this.adjustDateForCondition(adjustedDate, condition);
+    if (adjustment.dateConditions) {
+      for (const condition of adjustment.dateConditions) {
+        if (this.checkDateCondition(adjustedDate, condition)) {
+          // 日付条件に該当する場合、該当しないように調整
+          adjustedDate = this.adjustDateForCondition(adjustedDate, condition);
+        }
       }
     }
 
     // 曜日条件をチェック
-    for (const condition of adjustment.weekdayConditions) {
-      if (this.checkWeekdayCondition(adjustedDate, condition)) {
-        adjustedDate = this.applyWeekdayAdjustment(adjustedDate, condition);
+    if (adjustment.weekdayConditions) {
+      for (const condition of adjustment.weekdayConditions) {
+        if (this.checkWeekdayCondition(adjustedDate, condition)) {
+          adjustedDate = this.applyWeekdayAdjustment(adjustedDate, condition);
+        }
       }
     }
 
@@ -536,7 +542,7 @@ export class RecurrenceService {
     // 初回の日付にも補正条件を適用
     if (
       rule.adjustment &&
-      (rule.adjustment.dateConditions.length > 0 || rule.adjustment.weekdayConditions.length > 0)
+      ((rule.adjustment.dateConditions?.length ?? 0) > 0 || (rule.adjustment.weekdayConditions?.length ?? 0) > 0)
     ) {
       currentDate = this.applyDateAdjustment(currentDate, rule.adjustment);
     }

@@ -1,11 +1,10 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+import type { RecurrenceRule, RecurrencePattern } from '$lib/types/recurrence';
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 import type { DateCondition } from '$lib/types/datetime-calendar';
 import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
-import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
-import type { DayOfWeek } from '$lib/types/datetime-calendar';
+import type { RecurrenceUnit } from '$lib/types/recurrence';
+import type { DayOfWeek } from '$lib/types/recurrence';
 import { RecurrenceState } from './recurrence-state.svelte';
 import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
 import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';
@@ -250,7 +249,7 @@ export class RecurrenceDialogAdvancedLogic {
     this.state.setDaysOfWeek(daysOfWeek);
   }
 
-  setDetails(details: RecurrenceDetails) {
+  setDetails(details: RecurrencePattern) {
     this.state.setDetails(details);
   }
 }

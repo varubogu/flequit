@@ -3,20 +3,20 @@
   import NumericIntervalInput from './shared/numeric-interval-input.svelte';
   import WeekdaySelector from './weekday-conditions/weekday-selector.svelte';
   import AdvancedRecurrenceSettings from './shared/advanced-recurrence-settings.svelte';
-  import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
-  import type { RecurrenceUnit } from '$lib/types/datetime-calendar';
-  import type { DayOfWeek } from '$lib/types/datetime-calendar';
+  import type { RecurrencePattern } from '$lib/types/recurrence';
+  import type { RecurrenceUnit } from '$lib/types/recurrence';
+  import type { DayOfWeek } from '$lib/types/recurrence';
 
   type Props = {
     unit: RecurrenceUnit;
     interval: number;
     daysOfWeek: DayOfWeek[];
-    details: RecurrenceDetails;
+    details: RecurrencePattern;
     showAdvancedSettings: boolean;
     ontoggleDayOfWeek?: (day: DayOfWeek) => void;
     onunitchange?: (unit: RecurrenceUnit) => void;
     onintervalchange?: (interval: number) => void;
-    ondetailschange?: (details: RecurrenceDetails) => void;
+    ondetailschange?: (details: RecurrencePattern) => void;
   };
 
   let {

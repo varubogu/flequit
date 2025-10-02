@@ -15,9 +15,9 @@ export class RecurrenceInitializer {
     const recurrenceLevel: RecurrenceLevel = !rule
       ? 'disabled'
       : (rule.adjustment &&
-            (rule.adjustment.dateConditions.length > 0 ||
-              rule.adjustment.weekdayConditions.length > 0)) ||
-          (rule.details && Object.keys(rule.details).length > 0)
+            ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
+              (rule.adjustment.weekdayConditions?.length ?? 0) > 0)) ||
+          (rule.pattern && Object.keys(rule.pattern).length > 0)
         ? 'advanced'
         : 'enabled';
 
@@ -26,7 +26,7 @@ export class RecurrenceInitializer {
     state.setUnit(rule?.unit || 'day');
     state.setInterval(rule?.interval || 1);
     state.setDaysOfWeek(rule?.daysOfWeek || []);
-    state.setDetails(rule?.details || {});
+    state.setDetails(rule?.pattern || {});
     state.endDate = rule?.endDate;
     state.repeatCount = rule?.maxOccurrences;
 

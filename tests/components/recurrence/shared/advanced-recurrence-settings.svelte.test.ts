@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import AdvancedRecurrenceSettings from '$lib/components/recurrence/shared/advanced-recurrence-settings.svelte';
-import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+import type { RecurrencePattern } from '$lib/types/recurrence';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -33,10 +33,9 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 }));
 
 describe('AdvancedRecurrenceSettings', () => {
-  const mockDetails: RecurrenceDetails = {
-    specificDate: undefined,
-    weekOfPeriod: undefined,
-    weekdayOfWeek: undefined
+  const mockDetails: RecurrencePattern = {
+    monthly: undefined,
+    yearly: undefined
   };
 
   const defaultProps = {
@@ -81,9 +80,10 @@ describe('AdvancedRecurrenceSettings', () => {
     });
 
     it('should display current specific date value', () => {
-      const detailsWithDate: RecurrenceDetails = {
-        ...mockDetails,
-        specificDate: 15
+      const detailsWithDate: RecurrencePattern = {
+        monthly: {
+          dayOfMonth: 15
+        }
       };
 
       render(AdvancedRecurrenceSettings, {
@@ -124,9 +124,10 @@ describe('AdvancedRecurrenceSettings', () => {
 
   describe('conditional weekday selector', () => {
     it('should show weekday selector when week is selected', () => {
-      const detailsWithWeek: RecurrenceDetails = {
-        ...mockDetails,
-        weekOfPeriod: 'first'
+      const detailsWithWeek: RecurrencePattern = {
+        monthly: {
+          weekOfMonth: 1
+        }
       };
 
       render(AdvancedRecurrenceSettings, {
@@ -146,9 +147,10 @@ describe('AdvancedRecurrenceSettings', () => {
     });
 
     it('should render weekday options', () => {
-      const detailsWithWeek: RecurrenceDetails = {
-        ...mockDetails,
-        weekOfPeriod: 'first'
+      const detailsWithWeek: RecurrencePattern = {
+        monthly: {
+          weekOfMonth: 1
+        }
       };
 
       render(AdvancedRecurrenceSettings, {
@@ -168,7 +170,7 @@ describe('AdvancedRecurrenceSettings', () => {
       render(AdvancedRecurrenceSettings, {
         props: {
           ...defaultProps,
-          details: undefined as RecurrenceDetails | undefined
+          details: undefined as RecurrencePattern | undefined
         }
       });
 

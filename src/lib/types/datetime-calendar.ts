@@ -1,14 +1,6 @@
-/**
- * 曜日の列挙型
- */
-export type DayOfWeek =
-  | 'sunday'
-  | 'monday'
-  | 'tuesday'
-  | 'wednesday'
-  | 'thursday'
-  | 'friday'
-  | 'saturday';
+// DayOfWeek, RecurrenceUnit, RecurrenceRule は recurrence.ts に統一されました
+import type { DayOfWeek } from './recurrence';
+export type { DayOfWeek, RecurrenceUnit, RecurrenceRule } from './recurrence';
 
 /**
  * 月内の週指定（第1週、第2週など）
@@ -33,19 +25,6 @@ export type AdjustmentTarget =
   | 'weekend_holiday'
   | 'non_weekend_holiday'
   | 'specific_weekday';
-
-/**
- * 繰り返し単位
- */
-export type RecurrenceUnit =
-  | 'minute'
-  | 'hour'
-  | 'day'
-  | 'week'
-  | 'month'
-  | 'quarter'
-  | 'halfyear'
-  | 'year';
 
 /**
  * 繰り返し機能のレベル
@@ -83,56 +62,22 @@ export interface WeekdayCondition {
 }
 
 /**
- * 繰り返しの補正条件
+ * 日付の関係性
  */
-export interface RecurrenceAdjustment {
-  /** 日付条件のリスト */
-  dateConditions: DateCondition[];
-  /** 曜日条件のリスト */
-  weekdayConditions: WeekdayCondition[];
-}
+export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';
 
 /**
- * 繰り返し詳細設定
+ * 繰り返し詳細設定（UI層で使用）
+ * @deprecated この型は後方互換性のために残されています
+ * 新しいコードでは RecurrencePattern を使用してください
  */
 export interface RecurrenceDetails {
   /** 特定日付指定（例：毎月15日） */
   specificDate?: number;
-
   /** 週指定（第◯週） */
   weekOfPeriod?: WeekOfMonth;
   /** 週指定の曜日（第◯✕曜日） */
   weekdayOfWeek?: DayOfWeek;
-
   /** 日付範囲条件 */
   dateConditions?: DateCondition[];
 }
-
-/**
- * 繰り返しルール
- */
-export interface RecurrenceRule {
-  /** 繰り返し単位 */
-  unit: RecurrenceUnit;
-  /** 繰り返し間隔（例：2週間なら2） */
-  interval: number;
-
-  /** 週単位の場合の曜日指定 */
-  daysOfWeek?: DayOfWeek[];
-
-  /** 単位別詳細設定 */
-  details?: RecurrenceDetails;
-
-  /** 補正条件 */
-  adjustment?: RecurrenceAdjustment;
-
-  /** 繰り返し終了日 */
-  endDate?: Date;
-  /** 最大繰り返し回数 */
-  maxOccurrences?: number;
-}
-
-/**
- * 日付の関係性
- */
-export type DateRelation = 'before' | 'on_or_before' | 'on_or_after' | 'after';

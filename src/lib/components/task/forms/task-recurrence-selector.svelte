@@ -47,14 +47,23 @@
 
     // 月単位の場合の詳細
     if (rule.unit === 'month') {
-      if (rule.details?.specificDate) {
-        const dayOfMonth = rule.details.specificDate;
+      if (rule.pattern?.monthly?.dayOfMonth) {
+        const dayOfMonth = rule.pattern.monthly.dayOfMonth;
         const detail =
           translationService.getMessage('day_of_month', { day: dayOfMonth })() +
           getOrdinalSuffix(dayOfMonth);
         text += ' ' + translationService.getMessage('recurrence_monthly_detail', { detail })();
-      } else if (rule.details?.weekOfPeriod && rule.details?.weekdayOfWeek) {
-        const detail = `${getWeekOfMonthText(rule.details.weekOfPeriod)} ${getDayOfWeekText(rule.details.weekdayOfWeek, false)}`;
+      } else if (rule.pattern?.monthly?.weekOfMonth && rule.pattern?.monthly?.dayOfWeek) {
+        // weekOfMonthは数値1-5なので文字列に変換
+        const weekOfMonthMap: Record<number, WeekOfMonth> = {
+          1: 'first',
+          2: 'second',
+          3: 'third',
+          4: 'fourth',
+          5: 'last'
+        };
+        const weekOfPeriod = weekOfMonthMap[rule.pattern.monthly.weekOfMonth] || ('first' as WeekOfMonth);
+        const detail = `${getWeekOfMonthText(weekOfPeriod)} ${getDayOfWeekText(rule.pattern.monthly.dayOfWeek, false)}`;
         text += ' ' + translationService.getMessage('recurrence_monthly_detail', { detail })();
       }
     }

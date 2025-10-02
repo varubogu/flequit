@@ -170,8 +170,10 @@ describe('TaskRecurrenceSelector', () => {
     const recurrenceRule: RecurrenceRule = {
       unit: 'month',
       interval: 1,
-      details: {
-        specificDate: 15
+      pattern: {
+        monthly: {
+          dayOfMonth: 15
+        }
       }
     };
 
@@ -190,9 +192,11 @@ describe('TaskRecurrenceSelector', () => {
     const recurrenceRule: RecurrenceRule = {
       unit: 'month',
       interval: 1,
-      details: {
-        weekOfPeriod: 'first' as WeekOfMonth,
-        weekdayOfWeek: 'monday' as DayOfWeek
+      pattern: {
+        monthly: {
+          weekOfMonth: 1,
+          dayOfWeek: 'monday' as DayOfWeek
+        }
       }
     };
 

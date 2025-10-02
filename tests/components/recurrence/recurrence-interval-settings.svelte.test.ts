@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import RecurrenceIntervalSettings from '$lib/components/recurrence/recurrence-interval-settings.svelte';
-import type { RecurrenceDetails, RecurrenceUnit, DayOfWeek } from '$lib/types/datetime-calendar';
+import type { RecurrencePattern, RecurrenceUnit, DayOfWeek } from '$lib/types/recurrence';
 
 // Mock dependencies
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -37,10 +37,9 @@ vi.mock('./shared/advanced-recurrence-settings.svelte', () => ({
 }));
 
 describe('RecurrenceIntervalSettings', () => {
-  const mockDetails: RecurrenceDetails = {
-    specificDate: undefined,
-    weekOfPeriod: undefined,
-    weekdayOfWeek: undefined
+  const mockDetails: RecurrencePattern = {
+    monthly: undefined,
+    yearly: undefined
   };
 
   const defaultProps = {
@@ -443,7 +442,7 @@ describe('RecurrenceIntervalSettings', () => {
     it('should handle null details', () => {
       const propsWithNullDetails = {
         ...defaultProps,
-        details: null as unknown as RecurrenceDetails,
+        details: null as unknown as RecurrencePattern,
         unit: 'month' as RecurrenceUnit,
         showAdvancedSettings: true
       };

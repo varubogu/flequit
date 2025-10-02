@@ -1,36 +1,72 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { RecurrenceDetails } from '$lib/types/datetime-calendar';
+  import type { RecurrencePattern } from '$lib/types/recurrence';
   import type { WeekOfMonth } from '$lib/types/datetime-calendar';
-  import type { DayOfWeek } from '$lib/types/datetime-calendar';
+  import type { DayOfWeek } from '$lib/types/recurrence';
 
   type Props = {
-    details?: RecurrenceDetails;
-    ondetailschange?: (details: RecurrenceDetails) => void;
+    details?: RecurrencePattern;
+    ondetailschange?: (details: RecurrencePattern) => void;
   };
 
   let { details, ondetailschange }: Props = $props();
 
+  // WeekOfMonthマッピング（文字列 → 数値）
+  const weekOfMonthToNumber: Record<WeekOfMonth, number> = {
+    first: 1,
+    second: 2,
+    third: 3,
+    fourth: 4,
+    last: 5
+  };
+
+  // 数値 → 文字列のマッピング
+  const numberToWeekOfMonth: Record<number, WeekOfMonth> = {
+    1: 'first',
+    2: 'second',
+    3: 'third',
+    4: 'fourth',
+    5: 'last'
+  };
+
   function handleSpecificDateChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    const newDetails = { ...(details || {}), specific_date: target.valueAsNumber || undefined };
+    const dayOfMonth = target.valueAsNumber || undefined;
+    const newDetails: RecurrencePattern = {
+      ...details,
+      monthly: {
+        ...details?.monthly,
+        dayOfMonth
+      }
+    };
     ondetailschange?.(newDetails);
   }
 
   function handleWeekOfPeriodChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = {
-      ...(details || {}),
-      week_of_period: (target.value as WeekOfMonth) || undefined
+    const weekOfMonthStr = target.value as WeekOfMonth | '';
+    const weekOfMonth = weekOfMonthStr ? weekOfMonthToNumber[weekOfMonthStr] : undefined;
+
+    const newDetails: RecurrencePattern = {
+      ...details,
+      monthly: {
+        ...details?.monthly,
+        weekOfMonth
+      }
     };
     ondetailschange?.(newDetails);
   }
 
   function handleWeekdayOfWeekChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newDetails = {
-      ...(details || {}),
-      weekday_of_week: (target.value as DayOfWeek) || undefined
+    const dayOfWeek = (target.value as DayOfWeek) || undefined;
+
+    const newDetails: RecurrencePattern = {
+      ...details,
+      monthly: {
+        ...details?.monthly,
+        dayOfWeek
+      }
     };
     ondetailschange?.(newDetails);
   }
@@ -74,7 +110,7 @@
       <input
         id="specific-date-input"
         type="number"
-        value={details?.specificDate}
+        value={details?.monthly?.dayOfMonth}
         min="1"
         max="31"
         class="border-border bg-background text-foreground w-full rounded border p-2"
@@ -90,7 +126,7 @@
       </label>
       <select
         id="week-of-period-select"
-        value={details?.weekOfPeriod}
+        value={details?.monthly?.weekOfMonth ? numberToWeekOfMonth[details.monthly.weekOfMonth] : ''}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekOfPeriodChange}
       >
@@ -102,14 +138,14 @@
     </div>
   </div>
 
-  {#if details?.weekOfPeriod}
+  {#if details?.monthly?.weekOfMonth}
     <div>
       <label for="weekday-of-week-select" class="text-muted-foreground text-sm">
         {weekdayOfWeek()}
       </label>
       <select
         id="weekday-of-week-select"
-        value={details?.weekdayOfWeek}
+        value={details?.monthly?.dayOfWeek}
         class="border-border bg-background text-foreground w-full rounded border p-2"
         onchange={handleWeekdayOfWeekChange}
       >
