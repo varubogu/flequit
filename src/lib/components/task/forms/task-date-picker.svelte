@@ -4,6 +4,9 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
+  import { getBackendService } from '$lib/services/backend/index';
+  import { fromLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
+
   interface Props {
     task: TaskWithSubTasks;
   }
@@ -19,6 +22,64 @@
   let subTaskDatePickerPosition = $state({ x: 0, y: 0 });
   let editingSubTaskId = $state<string | null>(null);
 
+  // RecurrenceRule保存処理（TaskDetailLogicと同様）
+  async function saveRecurrenceRule(
+    itemId: string,
+    isSubTask: boolean,
+    rule: RecurrenceRule | null
+  ) {
+    // タスクからprojectIdを取得（サブタスクの場合は親タスクから）
+    const projectId = task.projectId;
+
+    if (!projectId) {
+      console.error('Failed to get projectId for recurrence rule');
+      return;
+    }
+
+    const backend = await getBackendService();
+    const unifiedRule = fromLegacyRecurrenceRule(rule);
+
+    try {
+      if (rule === null) {
+        // 繰り返しルールを削除
+        if (isSubTask) {
+          await backend.subtaskRecurrence.delete(projectId, itemId);
+        } else {
+          await backend.taskRecurrence.delete(projectId, itemId);
+        }
+      } else {
+        // 既存の繰り返し関連付けを確認
+        const existing = isSubTask
+          ? await backend.subtaskRecurrence.getBySubtaskId(projectId, itemId)
+          : await backend.taskRecurrence.getByTaskId(projectId, itemId);
+
+        if (existing) {
+          // 既存のRecurrenceRuleを更新
+          await backend.recurrenceRule.update(projectId, { ...unifiedRule!, id: existing.recurrenceRuleId });
+        } else {
+          // 新規RecurrenceRuleを作成
+          const ruleId = crypto.randomUUID();
+          await backend.recurrenceRule.create(projectId, { ...unifiedRule!, id: ruleId });
+
+          // 関連付けを作成
+          if (isSubTask) {
+            await backend.subtaskRecurrence.create(projectId, {
+              subtaskId: itemId,
+              recurrenceRuleId: ruleId
+            });
+          } else {
+            await backend.taskRecurrence.create(projectId, {
+              taskId: itemId,
+              recurrenceRuleId: ruleId
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to save recurrence rule:', error);
+    }
+  }
+
   // Main task date picker handlers
   function handleDueDateClick(event: MouseEvent) {
     event.preventDefault();
@@ -32,7 +93,7 @@
     showDatePicker = true;
   }
 
-  function handleDateChange(data: {
+  async function handleDateChange(data: {
     date: string;
     dateTime: string;
     range?: { start: string; end: string };
@@ -69,6 +130,11 @@
         recurrenceRule: recurrenceRule ?? undefined
       });
     }
+
+    // RecurrenceRuleをバックエンドに保存
+    if (recurrenceRule !== undefined) {
+      await saveRecurrenceRule(task.id, false, recurrenceRule);
+    }
   }
 
   function handleDateClear() {
@@ -98,7 +164,7 @@
     showSubTaskDatePicker = true;
   }
 
-  function handleSubTaskDateChange(data: {
+  async function handleSubTaskDateChange(data: {
     date: string;
     dateTime: string;
     range?: { start: string; end: string };
@@ -136,6 +202,11 @@
         isRangeDate: false,
         recurrenceRule: recurrenceRule ?? undefined
       });
+    }
+
+    // RecurrenceRuleをバックエンドに保存
+    if (recurrenceRule !== undefined) {
+      await saveRecurrenceRule(editingSubTaskId, true, recurrenceRule);
     }
   }
 

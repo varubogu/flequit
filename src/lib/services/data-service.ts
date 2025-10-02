@@ -516,61 +516,61 @@ export class DataService {
   }
 
   // 繰り返しルール管理
-  async createRecurrenceRule(rule: RecurrenceRule): Promise<boolean> {
+  async createRecurrenceRule(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.recurrenceRule.create(rule);
+    return await backend.recurrenceRule.create(projectId, rule);
   }
 
-  async getRecurrenceRule(ruleId: string): Promise<RecurrenceRule | null> {
+  async getRecurrenceRule(projectId: string, ruleId: string): Promise<RecurrenceRule | null> {
     const backend = await this.getBackend();
-    return await backend.recurrenceRule.get(ruleId);
+    return await backend.recurrenceRule.get(projectId, ruleId);
   }
 
-  async getAllRecurrenceRules(): Promise<RecurrenceRule[]> {
+  async getAllRecurrenceRules(projectId: string): Promise<RecurrenceRule[]> {
     const backend = await this.getBackend();
-    return await backend.recurrenceRule.getAll();
+    return await backend.recurrenceRule.getAll(projectId);
   }
 
-  async updateRecurrenceRule(rule: RecurrenceRule): Promise<boolean> {
+  async updateRecurrenceRule(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.recurrenceRule.update(rule);
+    return await backend.recurrenceRule.update(projectId, rule);
   }
 
-  async deleteRecurrenceRule(ruleId: string): Promise<boolean> {
+  async deleteRecurrenceRule(projectId: string, ruleId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.recurrenceRule.delete(ruleId);
+    return await backend.recurrenceRule.delete(projectId, ruleId);
   }
 
   // タスク繰り返し管理
-  async createTaskRecurrence(taskRecurrence: TaskRecurrence): Promise<boolean> {
+  async createTaskRecurrence(projectId: string, taskRecurrence: TaskRecurrence): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.taskRecurrence.create(taskRecurrence);
+    return await backend.taskRecurrence.create(projectId, taskRecurrence);
   }
 
-  async getTaskRecurrenceByTaskId(taskId: string): Promise<TaskRecurrence | null> {
+  async getTaskRecurrenceByTaskId(projectId: string, taskId: string): Promise<TaskRecurrence | null> {
     const backend = await this.getBackend();
-    return await backend.taskRecurrence.getByTaskId(taskId);
+    return await backend.taskRecurrence.getByTaskId(projectId, taskId);
   }
 
-  async deleteTaskRecurrence(taskId: string): Promise<boolean> {
+  async deleteTaskRecurrence(projectId: string, taskId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.taskRecurrence.delete(taskId);
+    return await backend.taskRecurrence.delete(projectId, taskId);
   }
 
   // サブタスク繰り返し管理
-  async createSubtaskRecurrence(subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
+  async createSubtaskRecurrence(projectId: string, subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.subtaskRecurrence.create(subtaskRecurrence);
+    return await backend.subtaskRecurrence.create(projectId, subtaskRecurrence);
   }
 
-  async getSubtaskRecurrenceBySubtaskId(subtaskId: string): Promise<SubtaskRecurrence | null> {
+  async getSubtaskRecurrenceBySubtaskId(projectId: string, subtaskId: string): Promise<SubtaskRecurrence | null> {
     const backend = await this.getBackend();
-    return await backend.subtaskRecurrence.getBySubtaskId(subtaskId);
+    return await backend.subtaskRecurrence.getBySubtaskId(projectId, subtaskId);
   }
 
-  async deleteSubtaskRecurrence(subtaskId: string): Promise<boolean> {
+  async deleteSubtaskRecurrence(projectId: string, subtaskId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    return await backend.subtaskRecurrence.delete(subtaskId);
+    return await backend.subtaskRecurrence.delete(projectId, subtaskId);
   }
 
   // 設定管理

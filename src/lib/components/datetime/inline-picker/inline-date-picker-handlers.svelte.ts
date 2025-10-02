@@ -161,8 +161,14 @@ export class InlineDatePickerHandlers {
 
   handleRecurrenceSave(rule: RecurrenceRule | null) {
     this.state.currentRecurrenceRule = rule;
-    // 繰り返しルールは TaskDetailLogic.handleRecurrenceChange で
-    // 専用サービスを使って保存されるため、ここでは onchange を呼ばない
+
+    // 繰り返しルール変更を親コンポーネントに通知
+    // 親コンポーネント（TaskDetailLogic）で専用サービスを使って保存される
+    if (this.state.useRangeMode) {
+      this.handleRangeInputChange();
+    } else {
+      this.handleDateChange();
+    }
   }
 
   handleRecurrenceDialogClose() {

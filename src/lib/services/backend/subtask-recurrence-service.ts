@@ -6,29 +6,33 @@ import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/t
 export interface SubtaskRecurrenceService {
   /**
    * サブタスクに繰り返しルールを関連付ける
+   * @param projectId プロジェクトID
    * @param subtaskRecurrence サブタスク繰り返し関連付け
    * @returns 成功したかどうか
    */
-  create(subtaskRecurrence: SubtaskRecurrence): Promise<boolean>;
+  create(projectId: string, subtaskRecurrence: SubtaskRecurrence): Promise<boolean>;
 
   /**
    * サブタスクIDによる繰り返し関連付けを取得する
+   * @param projectId プロジェクトID
    * @param subtaskId サブタスクID
    * @returns サブタスク繰り返し関連付け（存在しない場合はnull）
    */
-  getBySubtaskId(subtaskId: string): Promise<SubtaskRecurrence | null>;
+  getBySubtaskId(projectId: string, subtaskId: string): Promise<SubtaskRecurrence | null>;
 
   /**
    * サブタスクの繰り返し関連付けを削除する
+   * @param projectId プロジェクトID
    * @param subtaskId サブタスクID
    * @returns 成功したかどうか
    */
-  delete(subtaskId: string): Promise<boolean>;
+  delete(projectId: string, subtaskId: string): Promise<boolean>;
 
   /**
    * サブタスク繰り返し関連付けを検索する
+   * @param projectId プロジェクトID
    * @param condition 検索条件
    * @returns 条件に合致するサブタスク繰り返し関連付けの配列
    */
-  search(condition: SubtaskRecurrenceSearchCondition): Promise<SubtaskRecurrence[]>;
+  search(projectId: string, condition: SubtaskRecurrenceSearchCondition): Promise<SubtaskRecurrence[]>;
 }

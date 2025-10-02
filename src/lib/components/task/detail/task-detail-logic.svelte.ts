@@ -209,7 +209,7 @@ export class TaskDetailLogic {
     this.showDatePicker = true;
   }
 
-  handleDateChange(data: {
+  async handleDateChange(data: {
     date: string;
     dateTime: string;
     range?: { start: string; end: string };
@@ -244,12 +244,15 @@ export class TaskDetailLogic {
       };
     }
 
-    // recurrenceRuleが渡された場合、editFormを更新
+    // recurrenceRuleが渡された場合、editFormを更新してバックエンドに保存
     if (recurrenceRule !== undefined) {
       this.editForm = {
         ...this.editForm,
         recurrenceRule: fromLegacyRecurrenceRule(recurrenceRule)
       };
+
+      // 繰り返しルール変更をバックエンドに保存
+      await this.handleRecurrenceChange(recurrenceRule);
     }
 
     // 日付変更は即座に保存してタスク一覧に反映させる
@@ -405,6 +408,16 @@ export class TaskDetailLogic {
       return;
     }
 
+    // タスク/サブタスクからprojectIdを取得
+    const projectId = this.isSubTask && 'taskId' in this.currentItem
+      ? taskStore.getTaskProjectAndList(this.currentItem.taskId)?.project.id
+      : taskStore.getTaskProjectAndList(this.currentItem.id)?.project.id;
+
+    if (!projectId) {
+      console.error('Failed to get projectId for recurrence rule');
+      return;
+    }
+
     // 既存のRecurrenceRule型から統一型に変換
     const unifiedRule = fromLegacyRecurrenceRule(rule);
 
@@ -418,32 +431,32 @@ export class TaskDetailLogic {
       if (rule === null) {
         // 繰り返しルールを削除
         if (this.isSubTask) {
-          await backend.subtaskRecurrence.delete(this.currentItem.id);
+          await backend.subtaskRecurrence.delete(projectId, this.currentItem.id);
         } else {
-          await backend.taskRecurrence.delete(this.currentItem.id);
+          await backend.taskRecurrence.delete(projectId, this.currentItem.id);
         }
       } else {
         // 既存の繰り返し関連付けを確認
         const existing = this.isSubTask
-          ? await backend.subtaskRecurrence.getBySubtaskId(this.currentItem.id)
-          : await backend.taskRecurrence.getByTaskId(this.currentItem.id);
+          ? await backend.subtaskRecurrence.getBySubtaskId(projectId, this.currentItem.id)
+          : await backend.taskRecurrence.getByTaskId(projectId, this.currentItem.id);
 
         if (existing) {
           // 既存のRecurrenceRuleを更新
-          await backend.recurrenceRule.update({ ...unifiedRule!, id: existing.recurrenceRuleId });
+          await backend.recurrenceRule.update(projectId, { ...unifiedRule!, id: existing.recurrenceRuleId });
         } else {
           // 新規RecurrenceRuleを作成
           const ruleId = crypto.randomUUID();
-          await backend.recurrenceRule.create({ ...unifiedRule!, id: ruleId });
+          await backend.recurrenceRule.create(projectId, { ...unifiedRule!, id: ruleId });
 
           // 関連付けを作成
           if (this.isSubTask) {
-            await backend.subtaskRecurrence.create({
+            await backend.subtaskRecurrence.create(projectId, {
               subtaskId: this.currentItem.id,
               recurrenceRuleId: ruleId
             });
           } else {
-            await backend.taskRecurrence.create({
+            await backend.taskRecurrence.create(projectId, {
               taskId: this.currentItem.id,
               recurrenceRuleId: ruleId
             });

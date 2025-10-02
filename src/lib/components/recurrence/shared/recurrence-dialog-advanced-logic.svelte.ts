@@ -152,15 +152,15 @@ export class RecurrenceDialogAdvancedLogic {
   private setupAutoSaveEffect() {
     $effect(() => {
       // Track all state changes by referencing them
-      const level = this.state.recurrenceLevel;
-      const unit = this.state.unit;
-      const interval = this.state.interval;
-      const days = this.state.daysOfWeek;
-      const details = this.state.details;
-      const endDate = this.state.endDate;
-      const count = this.state.repeatCount;
-      const dateConds = this.dateConditionManager.conditions;
-      const weekdayConds = this.weekdayConditionManager.conditions;
+      void this.state.recurrenceLevel;
+      void this.state.unit;
+      void this.state.interval;
+      void this.state.daysOfWeek;
+      void this.state.details;
+      void this.state.endDate;
+      void this.state.repeatCount;
+      void this.dateConditionManager.conditions;
+      void this.weekdayConditionManager.conditions;
 
       // Skip during initialization or saving
       if (this.isInitializing || this.isSaving) return;
