@@ -227,6 +227,7 @@ export class DataService {
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTask called with backend:', backend.constructor.name);
+    console.log('DataService: updateTask stack trace:', new Error().stack);
 
     // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
     const patchData = {

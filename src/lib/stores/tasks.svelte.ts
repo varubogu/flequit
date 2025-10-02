@@ -196,6 +196,8 @@ export class TaskStore {
   }
 
   async updateTask(taskId: string, updates: Partial<Task>) {
+    console.log('[TaskStore] updateTask called with:', { taskId, updates });
+    console.log('[TaskStore] updateTask stack:', new Error().stack);
     // まずローカル状態を更新
     for (const project of this.projects) {
       for (const list of project.taskLists) {

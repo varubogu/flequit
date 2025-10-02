@@ -107,10 +107,12 @@ export class TaskDetailLogic {
 
   // Form handling
   debouncedSave() {
+    console.log('[TaskDetailLogic] debouncedSave called, stack:', new Error().stack);
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
     }
     this.saveTimeout = setTimeout(() => {
+      console.log('[TaskDetailLogic] debouncedSave timeout fired, updating task');
       if (this.currentItem) {
         const updates = {
           title: this.editForm.title,
@@ -163,6 +165,7 @@ export class TaskDetailLogic {
   }
 
   handleFormChange() {
+    console.log('[TaskDetailLogic] handleFormChange called, stack:', new Error().stack);
     this.debouncedSave();
   }
 
@@ -421,8 +424,8 @@ export class TaskDetailLogic {
     // 既存のRecurrenceRule型から統一型に変換
     const unifiedRule = fromLegacyRecurrenceRule(rule);
 
-    // editFormを即座に更新
-    this.editForm.recurrenceRule = unifiedRule;
+    // Note: editFormは更新しない - RecurrenceRuleの変更はバックエンドに保存するのみ
+    // editFormの更新はcurrentItemの再読み込み時に行われる
 
     // BackendServiceを取得
     const backend = await getBackendService();
@@ -465,9 +468,7 @@ export class TaskDetailLogic {
       }
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
-      // エラー時はUIに反映しない（元の値に戻す）
-      // currentItem.recurrenceRuleはLegacy型なので変換が必要
-      this.editForm.recurrenceRule = fromLegacyRecurrenceRule(this.currentItem.recurrenceRule);
+      // Note: editFormは更新していないため、ロールバック処理は不要
     }
 
     this.showRecurrenceDialog = false;

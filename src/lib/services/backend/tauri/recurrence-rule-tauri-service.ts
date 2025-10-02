@@ -1,11 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 import type { RecurrenceRuleService } from '$lib/services/backend/recurrence-rule-service';
+import { toTauriRecurrenceRule } from '$lib/utils/recurrence-converter';
 
 export class RecurrenceRuleTauriService implements RecurrenceRuleService {
   async create(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     try {
-      const result = await invoke('create_recurrence_rule', { projectId, rule });
+      const tauriRule = toTauriRecurrenceRule(rule);
+      const result = await invoke('create_recurrence_rule', { projectId, rule: tauriRule });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create recurrence rule:', error);
@@ -35,7 +37,8 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
 
   async update(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     try {
-      const result = await invoke('update_recurrence_rule', { projectId, rule });
+      const tauriRule = toTauriRecurrenceRule(rule);
+      const result = await invoke('update_recurrence_rule', { projectId, rule: tauriRule });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);

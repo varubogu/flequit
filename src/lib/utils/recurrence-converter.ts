@@ -115,6 +115,34 @@ export function fromBackendRecurrenceRule(
 }
 
 /**
+ * Tauri送信用のRecurrenceRule型
+ * adjustmentとpatternがJSON文字列化されている
+ */
+interface TauriRecurrenceRule extends Omit<RecurrenceRule, 'adjustment' | 'pattern'> {
+  adjustment?: string;
+  pattern?: string;
+}
+
+/**
+ * 統一型からTauri送信用型への変換
+ * adjustment と pattern をJSON文字列に変換します
+ */
+export function toTauriRecurrenceRule(
+  unified: RecurrenceRule | null | undefined
+): TauriRecurrenceRule | undefined {
+  if (!unified) return undefined;
+
+  // Tauri側ではadjustmentとpatternを文字列として期待しているため、JSON.stringifyする
+  const tauriRule: TauriRecurrenceRule = {
+    ...unified,
+    adjustment: unified.adjustment ? JSON.stringify(unified.adjustment) : undefined,
+    pattern: unified.pattern ? JSON.stringify(unified.pattern) : undefined
+  };
+
+  return tauriRule;
+}
+
+/**
 //  * 統一型からTauri送信用型への変換
 //  */
 // export function toTauriRecurrenceRule(
