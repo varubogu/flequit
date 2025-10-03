@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SearchCommand from '$lib/components/command/search-command.svelte';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 
 // モック設定
 vi.mock('$lib/services/task-service');

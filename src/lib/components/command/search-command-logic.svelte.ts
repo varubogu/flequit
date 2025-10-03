@@ -1,6 +1,6 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 import { viewStore } from '$lib/stores/view-store.svelte';
 
 export function createSearchLogic(onClose: () => void) {

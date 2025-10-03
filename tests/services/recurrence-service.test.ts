@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { RecurrenceService } from '$lib/services/recurrence-service';
+import { RecurrenceService } from '$lib/services/composite/recurrence-composite';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 import type { DateCondition } from '$lib/types/datetime-calendar';

@@ -1,4 +1,4 @@
-import { getBackendService } from '../infrastructure/backends';
+import { getBackendService } from '$lib/infrastructure/backends';
 import type { Setting } from '$lib/types/settings';
 
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { TaskService } from '$lib/infrastructure/backends/task-service';
+import type { TaskService } from '$lib/services/domain/task';
 import type { Task, TaskSearchCondition } from '$lib/types/task';
 
 // モックのタスクサービス実装

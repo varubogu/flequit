@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { Task } from '$lib/types/task';
-import type { TaskService } from '$lib/infrastructure/backends/task-service';
+import type { TaskService } from '../task-service';
 
 export class TaskTauriService implements TaskService {
   async create(projectId: string, task: Task): Promise<boolean> {

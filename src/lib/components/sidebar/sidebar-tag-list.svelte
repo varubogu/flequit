@@ -10,7 +10,7 @@
   import SidebarTagItem from './sidebar-tag-item.svelte';
   import type { Tag } from '$lib/types/tag';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskService } from '$lib/services/domain/task';
 
   interface Props {
     currentView?: ViewType;

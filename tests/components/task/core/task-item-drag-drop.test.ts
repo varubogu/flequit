@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import TaskItem from '$lib/components/task/core/task-item.svelte';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import type { TaskWithSubTasks } from '$lib/types/task';
 

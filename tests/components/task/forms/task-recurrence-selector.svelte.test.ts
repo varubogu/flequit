@@ -1,9 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
-import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import type { WeekOfMonth } from '$lib/types/datetime-calendar';
-import type { DayOfWeek } from '$lib/types/datetime-calendar';
+import type { RecurrenceRule, DayOfWeek } from '$lib/types/datetime-calendar';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import type { ITranslationService } from '$lib/services/translation-service';
 // import {

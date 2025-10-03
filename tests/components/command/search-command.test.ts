@@ -44,7 +44,7 @@ vi.mock('$lib/stores/view-store.svelte', () => ({
   }
 }));
 
-vi.mock('$lib/services/task-service', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   TaskService: {
     selectTask: vi.fn()
   }
@@ -90,7 +90,7 @@ describe('SearchCommand', () => {
   });
 
   it('タスク項目をEnterで選択するとタスクが選択されること', async () => {
-    const { TaskService } = await import('$lib/services/task-service');
+    const { TaskService } = await import('$lib/services/domain/task');
 
     render(SearchCommand, { open: true });
 

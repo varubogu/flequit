@@ -11,7 +11,7 @@ import type { UserService } from './user-service';
 import type { TaggingService } from './tagging-service';
 import type { AssignmentService } from './assignment-service';
 import type { RecurrenceRuleService } from './recurrence-rule-service';
-import type { TaskRecurrenceService } from './task-recurrence-service';
+import type { TaskRecurrenceService } from '$lib/infrastructure/backends/task-recurrence-service';
 import type { SubtaskRecurrenceService } from './subtask-recurrence-service';
 import type { SettingsManagementService } from './settings-management-service';
 

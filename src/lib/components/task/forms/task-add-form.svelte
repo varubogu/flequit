@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { TaskListService } from '$lib/services/task-list-service';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskListService } from '$lib/services/domain/tasklist';
+  import { TaskService } from '$lib/services/domain/task';
   import { TaskDetailService } from '$lib/services/ui/task-detail';
   import Button from '$lib/components/shared/button.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';

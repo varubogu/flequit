@@ -1,6 +1,6 @@
 import { getTranslationService } from './locale.svelte';
 import { getBackendService } from '$lib/infrastructure/backends';
-import { settingsInitService } from '$lib/services/settings-init-service';
+import { settingsInitService } from '$lib/services/domain/settings';
 import type { Setting } from '$lib/types/settings';
 
 const translationService = getTranslationService();

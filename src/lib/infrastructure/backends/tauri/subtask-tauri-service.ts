@@ -1,6 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { SubTask } from '$lib/types/sub-task';
-import type { SubTaskService } from '$lib/infrastructure/backends/subtask-service';
+import type { SubTaskService } from '../subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
   async create(projectId: string, subTask: SubTask): Promise<boolean> {

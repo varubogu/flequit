@@ -2,7 +2,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { getBackendService } from '$lib/infrastructure/backends/index';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
-  import { ProjectsService } from '$lib/services/projects-service';
+  import { ProjectsService } from '$lib/services/domain/project';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import type { User } from '$lib/types/user';

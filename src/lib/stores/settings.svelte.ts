@@ -1,5 +1,5 @@
 import { getBackendService } from '$lib/infrastructure/backends';
-import { settingsInitService } from '$lib/services/settings-init-service';
+import { settingsInitService } from '$lib/services/domain/settings';
 import type {
   Setting,
   Settings,

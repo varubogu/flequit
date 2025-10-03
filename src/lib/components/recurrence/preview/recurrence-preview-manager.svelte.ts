@@ -1,5 +1,5 @@
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import { RecurrenceService } from '$lib/services/recurrence-service';
+import { RecurrenceService } from '$lib/services/composite/recurrence-composite';
 import { SvelteDate } from 'svelte/reactivity';
 
 export class RecurrencePreviewManager {

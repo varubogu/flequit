@@ -1,5 +1,5 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { TaskService } from './task-service';
+import { TaskService } from './task';
 
 export class TaskListService {
   static async addNewTask(title: string): Promise<string | null> {

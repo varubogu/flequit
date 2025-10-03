@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
 // TaskStoreをモック

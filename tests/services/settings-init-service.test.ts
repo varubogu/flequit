@@ -13,7 +13,7 @@ vi.mock('$lib/infrastructure/backends', () => ({
 }));
 
 describe('SettingsInitService', () => {
-  let service: typeof import('$lib/services/settings-init-service').settingsInitService;
+  let service: typeof import('$lib/services/domain/settings').settingsInitService;
   let consoleLogSpy: ReturnType<typeof vi.spyOn>;
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
@@ -63,7 +63,7 @@ describe('SettingsInitService', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Import the singleton service
-    const module = await import('$lib/services/settings-init-service');
+    const module = await import('$lib/services/domain/settings');
     service = module.settingsInitService;
 
     // Clear cache before each test

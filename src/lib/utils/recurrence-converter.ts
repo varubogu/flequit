@@ -6,13 +6,7 @@
  * 後方互換性のため、パススルー関数として残しています。
  */
 
-import type {
-  RecurrenceRule,
-  RecurrenceUnit,
-  DayOfWeek,
-  RecurrencePattern,
-  RecurrenceAdjustment
-} from '$lib/types/recurrence';
+import type { RecurrenceRule } from '$lib/types/recurrence';
 
 /**
  * パススルー関数（後方互換性のため）

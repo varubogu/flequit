@@ -6,7 +6,7 @@ import {
   fromLegacyRecurrenceRule,
   toLegacyRecurrenceRule
 } from '$lib/utils/recurrence-converter';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { getBackendService } from '$lib/infrastructure/backends/index';

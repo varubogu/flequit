@@ -2,7 +2,7 @@ import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
-import { RecurrenceService } from './recurrence-service';
+import { RecurrenceService } from '../composite/recurrence-composite';
 // TODO: Tauri APIのセットアップ後に有効化
 // import { invoke } from '@tauri-apps/api/tauri';
 

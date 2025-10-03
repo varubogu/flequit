@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import type { Tag } from '$lib/types/tag';
 

@@ -4,7 +4,7 @@
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskService } from '$lib/services/domain/task';
   import { SvelteDate } from 'svelte/reactivity';
   import type { DragData } from '$lib/utils/drag-drop';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';

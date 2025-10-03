@@ -1,5 +1,5 @@
 import type { SubTaskSearchCondition, SubTask } from '$lib/types/sub-task';
-import type { SubTaskService } from '$lib/infrastructure/backends/subtask-service';
+import type { SubTaskService } from '../subtask-service';
 
 export class SubtaskWebService implements SubTaskService {
   async create(projectId: string, subTask: SubTask): Promise<boolean> {

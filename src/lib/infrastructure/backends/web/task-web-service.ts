@@ -1,5 +1,5 @@
 import type { Task, TaskSearchCondition } from '$lib/types/task';
-import type { TaskService } from '$lib/infrastructure/backends/task-service';
+import type { TaskService } from '../task-service';
 
 export class TaskWebService implements TaskService {
   async create(projectId: string, task: Task): Promise<boolean> {

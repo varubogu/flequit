@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProjectsService } from '$lib/services/projects-service';
+import { ProjectsService } from '$lib/services/domain/project';
 import type { Project, ProjectTree } from '$lib/types/project';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 

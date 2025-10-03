@@ -10,7 +10,7 @@ import type {
 } from './translation-service';
 import * as m from '$paraglide/messages.js';
 import { getBackendService } from '../infrastructure/backends';
-import { settingsInitService } from './settings-init-service';
+import { settingsInitService } from './domain/settings';
 
 /**
  * Paraglideを使用した翻訳サービスの実装

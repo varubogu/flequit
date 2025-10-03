@@ -1,5 +1,5 @@
 import { test, expect, vi, beforeEach } from 'vitest';
-import { TaskService } from '../../src/lib/services/task-service';
+import { TaskService } from '../../src/lib/services/domain/task';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
 // Mock the store import
@@ -310,14 +310,14 @@ vi.mock('../../src/lib/stores/tags.svelte', () => ({
   }
 }));
 
-vi.mock('../../src/lib/services/recurrence-service', () => ({
+vi.mock('../../src/lib/services/composite/recurrence-composite', () => ({
   RecurrenceService: {
     calculateNextDate: vi.fn()
   }
 }));
 
 const mockRecurrenceService = vi.mocked(
-  await import('../../src/lib/services/recurrence-service')
+  await import('../../src/lib/services/composite/recurrence-composite')
 ).RecurrenceService;
 
 // Update mockTaskStore to include all required methods

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { TaskDetailService } from '$lib/services/ui/task-detail';
-import { TaskService } from '$lib/services/task-service';
+import { TaskService } from '$lib/services/domain/task';
 
 // Mock TaskService
 vi.mock('$lib/services/task-service', () => ({

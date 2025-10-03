@@ -9,7 +9,7 @@ import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-re
 import type { Settings } from '$lib/types/settings';
 import { getBackendService } from '$lib/infrastructure/backends/index';
 import type { BackendService } from '$lib/infrastructure/backends/index';
-import { ProjectsService } from '$lib/services/projects-service';
+import { ProjectsService } from '$lib/services/domain/project';
 
 /**
  * データ管理の中間サービス層

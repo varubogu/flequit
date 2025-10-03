@@ -1,4 +1,4 @@
-import { TaskService } from '../task-service';
+import { TaskService } from '../domain/task';
 
 interface TaskDetailDrawerState {
   open: boolean;
