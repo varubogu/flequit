@@ -56,10 +56,4 @@ describe('TaskDetail Component', () => {
   });
 });
 
-describe('TaskDetailLogic', () => {
-  it('can be imported without errors', async () => {
-    const module = await import('$lib/components/task/detail/task-detail-logic.svelte');
-    expect(module.TaskDetailLogic).toBeDefined();
-    expect(typeof module.TaskDetailLogic).toBe('function');
-  });
-});
+// TaskDetailLogic has been migrated into task-detail.svelte component

@@ -2,7 +2,31 @@ import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
-import type { TaskItemLogic } from '$lib/components/task/core/task-item-logic.svelte';
+import type { SubTask } from '$lib/types/sub-task';
+import type { ContextMenuList } from '$lib/types/context-menu';
+
+interface TaskItemLogic {
+  task: TaskWithSubTasks;
+  showSubTasks: boolean;
+  isSelected: boolean;
+  hasSelectedSubTask: boolean;
+  isActiveTask: boolean;
+  completedSubTasks: number;
+  subTaskProgress: number;
+  taskContextMenuItems: ContextMenuList;
+  createSubTaskContextMenu: (subTask: SubTask) => ContextMenuList;
+  handleTaskClick: () => void;
+  handleStatusToggle: () => void;
+  handleSubTaskToggle: (event: Event | undefined, subTaskId: string) => void;
+  handleSubTaskClick: (event: Event | undefined, subTaskId: string) => void;
+  toggleSubTasksAccordion: (event?: Event) => void;
+  handleDragStart: (event: DragEvent) => void;
+  handleDragOver: (event: DragEvent) => void;
+  handleDrop: (event: DragEvent) => void;
+  handleDragEnd: (event: DragEvent) => void;
+  handleDragEnter: (event: DragEvent, element: HTMLElement) => void;
+  handleDragLeave: (event: DragEvent, element: HTMLElement) => void;
+}
 
 // 必要なモジュールをモック
 vi.mock('$lib/utils/task-utils', () => ({

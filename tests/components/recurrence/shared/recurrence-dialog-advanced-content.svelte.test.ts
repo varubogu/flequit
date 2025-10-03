@@ -1,7 +1,40 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/shared/recurrence-dialog-advanced-content.svelte';
-import type { RecurrenceDialogAdvancedLogic } from '$lib/components/recurrence/shared/recurrence-dialog-advanced-logic.svelte';
+import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
+import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
+
+interface RecurrenceDialogAdvancedLogic {
+  recurrenceLevel: RecurrenceLevel;
+  unit: RecurrenceUnit;
+  interval: number;
+  daysOfWeek: DayOfWeek[];
+  details: RecurrencePattern;
+  endDate: Date | undefined;
+  repeatCount: number | undefined;
+  previewDates: Date[];
+  displayCount: number;
+  dateConditions: DateCondition[];
+  weekdayConditions: WeekdayCondition[];
+  showBasicSettings: boolean;
+  showAdvancedSettings: boolean;
+  isComplexUnit: boolean;
+  recurrenceSettings: string;
+  startDateTime?: Date;
+  endDateTime?: Date;
+  isRangeDate?: boolean;
+  toggleDayOfWeek: (day: DayOfWeek) => void;
+  addDateCondition: () => void;
+  removeDateCondition: (id: string) => void;
+  updateDateCondition: (id: string, updates: Partial<DateCondition>) => void;
+  addWeekdayCondition: () => void;
+  removeWeekdayCondition: (id: string) => void;
+  updateWeekdayCondition: (id: string, updates: Partial<WeekdayCondition>) => void;
+  setUnit: (newUnit: RecurrenceUnit) => void;
+  setInterval: (newInterval: number) => void;
+  setDaysOfWeek: (newDaysOfWeek: DayOfWeek[]) => void;
+  setDetails: (newDetails: RecurrencePattern) => void;
+}
 
 // Mock child components
 vi.mock('$lib/components/recurrence/recurrence-level-selector.svelte', () => ({

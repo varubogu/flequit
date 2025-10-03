@@ -1,7 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import ProjectListContent from '$lib/components/project/project-list-content.svelte';
-import type { ProjectListLogic } from '$lib/components/project/project-list-logic.svelte';
+import type { ProjectTree } from '$lib/types/project';
+import type { ContextMenuList } from '$lib/types/context-menu';
+
+interface ProjectListLogic {
+  expandedProjects: Set<string>;
+  projectsData: ProjectTree[];
+  toggleTaskLists: string;
+  handleProjectSelect: (project: ProjectTree) => void;
+  toggleProjectExpansion: (projectId: string) => void;
+  getProjectTaskCount: (project: ProjectTree) => number;
+  openProjectDialog: (mode: 'add' | 'edit', project?: ProjectTree) => void;
+  openTaskListDialog: (mode: 'add', project: ProjectTree) => void;
+  handleProjectDragStart: (event: DragEvent, project: ProjectTree) => void;
+  handleProjectDragOver: (event: DragEvent, project: ProjectTree) => void;
+  handleProjectDrop: (event: DragEvent, targetProject: ProjectTree) => Promise<void>;
+  handleProjectDragEnd: (event: DragEvent) => void;
+  handleProjectDragEnter: (event: DragEvent, element: HTMLElement) => void;
+  handleProjectDragLeave: (event: DragEvent, element: HTMLElement) => void;
+  createProjectContextMenu: (project: ProjectTree) => ContextMenuList;
+}
 
 // Mock stores
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -51,34 +70,19 @@ describe('ProjectListContent', () => {
   const mockLogic = {
     projectsData: mockProjects,
     expandedProjects: new Set(['project-1']),
-    showProjectDialog: false,
-    projectDialogMode: 'add' as const,
-    editingProject: null,
-    showTaskListDialog: false,
-    taskListDialogProject: null,
-    translationService: {
-      getMessage: vi.fn((key: string) => key)
-    },
-    editProject: () => 'Edit Project',
-    addTaskList: () => 'Add Task List',
-    deleteProject: () => 'Delete Project',
-    toggleTaskLists: () => 'Toggle Task Lists',
+    toggleTaskLists: 'Toggle Task Lists',
     toggleProjectExpansion: vi.fn(),
     createProjectContextMenu: vi.fn(() => []),
     handleProjectSelect: vi.fn(),
     getProjectTaskCount: vi.fn(() => 5),
     handleProjectDragStart: vi.fn(),
     handleProjectDragOver: vi.fn(),
-    handleProjectDrop: vi.fn(),
+    handleProjectDrop: vi.fn(async () => {}),
     handleProjectDragEnd: vi.fn(),
     handleProjectDragEnter: vi.fn(),
     handleProjectDragLeave: vi.fn(),
     openProjectDialog: vi.fn(),
-    openTaskListDialog: vi.fn(),
-    handleTaskListSave: vi.fn(),
-    handleProjectSave: vi.fn(),
-    handleProjectDialogClose: vi.fn(),
-    handleTaskListDialogClose: vi.fn()
+    openTaskListDialog: vi.fn()
   };
 
   const defaultProps = {

@@ -33,17 +33,21 @@
 
   // Derived states
   const projectsData = $derived(taskStore.projects);
-  // Translation messages - force evaluation to string
+  // Translation messages - initialize once
   let editProject = $state('');
   let addTaskList = $state('');
   let deleteProject = $state('');
   let toggleTaskListsMessage = $state('');
+  let messagesInitialized = $state(false);
 
   $effect(() => {
-    editProject = translationService.getMessage('edit_project')();
-    addTaskList = translationService.getMessage('add_task_list')();
-    deleteProject = translationService.getMessage('delete_project')();
-    toggleTaskListsMessage = translationService.getMessage('toggle_task_lists')();
+    if (!messagesInitialized) {
+      editProject = translationService.getMessage('edit_project')();
+      addTaskList = translationService.getMessage('add_task_list')();
+      deleteProject = translationService.getMessage('delete_project')();
+      toggleTaskListsMessage = translationService.getMessage('toggle_task_lists')();
+      messagesInitialized = true;
+    }
   });
 
   // Project handlers
