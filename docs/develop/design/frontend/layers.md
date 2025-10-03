@@ -52,6 +52,50 @@ src/lib/
 
 ## 各層の責務
 
+### Stores層 (`stores/*.svelte.ts`)
+
+**責務**:
+- Svelteのrunes（`$state`, `$derived`）を使用したリアクティブ状態管理
+- アプリケーション全体のグローバル状態保持
+- UIの表示に必要なデータの計算・提供
+
+**特徴**:
+- `.svelte.ts`拡張子（Svelte runesを使用するため必須）
+- 永続化はdata-serviceまたはsettingsInitServiceに委譲
+- ビジネスロジックは持たない（domain servicesに委譲）
+
+**依存ルール**:
+- ✅ **data-service（infrastructure）を参照OK**
+  - 例: `dataService.createProject()`, `dataService.updateTask()`
+- ✅ **settingsInitServiceを参照OK**
+  - 例: 設定の初期化・取得
+- ❌ **domain/ui/composite servicesを参照禁止**
+  - 理由: 循環依存を防ぐため
+- ❌ **他のstoresへの相互参照は最小限**
+  - 必要な場合は依存方向を明確化
+
+**例**:
+```typescript
+// stores/tasks.svelte.ts
+import { dataService } from '$lib/services/data-service';
+
+class TaskStore {
+  tasks = $state<Task[]>([]);
+
+  async addTask(taskData: Task) {
+    // ✅ data-serviceで永続化
+    const newTask = await dataService.createTask(projectId, taskData);
+
+    // ✅ ローカル状態更新
+    this.tasks.push(newTask);
+  }
+}
+
+export const taskStore = new TaskStore();
+```
+
+---
+
 ### Infrastructure層 (`infrastructure/backends/`)
 
 **責務**:
@@ -68,6 +112,70 @@ src/lib/
 - ❌ **コンポーネントから直接呼び出し禁止**
 - ❌ **Storeから直接呼び出し禁止**
 - ✅ **Services層からのみアクセス可能**
+
+---
+
+### data-service (`services/data-service.ts`)
+
+**特別な位置づけ**:
+- Infrastructure層とStores層の橋渡し役
+- `infrastructure/backends/`への唯一のアクセスポイント
+- 実質的にInfrastructure層の一部として扱う
+
+**責務**:
+- BackendServiceの取得・初期化
+- 各バックエンド操作のシンプルなラッパー
+- データ永続化の統一インターフェース提供
+
+**依存ルール**:
+- ✅ **infrastructure/backends を参照OK**
+  - `getBackendService()`経由でバックエンド取得
+- ❌ **stores を参照禁止**（厳守）
+  - 理由: Infrastructure層はStoresに依存してはいけない
+  - 必要なIDはパラメータとして受け取る
+- ❌ **domain/ui/composite services を参照禁止**
+  - 理由: 循環依存を防ぐため
+
+**例**:
+```typescript
+// services/data-service.ts
+import { getBackendService } from '$lib/infrastructure/backends';
+
+class DataService {
+  private async getBackend() {
+    return await getBackendService();
+  }
+
+  // ✅ 正しい: projectIdをパラメータで受け取る
+  async createTag(projectId: string, tagData: TagData): Promise<Tag> {
+    const backend = await this.getBackend();
+    return await backend.tag.create(projectId, tagData);
+  }
+
+  // ❌ 間違い: storeから取得
+  // async createTag(tagData: TagData): Promise<Tag> {
+  //   const { taskStore } = await import('$lib/stores/tasks.svelte');
+  //   const projectId = taskStore.selectedProjectId; // NG!
+  //   ...
+  // }
+}
+```
+
+**呼び出し元の責任**:
+```typescript
+// stores/tags.svelte.ts
+import { taskStore } from './tasks.svelte';
+import { dataService } from '$lib/services/data-service';
+
+class TagStore {
+  async addTag(tagData: TagData) {
+    // ✅ storeがprojectIdを取得してdata-serviceに渡す
+    const projectId = taskStore.selectedProjectId || '';
+    const newTag = await dataService.createTag(projectId, tagData);
+    this.tags.push(newTag);
+  }
+}
+```
 
 ---
 
@@ -93,10 +201,20 @@ export class TaskService {
 }
 ```
 
-**アクセス制限**:
+**依存ルール（Svelte 5特有）**:
 - ✅ **コンポーネントから呼び出しOK**
-- ✅ **Infrastructure層を使用OK**
-- ✅ **Storeを使用OK**
+- ✅ **Storeからデータ取得OK**
+  - 理由: Svelte runesは`.svelte.ts`でのみ動作、状態はstoresに集中
+  - 例: `taskStore.tasks`, `taskStore.selectedProjectId`
+- ❌ **data-serviceを直接呼び出し禁止**
+  - 理由: 永続化はstoresまたはProjectsService経由で行う
+- ✅ **他のDomain Servicesを使用OK**
+  - 例: TaskServiceからRecurrenceServiceを呼び出す
+
+**注意事項**:
+- Storesを参照するのは**読み取り専用**が基本
+- Storeメソッドを呼ぶ場合は、単なるラッパーにならないよう注意
+- ビジネスロジックがない場合はservice層に配置しない
 
 ---
 
@@ -168,12 +286,27 @@ export class TaskDetailService {
 ```
 ┌─────────────────────────────────────────────┐
 │ Components (Svelte)                         │
+│ ✅ stores/* から読み取り                    │
 │ ✅ services/* から import                   │
 │ ❌ infrastructure/* から import 禁止         │
+│ ❌ stores/* への直接書き込み禁止             │
+└─────────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────────┐
+│ Stores Layer ($state管理)                   │
+│ ├─ tasks.svelte.ts                          │
+│ ├─ tags.svelte.ts                           │
+│ ├─ settings.svelte.ts                       │
+│ └─ view-store.svelte.ts                     │
+│                                             │
+│ ✅ data-service (infrastructure) を参照     │
+│ ✅ settingsInitService を参照               │
+│ ❌ domain/ui services を参照禁止            │
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
 │ Services Layer                              │
+│ ├─ data-service.ts (infrastructure)         │
 │ ├─ domain/      (単一エンティティ)          │
 │ ├─ composite/   (横断操作)                  │
 │ └─ ui/          (UI状態)                    │
@@ -188,15 +321,139 @@ export class TaskDetailService {
 └─────────────────────────────────────────────┘
 ```
 
-### 依存ルール
+### 詳細な依存ルール
 
-| From → To | Infrastructure | Domain | Composite | UI | Components |
-|-----------|---------------|--------|-----------|-----|------------|
-| **Components** | ❌ 禁止 | ✅ OK | ✅ OK | ✅ OK | ✅ OK |
-| **UI Services** | ❌ 禁止 | ✅ OK | ✅ OK | - | - |
-| **Composite Services** | ⚠️ 避ける | ✅ OK | - | - | - |
-| **Domain Services** | ✅ OK | ✅ OK | - | - | - |
-| **Infrastructure** | - | - | - | - | - |
+| From → To | Infrastructure | data-service | Domain | Composite | UI | Stores | Components |
+|-----------|---------------|--------------|--------|-----------|-----|--------|------------|
+| **Components** | ❌ 禁止 | ❌ 禁止 | ✅ OK | ✅ OK | ✅ OK | ✅ 読取のみ | ✅ OK |
+| **Stores** | ✅ backends経由 | ✅ OK | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | - | - |
+| **UI Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | ✅ OK | - | ✅ OK | - |
+| **Composite Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | - | - | ⚠️ 避ける | - |
+| **Domain Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | - | - | ✅ OK | - |
+| **data-service** | ✅ OK | - | - | - | - | ❌ 禁止 | - |
+| **Infrastructure** | - | - | - | - | - | - | - |
+
+### 循環依存防止ルール
+
+**🔴 絶対禁止（循環依存リスク）**:
+- ❌ `stores` → `domain/ui/composite services`
+- ❌ `data-service` → `stores`
+- ❌ `data-service` → `domain/ui/composite services`
+
+**🟡 Svelte 5特有の許容パターン**:
+- ✅ `domain/ui services` → `stores` (Svelte runesの制約上許容)
+  - 理由: `$state`は`.svelte.ts`でのみ動作するため、状態はstoresに集中
+  - 条件: **逆方向の依存（stores → domain/ui services）が存在しないこと**
+
+**🟢 推奨パターン**:
+- ✅ `stores` → `data-service` → `infrastructure`
+- ✅ `domain/ui services` → `stores` (一方向のみ)
+- ✅ `components` → `services` → `stores` → `infrastructure`
+
+## 循環依存チェック（ESLint）
+
+循環依存は**ESLintで自動検出**されます。`eslint.config.ts`に以下のルールが設定されています：
+
+### ESLint設定
+
+```typescript
+// eslint.config.ts
+
+// 1. Stores層からDomain/UI/Composite Servicesへの参照を禁止
+{
+  files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['$lib/services/domain/**', '**/services/domain/**'],
+            message: '❌ Stores層からDomain Servicesへの参照は禁止です（循環依存）。'
+          },
+          {
+            group: ['$lib/services/ui/**', '**/services/ui/**'],
+            message: '❌ Stores層からUI Servicesへの参照は禁止です（循環依存）。'
+          },
+          {
+            group: ['$lib/services/composite/**', '**/services/composite/**'],
+            message: '❌ Stores層からComposite Servicesへの参照は禁止です（循環依存）。'
+          }
+        ]
+      }
+    ]
+  }
+},
+
+// 2. data-serviceからStores/Servicesへの参照を禁止
+{
+  files: ['src/lib/services/data-service.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['$lib/stores/**', '**/stores/**'],
+            message: '❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。'
+          },
+          {
+            group: ['$lib/services/domain/**', '**/services/domain/**'],
+            message: '❌ data-serviceからDomain Servicesへの参照は禁止です（循環依存）。'
+          },
+          {
+            group: ['$lib/services/ui/**', '**/services/ui/**'],
+            message: '❌ data-serviceからUI Servicesへの参照は禁止です（循環依存）。'
+          },
+          {
+            group: ['$lib/services/composite/**', '**/services/composite/**'],
+            message: '❌ data-serviceからComposite Servicesへの参照は禁止です（循環依存）。'
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 実行方法
+
+```bash
+# Lintチェック（循環依存も自動検出）
+bun run lint
+
+# 開発中の自動チェック
+bun run dev  # ESLint統合されたエディタで自動表示
+```
+
+### エラー例
+
+```bash
+# stores → domain services の違反例
+src/lib/stores/settings.svelte.ts
+  2:1  error  '$lib/services/domain/settings' import is restricted from being used by a pattern.
+              ❌ Stores層からDomain Servicesへの参照は禁止です（循環依存）。
+
+# data-service → stores の違反例
+src/lib/services/data-service.ts
+  5:1  error  '$lib/stores/tasks.svelte' import is restricted from being used by a pattern.
+              ❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。
+```
+
+### CI/CDへの組み込み
+
+```json
+// package.json
+{
+  "scripts": {
+    "lint": "eslint .",
+    "precommit": "bun run lint && bun check",
+    "ci": "bun run lint && bun run test && bun check"
+  }
+}
+```
+
+---
 
 ## 技術的強制策
 
