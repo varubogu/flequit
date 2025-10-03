@@ -50,6 +50,59 @@ export default tseslint.config(
       ]
     }
   },
+  // 循環依存防止ルール
+  {
+    files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/domain/**', '**/services/domain/**'],
+              message: '❌ Stores層からDomain Servicesへの参照は禁止です（循環依存）。'
+            },
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ Stores層からUI Servicesへの参照は禁止です（循環依存）。'
+            },
+            {
+              group: ['$lib/services/composite/**', '**/services/composite/**'],
+              message: '❌ Stores層からComposite Servicesへの参照は禁止です（循環依存）。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    files: ['src/lib/services/data-service.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/stores/**', '**/stores/**'],
+              message: '❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。'
+            },
+            {
+              group: ['$lib/services/domain/**', '**/services/domain/**'],
+              message: '❌ data-serviceからDomain Servicesへの参照は禁止です（循環依存）。'
+            },
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ data-serviceからUI Servicesへの参照は禁止です（循環依存）。'
+            },
+            {
+              group: ['$lib/services/composite/**', '**/services/composite/**'],
+              message: '❌ data-serviceからComposite Servicesへの参照は禁止です（循環依存）。'
+            }
+          ]
+        }
+      ]
+    }
+  },
   {
     ignores: [
       '.svelte-kit/',
