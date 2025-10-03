@@ -21,6 +21,24 @@
 - メッセージはInlang Paraglideを使用して常に国際化対応
 - コンポーネントの単体テスト作成時、外部UIライブラリのモックは使わない。外部UIライブラリ以外はモック化する
 
+## レイヤーアーキテクチャ
+
+詳細は `docs/develop/design/frontend/layers.md` を参照してください。
+
+**重要なルール**:
+- ❌ **コンポーネントから `infrastructure/` への直接アクセスは禁止**
+- ✅ **必ず `services/` 経由でアクセス**
+- ❌ **Storeへの直接書き込みは禁止**
+- ✅ **書き込みは必ずDomain Service経由**
+
+```typescript
+// ❌ NG: Infrastructure層への直接アクセス
+import { TauriBackend } from '$lib/infrastructure/backends/tauri';
+
+// ✅ OK: Services層経由
+import { TaskService } from '$lib/services';
+```
+
 ## 開発ワークフロー
 
 詳細は `docs/develop/rules/workflow.md` を参照してください。
