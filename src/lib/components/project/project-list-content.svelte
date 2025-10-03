@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ViewType } from '$lib/services/view-service';
+  import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { ChevronDown, ChevronRight } from 'lucide-svelte';

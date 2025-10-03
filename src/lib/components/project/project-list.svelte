@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ViewType } from '$lib/services/view-service';
+  import type { ViewType } from '$lib/services/ui/view';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
   import ProjectListContent from './project-list-content.svelte';

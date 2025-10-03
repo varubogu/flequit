@@ -1,5 +1,5 @@
-import type { ViewType } from '$lib/services/view-service';
-import { ViewService } from '$lib/services/view-service';
+import type { ViewType } from '$lib/services/ui/view';
+import { ViewService } from '$lib/services/ui/view';
 
 export class ViewStore {
   currentView = $state<ViewType>('all');

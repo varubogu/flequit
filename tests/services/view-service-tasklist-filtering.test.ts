@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { ViewService } from '$lib/services/view-service';
+import { ViewService } from '$lib/services/ui/view';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import type { ProjectTree } from '$lib/types/project';
 

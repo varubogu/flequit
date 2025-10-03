@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/project';
-  import type { ViewType } from '$lib/services/view-service';
+  import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
@@ -10,7 +10,7 @@
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
-  import { TaskDetailService } from '$lib/services/task-detail-service';
+  import { TaskDetailService } from '$lib/services/ui/task-detail';
 
   interface Props {
     project: ProjectTree;

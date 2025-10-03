@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { ViewType } from '$lib/services/view-service';
+  import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';

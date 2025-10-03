@@ -1,5 +1,5 @@
 import { test, expect, vi, beforeEach } from 'vitest';
-import { LayoutService } from '../../src/lib/services/layout-service';
+import { LayoutService } from '../../src/lib/services/ui/layout';
 
 // Mock localStorage
 const mockLocalStorage = {

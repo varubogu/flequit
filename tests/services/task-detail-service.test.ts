@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TaskDetailService } from '$lib/services/task-detail-service';
+import { TaskDetailService } from '$lib/services/ui/task-detail';
 import { TaskService } from '$lib/services/task-service';
 
 // Mock TaskService

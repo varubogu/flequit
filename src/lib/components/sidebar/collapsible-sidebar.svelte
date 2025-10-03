@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ViewType } from '$lib/services/view-service';
+  import type { ViewType } from '$lib/services/ui/view';
   import * as Sidebar from '$lib/components/ui/sidebar';
   import SidebarSearchHeader from '$lib/components/sidebar/sidebar-search-header.svelte';
   import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';

@@ -1,5 +1,5 @@
 import { test, expect, vi, beforeEach } from 'vitest';
-import { ViewService } from '../../src/lib/services/view-service';
+import { ViewService } from '../../src/lib/services/ui/view';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
 // Hoist variables to be available in the vi.mock factory

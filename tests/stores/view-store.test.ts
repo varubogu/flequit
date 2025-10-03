@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { ViewStore } from '../../src/lib/stores/view-store.svelte';
-import { ViewService } from '../../src/lib/services/view-service';
+import { ViewService } from '../../src/lib/services/ui/view';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock ViewService

@@ -1,7 +1,7 @@
 import { SvelteSet } from 'svelte/reactivity';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import type { ProjectTree } from '$lib/types/project';
-import type { ViewType } from '$lib/services/view-service';
+import type { ViewType } from '$lib/services/ui/view';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 import type { ContextMenuList } from '$lib/types/context-menu';

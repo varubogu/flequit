@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { ViewType } from '$lib/services/view-service';
+import type { ViewType } from '$lib/services/ui/view';
 
 describe('ProjectList', () => {
   const defaultProps = {
