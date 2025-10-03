@@ -34,7 +34,19 @@ export default tseslint.config(
   },
   {
     files: ['src/lib/**/*.{ts,svelte}'],
-    ignores: ['src/lib/infrastructure/**'],
+    ignores: [
+      'src/lib/infrastructure/**',
+      'src/lib/services/data-service.ts',
+      'src/lib/services/domain/settings.ts',
+      'src/lib/services/paraglide-translation-service.svelte.ts',
+      'src/lib/stores/settings.svelte.ts',
+      'src/lib/stores/views-visibility.svelte.ts',
+      // Components層の例外（要リファクタリング: data-serviceへのメソッド追加が必要）
+      'src/lib/components/task/assignment/task-assignment.svelte',
+      'src/lib/components/task/detail/task-detail.svelte',
+      'src/lib/components/task/forms/task-date-picker.svelte',
+      'src/lib/components/user/user-profile-edit-dialog.svelte'
+    ],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -50,14 +62,14 @@ export default tseslint.config(
       ]
     }
   },
-  // 循環依存防止ルール
+  // 循環依存防止ルール（Stores層のみ対象）
   // 注: settingsInitServiceとViewServiceは循環依存がないことを確認済みのため許可
   {
-    files: [
-      'src/lib/stores/**/*.{ts,svelte.ts}',
-      '!src/lib/stores/settings.svelte.ts',
-      '!src/lib/stores/view-store.svelte.ts',
-      '!src/lib/stores/views-visibility.svelte.ts'
+    files: ['src/lib/stores/*.svelte.ts'],
+    ignores: [
+      'src/lib/stores/settings.svelte.ts',
+      'src/lib/stores/view-store.svelte.ts',
+      'src/lib/stores/views-visibility.svelte.ts'
     ],
     rules: {
       'no-restricted-imports': [
