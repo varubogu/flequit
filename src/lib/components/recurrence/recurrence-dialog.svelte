@@ -30,8 +30,7 @@
     recurrenceRule,
     onSave,
     startDateTime,
-    endDateTime,
-    isRangeDate
+    endDateTime
   }: Props = $props();
 
   // Composed managers (kept as helper classes)
@@ -87,7 +86,7 @@
    * Called when the recurrenceRule prop changes externally
    * NOTE: Does NOT clear isInitializing flag - caller is responsible
    */
-  function updateFromRecurrenceRule(rule?: RecurrenceRule | null) {
+  function updateFromRecurrenceRule() {
     initializeState();
   }
 
@@ -126,15 +125,15 @@
   // Auto-save effect - use untrack to prevent infinite loops
   $effect(() => {
     // Track all state changes by referencing them
-    const level = recurrenceState.recurrenceLevel;
-    const currentUnit = recurrenceState.unit;
-    const currentInterval = recurrenceState.interval;
-    const currentDaysOfWeek = recurrenceState.daysOfWeek;
-    const currentDetails = recurrenceState.details;
-    const currentEndDate = recurrenceState.endDate;
-    const currentRepeatCount = recurrenceState.repeatCount;
-    const currentDateConditions = dateConditionManager.conditions;
-    const currentWeekdayConditions = weekdayConditionManager.conditions;
+    void recurrenceState.recurrenceLevel;
+    void recurrenceState.unit;
+    void recurrenceState.interval;
+    void recurrenceState.daysOfWeek;
+    void recurrenceState.details;
+    void recurrenceState.endDate;
+    void recurrenceState.repeatCount;
+    void dateConditionManager.conditions;
+    void weekdayConditionManager.conditions;
 
     // Use untrack to prevent re-triggering when flags change
     // This prevents the effect from running when isInitializing changes from true to false
