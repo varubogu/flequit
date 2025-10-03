@@ -1,11 +1,30 @@
 <script lang="ts">
   import type { ViewType } from '$lib/services/ui/view';
+  import type { ProjectTree } from '$lib/types/project';
+  import type { ContextMenuList } from '$lib/types/context-menu';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { ChevronDown, ChevronRight } from 'lucide-svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import TaskListDisplay from '$lib/components/task/core/task-list-display.svelte';
-  import type { ProjectListLogic } from './project-list-logic.svelte';
+
+  interface ProjectListLogic {
+    expandedProjects: Set<string>;
+    projectsData: ProjectTree[];
+    toggleTaskLists: string;
+    handleProjectSelect: (project: ProjectTree) => void;
+    toggleProjectExpansion: (projectId: string) => void;
+    getProjectTaskCount: (project: ProjectTree) => number;
+    openProjectDialog: (mode: 'add' | 'edit', project?: ProjectTree) => void;
+    openTaskListDialog: (mode: 'add', project: ProjectTree) => void;
+    handleProjectDragStart: (event: DragEvent, project: ProjectTree) => void;
+    handleProjectDragOver: (event: DragEvent, project: ProjectTree) => void;
+    handleProjectDrop: (event: DragEvent, targetProject: ProjectTree) => Promise<void>;
+    handleProjectDragEnd: (event: DragEvent) => void;
+    handleProjectDragEnter: (event: DragEvent, element: HTMLElement) => void;
+    handleProjectDragLeave: (event: DragEvent, element: HTMLElement) => void;
+    createProjectContextMenu: (project: ProjectTree) => ContextMenuList;
+  }
 
   interface Props {
     logic: ProjectListLogic;
@@ -27,7 +46,7 @@
             size="icon"
             class="text-muted-foreground hover:text-foreground mt-1 h-8 min-h-[32px] w-8 min-w-[32px] transition-all duration-100 active:scale-100 active:brightness-[0.4]"
             onclick={() => logic.toggleProjectExpansion(project.id)}
-            title={logic.toggleTaskLists()}
+            title={logic.toggleTaskLists}
             data-testid="toggle-project-{project.id}"
           >
             {#if logic.expandedProjects.has(project.id)}

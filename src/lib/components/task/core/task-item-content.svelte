@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
+  import type { SubTask } from '$lib/types/sub-task';
+  import type { ContextMenuList } from '$lib/types/context-menu';
   import { getPriorityColor } from '$lib/utils/task-utils';
   import Button from '$lib/components/shared/button.svelte';
   import TaskStatusToggle from '$lib/components/task/controls/task-status-toggle.svelte';
@@ -7,8 +9,30 @@
   import SubTaskList from '$lib/components/task/subtasks/sub-task-list.svelte';
   import TaskAccordionToggle from '../controls/task-accordion-toggle.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
-  import type { TaskItemLogic } from './task-item-logic.svelte';
   import type TaskDatePicker from '../forms/task-date-picker.svelte';
+
+  interface TaskItemLogic {
+    task: TaskWithSubTasks;
+    showSubTasks: boolean;
+    isSelected: boolean;
+    hasSelectedSubTask: boolean;
+    isActiveTask: boolean;
+    completedSubTasks: number;
+    subTaskProgress: number;
+    taskContextMenuItems: ContextMenuList;
+    createSubTaskContextMenu: (subTask: SubTask) => ContextMenuList;
+    handleTaskClick: () => void;
+    handleStatusToggle: () => void;
+    handleSubTaskToggle: (event: Event | undefined, subTaskId: string) => void;
+    handleSubTaskClick: (event: Event | undefined, subTaskId: string) => void;
+    toggleSubTasksAccordion: (event?: Event) => void;
+    handleDragStart: (event: DragEvent) => void;
+    handleDragOver: (event: DragEvent) => void;
+    handleDrop: (event: DragEvent) => void;
+    handleDragEnd: (event: DragEvent) => void;
+    handleDragEnter: (event: DragEvent, element: HTMLElement) => void;
+    handleDragLeave: (event: DragEvent, element: HTMLElement) => void;
+  }
 
   interface Props {
     logic: TaskItemLogic;
