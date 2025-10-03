@@ -152,7 +152,7 @@
     if (open && !previousOpen) {
       // Start initialization when dialog opens
       isInitializing = true;
-      updateFromRecurrenceRule(recurrenceRule);
+      updateFromRecurrenceRule();
 
       // Clear initialization flag after all reactive updates settle
       setTimeout(() => {

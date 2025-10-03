@@ -9,7 +9,6 @@ import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-re
 import type { Settings } from '$lib/types/settings';
 import { getBackendService } from '$lib/infrastructure/backends/index';
 import type { BackendService } from '$lib/infrastructure/backends/index';
-import { ProjectsService } from '$lib/services/domain/project';
 
 /**
  * データ管理の中間サービス層
@@ -25,17 +24,6 @@ export class DataService {
     return this.backend;
   }
 
-  /**
-   * 現在選択中のプロジェクトIDを取得します
-   * プロジェクト固有の操作に必要なprojectIdを提供します
-   */
-  private getProjectId(): string {
-    const projectId = ProjectsService.getSelectedProjectId();
-    if (!projectId) {
-      throw new Error('プロジェクトが選択されていません。先にプロジェクトを選択してください。');
-    }
-    return projectId;
-  }
 
   /**
    * タスクIDからプロジェクトIDを取得します
@@ -365,7 +353,7 @@ export class DataService {
   }
 
   // タグ管理
-  async createTag(tagData: { name: string; color?: string; order_index?: number }, projectId?: string): Promise<Tag> {
+  async createTag(projectId: string, tagData: { name: string; color?: string; order_index?: number }): Promise<Tag> {
     const backend = await this.getBackend();
     const newTag: Tag = {
       id: crypto.randomUUID(),
@@ -375,13 +363,11 @@ export class DataService {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    // プロジェクトIDが指定されていない場合のみ、選択中のプロジェクトIDを取得
-    const actualProjectId = projectId || this.getProjectId();
-    await backend.tag.create(actualProjectId, newTag);
+    await backend.tag.create(projectId, newTag);
     return newTag;
   }
 
-  async updateTag(tagId: string, updates: Partial<Tag>, projectId?: string): Promise<Tag | null> {
+  async updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
     const backend = await this.getBackend();
     console.log('DataService: updateTag called with backends:', backend.constructor.name);
 
@@ -392,20 +378,18 @@ export class DataService {
     };
 
     console.log('DataService: calling backends.tag.update');
-    const actualProjectId = projectId || this.getProjectId();
-    const success = await backend.tag.update(actualProjectId, tagId, patchData);
+    const success = await backend.tag.update(projectId, tagId, patchData);
     console.log('DataService: backends.tag.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
-      return await backend.tag.get(actualProjectId, tagId);
+      return await backend.tag.get(projectId, tagId);
     }
     return null;
   }
 
-  async deleteTag(tagId: string): Promise<boolean> {
+  async deleteTag(projectId: string, tagId: string): Promise<boolean> {
     const backend = await this.getBackend();
-    const projectId = this.getProjectId();
     return await backend.tag.delete(projectId, tagId);
   }
 

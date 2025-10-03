@@ -2,6 +2,7 @@ import type { Tag } from '$lib/types/tag';
 import { SvelteSet, SvelteDate } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
+import { taskStore } from './tasks.svelte';
 
 // Tag store using Svelte 5 runes
 export class TagStore {
@@ -88,7 +89,8 @@ export class TagStore {
 
     // バックエンドに同期（作成操作は即座に保存）
     try {
-      await dataService.createTag(newTag, projectId);
+      const pid = projectId || taskStore.selectedProjectId || '';
+      await dataService.createTag(pid, { name: trimmedName, color: tagData.color });
     } catch (error) {
       console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
@@ -137,7 +139,8 @@ export class TagStore {
   // バックエンド同期の内部メソッド
   private async syncAddTagToBackend(tag: Tag) {
     try {
-      await dataService.createTag(tag);
+      const projectId = taskStore.selectedProjectId || '';
+      await dataService.createTag(projectId, { name: tag.name, color: tag.color, order_index: tag.orderIndex });
     } catch (error) {
       console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
@@ -147,7 +150,7 @@ export class TagStore {
   // プロジェクトIDを指定したバックエンド同期メソッド
   private async syncAddTagToBackendWithProject(tag: Tag, projectId: string) {
     try {
-      await dataService.createTag(tag, projectId);
+      await dataService.createTag(projectId, { name: tag.name, color: tag.color, order_index: tag.orderIndex });
     } catch (error) {
       console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
@@ -213,7 +216,8 @@ export class TagStore {
 
       // バックエンドに同期（更新操作は定期保存に任せる）
       try {
-        await dataService.updateTag(tagId, updates);
+        const projectId = taskStore.selectedProjectId || '';
+        await dataService.updateTag(projectId, tagId, updates);
       } catch (error) {
         console.error('Failed to sync tag update to backends:', error);
         errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
@@ -236,7 +240,8 @@ export class TagStore {
   // バックエンド同期の内部メソッド
   private async syncUpdateTagToBackend(tagId: string, updates: Partial<Tag>, projectId?: string) {
     try {
-      await dataService.updateTag(tagId, updates, projectId);
+      const pid = projectId || taskStore.selectedProjectId || '';
+      await dataService.updateTag(pid, tagId, updates);
     } catch (error) {
       console.error('Failed to sync tag update to backends:', error);
       errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
@@ -280,7 +285,8 @@ export class TagStore {
 
       // バックエンドに同期（削除操作は即座に保存）
       try {
-        await dataService.deleteTag(tagId);
+        const projectId = taskStore.selectedProjectId || '';
+        await dataService.deleteTag(projectId, tagId);
       } catch (error) {
         console.error('Failed to sync tag deletion to backends:', error);
         errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
@@ -300,7 +306,8 @@ export class TagStore {
   // バックエンド同期の内部メソッド
   private async syncDeleteTagToBackend(tagId: string) {
     try {
-      await dataService.deleteTag(tagId);
+      const projectId = taskStore.selectedProjectId || '';
+      await dataService.deleteTag(projectId, tagId);
     } catch (error) {
       console.error('Failed to sync tag deletion to backends:', error);
       errorHandler.addSyncError('タグ削除', 'tag', tagId, error);

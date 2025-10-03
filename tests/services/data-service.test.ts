@@ -290,7 +290,7 @@ describe('DataService', () => {
         order_index: 0
       };
 
-      const result = await dataService.createTag(tagData);
+      const result = await dataService.createTag('test-project-id', tagData);
 
       expect(result).toBeDefined();
       expect(result.name).toBe(tagData.name);
@@ -357,7 +357,7 @@ describe('DataService', () => {
     test('updateTag should handle backends failure', async () => {
       // Mock updateTag returns true regardless in vitest.setup.ts
       // This test verifies the method exists and can be called
-      const result = await dataService.updateTag('tag-id', { name: 'Updated Tag' });
+      const result = await dataService.updateTag('test-project-id', 'tag-id', { name: 'Updated Tag' });
 
       expect(result).toBe(true);
     });
@@ -572,7 +572,7 @@ describe('DataService', () => {
     test('createTag should use default order_index if not provided', async () => {
       const tagData = { name: 'Test Tag' };
 
-      const result = await dataService.createTag(tagData);
+      const result = await dataService.createTag('test-project-id', tagData);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result as any).order_index).toBe(0);
