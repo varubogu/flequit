@@ -30,22 +30,22 @@ src/lib/
 │
 └── services/                    ← アプリケーション層（コンポーネントから使用OK）
     ├── domain/                 (単一エンティティ操作)
-    │   ├── project.service.ts
-    │   ├── tasklist.service.ts
-    │   ├── task.service.ts
-    │   ├── subtask.service.ts
-    │   ├── tag.service.ts
-    │   └── settings.service.ts
+    │   ├── project.ts
+    │   ├── tasklist.ts
+    │   ├── task.ts
+    │   ├── subtask.ts
+    │   ├── tag.ts
+    │   └── settings.ts
     │
     ├── composite/              (横断的操作)
-    │   ├── project-composite.service.ts
-    │   ├── task-composite.service.ts
-    │   └── recurrence-composite.service.ts
+    │   ├── project-composite.ts
+    │   ├── task-composite.ts
+    │   └── recurrence-composite.ts
     │
     ├── ui/                     (UI状態管理のみ)
-    │   ├── task-detail.service.ts
-    │   ├── view.service.ts
-    │   └── layout.service.ts
+    │   ├── task-detail.ts
+    │   ├── view.ts
+    │   └── layout.ts
     │
     └── index.ts                (公開API定義)
 ```
@@ -80,7 +80,7 @@ src/lib/
 
 **パターン**:
 ```typescript
-// services/domain/task.service.ts
+// services/domain/task.ts
 export class TaskService {
   static async updateTask(taskId: string, updates: Partial<Task>) {
     // 1. Backendで永続化
@@ -109,7 +109,7 @@ export class TaskService {
 
 **例**:
 ```typescript
-// services/composite/task-composite.service.ts
+// services/composite/task-composite.ts
 export class TaskCompositeService {
   /**
    * タスクとサブタスクを一括作成
@@ -146,7 +146,7 @@ export class TaskCompositeService {
 
 **例**:
 ```typescript
-// services/ui/task-detail.service.ts
+// services/ui/task-detail.ts
 export class TaskDetailService {
   static openTaskDetail(taskId: string) {
     TaskService.selectTask(taskId); // Domain Serviceを呼ぶのはOK

@@ -201,7 +201,7 @@ Infrastructure層の実装は以下の順序で行います:
 Infrastructure層を使用するのは **Services層（`services/domain/`）のみ** です:
 
 ```typescript
-// services/domain/task.service.ts
+// services/domain/task.ts
 import { getBackendService } from '$lib/infrastructure/backends';
 
 export class TaskService {
