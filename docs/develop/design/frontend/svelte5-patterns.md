@@ -4,6 +4,15 @@
 
 本文書では、Flequitアプリケーションで採用するSvelte 5の設計パターンとベストプラクティスを定義します。Svelte 5の新機能であるrunesを中心とした設計指針を示します。
 
+関連ドキュメント:
+- component-patterns: docs/develop/design/frontend/component-patterns.md
+- anti-patterns: docs/develop/design/frontend/anti-patterns.md
+
+禁止事項（要約）:
+- -logic.svelte.ts形式のロジッククラス新規追加
+- プロキシのみのサービス層増設（UI→Store→Backendから逸脱）
+- 同一概念の型二重定義と変換関数の乱立
+
 ## 状態管理
 
 ### $state: リアクティブな状態
@@ -161,6 +170,8 @@ export const projectStore = new ProjectStore();
 ```
 
 ## コンポーネント設計
+
+注意: 詳細な推奨/非推奨パターンは component-patterns.md / anti-patterns.md を参照。ここではSvelte 5固有の指針のみを扱う。
 
 ### Props定義
 
