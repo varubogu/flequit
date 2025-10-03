@@ -33,6 +33,24 @@ export default tseslint.config(
     }
   },
   {
+    files: ['src/lib/**/*.{ts,svelte}'],
+    ignores: ['src/lib/infrastructure/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/infrastructure/**'],
+              message:
+                '❌ Infrastructure層への直接アクセスは禁止です。services/を経由してください。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
     ignores: [
       '.svelte-kit/',
       'build/',
