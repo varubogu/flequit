@@ -7,8 +7,8 @@ import type { Tag } from '$lib/types/tag';
 import type { RecurrenceRule } from '$lib/types/recurrence';
 import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-reference';
 import type { Settings } from '$lib/types/settings';
-import { getBackendService } from '$lib/services/backend/index';
-import type { BackendService } from '$lib/services/backend/index';
+import { getBackendService } from '$lib/infrastructure/backends/index';
+import type { BackendService } from '$lib/infrastructure/backends/index';
 import { ProjectsService } from '$lib/services/projects-service';
 
 /**
@@ -226,7 +226,7 @@ export class DataService {
 
   async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateTask called with backend:', backend.constructor.name);
+    console.log('DataService: updateTask called with backends:', backend.constructor.name);
     console.log('DataService: updateTask stack trace:', new Error().stack);
 
     // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
@@ -245,14 +245,14 @@ export class DataService {
 
     // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
 
-    console.log('DataService: calling backend.task.update');
+    console.log('DataService: calling backends.task.update');
     // タスクIDからプロジェクトIDを取得（他のメソッドと一貫性を保つ）
     const projectId = await this.getProjectIdByTaskId(taskId);
     if (!projectId) {
       throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
     }
     const success = await backend.task.update(projectId, taskId, patchData);
-    console.log('DataService: backend.task.update result:', success);
+    console.log('DataService: backends.task.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
@@ -317,7 +317,7 @@ export class DataService {
 
   async updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<SubTask | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateSubTask called with backend:', backend.constructor.name);
+    console.log('DataService: updateSubTask called with backends:', backend.constructor.name);
 
     // Patch形式でのupdateに変更（Date型をstring型に変換し、フィールド名も変換）
     const patchData = {
@@ -334,14 +334,14 @@ export class DataService {
       patchData.recurrence_rule = updates.recurrenceRule;
     }
 
-    console.log('DataService: calling backend.subtask.update');
+    console.log('DataService: calling backends.subtask.update');
     // サブタスクIDからプロジェクトIDを取得
     const projectId = await this.getProjectIdBySubTaskId(subTaskId);
     if (!projectId) {
       throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
     }
     const success = await backend.subtask.update(projectId, subTaskId, patchData);
-    console.log('DataService: backend.subtask.update result:', success);
+    console.log('DataService: backends.subtask.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
@@ -383,7 +383,7 @@ export class DataService {
 
   async updateTag(tagId: string, updates: Partial<Tag>, projectId?: string): Promise<Tag | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateTag called with backend:', backend.constructor.name);
+    console.log('DataService: updateTag called with backends:', backend.constructor.name);
 
     // Patch形式でのupdateに変更
     const patchData = {
@@ -391,10 +391,10 @@ export class DataService {
       updated_at: new Date()
     };
 
-    console.log('DataService: calling backend.tag.update');
+    console.log('DataService: calling backends.tag.update');
     const actualProjectId = projectId || this.getProjectId();
     const success = await backend.tag.update(actualProjectId, tagId, patchData);
-    console.log('DataService: backend.tag.update result:', success);
+    console.log('DataService: backends.tag.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
@@ -441,7 +441,7 @@ export class DataService {
 
     // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
     if (!subTask) {
-      console.log('DataService: SubTask not found in backend (Web environment), updating with tag');
+      console.log('DataService: SubTask not found in backends (Web environment), updating with tag');
 
       // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
       console.warn('SubTask update with tags is not supported in current type definition');
@@ -473,7 +473,7 @@ export class DataService {
     // Web環境では既存データが取得できないため、空のタグ配列で更新
     if (!subTask) {
       console.log(
-        'DataService: SubTask not found in backend (Web environment), attempting tag removal'
+        'DataService: SubTask not found in backends (Web environment), attempting tag removal'
       );
       // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
       console.warn('SubTask update with tags is not supported in current type definition');

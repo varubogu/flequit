@@ -5,7 +5,7 @@ import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-e
 import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
-vi.mock('$lib/services/backend', () => ({
+vi.mock('$lib/infrastructure/backends', () => ({
   getBackendService: vi.fn(() =>
     Promise.resolve({
       setting: {

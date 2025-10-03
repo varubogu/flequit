@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RecurrenceRuleWebService } from '$lib/services/backend/web/recurrence-rule-web-service';
+import { RecurrenceRuleWebService } from '$lib/infrastructure/backends/web/recurrence-rule-web-service';
 import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 
 describe('RecurrenceRuleWebService', () => {
@@ -21,7 +21,7 @@ describe('RecurrenceRuleWebService', () => {
 
       const result = await service.create('test-project', rule);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createRecurrenceRule not implemented', { projectId: 'test-project', rule });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createRecurrenceRule not implemented', { projectId: 'test-project', rule });
       expect(result).toBe(true);
     });
   });
@@ -32,7 +32,7 @@ describe('RecurrenceRuleWebService', () => {
 
       const result = await service.get('test-project', ruleId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getRecurrenceRule not implemented', { projectId: 'test-project', ruleId });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getRecurrenceRule not implemented', { projectId: 'test-project', ruleId });
       expect(result).toBeNull();
     });
   });
@@ -41,7 +41,7 @@ describe('RecurrenceRuleWebService', () => {
     it('should log warning and return empty array', async () => {
       const result = await service.getAll('test-project');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAllRecurrenceRules not implemented', { projectId: 'test-project' });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getAllRecurrenceRules not implemented', { projectId: 'test-project' });
       expect(result).toEqual([]);
     });
   });
@@ -59,7 +59,7 @@ describe('RecurrenceRuleWebService', () => {
 
       const result = await service.update('test-project', rule);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateRecurrenceRule not implemented', { projectId: 'test-project', rule });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateRecurrenceRule not implemented', { projectId: 'test-project', rule });
       expect(result).toBe(true);
     });
   });
@@ -70,7 +70,7 @@ describe('RecurrenceRuleWebService', () => {
 
       const result = await service.delete('test-project', ruleId);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteRecurrenceRule not implemented', { projectId: 'test-project', ruleId });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteRecurrenceRule not implemented', { projectId: 'test-project', ruleId });
       expect(result).toBe(true);
     });
   });
@@ -84,7 +84,7 @@ describe('RecurrenceRuleWebService', () => {
 
       const result = await service.search('test-project', condition);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: searchRecurrenceRules not implemented', { projectId: 'test-project', condition });
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: searchRecurrenceRules not implemented', { projectId: 'test-project', condition });
       expect(result).toEqual([]);
     });
   });

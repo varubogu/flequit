@@ -1,9 +1,9 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { dataService } from '../../src/lib/services/data-service';
-import * as backendIndex from '../../src/lib/services/backend/index';
+import * as backendIndex from '$lib/infrastructure/backends/index';
 
 // バックエンドサービスをモック化
-vi.mock('../../src/lib/services/backend/index', () => ({
+vi.mock('../../src/lib/services/backends/index', () => ({
   getBackendService: vi.fn()
 }));
 
@@ -122,7 +122,7 @@ describe('DataService', () => {
       expect((result as any).created_at).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result as any).updated_at).toBeDefined();
-      // Mock dataService doesn't use backend, so this expectation is removed
+      // Mock dataService doesn't use backends, so this expectation is removed
       // expect(mockBackendService.project.create).toHaveBeenCalledOnce();
     });
 
@@ -157,7 +157,7 @@ describe('DataService', () => {
       expect(result).toBeDefined();
       expect(result?.name).toBe(updates.name);
       expect(result?.id).toBe(createdProject.id);
-      // Mock doesn't use backend, so skip backend expectations
+      // Mock doesn't use backends, so skip backends expectations
       // expect(mockBackendService.project.get).toHaveBeenCalledWith(createdProject.id);
       // expect(mockBackendService.project.update).toHaveBeenCalledOnce();
     });
@@ -254,7 +254,7 @@ describe('DataService', () => {
 
       const result = await dataService.updateTaskWithSubTasks('task-id', { tags: [] });
 
-      // Mock implementation doesn't use backend
+      // Mock implementation doesn't use backends
       // expect(mockBackendService.task.get).toHaveBeenCalledWith('task-id');
       // expect(mockBackendService.task.update).toHaveBeenCalledOnce();
       // Just verify the method can be called
@@ -300,7 +300,7 @@ describe('DataService', () => {
   });
 
   describe('Data loading', () => {
-    test('loadProjectData should return project data from backend', async () => {
+    test('loadProjectData should return project data from backends', async () => {
       const mockProjectData = [
         { id: '1', name: 'Project 1', task_lists: [] },
         { id: '2', name: 'Project 2', task_lists: [] }
@@ -314,7 +314,7 @@ describe('DataService', () => {
       // expect(mockBackendService.initialization.loadProjectData).toHaveBeenCalledOnce();
     });
 
-    test('initializeAll should return backend initialization result', async () => {
+    test('initializeAll should return backends initialization result', async () => {
       const result = await dataService.initializeAll();
 
       expect(result).toBe(true);
@@ -322,7 +322,7 @@ describe('DataService', () => {
   });
 
   describe('Update operations with failure cases', () => {
-    test('updateProject should handle backend failure', async () => {
+    test('updateProject should handle backends failure', async () => {
       mockBackendService.project.update.mockResolvedValue(false);
 
       const result = await dataService.updateProject('test-id', { name: 'Updated Name' });
@@ -330,7 +330,7 @@ describe('DataService', () => {
       expect(result).toBeNull();
     });
 
-    test('updateTaskList should handle backend failure', async () => {
+    test('updateTaskList should handle backends failure', async () => {
       mockBackendService.tasklist.update.mockResolvedValue(false);
 
       const result = await dataService.updateTaskList('project-id', 'list-id', { name: 'Updated Name' });
@@ -338,7 +338,7 @@ describe('DataService', () => {
       expect(result).toBeNull();
     });
 
-    test('updateTask should handle backend failure', async () => {
+    test('updateTask should handle backends failure', async () => {
       mockBackendService.task.update.mockResolvedValue(false);
 
       const result = await dataService.updateTask('task-id', { title: 'Updated Title' });
@@ -346,7 +346,7 @@ describe('DataService', () => {
       expect(result).toBeNull();
     });
 
-    test('updateSubTask should handle backend failure', async () => {
+    test('updateSubTask should handle backends failure', async () => {
       mockBackendService.subtask.update.mockResolvedValue(false);
 
       const result = await dataService.updateSubTask('subtask-id', { title: 'Updated Title' });
@@ -354,7 +354,7 @@ describe('DataService', () => {
       expect(result).toBeNull();
     });
 
-    test('updateTag should handle backend failure', async () => {
+    test('updateTag should handle backends failure', async () => {
       // Mock updateTag returns true regardless in vitest.setup.ts
       // This test verifies the method exists and can be called
       const result = await dataService.updateTag('tag-id', { name: 'Updated Tag' });
@@ -376,7 +376,7 @@ describe('DataService', () => {
       await dataService.addTagToSubTask(createdSubTask.id, 'tag-id');
 
       // The mock implementation adds tags to the existing subtask
-      // No need to verify backend calls since we're using mocks
+      // No need to verify backends calls since we're using mocks
       expect(true).toBe(true); // Test passes if no error is thrown
     });
 
@@ -502,7 +502,7 @@ describe('DataService', () => {
       await dataService.createTaskWithSubTasks('list-id', taskData);
 
       // The method calls createTask internally, which uses the mock implementation
-      // No need to verify backend calls since we're using mocks
+      // No need to verify backends calls since we're using mocks
       expect(true).toBe(true); // Test passes if no error is thrown
     });
 
@@ -528,7 +528,7 @@ describe('DataService', () => {
       await dataService.deleteTaskWithSubTasks(createdTask.id, 'project-id');
 
       // The method calls deleteTask internally, which uses the mock implementation
-      // No need to verify backend calls since we're using mocks
+      // No need to verify backends calls since we're using mocks
       expect(true).toBe(true); // Test passes if no error is thrown
     });
   });

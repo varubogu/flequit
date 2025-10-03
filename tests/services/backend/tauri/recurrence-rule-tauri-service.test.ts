@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RecurrenceRuleTauriService } from '$lib/services/backend/tauri/recurrence-rule-tauri-service';
+import { RecurrenceRuleTauriService } from '$lib/infrastructure/backends/tauri/recurrence-rule-tauri-service';
 import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 
 // Mock Tauri invoke

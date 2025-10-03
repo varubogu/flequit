@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TasklistWebService } from '$lib/services/backend/web/tasklist-web-service';
+import { TasklistWebService } from '$lib/infrastructure/backends/web/tasklist-web-service';
 import type { TaskList, TaskListSearchCondition } from '$lib/types/task-list';
 
 describe('TasklistWebService', () => {
@@ -42,7 +42,7 @@ describe('TasklistWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createTaskList not implemented',
+        'Web backends: createTaskList not implemented',
         'test-project-id',
         mockTaskList
       );
@@ -55,7 +55,7 @@ describe('TasklistWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateTaskList not implemented',
+        'Web backends: updateTaskList not implemented',
         'test-project-id',
         mockTaskList.id,
         mockTaskList
@@ -69,7 +69,7 @@ describe('TasklistWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: deleteTaskList not implemented',
+        'Web backends: deleteTaskList not implemented',
         'test-project-id',
         'tasklist-123'
       );
@@ -82,7 +82,7 @@ describe('TasklistWebService', () => {
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: getTaskList not implemented',
+        'Web backends: getTaskList not implemented',
         'test-project-id',
         'tasklist-123'
       );
@@ -95,7 +95,7 @@ describe('TasklistWebService', () => {
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: searchTaskLists not implemented',
+        'Web backends: searchTaskLists not implemented',
         'test-project-id',
         mockSearchCondition
       );

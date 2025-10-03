@@ -1,5 +1,5 @@
 import { getTranslationService } from './locale.svelte';
-import { getBackendService } from '$lib/services/backend';
+import { getBackendService } from '$lib/infrastructure/backends';
 import { settingsInitService } from '$lib/services/settings-init-service';
 import type { Setting } from '$lib/types/settings';
 
@@ -130,13 +130,13 @@ class ViewsVisibilityStore {
         ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
 
         this._configuration = { viewItems: mergedItems };
-        console.log('Views configuration loaded from backend');
+        console.log('Views configuration loaded from backends');
       } else {
-        console.log('No views setting found in backend, using defaults');
+        console.log('No views setting found in backends, using defaults');
         this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
       }
     } catch (error) {
-      console.error('Failed to load views configuration from backend:', error);
+      console.error('Failed to load views configuration from backends:', error);
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof window !== 'undefined') {
@@ -197,7 +197,7 @@ class ViewsVisibilityStore {
       await backend.setting.update(setting);
       console.log('Views visibility configuration saved successfully');
     } catch (error) {
-      console.error('Failed to save views visibility to backend:', error);
+      console.error('Failed to save views visibility to backends:', error);
 
       // フォールバックとしてlocalStorageに保存
       if (typeof window !== 'undefined') {

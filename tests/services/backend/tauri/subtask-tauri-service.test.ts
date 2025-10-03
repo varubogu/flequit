@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SubtaskTauriService } from '$lib/services/backend/tauri/subtask-tauri-service';
+import { SubtaskTauriService } from '$lib/infrastructure/backends/tauri/subtask-tauri-service';
 import type { SubTask } from '$lib/types/sub-task';
 
 // Mock Tauri invoke

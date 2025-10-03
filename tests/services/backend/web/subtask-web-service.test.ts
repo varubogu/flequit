@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SubtaskWebService } from '$lib/services/backend/web/subtask-web-service';
+import { SubtaskWebService } from '$lib/infrastructure/backends/web/subtask-web-service';
 import type { SubTask, SubTaskSearchCondition } from '$lib/types/sub-task';
 
 describe('SubtaskWebService', () => {
@@ -45,7 +45,7 @@ describe('SubtaskWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createSubTask not implemented',
+        'Web backends: createSubTask not implemented',
         'test-project-id',
         mockSubTask
       );
@@ -67,7 +67,7 @@ describe('SubtaskWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateSubTask not implemented',
+        'Web backends: updateSubTask not implemented',
         'test-project-id',
         mockSubTask.id,
         patchData
@@ -81,7 +81,7 @@ describe('SubtaskWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: deleteSubTask not implemented',
+        'Web backends: deleteSubTask not implemented',
         'test-project-id',
         'subtask-123'
       );
@@ -94,7 +94,7 @@ describe('SubtaskWebService', () => {
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: getSubTask not implemented (called for data retrieval)',
+        'Web backends: getSubTask not implemented (called for data retrieval)',
         'test-project-id',
         'subtask-123'
       );
@@ -107,7 +107,7 @@ describe('SubtaskWebService', () => {
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: searchSubTasks not implemented',
+        'Web backends: searchSubTasks not implemented',
         'test-project-id',
         mockSearchCondition
       );

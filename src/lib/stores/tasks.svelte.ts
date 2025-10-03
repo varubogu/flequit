@@ -9,7 +9,7 @@ import { tagStore } from './tags.svelte';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
-import { getBackendService } from '$lib/services/backend';
+import { getBackendService } from '$lib/infrastructure/backends';
 import { getTagsFromIds } from '$lib/utils/tag-utils';
 
 // Global state using Svelte 5 runes
@@ -163,7 +163,7 @@ export class TaskStore {
 
     this.projects = convertedProjects;
 
-    // Add initial bookmarks for common tags (initialization only, no backend sync)
+    // Add initial bookmarks for common tags (initialization only, no backends sync)
     const workTag = tagStore.tags.find((tag) => tag.name === 'work');
     const personalTag = tagStore.tags.find((tag) => tag.name === 'personal');
 
@@ -213,7 +213,7 @@ export class TaskStore {
           try {
             await dataService.updateTaskWithSubTasks(taskId, updates as Partial<TaskWithSubTasks>);
           } catch (error) {
-            console.error('Failed to sync task update to backend:', error);
+            console.error('Failed to sync task update to backends:', error);
             errorHandler.addSyncError('タスク更新', 'task', taskId, error);
           }
           return;
@@ -250,7 +250,7 @@ export class TaskStore {
         try {
           await dataService.createTaskWithSubTasks(listId, newTask);
         } catch (error) {
-          console.error('Failed to sync new task to backend:', error);
+          console.error('Failed to sync new task to backends:', error);
           errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
           // エラーが発生した場合はローカル状態から削除
           const taskIndex = list.tasks.findIndex((t) => t.id === newTask.id);
@@ -320,7 +320,7 @@ export class TaskStore {
           try {
             await dataService.deleteTaskWithSubTasks(taskId, project.id);
           } catch (error) {
-            console.error('Failed to sync task deletion to backend:', error);
+            console.error('Failed to sync task deletion to backends:', error);
             errorHandler.addSyncError('タスク削除', 'task', taskId, error);
             // エラーが発生した場合はローカル状態を復元
             list.tasks.splice(taskIndex, 0, deletedTask);
@@ -348,7 +348,7 @@ export class TaskStore {
             try {
               await dataService.updateSubTask(subTaskId, updates);
             } catch (error) {
-              console.error('Failed to sync subtask update to backend:', error);
+              console.error('Failed to sync subtask update to backends:', error);
               errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
             }
             return;
@@ -407,7 +407,7 @@ export class TaskStore {
             try {
               await dataService.deleteSubTask(subTaskId, projectId);
             } catch (error) {
-              console.error('Failed to sync subtask deletion to backend:', error);
+              console.error('Failed to sync subtask deletion to backends:', error);
               errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
               // エラーが発生した場合はローカル状態を復元
               task.subTasks.splice(subTaskIndex, 0, deletedSubTask);
@@ -509,11 +509,11 @@ export class TaskStore {
           // 即時保存：新しいtagging serviceを使用
           let tag: Tag;
           try {
-            console.debug('[addTagToTask] invoking backend create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
+            console.debug('[addTagToTask] invoking backends create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
             const backend = await getBackendService();
             tag = await backend.tagging.createTaskTag(project.id, taskId, trimmed);
           } catch (error) {
-            console.error('Failed to sync tag addition to backend:', error);
+            console.error('Failed to sync tag addition to backends:', error);
             errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
             return;
           }
@@ -541,7 +541,7 @@ export class TaskStore {
               const backend = await getBackendService();
               await backend.tagging.deleteTaskTag(project.id, taskId, tagId);
             } catch (error) {
-              console.error('Failed to sync tag removal to backend:', error);
+              console.error('Failed to sync tag removal to backends:', error);
               errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
             }
           }
@@ -593,11 +593,11 @@ export class TaskStore {
             // 即時保存：新しいtagging serviceを使用
             let tag: Tag;
             try {
-              console.debug('[addTagToSubTask] invoking backend create_subtask_tag', { projectId: project.id, subTaskId, tagName: trimmed });
+              console.debug('[addTagToSubTask] invoking backends create_subtask_tag', { projectId: project.id, subTaskId, tagName: trimmed });
               const backend = await getBackendService();
               tag = await backend.tagging.createSubtaskTag(project.id, subTaskId, trimmed);
             } catch (error) {
-              console.error('Failed to sync subtask tag addition to backend:', error);
+              console.error('Failed to sync subtask tag addition to backends:', error);
               errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
               return;
             }
@@ -627,7 +627,7 @@ export class TaskStore {
                 const backend = await getBackendService();
                 await backend.tagging.deleteSubtaskTag(project.id, subTaskId, tagId);
               } catch (error) {
-                console.error('Failed to sync subtask tag removal to backend:', error);
+                console.error('Failed to sync subtask tag removal to backends:', error);
                 errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);
               }
             }
@@ -919,7 +919,7 @@ export class TaskStore {
     try {
       await dataService.updateTask(taskId, { listId: newTaskListId });
     } catch (error) {
-      console.error('Failed to sync task move to backend:', error);
+      console.error('Failed to sync task move to backends:', error);
       errorHandler.addSyncError('タスク移動', 'task', taskId, error);
     }
   }
@@ -939,7 +939,7 @@ export class TaskStore {
     const [movedProject] = this.projects.splice(fromIndex, 1);
     this.projects.splice(toIndex, 0, movedProject);
 
-    // Update order indices and sync to backend
+    // Update order indices and sync to backends
     for (let index = 0; index < this.projects.length; index++) {
       const project = this.projects[index];
       project.orderIndex = index;
@@ -949,7 +949,7 @@ export class TaskStore {
         // Use dataService directly to avoid circular dependency and double update
         await dataService.updateProject(project.id, { order_index: index });
       } catch (error) {
-        console.error('Failed to sync project order to backend:', error);
+        console.error('Failed to sync project order to backends:', error);
         errorHandler.addSyncError('プロジェクト順序更新', 'project', project.id, error);
       }
     }
@@ -978,7 +978,7 @@ export class TaskStore {
     const [movedTaskList] = project.taskLists.splice(fromIndex, 1);
     project.taskLists.splice(toIndex, 0, movedTaskList);
 
-    // Update order indices and sync to backend
+    // Update order indices and sync to backends
     project.updatedAt = new SvelteDate();
     for (let index = 0; index < project.taskLists.length; index++) {
       const taskList = project.taskLists[index];
@@ -988,7 +988,7 @@ export class TaskStore {
       try {
         await dataService.updateTaskList(projectId, taskList.id, { orderIndex: index });
       } catch (error) {
-        console.error('Failed to sync task list order to backend:', error);
+        console.error('Failed to sync task list order to backends:', error);
         errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
       }
     }
@@ -1009,7 +1009,7 @@ export class TaskStore {
         project.taskLists.splice(taskListIndex, 1);
         project.updatedAt = new SvelteDate();
 
-        // Update order indices in source project and sync to backend
+        // Update order indices in source project and sync to backends
         for (let index = 0; index < (project.taskLists || []).length; index++) {
           const tl = project.taskLists[index];
           tl.orderIndex = index;
@@ -1018,7 +1018,7 @@ export class TaskStore {
           try {
             await dataService.updateTaskList(project.id, tl.id, { orderIndex: index });
           } catch (error) {
-            console.error('Failed to sync source project task list order to backend:', error);
+            console.error('Failed to sync source project task list order to backends:', error);
             errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
           }
         }
@@ -1054,7 +1054,7 @@ export class TaskStore {
       targetProject.taskLists.push(taskListToMove);
     }
 
-    // Update order indices in target project and sync to backend
+    // Update order indices in target project and sync to backends
     targetProject.updatedAt = new SvelteDate();
     for (let index = 0; index < (targetProject.taskLists || []).length; index++) {
       const tl = targetProject.taskLists[index];
@@ -1066,7 +1066,7 @@ export class TaskStore {
           orderIndex: index
         });
       } catch (error) {
-        console.error('Failed to sync target project task list order to backend:', error);
+        console.error('Failed to sync target project task list order to backends:', error);
         errorHandler.addSyncError('タスクリスト順序更新（移動先）', 'tasklist', tl.id, error);
       }
     }

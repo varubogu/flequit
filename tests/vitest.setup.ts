@@ -91,14 +91,14 @@ global.console = {
   log: () => {},
   debug: () => {},
   info: () => {},
-  // Suppress backend not implemented warnings
+  // Suppress backends not implemented warnings
   warn: (message: string, ...args: unknown[]) => {
     if (
       typeof message === 'string' &&
-      message.includes('Web backend:') &&
+      message.includes('Web backends:') &&
       message.includes('not implemented')
     ) {
-      return; // Suppress backend not implemented warnings
+      return; // Suppress backends not implemented warnings
     }
     originalConsole.warn(message, ...args);
   }

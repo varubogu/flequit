@@ -316,7 +316,7 @@ describe('TaskStore', () => {
       expect(updatedSubTask?.updatedAt.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
     });
 
-    test('addSubTask should create new subtask with backend integration', async () => {
+    test('addSubTask should create new subtask with backends integration', async () => {
       const initialSubTaskCount =
         store.allTasks.find((t) => t.id === 'task-1')?.subTasks.length || 0;
 
@@ -374,7 +374,7 @@ describe('TaskStore', () => {
       store.setProjects([createMockProject()]);
     });
 
-    test('addTagToSubTask should be no-op without backend (graceful)', async () => {
+    test('addTagToSubTask should be no-op without backends (graceful)', async () => {
       // First create a subtask
       const newSubTask = await store.addSubTask('task-1', {
         title: 'Tagged SubTask'
@@ -394,7 +394,7 @@ describe('TaskStore', () => {
       }
     });
 
-    test('addTagToSubTask should not add duplicate tags (no-op without backend)', async () => {
+    test('addTagToSubTask should not add duplicate tags (no-op without backends)', async () => {
       const newSubTask = await store.addSubTask('task-1', {
         title: 'Duplicate Tag Test SubTask'
       });

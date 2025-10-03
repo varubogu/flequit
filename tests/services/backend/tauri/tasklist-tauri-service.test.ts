@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TasklistTauriService } from '$lib/services/backend/tauri/tasklist-tauri-service';
+import { TasklistTauriService } from '$lib/infrastructure/backends/tauri/tasklist-tauri-service';
 import type { TaskList, TaskListSearchCondition } from '$lib/types/task-list';
 
 // Mock Tauri invoke

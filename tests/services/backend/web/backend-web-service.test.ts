@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { BackendWebService } from '$lib/services/backend/web/backend-web-service';
-import { ProjectWebService } from '$lib/services/backend/web/project-web-service';
-import { TasklistWebService } from '$lib/services/backend/web/tasklist-web-service';
-import { TaskWebService } from '$lib/services/backend/web/task-web-service';
-import { SubtaskWebService } from '$lib/services/backend/web/subtask-web-service';
-import { TagWebService } from '$lib/services/backend/web/tag-web-service';
-import { SettingWebService } from '$lib/services/backend/web/setting-web-service';
-import { AccountWebService } from '$lib/services/backend/web/account-web-service';
-import { AutoFetchWebService } from '$lib/services/backend/web/auto-fetch-web-service';
-import { InitializationWebService } from '$lib/services/backend/web/initialization-web-service';
-import { UserWebService } from '$lib/services/backend/web/user-web-service';
-import { TaggingWebService } from '$lib/services/backend/web/tagging-web-service';
-import { AssignmentWebService } from '$lib/services/backend/web/assignment-web-service';
+import { BackendWebService } from '$lib/infrastructure/backends/web/backend-web-service';
+import { ProjectWebService } from '$lib/infrastructure/backends/web/project-web-service';
+import { TasklistWebService } from '$lib/infrastructure/backends/web/tasklist-web-service';
+import { TaskWebService } from '$lib/infrastructure/backends/web/task-web-service';
+import { SubtaskWebService } from '$lib/infrastructure/backends/web/subtask-web-service';
+import { TagWebService } from '$lib/infrastructure/backends/web/tag-web-service';
+import { SettingWebService } from '$lib/infrastructure/backends/web/setting-web-service';
+import { AccountWebService } from '$lib/infrastructure/backends/web/account-web-service';
+import { AutoFetchWebService } from '$lib/infrastructure/backends/web/auto-fetch-web-service';
+import { InitializationWebService } from '$lib/infrastructure/backends/web/initialization-web-service';
+import { UserWebService } from '$lib/infrastructure/backends/web/user-web-service';
+import { TaggingWebService } from '$lib/infrastructure/backends/web/tagging-web-service';
+import { AssignmentWebService } from '$lib/infrastructure/backends/web/assignment-web-service';
 
 describe('BackendWebService', () => {
   let service: BackendWebService;

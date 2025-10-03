@@ -4,7 +4,7 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-  import { getBackendService } from '$lib/services/backend/index';
+  import { getBackendService } from '$lib/infrastructure/backends/index';
   import { fromLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 
   interface Props {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { AccountService } from '$lib/services/backend/account-service';
+import type { AccountService } from '$lib/infrastructure/backends/account-service';
 import type { Account } from '$lib/types/account';
 
 // モックのアカウントサービス実装

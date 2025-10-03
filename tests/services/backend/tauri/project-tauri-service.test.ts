@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProjectTauriService } from '$lib/services/backend/tauri/project-tauri-service';
+import { ProjectTauriService } from '$lib/infrastructure/backends/tauri/project-tauri-service';
 import type { Project, ProjectSearchCondition } from '$lib/types/project';
 
 // Mock Tauri invoke

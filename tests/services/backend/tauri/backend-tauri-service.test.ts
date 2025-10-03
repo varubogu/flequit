@@ -1,17 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BackendTauriService } from '$lib/services/backend/tauri/backend-tauri-service';
-import { ProjectTauriService } from '$lib/services/backend/tauri/project-tauri-service';
-import { TasklistTauriService } from '$lib/services/backend/tauri/tasklist-tauri-service';
-import { TaskTauriService } from '$lib/services/backend/tauri/task-tauri-service';
-import { SubtaskTauriService } from '$lib/services/backend/tauri/subtask-tauri-service';
-import { TagTauriService } from '$lib/services/backend/tauri/tag-tauri-service';
-import { SettingTauriService } from '$lib/services/backend/tauri/setting-tauri-service';
-import { AccountTauriService } from '$lib/services/backend/tauri/account-tauri-service';
-import { AutoFetchTauriService } from '$lib/services/backend/tauri/auto-fetch-tauri-service';
-import { InitializationTauriService } from '$lib/services/backend/tauri/initialization-tauri-service';
-import { UserTauriService } from '$lib/services/backend/tauri/user-tauri-service';
-import { TaggingTauriService } from '$lib/services/backend/tauri/tagging-tauri-service';
-import { AssignmentTauriService } from '$lib/services/backend/tauri/assignment-tauri-service';
+import { BackendTauriService } from '$lib/infrastructure/backends/tauri/backend-tauri-service';
+import { ProjectTauriService } from '$lib/infrastructure/backends/tauri/project-tauri-service';
+import { TasklistTauriService } from '$lib/infrastructure/backends/tauri/tasklist-tauri-service';
+import { TaskTauriService } from '$lib/infrastructure/backends/tauri/task-tauri-service';
+import { SubtaskTauriService } from '$lib/infrastructure/backends/tauri/subtask-tauri-service';
+import { TagTauriService } from '$lib/infrastructure/backends/tauri/tag-tauri-service';
+import { SettingTauriService } from '$lib/infrastructure/backends/tauri/setting-tauri-service';
+import { AccountTauriService } from '$lib/infrastructure/backends/tauri/account-tauri-service';
+import { AutoFetchTauriService } from '$lib/infrastructure/backends/tauri/auto-fetch-tauri-service';
+import { InitializationTauriService } from '$lib/infrastructure/backends/tauri/initialization-tauri-service';
+import { UserTauriService } from '$lib/infrastructure/backends/tauri/user-tauri-service';
+import { TaggingTauriService } from '$lib/infrastructure/backends/tauri/tagging-tauri-service';
+import { AssignmentTauriService } from '$lib/infrastructure/backends/tauri/assignment-tauri-service';
 
 describe('BackendTauriService', () => {
   let service: BackendTauriService;

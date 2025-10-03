@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { ProjectService } from '$lib/services/backend/project-service';
+import type { ProjectService } from '$lib/infrastructure/backends/project-service';
 import type { Project, ProjectSearchCondition } from '$lib/types/project';
 
 // モックのプロジェクトサービス実装

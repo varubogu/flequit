@@ -1,4 +1,4 @@
-import { getBackendService } from '$lib/services/backend';
+import { getBackendService } from '$lib/infrastructure/backends';
 import { settingsInitService } from '$lib/services/settings-init-service';
 import type {
   Setting,
@@ -535,10 +535,10 @@ class MainSettingsStore {
       if (loadedCount > 0) {
         console.log(`Settings loaded successfully from backend (${loadedCount} settings)`);
       } else {
-        console.log('No settings found in backend, using defaults');
+        console.log('No settings found in backends, using defaults');
       }
     } catch (error) {
-      console.error('Failed to load settings from backend:', error);
+      console.error('Failed to load settings from backends:', error);
 
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('flequit-settings');

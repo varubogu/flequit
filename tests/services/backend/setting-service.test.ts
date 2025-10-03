@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { SettingService } from '$lib/services/backend/setting-service';
+import type { SettingService } from '$lib/infrastructure/backends/setting-service';
 import type { Setting } from '$lib/types/settings';
 
 // モックの設定サービス実装

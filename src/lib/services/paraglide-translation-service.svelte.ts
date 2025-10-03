@@ -9,7 +9,7 @@ import type {
   LocaleChangeCallback
 } from './translation-service';
 import * as m from '$paraglide/messages.js';
-import { getBackendService } from './backend';
+import { getBackendService } from '../infrastructure/backends';
 import { settingsInitService } from './settings-init-service';
 
 /**
@@ -132,10 +132,10 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
         this.localeChangeCounter++;
         console.log(`Locale loaded from backend: ${localeSetting.value}`);
       } else {
-        console.log('No locale setting found in backend, using default');
+        console.log('No locale setting found in backends, using default');
       }
     } catch (error) {
-      console.error('Failed to load locale from backend:', error);
+      console.error('Failed to load locale from backends:', error);
 
       // フォールバックとしてlocalStorageから読み込み
       if (typeof localStorage !== 'undefined') {

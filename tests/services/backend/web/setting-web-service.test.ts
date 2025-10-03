@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SettingWebService } from '$lib/services/backend/web/setting-web-service';
+import { SettingWebService } from '$lib/infrastructure/backends/web/setting-web-service';
 import type { Setting } from '$lib/types/settings';
 
 describe('SettingWebService', () => {
@@ -32,7 +32,7 @@ describe('SettingWebService', () => {
       const result = await service.get('theme');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSetting not implemented', 'theme');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getSetting not implemented', 'theme');
     });
 
     it('should handle different setting keys', async () => {
@@ -52,7 +52,7 @@ describe('SettingWebService', () => {
       const result = await service.getAll();
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAllSettings not implemented');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getAllSettings not implemented');
     });
   });
 
@@ -62,7 +62,7 @@ describe('SettingWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateSetting not implemented',
+        'Web backends: updateSetting not implemented',
         mockSetting
       );
     });

@@ -10,7 +10,7 @@ vi.mock('../../src/lib/services/settings-init-service', () => ({
 }));
 
 // Mock getBackendService
-vi.mock('../../src/lib/services/backend', () => ({
+vi.mock('../../src/lib/services/backends', () => ({
   getBackendService: vi.fn().mockResolvedValue({
     setting: {
       get: vi.fn().mockResolvedValue(null),

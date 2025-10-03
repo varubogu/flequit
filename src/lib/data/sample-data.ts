@@ -266,7 +266,7 @@ export function generateSampleData(): ProjectTree[] {
                 {
                   id: 'subtask-4',
                   taskId: 'task-5',
-                  title: 'Implement backend API',
+                  title: 'Implement backends API',
                   description: 'Create REST endpoints for authentication',
                   status: 'in_progress',
                   priority: 1,

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TaskWebService } from '$lib/services/backend/web/task-web-service';
+import { TaskWebService } from '$lib/infrastructure/backends/web/task-web-service';
 import type { Task, TaskSearchCondition } from '$lib/types/task';
 
 describe('TaskWebService', () => {
@@ -45,7 +45,7 @@ describe('TaskWebService', () => {
       const result = await service.create('test-project-id', mockTask);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTask not implemented', 'test-project-id', mockTask);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createTask not implemented', 'test-project-id', mockTask);
     });
   });
 
@@ -60,7 +60,7 @@ describe('TaskWebService', () => {
       const result = await service.update('test-project-id', mockTask.id, patchData);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTask not implemented', 'test-project-id', mockTask.id, patchData);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateTask not implemented', 'test-project-id', mockTask.id, patchData);
     });
   });
 
@@ -70,7 +70,7 @@ describe('TaskWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: deleteTask not implemented',
+        'Web backends: deleteTask not implemented',
         'test-project-id',
         'task-123'
       );
@@ -83,7 +83,7 @@ describe('TaskWebService', () => {
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: getTask not implemented (called for data retrieval)',
+        'Web backends: getTask not implemented (called for data retrieval)',
         'test-project-id',
         'task-123'
       );
@@ -96,7 +96,7 @@ describe('TaskWebService', () => {
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: searchTasks not implemented',
+        'Web backends: searchTasks not implemented',
         'test-project-id',
         mockSearchCondition
       );

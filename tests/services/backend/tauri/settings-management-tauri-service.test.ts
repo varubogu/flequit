@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SettingsManagementTauriService } from '$lib/services/backend/tauri/settings-management-tauri-service';
+import { SettingsManagementTauriService } from '$lib/infrastructure/backends/tauri/settings-management-tauri-service';
 import type { Settings, CustomDateFormat, TimeLabel, ViewItem } from '$lib/types/settings';
 
 // Mock Tauri invoke

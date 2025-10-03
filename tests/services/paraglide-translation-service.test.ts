@@ -19,7 +19,7 @@ vi.mock('$paraglide/messages.js', () => ({
   unknown_key: undefined
 }));
 
-vi.mock('./backend', () => ({
+vi.mock('./backends', () => ({
   getBackendService: vi.fn(() =>
     Promise.resolve({
       setting: {

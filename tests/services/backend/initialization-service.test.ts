@@ -4,7 +4,7 @@ import type {
   LocalSettings,
   Account,
   InitializationResult
-} from '$lib/services/backend/initialization-service';
+} from '$lib/infrastructure/backends/initialization-service';
 import type { ProjectTree } from '$lib/types/project';
 
 // モックの初期化サービス実装

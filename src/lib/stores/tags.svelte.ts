@@ -90,7 +90,7 @@ export class TagStore {
     try {
       await dataService.createTag(newTag, projectId);
     } catch (error) {
-      console.error('Failed to sync new tag to backend:', error);
+      console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
       // エラーが発生した場合はローカル状態から削除
       const tagIndex = this.tags.findIndex((t) => t.id === newTag.id);
@@ -139,7 +139,7 @@ export class TagStore {
     try {
       await dataService.createTag(tag);
     } catch (error) {
-      console.error('Failed to sync new tag to backend:', error);
+      console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
     }
   }
@@ -149,7 +149,7 @@ export class TagStore {
     try {
       await dataService.createTag(tag, projectId);
     } catch (error) {
-      console.error('Failed to sync new tag to backend:', error);
+      console.error('Failed to sync new tag to backends:', error);
       errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
       // エラーが発生した場合はローカル状態から削除
       const tagIndex = this.tags.findIndex((t) => t.id === tag.id);
@@ -215,7 +215,7 @@ export class TagStore {
       try {
         await dataService.updateTag(tagId, updates);
       } catch (error) {
-        console.error('Failed to sync tag update to backend:', error);
+        console.error('Failed to sync tag update to backends:', error);
         errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
         // エラーが発生した場合はローカル状態を復元
         this.tags[tagIndex] = originalTag;
@@ -238,7 +238,7 @@ export class TagStore {
     try {
       await dataService.updateTag(tagId, updates, projectId);
     } catch (error) {
-      console.error('Failed to sync tag update to backend:', error);
+      console.error('Failed to sync tag update to backends:', error);
       errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
     }
   }
@@ -282,7 +282,7 @@ export class TagStore {
       try {
         await dataService.deleteTag(tagId);
       } catch (error) {
-        console.error('Failed to sync tag deletion to backend:', error);
+        console.error('Failed to sync tag deletion to backends:', error);
         errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
         // エラーが発生した場合はローカル状態を復元
         this.tags.splice(tagIndex, 0, deletedTag);
@@ -302,7 +302,7 @@ export class TagStore {
     try {
       await dataService.deleteTag(tagId);
     } catch (error) {
-      console.error('Failed to sync tag deletion to backend:', error);
+      console.error('Failed to sync tag deletion to backends:', error);
       errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
     }
   }

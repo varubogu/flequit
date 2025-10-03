@@ -1,4 +1,4 @@
-import { getBackendService } from './backend';
+import { getBackendService } from '../infrastructure/backends';
 import type { Setting } from '$lib/types/settings';
 
 /**
@@ -59,12 +59,12 @@ class SettingsInitService {
         return [];
       }
 
-      console.log('Loading all settings from backend (single call)...');
+      console.log('Loading all settings from backends (single call)...');
       const allSettings = await backend.setting.getAll();
       console.log(`Loaded ${allSettings.length} settings from backend`);
       return allSettings;
     } catch (error) {
-      console.error('Failed to load settings from backend:', error);
+      console.error('Failed to load settings from backends:', error);
       return [];
     }
   }

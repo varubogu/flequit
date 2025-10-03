@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { AutoFetchTauriService } from '$lib/services/backend/tauri/auto-fetch-tauri-service';
+import { AutoFetchTauriService } from '$lib/infrastructure/backends/tauri/auto-fetch-tauri-service';
 import type {
   DataChangeNotification,
   DataType,
   ChangeType
-} from '$lib/services/backend/auto-fetch-service';
+} from '$lib/infrastructure/backends/auto-fetch-service';
 
 describe('AutoFetchTauriService', () => {
   let service: AutoFetchTauriService;

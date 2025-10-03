@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { getBackendService } from '$lib/services/backend';
+  import { getBackendService } from '$lib/infrastructure/backends/index';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import { ProjectsService } from '$lib/services/projects-service';
   import type { TaskWithSubTasks } from '$lib/types/task';

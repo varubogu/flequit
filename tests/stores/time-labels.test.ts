@@ -3,7 +3,7 @@ import { settingsStore } from '$lib/stores/settings.svelte';
 import type { TimeLabel } from '$lib/types/settings';
 
 // バックエンドサービスをモック化
-vi.mock('$lib/services/backend', () => ({
+vi.mock('$lib/infrastructure/backends', () => ({
   getBackendService: vi.fn(() =>
     Promise.resolve({
       setting: {

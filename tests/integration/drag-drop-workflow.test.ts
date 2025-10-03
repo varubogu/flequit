@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
-// Mock the backend service to avoid Web backend not implemented warnings
-vi.mock('$lib/services/backend/index', () => ({
+// Mock the backends service to avoid Web backends not implemented warnings
+vi.mock('$lib/infrastructure/backends/index', () => ({
   getBackendService: () =>
     Promise.resolve({
       project: {

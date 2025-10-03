@@ -14,7 +14,7 @@ vi.mock('svelte', () => ({
   tick: vi.fn(() => Promise.resolve())
 }));
 
-vi.mock('../../src/lib/services/backend-service', () => ({
+vi.mock('../../src/lib/services/backends-service', () => ({
   backendService: vi.fn(() => ({
     loadProjectData: vi.fn(async () => Promise.resolve([]))
   }))

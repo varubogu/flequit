@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AccountTauriService } from '$lib/services/backend/tauri/account-tauri-service';
+import { AccountTauriService } from '$lib/infrastructure/backends/tauri/account-tauri-service';
 import type { Account } from '$lib/types/account';
 
 // Mock Tauri invoke

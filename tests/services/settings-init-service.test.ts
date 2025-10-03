@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import type { Setting } from '$lib/types/settings';
 
-// Mock backend service
+// Mock backends service
 const mockBackendService = {
   setting: {
     getAll: vi.fn()
   }
 };
 
-vi.mock('$lib/services/backend', () => ({
+vi.mock('$lib/infrastructure/backends', () => ({
   getBackendService: vi.fn(() => Promise.resolve(mockBackendService))
 }));
 
@@ -169,7 +169,7 @@ describe('SettingsInitService', () => {
       expect(() => service.clearCache()).not.toThrow();
     });
 
-    it('should handle backend errors gracefully', async () => {
+    it('should handle backends errors gracefully', async () => {
       mockBackendService.setting.getAll.mockRejectedValueOnce(new Error('Backend error'));
       service.clearCache();
 

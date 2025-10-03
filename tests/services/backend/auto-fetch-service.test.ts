@@ -4,7 +4,7 @@ import type {
   DataChangeNotification,
   DataType,
   ChangeType
-} from '$lib/services/backend/auto-fetch-service';
+} from '$lib/infrastructure/backends/auto-fetch-service';
 
 // モックの自動更新サービス実装
 class MockAutoFetchService implements AutoFetchService {

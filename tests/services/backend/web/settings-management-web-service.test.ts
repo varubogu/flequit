@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SettingsManagementWebService } from '$lib/services/backend/web/settings-management-web-service';
+import { SettingsManagementWebService } from '$lib/infrastructure/backends/web/settings-management-web-service';
 import type { Settings, CustomDateFormat, TimeLabel, ViewItem } from '$lib/types/settings';
 
 describe('SettingsManagementWebService', () => {
@@ -15,7 +15,7 @@ describe('SettingsManagementWebService', () => {
     it('should log warning and return null', async () => {
       const result = await service.loadSettings();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: loadSettings not implemented');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: loadSettings not implemented');
       expect(result).toBeNull();
     });
   });
@@ -52,7 +52,7 @@ describe('SettingsManagementWebService', () => {
 
       const result = await service.saveSettings(settings);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: saveSettings not implemented', settings);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: saveSettings not implemented', settings);
       expect(result).toBe(true);
     });
   });
@@ -61,7 +61,7 @@ describe('SettingsManagementWebService', () => {
     it('should log warning and return false', async () => {
       const result = await service.settingsFileExists();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: settingsFileExists not implemented');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: settingsFileExists not implemented');
       expect(result).toBe(false);
     });
   });
@@ -70,7 +70,7 @@ describe('SettingsManagementWebService', () => {
     it('should log warning and return true', async () => {
       const result = await service.initializeSettingsWithDefaults();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: initializeSettingsWithDefaults not implemented');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: initializeSettingsWithDefaults not implemented');
       expect(result).toBe(true);
     });
   });
@@ -79,7 +79,7 @@ describe('SettingsManagementWebService', () => {
     it('should log warning and return empty string', async () => {
       const result = await service.getSettingsFilePath();
 
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getSettingsFilePath not implemented');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getSettingsFilePath not implemented');
       expect(result).toBe('');
     });
   });
@@ -91,7 +91,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.addCustomDueDay(days);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: addCustomDueDay not implemented', days);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: addCustomDueDay not implemented', days);
         expect(result).toBe(true);
       });
     });
@@ -103,7 +103,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.updateCustomDueDay(oldDays, newDays);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateCustomDueDay not implemented', oldDays, newDays);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateCustomDueDay not implemented', oldDays, newDays);
         expect(result).toBe(true);
       });
     });
@@ -114,7 +114,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.deleteCustomDueDay(days);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteCustomDueDay not implemented', days);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteCustomDueDay not implemented', days);
         expect(result).toBe(true);
       });
     });
@@ -127,7 +127,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.addDateTimeFormatSetting(formatSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: addDateTimeFormatSetting not implemented', formatSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: addDateTimeFormatSetting not implemented', formatSetting);
         expect(result).toBe(true);
       });
     });
@@ -138,7 +138,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.upsertDateTimeFormatSetting(formatSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: upsertDateTimeFormatSetting not implemented', formatSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: upsertDateTimeFormatSetting not implemented', formatSetting);
         expect(result).toBe(true);
       });
     });
@@ -149,7 +149,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.deleteDateTimeFormatSetting(formatId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteDateTimeFormatSetting not implemented', formatId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteDateTimeFormatSetting not implemented', formatId);
         expect(result).toBe(true);
       });
     });
@@ -162,7 +162,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.getCustomDateFormatSetting(formatId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getCustomDateFormatSetting not implemented', formatId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getCustomDateFormatSetting not implemented', formatId);
         expect(result).toBeNull();
       });
     });
@@ -171,7 +171,7 @@ describe('SettingsManagementWebService', () => {
       it('should log warning and return empty array', async () => {
         const result = await service.getAllCustomDateFormatSettings();
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAllCustomDateFormatSettings not implemented');
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getAllCustomDateFormatSettings not implemented');
         expect(result).toEqual([]);
       });
     });
@@ -186,7 +186,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.addCustomDateFormatSetting(formatSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: addCustomDateFormatSetting not implemented', formatSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: addCustomDateFormatSetting not implemented', formatSetting);
         expect(result).toBe(true);
       });
     });
@@ -201,7 +201,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.updateCustomDateFormatSetting(formatSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateCustomDateFormatSetting not implemented', formatSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateCustomDateFormatSetting not implemented', formatSetting);
         expect(result).toBe(true);
       });
     });
@@ -212,7 +212,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.deleteCustomDateFormatSetting(formatId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteCustomDateFormatSetting not implemented', formatId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteCustomDateFormatSetting not implemented', formatId);
         expect(result).toBe(true);
       });
     });
@@ -225,7 +225,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.getTimeLabelSetting(labelId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTimeLabelSetting not implemented', labelId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getTimeLabelSetting not implemented', labelId);
         expect(result).toBeNull();
       });
     });
@@ -234,7 +234,7 @@ describe('SettingsManagementWebService', () => {
       it('should log warning and return empty array', async () => {
         const result = await service.getAllTimeLabelSettings();
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAllTimeLabelSettings not implemented');
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getAllTimeLabelSettings not implemented');
         expect(result).toEqual([]);
       });
     });
@@ -249,7 +249,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.addTimeLabelSetting(labelSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: addTimeLabelSetting not implemented', labelSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: addTimeLabelSetting not implemented', labelSetting);
         expect(result).toBe(true);
       });
     });
@@ -264,7 +264,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.updateTimeLabelSetting(labelSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTimeLabelSetting not implemented', labelSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateTimeLabelSetting not implemented', labelSetting);
         expect(result).toBe(true);
       });
     });
@@ -275,7 +275,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.deleteTimeLabelSetting(labelId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTimeLabelSetting not implemented', labelId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteTimeLabelSetting not implemented', labelId);
         expect(result).toBe(true);
       });
     });
@@ -288,7 +288,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.getViewItemSetting(itemId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getViewItemSetting not implemented', itemId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getViewItemSetting not implemented', itemId);
         expect(result).toBeNull();
       });
     });
@@ -297,7 +297,7 @@ describe('SettingsManagementWebService', () => {
       it('should log warning and return empty array', async () => {
         const result = await service.getAllViewItemSettings();
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: getAllViewItemSettings not implemented');
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: getAllViewItemSettings not implemented');
         expect(result).toEqual([]);
       });
     });
@@ -314,7 +314,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.addViewItemSetting(itemSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: addViewItemSetting not implemented', itemSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: addViewItemSetting not implemented', itemSetting);
         expect(result).toBe(true);
       });
     });
@@ -331,7 +331,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.updateViewItemSetting(itemSetting);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateViewItemSetting not implemented', itemSetting);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateViewItemSetting not implemented', itemSetting);
         expect(result).toBe(true);
       });
     });
@@ -342,7 +342,7 @@ describe('SettingsManagementWebService', () => {
 
         const result = await service.deleteViewItemSetting(itemId);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteViewItemSetting not implemented', itemId);
+        expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteViewItemSetting not implemented', itemId);
         expect(result).toBe(true);
       });
     });

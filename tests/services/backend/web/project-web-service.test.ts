@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { ProjectWebService } from '$lib/services/backend/web/project-web-service';
+import { ProjectWebService } from '$lib/infrastructure/backends/web/project-web-service';
 import type { Project, ProjectSearchCondition } from '$lib/types/project';
 
 describe('ProjectWebService', () => {
@@ -41,7 +41,7 @@ describe('ProjectWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createProject not implemented',
+        'Web backends: createProject not implemented',
         mockProject
       );
     });
@@ -53,7 +53,7 @@ describe('ProjectWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateProject not implemented',
+        'Web backends: updateProject not implemented',
         mockProject.id,
         mockProject
       );
@@ -66,7 +66,7 @@ describe('ProjectWebService', () => {
 
       expect(result).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: deleteProject not implemented',
+        'Web backends: deleteProject not implemented',
         'project-123'
       );
     });
@@ -78,7 +78,7 @@ describe('ProjectWebService', () => {
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: getProject not implemented',
+        'Web backends: getProject not implemented',
         'project-123'
       );
     });
@@ -90,7 +90,7 @@ describe('ProjectWebService', () => {
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: searchProjects not implemented',
+        'Web backends: searchProjects not implemented',
         mockSearchCondition
       );
     });

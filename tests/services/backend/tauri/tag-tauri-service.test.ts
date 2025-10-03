@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TagTauriService } from '$lib/services/backend/tauri/tag-tauri-service';
+import { TagTauriService } from '$lib/infrastructure/backends/tauri/tag-tauri-service';
 import type { Tag, TagSearchCondition } from '$lib/types/tag';
 
 // Mock Tauri invoke

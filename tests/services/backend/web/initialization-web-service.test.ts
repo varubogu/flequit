@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { InitializationWebService } from '$lib/services/backend/web/initialization-web-service';
+import { InitializationWebService } from '$lib/infrastructure/backends/web/initialization-web-service';
 
 // Mock localStorage
 const localStorageMock = {
@@ -54,7 +54,7 @@ describe('InitializationWebService', () => {
         language: 'ja'
       });
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: loadLocalSettings - localStorage-based implementation (not fully implemented)'
+        'Web backends: loadLocalSettings - localStorage-based implementation (not fully implemented)'
       );
     });
 
@@ -98,7 +98,7 @@ describe('InitializationWebService', () => {
       });
       expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_account', expect.any(String));
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: loadAccount - localStorage-based mock implementation (not fully implemented)'
+        'Web backends: loadAccount - localStorage-based mock implementation (not fully implemented)'
       );
     });
 
@@ -151,7 +151,7 @@ describe('InitializationWebService', () => {
       ]);
       expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_projects', expect.any(String));
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: loadProjectData - localStorage with sample data (not fully implemented)'
+        'Web backends: loadProjectData - localStorage with sample data (not fully implemented)'
       );
     });
 
@@ -192,7 +192,7 @@ describe('InitializationWebService', () => {
         projects: expect.any(Array)
       });
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: initializeAll - combined initialization with localStorage (not fully implemented)'
+        'Web backends: initializeAll - combined initialization with localStorage (not fully implemented)'
       );
     });
   });

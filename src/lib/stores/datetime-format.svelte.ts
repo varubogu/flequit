@@ -4,7 +4,7 @@ import type {
   AppPresetFormat,
   CustomDateTimeFormat
 } from '$lib/types/datetime-format';
-import { CustomDateFormatTauriService } from '$lib/services/backend/tauri/custom-date-format-tauri-service';
+import { CustomDateFormatTauriService } from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
 import type { CustomDateFormat } from '$lib/types/settings';
 // import { getTranslationService } from '$lib/stores/locale.svelte';
 

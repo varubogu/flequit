@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { getBackendService } from '$lib/services/backend';
+  import { getBackendService } from '$lib/infrastructure/backends/index';
   import type { User } from '$lib/types/user';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import Button from '$lib/components/ui/button/button.svelte';

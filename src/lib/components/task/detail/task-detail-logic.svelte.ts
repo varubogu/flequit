@@ -9,7 +9,7 @@ import {
 import { TaskService } from '$lib/services/task-service';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { getBackendService } from '$lib/services/backend/index';
+import { getBackendService } from '$lib/infrastructure/backends/index';
 
 export class TaskDetailLogic {
   // Core derived states

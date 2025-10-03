@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { TagWebService } from '$lib/services/backend/web/tag-web-service';
+import { TagWebService } from '$lib/infrastructure/backends/web/tag-web-service';
 import type { Tag, TagSearchCondition } from '$lib/types/tag';
 
 describe('TagWebService', () => {
@@ -37,7 +37,7 @@ describe('TagWebService', () => {
       const result = await service.create('test-project-id', mockTag);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: createTag not implemented', 'test-project-id', mockTag);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: createTag not implemented', 'test-project-id', mockTag);
     });
   });
 
@@ -46,7 +46,7 @@ describe('TagWebService', () => {
       const result = await service.update('test-project-id', mockTag.id, mockTag);
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: updateTag not implemented', 'test-project-id', mockTag.id, mockTag);
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: updateTag not implemented', 'test-project-id', mockTag.id, mockTag);
     });
   });
 
@@ -55,7 +55,7 @@ describe('TagWebService', () => {
       const result = await service.delete('test-project-id', 'tag-123');
 
       expect(result).toBe(true);
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: deleteTag not implemented', 'test-project-id', 'tag-123');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: deleteTag not implemented', 'test-project-id', 'tag-123');
     });
   });
 
@@ -64,7 +64,7 @@ describe('TagWebService', () => {
       const result = await service.get('test-project-id', 'tag-123');
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Web backend: getTag not implemented', 'test-project-id', 'tag-123');
+      expect(consoleSpy).toHaveBeenCalledWith('Web backends: getTag not implemented', 'test-project-id', 'tag-123');
     });
   });
 
@@ -74,7 +74,7 @@ describe('TagWebService', () => {
 
       expect(result).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: searchTags not implemented',
+        'Web backends: searchTags not implemented',
         'test-project-id',
         mockSearchCondition
       );

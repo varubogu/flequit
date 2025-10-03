@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { AccountWebService } from '$lib/services/backend/web/account-web-service';
+import { AccountWebService } from '$lib/infrastructure/backends/web/account-web-service';
 import type { Account } from '$lib/types/account';
 
 describe('AccountWebService', () => {
@@ -38,7 +38,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createAccount not implemented',
+        'Web backends: createAccount not implemented',
         mockAccount
       );
     });
@@ -58,7 +58,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createAccount not implemented',
+        'Web backends: createAccount not implemented',
         minimalAccount
       );
     });
@@ -73,7 +73,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createAccount not implemented',
+        'Web backends: createAccount not implemented',
         fullAccount
       );
     });
@@ -85,7 +85,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: getAccount not implemented',
+        'Web backends: getAccount not implemented',
         'account-123'
       );
     });
@@ -108,7 +108,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateAccount not implemented',
+        'Web backends: updateAccount not implemented',
         mockAccount.id,
         mockAccount
       );
@@ -125,7 +125,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: updateAccount not implemented',
+        'Web backends: updateAccount not implemented',
         updatedAccount.id,
         updatedAccount
       );
@@ -138,7 +138,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: deleteAccount not implemented',
+        'Web backends: deleteAccount not implemented',
         'account-123'
       );
     });
@@ -218,23 +218,23 @@ describe('AccountWebService', () => {
       expect(consoleSpy).toHaveBeenCalledTimes(4);
       expect(consoleSpy).toHaveBeenNthCalledWith(
         1,
-        'Web backend: createAccount not implemented',
+        'Web backends: createAccount not implemented',
         mockAccount
       );
       expect(consoleSpy).toHaveBeenNthCalledWith(
         2,
-        'Web backend: getAccount not implemented',
+        'Web backends: getAccount not implemented',
         'account-123'
       );
       expect(consoleSpy).toHaveBeenNthCalledWith(
         3,
-        'Web backend: updateAccount not implemented',
+        'Web backends: updateAccount not implemented',
         mockAccount.id,
         mockAccount
       );
       expect(consoleSpy).toHaveBeenNthCalledWith(
         4,
-        'Web backend: deleteAccount not implemented',
+        'Web backends: deleteAccount not implemented',
         'account-123'
       );
     });
@@ -277,7 +277,7 @@ describe('AccountWebService', () => {
 
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backend: createAccount not implemented',
+        'Web backends: createAccount not implemented',
         specialAccount
       );
     });
