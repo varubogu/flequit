@@ -3,8 +3,11 @@
   import CommandSearchItem from './command-search-item.svelte';
   import CommandTaskItem from './command-task-item.svelte';
   import CommandQuickActions from './command-quick-actions.svelte';
-  import { createSearchLogic } from './search-command-logic.svelte';
   import { createSearchMessages } from './search-command-messages.svelte';
+  import { taskStore } from '$lib/stores/tasks.svelte';
+  import type { TaskWithSubTasks } from '$lib/types/task';
+  import { TaskService } from '$lib/services/domain/task';
+  import { viewStore } from '$lib/stores/view-store.svelte';
 
   interface Props {
     open?: boolean;
@@ -13,29 +16,108 @@
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
 
+  // State
+  let searchValue = $state('');
+  let filteredTasks = $state<TaskWithSubTasks[]>([]);
+
+  // Derived
+  const isCommandMode = $derived(searchValue.startsWith('>'));
+  const isTagSearch = $derived(searchValue.startsWith('#'));
+
+  // Messages
+  const messages = createSearchMessages();
+
+  // Search effect
+  $effect(() => {
+    if (searchValue && !isCommandMode) {
+      if (isTagSearch) {
+        const tagQuery = searchValue.slice(1).toLowerCase();
+        if (tagQuery) {
+          filteredTasks = taskStore.allTasks
+            .filter((task) => task.tags.some((tag) => tag.name.toLowerCase().includes(tagQuery)))
+            .slice(0, 5);
+        } else {
+          filteredTasks = taskStore.allTasks.filter((task) => task.tags.length > 0).slice(0, 5);
+        }
+      } else {
+        filteredTasks = taskStore.allTasks
+          .filter(
+            (task) =>
+              task.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+              task.description?.toLowerCase().includes(searchValue.toLowerCase())
+          )
+          .slice(0, 5);
+      }
+    } else {
+      filteredTasks = [];
+    }
+  });
+
+  // Event handlers
   function closeDialog() {
-    logic.searchValue.value = '';
+    searchValue = '';
     onOpenChange?.(false);
   }
 
-  const logic = createSearchLogic(closeDialog);
-  const messages = createSearchMessages();
+  function handleSearchExecute() {
+    if (!isCommandMode) {
+      viewStore.performSearch(searchValue);
+      closeDialog();
+    }
+  }
+
+  function handleTaskSelect(task: TaskWithSubTasks) {
+    TaskService.selectTask(task.id);
+    closeDialog();
+  }
+
+  function handleCommandSelect() {
+    closeDialog();
+  }
+
+  function handleAddNewTask() {
+    let listId = taskStore.selectedListId;
+
+    if (!listId && taskStore.projects.length > 0) {
+      const firstProject = taskStore.projects[0];
+      if (firstProject.taskLists.length > 0) {
+        listId = firstProject.taskLists[0].id;
+      }
+    }
+
+    if (listId) {
+      taskStore.startNewTaskMode(listId);
+    }
+
+    closeDialog();
+  }
+
+  function handleViewAllTasks() {
+    viewStore.changeView('all');
+    closeDialog();
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      closeDialog();
+    }
+  }
 </script>
 
 <Command.Dialog bind:open {onOpenChange} class="max-w-2xl" shouldFilter={false}>
   <Command.Input
-    placeholder={logic.isCommandMode.value
+    placeholder={isCommandMode
       ? messages.typeACommand()
-      : logic.isTagSearch.value
+      : isTagSearch
         ? 'Search tags...'
         : messages.searchTasks()}
-    bind:value={logic.searchValue.value}
-    onkeydown={logic.handleKeyDown}
+    bind:value={searchValue}
+    onkeydown={handleKeyDown}
   />
   <Command.List>
-    {#if !logic.searchValue.value}
+    {#if !searchValue}
       <Command.Empty>
-        {#if logic.isCommandMode.value}
+        {#if isCommandMode}
           {messages.noCommandsFound()}
         {:else}
           {messages.noTasksFound()}
@@ -43,36 +125,32 @@
       </Command.Empty>
     {/if}
 
-    {#if logic.isCommandMode.value}
+    {#if isCommandMode}
       <!-- コマンドモード -->
       <Command.Group heading={messages.commands()}>
-        <Command.Item onSelect={logic.handleCommandSelect}>
+        <Command.Item onSelect={handleCommandSelect}>
           <span>{messages.settings()}</span>
         </Command.Item>
-        <Command.Item onSelect={logic.handleCommandSelect}>
+        <Command.Item onSelect={handleCommandSelect}>
           <span>{messages.help()}</span>
         </Command.Item>
       </Command.Group>
     {/if}
 
-    {#if logic.searchValue.value}
+    {#if searchValue}
       <!-- 検索モード -->
       <Command.Group heading={messages.search()}>
         <CommandSearchItem
-          isTagSearch={logic.isTagSearch.value}
-          showAllResultsText={messages.getShowAllResultsFor(logic.searchValue.value)()}
-          onSelect={logic.handleSearchExecute}
+          isTagSearch={isTagSearch}
+          showAllResultsText={messages.getShowAllResultsFor(searchValue)()}
+          onSelect={handleSearchExecute}
         />
       </Command.Group>
 
-      {#if logic.filteredTasks.value.length > 0}
+      {#if filteredTasks.length > 0}
         <Command.Group heading={messages.jumpToTask()}>
-          {#each logic.filteredTasks.value as task (task.id)}
-            <CommandTaskItem
-              {task}
-              isTagSearch={logic.isTagSearch.value}
-              onSelect={() => logic.handleTaskSelect(task)}
-            />
+          {#each filteredTasks as task (task.id)}
+            <CommandTaskItem {task} {isTagSearch} onSelect={() => handleTaskSelect(task)} />
           {/each}
         </Command.Group>
       {:else}
@@ -85,16 +163,16 @@
       {/if}
     {/if}
 
-    {#if !logic.searchValue.value && !logic.isCommandMode.value}
+    {#if !searchValue && !isCommandMode}
       <!-- デフォルト表示（入力が空の場合） -->
       <CommandQuickActions
         showAllTasks={messages.showAllTasks()}
         quickActions={messages.quickActions()}
         addNewTask={messages.addNewTask()}
         viewAllTasks={messages.viewAllTasks()}
-        onSearchExecute={logic.handleSearchExecute}
-        onAddNewTask={logic.handleAddNewTask}
-        onViewAllTasks={logic.handleViewAllTasks}
+        onSearchExecute={handleSearchExecute}
+        onAddNewTask={handleAddNewTask}
+        onViewAllTasks={handleViewAllTasks}
       />
     {/if}
   </Command.List>
