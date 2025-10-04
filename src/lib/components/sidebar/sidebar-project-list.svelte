@@ -45,7 +45,6 @@
       const newProject = await projectStore.addProject({ name, color });
       if (newProject) {
         selectionStore.selectProject(newProject.id);
-        selectionStore.selectList(null);
         onViewChange?.('project');
       }
     } else if (editingProject) {

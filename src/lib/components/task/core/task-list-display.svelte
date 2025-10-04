@@ -33,7 +33,6 @@
 
   function handleTaskListSelect(list: { id: string }) {
     selectionStore.selectList(list.id);
-    selectionStore.selectProject(null);
     onViewChange?.('tasklist');
   }
 
@@ -60,7 +59,6 @@
         const newTaskList = await taskListStore.addTaskList(editingProject.id, { name });
         if (newTaskList) {
           selectionStore.selectList(newTaskList.id);
-          selectionStore.selectProject(null);
           onViewChange?.('tasklist');
         }
       }

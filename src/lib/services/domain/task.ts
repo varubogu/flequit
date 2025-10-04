@@ -22,7 +22,7 @@ export class TaskService {
     }
 
     selectionStore.selectTask(taskId);
-    selectionStore.selectSubTask(null); // Clear subtask selection when selecting a task
+    // Note: selectTask() automatically clears subtask selection via mutual exclusivity
     return true;
   }
 
@@ -34,7 +34,7 @@ export class TaskService {
     }
 
     selectionStore.selectSubTask(subTaskId);
-    selectionStore.selectTask(null); // Clear task selection when selecting a subtask
+    // Note: selectSubTask() automatically clears task selection via mutual exclusivity
     return true;
   }
 
@@ -45,7 +45,7 @@ export class TaskService {
     }
 
     selectionStore.selectTask(taskId);
-    selectionStore.selectSubTask(null); // Clear subtask selection when selecting a task
+    // Note: selectTask() automatically clears subtask selection via mutual exclusivity
   }
 
   static forceSelectSubTask(subTaskId: string | null): void {
@@ -55,7 +55,7 @@ export class TaskService {
     }
 
     selectionStore.selectSubTask(subTaskId);
-    selectionStore.selectTask(null); // Clear task selection when selecting a subtask
+    // Note: selectSubTask() automatically clears task selection via mutual exclusivity
   }
 
   static updateTask(taskId: string, updates: Partial<Task>): void {

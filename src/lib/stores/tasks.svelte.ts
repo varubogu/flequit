@@ -24,16 +24,16 @@ export class TaskStore {
 
   // 選択状態はSelectionStoreに委譲
   get selectedTaskId() { return selectionStore.selectedTaskId; }
-  set selectedTaskId(value: string | null) { selectionStore.selectedTaskId = value; }
+  set selectedTaskId(value: string | null) { selectionStore.selectTask(value); }
 
   get selectedSubTaskId() { return selectionStore.selectedSubTaskId; }
-  set selectedSubTaskId(value: string | null) { selectionStore.selectedSubTaskId = value; }
+  set selectedSubTaskId(value: string | null) { selectionStore.selectSubTask(value); }
 
   get selectedProjectId() { return selectionStore.selectedProjectId; }
-  set selectedProjectId(value: string | null) { selectionStore.selectedProjectId = value; }
+  set selectedProjectId(value: string | null) { selectionStore.selectProject(value); }
 
   get selectedListId() { return selectionStore.selectedListId; }
-  set selectedListId(value: string | null) { selectionStore.selectedListId = value; }
+  set selectedListId(value: string | null) { selectionStore.selectList(value); }
 
   get pendingTaskSelection() { return selectionStore.pendingTaskSelection; }
   set pendingTaskSelection(value: string | null) { selectionStore.pendingTaskSelection = value; }

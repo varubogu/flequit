@@ -56,7 +56,6 @@
   // Project handlers
   function handleProjectSelect(project: ProjectTree) {
     selectionStore.selectProject(project.id);
-    selectionStore.selectList(null);
     onViewChange?.('project');
   }
 
@@ -93,7 +92,6 @@
       });
       if (newTaskList) {
         selectionStore.selectList(newTaskList.id);
-        selectionStore.selectProject(null);
         onViewChange?.('tasklist');
       }
     }
@@ -106,7 +104,6 @@
       const newProject = await projectStore.addProject({ name, color });
       if (newProject) {
         selectionStore.selectProject(newProject.id);
-        selectionStore.selectList(null);
         onViewChange?.('project');
       }
     } else if (editingProject) {

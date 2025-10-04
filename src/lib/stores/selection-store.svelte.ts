@@ -19,30 +19,42 @@ export class SelectionStore implements ISelectionStore {
 
 	/**
 	 * プロジェクトを選択
+	 * リスト選択は相互排他的にクリアされます
 	 */
 	selectProject(projectId: string | null): void {
 		this.selectedProjectId = projectId;
+		// プロジェクトとリストは相互排他的
+		this.selectedListId = null;
 	}
 
 	/**
 	 * タスクリストを選択
+	 * プロジェクト選択は相互排他的にクリアされます
 	 */
 	selectList(listId: string | null): void {
 		this.selectedListId = listId;
+		// プロジェクトとリストは相互排他的
+		this.selectedProjectId = null;
 	}
 
 	/**
 	 * タスクを選択
+	 * サブタスク選択は相互排他的にクリアされます
 	 */
 	selectTask(taskId: string | null): void {
 		this.selectedTaskId = taskId;
+		// タスクとサブタスクは相互排他的
+		this.selectedSubTaskId = null;
 	}
 
 	/**
 	 * サブタスクを選択
+	 * タスク選択は相互排他的にクリアされます
 	 */
 	selectSubTask(subTaskId: string | null): void {
 		this.selectedSubTaskId = subTaskId;
+		// タスクとサブタスクは相互排他的
+		this.selectedTaskId = null;
 	}
 
 	/**
