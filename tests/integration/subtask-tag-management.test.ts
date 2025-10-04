@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
+import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import { tagStore } from '../../src/lib/stores/tags.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
@@ -57,7 +58,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('サブタスクを作成してタグを追加できる', async () => {
       // サブタスクを作成
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Test SubTask',
         description: 'Test description',
         status: 'in_progress',
@@ -74,7 +75,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
       // サブタスクにタグを追加
       if (newSubTask) {
-        store.addTagToSubTask(newSubTask.id, 'urgent');
+        subTaskStore.addTagToSubTask(newSubTask.id, 'urgent');
 
         const parentTask = store.getTaskById('task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
@@ -85,7 +86,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('サブタスクのライフサイクル管理', async () => {
       // 1. サブタスクを作成
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Lifecycle Test SubTask',
         status: 'not_started',
         priority: 1
@@ -96,7 +97,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       if (!newSubTask) return;
 
       // 2. サブタスクを更新
-      await store.updateSubTask(newSubTask.id, {
+      await subTaskStore.updateSubTask(newSubTask.id, {
         title: 'Updated SubTask',
         status: 'completed',
         priority: 3
@@ -110,7 +111,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       expect(subTask?.priority).toBe(3);
 
       // 3. サブタスクを削除
-      await store.deleteSubTask(newSubTask.id);
+      await subTaskStore.deleteSubTask(newSubTask.id);
 
       parentTask = store.getTaskById('task-1');
       expect(parentTask?.subTasks).toHaveLength(0);
@@ -118,12 +119,12 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('複数のサブタスクと複数のタグの管理（バックエンド未実装時はno-op）', async () => {
       // 複数のサブタスクを作成
-      const subTask1 = await store.addSubTask('task-1', {
+      const subTask1 = await subTaskStore.addSubTask('task-1', {
         title: 'SubTask 1',
         priority: 1
       });
 
-      const subTask2 = await store.addSubTask('task-1', {
+      const subTask2 = await subTaskStore.addSubTask('task-1', {
         title: 'SubTask 2',
         priority: 2
       });
@@ -142,12 +143,12 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
       if (subTask1 && subTask2) {
         // サブタスク1にタグを追加
-        store.addTagToSubTask(subTask1.id, 'urgent');
-        store.addTagToSubTask(subTask1.id, 'work');
+        subTaskStore.addTagToSubTask(subTask1.id, 'urgent');
+        subTaskStore.addTagToSubTask(subTask1.id, 'work');
 
         // サブタスク2にタグを追加
-        store.addTagToSubTask(subTask2.id, 'urgent');
-        store.addTagToSubTask(subTask2.id, 'personal');
+        subTaskStore.addTagToSubTask(subTask2.id, 'urgent');
+        subTaskStore.addTagToSubTask(subTask2.id, 'personal');
 
         const parentTask = store.getTaskById('task-1');
 
@@ -160,7 +161,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
         // タグの削除テスト
         // タグが存在しないためremoveしても変化なし
-        store.removeTagFromSubTask(subTask1.id, 'non-existent');
+        subTaskStore.removeTagFromSubTask(subTask1.id, 'non-existent');
         const updatedTask = store.getTaskById('task-1');
         const updatedSt1 = updatedTask?.subTasks.find((st) => st.id === subTask1.id);
         expect(updatedSt1?.tags).toHaveLength(0);
@@ -172,12 +173,12 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       await store.addTagToTask('task-1', 'task-tag');
 
       // サブタスクを作成してタグを追加
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Independent SubTask'
       });
 
       if (newSubTask) {
-        store.addTagToSubTask(newSubTask.id, 'subtask-tag');
+        subTaskStore.addTagToSubTask(newSubTask.id, 'subtask-tag');
 
         const parentTask = store.getTaskById('task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
@@ -190,12 +191,12 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('サブタスクを削除してもタグストアには影響しない（未作成のまま）', async () => {
       // サブタスクを作成してタグを追加
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Temporary SubTask'
       });
 
       if (newSubTask) {
-        await store.addTagToSubTask(newSubTask.id, 'temporary-tag');
+        await subTaskStore.addTagToSubTask(newSubTask.id, 'temporary-tag');
 
         // バックエンド未実装のためタグストアにはタグが作成されない
         const tag = tagStore.tags.find((t) => t.name === 'temporary-tag');
@@ -206,7 +207,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
         expect(parentTask?.subTasks).toHaveLength(1);
 
         // サブタスクを削除
-        await store.deleteSubTask(newSubTask.id);
+        await subTaskStore.deleteSubTask(newSubTask.id);
 
         // タグストアは変化しない（存在しないまま）
         const remainingTag = tagStore.tags.find((t) => t.name === 'temporary-tag');
@@ -223,13 +224,13 @@ describe('サブタスクとタグ管理の結合テスト', () => {
       const errorHandler = (await import('../../src/lib/stores/error-handler.svelte')).errorHandler;
       const addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError');
 
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Error Test SubTask'
       });
 
       if (newSubTask) {
         // タグを追加（Webバックエンド未実装によりエラーが発生しerrorHandler記録）
-        await store.addTagToSubTask(newSubTask.id, 'error-prone-tag');
+        await subTaskStore.addTagToSubTask(newSubTask.id, 'error-prone-tag');
         const parentTask = store.getTaskById('task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
         expect(subTask?.tags).toHaveLength(0);
@@ -246,7 +247,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
     });
 
     test('存在しないタスクにサブタスクを追加しようとした場合', async () => {
-      const result = await store.addSubTask('non-existent-task', {
+      const result = await subTaskStore.addSubTask('non-existent-task', {
         title: 'Failed SubTask'
       });
 
@@ -263,7 +264,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('存在しないサブタスクを更新しようとした場合', async () => {
       // エラーを発生させずに何もしないことを確認
-      await store.updateSubTask('non-existent-subtask', {
+      await subTaskStore.updateSubTask('non-existent-subtask', {
         title: 'This should not work'
       });
 
@@ -274,7 +275,7 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     test('存在しないサブタスクを削除しようとした場合', async () => {
       // エラーを発生させずに何もしないことを確認
-      await store.deleteSubTask('non-existent-subtask');
+      await subTaskStore.deleteSubTask('non-existent-subtask');
 
       // 既存のデータに変更がないことを確認
       const parentTask = store.getTaskById('task-1');

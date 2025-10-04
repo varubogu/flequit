@@ -21,26 +21,47 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
     projects: [],
     selectedProjectId: null,
     selectedListId: null,
+    getTaskProjectAndList: vi.fn()
+  }
+}));
+
+// Mock selectionStore
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
+    selectProject: vi.fn(),
+    selectList: vi.fn()
+  }
+}));
+
+// Mock projectStore
+vi.mock('$lib/stores/project-store.svelte', () => ({
+  projectStore: {
     addProject: vi.fn(),
     updateProject: vi.fn(),
     deleteProject: vi.fn(),
-    selectProject: vi.fn(),
+    reorderProjects: vi.fn(),
+    moveProjectToPosition: vi.fn()
+  }
+}));
+
+// Mock taskListStore
+vi.mock('$lib/stores/task-list-store.svelte', () => ({
+  taskListStore: {
     addTaskList: vi.fn(),
     updateTaskList: vi.fn(),
     deleteTaskList: vi.fn(),
-    selectList: vi.fn(),
-    reorderProjects: vi.fn(),
-    moveProjectToPosition: vi.fn(),
     reorderTaskLists: vi.fn(),
     moveTaskListToProject: vi.fn(),
-    moveTaskListToPosition: vi.fn(),
-    getTaskProjectAndList: vi.fn()
+    moveTaskListToPosition: vi.fn()
   }
 }));
 
 // Get mocked instances for use in tests
 const mockDataService = vi.mocked(await import('$lib/services/data-service')).dataService;
 const mockTaskStore = vi.mocked(await import('$lib/stores/tasks.svelte')).taskStore;
+const mockSelectionStore = vi.mocked(await import('$lib/stores/selection-store.svelte')).selectionStore;
+const mockProjectStore = vi.mocked(await import('$lib/stores/project-store.svelte')).projectStore;
+const mockTaskListStore = vi.mocked(await import('$lib/stores/task-list-store.svelte')).taskListStore;
 
 describe('ProjectsService', () => {
   let mockProject: Project;
@@ -98,12 +119,12 @@ describe('ProjectsService', () => {
       };
 
       vi.mocked(mockDataService.createProject).mockResolvedValue(mockProject);
-      vi.mocked(mockTaskStore.addProject).mockResolvedValue(mockProjectWithLists);
+      vi.mocked(mockProjectStore.addProject).mockResolvedValue(mockProjectWithLists);
 
       const result = await ProjectsService.createProject(projectData);
 
       expect(vi.mocked(mockDataService.createProject)).toHaveBeenCalledWith(projectData);
-      expect(vi.mocked(mockTaskStore.addProject)).toHaveBeenCalledWith(projectData);
+      expect(vi.mocked(mockProjectStore.addProject)).toHaveBeenCalledWith(projectData);
       expect(result).toEqual(mockProject);
     });
 
@@ -127,12 +148,12 @@ describe('ProjectsService', () => {
       const updates = { name: 'Updated Project', isArchived: true };
 
       vi.mocked(mockDataService.updateProject).mockResolvedValue({ ...mockProject, ...updates });
-      vi.mocked(mockTaskStore.updateProject).mockResolvedValue({ ...mockProject, ...updates });
+      vi.mocked(mockProjectStore.updateProject).mockResolvedValue({ ...mockProject, ...updates });
 
       const result = await ProjectsService.updateProject('project-123', updates);
 
       expect(vi.mocked(mockDataService.updateProject)).toHaveBeenCalledWith('project-123', updates);
-      expect(vi.mocked(mockTaskStore.updateProject)).toHaveBeenCalledWith('project-123', updates);
+      expect(vi.mocked(mockProjectStore.updateProject)).toHaveBeenCalledWith('project-123', updates);
       expect(result).toEqual({ ...mockProject, ...updates });
     });
 
@@ -144,7 +165,7 @@ describe('ProjectsService', () => {
       const result = await ProjectsService.updateProject('project-123', updates);
 
       expect(result).toBeNull();
-      expect(vi.mocked(mockTaskStore.updateProject)).not.toHaveBeenCalled();
+      expect(vi.mocked(mockProjectStore.updateProject)).not.toHaveBeenCalled();
     });
 
     it('should return null when update throws error', async () => {
@@ -165,12 +186,12 @@ describe('ProjectsService', () => {
   describe('deleteProject', () => {
     it('should successfully delete a project', async () => {
       vi.mocked(mockDataService.deleteProject).mockResolvedValue(true);
-      vi.mocked(mockTaskStore.deleteProject).mockResolvedValue(true);
+      vi.mocked(mockProjectStore.deleteProject).mockResolvedValue(true);
 
       const result = await ProjectsService.deleteProject('project-123');
 
       expect(vi.mocked(mockDataService.deleteProject)).toHaveBeenCalledWith('project-123');
-      expect(vi.mocked(mockTaskStore.deleteProject)).toHaveBeenCalledWith('project-123');
+      expect(vi.mocked(mockProjectStore.deleteProject)).toHaveBeenCalledWith('project-123');
       expect(result).toBe(true);
     });
 
@@ -180,7 +201,7 @@ describe('ProjectsService', () => {
       const result = await ProjectsService.deleteProject('project-123');
 
       expect(result).toBe(false);
-      expect(vi.mocked(mockTaskStore.deleteProject)).not.toHaveBeenCalled();
+      expect(vi.mocked(mockProjectStore.deleteProject)).not.toHaveBeenCalled();
     });
 
     it('should return false when deletion throws error', async () => {
@@ -200,13 +221,13 @@ describe('ProjectsService', () => {
     it('should select a project', () => {
       ProjectsService.selectProject('project-123');
 
-      expect(vi.mocked(mockTaskStore.selectProject)).toHaveBeenCalledWith('project-123');
+      expect(vi.mocked(mockSelectionStore.selectProject)).toHaveBeenCalledWith('project-123');
     });
 
     it('should handle null project selection', () => {
       ProjectsService.selectProject(null);
 
-      expect(vi.mocked(mockTaskStore.selectProject)).toHaveBeenCalledWith(null);
+      expect(vi.mocked(mockSelectionStore.selectProject)).toHaveBeenCalledWith(null);
     });
   });
 
@@ -361,7 +382,7 @@ describe('ProjectsService', () => {
       };
 
       vi.mocked(mockDataService.createTaskList).mockResolvedValue(mockTaskList);
-      vi.mocked(mockTaskStore.addTaskList).mockResolvedValue(mockTaskListWithTasks);
+      vi.mocked(mockTaskListStore.addTaskList).mockResolvedValue(mockTaskListWithTasks);
 
       const result = await ProjectsService.createTaskList('project-123', taskListData);
 
@@ -369,7 +390,7 @@ describe('ProjectsService', () => {
         'project-123',
         taskListData
       );
-      expect(vi.mocked(mockTaskStore.addTaskList)).toHaveBeenCalledWith(
+      expect(vi.mocked(mockTaskListStore.addTaskList)).toHaveBeenCalledWith(
         'project-123',
         taskListData
       );
@@ -461,7 +482,7 @@ describe('ProjectsService', () => {
         ...mockProject,
         isArchived: true
       });
-      vi.mocked(mockTaskStore.updateProject).mockResolvedValue({
+      vi.mocked(mockProjectStore.updateProject).mockResolvedValue({
         ...mockProject,
         isArchived: true
       });
@@ -491,7 +512,7 @@ describe('ProjectsService', () => {
       };
 
       vi.mocked(mockDataService.createProject).mockResolvedValue(mockProject);
-      vi.mocked(mockTaskStore.addProject).mockResolvedValue(mockProjectWithLists);
+      vi.mocked(mockProjectStore.addProject).mockResolvedValue(mockProjectWithLists);
 
       const result = await ProjectsService.createProject(specialProject);
 

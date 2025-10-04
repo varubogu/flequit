@@ -6,20 +6,43 @@ import type { TaskWithSubTasks } from '../../src/lib/types/task';
 vi.mock('../../src/lib/stores/tasks.svelte', () => ({
   taskStore: {
     toggleTaskStatus: vi.fn(),
-    selectTask: vi.fn(),
-    selectSubTask: vi.fn(),
     updateTask: vi.fn(),
     deleteTask: vi.fn(),
     addTask: vi.fn(),
+    getTaskById: vi.fn()
+  }
+}));
+
+// Mock selectionStore
+vi.mock('../../src/lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
+    selectTask: vi.fn(),
+    selectSubTask: vi.fn()
+  }
+}));
+
+// Mock taskListStore
+vi.mock('../../src/lib/stores/task-list-store.svelte', () => ({
+  taskListStore: {
+    getProjectIdByListId: vi.fn()
+  }
+}));
+
+// Mock subTaskStore
+vi.mock('../../src/lib/stores/sub-task-store.svelte', () => ({
+  subTaskStore: {
+    addSubTask: vi.fn(),
     updateSubTask: vi.fn(),
     deleteSubTask: vi.fn(),
-    getTaskById: vi.fn(),
-    getProjectIdByListId: vi.fn()
+    addTagToSubTask: vi.fn()
   }
 }));
 
 // Get the mocked store for use in tests
 const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
+const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
+const mockTaskListStore = vi.mocked(await import('../../src/lib/stores/task-list-store.svelte')).taskListStore;
+const mockSubTaskStore = vi.mocked(await import('../../src/lib/stores/sub-task-store.svelte')).subTaskStore;
 
 // Note: deleteSubTask no longer uses window.confirm, it's handled by UI dialog
 
@@ -35,20 +58,20 @@ test('TaskService.toggleTaskStatus: calls taskStore.toggleTaskStatus with correc
   expect(mockTaskStore.toggleTaskStatus).toHaveBeenCalledTimes(1);
 });
 
-test('TaskService.selectTask: calls taskStore.selectTask with correct taskId', () => {
+test('TaskService.selectTask: calls selectionStore.selectTask with correct taskId', () => {
   const taskId = 'task-123';
   TaskService.selectTask(taskId);
 
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(taskId);
-  expect(mockTaskStore.selectTask).toHaveBeenCalledTimes(1);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(taskId);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
 });
 
-test('TaskService.selectSubTask: calls taskStore.selectSubTask with correct subTaskId', () => {
+test('TaskService.selectSubTask: calls selectionStore.selectSubTask with correct subTaskId', () => {
   const subTaskId = 'subtask-123';
   TaskService.selectSubTask(subTaskId);
 
-  expect(mockTaskStore.selectSubTask).toHaveBeenCalledWith(subTaskId);
-  expect(mockTaskStore.selectSubTask).toHaveBeenCalledTimes(1);
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith(subTaskId);
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
 });
 
 test('TaskService.updateTask: calls taskStore.updateTask with correct parameters', () => {
@@ -130,7 +153,7 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', asy
   };
 
   // Mock getProjectIdByListId to return a project ID
-  vi.mocked(mockTaskStore.getProjectIdByListId).mockReturnValue('project-123');
+  vi.mocked(mockTaskListStore.getProjectIdByListId).mockReturnValue('project-123');
 
   const mockReturnTask = { id: 'new-task', title: 'New Task' } as TaskWithSubTasks;
   vi.mocked(mockTaskStore.addTask).mockImplementation(() => Promise.resolve(mockReturnTask));
@@ -162,7 +185,7 @@ test('TaskService.addTask: handles default priority', async () => {
   };
 
   // Mock getProjectIdByListId to return a project ID
-  vi.mocked(mockTaskStore.getProjectIdByListId).mockReturnValue('project-123');
+  vi.mocked(mockTaskListStore.getProjectIdByListId).mockReturnValue('project-123');
 
   await TaskService.addTask(listId, taskData);
 
@@ -272,7 +295,7 @@ test('TaskService.updateSubTaskFromForm: converts form data and calls updateSubT
 
   TaskService.updateSubTaskFromForm(subTaskId, formData);
 
-  expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
+  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
     title: 'Updated Subtask',
     description: 'Updated Description',
     priority: 2,
@@ -288,7 +311,7 @@ test('TaskService.changeSubTaskStatus: calls updateSubTask with new status', () 
 
   TaskService.changeSubTaskStatus(subTaskId, newStatus);
 
-  expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, { status: newStatus });
+  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, { status: newStatus });
 });
 
 test('TaskService.deleteSubTask: calls deleteSubTask directly', () => {
@@ -296,7 +319,7 @@ test('TaskService.deleteSubTask: calls deleteSubTask directly', () => {
 
   const result = TaskService.deleteSubTask(subTaskId);
 
-  expect(mockTaskStore.deleteSubTask).toHaveBeenCalledWith(subTaskId);
+  expect(mockSubTaskStore.deleteSubTask).toHaveBeenCalledWith(subTaskId);
   expect(result).toBe(true);
 });
 
@@ -339,7 +362,7 @@ test('TaskService.selectTask: returns false when in new task mode', () => {
 
   expect(result).toBe(false);
   expect(mockTaskStore.pendingTaskSelection).toBe('task-123');
-  expect(mockTaskStore.selectTask).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.selectTask: returns true when not in new task mode', () => {
@@ -348,7 +371,7 @@ test('TaskService.selectTask: returns true when not in new task mode', () => {
   const result = TaskService.selectTask('task-123');
 
   expect(result).toBe(true);
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.selectTask: works with null taskId', () => {
@@ -357,7 +380,7 @@ test('TaskService.selectTask: works with null taskId', () => {
   const result = TaskService.selectTask(null);
 
   expect(result).toBe(true);
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
 });
 
 test('TaskService.selectSubTask: returns false when in new task mode', () => {
@@ -367,7 +390,7 @@ test('TaskService.selectSubTask: returns false when in new task mode', () => {
 
   expect(result).toBe(false);
   expect(mockTaskStore.pendingSubTaskSelection).toBe('subtask-123');
-  expect(mockTaskStore.selectSubTask).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.selectSubTask: returns true when not in new task mode', () => {
@@ -376,7 +399,7 @@ test('TaskService.selectSubTask: returns true when not in new task mode', () => 
   const result = TaskService.selectSubTask('subtask-123');
 
   expect(result).toBe(true);
-  expect(mockTaskStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
 });
 
 test('TaskService.forceSelectTask: cancels new task mode and selects task', () => {
@@ -385,7 +408,7 @@ test('TaskService.forceSelectTask: cancels new task mode and selects task', () =
   TaskService.forceSelectTask('task-123');
 
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.forceSelectTask: works when not in new task mode', () => {
@@ -394,7 +417,7 @@ test('TaskService.forceSelectTask: works when not in new task mode', () => {
   TaskService.forceSelectTask('task-123');
 
   expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
 });
 
 test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask', () => {
@@ -403,7 +426,7 @@ test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask'
   TaskService.forceSelectSubTask('subtask-123');
 
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockTaskStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
 });
 
 test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters', async () => {
@@ -426,11 +449,11 @@ test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters
     completed: false,
     assignedUserIds: []
   };
-  vi.mocked(mockTaskStore.addSubTask).mockImplementation(() => Promise.resolve(mockSubTask));
+  vi.mocked(mockSubTaskStore.addSubTask).mockImplementation(() => Promise.resolve(mockSubTask));
 
   const result = await TaskService.addSubTask(taskId, subTaskData);
 
-  expect(mockTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
+  expect(mockSubTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
     title: 'New Subtask',
     description: 'Subtask Description',
     status: 'not_started',
@@ -445,7 +468,7 @@ test('TaskService.addSubTask: handles default priority', async () => {
 
   await TaskService.addSubTask(taskId, subTaskData);
 
-  expect(mockTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
+  expect(mockSubTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
     title: 'Subtask Without Priority',
     description: undefined,
     status: 'not_started',
@@ -459,7 +482,7 @@ test('TaskService.updateSubTask: calls taskStore.updateSubTask with correct para
 
   TaskService.updateSubTask(subTaskId, updates);
 
-  expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, updates);
+  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, updates);
 });
 
 test('TaskService.addTagToTask: finds tag by ID and calls taskStore.addTagToTask', () => {
@@ -487,7 +510,7 @@ test('TaskService.addTagToSubTask: finds tag by ID and calls taskStore.addTagToS
 
   TaskService.addTagToSubTask(subTaskId, taskId, tagId);
 
-  expect(mockTaskStore.addTagToSubTask).toHaveBeenCalledWith(subTaskId, 'Work');
+  expect(mockSubTaskStore.addTagToSubTask).toHaveBeenCalledWith(subTaskId, 'Work');
 });
 
 test('TaskService.updateTaskDueDateForView: updates due date for today view', () => {
@@ -559,7 +582,7 @@ test('TaskService.updateSubTaskDueDateForView: updates due date for subtask', ()
 
   TaskService.updateSubTaskDueDateForView(subTaskId, taskId, 'today');
 
-  expect(mockTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
+  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
     planEndDate: expect.any(Date)
   });
 });

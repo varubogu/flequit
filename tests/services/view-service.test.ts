@@ -113,7 +113,13 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
     allTasks: [],
     projects: [],
     selectedProjectId: null,
-    selectedListId: null,
+    selectedListId: null
+  }
+}));
+
+// Mock selectionStore
+vi.mock('../../src/lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
     selectTask: vi.fn(),
     selectProject: vi.fn(),
     selectList: vi.fn()
@@ -140,6 +146,7 @@ vi.mock('../../src/lib/stores/locale.svelte', () => ({
 }));
 
 const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
+const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -286,7 +293,7 @@ test("ViewService.shouldShowAddButton: returns false for views that don't allow 
 
 test('ViewService.handleViewChange: clears task selection', () => {
   ViewService.handleViewChange('all');
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
 });
 
 // Additional tests for better coverage
@@ -424,9 +431,9 @@ test("ViewService.getViewTitle: returns 'Project' when no project selected", () 
 test('ViewService.handleViewChange: clears project/list selection for non-project views', () => {
   ViewService.handleViewChange('today');
 
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectList).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
 });
 
 test('ViewService.handleViewChange: does not clear project/list selection for project view', () => {
@@ -434,21 +441,21 @@ test('ViewService.handleViewChange: does not clear project/list selection for pr
 
   ViewService.handleViewChange('project');
 
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectProject).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectList).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
 });
 
 test('ViewService.handleViewChange: clears project/list selection for non-project views', () => {
   ViewService.handleViewChange('all');
-  expect(mockTaskStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectList).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
 });
 
 test('ViewService.handleViewChange: does not clear project/list selection for project view', () => {
   ViewService.handleViewChange('project');
-  expect(mockTaskStore.selectProject).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectList).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
 });
 
 // Add mocks for new task mode functionality
@@ -463,7 +470,7 @@ test('ViewService.handleViewChange: returns false when in new task mode', () => 
   const result = ViewService.handleViewChange('all');
 
   expect(result).toBe(false);
-  expect(mockTaskStore.selectTask).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
 });
 
 test('ViewService.handleViewChange: returns true when not in new task mode', () => {
@@ -472,7 +479,7 @@ test('ViewService.handleViewChange: returns true when not in new task mode', () 
   const result = ViewService.handleViewChange('all');
 
   expect(result).toBe(true);
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
 });
 
 test('ViewService.forceViewChange: cancels new task mode and forces view change', () => {
@@ -481,9 +488,9 @@ test('ViewService.forceViewChange: cancels new task mode and forces view change'
   ViewService.forceViewChange('today');
 
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectList).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
 });
 
 test('ViewService.forceViewChange: works when not in new task mode', () => {
@@ -492,7 +499,7 @@ test('ViewService.forceViewChange: works when not in new task mode', () => {
   ViewService.forceViewChange('today');
 
   expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
 });
 
 test('ViewService.forceViewChange: does not clear project/list for project view', () => {
@@ -501,9 +508,9 @@ test('ViewService.forceViewChange: does not clear project/list for project view'
 
   ViewService.forceViewChange('project');
 
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectProject).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectList).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
 });
 
 test('ViewService.forceViewChange: does not clear project/list for tasklist view', () => {
@@ -512,9 +519,9 @@ test('ViewService.forceViewChange: does not clear project/list for tasklist view
 
   ViewService.forceViewChange('tasklist');
 
-  expect(mockTaskStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskStore.selectProject).not.toHaveBeenCalled();
-  expect(mockTaskStore.selectList).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
 });
 
 test("ViewService.getTasksForView: handles 'tasklist' view same as 'project'", () => {

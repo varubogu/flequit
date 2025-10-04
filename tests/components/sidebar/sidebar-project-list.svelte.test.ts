@@ -21,24 +21,10 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
 
 // --- Store Mocks ---
 vi.mock('$lib/stores/tasks.svelte', () => {
-  // TaskStoreクラスをモック
   class MockTaskStore {
     projects = [];
     selectedProjectId = null;
     selectedListId = null;
-
-    selectProject = vi.fn();
-    selectList = vi.fn();
-    addProject = vi.fn();
-    updateProject = vi.fn();
-    deleteProject = vi.fn();
-    addTaskList = vi.fn();
-    updateTaskList = vi.fn();
-    deleteTaskList = vi.fn();
-    moveProjectToPosition = vi.fn();
-    moveTaskListToProject = vi.fn();
-    moveTaskToList = vi.fn();
-    moveTaskListToPosition = vi.fn();
   }
 
   return {
@@ -47,7 +33,52 @@ vi.mock('$lib/stores/tasks.svelte', () => {
   };
 });
 
+vi.mock('$lib/stores/project-store.svelte', () => {
+  class MockProjectStore {
+    addProject = vi.fn();
+    updateProject = vi.fn();
+    deleteProject = vi.fn();
+    moveProjectToPosition = vi.fn();
+  }
+
+  return {
+    ProjectStore: MockProjectStore,
+    projectStore: new MockProjectStore()
+  };
+});
+
+vi.mock('$lib/stores/task-list-store.svelte', () => {
+  class MockTaskListStore {
+    addTaskList = vi.fn();
+    updateTaskList = vi.fn();
+    deleteTaskList = vi.fn();
+    moveTaskListToProject = vi.fn();
+    moveTaskListToPosition = vi.fn();
+  }
+
+  return {
+    TaskListStore: MockTaskListStore,
+    taskListStore: new MockTaskListStore()
+  };
+});
+
+vi.mock('$lib/stores/selection-store.svelte', () => {
+  class MockSelectionStore {
+    selectProject = vi.fn();
+    selectList = vi.fn();
+    selectTask = vi.fn();
+    selectSubTask = vi.fn();
+  }
+
+  return {
+    SelectionStore: MockSelectionStore,
+    selectionStore: new MockSelectionStore()
+  };
+});
+
 const mockTaskStore = vi.mocked(taskStore);
+const mockProjectStore = vi.mocked(await import('$lib/stores/project-store.svelte').then(m => m.projectStore));
+const mockSelectionStore = vi.mocked(await import('$lib/stores/selection-store.svelte').then(m => m.selectionStore));
 
 // --- Test Data ---
 const mockProjects: ProjectTree[] = [
@@ -144,7 +175,7 @@ describe('SidebarProjectList Component', () => {
     const projectButton = screen.getByText('Work');
     await fireEvent.click(projectButton);
 
-    expect(mockTaskStore.selectProject).toHaveBeenCalledWith('project-1');
+    expect(mockSelectionStore.selectProject).toHaveBeenCalledWith('project-1');
     expect(onViewChange).toHaveBeenCalledWith('project');
   });
 
@@ -183,7 +214,7 @@ describe('SidebarProjectList Component', () => {
     const listButton = await screen.findByTestId('tasklist-list-1');
     await fireEvent.click(listButton);
 
-    expect(mockTaskStore.selectList).toHaveBeenCalledWith('list-1');
+    expect(mockSelectionStore.selectList).toHaveBeenCalledWith('list-1');
   });
 
   test('should display project names', () => {

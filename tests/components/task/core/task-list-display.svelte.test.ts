@@ -23,13 +23,25 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     projects: [],
     selectedListId: null,
+    moveTaskToList: vi.fn()
+  }
+}));
+
+// selectionStoreのモック
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
     selectList: vi.fn(),
-    selectProject: vi.fn(),
+    selectProject: vi.fn()
+  }
+}));
+
+// taskListStoreのモック
+vi.mock('$lib/stores/task-list-store.svelte', () => ({
+  taskListStore: {
     addTaskList: vi.fn(),
     updateTaskList: vi.fn(),
     deleteTaskList: vi.fn(),
-    moveTaskListToPosition: vi.fn(),
-    moveTaskToList: vi.fn()
+    moveTaskListToPosition: vi.fn()
   }
 }));
 
@@ -181,9 +193,9 @@ describe('TaskListDisplay', () => {
     if (taskListButton) {
       await fireEvent.click(taskListButton);
 
-      // mockTaskStore参照を避けて、importから直接確認
-      const { taskStore } = await import('$lib/stores/tasks.svelte');
-      expect(taskStore.selectList).toHaveBeenCalledWith('list-1');
+      // selectionStoreのselectListが呼ばれることを確認
+      const { selectionStore } = await import('$lib/stores/selection-store.svelte');
+      expect(selectionStore.selectList).toHaveBeenCalledWith('list-1');
     }
   });
 

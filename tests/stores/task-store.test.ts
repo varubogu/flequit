@@ -111,7 +111,7 @@ describe('TaskStore', () => {
     test('should initialize with empty state', () => {
       expect(store.projects).toEqual([]);
       expect(store.selectedTaskId).toBeNull();
-      expect(store.selectedSubTaskId).toBeNull();
+      expect(selectionStore.selectedSubTaskId).toBeNull();
       expect(store.selectedProjectId).toBeNull();
       expect(store.selectedListId).toBeNull();
     });
@@ -163,7 +163,7 @@ describe('TaskStore', () => {
     });
 
     test('selectedTask should return the selected task', () => {
-      store.selectTask('task-1');
+      selectionStore.selectTask('task-1');
 
       const selectedTask = store.selectedTask;
       expect(selectedTask?.id).toBe('task-1');
@@ -175,7 +175,7 @@ describe('TaskStore', () => {
     });
 
     test('selectedSubTask should return the selected subtask', () => {
-      store.selectSubTask('subtask-1');
+      selectionStore.selectSubTask('subtask-1');
 
       const selectedSubTask = store.selectedSubTask;
       expect(selectedSubTask?.id).toBe('subtask-1');
@@ -189,31 +189,31 @@ describe('TaskStore', () => {
 
   describe('selection methods', () => {
     test('selectTask should set selectedTaskId and clear selectedSubTaskId', () => {
-      store.selectedSubTaskId = 'subtask-1';
+      selectionStore.selectedSubTaskId = 'subtask-1';
 
-      store.selectTask('task-1');
+      selectionStore.selectTask('task-1');
 
       expect(store.selectedTaskId).toBe('task-1');
       expect(store.selectedSubTaskId).toBeNull();
     });
 
     test('selectSubTask should set selectedSubTaskId and clear selectedTaskId', () => {
-      store.selectedTaskId = 'task-1';
+      selectionStore.selectedTaskId = 'task-1';
 
-      store.selectSubTask('subtask-1');
+      selectionStore.selectSubTask('subtask-1');
 
       expect(store.selectedSubTaskId).toBe('subtask-1');
       expect(store.selectedTaskId).toBeNull();
     });
 
     test('selectProject should set selectedProjectId', () => {
-      store.selectProject('project-1');
+      selectionStore.selectProject('project-1');
 
       expect(store.selectedProjectId).toBe('project-1');
     });
 
     test('selectList should set selectedListId', () => {
-      store.selectList('list-1');
+      selectionStore.selectList('list-1');
 
       expect(store.selectedListId).toBe('list-1');
     });
@@ -295,7 +295,7 @@ describe('TaskStore', () => {
     });
 
     test('deleteTask should remove the task and clear selection if selected', () => {
-      store.selectTask('task-1');
+      selectionStore.selectTask('task-1');
 
       store.deleteTask('task-1');
 
@@ -314,7 +314,7 @@ describe('TaskStore', () => {
     test('updateSubTask should update subtask properties', () => {
       const updateTime = new Date();
 
-      store.updateSubTask('subtask-1', { title: 'Updated SubTask', status: 'completed' });
+      subTaskStore.updateSubTask('subtask-1', { title: 'Updated SubTask', status: 'completed' });
 
       const parentTask = store.allTasks.find((t) => t.id === 'task-1');
       const updatedSubTask = parentTask?.subTasks.find((st) => st.id === 'subtask-1');
@@ -328,7 +328,7 @@ describe('TaskStore', () => {
       const initialSubTaskCount =
         store.allTasks.find((t) => t.id === 'task-1')?.subTasks.length || 0;
 
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'New SubTask',
         description: 'New subtask description',
         status: 'in_progress',
@@ -350,7 +350,7 @@ describe('TaskStore', () => {
     });
 
     test('addSubTask should handle creation failure gracefully', async () => {
-      const result = await store.addSubTask('non-existent-task', {
+      const result = await subTaskStore.addSubTask('non-existent-task', {
         title: 'Failed SubTask'
       });
 
@@ -367,13 +367,13 @@ describe('TaskStore', () => {
     });
 
     test('deleteSubTask should remove the subtask and clear selection if selected', () => {
-      store.selectSubTask('subtask-1');
+      selectionStore.selectSubTask('subtask-1');
 
-      store.deleteSubTask('subtask-1');
+      subTaskStore.deleteSubTask('subtask-1');
 
       const parentTask = store.allTasks.find((t) => t.id === 'task-1');
       expect(parentTask?.subTasks).toHaveLength(0);
-      expect(store.selectedSubTaskId).toBeNull();
+      expect(selectionStore.selectedSubTaskId).toBeNull();
     });
   });
 
@@ -384,7 +384,7 @@ describe('TaskStore', () => {
 
     test('addTagToSubTask should be no-op without backends (graceful)', async () => {
       // First create a subtask
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Tagged SubTask'
       });
 
@@ -392,7 +392,7 @@ describe('TaskStore', () => {
 
       if (newSubTask) {
         // Add tag to subtask
-        await store.addTagToSubTask(newSubTask.id, 'urgent');
+        await subTaskStore.addTagToSubTask(newSubTask.id, 'urgent');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
@@ -403,14 +403,14 @@ describe('TaskStore', () => {
     });
 
     test('addTagToSubTask should not add duplicate tags (no-op without backends)', async () => {
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Duplicate Tag Test SubTask'
       });
 
       if (newSubTask) {
         // Add same tag twice
-        await store.addTagToSubTask(newSubTask.id, 'important');
-        await store.addTagToSubTask(newSubTask.id, 'important');
+        await subTaskStore.addTagToSubTask(newSubTask.id, 'important');
+        await subTaskStore.addTagToSubTask(newSubTask.id, 'important');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
@@ -421,7 +421,7 @@ describe('TaskStore', () => {
     });
 
     test('removeTagFromSubTask should be no-op when tag not present (graceful)', async () => {
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Remove Tag Test SubTask'
       });
 
@@ -430,7 +430,7 @@ describe('TaskStore', () => {
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
         expect(subTask?.tags).toHaveLength(0);
-        await store.removeTagFromSubTask(newSubTask.id, 'non-existent');
+        await subTaskStore.removeTagFromSubTask(newSubTask.id, 'non-existent');
         const parentTaskAfter = store.allTasks.find((t) => t.id === 'task-1');
         const subTaskAfter = parentTaskAfter?.subTasks.find((st) => st.id === newSubTask.id);
         expect(subTaskAfter?.tags).toHaveLength(0);
@@ -438,13 +438,13 @@ describe('TaskStore', () => {
     });
 
     test('removeTagFromSubTask should handle non-existent tag gracefully', async () => {
-      const newSubTask = await store.addSubTask('task-1', {
+      const newSubTask = await subTaskStore.addSubTask('task-1', {
         title: 'Non-existent Tag Test SubTask'
       });
 
       if (newSubTask) {
         // Try to remove non-existent tag
-        await store.removeTagFromSubTask(newSubTask.id, 'non-existent-tag-id');
+        await subTaskStore.removeTagFromSubTask(newSubTask.id, 'non-existent-tag-id');
 
         const parentTask = store.allTasks.find((t) => t.id === 'task-1');
         const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
@@ -455,7 +455,7 @@ describe('TaskStore', () => {
 
     test('addTagToSubTask should handle non-existent subtask gracefully', async () => {
       // Try to add tag to non-existent subtask
-      await store.addTagToSubTask('non-existent-subtask', 'test-tag');
+      await subTaskStore.addTagToSubTask('non-existent-subtask', 'test-tag');
 
       // No error should be thrown, and existing data should remain unchanged
       const allTasks = store.allTasks;

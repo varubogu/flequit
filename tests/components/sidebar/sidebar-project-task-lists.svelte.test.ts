@@ -34,14 +34,42 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
       subscribe: tasksWritable.subscribe,
       set: tasksWritable.set,
       update: tasksWritable.update,
-      selectList: vi.fn(),
       selectedListId: null,
       projects: []
     }
   };
 });
 
+vi.mock('$lib/stores/selection-store.svelte', () => {
+  class MockSelectionStore {
+    selectList = vi.fn();
+    selectProject = vi.fn();
+    selectTask = vi.fn();
+    selectSubTask = vi.fn();
+  }
+
+  return {
+    SelectionStore: MockSelectionStore,
+    selectionStore: new MockSelectionStore()
+  };
+});
+
+vi.mock('$lib/stores/task-list-store.svelte', () => {
+  class MockTaskListStore {
+    addTaskList = vi.fn();
+    updateTaskList = vi.fn();
+    deleteTaskList = vi.fn();
+    moveTaskListToPosition = vi.fn();
+  }
+
+  return {
+    TaskListStore: MockTaskListStore,
+    taskListStore: new MockTaskListStore()
+  };
+});
+
 const mockTaskStore = vi.mocked(taskStore);
+const mockSelectionStore = vi.mocked(await import('$lib/stores/selection-store.svelte').then(m => m.selectionStore));
 
 // --- Test Data ---
 const mockProject: ProjectTree = {
@@ -130,7 +158,7 @@ describe('TaskListDisplay Component', () => {
     const frontendButton = screen.getByText('Frontend');
     await fireEvent.click(frontendButton);
 
-    expect(mockTaskStore.selectList).toHaveBeenCalledWith('list-1');
+    expect(mockSelectionStore.selectList).toHaveBeenCalledWith('list-1');
   });
 
   test('should highlight selected task list', () => {

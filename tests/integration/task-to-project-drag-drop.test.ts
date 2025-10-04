@@ -73,12 +73,14 @@ const mockProjects: ProjectTree[] = [
 ];
 
 describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     // タスクストアをリセット
     taskStore.setProjects([]);
-    taskStore.selectTask(null);
-    taskStore.selectProject(null);
-    taskStore.selectList(null);
+
+    const { selectionStore } = await import('$lib/stores/selection-store.svelte');
+    selectionStore.selectTask(null);
+    selectionStore.selectProject(null);
+    selectionStore.selectList(null);
 
     // モックデータをセット
     taskStore.setProjects(mockProjects);
