@@ -5,6 +5,7 @@
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -36,7 +37,17 @@
     if (isNewTaskMode) {
       return taskStore.selectedProjectId;
     } else if (isSubTask) {
-      return taskStore.getProjectIdBySubTaskId(currentItem.id);
+      // SubTaskの場合、親タスクを探してプロジェクトIDを取得
+      for (const project of taskStore.projects) {
+        for (const list of project.taskLists) {
+          for (const task of list.tasks) {
+            if (task.subTasks?.some((st) => st.id === currentItem.id)) {
+              return project.id;
+            }
+          }
+        }
+      }
+      return undefined;
     } else if ('list_id' in currentItem) {
       return taskStore.getProjectIdByTaskId(currentItem.id);
     }
@@ -54,7 +65,7 @@
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask) {
-      taskStore.addTagToSubTask(currentItem.id, event.detail.tagName);
+      subTaskStore.addTagToSubTask(currentItem.id, event.detail.tagName);
     } else if ('list_id' in currentItem) {
       taskStore.addTagToTask(currentItem.id, event.detail.tagName);
     }

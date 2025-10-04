@@ -1,4 +1,5 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { getTranslationService } from '$lib/stores/locale.svelte';
 
@@ -101,12 +102,12 @@ export class ViewService {
     }
 
     // Clear task selection when changing views
-    taskStore.selectTask(null);
+    selectionStore.selectTask(null);
 
     // Clear project/list selection for non-project views
     if (view !== 'project' && view !== 'tasklist') {
-      taskStore.selectProject(null);
-      taskStore.selectList(null);
+      selectionStore.selectProject(null);
+      selectionStore.selectList(null);
     }
 
     return true; // View change completed
@@ -119,12 +120,12 @@ export class ViewService {
     }
 
     // Clear task selection when changing views
-    taskStore.selectTask(null);
+    selectionStore.selectTask(null);
 
     // Clear project/list selection for non-project views
     if (view !== 'project' && view !== 'tasklist') {
-      taskStore.selectProject(null);
-      taskStore.selectList(null);
+      selectionStore.selectProject(null);
+      selectionStore.selectList(null);
     }
   }
 

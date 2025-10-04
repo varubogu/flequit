@@ -133,25 +133,6 @@ export class TaskStore {
     projectStore.loadProjects(projects);
   }
 
-  selectTask(taskId: string | null) {
-    selectionStore.selectTask(taskId);
-    selectionStore.selectSubTask(null); // Clear subtask selection when selecting a task
-  }
-
-  selectSubTask(subTaskId: string | null) {
-    selectionStore.selectSubTask(subTaskId);
-    selectionStore.selectTask(null); // Clear task selection when selecting a subtask
-  }
-
-  selectProject(projectId: string | null) {
-    selectionStore.selectProject(projectId);
-    selectionStore.selectList(null); // Clear list selection when selecting a project
-  }
-
-  selectList(listId: string | null) {
-    selectionStore.selectList(listId);
-    selectionStore.selectProject(null); // Clear project selection when selecting a list
-  }
 
   async updateTask(taskId: string, updates: Partial<Task>) {
     console.log('[TaskStore] updateTask called with:', { taskId, updates });
@@ -289,20 +270,6 @@ export class TaskStore {
     }
   }
 
-  async updateSubTask(subTaskId: string, updates: Partial<SubTask>) {
-    return subTaskStore.updateSubTask(subTaskId, updates);
-  }
-
-  async addSubTask(
-    taskId: string,
-    subTask: { title: string; description?: string; status?: string; priority?: number }
-  ) {
-    return subTaskStore.addSubTask(taskId, subTask);
-  }
-
-  async deleteSubTask(subTaskId: string) {
-    return subTaskStore.deleteSubTask(subTaskId);
-  }
 
   // New task mode methods
   startNewTaskMode(listId: string) {
@@ -310,7 +277,7 @@ export class TaskStore {
     this.selectedTaskId = null;
     this.selectedSubTaskId = null;
 
-    const projectId = this.getProjectIdByListId(listId);
+    const projectId = taskListStore.getProjectIdByListId(listId);
     if (!projectId) {
       console.error('Failed to find project for list:', listId);
       return;
@@ -456,54 +423,6 @@ export class TaskStore {
     }
   }
 
-  async addTagToSubTask(subTaskId: string, tagName: string) {
-    return subTaskStore.addTagToSubTask(subTaskId, tagName);
-  }
-
-  async removeTagFromSubTask(subTaskId: string, tagId: string) {
-    return subTaskStore.removeTagFromSubTask(subTaskId, tagId);
-  }
-
-  // Project management methods
-  async addProject(project: { name: string; description?: string; color?: string }) {
-    return projectStore.addProject(project);
-  }
-
-  async updateProject(
-    projectId: string,
-    updates: {
-      name?: string;
-      description?: string;
-      color?: string;
-      order_index?: number;
-      is_archived?: boolean;
-    }
-  ) {
-    return projectStore.updateProject(projectId, updates);
-  }
-
-  async deleteProject(projectId: string) {
-    return projectStore.deleteProject(projectId);
-  }
-
-  // Task list management methods
-  async addTaskList(
-    projectId: string,
-    taskList: { name: string; description?: string; color?: string }
-  ) {
-    return taskListStore.addTaskList(projectId, taskList);
-  }
-
-  async updateTaskList(
-    taskListId: string,
-    updates: { name?: string; description?: string; color?: string }
-  ): Promise<TaskListWithTasks | null> {
-    return taskListStore.updateTaskList(taskListId, updates);
-  }
-
-  async deleteTaskList(taskListId: string) {
-    return taskListStore.deleteTaskList(taskListId);
-  }
 
   // Get task count for a specific tag
   getTaskCountByTag(tagName: string): number {
@@ -635,31 +554,6 @@ export class TaskStore {
     }
   }
 
-  // Drag & Drop methods
-  async reorderProjects(fromIndex: number, toIndex: number) {
-    return projectStore.reorderProjects(fromIndex, toIndex);
-  }
-
-  async moveProjectToPosition(projectId: string, targetIndex: number) {
-    return projectStore.moveProjectToPosition(projectId, targetIndex);
-  }
-
-  async reorderTaskLists(projectId: string, fromIndex: number, toIndex: number) {
-    return taskListStore.reorderTaskLists(projectId, fromIndex, toIndex);
-  }
-
-  async moveTaskListToProject(taskListId: string, targetProjectId: string, targetIndex?: number) {
-    return taskListStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
-  }
-
-  async moveTaskListToPosition(taskListId: string, targetProjectId: string, targetIndex: number) {
-    return taskListStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
-  }
-
-  // Helper method to get project ID by list ID
-  getProjectIdByListId(listId: string): string | null {
-    return taskListStore.getProjectIdByListId(listId);
-  }
   // Helper method to get project ID by task ID
   getProjectIdByTaskId(taskId: string): string | null {
     for (const project of this.projects) {
@@ -671,16 +565,6 @@ export class TaskStore {
       }
     }
     return null;
-  }
-
-  // Helper method to get task ID by subtask ID
-  getTaskIdBySubTaskId(subTaskId: string): string | null {
-    return subTaskStore.getTaskIdBySubTaskId(subTaskId);
-  }
-
-  // Helper method to get project ID by subtask ID
-  getProjectIdBySubTaskId(subTaskId: string): string | null {
-    return subTaskStore.getProjectIdBySubTaskId(subTaskId);
   }
 
   // Helper method to get project ID by tag ID

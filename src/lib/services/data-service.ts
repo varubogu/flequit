@@ -42,7 +42,17 @@ export class DataService {
   private async getProjectIdBySubTaskId(subTaskId: string): Promise<string | null> {
     // TaskStoreからサブタスクを検索してプロジェクトIDを取得
     const { taskStore } = await import('$lib/stores/tasks.svelte');
-    return taskStore.getProjectIdBySubTaskId(subTaskId);
+    for (const project of taskStore.projects) {
+      for (const list of project.taskLists) {
+        for (const task of list.tasks) {
+          const subTask = task.subTasks?.find((st) => st.id === subTaskId);
+          if (subTask) {
+            return project.id;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   /**

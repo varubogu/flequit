@@ -2,6 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
   import { getBackendService } from '$lib/infrastructure/backends/index';
@@ -179,7 +180,7 @@
 
     if (isRangeDate) {
       if (range) {
-        taskStore.updateSubTask(editingSubTaskId, {
+        subTaskStore.updateSubTask(editingSubTaskId, {
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
           isRangeDate: true,
@@ -188,7 +189,7 @@
       } else {
         const subTask = task.subTasks[subTaskIndex];
         const currentEndDate = subTask.planEndDate || new Date(dateTime);
-        taskStore.updateSubTask(editingSubTaskId, {
+        subTaskStore.updateSubTask(editingSubTaskId, {
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
           isRangeDate: true,
@@ -196,7 +197,7 @@
         });
       }
     } else {
-      taskStore.updateSubTask(editingSubTaskId, {
+      subTaskStore.updateSubTask(editingSubTaskId, {
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
         isRangeDate: false,
@@ -213,7 +214,7 @@
   function handleSubTaskDateClear() {
     if (!editingSubTaskId) return;
 
-    taskStore.updateSubTask(editingSubTaskId, {
+    subTaskStore.updateSubTask(editingSubTaskId, {
       planStartDate: undefined,
       planEndDate: undefined,
       isRangeDate: false

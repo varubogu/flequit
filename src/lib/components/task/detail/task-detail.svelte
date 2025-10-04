@@ -1,5 +1,6 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
@@ -104,7 +105,7 @@
         if (isNewTaskMode) {
           taskStore.updateNewTaskData(updates);
         } else if (isSubTask) {
-          taskStore.updateSubTask(currentItem.id, updates);
+          subTaskStore.updateSubTask(currentItem.id, updates);
         } else {
           taskStore.updateTask(currentItem.id, updates);
         }
@@ -134,7 +135,7 @@
       if (isNewTaskMode) {
         taskStore.updateNewTaskData(updates);
       } else if (isSubTask) {
-        taskStore.updateSubTask(currentItem.id, updates);
+        subTaskStore.updateSubTask(currentItem.id, updates);
       } else {
         taskStore.updateTask(currentItem.id, updates);
       }

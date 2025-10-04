@@ -4,6 +4,9 @@
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { projectStore } from '$lib/stores/project-store.svelte';
+  import { taskListStore } from '$lib/stores/task-list-store.svelte';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
@@ -52,7 +55,8 @@
 
   // Project handlers
   function handleProjectSelect(project: ProjectTree) {
-    taskStore.selectProject(project.id);
+    selectionStore.selectProject(project.id);
+    selectionStore.selectList(null);
     onViewChange?.('project');
   }
 
@@ -84,11 +88,12 @@
 
   async function handleTaskListSave(data: { name: string }) {
     if (taskListDialogProject) {
-      const newTaskList = await taskStore.addTaskList(taskListDialogProject.id, {
+      const newTaskList = await taskListStore.addTaskList(taskListDialogProject.id, {
         name: data.name
       });
       if (newTaskList) {
-        taskStore.selectList(newTaskList.id);
+        selectionStore.selectList(newTaskList.id);
+        selectionStore.selectProject(null);
         onViewChange?.('tasklist');
       }
     }
@@ -98,13 +103,14 @@
   async function handleProjectSave(data: { name: string; color: string }) {
     const { name, color } = data;
     if (projectDialogMode === 'add') {
-      const newProject = await taskStore.addProject({ name, color });
+      const newProject = await projectStore.addProject({ name, color });
       if (newProject) {
-        taskStore.selectProject(newProject.id);
+        selectionStore.selectProject(newProject.id);
+        selectionStore.selectList(null);
         onViewChange?.('project');
       }
     } else if (editingProject) {
-      await taskStore.updateProject(editingProject.id, { name, color });
+      await projectStore.updateProject(editingProject.id, { name, color });
     }
     showProjectDialog = false;
   }
@@ -138,10 +144,10 @@
     if (dragData.type === 'project') {
       // プロジェクト同士の並び替え
       const targetIndex = projectsData.findIndex((p) => p.id === targetProject.id);
-      await taskStore.moveProjectToPosition(dragData.id, targetIndex);
+      await projectStore.moveProjectToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'tasklist') {
       // タスクリストをプロジェクトにドロップ（最後尾に配置）
-      await taskStore.moveTaskListToProject(dragData.id, targetProject.id);
+      await taskListStore.moveTaskListToProject(dragData.id, targetProject.id);
     } else if (dragData.type === 'task') {
       // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
       if (targetProject.taskLists.length > 0) {
@@ -182,7 +188,7 @@
       {
         id: 'delete-project',
         label: deleteProject,
-        action: () => taskStore.deleteProject(project.id),
+        action: () => projectStore.deleteProject(project.id),
         icon: Trash2,
         destructive: true
       }

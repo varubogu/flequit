@@ -3,6 +3,9 @@ import type { ProjectWithLists } from '$lib/types/project';
 import type { Project } from '$lib/types/project';
 import { dataService } from '$lib/services/data-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { projectStore } from '$lib/stores/project-store.svelte';
+import { taskListStore } from '$lib/stores/task-list-store.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 
 export class ProjectsService {
   // プロジェクト作成
@@ -15,7 +18,7 @@ export class ProjectsService {
     try {
       const newProject = await dataService.createProject(projectData);
       // ローカルストアも更新
-      await taskStore.addProject(projectData);
+      await projectStore.addProject(projectData);
       return newProject;
     } catch (error) {
       console.error('Failed to create project:', error);
@@ -39,7 +42,7 @@ export class ProjectsService {
       if (!updatedProject) return null;
 
       // ローカルストアも更新
-      await taskStore.updateProject(projectId, updates);
+      await projectStore.updateProject(projectId, updates);
       return updatedProject;
     } catch (error) {
       console.error('Failed to update project:', error);
@@ -53,7 +56,7 @@ export class ProjectsService {
       const success = await dataService.deleteProject(projectId);
       if (success) {
         // ローカルストアからも削除
-        await taskStore.deleteProject(projectId);
+        await projectStore.deleteProject(projectId);
       }
       return success;
     } catch (error) {
@@ -64,7 +67,8 @@ export class ProjectsService {
 
   // プロジェクト選択
   static selectProject(projectId: string | null): void {
-    taskStore.selectProject(projectId);
+    selectionStore.selectProject(projectId);
+    selectionStore.selectList(null); // Clear list selection when selecting a project
   }
 
   // プロジェクトID取得（名前で検索）
@@ -126,12 +130,12 @@ export class ProjectsService {
 
   // プロジェクト並べ替え
   static async reorderProjects(fromIndex: number, toIndex: number): Promise<void> {
-    await taskStore.reorderProjects(fromIndex, toIndex);
+    await projectStore.reorderProjects(fromIndex, toIndex);
   }
 
   // プロジェクト位置移動
   static async moveProjectToPosition(projectId: string, targetIndex: number): Promise<void> {
-    await taskStore.moveProjectToPosition(projectId, targetIndex);
+    await projectStore.moveProjectToPosition(projectId, targetIndex);
   }
 
   // タスクリスト作成
@@ -147,7 +151,7 @@ export class ProjectsService {
     try {
       const newTaskList = await dataService.createTaskList(projectId, taskListData);
       // ローカルストアも更新
-      await taskStore.addTaskList(projectId, taskListData);
+      await taskListStore.addTaskList(projectId, taskListData);
       return newTaskList;
     } catch (error) {
       console.error('Failed to create task list:', error);
@@ -169,7 +173,7 @@ export class ProjectsService {
   ): Promise<TaskList | null> {
     try {
       // taskListIdからprojectIdを取得
-      const projectId = taskStore.getProjectIdByListId(taskListId);
+      const projectId = taskListStore.getProjectIdByListId(taskListId);
       if (!projectId) {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
@@ -178,7 +182,7 @@ export class ProjectsService {
       if (!updatedTaskList) return null;
 
       // ローカルストアも更新
-      await taskStore.updateTaskList(taskListId, updates);
+      await taskListStore.updateTaskList(taskListId, updates);
       return updatedTaskList;
     } catch (error) {
       console.error('Failed to update task list:', error);
@@ -190,7 +194,7 @@ export class ProjectsService {
   static async deleteTaskList(taskListId: string): Promise<boolean> {
     try {
       // taskListIdからprojectIdを取得
-      const projectId = taskStore.getProjectIdByListId(taskListId);
+      const projectId = taskListStore.getProjectIdByListId(taskListId);
       if (!projectId) {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
@@ -198,7 +202,7 @@ export class ProjectsService {
       const success = await dataService.deleteTaskList(projectId, taskListId);
       if (success) {
         // ローカルストアからも削除
-        await taskStore.deleteTaskList(taskListId);
+        await taskListStore.deleteTaskList(taskListId);
       }
       return success;
     } catch (error) {
@@ -209,7 +213,8 @@ export class ProjectsService {
 
   // タスクリスト選択
   static selectTaskList(listId: string | null): void {
-    taskStore.selectList(listId);
+    selectionStore.selectList(listId);
+    selectionStore.selectProject(null); // Clear project selection when selecting a list
   }
 
   // タスクリストID取得（名前で検索）
@@ -300,7 +305,7 @@ export class ProjectsService {
     fromIndex: number,
     toIndex: number
   ): Promise<void> {
-    await taskStore.reorderTaskLists(projectId, fromIndex, toIndex);
+    await taskListStore.reorderTaskLists(projectId, fromIndex, toIndex);
   }
 
   // タスクリストをプロジェクト間移動
@@ -309,7 +314,7 @@ export class ProjectsService {
     targetProjectId: string,
     targetIndex?: number
   ): Promise<void> {
-    await taskStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
+    await taskListStore.moveTaskListToProject(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリスト位置移動
@@ -318,7 +323,7 @@ export class ProjectsService {
     targetProjectId: string,
     targetIndex: number
   ): Promise<void> {
-    await taskStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
+    await taskListStore.moveTaskListToPosition(taskListId, targetProjectId, targetIndex);
   }
 
   // タスクリストのタスク数取得

@@ -3,6 +3,8 @@
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { taskListStore } from '$lib/stores/task-list-store.svelte';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
@@ -30,7 +32,8 @@
   const deleteTaskList = translationService.getMessage('delete_task_list');
 
   function handleTaskListSelect(list: { id: string }) {
-    taskStore.selectList(list.id);
+    selectionStore.selectList(list.id);
+    selectionStore.selectProject(null);
     onViewChange?.('tasklist');
   }
 
@@ -54,15 +57,16 @@
     const { name } = data;
     if (taskListDialogMode === 'add') {
       if (editingProject) {
-        const newTaskList = await taskStore.addTaskList(editingProject.id, { name });
+        const newTaskList = await taskListStore.addTaskList(editingProject.id, { name });
         if (newTaskList) {
-          taskStore.selectList(newTaskList.id);
+          selectionStore.selectList(newTaskList.id);
+          selectionStore.selectProject(null);
           onViewChange?.('tasklist');
         }
       }
     } else {
       if (editingTaskList) {
-        await taskStore.updateTaskList(editingTaskList.id, { name });
+        await taskListStore.updateTaskList(editingTaskList.id, { name });
       }
     }
     showTaskListDialog = false;
@@ -100,7 +104,7 @@
     if (dragData.type === 'tasklist') {
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
       const targetIndex = project.taskLists.findIndex((tl) => tl.id === targetList.id);
-      await taskStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
+      await taskListStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタスクリストにドロップ
       await taskStore.moveTaskToList(dragData.id, targetList.id);
@@ -147,7 +151,7 @@
       {
         id: 'delete-task-list',
         label: deleteTaskList,
-        action: () => taskStore.deleteTaskList(list.id),
+        action: () => taskListStore.deleteTaskList(list.id),
         icon: Trash2,
         destructive: true
       }

@@ -2,6 +2,9 @@ import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
+import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
+import { taskListStore } from '$lib/stores/task-list-store.svelte';
 import { RecurrenceService } from '../composite/recurrence-composite';
 // TODO: Tauri APIのセットアップ後に有効化
 // import { invoke } from '@tauri-apps/api/tauri';
@@ -18,7 +21,8 @@ export class TaskService {
       return false; // Indicate that task selection needs confirmation
     }
 
-    taskStore.selectTask(taskId);
+    selectionStore.selectTask(taskId);
+    selectionStore.selectSubTask(null); // Clear subtask selection when selecting a task
     return true;
   }
 
@@ -29,7 +33,8 @@ export class TaskService {
       return false; // Indicate that subtask selection needs confirmation
     }
 
-    taskStore.selectSubTask(subTaskId);
+    selectionStore.selectSubTask(subTaskId);
+    selectionStore.selectTask(null); // Clear task selection when selecting a subtask
     return true;
   }
 
@@ -39,7 +44,8 @@ export class TaskService {
       taskStore.cancelNewTaskMode();
     }
 
-    taskStore.selectTask(taskId);
+    selectionStore.selectTask(taskId);
+    selectionStore.selectSubTask(null); // Clear subtask selection when selecting a task
   }
 
   static forceSelectSubTask(subTaskId: string | null): void {
@@ -48,7 +54,8 @@ export class TaskService {
       taskStore.cancelNewTaskMode();
     }
 
-    taskStore.selectSubTask(subTaskId);
+    selectionStore.selectSubTask(subTaskId);
+    selectionStore.selectTask(null); // Clear task selection when selecting a subtask
   }
 
   static updateTask(taskId: string, updates: Partial<Task>): void {
@@ -151,7 +158,7 @@ export class TaskService {
     }
   ): Promise<TaskWithSubTasks | null> {
     // listIdからproject_idを取得
-    const projectId = taskStore.getProjectIdByListId(listId);
+    const projectId = taskListStore.getProjectIdByListId(listId);
     if (!projectId) {
       console.error('Failed to find project for list:', listId);
       return null;
@@ -181,7 +188,7 @@ export class TaskService {
       priority?: number;
     }
   ): Promise<SubTask | null> {
-    return await taskStore.addSubTask(taskId, {
+    return await subTaskStore.addSubTask(taskId, {
       title: subTaskData.title,
       description: subTaskData.description,
       status: 'not_started',
@@ -213,7 +220,7 @@ export class TaskService {
   }
 
   static updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
-    taskStore.updateSubTask(subTaskId, updates);
+    subTaskStore.updateSubTask(subTaskId, updates);
   }
 
   static changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
@@ -221,7 +228,7 @@ export class TaskService {
   }
 
   static deleteSubTask(subTaskId: string): boolean {
-    taskStore.deleteSubTask(subTaskId);
+    subTaskStore.deleteSubTask(subTaskId);
     return true;
   }
 
@@ -303,7 +310,7 @@ export class TaskService {
     // IDからタグを取得してタグ名を渡す
     const tag = tagStore.tags.find((t) => t.id === tagId);
     if (tag) {
-      taskStore.addTagToSubTask(subTaskId, tag.name);
+      subTaskStore.addTagToSubTask(subTaskId, tag.name);
     }
   }
 
