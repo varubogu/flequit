@@ -120,32 +120,52 @@ describe('SelectionStore', () => {
     });
   });
 
-  describe('independence of selections', () => {
-    test('should allow independent project and list selections', () => {
+  describe('mutual exclusivity', () => {
+    test('selectProject should clear selectedListId', () => {
+      store.selectList('list-1');
+      store.selectProject('project-1');
+
+      expect(store.selectedProjectId).toBe('project-1');
+      expect(store.selectedListId).toBeNull();
+    });
+
+    test('selectList should clear selectedProjectId', () => {
       store.selectProject('project-1');
       store.selectList('list-1');
 
-      expect(store.selectedProjectId).toBe('project-1');
       expect(store.selectedListId).toBe('list-1');
+      expect(store.selectedProjectId).toBeNull();
     });
 
-    test('should allow independent task and subtask selections', () => {
+    test('selectTask should clear selectedSubTaskId', () => {
+      store.selectSubTask('subtask-1');
+      store.selectTask('task-1');
+
+      expect(store.selectedTaskId).toBe('task-1');
+      expect(store.selectedSubTaskId).toBeNull();
+    });
+
+    test('selectSubTask should clear selectedTaskId', () => {
       store.selectTask('task-1');
       store.selectSubTask('subtask-1');
 
-      expect(store.selectedTaskId).toBe('task-1');
       expect(store.selectedSubTaskId).toBe('subtask-1');
+      expect(store.selectedTaskId).toBeNull();
     });
 
-    test('should allow all selections simultaneously', () => {
-      store.selectProject('project-1');
-      store.selectList('list-1');
+    test('project/list mutual exclusivity does not affect task/subtask', () => {
       store.selectTask('task-1');
+      store.selectProject('project-1');
+
+      expect(store.selectedProjectId).toBe('project-1');
+      expect(store.selectedTaskId).toBe('task-1');
+    });
+
+    test('task/subtask mutual exclusivity does not affect project/list', () => {
+      store.selectProject('project-1');
       store.selectSubTask('subtask-1');
 
       expect(store.selectedProjectId).toBe('project-1');
-      expect(store.selectedListId).toBe('list-1');
-      expect(store.selectedTaskId).toBe('task-1');
       expect(store.selectedSubTaskId).toBe('subtask-1');
     });
   });

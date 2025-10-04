@@ -372,6 +372,9 @@ test('TaskService.selectTask: returns true when not in new task mode', () => {
 
   expect(result).toBe(true);
   expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
+  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
+  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.selectTask: works with null taskId', () => {
@@ -381,6 +384,7 @@ test('TaskService.selectTask: works with null taskId', () => {
 
   expect(result).toBe(true);
   expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.selectSubTask: returns false when in new task mode', () => {
@@ -391,6 +395,7 @@ test('TaskService.selectSubTask: returns false when in new task mode', () => {
   expect(result).toBe(false);
   expect(mockTaskStore.pendingSubTaskSelection).toBe('subtask-123');
   expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
+  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.selectSubTask: returns true when not in new task mode', () => {
@@ -400,6 +405,9 @@ test('TaskService.selectSubTask: returns true when not in new task mode', () => 
 
   expect(result).toBe(true);
   expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
+  // Note: selectTask should NOT be called - mutual exclusivity handled by SelectionStore
+  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.forceSelectTask: cancels new task mode and selects task', () => {
@@ -409,6 +417,9 @@ test('TaskService.forceSelectTask: cancels new task mode and selects task', () =
 
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
   expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
+  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
+  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.forceSelectTask: works when not in new task mode', () => {
@@ -418,6 +429,9 @@ test('TaskService.forceSelectTask: works when not in new task mode', () => {
 
   expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
   expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
+  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
+  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask', () => {
@@ -427,6 +441,9 @@ test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask'
 
   expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
   expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
+  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
+  // Note: selectTask should NOT be called - mutual exclusivity handled by SelectionStore
+  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters', async () => {

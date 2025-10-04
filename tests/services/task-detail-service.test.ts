@@ -3,7 +3,7 @@ import { TaskDetailService } from '$lib/services/ui/task-detail';
 import { TaskService } from '$lib/services/domain/task';
 
 // Mock TaskService
-vi.mock('$lib/services/task-service', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   TaskService: {
     selectTask: vi.fn(),
     selectSubTask: vi.fn()
