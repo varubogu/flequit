@@ -1,5 +1,9 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
+import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
+import { projectStore } from '../../src/lib/stores/project-store.svelte';
+import { taskListStore } from '../../src/lib/stores/task-list-store.svelte';
+import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
 describe('TaskStore', () => {
@@ -96,6 +100,10 @@ describe('TaskStore', () => {
   });
 
   beforeEach(() => {
+    selectionStore.reset(); // SelectionStoreをリセット
+    projectStore.reset(); // ProjectStoreをリセット
+    taskListStore.reset(); // TaskListStoreをリセット
+    subTaskStore.reset(); // SubTaskStoreをリセット
     store = new TaskStore();
   });
 
