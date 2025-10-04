@@ -4,7 +4,6 @@ import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
-import type { SubTask } from '$lib/types/sub-task';
 import { tagStore } from './tags.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { projectStore } from './project-store.svelte';
