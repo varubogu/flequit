@@ -1,11 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TaskService } from '$lib/services/domain/task';
-import { taskStore } from '$lib/stores/tasks.svelte';
 
 // TaskStoreをモック
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    addTagToTask: vi.fn(),
+    addTagToTask: vi.fn()
+  }
+}));
+
+vi.mock('$lib/stores/task-core-store.svelte', () => ({
+  taskCoreStore: {
     updateTask: vi.fn()
   }
 }));
@@ -20,6 +24,9 @@ vi.mock('$lib/stores/tags.svelte', () => ({
   }
 }));
 
+const mockTaskStore = vi.mocked(await import('$lib/stores/tasks.svelte')).taskStore;
+const mockTaskCoreStore = vi.mocked(await import('$lib/stores/task-core-store.svelte')).taskCoreStore;
+
 describe('TaskService - Drag & Drop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,7 +39,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.addTagToTask(taskId, tagId);
 
-      expect(taskStore.addTagToTask).toHaveBeenCalledWith(taskId, 'Work');
+      expect(mockTaskStore.addTagToTask).toHaveBeenCalledWith(taskId, 'Work');
     });
 
     it('存在しないタグIDの場合は何もしない', () => {
@@ -41,7 +48,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.addTagToTask(taskId, nonExistentTagId);
 
-      expect(taskStore.addTagToTask).not.toHaveBeenCalled();
+      expect(mockTaskStore.addTagToTask).not.toHaveBeenCalled();
     });
   });
 
@@ -62,7 +69,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.updateTaskDueDateForView(taskId, viewId);
 
-      expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
+      expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
         planEndDate: new Date('2024-01-15T10:00:00Z')
       });
     });
@@ -76,7 +83,7 @@ describe('TaskService - Drag & Drop', () => {
       const expectedDate = new Date('2024-01-15T10:00:00Z');
       expectedDate.setDate(expectedDate.getDate() + 1);
 
-      expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
+      expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
         planEndDate: expectedDate
       });
     });
@@ -90,7 +97,7 @@ describe('TaskService - Drag & Drop', () => {
       const expectedDate = new Date('2024-01-15T10:00:00Z');
       expectedDate.setDate(expectedDate.getDate() + 3);
 
-      expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
+      expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
         planEndDate: expectedDate
       });
     });
@@ -104,7 +111,7 @@ describe('TaskService - Drag & Drop', () => {
       const expectedDate = new Date('2024-01-15T10:00:00Z');
       expectedDate.setDate(expectedDate.getDate() + 7);
 
-      expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
+      expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
         planEndDate: expectedDate
       });
     });
@@ -117,7 +124,7 @@ describe('TaskService - Drag & Drop', () => {
 
       const expectedDate = new Date(2024, 1, 0); // 1月の最後の日
 
-      expect(taskStore.updateTask).toHaveBeenCalledWith(taskId, {
+      expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
         planEndDate: expectedDate
       });
     });
@@ -128,7 +135,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.updateTaskDueDateForView(taskId, viewId);
 
-      expect(taskStore.updateTask).not.toHaveBeenCalled();
+      expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
     });
 
     it('allビューの場合は何もしない', () => {
@@ -137,7 +144,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.updateTaskDueDateForView(taskId, viewId);
 
-      expect(taskStore.updateTask).not.toHaveBeenCalled();
+      expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
     });
 
     it('completedビューの場合は何もしない', () => {
@@ -146,7 +153,7 @@ describe('TaskService - Drag & Drop', () => {
 
       TaskService.updateTaskDueDateForView(taskId, viewId);
 
-      expect(taskStore.updateTask).not.toHaveBeenCalled();
+      expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
     });
   });
 });

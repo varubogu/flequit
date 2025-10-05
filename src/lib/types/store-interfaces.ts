@@ -7,7 +7,7 @@
 
 import type { Project, ProjectTree } from './project';
 import type { TaskList, TaskListWithTasks } from './task-list';
-import type { Task, TaskWithSubTasks } from './task';
+import type { TaskWithSubTasks } from './task';
 import type { SubTask } from './sub-task';
 import type { Tag } from './tag';
 
@@ -135,18 +135,6 @@ export interface ITaskStore {
 	readonly todayTasks: TaskWithSubTasks[];
 	readonly overdueTasks: TaskWithSubTasks[];
 	readonly tasksForCurrentList: TaskWithSubTasks[];
-
-	// CRUD操作
-	addTask(listId: string, task: Task): Promise<TaskWithSubTasks | null>;
-	updateTask(taskId: string, updates: Partial<Task>): Promise<void>;
-	deleteTask(taskId: string): Promise<void>;
-	toggleTaskStatus(taskId: string): Promise<void>;
-
-	// リスト間移動
-	moveTaskToList(taskId: string, targetListId: string): Promise<void>;
-
-	// 繰り返しタスク
-	createRecurringTask(task: Task): Promise<void>;
 
 	// タグ操作
 	addTagToTask(taskId: string, tagId: string): Promise<void>;

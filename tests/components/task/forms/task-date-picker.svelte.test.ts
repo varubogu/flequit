@@ -3,11 +3,16 @@ import { render } from '@testing-library/svelte';
 import TaskDatePicker from '$lib/components/task/forms/task-date-picker.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-// Mock taskStore
+// Mock stores
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    updateTask: vi.fn(),
     updateSubTask: vi.fn()
+  }
+}));
+
+vi.mock('$lib/stores/task-core-store.svelte', () => ({
+  taskCoreStore: {
+    updateTask: vi.fn()
   }
 }));
 
@@ -74,14 +79,14 @@ describe('TaskDatePicker Component', () => {
   });
 
   test('should handle task date change for single date', async () => {
-    const { taskStore } = await import('$lib/stores/tasks.svelte');
+    const { taskCoreStore } = await import('$lib/stores/task-core-store.svelte');
     const { component } = render(TaskDatePicker, { task: mockTask });
 
     // Simulate date change via the component's internal handler
     // Since we can't directly test the handler due to it being internal,
     // we verify the component renders properly
     expect(component).toBeDefined();
-    expect(taskStore.updateTask).not.toHaveBeenCalled(); // Should only be called when date actually changes
+    expect(taskCoreStore.updateTask).not.toHaveBeenCalled(); // Should only be called when date actually changes
   });
 
   test('should handle task date change for range date', async () => {

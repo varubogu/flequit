@@ -5,13 +5,14 @@ import { tagStore } from '$lib/stores/tags.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { RecurrenceService } from '../composite/recurrence-composite';
 // TODO: Tauri APIのセットアップ後に有効化
 // import { invoke } from '@tauri-apps/api/tauri';
 
 export class TaskService {
   static toggleTaskStatus(taskId: string): void {
-    taskStore.toggleTaskStatus(taskId);
+    taskCoreStore.toggleTaskStatus(taskId);
   }
 
   static selectTask(taskId: string | null): boolean {
@@ -59,7 +60,7 @@ export class TaskService {
   }
 
   static updateTask(taskId: string, updates: Partial<Task>): void {
-    taskStore.updateTask(taskId, updates);
+    taskCoreStore.updateTask(taskId, updates);
   }
 
   static updateTaskFromForm(
@@ -128,11 +129,15 @@ export class TaskService {
     };
 
     // 新しいタスクをストアに追加
-    taskStore.createRecurringTask(newTaskData);
+    taskCoreStore.createRecurringTask(newTaskData);
   }
 
   static deleteTask(taskId: string): boolean {
-    taskStore.deleteTask(taskId);
+    if (taskStore.selectedTaskId === taskId) {
+      selectionStore.selectTask(null);
+    }
+
+    taskCoreStore.deleteTask(taskId);
     return true;
   }
 
@@ -164,7 +169,7 @@ export class TaskService {
       return null;
     }
 
-    return await taskStore.addTask(listId, {
+    return await taskCoreStore.addTask(listId, {
       projectId: projectId,
       listId: listId,
       title: taskData.title,

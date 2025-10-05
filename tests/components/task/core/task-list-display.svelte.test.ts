@@ -23,6 +23,13 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     projects: [],
     selectedListId: null,
+    startNewTaskMode: vi.fn()
+  }
+}));
+
+// taskCoreStoreのモック
+vi.mock('$lib/stores/task-core-store.svelte', () => ({
+  taskCoreStore: {
     moveTaskToList: vi.fn()
   }
 }));

@@ -3,6 +3,7 @@
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -105,7 +106,7 @@
       await taskListStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタスクリストにドロップ
-      await taskStore.moveTaskToList(dragData.id, targetList.id);
+      await taskCoreStore.moveTaskToList(dragData.id, targetList.id);
     }
   }
 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
+  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
@@ -105,7 +106,7 @@
 
     if (isRangeDate) {
       if (range) {
-        taskStore.updateTask(task.id, {
+        taskCoreStore.updateTask(task.id, {
           ...task,
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
@@ -114,7 +115,7 @@
         });
       } else {
         const currentEndDate = task.planEndDate || new Date(dateTime);
-        taskStore.updateTask(task.id, {
+        taskCoreStore.updateTask(task.id, {
           ...task,
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
@@ -123,7 +124,7 @@
         });
       }
     } else {
-      taskStore.updateTask(task.id, {
+      taskCoreStore.updateTask(task.id, {
         ...task,
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
@@ -139,7 +140,7 @@
   }
 
   function handleDateClear() {
-    taskStore.updateTask(task.id, {
+    taskCoreStore.updateTask(task.id, {
       ...task,
       planStartDate: undefined,
       planEndDate: undefined,

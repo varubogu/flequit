@@ -1,5 +1,6 @@
 <script lang="ts">
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import Card from '$lib/components/ui/card.svelte';
   import TaskDetailContent from './task-detail-content.svelte';
@@ -107,7 +108,7 @@
         } else if (isSubTask) {
           subTaskStore.updateSubTask(currentItem.id, updates);
         } else {
-          taskStore.updateTask(currentItem.id, updates);
+          taskCoreStore.updateTask(currentItem.id, updates);
         }
       }
     }, 500);
@@ -137,7 +138,7 @@
       } else if (isSubTask) {
         subTaskStore.updateSubTask(currentItem.id, updates);
       } else {
-        taskStore.updateTask(currentItem.id, updates);
+        taskCoreStore.updateTask(currentItem.id, updates);
       }
     }
   }
@@ -333,10 +334,10 @@
 
     if (isSubTask) {
       if ('taskId' in currentItem) {
-        await taskStore.moveTaskToList(currentItem.taskId, data.taskListId);
+        await taskCoreStore.moveTaskToList(currentItem.taskId, data.taskListId);
       }
     } else {
-      await taskStore.moveTaskToList(currentItem.id, data.taskListId);
+      await taskCoreStore.moveTaskToList(currentItem.id, data.taskListId);
     }
     showProjectTaskListDialog = false;
   }

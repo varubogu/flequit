@@ -3,7 +3,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/ui/view';
-  import { taskStore } from '$lib/stores/tasks.svelte';
+  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
   import { projectStore } from '$lib/stores/project-store.svelte';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
@@ -35,7 +35,7 @@
   const translationService = getTranslationService();
 
   // Derived states
-  const projectsData = $derived(taskStore.projects);
+  const projectsData = $derived(projectStore.projects);
   // Translation messages - initialize once
   let editProject = $state('');
   let addTaskList = $state('');
@@ -149,7 +149,7 @@
       // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
       if (targetProject.taskLists.length > 0) {
         const defaultTaskList = targetProject.taskLists[0];
-        await taskStore.moveTaskToList(dragData.id, defaultTaskList.id);
+        await taskCoreStore.moveTaskToList(dragData.id, defaultTaskList.id);
       }
     }
   }

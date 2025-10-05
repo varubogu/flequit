@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
 
 // Mock the backends service to avoid Web backends not implemented warnings
@@ -291,7 +292,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       const list1 = await taskListStore.addTaskList(project1!.id, { name: 'リスト1' });
       expect(list1).toBeTruthy();
 
-      const task1 = await taskStore.addTask(list1!.id, {
+      taskCoreStore.setProjects(taskStore.projects);
+
+      const task1 = await taskCoreStore.addTask(list1!.id, {
         title: 'テストタスク',
         description: 'テスト用のタスク',
         priority: 2,

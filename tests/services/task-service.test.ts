@@ -2,14 +2,26 @@ import { test, expect, vi, beforeEach } from 'vitest';
 import { TaskService } from '../../src/lib/services/domain/task';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
-// Mock the store import
+// Mock the store imports
 vi.mock('../../src/lib/stores/tasks.svelte', () => ({
   taskStore: {
+    isNewTaskMode: false,
+    pendingTaskSelection: null,
+    pendingSubTaskSelection: null,
+    cancelNewTaskMode: vi.fn(),
+    getTaskById: vi.fn(),
+    selectedTaskId: null,
+    newTaskData: null
+  }
+}));
+
+vi.mock('../../src/lib/stores/task-core-store.svelte', () => ({
+  taskCoreStore: {
     toggleTaskStatus: vi.fn(),
     updateTask: vi.fn(),
     deleteTask: vi.fn(),
     addTask: vi.fn(),
-    getTaskById: vi.fn()
+    createRecurringTask: vi.fn()
   }
 }));
 
@@ -40,6 +52,7 @@ vi.mock('../../src/lib/stores/sub-task-store.svelte', () => ({
 
 // Get the mocked store for use in tests
 const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
+const mockTaskCoreStore = vi.mocked(await import('../../src/lib/stores/task-core-store.svelte')).taskCoreStore;
 const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
 const mockTaskListStore = vi.mocked(await import('../../src/lib/stores/task-list-store.svelte')).taskListStore;
 const mockSubTaskStore = vi.mocked(await import('../../src/lib/stores/sub-task-store.svelte')).subTaskStore;
@@ -48,14 +61,20 @@ const mockSubTaskStore = vi.mocked(await import('../../src/lib/stores/sub-task-s
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockTaskStore.selectedTaskId = null;
+  mockTaskStore.isNewTaskMode = false;
+  mockTaskStore.pendingTaskSelection = null;
+  mockTaskStore.pendingSubTaskSelection = null;
+  mockTaskCoreStore.deleteTask.mockResolvedValue();
+  mockTaskCoreStore.addTask.mockResolvedValue(null as unknown as TaskWithSubTasks);
 });
 
-test('TaskService.toggleTaskStatus: calls taskStore.toggleTaskStatus with correct taskId', () => {
+test('TaskService.toggleTaskStatus: calls taskCoreStore.toggleTaskStatus with correct taskId', () => {
   const taskId = 'task-123';
   TaskService.toggleTaskStatus(taskId);
 
-  expect(mockTaskStore.toggleTaskStatus).toHaveBeenCalledWith(taskId);
-  expect(mockTaskStore.toggleTaskStatus).toHaveBeenCalledTimes(1);
+  expect(mockTaskCoreStore.toggleTaskStatus).toHaveBeenCalledWith(taskId);
+  expect(mockTaskCoreStore.toggleTaskStatus).toHaveBeenCalledTimes(1);
 });
 
 test('TaskService.selectTask: calls selectionStore.selectTask with correct taskId', () => {
@@ -74,14 +93,14 @@ test('TaskService.selectSubTask: calls selectionStore.selectSubTask with correct
   expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
 });
 
-test('TaskService.updateTask: calls taskStore.updateTask with correct parameters', () => {
+test('TaskService.updateTask: calls taskCoreStore.updateTask with correct parameters', () => {
   const taskId = 'task-123';
   const updates = { title: 'Updated Title', priority: 2 };
 
   TaskService.updateTask(taskId, updates);
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, updates);
-  expect(mockTaskStore.updateTask).toHaveBeenCalledTimes(1);
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, updates);
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledTimes(1);
 });
 
 test('TaskService.updateTaskFromForm: converts form data and calls updateTask', () => {
@@ -97,7 +116,7 @@ test('TaskService.updateTaskFromForm: converts form data and calls updateTask', 
 
   TaskService.updateTaskFromForm(taskId, formData);
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     title: 'New Title',
     description: 'New Description',
     priority: 1,
@@ -117,7 +136,7 @@ test('TaskService.updateTaskFromForm: handles empty description', () => {
 
   TaskService.updateTaskFromForm(taskId, formData);
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     title: 'Title Only',
     description: undefined,
     priority: 2,
@@ -133,18 +152,20 @@ test('TaskService.changeTaskStatus: calls updateTask with new status', () => {
 
   TaskService.changeTaskStatus(taskId, newStatus);
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: newStatus });
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: newStatus });
 });
 
-test('TaskService.deleteTask: calls taskStore.deleteTask and returns true', () => {
+test('TaskService.deleteTask: clears selection and calls taskCoreStore.deleteTask', () => {
   const taskId = 'task-123';
+  mockTaskStore.selectedTaskId = taskId;
   const result = TaskService.deleteTask(taskId);
 
-  expect(mockTaskStore.deleteTask).toHaveBeenCalledWith(taskId);
+  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
+  expect(mockTaskCoreStore.deleteTask).toHaveBeenCalledWith(taskId);
   expect(result).toBe(true);
 });
 
-test('TaskService.addTask: calls taskStore.addTask with correct parameters', async () => {
+test('TaskService.addTask: calls taskCoreStore.addTask with correct parameters', async () => {
   const listId = 'list-123';
   const taskData = {
     title: 'New Task',
@@ -156,11 +177,11 @@ test('TaskService.addTask: calls taskStore.addTask with correct parameters', asy
   vi.mocked(mockTaskListStore.getProjectIdByListId).mockReturnValue('project-123');
 
   const mockReturnTask = { id: 'new-task', title: 'New Task' } as TaskWithSubTasks;
-  vi.mocked(mockTaskStore.addTask).mockImplementation(() => Promise.resolve(mockReturnTask));
+  vi.mocked(mockTaskCoreStore.addTask).mockImplementation(() => Promise.resolve(mockReturnTask));
 
   const result = await TaskService.addTask(listId, taskData);
 
-  expect(mockTaskStore.addTask).toHaveBeenCalledWith(
+  expect(mockTaskCoreStore.addTask).toHaveBeenCalledWith(
     listId,
     expect.objectContaining({
       listId: listId,
@@ -189,7 +210,7 @@ test('TaskService.addTask: handles default priority', async () => {
 
   await TaskService.addTask(listId, taskData);
 
-  expect(mockTaskStore.addTask).toHaveBeenCalledWith(
+  expect(mockTaskCoreStore.addTask).toHaveBeenCalledWith(
     listId,
     expect.objectContaining({
       listId: listId,
@@ -254,7 +275,7 @@ test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => 
 
   const expectedSubTasks = [{ ...task.subTasks[0], status: 'completed' }, task.subTasks[1]];
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith('task-123', {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith('task-123', {
     sub_tasks: expectedSubTasks
   });
 });
@@ -279,7 +300,7 @@ test('TaskService.toggleSubTaskStatus: handles non-existent subtask', () => {
 
   TaskService.toggleSubTaskStatus(task, 'non-existent');
 
-  expect(mockTaskStore.updateTask).not.toHaveBeenCalled();
+  expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.updateSubTaskFromForm: converts form data and calls updateSubTask', () => {
@@ -351,8 +372,7 @@ Object.assign(mockTaskStore, {
   cancelNewTaskMode: vi.fn(),
   addSubTask: vi.fn(),
   addTagToTask: vi.fn(),
-  addTagToSubTask: vi.fn(),
-  createRecurringTask: vi.fn()
+  addTagToSubTask: vi.fn()
 });
 
 test('TaskService.selectTask: returns false when in new task mode', () => {
@@ -536,7 +556,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for today view', ()
 
   TaskService.updateTaskDueDateForView(taskId, 'today');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     planEndDate: expect.objectContaining({
       getDate: today.getDate,
       getMonth: today.getMonth,
@@ -550,7 +570,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for tomorrow view',
 
   TaskService.updateTaskDueDateForView(taskId, 'tomorrow');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     planEndDate: expect.any(Date)
   });
 });
@@ -560,7 +580,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for next3days view'
 
   TaskService.updateTaskDueDateForView(taskId, 'next3days');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     planEndDate: expect.any(Date)
   });
 });
@@ -570,7 +590,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for nextweek view',
 
   TaskService.updateTaskDueDateForView(taskId, 'nextweek');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     planEndDate: expect.any(Date)
   });
 });
@@ -580,7 +600,7 @@ test('TaskService.updateTaskDueDateForView: updates due date for thismonth view'
 
   TaskService.updateTaskDueDateForView(taskId, 'thismonth');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, {
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
     planEndDate: expect.any(Date)
   });
 });
@@ -590,7 +610,7 @@ test('TaskService.updateTaskDueDateForView: does not update for unknown view', (
 
   TaskService.updateTaskDueDateForView(taskId, 'unknown-view');
 
-  expect(mockTaskStore.updateTask).not.toHaveBeenCalled();
+  expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.updateSubTaskDueDateForView: updates due date for subtask', () => {
@@ -626,7 +646,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
     mockRecurringTask.planEndDate,
     mockRecurringTask.recurrenceRule
   );
-  expect(mockTaskStore.createRecurringTask).toHaveBeenCalledWith(
+  expect(mockTaskCoreStore.createRecurringTask).toHaveBeenCalledWith(
     expect.objectContaining({
       listId: 'list-123',
       title: 'Recurring Task',
@@ -635,7 +655,7 @@ test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
       recurrenceRule: mockRecurringTask.recurrenceRule
     })
   );
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
 });
 
 test('TaskService.changeTaskStatus: handles completion with no recurrence', () => {
@@ -643,9 +663,9 @@ test('TaskService.changeTaskStatus: handles completion with no recurrence', () =
 
   TaskService.changeTaskStatus(taskId, 'in_progress');
 
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'in_progress' });
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'in_progress' });
   expect(mockRecurrenceService.calculateNextDate).not.toHaveBeenCalled();
-  expect(mockTaskStore.createRecurringTask).not.toHaveBeenCalled();
+  expect(mockTaskCoreStore.createRecurringTask).not.toHaveBeenCalled();
 });
 
 test('TaskService.changeTaskStatus: handles completion when next date calculation fails', () => {
@@ -666,8 +686,8 @@ test('TaskService.changeTaskStatus: handles completion when next date calculatio
   TaskService.changeTaskStatus(taskId, 'completed');
 
   expect(mockRecurrenceService.calculateNextDate).toHaveBeenCalled();
-  expect(mockTaskStore.createRecurringTask).not.toHaveBeenCalled();
-  expect(mockTaskStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
+  expect(mockTaskCoreStore.createRecurringTask).not.toHaveBeenCalled();
+  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
 });
 
 test('TaskService.changeTaskStatus: handles range date recurrence', () => {
@@ -693,7 +713,7 @@ test('TaskService.changeTaskStatus: handles range date recurrence', () => {
 
   TaskService.changeTaskStatus(taskId, 'completed');
 
-  expect(mockTaskStore.createRecurringTask).toHaveBeenCalledWith(
+  expect(mockTaskCoreStore.createRecurringTask).toHaveBeenCalledWith(
     expect.objectContaining({
       planStartDate: new Date('2024-01-11'), // 5日間の範囲を維持
       planEndDate: nextDate,

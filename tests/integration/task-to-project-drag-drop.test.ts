@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { taskStore } from '$lib/stores/tasks.svelte';
+import { projectStore } from '$lib/stores/project-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
 // モックプロジェクトデータ
@@ -74,8 +75,9 @@ const mockProjects: ProjectTree[] = [
 
 describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
   beforeEach(async () => {
-    // タスクストアをリセット
-    taskStore.setProjects([]);
+    // ストアをリセット
+    projectStore.setProjects([]);
+    taskCoreStore.setProjects([]);
 
     const { selectionStore } = await import('$lib/stores/selection-store.svelte');
     selectionStore.selectTask(null);
@@ -83,7 +85,8 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     selectionStore.selectList(null);
 
     // モックデータをセット
-    taskStore.setProjects(mockProjects);
+    projectStore.setProjects(mockProjects);
+    taskCoreStore.setProjects(projectStore.projects);
   });
 
   it('タスクをプロジェクトにドロップするとそのプロジェクトの最初のタスクリストに移動する', async () => {
@@ -96,11 +99,11 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(mockProjects[1].taskLists[0].tasks.length).toBe(0);
 
     // タスクを別プロジェクトに移動
-    await taskStore.moveTaskToList(task.id, targetProject.taskLists[0].id);
+    await taskCoreStore.moveTaskToList(task.id, targetProject.taskLists[0].id);
 
     // 移動後の状態を確認
-    const updatedSourceProject = taskStore.projects.find((p) => p.id === 'project-1');
-    const updatedTargetProject = taskStore.projects.find((p) => p.id === 'project-2');
+    const updatedSourceProject = projectStore.projects.find((p) => p.id === 'project-1');
+    const updatedTargetProject = projectStore.projects.find((p) => p.id === 'project-2');
 
     expect(updatedSourceProject?.taskLists[0].tasks.length).toBe(0);
     expect(updatedTargetProject?.taskLists[0].tasks.length).toBe(1);
@@ -115,10 +118,10 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     expect(task.listId).toBe('tasklist-1');
 
     // タスクを別タスクリストに移動
-    await taskStore.moveTaskToList(task.id, targetTaskList.id);
+    await taskCoreStore.moveTaskToList(task.id, targetTaskList.id);
 
     // 移動後の状態を確認
-    const updatedProjects = taskStore.projects;
+    const updatedProjects = projectStore.projects;
     const sourceProject = updatedProjects.find((p) => p.id === 'project-1');
     const targetProject = updatedProjects.find((p) => p.id === 'project-2');
 
@@ -132,11 +135,11 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     const initialTargetTasksLength = mockProjects[1].taskLists[0].tasks.length;
 
     // 存在しないタスクIDで移動を試行
-    await taskStore.moveTaskToList('non-existent-task', 'tasklist-2');
+    await taskCoreStore.moveTaskToList('non-existent-task', 'tasklist-2');
 
     // タスクの数が変更されていないことを確認
-    expect(taskStore.projects[0].taskLists[0].tasks.length).toBe(initialTasksLength);
-    expect(taskStore.projects[1].taskLists[0].tasks.length).toBe(initialTargetTasksLength);
+    expect(projectStore.projects[0].taskLists[0].tasks.length).toBe(initialTasksLength);
+    expect(projectStore.projects[1].taskLists[0].tasks.length).toBe(initialTargetTasksLength);
   });
 
   it('存在しないタスクリストIDにタスクを移動しようとしても何も起こらない', async () => {
@@ -144,11 +147,11 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     const initialTasksLength = mockProjects[0].taskLists[0].tasks.length;
 
     // 存在しないタスクリストIDに移動を試行
-    await taskStore.moveTaskToList(task.id, 'non-existent-tasklist');
+    await taskCoreStore.moveTaskToList(task.id, 'non-existent-tasklist');
 
     // タスクが元の場所に残っていることを確認
-    expect(taskStore.projects[0].taskLists[0].tasks.length).toBe(initialTasksLength);
-    expect(taskStore.projects[0].taskLists[0].tasks[0].id).toBe(task.id);
+    expect(projectStore.projects[0].taskLists[0].tasks.length).toBe(initialTasksLength);
+    expect(projectStore.projects[0].taskLists[0].tasks[0].id).toBe(task.id);
   });
 
   it('DragDropManagerがタスクドロップ判定を正しく行う', () => {
@@ -183,10 +186,10 @@ describe('タスクのプロジェクト間ドラッグ&ドロップ', () => {
     const targetTaskListId = 'tasklist-2';
 
     // タスクを移動
-    await taskStore.moveTaskToList(task.id, targetTaskListId);
+    await taskCoreStore.moveTaskToList(task.id, targetTaskListId);
 
     // 移動後のタスクがコンテナ階層で正しい位置にあることを確認
-    const targetProject = taskStore.projects.find((p) => p.id === 'project-2');
+    const targetProject = projectStore.projects.find((p) => p.id === 'project-2');
     const targetTaskList = targetProject?.taskLists.find((tl) => tl.id === targetTaskListId);
     const movedTask = targetTaskList?.tasks.find((t) => t.id === task.id);
 
