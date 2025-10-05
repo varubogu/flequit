@@ -1,9 +1,9 @@
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
 import type { Tag } from '$lib/types/tag';
+import type { SubTask } from '$lib/types/sub-task';
 import { tagStore } from './tags.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { projectStore } from './project-store.svelte';
@@ -13,6 +13,7 @@ import { SvelteDate } from 'svelte/reactivity';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
 import { getBackendService } from '$lib/infrastructure/backends';
+import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
 
 // Global state using Svelte 5 runes
 export class TaskStore {
@@ -56,14 +57,7 @@ export class TaskStore {
   // Computed values
   get selectedTask(): TaskWithSubTasks | null {
     if (!this.selectedTaskId) return null;
-
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === this.selectedTaskId);
-        if (task) return task;
-      }
-    }
-    return null;
+    return ProjectTreeTraverser.findTask(this.projects, this.selectedTaskId);
   }
 
   get selectedSubTask() {
@@ -71,29 +65,15 @@ export class TaskStore {
   }
 
   get allTasks(): TaskWithSubTasks[] {
-    return this.projects.flatMap((project) => project.taskLists.flatMap((list) => list.tasks));
+    return ProjectTreeTraverser.getAllTasks(this.projects);
   }
 
   getTaskById(taskId: string): TaskWithSubTasks | null {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === taskId);
-        if (task) return task;
-      }
-    }
-    return null;
+    return ProjectTreeTraverser.findTask(this.projects, taskId);
   }
 
   getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === taskId);
-        if (task) {
-          return { project, taskList: list };
-        }
-      }
-    }
-    return null;
+    return ProjectTreeTraverser.findTaskContext(this.projects, taskId);
   }
 
   get todayTasks(): TaskWithSubTasks[] {
@@ -179,27 +159,25 @@ export class TaskStore {
     };
 
     // まずローカル状態に追加
-    for (const project of this.projects) {
-      const list = project.taskLists.find((l) => l.id === listId);
-      if (list) {
-        list.tasks.push(newTask);
+    const list = ProjectTreeTraverser.findTaskList(this.projects, listId);
+    if (list) {
+      list.tasks.push(newTask);
 
-        // バックエンドに同期（作成操作は即座に保存）
-        try {
-          await dataService.createTaskWithSubTasks(listId, newTask);
-        } catch (error) {
-          console.error('Failed to sync new task to backends:', error);
-          errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
-          // エラーが発生した場合はローカル状態から削除
-          const taskIndex = list.tasks.findIndex((t) => t.id === newTask.id);
-          if (taskIndex !== -1) {
-            list.tasks.splice(taskIndex, 1);
-          }
-          return null;
+      // バックエンドに同期（作成操作は即座に保存）
+      try {
+        await dataService.createTaskWithSubTasks(listId, newTask);
+      } catch (error) {
+        console.error('Failed to sync new task to backends:', error);
+        errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
+        // エラーが発生した場合はローカル状態から削除
+        const taskIndex = list.tasks.findIndex((t) => t.id === newTask.id);
+        if (taskIndex !== -1) {
+          list.tasks.splice(taskIndex, 1);
         }
-
-        return newTask;
+        return null;
       }
+
+      return newTask;
     }
     return null;
   }
@@ -230,42 +208,39 @@ export class TaskStore {
       tags: []
     };
 
-    for (const project of this.projects) {
-      const list = project.taskLists.find((l) => l.id === taskData.listId);
-      if (list) {
-        list.tasks.push(newTask);
-        return newTask;
-      }
+    const list = ProjectTreeTraverser.findTaskList(this.projects, taskData.listId);
+    if (list) {
+      list.tasks.push(newTask);
+      return newTask;
     }
     return null;
   }
 
   async deleteTask(taskId: string) {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const taskIndex = list.tasks.findIndex((t) => t.id === taskId);
-        if (taskIndex !== -1) {
-          // バックアップとして削除するタスクを保持
-          const deletedTask = list.tasks[taskIndex];
+    const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
+    if (!context) return;
 
-          // まずローカル状態から削除
-          list.tasks.splice(taskIndex, 1);
-          if (this.selectedTaskId === taskId) {
-            this.selectedTaskId = null;
-          }
+    const { project, taskList } = context;
+    const taskIndex = taskList.tasks.findIndex((t) => t.id === taskId);
+    if (taskIndex === -1) return;
 
-          // バックエンドに同期（削除操作は即座に保存）
-          try {
-            await dataService.deleteTaskWithSubTasks(taskId, project.id);
-          } catch (error) {
-            console.error('Failed to sync task deletion to backends:', error);
-            errorHandler.addSyncError('タスク削除', 'task', taskId, error);
-            // エラーが発生した場合はローカル状態を復元
-            list.tasks.splice(taskIndex, 0, deletedTask);
-          }
-          return;
-        }
-      }
+    // バックアップとして削除するタスクを保持
+    const deletedTask = taskList.tasks[taskIndex];
+
+    // まずローカル状態から削除
+    taskList.tasks.splice(taskIndex, 1);
+    if (this.selectedTaskId === taskId) {
+      this.selectedTaskId = null;
+    }
+
+    // バックエンドに同期（削除操作は即座に保存）
+    try {
+      await dataService.deleteTaskWithSubTasks(taskId, project.id);
+    } catch (error) {
+      console.error('Failed to sync task deletion to backends:', error);
+      errorHandler.addSyncError('タスク削除', 'task', taskId, error);
+      // エラーが発生した場合はローカル状態を復元
+      taskList.tasks.splice(taskIndex, 0, deletedTask);
     }
   }
 
@@ -346,57 +321,56 @@ export class TaskStore {
       return;
     }
 
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === taskId);
-        if (task) {
-          // Check if tag already exists on this task (by name, not ID)
-          if (task.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
-            // すでにタグが存在する場合は何もしない
-            return;
-          }
-
-          // 即時保存：新しいtagging serviceを使用
-          let tag: Tag;
-          try {
-            console.debug('[addTagToTask] invoking backends create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
-            const backend = await getBackendService();
-            tag = await backend.tagging.createTaskTag(project.id, taskId, trimmed);
-          } catch (error) {
-            console.error('Failed to sync tag addition to backends:', error);
-            errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
-            return;
-          }
-          task.tags.push(tag);
-          return;
-        }
-      }
+    const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
+    if (!context) {
+      console.error('Failed to find task:', taskId);
+      return;
     }
 
-    console.error('Failed to find task:', taskId);
+    const { project } = context;
+    const task = ProjectTreeTraverser.findTask(this.projects, taskId);
+    if (!task) return;
+
+    // Check if tag already exists on this task (by name, not ID)
+    if (task.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
+      // すでにタグが存在する場合は何もしない
+      return;
+    }
+
+    // 即時保存：新しいtagging serviceを使用
+    let tag: Tag;
+    try {
+      console.debug('[addTagToTask] invoking backends create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
+      const backend = await getBackendService();
+      tag = await backend.tagging.createTaskTag(project.id, taskId, trimmed);
+    } catch (error) {
+      console.error('Failed to sync tag addition to backends:', error);
+      errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
+      return;
+    }
+    task.tags.push(tag);
   }
 
   async removeTagFromTask(taskId: string, tagId: string) {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === taskId);
-        if (task) {
-          const tagIndex = task.tags.findIndex((t) => t.id === tagId);
-          if (tagIndex !== -1) {
-            task.tags.splice(tagIndex, 1);
-            task.updatedAt = new SvelteDate();
+    const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
+    if (!context) return;
 
-            // 即時保存：新しいtagging serviceを使用
-            try {
-              const backend = await getBackendService();
-              await backend.tagging.deleteTaskTag(project.id, taskId, tagId);
-            } catch (error) {
-              console.error('Failed to sync tag removal to backends:', error);
-              errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
-            }
-          }
-          return;
-        }
+    const { project } = context;
+    const task = ProjectTreeTraverser.findTask(this.projects, taskId);
+    if (!task) return;
+
+    const tagIndex = task.tags.findIndex((t) => t.id === tagId);
+    if (tagIndex !== -1) {
+      task.tags.splice(tagIndex, 1);
+      task.updatedAt = new SvelteDate();
+
+      // 即時保存：新しいtagging serviceを使用
+      try {
+        const backend = await getBackendService();
+        await backend.tagging.deleteTaskTag(project.id, taskId, tagId);
+      } catch (error) {
+        console.error('Failed to sync tag removal to backends:', error);
+        errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
       }
     }
   }
@@ -425,71 +399,69 @@ export class TaskStore {
 
   // Get task count for a specific tag
   getTaskCountByTag(tagName: string): number {
-    let count = 0;
-
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        for (const task of list.tasks) {
-          if (task.tags.some((tag) => tag.name.toLowerCase() === tagName.toLowerCase())) {
-            count++;
-          }
-        }
-      }
-    }
-
-    return count;
+    return ProjectTreeTraverser.getTaskCountByTag(this.projects, tagName);
   }
 
   // Remove tag from all tasks and subtasks by tag ID
   removeTagFromAllTasks(tagId: string) {
+    const now = new SvelteDate();
+
+    // タグ削除前に、どのタスク/サブタスクがこのタグを持っているか記録
+    const affectedTasks: TaskWithSubTasks[] = [];
+    const affectedSubTasks: SubTask[] = [];
+
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         for (const task of list.tasks) {
-          // Remove from main task
-          const taskTagIndex = task.tags.findIndex((t) => t.id === tagId);
-          if (taskTagIndex !== -1) {
-            task.tags.splice(taskTagIndex, 1);
-            task.updatedAt = new SvelteDate();
+          if (task.tags.some((t) => t.id === tagId)) {
+            affectedTasks.push(task);
           }
-
-          // Remove from all subtasks
           for (const subTask of task.subTasks) {
-            if (!subTask.tags) continue;
-            const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === tagId);
-            if (subTaskTagIndex !== -1) {
-              subTask.tags.splice(subTaskTagIndex, 1);
-              subTask.updatedAt = new SvelteDate();
+            if (subTask.tags?.some((t) => t.id === tagId)) {
+              affectedSubTasks.push(subTask);
             }
           }
         }
       }
     }
+
+    // ProjectTreeTraverserでタグを削除
+    ProjectTreeTraverser.removeTagFromAllTasks(this.projects, tagId);
+
+    // 影響を受けたタスクとサブタスクのupdatedAtを更新
+    affectedTasks.forEach(task => task.updatedAt = now);
+    affectedSubTasks.forEach(subTask => subTask.updatedAt = now);
   }
 
   // Update tag in all tasks and subtasks when tag is modified
   updateTagInAllTasks(updatedTag: Tag) {
+    const now = new SvelteDate();
+
+    // タグ更新前に、どのタスク/サブタスクがこのタグを持っているか記録
+    const affectedTasks: TaskWithSubTasks[] = [];
+    const affectedSubTasks: SubTask[] = [];
+
     for (const project of this.projects) {
       for (const list of project.taskLists) {
         for (const task of list.tasks) {
-          // Update in main task
-          const taskTagIndex = task.tags.findIndex((t) => t.id === updatedTag.id);
-          if (taskTagIndex !== -1) {
-            task.tags[taskTagIndex] = { ...updatedTag };
-            task.updatedAt = new SvelteDate();
+          if (task.tags.some((t) => t.id === updatedTag.id)) {
+            affectedTasks.push(task);
           }
-
-          // Update in subtasks
           for (const subTask of task.subTasks) {
-            if (!subTask.tags) continue;
-            const subTaskTagIndex = subTask.tags.findIndex((t) => t.id === updatedTag.id);
-            if (subTaskTagIndex !== -1) {
-              subTask.tags[subTaskTagIndex] = { ...updatedTag };
-              subTask.updatedAt = new SvelteDate();
+            if (subTask.tags?.some((t) => t.id === updatedTag.id)) {
+              affectedSubTasks.push(subTask);
             }
           }
         }
       }
     }
+
+    // ProjectTreeTraverserでタグを更新
+    ProjectTreeTraverser.updateTagInAllTasks(this.projects, updatedTag);
+
+    // 影響を受けたタスクとサブタスクのupdatedAtを更新
+    affectedTasks.forEach(task => task.updatedAt = now);
+    affectedSubTasks.forEach(subTask => subTask.updatedAt = now);
 
     // Update in new task data if present
     if (this.newTaskData) {
@@ -501,39 +473,24 @@ export class TaskStore {
   }
 
   async moveTaskToList(taskId: string, newTaskListId: string) {
-    // 最初に移動先のタスクリストが存在するかチェック
-    let targetTaskList: TaskListWithTasks | null = null;
-    let targetProject: ProjectTree | null = null;
+    // 移動先のタスクリストとプロジェクトを検索
+    const targetTaskList = ProjectTreeTraverser.findTaskList(this.projects, newTaskListId);
+    if (!targetTaskList) return;
 
-    for (const project of this.projects) {
-      const foundTaskList = project.taskLists.find((tl) => tl.id === newTaskListId);
-      if (foundTaskList) {
-        targetTaskList = foundTaskList;
-        targetProject = project;
-        break;
-      }
-    }
-
-    // 移動先が存在しない場合は何もしない
-    if (!targetTaskList || !targetProject) return;
+    const targetProject = this.projects.find(p => p.taskLists.some(tl => tl.id === newTaskListId));
+    if (!targetProject) return;
 
     // タスクを現在の位置から探して削除
-    let taskToMove: TaskWithSubTasks | null = null;
+    const sourceContext = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
+    if (!sourceContext) return;
 
-    for (const project of this.projects) {
-      for (const taskList of project.taskLists) {
-        const taskIndex = taskList.tasks.findIndex((t) => t.id === taskId);
-        if (taskIndex !== -1) {
-          taskToMove = taskList.tasks[taskIndex];
-          taskList.tasks.splice(taskIndex, 1);
-          taskList.updatedAt = new SvelteDate();
-          break;
-        }
-      }
-      if (taskToMove) break;
-    }
+    const { taskList: sourceTaskList } = sourceContext;
+    const taskIndex = sourceTaskList.tasks.findIndex((t) => t.id === taskId);
+    if (taskIndex === -1) return;
 
-    if (!taskToMove) return;
+    const taskToMove = sourceTaskList.tasks[taskIndex];
+    sourceTaskList.tasks.splice(taskIndex, 1);
+    sourceTaskList.updatedAt = new SvelteDate();
 
     // タスクのlist_idを更新
     taskToMove.listId = newTaskListId;
@@ -555,36 +512,12 @@ export class TaskStore {
 
   // Helper method to get project ID by task ID
   getProjectIdByTaskId(taskId: string): string | null {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        const task = list.tasks.find((t) => t.id === taskId);
-        if (task) {
-          return project.id;
-        }
-      }
-    }
-    return null;
+    return ProjectTreeTraverser.getProjectIdByTaskId(this.projects, taskId);
   }
 
   // Helper method to get project ID by tag ID
   getProjectIdByTagId(tagId: string): string | null {
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        for (const task of list.tasks) {
-          // Check if tag exists on this task
-          if (task.tags.some((tag) => tag.id === tagId)) {
-            return project.id;
-          }
-          // Check if tag exists on subtasks
-          for (const subTask of task.subTasks) {
-            if (subTask.tags && subTask.tags.some((tag) => tag.id === tagId)) {
-              return project.id;
-            }
-          }
-        }
-      }
-    }
-    return null;
+    return ProjectTreeTraverser.getProjectIdByTagId(this.projects, tagId);
   }
 }
 
