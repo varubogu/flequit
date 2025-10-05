@@ -1,10 +1,11 @@
-# GEMINI.md
+# AGENTS.md
 
-This file provides guidance to Gemini CLI when working with code in this repository.
+This file provides guidance to AI agents when working with code in this repository.
 
 ## レスポンスについて
 
-日本語で
+- 日本語で回答すること。
+- このファイルを読み込んだら最初に「✅️AGENTS.mdを読み込みました」と発言してください。
 
 ## 設計ドキュメントについて
 
@@ -21,13 +22,23 @@ This file provides guidance to Gemini CLI when working with code in this reposit
 - `docs/develop/design/database/` - データベース設計
 
 ### 開発ルール
+- 修正指示があった場合、関連箇所以外には手を入れる前に必ずユーザーへ確認を取ってください。
 - `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
+- bunとcargoのビルドおよび全体テスト実行時はワーカー数を4に制限すること。
+  - `cargo test -j 4`
+  - `bun run test`    # 設定ファイルで並列数を制限済み
+- フロントエンドの型チェックは`bun check`で行うこと（`bun run check`, `bun run typecheck`は使用しない）。
+- フロントエンドのLintは`bun run lint`で行うこと（`bun lint`, `bun run check`, `bun run typecheck`は使用しない）。
+- コマンド実行でファイルやディレクトリが存在しないと言われた場合は、`pwd`でカレントディレクトリを確認すること。
 
 ### 要件定義
 - `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
 
 ### テスト
 - `docs/develop/design/testing.md` - テスト戦略とガイドライン
+- テストはまず単一ファイルや限定的な範囲で実行し、問題がないことを確認してから全体を実行すること。
+- Webフロントエンドのテストは`bun run test`で実行すること（`bun test`ではない）。
+- Tauriバックエンドのテストは`cargo test -j 4`で実行すること（ジョブ数は必ず4に指定）。
 
 必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
 
@@ -54,6 +65,17 @@ Tauri製のタスク管理デスクトップアプリケーション。プロジ
 ## コーディング規約
 
 詳細は `docs/develop/rules/coding-standards.md` を参照してください。
+
+### Tauri⇔フロントエンド通信規約
+
+**重要**: TauriはJavaScriptの`camelCase`パラメータをRustの`snake_case`に自動変換します。
+
+- **JavaScript側**: `camelCase`で記述（例：`projectId`, `taskAssignment`, `partialSettings`）
+- **Rust側**: `snake_case`で記述（例：`project_id`, `task_assignment`, `partial_settings`）
+- **戻り値統一**: void返却コマンドは成功時`true`、失敗時`false`を返す
+- **エラーハンドリング**: 統一されたパターンを使用
+
+詳細は `docs/develop/rules/coding-standards.md` の「Tauri⇔フロントエンド通信規約」セクションを参照。
 
 ### Rust部分について
 
