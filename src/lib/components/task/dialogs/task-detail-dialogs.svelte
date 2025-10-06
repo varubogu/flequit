@@ -36,6 +36,7 @@
       dateTime: string;
       range?: { start: string; end: string };
       isRangeDate: boolean;
+      recurrenceRule?: RecurrenceRule | null;
     }) => void;
     onDateClear: () => void;
     onDatePickerClose: () => void;
