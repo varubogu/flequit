@@ -14,7 +14,7 @@
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
-  import { TaskDetailService } from '$lib/services/ui/task-detail';
+  import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
 
   interface Props {
     project: ProjectTree;
@@ -24,6 +24,8 @@
   }
 
   let { project, isExpanded, currentView = 'all', onViewChange }: Props = $props();
+
+  const taskDetailUiStore = useTaskDetailUiStore();
 
   // projectStore.projectsから直接参照して確実にリアクティブにする
   let currentProject = $derived(projectStore.projects.find(p => p.id === project.id) ?? project);
@@ -129,7 +131,7 @@
     taskStore.startNewTaskMode(list.id);
 
     // タスク詳細を表示
-    TaskDetailService.openNewTaskDetail();
+    taskDetailUiStore?.openNewTaskDetail();
   }
 
   // タスクリスト用のコンテキストメニューリストを作成

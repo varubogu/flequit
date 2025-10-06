@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
   import CollapsibleSidebar from '$lib/components/sidebar/collapsible-sidebar.svelte';
   import TaskList from '$lib/components/task/core/task-list.svelte';
   import TaskDetail from '$lib/components/task/detail/task-detail.svelte';
@@ -8,26 +7,16 @@
   import * as Sidebar from '$lib/components/ui/sidebar';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import { TaskDetailService } from '$lib/services/ui/task-detail';
+  import { initTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import type { ViewType } from '$lib/services/ui/view';
 
   // Use IsMobile directly instead of useSidebar
   const isMobile = new IsMobile();
 
-  // Set the mobile instance in TaskDetailService
-  TaskDetailService.setMobileInstance(isMobile);
-
-  // Reactive state for TaskDetailService
-  let drawerOpen = $state(false);
-
-  // Subscribe to TaskDetailService state changes
-  const unsubscribeTaskDetail = TaskDetailService.subscribe(() => {
-    drawerOpen = TaskDetailService.drawerState.open;
-  });
-
-  onDestroy(() => {
-    unsubscribeTaskDetail();
-  });
+  // Initialize task detail controller and set context
+  const taskDetailUiStore = initTaskDetailUiStore({ isMobile });
+  const drawerState = taskDetailUiStore.drawerState;
+  const drawerOpen = $derived(drawerState.open);
 
   function handleViewChange(view: ViewType) {
     viewStore.changeView(view);
@@ -44,15 +33,15 @@
   }
 
   function handleTaskClick(taskId: string) {
-    TaskDetailService.openTaskDetail(taskId);
+    taskDetailUiStore.openTaskDetail(taskId);
   }
 
   function handleSubTaskClick(subTaskId: string) {
-    TaskDetailService.openSubTaskDetail(subTaskId);
+    taskDetailUiStore.openSubTaskDetail(subTaskId);
   }
 
   function handleCloseTaskDetailDrawer() {
-    TaskDetailService.closeTaskDetail();
+    taskDetailUiStore.closeTaskDetail();
   }
 </script>
 

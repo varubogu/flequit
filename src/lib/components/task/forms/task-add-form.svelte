@@ -1,7 +1,7 @@
 <script lang="ts">
   import { TaskListService } from '$lib/services/domain/tasklist';
   import { TaskService } from '$lib/services/domain/task';
-  import { TaskDetailService } from '$lib/services/ui/task-detail';
+  import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -15,6 +15,8 @@
   }
 
   let { onTaskAdded, onCancel }: Props = $props();
+
+  const taskDetailUiStore = useTaskDetailUiStore();
 
   const translationService = getTranslationService();
   let newTaskTitle = $state('');
@@ -63,7 +65,7 @@
     newTaskTitle = '';
 
     // タスク詳細を表示
-    TaskDetailService.openNewTaskDetail();
+    taskDetailUiStore?.openNewTaskDetail();
 
     onTaskAdded?.();
   }

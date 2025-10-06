@@ -5,7 +5,7 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
   import { TaskService } from '$lib/services/domain/task';
-  import { TaskDetailService } from '$lib/services/ui/task-detail';
+  import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
   import { Edit, Trash2 } from 'lucide-svelte';
@@ -21,6 +21,8 @@
   }
 
   let { task, onTaskClick, onSubTaskClick }: Props = $props();
+
+  const taskDetailUiStore = useTaskDetailUiStore();
 
   const dispatch = createEventDispatcher<{
     taskSelectionRequested: { taskId: string };
@@ -58,7 +60,7 @@
   // Task handlers
   function handleEditTask() {
     // タスク詳細画面を開いて編集モードにする
-    TaskDetailService.openTaskDetail(task.id);
+    taskDetailUiStore?.openTaskDetail(task.id);
   }
 
   function handleDeleteTask() {
@@ -67,7 +69,7 @@
 
   function handleEditSubTask(subTask: SubTask) {
     // サブタスク詳細画面を開いて編集モードにする
-    TaskDetailService.openSubTaskDetail(subTask.id);
+    taskDetailUiStore?.openSubTaskDetail(subTask.id);
   }
 
   function handleDeleteSubTask(subTask: SubTask) {
