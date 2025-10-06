@@ -86,12 +86,10 @@
 
   // Form handling
   function debouncedSave() {
-    console.log('[TaskDetailLogic] debouncedSave called, stack:', new Error().stack);
     if (saveTimeout) {
       clearTimeout(saveTimeout);
     }
     saveTimeout = setTimeout(() => {
-      console.log('[TaskDetailLogic] debouncedSave timeout fired, updating task');
       if (currentItem) {
         const updates = {
           title: editForm.title,
@@ -144,7 +142,6 @@
   }
 
   function handleFormChange() {
-    console.log('[TaskDetailLogic] handleFormChange called, stack:', new Error().stack);
     debouncedSave();
   }
 
