@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import CollapsibleSidebar from '$lib/components/sidebar/collapsible-sidebar.svelte';
   import TaskList from '$lib/components/task/core/task-list.svelte';
   import TaskDetail from '$lib/components/task/detail/task-detail.svelte';
@@ -20,8 +21,12 @@
   let drawerOpen = $state(false);
 
   // Subscribe to TaskDetailService state changes
-  TaskDetailService.subscribe(() => {
+  const unsubscribeTaskDetail = TaskDetailService.subscribe(() => {
     drawerOpen = TaskDetailService.drawerState.open;
+  });
+
+  onDestroy(() => {
+    unsubscribeTaskDetail();
   });
 
   function handleViewChange(view: ViewType) {
