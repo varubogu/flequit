@@ -2,7 +2,6 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-  import { taskStore } from '$lib/stores/tasks.svelte';
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';

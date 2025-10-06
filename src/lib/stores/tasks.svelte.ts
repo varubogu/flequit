@@ -158,7 +158,7 @@ export class TaskStore {
     }
 
     const taskData = this.newTaskData as Task;
-    const newTask = await this.addTask(taskData.listId, taskData);
+    const newTask = await taskCoreStore.addTask(taskData.listId, taskData);
 
     if (newTask) {
       this.isNewTaskMode = false;

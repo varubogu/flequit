@@ -26,6 +26,7 @@
   let { open = $bindable() }: Props = $props();
 
   // State
+  // eslint-disable-next-line svelte/no-unnecessary-state-wrap -- binding assigns new instances so we need $state for reactivity
   let testDateTime = $state(new SvelteDate());
   let testFormat = $state('');
   let testFormatName = $state('');

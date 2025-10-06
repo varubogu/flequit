@@ -67,10 +67,7 @@
   const isComplexUnit = $derived(['year', 'halfyear', 'quarter', 'month', 'week'].includes(unit));
 
   // Messages
-  let recurrenceSettings = $state('');
-  $effect(() => {
-    recurrenceSettings = translationService.getMessage('recurrence_settings')();
-  });
+  const recurrenceSettings = $derived(translationService.getMessage('recurrence_settings')());
 
   function initializeState() {
     RecurrenceInitializer.initializeFromRule(

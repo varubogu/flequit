@@ -9,10 +9,9 @@
   } from './tag-completion-keyhandler.svelte';
   import { TagNameUtils } from '../utils/tag-name-utils.svelte';
   import { TagParser } from '../utils/tag-parser.svelte';
-  import { TagElementUpdater, type TagDetectionData } from '../utils/tag-element-updater.svelte';
+  import { TagElementUpdater } from '../utils/tag-element-updater.svelte';
+  import type { TagDetectionData } from '../utils/tag-element-updater.svelte';
   import TagCompletionUI from './tag-completion-ui.svelte';
-
-  export { type TagDetectionData };
 
   interface Props {
     children: Snippet;

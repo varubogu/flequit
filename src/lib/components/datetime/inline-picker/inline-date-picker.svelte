@@ -42,9 +42,11 @@
   let endTime = $state('00:00:00');
   let startDate = $state('');
   let startTime = $state('00:00:00');
-  let useRangeMode = $state(false);
+  let useRangeMode = $state(isRangeDate ?? false);
   let recurrenceDialogOpen = $state(false);
-  let currentRecurrenceRule = $state<RecurrenceRule | null>(null);
+  let currentRecurrenceRule = $state<RecurrenceRule | null>(recurrenceRule ?? null);
+  let lastSyncedRangeMode = isRangeDate ?? false;
+  let lastSyncedRecurrenceRule: RecurrenceRule | null = recurrenceRule ?? null;
 
   let uiComponent = $state<InlineDatePickerUI>();
 
@@ -53,9 +55,11 @@
     endDate = currentDate ? formatDate1(new SvelteDate(currentDate)) : '';
     endTime = currentDate ? formatTime1(new SvelteDate(currentDate)) : '00:00:00';
     useRangeMode = isRangeDate || false;
+    lastSyncedRangeMode = useRangeMode;
     startDate = currentStartDate ? formatDate1(new SvelteDate(currentStartDate)) : '';
     startTime = currentStartDate ? formatTime1(new SvelteDate(currentStartDate)) : '00:00:00';
     currentRecurrenceRule = recurrenceRule || null;
+    lastSyncedRecurrenceRule = currentRecurrenceRule;
   }
 
   // Update from prop changes
@@ -80,11 +84,19 @@
 
   // Sync with prop changes
   $effect(() => {
-    useRangeMode = isRangeDate;
+    const nextMode = isRangeDate ?? false;
+    if (nextMode !== lastSyncedRangeMode) {
+      useRangeMode = nextMode;
+      lastSyncedRangeMode = nextMode;
+    }
   });
 
   $effect(() => {
-    currentRecurrenceRule = recurrenceRule || null;
+    const nextRule = recurrenceRule ?? null;
+    if (nextRule !== lastSyncedRecurrenceRule) {
+      currentRecurrenceRule = nextRule;
+      lastSyncedRecurrenceRule = nextRule;
+    }
   });
 
   $effect(() => {
@@ -224,6 +236,7 @@
 
   function handleRangeModeChange(checked: boolean) {
     useRangeMode = checked;
+    lastSyncedRangeMode = checked;
     const eventDetail = {
       date: endDate || '',
       dateTime: `${endDate || ''}T${endTime}`,
@@ -241,6 +254,7 @@
 
   function handleRecurrenceSave(rule: RecurrenceRule | null) {
     currentRecurrenceRule = rule;
+    lastSyncedRecurrenceRule = rule;
 
     // 繰り返しルール変更を親コンポーネントに通知
     // 親コンポーネント（TaskDetailLogic）で専用サービスを使って保存される
