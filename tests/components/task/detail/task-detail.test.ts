@@ -21,7 +21,8 @@ vi.mock('$lib/services/task-service', () => ({
     deleteTask: vi.fn(),
     selectTask: vi.fn(),
     selectSubTask: vi.fn(),
-    toggleSubTaskStatus: vi.fn()
+    toggleSubTaskStatus: vi.fn(),
+    addSubTask: vi.fn().mockResolvedValue(null)
   }
 }));
 
