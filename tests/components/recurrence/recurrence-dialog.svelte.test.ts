@@ -111,7 +111,7 @@ describe('RecurrenceDialog', () => {
     expect(screen.getByText(unitTestTranslations.adjustment_conditions)).toBeTruthy();
   });
 
-  it('既存のルールから正しいレベルを推定する', () => {
+  it('既存のルールから正しいレベルを推定する', async () => {
     const existingRule: RecurrenceRule = {
       unit: 'day',
       interval: 1,
@@ -137,8 +137,15 @@ describe('RecurrenceDialog', () => {
       }
     });
 
+    // Svelteの初期化とルール推定を待つ
+    await tick();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // 高度設定として認識される
-    expect(screen.getByDisplayValue(unitTestTranslations.recurrence_advanced)).toBeTruthy();
+    // 複数のcomboboxがあるため、最初の要素（レベル選択）を取得
+    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const levelSelect = selects[0];
+    expect(levelSelect.value).toBe('advanced');
   });
 
   it('保存時に正しいルールが生成される', async () => {
@@ -150,9 +157,9 @@ describe('RecurrenceDialog', () => {
       }
     });
 
-    // 初期化完了を待つ
+    // 初期化完了を待つ（100ms + バッファ）
     await tick();
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     // 有効に変更
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
@@ -179,6 +186,10 @@ describe('RecurrenceDialog', () => {
         onOpenChange: mockOnOpenChange
       }
     });
+
+    // 初期化完了を待つ（100ms + バッファ）
+    await tick();
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     // まず有効に変更してから無効に戻すことで、実際に変更イベントを発生させる
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);
@@ -225,6 +236,10 @@ describe('RecurrenceDialog', () => {
         onOpenChange: mockOnOpenChange
       }
     });
+
+    // 初期化完了を待つ（100ms + バッファ）
+    await tick();
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     // 有効に変更
     const select = screen.getByDisplayValue(unitTestTranslations.recurrence_disabled);

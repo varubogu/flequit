@@ -4,7 +4,7 @@ import { ViewService } from '../../src/lib/services/ui/view';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock ViewService
-vi.mock('../../src/lib/services/view-service', () => ({
+vi.mock('$lib/services/ui/view', () => ({
   ViewService: {
     getTasksForView: vi.fn(),
     getViewTitle: vi.fn(),

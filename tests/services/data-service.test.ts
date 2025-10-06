@@ -3,7 +3,7 @@ import { dataService } from '../../src/lib/services/data-service';
 import * as backendIndex from '$lib/infrastructure/backends/index';
 
 // バックエンドサービスをモック化
-vi.mock('../../src/lib/services/backends/index', () => ({
+vi.mock('$lib/infrastructure/backends/index', () => ({
   getBackendService: vi.fn()
 }));
 

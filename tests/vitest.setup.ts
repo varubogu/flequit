@@ -315,7 +315,7 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // Tag methods
-      async createTag(tagData: Record<string, unknown>) {
+      async createTag(_projectId: string, tagData: Record<string, unknown>) {
         return {
           id: crypto.randomUUID(),
           ...tagData,

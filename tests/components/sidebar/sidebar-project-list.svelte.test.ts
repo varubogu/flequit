@@ -1,10 +1,13 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
+import { projectStore } from '$lib/stores/project-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
 
@@ -18,67 +21,6 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
     setOpen: vi.fn()
   })
 }));
-
-// --- Store Mocks ---
-vi.mock('$lib/stores/tasks.svelte', () => {
-  class MockTaskStore {
-    projects = [];
-    selectedProjectId = null;
-    selectedListId = null;
-  }
-
-  return {
-    TaskStore: MockTaskStore,
-    taskStore: new MockTaskStore()
-  };
-});
-
-vi.mock('$lib/stores/project-store.svelte', () => {
-  class MockProjectStore {
-    addProject = vi.fn();
-    updateProject = vi.fn();
-    deleteProject = vi.fn();
-    moveProjectToPosition = vi.fn();
-  }
-
-  return {
-    ProjectStore: MockProjectStore,
-    projectStore: new MockProjectStore()
-  };
-});
-
-vi.mock('$lib/stores/task-list-store.svelte', () => {
-  class MockTaskListStore {
-    addTaskList = vi.fn();
-    updateTaskList = vi.fn();
-    deleteTaskList = vi.fn();
-    moveTaskListToProject = vi.fn();
-    moveTaskListToPosition = vi.fn();
-  }
-
-  return {
-    TaskListStore: MockTaskListStore,
-    taskListStore: new MockTaskListStore()
-  };
-});
-
-vi.mock('$lib/stores/selection-store.svelte', () => {
-  class MockSelectionStore {
-    selectProject = vi.fn();
-    selectList = vi.fn();
-    selectTask = vi.fn();
-    selectSubTask = vi.fn();
-  }
-
-  return {
-    SelectionStore: MockSelectionStore,
-    selectionStore: new MockSelectionStore()
-  };
-});
-
-const mockTaskStore = vi.mocked(taskStore);
-const mockProjectStore = vi.mocked(await import('$lib/stores/project-store.svelte').then(m => m.projectStore));
-const mockSelectionStore = vi.mocked(await import('$lib/stores/selection-store.svelte').then(m => m.selectionStore));
 
 // --- Test Data ---
 const mockProjects: ProjectTree[] = [
@@ -132,21 +74,42 @@ describe('SidebarProjectList Component', () => {
     setTranslationService(createUnitTestTranslationService());
     onViewChange = vi.fn();
     vi.clearAllMocks();
-    // Reset store state
-    mockTaskStore.projects = [];
-    mockTaskStore.selectedProjectId = null;
-    mockTaskStore.selectedListId = null;
+    projectStore.reset();
+    selectionStore.reset();
+    taskCoreStore.setProjects([]);
   });
 
-  const setTaskStoreData = (data: {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    projectStore.reset();
+    selectionStore.reset();
+    taskCoreStore.setProjects([]);
+  });
+
+  const cloneProjects = (projects: ProjectTree[]): ProjectTree[] =>
+    projects.map((project) => ({
+      ...project,
+      taskLists: project.taskLists.map((list) => ({
+        ...list,
+        tasks: [...list.tasks]
+      }))
+    }));
+
+  const setProjectState = (data: {
     projects?: ProjectTree[];
     selectedProjectId?: string | null;
     selectedListId?: string | null;
   }) => {
-    if (data.projects !== undefined) mockTaskStore.projects = data.projects;
-    if (data.selectedProjectId !== undefined)
-      mockTaskStore.selectedProjectId = data.selectedProjectId;
-    if (data.selectedListId !== undefined) mockTaskStore.selectedListId = data.selectedListId;
+    if (data.projects !== undefined) {
+      projectStore.projects = cloneProjects(data.projects);
+      taskCoreStore.setProjects(projectStore.projects);
+    }
+    if (data.selectedProjectId !== undefined) {
+      selectionStore.selectProject(data.selectedProjectId);
+    }
+    if (data.selectedListId !== undefined) {
+      selectionStore.selectList(data.selectedListId);
+    }
   };
 
   test('should render projects section header', () => {
@@ -155,7 +118,7 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should render projects', () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
     expect(screen.getByText('Work')).toBeInTheDocument();
@@ -163,27 +126,29 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should show "No projects yet" message when no projects', () => {
-    setTaskStoreData({ projects: [] });
+    setProjectState({ projects: [] });
     render(SidebarProjectList, { onViewChange });
     expect(screen.getByText('TEST_NO_PROJECTS_YET')).toBeInTheDocument();
   });
 
   test('should select a project when clicked', async () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
+    const selectProjectSpy = vi.spyOn(selectionStore, 'selectProject');
+    selectProjectSpy.mockClear();
     render(SidebarProjectList, { onViewChange });
 
     const projectButton = screen.getByText('Work');
     await fireEvent.click(projectButton);
 
-    expect(mockSelectionStore.selectProject).toHaveBeenCalledWith('project-1');
+    expect(selectProjectSpy).toHaveBeenCalledWith('project-1');
     expect(onViewChange).toHaveBeenCalledWith('project');
   });
 
   test('should expand and collapse project task lists', async () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButton = screen.getAllByTitle('TEST_TOGGLE_TASK_LISTS')[0];
+    const toggleButton = screen.getByTestId('toggle-project-project-1');
 
     // 初期状態では TaskList が表示されていないことを確認
     expect(screen.queryByTestId('tasklist-list-1')).not.toBeInTheDocument();
@@ -204,21 +169,23 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should select a task list when clicked', async () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
+    const selectListSpy = vi.spyOn(selectionStore, 'selectList');
+    selectListSpy.mockClear();
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButton = screen.getAllByTitle('TEST_TOGGLE_TASK_LISTS')[0];
+    const toggleButton = screen.getByTestId('toggle-project-project-1');
     await fireEvent.click(toggleButton);
     await tick();
 
     const listButton = await screen.findByTestId('tasklist-list-1');
     await fireEvent.click(listButton);
 
-    expect(mockSelectionStore.selectList).toHaveBeenCalledWith('list-1');
+    expect(selectListSpy).toHaveBeenCalledWith('list-1');
   });
 
   test('should display project names', () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
     expect(screen.getByText('Work')).toBeInTheDocument();
@@ -226,7 +193,7 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should open context menu on project right-click', async () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
     // 現在の実装ではContextMenu.TriggerでButtonを囲んでいるため、Buttonに右クリックする
@@ -240,7 +207,7 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should highlight selected project', () => {
-    setTaskStoreData({
+    setProjectState({
       projects: mockProjects,
       selectedProjectId: 'project-1'
     });
@@ -251,10 +218,10 @@ describe('SidebarProjectList Component', () => {
   });
 
   test('should not show toggle button for projects without task lists', () => {
-    setTaskStoreData({ projects: mockProjects });
+    setProjectState({ projects: mockProjects });
     render(SidebarProjectList, { onViewChange });
 
-    const toggleButtons = screen.queryAllByTitle('TEST_TOGGLE_TASK_LISTS');
+    const toggleButtons = screen.queryAllByTestId(/toggle-project-/);
     expect(toggleButtons).toHaveLength(1);
   });
 });

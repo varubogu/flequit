@@ -44,11 +44,11 @@
   const translationService = getTranslationService();
 
   // Flags for preventing unwanted saves
-  let isInitializing = $state(false);
+  let isInitializing = $state(true);
   let isSaving = $state(false);
 
   // Track open state for initialization
-  let previousOpen = $state(open);
+  let previousOpen = $state(false);
 
   // Derived states
   const recurrenceLevel = $derived(recurrenceState.recurrenceLevel);

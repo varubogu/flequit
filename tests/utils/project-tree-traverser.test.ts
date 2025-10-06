@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { ProjectTreeTraverser } from '../../src/lib/utils/project-tree-traverser';
 import type { ProjectTree } from '../../src/lib/types/project';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
 import type { Tag } from '../../src/lib/types/tag';
 
 describe('ProjectTreeTraverser', () => {

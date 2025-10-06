@@ -1,9 +1,9 @@
 import { test, expect, vi, beforeEach } from 'vitest';
-import { TaskListService } from '../../src/lib/services/domain/tasklist';
+import { TaskListService } from '$lib/services/task-list-service';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 // Mock the imports
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     projects: [
       {
@@ -21,15 +21,15 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
   }
 }));
 
-vi.mock('../../src/lib/services/domain/task', () => ({
+vi.mock('$lib/services/task-service', () => ({
   TaskService: {
     addTask: vi.fn()
   }
 }));
 
 // Get the mocked dependencies for use in tests
-const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
-const mockTaskService = vi.mocked(await import('../../src/lib/services/domain/task')).TaskService;
+const mockTaskStore = vi.mocked(await import('$lib/stores/tasks.svelte')).taskStore;
+const mockTaskService = vi.mocked(await import('$lib/services/task-service')).TaskService;
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -3,6 +3,7 @@
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/services/ui/view';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { projectStore } from '$lib/stores/project-store.svelte';
   import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
@@ -24,8 +25,8 @@
 
   let { project, isExpanded, currentView = 'all', onViewChange }: Props = $props();
 
-  // taskStore.projectsから直接参照して確実にリアクティブにする
-  let currentProject = $derived(taskStore.projects.find(p => p.id === project.id));
+  // projectStore.projectsから直接参照して確実にリアクティブにする
+  let currentProject = $derived(projectStore.projects.find(p => p.id === project.id) ?? project);
 
   const translationService = getTranslationService();
   const editTaskList = translationService.getMessage('edit_task_list');

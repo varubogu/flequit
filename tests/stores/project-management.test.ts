@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TaskStore } from '$lib/stores/tasks.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
@@ -56,11 +56,18 @@ vi.mock('$lib/services/data-service', () => {
   };
 });
 
-describe('Project Management', () => {
+describe.sequential('Project Management', () => {
   let taskStore: TaskStore;
 
   beforeEach(() => {
+    selectionStore.reset();
+    projectStore.reset();
     taskStore = new TaskStore();
+  });
+
+  afterEach(() => {
+    selectionStore.reset();
+    projectStore.reset();
   });
 
   describe('プロジェクト操作', () => {

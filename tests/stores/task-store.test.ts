@@ -4,6 +4,8 @@ import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
 import { projectStore } from '../../src/lib/stores/project-store.svelte';
 import { taskListStore } from '../../src/lib/stores/task-list-store.svelte';
 import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+import { TaskService } from '$lib/services/domain/task';
 import type { ProjectTree } from '$lib/types/project';
 
 describe('TaskStore', () => {
@@ -154,9 +156,9 @@ describe('TaskStore', () => {
       expect(overdueTasks[0].id).toBe('task-2');
     });
 
-    test('overdueTasks should not include completed tasks', () => {
+    test('overdueTasks should not include completed tasks', async () => {
       // Complete the overdue task
-      store.updateTask('task-2', { status: 'completed' });
+      await taskCoreStore.updateTask('task-2', { status: 'completed' });
 
       const overdueTasks = store.overdueTasks;
       expect(overdueTasks).toHaveLength(0);
@@ -224,10 +226,10 @@ describe('TaskStore', () => {
       store.setProjects([createMockProject()]);
     });
 
-    test('updateTask should update task properties', () => {
+    test('updateTask should update task properties', async () => {
       const updateTime = new Date();
 
-      store.updateTask('task-1', { title: 'Updated Task', status: 'completed' });
+      await taskCoreStore.updateTask('task-1', { title: 'Updated Task', status: 'completed' });
 
       const updatedTask = store.allTasks.find((t) => t.id === 'task-1');
       expect(updatedTask?.title).toBe('Updated Task');
@@ -235,14 +237,14 @@ describe('TaskStore', () => {
       expect(updatedTask?.updatedAt.getTime()).toBeGreaterThanOrEqual(updateTime.getTime());
     });
 
-    test('toggleTaskStatus should toggle between completed and not_started', () => {
+    test('toggleTaskStatus should toggle between completed and not_started', async () => {
       // Toggle to completed
-      store.toggleTaskStatus('task-1');
+      await taskCoreStore.toggleTaskStatus('task-1');
       let task = store.allTasks.find((t) => t.id === 'task-1');
       expect(task?.status).toBe('completed');
 
       // Toggle back to not_started
-      store.toggleTaskStatus('task-1');
+      await taskCoreStore.toggleTaskStatus('task-1');
       task = store.allTasks.find((t) => t.id === 'task-1');
       expect(task?.status).toBe('not_started');
     });
@@ -262,7 +264,7 @@ describe('TaskStore', () => {
         updatedAt: new Date()
       };
 
-      const newTask = await store.addTask('list-1', newTaskData);
+      const newTask = await taskCoreStore.addTask('list-1', newTaskData);
 
       expect(newTask).not.toBeNull();
       expect(newTask?.title).toBe('New Task');
@@ -277,7 +279,7 @@ describe('TaskStore', () => {
     });
 
     test('addTask should return null for non-existent list', async () => {
-      const result = await store.addTask('non-existent-list', {
+      const result = await taskCoreStore.addTask('non-existent-list', {
         projectId: 'non-existent-proj',
         listId: 'non-existent-list',
         title: 'New Task',
@@ -297,7 +299,7 @@ describe('TaskStore', () => {
     test('deleteTask should remove the task and clear selection if selected', () => {
       selectionStore.selectTask('task-1');
 
-      store.deleteTask('task-1');
+      TaskService.deleteTask('task-1');
 
       const allTasks = store.allTasks;
       expect(allTasks).toHaveLength(2);

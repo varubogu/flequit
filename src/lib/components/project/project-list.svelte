@@ -24,7 +24,7 @@
   let { currentView = 'all', onViewChange, isCollapsed = false }: Props = $props();
 
   // State
-  let expandedProjects = new SvelteSet<string>();
+  let expandedProjects = $state(new SvelteSet<string>());
   let showProjectDialog = $state(false);
   let projectDialogMode = $state<'add' | 'edit'>('add');
   let editingProject = $state<ProjectTree | null>(null);
@@ -60,13 +60,11 @@
   }
 
   function toggleProjectExpansion(projectId: string) {
-    const newSet = new SvelteSet(expandedProjects);
-    if (newSet.has(projectId)) {
-      newSet.delete(projectId);
+    if (expandedProjects.has(projectId)) {
+      expandedProjects.delete(projectId);
     } else {
-      newSet.add(projectId);
+      expandedProjects.add(projectId);
     }
-    expandedProjects = newSet;
   }
 
   function getProjectTaskCount(project: ProjectTree): number {

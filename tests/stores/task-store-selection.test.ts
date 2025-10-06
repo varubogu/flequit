@@ -3,7 +3,7 @@ import { TaskStore } from '$lib/stores/tasks.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
-describe('TaskStore - Selection Management', () => {
+describe.sequential('TaskStore - Selection Management', () => {
   let taskStore: TaskStore;
 
   // Mock data
@@ -67,12 +67,14 @@ describe('TaskStore - Selection Management', () => {
   ];
 
   beforeEach(() => {
+    selectionStore.reset();
     taskStore = new TaskStore();
     taskStore.setProjects(mockProjects);
   });
 
   afterEach(() => {
     taskStore.setProjects([]);
+    selectionStore.reset();
   });
 
   describe('Project Selection', () => {

@@ -1,4 +1,4 @@
-import { test, expect, vi, beforeEach } from 'vitest';
+import { test, expect, vi, beforeEach, type Mock } from 'vitest';
 import { TaskService } from '../../src/lib/services/domain/task';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';
 
@@ -65,8 +65,8 @@ beforeEach(() => {
   mockTaskStore.isNewTaskMode = false;
   mockTaskStore.pendingTaskSelection = null;
   mockTaskStore.pendingSubTaskSelection = null;
-  mockTaskCoreStore.deleteTask.mockResolvedValue();
-  mockTaskCoreStore.addTask.mockResolvedValue(null as unknown as TaskWithSubTasks);
+  (mockTaskCoreStore.deleteTask as unknown as Mock).mockResolvedValue(undefined);
+  (mockTaskCoreStore.addTask as unknown as Mock).mockResolvedValue(null as unknown as TaskWithSubTasks);
 });
 
 test('TaskService.toggleTaskStatus: calls taskCoreStore.toggleTaskStatus with correct taskId', () => {
