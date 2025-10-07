@@ -11,8 +11,6 @@ import { taskListStore } from './task-list-store.svelte';
 import { subTaskStore } from './sub-task-store.svelte';
 import { taskCoreStore } from './task-core-store.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { errorHandler } from './error-handler.svelte';
-import { getBackendService } from '$lib/infrastructure/backends';
 import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
 
 // Global state using Svelte 5 runes
@@ -183,65 +181,34 @@ export class TaskStore {
   }
 
   // Tag management methods
-  async addTagToTask(taskId: string, tagName: string) {
-    const trimmed = tagName.trim();
-    if (!trimmed) {
-      console.warn('Empty tag name provided');
-      return;
-    }
-
-    const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
-    if (!context) {
-      console.error('Failed to find task:', taskId);
-      return;
-    }
-
-    const { project } = context;
+  attachTagToTask(taskId: string, tag: Tag) {
     const task = ProjectTreeTraverser.findTask(this.projects, taskId);
     if (!task) return;
 
-    // Check if tag already exists on this task (by name, not ID)
-    if (task.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
-      // すでにタグが存在する場合は何もしない
+    if (
+      task.tags.some(
+        (existing) => existing.id === tag.id || existing.name.toLowerCase() === tag.name.toLowerCase()
+      )
+    ) {
       return;
     }
 
-    // 即時保存：新しいtagging serviceを使用
-    let tag: Tag;
-    try {
-      console.debug('[addTagToTask] invoking backends create_task_tag', { projectId: project.id, taskId, tagName: trimmed });
-      const backend = await getBackendService();
-      tag = await backend.tagging.createTaskTag(project.id, taskId, trimmed);
-    } catch (error) {
-      console.error('Failed to sync tag addition to backends:', error);
-      errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
-      return;
-    }
     task.tags.push(tag);
+    task.updatedAt = new SvelteDate();
   }
 
-  async removeTagFromTask(taskId: string, tagId: string) {
-    const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
-    if (!context) return;
-
-    const { project } = context;
+  detachTagFromTask(taskId: string, tagId: string): Tag | null {
     const task = ProjectTreeTraverser.findTask(this.projects, taskId);
-    if (!task) return;
+    if (!task) return null;
 
     const tagIndex = task.tags.findIndex((t) => t.id === tagId);
-    if (tagIndex !== -1) {
-      task.tags.splice(tagIndex, 1);
-      task.updatedAt = new SvelteDate();
-
-      // 即時保存：新しいtagging serviceを使用
-      try {
-        const backend = await getBackendService();
-        await backend.tagging.deleteTaskTag(project.id, taskId, tagId);
-      } catch (error) {
-        console.error('Failed to sync tag removal to backends:', error);
-        errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
-      }
+    if (tagIndex === -1) {
+      return null;
     }
+
+    const [removed] = task.tags.splice(tagIndex, 1);
+    task.updatedAt = new SvelteDate();
+    return removed ?? null;
   }
 
   addTagToNewTask(tagName: string) {

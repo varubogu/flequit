@@ -5,7 +5,7 @@
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
+  import { TaskService } from '$lib/services/task-service';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -64,10 +64,10 @@
 
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
-    } else if (isSubTask) {
-      subTaskStore.addTagToSubTask(currentItem.id, event.detail.tagName);
+    } else if (isSubTask && 'taskId' in currentItem) {
+      void TaskService.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
     } else if ('list_id' in currentItem) {
-      taskStore.addTagToTask(currentItem.id, event.detail.tagName);
+      void TaskService.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }
   }
 

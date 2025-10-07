@@ -9,7 +9,7 @@ import type {
   LocaleChangeCallback
 } from './translation-service';
 import * as m from '$paraglide/messages.js';
-import { getBackendService } from '../infrastructure/backends';
+import { resolveBackend } from '../infrastructure/backend-client';
 import { settingsInitService } from './domain/settings';
 
 /**
@@ -19,7 +19,7 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
   private localeChangeCounter = $state(0);
   private subscribers = new Set<LocaleChangeCallback>();
   private messageMap: Record<string, (...args: unknown[]) => string>;
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
+  private backendPromise: ReturnType<typeof resolveBackend> | null = null;
   private isInitialized = false;
 
   constructor() {
@@ -90,11 +90,11 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
     };
   }
 
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
+  private initBackendService() {
+    if (!this.backendPromise) {
+      this.backendPromise = resolveBackend();
     }
-    return this.backendService;
+    return this.backendPromise;
   }
 
   private async saveLocale(locale: string) {

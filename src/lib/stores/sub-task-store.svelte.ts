@@ -5,7 +5,6 @@ import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
-import { getBackendService } from '$lib/infrastructure/backends';
 import { SvelteDate } from 'svelte/reactivity';
 
 /**
@@ -128,74 +127,47 @@ export class SubTaskStore implements ISubTaskStore {
 	}
 
 	// タグ操作
-	async addTagToSubTask(subTaskId: string, tagName: string) {
-		const trimmed = tagName.trim();
-		if (!trimmed) {
-			console.warn('Empty tag name provided');
-			return;
-		}
-
+	attachTagToSubTask(subTaskId: string, tag: Tag) {
 		for (const project of this.projectStoreRef.projects) {
 			for (const list of project.taskLists) {
 				for (const task of list.tasks) {
-					const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags;
+					const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags | undefined;
 					if (subTask) {
-						// Check if tag already exists on this subtask (by name, not ID)
-						if (subTask.tags.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
-							// すでにタグが存在する場合は何もしない
-							return;
-						}
-
-						// 即時保存：新しいtagging serviceを使用
-						let tag: Tag;
-						try {
-							console.debug('[addTagToSubTask] invoking backends create_subtask_tag', {
-								projectId: project.id,
-								subTaskId,
-								tagName: trimmed
-							});
-							const backend = await getBackendService();
-							tag = await backend.tagging.createSubtaskTag(project.id, subTaskId, trimmed);
-						} catch (error) {
-							console.error('Failed to sync subtask tag addition to backends:', error);
-							errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
+						if (
+							subTask.tags.some(
+								(existing) =>
+									existing.id === tag.id || existing.name.toLowerCase() === tag.name.toLowerCase()
+							)
+						) {
 							return;
 						}
 						subTask.tags.push(tag);
+						subTask.updatedAt = new SvelteDate();
 						return;
 					}
 				}
 			}
 		}
-
-		console.error('Failed to find subtask:', subTaskId);
 	}
 
-	async removeTagFromSubTask(subTaskId: string, tagId: string) {
+	detachTagFromSubTask(subTaskId: string, tagId: string): Tag | null {
 		for (const project of this.projectStoreRef.projects) {
 			for (const list of project.taskLists) {
 				for (const task of list.tasks) {
-					const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags;
+					const subTask = task.subTasks.find((st) => st.id === subTaskId) as SubTaskWithTags | undefined;
 					if (subTask) {
 						const tagIndex = subTask.tags.findIndex((t) => t.id === tagId);
 						if (tagIndex !== -1) {
-							subTask.tags.splice(tagIndex, 1);
+							const [removed] = subTask.tags.splice(tagIndex, 1);
 							subTask.updatedAt = new SvelteDate();
-
-							// 即時保存：新しいtagging serviceを使用
-							try {
-								const backend = await getBackendService();
-								await backend.tagging.deleteSubtaskTag(project.id, subTaskId, tagId);
-							} catch (error) {
-								console.error('Failed to sync subtask tag removal to backends:', error);
-								errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);
-							}
+							return removed ?? null;
 						}
-						return;
+						return null;
 					}
 				}
 			}
 		}
+		return null;
 	}
 
 	// ヘルパー

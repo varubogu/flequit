@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
+  import { TaskService } from '$lib/services/task-service';
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
   type SubTaskForProps = SubTask | SubTaskWithTags;
@@ -49,10 +49,10 @@
 
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(tagName);
-    } else if (isSubTask) {
-      subTaskStore.addTagToSubTask(currentItem.id, tagName);
+    } else if (isSubTask && task) {
+      void TaskService.addTagToSubTaskByName(currentItem.id, task.id, tagName);
     } else {
-      taskStore.addTagToTask(currentItem.id, tagName);
+      void TaskService.addTagToTaskByName(currentItem.id, tagName);
     }
   }
 
@@ -61,10 +61,10 @@
 
     if (isNewTaskMode) {
       taskStore.removeTagFromNewTask(tagId);
-    } else if (isSubTask) {
-      subTaskStore.removeTagFromSubTask(currentItem.id, tagId);
+    } else if (isSubTask && task) {
+      void TaskService.removeTagFromSubTask(currentItem.id, task.id, tagId);
     } else {
-      taskStore.removeTagFromTask(currentItem.id, tagId);
+      void TaskService.removeTagFromTask(currentItem.id, tagId);
     }
   }
 </script>

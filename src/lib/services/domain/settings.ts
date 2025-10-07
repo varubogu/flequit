@@ -1,5 +1,6 @@
-import { getBackendService } from '$lib/infrastructure/backends';
-import type { Setting } from '$lib/types/settings';
+import type { BackendService } from '$lib/infrastructure/backends';
+import { resolveBackend } from '$lib/infrastructure/backend-client';
+import type { Setting, Settings } from '$lib/types/settings';
 
 /**
  * 設定の統合初期化サービス
@@ -9,16 +10,16 @@ class SettingsInitService {
   private allSettings: Setting[] | null = null;
   private isLoading = false;
   private loadPromise: Promise<Setting[]> | null = null;
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
+  private backendPromise: Promise<BackendService> | null = null;
 
   /**
    * バックエンドサービスの初期化
    */
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
+  private initBackendService() {
+    if (!this.backendPromise) {
+      this.backendPromise = resolveBackend();
     }
-    return this.backendService;
+    return this.backendPromise;
   }
 
   /**
@@ -81,6 +82,22 @@ class SettingsInitService {
    */
   getSettingsByKeyPattern(allSettings: Setting[], pattern: string): Setting[] {
     return allSettings.filter((s) => s.key.startsWith(pattern));
+  }
+
+  async updateSettingsPartially(partial: Partial<Settings>) {
+    const backend = await this.initBackendService();
+    if (!backend) {
+      throw new Error('Backend service not available');
+    }
+    await backend.settingsManagement.updateSettingsPartially(partial);
+  }
+
+  async updateSetting(setting: Setting) {
+    const backend = await this.initBackendService();
+    if (!backend) {
+      throw new Error('Backend service not available');
+    }
+    await backend.setting.update(setting);
   }
 
   /**

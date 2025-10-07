@@ -1,5 +1,5 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import { getBackendService } from '$lib/infrastructure/backends/index';
+import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { SvelteDate } from 'svelte/reactivity';
 import type { TaskStatus } from '$lib/types/task';
 import type { RecurrenceRule } from '$lib/types/recurrence';
@@ -456,7 +456,7 @@ export class TaskDetailViewStore {
     }
 
     const unifiedRule = fromLegacyRecurrenceRule(rule);
-    const backend = await getBackendService();
+    const backend = await resolveBackend();
 
     try {
       if (rule === null) {

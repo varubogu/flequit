@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-  import { taskStore } from '$lib/stores/tasks.svelte';
+  import { TaskService } from '$lib/services/task-service';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -25,7 +25,7 @@
   );
 
   function handleTagRemoveFromTask(tagId: string) {
-    taskStore.removeTagFromTask(task.id, tagId);
+    void TaskService.removeTagFromTask(task.id, tagId);
   }
 </script>
 

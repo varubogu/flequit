@@ -137,8 +137,8 @@ export interface ITaskStore {
 	readonly tasksForCurrentList: TaskWithSubTasks[];
 
 	// タグ操作
-	addTagToTask(taskId: string, tagId: string): Promise<void>;
-	removeTagFromTask(taskId: string, tagId: string): Promise<void>;
+	attachTagToTask(taskId: string, tag: Tag): void;
+	detachTagFromTask(taskId: string, tagId: string): Tag | null;
 
 	// 新規タスクモード
 	startNewTaskMode(listId: string): void;
@@ -175,8 +175,8 @@ export interface ISubTaskStore {
 	deleteSubTask(subTaskId: string): Promise<void>;
 
 	// タグ操作
-	addTagToSubTask(subTaskId: string, tagName: string): Promise<void>;
-	removeTagFromSubTask(subTaskId: string, tagId: string): Promise<void>;
+	attachTagToSubTask(subTaskId: string, tag: Tag): void;
+	detachTagFromSubTask(subTaskId: string, tagId: string): Tag | null;
 
 	// ヘルパー
 	getTaskIdBySubTaskId(subTaskId: string): string | null;

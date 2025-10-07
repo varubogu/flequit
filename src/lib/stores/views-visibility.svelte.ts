@@ -1,5 +1,4 @@
 import { getTranslationService } from './locale.svelte';
-import { getBackendService } from '$lib/infrastructure/backends';
 import { settingsInitService } from '$lib/services/domain/settings';
 import type { Setting } from '$lib/types/settings';
 
@@ -67,7 +66,6 @@ class ViewsVisibilityStore {
   private _configuration = $state<ViewsConfiguration>({
     viewItems: [...DEFAULT_VIEW_ITEMS]
   });
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
   private isInitialized = false;
 
   constructor() {
@@ -180,11 +178,6 @@ class ViewsVisibilityStore {
     }
 
     try {
-      const backend = await this.initBackendService();
-      if (!backend) {
-        throw new Error('Backend service not available');
-      }
-
       const setting: Setting = {
         id: 'setting_views_visibility',
         key: 'views_visibility',
@@ -194,7 +187,7 @@ class ViewsVisibilityStore {
         updatedAt: new Date()
       };
 
-      await backend.setting.update(setting);
+      await settingsInitService.updateSetting(setting);
       console.log('Views visibility configuration saved successfully');
     } catch (error) {
       console.error('Failed to save views visibility to backends:', error);
@@ -213,13 +206,6 @@ class ViewsVisibilityStore {
   resetToDefaults() {
     this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
     this.saveConfiguration();
-  }
-
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
-    }
-    return this.backendService;
   }
 
   async init() {

@@ -7,6 +7,8 @@ import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { RecurrenceService } from './composite/recurrence-composite';
+import { TaggingService } from '$lib/services/domain/tagging';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 // TODO: Tauri APIのセットアップ後に有効化
 // import { invoke } from '@tauri-apps/api/tauri';
 
@@ -237,11 +239,60 @@ export class TaskService {
     return true;
   }
 
-  static addTagToTask(taskId: string, tagId: string): void {
-    // IDからタグを取得してタグ名を渡す
+  static async addTagToTaskByName(taskId: string, tagName: string): Promise<void> {
+    const trimmed = tagName.trim();
+    if (!trimmed) {
+      console.warn('Empty tag name provided');
+      return;
+    }
+
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) {
+      console.error('Failed to find task:', taskId);
+      return;
+    }
+
+    try {
+      const tag = await TaggingService.createTaskTag(context.project.id, taskId, trimmed);
+      taskStore.attachTagToTask(taskId, tag);
+    } catch (error) {
+      console.error('Failed to sync tag addition to backends:', error);
+      errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
+    }
+  }
+
+  static async addTagToTask(taskId: string, tagId: string): Promise<void> {
     const tag = tagStore.tags.find((t) => t.id === tagId);
-    if (tag) {
-      taskStore.addTagToTask(taskId, tag.name);
+    if (!tag) return;
+
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) {
+      console.error('Failed to find task:', taskId);
+      return;
+    }
+
+    try {
+      const created = await TaggingService.createTaskTag(context.project.id, taskId, tag.name);
+      taskStore.attachTagToTask(taskId, created);
+    } catch (error) {
+      console.error('Failed to sync tag addition to backends:', error);
+      errorHandler.addSyncError('タスクタグ追加', 'task', taskId, error);
+    }
+  }
+
+  static async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) return;
+
+    const removed = taskStore.detachTagFromTask(taskId, tagId);
+    if (!removed) return;
+
+    try {
+      await TaggingService.deleteTaskTag(context.project.id, taskId, tagId);
+    } catch (error) {
+      console.error('Failed to sync tag removal to backends:', error);
+      taskStore.attachTagToTask(taskId, removed);
+      errorHandler.addSyncError('タスクタグ削除', 'task', taskId, error);
     }
   }
 
@@ -311,11 +362,68 @@ export class TaskService {
     }
   }
 
-  static addTagToSubTask(subTaskId: string, taskId: string, tagId: string): void {
-    // IDからタグを取得してタグ名を渡す
+  static async addTagToSubTaskByName(
+    subTaskId: string,
+    taskId: string,
+    tagName: string
+  ): Promise<void> {
+    const trimmed = tagName.trim();
+    if (!trimmed) {
+      console.warn('Empty tag name provided');
+      return;
+    }
+
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) {
+      console.error('Failed to find task for subtask tag:', subTaskId);
+      return;
+    }
+
+    try {
+      const tag = await TaggingService.createSubtaskTag(context.project.id, subTaskId, trimmed);
+      subTaskStore.attachTagToSubTask(subTaskId, tag);
+    } catch (error) {
+      console.error('Failed to sync subtask tag addition to backends:', error);
+      errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
+    }
+  }
+
+  static async addTagToSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
     const tag = tagStore.tags.find((t) => t.id === tagId);
-    if (tag) {
-      subTaskStore.addTagToSubTask(subTaskId, tag.name);
+    if (!tag) return;
+
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) {
+      console.error('Failed to find task for subtask tag:', subTaskId);
+      return;
+    }
+
+    try {
+      const created = await TaggingService.createSubtaskTag(context.project.id, subTaskId, tag.name);
+      subTaskStore.attachTagToSubTask(subTaskId, created);
+    } catch (error) {
+      console.error('Failed to sync subtask tag addition to backends:', error);
+      errorHandler.addSyncError('サブタスクタグ追加', 'subtask', subTaskId, error);
+    }
+  }
+
+  static async removeTagFromSubTask(
+    subTaskId: string,
+    taskId: string,
+    tagId: string
+  ): Promise<void> {
+    const context = taskStore.getTaskProjectAndList(taskId);
+    if (!context) return;
+
+    const removed = subTaskStore.detachTagFromSubTask(subTaskId, tagId);
+    if (!removed) return;
+
+    try {
+      await TaggingService.deleteSubtaskTag(context.project.id, subTaskId, tagId);
+    } catch (error) {
+      console.error('Failed to sync subtask tag removal to backends:', error);
+      subTaskStore.attachTagToSubTask(subTaskId, removed);
+      errorHandler.addSyncError('サブタスクタグ削除', 'subtask', subTaskId, error);
     }
   }
 

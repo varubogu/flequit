@@ -1,4 +1,3 @@
-import { getBackendService } from '$lib/infrastructure/backends';
 import { settingsInitService } from '$lib/services/domain/settings';
 import type {
   Setting,
@@ -66,7 +65,6 @@ const DEFAULT_SETTINGS: Settings = {
  */
 class MainSettingsStore {
   private _settings = $state<Settings>({ ...DEFAULT_SETTINGS });
-  private backendService: Awaited<ReturnType<typeof getBackendService>> | null = null;
   private isInitialized = false;
 
   /**
@@ -323,13 +321,6 @@ class MainSettingsStore {
   /**
    * 内部メソッド
    */
-  private async initBackendService() {
-    if (!this.backendService) {
-      this.backendService = await getBackendService();
-    }
-    return this.backendService;
-  }
-
   private async saveSingleSetting(key: string, value: string, dataType: Setting['dataType']) {
     if (!this.isInitialized) {
       return;
@@ -347,15 +338,10 @@ class MainSettingsStore {
   }
 
   private async saveSetting(key: string, value: string, dataType: Setting['dataType']) {
-    const backend = await this.initBackendService();
-    if (!backend) {
-      throw new Error('Backend service not available');
-    }
-
     // 新しい部分更新システムを使用するためのマッピング
     const partialSettings = this.convertKeyValueToPartialSettings(key, value);
     if (partialSettings) {
-      await backend.settingsManagement.updateSettingsPartially(partialSettings);
+      await settingsInitService.updateSettingsPartially(partialSettings);
     } else {
       // 新しいSettingsに含まれない個別設定は従来のsetting serviceを使用
       const setting: Setting = {
@@ -366,7 +352,7 @@ class MainSettingsStore {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      await backend.setting.update(setting);
+      await settingsInitService.updateSetting(setting);
     }
   }
 

@@ -7,21 +7,16 @@ import type { Tag } from '$lib/types/tag';
 import type { RecurrenceRule } from '$lib/types/recurrence';
 import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-reference';
 import type { Settings } from '$lib/types/settings';
-import { getBackendService } from '$lib/infrastructure/backends/index';
 import type { BackendService } from '$lib/infrastructure/backends/index';
+import { resolveBackend } from '$lib/infrastructure/backend-client';
 
 /**
  * データ管理の中間サービス層
  * UI層とバックエンド層の間の橋渡しを行う
  */
 export class DataService {
-  private backend: BackendService | null = null;
-
   private async getBackend(): Promise<BackendService> {
-    if (!this.backend) {
-      this.backend = await getBackendService();
-    }
-    return this.backend;
+    return resolveBackend();
   }
 
 
