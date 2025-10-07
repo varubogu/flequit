@@ -1,10 +1,44 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { SubTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import { ProjectStore } from '../../src/lib/stores/project-store.svelte';
 import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTaskWithTags } from '$lib/types/sub-task';
+
+vi.mock('$lib/services/data-service', () => {
+	const createSubTask = vi.fn(async (_projectId: string, taskId: string, input: Record<string, unknown>) => ({
+		id: `subtask-${crypto.randomUUID()}`,
+		taskId,
+		title: (input.title as string) ?? '',
+		description: (input.description as string) ?? undefined,
+		status:
+			(input.status as
+				|'not_started'
+				|'in_progress'
+				|'waiting'
+				|'completed'
+				|'cancelled') ?? 'not_started',
+		priority: (input.priority as number | undefined) ?? 0,
+		orderIndex: 0,
+		completed: false,
+		assignedUserIds: [],
+		tagIds: [],
+		createdAt: new Date(),
+		updatedAt: new Date()
+	}));
+
+	const updateSubTask = vi.fn(async () => ({ success: true }));
+	const deleteSubTask = vi.fn(async () => true);
+
+	return {
+		dataService: {
+			createSubTask,
+			updateSubTask,
+			deleteSubTask
+		}
+	};
+});
 
 describe('SubTaskStore', () => {
   let store: SubTaskStore;
@@ -72,6 +106,7 @@ describe('SubTaskStore', () => {
   });
 
   beforeEach(() => {
+    vi.clearAllMocks();
     selectionStore.reset();
     projectStore = new ProjectStore(selectionStore);
     store = new SubTaskStore(projectStore, selectionStore);

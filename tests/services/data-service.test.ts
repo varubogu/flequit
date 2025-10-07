@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { dataService } from '../../src/lib/services/data-service';
 import * as backendIndex from '$lib/infrastructure/backends/index';
+import { resetBackendCache } from '$lib/infrastructure/backend-client';
 
 // バックエンドサービスをモック化
 vi.mock('$lib/infrastructure/backends/index', () => ({
@@ -49,13 +50,15 @@ interface MockBackendService {
   };
 }
 
+const PROJECT_ID = 'project-123';
+const TASK_ID = 'task-123';
+
 describe('DataService', () => {
   let mockBackendService: MockBackendService;
 
   beforeEach(async () => {
     // DataServiceのbackendキャッシュをリセット
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (dataService as any).backend = null;
+    resetBackendCache();
 
     // モックバックエンドサービスの設定
     mockBackendService = {
@@ -239,7 +242,7 @@ describe('DataService', () => {
 
     test('updateTaskWithSubTasks should handle updates with tags', async () => {
       const mockTask = {
-        id: 'task-id',
+        id: TASK_ID,
         list_id: 'list-id',
         title: 'Test Task',
         status: 'not_started',
@@ -252,7 +255,7 @@ describe('DataService', () => {
 
       mockBackendService.task.get.mockResolvedValue(mockTask);
 
-      const result = await dataService.updateTaskWithSubTasks('task-id', { tags: [] });
+      const result = await dataService.updateTaskWithSubTasks(PROJECT_ID, TASK_ID, { tags: [] });
 
       // Mock implementation doesn't use backends
       // expect(mockBackendService.task.get).toHaveBeenCalledWith('task-id');
@@ -271,13 +274,13 @@ describe('DataService', () => {
         priority: 1
       };
 
-      const result = await dataService.createSubTask('task-id', subTaskData);
+      const result = await dataService.createSubTask(PROJECT_ID, TASK_ID, subTaskData);
 
       expect(result).toBeDefined();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result as any).title).toBe(subTaskData.title);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect((result as any).task_id).toBe('task-id');
+      expect((result as any).task_id).toBe(TASK_ID);
       // expect(mockBackendService.subtask.create).toHaveBeenCalledOnce();
     });
   });
@@ -341,7 +344,7 @@ describe('DataService', () => {
     test('updateTask should handle backends failure', async () => {
       mockBackendService.task.update.mockResolvedValue(false);
 
-      const result = await dataService.updateTask('task-id', { title: 'Updated Title' });
+      const result = await dataService.updateTask(PROJECT_ID, TASK_ID, { title: 'Updated Title' });
 
       expect(result).toBeNull();
     });
@@ -349,7 +352,7 @@ describe('DataService', () => {
     test('updateSubTask should handle backends failure', async () => {
       mockBackendService.subtask.update.mockResolvedValue(false);
 
-      const result = await dataService.updateSubTask('subtask-id', { title: 'Updated Title' });
+      const result = await dataService.updateSubTask(PROJECT_ID, 'subtask-id', { title: 'Updated Title' });
 
       expect(result).toBeNull();
     });
@@ -370,10 +373,10 @@ describe('DataService', () => {
         title: 'Test SubTask',
         description: 'Test Description'
       };
-      const createdSubTask = await dataService.createSubTask('task-id', subTaskData);
+      const createdSubTask = await dataService.createSubTask(PROJECT_ID, TASK_ID, subTaskData);
 
       // Then add tag to it
-      await dataService.addTagToSubTask(createdSubTask.id, 'tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, createdSubTask.id, 'tag-id');
 
       // The mock implementation adds tags to the existing subtask
       // No need to verify backends calls since we're using mocks
@@ -400,14 +403,14 @@ describe('DataService', () => {
       mockBackendService.subtask.get.mockResolvedValue(mockSubTask);
       mockBackendService.tag.get.mockResolvedValue(mockTag);
 
-      await dataService.addTagToSubTask('subtask-id', 'tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, 'subtask-id', 'tag-id');
 
       expect(mockBackendService.subtask.update).not.toHaveBeenCalled();
     });
 
     test('addTagToSubTask should handle missing subtask (Web environment)', async () => {
       // In mock environment, missing subtask case is handled by the mock
-      await dataService.addTagToSubTask('nonexistent-subtask-id', 'tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, 'nonexistent-subtask-id', 'tag-id');
 
       // The mock handles missing subtasks gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
@@ -415,7 +418,7 @@ describe('DataService', () => {
 
     test('addTagToSubTask should handle missing tag by creating fallback', async () => {
       // In mock environment, missing tag case is handled by the mock
-      await dataService.addTagToSubTask('subtask-id', 'nonexistent-tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, 'subtask-id', 'nonexistent-tag-id');
 
       // The mock handles missing tags gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
@@ -434,7 +437,7 @@ describe('DataService', () => {
       mockBackendService.subtask.get.mockResolvedValue(mockSubTask);
       mockBackendService.tag.get.mockResolvedValue(null);
 
-      await dataService.addTagToSubTask('subtask-id', 'tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, 'subtask-id', 'tag-id');
 
       expect(mockBackendService.subtask.update).not.toHaveBeenCalled();
     });
@@ -442,13 +445,13 @@ describe('DataService', () => {
     test('removeTagFromSubTask should remove tag from subtask', async () => {
       // First create a subtask and add a tag to it
       const subTaskData = { title: 'Test SubTask', description: 'Test Description' };
-      const createdSubTask = await dataService.createSubTask('task-id', subTaskData);
+      const createdSubTask = await dataService.createSubTask(PROJECT_ID, TASK_ID, subTaskData);
 
       // Add tag first
-      await dataService.addTagToSubTask(createdSubTask.id, 'tag-id');
+      await dataService.addTagToSubTask(PROJECT_ID, createdSubTask.id, 'tag-id');
 
       // Then remove it
-      await dataService.removeTagFromSubTask(createdSubTask.id, 'tag-id');
+      await dataService.removeTagFromSubTask(PROJECT_ID, createdSubTask.id, 'tag-id');
 
       // The mock implementation handles tag removal
       expect(true).toBe(true); // Test passes if no error is thrown
@@ -456,7 +459,7 @@ describe('DataService', () => {
 
     test('removeTagFromSubTask should handle missing subtask (Web environment)', async () => {
       // In mock environment, missing subtask case is handled by the mock
-      await dataService.removeTagFromSubTask('nonexistent-subtask-id', 'tag-id');
+      await dataService.removeTagFromSubTask(PROJECT_ID, 'nonexistent-subtask-id', 'tag-id');
 
       // The mock handles missing subtasks gracefully
       expect(true).toBe(true); // Test passes if no error is thrown
@@ -474,7 +477,7 @@ describe('DataService', () => {
 
       mockBackendService.subtask.get.mockResolvedValue(mockSubTask);
 
-      await dataService.removeTagFromSubTask('subtask-id', 'tag-id');
+      await dataService.removeTagFromSubTask(PROJECT_ID, 'subtask-id', 'tag-id');
 
       expect(mockBackendService.subtask.update).not.toHaveBeenCalled();
     });
@@ -525,7 +528,7 @@ describe('DataService', () => {
       };
       const createdTask = await dataService.createTask('list-id', taskData);
 
-      await dataService.deleteTaskWithSubTasks(createdTask.id, 'project-id');
+      await dataService.deleteTaskWithSubTasks('project-id', createdTask.id);
 
       // The method calls deleteTask internally, which uses the mock implementation
       // No need to verify backends calls since we're using mocks
@@ -559,7 +562,7 @@ describe('DataService', () => {
     test('createSubTask should use default status if not provided', async () => {
       const subTaskData = { title: 'Test SubTask' };
 
-      const result = await dataService.createSubTask('task-id', subTaskData);
+      const result = await dataService.createSubTask(PROJECT_ID, TASK_ID, subTaskData);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result as any).status).toBe('not_started');

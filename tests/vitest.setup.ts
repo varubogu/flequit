@@ -107,11 +107,12 @@ global.console = {
 // Mock dataService for tests
 import { vi } from 'vitest';
 
+const mockSubTasks = new Map();
+
 vi.mock('$lib/services/data-service', () => {
   const mockProjects = new Map();
   const mockTaskLists = new Map();
   const mockTasks = new Map();
-  const mockSubTasks = new Map();
   // settings mock state
   let mockSettings = {
     weekStart: 'monday',
@@ -256,7 +257,11 @@ vi.mock('$lib/services/data-service', () => {
         return newTask;
       },
 
-      async updateTaskWithSubTasks(taskId: string, updates: Record<string, unknown>) {
+      async updateTaskWithSubTasks(
+        _projectId: string,
+        taskId: string,
+        updates: Record<string, unknown>
+      ) {
         const task = mockTasks.get(taskId);
         if (task) {
           const updated = { ...task, ...updates, updated_at: new Date() };
@@ -266,11 +271,11 @@ vi.mock('$lib/services/data-service', () => {
         return null;
       },
 
-      async deleteTaskWithSubTasks(taskId: string) {
+      async deleteTaskWithSubTasks(_projectId: string, taskId: string) {
         return mockTasks.delete(taskId);
       },
 
-      async updateTask(taskId: string, updates: Record<string, unknown>) {
+      async updateTask(_projectId: string, taskId: string, updates: Record<string, unknown>) {
         const task = mockTasks.get(taskId);
         if (task) {
           const updated = { ...task, ...updates, updated_at: new Date() };
@@ -281,7 +286,11 @@ vi.mock('$lib/services/data-service', () => {
       },
 
       // SubTask methods
-      async createSubTask(taskId: string, subTaskData: Record<string, unknown>) {
+      async createSubTask(
+        _projectId: string,
+        taskId: string,
+        subTaskData: Record<string, unknown>
+      ) {
         const newSubTask = {
           id: crypto.randomUUID(),
           task_id: taskId,
@@ -300,7 +309,11 @@ vi.mock('$lib/services/data-service', () => {
         return newSubTask;
       },
 
-      async updateSubTask(subTaskId: string, updates: Record<string, unknown>) {
+      async updateSubTask(
+        _projectId: string,
+        subTaskId: string,
+        updates: Record<string, unknown>
+      ) {
         const subTask = mockSubTasks.get(subTaskId);
         if (subTask) {
           const updated = { ...subTask, ...updates, updated_at: new Date() };
@@ -310,7 +323,7 @@ vi.mock('$lib/services/data-service', () => {
         return null;
       },
 
-      async deleteSubTask(subTaskId: string) {
+      async deleteSubTask(_projectId: string, subTaskId: string) {
         return mockSubTasks.delete(subTaskId);
       },
 
@@ -373,7 +386,7 @@ vi.mock('$lib/services/data-service', () => {
         return true;
       },
 
-      async addTagToSubTask(subTaskId: string, tagId: string) {
+      async addTagToSubTask(_projectId: string, subTaskId: string, tagId: string) {
         const subTask = mockSubTasks.get(subTaskId);
         if (subTask) {
           subTask.tag_ids = subTask.tag_ids || [];
@@ -385,7 +398,7 @@ vi.mock('$lib/services/data-service', () => {
         return false;
       },
 
-      async removeTagFromSubTask(subTaskId: string, tagId: string) {
+      async removeTagFromSubTask(_projectId: string, subTaskId: string, tagId: string) {
         const subTask = mockSubTasks.get(subTaskId);
         if (subTask && subTask.tag_ids) {
           subTask.tag_ids = subTask.tag_ids.filter((id: string) => id !== tagId);
@@ -396,3 +409,40 @@ vi.mock('$lib/services/data-service', () => {
     }
   };
 });
+
+vi.mock('$lib/services/domain/subtask-crud', () => ({
+  SubtaskCrudService: {
+    async create(
+      projectId: string,
+      taskId: string,
+      subTask: { title: string; description?: string; status?: string; priority?: number }
+    ) {
+      const newSubTask = {
+        id: `mock-subtask-${crypto.randomUUID()}`,
+        taskId,
+        title: subTask.title,
+        description: subTask.description ?? '',
+        status: (subTask.status as any) ?? 'not_started',
+        priority: subTask.priority ?? 0,
+        orderIndex: 0,
+        completed: false,
+        assignedUserIds: [],
+        tagIds: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as any;
+      mockSubTasks.set(newSubTask.id, { ...newSubTask, projectId });
+      return newSubTask;
+    },
+    async update(projectId: string, subTaskId: string, updates: any) {
+      const existing = mockSubTasks.get(subTaskId);
+      if (!existing) return null;
+      const updated = { ...existing, ...updates, updatedAt: new Date(), projectId };
+      mockSubTasks.set(subTaskId, updated);
+      return updated;
+    },
+    async delete(_projectId: string, subTaskId: string) {
+      return mockSubTasks.delete(subTaskId);
+    }
+  }
+}));
