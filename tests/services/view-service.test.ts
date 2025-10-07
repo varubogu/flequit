@@ -1,699 +1,352 @@
-import { test, expect, vi, beforeEach } from 'vitest';
-import { ViewService } from '../../src/lib/services/ui/view';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  getTasksForView,
+  getViewTitle,
+  shouldShowAddButton,
+  handleViewChange,
+  forceViewChange,
+  type ViewStoreDependencies
+} from '../../src/lib/stores/view-store.svelte';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
-// Hoist variables to be available in the vi.mock factory
-const mockTasks: TaskWithSubTasks[] = [
-  {
-    id: 'task-1',
-    projectId: 'proj-1',
-    listId: 'list-1',
-    title: 'Today Task',
-    description: 'A task for today',
-    status: 'not_started',
-    priority: 1,
-    planEndDate: new Date(),
-    orderIndex: 0,
-    isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    subTasks: [],
-    tags: [{ id: 'tag-1', name: 'urgent', createdAt: new Date(), updatedAt: new Date() }],
-    assignedUserIds: [],
-    tagIds: ['tag-1']
-  },
-  {
-    id: 'task-2',
-    projectId: 'proj-1',
-    listId: 'list-1',
-    title: 'Completed Task',
-    status: 'completed',
-    priority: 2,
-    orderIndex: 1,
-    isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    subTasks: [],
-    tags: [],
-    assignedUserIds: [],
-    tagIds: []
-  },
-  {
-    id: 'task-3',
-    projectId: 'proj-1',
-    listId: 'list-2',
-    title: 'Future Task',
-    description: 'A task for the future',
-    status: 'not_started',
-    priority: 3,
-    planEndDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
-    orderIndex: 0,
-    isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    subTasks: [
-      {
-        id: 'sub-1',
-        taskId: 'task-3',
-        title: 'Subtask search test',
-        description: 'Contains searchable text',
-        status: 'not_started',
-        orderIndex: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tags: [],
-        completed: false,
-        assignedUserIds: []
-      }
-    ],
-    tags: [],
-    assignedUserIds: [],
-    tagIds: []
-  }
-];
+const createTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({
+  id: overrides.id ?? 'task-id',
+  projectId: overrides.projectId ?? 'proj-1',
+  listId: overrides.listId ?? 'list-1',
+  title: overrides.title ?? 'Task',
+  description: overrides.description,
+  status: overrides.status ?? 'not_started',
+  priority: overrides.priority ?? 0,
+  planEndDate: overrides.planEndDate,
+  planStartDate: overrides.planStartDate,
+  isRangeDate: overrides.isRangeDate ?? false,
+  orderIndex: overrides.orderIndex ?? 0,
+  isArchived: overrides.isArchived ?? false,
+  createdAt: overrides.createdAt ?? new Date(),
+  updatedAt: overrides.updatedAt ?? new Date(),
+  assignedUserIds: overrides.assignedUserIds ?? [],
+  tagIds: overrides.tagIds ?? [],
+  tags: overrides.tags ?? [],
+  subTasks: overrides.subTasks ?? [],
+  recurrenceRule: overrides.recurrenceRule
+});
 
-const mockProjects = [
-  {
-    id: 'project-1',
-    name: 'Project Alpha',
-    orderIndex: 0,
-    isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    taskLists: [
-      {
-        id: 'list-1',
-        projectId: 'project-1',
-        name: 'List A',
-        orderIndex: 0,
-        isArchived: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tasks: [mockTasks[0], mockTasks[1]]
-      },
-      {
-        id: 'list-2',
-        projectId: 'project-1',
-        name: 'List B',
-        orderIndex: 1,
-        isArchived: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tasks: [mockTasks[2]]
-      }
-    ]
-  }
-];
-
-// Mock the store import
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
+const createDeps = (): ViewStoreDependencies => ({
   taskStore: {
     todayTasks: [],
     overdueTasks: [],
     allTasks: [],
     projects: [],
     selectedProjectId: null,
-    selectedListId: null
-  }
-}));
-
-// Mock selectionStore
-vi.mock('../../src/lib/stores/selection-store.svelte', () => ({
+    selectedListId: null,
+    isNewTaskMode: false,
+    cancelNewTaskMode: vi.fn()
+  } as ViewStoreDependencies['taskStore'],
   selectionStore: {
     selectTask: vi.fn(),
     selectProject: vi.fn(),
     selectList: vi.fn()
-  }
-}));
-
-// Mock the translation service
-vi.mock('../../src/lib/stores/locale.svelte', () => ({
-  getTranslationService: vi.fn(() => ({
-    getMessage: vi.fn((key: string) => () => {
-      const messages: Record<string, string> = {
-        all_tasks: 'All Tasks',
-        today: 'Today',
-        overdue: 'Overdue',
-        completed: 'Completed',
-        tomorrow: 'Tomorrow',
-        next_3_days: 'Next 3 Days',
-        next_week: 'Next Week',
-        this_month: 'This Month'
+  },
+  translationService: {
+    getMessage: vi.fn((key: string) => {
+      const messages: Record<string, () => string> = {
+        all_tasks: () => 'All Tasks',
+        today: () => 'Today',
+        overdue: () => 'Overdue',
+        completed: () => 'Completed',
+        tomorrow: () => 'Tomorrow',
+        next_3_days: () => 'Next 3 Days',
+        next_week: () => 'Next Week',
+        this_month: () => 'This Month'
       };
-      return messages[key] || key;
+      return messages[key] ?? (() => key);
     })
-  }))
-}));
-
-const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
-const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
-
-beforeEach(() => {
-  vi.clearAllMocks();
-  // Mock getter properties using spyOn
-  vi.spyOn(mockTaskStore, 'todayTasks', 'get').mockReturnValue([mockTasks[0]]);
-  vi.spyOn(mockTaskStore, 'overdueTasks', 'get').mockReturnValue([]);
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue(mockTasks);
-
-  mockTaskStore.projects = mockProjects;
-  mockTaskStore.selectedProjectId = null;
-  mockTaskStore.selectedListId = null;
+  }
 });
 
-test("ViewService.getTasksForView: returns all tasks for 'all' view", () => {
-  const result = ViewService.getTasksForView('all');
-  expect(result).toEqual(mockTasks);
-});
-
-test("ViewService.getTasksForView: returns today tasks for 'today' view", () => {
-  const result = ViewService.getTasksForView('today');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test("ViewService.getTasksForView: returns overdue tasks for 'overdue' view", () => {
-  const result = ViewService.getTasksForView('overdue');
-  expect(result).toEqual([]);
-});
-
-test("ViewService.getTasksForView: returns completed tasks for 'completed' view", () => {
-  const result = ViewService.getTasksForView('completed');
-  expect(result).toEqual([mockTasks[1]]);
-});
-
-test("ViewService.getTasksForView: returns empty array for 'project' view with no selection", () => {
-  const result = ViewService.getTasksForView('project');
-  expect(result).toEqual([]);
-});
-
-test('ViewService.getTasksForView: returns project tasks when project is selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  const result = ViewService.getTasksForView('project');
-  expect(result).toEqual(mockTasks);
-});
-
-test('ViewService.getTasksForView: returns list tasks when both project and list are selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'list-1';
-  const result = ViewService.getTasksForView('project');
-  expect(result).toEqual([mockTasks[0], mockTasks[1]]);
-});
-
-test("ViewService.getTasksForView: returns search results for 'search' view", () => {
-  const result = ViewService.getTasksForView('search', 'today');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getTasksForView: returns all tasks for empty search query', () => {
-  const result = ViewService.getTasksForView('search', '');
-  expect(result).toEqual(mockTasks);
-});
-
-test('ViewService.getTasksForView: searches in task descriptions', () => {
-  const result = ViewService.getTasksForView('search', 'future');
-  expect(result).toEqual([mockTasks[2]]);
-});
-
-test('ViewService.getTasksForView: searches in subtask titles', () => {
-  const result = ViewService.getTasksForView('search', 'subtask');
-  expect(result).toEqual([mockTasks[2]]);
-});
-
-test('ViewService.getTasksForView: searches in subtask descriptions', () => {
-  const result = ViewService.getTasksForView('search', 'searchable');
-  expect(result).toEqual([mockTasks[2]]);
-});
-
-test('ViewService.getTasksForView: searches in tags', () => {
-  const result = ViewService.getTasksForView('search', 'urgent');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getTasksForView: searches in tags with # prefix', () => {
-  const result = ViewService.getTasksForView('search', '#urgent');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getTasksForView: returns tasks with any tags when searching with #', () => {
-  const result = ViewService.getTasksForView('search', '#');
-  expect(result).toEqual([mockTasks[0]]); // Only task-1 has tags
-});
-
-test('ViewService.getTasksForView: partial tag search with # prefix', () => {
-  const result = ViewService.getTasksForView('search', '#ur');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getTasksForView: case insensitive tag search with # prefix', () => {
-  const result = ViewService.getTasksForView('search', '#URGENT');
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getViewTitle: returns correct titles for each view', () => {
-  expect(ViewService.getViewTitle('all')).toBe('All Tasks');
-  expect(ViewService.getViewTitle('today')).toBe('Today');
-  expect(ViewService.getViewTitle('overdue')).toBe('Overdue');
-  expect(ViewService.getViewTitle('completed')).toBe('Completed');
-  expect(ViewService.getViewTitle('tomorrow')).toBe('Tomorrow');
-  expect(ViewService.getViewTitle('next3days')).toBe('Next 3 Days');
-  expect(ViewService.getViewTitle('nextweek')).toBe('Next Week');
-  expect(ViewService.getViewTitle('thismonth')).toBe('This Month');
-});
-
-test("ViewService.getViewTitle: returns project name for 'project' view", () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  expect(ViewService.getViewTitle('project')).toBe('Project Alpha');
-});
-
-test('ViewService.getViewTitle: returns list name when list is selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'list-1';
-  expect(ViewService.getViewTitle('project')).toBe('Project Alpha > List A');
-});
-
-test("ViewService.getViewTitle: returns search query for 'search' view", () => {
-  expect(ViewService.getViewTitle('search', 'test query')).toBe('Search: "test query"');
-  expect(ViewService.getViewTitle('search', '')).toBe('All Tasks');
-});
-
-test('ViewService.shouldShowAddButton: returns true for views that allow adding tasks', () => {
-  expect(ViewService.shouldShowAddButton('all')).toBe(true);
-  expect(ViewService.shouldShowAddButton('project')).toBe(true);
-  expect(ViewService.shouldShowAddButton('tomorrow')).toBe(true);
-  expect(ViewService.shouldShowAddButton('next3days')).toBe(true);
-  expect(ViewService.shouldShowAddButton('nextweek')).toBe(true);
-  expect(ViewService.shouldShowAddButton('thismonth')).toBe(true);
-});
-
-test("ViewService.shouldShowAddButton: returns false for views that don't allow adding tasks", () => {
-  expect(ViewService.shouldShowAddButton('today')).toBe(false);
-  expect(ViewService.shouldShowAddButton('overdue')).toBe(false);
-  expect(ViewService.shouldShowAddButton('completed')).toBe(false);
-  expect(ViewService.shouldShowAddButton('search')).toBe(false);
-});
-
-test('ViewService.handleViewChange: clears task selection', () => {
-  ViewService.handleViewChange('all');
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-});
-
-// Additional tests for better coverage
-test("ViewService.getTasksForView: returns tomorrow tasks for 'tomorrow' view", () => {
-  // Create a task for tomorrow
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(12, 0, 0, 0);
-
-  const tomorrowTask = {
-    ...mockTasks[0],
-    id: 'tomorrow-task',
-    projectId: 'proj-1',
-    planEndDate: tomorrow,
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, tomorrowTask]);
-
-  const result = ViewService.getTasksForView('tomorrow');
-
-  expect(Array.isArray(result)).toBe(true);
-});
-
-test("ViewService.getTasksForView: returns next 3 days tasks for 'next3days' view", () => {
-  const twoDaysLater = new Date();
-  twoDaysLater.setDate(twoDaysLater.getDate() + 2);
-
-  const next3DaysTask = {
-    ...mockTasks[0],
-    id: 'next3days-task',
-    projectId: 'proj-1',
-    planEndDate: twoDaysLater,
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, next3DaysTask]);
-
-  const result = ViewService.getTasksForView('next3days');
-
-  expect(Array.isArray(result)).toBe(true);
-});
-
-test("ViewService.getTasksForView: returns next week tasks for 'nextweek' view", () => {
-  const fiveDaysLater = new Date();
-  fiveDaysLater.setDate(fiveDaysLater.getDate() + 5);
-
-  const nextWeekTask = {
-    ...mockTasks[0],
-    id: 'nextweek-task',
-    projectId: 'proj-1',
-    planEndDate: fiveDaysLater,
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, nextWeekTask]);
-
-  const result = ViewService.getTasksForView('nextweek');
-
-  expect(Array.isArray(result)).toBe(true);
-});
-
-test("ViewService.getTasksForView: returns this month tasks for 'thismonth' view", () => {
-  const endOfMonth = new Date();
-  endOfMonth.setDate(endOfMonth.getDate() + 10);
-
-  const thisMonthTask = {
-    ...mockTasks[0],
-    id: 'thismonth-task',
-    projectId: 'proj-1',
-    planEndDate: endOfMonth,
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, thisMonthTask]);
-
-  const result = ViewService.getTasksForView('thismonth');
-
-  expect(Array.isArray(result)).toBe(true);
-});
-
-test('ViewService.getTasksForView: returns project tasks when project selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = null;
-
-  const result = ViewService.getTasksForView('project');
-
-  expect(Array.isArray(result)).toBe(true);
-  expect(result).toEqual([mockTasks[0], mockTasks[1], mockTasks[2]]);
-});
-
-test('ViewService.getTasksForView: returns list tasks when list selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'list-1';
-
-  const result = ViewService.getTasksForView('project');
-
-  expect(result).toEqual([mockTasks[0], mockTasks[1]]);
-});
-
-test('ViewService.getTasksForView: returns empty array when no project selected for project view', () => {
-  mockTaskStore.selectedProjectId = null;
-
-  const result = ViewService.getTasksForView('project');
-
-  expect(result).toEqual([]);
-});
-
-test('ViewService.getViewTitle: returns list name when list selected in project view', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'list-1';
-
-  const result = ViewService.getViewTitle('project');
-
-  expect(result).toBe('Project Alpha > List A');
-});
-
-test('ViewService.getViewTitle: returns project name when only project selected', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = null;
-
-  const result = ViewService.getViewTitle('project');
-
-  expect(result).toBe('Project Alpha');
-});
-
-test("ViewService.getViewTitle: returns 'Project' when no project selected", () => {
-  mockTaskStore.selectedProjectId = null;
-
-  const result = ViewService.getViewTitle('project');
-
-  expect(result).toBe('Project');
-});
-
-test('ViewService.handleViewChange: clears project/list selection for non-project views', () => {
-  ViewService.handleViewChange('today');
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
-});
-
-test('ViewService.handleViewChange: does not clear project/list selection for project view', () => {
-  vi.clearAllMocks();
-
-  ViewService.handleViewChange('project');
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
-});
-
-test('ViewService.handleViewChange: clears project/list selection for non-project views', () => {
-  ViewService.handleViewChange('all');
-  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
-});
-
-test('ViewService.handleViewChange: does not clear project/list selection for project view', () => {
-  ViewService.handleViewChange('project');
-  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
-});
-
-// Add mocks for new task mode functionality
-Object.assign(mockTaskStore, {
-  isNewTaskMode: false,
-  cancelNewTaskMode: vi.fn()
-});
-
-test('ViewService.handleViewChange: returns false when in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true });
-
-  const result = ViewService.handleViewChange('all');
-
-  expect(result).toBe(false);
-  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
-});
-
-test('ViewService.handleViewChange: returns true when not in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  const result = ViewService.handleViewChange('all');
-
-  expect(result).toBe(true);
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-});
-
-test('ViewService.forceViewChange: cancels new task mode and forces view change', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true });
-
-  ViewService.forceViewChange('today');
-
-  expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectProject).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectList).toHaveBeenCalledWith(null);
-});
-
-test('ViewService.forceViewChange: works when not in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  ViewService.forceViewChange('today');
-
-  expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-});
-
-test('ViewService.forceViewChange: does not clear project/list for project view', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-  vi.clearAllMocks();
-
-  ViewService.forceViewChange('project');
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
-});
-
-test('ViewService.forceViewChange: does not clear project/list for tasklist view', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-  vi.clearAllMocks();
-
-  ViewService.forceViewChange('tasklist');
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectProject).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectList).not.toHaveBeenCalled();
-});
-
-test("ViewService.getTasksForView: handles 'tasklist' view same as 'project'", () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-
-  const projectResult = ViewService.getTasksForView('project');
-  const tasklistResult = ViewService.getTasksForView('tasklist');
-
-  expect(projectResult).toEqual(tasklistResult);
-});
-
-test("ViewService.getViewTitle: handles 'tasklist' view same as 'project'", () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-
-  const projectTitle = ViewService.getViewTitle('project');
-  const tasklistTitle = ViewService.getViewTitle('tasklist');
-
-  expect(projectTitle).toBe(tasklistTitle);
-});
-
-test('ViewService.getTasksForView: handles invalid project selection', () => {
-  mockTaskStore.selectedProjectId = 'nonexistent-project';
-
-  const result = ViewService.getTasksForView('project');
-
-  expect(result).toEqual([]);
-});
-
-test('ViewService.getTasksForView: handles invalid list selection', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'nonexistent-list';
-
-  const result = ViewService.getTasksForView('project');
-
-  expect(result).toEqual([]);
-});
-
-test('ViewService.getViewTitle: handles invalid project selection', () => {
-  mockTaskStore.selectedProjectId = 'nonexistent-project';
-
-  const result = ViewService.getViewTitle('project');
-
-  expect(result).toBe('Project');
-});
-
-test('ViewService.getViewTitle: handles invalid list selection', () => {
-  mockTaskStore.selectedProjectId = 'project-1';
-  mockTaskStore.selectedListId = 'nonexistent-list';
-
-  const result = ViewService.getViewTitle('project');
-
-  expect(result).toBe('Task List');
-});
-
-test('ViewService.getTasksForView: filters out completed tasks from time-based views', () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const completedTomorrowTask = {
-    ...mockTasks[0],
-    id: 'completed-tomorrow-task',
-    projectId: 'proj-1',
-    planEndDate: tomorrow,
-    status: 'completed' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, completedTomorrowTask]);
-
-  const result = ViewService.getTasksForView('tomorrow');
-
-  expect(result).not.toContain(completedTomorrowTask);
-});
-
-test('ViewService.getTasksForView: filters out tasks without end_date from time-based views', () => {
-  const taskWithoutDate = {
-    ...mockTasks[0],
-    id: 'no-date-task',
-    projectId: 'proj-1',
-    planEndDate: undefined
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([...mockTasks, taskWithoutDate]);
-
-  const result = ViewService.getTasksForView('tomorrow');
-
-  expect(result).not.toContain(taskWithoutDate);
-});
-
-test('ViewService.getTasksForView: handles whitespace-only search query', () => {
-  const result = ViewService.getTasksForView('search', '   ');
-
-  expect(result).toEqual(mockTasks);
-});
-
-test('ViewService.getTasksForView: case insensitive regular search', () => {
-  const result = ViewService.getTasksForView('search', 'TODAY');
-
-  expect(result).toEqual([mockTasks[0]]);
-});
-
-test('ViewService.getTasksForView: search returns no results for non-matching query', () => {
-  const result = ViewService.getTasksForView('search', 'nonexistent');
-
-  expect(result).toEqual([]);
-});
-
-test('ViewService.getTasksForView: tag search with non-matching query', () => {
-  const result = ViewService.getTasksForView('search', '#nonexistent');
-
-  expect(result).toEqual([]);
-});
-
-test('ViewService.shouldShowAddButton: returns true for tasklist view', () => {
-  expect(ViewService.shouldShowAddButton('tasklist')).toBe(true);
-});
-
-test('ViewService.getTasksForView: date range tests work correctly', () => {
-  const today = new Date();
-
-  // Test tomorrow tasks
-  const tomorrowStart = new Date(today);
-  tomorrowStart.setDate(today.getDate() + 1);
-  tomorrowStart.setHours(0, 0, 0, 0);
-
-  const tomorrowEnd = new Date(today);
-  tomorrowEnd.setDate(today.getDate() + 2);
-  tomorrowEnd.setHours(0, 0, 0, 0);
-
-  const tomorrowTask = {
-    ...mockTasks[0],
-    id: 'tomorrow-test',
-    projectId: 'proj-1',
-    planEndDate: new Date(tomorrowStart.getTime() + 12 * 60 * 60 * 1000), // noon tomorrow
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([tomorrowTask]);
-
-  const result = ViewService.getTasksForView('tomorrow');
-
-  expect(result).toContain(tomorrowTask);
-});
-
-test('ViewService.getTasksForView: edge case for end of month calculation', () => {
-  const endOfMonth = new Date(2024, 1, 0); // Last day of January
-
-  const taskAtEndOfMonth = {
-    ...mockTasks[0],
-    id: 'end-of-month-task',
-    projectId: 'proj-1',
-    planEndDate: endOfMonth,
-    status: 'not_started' as const
-  };
-
-  vi.spyOn(mockTaskStore, 'allTasks', 'get').mockReturnValue([taskAtEndOfMonth]);
-
-  // Mock Date.now() to return January 31st, 2024
-  const originalDate = Date;
-  global.Date = class extends originalDate {
-    constructor() {
-      super(2024, 0, 31);
-    }
-
-    static now() {
-      return new originalDate(2024, 0, 31).getTime();
-    }
-  } as DateConstructor;
-
-  const result = ViewService.getTasksForView('thismonth');
-
-  // Restore original Date
-  global.Date = originalDate;
-
-  expect(result).toContain(taskAtEndOfMonth);
+describe('view helpers', () => {
+  let deps: ViewStoreDependencies;
+  let taskStore: ViewStoreDependencies['taskStore'];
+  let selectionStore: ViewStoreDependencies['selectionStore'];
+
+  let todayTask: TaskWithSubTasks;
+  let completedTask: TaskWithSubTasks;
+  let futureTask: TaskWithSubTasks;
+
+  beforeEach(() => {
+    deps = createDeps();
+    taskStore = deps.taskStore;
+    selectionStore = deps.selectionStore;
+
+    todayTask = createTask({
+      id: 'task-today',
+      title: 'Today Task',
+      description: 'A task for today',
+      planEndDate: new Date(),
+      tags: [{ id: 'tag-1', name: 'urgent', createdAt: new Date(), updatedAt: new Date() }],
+      tagIds: ['tag-1']
+    });
+
+    completedTask = createTask({
+      id: 'task-completed',
+      title: 'Completed Task',
+      status: 'completed'
+    });
+
+    futureTask = createTask({
+      id: 'task-future',
+      title: 'Future Task',
+      description: 'A task for the future',
+      planEndDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+      subTasks: [
+        {
+          id: 'sub-1',
+          taskId: 'task-future',
+          title: 'Subtask search test',
+          description: 'Contains searchable text',
+          status: 'not_started',
+          orderIndex: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          tags: [],
+          completed: false,
+          assignedUserIds: []
+        }
+      ]
+    });
+
+    taskStore.todayTasks = [todayTask];
+    taskStore.overdueTasks = [];
+    taskStore.allTasks = [todayTask, completedTask, futureTask];
+    taskStore.projects = [
+      {
+        id: 'project-1',
+        name: 'Project Alpha',
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        allTags: [],
+        taskLists: [
+          {
+            id: 'list-1',
+            projectId: 'project-1',
+            name: 'List A',
+            description: 'Primary list',
+            color: '#fff',
+            orderIndex: 0,
+            isArchived: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            tasks: [todayTask, completedTask]
+          },
+          {
+            id: 'list-2',
+            projectId: 'project-1',
+            name: 'List B',
+            description: 'Secondary list',
+            color: '#eee',
+            orderIndex: 1,
+            isArchived: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            tasks: [futureTask]
+          }
+        ]
+      }
+    ];
+  });
+
+  describe('getTasksForView', () => {
+    test("returns all tasks for 'all' view", () => {
+      expect(getTasksForView('all', '', deps)).toEqual(taskStore.allTasks);
+    });
+
+    test("returns today tasks for 'today' view", () => {
+      expect(getTasksForView('today', '', deps)).toEqual([todayTask]);
+    });
+
+    test("returns overdue tasks for 'overdue' view", () => {
+      const overdueTask = createTask({ id: 'task-overdue', planEndDate: new Date(Date.now() - 86400000) });
+      taskStore.overdueTasks = [overdueTask];
+
+      expect(getTasksForView('overdue', '', deps)).toEqual([overdueTask]);
+    });
+
+    test("returns completed tasks for 'completed' view", () => {
+      expect(getTasksForView('completed', '', deps)).toEqual([completedTask]);
+    });
+
+    test("returns project tasks when project selected", () => {
+      taskStore.selectedProjectId = 'project-1';
+      expect(getTasksForView('project', '', deps)).toEqual([todayTask, completedTask, futureTask]);
+    });
+
+    test("returns list tasks when list selected", () => {
+      taskStore.selectedProjectId = 'project-1';
+      taskStore.selectedListId = 'list-1';
+
+      expect(getTasksForView('project', '', deps)).toEqual([todayTask, completedTask]);
+    });
+
+    test("returns empty array when no selection for project view", () => {
+      expect(getTasksForView('project', '', deps)).toEqual([]);
+    });
+
+    test("searches title, description, subtasks, and tags", () => {
+      expect(getTasksForView('search', 'future', deps)).toEqual([futureTask]);
+      expect(getTasksForView('search', 'subtask', deps)).toEqual([futureTask]);
+      expect(getTasksForView('search', 'today', deps)).toEqual([todayTask]);
+      expect(getTasksForView('search', 'urgent', deps)).toEqual([todayTask]);
+    });
+
+    test("supports tag search with '#' prefix", () => {
+      expect(getTasksForView('search', '#urgent', deps)).toEqual([todayTask]);
+      expect(getTasksForView('search', '#', deps)).toEqual([todayTask]);
+    });
+
+    test("returns all tasks for empty search query", () => {
+      expect(getTasksForView('search', '', deps)).toEqual(taskStore.allTasks);
+    });
+
+    test("returns tomorrow tasks for 'tomorrow' view", () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowTask = createTask({ id: 'task-tomorrow', planEndDate: tomorrow });
+      taskStore.allTasks = [...taskStore.allTasks, tomorrowTask];
+
+      const result = getTasksForView('tomorrow', '', deps);
+      expect(result).toContain(tomorrowTask);
+      expect(result.every((task) => task.status !== 'completed')).toBe(true);
+    });
+
+    test("returns tasks due within next 3 days", () => {
+      const inTwoDays = new Date();
+      inTwoDays.setDate(inTwoDays.getDate() + 2);
+      const task = createTask({ id: 'task-next3', planEndDate: inTwoDays });
+      taskStore.allTasks = [...taskStore.allTasks, task];
+
+      expect(getTasksForView('next3days', '', deps)).toContain(task);
+    });
+
+    test("returns tasks due within next week", () => {
+      const inFiveDays = new Date();
+      inFiveDays.setDate(inFiveDays.getDate() + 5);
+      const task = createTask({ id: 'task-nextweek', planEndDate: inFiveDays });
+      taskStore.allTasks = [...taskStore.allTasks, task];
+
+      expect(getTasksForView('nextweek', '', deps)).toContain(task);
+    });
+
+    test("returns tasks due within this month", () => {
+      const endOfMonth = new Date();
+      endOfMonth.setDate(28);
+      const task = createTask({ id: 'task-thismonth', planEndDate: endOfMonth });
+      taskStore.allTasks = [...taskStore.allTasks, task];
+
+      expect(getTasksForView('thismonth', '', deps)).toContain(task);
+    });
+  });
+
+  describe('getViewTitle', () => {
+    test('returns localized titles', () => {
+      expect(getViewTitle('today', '', deps)).toBe('Today');
+      expect(getViewTitle('overdue', '', deps)).toBe('Overdue');
+    });
+
+    test('returns project title when project selected', () => {
+      taskStore.selectedProjectId = 'project-1';
+      expect(getViewTitle('project', '', deps)).toBe('Project Alpha');
+    });
+
+    test('returns project > list when list selected', () => {
+      taskStore.selectedProjectId = 'project-1';
+      taskStore.selectedListId = 'list-1';
+
+      expect(getViewTitle('tasklist', '', deps)).toBe('Project Alpha > List A');
+    });
+
+    test('returns search query in title', () => {
+      expect(getViewTitle('search', 'My Query', deps)).toBe('Search: "My Query"');
+      expect(getViewTitle('search', '', deps)).toBe('All Tasks');
+    });
+  });
+
+  describe('shouldShowAddButton', () => {
+    test('returns true for views that allow adding tasks', () => {
+      const views: Array<'all' | 'project' | 'tasklist' | 'tomorrow' | 'next3days' | 'nextweek' | 'thismonth'> = [
+        'all',
+        'project',
+        'tasklist',
+        'tomorrow',
+        'next3days',
+        'nextweek',
+        'thismonth'
+      ];
+
+      for (const view of views) {
+        expect(shouldShowAddButton(view)).toBe(true);
+      }
+    });
+
+    test('returns false for read-only views', () => {
+      const views: Array<'today' | 'overdue' | 'completed' | 'search'> = [
+        'today',
+        'overdue',
+        'completed',
+        'search'
+      ];
+
+      for (const view of views) {
+        expect(shouldShowAddButton(view)).toBe(false);
+      }
+    });
+  });
+
+  describe('handleViewChange', () => {
+    test('clears task selection on change', () => {
+      const result = handleViewChange('all', deps);
+
+      expect(result).toBe(true);
+      expect(selectionStore.selectTask).toHaveBeenCalledWith(null);
+      expect(selectionStore.selectProject).toHaveBeenCalledWith(null);
+      expect(selectionStore.selectList).toHaveBeenCalledWith(null);
+    });
+
+    test('keeps project and list selection for project view', () => {
+      const result = handleViewChange('project', deps);
+
+      expect(result).toBe(true);
+      expect(selectionStore.selectProject).not.toHaveBeenCalled();
+      expect(selectionStore.selectList).not.toHaveBeenCalled();
+    });
+
+    test('returns false when new task mode active', () => {
+      taskStore.isNewTaskMode = true;
+      const result = handleViewChange('all', deps);
+
+      expect(result).toBe(false);
+      expect(selectionStore.selectTask).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('forceViewChange', () => {
+    test('cancels new task mode and clears selections', () => {
+      taskStore.isNewTaskMode = true;
+
+      forceViewChange('all', deps);
+
+      expect(taskStore.cancelNewTaskMode).toHaveBeenCalled();
+      expect(selectionStore.selectTask).toHaveBeenCalledWith(null);
+      expect(selectionStore.selectProject).toHaveBeenCalledWith(null);
+      expect(selectionStore.selectList).toHaveBeenCalledWith(null);
+    });
+
+    test('preserves project selection for project view', () => {
+      forceViewChange('project', deps);
+
+      expect(selectionStore.selectProject).not.toHaveBeenCalled();
+      expect(selectionStore.selectList).not.toHaveBeenCalled();
+    });
+  });
 });

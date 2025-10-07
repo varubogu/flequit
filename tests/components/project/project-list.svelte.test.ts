@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import type { ViewType } from '$lib/services/ui/view';
+import type { ViewType } from '$lib/stores/view-store.svelte';
 
 describe('ProjectList', () => {
   const defaultProps = {

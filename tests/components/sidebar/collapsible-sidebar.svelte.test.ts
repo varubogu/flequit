@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import CollapsibleSidebar from '$lib/components/sidebar/collapsible-sidebar.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
-import type { ViewType } from '$lib/services/ui/view';
+import type { ViewType } from '$lib/stores/view-store.svelte';
 
 // 翻訳サービスのモック
 vi.mock('$lib/stores/locale.svelte', () => ({

@@ -63,12 +63,11 @@ export default tseslint.config(
     }
   },
   // 循環依存防止ルール（Stores層のみ対象）
-  // 注: settingsInitServiceとViewServiceは循環依存がないことを確認済みのため許可
+  // 注: settingsInitServiceは循環依存がないことを確認済みのため許可
   {
     files: ['src/lib/stores/*.svelte.ts'],
     ignores: [
       'src/lib/stores/settings.svelte.ts',
-      'src/lib/stores/view-store.svelte.ts',
       'src/lib/stores/views-visibility.svelte.ts'
     ],
     rules: {

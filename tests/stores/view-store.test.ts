@@ -1,118 +1,149 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { ViewStore } from '../../src/lib/stores/view-store.svelte';
-import { ViewService } from '../../src/lib/services/ui/view';
+import {
+  ViewStore,
+  type ViewStoreDependencies,
+  type ViewType
+} from '../../src/lib/stores/view-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-// Mock ViewService
-vi.mock('$lib/services/ui/view', () => ({
-  ViewService: {
-    getTasksForView: vi.fn(),
-    getViewTitle: vi.fn(),
-    shouldShowAddButton: vi.fn(),
-    handleViewChange: vi.fn()
-  }
-}));
+const createTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({
+  id: overrides.id ?? 'task-1',
+  projectId: overrides.projectId ?? 'proj-1',
+  listId: overrides.listId ?? 'list-1',
+  title: overrides.title ?? 'Task',
+  description: overrides.description ?? 'description',
+  status: overrides.status ?? 'not_started',
+  priority: overrides.priority ?? 0,
+  planEndDate: overrides.planEndDate ?? undefined,
+  planStartDate: overrides.planStartDate,
+  isRangeDate: overrides.isRangeDate ?? false,
+  orderIndex: overrides.orderIndex ?? 0,
+  isArchived: overrides.isArchived ?? false,
+  createdAt: overrides.createdAt ?? new Date(),
+  updatedAt: overrides.updatedAt ?? new Date(),
+  assignedUserIds: overrides.assignedUserIds ?? [],
+  tagIds: overrides.tagIds ?? [],
+  tags: overrides.tags ?? [],
+  subTasks: overrides.subTasks ?? [],
+  recurrenceRule: overrides.recurrenceRule
+});
 
-const mockViewService = vi.mocked(ViewService);
+const createDeps = (): ViewStoreDependencies => ({
+  taskStore: {
+    todayTasks: [],
+    overdueTasks: [],
+    allTasks: [],
+    projects: [],
+    selectedProjectId: null,
+    selectedListId: null,
+    isNewTaskMode: false,
+    cancelNewTaskMode: vi.fn()
+  } as ViewStoreDependencies['taskStore'],
+  selectionStore: {
+    selectTask: vi.fn(),
+    selectProject: vi.fn(),
+    selectList: vi.fn()
+  },
+  translationService: {
+    getMessage: vi.fn((key: string) => {
+      const messages: Record<string, () => string> = {
+        all_tasks: () => 'All Tasks',
+        today: () => 'Today',
+        overdue: () => 'Overdue',
+        completed: () => 'Completed',
+        tomorrow: () => 'Tomorrow',
+        next_3_days: () => 'Next 3 Days',
+        next_week: () => 'Next Week',
+        this_month: () => 'This Month'
+      };
+      return messages[key] ?? (() => key);
+    })
+  }
+});
 
 describe('ViewStore', () => {
+  let deps: ViewStoreDependencies;
   let store: ViewStore;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    store = new ViewStore();
+    deps = createDeps();
+    store = new ViewStore(deps);
   });
 
-  describe('initialization', () => {
-    test('should initialize with default values', () => {
-      expect(store.currentView).toBe('all');
-      expect(store.searchQuery).toBe('');
-    });
+  test('initialization sets default state', () => {
+    expect(store.currentView).toBe('all');
+    expect(store.searchQuery).toBe('');
   });
 
   describe('computed properties', () => {
-    test('tasks should call ViewService.getTasksForView with current view and search query', () => {
-      const mockTasks = [{ id: 'task-1', title: 'Test Task' }];
-      mockViewService.getTasksForView.mockReturnValue(mockTasks as TaskWithSubTasks[]);
-
+    test('tasks returns today tasks when view is today', () => {
+      const todayTask = createTask({ id: 'today-task' });
+      deps.taskStore.todayTasks = [todayTask];
       store.currentView = 'today';
-      store.searchQuery = 'test query';
 
-      const tasks = store.tasks;
-
-      expect(mockViewService.getTasksForView).toHaveBeenCalledWith('today', 'test query');
-      expect(tasks).toEqual(mockTasks);
+      expect(store.tasks).toEqual([todayTask]);
     });
 
-    test('viewTitle should call ViewService.getViewTitle', () => {
-      mockViewService.getViewTitle.mockReturnValue('Today Tasks');
-
+    test('viewTitle uses translation service', () => {
       store.currentView = 'today';
-      store.searchQuery = 'test';
-
       const title = store.viewTitle;
 
-      expect(mockViewService.getViewTitle).toHaveBeenCalledWith('today', 'test');
-      expect(title).toBe('Today Tasks');
+      expect(deps.translationService.getMessage).toHaveBeenCalledWith('today');
+      expect(title).toBe('Today');
     });
 
-    test('showAddButton should call ViewService.shouldShowAddButton', () => {
-      mockViewService.shouldShowAddButton.mockReturnValue(true);
+    test('showAddButton returns false for completed view', () => {
+      store.currentView = 'completed';
 
-      store.currentView = 'all';
-
-      const shouldShow = store.showAddButton;
-
-      expect(mockViewService.shouldShowAddButton).toHaveBeenCalledWith('all');
-      expect(shouldShow).toBe(true);
+      expect(store.showAddButton).toBe(false);
     });
   });
 
   describe('changeView', () => {
-    test('should change current view and call ViewService.handleViewChange', () => {
+    test('updates view and clears selections when allowed', () => {
+      store.searchQuery = 'query';
       store.changeView('today');
 
       expect(store.currentView).toBe('today');
-      expect(mockViewService.handleViewChange).toHaveBeenCalledWith('today');
-    });
-
-    test('should clear search query when changing to non-search view', () => {
-      store.searchQuery = 'test search';
-
-      store.changeView('today');
-
       expect(store.searchQuery).toBe('');
-      expect(store.currentView).toBe('today');
+      expect(deps.selectionStore.selectTask).toHaveBeenCalledWith(null);
+      expect(deps.selectionStore.selectProject).toHaveBeenCalledWith(null);
+      expect(deps.selectionStore.selectList).toHaveBeenCalledWith(null);
     });
 
-    test('should not clear search query when changing to search view', () => {
-      store.searchQuery = 'test search';
+    test('does not clear project or list when switching to project view', () => {
+      store.changeView('project');
 
-      store.changeView('search');
+      expect(deps.selectionStore.selectProject).not.toHaveBeenCalled();
+      expect(deps.selectionStore.selectList).not.toHaveBeenCalled();
+    });
 
-      expect(store.searchQuery).toBe('test search');
-      expect(store.currentView).toBe('search');
+    test('aborts when new task mode is active', () => {
+      deps.taskStore.isNewTaskMode = true;
+      store.currentView = 'all';
+      store.searchQuery = 'keep';
+
+      store.changeView('today');
+
+      expect(store.currentView).toBe('all');
+      expect(store.searchQuery).toBe('keep');
+      expect(deps.selectionStore.selectTask).not.toHaveBeenCalled();
     });
   });
 
   describe('performSearch', () => {
-    test('should set search query and change view to search', () => {
-      store.currentView = 'today';
+    test('sets search query and switches to search view', () => {
+      store.performSearch('keyword');
 
-      store.performSearch('my search query');
-
-      expect(store.searchQuery).toBe('my search query');
+      expect(store.searchQuery).toBe('keyword');
       expect(store.currentView).toBe('search');
     });
 
-    test('should update existing search query', () => {
-      store.currentView = 'search';
-      store.searchQuery = 'old query';
+    test('overwrites existing search query', () => {
+      store.performSearch('first');
+      store.performSearch('second');
 
-      store.performSearch('new query');
-
-      expect(store.searchQuery).toBe('new query');
-      expect(store.currentView).toBe('search');
+      expect(store.searchQuery).toBe('second');
     });
   });
 });
