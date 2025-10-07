@@ -20,8 +20,17 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     addTagToNewTask: vi.fn() as (tagName: string) => void,
-    addTagToSubTask: vi.fn() as (subTaskId: string, tagName: string) => Promise<void>,
-    addTagToTask: vi.fn() as (taskId: string, tagName: string) => Promise<void>
+    removeTagFromNewTask: vi.fn() as (tagId: string) => void,
+    attachTagToTask: vi.fn(),
+    detachTagFromTask: vi.fn(),
+    projects: []
+  }
+}));
+
+vi.mock('$lib/stores/sub-task-store.svelte', () => ({
+  subTaskStore: {
+    attachTagToSubTask: vi.fn(),
+    detachTagFromSubTask: vi.fn()
   }
 }));
 
