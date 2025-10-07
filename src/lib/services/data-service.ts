@@ -9,6 +9,8 @@ import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-re
 import type { Settings } from '$lib/types/settings';
 import type { BackendService } from '$lib/infrastructure/backends/index';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
+import type { BackendErrorContext } from '$lib/infrastructure/backend-error';
+import { toBackendError } from '$lib/infrastructure/backend-error';
 
 /**
  * データ管理の中間サービス層
@@ -19,35 +21,16 @@ export class DataService {
     return resolveBackend();
   }
 
-
-  /**
-   * タスクIDからプロジェクトIDを取得します
-   * サブタスク作成時に親タスクのプロジェクトIDを取得するために使用します
-   */
-  private async getProjectIdByTaskId(taskId: string): Promise<string | null> {
-    // TaskStoreからタスクを検索してプロジェクトIDを取得
-    const { taskStore } = await import('$lib/stores/tasks.svelte');
-    return taskStore.getProjectIdByTaskId(taskId);
-  }
-
-  /**
-   * サブタスクIDからプロジェクトIDを取得します
-   * サブタスク更新・削除時に親タスクのプロジェクトIDを取得するために使用します
-   */
-  private async getProjectIdBySubTaskId(subTaskId: string): Promise<string | null> {
-    // TaskStoreからサブタスクを検索してプロジェクトIDを取得
-    const { taskStore } = await import('$lib/stores/tasks.svelte');
-    for (const project of taskStore.projects) {
-      for (const list of project.taskLists) {
-        for (const task of list.tasks) {
-          const subTask = task.subTasks?.find((st) => st.id === subTaskId);
-          if (subTask) {
-            return project.id;
-          }
-        }
-      }
+  private async executeWithBackend<T>(
+    context: BackendErrorContext,
+    action: (backend: BackendService) => Promise<T>
+  ): Promise<T> {
+    try {
+      const backend = await this.getBackend();
+      return await action(backend);
+    } catch (error) {
+      throw toBackendError(error, context);
     }
-    return null;
   }
 
   /**
@@ -217,12 +200,11 @@ export class DataService {
     return newTask;
   }
 
-  async updateTask(taskId: string, updates: Partial<Task>): Promise<Task | null> {
-    const backend = await this.getBackend();
-    console.log('DataService: updateTask called with backends:', backend.constructor.name);
-    console.log('DataService: updateTask stack trace:', new Error().stack);
-
-    // TaskPatch形式でのupdateに変更（Date型をstring型に変換）
+  async updateTask(
+    projectId: string,
+    taskId: string,
+    updates: Partial<Task>
+  ): Promise<Task | null> {
     const patchData = {
       ...updates,
       plan_start_date: updates.planStartDate?.toISOString() ?? undefined,
@@ -231,45 +213,32 @@ export class DataService {
       do_end_date: updates.doEndDate?.toISOString() ?? undefined
     } as Record<string, unknown>;
 
-    // recurrenceRuleはそのまま送信（Tauriが自動変換）
     if (updates.recurrenceRule !== undefined) {
       patchData.recurrence_rule = updates.recurrenceRule;
     }
 
-    // tagsはオブジェクト配列として保持（フロントエンドではtag_idsは使用しない）
-
-    console.log('DataService: calling backends.task.update');
-    // タスクIDからプロジェクトIDを取得（他のメソッドと一貫性を保つ）
-    const projectId = await this.getProjectIdByTaskId(taskId);
-    if (!projectId) {
-      throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
-    }
-    const success = await backend.task.update(projectId, taskId, patchData);
-    console.log('DataService: backends.task.update result:', success);
-
-    if (success) {
-      // 更新後のデータを取得して返す
-      return await backend.task.get(projectId, taskId);
-    }
-    return null;
+    return this.executeWithBackend(
+      { operation: 'タスク更新', resourceType: 'task', resourceId: taskId },
+      async (backend) => {
+        const success = await backend.task.update(projectId, taskId, patchData);
+        if (!success) {
+          return null;
+        }
+        return backend.task.get(projectId, taskId);
+      }
+    );
   }
 
-  async deleteTask(taskId: string, projectId?: string): Promise<boolean> {
-    const backend = await this.getBackend();
-    // プロジェクトIDが指定されていない場合のみ推定を試みる
-    let actualProjectId: string = projectId || '';
-    if (!actualProjectId) {
-      const foundProjectId = await this.getProjectIdByTaskId(taskId);
-      if (!foundProjectId) {
-        throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
-      }
-      actualProjectId = foundProjectId;
-    }
-    return await backend.task.delete(actualProjectId, taskId);
+  async deleteTask(projectId: string, taskId: string): Promise<boolean> {
+    return this.executeWithBackend(
+      { operation: 'タスク削除', resourceType: 'task', resourceId: taskId },
+      async (backend) => backend.task.delete(projectId, taskId)
+    );
   }
 
   // サブタスク管理
   async createSubTask(
+    projectId: string,
     taskId: string,
     subTaskData: {
       title: string;
@@ -278,7 +247,6 @@ export class DataService {
       priority?: number;
     }
   ): Promise<SubTask> {
-    const backend = await this.getBackend();
     const newSubTask: SubTask = {
       id: crypto.randomUUID(),
       taskId: taskId,
@@ -299,20 +267,20 @@ export class DataService {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    // 親タスクからプロジェクトIDを取得
-    const projectId = await this.getProjectIdByTaskId(taskId);
-    if (!projectId) {
-      throw new Error(`タスクID ${taskId} に対応するプロジェクトが見つかりません。`);
-    }
-    await backend.subtask.create(projectId, newSubTask);
+    await this.executeWithBackend(
+      { operation: 'サブタスク作成', resourceType: 'subtask', resourceId: newSubTask.id },
+      async (backend) => {
+        await backend.subtask.create(projectId, newSubTask);
+      }
+    );
     return newSubTask;
   }
 
-  async updateSubTask(subTaskId: string, updates: Partial<SubTask>): Promise<SubTask | null> {
-    const backend = await this.getBackend();
-    console.log('DataService: updateSubTask called with backends:', backend.constructor.name);
-
-    // Patch形式でのupdateに変更（Date型をstring型に変換し、フィールド名も変換）
+  async updateSubTask(
+    projectId: string,
+    subTaskId: string,
+    updates: Partial<SubTask>
+  ): Promise<SubTask | null> {
     const patchData = {
       ...updates,
       plan_start_date: updates.planStartDate?.toISOString() ?? undefined,
@@ -322,39 +290,27 @@ export class DataService {
       updated_at: new Date()
     } as Record<string, unknown>;
 
-    // recurrenceRuleはそのまま送信（Tauriが自動変換）
     if (updates.recurrenceRule !== undefined) {
       patchData.recurrence_rule = updates.recurrenceRule;
     }
 
-    console.log('DataService: calling backends.subtask.update');
-    // サブタスクIDからプロジェクトIDを取得
-    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
-    if (!projectId) {
-      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
-    }
-    const success = await backend.subtask.update(projectId, subTaskId, patchData);
-    console.log('DataService: backends.subtask.update result:', success);
-
-    if (success) {
-      // 更新後のデータを取得して返す
-      return await backend.subtask.get(projectId, subTaskId);
-    }
-    return null;
+    return this.executeWithBackend(
+      { operation: 'サブタスク更新', resourceType: 'subtask', resourceId: subTaskId },
+      async (backend) => {
+        const success = await backend.subtask.update(projectId, subTaskId, patchData);
+        if (!success) {
+          return null;
+        }
+        return backend.subtask.get(projectId, subTaskId);
+      }
+    );
   }
 
-  async deleteSubTask(subTaskId: string, projectId?: string): Promise<boolean> {
-    const backend = await this.getBackend();
-    // プロジェクトIDが指定されていない場合のみ推定を試みる
-    let actualProjectId: string = projectId || '';
-    if (!actualProjectId) {
-      const foundProjectId = await this.getProjectIdBySubTaskId(subTaskId);
-      if (!foundProjectId) {
-        throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
-      }
-      actualProjectId = foundProjectId;
-    }
-    return await backend.subtask.delete(actualProjectId, subTaskId);
+  async deleteSubTask(projectId: string, subTaskId: string): Promise<boolean> {
+    return this.executeWithBackend(
+      { operation: 'サブタスク削除', resourceType: 'subtask', resourceId: subTaskId },
+      async (backend) => backend.subtask.delete(projectId, subTaskId)
+    );
   }
 
   // タグ管理
@@ -403,75 +359,47 @@ export class DataService {
     await this.createTask(listId, task);
   }
 
-  async updateTaskWithSubTasks(taskId: string, updates: Record<string, unknown>): Promise<void> {
-    // tagsプロパティを含む更新に対応
-    await this.updateTask(taskId, updates);
+  async updateTaskWithSubTasks(
+    projectId: string,
+    taskId: string,
+    updates: Record<string, unknown>
+  ): Promise<void> {
+    await this.updateTask(projectId, taskId, updates as Partial<Task>);
   }
 
-  async deleteTaskWithSubTasks(taskId: string, projectId: string): Promise<boolean> {
-    const backend = await this.getBackend();
-    return await backend.task.delete(projectId, taskId);
+  async deleteTaskWithSubTasks(projectId: string, taskId: string): Promise<boolean> {
+    return this.deleteTask(projectId, taskId);
   }
 
-  async addTagToSubTask(subTaskId: string, tagId: string): Promise<void> {
-    const backend = await this.getBackend();
-    console.log('DataService: addTagToSubTask called', { subTaskId, tagId });
+  async addTagToSubTask(projectId: string, subTaskId: string, tagId: string): Promise<void> {
+    await this.executeWithBackend(
+      { operation: 'サブタスクタグ追加', resourceType: 'subtask', resourceId: subTaskId },
+      async (backend) => {
+        const subTask = await backend.subtask.get(projectId, subTaskId);
+        const tag = await backend.tag.get(projectId, tagId);
 
-    // サブタスクIDからプロジェクトIDを取得
-    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
-    if (!projectId) {
-      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
-    }
+        if (!subTask || !tag) {
+          console.warn('addTagToSubTask is deprecated and requires existing entities.');
+          return;
+        }
 
-    const subTask = await backend.subtask.get(projectId, subTaskId);
-
-    // タグオブジェクトを取得
-    const tag = await backend.tag.get(projectId, tagId);
-
-    // Web環境では既存データが取得できないため、仮のタグオブジェクトまたは取得したタグで更新
-    if (!subTask) {
-      console.log('DataService: SubTask not found in backends (Web environment), updating with tag');
-
-      // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
-      console.warn('SubTask update with tags is not supported in current type definition');
-      return;
-    }
-
-    if (!tag) {
-      console.warn('DataService: Tag not found for addTagToSubTask', tagId);
-      return;
-    }
-
-    // Note: 新しいシステムではtagIdsを使用してタグを管理します
-    // この関数は古いタグシステム用で、新しいシステムでは tasks.svelte.ts の addTagToSubTask を使用してください
-    console.warn('addTagToSubTask is deprecated, use tasks.svelte.ts addTagToSubTask instead');
+        console.warn('addTagToSubTask is deprecated, use tasks.svelte.ts addTagToSubTask instead');
+      }
+    );
   }
 
-  async removeTagFromSubTask(subTaskId: string, tagId: string): Promise<void> {
-    const backend = await this.getBackend();
-    console.log('DataService: removeTagFromSubTask called', { subTaskId, tagId });
-
-    // サブタスクIDからプロジェクトIDを取得
-    const projectId = await this.getProjectIdBySubTaskId(subTaskId);
-    if (!projectId) {
-      throw new Error(`サブタスクID ${subTaskId} に対応するプロジェクトが見つかりません。`);
-    }
-
-    const subTask = await backend.subtask.get(projectId, subTaskId);
-
-    // Web環境では既存データが取得できないため、空のタグ配列で更新
-    if (!subTask) {
-      console.log(
-        'DataService: SubTask not found in backends (Web environment), attempting tag removal'
-      );
-      // Note: SubTaskタイプではtagsプロパティがないため、この操作は無効です
-      console.warn('SubTask update with tags is not supported in current type definition');
-      return;
-    }
-
-    // Note: 新しいシステムではtagIdsを使用してタグを管理します
-    // この関数は古いタグシステム用で、新しいシステムでは tasks.svelte.ts の removeTagFromSubTask を使用してください
-    console.warn('removeTagFromSubTask is deprecated, use tasks.svelte.ts removeTagFromSubTask instead');
+  async removeTagFromSubTask(projectId: string, subTaskId: string, tagId: string): Promise<void> {
+    await this.executeWithBackend(
+      { operation: 'サブタスクタグ削除', resourceType: 'subtask', resourceId: subTaskId },
+      async (backend) => {
+        const subTask = await backend.subtask.get(projectId, subTaskId);
+        if (!subTask) {
+          console.warn('removeTagFromSubTask is deprecated and subtask not found.');
+          return;
+        }
+        console.warn('removeTagFromSubTask is deprecated, use tasks.svelte.ts removeTagFromSubTask instead');
+      }
+    );
   }
 
   // TaskStore向けの型変換メソッド

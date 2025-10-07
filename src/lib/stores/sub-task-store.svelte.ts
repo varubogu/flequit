@@ -1,11 +1,12 @@
 import type { ISubTaskStore, IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 import type { Tag } from '$lib/types/tag';
 import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
-import { dataService } from '$lib/services/data-service';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
+import { dataService } from '$lib/services/data-service';
 
 /**
  * サブタスク管理ストア
@@ -15,6 +16,7 @@ import { SvelteDate } from 'svelte/reactivity';
  *
  * TaskStoreから分離して、サブタスク管理の責務を明確化しています。
  */
+
 export class SubTaskStore implements ISubTaskStore {
 	constructor(
 		private projectStoreRef: IProjectStore,
@@ -42,22 +44,30 @@ export class SubTaskStore implements ISubTaskStore {
 		taskId: string,
 		subTask: { title: string; description?: string; status?: string; priority?: number }
 	) {
-		try {
-			const newSubTask = await dataService.createSubTask(taskId, subTask);
+		let targetTask: TaskWithSubTasks | undefined;
+		let targetProjectId: string | null = null;
 
-			// ローカル状態に追加
-			for (const project of this.projectStoreRef.projects) {
-				for (const list of project.taskLists) {
-					const task = list.tasks.find((t) => t.id === taskId);
-					if (task) {
-						// UIでの操作用に tags を必ず初期化して保持（SubTaskWithTagsとして扱う）
-						const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
-						task.subTasks.push(subTaskWithTags);
-						// 作成操作は即座に保存
-						return newSubTask;
-					}
+		for (const project of this.projectStoreRef.projects) {
+			for (const list of project.taskLists) {
+				const task = list.tasks.find((t) => t.id === taskId);
+				if (task) {
+					targetProjectId = project.id;
+					targetTask = task;
+					break;
 				}
 			}
+			if (targetProjectId) break;
+		}
+
+		if (!targetProjectId || !targetTask) {
+			console.error('Failed to find task for subtask creation:', taskId);
+			return null;
+		}
+
+		try {
+			const newSubTask = await dataService.createSubTask(targetProjectId, taskId, subTask);
+			const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
+			targetTask.subTasks.push(subTaskWithTags);
 			return newSubTask;
 		} catch (error) {
 			console.error('Failed to create subtask:', error);
@@ -79,9 +89,9 @@ export class SubTaskStore implements ISubTaskStore {
 							updatedAt: new SvelteDate()
 						};
 
-						// バックエンドに同期（更新操作は定期保存に任せる）
+						const projectId = project.id;
 						try {
-							await dataService.updateSubTask(subTaskId, updates);
+							await dataService.updateSubTask(projectId, subTaskId, updates);
 						} catch (error) {
 							console.error('Failed to sync subtask update to backends:', error);
 							errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
@@ -110,9 +120,8 @@ export class SubTaskStore implements ISubTaskStore {
 							this.selection.selectSubTask(null);
 						}
 
-						// バックエンドに同期（削除操作は即座に保存）
 						try {
-							await dataService.deleteSubTask(subTaskId, projectId);
+							await dataService.deleteSubTask(projectId, subTaskId);
 						} catch (error) {
 							console.error('Failed to sync subtask deletion to backends:', error);
 							errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);
@@ -168,6 +177,15 @@ export class SubTaskStore implements ISubTaskStore {
 			}
 		}
 		return null;
+	}
+
+	// Backward compatibility (deprecated)
+	async addTagToSubTask(_subTaskId: string, _tagName: string) {
+		console.warn('addTagToSubTask is deprecated. Use TaskService.addTagToSubTaskByName instead.');
+	}
+
+	async removeTagFromSubTask(_subTaskId: string, _tagId: string) {
+		console.warn('removeTagFromSubTask is deprecated. Use TaskService.removeTagFromSubTask instead.');
 	}
 
 	// ヘルパー

@@ -1,17 +1,20 @@
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
-  import { dataService } from '$lib/services/data-service';
+  import { initBackendContext } from '$lib/context/backend-context';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import { ModeWatcher } from 'mode-watcher';
   import { Toaster } from '$lib/components/ui/sonner';
   import ErrorPanel from '$lib/components/error/error-panel.svelte';
 
+  const backendContext = initBackendContext();
+
   // Initialize data on mount
   onMount(async () => {
     try {
-      const projects = await dataService.loadProjectData();
+      const backend = await backendContext.service;
+      const projects = await backend.initialization.loadProjectData();
       // 初期化時は保存処理を行わない（loadProjectsDataを使用）
       taskStore.loadProjectsData(projects);
     } catch (error) {

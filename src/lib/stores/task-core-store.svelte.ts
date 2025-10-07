@@ -48,9 +48,19 @@ export class TaskCoreStore {
 			return;
 		}
 
+		const projectId = ProjectTreeTraverser.getProjectIdByTaskId(this.projects, taskId);
+		if (!projectId) {
+			console.error(`Project not found for task: ${taskId}`);
+			return;
+		}
+
 		// バックエンドに同期（自動保存は個別に実行せず、定期保存に任せる）
 		try {
-			await dataService.updateTaskWithSubTasks(taskId, updates as Partial<TaskWithSubTasks>);
+			await dataService.updateTaskWithSubTasks(
+				projectId,
+				taskId,
+				updates as Partial<TaskWithSubTasks>
+			);
 		} catch (error) {
 			console.error('Failed to sync task update to backends:', error);
 			errorHandler.addSyncError('タスク更新', 'task', taskId, error);
@@ -188,7 +198,7 @@ export class TaskCoreStore {
 		targetProject.updatedAt = new SvelteDate();
 
 		try {
-			await dataService.updateTask(taskId, { listId: newTaskListId });
+			await dataService.updateTask(targetProject.id, taskId, { listId: newTaskListId });
 		} catch (error) {
 			console.error('Failed to sync task move to backends:', error);
 			errorHandler.addSyncError('タスク移動', 'task', taskId, error);
@@ -217,7 +227,7 @@ export class TaskCoreStore {
 
 		// バックエンドに同期（削除操作は即座に保存）
 		try {
-			await dataService.deleteTaskWithSubTasks(taskId, project.id);
+			await dataService.deleteTaskWithSubTasks(project.id, taskId);
 		} catch (error) {
 			console.error('Failed to sync task deletion to backends:', error);
 			errorHandler.addSyncError('タスク削除', 'task', taskId, error);
