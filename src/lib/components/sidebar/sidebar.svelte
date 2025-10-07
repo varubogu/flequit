@@ -19,18 +19,13 @@
     name: string;
     email: string;
     avatar?: string;
-  } | null>({
-    id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com'
-  });
+  } | null>(null);
 
   function handleLogin() {
-    console.log('Login clicked');
+    // TODO: 認証フロー実装時に処理を追加
   }
 
   function handleLogout() {
-    console.log('Logout clicked');
     currentUser = null;
   }
 
@@ -39,7 +34,7 @@
   }
 
   function handleSwitchAccount() {
-    console.log('Switch Account clicked');
+    // TODO: アカウント切り替えフロー実装時に処理を追加
   }
 </script>
 

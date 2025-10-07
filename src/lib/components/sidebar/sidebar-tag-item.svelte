@@ -67,14 +67,11 @@
         id: 'add-to-sidebar',
         label: addTagToSidebar,
         action: () => {
-          console.log('Add to sidebar action called for:', tag.name);
-          // TODO: サイドバーに追加する処理（既にある場合の処理）
+          tagStore.addBookmark(tag.id);
         },
         icon: Bookmark,
         visible: () => {
-          // 既にサイドバーにある場合は非表示
-          // 実際の実装では、tagがbookmarkedかどうかをチェック
-          return false; // 仮実装
+          return !tagStore.isBookmarked(tag.id);
         }
       },
       {
@@ -85,9 +82,7 @@
         },
         icon: BookmarkX,
         visible: () => {
-          // サイドバーにある場合のみ表示
-          // 実際の実装では、tagがbookmarkedかどうかをチェック
-          return true; // 仮実装
+          return tagStore.isBookmarked(tag.id);
         }
       },
       createSeparator(),

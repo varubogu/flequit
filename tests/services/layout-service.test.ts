@@ -1,148 +1,128 @@
-import { test, expect, vi, beforeEach } from 'vitest';
-import { LayoutService } from '../../src/lib/services/ui/layout';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  createLayoutPreferencesStore,
+  LayoutPreferencesStore
+} from '../../src/lib/services/ui/layout';
 
-// Mock localStorage
-const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn()
+const STORAGE_KEY = 'flequit-layout-preferences';
+
+type MockStorage = {
+  getItem: ReturnType<typeof vi.fn>;
+  setItem: ReturnType<typeof vi.fn>;
+  store: Map<string, string>;
 };
 
-Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage
-});
-
-// Mock console.warn
-const mockConsoleWarn = vi.fn();
-console.warn = mockConsoleWarn;
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
-
-test('LayoutService.getDefaultPreferences: returns correct default values', () => {
-  const defaults = LayoutService.getDefaultPreferences();
-
-  expect(defaults).toEqual({
-    taskListPaneSize: 30,
-    taskDetailPaneSize: 70
-  });
-});
-
-test('LayoutService.loadPreferences: returns defaults when no stored data', () => {
-  mockLocalStorage.getItem.mockReturnValue(null);
-
-  const preferences = LayoutService.loadPreferences();
-
-  expect(mockLocalStorage.getItem).toHaveBeenCalledWith('flequit-layout-preferences');
-  expect(preferences).toEqual({
-    taskListPaneSize: 30,
-    taskDetailPaneSize: 70
-  });
-});
-
-test('LayoutService.loadPreferences: loads and merges stored preferences', () => {
-  const storedData = JSON.stringify({
-    taskListPaneSize: 40
-  });
-  mockLocalStorage.getItem.mockReturnValue(storedData);
-
-  const preferences = LayoutService.loadPreferences();
-
-  expect(preferences).toEqual({
-    taskListPaneSize: 40,
-    taskDetailPaneSize: 70 // merged from defaults
-  });
-});
-
-test('LayoutService.loadPreferences: handles invalid JSON gracefully', () => {
-  mockLocalStorage.getItem.mockReturnValue('invalid json');
-
-  const preferences = LayoutService.loadPreferences();
-
-  expect(mockConsoleWarn).toHaveBeenCalledWith(
-    'Failed to load layout preferences:',
-    expect.any(SyntaxError)
-  );
-  expect(preferences).toEqual({
-    taskListPaneSize: 30,
-    taskDetailPaneSize: 70
-  });
-});
-
-test('LayoutService.loadPreferences: handles localStorage error gracefully', () => {
-  mockLocalStorage.getItem.mockImplementation(() => {
-    throw new Error('localStorage unavailable');
-  });
-
-  const preferences = LayoutService.loadPreferences();
-
-  expect(mockConsoleWarn).toHaveBeenCalledWith(
-    'Failed to load layout preferences:',
-    expect.any(Error)
-  );
-  expect(preferences).toEqual({
-    taskListPaneSize: 30,
-    taskDetailPaneSize: 70
-  });
-});
-
-test('LayoutService.savePreferences: saves preferences to localStorage', () => {
-  const preferences = {
-    taskListPaneSize: 35,
-    taskDetailPaneSize: 65
-  };
-
-  LayoutService.savePreferences(preferences);
-
-  expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-    'flequit-layout-preferences',
-    JSON.stringify(preferences)
-  );
-});
-
-test('LayoutService.savePreferences: handles localStorage error gracefully', () => {
-  const preferences = {
-    taskListPaneSize: 35,
-    taskDetailPaneSize: 65
-  };
-
-  mockLocalStorage.setItem.mockImplementation(() => {
-    throw new Error('localStorage quota exceeded');
-  });
-
-  LayoutService.savePreferences(preferences);
-
-  expect(mockConsoleWarn).toHaveBeenCalledWith(
-    'Failed to save layout preferences:',
-    expect.any(Error)
-  );
-});
-
-test('LayoutService.updatePaneSizes: updates and saves pane sizes', () => {
-  const taskListSize = 25;
-  const taskDetailSize = 75;
-
-  LayoutService.updatePaneSizes(taskListSize, taskDetailSize);
-
-  expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-    'flequit-layout-preferences',
-    JSON.stringify({
-      taskListPaneSize: 25,
-      taskDetailPaneSize: 75
+function createMockStorage(): MockStorage {
+  const backing = new Map<string, string>();
+  return {
+    store: backing,
+    getItem: vi.fn((key: string) => backing.get(key) ?? null),
+    setItem: vi.fn((key: string, value: string) => {
+      backing.set(key, value);
     })
-  );
-});
+  };
+}
 
-test('LayoutService.updatePaneSizes: handles edge case values', () => {
-  LayoutService.updatePaneSizes(0, 100);
+describe('LayoutPreferencesStore', () => {
+  let storage: MockStorage;
+  let store: LayoutPreferencesStore;
+  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-  expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-    'flequit-layout-preferences',
-    JSON.stringify({
-      taskListPaneSize: 0,
-      taskDetailPaneSize: 100
-    })
-  );
+  beforeEach(() => {
+    vi.clearAllMocks();
+    storage = createMockStorage();
+    store = createLayoutPreferencesStore({ storage });
+  });
+
+  test('初期化時にデフォルト値を設定する', () => {
+    expect(store.value).toEqual({
+      taskListPaneSize: 30,
+      taskDetailPaneSize: 70
+    });
+    // loadPreferences が実行されて getItem が呼び出されることを確認
+    expect(storage.getItem).toHaveBeenCalledWith(STORAGE_KEY);
+  });
+
+  test('保存済みプリファレンスをマージして読み込む', () => {
+    const persisted = JSON.stringify({ taskListPaneSize: 45 });
+    storage.getItem.mockReturnValueOnce(persisted);
+
+    const reloaded = store.loadPreferences();
+
+    expect(reloaded).toEqual({
+      taskListPaneSize: 45,
+      taskDetailPaneSize: 70
+    });
+  });
+
+  test('不正なJSONはデフォルトでフォールバックする', () => {
+    storage.getItem.mockReturnValueOnce('invalid json');
+
+    const reloaded = store.loadPreferences();
+
+    expect(consoleWarnSpy).toHaveBeenCalled();
+    expect(reloaded).toEqual({
+      taskListPaneSize: 30,
+      taskDetailPaneSize: 70
+    });
+  });
+
+  test('ストレージ例外は捕捉される', () => {
+    storage.getItem.mockImplementationOnce(() => {
+      throw new Error('storage unavailable');
+    });
+
+    const reloaded = store.loadPreferences();
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Failed to load layout preferences:',
+      expect.any(Error)
+    );
+    expect(reloaded).toEqual({
+      taskListPaneSize: 30,
+      taskDetailPaneSize: 70
+    });
+  });
+
+  test('プリファレンスを保存する', () => {
+    store.savePreferences({ taskListPaneSize: 40, taskDetailPaneSize: 60 });
+
+    expect(storage.setItem).toHaveBeenCalledWith(
+      STORAGE_KEY,
+      JSON.stringify({ taskListPaneSize: 40, taskDetailPaneSize: 60 })
+    );
+  });
+
+  test('保存時の例外も捕捉される', () => {
+    storage.setItem.mockImplementationOnce(() => {
+      throw new Error('quota exceeded');
+    });
+
+    store.savePreferences({ taskListPaneSize: 40, taskDetailPaneSize: 60 });
+
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'Failed to save layout preferences:',
+      expect.any(Error)
+    );
+  });
+
+  test('updatePreferencesで値を更新し保存する', () => {
+    const updated = store.updatePreferences({ taskListPaneSize: 55 });
+
+    expect(updated).toEqual({ taskListPaneSize: 55, taskDetailPaneSize: 70 });
+    expect(storage.setItem).toHaveBeenCalledWith(
+      STORAGE_KEY,
+      JSON.stringify({ taskListPaneSize: 55, taskDetailPaneSize: 70 })
+    );
+  });
+
+  test('updatePaneSizesで両方のサイズを更新する', () => {
+    const updated = store.updatePaneSizes(20, 80);
+
+    expect(updated).toEqual({ taskListPaneSize: 20, taskDetailPaneSize: 80 });
+    expect(storage.setItem).toHaveBeenCalledWith(
+      STORAGE_KEY,
+      JSON.stringify({ taskListPaneSize: 20, taskDetailPaneSize: 80 })
+    );
+  });
 });

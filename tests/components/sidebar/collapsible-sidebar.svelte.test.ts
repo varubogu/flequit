@@ -99,48 +99,6 @@ describe('CollapsibleSidebar', () => {
     }).not.toThrow();
   });
 
-  it('currentUserの初期値が正しく設定される', () => {
-    const { component } = render(CollapsibleSidebar, {
-      props: {
-        currentView: 'all',
-        onViewChange: mockOnViewChange
-      }
-    });
-
-    // コンポーネント内部でcurrentUserが初期化されることを確認
-    expect(component).toBeTruthy();
-  });
-
-  it('handleLoginが正しく動作する', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    const { component } = render(CollapsibleSidebar, {
-      props: {
-        currentView: 'all',
-        onViewChange: mockOnViewChange
-      }
-    });
-
-    expect(component).toBeTruthy();
-
-    consoleSpy.mockRestore();
-  });
-
-  it('handleLogoutが正しく動作する', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    const { component } = render(CollapsibleSidebar, {
-      props: {
-        currentView: 'all',
-        onViewChange: mockOnViewChange
-      }
-    });
-
-    expect(component).toBeTruthy();
-
-    consoleSpy.mockRestore();
-  });
-
   it('handleSettingsが正しく動作する', () => {
     const { component } = render(CollapsibleSidebar, {
       props: {
@@ -153,18 +111,17 @@ describe('CollapsibleSidebar', () => {
     expect(component).toBeTruthy();
   });
 
-  it('handleSwitchAccountが正しく動作する', () => {
+  it('レンダリング時にconsole.logを出力しない', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
-    const { component } = render(CollapsibleSidebar, {
+    render(CollapsibleSidebar, {
       props: {
         currentView: 'all',
         onViewChange: mockOnViewChange
       }
     });
 
-    expect(component).toBeTruthy();
-
+    expect(consoleSpy).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
   });
 

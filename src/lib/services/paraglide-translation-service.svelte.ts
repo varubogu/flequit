@@ -111,7 +111,6 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
 
       // 新しい部分更新システムを使用
       await backend.settingsManagement.updateSettingsPartially({ language: locale });
-      console.log(`Locale '${locale}' saved successfully`);
     } catch (error) {
       console.error('Failed to save locale:', error);
       // フォールバックとしてlocalStorageに保存
@@ -130,9 +129,8 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
       if (localeSetting) {
         paraglidSetLocale(localeSetting.value as Locale, { reload: false });
         this.localeChangeCounter++;
-        console.log(`Locale loaded from backend: ${localeSetting.value}`);
       } else {
-        console.log('No locale setting found in backends, using default');
+        // No locale persisted yet; default locale remains active.
       }
     } catch (error) {
       console.error('Failed to load locale from backends:', error);
@@ -143,7 +141,6 @@ class ParaglideTranslationService implements ITranslationServiceWithNotification
         if (stored && locales.includes(stored as Locale)) {
           paraglidSetLocale(stored as Locale, { reload: false });
           this.localeChangeCounter++;
-          console.log('Locale loaded from localStorage fallback');
         }
       }
     }
