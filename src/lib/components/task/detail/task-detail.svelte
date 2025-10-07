@@ -5,6 +5,7 @@
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
   import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
   import { TaskService } from '$lib/services/domain/task';
+  import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 
   interface Props {
     isDrawerMode?: boolean;
@@ -24,6 +25,9 @@
       deleteSubTask: TaskService.deleteSubTask,
       toggleSubTaskStatus: TaskService.toggleSubTaskStatus,
       addSubTask: TaskService.addSubTask
+    },
+    recurrence: {
+      save: RecurrenceSyncService.save
     }
   });
 

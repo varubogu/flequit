@@ -1,12 +1,12 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import { getBackendService } from '$lib/infrastructure/backends/index';
   import type { User } from '$lib/types/user';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
   import Input from '$lib/components/ui/input/input.svelte';
   import Label from '$lib/components/ui/label.svelte';
   import Textarea from '$lib/components/ui/textarea.svelte';
+  import { UserService } from '$lib/services/domain/user';
   import {
     Dialog,
     DialogContent,
@@ -66,8 +66,6 @@
 
     isSaving = true;
     try {
-      const backend = await getBackendService();
-
       // Create updated user object
       const updatedUser: User = {
         ...user,
@@ -80,7 +78,7 @@
       };
 
       // Save to backend
-      const success = await backend.user.update(updatedUser);
+      const success = await UserService.update(updatedUser);
 
       if (success) {
         onSave?.(updatedUser);

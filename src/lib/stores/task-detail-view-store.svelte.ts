@@ -1,5 +1,4 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { SvelteDate } from 'svelte/reactivity';
 import type { TaskStatus } from '$lib/types/task';
 import type { RecurrenceRule } from '$lib/types/recurrence';
@@ -49,12 +48,23 @@ export type TaskDetailDomainActions = {
   addSubTask: (taskId: string, data: { title: string }) => Promise<unknown>;
 };
 
+type TaskDetailRecurrenceActions = {
+  save: (params: {
+    projectId: string;
+    itemId: string;
+    isSubTask: boolean;
+    rule: LegacyRecurrenceRule | null;
+  }) => Promise<void>;
+};
+
 type TaskDetailViewStoreOptions = {
   actions: TaskDetailDomainActions;
+  recurrence: TaskDetailRecurrenceActions;
 };
 
 export class TaskDetailViewStore {
   #actions: TaskDetailDomainActions;
+  #recurrence: TaskDetailRecurrenceActions;
   #saveTimeout: ReturnType<typeof setTimeout> | null = null;
   #translationService = getTranslationService();
 
@@ -110,8 +120,9 @@ export class TaskDetailViewStore {
 
   lastSyncedItemId = $state<string | undefined>(undefined);
 
-  constructor({ actions }: TaskDetailViewStoreOptions) {
+  constructor({ actions, recurrence }: TaskDetailViewStoreOptions) {
     this.#actions = actions;
+    this.#recurrence = recurrence;
     $effect(() => {
       const pendingTaskSelection = taskStore.pendingTaskSelection;
       if (pendingTaskSelection) {
@@ -455,43 +466,13 @@ export class TaskDetailViewStore {
       return;
     }
 
-    const unifiedRule = fromLegacyRecurrenceRule(rule);
-    const backend = await resolveBackend();
-
     try {
-      if (rule === null) {
-        if (this.isSubTask) {
-          await backend.subtaskRecurrence.delete(projectId, this.currentItem.id);
-        } else {
-          await backend.taskRecurrence.delete(projectId, this.currentItem.id);
-        }
-      } else {
-        const existing = this.isSubTask
-          ? await backend.subtaskRecurrence.getBySubtaskId(projectId, this.currentItem.id)
-          : await backend.taskRecurrence.getByTaskId(projectId, this.currentItem.id);
-
-        if (existing) {
-          await backend.recurrenceRule.update(projectId, {
-            ...unifiedRule!,
-            id: existing.recurrenceRuleId
-          });
-        } else {
-          const ruleId = crypto.randomUUID();
-          await backend.recurrenceRule.create(projectId, { ...unifiedRule!, id: ruleId });
-
-          if (this.isSubTask) {
-            await backend.subtaskRecurrence.create(projectId, {
-              subtaskId: this.currentItem.id,
-              recurrenceRuleId: ruleId
-            });
-          } else {
-            await backend.taskRecurrence.create(projectId, {
-              taskId: this.currentItem.id,
-              recurrenceRuleId: ruleId
-            });
-          }
-        }
-      }
+      await this.#recurrence.save({
+        projectId,
+        itemId: this.currentItem.id,
+        isSubTask: this.isSubTask,
+        rule
+      });
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
     }

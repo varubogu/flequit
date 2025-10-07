@@ -186,7 +186,7 @@
 
     if (dragData.type === 'tag') {
       // タグをタスクにドロップした場合、タグを付与
-      TaskService.addTagToTask(task.id, dragData.id);
+      void TaskService.addTagToTask(task.id, dragData.id);
     }
   }
 

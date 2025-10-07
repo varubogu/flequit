@@ -5,8 +5,7 @@
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-  import { getBackendService } from '$lib/infrastructure/backends/index';
-  import { fromLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
+  import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -37,45 +36,8 @@
       return;
     }
 
-    const backend = await getBackendService();
-    const unifiedRule = fromLegacyRecurrenceRule(rule);
-
     try {
-      if (rule === null) {
-        // 繰り返しルールを削除
-        if (isSubTask) {
-          await backend.subtaskRecurrence.delete(projectId, itemId);
-        } else {
-          await backend.taskRecurrence.delete(projectId, itemId);
-        }
-      } else {
-        // 既存の繰り返し関連付けを確認
-        const existing = isSubTask
-          ? await backend.subtaskRecurrence.getBySubtaskId(projectId, itemId)
-          : await backend.taskRecurrence.getByTaskId(projectId, itemId);
-
-        if (existing) {
-          // 既存のRecurrenceRuleを更新
-          await backend.recurrenceRule.update(projectId, { ...unifiedRule!, id: existing.recurrenceRuleId });
-        } else {
-          // 新規RecurrenceRuleを作成
-          const ruleId = crypto.randomUUID();
-          await backend.recurrenceRule.create(projectId, { ...unifiedRule!, id: ruleId });
-
-          // 関連付けを作成
-          if (isSubTask) {
-            await backend.subtaskRecurrence.create(projectId, {
-              subtaskId: itemId,
-              recurrenceRuleId: ruleId
-            });
-          } else {
-            await backend.taskRecurrence.create(projectId, {
-              taskId: itemId,
-              recurrenceRuleId: ruleId
-            });
-          }
-        }
-      }
+      await RecurrenceSyncService.save({ projectId, itemId, isSubTask, rule });
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
     }
