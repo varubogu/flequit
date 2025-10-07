@@ -11,7 +11,12 @@ vi.mock('../../src/lib/stores/tasks.svelte', () => ({
     cancelNewTaskMode: vi.fn(),
     getTaskById: vi.fn(),
     selectedTaskId: null,
-    newTaskData: null
+    newTaskData: null,
+    getTaskProjectAndList: vi.fn(),
+    attachTagToTask: vi.fn(),
+    detachTagFromTask: vi.fn(),
+    addTagToNewTask: vi.fn(),
+    removeTagFromNewTask: vi.fn()
   }
 }));
 
@@ -46,7 +51,23 @@ vi.mock('../../src/lib/stores/sub-task-store.svelte', () => ({
     addSubTask: vi.fn(),
     updateSubTask: vi.fn(),
     deleteSubTask: vi.fn(),
-    addTagToSubTask: vi.fn()
+    attachTagToSubTask: vi.fn(),
+    detachTagFromSubTask: vi.fn()
+  }
+}));
+
+vi.mock('../../src/lib/services/domain/tagging', () => ({
+  TaggingService: {
+    createTaskTag: vi.fn(),
+    deleteTaskTag: vi.fn(),
+    createSubtaskTag: vi.fn(),
+    deleteSubtaskTag: vi.fn()
+  }
+}));
+
+vi.mock('../../src/lib/stores/error-handler.svelte', () => ({
+  errorHandler: {
+    addSyncError: vi.fn()
   }
 }));
 
@@ -56,6 +77,8 @@ const mockTaskCoreStore = vi.mocked(await import('../../src/lib/stores/task-core
 const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
 const mockTaskListStore = vi.mocked(await import('../../src/lib/stores/task-list-store.svelte')).taskListStore;
 const mockSubTaskStore = vi.mocked(await import('../../src/lib/stores/sub-task-store.svelte')).subTaskStore;
+const mockTaggingService = vi.mocked(await import('../../src/lib/services/domain/tagging')).TaggingService;
+const mockErrorHandler = vi.mocked(await import('../../src/lib/stores/error-handler.svelte')).errorHandler;
 
 // Note: deleteSubTask no longer uses window.confirm, it's handled by UI dialog
 
@@ -67,6 +90,17 @@ beforeEach(() => {
   mockTaskStore.pendingSubTaskSelection = null;
   (mockTaskCoreStore.deleteTask as unknown as Mock).mockResolvedValue(undefined);
   (mockTaskCoreStore.addTask as unknown as Mock).mockResolvedValue(null as unknown as TaskWithSubTasks);
+  mockTaskStore.getTaskProjectAndList.mockReturnValue({
+    project: { id: 'project-1' },
+    list: { id: 'list-1' }
+  } as unknown as { project: { id: string }; list: { id: string } });
+  mockTaskStore.detachTagFromTask.mockReturnValue(null);
+  mockSubTaskStore.detachTagFromSubTask.mockReturnValue(null);
+  mockTaggingService.createTaskTag.mockResolvedValue({ id: 'created-tag', name: 'Important' } as any);
+  mockTaggingService.deleteTaskTag.mockResolvedValue(undefined);
+  mockTaggingService.createSubtaskTag.mockResolvedValue({ id: 'created-subtag', name: 'Work' } as any);
+  mockTaggingService.deleteSubtaskTag.mockResolvedValue(undefined);
+  mockErrorHandler.addSyncError.mockReset();
 });
 
 test('TaskService.toggleTaskStatus: calls taskCoreStore.toggleTaskStatus with correct taskId', () => {
@@ -522,32 +556,102 @@ test('TaskService.updateSubTask: calls taskStore.updateSubTask with correct para
   expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, updates);
 });
 
-test('TaskService.addTagToTask: finds tag by ID and calls taskStore.addTagToTask', () => {
+test('TaskService.addTagToTask: creates tag via backend and attaches to store', async () => {
   const taskId = 'task-123';
   const tagId = 'tag-1';
+  const backendTag = { id: 'tag-1', name: 'Important' } as any;
+  mockTaggingService.createTaskTag.mockResolvedValueOnce(backendTag);
 
-  TaskService.addTagToTask(taskId, tagId);
+  await TaskService.addTagToTask(taskId, tagId);
 
-  expect(mockTaskStore.addTagToTask).toHaveBeenCalledWith(taskId, 'Important');
+  expect(mockTaggingService.createTaskTag).toHaveBeenCalledWith('project-1', taskId, 'Important');
+  expect(mockTaskStore.attachTagToTask).toHaveBeenCalledWith(taskId, backendTag);
 });
 
-test('TaskService.addTagToTask: does nothing when tag not found', () => {
+test('TaskService.addTagToTask: does nothing when tag not found', async () => {
   const taskId = 'task-123';
   const tagId = 'nonexistent-tag';
 
-  TaskService.addTagToTask(taskId, tagId);
+  await TaskService.addTagToTask(taskId, tagId);
 
-  expect(mockTaskStore.addTagToTask).not.toHaveBeenCalled();
+  expect(mockTaggingService.createTaskTag).not.toHaveBeenCalled();
+  expect(mockTaskStore.attachTagToTask).not.toHaveBeenCalled();
 });
 
-test('TaskService.addTagToSubTask: finds tag by ID and calls taskStore.addTagToSubTask', () => {
+test('TaskService.removeTagFromTask: detaches locally and syncs backend', async () => {
+  const taskId = 'task-123';
+  const tagId = 'tag-1';
+  const removedTag = { id: tagId, name: 'Important' } as any;
+  mockTaskStore.detachTagFromTask.mockReturnValueOnce(removedTag);
+
+  await TaskService.removeTagFromTask(taskId, tagId);
+
+  expect(mockTaggingService.deleteTaskTag).toHaveBeenCalledWith('project-1', taskId, tagId);
+  expect(mockErrorHandler.addSyncError).not.toHaveBeenCalled();
+});
+
+test('TaskService.removeTagFromTask: reattaches tag when backend sync fails', async () => {
+  const taskId = 'task-123';
+  const tagId = 'tag-1';
+  const removedTag = { id: tagId, name: 'Important' } as any;
+  mockTaskStore.detachTagFromTask.mockReturnValueOnce(removedTag);
+  mockTaggingService.deleteTaskTag.mockRejectedValueOnce(new Error('failure'));
+
+  await TaskService.removeTagFromTask(taskId, tagId);
+
+  expect(mockTaskStore.attachTagToTask).toHaveBeenCalledWith(taskId, removedTag);
+  expect(mockErrorHandler.addSyncError).toHaveBeenCalledWith('タスクタグ削除', 'task', taskId, expect.any(Error));
+});
+
+test('TaskService.addTagToSubTask: creates tag via backend and attaches to store', async () => {
   const subTaskId = 'subtask-123';
   const taskId = 'task-123';
   const tagId = 'tag-2';
+  const backendTag = { id: tagId, name: 'Work' } as any;
+  mockTaggingService.createSubtaskTag.mockResolvedValueOnce(backendTag);
 
-  TaskService.addTagToSubTask(subTaskId, taskId, tagId);
+  await TaskService.addTagToSubTask(subTaskId, taskId, tagId);
 
-  expect(mockSubTaskStore.addTagToSubTask).toHaveBeenCalledWith(subTaskId, 'Work');
+  expect(mockTaggingService.createSubtaskTag).toHaveBeenCalledWith('project-1', subTaskId, 'Work');
+  expect(mockSubTaskStore.attachTagToSubTask).toHaveBeenCalledWith(subTaskId, backendTag);
+});
+
+test('TaskService.addTagToSubTask: does nothing when tag not found', async () => {
+  const subTaskId = 'subtask-123';
+  const taskId = 'task-123';
+  const tagId = 'nonexistent-tag';
+
+  await TaskService.addTagToSubTask(subTaskId, taskId, tagId);
+
+  expect(mockTaggingService.createSubtaskTag).not.toHaveBeenCalled();
+  expect(mockSubTaskStore.attachTagToSubTask).not.toHaveBeenCalled();
+});
+
+test('TaskService.removeTagFromSubTask: detaches locally and syncs backend', async () => {
+  const subTaskId = 'subtask-123';
+  const taskId = 'task-123';
+  const tagId = 'tag-2';
+  const removedTag = { id: tagId, name: 'Work' } as any;
+  mockSubTaskStore.detachTagFromSubTask.mockReturnValueOnce(removedTag);
+
+  await TaskService.removeTagFromSubTask(subTaskId, taskId, tagId);
+
+  expect(mockTaggingService.deleteSubtaskTag).toHaveBeenCalledWith('project-1', subTaskId, tagId);
+  expect(mockErrorHandler.addSyncError).not.toHaveBeenCalled();
+});
+
+test('TaskService.removeTagFromSubTask: reattaches tag when backend sync fails', async () => {
+  const subTaskId = 'subtask-123';
+  const taskId = 'task-123';
+  const tagId = 'tag-2';
+  const removedTag = { id: tagId, name: 'Work' } as any;
+  mockSubTaskStore.detachTagFromSubTask.mockReturnValueOnce(removedTag);
+  mockTaggingService.deleteSubtaskTag.mockRejectedValueOnce(new Error('failure'));
+
+  await TaskService.removeTagFromSubTask(subTaskId, taskId, tagId);
+
+  expect(mockSubTaskStore.attachTagToSubTask).toHaveBeenCalledWith(subTaskId, removedTag);
+  expect(mockErrorHandler.addSyncError).toHaveBeenCalledWith('サブタスクタグ削除', 'subtask', subTaskId, expect.any(Error));
 });
 
 test('TaskService.updateTaskDueDateForView: updates due date for today view', () => {

@@ -4,7 +4,8 @@ import { TaskService } from '$lib/services/domain/task';
 // TaskStoreをモック
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    addTagToTask: vi.fn()
+    attachTagToTask: vi.fn(),
+    getTaskProjectAndList: vi.fn()
   }
 }));
 
@@ -26,29 +27,41 @@ vi.mock('$lib/stores/tags.svelte', () => ({
 
 const mockTaskStore = vi.mocked(await import('$lib/stores/tasks.svelte')).taskStore;
 const mockTaskCoreStore = vi.mocked(await import('$lib/stores/task-core-store.svelte')).taskCoreStore;
+const mockTaggingService = vi.mocked(await import('$lib/services/domain/tagging')).TaggingService;
+const mockErrorHandler = vi.mocked(await import('$lib/stores/error-handler.svelte')).errorHandler;
 
 describe('TaskService - Drag & Drop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTaskStore.getTaskProjectAndList.mockReturnValue({
+      project: { id: 'project-1' },
+      list: { id: 'list-1' }
+    } as unknown as { project: { id: string }; list: { id: string } });
+    mockTaggingService.createTaskTag.mockResolvedValue({ id: 'tag-1', name: 'Work' } as any);
+    mockErrorHandler.addSyncError.mockReset();
   });
 
   describe('addTagToTask', () => {
-    it('タスクにタグを追加する（IDからタグ名に変換）', () => {
+    it('タスクにタグを追加する（バックエンドを経由）', async () => {
       const taskId = 'task-1';
       const tagId = 'tag-1';
+      const backendTag = { id: tagId, name: 'Work' } as any;
+      mockTaggingService.createTaskTag.mockResolvedValueOnce(backendTag);
 
-      TaskService.addTagToTask(taskId, tagId);
+      await TaskService.addTagToTask(taskId, tagId);
 
-      expect(mockTaskStore.addTagToTask).toHaveBeenCalledWith(taskId, 'Work');
+      expect(mockTaggingService.createTaskTag).toHaveBeenCalledWith('project-1', taskId, 'Work');
+      expect(mockTaskStore.attachTagToTask).toHaveBeenCalledWith(taskId, backendTag);
     });
 
-    it('存在しないタグIDの場合は何もしない', () => {
+    it('存在しないタグIDの場合は何もしない', async () => {
       const taskId = 'task-1';
       const nonExistentTagId = 'non-existent-tag';
 
-      TaskService.addTagToTask(taskId, nonExistentTagId);
+      await TaskService.addTagToTask(taskId, nonExistentTagId);
 
-      expect(mockTaskStore.addTagToTask).not.toHaveBeenCalled();
+      expect(mockTaggingService.createTaskTag).not.toHaveBeenCalled();
+      expect(mockTaskStore.attachTagToTask).not.toHaveBeenCalled();
     });
   });
 
@@ -157,3 +170,14 @@ describe('TaskService - Drag & Drop', () => {
     });
   });
 });
+vi.mock('$lib/services/domain/tagging', () => ({
+  TaggingService: {
+    createTaskTag: vi.fn()
+  }
+}));
+
+vi.mock('$lib/stores/error-handler.svelte', () => ({
+  errorHandler: {
+    addSyncError: vi.fn()
+  }
+}));
