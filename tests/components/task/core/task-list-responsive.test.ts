@@ -17,7 +17,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.ts', () => ({
   useSidebar: () => mockSidebar
 }));
 
-vi.mock('$lib/services/task-list-service', () => ({
+vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: {
     getTaskCountText: vi.fn((count: number) => `${count} items`)
   }

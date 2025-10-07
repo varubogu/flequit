@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TaskListService } from '$lib/services/domain/tasklist';
+  import { TaskListService } from '$lib/services/domain/task-list';
   import { TaskService } from '$lib/services/domain/task';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import Button from '$lib/components/shared/button.svelte';

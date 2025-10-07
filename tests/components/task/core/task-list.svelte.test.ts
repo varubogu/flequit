@@ -20,7 +20,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-vi.mock('$lib/services/task-list-service', () => ({
+vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: {
     getTaskCountText: (count: number) => `${count} tasks`
   }

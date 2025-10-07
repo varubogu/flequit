@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import TaskAddForm from '$lib/components/task/forms/task-add-form.svelte';
-import { TaskListService } from '$lib/services/domain/tasklist';
+import { TaskListService } from '$lib/services/domain/task-list';
 import { TaskService } from '$lib/services/domain/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
@@ -12,7 +12,7 @@ import type { ITranslationService } from '$lib/services/translation-service';
 // } from '../../unit-translation-mock';
 
 // Mock services
-vi.mock('$lib/services/task-list-service', () => ({
+vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: {
     addNewTask: vi.fn()
   }
