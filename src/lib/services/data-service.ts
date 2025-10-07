@@ -330,7 +330,6 @@ export class DataService {
 
   async updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
     const backend = await this.getBackend();
-    console.log('DataService: updateTag called with backends:', backend.constructor.name);
 
     // Patch形式でのupdateに変更
     const patchData = {
@@ -338,9 +337,7 @@ export class DataService {
       updated_at: new Date()
     };
 
-    console.log('DataService: calling backends.tag.update');
     const success = await backend.tag.update(projectId, tagId, patchData);
-    console.log('DataService: backends.tag.update result:', success);
 
     if (success) {
       // 更新後のデータを取得して返す
