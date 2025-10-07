@@ -56,13 +56,11 @@ class SettingsInitService {
     try {
       const backend = await this.initBackendService();
       if (!backend) {
-        console.log('Backend service not available, using empty settings');
+        console.warn('Backend service not available, using empty settings');
         return [];
       }
 
-      console.log('Loading all settings from backends (single call)...');
       const allSettings = await backend.setting.getAll();
-      console.log(`Loaded ${allSettings.length} settings from backend`);
       return allSettings;
     } catch (error) {
       console.error('Failed to load settings from backends:', error);

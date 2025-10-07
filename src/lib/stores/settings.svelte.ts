@@ -328,7 +328,6 @@ class MainSettingsStore {
 
     try {
       await this.saveSetting(key, value, dataType);
-      console.log(`Setting '${key}' saved successfully`);
     } catch (error) {
       console.error(`Failed to save setting '${key}':`, error);
       if (typeof localStorage !== 'undefined') {
@@ -402,7 +401,6 @@ class MainSettingsStore {
   private async loadSettings() {
     try {
       const allSettings = await settingsInitService.getAllSettings();
-      let loadedCount = 0;
 
       // 各設定項目をマッピング
       for (const setting of allSettings) {
@@ -411,58 +409,48 @@ class MainSettingsStore {
           case 'theme':
             if (['system', 'light', 'dark'].includes(setting.value)) {
               this._settings.theme = setting.value as Theme;
-              loadedCount++;
             }
             break;
           case 'language':
             this._settings.language = setting.value;
-            loadedCount++;
             break;
           case 'font':
           case 'appearance_font':
             this._settings.font = setting.value;
-            loadedCount++;
             break;
           case 'fontSize':
           case 'appearance_fontSize': {
             const fontSize = parseInt(setting.value, 10);
-            if (!isNaN(fontSize)) {
+            if (!Number.isNaN(fontSize)) {
               this._settings.fontSize = fontSize;
-              loadedCount++;
             }
             break;
           }
           case 'fontColor':
           case 'appearance_fontColor':
             this._settings.fontColor = setting.value;
-            loadedCount++;
             break;
           case 'backgroundColor':
           case 'appearance_backgroundColor':
             this._settings.backgroundColor = setting.value;
-            loadedCount++;
             break;
 
           // 基本設定
           case 'weekStart':
             if (['sunday', 'monday'].includes(setting.value)) {
               this._settings.weekStart = setting.value as WeekStart;
-              loadedCount++;
             }
             break;
           case 'timezone':
             this._settings.timezone = setting.value;
-            loadedCount++;
             break;
           case 'dateFormat':
             this._settings.dateFormat = setting.value;
-            loadedCount++;
             break;
           case 'customDateFormats':
             if (setting.dataType === 'json') {
               try {
                 this._settings.customDateFormats = JSON.parse(setting.value);
-                loadedCount++;
               } catch (error) {
                 console.error('Failed to parse customDateFormats:', error);
               }
@@ -472,7 +460,6 @@ class MainSettingsStore {
             if (setting.dataType === 'json') {
               try {
                 this._settings.timeLabels = JSON.parse(setting.value);
-                loadedCount++;
               } catch (error) {
                 console.error('Failed to parse timeLabels:', error);
               }
@@ -487,7 +474,6 @@ class MainSettingsStore {
                   ...this._settings.dueDateButtons,
                   ...JSON.parse(setting.value)
                 };
-                loadedCount++;
               } catch (error) {
                 console.error('Failed to parse dueDateButtons:', error);
               }
@@ -502,7 +488,6 @@ class MainSettingsStore {
                 const viewItems = parsedData.viewItems || parsedData;
                 if (Array.isArray(viewItems)) {
                   this._settings.viewItems = viewItems;
-                  loadedCount++;
                 }
               } catch (error) {
                 console.error('Failed to parse viewItems:', error);
@@ -513,15 +498,8 @@ class MainSettingsStore {
           // アカウント設定
           case 'lastSelectedAccount':
             this._settings.lastSelectedAccount = setting.value;
-            loadedCount++;
             break;
         }
-      }
-
-      if (loadedCount > 0) {
-        console.log(`Settings loaded successfully from backend (${loadedCount} settings)`);
-      } else {
-        console.log('No settings found in backends, using defaults');
       }
     } catch (error) {
       console.error('Failed to load settings from backends:', error);
@@ -532,7 +510,7 @@ class MainSettingsStore {
           try {
             const parsed = JSON.parse(stored);
             this._settings = { ...this._settings, ...parsed };
-            console.log('Settings loaded from localStorage fallback');
+            console.warn('Settings loaded from localStorage fallback');
           } catch (error) {
             console.error('Failed to parse settings:', error);
           }

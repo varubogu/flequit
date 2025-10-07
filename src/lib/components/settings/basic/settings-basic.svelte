@@ -64,9 +64,7 @@
     }
   });
 
-  function addCustomDueDay() {
-    console.log('Add custom due day');
-  }
+  function addCustomDueDay() {}
 
 
 
@@ -85,11 +83,11 @@
     onWeekStartChange?.(newWeekStart);
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({
+      const updatedSettings = await dataService.updateSettingsPartially({
         weekStart: newWeekStart as 'sunday' | 'monday'
       });
-      if (result) {
-        console.log('Week start updated successfully');
+      if (!updatedSettings) {
+        throw new Error('Failed to update week start');
       }
     } catch (error) {
       console.error('Failed to update week start:', error);
@@ -103,11 +101,11 @@
     onTimezoneChange?.(newTimezone);
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({
+      const updatedSettings = await dataService.updateSettingsPartially({
         timezone: newTimezone
       });
-      if (result) {
-        console.log('Timezone updated successfully');
+      if (!updatedSettings) {
+        throw new Error('Failed to update timezone');
       }
     } catch (error) {
       console.error('Failed to update timezone:', error);
@@ -119,11 +117,11 @@
     settings.dateFormat = target.value;
     // 新しい部分更新システムで直接保存
     try {
-      const result = await dataService.updateSettingsPartially({
+      const updatedSettings = await dataService.updateSettingsPartially({
         dateFormat: target.value
       });
-      if (result) {
-        console.log('Date format updated successfully');
+      if (!updatedSettings) {
+        throw new Error('Failed to update date format');
       }
     } catch (error) {
       console.error('Failed to update date format:', error);
@@ -146,10 +144,6 @@
         if (loadedSettings.timezone !== settings.timezone) {
           settings.timezone = loadedSettings.timezone;
         }
-
-        console.log('Settings loaded successfully from SettingsManagementService:', loadedSettings);
-      } else {
-        console.log('No settings found, using defaults');
       }
     } catch (error) {
       console.error('Failed to load settings from SettingsManagementService:', error);

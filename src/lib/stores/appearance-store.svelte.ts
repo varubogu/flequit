@@ -48,10 +48,8 @@ class AppearanceStore {
     }
 
     try {
-      const result = await dataService.updateSettingsPartially(partialSettings);
-      if (result) {
-        console.log('Appearance settings saved successfully:', partialSettings);
-      } else {
+      const updatedSettings = await dataService.updateSettingsPartially(partialSettings);
+      if (!updatedSettings) {
         throw new Error('Failed to update settings');
       }
     } catch (error) {
@@ -82,10 +80,6 @@ class AppearanceStore {
         if (settings.backgroundColor !== undefined) {
           this._settings.backgroundColor = settings.backgroundColor;
         }
-        
-        console.log('Appearance settings loaded successfully from new settings system');
-      } else {
-        console.log('No settings found, using defaults');
       }
     } catch (error) {
       console.error('Failed to load appearance settings:', error);
@@ -97,7 +91,7 @@ class AppearanceStore {
           try {
             const parsed = JSON.parse(stored);
             this._settings = { ...this._settings, ...parsed };
-            console.log('Appearance settings loaded from localStorage fallback');
+            console.warn('Appearance settings loaded from localStorage fallback');
           } catch (error) {
             console.error('Failed to parse appearance settings:', error);
           }

@@ -23,10 +23,8 @@ class ThemeStore {
     }
 
     try {
-      const result = await dataService.updateSettingsPartially({ theme });
-      if (result) {
-        console.log(`Theme '${theme}' saved successfully`);
-      } else {
+      const updatedSettings = await dataService.updateSettingsPartially({ theme });
+      if (!updatedSettings) {
         throw new Error('Failed to update theme setting');
       }
     } catch (error) {
@@ -43,12 +41,11 @@ class ThemeStore {
       // 新しい設定管理システムから全設定を取得
       const settings = await dataService.loadSettings();
 
-      if (settings?.theme && 
-          (settings.theme === 'system' || settings.theme === 'light' || settings.theme === 'dark')) {
+      if (
+        settings?.theme &&
+        (settings.theme === 'system' || settings.theme === 'light' || settings.theme === 'dark')
+      ) {
         setMode(settings.theme as Theme);
-        console.log(`Theme loaded from new settings system: ${settings.theme}`);
-      } else {
-        console.log('No theme setting found, using default');
       }
     } catch (error) {
       console.error('Failed to load theme:', error);
@@ -58,7 +55,7 @@ class ThemeStore {
         const stored = localStorage.getItem('flequit-theme');
         if (stored && (stored === 'system' || stored === 'light' || stored === 'dark')) {
           setMode(stored as Theme);
-          console.log('Theme loaded from localStorage fallback');
+          console.warn('Theme loaded from localStorage fallback');
         }
       }
     }

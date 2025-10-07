@@ -128,9 +128,7 @@ class ViewsVisibilityStore {
         ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
 
         this._configuration = { viewItems: mergedItems };
-        console.log('Views configuration loaded from backends');
       } else {
-        console.log('No views setting found in backends, using defaults');
         this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
       }
     } catch (error) {
@@ -152,7 +150,7 @@ class ViewsVisibilityStore {
             ].map((item, index) => ({ ...item, order: item.order ?? index })); // Ensure order exists
 
             this._configuration = { viewItems: mergedItems };
-            console.log('Views configuration loaded from localStorage fallback');
+            console.warn('Views configuration loaded from localStorage fallback');
           } else {
             this._configuration = { viewItems: [...DEFAULT_VIEW_ITEMS] };
           }
@@ -188,7 +186,6 @@ class ViewsVisibilityStore {
       };
 
       await settingsInitService.updateSetting(setting);
-      console.log('Views visibility configuration saved successfully');
     } catch (error) {
       console.error('Failed to save views visibility to backends:', error);
 
