@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { ViewType } from '$lib/services/ui/view';
+  import type { ViewType } from '$lib/stores/view-store.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';

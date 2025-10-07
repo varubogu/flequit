@@ -8,7 +8,7 @@
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { initTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
-  import type { ViewType } from '$lib/services/ui/view';
+  import type { ViewType } from '$lib/stores/view-store.svelte';
 
   // Use IsMobile directly instead of useSidebar
   const isMobile = new IsMobile();

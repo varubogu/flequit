@@ -3,7 +3,7 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { ProjectTree } from '$lib/types/project';
-  import type { ViewType } from '$lib/services/ui/view';
+  import type { ViewType } from '$lib/stores/view-store.svelte';
 
   let currentView = $state<ViewType>('all');
   let selectedProjectId = $derived(taskStore.selectedProjectId);

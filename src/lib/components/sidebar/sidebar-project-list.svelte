@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { ViewType } from '$lib/services/ui/view';
+  import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { projectStore } from '$lib/stores/project-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ViewType } from '$lib/services/ui/view';
+  import type { ViewType } from '$lib/stores/view-store.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { taskStore } from '$lib/stores/tasks.svelte';
