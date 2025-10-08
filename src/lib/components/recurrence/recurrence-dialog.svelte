@@ -2,9 +2,9 @@
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import { Repeat } from 'lucide-svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
-  import type { RecurrenceRule } from '$lib/types/datetime-calendar';
   import RecurrenceDialogAdvancedContent from './shared/recurrence-dialog-advanced-content.svelte';
-  import { createRecurrenceDialogController } from './shared/recurrence-dialog-controller.svelte.ts';
+  import { createRecurrenceDialogFacade } from './shared/recurrence-dialog-facade.svelte.ts';
+  import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
   interface Props {
     open?: boolean;
@@ -28,7 +28,7 @@
 
   // Translation service
   const translationService = getTranslationService();
-  const controller = createRecurrenceDialogController({
+  const dialogFacade = createRecurrenceDialogFacade({
     onSave: (rule) => {
       onSave?.(rule);
     }
@@ -37,15 +37,15 @@
   const recurrenceSettings = $derived(translationService.getMessage('recurrence_settings')());
 
   $effect(() => {
-    controller.setRecurrenceRule(recurrenceRule ?? null);
+    dialogFacade.setRecurrenceRule(recurrenceRule ?? null);
   });
 
   $effect(() => {
-    controller.setOpen(open);
+    dialogFacade.setOpen(open);
   });
 
   $effect(() => {
-    controller.setContext({
+    dialogFacade.setContext({
       startDateTime,
       endDateTime,
       isRangeDate
@@ -53,10 +53,10 @@
   });
 
   $effect(() => {
-    controller.setRecurrenceSettingsMessage(recurrenceSettings);
+    dialogFacade.setRecurrenceSettingsMessage(recurrenceSettings);
   });
 
-  const logic = controller.logic;
+  const logic = dialogFacade.logic;
 </script>
 
 <Dialog.Root bind:open {onOpenChange}>

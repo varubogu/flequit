@@ -5,7 +5,7 @@
   import RecurrenceAdjustmentEditor from '../recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime-utils';
   import RecurrencePreview from '../preview/recurrence-preview.svelte';
-  import type { RecurrenceDialogLogic } from './recurrence-dialog-controller.svelte';
+  import type { RecurrenceDialogLogic } from './recurrence-dialog-facade.svelte.ts';
 
   interface Props {
     logic: RecurrenceDialogLogic;

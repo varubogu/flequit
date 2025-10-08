@@ -52,7 +52,7 @@ export interface RecurrenceDialogLogic {
   setRepeatCount(value: number | undefined): void;
 }
 
-export interface RecurrenceDialogController {
+export interface RecurrenceDialogFacade {
   readonly logic: RecurrenceDialogLogic;
   setRecurrenceRule(rule: RecurrenceRule | null): void;
   setOpen(open: boolean): void;
@@ -60,9 +60,9 @@ export interface RecurrenceDialogController {
   setRecurrenceSettingsMessage(message: string): void;
 }
 
-export function createRecurrenceDialogController(options: {
+export function createRecurrenceDialogFacade(options: {
   onSave?: (rule: RecurrenceRule | null) => void;
-}): RecurrenceDialogController {
+}): RecurrenceDialogFacade {
   const recurrenceState = new RecurrenceState();
   const dateConditionManager = new DateConditionManager();
   const weekdayConditionManager = new WeekdayConditionManager();
@@ -355,5 +355,5 @@ export function createRecurrenceDialogController(options: {
     setRecurrenceSettingsMessage(message: string) {
       recurrenceSettingsMessage = message;
     }
-  } satisfies RecurrenceDialogController;
+  } satisfies RecurrenceDialogFacade;
 }
