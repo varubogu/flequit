@@ -1,63 +1,19 @@
-import { getTranslationService } from '$lib/stores/locale.svelte';
-import { SvelteDate } from 'svelte/reactivity';
-import type { TaskStatus } from '$lib/types/task';
-import type { RecurrenceRule } from '$lib/types/recurrence';
-import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
-import {
-  fromLegacyRecurrenceRule,
-  toLegacyRecurrenceRule
-} from '$lib/utils/recurrence-converter';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import type { TaskStatus } from '$lib/types/task';
+import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
+import type {
+  TaskDetailDomainActions,
+  TaskDetailRecurrenceActions,
+  DateChangePayload,
+  ProjectTaskListChangePayload
+} from './task-detail/task-detail-types';
+import { TaskDetailViewState } from './task-detail/task-detail-view-state.svelte';
+import { TaskEditFormStore } from './task-detail/task-edit-form-store.svelte';
+import { TaskDetailDialogsStore } from './task-detail/task-detail-dialogs-store.svelte';
 
-type EditFormState = {
-  title: string;
-  description: string;
-  plan_start_date: Date | undefined;
-  plan_end_date: Date | undefined;
-  is_range_date: boolean;
-  priority: number;
-  recurrenceRule: RecurrenceRule | undefined;
-};
-
-type DateChangePayload = {
-  date: string;
-  dateTime: string;
-  range?: { start: string; end: string };
-  isRangeDate: boolean;
-  recurrenceRule?: LegacyRecurrenceRule | null;
-};
-
-type ProjectTaskListChangePayload = {
-  projectId: string;
-  taskListId: string;
-};
-
-export type TaskDetailDomainActions = {
-  selectTask: (taskId: string) => void;
-  selectSubTask: (subTaskId: string) => void;
-  forceSelectTask: (taskId: string) => void;
-  forceSelectSubTask: (subTaskId: string) => void;
-  changeTaskStatus: (taskId: string, status: TaskStatus) => void;
-  changeSubTaskStatus: (subTaskId: string, status: TaskStatus) => void;
-  deleteTask: (taskId: string) => void;
-  deleteSubTask: (subTaskId: string) => void;
-  toggleSubTaskStatus: (task: TaskWithSubTasks, subTaskId: string) => void;
-  addSubTask: (taskId: string, data: { title: string }) => Promise<unknown>;
-};
-
-type TaskDetailRecurrenceActions = {
-  save: (params: {
-    projectId: string;
-    itemId: string;
-    isSubTask: boolean;
-    rule: LegacyRecurrenceRule | null;
-  }) => Promise<void>;
-};
-
-type TaskDetailViewStoreOptions = {
+export type TaskDetailViewStoreOptions = {
   actions: TaskDetailDomainActions;
   recurrence: TaskDetailRecurrenceActions;
 };
@@ -65,194 +21,126 @@ type TaskDetailViewStoreOptions = {
 export class TaskDetailViewStore {
   #actions: TaskDetailDomainActions;
   #recurrence: TaskDetailRecurrenceActions;
-  #saveTimeout: ReturnType<typeof setTimeout> | null = null;
-  #translationService = getTranslationService();
 
-  task = $derived(taskStore.selectedTask);
-  subTask = $derived(taskStore.selectedSubTask);
-  isSubTask = $derived(!!this.subTask);
-  isNewTaskMode = $derived(taskStore.isNewTaskMode);
-  currentItem = $derived(
-    this.task || this.subTask || (this.isNewTaskMode ? taskStore.newTaskData : null)
-  );
-  selectedSubTaskId = $derived(taskStore.selectedSubTaskId);
-
-  editForm = $state<EditFormState>({
-    title: '',
-    description: '',
-    plan_start_date: undefined,
-    plan_end_date: undefined,
-    is_range_date: false,
-    priority: 0,
-    recurrenceRule: undefined
-  });
-
-  editFormForUI = $derived.by(() => ({
-    title: this.editForm.title,
-    description: this.editForm.description,
-    plan_start_date: this.editForm.plan_start_date,
-    plan_end_date: this.editForm.plan_end_date,
-    is_range_date: this.editForm.is_range_date,
-    priority: this.editForm.priority,
-    recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
-  }));
-
-  projectInfo = $derived.by(() => {
-    if (this.isNewTaskMode || !this.currentItem) return null;
-    if (this.isSubTask && 'taskId' in this.currentItem) {
-      return taskStore.getTaskProjectAndList(this.currentItem.taskId);
-    }
-    return taskStore.getTaskProjectAndList(this.currentItem.id);
-  });
-
-  showDatePicker = $state(false);
-  datePickerPosition = $state({ x: 0, y: 0 });
-  showConfirmationDialog = $state(false);
-  showDeleteDialog = $state(false);
-  showProjectTaskListDialog = $state(false);
-  showRecurrenceDialog = $state(false);
-  showSubTaskAddForm = $state(false);
-
-  pendingAction = $state<(() => void) | null>(null);
-  pendingDeleteAction = $state<(() => void) | null>(null);
-  deleteDialogTitle = $state('');
-  deleteDialogMessage = $state('');
-
-  lastSyncedItemId = $state<string | undefined>(undefined);
+  state: TaskDetailViewState;
+  form: TaskEditFormStore;
+  dialogs: TaskDetailDialogsStore;
 
   constructor({ actions, recurrence }: TaskDetailViewStoreOptions) {
     this.#actions = actions;
     this.#recurrence = recurrence;
-    $effect(() => {
-      const pendingTaskSelection = taskStore.pendingTaskSelection;
-      if (pendingTaskSelection) {
-        this.showConfirmationIfNeeded(() => {
-          this.#actions.forceSelectTask(pendingTaskSelection);
-          taskStore.clearPendingSelections();
-        });
-      }
-    });
 
-    $effect(() => {
-      const pendingSubTaskSelection = taskStore.pendingSubTaskSelection;
-      if (pendingSubTaskSelection) {
-        this.showConfirmationIfNeeded(() => {
-          this.#actions.forceSelectSubTask(pendingSubTaskSelection);
-          taskStore.clearPendingSelections();
-        });
-      }
-    });
+    this.state = new TaskDetailViewState();
+    this.form = new TaskEditFormStore(this.state);
+    this.dialogs = new TaskDetailDialogsStore(this.state, this.#actions);
+  }
 
-    $effect(() => {
-      const itemId = this.currentItem?.id;
-      if (this.currentItem && itemId !== this.lastSyncedItemId) {
-        this.lastSyncedItemId = itemId;
-        this.editForm = {
-          title: this.currentItem.title,
-          description: this.currentItem.description || '',
-          plan_start_date: this.currentItem.planStartDate,
-          plan_end_date: this.currentItem.planEndDate,
-          is_range_date: this.currentItem.isRangeDate || false,
-          priority: this.currentItem.priority || 0,
-          recurrenceRule: fromLegacyRecurrenceRule(this.currentItem.recurrenceRule)
-        };
-      } else if (!this.currentItem) {
-        this.lastSyncedItemId = undefined;
-      }
-    });
+  get task() {
+    return this.state.task;
+  }
+
+  get subTask() {
+    return this.state.subTask;
+  }
+
+  get isSubTask() {
+    return this.state.isSubTask;
+  }
+
+  get isNewTaskMode() {
+    return this.state.isNewTaskMode;
+  }
+
+  get currentItem() {
+    return this.state.currentItem;
+  }
+
+  get selectedSubTaskId() {
+    return this.state.selectedSubTaskId;
+  }
+
+  get projectInfo() {
+    return this.state.projectInfo;
+  }
+
+  get editForm() {
+    return this.form.editForm;
+  }
+
+  get editFormForUI() {
+    return this.form.editFormForUI;
+  }
+
+  get showDatePicker() {
+    return this.dialogs.showDatePicker;
+  }
+
+  get datePickerPosition() {
+    return this.dialogs.datePickerPosition;
+  }
+
+  get showConfirmationDialog() {
+    return this.dialogs.showConfirmationDialog;
+  }
+
+  get showDeleteDialog() {
+    return this.dialogs.showDeleteDialog;
+  }
+
+  get deleteDialogTitle() {
+    return this.dialogs.deleteDialogTitle;
+  }
+
+  get deleteDialogMessage() {
+    return this.dialogs.deleteDialogMessage;
+  }
+
+  get showProjectTaskListDialog() {
+    return this.dialogs.showProjectTaskListDialog;
+  }
+
+  get showRecurrenceDialog() {
+    return this.dialogs.showRecurrenceDialog;
+  }
+
+  get showSubTaskAddForm() {
+    return this.dialogs.showSubTaskAddForm;
   }
 
   dispose() {
-    if (this.#saveTimeout) {
-      clearTimeout(this.#saveTimeout);
-      this.#saveTimeout = null;
-    }
-  }
-
-  private scheduleSave() {
-    if (this.#saveTimeout) {
-      clearTimeout(this.#saveTimeout);
-    }
-
-    this.#saveTimeout = setTimeout(() => {
-      if (!this.currentItem) return;
-
-      const updates = {
-        title: this.editForm.title,
-        description: this.editForm.description || undefined,
-        priority: this.editForm.priority,
-        planStartDate: this.editForm.plan_start_date,
-        planEndDate: this.editForm.plan_end_date,
-        isRangeDate: this.editForm.is_range_date,
-        recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
-      };
-
-      if (this.isNewTaskMode) {
-        taskStore.updateNewTaskData(updates);
-      } else if (this.isSubTask && this.currentItem) {
-        subTaskStore.updateSubTask(this.currentItem.id, updates);
-      } else if (this.currentItem) {
-        taskCoreStore.updateTask(this.currentItem.id, updates);
-      }
-    }, 500);
-  }
-
-  private saveImmediately() {
-    if (this.#saveTimeout) {
-      clearTimeout(this.#saveTimeout);
-      this.#saveTimeout = null;
-    }
-
-    if (!this.currentItem) return;
-
-    const updates = {
-      title: this.editForm.title,
-      description: this.editForm.description || undefined,
-      priority: this.editForm.priority,
-      planStartDate: this.editForm.plan_start_date,
-      planEndDate: this.editForm.plan_end_date,
-      isRangeDate: this.editForm.is_range_date,
-      recurrenceRule: toLegacyRecurrenceRule(this.editForm.recurrenceRule)
-    };
-
-    if (this.isNewTaskMode) {
-      taskStore.updateNewTaskData(updates);
-    } else if (this.isSubTask && this.currentItem) {
-      subTaskStore.updateSubTask(this.currentItem.id, updates);
-    } else if (this.currentItem) {
-      taskCoreStore.updateTask(this.currentItem.id, updates);
-    }
+    this.form.dispose();
+    this.dialogs.dispose();
   }
 
   handleFormChange = () => {
-    this.scheduleSave();
+    this.form.queueSave();
   };
 
   handleTitleChange = (title: string) => {
-    this.editForm.title = title;
-    this.handleFormChange();
+    this.form.handleTitleChange(title);
   };
 
   handleDescriptionChange = (description: string) => {
-    this.editForm.description = description;
-    this.handleFormChange();
+    this.form.handleDescriptionChange(description);
   };
 
   handlePriorityChange = (priority: number) => {
-    this.editForm.priority = priority;
+    this.form.handlePriorityChange(priority);
   };
 
   handleStatusChange = (event: Event) => {
-    if (!this.currentItem) return;
+    const current = this.state.currentItem;
+    if (!current) return;
+
     const target = event.target as HTMLSelectElement;
     const status = target.value as TaskStatus;
 
-    if (this.isNewTaskMode) {
+    if (this.state.isNewTaskMode) {
       taskStore.updateNewTaskData({ status });
-    } else if (this.isSubTask) {
-      this.#actions.changeSubTaskStatus(this.currentItem.id, status);
+    } else if (this.state.isSubTask) {
+      this.#actions.changeSubTaskStatus(current.id, status);
     } else {
-      this.#actions.changeTaskStatus(this.currentItem.id, status);
+      this.#actions.changeTaskStatus(current.id, status);
     }
   };
 
@@ -264,89 +152,53 @@ export class TaskDetailViewStore {
       ? (event.target as HTMLElement).getBoundingClientRect()
       : { left: 0, bottom: 0 };
 
-    this.datePickerPosition = {
+    const position = {
       x: Math.min(rect.left, window.innerWidth - 300),
       y: rect.bottom + 8
     };
-    this.showDatePicker = true;
+
+    this.dialogs.openDatePicker(position);
   };
 
   handleDateChange = async (data: DateChangePayload) => {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
-    if (isRangeDate) {
-      if (range) {
-        this.editForm = {
-          ...this.editForm,
-          plan_start_date: new SvelteDate(range.start),
-          plan_end_date: new SvelteDate(range.end),
-          is_range_date: true
-        };
-      } else {
-        const currentEndDate = this.editForm.plan_end_date || new SvelteDate(dateTime);
-        this.editForm = {
-          ...this.editForm,
-          plan_start_date: currentEndDate,
-          plan_end_date: currentEndDate,
-          is_range_date: true
-        };
-      }
+    if (isRangeDate && range) {
+      this.form.updateDates({ start: range.start, end: range.end, isRange: true });
     } else {
-      this.editForm = {
-        ...this.editForm,
-        plan_end_date: new SvelteDate(dateTime),
-        plan_start_date: undefined,
-        is_range_date: false
-      };
+      this.form.updateDates({ end: dateTime, isRange: false });
     }
 
     if (recurrenceRule !== undefined) {
-      this.editForm = {
-        ...this.editForm,
-        recurrenceRule: fromLegacyRecurrenceRule(recurrenceRule)
-      };
+      this.form.updateRecurrence(recurrenceRule);
       await this.handleRecurrenceChange(recurrenceRule);
     }
-
-    this.saveImmediately();
   };
 
   handleDateClear = () => {
-    this.editForm = {
-      ...this.editForm,
-      plan_start_date: undefined,
-      plan_end_date: undefined,
-      is_range_date: false
-    };
-    this.saveImmediately();
+    this.form.clearDates();
   };
 
   handleDatePickerClose = () => {
-    this.showDatePicker = false;
+    this.dialogs.closeDatePicker();
   };
 
   handleDelete = () => {
-    if (!this.currentItem) return;
-    if (this.isNewTaskMode) {
+    const current = this.state.currentItem;
+    if (!current) {
+      return;
+    }
+
+    if (this.state.isNewTaskMode) {
       taskStore.cancelNewTaskMode();
       return;
     }
 
-    if (this.isSubTask) {
-      this.deleteDialogTitle = this.#translationService.getMessage('delete_subtask_title')();
-      this.deleteDialogMessage = this.#translationService.getMessage('delete_subtask_message')();
-      this.pendingDeleteAction = () => this.#actions.deleteSubTask(this.currentItem!.id);
-    } else {
-      this.deleteDialogTitle = this.#translationService.getMessage('delete_task_title')();
-      this.deleteDialogMessage = this.#translationService.getMessage('delete_task_message')();
-      this.pendingDeleteAction = () => this.#actions.deleteTask(this.currentItem!.id);
-    }
-
-    this.showDeleteDialog = true;
+    this.dialogs.openDeleteDialog(this.state.isSubTask, current.id);
   };
 
   handleSaveNewTask = async () => {
-    if (!this.isNewTaskMode) return;
+    if (!this.state.isNewTaskMode) return;
     const newTaskId = await taskStore.saveNewTask();
     if (newTaskId) {
       this.#actions.selectTask(newTaskId);
@@ -354,8 +206,9 @@ export class TaskDetailViewStore {
   };
 
   handleSubTaskToggle = (subTaskId: string) => {
-    if (!this.task) return;
-    this.#actions.toggleSubTaskStatus(this.task, subTaskId);
+    const task = this.state.task;
+    if (!task) return;
+    this.#actions.toggleSubTaskStatus(task, subTaskId);
   };
 
   handleSubTaskClick = (subTaskId: string) => {
@@ -363,103 +216,89 @@ export class TaskDetailViewStore {
   };
 
   handleAddSubTask = () => {
-    this.showSubTaskAddForm = !this.showSubTaskAddForm;
+    this.dialogs.toggleSubTaskAddForm();
   };
 
   handleSubTaskAdded = async (title: string) => {
-    if (!this.task || !title.trim()) return;
+    const task = this.state.task;
+    if (!task || !title.trim()) return;
 
-    const newSubTask = await this.#actions.addSubTask(this.task.id, {
+    const newSubTask = await this.#actions.addSubTask(task.id, {
       title: title.trim()
     });
 
     if (newSubTask) {
-      this.showSubTaskAddForm = false;
+      this.dialogs.closeSubTaskAddForm();
     }
   };
 
   handleSubTaskAddCancel = () => {
-    this.showSubTaskAddForm = false;
+    this.dialogs.closeSubTaskAddForm();
   };
 
   handleGoToParentTask = () => {
-    if (this.isSubTask && this.currentItem && 'taskId' in this.currentItem) {
-      this.#actions.selectTask(this.currentItem.taskId);
+    const current = this.state.currentItem;
+    if (this.state.isSubTask && current && 'taskId' in current) {
+      this.#actions.selectTask(current.taskId);
     }
   };
 
   handleProjectTaskListEdit = () => {
-    this.showProjectTaskListDialog = true;
+    this.dialogs.openProjectTaskListDialog();
   };
 
   handleProjectTaskListChange = async (data: ProjectTaskListChangePayload) => {
-    if (!this.currentItem || this.isNewTaskMode) return;
+    const current = this.state.currentItem;
+    if (!current || this.state.isNewTaskMode) return;
 
-    if (this.isSubTask && 'taskId' in this.currentItem) {
-      await taskCoreStore.moveTaskToList(this.currentItem.taskId, data.taskListId);
+    if (this.state.isSubTask && 'taskId' in current) {
+      await taskCoreStore.moveTaskToList(current.taskId, data.taskListId);
     } else {
-      await taskCoreStore.moveTaskToList(this.currentItem.id, data.taskListId);
+      await taskCoreStore.moveTaskToList(current.id, data.taskListId);
     }
-    this.showProjectTaskListDialog = false;
+    this.dialogs.closeProjectTaskListDialog();
   };
 
   handleProjectTaskListDialogClose = () => {
-    this.showProjectTaskListDialog = false;
+    this.dialogs.closeProjectTaskListDialog();
   };
 
-  private showConfirmationIfNeeded(action: () => void): boolean {
-    if (this.isNewTaskMode && this.editForm.title.trim()) {
-      this.pendingAction = action;
-      this.showConfirmationDialog = true;
-      return false;
-    }
-    action();
-    return true;
-  }
-
   handleConfirmDiscard = () => {
-    this.showConfirmationDialog = false;
-    if (this.pendingAction) {
-      this.pendingAction();
-      this.pendingAction = null;
-    }
+    this.dialogs.confirmDiscard();
   };
 
   handleCancelDiscard = () => {
-    this.showConfirmationDialog = false;
-    this.pendingAction = null;
-    taskStore.clearPendingSelections();
+    this.dialogs.cancelDiscard();
   };
 
   handleConfirmDelete = () => {
-    this.showDeleteDialog = false;
-    if (this.pendingDeleteAction) {
-      this.pendingDeleteAction();
-      this.pendingDeleteAction = null;
-    }
+    this.dialogs.confirmDelete();
   };
 
   handleCancelDelete = () => {
-    this.showDeleteDialog = false;
-    this.pendingDeleteAction = null;
+    this.dialogs.cancelDelete();
   };
 
   handleRecurrenceDialogClose = (open?: boolean) => {
     if (typeof open === 'boolean') {
-      this.showRecurrenceDialog = open;
+      if (open) {
+        this.dialogs.openRecurrenceDialog();
+      } else {
+        this.dialogs.closeRecurrenceDialog();
+      }
     } else {
-      this.showRecurrenceDialog = false;
+      this.dialogs.closeRecurrenceDialog();
     }
   };
 
-  handleRecurrenceChange = async (rule: LegacyRecurrenceRule | null) => {
-    if (!this.currentItem || this.isNewTaskMode) {
+  async handleRecurrenceChange(rule: LegacyRecurrenceRule | null) {
+    const current = this.state.currentItem;
+    if (!current || this.state.isNewTaskMode) {
       return;
     }
 
-    const projectId = this.isSubTask && 'taskId' in this.currentItem
-      ? taskStore.getTaskProjectAndList(this.currentItem.taskId)?.project.id
-      : taskStore.getTaskProjectAndList(this.currentItem.id)?.project.id;
+    const projectInfo = this.state.projectInfo;
+    const projectId = projectInfo?.project.id;
 
     if (!projectId) {
       console.error('Failed to get projectId for recurrence rule');
@@ -469,14 +308,18 @@ export class TaskDetailViewStore {
     try {
       await this.#recurrence.save({
         projectId,
-        itemId: this.currentItem.id,
-        isSubTask: this.isSubTask,
+        itemId: current.id,
+        isSubTask: this.state.isSubTask,
         rule
       });
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
     }
 
-    this.showRecurrenceDialog = false;
+    this.dialogs.closeRecurrenceDialog();
+  }
+
+  handleRecurrenceDialogOpen = () => {
+    this.dialogs.openRecurrenceDialog();
   };
 }
