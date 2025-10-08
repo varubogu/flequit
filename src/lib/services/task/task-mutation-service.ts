@@ -9,13 +9,75 @@ import { tagStore } from '$lib/stores/tags.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { TaskRecurrenceService } from './task-recurrence-service';
 
+type TaskStoreLike = Pick<
+  typeof taskStore,
+  | 'isNewTaskMode'
+  | 'pendingTaskSelection'
+  | 'pendingSubTaskSelection'
+  | 'cancelNewTaskMode'
+  | 'selectedTaskId'
+  | 'getTaskById'
+  | 'getTaskProjectAndList'
+  | 'attachTagToTask'
+  | 'detachTagFromTask'
+>;
+
+type TaskCoreStoreLike = Pick<
+  typeof taskCoreStore,
+  'toggleTaskStatus' | 'updateTask' | 'deleteTask' | 'addTask' | 'createRecurringTask'
+>;
+
+type SubTaskStoreLike = Pick<
+  typeof subTaskStore,
+  'addSubTask' | 'updateSubTask' | 'deleteSubTask' | 'attachTagToSubTask' | 'detachTagFromSubTask'
+>;
+
+type TaskListStoreLike = Pick<typeof taskListStore, 'getProjectIdByListId'>;
+
+type TagStoreLike = Pick<typeof tagStore, 'tags'>;
+
+type TaggingServiceLike = Pick<
+  typeof TaggingService,
+  'createTaskTag' | 'deleteTaskTag' | 'createSubtaskTag' | 'deleteSubtaskTag'
+>;
+
+type ErrorHandlerLike = Pick<typeof errorHandler, 'addSyncError'>;
+
+type TaskMutationDependencies = {
+  taskStore: TaskStoreLike;
+  taskCoreStore: TaskCoreStoreLike;
+  subTaskStore: SubTaskStoreLike;
+  taskListStore: TaskListStoreLike;
+  tagStore: TagStoreLike;
+  taggingService: TaggingServiceLike;
+  errorHandler: ErrorHandlerLike;
+  recurrenceService: TaskRecurrenceService;
+};
+
+const defaultTaskMutationDependencies: TaskMutationDependencies = {
+  taskStore,
+  taskCoreStore,
+  subTaskStore,
+  taskListStore,
+  tagStore,
+  taggingService: TaggingService,
+  errorHandler,
+  recurrenceService: new TaskRecurrenceService()
+};
+
 export class TaskMutationService {
+  #deps: TaskMutationDependencies;
+
+  constructor(deps: TaskMutationDependencies = defaultTaskMutationDependencies) {
+    this.#deps = deps;
+  }
+
   async toggleTaskStatus(taskId: string): Promise<void> {
-    await taskCoreStore.toggleTaskStatus(taskId);
+    await this.#deps.taskCoreStore.toggleTaskStatus(taskId);
   }
 
   updateTask(taskId: string, updates: Partial<Task>): void {
-    void taskCoreStore.updateTask(taskId, updates);
+    void this.#deps.taskCoreStore.updateTask(taskId, updates);
   }
 
   updateTaskFromForm(
@@ -42,16 +104,18 @@ export class TaskMutationService {
   }
 
   async changeTaskStatus(taskId: string, newStatus: TaskStatus): Promise<void> {
+    const { taskStore, taskCoreStore, recurrenceService } = this.#deps;
     const currentTask = taskStore.getTaskById(taskId);
 
     if (newStatus === 'completed' && currentTask?.recurrenceRule) {
-      new TaskRecurrenceService().scheduleNextOccurrence(currentTask);
+      recurrenceService.scheduleNextOccurrence(currentTask);
     }
 
     await taskCoreStore.updateTask(taskId, { status: newStatus });
   }
 
   async deleteTask(taskId: string): Promise<void> {
+    const { taskStore, taskCoreStore } = this.#deps;
     if (taskStore.selectedTaskId === taskId) {
       taskStore.selectedTaskId = null;
     }
@@ -60,6 +124,7 @@ export class TaskMutationService {
   }
 
   toggleSubTaskStatus(task: TaskWithSubTasks, subTaskId: string): void {
+    const { taskCoreStore } = this.#deps;
     const subTask = task.subTasks.find((st) => st.id === subTaskId);
     if (!subTask) return;
 
@@ -79,6 +144,7 @@ export class TaskMutationService {
       priority?: number;
     }
   ): Promise<TaskWithSubTasks | null> {
+    const { taskListStore, taskCoreStore } = this.#deps;
     const projectId = taskListStore.getProjectIdByListId(listId);
     if (!projectId) {
       console.error('Failed to find project for list:', listId);
@@ -109,6 +175,7 @@ export class TaskMutationService {
       priority?: number;
     }
   ) {
+    const { subTaskStore } = this.#deps;
     return subTaskStore.addSubTask(taskId, {
       title: subTaskData.title,
       description: subTaskData.description,
@@ -137,22 +204,23 @@ export class TaskMutationService {
       isRangeDate: formData.isRangeDate || false
     };
 
-    void subTaskStore.updateSubTask(subTaskId, updates);
+    void this.#deps.subTaskStore.updateSubTask(subTaskId, updates);
   }
 
   updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
-    void subTaskStore.updateSubTask(subTaskId, updates);
+    void this.#deps.subTaskStore.updateSubTask(subTaskId, updates);
   }
 
   changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
-    void subTaskStore.updateSubTask(subTaskId, { status: newStatus });
+    void this.#deps.subTaskStore.updateSubTask(subTaskId, { status: newStatus });
   }
 
   async deleteSubTask(subTaskId: string): Promise<void> {
-    await subTaskStore.deleteSubTask(subTaskId);
+    await this.#deps.subTaskStore.deleteSubTask(subTaskId);
   }
 
   async addTagToTaskByName(taskId: string, tagName: string): Promise<void> {
+    const { taskStore, taggingService, errorHandler } = this.#deps;
     const trimmed = tagName.trim();
     if (!trimmed) {
       console.warn('Empty tag name provided');
@@ -166,7 +234,7 @@ export class TaskMutationService {
     }
 
     try {
-      const tag = await TaggingService.createTaskTag(context.project.id, taskId, trimmed);
+      const tag = await taggingService.createTaskTag(context.project.id, taskId, trimmed);
       taskStore.attachTagToTask(taskId, tag);
     } catch (error) {
       console.error('Failed to sync tag addition to backends:', error);
@@ -175,6 +243,7 @@ export class TaskMutationService {
   }
 
   async addTagToTask(taskId: string, tagId: string): Promise<void> {
+    const { tagStore, taggingService, taskStore, errorHandler } = this.#deps;
     const tag = tagStore.tags.find((t) => t.id === tagId);
     if (!tag) return;
 
@@ -185,7 +254,7 @@ export class TaskMutationService {
     }
 
     try {
-      const created = await TaggingService.createTaskTag(context.project.id, taskId, tag.name);
+      const created = await taggingService.createTaskTag(context.project.id, taskId, tag.name);
       taskStore.attachTagToTask(taskId, created);
     } catch (error) {
       console.error('Failed to sync tag addition to backends:', error);
@@ -194,6 +263,7 @@ export class TaskMutationService {
   }
 
   async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
+    const { taskStore, taggingService, errorHandler } = this.#deps;
     const context = taskStore.getTaskProjectAndList(taskId);
     if (!context) return;
 
@@ -201,7 +271,7 @@ export class TaskMutationService {
     if (!removed) return;
 
     try {
-      await TaggingService.deleteTaskTag(context.project.id, taskId, tagId);
+      await taggingService.deleteTaskTag(context.project.id, taskId, tagId);
     } catch (error) {
       console.error('Failed to sync tag removal to backends:', error);
       taskStore.attachTagToTask(taskId, removed);
@@ -210,6 +280,7 @@ export class TaskMutationService {
   }
 
   async addTagToSubTaskByName(subTaskId: string, taskId: string, tagName: string): Promise<void> {
+    const { taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
     const trimmed = tagName.trim();
     if (!trimmed) {
       console.warn('Empty tag name provided');
@@ -223,7 +294,7 @@ export class TaskMutationService {
     }
 
     try {
-      const tag = await TaggingService.createSubtaskTag(context.project.id, subTaskId, trimmed);
+      const tag = await taggingService.createSubtaskTag(context.project.id, subTaskId, trimmed);
       subTaskStore.attachTagToSubTask(subTaskId, tag);
     } catch (error) {
       console.error('Failed to sync subtask tag addition to backends:', error);
@@ -232,6 +303,7 @@ export class TaskMutationService {
   }
 
   async addTagToSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
+    const { tagStore, taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
     const tag = tagStore.tags.find((t) => t.id === tagId);
     if (!tag) return;
 
@@ -242,7 +314,7 @@ export class TaskMutationService {
     }
 
     try {
-      const created = await TaggingService.createSubtaskTag(context.project.id, subTaskId, tag.name);
+      const created = await taggingService.createSubtaskTag(context.project.id, subTaskId, tag.name);
       subTaskStore.attachTagToSubTask(subTaskId, created);
     } catch (error) {
       console.error('Failed to sync subtask tag addition to backends:', error);
@@ -251,6 +323,7 @@ export class TaskMutationService {
   }
 
   async removeTagFromSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
+    const { taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
     const context = taskStore.getTaskProjectAndList(taskId);
     if (!context) return;
 
@@ -258,7 +331,7 @@ export class TaskMutationService {
     if (!removed) return;
 
     try {
-      await TaggingService.deleteSubtaskTag(context.project.id, subTaskId, tagId);
+      await taggingService.deleteSubtaskTag(context.project.id, subTaskId, tagId);
     } catch (error) {
       console.error('Failed to sync subtask tag removal to backends:', error);
       subTaskStore.attachTagToSubTask(subTaskId, removed);
@@ -267,6 +340,7 @@ export class TaskMutationService {
   }
 
   updateTaskDueDateForView(taskId: string, viewId: string): void {
+    const { taskCoreStore } = this.#deps;
     const today = new Date();
     let newDueDate: Date | undefined;
 
@@ -299,6 +373,7 @@ export class TaskMutationService {
   }
 
   updateSubTaskDueDateForView(subTaskId: string, taskId: string, viewId: string): void {
+    const { subTaskStore } = this.#deps;
     const today = new Date();
     let newDueDate: Date | undefined;
 

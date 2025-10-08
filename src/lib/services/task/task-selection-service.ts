@@ -1,8 +1,37 @@
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 
+type TaskStoreLike = {
+    isNewTaskMode: boolean;
+    pendingTaskSelection: string | null;
+    pendingSubTaskSelection: string | null;
+    cancelNewTaskMode(): void;
+};
+
+type SelectionStoreLike = {
+    selectTask(taskId: string | null): void;
+    selectSubTask(subTaskId: string | null): void;
+};
+
+type TaskSelectionDependencies = {
+  taskStore: TaskStoreLike;
+  selectionStore: SelectionStoreLike;
+};
+
+const defaultTaskSelectionDependencies: TaskSelectionDependencies = {
+  taskStore,
+  selectionStore
+};
+
 export class TaskSelectionService {
+  #deps: TaskSelectionDependencies;
+
+  constructor(deps: TaskSelectionDependencies = defaultTaskSelectionDependencies) {
+    this.#deps = deps;
+  }
+
   selectTask(taskId: string | null): boolean {
+    const { taskStore, selectionStore } = this.#deps;
     if (taskStore.isNewTaskMode && taskId !== null) {
       taskStore.pendingTaskSelection = taskId;
       return false;
@@ -13,6 +42,7 @@ export class TaskSelectionService {
   }
 
   selectSubTask(subTaskId: string | null): boolean {
+    const { taskStore, selectionStore } = this.#deps;
     if (taskStore.isNewTaskMode && subTaskId !== null) {
       taskStore.pendingSubTaskSelection = subTaskId;
       return false;
@@ -23,6 +53,7 @@ export class TaskSelectionService {
   }
 
   forceSelectTask(taskId: string | null): void {
+    const { taskStore, selectionStore } = this.#deps;
     if (taskStore.isNewTaskMode) {
       taskStore.cancelNewTaskMode();
     }
@@ -30,6 +61,7 @@ export class TaskSelectionService {
   }
 
   forceSelectSubTask(subTaskId: string | null): void {
+    const { taskStore, selectionStore } = this.#deps;
     if (taskStore.isNewTaskMode) {
       taskStore.cancelNewTaskMode();
     }
