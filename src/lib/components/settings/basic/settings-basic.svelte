@@ -3,11 +3,11 @@
   import Select from '$lib/components/ui/select.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { format } from 'date-fns';
-  import { getAvailableTimezones } from '$lib/stores/settings.svelte';
+  import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
   import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
   import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
   import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
-  import { dataService } from '$lib/services/data-service';
+  import type { WeekStart } from '$lib/types/settings';
 
   interface Props {
     settings: {
@@ -73,86 +73,51 @@
     const newLocale = target.value;
     if (translationService.getAvailableLocales().includes(newLocale)) {
       localeStore.setLocale(newLocale);
+      settingsStore.setLanguage(newLocale);
     }
   }
 
-  async function handleWeekStartChange(event: Event) {
+  function handleWeekStartChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const newWeekStart = target.value;
+    const newWeekStart = target.value as WeekStart;
     settings.weekStart = newWeekStart;
     onWeekStartChange?.(newWeekStart);
-    // 新しい部分更新システムで直接保存
-    try {
-      const updatedSettings = await dataService.updateSettingsPartially({
-        weekStart: newWeekStart as 'sunday' | 'monday'
-      });
-      if (!updatedSettings) {
-        throw new Error('Failed to update week start');
-      }
-    } catch (error) {
-      console.error('Failed to update week start:', error);
-    }
+    settingsStore.setWeekStart(newWeekStart);
   }
 
-  async function handleTimezoneChange(event: Event) {
+  function handleTimezoneChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const newTimezone = target.value;
     settings.timezone = newTimezone;
     onTimezoneChange?.(newTimezone);
-    // 新しい部分更新システムで直接保存
-    try {
-      const updatedSettings = await dataService.updateSettingsPartially({
-        timezone: newTimezone
-      });
-      if (!updatedSettings) {
-        throw new Error('Failed to update timezone');
-      }
-    } catch (error) {
-      console.error('Failed to update timezone:', error);
-    }
+    settingsStore.setTimezone(newTimezone);
   }
 
-  async function handleDateFormatChange(event: Event) {
+  function handleDateFormatChange(event: Event) {
     const target = event.target as HTMLInputElement;
     settings.dateFormat = target.value;
-    // 新しい部分更新システムで直接保存
-    try {
-      const updatedSettings = await dataService.updateSettingsPartially({
-        dateFormat: target.value
-      });
-      if (!updatedSettings) {
-        throw new Error('Failed to update date format');
-      }
-    } catch (error) {
-      console.error('Failed to update date format:', error);
-    }
+    settingsStore.setDateFormat(target.value);
   }
 
   function openDateFormatDialog() {
     showDateFormatDialog = true;
   }
 
-  // 設定を読み込む関数
-  async function loadSettings() {
-    try {
-      const loadedSettings = await dataService.loadSettings();
-      if (loadedSettings) {
-        // 読み込んだ設定を反映（初期化時は保存処理を避けるため、直接設定を更新）
-        if (loadedSettings.weekStart !== settings.weekStart) {
-          settings.weekStart = loadedSettings.weekStart;
-        }
-        if (loadedSettings.timezone !== settings.timezone) {
-          settings.timezone = loadedSettings.timezone;
-        }
-      }
-    } catch (error) {
-      console.error('Failed to load settings from SettingsManagementService:', error);
-    }
-  }
-
-  // コンポーネントマウント時に設定を読み込む
   $effect(() => {
-    loadSettings();
+    const currentWeekStart = settingsStore.weekStart;
+    if (settings.weekStart !== currentWeekStart) {
+      settings.weekStart = currentWeekStart;
+    }
+
+    const currentTimezone = settingsStore.timezone;
+    if (settings.timezone !== currentTimezone) {
+      settings.timezone = currentTimezone;
+    }
+
+    const currentDateFormat = settingsStore.dateFormat;
+    if (settings.dateFormat !== currentDateFormat) {
+      settings.dateFormat = currentDateFormat;
+    }
   });
 </script>
 
@@ -205,7 +170,7 @@
             {/each}
           </select>
           <p class="text-muted-foreground mt-1 text-xs">
-            {currentEffectiveTimezone()}: {settings.timezone}
+            {currentEffectiveTimezone()}: {settingsStore.effectiveTimezone}
           </p>
         </div>
 

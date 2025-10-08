@@ -3,15 +3,15 @@
   import Button from '$lib/components/shared/button.svelte';
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
-  import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
   import type { WeekStart } from '$lib/types/settings';
-  import { ArrowLeft, Search, Menu } from 'lucide-svelte';
+  import { ArrowLeft, Menu } from 'lucide-svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
   import SettingsBasic from './basic/settings-basic.svelte';
   import SettingsViews from './views/settings-views.svelte';
   import SettingsAppearance from './appearance/settings-appearance.svelte';
-  import SettingsAccount from './account/settings-account.svelte';
+import SettingsAccount from './account/settings-account.svelte';
+import SettingsDialogSidebar from './settings-dialog-sidebar.svelte';
 
   interface Props {
     open?: boolean;
@@ -88,14 +88,14 @@
   function handleCategorySelect(categoryId: string) {
     selectedCategory = categoryId;
     scrollToCategory(categoryId);
-    // モバイルでカテゴリを選択したらサイドバーを閉じる
-    if (isMobile.current) {
-      sidebarOpen = false;
-    }
   }
 
   function toggleSidebar() {
     sidebarOpen = !sidebarOpen;
+  }
+
+  function handleSearchQueryChange(value: string) {
+    searchQuery = value;
   }
 
   function scrollToCategory(categoryId: string) {
@@ -161,54 +161,17 @@
     </div>
 
     <div class="relative flex min-h-0 w-full flex-1 overflow-hidden">
-      <!-- Desktop Sidebar / Mobile Overlay Sidebar -->
-      <div
-        class={`
-        ${isMobile.current ? 'fixed inset-y-0 left-0 z-50 transform transition-transform duration-300' : 'relative'}
-        ${isMobile.current && !sidebarOpen ? '-translate-x-full' : 'translate-x-0'}
-        ${isMobile.current ? 'w-80 max-w-[80vw]' : 'w-80'}
-        bg-background flex flex-shrink-0 flex-col overflow-hidden border-r
-      `}
-      >
-        <!-- Search -->
-        <div class="border-b p-4">
-          <div class="relative">
-            <Search
-              class="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform"
-            />
-            <Input class="pl-9" placeholder={searchSettings()} bind:value={searchQuery} />
-          </div>
-        </div>
-
-        <!-- Categories -->
-        <nav class="flex-1 p-4">
-          <div class="space-y-1">
-            {#each categories as category (category.id)}
-              <Button
-                variant={selectedCategory === category.id ? 'secondary' : 'ghost'}
-                class="h-auto w-full justify-start p-3 text-left"
-                onclick={() => handleCategorySelect(category.id)}
-              >
-                <div>
-                  <div class="font-medium">{category.name}</div>
-                  <div class="text-muted-foreground text-xs">{category.description}</div>
-                </div>
-              </Button>
-            {/each}
-          </div>
-        </nav>
-      </div>
-
-      <!-- Mobile Backdrop -->
-      {#if isMobile.current && sidebarOpen}
-        <div
-          class="fixed inset-0 z-40 bg-black/50"
-          onclick={() => (sidebarOpen = false)}
-          role="button"
-          tabindex="0"
-          onkeydown={(e) => e.key === 'Escape' && (sidebarOpen = false)}
-        ></div>
-      {/if}
+      <SettingsDialogSidebar
+        {categories}
+        {selectedCategory}
+        {searchQuery}
+        isMobile={isMobile.current}
+        {sidebarOpen}
+        onSelectCategory={handleCategorySelect}
+        onSearchQueryChange={handleSearchQueryChange}
+        toggleSidebar={toggleSidebar}
+        searchLabel={searchSettings()}
+      />
 
       <!-- Right Content -->
       <div class="flex w-full min-w-0 flex-1 flex-col overflow-hidden">
