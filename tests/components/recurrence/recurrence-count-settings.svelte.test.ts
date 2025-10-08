@@ -18,11 +18,13 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 
 describe('RecurrenceCountSettings', () => {
   const defaultProps = {
-    value: undefined
+    value: undefined,
+    onChange: vi.fn<(value: number | undefined) => void>()
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    defaultProps.onChange = vi.fn();
     vi.useFakeTimers();
   });
 
@@ -145,7 +147,7 @@ describe('RecurrenceCountSettings', () => {
       expect(input.value).toBe('5');
 
       rerender({ ...defaultProps, value: 10 });
-      
+
       // The component should reflect the new prop value
       // Note: The $effect might be asynchronous, so we check the component should handle it properly
       input = container.querySelector('input') as HTMLInputElement;
@@ -180,10 +182,10 @@ describe('RecurrenceCountSettings', () => {
       invalidKeys.forEach((key) => {
         // Create event with preventDefault spy before dispatching
         const preventDefaultSpy = vi.fn();
-        const event = new KeyboardEvent('keydown', { 
-          key, 
-          bubbles: true, 
-          cancelable: true 
+        const event = new KeyboardEvent('keydown', {
+          key,
+          bubbles: true,
+          cancelable: true
         });
         Object.defineProperty(event, 'preventDefault', {
           value: preventDefaultSpy,
@@ -282,7 +284,7 @@ describe('RecurrenceCountSettings', () => {
 
       // Wait for the setTimeout to execute using fake timers
       await vi.advanceTimersToNextTimerAsync();
-      
+
       // The component should sanitize the input (test the intended behavior)
       // Even if the exact implementation differs, the input should be valid
       expect(input.value).toMatch(/^\d*$/);
@@ -299,7 +301,7 @@ describe('RecurrenceCountSettings', () => {
 
       // Wait for the setTimeout to execute using fake timers
       await vi.advanceTimersToNextTimerAsync();
-      
+
       // The component should sanitize the input (test the intended behavior)
       expect(input.value).toMatch(/^\d*$/);
     });
@@ -315,7 +317,7 @@ describe('RecurrenceCountSettings', () => {
 
       // Wait for the setTimeout to execute using fake timers
       await vi.advanceTimersToNextTimerAsync();
-      
+
       // Component should handle zero appropriately (either clear or keep valid)
       expect(input.value).toMatch(/^\d*$|^$/);
     });
@@ -520,7 +522,7 @@ describe('RecurrenceCountSettings', () => {
 
       // Wait for the setTimeout to execute using fake timers
       await vi.advanceTimersToNextTimerAsync();
-      
+
       // The component should sanitize the input to only numbers
       expect(input.value).toMatch(/^\d*$/);
     });
@@ -562,7 +564,7 @@ describe('RecurrenceCountSettings', () => {
       expect(input.value).toBe('5');
 
       rerender({ ...defaultProps, value: undefined });
-      
+
       // The component should handle the prop change gracefully
       input = container.querySelector('input') as HTMLInputElement;
       // For now, just ensure the component doesn't crash and maintains valid state

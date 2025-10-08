@@ -1,6 +1,18 @@
 import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
 import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
 
+export interface RecurrenceStateSnapshot {
+  recurrenceLevel: RecurrenceLevel;
+  unit: RecurrenceUnit;
+  interval: number;
+  daysOfWeek: DayOfWeek[];
+  details: RecurrencePattern;
+  endDate?: Date;
+  repeatCount?: number;
+  dateConditions: DateCondition[];
+  weekdayConditions: WeekdayCondition[];
+}
+
 export class RecurrenceState {
   // Basic recurrence settings
   recurrenceLevel = $state<RecurrenceLevel>('disabled');
@@ -24,6 +36,20 @@ export class RecurrenceState {
 
   get showAdvancedSettings() {
     return this.recurrenceLevel === 'advanced';
+  }
+
+  toSnapshot(): RecurrenceStateSnapshot {
+    return {
+      recurrenceLevel: this.recurrenceLevel,
+      unit: this.unit,
+      interval: this.interval,
+      daysOfWeek: [...this.daysOfWeek],
+      details: { ...this.details },
+      endDate: this.endDate,
+      repeatCount: this.repeatCount,
+      dateConditions: [...this.dateConditions],
+      weekdayConditions: [...this.weekdayConditions]
+    };
   }
 
   // Setters

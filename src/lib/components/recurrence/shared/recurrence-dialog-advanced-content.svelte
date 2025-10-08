@@ -5,44 +5,10 @@
   import RecurrenceAdjustmentEditor from '../recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime-utils';
   import RecurrencePreview from '../preview/recurrence-preview.svelte';
-  import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
-  import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
-  import type { DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
-
-  interface RecurrenceDialogAdvancedLogic {
-    recurrenceLevel: RecurrenceLevel;
-    unit: RecurrenceUnit;
-    interval: number;
-    daysOfWeek: DayOfWeek[];
-    details: RecurrencePattern;
-    endDate: Date | undefined;
-    repeatCount: number | undefined;
-    previewDates: Date[];
-    displayCount: number;
-    dateConditions: DateCondition[];
-    weekdayConditions: WeekdayCondition[];
-    showBasicSettings: boolean;
-    showAdvancedSettings: boolean;
-    isComplexUnit: boolean;
-    recurrenceSettings: string;
-    startDateTime?: Date;
-    endDateTime?: Date;
-    isRangeDate?: boolean;
-    toggleDayOfWeek: (day: DayOfWeek) => void;
-    addDateCondition: () => void;
-    removeDateCondition: (id: string) => void;
-    updateDateCondition: (id: string, updates: Partial<DateCondition>) => void;
-    addWeekdayCondition: () => void;
-    removeWeekdayCondition: (id: string) => void;
-    updateWeekdayCondition: (id: string, updates: Partial<WeekdayCondition>) => void;
-    setUnit: (newUnit: RecurrenceUnit) => void;
-    setInterval: (newInterval: number) => void;
-    setDaysOfWeek: (newDaysOfWeek: DayOfWeek[]) => void;
-    setDetails: (newDetails: RecurrencePattern) => void;
-  }
+  import type { RecurrenceDialogLogic } from './recurrence-dialog-controller.svelte';
 
   interface Props {
-    logic: RecurrenceDialogAdvancedLogic;
+    logic: RecurrenceDialogLogic;
   }
 
   let { logic }: Props = $props();
@@ -58,7 +24,12 @@
       />
 
       {#if logic.showBasicSettings}
-        <RecurrenceCountSettings bind:value={logic.repeatCount} />
+        <RecurrenceCountSettings
+          bind:value={logic.repeatCount}
+          onChange={(value) => {
+            logic.setRepeatCount(value);
+          }}
+        />
         <RecurrenceIntervalSettings
           unit={logic.unit}
           interval={logic.interval}

@@ -3,9 +3,10 @@
 
   type Props = {
     value: number | undefined;
+    onChange?: (value: number | undefined) => void;
   };
 
-  let { value = $bindable() }: Props = $props();
+  let { value = $bindable(), onChange }: Props = $props();
 
   const translationService = getTranslationService();
   const repeatCountLabel = translationService.getMessage('repeat_count');
@@ -73,14 +74,17 @@
 
       if (sanitizedInput === '') {
         value = undefined;
+        onChange?.(undefined);
       } else {
         let numValue = parseInt(sanitizedInput, 10);
         if (numValue <= 0) {
           // 0が入力された場合、フィールドをクリアするためにinputValueも空にする
           inputValue = '';
           value = undefined;
+          onChange?.(undefined);
         } else {
           value = numValue;
+          onChange?.(numValue);
         }
       }
     }, 0);
