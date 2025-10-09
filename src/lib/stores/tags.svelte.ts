@@ -1,455 +1,163 @@
 import type { Tag } from '$lib/types/tag';
-import { SvelteSet, SvelteDate } from 'svelte/reactivity';
-import { dataService } from '$lib/services/data-service';
-import { errorHandler } from './error-handler.svelte';
-import { taskStore } from './tasks.svelte';
+import { TagCRUDStore } from './tags/tag-crud-store.svelte';
+import { TagBookmarkStore } from './tags/tag-bookmark-store.svelte';
 
-// Tag store using Svelte 5 runes
+/**
+ * Tag store facade
+ *
+ * Provides a unified interface to tag CRUD and bookmark management.
+ * Delegates operations to specialized stores while maintaining backward compatibility.
+ */
 export class TagStore {
-  tags = $state<Tag[]>([]);
-  bookmarkedTags = $state<SvelteSet<string>>(new SvelteSet());
+  private crudStore = new TagCRUDStore();
+  private bookmarkStore = new TagBookmarkStore();
+
+  // Delegate tag state to CRUD store
+  get tags(): Tag[] {
+    return this.crudStore.tags;
+  }
+
+  set tags(value: Tag[]) {
+    this.crudStore.tags = value;
+  }
+
+  get bookmarkedTags() {
+    return this.bookmarkStore.bookmarkedTags;
+  }
+
+  set bookmarkedTags(value) {
+    this.bookmarkStore.bookmarkedTags = value;
+  }
 
   // Computed values
   get allTags(): Tag[] {
-    return this.tags;
+    return this.crudStore.allTags;
   }
 
   get tagNames(): string[] {
-    return this.tags.map((tag) => tag.name);
+    return this.crudStore.tagNames;
   }
 
   get bookmarkedTagList(): Tag[] {
-    // Explicitly access both reactive properties to ensure reactivity
-    const tags = this.tags;
-    const bookmarked = this.bookmarkedTags;
-    return tags
-      .filter((tag) => bookmarked.has(tag.id))
-      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
+    return this.bookmarkStore.getBookmarkedTagList(this.crudStore.tags);
   }
 
-  // Actions
+  // CRUD operations - delegate to CRUDStore
   setTags(tags: Tag[]) {
-    this.tags = tags;
+    this.crudStore.setTags(tags);
   }
 
-  // 同期版（既存のテストとの互換性のため）
   addTag(tagData: { name: string; color?: string }): Tag | null {
-    const trimmedName = tagData.name.trim();
-    if (!trimmedName) {
-      return null;
-    }
-
-    const existingTag = this.tags.find(
-      (tag) => tag.name.toLowerCase() === trimmedName.toLowerCase()
-    );
-    if (existingTag) {
-      return existingTag;
-    }
-
-    const newTag: Tag = {
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      color: tagData.color,
-      createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate()
-    };
-
-    this.tags.push(newTag);
-
-    // バックエンドに同期は非同期で実行（ファイア&フォーゲット）
-    this.syncAddTagToBackend(newTag);
-
-    return newTag;
+    return this.crudStore.addTag(tagData);
   }
 
-  // async版（新しいバックエンド連携用）
   async addTagAsync(tagData: { name: string; color?: string }, projectId?: string): Promise<Tag | null> {
-    const trimmedName = tagData.name.trim();
-    if (!trimmedName) {
-      return null;
-    }
-
-    const existingTag = this.tags.find(
-      (tag) => tag.name.toLowerCase() === trimmedName.toLowerCase()
-    );
-    if (existingTag) {
-      return existingTag;
-    }
-
-    const newTag: Tag = {
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      color: tagData.color,
-      createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate()
-    };
-
-    // まずローカル状態に追加
-    this.tags.push(newTag);
-
-    // バックエンドに同期（作成操作は即座に保存）
-    try {
-      const pid = projectId || taskStore.selectedProjectId || '';
-      await dataService.createTag(pid, { name: trimmedName, color: tagData.color });
-    } catch (error) {
-      console.error('Failed to sync new tag to backends:', error);
-      errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
-      // エラーが発生した場合はローカル状態から削除
-      const tagIndex = this.tags.findIndex((t) => t.id === newTag.id);
-      if (tagIndex !== -1) {
-        this.tags.splice(tagIndex, 1);
-      }
-      return null;
-    }
-
-    return newTag;
+    return this.crudStore.addTagAsync(tagData, projectId);
   }
 
-  // プロジェクトIDを指定してタグを追加
   addTagWithProject(tagData: { name: string; color?: string }, projectId: string): Tag | null {
-    const trimmedName = tagData.name.trim();
-    if (!trimmedName) {
-      return null;
-    }
-
-    const existingTag = this.tags.find(
-      (tag) => tag.name.toLowerCase() === trimmedName.toLowerCase()
-    );
-    if (existingTag) {
-      return existingTag;
-    }
-
-    const newTag: Tag = {
-      id: crypto.randomUUID(),
-      name: trimmedName,
-      color: tagData.color,
-      createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate()
-    };
-
-    // まずローカル状態に追加
-    this.tags.push(newTag);
-
-    // バックエンドに同期（プロジェクトIDを指定）
-    this.syncAddTagToBackendWithProject(newTag, projectId);
-
-    return newTag;
+    return this.crudStore.addTagWithProject(tagData, projectId);
   }
 
-  // バックエンド同期の内部メソッド
-  private async syncAddTagToBackend(tag: Tag) {
-    try {
-      const projectId = taskStore.selectedProjectId || '';
-      await dataService.createTag(projectId, { name: tag.name, color: tag.color, order_index: tag.orderIndex });
-    } catch (error) {
-      console.error('Failed to sync new tag to backends:', error);
-      errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
-    }
-  }
-
-  // プロジェクトIDを指定したバックエンド同期メソッド
-  private async syncAddTagToBackendWithProject(tag: Tag, projectId: string) {
-    try {
-      await dataService.createTag(projectId, { name: tag.name, color: tag.color, order_index: tag.orderIndex });
-    } catch (error) {
-      console.error('Failed to sync new tag to backends:', error);
-      errorHandler.addSyncError('タグ作成', 'tag', tag.id, error);
-      // エラーが発生した場合はローカル状態から削除
-      const tagIndex = this.tags.findIndex((t) => t.id === tag.id);
-      if (tagIndex !== -1) {
-        this.tags.splice(tagIndex, 1);
-      }
-    }
-  }
-
-  // Add or update tag with existing ID (for sample data initialization)
   addTagWithId(tag: Tag): Tag {
-    const existingTag = this.tags.find((t) => t.id === tag.id);
-    if (existingTag) {
-      // Update existing tag
-      Object.assign(existingTag, tag);
-      return existingTag;
-    }
-
-    // Add new tag
-    this.tags.push(tag);
-    return tag;
+    return this.crudStore.addTagWithId(tag);
   }
 
-  // 同期版（既存のテストとの互換性のため）
   updateTag(tagId: string, updates: Partial<Tag>, projectId?: string) {
-    const tagIndex = this.tags.findIndex((tag) => tag.id === tagId);
-    if (tagIndex !== -1) {
-      this.tags[tagIndex] = {
-        ...this.tags[tagIndex],
-        ...updates,
-        updatedAt: new SvelteDate()
-      };
-
-      // バックエンドに同期は非同期で実行（ファイア&フォーゲット）
-      this.syncUpdateTagToBackend(tagId, updates, projectId);
-
-      // Dispatch custom event to notify task store about tag update
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('tag-updated', {
-            detail: this.tags[tagIndex]
-          })
-        );
-      }
-    }
+    this.crudStore.updateTag(tagId, updates, projectId);
   }
 
-  // async版（新しいバックエンド連携用）
   async updateTagAsync(tagId: string, updates: Partial<Tag>) {
-    const tagIndex = this.tags.findIndex((tag) => tag.id === tagId);
-    if (tagIndex !== -1) {
-      // バックアップとして元のタグを保持
-      const originalTag = { ...this.tags[tagIndex] };
-
-      // まずローカル状態を更新
-      this.tags[tagIndex] = {
-        ...this.tags[tagIndex],
-        ...updates,
-        updatedAt: new SvelteDate()
-      };
-
-      // バックエンドに同期（更新操作は定期保存に任せる）
-      try {
-        const projectId = taskStore.selectedProjectId || '';
-        await dataService.updateTag(projectId, tagId, updates);
-      } catch (error) {
-        console.error('Failed to sync tag update to backends:', error);
-        errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
-        // エラーが発生した場合はローカル状態を復元
-        this.tags[tagIndex] = originalTag;
-        return;
-      }
-
-      // Dispatch custom event to notify task store about tag update
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('tag-updated', {
-            detail: this.tags[tagIndex]
-          })
-        );
-      }
-    }
+    return this.crudStore.updateTagAsync(tagId, updates);
   }
 
-  // バックエンド同期の内部メソッド
-  private async syncUpdateTagToBackend(tagId: string, updates: Partial<Tag>, projectId?: string) {
-    try {
-      const pid = projectId || taskStore.selectedProjectId || '';
-      await dataService.updateTag(pid, tagId, updates);
-    } catch (error) {
-      console.error('Failed to sync tag update to backends:', error);
-      errorHandler.addSyncError('タグ更新', 'tag', tagId, error);
-    }
-  }
-
-  // 同期版（既存のテストとの互換性のため）
   deleteTag(tagId: string, onDelete?: (tagId: string) => void) {
-    const tagIndex = this.tags.findIndex((tag) => tag.id === tagId);
-    if (tagIndex !== -1) {
-      this.tags.splice(tagIndex, 1);
-
-      // Remove from bookmarks if exists
-      if (this.bookmarkedTags.has(tagId)) {
-        this.removeBookmark(tagId);
-      }
-
-      // バックエンドに同期は非同期で実行（ファイア&フォーゲット）
-      this.syncDeleteTagToBackend(tagId);
-
-      // Call the deletion callback if provided
-      onDelete?.(tagId);
+    // Remove from bookmarks if exists
+    if (this.bookmarkStore.isBookmarked(tagId)) {
+      this.bookmarkStore.removeBookmark(tagId);
     }
+
+    this.crudStore.deleteTag(tagId, onDelete);
   }
 
-  // async版（新しいバックエンド連携用）
   async deleteTagAsync(tagId: string, onDelete?: (tagId: string) => void) {
-    const tagIndex = this.tags.findIndex((tag) => tag.id === tagId);
-    if (tagIndex !== -1) {
-      // バックアップとして削除するタグを保持
-      const deletedTag = this.tags[tagIndex];
-      const wasBookmarked = this.bookmarkedTags.has(tagId);
-
-      // まずローカル状態から削除
-      this.tags.splice(tagIndex, 1);
-
-      // Remove from bookmarks if exists
-      if (wasBookmarked) {
-        this.removeBookmark(tagId);
-      }
-
-      // バックエンドに同期（削除操作は即座に保存）
-      try {
-        const projectId = taskStore.selectedProjectId || '';
-        await dataService.deleteTag(projectId, tagId);
-      } catch (error) {
-        console.error('Failed to sync tag deletion to backends:', error);
-        errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
-        // エラーが発生した場合はローカル状態を復元
-        this.tags.splice(tagIndex, 0, deletedTag);
-        if (wasBookmarked) {
-          this.addBookmark(tagId);
-        }
-        return;
-      }
-
-      // Call the deletion callback if provided
-      onDelete?.(tagId);
+    // Remove from bookmarks if exists
+    const wasBookmarked = this.bookmarkStore.isBookmarked(tagId);
+    if (wasBookmarked) {
+      this.bookmarkStore.removeBookmark(tagId);
     }
-  }
 
-  // バックエンド同期の内部メソッド
-  private async syncDeleteTagToBackend(tagId: string) {
-    try {
-      const projectId = taskStore.selectedProjectId || '';
-      await dataService.deleteTag(projectId, tagId);
-    } catch (error) {
-      console.error('Failed to sync tag deletion to backends:', error);
-      errorHandler.addSyncError('タグ削除', 'tag', tagId, error);
-    }
+    await this.crudStore.deleteTagAsync(tagId, onDelete);
   }
 
   findTagByName(name: string): Tag | undefined {
-    return this.tags.find((tag) => tag.name.toLowerCase() === name.toLowerCase());
+    return this.crudStore.findTagByName(name);
   }
 
   searchTags(query: string): Tag[] {
-    if (!query.trim()) return this.tags; // Return all tags for empty query
-
-    const lowerQuery = query.toLowerCase();
-    return this.tags.filter((tag) => tag.name.toLowerCase().includes(lowerQuery));
+    return this.crudStore.searchTags(query);
   }
 
   getOrCreateTag(name: string, color?: string): Tag | null {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      return null;
-    }
-
-    const existingTag = this.findTagByName(trimmedName);
-    if (existingTag) {
-      return existingTag;
-    }
-
-    return this.addTag({ name: trimmedName, color });
+    return this.crudStore.getOrCreateTag(name, color);
   }
 
-  // プロジェクトIDを指定してタグを作成・取得する版
   getOrCreateTagWithProject(name: string, projectId: string, color?: string): Tag | null {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      return null;
-    }
-
-    const existingTag = this.findTagByName(trimmedName);
-    if (existingTag) {
-      return existingTag;
-    }
-
-    return this.addTagWithProject({ name: trimmedName, color }, projectId);
+    return this.crudStore.getOrCreateTagWithProject(name, projectId, color);
   }
 
-  // Bookmark management methods
+  async getProjectIdByTagId(tagId: string): Promise<string | null> {
+    return this.crudStore.getProjectIdByTagId(tagId);
+  }
+
+  // Bookmark operations - delegate to BookmarkStore
   toggleBookmark(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    if (newBookmarks.has(tagId)) {
-      newBookmarks.delete(tagId);
-    } else {
-      newBookmarks.add(tagId);
-    }
-    this.bookmarkedTags = newBookmarks;
+    this.bookmarkStore.toggleBookmark(tagId);
   }
 
   isBookmarked(tagId: string): boolean {
-    return this.bookmarkedTags.has(tagId);
+    return this.bookmarkStore.isBookmarked(tagId);
   }
 
   addBookmark(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.add(tagId);
-    this.bookmarkedTags = newBookmarks;
-
-    // 新しくブックマークされたタグにorder_indexを設定
-    const tag = this.tags.find((t) => t.id === tagId);
-    if (tag && tag.orderIndex === undefined) {
-      const currentBookmarkedTags = this.bookmarkedTagList;
-      this.updateTag(tagId, { orderIndex: currentBookmarkedTags.length - 1 });
-    }
+    this.bookmarkStore.addBookmark(
+      tagId,
+      this.crudStore.tags,
+      (id, updates) => this.crudStore.updateTag(id, updates)
+    );
   }
 
-  // 初期化専用：ストア状態の設定のみでバックエンド更新は行わない
   setBookmarkForInitialization(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.add(tagId);
-    this.bookmarkedTags = newBookmarks;
-
-    // 初期化時はorder_indexもローカルで設定するのみ
-    const tag = this.tags.find((t) => t.id === tagId);
-    if (tag && tag.orderIndex === undefined) {
-      const currentBookmarkedTags = this.tags.filter((t) => newBookmarks.has(t.id));
-      tag.orderIndex = currentBookmarkedTags.length - 1;
-    }
+    this.bookmarkStore.setBookmarkForInitialization(tagId, this.crudStore.tags);
   }
 
   removeBookmark(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.delete(tagId);
-    this.bookmarkedTags = newBookmarks;
+    this.bookmarkStore.removeBookmark(tagId);
   }
 
-  // Drag & Drop methods for bookmarked tags
   reorderBookmarkedTags(fromIndex: number, toIndex: number) {
-    const bookmarkedTags = this.bookmarkedTagList;
-
-    if (
-      fromIndex === toIndex ||
-      fromIndex < 0 ||
-      toIndex < 0 ||
-      fromIndex >= bookmarkedTags.length ||
-      toIndex >= bookmarkedTags.length
-    ) {
-      return;
-    }
-
-    // ブックマークされたタグの並び順を変更
-    const [movedTag] = bookmarkedTags.splice(fromIndex, 1);
-    bookmarkedTags.splice(toIndex, 0, movedTag);
-
-    // order_indexを更新
-    bookmarkedTags.forEach((tag, index) => {
-      this.updateTag(tag.id, { orderIndex: index });
-    });
+    this.bookmarkStore.reorderBookmarkedTags(
+      this.crudStore.tags,
+      fromIndex,
+      toIndex,
+      (id, updates) => this.crudStore.updateTag(id, updates)
+    );
   }
 
   moveBookmarkedTagToPosition(tagId: string, targetIndex: number) {
-    const bookmarkedTags = this.bookmarkedTagList;
-    const currentIndex = bookmarkedTags.findIndex((tag) => tag.id === tagId);
-
-    if (currentIndex === -1 || currentIndex === targetIndex) return;
-
-    this.reorderBookmarkedTags(currentIndex, targetIndex);
+    this.bookmarkStore.moveBookmarkedTagToPosition(
+      this.crudStore.tags,
+      tagId,
+      targetIndex,
+      (id, updates) => this.crudStore.updateTag(id, updates)
+    );
   }
 
   initializeTagOrderIndices() {
-    // 既存のブックマークされたタグにorder_indexを設定（まだ設定されていない場合）
-    const bookmarkedTags = this.tags.filter((tag) => this.bookmarkedTags.has(tag.id));
-    bookmarkedTags.forEach((tag, index) => {
-      if (tag.orderIndex === undefined) {
-        this.updateTag(tag.id, { orderIndex: index });
-      }
-    });
-  }
-
-  // タグIDからプロジェクトIDを取得するヘルパーメソッド
-  async getProjectIdByTagId(tagId: string): Promise<string | null> {
-    // TaskStoreからタスクを検索してプロジェクトIDを取得
-    const { taskStore } = await import('$lib/stores/tasks.svelte');
-    return taskStore.getProjectIdByTagId(tagId);
+    this.bookmarkStore.initializeTagOrderIndices(
+      this.crudStore.tags,
+      (id, updates) => this.crudStore.updateTag(id, updates)
+    );
   }
 }
 
