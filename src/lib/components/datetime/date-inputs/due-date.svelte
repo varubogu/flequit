@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { TaskBase } from '$lib/types/task';
-  import { getDueDateClass } from '$lib/utils/datetime-utils';
+  import { getDueDateClass } from '$lib/utils/datetime/formatting';
 
   interface Props {
     task: TaskBase;

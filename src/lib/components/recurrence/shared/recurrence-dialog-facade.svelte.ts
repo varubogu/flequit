@@ -46,9 +46,6 @@ export interface RecurrenceDialogLogic {
   setInterval(newInterval: number): void;
   setDaysOfWeek(newDaysOfWeek: DayOfWeek[]): void;
   setDetails(newDetails: RecurrencePattern): void;
-  set displayCount(value: number);
-  set recurrenceLevel(value: RecurrenceLevel);
-  set repeatCount(value: number | undefined);
   setRepeatCount(value: number | undefined): void;
 }
 

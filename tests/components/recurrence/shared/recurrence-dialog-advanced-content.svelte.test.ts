@@ -57,7 +57,7 @@ vi.mock('$lib/components/recurrence/recurrence-preview.svelte', () => ({
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
-vi.mock('$lib/utils/datetime-utils', () => ({
+vi.mock('$lib/utils/datetime/formatting', () => ({
   formatDateTimeRange: vi.fn(() => 'formatted date')
 }));
 

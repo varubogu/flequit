@@ -3,9 +3,9 @@
   import RecurrenceCountSettings from '../recurrence-count-settings.svelte';
   import RecurrenceIntervalSettings from '../recurrence-interval-settings.svelte';
   import RecurrenceAdjustmentEditor from '../recurrence-adjustment-editor.svelte';
-  import { formatDateTimeRange } from '$lib/utils/datetime-utils';
+  import { formatDateTimeRange } from '$lib/utils/datetime/formatting';
   import RecurrencePreview from '../preview/recurrence-preview.svelte';
-  import type { RecurrenceDialogLogic } from './recurrence-dialog-facade.svelte.ts';
+  import type { RecurrenceDialogLogic } from './recurrence-dialog-facade.svelte';
 
   interface Props {
     logic: RecurrenceDialogLogic;

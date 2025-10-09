@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
 import type { TaskBase, Task } from '$lib/types/task';
-import { getDueDateClass } from '$lib/utils/datetime-utils';
+import { getDueDateClass } from '$lib/utils/datetime/formatting';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -22,7 +22,7 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   })
 }));
 
-vi.mock('$lib/utils/datetime-utils', () => ({
+vi.mock('$lib/utils/datetime/formatting', () => ({
   getDueDateClass: vi.fn((date: Date) => {
     const now = new Date();
     if (date < now) return 'text-red-500'; // overdue

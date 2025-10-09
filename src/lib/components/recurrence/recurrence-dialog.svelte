@@ -3,7 +3,7 @@
   import { Repeat } from 'lucide-svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import RecurrenceDialogAdvancedContent from './shared/recurrence-dialog-advanced-content.svelte';
-  import { createRecurrenceDialogFacade } from './shared/recurrence-dialog-facade.svelte.ts';
+  import { createRecurrenceDialogFacade } from './shared/recurrence-dialog-facade.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
   interface Props {
