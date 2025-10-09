@@ -35,13 +35,6 @@ export default tseslint.config(
   // Components層からInfrastructure層への参照を禁止
   {
     files: ['src/lib/components/**/*.{ts,svelte}'],
-    ignores: [
-      // Components層の例外（要リファクタリング）
-      'src/lib/components/task/assignment/task-assignment.svelte',
-      'src/lib/components/task/detail/task-detail.svelte',
-      'src/lib/components/task/forms/task-date-picker.svelte',
-      'src/lib/components/user/user-profile-edit-dialog.svelte'
-    ],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -60,10 +53,7 @@ export default tseslint.config(
   // 1. Stores層からServices/Infrastructureへの参照を禁止（責務分離）
   {
     files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
-    ignores: [
-      'src/lib/stores/settings.svelte.ts',
-      'src/lib/stores/views-visibility.svelte.ts'
-    ],
+
     rules: {
       'no-restricted-imports': [
         'error',
@@ -184,7 +174,6 @@ export default tseslint.config(
   // 6. Services層からComponents層への参照を禁止
   {
     files: ['src/lib/services/**/*.{ts,svelte.ts}'],
-    ignores: ['src/lib/services/data-service.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
