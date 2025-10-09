@@ -62,10 +62,9 @@ export default tseslint.config(
       ]
     }
   },
-  // 循環依存防止ルール（Stores層のみ対象）
-  // 注: settingsInitServiceは循環依存がないことを確認済みのため許可
+  // 1. Stores層からServicesへの参照を禁止（循環依存防止）
   {
-    files: ['src/lib/stores/*.svelte.ts'],
+    files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
     ignores: [
       'src/lib/stores/settings.svelte.ts',
       'src/lib/stores/views-visibility.svelte.ts'
@@ -92,8 +91,48 @@ export default tseslint.config(
       ]
     }
   },
+  // 2. Domain ServicesからUI/Composite Servicesへの参照を禁止（階層違反）
   {
-    files: ['src/lib/services/data-service.ts'],
+    files: ['src/lib/services/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ Domain ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+            },
+            {
+              group: ['$lib/services/composite/**', '**/services/composite/**'],
+              message: '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 3. Composite ServicesからUI Servicesへの参照を禁止（階層違反）
+  {
+    files: ['src/lib/services/composite/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ Composite ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 4. Utils/Types層からStores/Services/Infrastructureへの参照を禁止
+  {
+    files: ['src/lib/utils/**/*.ts', 'src/lib/types/**/*.ts'],
+    ignores: ['src/lib/types/bindings.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -101,19 +140,18 @@ export default tseslint.config(
           patterns: [
             {
               group: ['$lib/stores/**', '**/stores/**'],
-              message: '❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。'
+              message:
+                '❌ Utils/Types層からStoresへの参照は禁止です。純粋な関数・型定義のみにしてください。'
             },
             {
-              group: ['$lib/services/domain/**', '**/services/domain/**'],
-              message: '❌ data-serviceからDomain Servicesへの参照は禁止です（循環依存）。'
+              group: ['$lib/services/**', '**/services/**'],
+              message:
+                '❌ Utils/Types層からServicesへの参照は禁止です。純粋な関数・型定義のみにしてください。'
             },
             {
-              group: ['$lib/services/ui/**', '**/services/ui/**'],
-              message: '❌ data-serviceからUI Servicesへの参照は禁止です（循環依存）。'
-            },
-            {
-              group: ['$lib/services/composite/**', '**/services/composite/**'],
-              message: '❌ data-serviceからComposite Servicesへの参照は禁止です（循環依存）。'
+              group: ['$lib/infrastructure/**', '**/infrastructure/**'],
+              message:
+                '❌ Utils/Types層からInfrastructureへの参照は禁止です。純粋な関数・型定義のみにしてください。'
             }
           ]
         }

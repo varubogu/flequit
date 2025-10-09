@@ -61,30 +61,31 @@ src/lib/
 
 **特徴**:
 - `.svelte.ts`拡張子（Svelte runesを使用するため必須）
-- 永続化はdata-serviceまたはsettingsInitServiceに委譲
-- ビジネスロジックは持たない（domain servicesに委譲）
+- 永続化はInfrastructure層（backends）を直接呼び出し
+- ビジネスロジックは持たない（servicesに委譲）
 
 **依存ルール**:
-- ✅ **data-service（infrastructure）を参照OK**
-  - 例: `dataService.createProject()`, `dataService.updateTask()`
-- ✅ **settingsInitServiceを参照OK**
-  - 例: 設定の初期化・取得
-- ❌ **domain/ui/composite servicesを参照禁止**
-  - 理由: 循環依存を防ぐため
+- ✅ **infrastructure/backends を直接参照OK**
+  - 例: `backend.project.create()`, `backend.task.update()`
+- ✅ **utils/types を参照OK**
+  - 例: 日付フォーマット関数、型定義
+- ❌ **services (domain/ui/composite) を参照禁止**
+  - 理由: 循環依存を防ぐため（servicesがstoresを参照している）
 - ❌ **他のstoresへの相互参照は最小限**
-  - 必要な場合は依存方向を明確化
+  - 必要な場合は依存方向を明確化（一方向のみ）
 
 **例**:
 ```typescript
 // stores/tasks.svelte.ts
-import { dataService } from '$lib/services/data-service';
+import { getBackendService } from '$lib/infrastructure/backends';
 
 class TaskStore {
   tasks = $state<Task[]>([]);
 
-  async addTask(taskData: Task) {
-    // ✅ data-serviceで永続化
-    const newTask = await dataService.createTask(projectId, taskData);
+  async addTask(projectId: string, taskData: Task) {
+    // ✅ infrastructure/backendsで永続化
+    const backend = await getBackendService();
+    const newTask = await backend.task.create(projectId, taskData);
 
     // ✅ ローカル状態更新
     this.tasks.push(newTask);
@@ -109,112 +110,53 @@ export const taskStore = new TaskStore();
 - `index.ts` で環境に応じたBackendServiceを選択
 
 **アクセス制限**:
-- ❌ **コンポーネントから直接呼び出し禁止**
-- ❌ **Storeから直接呼び出し禁止**
-- ✅ **Services層からのみアクセス可能**
-
----
-
-### data-service (`services/data-service.ts`)
-
-**特別な位置づけ**:
-- Infrastructure層とStores層の橋渡し役
-- `infrastructure/backends/`への唯一のアクセスポイント
-- 実質的にInfrastructure層の一部として扱う
-
-**責務**:
-- BackendServiceの取得・初期化
-- 各バックエンド操作のシンプルなラッパー
-- データ永続化の統一インターフェース提供
-
-**依存ルール**:
-- ✅ **infrastructure/backends を参照OK**
-  - `getBackendService()`経由でバックエンド取得
-- ❌ **stores を参照禁止**（厳守）
-  - 理由: Infrastructure層はStoresに依存してはいけない
-  - 必要なIDはパラメータとして受け取る
-- ❌ **domain/ui/composite services を参照禁止**
-  - 理由: 循環依存を防ぐため
-
-**例**:
-```typescript
-// services/data-service.ts
-import { getBackendService } from '$lib/infrastructure/backends';
-
-class DataService {
-  private async getBackend() {
-    return await getBackendService();
-  }
-
-  // ✅ 正しい: projectIdをパラメータで受け取る
-  async createTag(projectId: string, tagData: TagData): Promise<Tag> {
-    const backend = await this.getBackend();
-    return await backend.tag.create(projectId, tagData);
-  }
-
-  // ❌ 間違い: storeから取得
-  // async createTag(tagData: TagData): Promise<Tag> {
-  //   const { taskStore } = await import('$lib/stores/tasks.svelte');
-  //   const projectId = taskStore.selectedProjectId; // NG!
-  //   ...
-  // }
-}
-```
-
-**呼び出し元の責任**:
-```typescript
-// stores/tags.svelte.ts
-import { taskStore } from './tasks.svelte';
-import { dataService } from '$lib/services/data-service';
-
-class TagStore {
-  async addTag(tagData: TagData) {
-    // ✅ storeがprojectIdを取得してdata-serviceに渡す
-    const projectId = taskStore.selectedProjectId || '';
-    const newTag = await dataService.createTag(projectId, tagData);
-    this.tags.push(newTag);
-  }
-}
-```
+- ❌ **Components層から直接呼び出し禁止**
+- ✅ **Stores層から直接呼び出しOK**
+- ✅ **Services層から呼び出しOK**（将来的に移行予定）
 
 ---
 
 ### Application層 - Domain Services (`services/domain/`)
 
 **責務**:
-- 単一エンティティのCRUD操作
-- Infrastructure層（Backend）を使ってデータ永続化
-- Storeを使ってUI状態の同期
+- 単一エンティティに関するビジネスロジック
+- Storeを呼び出してデータ取得・更新
+- 複雑な操作や検証ロジックの実装
 
 **パターン**:
 ```typescript
 // services/domain/task.ts
+import { taskStore } from '$lib/stores/tasks.svelte';
+
 export class TaskService {
   static async updateTask(taskId: string, updates: Partial<Task>) {
-    // 1. Backendで永続化
-    const backend = await getBackendService();
-    await backend.task.update(projectId, taskId, updates);
+    // ビジネスロジック（例: バリデーション）
+    if (!updates.title || updates.title.trim() === '') {
+      throw new Error('タイトルは必須です');
+    }
 
-    // 2. Storeで状態更新
-    taskStore.updateTask(taskId, updates);
+    // Storeを経由してデータ更新（永続化を含む）
+    await taskStore.updateTask(taskId, updates);
   }
 }
 ```
 
-**依存ルール（Svelte 5特有）**:
-- ✅ **コンポーネントから呼び出しOK**
-- ✅ **Storeからデータ取得OK**
+**依存ルール**:
+- ✅ **Components層から呼び出しOK**
+- ✅ **Storesからデータ取得・更新OK**
   - 理由: Svelte runesは`.svelte.ts`でのみ動作、状態はstoresに集中
-  - 例: `taskStore.tasks`, `taskStore.selectedProjectId`
-- ❌ **data-serviceを直接呼び出し禁止**
-  - 理由: 永続化はstoresまたはProjectsService経由で行う
+  - 例: `taskStore.tasks`, `taskStore.updateTask()`
 - ✅ **他のDomain Servicesを使用OK**
   - 例: TaskServiceからRecurrenceServiceを呼び出す
+  - 注意: 循環参照にならないよう一方向のみ
+- ✅ **Utils/Types を参照OK**
+  - 例: 日付計算、バリデーション関数
+- ❌ **UI/Composite Services を参照禁止**
+  - 理由: 下位層から上位層への依存は禁止
 
 **注意事項**:
-- Storesを参照するのは**読み取り専用**が基本
-- Storeメソッドを呼ぶ場合は、単なるラッパーにならないよう注意
-- ビジネスロジックがない場合はservice層に配置しない
+- 単なるStoreのラッパーにならないよう注意（ビジネスロジックがない場合は不要）
+- ビジネスロジックがない場合はservice層に配置せず、直接Storeを使用
 
 ---
 
@@ -228,6 +170,9 @@ export class TaskService {
 **例**:
 ```typescript
 // services/composite/task-composite.ts
+import { TaskService } from '$lib/services/domain/task';
+import { SubTaskService } from '$lib/services/domain/subtask';
+
 export class TaskCompositeService {
   /**
    * タスクとサブタスクを一括作成
@@ -249,36 +194,50 @@ export class TaskCompositeService {
 }
 ```
 
-**アクセス制限**:
-- ✅ **コンポーネントから呼び出しOK**
+**依存ルール**:
+- ✅ **Components層から呼び出しOK**
 - ✅ **Domain Servicesを使用OK**
-- ❌ **Infrastructure層への直接アクセスは避ける**（Domain経由で行う）
+- ✅ **他のComposite Servicesを使用OK**（慎重に、循環参照注意）
+- ✅ **Storesからデータ取得・更新OK**
+- ✅ **Utils/Types を参照OK**
+- ❌ **UI Services を参照禁止**
+  - 理由: 下位層から上位層への依存は禁止
 
 ---
 
 ### Application層 - UI Services (`services/ui/`)
 
 **責務**:
-- UI状態管理のみ（モバイルDrawer、選択状態等）
-- バックエンド通信を行わない
+- UI状態管理とユーザー操作の調整
+- モバイル/デスクトップ切り替え
+- Domain/Composite Servicesを組み合わせてUI層の操作を提供
 
 **例**:
 ```typescript
 // services/ui/task-detail.ts
+import { TaskService } from '$lib/services/domain/task';
+import { viewStore } from '$lib/stores/view-store.svelte';
+
 export class TaskDetailService {
   static openTaskDetail(taskId: string) {
-    TaskService.selectTask(taskId); // Domain Serviceを呼ぶのはOK
+    // Domain Serviceでデータ操作
+    TaskService.selectTask(taskId);
 
-    if (isMobile) {
-      this.openDrawer(); // UI状態の変更
+    // UI状態の変更
+    if (viewStore.isMobile) {
+      viewStore.openDrawer('task-detail');
     }
   }
 }
 ```
 
-**アクセス制限**:
-- ✅ **コンポーネントから呼び出しOK**
-- ✅ **Domain/Composite Servicesを使用OK**
+**依存ルール**:
+- ✅ **Components層から呼び出しOK**
+- ✅ **Domain Servicesを使用OK**
+- ✅ **Composite Servicesを使用OK**
+- ✅ **他のUI Servicesを使用OK**（慎重に、循環参照注意）
+- ✅ **Storesからデータ取得・更新OK**
+- ✅ **Utils/Types を参照OK**
 - ❌ **Infrastructure層への直接アクセス禁止**
 
 ## レイヤー間の依存関係
@@ -286,10 +245,11 @@ export class TaskDetailService {
 ```
 ┌─────────────────────────────────────────────┐
 │ Components (Svelte)                         │
-│ ✅ stores/* から読み取り                    │
-│ ✅ services/* から import                   │
+│ ✅ stores/* から値の読み取りのみ            │
+│ ✅ services/* から import・呼び出し         │
 │ ❌ infrastructure/* から import 禁止         │
-│ ❌ stores/* への直接書き込み禁止             │
+│ ❌ stores/* のメソッド呼び出し禁止           │
+│ ❌ utils/types 以外への直接書き込み禁止     │
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
@@ -299,17 +259,21 @@ export class TaskDetailService {
 │ ├─ settings.svelte.ts                       │
 │ └─ view-store.svelte.ts                     │
 │                                             │
-│ ✅ data-service (infrastructure) を参照     │
-│ ✅ settingsInitService を参照               │
-│ ❌ domain/ui services を参照禁止            │
+│ ✅ infrastructure/backends を直接参照       │
+│ ❌ services (domain/ui/composite) 参照禁止  │
+│ ❌ 他のstoresへの相互参照は最小限           │
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
 │ Services Layer                              │
-│ ├─ data-service.ts (infrastructure)         │
-│ ├─ domain/      (単一エンティティ)          │
+│ ├─ ui/          (UI状態・最上位)            │
 │ ├─ composite/   (横断操作)                  │
-│ └─ ui/          (UI状態)                    │
+│ └─ domain/      (単一エンティティ)          │
+│                                             │
+│ 📊 依存方向: UI → Composite → Domain       │
+│ ✅ 下位層・同位層への参照OK                 │
+│ ❌ 上位層への参照禁止                       │
+│ ✅ stores への参照OK（読み取り・更新）      │
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
@@ -319,36 +283,68 @@ export class TaskDetailService {
 │    ├─ web/      (Web実装)                  │
 │    └─ cloud/    (将来: クラウド実装)        │
 └─────────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────────┐
+│ Utils/Types Layer (全層から利用可能)        │
+│ ├─ utils/       (純粋関数)                  │
+│ └─ types/       (型定義)                    │
+│                                             │
+│ ❌ stores/services への参照禁止             │
+└─────────────────────────────────────────────┘
 ```
 
 ### 詳細な依存ルール
 
-| From → To | Infrastructure | data-service | Domain | Composite | UI | Stores | Components |
-|-----------|---------------|--------------|--------|-----------|-----|--------|------------|
-| **Components** | ❌ 禁止 | ❌ 禁止 | ✅ OK | ✅ OK | ✅ OK | ✅ 読取のみ | ✅ OK |
-| **Stores** | ✅ backends経由 | ✅ OK | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | - | - |
-| **UI Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | ✅ OK | - | ✅ OK | - |
-| **Composite Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | - | - | ⚠️ 避ける | - |
-| **Domain Services** | ❌ 禁止 | ❌ 禁止 | ✅ OK | - | - | ✅ OK | - |
-| **data-service** | ✅ OK | - | - | - | - | ❌ 禁止 | - |
+| From → To | Infrastructure | Domain Services | Composite Services | UI Services | Stores | Utils/Types | Components |
+|-----------|---------------|-----------------|-------------------|-------------|--------|-------------|------------|
+| **Components** | ❌ 禁止 | ✅ 呼び出しOK | ✅ 呼び出しOK | ✅ 呼び出しOK | ✅ 読取のみ | ✅ OK | - |
+| **Stores** | ✅ backends経由 | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | ⚠️ 最小限 | ✅ OK | - |
+| **UI Services** | ❌ 禁止 | ✅ OK | ✅ OK | ⚠️ 同位層注意 | ✅ OK | ✅ OK | - |
+| **Composite Services** | ❌ 禁止 | ✅ OK | ⚠️ 同位層注意 | ❌ 禁止 | ✅ OK | ✅ OK | - |
+| **Domain Services** | ❌ 禁止 | ⚠️ 同位層注意 | ❌ 禁止 | ❌ 禁止 | ✅ OK | ✅ OK | - |
+| **Utils/Types** | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | ❌ 禁止 | - | - |
 | **Infrastructure** | - | - | - | - | - | - | - |
+
+#### 凡例
+- ✅ OK: 推奨される依存関係
+- ⚠️ 注意: 許容されるが慎重に（循環依存に注意）
+- ❌ 禁止: ESLintで検出される違反
 
 ### 循環依存防止ルール
 
 **🔴 絶対禁止（循環依存リスク）**:
-- ❌ `stores` → `domain/ui/composite services`
-- ❌ `data-service` → `stores`
-- ❌ `data-service` → `domain/ui/composite services`
+- ❌ `stores` → `services (domain/ui/composite)`
+  - 理由: servicesがstoresを参照しているため、逆方向は循環依存になる
+- ❌ `domain services` → `ui services`
+  - 理由: 下位層から上位層への依存は禁止
+- ❌ `domain services` → `composite services`
+  - 理由: 下位層から上位層への依存は禁止
+- ❌ `composite services` → `ui services`
+  - 理由: 下位層から上位層への依存は禁止
+- ❌ `utils/types` → `stores/services/infrastructure`
+  - 理由: 純粋な関数・型定義層は他層に依存してはいけない
 
 **🟡 Svelte 5特有の許容パターン**:
-- ✅ `domain/ui services` → `stores` (Svelte runesの制約上許容)
+- ✅ `services (domain/ui/composite)` → `stores` (Svelte runesの制約上許容)
   - 理由: `$state`は`.svelte.ts`でのみ動作するため、状態はstoresに集中
-  - 条件: **逆方向の依存（stores → domain/ui services）が存在しないこと**
+  - 条件: **逆方向の依存（stores → services）が存在しないこと**
+- ✅ `components` → `stores` (読み取りのみ)
+  - 理由: UIコンポーネントは状態を表示する必要がある
+  - 制限: **Storeのメソッド呼び出しは禁止、値の読み取りのみ**
+
+**⚠️ 注意が必要なパターン**:
+- ⚠️ `stores` 間の相互参照
+  - 許容: 明確な依存方向がある場合（例: `task-store` → `project-store`）
+  - 禁止: 相互に参照し合う場合（循環依存）
+- ⚠️ 同位層の `services` 間の参照
+  - 許容: 依存が一方向のみの場合
+  - 禁止: 相互に参照し合う場合（循環依存）
 
 **🟢 推奨パターン**:
-- ✅ `stores` → `data-service` → `infrastructure`
-- ✅ `domain/ui services` → `stores` (一方向のみ)
 - ✅ `components` → `services` → `stores` → `infrastructure`
+- ✅ `services (ui → composite → domain)` (階層順守)
+- ✅ `services` → `stores` (読み取り・更新)
+- ✅ `components` → `stores` (読み取りのみ)
 
 ## 循環依存チェック（ESLint）
 
@@ -359,7 +355,7 @@ export class TaskDetailService {
 ```typescript
 // eslint.config.ts
 
-// 1. Stores層からDomain/UI/Composite Servicesへの参照を禁止
+// 1. Stores層からServicesへの参照を禁止
 {
   files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
   rules: {
@@ -385,9 +381,50 @@ export class TaskDetailService {
   }
 },
 
-// 2. data-serviceからStores/Servicesへの参照を禁止
+// 2. Domain ServicesからUI/Composite Servicesへの参照を禁止
 {
-  files: ['src/lib/services/data-service.ts'],
+  files: ['src/lib/services/domain/**/*.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['$lib/services/ui/**', '**/services/ui/**'],
+            message: '❌ Domain ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+          },
+          {
+            group: ['$lib/services/composite/**', '**/services/composite/**'],
+            message: '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
+          }
+        ]
+      }
+    ]
+  }
+},
+
+// 3. Composite ServicesからUI Servicesへの参照を禁止
+{
+  files: ['src/lib/services/composite/**/*.ts'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          {
+            group: ['$lib/services/ui/**', '**/services/ui/**'],
+            message: '❌ Composite ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+          }
+        ]
+      }
+    ]
+  }
+},
+
+// 4. Utils/Types層からStores/Servicesへの参照を禁止
+{
+  files: ['src/lib/utils/**/*.ts', 'src/lib/types/**/*.ts'],
+  ignores: ['src/lib/types/bindings.ts'],
   rules: {
     'no-restricted-imports': [
       'error',
@@ -395,19 +432,15 @@ export class TaskDetailService {
         patterns: [
           {
             group: ['$lib/stores/**', '**/stores/**'],
-            message: '❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。'
+            message: '❌ Utils/Types層からStoresへの参照は禁止です。純粋な関数・型定義のみにしてください。'
           },
           {
-            group: ['$lib/services/domain/**', '**/services/domain/**'],
-            message: '❌ data-serviceからDomain Servicesへの参照は禁止です（循環依存）。'
+            group: ['$lib/services/**', '**/services/**'],
+            message: '❌ Utils/Types層からServicesへの参照は禁止です。純粋な関数・型定義のみにしてください。'
           },
           {
-            group: ['$lib/services/ui/**', '**/services/ui/**'],
-            message: '❌ data-serviceからUI Servicesへの参照は禁止です（循環依存）。'
-          },
-          {
-            group: ['$lib/services/composite/**', '**/services/composite/**'],
-            message: '❌ data-serviceからComposite Servicesへの参照は禁止です（循環依存）。'
+            group: ['$lib/infrastructure/**', '**/infrastructure/**'],
+            message: '❌ Utils/Types層からInfrastructureへの参照は禁止です。純粋な関数・型定義のみにしてください。'
           }
         ]
       }
@@ -429,15 +462,25 @@ bun run dev  # ESLint統合されたエディタで自動表示
 ### エラー例
 
 ```bash
-# stores → domain services の違反例
-src/lib/stores/settings.svelte.ts
-  2:1  error  '$lib/services/domain/settings' import is restricted from being used by a pattern.
+# 1. stores → services の違反例
+src/lib/stores/tasks.svelte.ts
+  2:1  error  '$lib/services/domain/task' import is restricted from being used by a pattern.
               ❌ Stores層からDomain Servicesへの参照は禁止です（循環依存）。
 
-# data-service → stores の違反例
-src/lib/services/data-service.ts
-  5:1  error  '$lib/stores/tasks.svelte' import is restricted from being used by a pattern.
-              ❌ data-serviceからStoresへの参照は禁止です。必要なIDはパラメータで受け取ってください。
+# 2. domain services → ui services の違反例
+src/lib/services/domain/task.ts
+  3:1  error  '$lib/services/ui/task-detail' import is restricted from being used by a pattern.
+              ❌ Domain ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。
+
+# 3. composite services → ui services の違反例
+src/lib/services/composite/task-composite.ts
+  4:1  error  '$lib/services/ui/layout' import is restricted from being used by a pattern.
+              ❌ Composite ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。
+
+# 4. utils → services の違反例
+src/lib/utils/date-utils.ts
+  2:1  error  '$lib/services/domain/settings' import is restricted from being used by a pattern.
+              ❌ Utils/Types層からServicesへの参照は禁止です。純粋な関数・型定義のみにしてください。
 ```
 
 ### CI/CDへの組み込み
@@ -566,39 +609,51 @@ export async function getBackendService(): Promise<BackendService> {
 }
 ```
 
-## Store（状態管理）との関係
+## Components層とStoreの関係
 
-Store（`src/lib/stores/`）は以下のルールに従います:
+Components層（`src/lib/components/`）とStore（`src/lib/stores/`）の間には厳格なルールがあります:
 
 ### Storeからの読み取り
-- ✅ **コンポーネントから直接読み取りOK**
+- ✅ **Components層から直接読み取りOK**
   ```typescript
+  // ✅ OK: 値の読み取り
   import { taskStore } from '$lib/stores/tasks.svelte';
 
-  const tasks = taskStore.tasks; // 読み取りOK
+  const tasks = taskStore.tasks;
+  const selectedTask = taskStore.selectedTask;
   ```
 
-### Storeへの書き込み
-- ❌ **コンポーネントから直接書き込み禁止**
-- ✅ **必ずDomain Serviceを経由**
+### Storeのメソッド呼び出し
+- ❌ **Components層からStoreのメソッド呼び出しは禁止**
+- ✅ **必ずServicesを経由**
   ```typescript
-  // ❌ NG
-  taskStore.updateTask(taskId, updates);
+  // ❌ NG: Components層から直接Storeのメソッドを呼び出し
+  await taskStore.updateTask(taskId, updates);
 
-  // ✅ OK
+  // ✅ OK: Servicesを経由
+  import { TaskService } from '$lib/services/domain/task';
   await TaskService.updateTask(taskId, updates);
   ```
 
-**理由**: Domain Serviceが「Backend永続化 + Store更新」の両方を保証するため
+**理由**:
+- Storeの更新ロジックにビジネスルールや検証が必要な場合、Services層で集中管理
+- Services層を経由することで、将来の変更に対応しやすい
+- テスタビリティの向上（Services層のモックが容易）
+
+**注意**:
+- Storeのメソッド呼び出しと値の読み取りはESLintで区別できないため、コードレビューで確認が必要
+- 簡単な操作でもServicesを経由することで、一貫性のあるコードになる
 
 ## まとめ
 
 ### 設計原則
 
 1. **Infrastructure層とApplication層を明確に分離**
-2. **コンポーネントはServices層のみ使用**
-3. **新しいバックエンド追加時はInfrastructure層のみ変更**
-4. **Store書き込みは必ずDomain Service経由**
+2. **Components層はServicesのみ呼び出し、Storeは読み取りのみ**
+3. **Services層は階層構造を守る (UI → Composite → Domain)**
+4. **Stores層はServicesを参照しない（循環依存防止）**
+5. **Storeのメソッド呼び出しは必ずServices経由**
+6. **Utils/Types層は他層に依存しない（純粋関数・型定義のみ）**
 
 ### 期待される効果
 
