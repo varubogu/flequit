@@ -32,16 +32,11 @@ export default tseslint.config(
       parser: tseslint.parser
     }
   },
+  // Components層からInfrastructure層への参照を禁止
   {
-    files: ['src/lib/**/*.{ts,svelte}'],
+    files: ['src/lib/components/**/*.{ts,svelte}'],
     ignores: [
-      'src/lib/infrastructure/**',
-      'src/lib/services/data-service.ts',
-      'src/lib/services/domain/settings.ts',
-      'src/lib/services/paraglide-translation-service.svelte.ts',
-      'src/lib/stores/settings.svelte.ts',
-      'src/lib/stores/views-visibility.svelte.ts',
-      // Components層の例外（要リファクタリング: data-serviceへのメソッド追加が必要）
+      // Components層の例外（要リファクタリング）
       'src/lib/components/task/assignment/task-assignment.svelte',
       'src/lib/components/task/detail/task-detail.svelte',
       'src/lib/components/task/forms/task-date-picker.svelte',
@@ -53,16 +48,16 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/infrastructure/**'],
+              group: ['$lib/infrastructure/**', '**/infrastructure/**'],
               message:
-                '❌ Infrastructure層への直接アクセスは禁止です。services/を経由してください。'
+                '❌ Components層からInfrastructure層への直接アクセスは禁止です。Services層を経由してください。'
             }
           ]
         }
       ]
     }
   },
-  // 1. Stores層からServicesへの参照を禁止（循環依存防止）
+  // 1. Stores層からServices/Infrastructureへの参照を禁止（責務分離）
   {
     files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
     ignores: [
@@ -85,6 +80,11 @@ export default tseslint.config(
             {
               group: ['$lib/services/composite/**', '**/services/composite/**'],
               message: '❌ Stores層からComposite Servicesへの参照は禁止です（循環依存）。'
+            },
+            {
+              group: ['$lib/infrastructure/**', '**/infrastructure/**'],
+              message:
+                '❌ Stores層からInfrastructure層への参照は禁止です。Stores層は状態管理のみを担当します。Services層を経由してください。'
             }
           ]
         }
@@ -152,6 +152,66 @@ export default tseslint.config(
               group: ['$lib/infrastructure/**', '**/infrastructure/**'],
               message:
                 '❌ Utils/Types層からInfrastructureへの参照は禁止です。純粋な関数・型定義のみにしてください。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 5. Infrastructure層からServices/Storesへの参照を禁止
+  {
+    files: ['src/lib/infrastructure/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/**', '**/services/**'],
+              message:
+                '❌ Infrastructure層からServicesへの参照は禁止です。Infrastructure層はStores層からのみ利用されます。'
+            },
+            {
+              group: ['$lib/stores/**', '**/stores/**'],
+              message:
+                '❌ Infrastructure層からStoresへの参照は禁止です。Infrastructure層は純粋なバックエンド通信のみを担当します。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 6. Services層からComponents層への参照を禁止
+  {
+    files: ['src/lib/services/**/*.{ts,svelte.ts}'],
+    ignores: ['src/lib/services/data-service.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/components/**', '**/components/**'],
+              message:
+                '❌ Services層からComponents層への参照は禁止です。Services層はビジネスロジックのみを担当します。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 7. Stores層からComponents層への参照を禁止
+  {
+    files: ['src/lib/stores/**/*.{ts,svelte.ts}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/components/**', '**/components/**'],
+              message:
+                '❌ Stores層からComponents層への参照は禁止です。Stores層は状態管理のみを担当します。'
             }
           ]
         }
