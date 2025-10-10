@@ -11,6 +11,7 @@ import type { BackendService } from '$lib/infrastructure/backends/index';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import type { BackendErrorContext } from '$lib/infrastructure/backend-error';
 import { toBackendError } from '$lib/infrastructure/backend-error';
+import { TagService } from './domain/tag';
 
 /**
  * データ管理の中間サービス層
@@ -314,41 +315,32 @@ export class DataService {
   }
 
   // タグ管理
+  /**
+   * @deprecated Use TagService.createTag() instead
+   */
   async createTag(projectId: string, tagData: { name: string; color?: string; order_index?: number }): Promise<Tag> {
-    const backend = await this.getBackend();
-    const newTag: Tag = {
-      id: crypto.randomUUID(),
-      name: tagData.name,
-      color: tagData.color,
-      orderIndex: tagData.order_index || 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    await backend.tag.create(projectId, newTag);
-    return newTag;
+    console.warn('DataService.createTag is deprecated. Use TagService.createTag() instead.');
+    const tag = await TagService.createTag(projectId, tagData);
+    return tag!;
   }
 
-  async updateTag(projectId: string, tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
-    const backend = await this.getBackend();
-
-    // Patch形式でのupdateに変更
-    const patchData = {
-      ...updates,
-      updated_at: new Date()
-    };
-
-    const success = await backend.tag.update(projectId, tagId, patchData);
-
-    if (success) {
-      // 更新後のデータを取得して返す
-      return await backend.tag.get(projectId, tagId);
-    }
-    return null;
+  /**
+   * @deprecated Use TagService.updateTag() instead
+   */
+  async updateTag(projectId: string, _tagId: string, updates: Partial<Tag>): Promise<Tag | null> {
+    console.warn('DataService.updateTag is deprecated. Use TagService.updateTag() instead.');
+    if (!updates.id) return null;
+    await TagService.updateTag(projectId, updates.id, updates);
+    return updates as Tag;
   }
 
+  /**
+   * @deprecated Use TagService.deleteTag() instead
+   */
   async deleteTag(projectId: string, tagId: string): Promise<boolean> {
-    const backend = await this.getBackend();
-    return await backend.tag.delete(projectId, tagId);
+    console.warn('DataService.deleteTag is deprecated. Use TagService.deleteTag() instead.');
+    await TagService.deleteTag(projectId, tagId);
+    return true;
   }
 
   // 複合操作（TaskStoreで使用されているメソッド）

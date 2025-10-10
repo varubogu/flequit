@@ -211,9 +211,9 @@ export class TaskStore {
     return removed ?? null;
   }
 
-  addTagToNewTask(tagName: string) {
+  async addTagToNewTask(tagName: string) {
     if (this.newTaskData && this.selectedProjectId) {
-      const tag = tagStore.getOrCreateTagWithProject(tagName, this.selectedProjectId);
+      const tag = await tagStore.getOrCreateTagWithProject(tagName, this.selectedProjectId);
       if (!tag) return;
 
       // Check if tag already exists on this task (by name, not ID)

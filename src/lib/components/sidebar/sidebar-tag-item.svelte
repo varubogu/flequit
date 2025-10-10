@@ -1,6 +1,8 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { tagStore } from '$lib/stores/tags.svelte';
+  import { TagService } from '$lib/services/domain/tag';
   import Button from '$lib/components/shared/button.svelte';
   import { Hash, Edit, Trash2, Bookmark, BookmarkX } from 'lucide-svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
@@ -66,8 +68,13 @@
       {
         id: 'add-to-sidebar',
         label: addTagToSidebar,
-        action: () => {
-          tagStore.addBookmark(tag.id);
+        action: async () => {
+          const projectId = await tagStore.getProjectIdByTagId(tag.id);
+          if (!projectId) {
+            console.error('Project ID not found for tag:', tag.id);
+            return;
+          }
+          TagService.addBookmark(projectId, tag.id);
         },
         icon: Bookmark,
         visible: () => {

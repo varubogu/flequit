@@ -111,12 +111,12 @@ export class TaskFacadeStore {
     this.#deps.newMode.updateDraft(updates);
   }
 
-  addTagToNewTask(name: string) {
+  async addTagToNewTask(name: string) {
     const draft = this.#deps.newMode.newTaskDraft;
     if (!draft) return;
 
     const projectId = this.getProjectIdByTaskId(draft.id) ?? draft.projectId;
-    const tag = this.#deps.tagStore.getOrCreateTagWithProject(name, projectId);
+    const tag = await this.#deps.tagStore.getOrCreateTagWithProject(name, projectId);
     if (!tag) return;
 
     if (!draft.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {

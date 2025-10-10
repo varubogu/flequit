@@ -11,6 +11,7 @@
   import type { Tag } from '$lib/types/tag';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { TaskService } from '$lib/services/domain/task';
+  import { TagService } from '$lib/services/domain/tag';
 
   interface Props {
     currentView?: ViewType;
@@ -64,17 +65,26 @@
     if (selectedTag) {
       // Get project ID for this tag
       const projectId = await tagStore.getProjectIdByTagId(selectedTag.id);
-      tagStore.updateTag(selectedTag.id, {
+      if (!projectId) {
+        console.error('Project ID not found for tag:', selectedTag.id);
+        return;
+      }
+      TagService.updateTag(projectId, selectedTag.id, {
         name: data.name,
         color: data.color
-      }, projectId || undefined);
+      });
     }
     onEditComplete();
   }
 
-  function onDeleteConfirm() {
+  async function onDeleteConfirm() {
     if (selectedTag) {
-      tagStore.deleteTag(selectedTag.id, (tagId) => {
+      const projectId = await tagStore.getProjectIdByTagId(selectedTag.id);
+      if (!projectId) {
+        console.error('Project ID not found for tag:', selectedTag.id);
+        return;
+      }
+      TagService.deleteTag(projectId, selectedTag.id, (tagId: string) => {
         // Remove tag from all tasks and subtasks
         taskStore.removeTagFromAllTasks(tagId);
       });

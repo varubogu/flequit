@@ -1,24 +1,24 @@
 import type { Tag } from '$lib/types/tag';
-import { TagCRUDStore } from './tags/tag-crud-store.svelte';
+import { tagStore as tagStoreInternal } from './tags/tag-store.svelte';
+import { TagService } from '$lib/services/domain/tag';
 import { TagBookmarkStore } from './tags/tag-bookmark-store.svelte';
 
 /**
  * Tag store facade
  *
  * Provides a unified interface to tag CRUD and bookmark management.
- * Delegates operations to specialized stores while maintaining backward compatibility.
+ * Delegates operations to TagStore (state) and TagService (business logic).
  */
-export class TagStore {
-  private crudStore = new TagCRUDStore();
+export class TagStoreFacade {
   private bookmarkStore = new TagBookmarkStore();
 
-  // Delegate tag state to CRUD store
+  // Delegate tag state to internal TagStore
   get tags(): Tag[] {
-    return this.crudStore.tags;
+    return tagStoreInternal.tags;
   }
 
   set tags(value: Tag[]) {
-    this.crudStore.tags = value;
+    tagStoreInternal.setTags(value);
   }
 
   get bookmarkedTags() {
@@ -31,83 +31,83 @@ export class TagStore {
 
   // Computed values
   get allTags(): Tag[] {
-    return this.crudStore.allTags;
+    return tagStoreInternal.allTags;
   }
 
   get tagNames(): string[] {
-    return this.crudStore.tagNames;
+    return tagStoreInternal.tagNames;
   }
 
   get bookmarkedTagList(): Tag[] {
-    return this.bookmarkStore.getBookmarkedTagList(this.crudStore.tags);
+    return this.bookmarkStore.getBookmarkedTagList(tagStoreInternal.tags);
   }
 
-  // CRUD operations - delegate to CRUDStore
+  // CRUD operations - delegate to TagService
   setTags(tags: Tag[]) {
-    this.crudStore.setTags(tags);
+    tagStoreInternal.setTags(tags);
   }
 
-  addTag(tagData: { name: string; color?: string }): Tag | null {
-    return this.crudStore.addTag(tagData);
+  async addTag(tagData: { name: string; color?: string }, projectId: string): Promise<Tag | null> {
+    return TagService.createTag(projectId, tagData);
   }
 
-  async addTagAsync(tagData: { name: string; color?: string }, projectId?: string): Promise<Tag | null> {
-    return this.crudStore.addTagAsync(tagData, projectId);
+  async addTagAsync(tagData: { name: string; color?: string }, projectId: string): Promise<Tag | null> {
+    return TagService.createTag(projectId, tagData);
   }
 
-  addTagWithProject(tagData: { name: string; color?: string }, projectId: string): Tag | null {
-    return this.crudStore.addTagWithProject(tagData, projectId);
+  async addTagWithProject(tagData: { name: string; color?: string }, projectId: string): Promise<Tag | null> {
+    return TagService.createTag(projectId, tagData);
   }
 
   addTagWithId(tag: Tag): Tag {
-    return this.crudStore.addTagWithId(tag);
+    return tagStoreInternal.addTagWithId(tag);
   }
 
-  updateTag(tagId: string, updates: Partial<Tag>, projectId?: string) {
-    this.crudStore.updateTag(tagId, updates, projectId);
+  async updateTag(tagId: string, updates: Partial<Tag>, projectId: string): Promise<void> {
+    return TagService.updateTag(projectId, tagId, updates);
   }
 
-  async updateTagAsync(tagId: string, updates: Partial<Tag>) {
-    return this.crudStore.updateTagAsync(tagId, updates);
+  async updateTagAsync(tagId: string, updates: Partial<Tag>, projectId: string): Promise<void> {
+    return TagService.updateTag(projectId, tagId, updates);
   }
 
-  deleteTag(tagId: string, onDelete?: (tagId: string) => void) {
+  async deleteTag(tagId: string, projectId: string, onDelete?: (tagId: string) => void): Promise<void> {
     // Remove from bookmarks if exists
     if (this.bookmarkStore.isBookmarked(tagId)) {
       this.bookmarkStore.removeBookmark(tagId);
     }
 
-    this.crudStore.deleteTag(tagId, onDelete);
+    return TagService.deleteTag(projectId, tagId, onDelete);
   }
 
-  async deleteTagAsync(tagId: string, onDelete?: (tagId: string) => void) {
+  async deleteTagAsync(tagId: string, projectId: string, onDelete?: (tagId: string) => void): Promise<void> {
     // Remove from bookmarks if exists
     const wasBookmarked = this.bookmarkStore.isBookmarked(tagId);
     if (wasBookmarked) {
       this.bookmarkStore.removeBookmark(tagId);
     }
 
-    await this.crudStore.deleteTagAsync(tagId, onDelete);
+    return TagService.deleteTag(projectId, tagId, onDelete);
   }
 
   findTagByName(name: string): Tag | undefined {
-    return this.crudStore.findTagByName(name);
+    return tagStoreInternal.findTagByName(name);
   }
 
   searchTags(query: string): Tag[] {
-    return this.crudStore.searchTags(query);
+    return tagStoreInternal.searchTags(query);
   }
 
-  getOrCreateTag(name: string, color?: string): Tag | null {
-    return this.crudStore.getOrCreateTag(name, color);
+  async getOrCreateTag(name: string, projectId: string, color?: string): Promise<Tag | null> {
+    return TagService.getOrCreateTag(projectId, name, color);
   }
 
-  getOrCreateTagWithProject(name: string, projectId: string, color?: string): Tag | null {
-    return this.crudStore.getOrCreateTagWithProject(name, projectId, color);
+  async getOrCreateTagWithProject(name: string, projectId: string, color?: string): Promise<Tag | null> {
+    return TagService.getOrCreateTag(projectId, name, color);
   }
 
   async getProjectIdByTagId(tagId: string): Promise<string | null> {
-    return this.crudStore.getProjectIdByTagId(tagId);
+    return TagService.getProjectIdByTagId(tagId);
   }
 
   // Bookmark operations - delegate to BookmarkStore
@@ -119,47 +119,70 @@ export class TagStore {
     return this.bookmarkStore.isBookmarked(tagId);
   }
 
-  addBookmark(tagId: string) {
+  async addBookmark(tagId: string) {
+    const projectId = await TagService.getProjectIdByTagId(tagId);
+    if (!projectId) return;
+
     this.bookmarkStore.addBookmark(
       tagId,
-      this.crudStore.tags,
-      (id, updates) => this.crudStore.updateTag(id, updates)
+      tagStoreInternal.tags,
+      (id, updates) => TagService.updateTag(projectId, id, updates)
     );
   }
 
   setBookmarkForInitialization(tagId: string) {
-    this.bookmarkStore.setBookmarkForInitialization(tagId, this.crudStore.tags);
+    this.bookmarkStore.setBookmarkForInitialization(tagId, tagStoreInternal.tags);
   }
 
   removeBookmark(tagId: string) {
     this.bookmarkStore.removeBookmark(tagId);
   }
 
-  reorderBookmarkedTags(fromIndex: number, toIndex: number) {
+  async reorderBookmarkedTags(fromIndex: number, toIndex: number) {
+    // Get project ID from first bookmarked tag
+    const firstTag = this.bookmarkedTagList[0];
+    if (!firstTag) return;
+
+    const projectId = await TagService.getProjectIdByTagId(firstTag.id);
+    if (!projectId) return;
+
     this.bookmarkStore.reorderBookmarkedTags(
-      this.crudStore.tags,
+      tagStoreInternal.tags,
       fromIndex,
       toIndex,
-      (id, updates) => this.crudStore.updateTag(id, updates)
+      (id, updates) => TagService.updateTag(projectId, id, updates)
     );
   }
 
-  moveBookmarkedTagToPosition(tagId: string, targetIndex: number) {
+  async moveBookmarkedTagToPosition(tagId: string, targetIndex: number) {
+    const projectId = await TagService.getProjectIdByTagId(tagId);
+    if (!projectId) return;
+
     this.bookmarkStore.moveBookmarkedTagToPosition(
-      this.crudStore.tags,
+      tagStoreInternal.tags,
       tagId,
       targetIndex,
-      (id, updates) => this.crudStore.updateTag(id, updates)
+      (id, updates) => TagService.updateTag(projectId, id, updates)
     );
   }
 
-  initializeTagOrderIndices() {
+  async initializeTagOrderIndices() {
+    // Get project ID from first tag
+    const firstTag = tagStoreInternal.tags[0];
+    if (!firstTag) return;
+
+    const projectId = await TagService.getProjectIdByTagId(firstTag.id);
+    if (!projectId) return;
+
     this.bookmarkStore.initializeTagOrderIndices(
-      this.crudStore.tags,
-      (id, updates) => this.crudStore.updateTag(id, updates)
+      tagStoreInternal.tags,
+      (id, updates) => TagService.updateTag(projectId, id, updates)
     );
   }
 }
 
+// Export class for type compatibility
+export type TagStore = TagStoreFacade;
+
 // Create global store instance
-export const tagStore = new TagStore();
+export const tagStore = new TagStoreFacade();

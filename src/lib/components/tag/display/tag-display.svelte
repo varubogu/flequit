@@ -11,6 +11,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
+  import { TagService } from '$lib/services/domain/tag';
 
   // Translation service
   const translationService = getTranslationService();
@@ -65,15 +66,24 @@
   async function handleEditSave(data: { name: string; color: string }) {
     // Get project ID for this tag
     const projectId = await tagStore.getProjectIdByTagId(tag.id);
-    tagStore.updateTag(tag.id, {
+    if (!projectId) {
+      console.error('Project ID not found for tag:', tag.id);
+      return;
+    }
+    TagService.updateTag(projectId, tag.id, {
       name: data.name,
       color: data.color,
       updatedAt: new Date()
-    }, projectId || undefined);
+    });
   }
 
-  function handleDeleteConfirm() {
-    tagStore.deleteTag(tag.id, (tagId) => {
+  async function handleDeleteConfirm() {
+    const projectId = await tagStore.getProjectIdByTagId(tag.id);
+    if (!projectId) {
+      console.error('Project ID not found for tag:', tag.id);
+      return;
+    }
+    TagService.deleteTag(projectId, tag.id, (tagId: string) => {
       // Remove tag from all tasks and subtasks
       taskStore.removeTagFromAllTasks(tagId);
     });
