@@ -2,93 +2,105 @@
 
 This file provides guidance to AI agents when working with code in this repository.
 
-## レスポンスについて
+## Response Guidelines
 
-- 日本語で回答すること。
-- このファイルを読み込んだら最初に「✅️AGENTS.mdを読み込みました」と発言してください。
+* Always respond **in Japanese**.
+* After reading this file, your first response must be:
+  **“✅️CLAUDE.md loaded.”**
 
-## 設計ドキュメントについて
+## Design Documents
 
-詳細な設計や仕様については、以下のdocsディレクトリ配下のドキュメントを参照してください：
+For detailed design and specifications, please refer to the documents in the `docs` directory:
 
-### アーキテクチャ・設計
-- `docs/develop/design/architecture.md` - 全体アーキテクチャ
-- `docs/develop/design/data/` - データ関連設計
-  - `data-structure.md` - データ構造仕様
-  - `data-security.md` - セキュリティ設計
-  - `tauri-automerge-repo-dataflow.md` - データフロー設計
-  - `partial-update-implementation.md` - 部分更新システム実装詳細
-- `docs/develop/design/frontend/` - フロントエンド設計
-- `docs/develop/design/database/` - データベース設計
+### Architecture & Design
 
-### 開発ルール
-- 修正指示があった場合、関連箇所以外には手を入れる前に必ずユーザーへ確認を取ってください。
-- `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
-- bunとcargoのビルドおよび全体テスト実行時はワーカー数を4に制限すること。
-  - `cargo test -j 4`
-  - `bun run test`    # 設定ファイルで並列数を制限済み
-- フロントエンドの型チェックは`bun check`で行うこと（`bun run check`, `bun run typecheck`は使用しない）。
-- フロントエンドのLintは`bun run lint`で行うこと（`bun lint`, `bun run check`, `bun run typecheck`は使用しない）。
-- コマンド実行でファイルやディレクトリが存在しないと言われた場合は、`pwd`でカレントディレクトリを確認すること。
+* `docs/develop/design/architecture.md` - Overall architecture
+* `docs/develop/design/data/` - Data-related design
 
-### 要件定義
-- `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
+  * `data-structure.md` - Data structure specifications
+  * `data-security.md` - Security design
+  * `tauri-automerge-repo-dataflow.md` - Data flow design
+  * `partial-update-implementation.md` - Partial update system implementation details
+* `docs/develop/design/frontend/` - Frontend design
+* `docs/develop/design/database/` - Database design
 
-### テスト
-- `docs/develop/design/testing.md` - テスト戦略とガイドライン
-- テストはまず単一ファイルや限定的な範囲で実行し、問題がないことを確認してから全体を実行すること。
-- Webフロントエンドのテストは`bun run test`で実行すること（`bun test`ではない）。
-- Tauriバックエンドのテストは`cargo test -j 4`で実行すること（ジョブ数は必ず4に指定）。
+### Development Rules
 
-必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
+* When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
+* `docs/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
+* Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:
 
-## アプリケーション概要
+  * `cargo test -j 4`
+  * `bun run test` (already configured in the settings file; no need for manual adjustment)
+* For frontend type checking, use `bun check` (do **not** use `bun run check` or `bun run typecheck`).
+* For frontend linting, use `bun run lint` (do **not** use `bun lint`, `bun run check`, or `bun run typecheck`).
+* If you get an error saying a file or directory does not exist when executing a command, verify your current working directory with `pwd`.
 
-Tauri製のタスク管理デスクトップアプリケーション。プロジェクト管理や人とタスクのやり取りも可能。現在はローカル動作（SQLite）想定だが、将来的にはWeb同期、クラウドストレージ同期も対応予定。同期時に競合が起きないようにAutoMergeベースのデータ管理システムを採用する。
+### Requirements Definition
 
-## 技術スタック
+* `docs/develop/requirements/` - Requirement documents (performance.md, security.md, testing.md, etc.)
 
-詳細は `docs/develop/design/tech-stack.md` を参照してください。
+### Testing
 
-## プロジェクト構造
+* `docs/develop/design/testing.md` - Testing strategy and guidelines
 
-詳細は `docs/develop/design/tech-stack.md` を参照してください。
+Refer to these documents as needed and ensure your work is always based on the latest design information.
+When testing, first execute tests for a single file to confirm correctness, then run the full suite.
 
-## Svelte 5 設計パターン
+* **Web Frontend Tests:** Use `bun run test` (not `bun test`)
+* **Tauri Backend Tests:** Use `cargo test -j 4` (always specify `-j 4`)
 
-詳細は `docs/develop/design/frontend/svelte5-patterns.md` を参照してください。
+## Application Overview
 
-## 国際化システム
+A **Tauri-based desktop task management application** that supports project management and task collaboration.
+Currently designed for **local operation (SQLite)**, but future updates will support **web and cloud storage synchronization**.
+An **AutoMerge-based data management system** is used to prevent conflicts during synchronization.
 
-詳細は `docs/develop/design/frontend/i18n-system.md` を参照してください。
+## Tech Stack
 
-## コーディング規約
+See `docs/develop/design/tech-stack.md` for details.
 
-詳細は `docs/develop/rules/coding-standards.md` を参照してください。
+## Project Structure
 
-### Tauri⇔フロントエンド通信規約
+See `docs/develop/design/tech-stack.md` for details.
 
-**重要**: TauriはJavaScriptの`camelCase`パラメータをRustの`snake_case`に自動変換します。
+## Svelte 5 Design Patterns
 
-- **JavaScript側**: `camelCase`で記述（例：`projectId`, `taskAssignment`, `partialSettings`）
-- **Rust側**: `snake_case`で記述（例：`project_id`, `task_assignment`, `partial_settings`）
-- **戻り値統一**: void返却コマンドは成功時`true`、失敗時`false`を返す
-- **エラーハンドリング**: 統一されたパターンを使用
+See `docs/develop/design/frontend/svelte5-patterns.md` for details.
 
-詳細は `docs/develop/rules/coding-standards.md` の「Tauri⇔フロントエンド通信規約」セクションを参照。
+## Internationalization System
 
-### Rust部分について
+See `docs/develop/design/frontend/i18n-system.md` for details.
 
-詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` を参照してください。
+## Coding Standards
 
-### モジュールの関連性
+See `docs/develop/rules/coding-standards.md` for details.
 
-詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` の「アーキテクチャ構成」セクションを参照してください。
+### Tauri ⇔ Frontend Communication Rules
 
-## 開発ワークフロー
+**Important:** Tauri automatically converts JavaScript `camelCase` parameters into Rust `snake_case`.
 
-詳細は `docs/develop/rules/workflow.md` を参照してください。
+* **JavaScript side:** Use `camelCase` (e.g., `projectId`, `taskAssignment`, `partialSettings`)
+* **Rust side:** Use `snake_case` (e.g., `project_id`, `task_assignment`, `partial_settings`)
+* **Return values:** Commands returning `void` should return `true` on success and `false` on failure
+* **Error handling:** Follow the unified error-handling pattern
 
-## コマンド一覧
+For more details, see the “Tauri ⇔ Frontend Communication Rules” section in
+`docs/develop/rules/coding-standards.md`.
 
-詳細は `docs/develop/commands.md` を参照してください。
+### Rust Guidelines
+
+See `docs/develop/design/backend-tauri/rust-guidelines.md` for details.
+
+### Module Relationships
+
+See the “Architecture Structure” section in
+`docs/develop/design/backend-tauri/rust-guidelines.md` for details.
+
+## Development Workflow
+
+See `docs/develop/rules/workflow.md` for details.
+
+## Command List
+
+See `docs/develop/commands.md` for details.
