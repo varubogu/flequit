@@ -1,6 +1,7 @@
 import type { BackendService } from '$lib/infrastructure/backends';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import type { Setting, Settings } from '$lib/types/settings';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 
 /**
  * 設定の統合初期化サービス
@@ -110,3 +111,89 @@ class SettingsInitService {
 
 // シングルトンインスタンスをエクスポート
 export const settingsInitService = new SettingsInitService();
+
+/**
+ * 設定管理ドメインサービス
+ *
+ * 責務:
+ * 1. バックエンド設定管理APIのラッパー
+ * 2. エラーハンドリングの統一
+ */
+export const SettingsService = {
+  async loadSettings(): Promise<Settings | null> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.loadSettings();
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+      errorHandler.addSyncError('設定読込', 'settings', 'load', error);
+      throw error;
+    }
+  },
+
+  async saveSettings(settings: Settings): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.saveSettings(settings);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      errorHandler.addSyncError('設定保存', 'settings', 'save', error);
+      throw error;
+    }
+  },
+
+  async settingsFileExists(): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.settingsFileExists();
+    } catch (error) {
+      console.error('Failed to check settings file existence:', error);
+      errorHandler.addSyncError('設定ファイル確認', 'settings', 'exists', error);
+      throw error;
+    }
+  },
+
+  async initializeSettingsWithDefaults(): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.initializeSettingsWithDefaults();
+    } catch (error) {
+      console.error('Failed to initialize settings with defaults:', error);
+      errorHandler.addSyncError('設定初期化', 'settings', 'initialize', error);
+      throw error;
+    }
+  },
+
+  async getSettingsFilePath(): Promise<string> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.getSettingsFilePath();
+    } catch (error) {
+      console.error('Failed to get settings file path:', error);
+      errorHandler.addSyncError('設定ファイル取得', 'settings', 'path', error);
+      throw error;
+    }
+  },
+
+  async updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.updateSettingsPartially(partialSettings);
+    } catch (error) {
+      console.error('Failed to update settings partially:', error);
+      errorHandler.addSyncError('設定部分更新', 'settings', 'partial', error);
+      throw error;
+    }
+  },
+
+  async addCustomDueDay(days: number): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.settingsManagement.addCustomDueDay(days);
+    } catch (error) {
+      console.error('Failed to add custom due day:', error);
+      errorHandler.addSyncError('設定期日追加', 'settings', 'custom_due_day', error);
+      throw error;
+    }
+  }
+};

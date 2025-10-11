@@ -3,7 +3,7 @@ import type { ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
 import { selectionStore } from './selection-store.svelte';
 import { tagStore } from './tags.svelte';
-import { dataService } from '$lib/services/data-service';
+import { ProjectService } from '$lib/services/domain/project-service';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
@@ -35,7 +35,7 @@ export class ProjectStore implements IProjectStore {
 				...project,
 				order_index: this.projects.length
 			};
-			const newProject = await dataService.createProjectTree(projectWithOrderIndex);
+			const newProject = await ProjectService.createProjectTree(projectWithOrderIndex);
 			this.projects.push(newProject);
 			return newProject;
 		} catch (error) {
@@ -56,7 +56,7 @@ export class ProjectStore implements IProjectStore {
 		}
 	) {
 		try {
-			const updatedProject = await dataService.updateProject(projectId, updates);
+			const updatedProject = await ProjectService.updateProject(projectId, updates);
 			if (updatedProject) {
 				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
 				if (projectIndex !== -1) {
@@ -74,7 +74,7 @@ export class ProjectStore implements IProjectStore {
 
 	async deleteProject(projectId: string) {
 		try {
-			const success = await dataService.deleteProject(projectId);
+			const success = await ProjectService.deleteProject(projectId);
 			if (success) {
 				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
 				if (projectIndex !== -1) {
@@ -117,8 +117,8 @@ export class ProjectStore implements IProjectStore {
 			project.updatedAt = new SvelteDate();
 
 			try {
-				// Use dataService directly to avoid circular dependency and double update
-				await dataService.updateProject(project.id, { order_index: index });
+				// サービス層経由でバックエンドを更新（循環依存を避ける）
+				await ProjectService.updateProject(project.id, { order_index: index });
 			} catch (error) {
 				console.error('Failed to sync project order to backends:', error);
 				errorHandler.addSyncError('プロジェクト順序更新', 'project', project.id, error);

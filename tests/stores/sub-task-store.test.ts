@@ -6,7 +6,7 @@ import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTaskWithTags } from '$lib/types/sub-task';
 
-vi.mock('$lib/services/data-service', () => {
+const { createSubTaskMock, updateSubTaskMock, deleteSubTaskMock } = vi.hoisted(() => {
 	const createSubTask = vi.fn(async (_projectId: string, taskId: string, input: Record<string, unknown>) => ({
 		id: `subtask-${crypto.randomUUID()}`,
 		taskId,
@@ -32,13 +32,19 @@ vi.mock('$lib/services/data-service', () => {
 	const deleteSubTask = vi.fn(async () => true);
 
 	return {
-		dataService: {
-			createSubTask,
-			updateSubTask,
-			deleteSubTask
-		}
+		createSubTaskMock: createSubTask,
+		updateSubTaskMock: updateSubTask,
+		deleteSubTaskMock: deleteSubTask
 	};
 });
+
+vi.mock('$lib/services/domain/subtask-service', () => ({
+	SubTaskService: {
+		createSubTask: createSubTaskMock,
+		updateSubTask: updateSubTaskMock,
+		deleteSubTask: deleteSubTaskMock
+	}
+}));
 
 describe('SubTaskStore', () => {
   let store: SubTaskStore;

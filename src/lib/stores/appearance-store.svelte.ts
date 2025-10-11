@@ -1,4 +1,4 @@
-import { dataService } from '$lib/services/data-service';
+import { SettingsService } from '$lib/services/domain/settings';
 
 export interface AppearanceSettings {
   font: string;
@@ -48,7 +48,7 @@ class AppearanceStore {
     }
 
     try {
-      const updatedSettings = await dataService.updateSettingsPartially(partialSettings);
+      const updatedSettings = await SettingsService.updateSettingsPartially(partialSettings);
       if (!updatedSettings) {
         throw new Error('Failed to update settings');
       }
@@ -64,7 +64,7 @@ class AppearanceStore {
   private async loadSettings() {
     try {
       // 新しい設定管理システムから全設定を取得
-      const settings = await dataService.loadSettings();
+      const settings = await SettingsService.loadSettings();
 
       if (settings) {
         // 外観設定を適用

@@ -1,7 +1,8 @@
 import type { TaskList } from '$lib/types/task-list';
 import type { ProjectWithLists } from '$lib/types/project';
 import type { Project } from '$lib/types/project';
-import { dataService } from '$lib/services/data-service';
+import { ProjectService } from '$lib/services/domain/project-service';
+import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list-service';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
@@ -16,7 +17,7 @@ export class ProjectsService {
     order_index?: number;
   }): Promise<Project | null> {
     try {
-      const newProject = await dataService.createProject(projectData);
+      const newProject = await ProjectService.createProject(projectData);
       // ローカルストアも更新
       await projectStore.addProject(projectData);
       return newProject;
@@ -38,7 +39,7 @@ export class ProjectsService {
     }
   ): Promise<Project | null> {
     try {
-      const updatedProject = await dataService.updateProject(projectId, updates);
+      const updatedProject = await ProjectService.updateProject(projectId, updates);
       if (!updatedProject) return null;
 
       // ローカルストアも更新
@@ -53,7 +54,7 @@ export class ProjectsService {
   // プロジェクト削除
   static async deleteProject(projectId: string): Promise<boolean> {
     try {
-      const success = await dataService.deleteProject(projectId);
+      const success = await ProjectService.deleteProject(projectId);
       if (success) {
         // ローカルストアからも削除
         await projectStore.deleteProject(projectId);
@@ -149,7 +150,7 @@ export class ProjectsService {
     }
   ): Promise<TaskList | null> {
     try {
-      const newTaskList = await dataService.createTaskList(projectId, taskListData);
+      const newTaskList = await TaskListCrudService.createTaskList(projectId, taskListData);
       // ローカルストアも更新
       await taskListStore.addTaskList(projectId, taskListData);
       return newTaskList;
@@ -178,7 +179,7 @@ export class ProjectsService {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const updatedTaskList = await dataService.updateTaskList(projectId, taskListId, updates);
+      const updatedTaskList = await TaskListCrudService.updateTaskList(projectId, taskListId, updates);
       if (!updatedTaskList) return null;
 
       // ローカルストアも更新
@@ -199,7 +200,7 @@ export class ProjectsService {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const success = await dataService.deleteTaskList(projectId, taskListId);
+      const success = await TaskListCrudService.deleteTaskList(projectId, taskListId);
       if (success) {
         // ローカルストアからも削除
         await taskListStore.deleteTaskList(taskListId);

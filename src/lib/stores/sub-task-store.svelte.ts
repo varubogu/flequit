@@ -6,7 +6,7 @@ import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { dataService } from '$lib/services/data-service';
+import { SubTaskService } from '$lib/services/domain/subtask-service';
 
 /**
  * サブタスク管理ストア
@@ -65,7 +65,7 @@ export class SubTaskStore implements ISubTaskStore {
 		}
 
 		try {
-			const newSubTask = await dataService.createSubTask(targetProjectId, taskId, subTask);
+			const newSubTask = await SubTaskService.createSubTask(targetProjectId, taskId, subTask);
 			const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
 			targetTask.subTasks.push(subTaskWithTags);
 			return newSubTask;
@@ -90,8 +90,8 @@ export class SubTaskStore implements ISubTaskStore {
 						};
 
 						const projectId = project.id;
-						try {
-							await dataService.updateSubTask(projectId, subTaskId, updates);
+		try {
+				await SubTaskService.updateSubTask(projectId, subTaskId, updates);
 						} catch (error) {
 							console.error('Failed to sync subtask update to backends:', error);
 							errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
@@ -120,8 +120,8 @@ export class SubTaskStore implements ISubTaskStore {
 							this.selection.selectSubTask(null);
 						}
 
-						try {
-							await dataService.deleteSubTask(projectId, subTaskId);
+				try {
+					await SubTaskService.deleteSubTask(projectId, subTaskId);
 						} catch (error) {
 							console.error('Failed to sync subtask deletion to backends:', error);
 							errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);

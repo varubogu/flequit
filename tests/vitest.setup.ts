@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom';
+import { beforeEach, vi } from 'vitest';
 
 // Mock Svelte 5 reactivity system
 // $stateはクラスフィールド宣言で使われる場合、初期値を直接返す
@@ -104,345 +105,499 @@ global.console = {
   }
 };
 
-// Mock dataService for tests
-import { vi } from 'vitest';
+// Mock domain services for tests
+type ProjectRecord = {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  orderIndex: number;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  taskLists: string[];
+};
 
-const mockSubTasks = new Map();
+type TaskListRecord = {
+  id: string;
+  projectId: string;
+  name: string;
+  description?: string;
+  color?: string;
+  orderIndex: number;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  tasks: string[];
+};
 
-vi.mock('$lib/services/data-service', () => {
-  const mockProjects = new Map();
-  const mockTaskLists = new Map();
-  const mockTasks = new Map();
-  // settings mock state
-  let mockSettings = {
-    weekStart: 'monday',
-    timezone: 'UTC',
-    dateFormat: 'yyyy-MM-dd HH:mm',
-    customDueDays: [] as number[]
-  };
+type TaskRecord = {
+  id: string;
+  projectId: string;
+  listId: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority: number;
+  planStartDate?: Date;
+  planEndDate?: Date;
+  isRangeDate?: boolean;
+  isArchived: boolean;
+  tagIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-  return {
-    dataService: {
-      // Project methods
-      async createProject(projectData: Record<string, unknown>) {
-        const newProject = {
-          id: crypto.randomUUID(),
-          ...projectData,
-          order_index: projectData.order_index ?? 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        mockProjects.set(newProject.id, newProject);
-        return newProject;
-      },
+type SubTaskRecord = {
+  id: string;
+  projectId: string;
+  taskId: string;
+  title: string;
+  description?: string;
+  status: string;
+  priority?: number;
+  orderIndex: number;
+  completed: boolean;
+  assignedUserIds: string[];
+  tagIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-      async createProjectTree(projectData: Record<string, unknown>) {
-        const newProject = {
-          id: crypto.randomUUID(),
-          ...projectData,
-          created_at: new Date(),
-          updated_at: new Date(),
-          task_lists: []
-        };
-        mockProjects.set(newProject.id, newProject);
-        return newProject;
-      },
+type SettingsState = {
+  weekStart: string;
+  timezone: string;
+  dateFormat: string;
+  customDueDays: number[];
+  theme: 'system' | 'light' | 'dark';
+  font: string;
+  fontSize: number;
+  fontColor: string;
+  backgroundColor: string;
+};
 
-      async updateProject(projectId: string, updates: Record<string, unknown>) {
-        const project = mockProjects.get(projectId);
-        if (project) {
-          const updated = { ...project, ...updates, updated_at: new Date() };
-          mockProjects.set(projectId, updated);
-          return updated;
-        }
-        return null;
-      },
+const mockProjects = new Map<string, ProjectRecord>();
+const mockTaskLists = new Map<string, TaskListRecord>();
+const mockTasks = new Map<string, TaskRecord>();
+const mockSubTasks = new Map<string, SubTaskRecord>();
 
-      async deleteProject(projectId: string) {
-        return mockProjects.delete(projectId);
-      },
+const createDefaultSettings = (): SettingsState => ({
+  weekStart: 'monday',
+  timezone: 'UTC',
+  dateFormat: 'yyyy-MM-dd HH:mm',
+  customDueDays: [],
+  theme: 'system',
+  font: 'default',
+  fontSize: 13,
+  fontColor: 'default',
+  backgroundColor: 'default'
+});
 
-      // TaskList methods
-      async createTaskList(projectId: string, taskListData: Record<string, unknown>) {
-        const newTaskList = {
-          id: crypto.randomUUID(),
-          project_id: projectId,
-          ...taskListData,
-          order_index: taskListData.order_index ?? 0,
-          is_archived: false,
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        mockTaskLists.set(newTaskList.id, newTaskList);
-        return newTaskList;
-      },
+let mockSettings = createDefaultSettings();
 
-      async createTaskListWithTasks(projectId: string, taskListData: Record<string, unknown>) {
-        const newTaskList = {
-          id: crypto.randomUUID(),
-          project_id: projectId,
-          ...taskListData,
-          created_at: new Date(),
-          updated_at: new Date(),
-          tasks: []
-        };
-        mockTaskLists.set(newTaskList.id, newTaskList);
+const structuredCopy = <T>(value: T): T => structuredClone(value);
 
-        // Add to project if exists
-        const project = mockProjects.get(projectId);
-        if (project) {
-          project.task_lists.push(newTaskList);
-          mockProjects.set(projectId, project);
-        }
+const resetDomainState = () => {
+  mockProjects.clear();
+  mockTaskLists.clear();
+  mockTasks.clear();
+  mockSubTasks.clear();
+  mockSettings = createDefaultSettings();
+};
 
-        return newTaskList;
-      },
+const ensureProject = (projectId: string): ProjectRecord | null => {
+  return mockProjects.get(projectId) ?? null;
+};
 
-      async updateTaskList(taskListId: string, updates: Record<string, unknown>) {
-        const taskList = mockTaskLists.get(taskListId);
-        if (taskList) {
-          const updated = { ...taskList, ...updates, updated_at: new Date() };
-          mockTaskLists.set(taskListId, updated);
-          return updated;
-        }
-        return null;
-      },
+const ensureTaskList = (taskListId: string): TaskListRecord | null => {
+  return mockTaskLists.get(taskListId) ?? null;
+};
 
-      async deleteTaskList(taskListId: string) {
-        const taskList = mockTaskLists.get(taskListId);
-        if (taskList) {
-          // Remove from project
-          const project = mockProjects.get(taskList.project_id);
-          if (project) {
-            const index = project.task_lists.findIndex((tl: Record<string, unknown>) => tl.id === taskListId);
-            if (index !== -1) {
-              project.task_lists.splice(index, 1);
-              mockProjects.set(project.id, project);
-            }
-          }
-          mockTaskLists.delete(taskListId);
-          return true;
-        }
-        return false;
-      },
+const dataServiceImpl = {
+  async createProject(projectData: Record<string, unknown>) {
+    const now = new Date();
+    const project: ProjectRecord = {
+      id: crypto.randomUUID(),
+      name: (projectData.name as string) ?? '',
+      description: projectData.description as string | undefined,
+      color: projectData.color as string | undefined,
+      orderIndex: (projectData.order_index as number | undefined) ?? mockProjects.size,
+      isArchived: false,
+      createdAt: now,
+      updatedAt: now,
+      taskLists: []
+    };
+    mockProjects.set(project.id, project);
+    return structuredCopy(project);
+  },
 
-      // Task methods
-      async createTask(listId: string, taskData: Record<string, unknown>) {
-        const newTask = {
-          id: crypto.randomUUID(),
-          list_id: listId,
-          ...taskData,
-          status: taskData.status ?? 'not_started',
-          priority: taskData.priority ?? 0,
-          order_index: taskData.order_index ?? 0,
-          is_archived: false,
-          assigned_user_ids: taskData.assigned_user_ids ?? [],
-          tag_ids: taskData.tag_ids ?? [],
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        mockTasks.set(newTask.id, newTask);
-        return newTask;
-      },
+  async createProjectTree(projectData: Record<string, unknown>) {
+    const project = await this.createProject(projectData);
+    return structuredCopy({
+      ...project,
+      taskLists: []
+    });
+  },
 
-      async createTaskWithSubTasks(listId: string, taskData: Record<string, unknown>) {
-        const newTask = {
-          ...taskData,
-          id: taskData.id || `task-${Date.now()}`,
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        mockTasks.set(newTask.id, newTask);
-        return newTask;
-      },
+  async updateProject(projectId: string, updates: Record<string, unknown>) {
+    const existing = ensureProject(projectId);
+    if (!existing) {
+      return null;
+    }
+    const updated: ProjectRecord = {
+      ...existing,
+      name: (updates.name as string) ?? existing.name,
+      description: (updates.description as string | undefined) ?? existing.description,
+      color: (updates.color as string | undefined) ?? existing.color,
+      orderIndex: (updates.order_index as number | undefined) ?? existing.orderIndex,
+      isArchived: (updates.is_archived as boolean | undefined) ?? existing.isArchived,
+      updatedAt: new Date()
+    };
+    mockProjects.set(projectId, updated);
+    return structuredCopy(updated);
+  },
 
-      async updateTaskWithSubTasks(
-        _projectId: string,
-        taskId: string,
-        updates: Record<string, unknown>
-      ) {
-        const task = mockTasks.get(taskId);
-        if (task) {
-          const updated = { ...task, ...updates, updated_at: new Date() };
-          mockTasks.set(taskId, updated);
-          return updated;
-        }
-        return null;
-      },
-
-      async deleteTaskWithSubTasks(_projectId: string, taskId: string) {
-        return mockTasks.delete(taskId);
-      },
-
-      async updateTask(_projectId: string, taskId: string, updates: Record<string, unknown>) {
-        const task = mockTasks.get(taskId);
-        if (task) {
-          const updated = { ...task, ...updates, updated_at: new Date() };
-          mockTasks.set(taskId, updated);
-          return updated;
-        }
-        return null;
-      },
-
-      // SubTask methods
-      async createSubTask(
-        _projectId: string,
-        taskId: string,
-        subTaskData: Record<string, unknown>
-      ) {
-        const newSubTask = {
-          id: crypto.randomUUID(),
-          task_id: taskId,
-          ...subTaskData,
-          status: subTaskData.status ?? 'not_started',
-          priority: subTaskData.priority ?? 0,
-          order_index: subTaskData.order_index ?? 0,
-          completed: false,
-          assigned_user_ids: subTaskData.assigned_user_ids ?? [],
-          tag_ids: subTaskData.tag_ids ?? [],
-          tags: subTaskData.tags ?? [],
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-        mockSubTasks.set(newSubTask.id, newSubTask);
-        return newSubTask;
-      },
-
-      async updateSubTask(
-        _projectId: string,
-        subTaskId: string,
-        updates: Record<string, unknown>
-      ) {
-        const subTask = mockSubTasks.get(subTaskId);
-        if (subTask) {
-          const updated = { ...subTask, ...updates, updated_at: new Date() };
-          mockSubTasks.set(subTaskId, updated);
-          return updated;
-        }
-        return null;
-      },
-
-      async deleteSubTask(_projectId: string, subTaskId: string) {
-        return mockSubTasks.delete(subTaskId);
-      },
-
-      // Tag methods
-      async createTag(_projectId: string, tagData: Record<string, unknown>) {
-        return {
-          id: crypto.randomUUID(),
-          ...tagData,
-          order_index: tagData.order_index ?? 0,
-          created_at: new Date(),
-          updated_at: new Date()
-        };
-      },
-
-      async updateTag() {
-        // Mock implementation - just return success
-        return true;
-      },
-
-      // Additional methods
-      async loadProjectData() {
-        return [];
-      },
-
-      async initializeAll() {
-        return true;
-      },
-
-      // Settings Management methods (for settings components/tests)
-      async loadSettings() {
-        return { ...mockSettings };
-      },
-      async saveSettings(settings: Record<string, unknown>) {
-        mockSettings = { ...mockSettings, ...settings };
-        return true;
-      },
-      async settingsFileExists() {
-        return true;
-      },
-      async initializeSettingsWithDefaults() {
-        mockSettings = {
-          weekStart: 'monday',
-          timezone: 'UTC',
-          dateFormat: 'yyyy-MM-dd HH:mm',
-          customDueDays: []
-        };
-        return true;
-      },
-      async getSettingsFilePath() {
-        return '/tmp/settings.json';
-      },
-      async updateSettingsPartially(partial: Partial<typeof mockSettings>) {
-        mockSettings = { ...mockSettings, ...partial };
-        return { ...mockSettings };
-      },
-      async addCustomDueDay(days: number) {
-        if (!mockSettings.customDueDays.includes(days)) {
-          mockSettings.customDueDays.push(days);
-        }
-        return true;
-      },
-
-      async addTagToSubTask(_projectId: string, subTaskId: string, tagId: string) {
-        const subTask = mockSubTasks.get(subTaskId);
-        if (subTask) {
-          subTask.tag_ids = subTask.tag_ids || [];
-          if (!subTask.tag_ids.includes(tagId)) {
-            subTask.tag_ids.push(tagId);
-          }
-          return true;
-        }
-        return false;
-      },
-
-      async removeTagFromSubTask(_projectId: string, subTaskId: string, tagId: string) {
-        const subTask = mockSubTasks.get(subTaskId);
-        if (subTask && subTask.tag_ids) {
-          subTask.tag_ids = subTask.tag_ids.filter((id: string) => id !== tagId);
-          return true;
-        }
-        return false;
+  async deleteProject(projectId: string) {
+    for (const [taskListId, taskList] of [...mockTaskLists.entries()]) {
+      if (taskList.projectId === projectId) {
+        mockTaskLists.delete(taskListId);
       }
+    }
+    for (const [taskId, task] of [...mockTasks.entries()]) {
+      if (task.projectId === projectId) {
+        mockTasks.delete(taskId);
+      }
+    }
+    for (const [subTaskId, subTask] of [...mockSubTasks.entries()]) {
+      if (subTask.projectId === projectId) {
+        mockSubTasks.delete(subTaskId);
+      }
+    }
+    return mockProjects.delete(projectId);
+  },
+
+  async createTaskList(projectId: string, taskListData: Record<string, unknown>) {
+    const now = new Date();
+    const taskList: TaskListRecord = {
+      id: crypto.randomUUID(),
+      projectId,
+      name: (taskListData.name as string) ?? '',
+      description: taskListData.description as string | undefined,
+      color: taskListData.color as string | undefined,
+      orderIndex:
+        (taskListData.order_index as number | undefined) ??
+        Array.from(mockTaskLists.values()).filter((tl) => tl.projectId === projectId).length,
+      isArchived: false,
+      createdAt: now,
+      updatedAt: now,
+      tasks: []
+    };
+    mockTaskLists.set(taskList.id, taskList);
+    const project = ensureProject(projectId);
+    if (project && !project.taskLists.includes(taskList.id)) {
+      project.taskLists.push(taskList.id);
+      project.updatedAt = now;
+      mockProjects.set(projectId, project);
+    }
+    return structuredCopy(taskList);
+  },
+
+  async createTaskListWithTasks(projectId: string, taskListData: Record<string, unknown>) {
+    const taskList = await this.createTaskList(projectId, taskListData);
+    return structuredCopy({
+      ...taskList,
+      tasks: []
+    });
+  },
+
+  async updateTaskList(projectId: string, taskListId: string, updates: Record<string, unknown>) {
+    const existing = ensureTaskList(taskListId);
+    if (!existing || existing.projectId !== projectId) {
+      return null;
+    }
+    const updated: TaskListRecord = {
+      ...existing,
+      name: (updates.name as string) ?? existing.name,
+      description: (updates.description as string | undefined) ?? existing.description,
+      color: (updates.color as string | undefined) ?? existing.color,
+      orderIndex: (updates.orderIndex as number | undefined) ?? existing.orderIndex,
+      isArchived: (updates.is_archived as boolean | undefined) ?? existing.isArchived,
+      updatedAt: new Date(),
+      tasks: existing.tasks
+    };
+    mockTaskLists.set(taskListId, updated);
+    return structuredCopy(updated);
+  },
+
+  async deleteTaskList(projectId: string, taskListId: string) {
+    const existing = ensureTaskList(taskListId);
+    if (!existing || existing.projectId !== projectId) {
+      return false;
+    }
+    for (const taskId of existing.tasks) {
+      mockTasks.delete(taskId);
+      for (const [subTaskId, subTask] of [...mockSubTasks.entries()]) {
+        if (subTask.taskId === taskId) {
+          mockSubTasks.delete(subTaskId);
+        }
+      }
+    }
+    mockTaskLists.delete(taskListId);
+    const project = ensureProject(projectId);
+    if (project) {
+      project.taskLists = project.taskLists.filter((id) => id !== taskListId);
+      project.updatedAt = new Date();
+      mockProjects.set(projectId, project);
+    }
+    return true;
+  },
+
+  async createTask(listId: string, taskData: Record<string, unknown>) {
+    const now = new Date();
+    const projectId = (taskData.projectId as string) ?? ensureTaskList(listId)?.projectId ?? '';
+    const task: TaskRecord = {
+      id: crypto.randomUUID(),
+      projectId,
+      listId,
+      title: (taskData.title as string) ?? '',
+      description: taskData.description as string | undefined,
+      status: (taskData.status as string) ?? 'not_started',
+      priority: (taskData.priority as number | undefined) ?? 0,
+      planStartDate: taskData.planStartDate as Date | undefined,
+      planEndDate: taskData.planEndDate as Date | undefined,
+      isRangeDate: taskData.isRangeDate as boolean | undefined,
+      isArchived: (taskData.isArchived as boolean | undefined) ?? false,
+      tagIds: (taskData.tagIds as string[]) ?? [],
+      createdAt: now,
+      updatedAt: now
+    };
+    mockTasks.set(task.id, task);
+    const taskList = ensureTaskList(listId);
+    if (taskList && !taskList.tasks.includes(task.id)) {
+      taskList.tasks.push(task.id);
+      taskList.updatedAt = now;
+      mockTaskLists.set(listId, taskList);
+    }
+    return structuredCopy(task);
+  },
+
+  async createTaskWithSubTasks(listId: string, taskData: Record<string, unknown>) {
+    await this.createTask(listId, taskData);
+  },
+
+  async updateTask(projectId: string, taskId: string, updates: Record<string, unknown>) {
+    const existing = mockTasks.get(taskId);
+    if (!existing || existing.projectId !== projectId) {
+      return null;
+    }
+    const updated: TaskRecord = {
+      ...existing,
+      title: (updates.title as string) ?? existing.title,
+      description: updates.description as string | undefined ?? existing.description,
+      status: (updates.status as string) ?? existing.status,
+      priority: (updates.priority as number | undefined) ?? existing.priority,
+      listId: (updates.listId as string | undefined) ?? existing.listId,
+      tagIds: (updates.tagIds as string[] | undefined) ?? existing.tagIds,
+      updatedAt: new Date()
+    };
+    mockTasks.set(taskId, updated);
+    return structuredCopy(updated);
+  },
+
+  async updateTaskWithSubTasks(projectId: string, taskId: string, updates: Record<string, unknown>) {
+    await this.updateTask(projectId, taskId, updates);
+  },
+
+  async deleteTask(projectId: string, taskId: string) {
+    const existing = mockTasks.get(taskId);
+    if (!existing || existing.projectId !== projectId) {
+      return false;
+    }
+    mockTasks.delete(taskId);
+    const taskList = ensureTaskList(existing.listId);
+    if (taskList) {
+      taskList.tasks = taskList.tasks.filter((id) => id !== taskId);
+      taskList.updatedAt = new Date();
+      mockTaskLists.set(taskList.id, taskList);
+    }
+    for (const [subTaskId, subTask] of [...mockSubTasks.entries()]) {
+      if (subTask.taskId === taskId) {
+        mockSubTasks.delete(subTaskId);
+      }
+    }
+    return true;
+  },
+
+  async deleteTaskWithSubTasks(projectId: string, taskId: string) {
+    return this.deleteTask(projectId, taskId);
+  },
+
+  async createSubTask(projectId: string, taskId: string, subTaskData: Record<string, unknown>) {
+    const now = new Date();
+    const subTask: SubTaskRecord = {
+      id: crypto.randomUUID(),
+      projectId,
+      taskId,
+      title: (subTaskData.title as string) ?? '',
+      description: subTaskData.description as string | undefined,
+      status: (subTaskData.status as string) ?? 'not_started',
+      priority: subTaskData.priority as number | undefined,
+      orderIndex: 0,
+      completed: false,
+      assignedUserIds: [],
+      tagIds: [],
+      createdAt: now,
+      updatedAt: now
+    };
+    mockSubTasks.set(subTask.id, subTask);
+    return structuredCopy(subTask);
+  },
+
+  async updateSubTask(projectId: string, subTaskId: string, updates: Record<string, unknown>) {
+    const existing = mockSubTasks.get(subTaskId);
+    if (!existing || existing.projectId !== projectId) {
+      return null;
+    }
+    const updated: SubTaskRecord = {
+      ...existing,
+      title: (updates.title as string) ?? existing.title,
+      description: updates.description as string | undefined ?? existing.description,
+      status: (updates.status as string) ?? existing.status,
+      priority: (updates.priority as number | undefined) ?? existing.priority,
+      updatedAt: new Date()
+    };
+    mockSubTasks.set(subTaskId, updated);
+    return structuredCopy(updated);
+  },
+
+  async deleteSubTask(projectId: string, subTaskId: string) {
+    const existing = mockSubTasks.get(subTaskId);
+    if (!existing || existing.projectId !== projectId) {
+      return false;
+    }
+    mockSubTasks.delete(subTaskId);
+    return true;
+  },
+
+  async addTagToSubTask(projectId: string, subTaskId: string, tagId: string) {
+    const existing = mockSubTasks.get(subTaskId);
+    if (!existing || existing.projectId !== projectId) {
+      return;
+    }
+    if (!existing.tagIds.includes(tagId)) {
+      existing.tagIds.push(tagId);
+      existing.updatedAt = new Date();
+      mockSubTasks.set(subTaskId, existing);
+    }
+  },
+
+  async removeTagFromSubTask(projectId: string, subTaskId: string, tagId: string) {
+    const existing = mockSubTasks.get(subTaskId);
+    if (!existing || existing.projectId !== projectId) {
+      return;
+    }
+    existing.tagIds = existing.tagIds.filter((id) => id !== tagId);
+    existing.updatedAt = new Date();
+    mockSubTasks.set(subTaskId, existing);
+  },
+
+  async loadSettings() {
+    return structuredCopy(mockSettings);
+  },
+
+  async saveSettings(settings: SettingsState) {
+    mockSettings = structuredClone(settings);
+    return true;
+  },
+
+  async settingsFileExists() {
+    return true;
+  },
+
+  async initializeSettingsWithDefaults() {
+    mockSettings = createDefaultSettings();
+    return true;
+  },
+
+  async getSettingsFilePath() {
+    return '/tmp/settings.json';
+  },
+
+  async updateSettingsPartially(partial: Partial<SettingsState>) {
+    mockSettings = {
+      ...mockSettings,
+      ...partial
+    };
+    return structuredCopy(mockSettings);
+  },
+
+  async addCustomDueDay(days: number) {
+    if (!mockSettings.customDueDays.includes(days)) {
+      mockSettings.customDueDays.push(days);
+    }
+    return true;
+  }
+};
+
+beforeEach(() => {
+  resetDomainState();
+});
+
+vi.mock('$lib/services/domain/project-service', () => ({
+  ProjectService: {
+    createProject: dataServiceImpl.createProject.bind(dataServiceImpl),
+    updateProject: dataServiceImpl.updateProject.bind(dataServiceImpl),
+    deleteProject: dataServiceImpl.deleteProject.bind(dataServiceImpl),
+    createProjectTree: dataServiceImpl.createProjectTree.bind(dataServiceImpl)
+  }
+}));
+
+vi.mock('$lib/services/domain/task-list-service', () => ({
+  TaskListService: {
+    createTaskList: dataServiceImpl.createTaskList.bind(dataServiceImpl),
+    createTaskListWithTasks: dataServiceImpl.createTaskListWithTasks.bind(dataServiceImpl),
+    updateTaskList: dataServiceImpl.updateTaskList.bind(dataServiceImpl),
+    deleteTaskList: dataServiceImpl.deleteTaskList.bind(dataServiceImpl)
+  }
+}));
+
+vi.mock('$lib/services/domain/task-service', () => ({
+  TaskService: {
+    createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
+    updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
+    deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
+    createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
+    updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
+    deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
+  }
+}));
+
+vi.mock('$lib/services/domain/subtask-service', () => ({
+  SubTaskService: {
+    createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),
+    updateSubTask: dataServiceImpl.updateSubTask.bind(dataServiceImpl),
+    deleteSubTask: dataServiceImpl.deleteSubTask.bind(dataServiceImpl),
+    addTagToSubTask: dataServiceImpl.addTagToSubTask.bind(dataServiceImpl),
+    removeTagFromSubTask: dataServiceImpl.removeTagFromSubTask.bind(dataServiceImpl)
+  }
+}));
+
+vi.mock('$lib/services/domain/settings', async () => {
+  const actual = await vi.importActual<typeof import('$lib/services/domain/settings')>(
+    '$lib/services/domain/settings'
+  );
+  return {
+    ...actual,
+    SettingsService: {
+      loadSettings: dataServiceImpl.loadSettings.bind(dataServiceImpl),
+      saveSettings: dataServiceImpl.saveSettings.bind(dataServiceImpl),
+      settingsFileExists: dataServiceImpl.settingsFileExists.bind(dataServiceImpl),
+      initializeSettingsWithDefaults: dataServiceImpl.initializeSettingsWithDefaults.bind(
+        dataServiceImpl
+      ),
+      getSettingsFilePath: dataServiceImpl.getSettingsFilePath.bind(dataServiceImpl),
+      updateSettingsPartially: dataServiceImpl.updateSettingsPartially.bind(dataServiceImpl),
+      addCustomDueDay: dataServiceImpl.addCustomDueDay.bind(dataServiceImpl)
     }
   };
 });
-
-vi.mock('$lib/services/domain/subtask-crud', () => ({
-  SubtaskCrudService: {
-    async create(
-      projectId: string,
-      taskId: string,
-      subTask: { title: string; description?: string; status?: string; priority?: number }
-    ) {
-      const newSubTask = {
-        id: `mock-subtask-${crypto.randomUUID()}`,
-        taskId,
-        title: subTask.title,
-        description: subTask.description ?? '',
-        status: (subTask.status as any) ?? 'not_started',
-        priority: subTask.priority ?? 0,
-        orderIndex: 0,
-        completed: false,
-        assignedUserIds: [],
-        tagIds: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } as any;
-      mockSubTasks.set(newSubTask.id, { ...newSubTask, projectId });
-      return newSubTask;
-    },
-    async update(projectId: string, subTaskId: string, updates: any) {
-      const existing = mockSubTasks.get(subTaskId);
-      if (!existing) return null;
-      const updated = { ...existing, ...updates, updatedAt: new Date(), projectId };
-      mockSubTasks.set(subTaskId, updated);
-      return updated;
-    },
-    async delete(_projectId: string, subTaskId: string) {
-      return mockSubTasks.delete(subTaskId);
-    }
-  }
-}));

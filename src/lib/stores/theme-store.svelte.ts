@@ -1,5 +1,5 @@
 import { setMode, userPrefersMode } from 'mode-watcher';
-import { dataService } from '$lib/services/data-service';
+import { SettingsService } from '$lib/services/domain/settings';
 
 type Theme = 'system' | 'light' | 'dark';
 
@@ -23,7 +23,7 @@ class ThemeStore {
     }
 
     try {
-      const updatedSettings = await dataService.updateSettingsPartially({ theme });
+      const updatedSettings = await SettingsService.updateSettingsPartially({ theme });
       if (!updatedSettings) {
         throw new Error('Failed to update theme setting');
       }
@@ -39,7 +39,7 @@ class ThemeStore {
   private async loadTheme() {
     try {
       // 新しい設定管理システムから全設定を取得
-      const settings = await dataService.loadSettings();
+      const settings = await SettingsService.loadSettings();
 
       if (
         settings?.theme &&

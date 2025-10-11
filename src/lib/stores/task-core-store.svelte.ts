@@ -2,7 +2,7 @@ import type { ProjectTree } from '$lib/types/project';
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
 import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
 import { SvelteDate } from 'svelte/reactivity';
-import { dataService } from '$lib/services/data-service';
+import { TaskService } from '$lib/services/domain/task-service';
 import { errorHandler } from './error-handler.svelte';
 
 /**
@@ -56,7 +56,7 @@ export class TaskCoreStore {
 
 		// バックエンドに同期（自動保存は個別に実行せず、定期保存に任せる）
 		try {
-			await dataService.updateTaskWithSubTasks(
+			await TaskService.updateTaskWithSubTasks(
 				projectId,
 				taskId,
 				updates as Partial<TaskWithSubTasks>
@@ -114,7 +114,7 @@ export class TaskCoreStore {
 
 		// バックエンドに同期（作成操作は即座に保存）
 		try {
-			await dataService.createTaskWithSubTasks(listId, newTask);
+			await TaskService.createTaskWithSubTasks(listId, newTask);
 		} catch (error) {
 			console.error('Failed to sync new task to backends:', error);
 			errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
@@ -198,7 +198,7 @@ export class TaskCoreStore {
 		targetProject.updatedAt = new SvelteDate();
 
 		try {
-			await dataService.updateTask(targetProject.id, taskId, { listId: newTaskListId });
+			await TaskService.updateTask(targetProject.id, taskId, { listId: newTaskListId });
 		} catch (error) {
 			console.error('Failed to sync task move to backends:', error);
 			errorHandler.addSyncError('タスク移動', 'task', taskId, error);
@@ -227,7 +227,7 @@ export class TaskCoreStore {
 
 		// バックエンドに同期（削除操作は即座に保存）
 		try {
-			await dataService.deleteTaskWithSubTasks(project.id, taskId);
+			await TaskService.deleteTaskWithSubTasks(project.id, taskId);
 		} catch (error) {
 			console.error('Failed to sync task deletion to backends:', error);
 			errorHandler.addSyncError('タスク削除', 'task', taskId, error);

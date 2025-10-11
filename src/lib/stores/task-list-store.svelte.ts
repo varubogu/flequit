@@ -1,9 +1,9 @@
 import type { ITaskListStore, IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
-import type { TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
 import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
-import { dataService } from '$lib/services/data-service';
+import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list-service';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 
@@ -44,7 +44,7 @@ export class TaskListStore implements ITaskListStore {
 				...taskList,
 				order_index: project?.taskLists?.length ?? 0
 			};
-			const newTaskList = await dataService.createTaskListWithTasks(
+			const newTaskList = await TaskListCrudService.createTaskListWithTasks(
 				projectId,
 				taskListWithOrderIndex
 			);
@@ -72,7 +72,7 @@ export class TaskListStore implements ITaskListStore {
 				throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
 			}
 
-			const updatedTaskList = await dataService.updateTaskList(projectId, taskListId, updates);
+			const updatedTaskList = await TaskListCrudService.updateTaskList(projectId, taskListId, updates);
 			if (updatedTaskList) {
 				for (const project of this.projectStoreRef.projects) {
 					const listIndex = project.taskLists.findIndex((l) => l.id === taskListId);
@@ -101,7 +101,7 @@ export class TaskListStore implements ITaskListStore {
 				throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
 			}
 
-			const success = await dataService.deleteTaskList(projectId, taskListId);
+			const success = await TaskListCrudService.deleteTaskList(projectId, taskListId);
 			if (success) {
 				for (const project of this.projectStoreRef.projects) {
 					const listIndex = project.taskLists.findIndex((l) => l.id === taskListId);
@@ -149,7 +149,7 @@ export class TaskListStore implements ITaskListStore {
 			taskList.updatedAt = new SvelteDate();
 
 			try {
-				await dataService.updateTaskList(projectId, taskList.id, { orderIndex: index });
+				await TaskListCrudService.updateTaskList(projectId, taskList.id, { orderIndex: index } as Partial<TaskList>);
 			} catch (error) {
 				console.error('Failed to sync task list order to backends:', error);
 				errorHandler.addSyncError('タスクリスト順序更新', 'tasklist', taskList.id, error);
@@ -178,9 +178,9 @@ export class TaskListStore implements ITaskListStore {
 					tl.orderIndex = index;
 					tl.updatedAt = new SvelteDate();
 
-					try {
-						await dataService.updateTaskList(project.id, tl.id, { orderIndex: index });
-					} catch (error) {
+				try {
+					await TaskListCrudService.updateTaskList(project.id, tl.id, { orderIndex: index } as Partial<TaskList>);
+				} catch (error) {
 						console.error('Failed to sync source project task list order to backends:', error);
 						errorHandler.addSyncError('タスクリスト順序更新（移動元）', 'tasklist', tl.id, error);
 					}
@@ -224,10 +224,10 @@ export class TaskListStore implements ITaskListStore {
 			tl.orderIndex = index;
 			tl.updatedAt = new SvelteDate();
 
-			try {
-				await dataService.updateTaskList(targetProject.id, tl.id, {
+		try {
+				await TaskListCrudService.updateTaskList(targetProject.id, tl.id, {
 					orderIndex: index
-				});
+				} as Partial<TaskList>);
 			} catch (error) {
 				console.error('Failed to sync target project task list order to backends:', error);
 				errorHandler.addSyncError('タスクリスト順序更新（移動先）', 'tasklist', tl.id, error);

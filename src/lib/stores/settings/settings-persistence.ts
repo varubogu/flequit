@@ -1,4 +1,4 @@
-import { dataService } from '$lib/services/data-service';
+import { SettingsService } from '$lib/services/domain/settings';
 import type { Settings } from '$lib/types/settings';
 import { applySettingsPatch, SETTINGS_STORAGE_KEY } from './defaults';
 
@@ -17,7 +17,7 @@ export class SettingsPersistence {
     }
 
     try {
-      const updated = await dataService.updateSettingsPartially(partial);
+      const updated = await SettingsService.updateSettingsPartially(partial);
       if (updated) {
         applySettingsPatch(this.state, updated);
         this.persistToLocalStorage();
@@ -30,7 +30,7 @@ export class SettingsPersistence {
 
   async load() {
     try {
-      const loaded = await dataService.loadSettings();
+      const loaded = await SettingsService.loadSettings();
       if (loaded) {
         applySettingsPatch(this.state, loaded);
         this.persistToLocalStorage();
