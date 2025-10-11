@@ -20,3 +20,7 @@ When spaces are included, replace them with hyphens or underscores according to 
 - Multi-language support implementation guide
 - Testing procedures
 - Maintenance procedures
+
+## Update Rules
+
+- Always update both Japanese and English versions of the documents
