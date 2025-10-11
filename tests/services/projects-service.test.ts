@@ -15,11 +15,11 @@ const taskListServiceMock = vi.hoisted(() => ({
   deleteTaskList: vi.fn()
 }));
 
-vi.mock('$lib/services/domain/project-service', () => ({
+vi.mock('$lib/services/domain/project', () => ({
   ProjectService: projectServiceMock
 }));
 
-vi.mock('$lib/services/domain/task-list-service', () => ({
+vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: taskListServiceMock
 }));
 

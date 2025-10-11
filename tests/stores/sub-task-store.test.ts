@@ -38,7 +38,7 @@ const { createSubTaskMock, updateSubTaskMock, deleteSubTaskMock } = vi.hoisted((
 	};
 });
 
-vi.mock('$lib/services/domain/subtask-service', () => ({
+vi.mock('$lib/services/domain/subtask', () => ({
 	SubTaskService: {
 		createSubTask: createSubTaskMock,
 		updateSubTask: updateSubTaskMock,

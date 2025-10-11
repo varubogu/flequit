@@ -1,13 +1,126 @@
+import type { Project, ProjectTree, ProjectWithLists } from '$lib/types/project';
 import type { TaskList } from '$lib/types/task-list';
-import type { ProjectWithLists } from '$lib/types/project';
-import type { Project } from '$lib/types/project';
-import { ProjectService } from '$lib/services/domain/project-service';
-import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list-service';
+import { resolveBackend } from '$lib/infrastructure/backend-client';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
+import { TaskListService } from '$lib/services/domain/task-list';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 
+/**
+ * プロジェクトドメインサービス（CRUD操作）
+ *
+ * 責務:
+ * 1. バックエンドへの登録 (resolveBackend経由)
+ * 2. プロジェクトCRUD操作
+ */
+export const ProjectService = {
+  /**
+   * 新しいプロジェクトを作成します
+   */
+  async createProject(projectData: {
+    name: string;
+    description?: string;
+    color?: string;
+    order_index?: number;
+  }): Promise<Project> {
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      name: projectData.name,
+      description: projectData.description,
+      color: projectData.color,
+      orderIndex: projectData.order_index ?? 0,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    try {
+      const backend = await resolveBackend();
+      await backend.project.create(newProject);
+      return newProject;
+    } catch (error) {
+      console.error('Failed to create project:', error);
+      errorHandler.addSyncError('プロジェクト作成', 'project', newProject.id, error);
+      throw error;
+    }
+  },
+
+  /**
+   * プロジェクトを更新します
+   */
+  async updateProject(
+    projectId: string,
+    updates: {
+      name?: string;
+      description?: string;
+      color?: string;
+      order_index?: number;
+      is_archived?: boolean;
+    }
+  ): Promise<Project | null> {
+    try {
+      const backend = await resolveBackend();
+
+      const patchData = {
+        ...updates,
+        updated_at: new Date()
+      };
+
+      const success = await backend.project.update(projectId, patchData);
+
+      if (success) {
+        return await backend.project.get(projectId);
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to update project:', error);
+      errorHandler.addSyncError('プロジェクト更新', 'project', projectId, error);
+      throw error;
+    }
+  },
+
+  /**
+   * プロジェクトを削除します
+   */
+  async deleteProject(projectId: string): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.project.delete(projectId);
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+      errorHandler.addSyncError('プロジェクト削除', 'project', projectId, error);
+      throw error;
+    }
+  },
+
+  /**
+   * プロジェクトツリーを作成します（TaskStore互換）
+   */
+  async createProjectTree(projectData: {
+    name: string;
+    description?: string;
+    color?: string;
+    order_index?: number;
+  }): Promise<ProjectTree> {
+    const project = await this.createProject(projectData);
+    return {
+      ...project,
+      taskLists: [],
+      allTags: []
+    };
+  }
+};
+
+/**
+ * プロジェクト統合サービス（UIロジック + Store連携）
+ *
+ * 責務:
+ * 1. バックエンド操作（ProjectServiceを使用）
+ * 2. Storeの更新
+ * 3. UI用のヘルパーメソッド
+ */
 export class ProjectsService {
   // プロジェクト作成
   static async createProject(projectData: {
@@ -150,7 +263,7 @@ export class ProjectsService {
     }
   ): Promise<TaskList | null> {
     try {
-      const newTaskList = await TaskListCrudService.createTaskList(projectId, taskListData);
+      const newTaskList = await TaskListService.createTaskList(projectId, taskListData);
       // ローカルストアも更新
       await taskListStore.addTaskList(projectId, taskListData);
       return newTaskList;
@@ -179,7 +292,7 @@ export class ProjectsService {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const updatedTaskList = await TaskListCrudService.updateTaskList(projectId, taskListId, updates);
+      const updatedTaskList = await TaskListService.updateTaskList(projectId, taskListId, updates);
       if (!updatedTaskList) return null;
 
       // ローカルストアも更新
@@ -200,7 +313,7 @@ export class ProjectsService {
         throw new Error(`タスクリストID ${taskListId} に対応するプロジェクトが見つかりません。`);
       }
 
-      const success = await TaskListCrudService.deleteTaskList(projectId, taskListId);
+      const success = await TaskListService.deleteTaskList(projectId, taskListId);
       if (success) {
         // ローカルストアからも削除
         await taskListStore.deleteTaskList(taskListId);

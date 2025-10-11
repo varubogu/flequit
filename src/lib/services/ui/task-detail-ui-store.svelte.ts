@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { TaskService } from '$lib/services/domain/task';
+import { TaskService } from '$lib/services/task-service';
 
 export type TaskDetailUiStoreOptions = {
   /**

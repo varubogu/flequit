@@ -6,7 +6,7 @@ import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { SubTaskService } from '$lib/services/domain/subtask-service';
+import { SubTaskService } from '$lib/services/domain/subtask';
 
 /**
  * サブタスク管理ストア
@@ -224,5 +224,25 @@ export class SubTaskStore implements ISubTaskStore {
 	}
 }
 
-// シングルトンエクスポート
-export const subTaskStore = new SubTaskStore(projectStore, selectionStore);
+// シングルトンエクスポート（真の遅延初期化で循環参照を回避）
+let _subTaskStore: SubTaskStore | undefined;
+function getSubTaskStore(): SubTaskStore {
+	if (!_subTaskStore) {
+		_subTaskStore = new SubTaskStore(projectStore, selectionStore);
+	}
+	return _subTaskStore;
+}
+
+// Proxyを使用してアクセス時に初期化
+export const subTaskStore = new Proxy({} as SubTaskStore, {
+	get(_target, prop) {
+		const store = getSubTaskStore();
+		const value = store[prop as keyof SubTaskStore];
+		return typeof value === 'function' ? value.bind(store) : value;
+	},
+	set(_target, prop, value) {
+		const store = getSubTaskStore();
+		(store as any)[prop] = value;
+		return true;
+	}
+});

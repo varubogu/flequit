@@ -4,7 +4,7 @@
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
   import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
-  import { TaskService } from '$lib/services/domain/task';
+  import { TaskService } from '$lib/services/task-service';
   import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 
   interface Props {

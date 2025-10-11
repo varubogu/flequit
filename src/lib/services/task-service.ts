@@ -3,32 +3,47 @@ import type { SubTask } from '$lib/types/sub-task';
 import { TaskSelectionService } from './task/task-selection-service';
 import { TaskMutationService } from './task/task-mutation-service';
 
-const selectionService = new TaskSelectionService();
-const mutationService = new TaskMutationService();
+// 遅延初期化で循環参照を回避
+let selectionService: TaskSelectionService | undefined;
+let mutationService: TaskMutationService | undefined;
+
+function getSelectionService(): TaskSelectionService {
+  if (!selectionService) {
+    selectionService = new TaskSelectionService();
+  }
+  return selectionService;
+}
+
+function getMutationService(): TaskMutationService {
+  if (!mutationService) {
+    mutationService = new TaskMutationService();
+  }
+  return mutationService;
+}
 
 export class TaskService {
   static toggleTaskStatus(taskId: string): void {
-    void mutationService.toggleTaskStatus(taskId);
+    void getMutationService().toggleTaskStatus(taskId);
   }
 
   static selectTask(taskId: string | null): boolean {
-    return selectionService.selectTask(taskId);
+    return getSelectionService().selectTask(taskId);
   }
 
   static selectSubTask(subTaskId: string | null): boolean {
-    return selectionService.selectSubTask(subTaskId);
+    return getSelectionService().selectSubTask(subTaskId);
   }
 
   static forceSelectTask(taskId: string | null): void {
-    selectionService.forceSelectTask(taskId);
+    getSelectionService().forceSelectTask(taskId);
   }
 
   static forceSelectSubTask(subTaskId: string | null): void {
-    selectionService.forceSelectSubTask(subTaskId);
+    getSelectionService().forceSelectSubTask(subTaskId);
   }
 
   static updateTask(taskId: string, updates: Partial<Task>): void {
-    mutationService.updateTask(taskId, updates);
+    getMutationService().updateTask(taskId, updates);
   }
 
   static updateTaskFromForm(
@@ -42,20 +57,20 @@ export class TaskService {
       priority: number;
     }
   ): void {
-    mutationService.updateTaskFromForm(taskId, formData);
+    getMutationService().updateTaskFromForm(taskId, formData);
   }
 
   static changeTaskStatus(taskId: string, newStatus: TaskStatus): void {
-    void mutationService.changeTaskStatus(taskId, newStatus);
+    void getMutationService().changeTaskStatus(taskId, newStatus);
   }
 
   static deleteTask(taskId: string): boolean {
-    void mutationService.deleteTask(taskId);
+    void getMutationService().deleteTask(taskId);
     return true;
   }
 
   static toggleSubTaskStatus(task: TaskWithSubTasks, subTaskId: string): void {
-    mutationService.toggleSubTaskStatus(task, subTaskId);
+    getMutationService().toggleSubTaskStatus(task, subTaskId);
   }
 
   static async addTask(
@@ -66,7 +81,7 @@ export class TaskService {
       priority?: number;
     }
   ): Promise<TaskWithSubTasks | null> {
-    return mutationService.addTask(listId, taskData);
+    return getMutationService().addTask(listId, taskData);
   }
 
   static async addSubTask(
@@ -77,7 +92,7 @@ export class TaskService {
       priority?: number;
     }
   ): Promise<SubTask | null> {
-    return mutationService.addSubTask(taskId, subTaskData);
+    return getMutationService().addSubTask(taskId, subTaskData);
   }
 
   static updateSubTaskFromForm(
@@ -91,40 +106,40 @@ export class TaskService {
       priority: number;
     }
   ): void {
-    mutationService.updateSubTaskFromForm(subTaskId, formData);
+    getMutationService().updateSubTaskFromForm(subTaskId, formData);
   }
 
   static updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
-    mutationService.updateSubTask(subTaskId, updates);
+    getMutationService().updateSubTask(subTaskId, updates);
   }
 
   static changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
-    mutationService.changeSubTaskStatus(subTaskId, newStatus);
+    getMutationService().changeSubTaskStatus(subTaskId, newStatus);
   }
 
   static deleteSubTask(subTaskId: string): boolean {
-    void mutationService.deleteSubTask(subTaskId);
+    void getMutationService().deleteSubTask(subTaskId);
     return true;
   }
 
   static async addTagToTaskByName(taskId: string, tagName: string): Promise<void> {
-    return mutationService.addTagToTaskByName(taskId, tagName);
+    return getMutationService().addTagToTaskByName(taskId, tagName);
   }
 
   static async addTagToTask(taskId: string, tagId: string): Promise<void> {
-    return mutationService.addTagToTask(taskId, tagId);
+    return getMutationService().addTagToTask(taskId, tagId);
   }
 
   static async removeTagFromTask(taskId: string, tagId: string): Promise<void> {
-    return mutationService.removeTagFromTask(taskId, tagId);
+    return getMutationService().removeTagFromTask(taskId, tagId);
   }
 
   static updateTaskDueDateForView(taskId: string, viewId: string): void {
-    mutationService.updateTaskDueDateForView(taskId, viewId);
+    getMutationService().updateTaskDueDateForView(taskId, viewId);
   }
 
   static updateSubTaskDueDateForView(subTaskId: string, taskId: string, viewId: string): void {
-    mutationService.updateSubTaskDueDateForView(subTaskId, taskId, viewId);
+    getMutationService().updateSubTaskDueDateForView(subTaskId, taskId, viewId);
   }
 
   static async addTagToSubTaskByName(
@@ -132,11 +147,11 @@ export class TaskService {
     taskId: string,
     tagName: string
   ): Promise<void> {
-    return mutationService.addTagToSubTaskByName(subTaskId, taskId, tagName);
+    return getMutationService().addTagToSubTaskByName(subTaskId, taskId, tagName);
   }
 
   static async addTagToSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
-    return mutationService.addTagToSubTask(subTaskId, taskId, tagId);
+    return getMutationService().addTagToSubTask(subTaskId, taskId, tagId);
   }
 
   static async removeTagFromSubTask(
@@ -144,6 +159,6 @@ export class TaskService {
     taskId: string,
     tagId: string
   ): Promise<void> {
-    return mutationService.removeTagFromSubTask(subTaskId, taskId, tagId);
+    return getMutationService().removeTagFromSubTask(subTaskId, taskId, tagId);
   }
 }

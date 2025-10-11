@@ -3,7 +3,7 @@ import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
 import { projectStore } from './project-store.svelte';
 import { selectionStore } from './selection-store.svelte';
-import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list-service';
+import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 
@@ -278,5 +278,25 @@ export class TaskListStore implements ITaskListStore {
 	}
 }
 
-// シングルトンエクスポート
-export const taskListStore = new TaskListStore(projectStore, selectionStore);
+// シングルトンエクスポート（真の遅延初期化で循環参照を回避）
+let _taskListStore: TaskListStore | undefined;
+function getTaskListStore(): TaskListStore {
+	if (!_taskListStore) {
+		_taskListStore = new TaskListStore(projectStore, selectionStore);
+	}
+	return _taskListStore;
+}
+
+// Proxyを使用してアクセス時に初期化
+export const taskListStore = new Proxy({} as TaskListStore, {
+	get(_target, prop) {
+		const store = getTaskListStore();
+		const value = store[prop as keyof TaskListStore];
+		return typeof value === 'function' ? value.bind(store) : value;
+	},
+	set(_target, prop, value) {
+		const store = getTaskListStore();
+		(store as any)[prop] = value;
+		return true;
+	}
+});

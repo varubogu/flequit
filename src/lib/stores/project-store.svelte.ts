@@ -3,7 +3,7 @@ import type { ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
 import { selectionStore } from './selection-store.svelte';
 import { tagStore } from './tags.svelte';
-import { ProjectService } from '$lib/services/domain/project-service';
+import { ProjectService } from '$lib/services/domain/project';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
@@ -160,5 +160,25 @@ export class ProjectStore implements IProjectStore {
 	}
 }
 
-// シングルトンエクスポート
-export const projectStore = new ProjectStore(selectionStore);
+// シングルトンエクスポート（真の遅延初期化で循環参照を回避）
+let _projectStore: ProjectStore | undefined;
+function getProjectStore(): ProjectStore {
+	if (!_projectStore) {
+		_projectStore = new ProjectStore(selectionStore);
+	}
+	return _projectStore;
+}
+
+// Proxyを使用してアクセス時に初期化
+export const projectStore = new Proxy({} as ProjectStore, {
+	get(_target, prop) {
+		const store = getProjectStore();
+		const value = store[prop as keyof ProjectStore];
+		return typeof value === 'function' ? value.bind(store) : value;
+	},
+	set(_target, prop, value) {
+		const store = getProjectStore();
+		(store as any)[prop] = value;
+		return true;
+	}
+});

@@ -54,22 +54,24 @@ type TaskMutationDependencies = {
   recurrenceService: TaskRecurrenceService;
 };
 
-const defaultTaskMutationDependencies: TaskMutationDependencies = {
-  taskStore,
-  taskCoreStore,
-  subTaskStore,
-  taskListStore,
-  tagStore,
-  taggingService: TaggingService,
-  errorHandler,
-  recurrenceService: new TaskRecurrenceService()
-};
+function getDefaultDependencies(): TaskMutationDependencies {
+  return {
+    taskStore,
+    taskCoreStore,
+    subTaskStore,
+    taskListStore,
+    tagStore,
+    taggingService: TaggingService,
+    errorHandler,
+    recurrenceService: new TaskRecurrenceService()
+  };
+}
 
 export class TaskMutationService {
   #deps: TaskMutationDependencies;
 
-  constructor(deps: TaskMutationDependencies = defaultTaskMutationDependencies) {
-    this.#deps = deps;
+  constructor(deps?: TaskMutationDependencies) {
+    this.#deps = deps ?? getDefaultDependencies();
   }
 
   async toggleTaskStatus(taskId: string): Promise<void> {

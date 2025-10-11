@@ -18,16 +18,18 @@ type TaskSelectionDependencies = {
   selectionStore: SelectionStoreLike;
 };
 
-const defaultTaskSelectionDependencies: TaskSelectionDependencies = {
-  taskStore,
-  selectionStore
-};
+function getDefaultDependencies(): TaskSelectionDependencies {
+  return {
+    taskStore,
+    selectionStore
+  };
+}
 
 export class TaskSelectionService {
   #deps: TaskSelectionDependencies;
 
-  constructor(deps: TaskSelectionDependencies = defaultTaskSelectionDependencies) {
-    this.#deps = deps;
+  constructor(deps?: TaskSelectionDependencies) {
+    this.#deps = deps ?? getDefaultDependencies();
   }
 
   selectTask(taskId: string | null): boolean {

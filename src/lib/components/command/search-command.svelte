@@ -6,7 +6,7 @@
   import { createSearchMessages } from './search-command-messages.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import { TaskService } from '$lib/services/domain/task';
+  import { TaskService } from '$lib/services/task-service';
   import { viewStore } from '$lib/stores/view-store.svelte';
 
   interface Props {

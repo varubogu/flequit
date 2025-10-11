@@ -543,7 +543,7 @@ beforeEach(() => {
   resetDomainState();
 });
 
-vi.mock('$lib/services/domain/project-service', () => ({
+vi.mock('$lib/services/domain/project', () => ({
   ProjectService: {
     createProject: dataServiceImpl.createProject.bind(dataServiceImpl),
     updateProject: dataServiceImpl.updateProject.bind(dataServiceImpl),
@@ -552,7 +552,7 @@ vi.mock('$lib/services/domain/project-service', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task-list-service', () => ({
+vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: {
     createTaskList: dataServiceImpl.createTaskList.bind(dataServiceImpl),
     createTaskListWithTasks: dataServiceImpl.createTaskListWithTasks.bind(dataServiceImpl),
@@ -561,7 +561,7 @@ vi.mock('$lib/services/domain/task-list-service', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task-service', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   TaskService: {
     createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
     updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
@@ -572,7 +572,7 @@ vi.mock('$lib/services/domain/task-service', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/subtask-service', () => ({
+vi.mock('$lib/services/domain/subtask', () => ({
   SubTaskService: {
     createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),
     updateSubTask: dataServiceImpl.updateSubTask.bind(dataServiceImpl),

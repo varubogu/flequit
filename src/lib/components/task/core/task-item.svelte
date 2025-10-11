@@ -4,7 +4,7 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
-  import { TaskService } from '$lib/services/domain/task';
+  import { TaskService } from '$lib/services/task-service';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
