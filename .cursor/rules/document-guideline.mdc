@@ -1,0 +1,12 @@
+---
+description: Document guideline
+globs:
+  - "docs/**/*.md"
+alwaysApply: true
+---
+
+# Document Guideline
+
+## About Document
+
+For details, refer to `docs/en/develop/rules/documentation.md`.

@@ -28,6 +28,7 @@ For detailed design and specifications, please refer to the documents in the `do
 
 * When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
 * `docs/en/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
+* `docs/en/develop/rules/documentation.md` - Documentation editing rules
 * Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:
 
   * `cargo test -j 4`
