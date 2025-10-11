@@ -1,22 +1,22 @@
 ---
-description: 基本的なルール
+description: Basic rules
 globs:
 alwaysApply: true
 ---
 
-# 基本ルール
+# Basic Rules
 
-## レスポンスについて
+## About Responses
 
-日本語で
+Respond in Japanese
 
-## 修正時の許可確認
+## Permission Confirmation for Modifications
 
-何かを修正を指示するように言われた場合、そのソースに関連する部分以外はすぐには修正せず、ユーザーに修正して良いか必ず許可を求めてください。
+When instructed to make changes, do not immediately modify parts unrelated to the source without first asking for permission from the user.
 
-## ビルド・テスト時の制限
+## Build and Test Limitations
 
-bunとcargoの両方で、ビルド時と全体テスト実行時はワーカー数を4に制限する（ユーザーの意図せぬ負荷を防ぐため）
+For both bun and cargo, limit the number of workers to 4 during build and full test execution (to prevent unintended load on the user)
 
-- cargo test -j 4 # cargo系のコマンドは全て（check, build, test, clippy, fmt, etc.）ワーカー数を4に制限する
-- bun run test    # こちらは設定ファイルで設定済みなので意識しなくても良い
+- cargo test -j 4 # All cargo commands (check, build, test, clippy, fmt, etc.) should limit workers to 4
+- bun run test    # This is already configured in the settings file, so no need to be conscious of it

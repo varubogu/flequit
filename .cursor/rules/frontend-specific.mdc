@@ -1,5 +1,5 @@
 ---
-description: フロントエンド固有のルール
+description: Frontend-specific rules
 globs:
   - "src/**/*.svelte"
   - "src/**/*.ts"
@@ -7,17 +7,17 @@ globs:
 alwaysApply: true
 ---
 
-# フロントエンド固有ルール
+# Frontend-specific Rules
 
-## Svelte 5 設計パターン
+## Svelte 5 Design Patterns
 
-詳細は `docs/develop/design/frontend/svelte5-patterns.md` を参照してください。
+For details, refer to `docs/en/develop/design/frontend/svelte5-patterns.md`.
 
-## 国際化システム
+## Internationalization System
 
-詳細は `docs/develop/design/frontend/i18n-system.md` を参照してください。
+For details, refer to `docs/en/develop/design/frontend/i18n-system.md`.
 
-## バックエンド（Tauri呼び出し）について
+## About Backend (Tauri calls)
 
-commandのパラメータは`camelCase`で記述します。（自動的に変換される）
-ただしパラメータがオブジェクトの場合、プロパティは`snake_case`で記述します。
+Command parameters should be written in `camelCase` (automatically converted).
+However, when parameters are objects, properties should be written in `snake_case`.

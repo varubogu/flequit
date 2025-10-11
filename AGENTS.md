@@ -14,20 +14,20 @@ For detailed design and specifications, please refer to the documents in the `do
 
 ### Architecture & Design
 
-* `docs/develop/design/architecture.md` - Overall architecture
-* `docs/develop/design/data/` - Data-related design
+* `docs/en/develop/design/architecture.md` - Overall architecture
+* `docs/en/develop/design/data/` - Data-related design
 
   * `data-structure.md` - Data structure specifications
   * `data-security.md` - Security design
   * `tauri-automerge-repo-dataflow.md` - Data flow design
   * `partial-update-implementation.md` - Partial update system implementation details
-* `docs/develop/design/frontend/` - Frontend design
-* `docs/develop/design/database/` - Database design
+* `docs/en/develop/design/frontend/` - Frontend design
+* `docs/en/develop/design/database/` - Database design
 
 ### Development Rules
 
 * When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
-* `docs/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
+* `docs/en/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
 * Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:
 
   * `cargo test -j 4`
@@ -38,11 +38,11 @@ For detailed design and specifications, please refer to the documents in the `do
 
 ### Requirements Definition
 
-* `docs/develop/requirements/` - Requirement documents (performance.md, security.md, testing.md, etc.)
+* `docs/en/develop/requirements/` - Requirement documents (performance.md, security.md, testing.md, etc.)
 
 ### Testing
 
-* `docs/develop/design/testing.md` - Testing strategy and guidelines
+* `docs/en/develop/design/testing.md` - Testing strategy and guidelines
 
 Refer to these documents as needed and ensure your work is always based on the latest design information.
 When testing, first execute tests for a single file to confirm correctness, then run the full suite.
@@ -58,23 +58,23 @@ An **AutoMerge-based data management system** is used to prevent conflicts durin
 
 ## Tech Stack
 
-See `docs/develop/design/tech-stack.md` for details.
+See `docs/en/develop/design/tech-stack.md` for details.
 
 ## Project Structure
 
-See `docs/develop/design/tech-stack.md` for details.
+See `docs/en/develop/design/tech-stack.md` for details.
 
 ## Svelte 5 Design Patterns
 
-See `docs/develop/design/frontend/svelte5-patterns.md` for details.
+See `docs/en/develop/design/frontend/svelte5-patterns.md` for details.
 
 ## Internationalization System
 
-See `docs/develop/design/frontend/i18n-system.md` for details.
+See `docs/en/develop/design/frontend/i18n-system.md` for details.
 
 ## Coding Standards
 
-See `docs/develop/rules/coding-standards.md` for details.
+See `docs/en/develop/rules/coding-standards.md` for details.
 
 ### Tauri ⇔ Frontend Communication Rules
 
@@ -86,21 +86,21 @@ See `docs/develop/rules/coding-standards.md` for details.
 * **Error handling:** Follow the unified error-handling pattern
 
 For more details, see the “Tauri ⇔ Frontend Communication Rules” section in
-`docs/develop/rules/coding-standards.md`.
+`docs/en/develop/rules/coding-standards.md`.
 
 ### Rust Guidelines
 
-See `docs/develop/design/backend-tauri/rust-guidelines.md` for details.
+See `docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
 
 ### Module Relationships
 
 See the “Architecture Structure” section in
-`docs/develop/design/backend-tauri/rust-guidelines.md` for details.
+`docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
 
 ## Development Workflow
 
-See `docs/develop/rules/workflow.md` for details.
+See `docs/en/develop/rules/workflow.md` for details.
 
 ## Command List
 
-See `docs/develop/commands.md` for details.
+See `docs/en/develop/commands.md` for details.

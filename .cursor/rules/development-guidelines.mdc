@@ -1,44 +1,44 @@
 ---
-description: 開発ガイドライン
+description: Development guidelines
 globs:
 alwaysApply: true
 ---
 
-# 開発ガイドライン
+# Development Guidelines
 
-## 設計ドキュメントについて
+## About Design Documents
 
-詳細な設計や仕様については、以下のdocsディレクトリ配下のドキュメントを参照してください：
+For detailed design and specifications, please refer to the documents in the following docs directory:
 
-### アーキテクチャ・設計
-- `docs/develop/design/architecture.md` - 全体アーキテクチャ
-- `docs/develop/design/data/` - データ関連設計
-  - `data-structure.md` - データ構造仕様
-  - `data-security.md` - セキュリティ設計
-  - `tauri-automerge-repo-dataflow.md` - データフロー設計
-  - `partial-update-implementation.md` - 部分更新システム実装詳細
-- `docs/develop/design/frontend/` - フロントエンド設計
-- `docs/develop/design/database/` - データベース設計
+### Architecture & Design
+- `docs/en/develop/design/architecture.md` - Overall architecture
+- `docs/en/develop/design/data/` - Data-related design
+  - `data-structure.md` - Data structure specifications
+  - `data-security.md` - Security design
+  - `tauri-automerge-repo-dataflow.md` - Data flow design
+  - `partial-update-implementation.md` - Partial update system implementation details
+- `docs/en/develop/design/frontend/` - Frontend design
+- `docs/en/develop/design/database/` - Database design
 
-### 開発ルール
-- `docs/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
+### Development Rules
+- `docs/en/develop/rules/` - Various development rules (backend.md, frontend.md, testing.md, etc.)
 
-### 要件定義
-- `docs/develop/requirements/` - 各種要件（performance.md, security.md, testing.md等）
+### Requirements Definition
+- `docs/en/develop/requirements/` - Various requirements (performance.md, security.md, testing.md, etc.)
 
-### テスト
-- `docs/develop/design/testing.md` - テスト戦略とガイドライン
+### Testing
+- `docs/en/develop/design/testing.md` - Testing strategy and guidelines
 
-必要に応じてこれらのドキュメントを参照し、最新の設計情報に基づいて作業を行ってください。
+Refer to these documents as needed and work based on the latest design information.
 
-## コーディング規約
+## Coding Standards
 
-詳細は `docs/develop/rules/coding-standards.md` を参照してください。
+For details, refer to `docs/en/develop/rules/coding-standards.md`.
 
-## 開発ワークフロー
+## Development Workflow
 
-詳細は `docs/develop/rules/workflow.md` を参照してください。
+For details, refer to `docs/en/develop/rules/workflow.md`.
 
-## コマンド一覧
+## Command List
 
-詳細は `docs/develop/commands.md` を参照してください。
+For details, refer to `docs/en/develop/commands.md`.

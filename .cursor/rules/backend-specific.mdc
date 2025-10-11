@@ -1,17 +1,17 @@
 ---
-description: バックエンド固有のルール
+description: Backend-specific rules
 globs:
   - "src-tauri/**/*.rs"
   - "src-tauri/**/*.toml"
 alwaysApply: true
 ---
 
-# バックエンド固有ルール
+# Backend-specific Rules
 
-## Rust部分について
+## About Rust Components
 
-詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` を参照してください。
+For details, refer to `docs/en/develop/design/backend-tauri/rust-guidelines.md`.
 
-## モジュールの関連性
+## Module Relationships
 
-詳細は `docs/develop/design/backend-tauri/rust-guidelines.md` の「アーキテクチャ構成」セクションを参照してください。
+For details, refer to the "Architecture Structure" section in `docs/en/develop/design/backend-tauri/rust-guidelines.md`.
