@@ -171,9 +171,14 @@ export class TaskService {
 - ✅ **Infrastructure層を使用OK**
   - 理由: Services層がInfrastructureとStoreの橋渡し役
   - 例: `backend.task.update()`, `backend.project.create()`
-- ✅ **Storesからデータ取得・更新OK**
+- ✅ **Storesからデータ取得・更新OK (ドメインモデルのStoreのみ)**
   - 理由: Svelte runesは`.svelte.ts`でのみ動作、状態はstoresに集中
   - 例: `taskStore.tasks`, `taskStore.updateTask()`
+  - ⚠️ **注意**: ドメインモデル(task, project等)のStoreのみ。UI状態Store(selection-store等)は参照しない
+- ❌ **UI状態ストア(selection-store等)への参照禁止**
+  - 理由: Domain層はビジネスロジックのみを担当、UI状態に依存してはいけない
+  - 例: `selectionStore.selectTask()` などは呼び出さない
+  - UI状態の更新はComponents層で行う
 - ✅ **他のDomain Servicesを使用OK**
   - 例: TaskServiceからRecurrenceServiceを呼び出す
   - 注意: 循環参照にならないよう一方向のみ
@@ -187,6 +192,8 @@ export class TaskService {
 **注意事項**:
 - Services層がInfrastructureとStoreの両方を操作することで、責務が明確になる
 - ビジネスロジックがない場合でも、StoreとInfrastructureの橋渡しとして機能する
+- **重要**: Domain ServicesはドメインモデルのStoreのみ操作し、UI状態Storeには依存しない
+- UI状態の管理はComponents層の責務である
 
 ---
 
@@ -239,83 +246,94 @@ export class TaskCompositeService {
 
 ---
 
-### Application層 - UI Services (`services/ui/`)
+### ⚠️ 廃止予定: Application層 - UI Services (`services/ui/`)
 
-**責務**:
-- UI状態管理とユーザー操作の調整
-- モバイル/デスクトップ切り替え
-- Domain/Composite Servicesを組み合わせてUI層の操作を提供
+**重要**: UI Services層は**廃止予定**です。以下の設計方針に従ってください:
 
-**例**:
+**新しい設計方針**:
+- **UIロジック**: Components層で実装する
+- **UI状態管理**: Components層のローカル状態、または専用Store(selection-store等)で管理
+- **ビジネスロジック**: Domain Services層に集中
+
+**理由**:
+UI Services層は責務が不明確で、実際にはUI状態管理とビジネスロジックの中間層として機能していました。
+明確な3層アーキテクチャ (Components → Domain Services → Backend/Store) により、各層の責務が明確になります。
+
+**移行方法**:
 ```typescript
-// services/ui/task-detail.ts
-import { TaskService } from '$lib/services/domain/task';
-import { viewStore } from '$lib/stores/view-store.svelte';
+// ❌ 旧: UI Services経由
+TaskDetailService.openTaskDetail(taskId); // UI状態 + ビジネスロジック混在
 
-export class TaskDetailService {
-  static openTaskDetail(taskId: string) {
-    // Domain Serviceでデータ操作
-    TaskService.selectTask(taskId);
+// ✅ 新: Components層で直接管理
+// Components層 (*.svelte)
+async function openTaskDetail(taskId: string) {
+  // 1. ビジネスロジック: Domain Serviceを呼び出し
+  await TaskService.getTask(taskId);
 
-    // UI状態の変更
-    if (viewStore.isMobile) {
-      viewStore.openDrawer('task-detail');
-    }
+  // 2. UIロジック: Components層で判断・実行
+  if (viewStore.isMobile) {
+    viewStore.openDrawer('task-detail');
   }
+
+  // 3. UI状態: selection-store等で管理
+  selectionStore.selectTask(taskId);
 }
 ```
 
-**依存ルール**:
-- ✅ **Components層から呼び出しOK**
-- ✅ **Infrastructure層を使用OK**
-  - 理由: Services層がInfrastructureとStoreの橋渡し役
-- ✅ **Domain Servicesを使用OK**
-- ✅ **Composite Servicesを使用OK**
-- ✅ **他のUI Servicesを使用OK**（慎重に、循環参照注意）
-- ✅ **Storesからデータ取得・更新OK**
-- ✅ **Utils/Types を参照OK**
-- ❌ **Components層への参照禁止**
-  - 理由: Services層はビジネスロジックのみを担当、UIコンポーネントに依存してはいけない
+**重要な原則**:
+- ❌ **Domain ServicesからUI状態ストア(selection-store等)を参照しない**
+  - 理由: Domain層はビジネスロジックのみを担当、UI状態に依存すべきではない
+- ✅ **Components層がUI状態とビジネスロジックを協調**
+  - Components層がDomain Servicesを呼び出し、結果に基づいてUI状態を更新
 
 ## レイヤー間の依存関係
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Components (Svelte)                         │
-│ ✅ stores/* から値の読み取りのみ            │
-│ ✅ services/* から import・呼び出し         │
+│ Components Layer (Svelte)                   │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│ 📌 責務: UIロジック + UI状態管理            │
+│ ✅ stores/* から値の読み取り                │
+│ ✅ domain services/* の呼び出し             │
+│ ✅ selection-store等のUI状態ストアを操作    │
 │ ❌ infrastructure/* から import 禁止         │
-│ ❌ stores/* のメソッド呼び出し禁止           │
+│ ❌ stores/* (ドメインモデル) の直接更新禁止  │
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
 │ Services Layer (ビジネスロジック + 橋渡し)  │
-│ ├─ ui/          (UI状態・最上位)            │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ ├─ composite/   (横断操作)                  │
 │ └─ domain/      (単一エンティティ)          │
 │                                             │
-│ 📊 依存方向: UI → Composite → Domain       │
+│ 📌 責務: ビジネスロジックのみ               │
 │ ✅ Infrastructure への参照OK（永続化）      │
-│ ✅ Stores への参照OK（状態更新）            │
+│ ✅ ドメインモデルStores への参照OK          │
+│ ❌ UI状態ストア(selection-store等)参照禁止  │
+│ ❌ Components層への参照禁止                 │
 └─────────────────────────────────────────────┘
          ↙                     ↘
 ┌──────────────────┐    ┌──────────────────┐
 │ Infrastructure   │    │ Stores Layer     │
-│                  │    │                  │
-│ backends/        │    │ $state管理のみ   │
+│ ━━━━━━━━━━━━━━━ │    │ ━━━━━━━━━━━━━━━ │
+│ backends/        │    │ ドメインモデル:  │
 │ ├─ tauri/        │    │ ├─ tasks         │
 │ ├─ web/          │    │ ├─ tags          │
 │ └─ cloud/        │    │ └─ settings      │
-│                  │    │                  │
-│ ✅ 外部通信のみ  │    │ ✅ 状態保持のみ  │
-│ ❌ Stores参照禁止│    │ ❌ Infra参照禁止 │
+│                  │    │ UI状態:          │
+│ 📌 外部通信のみ  │    │ └─ selection     │
+│ ❌ Stores参照禁止│    │                  │
+│                  │    │ 📌 状態保持のみ  │
+│                  │    │ ❌ Infra参照禁止 │
 └──────────────────┘    └──────────────────┘
          ↓                     ↓
 ┌─────────────────────────────────────────────┐
 │ Utils/Types Layer (全層から利用可能)        │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ ├─ utils/       (純粋関数)                  │
 │ └─ types/       (型定義)                    │
 │                                             │
+│ 📌 純粋関数・型定義のみ                     │
 │ ❌ stores/services/infrastructure 参照禁止  │
 └─────────────────────────────────────────────┘
 ```
@@ -783,30 +801,45 @@ Components層（`src/lib/components/`）とStore（`src/lib/stores/`）の間に
 
 ### 設計原則
 
-1. **明確な責務分離**
-   - **Store**: 状態管理のみ（リアクティブな値保持・購読）
-   - **Infrastructure**: 外部とのやり取りのみ（バックエンド通信）
-   - **Service**: ビジネスロジック + StoreとInfrastructureの橋渡し
+1. **明確な3層アーキテクチャ**
+   - **Components層**: UIロジック + UI状態管理
+   - **Services層**: ビジネスロジック + StoreとInfrastructureの橋渡し
+   - **Infrastructure/Stores層**: 永続化とドメインモデル状態管理
 
-2. **Infrastructure層はServices層からのみ利用**
+2. **各層の責務**
+   - **Components層**: UIロジック、UI状態(selection等)の管理、Domain Servicesの呼び出し
+   - **Domain Services層**: ビジネスロジックのみ、ドメインモデルStoreとInfrastructureの橋渡し
+   - **Stores層**: 状態管理のみ（ドメインモデル + UI状態を分離管理）
+   - **Infrastructure層**: 外部とのやり取りのみ（バックエンド通信）
+
+3. **重要: Domain ServicesとUI状態の分離**
+   - ❌ Domain ServicesはUI状態ストア(selection-store等)を参照しない
+   - ✅ Components層がDomain Servicesを呼び出し、結果に基づいてUI状態を更新
+   - 理由: Domain層はビジネスロジックのみを担当、UI状態に依存すべきではない
+
+4. **Infrastructure層はServices層からのみ利用**
    - Components層・Stores層からの直接呼び出しは禁止
 
-3. **Stores層は状態管理のみに集中**
+5. **Stores層は状態管理のみに集中**
    - Services/Infrastructure/Componentsを参照しない
    - 永続化・ビジネスロジックはすべてServices層に委譲
+   - ドメインモデルStoreとUI状態Storeを分離管理
 
-4. **Services層がInfrastructureとStoreを操作**
+6. **Services層がInfrastructureとドメインモデルStoreを操作**
    - Infrastructure層で永続化
-   - Store層で状態更新
-   - 両方を操作することで責務が明確
+   - ドメインモデルStore層で状態更新
+   - UI状態Storeは操作しない（Components層の責務）
 
-5. **Components層はServicesのみ呼び出し、Storeは読み取りのみ**
-   - Storeのメソッド呼び出しは必ずServices経由
+7. **Components層の責務拡大**
+   - Domain Servicesのみ呼び出し、ドメインモデルStoreは読み取りのみ
+   - UI状態ストアの操作はComponents層が直接行う
+   - UIロジック（モバイル/デスクトップ判定等）はComponents層で実装
 
-6. **Services層は階層構造を守る (UI → Composite → Domain)**
+8. **Services層は階層構造を守る (Composite → Domain)**
+   - UI Services層は廃止予定
    - Componentsを参照しない（ビジネスロジックのみ）
 
-7. **Utils/Types層は他層に依存しない（純粋関数・型定義のみ）**
+9. **Utils/Types層は他層に依存しない（純粋関数・型定義のみ）**
 
 ### 期待される効果
 

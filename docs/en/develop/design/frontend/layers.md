@@ -171,9 +171,14 @@ export class TaskService {
 - ✅ **OK to use Infrastructure layer**
   - Reason: Services layer bridges Infrastructure and Store
   - Example: `backend.task.update()`, `backend.project.create()`
-- ✅ **OK to get/update data from Stores**
+- ✅ **OK to get/update data from Stores (domain model Stores only)**
   - Reason: Svelte runes work only in `.svelte.ts`, state is centralized in stores
   - Example: `taskStore.tasks`, `taskStore.updateTask()`
+  - ⚠️ **Note**: Only domain model Stores (task, project, etc.). Do NOT reference UI state Stores (selection-store, etc.)
+- ❌ **Prohibited to reference UI state stores (selection-store, etc.)**
+  - Reason: Domain layer handles only business logic, should not depend on UI state
+  - Example: Do NOT call `selectionStore.selectTask()`, etc.
+  - UI state updates are the responsibility of Components layer
 - ✅ **OK to use other Domain Services**
   - Example: TaskService calling RecurrenceService
   - Note: Unidirectional only to avoid circular references
@@ -187,6 +192,8 @@ export class TaskService {
 **Notes**:
 - Services layer operating both Infrastructure and Store makes responsibilities clear
 - Functions as bridge between Store and Infrastructure even when no business logic exists
+- **Important**: Domain Services operate only domain model Stores, do NOT depend on UI state Stores
+- UI state management is the responsibility of Components layer
 
 ---
 
@@ -239,83 +246,94 @@ export class TaskCompositeService {
 
 ---
 
-### Application Layer - UI Services (`services/ui/`)
+### ⚠️ Deprecated: Application Layer - UI Services (`services/ui/`)
 
-**Responsibilities**:
-- UI state management and user operation coordination
-- Mobile/desktop switching
-- Combine Domain/Composite Services to provide UI layer operations
+**Important**: The UI Services layer is **deprecated**. Please follow the new design principles below:
 
-**Example**:
+**New Design Principles**:
+- **UI Logic**: Implement in Components layer
+- **UI State Management**: Manage with local state in Components layer or dedicated Stores (selection-store, etc.)
+- **Business Logic**: Centralize in Domain Services layer
+
+**Reason**:
+The UI Services layer had unclear responsibilities and actually functioned as an intermediate layer between UI state management and business logic.
+A clear 3-layer architecture (Components → Domain Services → Backend/Store) clarifies the responsibilities of each layer.
+
+**Migration Path**:
 ```typescript
-// services/ui/task-detail.ts
-import { TaskService } from '$lib/services/domain/task';
-import { viewStore } from '$lib/stores/view-store.svelte';
+// ❌ Old: Via UI Services
+TaskDetailService.openTaskDetail(taskId); // UI state + business logic mixed
 
-export class TaskDetailService {
-  static openTaskDetail(taskId: string) {
-    // Data operations via Domain Service
-    TaskService.selectTask(taskId);
+// ✅ New: Directly manage in Components layer
+// Components layer (*.svelte)
+async function openTaskDetail(taskId: string) {
+  // 1. Business logic: Call Domain Service
+  await TaskService.getTask(taskId);
 
-    // UI state changes
-    if (viewStore.isMobile) {
-      viewStore.openDrawer('task-detail');
-    }
+  // 2. UI logic: Judge and execute in Components layer
+  if (viewStore.isMobile) {
+    viewStore.openDrawer('task-detail');
   }
+
+  // 3. UI state: Manage with selection-store, etc.
+  selectionStore.selectTask(taskId);
 }
 ```
 
-**Dependency Rules**:
-- ✅ **OK to invoke from Components layer**
-- ✅ **OK to use Infrastructure layer**
-  - Reason: Services layer bridges Infrastructure and Store
-- ✅ **OK to use Domain Services**
-- ✅ **OK to use Composite Services**
-- ✅ **OK to use other UI Services** (carefully, watch for circular references)
-- ✅ **OK to get/update data from Stores**
-- ✅ **OK to reference Utils/Types**
-- ❌ **Prohibited to reference Components layer**
-  - Reason: Services layer handles only business logic, should not depend on UI components
+**Important Principles**:
+- ❌ **Domain Services should NOT reference UI state stores (selection-store, etc.)**
+  - Reason: Domain layer handles only business logic, should not depend on UI state
+- ✅ **Components layer coordinates UI state and business logic**
+  - Components layer calls Domain Services and updates UI state based on results
 
 ## Inter-layer Dependencies
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Components (Svelte)                         │
-│ ✅ Read values only from stores/*           │
-│ ✅ Import and invoke from services/*        │
+│ Components Layer (Svelte)                   │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│ 📌 Responsibility: UI Logic + UI State Mgmt │
+│ ✅ Read values from stores/*                │
+│ ✅ Invoke domain services/*                 │
+│ ✅ Operate UI state stores (selection, etc.)│
 │ ❌ Prohibited to import from infrastructure/*│
-│ ❌ Prohibited to call stores/* methods      │
+│ ❌ Prohibited to directly update domain stores│
 └─────────────────────────────────────────────┘
                    ↓
 ┌─────────────────────────────────────────────┐
 │ Services Layer (Business Logic + Bridge)   │
-│ ├─ ui/          (UI state, top level)       │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ ├─ composite/   (Cross-cutting operations) │
 │ └─ domain/      (Single entity)            │
 │                                             │
-│ 📊 Dependency direction: UI → Composite → Domain│
-│ ✅ OK to reference Infrastructure (persistence)│
-│ ✅ OK to reference Stores (state updates)   │
+│ 📌 Responsibility: Business Logic Only      │
+│ ✅ OK to reference Infrastructure (persist) │
+│ ✅ OK to reference domain model Stores      │
+│ ❌ Prohibited UI state stores (selection, etc.)│
+│ ❌ Prohibited to reference Components layer │
 └─────────────────────────────────────────────┘
          ↙                     ↘
 ┌──────────────────┐    ┌──────────────────┐
 │ Infrastructure   │    │ Stores Layer     │
-│                  │    │                  │
-│ backends/        │    │ $state management│
+│ ━━━━━━━━━━━━━━━ │    │ ━━━━━━━━━━━━━━━ │
+│ backends/        │    │ Domain model:    │
 │ ├─ tauri/        │    │ ├─ tasks         │
 │ ├─ web/          │    │ ├─ tags          │
 │ └─ cloud/        │    │ └─ settings      │
-│                  │    │                  │
-│ ✅ External comm only│    │ ✅ State holding only│
-│ ❌ Prohibited to reference Stores│    │ ❌ Prohibited to reference Infra│
+│                  │    │ UI state:        │
+│ 📌 External comm │    │ └─ selection     │
+│ ❌ No Store ref  │    │                  │
+│                  │    │ 📌 State only    │
+│                  │    │ ❌ No Infra ref  │
 └──────────────────┘    └──────────────────┘
          ↓                     ↓
 ┌─────────────────────────────────────────────┐
 │ Utils/Types Layer (Available from all layers)│
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ ├─ utils/       (Pure functions)             │
 │ └─ types/       (Type definitions)           │
 │                                             │
+│ 📌 Pure functions & type definitions only   │
 │ ❌ Prohibited to reference stores/services/infrastructure│
 └─────────────────────────────────────────────┘
 ```
@@ -783,30 +801,45 @@ There are strict rules between Components layer (`src/lib/components/`) and Stor
 
 ### Design Principles
 
-1. **Clear Responsibility Separation**
-   - **Store**: State management only (reactive value holding/subscription)
-   - **Infrastructure**: External interaction only (backend communication)
-   - **Service**: Business logic + bridge between Store and Infrastructure
+1. **Clear 3-Layer Architecture**
+   - **Components layer**: UI logic + UI state management
+   - **Services layer**: Business logic + bridge between Store and Infrastructure
+   - **Infrastructure/Stores layer**: Persistence and domain model state management
 
-2. **Infrastructure layer used only from Services layer**
+2. **Each Layer's Responsibilities**
+   - **Components layer**: UI logic, UI state (selection, etc.) management, Domain Services invocation
+   - **Domain Services layer**: Business logic only, bridge between domain model Store and Infrastructure
+   - **Stores layer**: State management only (separate domain model + UI state management)
+   - **Infrastructure layer**: External interaction only (backend communication)
+
+3. **Important: Separation of Domain Services and UI State**
+   - ❌ Domain Services do NOT reference UI state stores (selection-store, etc.)
+   - ✅ Components layer calls Domain Services and updates UI state based on results
+   - Reason: Domain layer handles only business logic, should not depend on UI state
+
+4. **Infrastructure layer used only from Services layer**
    - Direct invocation from Components layer/Stores layer prohibited
 
-3. **Stores layer focuses only on state management**
+5. **Stores layer focuses only on state management**
    - Do not reference Services/Infrastructure/Components
    - Delegate all persistence and business logic to Services layer
+   - Separate management of domain model Stores and UI state Stores
 
-4. **Services layer operates Infrastructure and Store**
+6. **Services layer operates Infrastructure and domain model Store**
    - Persistence via Infrastructure layer
-   - State updates via Store layer
-   - Clear responsibilities by operating both
+   - State updates via domain model Store layer
+   - Do NOT operate UI state Stores (Components layer's responsibility)
 
-5. **Components layer invokes Services only, Store read-only**
-   - Store method calls must always go through Services
+7. **Expanded Components layer responsibilities**
+   - Invoke Domain Services only, domain model Store read-only
+   - Components layer directly operates UI state stores
+   - Implement UI logic (mobile/desktop judgment, etc.) in Components layer
 
-6. **Services layer maintains hierarchy (UI → Composite → Domain)**
+8. **Services layer maintains hierarchy (Composite → Domain)**
+   - UI Services layer is deprecated
    - Do not reference Components (business logic only)
 
-7. **Utils/Types layer depends on no other layers (pure functions/type definitions only)**
+9. **Utils/Types layer depends on no other layers (pure functions/type definitions only)**
 
 ### Expected Effects
 
