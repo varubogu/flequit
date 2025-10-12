@@ -17,7 +17,7 @@ For detailed design and specifications, please refer to the documents in the `do
 * `docs/en/develop/design/architecture.md` - Overall architecture
 * `docs/en/develop/design/data/` - Data-related design
 
-  * `data-structure.md` - Data structure specifications
+  * `data-model.md` - Data structure specifications
   * `data-security.md` - Security design
   * `tauri-automerge-repo-dataflow.md` - Data flow design
   * `partial-update-implementation.md` - Partial update system implementation details

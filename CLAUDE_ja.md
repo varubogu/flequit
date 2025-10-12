@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### アーキテクチャ・設計
 - `docs/en/develop/design/architecture.md` - 全体アーキテクチャ
 - `docs/en/develop/design/data/` - データ関連設計
-  - `data-structure.md` - データ構造仕様
+  - `data-model.md` - データ構造仕様
   - `data-security.md` - セキュリティ設計
   - `tauri-automerge-repo-dataflow.md` - データフロー設計
   - `partial-update-implementation.md` - 部分更新システム実装詳細
