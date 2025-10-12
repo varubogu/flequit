@@ -6,7 +6,6 @@ import { TaskListService } from '$lib/services/domain/task-list';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
-import { selectionStore } from '$lib/stores/selection-store.svelte';
 
 /**
  * プロジェクトドメインサービス（CRUD操作）
@@ -180,9 +179,12 @@ export class ProjectsService {
   }
 
   // プロジェクト選択
-  static selectProject(projectId: string | null): void {
-    selectionStore.selectProject(projectId);
-    selectionStore.selectList(null); // Clear list selection when selecting a project
+  // 注意: UI状態の管理はComponents層で行ってください
+  // この関数は後方互換性のため残されていますが、非推奨です
+  static selectProject(_projectId: string | null): void {
+    console.warn(
+      'ProjectsService.selectProject() is deprecated. UI state management should be done in Components layer.'
+    );
   }
 
   // プロジェクトID取得（名前で検索）
@@ -326,9 +328,12 @@ export class ProjectsService {
   }
 
   // タスクリスト選択
-  static selectTaskList(listId: string | null): void {
-    selectionStore.selectList(listId);
-    selectionStore.selectProject(null); // Clear project selection when selecting a list
+  // 注意: UI状態の管理はComponents層で行ってください
+  // この関数は後方互換性のため残されていますが、非推奨です
+  static selectTaskList(_listId: string | null): void {
+    console.warn(
+      'ProjectsService.selectTaskList() is deprecated. UI state management should be done in Components layer.'
+    );
   }
 
   // タスクリストID取得（名前で検索）

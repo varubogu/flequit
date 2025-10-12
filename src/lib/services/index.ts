@@ -19,6 +19,5 @@
 // export * from './composite/task-composite';
 
 // UI Services（UI状態管理のみ）
-export * from './ui/task-detail';
-export * from './ui/view';
+// Note: task-detail, viewは削除済み（UI状態はstoresで管理）
 export * from './ui/layout';

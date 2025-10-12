@@ -4,7 +4,10 @@
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
+
+  const taskMutation = new TaskMutationService();
   import { SvelteDate } from 'svelte/reactivity';
   import type { DragData } from '$lib/utils/drag-drop';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
@@ -93,10 +96,10 @@
   function handleViewDrop(viewId: string, dragData: DragData) {
     if (dragData.type === 'task') {
       // タスクをビューにドロップした場合、期日を更新
-      TaskService.updateTaskDueDateForView(dragData.id, viewId);
+      taskMutation.updateTaskDueDateForView(dragData.id, viewId);
     } else if (dragData.type === 'subtask' && dragData.taskId) {
       // サブタスクをビューにドロップした場合、サブタスクの期日を更新
-      TaskService.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
+      taskMutation.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
     }
   }
 </script>

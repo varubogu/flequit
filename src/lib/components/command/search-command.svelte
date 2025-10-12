@@ -6,7 +6,10 @@
   import { createSearchMessages } from './search-command-messages.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
+
+  const taskMutation = new TaskMutationService();
   import { viewStore } from '$lib/stores/view-store.svelte';
 
   interface Props {
@@ -67,7 +70,7 @@
   }
 
   function handleTaskSelect(task: TaskWithSubTasks) {
-    TaskService.selectTask(task.id);
+    selectionStore.selectTask(task.id);
     closeDialog();
   }
 

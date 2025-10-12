@@ -7,7 +7,7 @@ import { taskListStore } from '$lib/stores/task-list-store.svelte';
 import { TaggingService } from '$lib/services/domain/tagging';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { TaskRecurrenceService } from './task-recurrence-service';
+import { TaskRecurrenceService } from './task-recurrence';
 
 type TaskStoreLike = Pick<
   typeof taskStore,

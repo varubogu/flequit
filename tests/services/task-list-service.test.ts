@@ -48,7 +48,7 @@ const mockSelectionStore = selectionStoreModule as SelectionStoreMock;
 const { projectStore: projectStoreModule } = await import('$lib/stores/project-store.svelte');
 const mockProjectStore = projectStoreModule as ProjectStoreMock;
 
-const mockTaskService = vi.mocked(await import('$lib/services/task-service')).TaskService;
+const mockTaskService = vi.mocked(await import('$lib/services/ui/task-service')).TaskService;
 
 const createTaskList = (overrides: Partial<TaskListWithTasks> = {}): TaskListWithTasks => ({
   id: 'list-1',

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { TaskMutationService } from '$lib/services/task/task-mutation-service';
+import { TaskMutationService } from '$lib/services/domain/task-mutation';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 const createDeps = () => {

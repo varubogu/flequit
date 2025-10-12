@@ -4,8 +4,12 @@
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
   import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
+
+  const taskMutation = new TaskMutationService();
   import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
+  import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {
     isDrawerMode?: boolean;
@@ -13,18 +17,33 @@
 
   let { isDrawerMode = false }: Props = $props();
 
+  // Components層でUI状態とビジネスロジックを統合
+  function forceSelectTask(taskId: string | null): void {
+    if (taskStore.isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+    }
+    selectionStore.selectTask(taskId);
+  }
+
+  function forceSelectSubTask(subTaskId: string | null): void {
+    if (taskStore.isNewTaskMode) {
+      taskStore.cancelNewTaskMode();
+    }
+    selectionStore.selectSubTask(subTaskId);
+  }
+
   const detailStore = new TaskDetailViewStore({
     actions: {
-      selectTask: TaskService.selectTask,
-      selectSubTask: TaskService.selectSubTask,
-      forceSelectTask: TaskService.forceSelectTask,
-      forceSelectSubTask: TaskService.forceSelectSubTask,
-      changeTaskStatus: TaskService.changeTaskStatus,
-      changeSubTaskStatus: TaskService.changeSubTaskStatus,
-      deleteTask: TaskService.deleteTask,
-      deleteSubTask: TaskService.deleteSubTask,
-      toggleSubTaskStatus: TaskService.toggleSubTaskStatus,
-      addSubTask: TaskService.addSubTask
+      selectTask: selectionStore.selectTask,
+      selectSubTask: selectionStore.selectSubTask,
+      forceSelectTask: forceSelectTask,
+      forceSelectSubTask: forceSelectSubTask,
+      changeTaskStatus: taskMutation.changeTaskStatus,
+      changeSubTaskStatus: taskMutation.changeSubTaskStatus,
+      deleteTask: taskMutation.deleteTask,
+      deleteSubTask: taskMutation.deleteSubTask,
+      toggleSubTaskStatus: taskMutation.toggleSubTaskStatus,
+      addSubTask: taskMutation.addSubTask
     },
     recurrence: {
       save: RecurrenceSyncService.save

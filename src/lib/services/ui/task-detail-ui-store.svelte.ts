@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { TaskService } from '$lib/services/task-service';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 
 export type TaskDetailUiStoreOptions = {
   /**
@@ -30,14 +30,14 @@ export class TaskDetailUiStore {
   }
 
   openTaskDetail(taskId: string) {
-    TaskService.selectTask(taskId);
+    selectionStore.selectTask(taskId);
     if (this.isMobile) {
       this.openDrawer();
     }
   }
 
   openSubTaskDetail(subTaskId: string) {
-    TaskService.selectSubTask(subTaskId);
+    selectionStore.selectSubTask(subTaskId);
     if (this.isMobile) {
       this.openDrawer();
     }

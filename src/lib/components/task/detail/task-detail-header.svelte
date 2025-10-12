@@ -7,7 +7,10 @@
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
+
+  const taskMutation = new TaskMutationService();
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -41,9 +44,9 @@
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
-      void TaskService.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
+      void taskMutation.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
     } else if ('list_id' in currentItem) {
-      void TaskService.addTagToTaskByName(currentItem.id, event.detail.tagName);
+      void taskMutation.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }
   }
 

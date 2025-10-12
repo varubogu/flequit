@@ -4,7 +4,10 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
-  import { TaskService } from '$lib/services/task-service';
+  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
+
+  const taskMutation = new TaskMutationService();
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
@@ -64,7 +67,7 @@
   }
 
   function handleDeleteTask() {
-    TaskService.deleteTask(task.id);
+    void taskMutation.deleteTask(task.id);
   }
 
   function handleEditSubTask(subTask: SubTask) {
@@ -74,7 +77,7 @@
 
   function handleDeleteSubTask(subTask: SubTask) {
     // サブタスクを削除
-    TaskService.deleteSubTask(subTask.id);
+    void taskMutation.deleteSubTask(subTask.id);
   }
 
   // Context menus
@@ -124,19 +127,20 @@
     }
 
     // Try to select task, but if blocked due to new task mode, dispatch event for confirmation
-    const success = TaskService.selectTask(task.id);
-    if (!success) {
+    if (taskStore.isNewTaskMode) {
       dispatch('taskSelectionRequested', { taskId: task.id });
+    } else {
+      selectionStore.selectTask(task.id);
     }
   }
 
   function handleStatusToggle() {
-    TaskService.toggleTaskStatus(task.id);
+    void taskMutation.toggleTaskStatus(task.id);
   }
 
   function handleSubTaskToggle(event: Event | undefined, subTaskId: string) {
     event?.stopPropagation();
-    TaskService.toggleSubTaskStatus(task, subTaskId);
+    taskMutation.toggleSubTaskStatus(task, subTaskId);
   }
 
   function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
@@ -146,9 +150,10 @@
       onSubTaskClick(subTaskId);
     } else {
       // フォールバック: 統一的なアプローチを使わない場合
-      const success = TaskService.selectSubTask(subTaskId);
-      if (!success) {
+      if (taskStore.isNewTaskMode) {
         dispatch('subTaskSelectionRequested', { subTaskId });
+      } else {
+        selectionStore.selectSubTask(subTaskId);
       }
     }
   }
@@ -186,7 +191,7 @@
 
     if (dragData.type === 'tag') {
       // タグをタスクにドロップした場合、タグを付与
-      void TaskService.addTagToTask(task.id, dragData.id);
+      void taskMutation.addTagToTask(task.id, dragData.id);
     }
   }
 

@@ -81,45 +81,7 @@ export default tseslint.config(
       ]
     }
   },
-  // 2. Domain ServicesからUI/Composite Servicesへの参照を禁止（階層違反）
-  {
-    files: ['src/lib/services/domain/**/*.ts'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['$lib/services/ui/**', '**/services/ui/**'],
-              message: '❌ Domain ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
-            },
-            {
-              group: ['$lib/services/composite/**', '**/services/composite/**'],
-              message: '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
-            }
-          ]
-        }
-      ]
-    }
-  },
-  // 3. Composite ServicesからUI Servicesへの参照を禁止（階層違反）
-  {
-    files: ['src/lib/services/composite/**/*.ts'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['$lib/services/ui/**', '**/services/ui/**'],
-              message: '❌ Composite ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
-            }
-          ]
-        }
-      ]
-    }
-  },
-  // 4. Utils/Types層からStores/Services/Infrastructureへの参照を禁止
+  // 2. Utils/Types層からStores/Services/Infrastructureへの参照を禁止
   {
     files: ['src/lib/utils/**/*.ts', 'src/lib/types/**/*.ts'],
     ignores: ['src/lib/types/bindings.ts'],
@@ -201,6 +163,66 @@ export default tseslint.config(
               group: ['$lib/components/**', '**/components/**'],
               message:
                 '❌ Stores層からComponents層への参照は禁止です。Stores層は状態管理のみを担当します。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 8. Domain ServicesからUI/Composite Services + UI状態ストアへの参照を禁止（階層違反）
+  {
+    files: ['src/lib/services/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ Domain ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+            },
+            {
+              group: ['$lib/services/composite/**', '**/services/composite/**'],
+              message: '❌ Domain ServicesからComposite Servicesへの参照は禁止です（下位層→上位層）。'
+            },
+            {
+              group: [
+                '$lib/stores/selection-store.svelte',
+                '$lib/stores/view-store.svelte',
+                '$lib/stores/task-detail-view-store.svelte',
+                '$lib/stores/appearance-store.svelte',
+                '$lib/stores/theme-store.svelte'
+              ],
+              message:
+                '❌ Domain ServicesからUI状態ストア(selection-store, view-store等)への参照は禁止です。Domain層はビジネスロジックのみを担当し、UI状態に依存してはいけません。UI状態の更新はComponents層で行ってください。'
+            }
+          ]
+        }
+      ]
+    }
+  },
+  // 9. Composite ServicesからUI Services + UI状態ストアへの参照を禁止（階層違反）
+  {
+    files: ['src/lib/services/composite/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['$lib/services/ui/**', '**/services/ui/**'],
+              message: '❌ Composite ServicesからUI Servicesへの参照は禁止です（下位層→上位層）。'
+            },
+            {
+              group: [
+                '$lib/stores/selection-store.svelte',
+                '$lib/stores/view-store.svelte',
+                '$lib/stores/task-detail-view-store.svelte',
+                '$lib/stores/appearance-store.svelte',
+                '$lib/stores/theme-store.svelte'
+              ],
+              message:
+                '❌ Composite ServicesからUI状態ストア(selection-store, view-store等)への参照は禁止です。Composite層はビジネスロジックのみを担当し、UI状態に依存してはいけません。UI状態の更新はComponents層で行ってください。'
             }
           ]
         }

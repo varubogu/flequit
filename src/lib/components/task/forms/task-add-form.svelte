@@ -1,6 +1,6 @@
 <script lang="ts">
   import { TaskListService } from '$lib/services/domain/task-list';
-  import { TaskService } from '$lib/services/task-service';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
@@ -48,7 +48,7 @@
     const newTaskId = await TaskListService.addNewTask(newTaskTitle);
     if (newTaskId) {
       newTaskTitle = '';
-      TaskService.selectTask(newTaskId);
+      selectionStore.selectTask(newTaskId);
       onTaskAdded?.();
     }
   }
