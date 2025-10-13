@@ -1,70 +1,115 @@
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { Project } from '$lib/types/project';
 import type { TaskList } from '$lib/types/task-list';
+import type { SubTask } from '$lib/types/sub-task';
 
 export type TaskSelectionDependencies = {
-  selectionStore: {
-    selectedTaskId: string | null;
-    selectedSubTaskId: string | null;
-    selectTask(taskId: string | null): void;
-    selectSubTask(subTaskId: string | null): void;
-    clearPendingSelections(): void;
-  };
-  projectTraverser: {
-    getAllTasks(projects: Project[]): TaskWithSubTasks[];
-    findTask(projects: Project[], id: string): TaskWithSubTasks | null;
-    findTaskContext(projects: Project[], id: string): { project: Project; taskList: TaskList } | null;
-    getProjectIdByTaskId(projects: Project[], taskId: string): string | null;
-  };
-  getProjects(): Project[];
+	selectionStore: {
+		selectedProjectId: string | null;
+		selectedListId: string | null;
+		selectedTaskId: string | null;
+		selectedSubTaskId: string | null;
+		pendingTaskSelection: string | null;
+		pendingSubTaskSelection: string | null;
+		selectProject(projectId: string | null): void;
+		selectList(listId: string | null): void;
+		selectTask(taskId: string | null): void;
+		selectSubTask(subTaskId: string | null): void;
+		clearPendingSelections(): void;
+	};
+	entitiesStore: {
+		allTasks: TaskWithSubTasks[];
+		getTaskById(taskId: string): TaskWithSubTasks | null;
+		getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null;
+		getProjectIdByTaskId(taskId: string): string | null;
+	};
+	subTaskStore: {
+		selectedSubTask: SubTask | null;
+	};
 };
 
 export class TaskSelectionStore {
-  #deps: TaskSelectionDependencies;
+	#deps: TaskSelectionDependencies;
 
-  constructor(deps: TaskSelectionDependencies) {
-    this.#deps = deps;
-  }
+	constructor(deps: TaskSelectionDependencies) {
+		this.#deps = deps;
+	}
 
-  get selectedTaskId() {
-    return this.#deps.selectionStore.selectedTaskId;
-  }
+	get selectedProjectId(): string | null {
+		return this.#deps.selectionStore.selectedProjectId;
+	}
 
-  set selectedTaskId(value: string | null) {
-    this.#deps.selectionStore.selectTask(value);
-  }
+	set selectedProjectId(value: string | null) {
+		this.#deps.selectionStore.selectProject(value);
+	}
 
-  get selectedSubTaskId() {
-    return this.#deps.selectionStore.selectedSubTaskId;
-  }
+	get selectedListId(): string | null {
+		return this.#deps.selectionStore.selectedListId;
+	}
 
-  set selectedSubTaskId(value: string | null) {
-    this.#deps.selectionStore.selectSubTask(value);
-  }
+	set selectedListId(value: string | null) {
+		this.#deps.selectionStore.selectList(value);
+	}
 
-  get selectedTask(): TaskWithSubTasks | null {
-    const id = this.selectedTaskId;
-    if (!id) return null;
-    return this.#deps.projectTraverser.findTask(this.#deps.getProjects(), id);
-  }
+	get selectedTaskId(): string | null {
+		return this.#deps.selectionStore.selectedTaskId;
+	}
 
-  get allTasks(): TaskWithSubTasks[] {
-    return this.#deps.projectTraverser.getAllTasks(this.#deps.getProjects());
-  }
+	set selectedTaskId(value: string | null) {
+		this.#deps.selectionStore.selectTask(value);
+	}
 
-  getTaskById(taskId: string): TaskWithSubTasks | null {
-    return this.#deps.projectTraverser.findTask(this.#deps.getProjects(), taskId);
-  }
+	get selectedSubTaskId(): string | null {
+		return this.#deps.selectionStore.selectedSubTaskId;
+	}
 
-  getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
-    return this.#deps.projectTraverser.findTaskContext(this.#deps.getProjects(), taskId);
-  }
+	set selectedSubTaskId(value: string | null) {
+		this.#deps.selectionStore.selectSubTask(value);
+	}
 
-  getProjectIdByTaskId(taskId: string): string | null {
-    return this.#deps.projectTraverser.getProjectIdByTaskId(this.#deps.getProjects(), taskId);
-  }
+	get pendingTaskSelection(): string | null {
+		return this.#deps.selectionStore.pendingTaskSelection;
+	}
 
-  clearPendingSelections() {
-    this.#deps.selectionStore.clearPendingSelections();
-  }
+	set pendingTaskSelection(value: string | null) {
+		this.#deps.selectionStore.pendingTaskSelection = value;
+	}
+
+	get pendingSubTaskSelection(): string | null {
+		return this.#deps.selectionStore.pendingSubTaskSelection;
+	}
+
+	set pendingSubTaskSelection(value: string | null) {
+		this.#deps.selectionStore.pendingSubTaskSelection = value;
+	}
+
+	get selectedTask(): TaskWithSubTasks | null {
+		const id = this.selectedTaskId;
+		if (!id) return null;
+		return this.#deps.entitiesStore.getTaskById(id);
+	}
+
+	get selectedSubTask(): SubTask | null {
+		return this.#deps.subTaskStore.selectedSubTask;
+	}
+
+	get allTasks(): TaskWithSubTasks[] {
+		return this.#deps.entitiesStore.allTasks;
+	}
+
+	getTaskById(taskId: string): TaskWithSubTasks | null {
+		return this.#deps.entitiesStore.getTaskById(taskId);
+	}
+
+	getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
+		return this.#deps.entitiesStore.getTaskProjectAndList(taskId);
+	}
+
+	getProjectIdByTaskId(taskId: string): string | null {
+		return this.#deps.entitiesStore.getProjectIdByTaskId(taskId);
+	}
+
+	clearPendingSelections(): void {
+		this.#deps.selectionStore.clearPendingSelections();
+	}
 }

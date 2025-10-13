@@ -1,323 +1,233 @@
-import type { Task, TaskWithSubTasks } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskList } from '$lib/types/task-list';
 import type { Project } from '$lib/types/project';
+import type { TaskList } from '$lib/types/task-list';
 import type { Tag } from '$lib/types/tag';
 import type { SubTask } from '$lib/types/sub-task';
-import { tagStore } from './tags.svelte';
 import { selectionStore } from './selection-store.svelte';
 import { projectStore } from './project-store.svelte';
 import { taskListStore } from './task-list-store.svelte';
 import { subTaskStore } from './sub-task-store.svelte';
 import { taskCoreStore } from './task-core-store.svelte';
-import { SvelteDate } from 'svelte/reactivity';
-import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
+import { tagStore } from './tags.svelte';
+import { TaskEntitiesStore } from './tasks/task-entities-store.svelte';
+import { TaskSelectionStore } from './tasks/task-selection-store.svelte';
+import { TaskDraftStore } from './tasks/task-draft-store.svelte';
+import { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
 
-// Global state using Svelte 5 runes
+export type TaskStoreConfig = Partial<{
+	projectStore: typeof projectStore;
+	selectionStore: typeof selectionStore;
+	taskListStore: typeof taskListStore;
+	subTaskStore: typeof subTaskStore;
+	taskCoreStore: typeof taskCoreStore;
+	tagStore: typeof tagStore;
+}>;
+
 export class TaskStore {
-  // projectsはProjectStoreに委譲（Phase 1.1のselectionStoreパターンと同様）
-  get projects() { return projectStore.projects; }
-  set projects(value: ProjectTree[]) { projectStore.projects = value; }
-  isNewTaskMode = $state<boolean>(false);
-  newTaskData = $state<TaskWithSubTasks | null>(null);
+	#entities: TaskEntitiesStore;
+	#selection: TaskSelectionStore;
+	#draft: TaskDraftStore;
+	#interactions: TaskInteractionsService;
 
-  // 選択状態はSelectionStoreに委譲
-  get selectedTaskId() { return selectionStore.selectedTaskId; }
-  set selectedTaskId(value: string | null) { selectionStore.selectTask(value); }
+	constructor(config: TaskStoreConfig = {}) {
+		const resolved = {
+			projectStore: config.projectStore ?? projectStore,
+			selectionStore: config.selectionStore ?? selectionStore,
+			taskListStore: config.taskListStore ?? taskListStore,
+			subTaskStore: config.subTaskStore ?? subTaskStore,
+			taskCoreStore: config.taskCoreStore ?? taskCoreStore,
+			tagStore: config.tagStore ?? tagStore
+		};
 
-  get selectedSubTaskId() { return selectionStore.selectedSubTaskId; }
-  set selectedSubTaskId(value: string | null) { selectionStore.selectSubTask(value); }
+		this.#entities = new TaskEntitiesStore({
+			projectStore: resolved.projectStore,
+			taskCoreStore: resolved.taskCoreStore
+		});
 
-  get selectedProjectId() { return selectionStore.selectedProjectId; }
-  set selectedProjectId(value: string | null) { selectionStore.selectProject(value); }
+		this.#selection = new TaskSelectionStore({
+			selectionStore: resolved.selectionStore,
+			entitiesStore: this.#entities,
+			subTaskStore: resolved.subTaskStore
+		});
 
-  get selectedListId() { return selectionStore.selectedListId; }
-  set selectedListId(value: string | null) { selectionStore.selectList(value); }
+		this.#draft = new TaskDraftStore({
+			taskListStore: resolved.taskListStore,
+			selection: this.#selection
+		});
 
-  get pendingTaskSelection() { return selectionStore.pendingTaskSelection; }
-  set pendingTaskSelection(value: string | null) { selectionStore.pendingTaskSelection = value; }
+		this.#interactions = new TaskInteractionsService({
+			entities: this.#entities,
+			selection: this.#selection,
+			draft: this.#draft,
+			taskCoreStore: resolved.taskCoreStore,
+			tagStore: resolved.tagStore
+		});
+	}
 
-  get pendingSubTaskSelection() { return selectionStore.pendingSubTaskSelection; }
-  set pendingSubTaskSelection(value: string | null) { selectionStore.pendingSubTaskSelection = value; }
+	get projects(): ProjectTree[] {
+		return this.#entities.projects;
+	}
 
-  // データサービス経由でバックエンドにアクセス
+	set projects(projects: ProjectTree[]) {
+		this.#entities.projects = projects;
+	}
 
-  constructor() {
-    // Listen for tag update events to avoid circular dependency
-    if (typeof window !== 'undefined') {
-      window.addEventListener('tag-updated', (event: Event) => {
-        const customEvent = event as CustomEvent<Tag>;
-        this.updateTagInAllTasks(customEvent.detail);
-      });
-    }
-  }
+	get isNewTaskMode(): boolean {
+		return this.#draft.isNewTaskMode;
+	}
 
-  // Computed values
-  get selectedTask(): TaskWithSubTasks | null {
-    if (!this.selectedTaskId) return null;
-    return ProjectTreeTraverser.findTask(this.projects, this.selectedTaskId);
-  }
+	set isNewTaskMode(value: boolean) {
+		this.#draft.isNewTaskMode = value;
+	}
 
-  get selectedSubTask() {
-    return subTaskStore.selectedSubTask;
-  }
+	get newTaskData(): TaskWithSubTasks | null {
+		return this.#draft.newTaskDraft;
+	}
 
-  get allTasks(): TaskWithSubTasks[] {
-    return ProjectTreeTraverser.getAllTasks(this.projects);
-  }
+	set newTaskData(value: TaskWithSubTasks | null) {
+		this.#draft.newTaskDraft = value;
+	}
 
-  getTaskById(taskId: string): TaskWithSubTasks | null {
-    return ProjectTreeTraverser.findTask(this.projects, taskId);
-  }
+	get selectedProjectId(): string | null {
+		return this.#selection.selectedProjectId;
+	}
 
-  getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
-    return ProjectTreeTraverser.findTaskContext(this.projects, taskId);
-  }
+	set selectedProjectId(value: string | null) {
+		this.#selection.selectedProjectId = value;
+	}
 
-  get todayTasks(): TaskWithSubTasks[] {
-    const today = new SvelteDate();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new SvelteDate(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+	get selectedListId(): string | null {
+		return this.#selection.selectedListId;
+	}
 
-    return this.allTasks.filter((task) => {
-      if (!task.planEndDate) return false;
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
-      const dueDate = new Date(task.planEndDate);
-      return dueDate >= today && dueDate < tomorrow;
-    });
-  }
+	set selectedListId(value: string | null) {
+		this.#selection.selectedListId = value;
+	}
 
-  get overdueTasks(): TaskWithSubTasks[] {
-    const today = new SvelteDate();
-    today.setHours(0, 0, 0, 0);
+	get selectedTaskId(): string | null {
+		return this.#selection.selectedTaskId;
+	}
 
-    return this.allTasks.filter((task) => {
-      if (!task.planEndDate || task.status === 'completed') return false;
-      // eslint-disable-next-line svelte/prefer-svelte-reactivity
-      const dueDate = new Date(task.planEndDate);
-      return dueDate < today;
-    });
-  }
+	set selectedTaskId(value: string | null) {
+		this.#selection.selectedTaskId = value;
+	}
 
-  // Actions
-  async setProjects(projects: ProjectTree[]) {
-    projectStore.setProjects(projects);
-    taskCoreStore.setProjects(projectStore.projects);
-  }
+	get selectedSubTaskId(): string | null {
+		return this.#selection.selectedSubTaskId;
+	}
 
-  // データ読み込み専用メソッド（保存処理なし）
-  loadProjectsData(projects: ProjectTree[]) {
-    projectStore.loadProjects(projects);
-    taskCoreStore.loadProjectsData(projectStore.projects);
-  }
+	set selectedSubTaskId(value: string | null) {
+		this.#selection.selectedSubTaskId = value;
+	}
 
-  // New task mode methods
-  startNewTaskMode(listId: string) {
-    this.isNewTaskMode = true;
-    this.selectedTaskId = null;
-    this.selectedSubTaskId = null;
+	get pendingTaskSelection(): string | null {
+		return this.#selection.pendingTaskSelection;
+	}
 
-    const projectId = taskListStore.getProjectIdByListId(listId);
-    if (!projectId) {
-      console.error('Failed to find project for list:', listId);
-      return;
-    }
+	set pendingTaskSelection(value: string | null) {
+		this.#selection.pendingTaskSelection = value;
+	}
 
-    this.newTaskData = {
-      id: 'new-task',
-      projectId: projectId,
-      title: '',
-      description: '',
-      status: 'not_started',
-      priority: 0,
-      listId: listId,
-      assignedUserIds: [],
-      tagIds: [],
-      orderIndex: 0,
-      isArchived: false,
-      createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate(),
-      subTasks: [],
-      tags: []
-    };
-  }
+	get pendingSubTaskSelection(): string | null {
+		return this.#selection.pendingSubTaskSelection;
+	}
 
-  cancelNewTaskMode() {
-    this.isNewTaskMode = false;
-    this.newTaskData = null;
-    this.pendingTaskSelection = null;
-    this.pendingSubTaskSelection = null;
-  }
+	set pendingSubTaskSelection(value: string | null) {
+		this.#selection.pendingSubTaskSelection = value;
+	}
 
-  async saveNewTask(): Promise<string | null> {
-    if (!this.newTaskData || !this.newTaskData.listId || !this.newTaskData.title?.trim()) {
-      return null;
-    }
+	get selectedTask(): TaskWithSubTasks | null {
+		return this.#selection.selectedTask;
+	}
 
-    const taskData = this.newTaskData as Task;
-    const newTask = await taskCoreStore.addTask(taskData.listId, taskData);
+	get selectedSubTask(): SubTask | null {
+		return this.#selection.selectedSubTask;
+	}
 
-    if (newTask) {
-      this.isNewTaskMode = false;
-      this.newTaskData = null;
-      this.pendingTaskSelection = null;
-      this.pendingSubTaskSelection = null;
-      this.selectedTaskId = newTask.id;
-      return newTask.id;
-    }
+	get allTasks(): TaskWithSubTasks[] {
+		return this.#entities.allTasks;
+	}
 
-    return null;
-  }
+	get todayTasks(): TaskWithSubTasks[] {
+		return this.#entities.todayTasks;
+	}
 
-  clearPendingSelections() {
-    selectionStore.clearPendingSelections();
-  }
+	get overdueTasks(): TaskWithSubTasks[] {
+		return this.#entities.overdueTasks;
+	}
 
-  updateNewTaskData(updates: Partial<TaskWithSubTasks>) {
-    if (this.newTaskData) {
-      this.newTaskData = { ...this.newTaskData, ...updates };
-    }
-  }
+	setProjects(projects: ProjectTree[]): void {
+		this.#entities.setProjects(projects);
+	}
 
-  // Tag management methods
-  attachTagToTask(taskId: string, tag: Tag) {
-    const task = ProjectTreeTraverser.findTask(this.projects, taskId);
-    if (!task) return;
+	loadProjectsData(projects: ProjectTree[]): void {
+		this.#entities.loadProjectsData(projects);
+	}
 
-    if (
-      task.tags.some(
-        (existing) => existing.id === tag.id || existing.name.toLowerCase() === tag.name.toLowerCase()
-      )
-    ) {
-      return;
-    }
+	startNewTaskMode(listId: string): void {
+		this.#interactions.startNewTaskMode(listId);
+	}
 
-    task.tags.push(tag);
-    task.updatedAt = new SvelteDate();
-  }
+	cancelNewTaskMode(): void {
+		this.#interactions.cancelNewTaskMode();
+	}
 
-  detachTagFromTask(taskId: string, tagId: string): Tag | null {
-    const task = ProjectTreeTraverser.findTask(this.projects, taskId);
-    if (!task) return null;
+	async saveNewTask(): Promise<string | null> {
+		return this.#interactions.saveNewTask();
+	}
 
-    const tagIndex = task.tags.findIndex((t) => t.id === tagId);
-    if (tagIndex === -1) {
-      return null;
-    }
+	updateNewTaskData(updates: Partial<TaskWithSubTasks>): void {
+		this.#interactions.updateNewTaskData(updates);
+	}
 
-    const [removed] = task.tags.splice(tagIndex, 1);
-    task.updatedAt = new SvelteDate();
-    return removed ?? null;
-  }
+	async addTagToNewTask(tagName: string): Promise<void> {
+		await this.#interactions.addTagToNewTask(tagName);
+	}
 
-  async addTagToNewTask(tagName: string) {
-    if (this.newTaskData && this.selectedProjectId) {
-      const tag = await tagStore.getOrCreateTagWithProject(tagName, this.selectedProjectId);
-      if (!tag) return;
+	removeTagFromNewTask(tagId: string): void {
+		this.#interactions.removeTagFromNewTask(tagId);
+	}
 
-      // Check if tag already exists on this task (by name, not ID)
-      if (!this.newTaskData.tags.some((t) => t.name.toLowerCase() === tag.name.toLowerCase())) {
-        this.newTaskData.tags.push(tag);
-      }
-    }
-  }
+	attachTagToTask(taskId: string, tag: Tag): void {
+		this.#interactions.attachTagToTask(taskId, tag);
+	}
 
-  removeTagFromNewTask(tagId: string) {
-    if (this.newTaskData) {
-      const tagIndex = this.newTaskData.tags.findIndex((t) => t.id === tagId);
-      if (tagIndex !== -1) {
-        this.newTaskData.tags.splice(tagIndex, 1);
-      }
-    }
-  }
+	detachTagFromTask(taskId: string, tagId: string): Tag | null {
+		return this.#interactions.detachTagFromTask(taskId, tagId);
+	}
 
+	getTaskById(taskId: string): TaskWithSubTasks | null {
+		return this.#selection.getTaskById(taskId);
+	}
 
-  // Get task count for a specific tag
-  getTaskCountByTag(tagName: string): number {
-    return ProjectTreeTraverser.getTaskCountByTag(this.projects, tagName);
-  }
+	getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null {
+		return this.#selection.getTaskProjectAndList(taskId);
+	}
 
-  // Remove tag from all tasks and subtasks by tag ID
-  removeTagFromAllTasks(tagId: string) {
-    const now = new SvelteDate();
+	getProjectIdByTaskId(taskId: string): string | null {
+		return this.#selection.getProjectIdByTaskId(taskId);
+	}
 
-    // タグ削除前に、どのタスク/サブタスクがこのタグを持っているか記録
-    const affectedTasks: TaskWithSubTasks[] = [];
-    const affectedSubTasks: SubTask[] = [];
+	getProjectIdByTagId(tagId: string): string | null {
+		return this.#entities.getProjectIdByTagId(tagId);
+	}
 
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        for (const task of list.tasks) {
-          if (task.tags.some((t) => t.id === tagId)) {
-            affectedTasks.push(task);
-          }
-          for (const subTask of task.subTasks) {
-            if (subTask.tags?.some((t) => t.id === tagId)) {
-              affectedSubTasks.push(subTask);
-            }
-          }
-        }
-      }
-    }
+	getTaskCountByTag(tagName: string): number {
+		return this.#entities.getTaskCountByTag(tagName);
+	}
 
-    // ProjectTreeTraverserでタグを削除
-    ProjectTreeTraverser.removeTagFromAllTasks(this.projects, tagId);
+	removeTagFromAllTasks(tagId: string): void {
+		this.#interactions.removeTagFromAllTasks(tagId);
+	}
 
-    // 影響を受けたタスクとサブタスクのupdatedAtを更新
-    affectedTasks.forEach(task => task.updatedAt = now);
-    affectedSubTasks.forEach(subTask => subTask.updatedAt = now);
-  }
+	updateTagInAllTasks(updatedTag: Tag): void {
+		this.#interactions.updateTagInAllTasks(updatedTag);
+	}
 
-  // Update tag in all tasks and subtasks when tag is modified
-  updateTagInAllTasks(updatedTag: Tag) {
-    const now = new SvelteDate();
-
-    // タグ更新前に、どのタスク/サブタスクがこのタグを持っているか記録
-    const affectedTasks: TaskWithSubTasks[] = [];
-    const affectedSubTasks: SubTask[] = [];
-
-    for (const project of this.projects) {
-      for (const list of project.taskLists) {
-        for (const task of list.tasks) {
-          if (task.tags.some((t) => t.id === updatedTag.id)) {
-            affectedTasks.push(task);
-          }
-          for (const subTask of task.subTasks) {
-            if (subTask.tags?.some((t) => t.id === updatedTag.id)) {
-              affectedSubTasks.push(subTask);
-            }
-          }
-        }
-      }
-    }
-
-    // ProjectTreeTraverserでタグを更新
-    ProjectTreeTraverser.updateTagInAllTasks(this.projects, updatedTag);
-
-    // 影響を受けたタスクとサブタスクのupdatedAtを更新
-    affectedTasks.forEach(task => task.updatedAt = now);
-    affectedSubTasks.forEach(subTask => subTask.updatedAt = now);
-
-    // Update in new task data if present
-    if (this.newTaskData) {
-      const newTaskTagIndex = this.newTaskData.tags.findIndex((t) => t.id === updatedTag.id);
-      if (newTaskTagIndex !== -1) {
-        this.newTaskData.tags[newTaskTagIndex] = { ...updatedTag };
-      }
-    }
-  }
-
-  // Helper method to get project ID by task ID
-  getProjectIdByTaskId(taskId: string): string | null {
-    return ProjectTreeTraverser.getProjectIdByTaskId(this.projects, taskId);
-  }
-
-  // Helper method to get project ID by tag ID
-  getProjectIdByTagId(tagId: string): string | null {
-    return ProjectTreeTraverser.getProjectIdByTagId(this.projects, tagId);
-  }
+	clearPendingSelections(): void {
+		this.#interactions.clearPendingSelections();
+	}
 }
 
-// Create global store instance
 export const taskStore = new TaskStore();
