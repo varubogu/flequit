@@ -1,7 +1,7 @@
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { TaskMutationService } from '$lib/services/domain/task-mutation';
+import { TaskMutations } from '$lib/services/domain/task';
 import { projectStore } from '$lib/stores/project-store.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
@@ -125,7 +125,7 @@ export const TaskListService = {
       return null;
     }
 
-    const mutationService = new TaskMutationService();
+    const mutationService = new TaskMutations();
     const newTask = await mutationService.addTask(targetListId, {
       title: trimmedTitle
     });

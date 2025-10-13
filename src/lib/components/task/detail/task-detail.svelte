@@ -4,10 +4,12 @@
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
   import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
-  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { TaskMutations } from '$lib/services/domain/task';
+  import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutation = new TaskMutationService();
+  const taskMutations = new TaskMutations();
+  const subTaskMutations = new SubTaskMutations();
   import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
@@ -38,12 +40,12 @@
       selectSubTask: selectionStore.selectSubTask,
       forceSelectTask: forceSelectTask,
       forceSelectSubTask: forceSelectSubTask,
-      changeTaskStatus: taskMutation.changeTaskStatus,
-      changeSubTaskStatus: taskMutation.changeSubTaskStatus,
-      deleteTask: taskMutation.deleteTask,
-      deleteSubTask: taskMutation.deleteSubTask,
-      toggleSubTaskStatus: taskMutation.toggleSubTaskStatus,
-      addSubTask: taskMutation.addSubTask
+      changeTaskStatus: taskMutations.changeTaskStatus,
+      changeSubTaskStatus: subTaskMutations.changeSubTaskStatus,
+      deleteTask: taskMutations.deleteTask,
+      deleteSubTask: subTaskMutations.deleteSubTask,
+      toggleSubTaskStatus: subTaskMutations.toggleSubTaskStatus,
+      addSubTask: subTaskMutations.addSubTask
     },
     recurrence: {
       save: RecurrenceSyncService.save

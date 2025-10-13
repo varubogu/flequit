@@ -3,10 +3,12 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { TaskMutations } from '$lib/services/domain/task';
+  import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutation = new TaskMutationService();
+  const taskMutations = new TaskMutations();
+  const subTaskMutations = new SubTaskMutations();
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
   type SubTaskForProps = SubTask | SubTaskWithTags;
@@ -52,10 +54,10 @@
 
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(tagName);
-    } else if (isSubTask && task) {
-      void taskMutation.addTagToSubTaskByName(currentItem.id, task.id, tagName);
-    } else {
-      void taskMutation.addTagToTaskByName(currentItem.id, tagName);
+    } else if (isSubTask && 'taskId' in currentItem) {
+      void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, tagName);
+    } else if ('list_id' in currentItem) {
+      void taskMutations.addTagToTaskByName(currentItem.id, tagName);
     }
   }
 
@@ -64,10 +66,10 @@
 
     if (isNewTaskMode) {
       taskStore.removeTagFromNewTask(tagId);
-    } else if (isSubTask && task) {
-      void taskMutation.removeTagFromSubTask(currentItem.id, task.id, tagId);
-    } else {
-      void taskMutation.removeTagFromTask(currentItem.id, tagId);
+    } else if (isSubTask && 'taskId' in currentItem) {
+      void subTaskMutations.removeTagFromSubTask(currentItem.id, currentItem.taskId, tagId);
+    } else if ('list_id' in currentItem) {
+      void taskMutations.removeTagFromTask(currentItem.id, tagId);
     }
   }
 </script>

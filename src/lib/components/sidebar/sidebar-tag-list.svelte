@@ -10,10 +10,12 @@
   import SidebarTagItem from './sidebar-tag-item.svelte';
   import type { Tag } from '$lib/types/tag';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { TaskMutations } from '$lib/services/domain/task';
+  import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutation = new TaskMutationService();
+  const taskMutations = new TaskMutations();
+  const subTaskMutations = new SubTaskMutations();
   import { TagService } from '$lib/services/domain/tag';
 
   interface Props {
@@ -133,10 +135,10 @@
       tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'task') {
       // タスクをタグにドロップした場合、タスクにタグを付与
-      void taskMutation.addTagToTask(dragData.id, targetTag.id);
+      void taskMutations.addTagToTask(dragData.id, targetTag.id);
     } else if (dragData.type === 'subtask' && dragData.taskId) {
       // サブタスクをタグにドロップした場合、サブタスクにタグを付与
-      void taskMutation.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
+      void subTaskMutations.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
     }
   }
 

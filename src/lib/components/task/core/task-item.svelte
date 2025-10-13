@@ -4,10 +4,12 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
-  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { TaskMutations } from '$lib/services/domain/task';
+  import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutation = new TaskMutationService();
+  const taskMutations = new TaskMutations();
+  const subTaskMutations = new SubTaskMutations();
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
@@ -67,7 +69,7 @@
   }
 
   function handleDeleteTask() {
-    void taskMutation.deleteTask(task.id);
+    void taskMutations.deleteTask(task.id);
   }
 
   function handleEditSubTask(subTask: SubTask) {
@@ -77,7 +79,7 @@
 
   function handleDeleteSubTask(subTask: SubTask) {
     // サブタスクを削除
-    void taskMutation.deleteSubTask(subTask.id);
+    void subTaskMutations.deleteSubTask(subTask.id);
   }
 
   // Context menus
@@ -135,12 +137,12 @@
   }
 
   function handleStatusToggle() {
-    void taskMutation.toggleTaskStatus(task.id);
+    void taskMutations.toggleTaskStatus(task.id);
   }
 
   function handleSubTaskToggle(event: Event | undefined, subTaskId: string) {
     event?.stopPropagation();
-    taskMutation.toggleSubTaskStatus(task, subTaskId);
+    subTaskMutations.toggleSubTaskStatus(task, subTaskId);
   }
 
   function handleSubTaskClick(event: Event | undefined, subTaskId: string) {
@@ -191,7 +193,7 @@
 
     if (dragData.type === 'tag') {
       // タグをタスクにドロップした場合、タグを付与
-      void taskMutation.addTagToTask(task.id, dragData.id);
+      void taskMutations.addTagToTask(task.id, dragData.id);
     }
   }
 

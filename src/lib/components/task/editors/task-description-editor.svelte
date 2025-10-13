@@ -5,10 +5,12 @@
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { TaskMutationService } from '$lib/services/domain/task-mutation';
+  import { TaskMutations } from '$lib/services/domain/task';
+  import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutation = new TaskMutationService();
+  const taskMutations = new TaskMutations();
+  const subTaskMutations = new SubTaskMutations();
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -68,9 +70,9 @@
     if (isNewTaskMode) {
       taskStore.addTagToNewTask(event.detail.tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
-      void taskMutation.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
+      void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
     } else if ('list_id' in currentItem) {
-      void taskMutation.addTagToTaskByName(currentItem.id, event.detail.tagName);
+      void taskMutations.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }
   }
 
