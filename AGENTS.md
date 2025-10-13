@@ -5,8 +5,7 @@ This file provides guidance to AI agents when working with code in this reposito
 ## Response Guidelines
 
 * Always respond **in Japanese**.
-* After reading this file, your first response must be:
-  **“✅️CLAUDE.md loaded.”**
+* After loading this file, first say “✅️ AGENTS.md loaded” and then follow the instructions.
 
 ## Design Documents
 

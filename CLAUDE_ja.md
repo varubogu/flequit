@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## レスポンスについて
 
 - 日本語で回答すること。
-- このファイルを読み込んだら最初に「✅️CLAUDE.mdを読み込みました」と発言してください。
+- このファイルを読み込んだら最初に「✅️CLAUDE.mdを読み込みました」と発言してから、指示に従ってください。
 
 ## 設計ドキュメントについて
 

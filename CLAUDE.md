@@ -5,8 +5,7 @@ This file provides guidance for Claude Code (claude.ai/code) when working with t
 ## Response Guidelines
 
 * Always respond **in Japanese**.
-* After reading this file, your first response must be:
-  **“✅️CLAUDE.md loaded.”**
+* After loading this file, first say “✅️ CLAUDE.md loaded” and then follow the instructions.
 
 ## Design Documents
 
