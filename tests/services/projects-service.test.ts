@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProjectsService } from '$lib/services/domain/project';
+import { ProjectsService } from '$lib/services/composite/project-facade';
 import type { Project, ProjectTree } from '$lib/types/project';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 
@@ -15,12 +15,35 @@ const taskListServiceMock = vi.hoisted(() => ({
   deleteTaskList: vi.fn()
 }));
 
-vi.mock('$lib/services/domain/project', () => ({
-  ProjectService: projectServiceMock
+vi.mock('$lib/services/domain/project/project-crud', () => ({
+  ProjectCrudService: projectServiceMock
 }));
 
 vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: taskListServiceMock
+}));
+
+vi.mock('$lib/services/composite/project-composite', () => ({
+  ProjectCompositeService: {
+    createProject: projectServiceMock.createProject,
+    updateProject: projectServiceMock.updateProject,
+    deleteProject: projectServiceMock.deleteProject,
+    reorderProjects: vi.fn(),
+    moveProjectToPosition: vi.fn(),
+    archiveProject: vi.fn()
+  }
+}));
+
+vi.mock('$lib/services/composite/task-list-composite', () => ({
+  TaskListCompositeService: {
+    createTaskList: taskListServiceMock.createTaskList,
+    updateTaskList: taskListServiceMock.updateTaskList,
+    deleteTaskList: taskListServiceMock.deleteTaskList,
+    reorderTaskLists: vi.fn(),
+    moveTaskListToProject: vi.fn(),
+    moveTaskListToPosition: vi.fn(),
+    archiveTaskList: vi.fn()
+  }
 }));
 
 // Mock taskStore

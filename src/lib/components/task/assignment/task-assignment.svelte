@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
-  import { ProjectsService } from '$lib/services/domain/project';
+  import { ProjectsService } from '$lib/services/composite/project-facade';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import type { User } from '$lib/types/user';

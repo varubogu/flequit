@@ -3,7 +3,7 @@ import type { ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
 import { selectionStore } from './selection-store.svelte';
 import { tagStore } from './tags.svelte';
-import { ProjectService } from '$lib/services/domain/project';
+import { ProjectCrudService } from '$lib/services/domain/project/project-crud';
 import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
@@ -35,7 +35,7 @@ export class ProjectStore implements IProjectStore {
 				...project,
 				order_index: this.projects.length
 			};
-			const newProject = await ProjectService.createProjectTree(projectWithOrderIndex);
+			const newProject = await ProjectCrudService.createProjectTree(projectWithOrderIndex);
 			this.projects.push(newProject);
 			return newProject;
 		} catch (error) {
@@ -56,7 +56,7 @@ export class ProjectStore implements IProjectStore {
 		}
 	) {
 		try {
-			const updatedProject = await ProjectService.updateProject(projectId, updates);
+			const updatedProject = await ProjectCrudService.update(projectId, updates);
 			if (updatedProject) {
 				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
 				if (projectIndex !== -1) {
@@ -74,7 +74,7 @@ export class ProjectStore implements IProjectStore {
 
 	async deleteProject(projectId: string) {
 		try {
-			const success = await ProjectService.deleteProject(projectId);
+			const success = await ProjectCrudService.delete(projectId);
 			if (success) {
 				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
 				if (projectIndex !== -1) {
@@ -118,7 +118,7 @@ export class ProjectStore implements IProjectStore {
 
 			try {
 				// サービス層経由でバックエンドを更新（循環依存を避ける）
-				await ProjectService.updateProject(project.id, { order_index: index });
+				await ProjectCrudService.update(project.id, { order_index: index });
 			} catch (error) {
 				console.error('Failed to sync project order to backends:', error);
 				errorHandler.addSyncError('プロジェクト順序更新', 'project', project.id, error);

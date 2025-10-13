@@ -6,17 +6,18 @@
  */
 
 // Domain Services（単一エンティティ操作）
-// TODO: Phase 2-2以降で追加
-// export * from './domain/project';
-// export * from './domain/task';
-// export * from './domain/subtask';
-// export * from './domain/tag';
-// export * from './domain/settings';
+export {
+	ProjectCrudService,
+	ProjectQueryService,
+	ProjectHelpers
+} from './domain/project/index';
 
-// Composite Services（横断的操作）
-// TODO: Phase 5で追加
-// export * from './composite/project-composite';
-// export * from './composite/task-composite';
+// Composite Services（CRUD + Store更新）
+export { ProjectCompositeService } from './composite/project-composite';
+export { TaskListCompositeService } from './composite/task-list-composite';
+
+// Facade（後方互換性・Phase 2完了後削除予定）
+export { ProjectService, ProjectsService } from './composite/project-facade';
 
 // UI Services（UI状態管理のみ）
 // Note: task-detail, viewは削除済み（UI状態はstoresで管理）
