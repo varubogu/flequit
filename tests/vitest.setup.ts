@@ -561,16 +561,22 @@ vi.mock('$lib/services/domain/task-list', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task', () => ({
-  TaskService: {
-    createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
-    updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
-    deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
-    createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
-    updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
-    deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
-  }
-}));
+vi.mock('$lib/services/domain/task', async () => {
+  const actual = await vi.importActual<typeof import('$lib/services/domain/task')>(
+    '$lib/services/domain/task'
+  );
+  return {
+    TaskService: {
+      createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
+      updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
+      deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
+      createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
+      updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
+      deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
+    },
+    TaskMutations: actual.TaskMutations
+  };
+});
 
 vi.mock('$lib/services/domain/subtask', () => ({
   SubTaskService: {

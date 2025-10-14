@@ -1,12 +1,31 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
 import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
 import { projectStore } from '../../src/lib/stores/project-store.svelte';
 import { taskListStore } from '../../src/lib/stores/task-list-store.svelte';
 import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { TaskService } from '$lib/services/domain/task';
+import { TaskMutations } from '$lib/services/domain/task';
 import type { ProjectTree } from '$lib/types/project';
+
+function createTaskMutations(store: TaskStore) {
+  return new TaskMutations({
+    taskStore: store as any,
+    taskCoreStore,
+    taskListStore,
+    tagStore: { tags: [] } as any,
+    taggingService: {
+      createTaskTag: vi.fn(),
+      deleteTaskTag: vi.fn()
+    } as any,
+    errorHandler: {
+      addSyncError: vi.fn()
+    } as any,
+    recurrenceService: {
+      scheduleNextOccurrence: vi.fn()
+    } as any
+  } as any);
+}
 
 describe('TaskStore', () => {
   let store: TaskStore;
@@ -125,6 +144,41 @@ describe('TaskStore', () => {
       store.setProjects(projects);
 
       expect(store.projects).toEqual(projects);
+    });
+
+    test('should keep taskCoreStore in sync for new task lists', async () => {
+      const projects = [createMockProject()];
+      store.setProjects(projects);
+
+      const project = projectStore.projects[0];
+      const newListId = 'list-2';
+      project.taskLists.push({
+        id: newListId,
+        projectId: project.id,
+        name: 'Additional List',
+        orderIndex: 1,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        tasks: []
+      });
+
+      const newTask = await taskCoreStore.addTask(newListId, {
+        projectId: project.id,
+        listId: newListId,
+        title: 'Synced Task',
+        status: 'not_started',
+        priority: 0,
+        assignedUserIds: [],
+        tagIds: [],
+        orderIndex: 0,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      expect(newTask).not.toBeNull();
+      expect(taskCoreStore.projects).toBe(projectStore.projects);
     });
   });
 
@@ -296,10 +350,11 @@ describe('TaskStore', () => {
       expect(result).toBeNull();
     });
 
-    test('deleteTask should remove the task and clear selection if selected', () => {
+    test('deleteTask should remove the task and clear selection if selected', async () => {
       selectionStore.selectTask('task-1');
 
-      TaskService.deleteTask('task-1');
+      const taskMutations = createTaskMutations(store);
+      await taskMutations.deleteTask('task-1');
 
       const allTasks = store.allTasks;
       expect(allTasks).toHaveLength(2);
@@ -356,11 +411,10 @@ describe('TaskStore', () => {
         title: 'Failed SubTask'
       });
 
-      // Web版ではダミーデータが返されるため、タスクが見つからなくてもnullではない
-      // しかし、ローカル状態には追加されない
-      expect(result).not.toBeNull(); // バックエンドからはダミーデータが返される
+      // 失敗時は null が返され、ローカル状態にも変化がない
+      expect(result).toBeNull();
 
-      // しかし、実際のタスクリストには追加されていない
+      // 期待通り、実際のタスクリストには追加されていない
       const allTasks = store.allTasks;
       const hasSubTaskInAnyTask = allTasks.some((task) =>
         task.subTasks.some((subTask) => subTask.title === 'Failed SubTask')
