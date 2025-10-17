@@ -1,5 +1,4 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { TaskStatus } from '$lib/types/task';
 import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
@@ -173,10 +172,13 @@ export class TaskDetailViewStore {
       this.form.updateRecurrence(recurrenceRule);
       await this.handleRecurrenceChange(recurrenceRule);
     }
+
+	this.dialogs.closeDatePicker();
   };
 
   handleDateClear = () => {
     this.form.clearDates();
+	this.dialogs.closeDatePicker();
   };
 
   handleDatePickerClose = () => {
@@ -252,9 +254,9 @@ export class TaskDetailViewStore {
     if (!current || this.state.isNewTaskMode) return;
 
     if (this.state.isSubTask && 'taskId' in current) {
-      await taskCoreStore.moveTaskToList(current.taskId, data.taskListId);
+      await this.#actions.moveTaskToList(current.taskId, data.taskListId);
     } else {
-      await taskCoreStore.moveTaskToList(current.id, data.taskListId);
+      await this.#actions.moveTaskToList(current.id, data.taskListId);
     }
     this.dialogs.closeProjectTaskListDialog();
   };

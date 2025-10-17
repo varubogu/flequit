@@ -3,12 +3,12 @@
   import Card from '$lib/components/ui/card.svelte';
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
-  import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
-  import { TaskMutations } from '$lib/services/domain/task';
+import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
+import { taskMutations } from '$lib/stores/tasks.svelte';
+import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutations = new TaskMutations();
   const subTaskMutations = new SubTaskMutations();
   import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -40,12 +40,16 @@
       selectSubTask: selectionStore.selectSubTask,
       forceSelectTask: forceSelectTask,
       forceSelectSubTask: forceSelectSubTask,
-      changeTaskStatus: taskMutations.changeTaskStatus,
-      changeSubTaskStatus: subTaskMutations.changeSubTaskStatus,
-      deleteTask: taskMutations.deleteTask,
-      deleteSubTask: subTaskMutations.deleteSubTask,
-      toggleSubTaskStatus: subTaskMutations.toggleSubTaskStatus,
-      addSubTask: subTaskMutations.addSubTask
+      changeTaskStatus: (taskId: string, status: TaskStatus) =>
+        taskMutations.changeTaskStatus(taskId, status),
+      changeSubTaskStatus: (subTaskId: string, status: TaskStatus) =>
+        subTaskMutations.changeSubTaskStatus(subTaskId, status),
+      deleteTask: (taskId: string) => taskMutations.deleteTask(taskId),
+      deleteSubTask: (subTaskId: string) => subTaskMutations.deleteSubTask(subTaskId),
+      toggleSubTaskStatus: (task: TaskWithSubTasks, subTaskId: string) =>
+        subTaskMutations.toggleSubTaskStatus(task, subTaskId),
+      addSubTask: (taskId: string, data: { title: string }) =>
+        subTaskMutations.addSubTask(taskId, data)
     },
     recurrence: {
       save: RecurrenceSyncService.save

@@ -5,7 +5,7 @@ import { projectStore } from '../../src/lib/stores/project-store.svelte';
 import { taskListStore } from '../../src/lib/stores/task-list-store.svelte';
 import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { TaskMutations } from '$lib/services/domain/task';
+import { TaskMutations } from '$lib/services/domain/task/task-mutations';
 import type { ProjectTree } from '$lib/types/project';
 
 function createTaskMutations(store: TaskStore) {
@@ -20,6 +20,12 @@ function createTaskMutations(store: TaskStore) {
     } as any,
     errorHandler: {
       addSyncError: vi.fn()
+    } as any,
+    taskService: {
+      createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+      updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+      deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
+      updateTask: vi.fn().mockResolvedValue(undefined)
     } as any,
     recurrenceService: {
       scheduleNextOccurrence: vi.fn()

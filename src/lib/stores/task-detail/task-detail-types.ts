@@ -36,6 +36,7 @@ export type TaskDetailDomainActions = {
   deleteSubTask: (subTaskId: string) => void;
   toggleSubTaskStatus: (task: TaskWithSubTasks, subTaskId: string) => void;
   addSubTask: (taskId: string, data: { title: string }) => Promise<unknown>;
+  moveTaskToList: (taskId: string, taskListId: string) => Promise<void>;
 };
 
 export type TaskDetailRecurrenceActions = {

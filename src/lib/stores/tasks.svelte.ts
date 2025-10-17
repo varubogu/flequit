@@ -14,6 +14,11 @@ import { TaskEntitiesStore } from './tasks/task-entities-store.svelte';
 import { TaskSelectionStore } from './tasks/task-selection-store.svelte';
 import { TaskDraftStore } from './tasks/task-draft-store.svelte';
 import { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
+import { TaskMutations, type TaskMutationDependencies } from '$lib/services/domain/task/task-mutations';
+import { TaggingService } from '$lib/services/domain/tagging';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
+import { TaskService } from '$lib/services/domain/task/task-crud';
+import { TaskRecurrenceService } from '$lib/services/domain/task-recurrence';
 
 export type TaskStoreConfig = Partial<{
 	projectStore: typeof projectStore;
@@ -29,6 +34,7 @@ export class TaskStore {
 	#selection: TaskSelectionStore;
 	#draft: TaskDraftStore;
 	#interactions: TaskInteractionsService;
+	#mutations: TaskMutations;
 
 	constructor(config: TaskStoreConfig = {}) {
 		const resolved = {
@@ -56,13 +62,30 @@ export class TaskStore {
 			selection: this.#selection
 		});
 
-		this.#interactions = new TaskInteractionsService({
-			entities: this.#entities,
-			selection: this.#selection,
-			draft: this.#draft,
-			taskCoreStore: resolved.taskCoreStore,
-			tagStore: resolved.tagStore
-		});
+const baseDeps: TaskMutationDependencies = {
+	taskStore: this as unknown as TaskStore,
+		taskCoreStore: resolved.taskCoreStore,
+		taskListStore: resolved.taskListStore,
+		tagStore: resolved.tagStore,
+		taggingService: TaggingService,
+		errorHandler,
+		taskService: TaskService,
+		recurrenceService: new TaskRecurrenceService()
+	};
+
+	this.#mutations = new TaskMutations(baseDeps);
+
+	this.#interactions = new TaskInteractionsService({
+		entities: this.#entities,
+		selection: this.#selection,
+		draft: this.#draft,
+		taskMutations: this.#mutations,
+		tagStore: resolved.tagStore
+	});
+	}
+
+	get mutations(): TaskMutations {
+		return this.#mutations;
 	}
 
 	get projects(): ProjectTree[] {
@@ -231,3 +254,4 @@ export class TaskStore {
 }
 
 export const taskStore = new TaskStore();
+export const taskMutations = taskStore.mutations;

@@ -1,14 +1,19 @@
-import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
-import { taskStore } from '$lib/stores/tasks.svelte';
-import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { taskListStore } from '$lib/stores/task-list-store.svelte';
-import { TaggingService } from '$lib/services/domain/tagging';
-import { tagStore } from '$lib/stores/tags.svelte';
-import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { TaskRecurrenceService } from '../task-recurrence';
+import type { Task, TaskStatus, TaskWithSubTasks } from '$lib/types/task';
+import { SvelteDate } from 'svelte/reactivity';
+import type { TaskStore } from '$lib/stores/tasks.svelte';
+import type {
+	TaskCoreStore,
+	TaskMoveContext,
+	TaskRemovalContext
+} from '$lib/stores/task-core-store.svelte';
+import type { TaskListStore } from '$lib/stores/task-list-store.svelte';
+import type { TagStore } from '$lib/stores/tags.svelte';
+import type { TaggingService as TaggingServiceType } from '$lib/services/domain/tagging';
+import type { ErrorHandlerStore } from '$lib/stores/error-handler.svelte';
+import type { TaskRecurrenceService } from '../task-recurrence';
 
 type TaskStoreLike = Pick<
-	typeof taskStore,
+	TaskStore,
 	| 'selectedTaskId'
 	| 'getTaskById'
 	| 'getTaskProjectAndList'
@@ -17,67 +22,118 @@ type TaskStoreLike = Pick<
 >;
 
 type TaskCoreStoreLike = Pick<
-	typeof taskCoreStore,
-	'toggleTaskStatus' | 'updateTask' | 'deleteTask' | 'addTask'
+	TaskCoreStore,
+	| 'applyTaskUpdate'
+	| 'updateTask'
+	| 'insertTask'
+	| 'removeTask'
+	| 'restoreTask'
+	| 'moveTaskBetweenLists'
+	| 'restoreTaskMove'
 >;
 
-type TaskListStoreLike = Pick<typeof taskListStore, 'getProjectIdByListId'>;
+type TaskListStoreLike = Pick<TaskListStore, 'getProjectIdByListId'>;
 
-type TagStoreLike = Pick<typeof tagStore, 'tags'>;
+type TagStoreLike = Pick<TagStore, 'tags'>;
 
-type TaggingServiceLike = Pick<typeof TaggingService, 'createTaskTag' | 'deleteTaskTag'>;
+type TaggingServiceLike = Pick<TaggingServiceType, 'createTaskTag' | 'deleteTaskTag'>;
 
-type ErrorHandlerLike = Pick<typeof errorHandler, 'addSyncError'>;
+type ErrorHandlerLike = Pick<ErrorHandlerStore, 'addSyncError'>;
 
-type TaskMutationDependencies = {
+export type TaskServiceLike = {
+	createTaskWithSubTasks(listId: string, task: Task): Promise<void>;
+	updateTaskWithSubTasks(
+		projectId: string,
+		taskId: string,
+		updates: Partial<Task>
+	): Promise<void>;
+	deleteTaskWithSubTasks(projectId: string, taskId: string): Promise<boolean>;
+	updateTask(projectId: string, taskId: string, updates: Partial<Task>): Promise<unknown>;
+};
+
+export type TaskMutationDependencies = {
 	taskStore: TaskStoreLike;
 	taskCoreStore: TaskCoreStoreLike;
 	taskListStore: TaskListStoreLike;
 	tagStore: TagStoreLike;
 	taggingService: TaggingServiceLike;
 	errorHandler: ErrorHandlerLike;
+	taskService: TaskServiceLike;
 	recurrenceService: TaskRecurrenceService;
 };
 
-function getDefaultDependencies(): TaskMutationDependencies {
+function cloneTask(task: TaskWithSubTasks): TaskWithSubTasks {
 	return {
-		taskStore,
-		taskCoreStore,
-		taskListStore,
-		tagStore,
-		taggingService: TaggingService,
-		errorHandler,
-		recurrenceService: new TaskRecurrenceService()
+		...task,
+		subTasks: [...task.subTasks],
+		tags: [...task.tags],
+		createdAt: new Date(task.createdAt),
+		updatedAt: new Date(task.updatedAt)
 	};
 }
 
-/**
- * タスク変更操作サービス
- *
- * 責務:
- * 1. タスクのステータス変更
- * 2. タスクの更新（フォームからの更新を含む）
- * 3. タスクの削除
- * 4. タスクの作成
- * 5. タスクへのタグ操作
- * 6. ビュー用の期日更新
- */
+function toSvelteDate(date: Date | undefined): SvelteDate {
+	return new SvelteDate(date ?? new Date());
+}
+
 export class TaskMutations {
 	#deps: TaskMutationDependencies;
 
-	constructor(deps?: TaskMutationDependencies) {
-		this.#deps = deps ?? getDefaultDependencies();
+	constructor(deps: TaskMutationDependencies) {
+		this.#deps = deps;
 	}
 
 	async toggleTaskStatus(taskId: string): Promise<void> {
-		await this.#deps.taskCoreStore.toggleTaskStatus(taskId);
+		const task = this.#deps.taskStore.getTaskById(taskId);
+		if (!task) {
+			console.error('Failed to find task:', taskId);
+			return;
+		}
+
+		const newStatus = task.status === 'completed' ? 'not_started' : 'completed';
+		await this.updateTask(taskId, { status: newStatus });
 	}
 
-	updateTask(taskId: string, updates: Partial<Task>): void {
-		void this.#deps.taskCoreStore.updateTask(taskId, updates);
+	async updateTask(taskId: string, updates: Partial<Task>): Promise<void> {
+		const { taskStore, taskCoreStore, taskService, errorHandler } = this.#deps;
+		const context = taskStore.getTaskProjectAndList(taskId);
+		if (!context) {
+			console.error('Failed to find task:', taskId);
+			return;
+		}
+
+		const currentTask = taskStore.getTaskById(taskId);
+		if (!currentTask) {
+			console.error('Failed to find task for update:', taskId);
+			return;
+		}
+
+		const snapshot = cloneTask(currentTask);
+		const applied = taskCoreStore.applyTaskUpdate(taskId, (task) => {
+			Object.assign(task, updates);
+		});
+		if (!applied) {
+			console.error('Failed to apply task update:', taskId);
+			return;
+		}
+
+		try {
+			await taskService.updateTaskWithSubTasks(
+				context.project.id,
+				taskId,
+				updates as Partial<TaskWithSubTasks>
+			);
+		} catch (error) {
+			console.error('Failed to sync task update to backends:', error);
+			taskCoreStore.applyTaskUpdate(taskId, (task) => {
+				Object.assign(task, snapshot);
+				task.updatedAt = toSvelteDate(snapshot.updatedAt);
+			});
+			errorHandler.addSyncError('タスク更新', 'task', taskId, error);
+		}
 	}
 
-	updateTaskFromForm(
+	async updateTaskFromForm(
 		taskId: string,
 		formData: {
 			title: string;
@@ -87,7 +143,7 @@ export class TaskMutations {
 			isRangeDate?: boolean;
 			priority: number;
 		}
-	): void {
+	): Promise<void> {
 		const updates: Partial<Task> = {
 			title: formData.title,
 			description: formData.description || undefined,
@@ -97,62 +153,84 @@ export class TaskMutations {
 			isRangeDate: formData.isRangeDate || false
 		};
 
-		this.updateTask(taskId, updates);
+		await this.updateTask(taskId, updates);
 	}
 
 	async changeTaskStatus(taskId: string, newStatus: TaskStatus): Promise<void> {
-		const { taskStore, taskCoreStore, recurrenceService } = this.#deps;
+		const { taskStore, recurrenceService } = this.#deps;
 		const currentTask = taskStore.getTaskById(taskId);
 
 		if (newStatus === 'completed' && currentTask?.recurrenceRule) {
 			recurrenceService.scheduleNextOccurrence(currentTask);
 		}
 
-		await taskCoreStore.updateTask(taskId, { status: newStatus });
+		await this.updateTask(taskId, { status: newStatus });
 	}
 
 	async deleteTask(taskId: string): Promise<void> {
-		const { taskStore, taskCoreStore } = this.#deps;
+		const { taskStore, taskCoreStore, taskService, errorHandler } = this.#deps;
 		if (taskStore.selectedTaskId === taskId) {
 			taskStore.selectedTaskId = null;
 		}
 
-		await taskCoreStore.deleteTask(taskId);
+		const removal = taskCoreStore.removeTask(taskId);
+		if (!removal) return;
+
+		try {
+			await taskService.deleteTaskWithSubTasks(removal.project.id, taskId);
+		} catch (error) {
+			console.error('Failed to sync task deletion to backends:', error);
+			taskCoreStore.restoreTask(removal);
+			errorHandler.addSyncError('タスク削除', 'task', taskId, error);
+		}
 	}
 
-	async addTask(
-		listId: string,
-		taskData: {
-			title: string;
-			description?: string;
-			priority?: number;
-		}
-	): Promise<TaskWithSubTasks | null> {
-		const { taskListStore, taskCoreStore } = this.#deps;
+	async addTask(listId: string, taskData: Partial<TaskWithSubTasks>): Promise<TaskWithSubTasks | null> {
+		const { taskListStore, taskCoreStore, taskService, errorHandler } = this.#deps;
 		const projectId = taskListStore.getProjectIdByListId(listId);
 		if (!projectId) {
 			console.error('Failed to find project for list:', listId);
 			return null;
 		}
 
-		return taskCoreStore.addTask(listId, {
+		const newTask: TaskWithSubTasks = {
+			id: crypto.randomUUID(),
 			projectId,
 			listId,
-			title: taskData.title,
+			title: taskData.title?.trim() ?? '',
 			description: taskData.description,
-			status: 'not_started',
-			priority: taskData.priority || 0,
-			assignedUserIds: [],
-			tagIds: [],
-			orderIndex: 0,
-			isArchived: false,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		});
+			status: taskData.status ?? 'not_started',
+			priority: taskData.priority ?? 0,
+			planStartDate: taskData.planStartDate,
+			planEndDate: taskData.planEndDate,
+			isRangeDate: taskData.isRangeDate ?? false,
+			recurrenceRule: taskData.recurrenceRule,
+			orderIndex: taskData.orderIndex ?? 0,
+			isArchived: taskData.isArchived ?? false,
+			assignedUserIds: taskData.assignedUserIds ?? [],
+			tagIds: taskData.tagIds ?? [],
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate(),
+			subTasks: taskData.subTasks ? [...taskData.subTasks] : [],
+			tags: taskData.tags ? [...taskData.tags] : []
+		};
+
+		const inserted = taskCoreStore.insertTask(listId, newTask);
+		if (!inserted) return null;
+
+		try {
+			await taskService.createTaskWithSubTasks(listId, inserted);
+			return inserted;
+		} catch (error) {
+			console.error('Failed to sync new task to backends:', error);
+			taskCoreStore.removeTask(inserted.id);
+			errorHandler.addSyncError('タスク作成', 'task', inserted.id, error);
+			return null;
+		}
 	}
 
 	async addTagToTaskByName(taskId: string, tagName: string): Promise<void> {
-		const { taskStore, taggingService, errorHandler } = this.#deps;
+		const { taskStore, taggingService, errorHandler, tagStore } = this.#deps;
 		const trimmed = tagName.trim();
 		if (!trimmed) {
 			console.warn('Empty tag name provided');
@@ -167,6 +245,7 @@ export class TaskMutations {
 
 		try {
 			const tag = await taggingService.createTaskTag(context.project.id, taskId, trimmed);
+			tagStore.addTagWithId(tag);
 			taskStore.attachTagToTask(taskId, tag);
 		} catch (error) {
 			console.error('Failed to sync tag addition to backends:', error);
@@ -211,10 +290,9 @@ export class TaskMutations {
 		}
 	}
 
-	updateTaskDueDateForView(taskId: string, viewId: string): void {
-		const { taskCoreStore } = this.#deps;
-		const today = new Date();
+	async updateTaskDueDateForView(taskId: string, viewId: string): Promise<void> {
 		let newDueDate: Date | undefined;
+		const today = new Date();
 
 		switch (viewId) {
 			case 'today':
@@ -240,7 +318,21 @@ export class TaskMutations {
 		}
 
 		if (newDueDate) {
-			void taskCoreStore.updateTask(taskId, { planEndDate: newDueDate });
+			await this.updateTask(taskId, { planEndDate: newDueDate });
+		}
+	}
+
+	async moveTaskToList(taskId: string, newTaskListId: string): Promise<void> {
+		const { taskCoreStore, taskService, errorHandler } = this.#deps;
+		const moveContext = taskCoreStore.moveTaskBetweenLists(taskId, newTaskListId);
+		if (!moveContext) return;
+
+		try {
+			await taskService.updateTask(moveContext.targetProject.id, taskId, { listId: newTaskListId });
+		} catch (error) {
+			console.error('Failed to sync task move to backends:', error);
+			taskCoreStore.restoreTaskMove(moveContext);
+			errorHandler.addSyncError('タスク移動', 'task', taskId, error);
 		}
 	}
 }

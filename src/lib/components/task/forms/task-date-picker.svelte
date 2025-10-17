@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
-  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+  import { taskMutations } from '$lib/stores/tasks.svelte';
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
@@ -44,15 +44,18 @@
   }
 
   // Main task date picker handlers
-  function handleDueDateClick(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+function handleDueDateClick(event: MouseEvent) {
+  event.preventDefault();
+  event.stopPropagation();
 
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    datePickerPosition = {
-      x: Math.min(rect.left, window.innerWidth - 300),
-      y: rect.bottom + 8
-    };
+  showSubTaskDatePicker = false;
+  editingSubTaskId = null;
+
+  const rect = (event.target as HTMLElement).getBoundingClientRect();
+  datePickerPosition = {
+    x: Math.min(rect.left, window.innerWidth - 300),
+    y: rect.bottom + 8
+  };
     showDatePicker = true;
   }
 
@@ -67,7 +70,7 @@
 
     if (isRangeDate) {
       if (range) {
-        taskCoreStore.updateTask(task.id, {
+        await taskMutations.updateTask(task.id, {
           ...task,
           planStartDate: new Date(range.start),
           planEndDate: new Date(range.end),
@@ -76,7 +79,7 @@
         });
       } else {
         const currentEndDate = task.planEndDate || new Date(dateTime);
-        taskCoreStore.updateTask(task.id, {
+        await taskMutations.updateTask(task.id, {
           ...task,
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
@@ -85,7 +88,7 @@
         });
       }
     } else {
-      taskCoreStore.updateTask(task.id, {
+      await taskMutations.updateTask(task.id, {
         ...task,
         planEndDate: new Date(dateTime),
         planStartDate: undefined,
@@ -98,15 +101,19 @@
     if (recurrenceRule !== undefined) {
       await saveRecurrenceRule(task.id, false, recurrenceRule);
     }
+
+    showDatePicker = false;
   }
 
-  function handleDateClear() {
-    taskCoreStore.updateTask(task.id, {
+  async function handleDateClear() {
+    await taskMutations.updateTask(task.id, {
       ...task,
       planStartDate: undefined,
       planEndDate: undefined,
       isRangeDate: false
     });
+
+    showDatePicker = false;
   }
 
   function handleDatePickerClose() {
@@ -117,6 +124,8 @@
   function handleSubTaskDueDateClick(event: MouseEvent, subTask: SubTask) {
     event.preventDefault();
     event.stopPropagation();
+
+    showDatePicker = false;
 
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     subTaskDatePickerPosition = {
@@ -171,6 +180,9 @@
     if (recurrenceRule !== undefined) {
       await saveRecurrenceRule(editingSubTaskId, true, recurrenceRule);
     }
+
+    showSubTaskDatePicker = false;
+    editingSubTaskId = null;
   }
 
   function handleSubTaskDateClear() {
@@ -181,6 +193,9 @@
       planEndDate: undefined,
       isRangeDate: false
     });
+
+    showSubTaskDatePicker = false;
+    editingSubTaskId = null;
   }
 
   function handleSubTaskDatePickerClose() {

@@ -5,4 +5,4 @@
  */
 
 export { TaskService } from './task-crud';
-export { TaskMutations } from './task-mutations';
+export { TaskMutations, type TaskMutationDependencies } from './task-mutations';

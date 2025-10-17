@@ -578,6 +578,17 @@ vi.mock('$lib/services/domain/task', async () => {
   };
 });
 
+vi.mock('$lib/services/domain/task/task-crud', () => ({
+	TaskService: {
+		createTask: dataServiceImpl.createTask.bind(dataServiceImpl),
+		updateTask: dataServiceImpl.updateTask.bind(dataServiceImpl),
+		deleteTask: dataServiceImpl.deleteTask.bind(dataServiceImpl),
+		createTaskWithSubTasks: dataServiceImpl.createTaskWithSubTasks.bind(dataServiceImpl),
+		updateTaskWithSubTasks: dataServiceImpl.updateTaskWithSubTasks.bind(dataServiceImpl),
+		deleteTaskWithSubTasks: dataServiceImpl.deleteTaskWithSubTasks.bind(dataServiceImpl)
+	}
+}));
+
 vi.mock('$lib/services/domain/subtask', () => ({
   SubTaskService: {
     createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),

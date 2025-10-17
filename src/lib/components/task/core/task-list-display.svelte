@@ -4,7 +4,7 @@
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { projectStore } from '$lib/stores/project-store.svelte';
-  import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+  import { taskMutations } from '$lib/stores/tasks.svelte';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -25,7 +25,7 @@
 
   let { project, isExpanded, currentView = 'all', onViewChange }: Props = $props();
 
-  const taskDetailUiStore = useTaskDetailUiStore();
+const taskDetailUiStore = useTaskDetailUiStore();
 
   // projectStore.projectsから直接参照して確実にリアクティブにする
   let currentProject = $derived(projectStore.projects.find(p => p.id === project.id) ?? project);
@@ -107,11 +107,11 @@
       // タスクリスト同士の並び替えまたは別プロジェクトから移動
       const targetIndex = project.taskLists.findIndex((tl) => tl.id === targetList.id);
       await taskListStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
-    } else if (dragData.type === 'task') {
-      // タスクをタスクリストにドロップ
-      await taskCoreStore.moveTaskToList(dragData.id, targetList.id);
-    }
+  } else if (dragData.type === 'task') {
+    // タスクをタスクリストにドロップ
+    await taskMutations.moveTaskToList(dragData.id, targetList.id);
   }
+}
 
   function handleTaskListDragEnd(event: DragEvent) {
     DragDropManager.handleDragEnd(event);

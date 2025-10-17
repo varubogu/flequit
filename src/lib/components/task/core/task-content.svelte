@@ -3,11 +3,10 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-  import { TaskMutations } from '$lib/services/domain/task';
+  import { taskMutations } from '$lib/stores/tasks.svelte';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutations = new TaskMutations();
   const subTaskMutations = new SubTaskMutations();
 
   interface Props {

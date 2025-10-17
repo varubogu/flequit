@@ -3,11 +3,10 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { TaskMutations } from '$lib/services/domain/task';
+  import { taskMutations } from '$lib/stores/tasks.svelte';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutations = new TaskMutations();
   const subTaskMutations = new SubTaskMutations();
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
@@ -56,7 +55,7 @@
       taskStore.addTagToNewTask(tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, tagName);
-    } else if ('list_id' in currentItem) {
+    } else if ('listId' in currentItem) {
       void taskMutations.addTagToTaskByName(currentItem.id, tagName);
     }
   }
@@ -68,7 +67,7 @@
       taskStore.removeTagFromNewTask(tagId);
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.removeTagFromSubTask(currentItem.id, currentItem.taskId, tagId);
-    } else if ('list_id' in currentItem) {
+    } else if ('listId' in currentItem) {
       void taskMutations.removeTagFromTask(currentItem.id, tagId);
     }
   }

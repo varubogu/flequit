@@ -1,15 +1,31 @@
 import type { ProjectTree } from '$lib/types/project';
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
+import type { TaskListWithTasks } from '$lib/types/task-list';
 import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
 import { SvelteDate } from 'svelte/reactivity';
-import { TaskService as TaskDomainService } from '$lib/services/domain/task';
-import { errorHandler } from './error-handler.svelte';
 
 /**
  * TaskCoreStore
  * タスクのCRUD操作のみを担当する専門ストア
  * プロジェクトツリー構造内のタスクに対する基本的な操作を提供
  */
+export type TaskRemovalContext = {
+	project: ProjectTree;
+	taskList: TaskListWithTasks;
+	task: TaskWithSubTasks;
+	index: number;
+};
+
+export type TaskMoveContext = {
+	task: TaskWithSubTasks;
+	sourceProject: ProjectTree;
+	sourceTaskList: TaskListWithTasks;
+	sourceIndex: number;
+	targetProject: ProjectTree;
+	targetTaskList: TaskListWithTasks;
+	targetIndex: number;
+};
+
 export class TaskCoreStore {
 	projects = $state<ProjectTree[]>([]);
 
@@ -37,51 +53,34 @@ export class TaskCoreStore {
 	/**
 	 * タスクを更新
 	 */
-	async updateTask(taskId: string, updates: Partial<Task>): Promise<void> {
-		const success = ProjectTreeTraverser.updateTask(this.projects, taskId, (task) => {
-			Object.assign(task, updates);
+	applyTaskUpdate(taskId: string, updater: (task: TaskWithSubTasks) => void): boolean {
+		return ProjectTreeTraverser.updateTask(this.projects, taskId, (task) => {
+			updater(task);
 			task.updatedAt = new SvelteDate();
 		});
+	}
 
-		if (!success) {
-			console.error(`Task not found: ${taskId}`);
-			return;
-		}
-
-		const projectId = ProjectTreeTraverser.getProjectIdByTaskId(this.projects, taskId);
-		if (!projectId) {
-			console.error(`Project not found for task: ${taskId}`);
-			return;
-		}
-
-		// バックエンドに同期（自動保存は個別に実行せず、定期保存に任せる）
-		try {
-			await TaskDomainService.updateTaskWithSubTasks(
-				projectId,
-				taskId,
-				updates as Partial<TaskWithSubTasks>
-			);
-		} catch (error) {
-			console.error('Failed to sync task update to backends:', error);
-			errorHandler.addSyncError('タスク更新', 'task', taskId, error);
-		}
+	updateTask(taskId: string, updates: Partial<Task>): boolean {
+		return this.applyTaskUpdate(taskId, (task) => {
+			Object.assign(task, updates);
+		});
 	}
 
 	/**
 	 * タスクのステータスを切り替え
 	 */
-	async toggleTaskStatus(taskId: string): Promise<void> {
+	toggleTaskStatus(taskId: string): void {
 		const task = this.getTaskById(taskId);
 		if (!task) return;
 
 		const newStatus = task.status === 'completed' ? 'not_started' : 'completed';
-		await this.updateTask(taskId, { status: newStatus });
+		this.updateTask(taskId, { status: newStatus });
 	}
 
 	/**
 	 * 新しいタスクを追加
 	 */
-	async addTask(listId: string, taskData: Partial<Task>): Promise<TaskWithSubTasks | null> {
+	addTask(listId: string, taskData: Partial<Task>): TaskWithSubTasks | null {
 		const taskList = ProjectTreeTraverser.findTaskList(this.projects, listId);
 		if (!taskList) {
 			console.error(`Task list not found: ${listId}`);
@@ -109,24 +108,7 @@ export class TaskCoreStore {
 			tags: []
 		};
 
-		// まずローカル状態に追加
-		taskList.tasks.push(newTask);
-
-		// バックエンドに同期（作成操作は即座に保存）
-		try {
-			await TaskDomainService.createTaskWithSubTasks(listId, newTask);
-		} catch (error) {
-			console.error('Failed to sync new task to backends:', error);
-			errorHandler.addSyncError('タスク作成', 'task', newTask.id, error);
-			// エラーが発生した場合はローカル状態から削除
-			const taskIndex = taskList.tasks.findIndex((t) => t.id === newTask.id);
-			if (taskIndex !== -1) {
-				taskList.tasks.splice(taskIndex, 1);
-			}
-			return null;
-		}
-
-		return newTask;
+		return this.insertTask(listId, newTask);
 	}
 
 	/**
@@ -172,68 +154,142 @@ export class TaskCoreStore {
 	/**
 	 * タスクを別のタスクリストへ移動
 	 */
-	async moveTaskToList(taskId: string, newTaskListId: string): Promise<void> {
+	moveTaskBetweenLists(
+		taskId: string,
+		newTaskListId: string,
+		options: { targetIndex?: number } = {}
+	): TaskMoveContext | null {
 		const targetTaskList = ProjectTreeTraverser.findTaskList(this.projects, newTaskListId);
-		if (!targetTaskList) return;
+		if (!targetTaskList) {
+			console.error(`Target task list not found: ${newTaskListId}`);
+			return null;
+		}
 
 		const targetProject = ProjectTreeTraverser.findProject(this.projects, targetTaskList.projectId);
-		if (!targetProject) return;
+		if (!targetProject) {
+			console.error(`Target project not found for task list: ${newTaskListId}`);
+			return null;
+		}
 
 		const sourceContext = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
-		if (!sourceContext) return;
+		if (!sourceContext) {
+			console.error(`Task not found for move: ${taskId}`);
+			return null;
+		}
 
-		const { taskList: sourceTaskList } = sourceContext;
-		const taskIndex = sourceTaskList.tasks.findIndex((t) => t.id === taskId);
-		if (taskIndex === -1) return;
+		const { project: sourceProject, taskList: sourceTaskList } = sourceContext;
+		const sourceIndex = sourceTaskList.tasks.findIndex((t) => t.id === taskId);
+		if (sourceIndex === -1) return null;
 
-		const taskToMove = sourceTaskList.tasks[taskIndex];
-		sourceTaskList.tasks.splice(taskIndex, 1);
+		const [taskToMove] = sourceTaskList.tasks.splice(sourceIndex, 1);
 		sourceTaskList.updatedAt = new SvelteDate();
+		sourceProject.updatedAt = new SvelteDate();
 
 		taskToMove.listId = newTaskListId;
 		taskToMove.updatedAt = new SvelteDate();
 
-		targetTaskList.tasks.push(taskToMove);
+		const targetIndex = Math.min(
+			options.targetIndex ?? targetTaskList.tasks.length,
+			targetTaskList.tasks.length
+		);
+		targetTaskList.tasks.splice(targetIndex, 0, taskToMove);
 		targetTaskList.updatedAt = new SvelteDate();
 		targetProject.updatedAt = new SvelteDate();
 
-		try {
-			await TaskDomainService.updateTask(targetProject.id, taskId, { listId: newTaskListId });
-		} catch (error) {
-			console.error('Failed to sync task move to backends:', error);
-			errorHandler.addSyncError('タスク移動', 'task', taskId, error);
-		}
+		return {
+			task: taskToMove,
+			sourceProject,
+			sourceTaskList,
+			sourceIndex,
+			targetProject,
+			targetTaskList,
+			targetIndex
+		};
 	}
 
 	/**
 	 * タスクを削除
 	 */
-	async deleteTask(taskId: string): Promise<void> {
+	removeTask(taskId: string): TaskRemovalContext | null {
 		const context = ProjectTreeTraverser.findTaskContext(this.projects, taskId);
 		if (!context) {
 			console.error(`Task not found: ${taskId}`);
-			return;
+			return null;
 		}
 
 		const { project, taskList } = context;
 		const taskIndex = taskList.tasks.findIndex((t) => t.id === taskId);
-		if (taskIndex === -1) return;
+		if (taskIndex === -1) return null;
 
-		// バックアップとして削除するタスクを保持
 		const deletedTask = taskList.tasks[taskIndex];
 
-		// まずローカル状態から削除
 		taskList.tasks.splice(taskIndex, 1);
+		taskList.updatedAt = new SvelteDate();
+		project.updatedAt = new SvelteDate();
 
-		// バックエンドに同期（削除操作は即座に保存）
-		try {
-			await TaskDomainService.deleteTaskWithSubTasks(project.id, taskId);
-		} catch (error) {
-			console.error('Failed to sync task deletion to backends:', error);
-			errorHandler.addSyncError('タスク削除', 'task', taskId, error);
-			// エラーが発生した場合はローカル状態を復元
-			taskList.tasks.splice(taskIndex, 0, deletedTask);
+		return {
+			project,
+			taskList,
+			task: deletedTask,
+			index: taskIndex
+		};
+	}
+
+	restoreTask(removal: TaskRemovalContext): void {
+		const insertIndex = Math.min(removal.index, removal.taskList.tasks.length);
+		removal.taskList.tasks.splice(insertIndex, 0, removal.task);
+		removal.taskList.updatedAt = new SvelteDate();
+		removal.project.updatedAt = new SvelteDate();
+		removal.task.listId = removal.taskList.id;
+		removal.task.updatedAt = new SvelteDate();
+	}
+
+	restoreTaskMove(context: TaskMoveContext): void {
+		context.targetTaskList.tasks.splice(context.targetIndex, 1);
+		context.targetTaskList.updatedAt = new SvelteDate();
+		context.targetProject.updatedAt = new SvelteDate();
+
+		const insertIndex = Math.min(context.sourceIndex, context.sourceTaskList.tasks.length);
+		context.sourceTaskList.tasks.splice(insertIndex, 0, context.task);
+		context.task.listId = context.sourceTaskList.id;
+		context.task.updatedAt = new SvelteDate();
+		context.sourceTaskList.updatedAt = new SvelteDate();
+		context.sourceProject.updatedAt = new SvelteDate();
+	}
+
+	insertTask(
+		listId: string,
+		task: TaskWithSubTasks,
+		options: { index?: number } = {}
+	): TaskWithSubTasks | null {
+		const taskList = ProjectTreeTraverser.findTaskList(this.projects, listId);
+		if (!taskList) {
+			console.error(`Task list not found: ${listId}`);
+			return null;
 		}
+
+		const project = ProjectTreeTraverser.findProject(this.projects, taskList.projectId);
+		if (!project) {
+			console.error(`Project not found for task list: ${listId}`);
+			return null;
+		}
+
+		const createdAt = task.createdAt ? new SvelteDate(task.createdAt) : new SvelteDate();
+		const updatedAt = task.updatedAt ? new SvelteDate(task.updatedAt) : new SvelteDate();
+		const taskToInsert: TaskWithSubTasks = {
+			...task,
+			createdAt,
+			updatedAt,
+			subTasks: task.subTasks ? [...task.subTasks] : [],
+			tags: task.tags ? [...task.tags] : []
+		};
+
+		const insertIndex = Math.min(options.index ?? taskList.tasks.length, taskList.tasks.length);
+		taskList.tasks.splice(insertIndex, 0, taskToInsert);
+		taskList.updatedAt = new SvelteDate();
+		project.updatedAt = new SvelteDate();
+
+		return taskToInsert;
 	}
 
 }

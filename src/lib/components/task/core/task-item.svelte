@@ -4,12 +4,11 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
-  import { TaskMutations } from '$lib/services/domain/task';
+import { taskMutations } from '$lib/stores/tasks.svelte';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-  const taskMutations = new TaskMutations();
-  const subTaskMutations = new SubTaskMutations();
+const subTaskMutations = new SubTaskMutations();
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
   import { createEventDispatcher } from 'svelte';
