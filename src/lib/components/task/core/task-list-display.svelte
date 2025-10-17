@@ -4,7 +4,8 @@
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { projectStore } from '$lib/stores/project-store.svelte';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+  import { taskInteractions } from '$lib/services/ui/task';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -128,7 +129,7 @@ const taskDetailUiStore = useTaskDetailUiStore();
   // タスク追加処理
   function handleAddTaskToList(list: { id: string; name: string }) {
     // 新規タスクモードを開始
-    taskStore.startNewTaskMode(list.id);
+    taskInteractions.startNewTaskMode(list.id);
 
     // タスク詳細を表示
     taskDetailUiStore?.openNewTaskDetail();

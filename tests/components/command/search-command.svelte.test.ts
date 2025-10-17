@@ -9,7 +9,12 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     allTasks: [],
     selectedListId: 'list1',
-    projects: [],
+    projects: []
+  }
+}));
+
+vi.mock('$lib/services/ui/task', () => ({
+  taskInteractions: {
     startNewTaskMode: vi.fn()
   }
 }));

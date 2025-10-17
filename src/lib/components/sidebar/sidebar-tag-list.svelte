@@ -10,7 +10,7 @@
   import SidebarTagItem from './sidebar-tag-item.svelte';
   import type { Tag } from '$lib/types/tag';
   import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 

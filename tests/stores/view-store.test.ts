@@ -36,9 +36,11 @@ const createDeps = (): ViewStoreDependencies => ({
     projects: [],
     selectedProjectId: null,
     selectedListId: null,
-    isNewTaskMode: false,
-    cancelNewTaskMode: vi.fn()
+    isNewTaskMode: false
   } as ViewStoreDependencies['taskStore'],
+  taskInteractions: {
+    cancelNewTaskMode: vi.fn()
+  },
   selectionStore: {
     selectTask: vi.fn(),
     selectProject: vi.fn(),

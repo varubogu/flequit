@@ -5,6 +5,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
+  import { taskInteractions } from '$lib/services/ui/task';
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { tick } from 'svelte';
   import { cn } from '$lib/utils';
@@ -58,9 +59,9 @@
     const currentListId = getCurrentListId();
     if (!currentListId) return;
 
-    taskStore.startNewTaskMode(currentListId);
+    taskInteractions.startNewTaskMode(currentListId);
     if (newTaskTitle.trim()) {
-      taskStore.updateNewTaskData({ title: newTaskTitle });
+      taskInteractions.updateNewTaskData({ title: newTaskTitle });
     }
     newTaskTitle = '';
 

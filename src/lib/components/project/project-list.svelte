@@ -3,7 +3,7 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/stores/view-store.svelte';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { projectStore } from '$lib/stores/project-store.svelte';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';

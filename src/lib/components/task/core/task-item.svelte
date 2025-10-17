@@ -4,7 +4,7 @@
   import type { SubTask } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
-import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 

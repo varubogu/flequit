@@ -39,9 +39,11 @@ const createDeps = (): ViewStoreDependencies => ({
     projects: [],
     selectedProjectId: null,
     selectedListId: null,
-    isNewTaskMode: false,
-    cancelNewTaskMode: vi.fn()
+    isNewTaskMode: false
   } as ViewStoreDependencies['taskStore'],
+  taskInteractions: {
+    cancelNewTaskMode: vi.fn()
+  },
   selectionStore: {
     selectTask: vi.fn(),
     selectProject: vi.fn(),
@@ -336,7 +338,7 @@ describe('view helpers', () => {
 
       forceViewChange('all', deps);
 
-      expect(taskStore.cancelNewTaskMode).toHaveBeenCalled();
+      expect(deps.taskInteractions.cancelNewTaskMode).toHaveBeenCalled();
       expect(selectionStore.selectTask).toHaveBeenCalledWith(null);
       expect(selectionStore.selectProject).toHaveBeenCalledWith(null);
       expect(selectionStore.selectList).toHaveBeenCalledWith(null);

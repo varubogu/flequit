@@ -3,9 +3,10 @@
   import Card from '$lib/components/ui/card.svelte';
   import TaskDetailContent from './task-detail-content.svelte';
   import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
-import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
-import { taskMutations } from '$lib/stores/tasks.svelte';
-import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
+  import { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+  import { taskInteractions } from '$lib/services/ui/task';
+  import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
@@ -22,14 +23,14 @@ import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
   // Components層でUI状態とビジネスロジックを統合
   function forceSelectTask(taskId: string | null): void {
     if (taskStore.isNewTaskMode) {
-      taskStore.cancelNewTaskMode();
+      taskInteractions.cancelNewTaskMode();
     }
     selectionStore.selectTask(taskId);
   }
 
   function forceSelectSubTask(subTaskId: string | null): void {
     if (taskStore.isNewTaskMode) {
-      taskStore.cancelNewTaskMode();
+      taskInteractions.cancelNewTaskMode();
     }
     selectionStore.selectSubTask(subTaskId);
   }

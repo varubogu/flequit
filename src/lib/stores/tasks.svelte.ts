@@ -4,21 +4,15 @@ import type { Project } from '$lib/types/project';
 import type { TaskList } from '$lib/types/task-list';
 import type { Tag } from '$lib/types/tag';
 import type { SubTask } from '$lib/types/sub-task';
+import { SvelteDate } from 'svelte/reactivity';
 import { selectionStore } from './selection-store.svelte';
 import { projectStore } from './project-store.svelte';
 import { taskListStore } from './task-list-store.svelte';
 import { subTaskStore } from './sub-task-store.svelte';
 import { taskCoreStore } from './task-core-store.svelte';
-import { tagStore } from './tags.svelte';
 import { TaskEntitiesStore } from './tasks/task-entities-store.svelte';
 import { TaskSelectionStore } from './tasks/task-selection-store.svelte';
 import { TaskDraftStore } from './tasks/task-draft-store.svelte';
-import { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
-import { TaskMutations, type TaskMutationDependencies } from '$lib/services/domain/task/task-mutations';
-import { TaggingService } from '$lib/services/domain/tagging';
-import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { TaskService } from '$lib/services/domain/task/task-crud';
-import { TaskRecurrenceService } from '$lib/services/domain/task-recurrence';
 
 export type TaskStoreConfig = Partial<{
 	projectStore: typeof projectStore;
@@ -26,15 +20,12 @@ export type TaskStoreConfig = Partial<{
 	taskListStore: typeof taskListStore;
 	subTaskStore: typeof subTaskStore;
 	taskCoreStore: typeof taskCoreStore;
-	tagStore: typeof tagStore;
 }>;
 
 export class TaskStore {
 	#entities: TaskEntitiesStore;
 	#selection: TaskSelectionStore;
 	#draft: TaskDraftStore;
-	#interactions: TaskInteractionsService;
-	#mutations: TaskMutations;
 
 	constructor(config: TaskStoreConfig = {}) {
 		const resolved = {
@@ -42,8 +33,7 @@ export class TaskStore {
 			selectionStore: config.selectionStore ?? selectionStore,
 			taskListStore: config.taskListStore ?? taskListStore,
 			subTaskStore: config.subTaskStore ?? subTaskStore,
-			taskCoreStore: config.taskCoreStore ?? taskCoreStore,
-			tagStore: config.tagStore ?? tagStore
+			taskCoreStore: config.taskCoreStore ?? taskCoreStore
 		};
 
 		this.#entities = new TaskEntitiesStore({
@@ -61,31 +51,27 @@ export class TaskStore {
 			taskListStore: resolved.taskListStore,
 			selection: this.#selection
 		});
-
-const baseDeps: TaskMutationDependencies = {
-	taskStore: this as unknown as TaskStore,
-		taskCoreStore: resolved.taskCoreStore,
-		taskListStore: resolved.taskListStore,
-		tagStore: resolved.tagStore,
-		taggingService: TaggingService,
-		errorHandler,
-		taskService: TaskService,
-		recurrenceService: new TaskRecurrenceService()
-	};
-
-	this.#mutations = new TaskMutations(baseDeps);
-
-	this.#interactions = new TaskInteractionsService({
-		entities: this.#entities,
-		selection: this.#selection,
-		draft: this.#draft,
-		taskMutations: this.#mutations,
-		tagStore: resolved.tagStore
-	});
 	}
 
-	get mutations(): TaskMutations {
-		return this.#mutations;
+	/**
+	 * 内部エンティティストア（UIサービスからの依存注入用）
+	 */
+	get entities(): TaskEntitiesStore {
+		return this.#entities;
+	}
+
+	/**
+	 * 選択状態ストア（UIサービスからの依存注入用）
+	 */
+	get selection(): TaskSelectionStore {
+		return this.#selection;
+	}
+
+	/**
+	 * 新規タスクドラフトストア（UIサービスからの依存注入用）
+	 */
+	get draft(): TaskDraftStore {
+		return this.#draft;
 	}
 
 	get projects(): ProjectTree[] {
@@ -188,36 +174,29 @@ const baseDeps: TaskMutationDependencies = {
 		this.#entities.loadProjectsData(projects);
 	}
 
-	startNewTaskMode(listId: string): void {
-		this.#interactions.startNewTaskMode(listId);
-	}
-
-	cancelNewTaskMode(): void {
-		this.#interactions.cancelNewTaskMode();
-	}
-
-	async saveNewTask(): Promise<string | null> {
-		return this.#interactions.saveNewTask();
-	}
-
-	updateNewTaskData(updates: Partial<TaskWithSubTasks>): void {
-		this.#interactions.updateNewTaskData(updates);
-	}
-
-	async addTagToNewTask(tagName: string): Promise<void> {
-		await this.#interactions.addTagToNewTask(tagName);
-	}
-
-	removeTagFromNewTask(tagId: string): void {
-		this.#interactions.removeTagFromNewTask(tagId);
-	}
-
 	attachTagToTask(taskId: string, tag: Tag): void {
-		this.#interactions.attachTagToTask(taskId, tag);
+		const task = this.#entities.getTaskById(taskId);
+		if (!task) return;
+
+		const duplicated = task.tags.some(
+			(existing) => existing.id === tag.id || existing.name.toLowerCase() === tag.name.toLowerCase()
+		);
+		if (duplicated) return;
+
+		task.tags.push(tag);
+		task.updatedAt = new SvelteDate();
 	}
 
 	detachTagFromTask(taskId: string, tagId: string): Tag | null {
-		return this.#interactions.detachTagFromTask(taskId, tagId);
+		const task = this.#entities.getTaskById(taskId);
+		if (!task) return null;
+
+		const index = task.tags.findIndex((existing) => existing.id === tagId);
+		if (index === -1) return null;
+
+		const [removed] = task.tags.splice(index, 1);
+		task.updatedAt = new SvelteDate();
+		return removed ?? null;
 	}
 
 	getTaskById(taskId: string): TaskWithSubTasks | null {
@@ -241,17 +220,50 @@ const baseDeps: TaskMutationDependencies = {
 	}
 
 	removeTagFromAllTasks(tagId: string): void {
-		this.#interactions.removeTagFromAllTasks(tagId);
+		this.#entities.removeTagFromAllTasks(tagId);
+		const draft = this.#draft.newTaskDraft;
+		if (draft) {
+			const index = draft.tags.findIndex((tag) => tag.id === tagId);
+			if (index !== -1) {
+				draft.tags.splice(index, 1);
+			}
+		}
 	}
 
 	updateTagInAllTasks(updatedTag: Tag): void {
-		this.#interactions.updateTagInAllTasks(updatedTag);
+		this.#entities.updateTagInAllTasks(updatedTag);
+		const draft = this.#draft.newTaskDraft;
+		if (draft) {
+			const index = draft.tags.findIndex((tag) => tag.id === updatedTag.id);
+			if (index !== -1) {
+				draft.tags[index] = { ...updatedTag };
+			}
+		}
 	}
 
 	clearPendingSelections(): void {
-		this.#interactions.clearPendingSelections();
+		this.#selection.clearPendingSelections();
 	}
 }
 
-export const taskStore = new TaskStore();
-export const taskMutations = taskStore.mutations;
+let _taskStore: TaskStore | undefined;
+
+function getTaskStore(): TaskStore {
+	if (!_taskStore) {
+		_taskStore = new TaskStore();
+	}
+	return _taskStore;
+}
+
+export const taskStore = new Proxy({} as TaskStore, {
+	get(_target, prop) {
+		const store = getTaskStore();
+		const value = store[prop as keyof TaskStore];
+		return typeof value === 'function' ? value.bind(store) : value;
+	},
+	set(_target, prop, value) {
+		const store = getTaskStore();
+		(store as any)[prop] = value;
+		return true;
+	}
+});

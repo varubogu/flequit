@@ -22,7 +22,12 @@ vi.mock('$lib/stores/locale.svelte', () => ({
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
     projects: [],
-    selectedListId: null,
+    selectedListId: null
+  }
+}));
+
+vi.mock('$lib/services/ui/task', () => ({
+  taskInteractions: {
     startNewTaskMode: vi.fn()
   }
 }));

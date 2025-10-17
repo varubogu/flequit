@@ -6,3 +6,4 @@
 
 export { TaskService } from './task-crud';
 export { TaskMutations, type TaskMutationDependencies } from './task-mutations';
+export { taskMutations, getTaskMutations } from './task-mutations-instance';

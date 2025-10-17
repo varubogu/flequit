@@ -2,8 +2,9 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import TaskAddForm from '$lib/components/task/forms/task-add-form.svelte';
 import { TaskListService } from '$lib/services/domain/task-list';
-import { TaskService } from '$lib/services/domain/task';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { taskInteractions } from '$lib/services/ui/task';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import type { ITranslationService } from '$lib/services/translation-service';
 // import {
@@ -18,23 +19,22 @@ vi.mock('$lib/services/domain/task-list', () => ({
   }
 }));
 
-vi.mock('$lib/services/task-service', () => ({
-  TaskService: {
-    selectTask: vi.fn()
-  }
-}));
-
 vi.mock('$lib/stores/tasks.svelte', () => ({
   taskStore: {
-    startNewTaskMode: vi.fn(),
-    updateNewTaskData: vi.fn(),
     selectedListId: 'list-1',
     projects: [
       {
         id: 'project-1',
-        task_lists: [{ id: 'list-1', name: 'Test List' }]
+        taskLists: [{ id: 'list-1', name: 'Test List', tasks: [] }]
       }
     ]
+  }
+}));
+
+vi.mock('$lib/services/ui/task', () => ({
+  taskInteractions: {
+    startNewTaskMode: vi.fn(),
+    updateNewTaskData: vi.fn()
   }
 }));
 
@@ -42,9 +42,15 @@ vi.mock('$lib/stores/view-store.svelte', () => ({
   viewStore: {}
 }));
 
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
+    selectTask: vi.fn()
+  }
+}));
+
 const mockTaskListService = vi.mocked(TaskListService);
-const mockTaskService = vi.mocked(TaskService);
-const mockTaskStore = vi.mocked(taskStore);
+const mockTaskInteractions = vi.mocked(taskInteractions);
+const mockSelectionStore = vi.mocked(selectionStore);
 
 describe('TaskAddForm', () => {
   beforeEach(() => {
@@ -111,7 +117,7 @@ describe('TaskAddForm', () => {
       await fireEvent.click(saveButton);
 
       expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('New task title');
-      expect(mockTaskService.selectTask).toHaveBeenCalledWith(taskId);
+      expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(taskId);
       expect(onTaskAdded).toHaveBeenCalled();
       expect(input.value).toBe(''); // Should clear input after saving
     });
@@ -129,7 +135,7 @@ describe('TaskAddForm', () => {
 
       expect(mockTaskListService.addNewTask).not.toHaveBeenCalled();
       expect(onTaskAdded).not.toHaveBeenCalled();
-      expect(mockTaskService.selectTask).not.toHaveBeenCalled();
+      expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
     });
 
     test('should handle failed task creation', async () => {
@@ -146,7 +152,7 @@ describe('TaskAddForm', () => {
       await fireEvent.click(saveButton);
 
       expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('Failed task');
-      expect(mockTaskService.selectTask).not.toHaveBeenCalled();
+      expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
       expect(onTaskAdded).not.toHaveBeenCalled();
       expect(input.value).toBe('Failed task'); // Should not clear input on failure
     });
@@ -167,7 +173,7 @@ describe('TaskAddForm', () => {
       await fireEvent.keyDown(input, { key: 'Enter' });
 
       expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('Keyboard task');
-      expect(mockTaskService.selectTask).toHaveBeenCalledWith(taskId);
+      expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(taskId);
       expect(onTaskAdded).toHaveBeenCalled();
     });
 
@@ -252,7 +258,7 @@ describe('TaskAddForm', () => {
       await fireEvent.click(saveButton);
 
       expect(mockTaskListService.addNewTask).toHaveBeenCalledWith('Task without callback');
-      expect(mockTaskService.selectTask).toHaveBeenCalledWith(taskId);
+      expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(taskId);
       // Should not throw error when onTaskAdded is not provided
     });
   });
@@ -276,8 +282,8 @@ describe('TaskAddForm', () => {
       await fireEvent.input(input, { target: { value: 'New task for editing' } });
       await fireEvent.click(editButton);
 
-      expect(mockTaskStore.startNewTaskMode).toHaveBeenCalledWith('list-1');
-      expect(mockTaskStore.updateNewTaskData).toHaveBeenCalledWith({
+      expect(mockTaskInteractions.startNewTaskMode).toHaveBeenCalledWith('list-1');
+      expect(mockTaskInteractions.updateNewTaskData).toHaveBeenCalledWith({
         title: 'New task for editing'
       });
       expect(input.value).toBe(''); // Should clear input

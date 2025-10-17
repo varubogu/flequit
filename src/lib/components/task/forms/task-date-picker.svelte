@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';

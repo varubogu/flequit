@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SearchCommand from '$lib/components/command/search-command.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { taskInteractions } from '$lib/services/ui/task';
 import { viewStore } from '$lib/stores/view-store.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
@@ -32,7 +33,12 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
         id: 'project-1',
         taskLists: [{ id: 'list-1', name: 'Default List' }]
       }
-    ],
+    ]
+  }
+}));
+
+vi.mock('$lib/services/ui/task', () => ({
+  taskInteractions: {
     startNewTaskMode: vi.fn()
   }
 }));
@@ -129,7 +135,7 @@ describe('SearchCommand', () => {
     await fireEvent.click(addTaskItem);
 
     // startNewTaskModeが適切なlistIdで呼ばれることを確認
-    expect(taskStore.startNewTaskMode).toHaveBeenCalledWith('list-1');
+    expect(taskInteractions.startNewTaskMode).toHaveBeenCalledWith('list-1');
   });
 
   it('「すべてのタスクを表示」をクリックするとchangeViewが呼ばれること', async () => {
@@ -167,6 +173,6 @@ describe('SearchCommand', () => {
     await fireEvent.click(addTaskItem);
 
     // selectedListIdが使用されることを確認
-    expect(taskStore.startNewTaskMode).toHaveBeenCalledWith('selected-list-id');
+    expect(taskInteractions.startNewTaskMode).toHaveBeenCalledWith('selected-list-id');
   });
 });

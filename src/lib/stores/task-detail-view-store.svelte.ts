@@ -1,4 +1,5 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { taskInteractions } from '$lib/services/ui/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { TaskStatus } from '$lib/types/task';
 import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
@@ -135,7 +136,7 @@ export class TaskDetailViewStore {
     const status = target.value as TaskStatus;
 
     if (this.state.isNewTaskMode) {
-      taskStore.updateNewTaskData({ status });
+      taskInteractions.updateNewTaskData({ status });
     } else if (this.state.isSubTask) {
       this.#actions.changeSubTaskStatus(current.id, status);
     } else {
@@ -189,7 +190,7 @@ export class TaskDetailViewStore {
     }
 
     if (this.state.isNewTaskMode) {
-      taskStore.cancelNewTaskMode();
+      taskInteractions.cancelNewTaskMode();
       return;
     }
 
@@ -198,7 +199,7 @@ export class TaskDetailViewStore {
 
   handleSaveNewTask = async () => {
     if (!this.state.isNewTaskMode) return;
-    const newTaskId = await taskStore.saveNewTask();
+    const newTaskId = await taskInteractions.saveNewTask();
     if (newTaskId) {
       this.#actions.selectTask(newTaskId);
     }

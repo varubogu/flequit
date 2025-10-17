@@ -1,6 +1,7 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { taskInteractions } from '$lib/services/ui/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 export type ViewType =
@@ -26,14 +27,15 @@ export type ViewStoreDependencies = {
     | 'selectedProjectId'
     | 'selectedListId'
     | 'isNewTaskMode'
-    | 'cancelNewTaskMode'
   >;
+  taskInteractions: Pick<typeof taskInteractions, 'cancelNewTaskMode'>;
   selectionStore: Pick<typeof selectionStore, 'selectTask' | 'selectProject' | 'selectList'>;
   translationService: Pick<ReturnType<typeof getTranslationService>, 'getMessage'>;
 };
 
 const defaultDependencies: ViewStoreDependencies = {
   taskStore,
+  taskInteractions,
   selectionStore,
   translationService: getTranslationService()
 };
@@ -290,10 +292,10 @@ export function forceViewChange(
   view: ViewType,
   deps: ViewStoreDependencies = defaultDependencies
 ): void {
-  const { taskStore, selectionStore } = deps;
+  const { taskStore, selectionStore, taskInteractions } = deps;
 
   if (taskStore.isNewTaskMode) {
-    taskStore.cancelNewTaskMode();
+    taskInteractions.cancelNewTaskMode();
   }
 
   selectionStore.selectTask(null);

@@ -3,7 +3,8 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+  import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
@@ -52,7 +53,7 @@
     if (!currentItem) return;
 
     if (isNewTaskMode) {
-      taskStore.addTagToNewTask(tagName);
+      taskInteractions.addTagToNewTask(tagName);
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, tagName);
     } else if ('listId' in currentItem) {
@@ -64,7 +65,7 @@
     if (!currentItem) return;
 
     if (isNewTaskMode) {
-      taskStore.removeTagFromNewTask(tagId);
+      taskInteractions.removeTagFromNewTask(tagId);
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.removeTagFromSubTask(currentItem.id, currentItem.taskId, tagId);
     } else if ('listId' in currentItem) {

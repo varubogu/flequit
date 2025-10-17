@@ -125,33 +125,44 @@ export interface ITaskListStore {
  */
 export interface ITaskStore {
 	// 状態
-	tasks: TaskWithSubTasks[];
+	projects: ProjectTree[];
 	isNewTaskMode: boolean;
 	newTaskData: TaskWithSubTasks | null;
 
 	// 派生状態
 	readonly selectedTask: TaskWithSubTasks | null;
+	readonly selectedSubTask: SubTask | null;
 	readonly allTasks: TaskWithSubTasks[];
 	readonly todayTasks: TaskWithSubTasks[];
 	readonly overdueTasks: TaskWithSubTasks[];
-	readonly tasksForCurrentList: TaskWithSubTasks[];
+
+	// 選択状態
+	selectedProjectId: string | null;
+	selectedListId: string | null;
+	selectedTaskId: string | null;
+	selectedSubTaskId: string | null;
+	pendingTaskSelection: string | null;
+	pendingSubTaskSelection: string | null;
+
+	// データ同期
+	setProjects(projects: ProjectTree[]): void;
+	loadProjectsData(projects: ProjectTree[]): void;
 
 	// タグ操作
 	attachTagToTask(taskId: string, tag: Tag): void;
 	detachTagFromTask(taskId: string, tagId: string): Tag | null;
-
-	// 新規タスクモード
-	startNewTaskMode(listId: string): void;
-	saveNewTask(): Promise<void>;
-	cancelNewTaskMode(): void;
-	updateNewTaskData(updates: Partial<TaskWithSubTasks>): void;
-	addTagToNewTask(tagId: string): void;
-	removeTagFromNewTask(tagId: string): void;
+	removeTagFromAllTasks(tagId: string): void;
+	updateTagInAllTasks(updatedTag: Tag): void;
 
 	// ヘルパー
 	getTaskById(taskId: string): TaskWithSubTasks | null;
-	getTaskProjectAndList(taskId: string): { project: Project; list: TaskList } | null;
+	getTaskProjectAndList(taskId: string): { project: Project; taskList: TaskList } | null;
 	getProjectIdByTaskId(taskId: string): string | null;
+	getProjectIdByTagId(tagId: string): string | null;
+	getTaskCountByTag(tagName: string): number;
+
+	// 選択状態リセット
+	clearPendingSelections(): void;
 }
 
 /**

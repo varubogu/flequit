@@ -3,7 +3,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-  import { taskMutations } from '$lib/stores/tasks.svelte';
+  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
