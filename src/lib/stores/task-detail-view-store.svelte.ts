@@ -172,13 +172,10 @@ export class TaskDetailViewStore {
       this.form.updateRecurrence(recurrenceRule);
       await this.handleRecurrenceChange(recurrenceRule);
     }
-
-	this.dialogs.closeDatePicker();
   };
 
   handleDateClear = () => {
     this.form.clearDates();
-	this.dialogs.closeDatePicker();
   };
 
   handleDatePickerClose = () => {

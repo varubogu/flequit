@@ -206,7 +206,7 @@ export function useInlineDatePicker(options: UseInlineDatePickerOptions) {
   }
 
   function setupOutsideClickHandler(pickerElement: HTMLElement | undefined) {
-    if (!options.show || !pickerElement) return;
+    if (!pickerElement) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (state.recurrenceDialogOpen) return;
@@ -279,5 +279,4 @@ export function useInlineDatePicker(options: UseInlineDatePickerOptions) {
     updateCurrentStartDate
   };
 }
-
 

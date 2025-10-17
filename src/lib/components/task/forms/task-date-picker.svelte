@@ -102,7 +102,6 @@ function handleDueDateClick(event: MouseEvent) {
       await saveRecurrenceRule(task.id, false, recurrenceRule);
     }
 
-    showDatePicker = false;
   }
 
   async function handleDateClear() {
@@ -112,8 +111,6 @@ function handleDueDateClick(event: MouseEvent) {
       planEndDate: undefined,
       isRangeDate: false
     });
-
-    showDatePicker = false;
   }
 
   function handleDatePickerClose() {
@@ -181,8 +178,6 @@ function handleDueDateClick(event: MouseEvent) {
       await saveRecurrenceRule(editingSubTaskId, true, recurrenceRule);
     }
 
-    showSubTaskDatePicker = false;
-    editingSubTaskId = null;
   }
 
   function handleSubTaskDateClear() {
@@ -193,9 +188,6 @@ function handleDueDateClick(event: MouseEvent) {
       planEndDate: undefined,
       isRangeDate: false
     });
-
-    showSubTaskDatePicker = false;
-    editingSubTaskId = null;
   }
 
   function handleSubTaskDatePickerClose() {
