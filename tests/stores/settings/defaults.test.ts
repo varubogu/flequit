@@ -17,7 +17,10 @@ describe('settings defaults helpers', () => {
     applySettingsPatch(target, {
       language: 'en',
       timeLabels: [{ id: 'id-1', name: 'Morning', time: '08:00' }],
-      dueDateButtons: { today: false }
+      dueDateButtons: {
+        ...target.dueDateButtons,
+        today: false
+      }
     });
 
     expect(target.language).toBe('en');

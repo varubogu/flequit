@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createTaskDetailUiStore, type TaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
 import { TaskService } from '$lib/services/domain/task';

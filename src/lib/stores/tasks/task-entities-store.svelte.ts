@@ -56,7 +56,7 @@ export class TaskEntitiesStore {
 
 		return this.allTasks.filter((task) => {
 			if (!task.planEndDate) return false;
-			const dueDate = new Date(task.planEndDate);
+			const dueDate = new SvelteDate(task.planEndDate);
 			return dueDate >= today && dueDate < tomorrow;
 		});
 	}
@@ -66,7 +66,7 @@ export class TaskEntitiesStore {
 		today.setHours(0, 0, 0, 0);
 		return this.allTasks.filter((task) => {
 			if (!task.planEndDate || task.status === 'completed') return false;
-			const dueDate = new Date(task.planEndDate);
+			const dueDate = new SvelteDate(task.planEndDate);
 			return dueDate < today;
 		});
 	}

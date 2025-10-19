@@ -1,6 +1,5 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { subTaskStore } from '../sub-task-store.svelte';
-import { taskStore } from '../tasks.svelte';
 import { taskInteractions } from '$lib/services/ui/task';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { fromLegacyRecurrenceRule, toLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';

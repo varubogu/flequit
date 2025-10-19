@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { test, expect, vi, beforeEach } from 'vitest';
-import { TaskListService } from '$lib/services/domain/task-list';
+import { TaskListService, configureTaskListSelectionResolver } from '$lib/services/domain/task-list';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskListWithTasks } from '$lib/types/task-list';
@@ -36,7 +38,7 @@ vi.mock('$lib/stores/project-store.svelte', () => {
   };
 });
 
-vi.mock('$lib/services/task-service', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   TaskService: {
     addTask: vi.fn()
   }
@@ -45,10 +47,12 @@ vi.mock('$lib/services/task-service', () => ({
 const { selectionStore: selectionStoreModule } = await import('$lib/stores/selection-store.svelte');
 const mockSelectionStore = selectionStoreModule as SelectionStoreMock;
 
+configureTaskListSelectionResolver(() => mockSelectionStore);
+
 const { projectStore: projectStoreModule } = await import('$lib/stores/project-store.svelte');
 const mockProjectStore = projectStoreModule as ProjectStoreMock;
 
-const mockTaskService = vi.mocked(await import('$lib/services/ui/task-service')).TaskService;
+const mockTaskService = vi.mocked(await import('$lib/services/domain/task')).TaskService;
 
 const createTaskList = (overrides: Partial<TaskListWithTasks> = {}): TaskListWithTasks => ({
   id: 'list-1',

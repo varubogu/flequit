@@ -83,8 +83,8 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   describe('プロジェクトの並び替え', () => {
     it('プロジェクトの順序を正しく変更できる', async () => {
       // テストデータを設定
-      const project1 = addProject('プロジェクト1', '#ff0000');
-      const project2 = addProject('プロジェクト2', '#00ff00');
+      addProject('プロジェクト1', '#ff0000');
+      addProject('プロジェクト2', '#00ff00');
       const project3 = addProject('プロジェクト3', '#0000ff');
 
       // 初期順序を確認
@@ -227,7 +227,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
 
   describe('エラーケース', () => {
     it('存在しないプロジェクトIDで移動操作をしても例外が発生しない', async () => {
-      const project = addProject('テストプロジェクト', '#ff0000');
+      addProject('テストプロジェクト', '#ff0000');
 
       projectStore.moveProjectToPositionInStore('non-existent-id', 0);
 

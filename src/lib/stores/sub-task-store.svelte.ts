@@ -181,10 +181,14 @@ export class SubTaskStore implements ISubTaskStore {
 
 	// Backward compatibility (deprecated)
 	async addTagToSubTask(_subTaskId: string, _tagName: string) {
+		void _subTaskId;
+		void _tagName;
 		console.warn('addTagToSubTask is deprecated. Use TaskService.addTagToSubTaskByName instead.');
 	}
 
 	async removeTagFromSubTask(_subTaskId: string, _tagId: string) {
+		void _subTaskId;
+		void _tagId;
 		console.warn('removeTagFromSubTask is deprecated. Use TaskService.removeTagFromSubTask instead.');
 	}
 
@@ -239,10 +243,5 @@ export const subTaskStore = new Proxy({} as SubTaskStore, {
 		const store = getSubTaskStore();
 		const value = store[prop as keyof SubTaskStore];
 		return typeof value === 'function' ? value.bind(store) : value;
-	},
-	set(_target, prop, value) {
-		const store = getSubTaskStore();
-		(store as any)[prop] = value;
-		return true;
 	}
 });

@@ -7,6 +7,20 @@ import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { Tag } from '$lib/types/tag';
 
+interface SelectionStateMock {
+	selectedProjectId: string | null;
+	selectedListId: string | null;
+	selectedTaskId: string | null;
+	selectedSubTaskId: string | null;
+	pendingTaskSelection: string | null;
+	pendingSubTaskSelection: string | null;
+	selectProject(projectId: string | null): void;
+	selectList(listId: string | null): void;
+	selectTask(taskId: string | null): void;
+	selectSubTask(subTaskId: string | null): void;
+	clearPendingSelections(): void;
+}
+
 function createTag(): Tag {
 	const now = new Date();
 	return {
@@ -73,7 +87,7 @@ function createProjects(): ProjectTree[] {
 
 describe('TaskInteractionsService', () => {
 	let entities: TaskEntitiesStore;
-	let selectionState: any;
+let selectionState: SelectionStateMock;
 	let selection: TaskSelectionStore;
 	let taskListStoreStub: { getProjectIdByListId: ReturnType<typeof vi.fn> };
 	let draft: TaskDraftStore;

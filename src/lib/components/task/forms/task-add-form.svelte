@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { TaskListService } from '$lib/services/domain/task-list';
+  import { TaskListService, configureTaskListSelectionResolver } from '$lib/services/domain/task-list';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
@@ -18,6 +18,11 @@
   let { onTaskAdded, onCancel }: Props = $props();
 
   const taskDetailUiStore = useTaskDetailUiStore();
+
+  configureTaskListSelectionResolver(() => ({
+    selectedListId: selectionStore.selectedListId,
+    selectedProjectId: selectionStore.selectedProjectId
+  }));
 
   const translationService = getTranslationService();
   let newTaskTitle = $state('');
@@ -45,6 +50,9 @@
 
   async function handleAddTask() {
     if (!newTaskTitle.trim()) return;
+
+    const targetListId = getCurrentListId();
+    if (!targetListId) return;
 
     const newTaskId = await TaskListService.addNewTask(newTaskTitle);
     if (newTaskId) {

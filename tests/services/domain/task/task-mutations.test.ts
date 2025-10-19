@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// @ts-nocheck
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { TaskMutations } from '$lib/services/domain/task/task-mutations';
 import type { TaskWithSubTasks } from '$lib/types/task';

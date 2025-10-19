@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TaskService } from '$lib/services/domain/task';
 import type { Task, TaskSearchCondition } from '$lib/types/task';

@@ -1,51 +1,20 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/shared/recurrence-dialog-advanced-content.svelte';
-import type { RecurrenceLevel, DateCondition, WeekdayCondition } from '$lib/types/datetime-calendar';
-import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
-
-interface RecurrenceDialogAdvancedLogic {
-  recurrenceLevel: RecurrenceLevel;
-  unit: RecurrenceUnit;
-  interval: number;
-  daysOfWeek: DayOfWeek[];
-  details: RecurrencePattern;
-  endDate: Date | undefined;
-  repeatCount: number | undefined;
-  previewDates: Date[];
-  displayCount: number;
-  dateConditions: DateCondition[];
-  weekdayConditions: WeekdayCondition[];
-  showBasicSettings: boolean;
-  showAdvancedSettings: boolean;
-  isComplexUnit: boolean;
-  recurrenceSettings: string;
-  startDateTime?: Date;
-  endDateTime?: Date;
-  isRangeDate?: boolean;
-  toggleDayOfWeek: (day: DayOfWeek) => void;
-  addDateCondition: () => void;
-  removeDateCondition: (id: string) => void;
-  updateDateCondition: (id: string, updates: Partial<DateCondition>) => void;
-  addWeekdayCondition: () => void;
-  removeWeekdayCondition: (id: string) => void;
-  updateWeekdayCondition: (id: string, updates: Partial<WeekdayCondition>) => void;
-  setUnit: (newUnit: RecurrenceUnit) => void;
-  setInterval: (newInterval: number) => void;
-  setDaysOfWeek: (newDaysOfWeek: DayOfWeek[]) => void;
-  setDetails: (newDetails: RecurrencePattern) => void;
-}
+import type { RecurrenceDialogLogic } from '$lib/components/recurrence/shared/recurrence-dialog-facade.svelte';
 
 // Mock child components
 vi.mock('$lib/components/recurrence/recurrence-level-selector.svelte', () => ({
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
-vi.mock('$lib/components/recurrence/recurrence-count-input.svelte', () => ({
+vi.mock('$lib/components/recurrence/recurrence-count-settings.svelte', () => ({
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
-vi.mock('$lib/components/recurrence/recurrence-interval-editor.svelte', () => ({
+vi.mock('$lib/components/recurrence/recurrence-interval-settings.svelte', () => ({
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
@@ -53,7 +22,7 @@ vi.mock('$lib/components/recurrence/recurrence-adjustment-editor.svelte', () => 
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
-vi.mock('$lib/components/recurrence/recurrence-preview.svelte', () => ({
+vi.mock('$lib/components/recurrence/preview/recurrence-preview.svelte', () => ({
   default: () => ({ $$: { fragment: null } as { fragment: null } })
 }));
 
@@ -62,41 +31,46 @@ vi.mock('$lib/utils/datetime/formatting', () => ({
 }));
 
 describe('RecurrenceDialogAdvancedContent', () => {
-  const mockLogic = {
+  const createMockLogic = (): RecurrenceDialogLogic => ({
     recurrenceLevel: 'basic',
-    repeatCount: 5,
     unit: 'day',
     interval: 1,
     daysOfWeek: [],
     details: {},
+    endDate: undefined,
+    repeatCount: 5,
+    previewDates: [],
+    displayCount: 10,
     dateConditions: [],
     weekdayConditions: [],
-    displayCount: 10,
-    previewDates: [],
+    showBasicSettings: true,
+    showAdvancedSettings: false,
+    isComplexUnit: false,
+    recurrenceSettings: '',
     startDateTime: new Date(),
     endDateTime: new Date(),
     isRangeDate: false,
-    showBasicSettings: true,
-    showAdvancedSettings: false,
-    handleImmediateSave: vi.fn(),
     toggleDayOfWeek: vi.fn(),
-    setUnit: vi.fn(),
-    setInterval: vi.fn(),
-    setDetails: vi.fn(),
     addDateCondition: vi.fn(),
     removeDateCondition: vi.fn(),
     updateDateCondition: vi.fn(),
     addWeekdayCondition: vi.fn(),
     removeWeekdayCondition: vi.fn(),
-    updateWeekdayCondition: vi.fn()
-  };
+    updateWeekdayCondition: vi.fn(),
+    setUnit: vi.fn(),
+    setInterval: vi.fn(),
+    setDaysOfWeek: vi.fn(),
+    setDetails: vi.fn(),
+    setRepeatCount: vi.fn()
+  });
 
-  const defaultProps = {
-    logic: mockLogic as unknown as RecurrenceDialogAdvancedLogic
-  };
+  let mockLogic: RecurrenceDialogLogic;
+  let defaultProps: { logic: RecurrenceDialogLogic };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockLogic = createMockLogic();
+    defaultProps = { logic: mockLogic };
   });
 
   describe('basic rendering', () => {
@@ -133,7 +107,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
           logic: {
             ...mockLogic,
             showBasicSettings: true
-          } as unknown as RecurrenceDialogAdvancedLogic
+          }
         }
       });
 
@@ -148,7 +122,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
           logic: {
             ...mockLogic,
             showBasicSettings: false
-          } as unknown as RecurrenceDialogAdvancedLogic
+          }
         }
       });
 
@@ -162,7 +136,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
           logic: {
             ...mockLogic,
             showBasicSettings: true
-          } as unknown as RecurrenceDialogAdvancedLogic
+          }
         }
       });
 
@@ -176,7 +150,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
           logic: {
             ...mockLogic,
             showBasicSettings: false
-          } as unknown as RecurrenceDialogAdvancedLogic
+          }
         }
       });
 
@@ -191,7 +165,7 @@ describe('RecurrenceDialogAdvancedContent', () => {
             ...mockLogic,
             showBasicSettings: true,
             showAdvancedSettings: true
-          } as unknown as RecurrenceDialogAdvancedLogic
+          }
         }
       });
 

@@ -227,10 +227,5 @@ export const projectStore = new Proxy({} as ProjectStore, {
 		const store = getProjectStore();
 		const value = store[prop as keyof ProjectStore];
 		return typeof value === 'function' ? value.bind(store) : value;
-	},
-	set(_target, prop, value) {
-		const store = getProjectStore();
-		(store as any)[prop] = value;
-		return true;
 	}
 });

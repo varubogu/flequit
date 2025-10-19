@@ -3,7 +3,6 @@ import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { projectStore } from '$lib/stores/project-store.svelte';
-import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 
 /**
@@ -13,6 +12,24 @@ import type { ProjectTree } from '$lib/types/project';
  * 1. バックエンドへの登録 (resolveBackend経由)
  * 2. タスクリストCRUD操作
  */
+type SelectionInfo = {
+	selectedListId: string | null;
+	selectedProjectId: string | null;
+};
+
+let selectionResolver: () => SelectionInfo = () => ({
+	selectedListId: null,
+	selectedProjectId: null
+});
+
+export function configureTaskListSelectionResolver(resolver: () => SelectionInfo) {
+	selectionResolver = resolver;
+}
+
+function getSelectionInfo(): SelectionInfo {
+	return selectionResolver();
+}
+
 export const TaskListService = {
   /**
    * 新しいタスクリストを作成します
@@ -114,68 +131,57 @@ export const TaskListService = {
   /**
    * タスクを追加します（UIロジック）
    */
-  async addNewTask(title: string): Promise<string | null> {
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle) {
-      return null;
-    }
+	async addNewTask(title: string): Promise<string | null> {
+		const trimmedTitle = title.trim();
+		if (!trimmedTitle) {
+			return null;
+		}
 
-    const targetListId = this.resolveTargetListId();
-    if (!targetListId) {
-      return null;
-    }
+		const targetListId = this.resolveTargetListId();
+		if (!targetListId) {
+			return null;
+		}
 
-    const newTask = await taskMutations.addTask(targetListId, {
-      title: trimmedTitle
-    });
+		const newTask = await taskMutations.addTask(targetListId, {
+			title: trimmedTitle
+		});
 
-    return newTask ? newTask.id : null;
-  },
+		return newTask ? newTask.id : null;
+	},
 
-  /**
-   * タスク数のテキストを取得します
-   */
-  getTaskCountText(count: number): string {
-    return `${count} task${count !== 1 ? 's' : ''}`;
-  },
+	getTaskCountText(count: number): string {
+		return `${count} task${count !== 1 ? 's' : ''}`;
+	},
 
-  /**
-   * 対象となるタスクリストIDを解決します
-   */
-  resolveTargetListId(): string | null {
-    if (selectionStore.selectedListId) {
-      return selectionStore.selectedListId;
-    }
+	resolveTargetListId(): string | null {
+		const { selectedListId } = getSelectionInfo();
+		if (selectedListId) {
+			return selectedListId;
+		}
 
-    const selectedProject = this.getSelectedProject();
-    const listFromProject = selectedProject?.taskLists?.[0];
-    if (listFromProject) {
-      return listFromProject.id;
-    }
+		const selectedProject = this.getSelectedProject();
+		const listFromProject = selectedProject?.taskLists?.[0];
+		if (listFromProject) {
+			return listFromProject.id;
+		}
 
-    return this.findFirstAvailableList();
-  },
+		return this.findFirstAvailableList();
+	},
 
-  /**
-   * 選択中のプロジェクトを取得します（内部用）
-   */
-  getSelectedProject(): ProjectTree | null {
-    const projectId = selectionStore.selectedProjectId;
-    if (!projectId) {
-      return null;
-    }
-    return projectStore.getProjectById(projectId);
-  },
+	getSelectedProject(): ProjectTree | null {
+		const { selectedProjectId } = getSelectionInfo();
+		if (!selectedProjectId) {
+			return null;
+		}
+		return projectStore.getProjectById(selectedProjectId);
+	},
 
-  /**
-   * 最初に利用可能なリストを検索します（内部用）
-   */
-  findFirstAvailableList(): string | null {
-    for (const project of projectStore.projects) {
-      if (project.taskLists?.length) {
-        return project.taskLists[0].id;
-      }
-    }
-    return null;
-  }
+	findFirstAvailableList(): string | null {
+		for (const project of projectStore.projects) {
+			if (project.taskLists?.length) {
+				return project.taskLists[0].id;
+			}
+		}
+		return null;
+	}
 };

@@ -6,7 +6,6 @@
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
-  import { selectionStore } from '$lib/stores/selection-store.svelte';
 
   const subTaskMutations = new SubTaskMutations();
   import { SvelteDate } from 'svelte/reactivity';

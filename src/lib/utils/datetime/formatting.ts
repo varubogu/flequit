@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import { settingsStore } from '$lib/stores/settings.svelte';
 
 /**
  * 日付を「今日」「明日」「昨日」または通常の日付形式でフォーマットする
@@ -109,9 +108,9 @@ export function formatTime(date: Date): string {
  * @param date フォーマット対象の日付
  * @returns 設定に基づいた日付文字列（エラー時は日本語形式でフォールバック）
  */
-export function formatDateJapanese(date: Date): string {
+export function formatDateJapanese(date: Date, formatPattern = 'yyyy年MM月dd日(EEE) HH:mm:ss'): string {
   try {
-    return format(date, settingsStore.dateFormat);
+    return format(date, formatPattern);
   } catch {
     // Fallback to original format if user format is invalid
     return date.toLocaleDateString('ja-JP', {
@@ -129,8 +128,8 @@ export function formatDateJapanese(date: Date): string {
  * @param time 時刻情報（省略可能）
  * @returns 日付文字列（時刻がある場合は時刻も含む）
  */
-export function formatSingleDate(date: Date, time?: Date): string {
-  const baseFormatted = formatDateJapanese(date);
+export function formatSingleDate(date: Date, time?: Date, formatPattern?: string): string {
+  const baseFormatted = formatDateJapanese(date, formatPattern);
   if (hasTime(time)) {
     return `${baseFormatted} ${formatTime(time!)}`;
   }
@@ -143,9 +142,9 @@ export function formatSingleDate(date: Date, time?: Date): string {
  * @param end 終了日
  * @returns 期間の表示文字列（同日の場合は1つの日付のみ表示）
  */
-export function formatDateDisplayRange(start: Date, end: Date): string {
-  const startFormatted = formatDateJapanese(start);
-  const endFormatted = formatDateJapanese(end);
+export function formatDateDisplayRange(start: Date, end: Date, formatPattern?: string): string {
+  const startFormatted = formatDateJapanese(start, formatPattern);
+  const endFormatted = formatDateJapanese(end, formatPattern);
 
   const startTime = hasTime(start) ? ` ${formatTime(start)}` : '';
   const endTime = hasTime(end) ? ` ${formatTime(end)}` : '';

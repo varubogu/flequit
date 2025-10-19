@@ -1,5 +1,3 @@
-import { settingsStore } from '$lib/stores/settings.svelte';
-
 /**
  * ローカル日時文字列をUTC Dateオブジェクトに変換する
  * @param localDateTime ローカル日時文字列（YYYY-MM-DDTHH:mm:ss形式）
@@ -15,10 +13,11 @@ export function localDateTimeToUTC(localDateTime: string): Date {
  * @param utcDate 変換対象のUTC Dateオブジェクト（null/undefinedの場合は空文字列を返す）
  * @returns YYYY-MM-DDTHH:mm:ss形式のローカル日時文字列
  */
-export function utcToLocalDateTime(utcDate: Date | null | undefined): string {
+export function utcToLocalDateTime(
+  utcDate: Date | null | undefined,
+  timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
+): string {
   if (!utcDate) return '';
-
-  const timezone = settingsStore.effectiveTimezone;
 
   try {
     // UTCタイムスタンプを取得
@@ -50,11 +49,10 @@ export function utcToLocalDateTime(utcDate: Date | null | undefined): string {
  */
 export function formatDateTimeInTimezone(
   utcDate: Date | null | undefined,
-  includeTime: boolean = true
+  includeTime: boolean = true,
+  timezone: string = Intl.DateTimeFormat().resolvedOptions().timeZone
 ): string {
   if (!utcDate) return '';
-
-  const timezone = settingsStore.effectiveTimezone;
 
   try {
     const formatter = new Intl.DateTimeFormat('ja-JP', {

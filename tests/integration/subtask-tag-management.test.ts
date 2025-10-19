@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
 import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';

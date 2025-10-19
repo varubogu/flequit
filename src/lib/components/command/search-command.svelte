@@ -6,12 +6,9 @@
   import { createSearchMessages } from './search-command-messages.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
-  import { taskInteractions } from '$lib/services/ui/task';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+import { taskInteractions } from '$lib/services/ui/task';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
-const subTaskMutations = new SubTaskMutations();
   import { viewStore } from '$lib/stores/view-store.svelte';
 
   interface Props {

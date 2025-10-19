@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
 import { selectionStore } from '../../src/lib/stores/selection-store.svelte';

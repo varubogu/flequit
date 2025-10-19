@@ -1,4 +1,3 @@
-import { getTranslationService } from '$lib/stores/locale.svelte';
 
 /**
  * 言語に応じた曜日条件の表示順序を管理
@@ -12,7 +11,7 @@ export class LanguageOrderUtils {
    * @returns 'ja'（日本語）または'en'（英語）
    */
   static getWeekdayConditionOrder(language?: string): 'ja' | 'en' {
-    const lang = language || getTranslationService().getCurrentLocale();
+    const lang = language ?? 'en';
     return lang.startsWith('ja') ? 'ja' : 'en';
   }
 

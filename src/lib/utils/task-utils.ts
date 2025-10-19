@@ -1,5 +1,4 @@
 import type { TaskStatus } from '$lib/types/task';
-import { getTranslationService } from '$lib/stores/locale.svelte';
 
 /**
  * タスクステータスに対応するアイコンを取得する
@@ -26,19 +25,38 @@ export function getStatusIcon(status: TaskStatus): string {
  * @param status タスクステータス
  * @returns ローカライズされたステータスラベル
  */
-export function getStatusLabel(status: TaskStatus): string {
-  const translationService = getTranslationService();
+export function getStatusLabel(
+  status: TaskStatus,
+  translate?: (key: string) => string
+): string {
+  if (translate) {
+    switch (status) {
+      case 'not_started':
+        return translate('status_not_started');
+      case 'in_progress':
+        return translate('status_in_progress');
+      case 'waiting':
+        return translate('status_waiting');
+      case 'completed':
+        return translate('status_completed');
+      case 'cancelled':
+        return translate('status_cancelled');
+      default:
+        return status;
+    }
+  }
+
   switch (status) {
     case 'not_started':
-      return translationService.getMessage('status_not_started')();
+      return 'Not Started';
     case 'in_progress':
-      return translationService.getMessage('status_in_progress')();
+      return 'In Progress';
     case 'waiting':
-      return translationService.getMessage('status_waiting')();
+      return 'Waiting';
     case 'completed':
-      return translationService.getMessage('status_completed')();
+      return 'Completed';
     case 'cancelled':
-      return translationService.getMessage('status_cancelled')();
+      return 'Cancelled';
     default:
       return status;
   }
@@ -61,12 +79,18 @@ export function getPriorityColor(priority: number): string {
  * @param priority 優先度（1が最高、数字が大きいほど低い）
  * @returns ローカライズされた優先度ラベル
  */
-export function getPriorityLabel(priority: number): string {
-  const translationService = getTranslationService();
-  if (priority <= 1) return translationService.getMessage('high_priority')();
-  if (priority === 2) return translationService.getMessage('medium_priority')();
-  if (priority === 3) return translationService.getMessage('low_priority')();
-  return translationService.getMessage('lowest_priority')();
+export function getPriorityLabel(priority: number, translate?: (key: string) => string): string {
+  if (translate) {
+    if (priority <= 1) return translate('high_priority');
+    if (priority === 2) return translate('medium_priority');
+    if (priority === 3) return translate('low_priority');
+    return translate('lowest_priority');
+  }
+
+  if (priority <= 1) return 'High';
+  if (priority === 2) return 'Medium';
+  if (priority === 3) return 'Low';
+  return 'Lowest';
 }
 
 /**

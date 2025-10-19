@@ -2,7 +2,6 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-import { projectStore } from '$lib/stores/project-store.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';

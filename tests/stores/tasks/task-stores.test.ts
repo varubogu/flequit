@@ -261,10 +261,13 @@ describe('TaskSelectionStore', () => {
 		entitiesStub = {
 			allTasks: tasks,
 			getTaskById: vi.fn((id: string) => tasks.find((task) => task.id === id) ?? null),
-			getTaskProjectAndList: vi.fn((id: string) => ({
-				project: createProjectTree()[0],
-				taskList: createProjectTree()[0].taskLists[0]
-			})),
+			getTaskProjectAndList: vi.fn((_id: string) => {
+				void _id;
+				return {
+					project: createProjectTree()[0],
+					taskList: createProjectTree()[0].taskLists[0]
+				};
+			}),
 			getProjectIdByTaskId: vi.fn(() => 'project-1')
 		};
 

@@ -129,6 +129,7 @@ export const SubTaskService = {
    * @deprecated Use tasks.svelte.ts removeTagFromSubTask instead
    */
   async removeTagFromSubTask(projectId: string, subTaskId: string, _tagId: string): Promise<void> {
+    void _tagId;
     try {
       const backend = await resolveBackend();
       const subTask = await backend.subtask.get(projectId, subTaskId);

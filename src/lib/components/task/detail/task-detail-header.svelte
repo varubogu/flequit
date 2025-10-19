@@ -6,11 +6,9 @@
   import Input from '$lib/components/ui/input.svelte';
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
-  import { taskStore } from '$lib/stores/tasks.svelte';
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
-  import { selectionStore } from '$lib/stores/selection-store.svelte';
 
   const subTaskMutations = new SubTaskMutations();
 

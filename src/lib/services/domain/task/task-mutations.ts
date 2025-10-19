@@ -1,15 +1,11 @@
 import type { Task, TaskStatus, TaskWithSubTasks } from '$lib/types/task';
 import { SvelteDate } from 'svelte/reactivity';
 import type { TaskStore } from '$lib/stores/tasks.svelte';
-import type {
-	TaskCoreStore,
-	TaskMoveContext,
-	TaskRemovalContext
-} from '$lib/stores/task-core-store.svelte';
+import type { TaskCoreStore } from '$lib/stores/task-core-store.svelte';
 import type { TaskListStore } from '$lib/stores/task-list-store.svelte';
 import type { TagStore } from '$lib/stores/tags.svelte';
-import type { TaggingService as TaggingServiceType } from '$lib/services/domain/tagging';
-import type { ErrorHandlerStore } from '$lib/stores/error-handler.svelte';
+import { TaggingService } from '$lib/services/domain/tagging';
+import type { ErrorHandler } from '$lib/stores/error-handler.svelte';
 import type { TaskRecurrenceService } from '../task-recurrence';
 
 type TaskStoreLike = Pick<
@@ -34,11 +30,11 @@ type TaskCoreStoreLike = Pick<
 
 type TaskListStoreLike = Pick<TaskListStore, 'getProjectIdByListId'>;
 
-type TagStoreLike = Pick<TagStore, 'tags'>;
+type TagStoreLike = Pick<TagStore, 'tags' | 'addTagWithId'>;
 
-type TaggingServiceLike = Pick<TaggingServiceType, 'createTaskTag' | 'deleteTaskTag'>;
+type TaggingServiceLike = Pick<typeof TaggingService, 'createTaskTag' | 'deleteTaskTag'>;
 
-type ErrorHandlerLike = Pick<ErrorHandlerStore, 'addSyncError'>;
+type ErrorHandlerLike = Pick<ErrorHandler, 'addSyncError'>;
 
 export type TaskServiceLike = {
 	createTaskWithSubTasks(listId: string, task: Task): Promise<void>;

@@ -93,8 +93,9 @@ export class TaskDetailActionsService {
     }
 
     if (recurrenceRule !== undefined) {
-      this.#store.form.updateRecurrence(recurrenceRule ?? undefined);
-      await this.handleRecurrenceChange(recurrenceRule ?? null);
+      const nextRule = recurrenceRule ?? null;
+      this.#store.form.updateRecurrence(nextRule);
+      await this.handleRecurrenceChange(nextRule);
     }
   };
 

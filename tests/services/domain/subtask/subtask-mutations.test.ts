@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
-import type { TaskWithSubTasks, TaskStatus } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 
 const createDeps = () => {

@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SearchCommand from '$lib/components/command/search-command.svelte';
-import { TaskService } from '$lib/services/domain/task';
 
 // モック設定
 vi.mock('$lib/services/task-service');
@@ -24,13 +23,13 @@ vi.mock('$lib/stores/view-store.svelte', () => ({
     changeView: vi.fn()
   }
 }));
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
+    selectTask: vi.fn()
+  }
+}));
 
 describe('SearchCommand', () => {
-  beforeEach(() => {
-    // TaskService のモック
-    vi.mocked(TaskService.selectTask).mockReturnValue(true);
-  });
-
   it('初期状態でダイアログが正しく表示される', () => {
     render(SearchCommand, { props: { open: true } });
 

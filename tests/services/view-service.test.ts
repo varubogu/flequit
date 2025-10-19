@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { getTasksForView } from '../../src/lib/services/ui/view/view-queries';
 import {

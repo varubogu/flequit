@@ -25,7 +25,7 @@
   let { currentView = 'all', onViewChange, isCollapsed = false }: Props = $props();
 
   // State
-  let expandedProjects = $state(new SvelteSet<string>());
+  const expandedProjects = new SvelteSet<string>();
   let showProjectDialog = $state(false);
   let projectDialogMode = $state<'add' | 'edit'>('add');
   let editingProject = $state<ProjectTree | null>(null);

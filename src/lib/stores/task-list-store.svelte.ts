@@ -293,10 +293,5 @@ export const taskListStore = new Proxy({} as TaskListStore, {
 		const store = getTaskListStore();
 		const value = store[prop as keyof TaskListStore];
 		return typeof value === 'function' ? value.bind(store) : value;
-	},
-	set(_target, prop, value) {
-		const store = getTaskListStore();
-		(store as any)[prop] = value;
-		return true;
 	}
 });

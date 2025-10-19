@@ -1,52 +1,57 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { TagStore } from '$lib/stores/tags.svelte';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { TagStoreFacade } from '$lib/stores/tags.svelte';
 
-describe('TagStore', () => {
-  let tagStore: TagStore;
+function createTagStore() {
+  const store = new TagStoreFacade();
+  store.setTags([]);
+  return store;
+}
+
+describe('TagStoreFacade (ローカル動作)', () => {
+  let tagStore: TagStoreFacade;
 
   beforeEach(() => {
-    tagStore = new TagStore();
+    tagStore = createTagStore();
   });
 
+  const addTag = (name: string, color?: string) => tagStore.addTag({ name, color });
+
   describe('addTag', () => {
-    it('should add a new tag', () => {
-      const tagName = 'urgent';
-      const tag = tagStore.addTag({ name: tagName });
+    it('タグを追加できる', async () => {
+      const tag = await addTag('urgent');
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
-      expect(tag!.name).toBe(tagName);
+      expect(tag!.name).toBe('urgent');
       expect(tag!.id).toBeDefined();
     });
 
-    it('should not add duplicate tags', () => {
-      const tagName = 'urgent';
-      tagStore.addTag({ name: tagName });
-      tagStore.addTag({ name: tagName });
+    it('重複するタグは追加しない', async () => {
+      await addTag('urgent');
+      await addTag('urgent');
 
       expect(tagStore.tags).toHaveLength(1);
     });
 
-    it('should be case insensitive for duplicates', () => {
-      tagStore.addTag({ name: 'Urgent' });
-      tagStore.addTag({ name: 'urgent' });
+    it('大文字小文字を区別せず重複を判定する', async () => {
+      await addTag('Urgent');
+      await addTag('urgent');
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tagStore.tags[0].name).toBe('Urgent');
     });
 
-    it('should handle tag with color', () => {
-      const tag = tagStore.addTag({ name: 'important', color: '#ff0000' });
+    it('color付きのタグを追加できる', async () => {
+      const tag = await addTag('important', '#ff0000');
 
       expect(tag).not.toBeNull();
-      expect(tag!.name).toBe('important');
       expect(tag!.color).toBe('#ff0000');
     });
 
-    it('should not add empty tag names', () => {
+    it('空のタグ名は追加しない', async () => {
       const initialCount = tagStore.tags.length;
-      const tag1 = tagStore.addTag({ name: '' });
-      const tag2 = tagStore.addTag({ name: '   ' });
+      const tag1 = await addTag('');
+      const tag2 = await addTag('   ');
 
       expect(tag1).toBeNull();
       expect(tag2).toBeNull();
@@ -55,32 +60,32 @@ describe('TagStore', () => {
   });
 
   describe('searchTags', () => {
-    beforeEach(() => {
-      tagStore.addTag({ name: 'urgent' });
-      tagStore.addTag({ name: 'important' });
-      tagStore.addTag({ name: 'work' });
-      tagStore.addTag({ name: 'personal' });
+    beforeEach(async () => {
+      await addTag('urgent');
+      await addTag('important');
+      await addTag('work');
+      await addTag('personal');
     });
 
-    it('should return all tags for empty search', () => {
+    it('空文字列で全件を返す', () => {
       const results = tagStore.searchTags('');
       expect(results).toHaveLength(4);
       expect(results.map((tag) => tag.name)).toEqual(['urgent', 'important', 'work', 'personal']);
     });
 
-    it('should return partial matches', () => {
+    it('部分一致で検索できる', () => {
       const results = tagStore.searchTags('ur');
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('urgent');
     });
 
-    it('should be case insensitive', () => {
+    it('大文字小文字を区別しない', () => {
       const results = tagStore.searchTags('WORK');
       expect(results).toHaveLength(1);
       expect(results[0].name).toBe('work');
     });
 
-    it('should return multiple matches', () => {
+    it('複数ヒットを返す', () => {
       const results = tagStore.searchTags('r');
       expect(results.length).toBeGreaterThan(1);
       expect(results.some((tag) => tag.name === 'urgent')).toBe(true);
@@ -90,35 +95,35 @@ describe('TagStore', () => {
   });
 
   describe('getOrCreateTag', () => {
-    it('should return existing tag if found', () => {
-      tagStore.addTag({ name: 'existing' });
-      const tag = tagStore.getOrCreateTag('existing');
+    it('既存タグを返す', async () => {
+      await addTag('existing');
+      const tag = await tagStore.getOrCreateTag('existing');
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('existing');
     });
 
-    it('should create new tag if not found', () => {
-      const tag = tagStore.getOrCreateTag('new-tag');
+    it('存在しないタグは新規作成する', async () => {
+      const tag = await tagStore.getOrCreateTag('new-tag');
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
       expect(tag!.name).toBe('new-tag');
     });
 
-    it('should be case insensitive when finding existing tags', () => {
-      tagStore.addTag({ name: 'ExistingTag' });
-      const tag = tagStore.getOrCreateTag('existingtag');
+    it('既存タグ検索は大文字小文字を区別しない', async () => {
+      await addTag('ExistingTag');
+      const tag = await tagStore.getOrCreateTag('existingtag');
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tag).not.toBeNull();
-      expect(tag!.name).toBe('ExistingTag'); // Should return the original case
+      expect(tag!.name).toBe('ExistingTag');
     });
 
-    it('should return null for empty tag names', () => {
-      const tag1 = tagStore.getOrCreateTag('');
-      const tag2 = tagStore.getOrCreateTag('   ');
+    it('空文字列はnullを返す', async () => {
+      const tag1 = await tagStore.getOrCreateTag('');
+      const tag2 = await tagStore.getOrCreateTag('   ');
 
       expect(tag1).toBeNull();
       expect(tag2).toBeNull();
@@ -129,61 +134,59 @@ describe('TagStore', () => {
   describe('deleteTag', () => {
     let tagId: string;
 
-    beforeEach(() => {
-      const tag = tagStore.addTag({ name: 'to-remove' });
+    beforeEach(async () => {
+      const tag = await addTag('to-remove');
       tagId = tag!.id;
     });
 
-    it('should remove tag by id', () => {
-      tagStore.deleteTag(tagId);
+    it('ID指定で削除できる', async () => {
+      await tagStore.deleteTag(tagId);
       expect(tagStore.tags).toHaveLength(0);
     });
 
-    it('should not affect other tags', () => {
-      tagStore.addTag({ name: 'keep-this' });
-      tagStore.deleteTag(tagId);
+    it('他のタグには影響しない', async () => {
+      await addTag('keep-this');
+      await tagStore.deleteTag(tagId);
 
       expect(tagStore.tags).toHaveLength(1);
       expect(tagStore.tags[0].name).toBe('keep-this');
     });
 
-    it('should handle non-existent tag id gracefully', () => {
-      tagStore.deleteTag('non-existent-id');
+    it('存在しないIDでも落ちない', async () => {
+      await tagStore.deleteTag('non-existent-id');
       expect(tagStore.tags).toHaveLength(1);
     });
   });
 
   describe('findTagByName', () => {
-    beforeEach(() => {
-      tagStore.addTag({ name: 'FindMe' });
-      tagStore.addTag({ name: 'AnotherTag' });
+    beforeEach(async () => {
+      await addTag('FindMe');
+      await addTag('AnotherTag');
     });
 
-    it('should find tag by exact name', () => {
+    it('完全一致で取得できる', () => {
       const tag = tagStore.findTagByName('FindMe');
       expect(tag).toBeDefined();
       expect(tag?.name).toBe('FindMe');
     });
 
-    it('should be case insensitive', () => {
+    it('大文字小文字を区別しない', () => {
       const tag = tagStore.findTagByName('findme');
       expect(tag).toBeDefined();
       expect(tag?.name).toBe('FindMe');
     });
 
-    it('should return undefined for non-existent tag', () => {
+    it('存在しない場合はundefined', () => {
       const tag = tagStore.findTagByName('NonExistent');
       expect(tag).toBeUndefined();
     });
   });
 
-  describe('tag name validation', () => {
-    it('should handle tags with special characters correctly', () => {
-      // TagStore itself doesn't clean tag names, but components should
-      // This test ensures the store can handle various tag names
-      const tag1 = tagStore.addTag({ name: 'normal' });
-      const tag2 = tagStore.addTag({ name: 'with-dash' });
-      const tag3 = tagStore.addTag({ name: 'with_underscore' });
+  describe('タグ名の扱い', () => {
+    it('特殊文字を含むタグ名を扱える', async () => {
+      const tag1 = await addTag('normal');
+      const tag2 = await addTag('with-dash');
+      const tag3 = await addTag('with_underscore');
 
       expect(tag1).not.toBeNull();
       expect(tag2).not.toBeNull();

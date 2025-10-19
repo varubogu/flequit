@@ -19,7 +19,12 @@ export const RecurrenceService = {
       return await backend.recurrenceRule.create(projectId, rule);
     } catch (error) {
       console.error('Failed to create recurrence rule:', error);
-      errorHandler.addSyncError('繰り返しルール作成', 'recurrence', rule.id, error);
+      errorHandler.addSyncError(
+        '繰り返しルール作成',
+        'recurrence',
+        rule.id ?? 'unknown-recurrence-rule',
+        error
+      );
       throw error;
     }
   },
@@ -50,7 +55,12 @@ export const RecurrenceService = {
       return await backend.recurrenceRule.update(projectId, rule);
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);
-      errorHandler.addSyncError('繰り返しルール更新', 'recurrence', rule.id, error);
+      errorHandler.addSyncError(
+        '繰り返しルール更新',
+        'recurrence',
+        rule.id ?? 'unknown-recurrence-rule',
+        error
+      );
       throw error;
     }
   },

@@ -27,11 +27,6 @@ export const taskInteractions = new Proxy({} as TaskInteractionsService, {
 		const interactions = getTaskInteractions();
 		const value = interactions[prop as keyof TaskInteractionsService];
 		return typeof value === 'function' ? value.bind(interactions) : value;
-	},
-	set(_target, prop, value) {
-		const interactions = getTaskInteractions();
-		(interactions as any)[prop] = value;
-		return true;
 	}
 });
 

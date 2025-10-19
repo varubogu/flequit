@@ -1,8 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import {
   ViewStore,
-  type ViewStoreDependencies,
-  type ViewType
+  type ViewStoreDependencies
 } from '../../src/lib/stores/view-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
@@ -28,47 +27,64 @@ const createTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks
   recurrenceRule: overrides.recurrenceRule
 });
 
-const createDeps = (): ViewStoreDependencies => ({
-  taskStore: {
-    todayTasks: [],
-    overdueTasks: [],
-    allTasks: [],
-    projects: [],
-    selectedProjectId: null,
-    selectedListId: null,
-    isNewTaskMode: false
-  } as ViewStoreDependencies['taskStore'],
-  taskInteractions: {
-    cancelNewTaskMode: vi.fn()
-  },
-  selectionStore: {
-    selectTask: vi.fn(),
-    selectProject: vi.fn(),
-    selectList: vi.fn()
-  },
-  translationService: {
-    getMessage: vi.fn((key: string) => {
-      const messages: Record<string, () => string> = {
-        all_tasks: () => 'All Tasks',
-        today: () => 'Today',
-        overdue: () => 'Overdue',
-        completed: () => 'Completed',
-        tomorrow: () => 'Tomorrow',
-        next_3_days: () => 'Next 3 Days',
-        next_week: () => 'Next Week',
-        this_month: () => 'This Month'
-      };
-      return messages[key] ?? (() => key);
-    })
-  }
-});
+const createDeps = () => {
+  const todayTasks: TaskWithSubTasks[] = [];
+  const overdueTasks: TaskWithSubTasks[] = [];
+  const allTasks: TaskWithSubTasks[] = [];
+
+  const deps: ViewStoreDependencies = {
+    taskStore: {
+      get todayTasks() {
+        return todayTasks;
+      },
+      get overdueTasks() {
+        return overdueTasks;
+      },
+      get allTasks() {
+        return allTasks;
+      },
+      projects: [],
+      selectedProjectId: null,
+      selectedListId: null,
+      isNewTaskMode: false
+    } as ViewStoreDependencies['taskStore'],
+    taskInteractions: {
+      cancelNewTaskMode: vi.fn()
+    },
+    selectionStore: {
+      selectTask: vi.fn(),
+      selectProject: vi.fn(),
+      selectList: vi.fn()
+    },
+    translationService: {
+      getMessage: vi.fn((key: string) => {
+        const messages: Record<string, () => string> = {
+          all_tasks: () => 'All Tasks',
+          today: () => 'Today',
+          overdue: () => 'Overdue',
+          completed: () => 'Completed',
+          tomorrow: () => 'Tomorrow',
+          next_3_days: () => 'Next 3 Days',
+          next_week: () => 'Next Week',
+          this_month: () => 'This Month'
+        };
+        return messages[key] ?? (() => key);
+      })
+    }
+  };
+
+  return { deps, todayTasks };
+};
 
 describe('ViewStore', () => {
   let deps: ViewStoreDependencies;
+  let todayTasks: TaskWithSubTasks[];
   let store: ViewStore;
 
   beforeEach(() => {
-    deps = createDeps();
+    const context = createDeps();
+    deps = context.deps;
+    todayTasks = context.todayTasks;
     store = new ViewStore(deps);
   });
 
@@ -80,7 +96,7 @@ describe('ViewStore', () => {
   describe('computed properties', () => {
     test('tasks returns today tasks when view is today', () => {
       const todayTask = createTask({ id: 'today-task' });
-      deps.taskStore.todayTasks = [todayTask];
+      todayTasks.splice(0, todayTasks.length, todayTask);
       store.currentView = 'today';
 
       expect(store.tasks).toEqual([todayTask]);

@@ -8,7 +8,6 @@
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
-  import { selectionStore } from '$lib/stores/selection-store.svelte';
 
 const subTaskMutations = new SubTaskMutations();
 

@@ -13,7 +13,7 @@ import {
   formatDateJapanese,
   formatSingleDate,
   formatDateDisplayRange
-} from '../../src/lib/utils/datetime-utils';
+} from '../../src/lib/utils/datetime/formatting';
 
 test('formatDate: formats undefined as empty string', () => {
   expect(formatDate(undefined)).toBe('');

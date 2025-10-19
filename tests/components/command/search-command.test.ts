@@ -4,6 +4,7 @@ import SearchCommand from '$lib/components/command/search-command.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { taskInteractions } from '$lib/services/ui/task';
 import { viewStore } from '$lib/stores/view-store.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import {
   createUnitTestTranslationService,
@@ -50,8 +51,8 @@ vi.mock('$lib/stores/view-store.svelte', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task', () => ({
-  TaskService: {
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
     selectTask: vi.fn()
   }
 }));
@@ -96,8 +97,6 @@ describe('SearchCommand', () => {
   });
 
   it('タスク項目をEnterで選択するとタスクが選択されること', async () => {
-    const { TaskService } = await import('$lib/services/domain/task');
-
     render(SearchCommand, { open: true });
 
     const input = screen.getByRole('combobox');
@@ -110,8 +109,8 @@ describe('SearchCommand', () => {
     // タスク項目をクリックして選択
     await fireEvent.click(taskItem);
 
-    // TaskService.selectTaskが呼ばれることを確認
-    expect(TaskService.selectTask).toHaveBeenCalledWith('1');
+    // selectionStore.selectTaskが呼ばれることを確認
+    expect(selectionStore.selectTask).toHaveBeenCalledWith('1');
   });
 
   it('Escapeキーでダイアログが閉じること', async () => {

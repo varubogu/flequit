@@ -105,7 +105,7 @@ export class TagCompletionState {
     this.hideSuggestions();
   }
 
-  createNewTag() {
+  async createNewTag() {
     if (this.tagInputStart === -1 || !this.currentTagInput.trim() || !this.activeElement) return;
 
     const rawTagName = this.currentTagInput.trim();
@@ -117,10 +117,12 @@ export class TagCompletionState {
       return;
     }
 
-    // Create the tag in the store with project ID if available
-    const createdTag = this.projectId
-      ? tagStore.getOrCreateTagWithProject(storeTagName, this.projectId)
-      : tagStore.getOrCreateTag(storeTagName);
+    if (!this.projectId) {
+      console.warn('プロジェクトIDが不明のためタグを作成できません');
+      return;
+    }
+
+    const createdTag = await tagStore.getOrCreateTagWithProject(storeTagName, this.projectId);
     if (!createdTag) return;
 
     TagElementUpdater.updateElementWithTag(

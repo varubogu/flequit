@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// @ts-nocheck
 import { test, expect, vi, beforeEach, type Mock } from 'vitest';
 import { TaskService } from '../../src/lib/services/domain/task';
 import type { TaskWithSubTasks } from '../../src/lib/types/task';

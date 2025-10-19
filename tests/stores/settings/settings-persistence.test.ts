@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
+import type { Mocked } from 'vitest';
 
 import { SettingsPersistence } from '../../../src/lib/stores/settings/settings-persistence';
 import { DEFAULT_SETTINGS } from '../../../src/lib/stores/settings/defaults';
@@ -15,7 +17,7 @@ const ensureLocalStorage = () => {
     clear: vi.fn(),
     key: vi.fn(),
     length: 0
-  } as unknown as Storage;
+  } as unknown as Mocked<Storage>;
 
   Object.defineProperty(global, 'localStorage', {
     value: storage,
@@ -26,10 +28,8 @@ const ensureLocalStorage = () => {
 };
 
 describe('SettingsPersistence', () => {
-  let updateSettingsPartiallySpy: ReturnType<
-    typeof vi.spyOn<typeof SettingsService, 'updateSettingsPartially'>
-  >;
-  let loadSettingsSpy: ReturnType<typeof vi.spyOn<typeof SettingsService, 'loadSettings'>>;
+  let updateSettingsPartiallySpy: any;
+  let loadSettingsSpy: any;
 
   beforeEach(() => {
     const storage = ensureLocalStorage();
@@ -102,7 +102,7 @@ describe('SettingsPersistence', () => {
   test('load falls back to localStorage on error', async () => {
     const state = createState();
     const persistence = new SettingsPersistence(state);
-    const storage = global.localStorage as { getItem: ReturnType<typeof vi.fn> } & Storage;
+    const storage = global.localStorage as Mocked<Storage>;
 
     loadSettingsSpy.mockRejectedValue(new Error('network error'));
     storage.getItem.mockReturnValue(JSON.stringify({ timezone: 'Asia/Tokyo' }));

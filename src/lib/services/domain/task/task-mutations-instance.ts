@@ -35,10 +35,5 @@ export const taskMutations = new Proxy({} as TaskMutations, {
 		const mutations = getTaskMutations();
 		const value = mutations[prop as keyof TaskMutations];
 		return typeof value === 'function' ? value.bind(mutations) : value;
-	},
-	set(_target, prop, value) {
-		const mutations = getTaskMutations();
-		(mutations as any)[prop] = value;
-		return true;
 	}
 });

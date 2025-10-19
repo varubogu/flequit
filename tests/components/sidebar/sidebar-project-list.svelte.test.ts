@@ -6,7 +6,6 @@ import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarProjectList from '$lib/components/sidebar/sidebar-project-list.svelte';
 import { projectStore } from '$lib/stores/project-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { taskStore } from '$lib/stores/tasks.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ProjectTree } from '$lib/types/project';

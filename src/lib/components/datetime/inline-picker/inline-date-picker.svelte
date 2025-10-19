@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { CalendarDate } from '@internationalized/date';
   import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
   import { SvelteDate } from 'svelte/reactivity';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
