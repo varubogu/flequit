@@ -7,13 +7,6 @@ vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn()
 }));
 
-// Mock ProjectsService
-vi.mock('$lib/services/projects-service', () => ({
-  ProjectsService: {
-    getSelectedProjectId: vi.fn().mockReturnValue('test-project-id')
-  }
-}));
-
 // Get the mocked invoke for use in tests
 const mockInvoke = vi.mocked(await import('@tauri-apps/api/core')).invoke;
 

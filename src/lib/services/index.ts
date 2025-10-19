@@ -16,9 +16,6 @@ export {
 export { ProjectCompositeService } from './composite/project-composite';
 export { TaskListCompositeService } from './composite/task-list-composite';
 
-// Facade（後方互換性・Phase 2完了後削除予定）
-export { ProjectService, ProjectsService } from './composite/project-facade';
-
 // UI Services（UI状態管理のみ）
 export * from './ui/layout';
 export * from './ui/task';

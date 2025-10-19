@@ -3,6 +3,7 @@ import { projectStore } from '$lib/stores/project-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { TaskListStore } from '$lib/stores/task-list-store.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
+import type { ProjectTree } from '$lib/types/project';
 
 // Mock the backends service to avoid Web backends not implemented warnings
 vi.mock('$lib/infrastructure/backends/index', () => ({
@@ -82,13 +83,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
   describe('プロジェクトの並び替え', () => {
     it('プロジェクトの順序を正しく変更できる', async () => {
       // テストデータを設定
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
-      const project3 = await projectStore.addProject({ name: 'プロジェクト3', color: '#0000ff' });
-
-      expect(project1).toBeTruthy();
-      expect(project2).toBeTruthy();
-      expect(project3).toBeTruthy();
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
+      const project3 = addProject('プロジェクト3', '#0000ff');
 
       // 初期順序を確認
       expect(projectStore.projects.map((p) => p.name)).toEqual([
@@ -98,7 +95,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       ]);
 
       // プロジェクト3を先頭に移動
-      await projectStore.moveProjectToPosition(project3!.id, 0);
+      projectStore.moveProjectToPositionInStore(project3.id, 0);
 
       expect(projectStore.projects.map((p) => p.name)).toEqual([
         'プロジェクト3',
@@ -113,35 +110,34 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
 
     it('複数回の並び替えが正しく動作する', async () => {
-      const project1 = await projectStore.addProject({ name: 'A', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'B', color: '#00ff00' });
-      const project3 = await projectStore.addProject({ name: 'C', color: '#0000ff' });
-      const project4 = await projectStore.addProject({ name: 'D', color: '#ffff00' });
+      const project1 = addProject('A', '#ff0000');
+      const project2 = addProject('B', '#00ff00');
+      const project3 = addProject('C', '#0000ff');
+      const project4 = addProject('D', '#ffff00');
 
       expect(project1 && project2 && project3 && project4).toBeTruthy();
 
       // B を最後に移動
-      await projectStore.moveProjectToPosition(project2!.id, 3);
+      projectStore.moveProjectToPositionInStore(project2.id, 3);
       expect(projectStore.projects.map((p) => p.name)).toEqual(['A', 'C', 'D', 'B']);
 
       // D を先頭に移動
-      await projectStore.moveProjectToPosition(project4!.id, 0);
+      projectStore.moveProjectToPositionInStore(project4.id, 0);
       expect(projectStore.projects.map((p) => p.name)).toEqual(['D', 'A', 'C', 'B']);
 
       // C を A の前に移動
-      await projectStore.moveProjectToPosition(project3!.id, 1);
+      projectStore.moveProjectToPositionInStore(project3.id, 1);
       expect(projectStore.projects.map((p) => p.name)).toEqual(['D', 'C', 'A', 'B']);
     });
   });
 
   describe('タスクリストの並び替え', () => {
     it('同一プロジェクト内でタスクリストを並び替えできる', async () => {
-      const project = await projectStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
-      expect(project).toBeTruthy();
+      const project = addProject('テストプロジェクト', '#ff0000');
 
-      const list1 = await taskListStore.addTaskList(project!.id, { name: 'リスト1' });
-      const list2 = await taskListStore.addTaskList(project!.id, { name: 'リスト2' });
-      const list3 = await taskListStore.addTaskList(project!.id, { name: 'リスト3' });
+      const list1 = await taskListStore.addTaskList(project.id, { name: 'リスト1' });
+      const list2 = await taskListStore.addTaskList(project.id, { name: 'リスト2' });
+      const list3 = await taskListStore.addTaskList(project.id, { name: 'リスト3' });
 
       expect(list1 && list2 && list3).toBeTruthy();
 
@@ -153,7 +149,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       ]);
 
       // リスト3を先頭に移動
-      await taskListStore.moveTaskListToPosition(list3!.id, project!.id, 0);
+      if (!list1 || !list2 || !list3) throw new Error('タスクリストの作成に失敗しました');
+
+      await taskListStore.moveTaskListToPosition(list3.id, project.id, 0);
 
       expect(projectStore.projects[0].taskLists.map((l) => l.name)).toEqual([
         'リスト3',
@@ -168,50 +166,50 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
 
     it('タスクリストを別プロジェクトに移動できる', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
-      const list1 = await taskListStore.addTaskList(project1!.id, { name: 'リスト1' });
-      const list2 = await taskListStore.addTaskList(project1!.id, { name: 'リスト2' });
-      const list3 = await taskListStore.addTaskList(project2!.id, { name: 'リスト3' });
+      const list1 = await taskListStore.addTaskList(project1.id, { name: 'リスト1' });
+      const list2 = await taskListStore.addTaskList(project1.id, { name: 'リスト2' });
+      const list3 = await taskListStore.addTaskList(project2.id, { name: 'リスト3' });
 
-      expect(list1 && list2 && list3).toBeTruthy();
+      if (!list1 || !list2 || !list3) throw new Error('タスクリストの作成に失敗しました');
 
       // 初期状態を確認
       expect(projectStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リスト1', 'リスト2']);
       expect(projectStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リスト3']);
 
       // リスト2をプロジェクト2に移動
-      await taskListStore.moveTaskListToProject(list2!.id, project2!.id);
+      await taskListStore.moveTaskListToProject(list2.id, project2.id);
 
       expect(projectStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リスト1']);
       expect(projectStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リスト3', 'リスト2']);
 
       // プロジェクトIDが正しく更新されているか確認
       const movedList = projectStore.projects[1].taskLists.find((l) => l.name === 'リスト2');
-      expect(movedList?.projectId).toBe(project2!.id);
+      expect(movedList?.projectId).toBe(project2.id);
     });
 
     it('タスクリストを別プロジェクトの指定位置に移動できる', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
-      const listA = await taskListStore.addTaskList(project1!.id, { name: 'リストA' });
-      const listB = await taskListStore.addTaskList(project2!.id, { name: 'リストB' });
-      const listC = await taskListStore.addTaskList(project2!.id, { name: 'リストC' });
+      const listA = await taskListStore.addTaskList(project1.id, { name: 'リストA' });
+      const listB = await taskListStore.addTaskList(project2.id, { name: 'リストB' });
+      const listC = await taskListStore.addTaskList(project2.id, { name: 'リストC' });
 
-      expect(listA && listB && listC).toBeTruthy();
+      if (!listA || !listB || !listC) throw new Error('タスクリストの作成に失敗しました');
 
       // 初期状態
       expect(projectStore.projects[0].taskLists.map((l) => l.name)).toEqual(['リストA']);
       expect(projectStore.projects[1].taskLists.map((l) => l.name)).toEqual(['リストB', 'リストC']);
 
       // リストAをプロジェクト2の先頭（リストBの前）に移動
-      await taskListStore.moveTaskListToPosition(listA!.id, project2!.id, 0);
+      await taskListStore.moveTaskListToPosition(listA.id, project2.id, 0);
 
       expect(projectStore.projects[0].taskLists.map((l) => l.name)).toEqual([]);
       expect(projectStore.projects[1].taskLists.map((l) => l.name)).toEqual([
@@ -229,10 +227,9 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
 
   describe('エラーケース', () => {
     it('存在しないプロジェクトIDで移動操作をしても例外が発生しない', async () => {
-      const project = await projectStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
-      expect(project).toBeTruthy();
+      const project = addProject('テストプロジェクト', '#ff0000');
 
-      await expect(projectStore.moveProjectToPosition('non-existent-id', 0)).resolves.toBeUndefined();
+      projectStore.moveProjectToPositionInStore('non-existent-id', 0);
 
       // プロジェクトの状態は変わらない
       expect(projectStore.projects.length).toBe(1);
@@ -240,11 +237,10 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
 
     it('存在しないタスクリストIDで移動操作をしても例外が発生しない', async () => {
-      const project = await projectStore.addProject({ name: 'テストプロジェクト', color: '#ff0000' });
-      expect(project).toBeTruthy();
+      const project = addProject('テストプロジェクト', '#ff0000');
 
       await expect(
-        taskListStore.moveTaskListToProject('non-existent-id', project!.id)
+        taskListStore.moveTaskListToProject('non-existent-id', project.id)
       ).resolves.toBeUndefined();
 
       // プロジェクトの状態は変わらない
@@ -252,30 +248,30 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
 
     it('範囲外のインデックスで移動しても安全に処理される', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
       // 範囲外のインデックス（負の値）
-      await projectStore.moveProjectToPosition(project2!.id, -1);
+      projectStore.moveProjectToPositionInStore(project2.id, -1);
       expect(projectStore.projects.map((p) => p.name)).toEqual(['プロジェクト1', 'プロジェクト2']);
 
       // 範囲外のインデックス（配列長より大きい値）
-      await projectStore.moveProjectToPosition(project2!.id, 10);
+      projectStore.moveProjectToPositionInStore(project2.id, 10);
       expect(projectStore.projects.map((p) => p.name)).toEqual(['プロジェクト1', 'プロジェクト2']);
     });
 
     it('同じ位置への移動は状態を変更しない', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
       const initialProjects = projectStore.projects.map((p) => ({ ...p }));
 
       // プロジェクト1を現在の位置（0）に移動
-      await projectStore.moveProjectToPosition(project1!.id, 0);
+      projectStore.moveProjectToPositionInStore(project1.id, 0);
 
       expect(projectStore.projects.map((p) => p.name)).toEqual(['プロジェクト1', 'プロジェクト2']);
       // updated_atは変更されない（同じ位置への移動のため）
@@ -285,25 +281,25 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
 
   describe('データ整合性', () => {
     it('移動操作後もタスクデータが保持される', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
-      const list1 = await taskListStore.addTaskList(project1!.id, { name: 'リスト1' });
-      expect(list1).toBeTruthy();
+      const list1 = await taskListStore.addTaskList(project1.id, { name: 'リスト1' });
+      if (!list1) throw new Error('タスクリストの作成に失敗しました');
 
       taskCoreStore.setProjects(projectStore.projects);
 
-      const task1 = await taskCoreStore.addTask(list1!.id, {
+      const task1 = await taskCoreStore.addTask(list1.id, {
         title: 'テストタスク',
         description: 'テスト用のタスク',
         priority: 2,
         status: 'not_started',
         orderIndex: 0,
-        listId: list1!.id,
+        listId: list1.id,
         isArchived: false,
-        projectId: project1!.id,
+        projectId: project1.id,
         assignedUserIds: [],
         tagIds: [],
         createdAt: new Date(),
@@ -313,7 +309,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       expect(task1).toBeTruthy();
 
       // タスクリストを別プロジェクトに移動
-      await taskListStore.moveTaskListToProject(list1!.id, project2!.id);
+      await taskListStore.moveTaskListToProject(list1.id, project2.id);
 
       // タスクが保持されているか確認
       const movedList = projectStore.projects[1].taskLists[0];
@@ -323,8 +319,8 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
 
     it('移動操作後にupdated_atが正しく更新される', async () => {
-      const project1 = await projectStore.addProject({ name: 'プロジェクト1', color: '#ff0000' });
-      const project2 = await projectStore.addProject({ name: 'プロジェクト2', color: '#00ff00' });
+      const project1 = addProject('プロジェクト1', '#ff0000');
+      const project2 = addProject('プロジェクト2', '#00ff00');
 
       expect(project1 && project2).toBeTruthy();
 
@@ -333,7 +329,7 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
       projectStore.projects[1].updatedAt = initialDate;
 
       // プロジェクトの並び替え
-      await projectStore.moveProjectToPosition(project2!.id, 0);
+      projectStore.moveProjectToPositionInStore(project2.id, 0);
 
       // updated_atが更新されている
       expect(projectStore.projects[0].updatedAt.getTime()).toBeGreaterThan(initialDate.getTime());
@@ -341,3 +337,17 @@ describe('ドラッグ&ドロップワークフロー統合テスト', () => {
     });
   });
 });
+function addProject(name: string, color = '#3b82f6'): ProjectTree {
+  return projectStore.addProjectToStore({
+    id: `project-${Math.random().toString(36).slice(2)}`,
+    name,
+    color,
+    description: undefined,
+    orderIndex: projectStore.projects.length,
+    isArchived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    taskLists: [],
+    allTags: []
+  });
+}

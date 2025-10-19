@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
-  import { ProjectsService } from '$lib/services/composite/project-facade';
+  import { selectionStore } from '$lib/stores/selection-store.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import type { User } from '$lib/types/user';
@@ -38,7 +38,7 @@
 
     isLoading = true;
     try {
-      const projectId = ProjectsService.getSelectedProjectId();
+      const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
         errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
@@ -75,7 +75,7 @@
 
     isLoading = true;
     try {
-      const projectId = ProjectsService.getSelectedProjectId();
+      const projectId = selectionStore.selectedProjectId;
 
       if (!projectId) {
         errorHandler.addError({ type: 'general', message: 'プロジェクトが選択されていません', retryable: false });
