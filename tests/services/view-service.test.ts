@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { getTasksForView } from '../../src/lib/services/ui/view/view-queries';
 import {
-  getTasksForView,
   getViewTitle,
   shouldShowAddButton,
   handleViewChange,
-  forceViewChange,
-  type ViewStoreDependencies
-} from '../../src/lib/stores/view-store.svelte';
+  forceViewChange
+} from '../../src/lib/services/ui/view/view-preferences';
+import type { ViewStoreDependencies } from '../../src/lib/services/ui/view/types';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
 const createTask = (overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => ({
