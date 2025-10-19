@@ -53,23 +53,14 @@ export interface IProjectStore {
 	// 派生状態
 	readonly selectedProject: ProjectTree | null;
 
-	// CRUD操作
-	addProject(project: { name: string; description?: string; color?: string }): Promise<ProjectTree | null>;
-	updateProject(
-		projectId: string,
-		updates: {
-			name?: string;
-			description?: string;
-			color?: string;
-			order_index?: number;
-			is_archived?: boolean;
-		}
-	): Promise<Project | null>;
-	deleteProject(projectId: string): Promise<boolean>;
+    // CRUD操作（Store更新）
+    addProjectToStore(project: ProjectTree): ProjectTree;
+    updateProjectInStore(projectId: string, updates: Partial<ProjectTree>): ProjectTree | null;
+    removeProjectFromStore(projectId: string): boolean;
 
-	// 並び替え
-	reorderProjects(fromIndex: number, toIndex: number): Promise<void>;
-	moveProjectToPosition(projectId: string, targetIndex: number): Promise<void>;
+    // 並び替え
+    reorderProjectsInStore(fromIndex: number, toIndex: number): ProjectTree[];
+    moveProjectToPositionInStore(projectId: string, targetIndex: number): ProjectTree[];
 
 	// ヘルパー
 	getProjectById(id: string): ProjectTree | null;

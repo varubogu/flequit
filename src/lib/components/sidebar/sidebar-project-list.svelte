@@ -2,13 +2,14 @@
   import { getTranslationService } from '$lib/stores/locale.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { projectStore } from '$lib/stores/project-store.svelte';
-  import { selectionStore } from '$lib/stores/selection-store.svelte';
+import { projectStore } from '$lib/stores/project-store.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Plus } from 'lucide-svelte';
-  import ProjectDialog from '$lib/components/project/project-dialog.svelte';
-  import ProjectList from '$lib/components/project/project-list.svelte';
-  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
+import ProjectDialog from '$lib/components/project/project-dialog.svelte';
+import ProjectList from '$lib/components/project/project-list.svelte';
+import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
+import { ProjectCompositeService } from '$lib/services/composite/project-composite';
 
   interface Props {
     currentView?: ViewType;
@@ -42,13 +43,13 @@
   async function handleProjectSave(data: { name: string; color: string }) {
     const { name, color } = data;
     if (projectDialogMode === 'add') {
-      const newProject = await projectStore.addProject({ name, color });
+      const newProject = await ProjectCompositeService.createProject({ name, color });
       if (newProject) {
         selectionStore.selectProject(newProject.id);
         onViewChange?.('project');
       }
     } else if (editingProject) {
-      await projectStore.updateProject(editingProject.id, { name, color });
+      await ProjectCompositeService.updateProject(editingProject.id, { name, color });
     }
     showProjectDialog = false;
   }

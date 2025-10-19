@@ -14,6 +14,7 @@
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
   import ProjectListContent from './project-list-content.svelte';
+  import { ProjectCompositeService } from '$lib/services/composite/project-composite';
 
   interface Props {
     currentView?: ViewType;
@@ -99,13 +100,13 @@
   async function handleProjectSave(data: { name: string; color: string }) {
     const { name, color } = data;
     if (projectDialogMode === 'add') {
-      const newProject = await projectStore.addProject({ name, color });
+      const newProject = await ProjectCompositeService.createProject({ name, color });
       if (newProject) {
         selectionStore.selectProject(newProject.id);
         onViewChange?.('project');
       }
     } else if (editingProject) {
-      await projectStore.updateProject(editingProject.id, { name, color });
+      await ProjectCompositeService.updateProject(editingProject.id, { name, color });
     }
     showProjectDialog = false;
   }
@@ -139,7 +140,7 @@
     if (dragData.type === 'project') {
       // プロジェクト同士の並び替え
       const targetIndex = projectsData.findIndex((p) => p.id === targetProject.id);
-      await projectStore.moveProjectToPosition(dragData.id, targetIndex);
+      await ProjectCompositeService.moveProjectToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'tasklist') {
       // タスクリストをプロジェクトにドロップ（最後尾に配置）
       await taskListStore.moveTaskListToProject(dragData.id, targetProject.id);
@@ -183,7 +184,7 @@
       {
         id: 'delete-project',
         label: deleteProject,
-        action: () => projectStore.deleteProject(project.id),
+        action: () => ProjectCompositeService.deleteProject(project.id),
         icon: Trash2,
         destructive: true
       }

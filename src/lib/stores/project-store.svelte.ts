@@ -1,10 +1,8 @@
 import type { IProjectStore } from '$lib/types/store-interfaces';
-import type { ProjectTree } from '$lib/types/project';
+import type { Project, ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
 import { selectionStore } from './selection-store.svelte';
 import { tagStore } from './tags.svelte';
-import { ProjectCrudService } from '$lib/services/domain/project/project-crud';
-import { errorHandler } from './error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
 
@@ -28,21 +26,110 @@ export class ProjectStore implements IProjectStore {
 		return this.projects.find((p) => p.id === id) ?? null;
 	}
 
-	// CRUD操作
-	async addProject(project: { name: string; description?: string; color?: string }) {
-		try {
-			const projectWithOrderIndex = {
-				...project,
-				order_index: this.projects.length
-			};
-			const newProject = await ProjectCrudService.createProjectTree(projectWithOrderIndex);
-			this.projects.push(newProject);
-			return newProject;
-		} catch (error) {
-			console.error('Failed to create project:', error);
-			errorHandler.addSyncError('プロジェクト作成', 'project', 'new', error);
-			return null;
+    // CRUD操作（ストア更新のみ）
+    addProjectToStore(project: ProjectTree) {
+        const orderIndex = project.orderIndex ?? this.projects.length;
+        const normalized: ProjectTree = {
+            ...project,
+            orderIndex,
+            updatedAt: project.updatedAt ?? new SvelteDate(),
+            createdAt: project.createdAt ?? new SvelteDate(),
+            taskLists: project.taskLists ?? [],
+            allTags: project.allTags ?? []
+        };
+
+        this.projects.push(normalized);
+        return normalized;
+    }
+
+    updateProjectInStore(projectId: string, updates: Partial<ProjectTree>) {
+        const index = this.projects.findIndex((p) => p.id === projectId);
+        if (index === -1) {
+            return null;
+        }
+
+        const current = this.projects[index];
+        const updated: ProjectTree = {
+            ...current,
+            ...updates,
+            orderIndex: updates.orderIndex ?? current.orderIndex,
+            updatedAt: updates.updatedAt ?? new SvelteDate()
+        };
+
+        this.projects[index] = updated;
+        return updated;
+    }
+
+    removeProjectFromStore(projectId: string) {
+        const index = this.projects.findIndex((p) => p.id === projectId);
+        if (index === -1) {
+            return false;
+        }
+
+        this.projects.splice(index, 1);
+
+        if (this.selection.selectedProjectId === projectId) {
+            this.selection.selectProject(null);
+            this.selection.selectTask(null);
+            this.selection.selectSubTask(null);
+        }
+
+        return true;
+    }
+
+    // 並び替え（Store内のみ）
+    reorderProjectsInStore(fromIndex: number, toIndex: number) {
+        if (
+            fromIndex === toIndex ||
+            fromIndex < 0 ||
+            toIndex < 0 ||
+            fromIndex >= this.projects.length ||
+            toIndex >= this.projects.length
+        ) {
+            return [] as ProjectTree[];
+        }
+
+        const [movedProject] = this.projects.splice(fromIndex, 1);
+        this.projects.splice(toIndex, 0, movedProject);
+
+        const updated: ProjectTree[] = [];
+        for (let index = 0; index < this.projects.length; index++) {
+            const project = this.projects[index];
+            if (project.orderIndex !== index) {
+                project.orderIndex = index;
+                project.updatedAt = new SvelteDate();
+                updated.push(project);
+            }
+        }
+
+        return updated;
+    }
+
+	moveProjectToPositionInStore(projectId: string, targetIndex: number) {
+		const currentIndex = this.projects.findIndex((p) => p.id === projectId);
+		if (currentIndex === -1 || currentIndex === targetIndex) {
+			return [] as ProjectTree[];
 		}
+
+		return this.reorderProjectsInStore(currentIndex, targetIndex);
+	}
+
+	// 互換API（段階的移行用）
+	async addProject(project: { name: string; description?: string; color?: string }) {
+		const newProject: ProjectTree = {
+			id: crypto.randomUUID(),
+			name: project.name,
+			description: project.description,
+			color: project.color,
+			orderIndex: this.projects.length,
+			isArchived: false,
+			createdAt: new SvelteDate(),
+			updatedAt: new SvelteDate(),
+			taskLists: [],
+			allTags: []
+		};
+
+		return this.addProjectToStore(newProject);
 	}
 
 	async updateProject(
@@ -55,82 +142,47 @@ export class ProjectStore implements IProjectStore {
 			is_archived?: boolean;
 		}
 	) {
-		try {
-			const updatedProject = await ProjectCrudService.update(projectId, updates);
-			if (updatedProject) {
-				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
-				if (projectIndex !== -1) {
-					this.projects[projectIndex] = { ...this.projects[projectIndex], ...updatedProject };
-				}
-			}
-			// 更新操作は定期保存に任せる
-			return updatedProject;
-		} catch (error) {
-			console.error('Failed to update project:', error);
-			errorHandler.addSyncError('プロジェクト更新', 'project', projectId, error);
+		const current = this.projects.find((p) => p.id === projectId);
+		if (!current) {
 			return null;
 		}
+
+		const updated = this.updateProjectInStore(projectId, {
+			name: updates.name ?? current.name,
+			description: updates.description ?? current.description,
+			color: updates.color ?? current.color,
+			orderIndex: updates.order_index ?? current.orderIndex,
+			isArchived: updates.is_archived ?? current.isArchived
+		});
+
+		if (!updated) {
+			return null;
+		}
+
+		const result: Project = {
+			id: updated.id,
+			name: updated.name,
+			description: updated.description,
+			color: updated.color,
+			orderIndex: updated.orderIndex,
+			isArchived: updated.isArchived,
+			createdAt: updated.createdAt,
+			updatedAt: updated.updatedAt
+		};
+
+		return result;
 	}
 
 	async deleteProject(projectId: string) {
-		try {
-			const success = await ProjectCrudService.delete(projectId);
-			if (success) {
-				const projectIndex = this.projects.findIndex((p) => p.id === projectId);
-				if (projectIndex !== -1) {
-					this.projects.splice(projectIndex, 1);
-					// 削除されたプロジェクトが選択されていた場合はクリア
-					if (this.selection.selectedProjectId === projectId) {
-						this.selection.selectProject(null);
-						this.selection.selectTask(null);
-						this.selection.selectSubTask(null);
-					}
-				}
-			}
-			return success;
-		} catch (error) {
-			console.error('Failed to delete project:', error);
-			errorHandler.addSyncError('プロジェクト削除', 'project', projectId, error);
-			return false;
-		}
+		return this.removeProjectFromStore(projectId);
 	}
 
-	// 並び替え
 	async reorderProjects(fromIndex: number, toIndex: number) {
-		if (
-			fromIndex === toIndex ||
-			fromIndex < 0 ||
-			toIndex < 0 ||
-			fromIndex >= this.projects.length ||
-			toIndex >= this.projects.length
-		) {
-			return;
-		}
-
-		const [movedProject] = this.projects.splice(fromIndex, 1);
-		this.projects.splice(toIndex, 0, movedProject);
-
-		// Update order indices and sync to backends
-		for (let index = 0; index < this.projects.length; index++) {
-			const project = this.projects[index];
-			project.orderIndex = index;
-			project.updatedAt = new SvelteDate();
-
-			try {
-				// サービス層経由でバックエンドを更新（循環依存を避ける）
-				await ProjectCrudService.update(project.id, { order_index: index });
-			} catch (error) {
-				console.error('Failed to sync project order to backends:', error);
-				errorHandler.addSyncError('プロジェクト順序更新', 'project', project.id, error);
-			}
-		}
+		this.reorderProjectsInStore(fromIndex, toIndex);
 	}
 
 	async moveProjectToPosition(projectId: string, targetIndex: number) {
-		const currentIndex = this.projects.findIndex((p) => p.id === projectId);
-		if (currentIndex === -1 || currentIndex === targetIndex) return;
-
-		await this.reorderProjects(currentIndex, targetIndex);
+		this.moveProjectToPositionInStore(projectId, targetIndex);
 	}
 
 	// ヘルパー

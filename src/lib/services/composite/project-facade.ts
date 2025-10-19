@@ -107,7 +107,13 @@ export class ProjectsService {
 		console.warn(
 			'ProjectsService.createProject() is deprecated. Use ProjectCompositeService.createProject() instead.'
 		);
-		return ProjectCompositeService.createProject(projectData);
+		const projectTree = await ProjectCompositeService.createProject(projectData);
+		if (!projectTree) {
+			return null;
+		}
+
+		const { taskLists, allTags, ...project } = projectTree;
+		return project;
 	}
 
 	/**

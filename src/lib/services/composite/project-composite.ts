@@ -1,4 +1,4 @@
-import type { Project } from '$lib/types/project';
+import type { Project, ProjectTree } from '$lib/types/project';
 import { ProjectCrudService } from '$lib/services/domain/project/project-crud';
 import { projectStore } from '$lib/stores/project-store.svelte';
 
@@ -23,12 +23,11 @@ export const ProjectCompositeService = {
 		description?: string;
 		color?: string;
 		order_index?: number;
-	}): Promise<Project | null> {
+	}): Promise<ProjectTree | null> {
 		try {
-			const newProject = await ProjectCrudService.create(projectData);
-			// ローカルストアも更新
-			await projectStore.addProject(projectData);
-			return newProject;
+			const newProjectTree = await ProjectCrudService.createProjectTree(projectData);
+			projectStore.addProjectToStore(newProjectTree);
+			return newProjectTree;
 		} catch (error) {
 			console.error('Failed to create project:', error);
 			return null;
@@ -52,8 +51,14 @@ export const ProjectCompositeService = {
 			const updatedProject = await ProjectCrudService.update(projectId, updates);
 			if (!updatedProject) return null;
 
-			// ローカルストアも更新
-			await projectStore.updateProject(projectId, updates);
+			projectStore.updateProjectInStore(projectId, {
+				name: updatedProject.name,
+				description: updatedProject.description,
+				color: updatedProject.color,
+				orderIndex: updatedProject.orderIndex,
+				isArchived: updatedProject.isArchived,
+				updatedAt: updatedProject.updatedAt
+			});
 			return updatedProject;
 		} catch (error) {
 			console.error('Failed to update project:', error);
@@ -68,8 +73,7 @@ export const ProjectCompositeService = {
 		try {
 			const success = await ProjectCrudService.delete(projectId);
 			if (success) {
-				// ローカルストアからも削除
-				await projectStore.deleteProject(projectId);
+				projectStore.removeProjectFromStore(projectId);
 			}
 			return success;
 		} catch (error) {
@@ -82,14 +86,24 @@ export const ProjectCompositeService = {
 	 * プロジェクト並べ替え（Store操作）
 	 */
 	async reorderProjects(fromIndex: number, toIndex: number): Promise<void> {
-		await projectStore.reorderProjects(fromIndex, toIndex);
+		const updatedProjects = projectStore.reorderProjectsInStore(fromIndex, toIndex);
+		await Promise.allSettled(
+			updatedProjects.map((project) =>
+				ProjectCrudService.update(project.id, { order_index: project.orderIndex })
+			)
+		);
 	},
 
 	/**
 	 * プロジェクト位置移動（Store操作）
 	 */
 	async moveProjectToPosition(projectId: string, targetIndex: number): Promise<void> {
-		await projectStore.moveProjectToPosition(projectId, targetIndex);
+		const updatedProjects = projectStore.moveProjectToPositionInStore(projectId, targetIndex);
+		await Promise.allSettled(
+			updatedProjects.map((project) =>
+				ProjectCrudService.update(project.id, { order_index: project.orderIndex })
+			)
+		);
 	},
 
 	/**
