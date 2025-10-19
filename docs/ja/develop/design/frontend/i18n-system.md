@@ -31,6 +31,7 @@ src/paraglide/              # 自動生成（Git管理対象外）
 └── runtime.ts
 
 src/lib/stores/
+├── index.ts               # ストアの集約エントリ（localeストアを含む）
 └── locale.svelte.ts        # 言語状態管理
 ```
 

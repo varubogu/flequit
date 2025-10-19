@@ -12,6 +12,7 @@ This document establishes coding standards to maintain unified code style and qu
 - **One file, one function**: Each file has a single responsibility
 - **Appropriate separation**: Split appropriately when functionality becomes complex
 - **Clear naming**: Functionality should be inferable from file names
+- **Store vs UI Service**: Reactive stores (`src/lib/stores/…`) must keep pure state; side effects and orchestration belong in UI services (`src/lib/services/ui/…`). Store files should not import infrastructure/services directly.
 
 #### File Size Standards
 - **Over 200 lines**: Mandatory split target (excluding test code)

@@ -18,6 +18,8 @@
 - UI Layer
   - Components: Svelte + shadcn-svelte
   - State Management:
+    - Reactive stores (`src/lib/stores/…`) cache view state only (e.g., `ViewStore`, `TaskDetailViewStore`)
+    - UI services (`src/lib/services/ui/…`) encapsulate side effects, orchestration, and cross-store coordination
   - Routing: SvelteKit
 - Business Logic Layer
   - Task management

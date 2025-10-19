@@ -31,6 +31,7 @@ src/paraglide/              # Auto-generated (excluded from Git)
 └── runtime.ts
 
 src/lib/stores/
+├── index.ts               # Aggregated store exports (including locale store)
 └── locale.svelte.ts        # Language state management
 ```
 

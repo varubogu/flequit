@@ -18,6 +18,8 @@
 - UIレイヤー
   - コンポーネント: Svelte + shadcn-svelte
   - 状態管理:
+    - リアクティブストア（`src/lib/stores/…`）はビュー状態のキャッシュのみを担当（例: `ViewStore`, `TaskDetailViewStore`）
+    - UIサービス（`src/lib/services/ui/…`）は副作用・ストア間の調停・バックエンド連携を担当
   - ルーティング: SvelteKit
 - ビジネスロジックレイヤー
   - タスク管理
