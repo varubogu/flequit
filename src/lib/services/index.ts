@@ -20,5 +20,7 @@ export { TaskListCompositeService } from './composite/task-list-composite';
 export { ProjectService, ProjectsService } from './composite/project-facade';
 
 // UI Services（UI状態管理のみ）
-// Note: task-detail, viewは削除済み（UI状態はstoresで管理）
 export * from './ui/layout';
+export * from './ui/task';
+export * from './ui/view';
+export * from './ui/task-detail';
