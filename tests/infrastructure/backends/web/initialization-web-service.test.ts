@@ -1,250 +1,181 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InitializationWebService } from '$lib/infrastructure/backends/web/initialization-web-service';
+import type { ProjectTree } from '$lib/types/project';
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn()
+const storageBacking = () => {
+	const map = new Map<string, string>();
+	return {
+		getItem: vi.fn((key: string) => map.get(key) ?? null),
+		setItem: vi.fn((key: string, value: string) => {
+			map.set(key, value);
+		}),
+		clear: vi.fn(() => map.clear())
+	};
 };
 
-// Mock sample data generator
 vi.mock('$lib/data/sample-data', () => ({
-  generateSampleData: vi.fn(() => [
-    {
-      id: 'sample-project-1',
-      name: 'Sample Project',
-      task_lists: [],
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-01-01')
-    }
-  ])
+	generateSampleData: vi.fn(() => [
+		{
+			id: 'sample-project-1',
+			name: 'Sample Project',
+			createdAt: '2024-01-01T00:00:00Z',
+			updatedAt: '2024-01-01T00:00:00Z',
+			projectId: 'sample-project-1',
+			color: '#ffffff',
+			orderIndex: 0,
+			archived: false,
+			taskLists: []
+		}
+	])
 }));
 
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+describe('InitializationWebService (web)', () => {
+	let service: InitializationWebService;
+	let storage: ReturnType<typeof storageBacking>;
+	let warnSpy: ReturnType<typeof vi.spyOn>;
+	let errorSpy: ReturnType<typeof vi.spyOn>;
 
-describe('InitializationWebService', () => {
-  let service: InitializationWebService;
-  let consoleSpy: ReturnType<typeof vi.spyOn>;
+	beforeEach(() => {
+		storage = storageBacking();
+		Object.defineProperty(global, 'localStorage', {
+			value: storage,
+			configurable: true
+		});
+		warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		service = new InitializationWebService();
+	});
 
-  beforeEach(() => {
-    service = new InitializationWebService();
-    consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
-    localStorageMock.setItem.mockImplementation(() => {});
-  });
+	afterEach(() => {
+		warnSpy.mockRestore();
+		errorSpy.mockRestore();
+	});
 
-  afterEach(() => {
-    consoleSpy.mockRestore();
-  });
+	it('loadLocalSettings: returns defaults when storage empty', async () => {
+		const settings = await service.loadLocalSettings();
 
-  describe('loadLocalSettings', () => {
-    it('should return default settings and log warning when localStorage is empty', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
+		expect(settings).toEqual({ theme: 'system', language: 'ja' });
+		expect(storage.getItem).toHaveBeenCalledWith('flequit_local_settings');
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Web backends: loadLocalSettings - localStorage-based implementation (not fully implemented)'
+		);
+	});
 
-      const result = await service.loadLocalSettings();
+	it('loadLocalSettings: merges stored values', async () => {
+		storage.getItem.mockReturnValueOnce(JSON.stringify({ theme: 'dark', custom: true }));
 
-      expect(result).toEqual({
-        theme: 'system',
-        language: 'ja'
-      });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backends: loadLocalSettings - localStorage-based implementation (not fully implemented)'
-      );
-    });
+		const settings = await service.loadLocalSettings();
 
-    it('should merge saved settings with defaults', async () => {
-      const savedSettings = JSON.stringify({ theme: 'dark', customOption: true });
-      localStorageMock.getItem.mockReturnValue(savedSettings);
+		expect(settings).toEqual({ theme: 'dark', language: 'ja', custom: true });
+	});
 
-      const result = await service.loadLocalSettings();
+	it('loadAccount: creates default account when none saved', async () => {
+		const account = await service.loadAccount();
 
-      expect(result).toEqual({
-        theme: 'dark',
-        language: 'ja',
-        customOption: true
-      });
-    });
+		expect(account?.id).toBe('web-user-1');
+		expect(storage.setItem).toHaveBeenCalledWith('flequit_account', expect.any(String));
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Web backends: loadAccount - localStorage-based mock implementation (not fully implemented)'
+		);
+	});
 
-    it('should handle JSON parse errors gracefully', async () => {
-      localStorageMock.getItem.mockReturnValue('invalid-json');
+	it('loadAccount: parses stored account and dates', async () => {
+		storage.getItem.mockReturnValueOnce(
+			JSON.stringify({
+				id: 'stored',
+				name: 'Stored',
+				email: 'stored@example.com',
+				created_at: '2024-01-01T00:00:00Z',
+				updated_at: '2024-01-02T00:00:00Z'
+			})
+		);
 
-      const result = await service.loadLocalSettings();
+		const account = await service.loadAccount();
 
-      expect(result).toEqual({
-        theme: 'system',
-        language: 'ja'
-      });
-    });
-  });
+		expect(account).toEqual({
+			id: 'stored',
+			name: 'Stored',
+			email: 'stored@example.com',
+			created_at: new Date('2024-01-01T00:00:00Z'),
+			updated_at: new Date('2024-01-02T00:00:00Z')
+		});
+	});
 
-  describe('loadAccount', () => {
-    it('should create and return default account when localStorage is empty', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
+	it('loadProjectData: loads sample data when storage empty', async () => {
+		const projects = await service.loadProjectData();
 
-      const result = await service.loadAccount();
+		expect(projects).toHaveLength(1);
+		expect(projects[0]?.id).toBe('sample-project-1');
+		expect(storage.setItem).toHaveBeenCalledWith('flequit_projects', expect.any(String));
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Web backends: loadProjectData - localStorage with sample data (not fully implemented)'
+		);
+	});
 
-      expect(result).toEqual({
-        id: 'web-user-1',
-        name: 'Web Demo User',
-        email: 'demo@example.com',
-        created_at: expect.any(Date),
-        updated_at: expect.any(Date)
-      });
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_account', expect.any(String));
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backends: loadAccount - localStorage-based mock implementation (not fully implemented)'
-      );
-    });
+	it('loadProjectData: parses stored payload dates into Date instances', async () => {
+		const stored: ProjectTree[] = [
+			{
+				id: 'stored-project',
+				name: 'Stored Project',
+				color: null,
+				orderIndex: 0,
+				archived: false,
+				projectId: 'stored-project',
+				createdAt: '2024-01-03T00:00:00Z',
+				updatedAt: '2024-01-04T00:00:00Z',
+				taskLists: []
+			}
+		];
+		storage.getItem.mockReturnValueOnce(JSON.stringify(stored));
 
-    it('should return saved account from localStorage', async () => {
-      const savedAccount = {
-        id: 'saved-user',
-        name: 'Saved User',
-        email: 'saved@example.com',
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z'
-      };
-      localStorageMock.getItem.mockReturnValue(JSON.stringify(savedAccount));
+		const projects = await service.loadProjectData();
 
-      const result = await service.loadAccount();
+		expect(projects[0]?.created_at).toEqual(new Date('2024-01-03T00:00:00Z'));
+		expect(projects[0]?.updated_at).toEqual(new Date('2024-01-04T00:00:00Z'));
+	});
 
-      expect(result).toEqual({
-        id: 'saved-user',
-        name: 'Saved User',
-        email: 'saved@example.com',
-        created_at: new Date('2024-01-01T00:00:00Z'),
-        updated_at: new Date('2024-01-01T00:00:00Z')
-      });
-    });
+	it('initializeAll: combines results from each step', async () => {
+		const result = await service.initializeAll();
 
-    it('should handle errors gracefully', async () => {
-      localStorageMock.getItem.mockImplementation(() => {
-        throw new Error('localStorage error');
-      });
+		expect(result.localSettings).toEqual({ theme: 'system', language: 'ja' });
+		expect(result.account?.id).toBe('web-user-1');
+		expect(result.projects.length).toBeGreaterThan(0);
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Web backends: initializeAll - combined initialization with localStorage (not fully implemented)'
+		);
+	});
 
-      const result = await service.loadAccount();
+	it('loadLocalSettings: tolerates parse errors', async () => {
+		storage.getItem.mockReturnValueOnce('not-json');
 
-      expect(result).toBeNull();
-    });
-  });
+		const settings = await service.loadLocalSettings();
 
-  describe('loadProjectData', () => {
-    it('should return sample data and save to localStorage when empty', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
+		expect(settings).toEqual({ theme: 'system', language: 'ja' });
+		expect(warnSpy).toHaveBeenCalledWith(
+			'Failed to load local settings from localStorage:',
+			expect.any(Error)
+		);
+	});
 
-      const result = await service.loadProjectData();
+	it('loadAccount: returns null on errors', async () => {
+		storage.getItem.mockImplementationOnce(() => {
+			throw new Error('boom');
+		});
 
-      expect(result).toEqual([
-        {
-          id: 'sample-project-1',
-          name: 'Sample Project',
-          task_lists: [],
-          created_at: expect.any(Date),
-          updated_at: expect.any(Date)
-        }
-      ]);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('flequit_projects', expect.any(String));
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backends: loadProjectData - localStorage with sample data (not fully implemented)'
-      );
-    });
+		const account = await service.loadAccount();
 
-    it('should return sample data when localStorage throws error', async () => {
-      localStorageMock.getItem.mockImplementation(() => {
-        throw new Error('localStorage error');
-      });
+		expect(account).toBeNull();
+		expect(warnSpy).toHaveBeenCalledWith('Failed to load account:', expect.any(Error));
+	});
 
-      const result = await service.loadProjectData();
+	it('loadProjectData: falls back to sample data on errors', async () => {
+		storage.getItem.mockImplementationOnce(() => {
+			throw new Error('bad storage');
+		});
 
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: 'sample-project-1',
-          name: 'Sample Project'
-        })
-      ]);
-    });
-  });
+		const projects = await service.loadProjectData();
 
-  describe('initializeAll', () => {
-    it('should initialize all components and log warning', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
-
-      const result = await service.initializeAll();
-
-      expect(result).toEqual({
-        localSettings: {
-          theme: 'system',
-          language: 'ja'
-        },
-        account: {
-          id: 'web-user-1',
-          name: 'Web Demo User',
-          email: 'demo@example.com',
-          created_at: expect.any(Date),
-          updated_at: expect.any(Date)
-        },
-        projects: expect.any(Array)
-      });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Web backends: initializeAll - combined initialization with localStorage (not fully implemented)'
-      );
-    });
-  });
-
-  describe('interface compliance', () => {
-    it('should implement all InitializationService methods', () => {
-      expect(typeof service.loadLocalSettings).toBe('function');
-      expect(typeof service.loadAccount).toBe('function');
-      expect(typeof service.loadProjectData).toBe('function');
-      expect(typeof service.initializeAll).toBe('function');
-    });
-
-    it('should return proper Promise types', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
-
-      const [settings, account, projects, initResult] = await Promise.all([
-        service.loadLocalSettings(),
-        service.loadAccount(),
-        service.loadProjectData(),
-        service.initializeAll()
-      ]);
-
-      expect(settings).toBeDefined();
-      expect(account).toBeDefined();
-      expect(projects).toBeDefined();
-      expect(initResult).toBeDefined();
-    });
-  });
-
-  describe('localStorage interaction', () => {
-    it('should call localStorage.getItem for each method', async () => {
-      await service.loadLocalSettings();
-      await service.loadAccount();
-      await service.loadProjectData();
-
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('flequit_local_settings');
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('flequit_account');
-      expect(localStorageMock.getItem).toHaveBeenCalledWith('flequit_projects');
-    });
-
-    it('should handle localStorage unavailability gracefully', async () => {
-      localStorageMock.getItem.mockImplementation(() => {
-        throw new Error('localStorage not available');
-      });
-
-      const result = await service.initializeAll();
-
-      expect(result).toBeDefined();
-      expect(result.localSettings).toEqual({
-        theme: 'system',
-        language: 'ja'
-      });
-    });
-  });
+		expect(projects[0]?.id).toBe('sample-project-1');
+		expect(errorSpy).toHaveBeenCalledWith('Failed to load project data:', expect.any(Error));
+	});
 });

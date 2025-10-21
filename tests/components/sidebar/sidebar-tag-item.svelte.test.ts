@@ -1,6 +1,7 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, afterAll, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import { setTranslationService } from '$lib/stores/locale.svelte';
+import { setTranslationService, getTranslationService } from '$lib/stores/locale.svelte';
+import { tagStore } from '$lib/stores/tags.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
 import type { Tag } from '$lib/types/tag';
@@ -23,6 +24,17 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
   }
 }));
 
+const originalTranslationService = getTranslationService();
+
+afterAll(() => {
+  setTranslationService(originalTranslationService);
+});
+
+afterEach(() => {
+  tagStore.setTags([]);
+  vi.restoreAllMocks();
+});
+
 describe('SidebarTagItem Component', () => {
   const mockTag: Tag = {
     id: 'tag-1',
@@ -44,6 +56,18 @@ describe('SidebarTagItem Component', () => {
     onDeleteTag = vi.fn();
     onTagClick = vi.fn();
     vi.clearAllMocks();
+
+    tagStore.setTags([]);
+
+    const storedTag = {
+      ...mockTag,
+      createdAt: new Date(mockTag.createdAt),
+      updatedAt: new Date(mockTag.updatedAt)
+    };
+
+    tagStore.setTags([storedTag]);
+    tagStore.setBookmarkForInitialization(storedTag.id);
+    vi.spyOn(tagStore, 'getProjectIdByTagId').mockResolvedValue('project-1');
   });
 
   test('should render tag item in expanded state', () => {

@@ -310,6 +310,8 @@ export const unitTestTranslations = {
 
   // コンテキストメニュー関連
   remove_tag_from_sidebar: 'TEST_REMOVE_TAG_FROM_SIDEBAR',
+  add_tag_to_sidebar: 'TEST_ADD_TAG_TO_SIDEBAR',
+  remove_from_bookmarks: 'TEST_REMOVE_FROM_BOOKMARKS',
   add_task_list: 'TEST_ADD_TASK_LIST',
   edit_task_list: 'TEST_EDIT_TASK_LIST',
   delete_task_list: 'TEST_DELETE_TASK_LIST',

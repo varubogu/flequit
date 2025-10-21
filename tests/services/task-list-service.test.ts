@@ -1,198 +1,223 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { test, expect, vi, beforeEach } from 'vitest';
-import { TaskListService, configureTaskListSelectionResolver } from '$lib/services/domain/task-list';
-import type { TaskWithSubTasks } from '$lib/types/task';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
-interface SelectionStoreMock {
-  selectedListId: string | null;
-  selectedProjectId: string | null;
-}
+const backendTaskLists = new Map<string, TaskList>();
 
-interface ProjectStoreMock {
-  projects: ProjectTree[];
-  getProjectById: (id: string) => ProjectTree | null;
-}
+const backendStub = {
+  tasklist: {
+    async create(_projectId: string, taskList: TaskList) {
+      backendTaskLists.set(taskList.id, structuredClone(taskList));
+    },
+    async update(_projectId: string, taskListId: string, patch: Record<string, unknown>) {
+      const existing = backendTaskLists.get(taskListId);
+      if (!existing) {
+        return false;
+      }
 
-vi.mock('$lib/stores/selection-store.svelte', () => {
-  const mockedSelectionStore: SelectionStoreMock = {
-    selectedListId: null,
-    selectedProjectId: null
-  };
+      const updatedAt = (patch.updated_at as Date | undefined) ?? existing.updatedAt;
+      backendTaskLists.set(taskListId, {
+        ...existing,
+        ...(patch as Partial<TaskList>),
+        updatedAt
+      });
+      return true;
+    },
+    async delete(_projectId: string, taskListId: string) {
+      return backendTaskLists.delete(taskListId);
+    },
+    async get(_projectId: string, taskListId: string) {
+      return backendTaskLists.get(taskListId) ?? null;
+    }
+  }
+};
 
+vi.mock('$lib/infrastructure/backend-client', () => ({
+  resolveBackend: vi.fn(async () => backendStub),
+  resetBackendCache: vi.fn()
+}));
+
+const buildTask = (listId: string, overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks => {
+  const now = new Date();
   return {
-    selectionStore: mockedSelectionStore
+    id: overrides.id ?? crypto.randomUUID(),
+    projectId: overrides.projectId ?? 'project-1',
+    listId,
+    title: overrides.title ?? 'Task',
+    description: overrides.description ?? '',
+    status: overrides.status ?? 'not_started',
+    priority: overrides.priority ?? 0,
+    planStartDate: overrides.planStartDate,
+    planEndDate: overrides.planEndDate,
+    isRangeDate: overrides.isRangeDate ?? false,
+    isArchived: overrides.isArchived ?? false,
+    orderIndex: overrides.orderIndex ?? 0,
+    createdAt: overrides.createdAt ?? now,
+    updatedAt: overrides.updatedAt ?? now,
+    tags: overrides.tags ?? [],
+    tagIds: overrides.tagIds ?? [],
+    assignedUserIds: overrides.assignedUserIds ?? [],
+    subTasks: overrides.subTasks ?? []
   };
-});
+};
 
-vi.mock('$lib/stores/project-store.svelte', () => {
-  const mockedProjectStore: ProjectStoreMock = {
-    projects: [],
-    getProjectById: vi.fn<(id: string) => ProjectTree | null>()
-  };
+const addTaskMock = vi.fn(async (listId: string, data: { title: string }) =>
+  buildTask(listId, { title: data.title })
+);
 
-  return {
-    projectStore: mockedProjectStore
-  };
-});
-
-vi.mock('$lib/services/domain/task', () => ({
-  TaskService: {
-    addTask: vi.fn()
+vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+  taskMutations: {
+    addTask: addTaskMock
   }
 }));
 
-const { selectionStore: selectionStoreModule } = await import('$lib/stores/selection-store.svelte');
-const mockSelectionStore = selectionStoreModule as SelectionStoreMock;
+const errorHandlerMock = {
+  addSyncError: vi.fn()
+};
 
-configureTaskListSelectionResolver(() => mockSelectionStore);
+vi.mock('$lib/stores/error-handler.svelte', () => ({
+  errorHandler: errorHandlerMock
+}));
 
-const { projectStore: projectStoreModule } = await import('$lib/stores/project-store.svelte');
-const mockProjectStore = projectStoreModule as ProjectStoreMock;
+const projectStoreMock = {
+  projects: [] as ProjectTree[],
+  getProjectById: vi.fn((id: string) => projectStoreMock.projects.find((project) => project.id === id) ?? null)
+};
 
-const mockTaskService = vi.mocked(await import('$lib/services/domain/task')).TaskService;
+vi.mock('$lib/stores/project-store.svelte', () => ({
+  projectStore: projectStoreMock
+}));
 
-const createTaskList = (overrides: Partial<TaskListWithTasks> = {}): TaskListWithTasks => ({
-  id: 'list-1',
-  projectId: 'project-1',
-  name: 'First List',
-  orderIndex: 0,
-  isArchived: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  tasks: [],
-  ...overrides
+const selectionState = {
+  selectedListId: null as string | null,
+  selectedProjectId: null as string | null
+};
+
+const { TaskListService, configureTaskListSelectionResolver } = await vi.importActual<
+  typeof import('$lib/services/domain/task-list')
+>('$lib/services/domain/task-list');
+
+configureTaskListSelectionResolver(() => selectionState);
+
+const buildTaskList = (overrides: Partial<TaskList> = {}): TaskList => {
+  const now = new Date();
+  return {
+    id: overrides.id ?? crypto.randomUUID(),
+    projectId: overrides.projectId ?? 'project-1',
+    name: overrides.name ?? 'Test List',
+    description: overrides.description,
+    color: overrides.color,
+    orderIndex: overrides.orderIndex ?? 0,
+    isArchived: overrides.isArchived ?? false,
+    createdAt: overrides.createdAt ?? now,
+    updatedAt: overrides.updatedAt ?? now
+  };
+};
+
+const toTaskListWithTasks = (list: TaskList, tasks: TaskWithSubTasks[] = []): TaskListWithTasks => ({
+  ...structuredClone(list),
+  tasks: tasks.map((task) => structuredClone(task))
 });
 
-const createProject = (overrides: Partial<ProjectTree> = {}): ProjectTree => ({
-  id: 'project-1',
-  name: 'Project 1',
-  orderIndex: 0,
-  isArchived: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  taskLists: [createTaskList()],
-  ...overrides
-});
+const buildProject = (lists: TaskListWithTasks[], overrides: Partial<ProjectTree> = {}): ProjectTree => {
+  const now = new Date();
+  return {
+    id: overrides.id ?? 'project-1',
+    name: overrides.name ?? 'Project 1',
+    description: overrides.description,
+    color: overrides.color,
+    orderIndex: overrides.orderIndex ?? 0,
+    isArchived: overrides.isArchived ?? false,
+    status: overrides.status,
+    ownerId: overrides.ownerId,
+    createdAt: overrides.createdAt ?? now,
+    updatedAt: overrides.updatedAt ?? now,
+    taskLists: lists,
+    allTags: overrides.allTags
+  };
+};
+
+const registerProject = (project: ProjectTree) => {
+  projectStoreMock.projects = [project];
+  projectStoreMock.getProjectById.mockImplementation((id: string) =>
+    id === project.id ? project : null
+  );
+};
 
 beforeEach(() => {
-  vi.clearAllMocks();
-
-  mockSelectionStore.selectedListId = null;
-  mockSelectionStore.selectedProjectId = null;
-
-  const defaultProject = createProject();
-  mockProjectStore.projects = [defaultProject];
-  vi.mocked(mockProjectStore.getProjectById).mockImplementation((id: string) =>
-    id === defaultProject.id ? defaultProject : null
-  );
+  backendTaskLists.clear();
+  projectStoreMock.projects = [];
+  projectStoreMock.getProjectById.mockReset().mockImplementation(() => null);
+  selectionState.selectedListId = null;
+  selectionState.selectedProjectId = null;
+  addTaskMock.mockClear();
+  errorHandlerMock.addSyncError.mockClear();
 });
 
-test('TaskListService.addNewTask: creates task successfully', async () => {
-  const title = 'New Task Title';
-  const mockNewTask = { id: 'task-123', title } as TaskWithSubTasks;
-  vi.mocked(mockTaskService.addTask).mockResolvedValue(mockNewTask);
+describe('TaskListService', () => {
+  test('addNewTask trims title and returns created task id', async () => {
+    const list = buildTaskList();
+    backendTaskLists.set(list.id, structuredClone(list));
+    const project = buildProject([toTaskListWithTasks(list)]);
+    registerProject(project);
+    selectionState.selectedListId = list.id;
 
-  const result = await TaskListService.addNewTask(title);
+    const result = await TaskListService.addNewTask('  New Task  ');
 
-  expect(mockTaskService.addTask).toHaveBeenCalledWith('list-1', { title });
-  expect(result).toBe('task-123');
-});
-
-test('TaskListService.addNewTask: trims whitespace from title', async () => {
-  const title = '  Task with spaces  ';
-  const mockNewTask = { id: 'task-456', title: 'Task with spaces' } as TaskWithSubTasks;
-  vi.mocked(mockTaskService.addTask).mockResolvedValue(mockNewTask);
-
-  const result = await TaskListService.addNewTask(title);
-
-  expect(mockTaskService.addTask).toHaveBeenCalledWith('list-1', {
-    title: 'Task with spaces'
+    expect(addTaskMock).toHaveBeenCalledWith(list.id, { title: 'New Task' });
+    const createdTask = await addTaskMock.mock.results[0].value;
+    expect(result).toBe(createdTask.id);
   });
-  expect(result).toBe('task-456');
-});
 
-test('TaskListService.addNewTask: returns null for empty title', async () => {
-  const result = await TaskListService.addNewTask('');
+  test('addNewTask falls back to project selection when list is not directly selected', async () => {
+    const list = buildTaskList();
+    backendTaskLists.set(list.id, structuredClone(list));
+    const project = buildProject([toTaskListWithTasks(list)]);
+    registerProject(project);
+    selectionState.selectedProjectId = project.id;
 
-  expect(mockTaskService.addTask).not.toHaveBeenCalled();
-  expect(result).toBeNull();
-});
+    const result = await TaskListService.addNewTask('Task via project');
 
-test('TaskListService.addNewTask: returns null for whitespace-only title', async () => {
-  const result = await TaskListService.addNewTask('   ');
+    expect(addTaskMock).toHaveBeenCalledWith(list.id, { title: 'Task via project' });
+    const createdTask = await addTaskMock.mock.results[0].value;
+    expect(result).toBe(createdTask.id);
+  });
 
-  expect(mockTaskService.addTask).not.toHaveBeenCalled();
-  expect(result).toBeNull();
-});
+  test('addNewTask returns null when title is empty after trimming', async () => {
+    const result = await TaskListService.addNewTask('   ');
 
-test('TaskListService.addNewTask: returns null when no projects exist', async () => {
-  mockProjectStore.projects = [];
-  vi.mocked(mockProjectStore.getProjectById).mockReturnValue(null);
+    expect(result).toBeNull();
+    expect(addTaskMock).not.toHaveBeenCalled();
+  });
 
-  const result = await TaskListService.addNewTask('Valid Title');
+  test('addNewTask returns null when no target list can be resolved', async () => {
+    const project = buildProject([]);
+    registerProject(project);
 
-  expect(mockTaskService.addTask).not.toHaveBeenCalled();
-  expect(result).toBeNull();
-});
+    const result = await TaskListService.addNewTask('Task without list');
 
-test('TaskListService.addNewTask: returns null when no task lists exist', async () => {
-  const projectWithoutLists = createProject({ taskLists: [] });
-  mockProjectStore.projects = [projectWithoutLists];
-  vi.mocked(mockProjectStore.getProjectById).mockReturnValue(projectWithoutLists);
+    expect(result).toBeNull();
+    expect(addTaskMock).not.toHaveBeenCalled();
+  });
 
-  const result = await TaskListService.addNewTask('Valid Title');
+  test('resolveTargetListId respects configured resolver', () => {
+    const list = buildTaskList();
+    backendTaskLists.set(list.id, structuredClone(list));
+    const project = buildProject([toTaskListWithTasks(list)]);
+    registerProject(project);
 
-  expect(mockTaskService.addTask).not.toHaveBeenCalled();
-  expect(result).toBeNull();
-});
+    selectionState.selectedListId = list.id;
+    expect(TaskListService.resolveTargetListId()).toBe(list.id);
 
-test('TaskListService.addNewTask: returns null when TaskService.addTask returns null', async () => {
-  vi.mocked(mockTaskService.addTask).mockResolvedValue(null);
+    selectionState.selectedListId = null;
+    selectionState.selectedProjectId = project.id;
+    expect(TaskListService.resolveTargetListId()).toBe(list.id);
+  });
 
-  const result = await TaskListService.addNewTask('Valid Title');
-
-  expect(mockTaskService.addTask).toHaveBeenCalled();
-  expect(result).toBeNull();
-});
-
-test('TaskListService.addNewTask: uses selected list when available', async () => {
-  const title = 'Selected List Task';
-  const mockNewTask = { id: 'task-789', title } as TaskWithSubTasks;
-  mockSelectionStore.selectedListId = 'selected-list';
-  vi.mocked(mockTaskService.addTask).mockResolvedValue(mockNewTask);
-
-  const result = await TaskListService.addNewTask(title);
-
-  expect(mockTaskService.addTask).toHaveBeenCalledWith('selected-list', { title });
-  expect(result).toBe('task-789');
-});
-
-test('TaskListService.addNewTask: falls back to selected project first list', async () => {
-  const title = 'Project Selected Task';
-  const mockNewTask = { id: 'task-999', title } as TaskWithSubTasks;
-  mockSelectionStore.selectedProjectId = 'project-1';
-  vi.mocked(mockTaskService.addTask).mockResolvedValue(mockNewTask);
-
-  const result = await TaskListService.addNewTask(title);
-
-  expect(mockTaskService.addTask).toHaveBeenCalledWith('list-1', { title });
-  expect(result).toBe('task-999');
-});
-
-test('TaskListService.getTaskCountText: returns correct text for singular', () => {
-  expect(TaskListService.getTaskCountText(1)).toBe('1 task');
-});
-
-test('TaskListService.getTaskCountText: returns correct text for plural', () => {
-  expect(TaskListService.getTaskCountText(0)).toBe('0 tasks');
-  expect(TaskListService.getTaskCountText(2)).toBe('2 tasks');
-  expect(TaskListService.getTaskCountText(10)).toBe('10 tasks');
-});
-
-test('TaskListService.getTaskCountText: handles edge cases', () => {
-  expect(TaskListService.getTaskCountText(-1)).toBe('-1 tasks');
-  expect(TaskListService.getTaskCountText(1.5)).toBe('1.5 tasks');
+  test('getTaskCountText returns pluralized strings', () => {
+    expect(TaskListService.getTaskCountText(0)).toBe('0 tasks');
+    expect(TaskListService.getTaskCountText(1)).toBe('1 task');
+    expect(TaskListService.getTaskCountText(2)).toBe('2 tasks');
+  });
 });

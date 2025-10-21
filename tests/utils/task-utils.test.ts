@@ -7,12 +7,15 @@ import {
   getPriorityColorClass,
   calculateSubTaskProgress
 } from '../../src/lib/utils/task-utils';
-import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService, unitTestTranslations } from '../unit-translation-mock';
 
-// CLAUDE.mdの指示通り、getTranslationService()のみをモック化
+let translate: (key: string) => string;
+let translationService: ReturnType<typeof createUnitTestTranslationService>;
+
+// 単体テスト用の翻訳サービスを都度生成し、シンプルな翻訳関数で検証する
 beforeEach(() => {
-  setTranslationService(createUnitTestTranslationService());
+  translationService = createUnitTestTranslationService();
+  translate = (key: string) => translationService.getMessage(key)();
 });
 
 test('getStatusIcon: returns correct icons for each status', () => {
@@ -24,11 +27,11 @@ test('getStatusIcon: returns correct icons for each status', () => {
 });
 
 test('getStatusLabel: returns correct labels for each status', () => {
-  expect(getStatusLabel('not_started')).toBe(unitTestTranslations.status_not_started);
-  expect(getStatusLabel('in_progress')).toBe(unitTestTranslations.status_in_progress);
-  expect(getStatusLabel('waiting')).toBe(unitTestTranslations.status_waiting);
-  expect(getStatusLabel('completed')).toBe(unitTestTranslations.status_completed);
-  expect(getStatusLabel('cancelled')).toBe(unitTestTranslations.status_cancelled);
+  expect(getStatusLabel('not_started', translate)).toBe(unitTestTranslations.status_not_started);
+  expect(getStatusLabel('in_progress', translate)).toBe(unitTestTranslations.status_in_progress);
+  expect(getStatusLabel('waiting', translate)).toBe(unitTestTranslations.status_waiting);
+  expect(getStatusLabel('completed', translate)).toBe(unitTestTranslations.status_completed);
+  expect(getStatusLabel('cancelled', translate)).toBe(unitTestTranslations.status_cancelled);
 });
 
 test('getPriorityColor: returns correct border colors for priority levels', () => {
@@ -40,11 +43,11 @@ test('getPriorityColor: returns correct border colors for priority levels', () =
 });
 
 test('getPriorityLabel: returns correct labels for priority levels', () => {
-  expect(getPriorityLabel(1)).toBe(unitTestTranslations.high_priority);
-  expect(getPriorityLabel(2)).toBe(unitTestTranslations.medium_priority);
-  expect(getPriorityLabel(3)).toBe(unitTestTranslations.low_priority);
-  expect(getPriorityLabel(4)).toBe(unitTestTranslations.lowest_priority);
-  expect(getPriorityLabel(5)).toBe(unitTestTranslations.lowest_priority);
+  expect(getPriorityLabel(1, translate)).toBe(unitTestTranslations.high_priority);
+  expect(getPriorityLabel(2, translate)).toBe(unitTestTranslations.medium_priority);
+  expect(getPriorityLabel(3, translate)).toBe(unitTestTranslations.low_priority);
+  expect(getPriorityLabel(4, translate)).toBe(unitTestTranslations.lowest_priority);
+  expect(getPriorityLabel(5, translate)).toBe(unitTestTranslations.lowest_priority);
 });
 
 test('getPriorityColorClass: returns correct color classes for priority levels', () => {

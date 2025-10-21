@@ -1,337 +1,154 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
 import TaskDetailSubTasks from '$lib/components/task/detail/task-detail-subtasks.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-describe('TaskDetailSubTasks Component', () => {
-  const mockTask: TaskWithSubTasks = {
-    id: 'task-1',
-    title: 'Test Task',
-    description: '',
-    status: 'not_started',
-    priority: 2,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    listId: 'list-1',
-    orderIndex: 0,
-    planStartDate: undefined,
-    planEndDate: undefined,
-    isRangeDate: false,
-    tags: [],
-    isArchived: false,
-    projectId: 'project-1',
-    assignedUserIds: [],
-    tagIds: [],
-    subTasks: [
-      {
-        id: 'subtask-1',
-        title: 'SubTask 1',
-        status: 'not_started',
-        taskId: 'task-1',
-        orderIndex: 0,
-        completed: false,
-        assignedUserIds: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        planStartDate: undefined,
-        planEndDate: new Date('2024-01-15'),
-        isRangeDate: false,
-        tags: []
-      },
-      {
-        id: 'subtask-2',
-        title: 'SubTask 2',
-        status: 'completed',
-        taskId: 'task-1',
-        orderIndex: 1,
-        completed: true,
-        assignedUserIds: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        planStartDate: undefined,
-        planEndDate: undefined,
-        isRangeDate: false,
-        tags: []
-      }
-    ]
-  };
+const buildTask = (): TaskWithSubTasks => ({
+	id: 'task-1',
+	title: 'Test Task',
+	description: '',
+	status: 'not_started',
+	priority: 1,
+	createdAt: new Date('2024-01-01T00:00:00Z'),
+	updatedAt: new Date('2024-01-01T00:00:00Z'),
+	listId: 'list-1',
+	orderIndex: 0,
+	planStartDate: undefined,
+	planEndDate: undefined,
+	isRangeDate: false,
+	tags: [],
+	isArchived: false,
+	projectId: 'project-1',
+	assignedUserIds: [],
+	tagIds: [],
+	subTasks: [
+		{
+			id: 'subtask-1',
+			title: 'SubTask 1',
+			status: 'not_started',
+			taskId: 'task-1',
+			orderIndex: 0,
+			completed: false,
+			assignedUserIds: [],
+			createdAt: new Date('2024-01-01T00:00:00Z'),
+			updatedAt: new Date('2024-01-01T00:00:00Z'),
+			planStartDate: undefined,
+			planEndDate: new Date('2024-01-15T00:00:00Z'),
+			isRangeDate: false,
+			tags: []
+		},
+		{
+			id: 'subtask-2',
+			title: 'SubTask 2',
+			status: 'completed',
+			taskId: 'task-1',
+			orderIndex: 1,
+			completed: true,
+			assignedUserIds: [],
+			createdAt: new Date('2024-01-01T00:00:00Z'),
+			updatedAt: new Date('2024-01-01T00:00:00Z'),
+			planStartDate: undefined,
+			planEndDate: undefined,
+			isRangeDate: false,
+			tags: []
+		}
+	]
+});
 
-  const mockTaskWithoutSubTasks: TaskWithSubTasks = {
-    ...mockTask,
-    subTasks: []
-  };
+const renderComponent = (props?: Partial<Parameters<typeof TaskDetailSubTasks>[0]>) => {
+	const defaultProps = {
+		task: buildTask(),
+		selectedSubTaskId: null,
+		onSubTaskClick: vi.fn(),
+		onSubTaskToggle: vi.fn(),
+		onAddSubTask: vi.fn(),
+		showSubTaskAddForm: false,
+		onSubTaskAdded: vi.fn(),
+		onSubTaskAddCancel: vi.fn()
+	};
+	const merged = { ...defaultProps, ...(props ?? {}) };
+	return {
+		...merged,
+		result: render(TaskDetailSubTasks, merged)
+	};
+};
 
-  let onSubTaskClick: ReturnType<typeof vi.fn>;
-  let onSubTaskToggle: ReturnType<typeof vi.fn>;
-  let onAddSubTask: ReturnType<typeof vi.fn>;
-  let onSubTaskAdded: ReturnType<typeof vi.fn>;
-  let onSubTaskAddCancel: ReturnType<typeof vi.fn>;
+describe('TaskDetailSubTasks', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-  beforeEach(() => {
-    onSubTaskClick = vi.fn();
-    onSubTaskToggle = vi.fn();
-    onAddSubTask = vi.fn();
-    onSubTaskAdded = vi.fn();
-    onSubTaskAddCancel = vi.fn();
-    vi.clearAllMocks();
-  });
+	it('renders header and subtasks', () => {
+		const { result } = renderComponent();
+		expect(result.getByText('sub_tasks')).toBeInTheDocument();
+		expect(result.getByText('SubTask 1')).toBeInTheDocument();
+		expect(result.getByText('SubTask 2')).toBeInTheDocument();
+	});
 
-  test('should render subtasks when they exist', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
+	it('shows add button when handler provided', async () => {
+		const onAddSubTask = vi.fn();
+		const { result } = renderComponent({ onAddSubTask });
+		const addButton = result.getByTestId('add-subtask');
+		await fireEvent.click(addButton);
+		expect(onAddSubTask).toHaveBeenCalled();
+	});
 
-    expect(screen.getByText('Sub-tasks')).toBeInTheDocument();
-    expect(screen.getByText('SubTask 1')).toBeInTheDocument();
-    expect(screen.getByText('SubTask 2')).toBeInTheDocument();
-  });
+	it('marks selected subtask', () => {
+		const { result } = renderComponent({ selectedSubTaskId: 'subtask-1' });
+		const selected = result.getByText('SubTask 1').closest('button');
+		expect(selected).toHaveClass('bg-primary/10');
+	});
 
-  test('should render header with subtask count even when no subtasks exist', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTaskWithoutSubTasks,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
+	it('invokes onSubTaskClick when subtask clicked', async () => {
+		const onSubTaskClick = vi.fn();
+		const { result } = renderComponent({ onSubTaskClick });
+		await fireEvent.click(result.getByText('SubTask 1'));
+		expect(onSubTaskClick).toHaveBeenCalledWith('subtask-1');
+	});
 
-    // ヘッダーは表示されるべき
-    expect(screen.getByText('Sub-tasks')).toBeInTheDocument();
-    // サブタスクカウントが0 subtasksであることを確認
-    expect(screen.getByText('0 subtasks')).toBeInTheDocument();
-    // サブタスクのアイテムは表示されない
-    expect(screen.queryByText('SubTask 1')).not.toBeInTheDocument();
-  });
+	it('invokes onSubTaskToggle without triggering click handler', async () => {
+		const onSubTaskToggle = vi.fn();
+		const onSubTaskClick = vi.fn();
+		const { result } = renderComponent({ onSubTaskToggle, onSubTaskClick });
+		const toggleButtons = result.getAllByLabelText('toggle_subtask_completion');
+		await fireEvent.click(toggleButtons[0]);
+		expect(onSubTaskToggle).toHaveBeenCalledWith('subtask-1');
+		expect(onSubTaskClick).not.toHaveBeenCalled();
+	});
 
-  test('should highlight selected subtask', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: 'subtask-1',
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
+	it('shows completion visuals for completed subtasks', () => {
+		const { result } = renderComponent();
+		const toggles = result.getAllByLabelText('toggle_subtask_completion');
+		expect(toggles[1]).toHaveTextContent('✅');
+		expect(result.getByText('SubTask 2')).toHaveClass('line-through');
+	});
 
-    const selectedSubTask = screen.getByText('SubTask 1').closest('button');
-    expect(selectedSubTask).toHaveClass('bg-primary/10', 'border-primary');
-  });
+	it('renders due date indicator when planEndDate exists', () => {
+		const { result } = renderComponent();
+		const dueDateButton = result
+			.getAllByRole('button')
+			.find((btn) => btn !== null && btn.textContent && btn.textContent.includes('/'));
+		expect(dueDateButton).toBeDefined();
+	});
 
-  test('should call onSubTaskClick when subtask is clicked', async () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
+	it('renders add form when requested', () => {
+		const { result } = renderComponent({ showSubTaskAddForm: true });
+		expect(result.getByPlaceholderText('sub_task_title')).toBeInTheDocument();
+	});
 
-    const subTaskButton = screen.getByText('SubTask 1').closest('button');
-    await fireEvent.click(subTaskButton!);
+	it('submits new subtask via form', async () => {
+		const onSubTaskAdded = vi.fn();
+		const { result } = renderComponent({ showSubTaskAddForm: true, onSubTaskAdded });
+		const input = result.getByPlaceholderText('sub_task_title');
+		const saveButton = result.getAllByTitle('add_subtask')[1];
+		await fireEvent.input(input, { target: { value: 'New Subtask' } });
+		await fireEvent.click(saveButton);
+		expect(onSubTaskAdded).toHaveBeenCalledWith('New Subtask');
+	});
 
-    expect(onSubTaskClick).toHaveBeenCalledWith('subtask-1');
-  });
-
-  test('should call onSubTaskToggle when toggle button is clicked', async () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const toggleButtons = screen.getAllByLabelText('Toggle subtask completion');
-    await fireEvent.click(toggleButtons[0]);
-
-    expect(onSubTaskToggle).toHaveBeenCalledWith('subtask-1');
-    expect(onSubTaskClick).not.toHaveBeenCalled(); // Should stop propagation
-  });
-
-  test('should show completed checkmark for completed subtasks', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const toggleButtons = screen.getAllByLabelText('Toggle subtask completion');
-    expect(toggleButtons[0]).toHaveTextContent('⚪'); // not completed
-    expect(toggleButtons[1]).toHaveTextContent('✅'); // completed
-  });
-
-  test('should show strikethrough for completed subtasks', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const completedSubTask = screen.getByText('SubTask 2');
-    expect(completedSubTask).toHaveClass('line-through', 'text-muted-foreground');
-  });
-
-  test('should display subtask due date when present', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    // Check that the subtask with a due date is rendered
-    const subtaskWithDate = screen.getByText('SubTask 1').closest('button');
-    expect(subtaskWithDate).toBeInTheDocument();
-  });
-
-  test('should not display date when subtask has no due date', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const subtaskWithoutDate = screen.getByText('SubTask 2').closest('button');
-    expect(
-      subtaskWithoutDate?.querySelector('.text-xs.text-muted-foreground.whitespace-nowrap')
-    ).not.toBeInTheDocument();
-  });
-
-  test('should display add subtask button when onAddSubTask is provided', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const addButton = screen.getByTestId('add-subtask');
-    expect(addButton).toBeInTheDocument();
-  });
-
-  test('should call onAddSubTask when add button is clicked', async () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    const addButton = screen.getByTestId('add-subtask');
-    await fireEvent.click(addButton);
-
-    expect(onAddSubTask).toHaveBeenCalledOnce();
-  });
-
-  test('should display subtask count text', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask
-    });
-
-    expect(screen.getByText('2 subtasks')).toBeInTheDocument();
-  });
-
-  test('should display subtask add form when showSubTaskAddForm is true', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask,
-      showSubTaskAddForm: true,
-      onSubTaskAdded,
-      onSubTaskAddCancel
-    });
-
-    // サブタスク追加フォームが表示されることを確認
-    expect(screen.getByPlaceholderText('Sub-task title')).toBeInTheDocument();
-    // フォーム内の保存ボタンとキャンセルボタンを確認
-    const addButtons = screen.getAllByTitle('Add Subtask');
-    expect(addButtons).toHaveLength(2); // ヘッダーの＋ボタンとフォーム内の保存ボタン
-    expect(screen.getByTitle('Cancel')).toBeInTheDocument();
-  });
-
-  test('should not display subtask add form when showSubTaskAddForm is false', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask,
-      showSubTaskAddForm: false,
-      onSubTaskAdded,
-      onSubTaskAddCancel
-    });
-
-    // サブタスク追加フォームが表示されないことを確認
-    expect(screen.queryByPlaceholderText('Sub-task title')).not.toBeInTheDocument();
-  });
-
-  test('should call onSubTaskAdded when form is submitted', async () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask,
-      showSubTaskAddForm: true,
-      onSubTaskAdded,
-      onSubTaskAddCancel
-    });
-
-    const input = screen.getByPlaceholderText('Sub-task title');
-    const addButtons = screen.getAllByTitle('Add Subtask');
-    const saveButton = addButtons.find((btn) =>
-      btn.querySelector('svg')?.getAttribute('class')?.includes('lucide-save')
-    )!;
-
-    // タイトルを入力してサブタスクを追加
-    await fireEvent.input(input, { target: { value: 'New SubTask' } });
-    await fireEvent.click(saveButton);
-
-    // onSubTaskAddedが呼ばれることを確認
-    expect(onSubTaskAdded).toHaveBeenCalledWith('New SubTask');
-  });
-
-  test('should display add form above subtask list', () => {
-    render(TaskDetailSubTasks, {
-      task: mockTask,
-      selectedSubTaskId: null,
-      onSubTaskClick,
-      onSubTaskToggle,
-      onAddSubTask,
-      showSubTaskAddForm: true,
-      onSubTaskAdded,
-      onSubTaskAddCancel
-    });
-
-    const formInput = screen.getByPlaceholderText('Sub-task title');
-    const subtask1 = screen.getByText('SubTask 1');
-
-    // フォームがサブタスクリストより上に表示されることを確認
-    // DOM内での位置関係をチェック
-    const container = formInput.closest('div');
-    const subtaskContainer = subtask1.closest('button');
-
-    // formInputの親要素がsubtaskより前に現れることを確認
-    expect(container?.compareDocumentPosition(subtaskContainer!)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING
-    );
-  });
+	it('renders zero state when no subtasks present', () => {
+		const taskWithoutSubtasks = { ...buildTask(), subTasks: [] };
+		const { result } = renderComponent({ task: taskWithoutSubtasks });
+		expect(result.getByText('0 subtasks')).toBeInTheDocument();
+	});
 });

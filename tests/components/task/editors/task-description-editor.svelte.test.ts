@@ -1,120 +1,98 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, fireEvent } from '@testing-library/svelte';
 import TaskDescriptionEditor from '$lib/components/task/editors/task-description-editor.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-describe('TaskDescriptionEditor Component', () => {
-  const mockTask: TaskWithSubTasks = {
-    id: 'task-1',
-    projectId: 'project-1',
-    title: 'Test Task',
-    description: 'Test description',
-    status: 'in_progress',
-    priority: 2,
-    assignedUserIds: [],
-    tagIds: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    listId: 'list-1',
-    orderIndex: 0,
-    planStartDate: undefined,
-    planEndDate: new Date('2024-01-15'),
-    isRangeDate: false,
-    subTasks: [],
-    tags: [],
-    isArchived: false
-  };
+const makeTask = (): TaskWithSubTasks => ({
+	id: 'task-1',
+	projectId: 'project-1',
+	listId: 'list-1',
+	title: 'Test Task',
+	description: 'Test description',
+	status: 'in_progress',
+	priority: 2,
+	assignedUserIds: [],
+	tagIds: [],
+	orderIndex: 0,
+	planStartDate: undefined,
+	planEndDate: new Date('2024-01-15'),
+	isRangeDate: false,
+	createdAt: new Date('2024-01-01T00:00:00Z'),
+	updatedAt: new Date('2024-01-01T00:00:00Z'),
+	isArchived: false,
+	subTasks: [],
+	tags: []
+});
 
-  const mockFormData = {
-    title: 'Test Task',
-    description: 'Test description',
-    plan_start_date: undefined,
-    plan_end_date: new Date('2024-01-15'),
-    is_range_date: false,
-    priority: 2
-  };
+const renderComponent = (
+	overrideProps: Partial<{
+		isSubTask: boolean;
+		description?: string;
+		isNewTaskMode?: boolean;
+		customProps?: Record<string, unknown>;
+	}> = {}
+) => {
+	const onDescriptionChange = vi.fn();
+	const task = makeTask();
+	const formData = {
+		title: task.title,
+		description: overrideProps.description ?? task.description,
+		plan_start_date: task.planStartDate,
+		plan_end_date: task.planEndDate,
+		is_range_date: task.isRangeDate,
+		priority: task.priority
+	};
 
-  let onDescriptionChange: ReturnType<typeof vi.fn>;
+	const result = render(TaskDescriptionEditor, {
+		currentItem: task,
+		isSubTask: overrideProps.isSubTask ?? false,
+		isNewTaskMode: overrideProps.isNewTaskMode ?? false,
+		formData,
+		onDescriptionChange,
+		...(overrideProps.customProps ?? {})
+	});
 
-  beforeEach(() => {
-    onDescriptionChange = vi.fn();
-    vi.clearAllMocks();
-  });
+	return { result, onDescriptionChange };
+};
 
-  test('should render description editor correctly', () => {
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: mockFormData,
-      onDescriptionChange
-    });
+describe('TaskDescriptionEditor', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-    const descriptionTextarea = screen.getByLabelText('Description');
-    expect(descriptionTextarea).toBeInTheDocument();
-    expect(descriptionTextarea).toHaveValue('Test description');
-  });
+	it('renders current description', () => {
+		const { result } = renderComponent();
+		const textarea = result.getByRole('textbox');
+		expect(textarea).toHaveValue('Test description');
+	});
 
-  test('should show optional label for subtask', () => {
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: true,
-      formData: mockFormData,
-      onDescriptionChange
-    });
+	it('adds optional badge for subtasks', () => {
+		const { result } = renderComponent({ isSubTask: true });
+		const label = result.getByText(/description/i);
+		expect(label).toHaveTextContent('optional');
+	});
 
-    expect(screen.getByText('(Optional)')).toBeInTheDocument();
-  });
+	it('omits optional badge for main tasks', () => {
+		const { result } = renderComponent({ isSubTask: false });
+		expect(result.queryByText(/optional/i)).toBeNull();
+	});
 
-  test('should not show optional label for main task', () => {
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: mockFormData,
-      onDescriptionChange
-    });
+	it('emits change event when user types', async () => {
+		const { result, onDescriptionChange } = renderComponent();
+		const textarea = result.getByRole('textbox');
+		await fireEvent.input(textarea, { target: { value: 'Updated text' } });
+		expect(onDescriptionChange).toHaveBeenCalledWith('Updated text');
+	});
 
-    expect(screen.queryByText('(Optional)')).not.toBeInTheDocument();
-  });
+	it('uses task placeholder when description empty for main task', () => {
+		const { result } = renderComponent({ description: '', isSubTask: false });
+		const textarea = result.getByRole('textbox');
+		expect(textarea.placeholder).toBe('task_description');
+	});
 
-  test('should call onDescriptionChange when textarea value changes', async () => {
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: mockFormData,
-      onDescriptionChange
-    });
-
-    const descriptionTextarea = screen.getByLabelText('Description');
-    await fireEvent.input(descriptionTextarea, { target: { value: 'New description' } });
-
-    expect(onDescriptionChange).toHaveBeenCalledWith('New description');
-  });
-
-  test('should show correct placeholder for main task', () => {
-    const formDataWithoutDescription = { ...mockFormData, description: '' };
-
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: formDataWithoutDescription,
-      onDescriptionChange
-    });
-
-    const descriptionTextarea = screen.getByLabelText('Description');
-    expect(descriptionTextarea).toHaveAttribute('placeholder', 'Task description');
-  });
-
-  test('should show correct placeholder for subtask', () => {
-    const formDataWithoutDescription = { ...mockFormData, description: '' };
-
-    render(TaskDescriptionEditor, {
-      currentItem: mockTask,
-      isSubTask: true,
-      formData: formDataWithoutDescription,
-      onDescriptionChange
-    });
-
-    const descriptionTextarea = screen.getByRole('textbox');
-    expect(descriptionTextarea).toHaveAttribute('placeholder', 'Sub-task description (optional)');
-  });
+	it('uses subtask placeholder when description empty for subtask', () => {
+		const { result } = renderComponent({ description: '', isSubTask: true });
+		const textarea = result.getByRole('textbox');
+		expect(textarea.placeholder).toBe('sub_task_description_optional');
+	});
 });

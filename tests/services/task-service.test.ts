@@ -1,830 +1,273 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// @ts-nocheck
-import { test, expect, vi, beforeEach, type Mock } from 'vitest';
-import { TaskService } from '../../src/lib/services/domain/task';
-import type { TaskWithSubTasks } from '../../src/lib/types/task';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type { Task } from '$lib/types/task';
 
-// Mock the store imports
-vi.mock('../../src/lib/stores/tasks.svelte', () => ({
-  taskStore: {
-    isNewTaskMode: false,
-    pendingTaskSelection: null,
-    pendingSubTaskSelection: null,
-    cancelNewTaskMode: vi.fn(),
-    getTaskById: vi.fn(),
-    selectedTaskId: null,
-    newTaskData: null,
-    getTaskProjectAndList: vi.fn(),
-    attachTagToTask: vi.fn(),
-    detachTagFromTask: vi.fn(),
-    addTagToNewTask: vi.fn(),
-    removeTagFromNewTask: vi.fn()
-  }
+const backendStub = {
+	task: {
+		create: vi.fn(async (_projectId: string, _task: Task) => {}),
+		update: vi.fn(async (_projectId: string, _taskId: string, _patch: Record<string, unknown>) => true),
+		delete: vi.fn(async (_projectId: string, _taskId: string) => true),
+		get: vi.fn(async (_projectId: string, _taskId: string) => null as Task | null)
+	}
+};
+
+const resolveBackendMock = vi.fn(async () => backendStub);
+
+vi.mock('$lib/infrastructure/backend-client', () => ({
+	resolveBackend: resolveBackendMock,
+	resetBackendCache: vi.fn()
 }));
 
-vi.mock('../../src/lib/stores/task-core-store.svelte', () => ({
-  taskCoreStore: {
-    toggleTaskStatus: vi.fn(),
-    updateTask: vi.fn(),
-    deleteTask: vi.fn(),
-    addTask: vi.fn(),
-    createRecurringTask: vi.fn()
-  }
+const errorHandlerMock = {
+	addSyncError: vi.fn()
+};
+
+vi.mock('$lib/stores/error-handler.svelte', () => ({
+	errorHandler: errorHandlerMock
 }));
 
-// Mock selectionStore
-vi.mock('../../src/lib/stores/selection-store.svelte', () => ({
-  selectionStore: {
-    selectTask: vi.fn(),
-    selectSubTask: vi.fn()
-  }
-}));
+const uuidSpy = vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('uuid-123');
 
-// Mock taskListStore
-vi.mock('../../src/lib/stores/task-list-store.svelte', () => ({
-  taskListStore: {
-    getProjectIdByListId: vi.fn()
-  }
-}));
+vi.unmock('$lib/services/domain/task');
+vi.unmock('$lib/services/domain/task/task-crud');
+vi.unmock('../../src/lib/services/domain/task');
+vi.unmock('../../src/lib/services/domain/task/task-crud');
 
-// Mock subTaskStore
-vi.mock('../../src/lib/stores/sub-task-store.svelte', () => ({
-  subTaskStore: {
-    addSubTask: vi.fn(),
-    updateSubTask: vi.fn(),
-    deleteSubTask: vi.fn(),
-    attachTagToSubTask: vi.fn(),
-    detachTagFromSubTask: vi.fn()
-  }
-}));
+const { TaskService } = await vi.importActual<
+	typeof import('../../src/lib/services/domain/task/task-crud')
+>('../../src/lib/services/domain/task/task-crud');
 
-vi.mock('../../src/lib/services/domain/tagging', () => ({
-  TaggingService: {
-    createTaskTag: vi.fn(),
-    deleteTaskTag: vi.fn(),
-    createSubtaskTag: vi.fn(),
-    deleteSubtaskTag: vi.fn()
-  }
-}));
+describe('TaskService (task-crud)', () => {
+	beforeEach(() => {
+		resolveBackendMock.mockClear().mockResolvedValue(backendStub);
+		errorHandlerMock.addSyncError.mockClear();
+		uuidSpy.mockReturnValue('uuid-123');
+		backendStub.task.create.mockReset();
+		backendStub.task.update.mockReset();
+		backendStub.task.delete.mockReset();
+		backendStub.task.get.mockReset();
+	});
 
-vi.mock('../../src/lib/stores/error-handler.svelte', () => ({
-  errorHandler: {
-    addSyncError: vi.fn()
-  }
-}));
+	test('createTask: プロジェクトID付きでタスクを生成しバックエンドへ登録する', async () => {
+		backendStub.task.create.mockResolvedValueOnce();
 
-// Get the mocked store for use in tests
-const mockTaskStore = vi.mocked(await import('../../src/lib/stores/tasks.svelte')).taskStore;
-const mockTaskCoreStore = vi.mocked(await import('../../src/lib/stores/task-core-store.svelte')).taskCoreStore;
-const mockSelectionStore = vi.mocked(await import('../../src/lib/stores/selection-store.svelte')).selectionStore;
-const mockTaskListStore = vi.mocked(await import('../../src/lib/stores/task-list-store.svelte')).taskListStore;
-const mockSubTaskStore = vi.mocked(await import('../../src/lib/stores/sub-task-store.svelte')).subTaskStore;
-const mockTaggingService = vi.mocked(await import('../../src/lib/services/domain/tagging')).TaggingService;
-const mockErrorHandler = vi.mocked(await import('../../src/lib/stores/error-handler.svelte')).errorHandler;
+		const result = await TaskService.createTask('list-123', {
+			projectId: 'project-123',
+			title: 'New Task',
+			description: 'Detail',
+			status: 'not_started',
+			priority: 1,
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: []
+		});
 
-// Note: deleteSubTask no longer uses window.confirm, it's handled by UI dialog
+		expect(resolveBackendMock).toHaveBeenCalledTimes(1);
+		expect(backendStub.task.create).toHaveBeenCalledWith(
+			'project-123',
+			expect.objectContaining({
+				id: 'uuid-123',
+				listId: 'list-123',
+				projectId: 'project-123',
+				title: 'New Task'
+			})
+		);
+		expect(result.id).toBe('uuid-123');
+		expect(result.listId).toBe('list-123');
+		expect(result.projectId).toBe('project-123');
+		expect(result.createdAt).toBeInstanceOf(Date);
+		expect(result.updatedAt).toBeInstanceOf(Date);
+	});
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  mockTaskStore.selectedTaskId = null;
-  mockTaskStore.isNewTaskMode = false;
-  mockTaskStore.pendingTaskSelection = null;
-  mockTaskStore.pendingSubTaskSelection = null;
-  (mockTaskCoreStore.deleteTask as unknown as Mock).mockResolvedValue(undefined);
-  (mockTaskCoreStore.addTask as unknown as Mock).mockResolvedValue(null as unknown as TaskWithSubTasks);
-  mockTaskStore.getTaskProjectAndList.mockReturnValue({
-    project: { id: 'project-1' },
-    list: { id: 'list-1' }
-  } as unknown as { project: { id: string }; list: { id: string } });
-  mockTaskStore.detachTagFromTask.mockReturnValue(null);
-  mockSubTaskStore.detachTagFromSubTask.mockReturnValue(null);
-  mockTaggingService.createTaskTag.mockResolvedValue({ id: 'created-tag', name: 'Important' } as any);
-  mockTaggingService.deleteTaskTag.mockResolvedValue(undefined);
-  mockTaggingService.createSubtaskTag.mockResolvedValue({ id: 'created-subtag', name: 'Work' } as any);
-  mockTaggingService.deleteSubtaskTag.mockResolvedValue(undefined);
-  mockErrorHandler.addSyncError.mockReset();
+	test('createTask: プロジェクトIDが無い場合はエラーを投げる', async () => {
+		await expect(
+			TaskService.createTask('list-123', {
+				projectId: undefined as unknown as string,
+				title: 'Invalid Task',
+				status: 'not_started',
+				priority: 0,
+				orderIndex: 0,
+				isArchived: false,
+				assignedUserIds: [],
+				tagIds: []
+			})
+		).rejects.toThrow('タスクにproject_idが設定されていません。');
+		expect(resolveBackendMock).not.toHaveBeenCalled();
+	});
+
+	test('createTask: バックエンドエラー時はerrorHandlerに通知して再throwする', async () => {
+		const backendError = new Error('backend down');
+		backendStub.task.create.mockRejectedValueOnce(backendError);
+
+		await expect(
+			TaskService.createTask('list-123', {
+				projectId: 'project-123',
+				title: 'Fail Task',
+				status: 'not_started',
+				priority: 0,
+				orderIndex: 0,
+				isArchived: false,
+				assignedUserIds: [],
+				tagIds: []
+			})
+		).rejects.toThrow(backendError);
+
+		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
+			'タスク作成',
+			'task',
+			'uuid-123',
+			backendError
+		);
+	});
+
+	test('updateTask: 日付フィールドをISOへ変換して同期し、結果を取得する', async () => {
+		const planStartDate = new Date('2024-01-10T00:00:00Z');
+		const planEndDate = new Date('2024-01-12T00:00:00Z');
+		const doStartDate = new Date('2024-01-08T00:00:00Z');
+		const doEndDate = new Date('2024-01-09T00:00:00Z');
+
+		const updatedTask: Task = {
+			id: 'task-123',
+			projectId: 'project-123',
+			listId: 'list-123',
+			title: 'Updated',
+			description: 'Updated detail',
+			status: 'in_progress',
+			priority: 2,
+			planStartDate,
+			planEndDate,
+			doStartDate,
+			doEndDate,
+			isRangeDate: true,
+			recurrenceRule: { unit: 'day', interval: 1 },
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: [],
+			createdAt: new Date('2024-01-01T00:00:00Z'),
+			updatedAt: new Date('2024-01-10T00:00:00Z'),
+			subTasks: [],
+			tags: []
+		};
+
+		backendStub.task.update.mockResolvedValueOnce(true);
+		backendStub.task.get.mockResolvedValueOnce(updatedTask);
+
+		const result = await TaskService.updateTask('project-123', 'task-123', {
+			title: 'Updated',
+			planStartDate,
+			planEndDate,
+			doStartDate,
+			doEndDate,
+			recurrenceRule: updatedTask.recurrenceRule
+		});
+
+		expect(backendStub.task.update).toHaveBeenCalledWith(
+			'project-123',
+			'task-123',
+			expect.objectContaining({
+				title: 'Updated',
+				plan_start_date: planStartDate.toISOString(),
+				plan_end_date: planEndDate.toISOString(),
+				do_start_date: doStartDate.toISOString(),
+				do_end_date: doEndDate.toISOString(),
+				recurrence_rule: updatedTask.recurrenceRule
+			})
+		);
+		expect(backendStub.task.get).toHaveBeenCalledWith('project-123', 'task-123');
+		expect(result).toEqual(updatedTask);
+	});
+
+	test('updateTask: バックエンドがfalseを返した場合はnullを返す', async () => {
+		backendStub.task.update.mockResolvedValueOnce(false);
+
+		const result = await TaskService.updateTask('project-123', 'task-123', { title: 'No change' });
+
+		expect(result).toBeNull();
+		expect(backendStub.task.get).not.toHaveBeenCalled();
+	});
+
+	test('updateTask: エラー時はerrorHandlerに通知して再throwする', async () => {
+		const backendError = new Error('update failed');
+		backendStub.task.update.mockRejectedValueOnce(backendError);
+
+		await expect(
+			TaskService.updateTask('project-123', 'task-123', { title: 'Broken' })
+		).rejects.toThrow(backendError);
+
+		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
+			'タスク更新',
+			'task',
+			'task-123',
+			backendError
+		);
+	});
+
+	test('deleteTask: 削除成功時はtrue、失敗時はfalseを返す', async () => {
+		backendStub.task.delete.mockResolvedValueOnce(true);
+
+		const success = await TaskService.deleteTask('project-123', 'task-123');
+		expect(success).toBe(true);
+
+		backendStub.task.delete.mockResolvedValueOnce(false);
+		const failure = await TaskService.deleteTask('project-123', 'task-123');
+		expect(failure).toBe(false);
+	});
+
+	test('deleteTask: エラー時はerrorHandlerに通知して再throwする', async () => {
+		const backendError = new Error('delete failed');
+		backendStub.task.delete.mockRejectedValueOnce(backendError);
+
+		await expect(TaskService.deleteTask('project-123', 'task-123')).rejects.toThrow(backendError);
+
+		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
+			'タスク削除',
+			'task',
+			'task-123',
+			backendError
+		);
+	});
+
+	test('createTaskWithSubTasks: createTaskを委譲する', async () => {
+		const createSpy = vi.spyOn(TaskService, 'createTask').mockResolvedValueOnce({
+			id: 'uuid-123',
+			projectId: 'project-123',
+			listId: 'list-123',
+			title: 'Delegated',
+			description: '',
+			status: 'not_started',
+			priority: 0,
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: [],
+			subTasks: [],
+			tags: [],
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
+
+		await TaskService.createTaskWithSubTasks('list-123', {} as Task);
+		expect(createSpy).toHaveBeenCalled();
+		createSpy.mockRestore();
+	});
+
+	test('updateTaskWithSubTasks: updateTaskへ委譲する', async () => {
+		const updateSpy = vi.spyOn(TaskService, 'updateTask').mockResolvedValueOnce(null);
+		await TaskService.updateTaskWithSubTasks('project-123', 'task-123', {});
+		expect(updateSpy).toHaveBeenCalledWith('project-123', 'task-123', {});
+		updateSpy.mockRestore();
+	});
+
+	test('deleteTaskWithSubTasks: deleteTaskへ委譲し結果を返す', async () => {
+		const deleteSpy = vi.spyOn(TaskService, 'deleteTask').mockResolvedValueOnce(true);
+		const result = await TaskService.deleteTaskWithSubTasks('project-123', 'task-123');
+		expect(deleteSpy).toHaveBeenCalledWith('project-123', 'task-123');
+		expect(result).toBe(true);
+		deleteSpy.mockRestore();
+	});
 });
 
-test('TaskService.toggleTaskStatus: calls taskCoreStore.toggleTaskStatus with correct taskId', () => {
-  const taskId = 'task-123';
-  TaskService.toggleTaskStatus(taskId);
-
-  expect(mockTaskCoreStore.toggleTaskStatus).toHaveBeenCalledWith(taskId);
-  expect(mockTaskCoreStore.toggleTaskStatus).toHaveBeenCalledTimes(1);
-});
-
-test('TaskService.selectTask: calls selectionStore.selectTask with correct taskId', () => {
-  const taskId = 'task-123';
-  TaskService.selectTask(taskId);
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(taskId);
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
-});
-
-test('TaskService.selectSubTask: calls selectionStore.selectSubTask with correct subTaskId', () => {
-  const subTaskId = 'subtask-123';
-  TaskService.selectSubTask(subTaskId);
-
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith(subTaskId);
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
-});
-
-test('TaskService.updateTask: calls taskCoreStore.updateTask with correct parameters', () => {
-  const taskId = 'task-123';
-  const updates = { title: 'Updated Title', priority: 2 };
-
-  TaskService.updateTask(taskId, updates);
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, updates);
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledTimes(1);
-});
-
-test('TaskService.updateTaskFromForm: converts form data and calls updateTask', () => {
-  const taskId = 'task-123';
-  const formData = {
-    title: 'New Title',
-    description: 'New Description',
-    planStartDate: new Date('2024-01-15'),
-    planEndDate: new Date('2024-01-20'),
-    isRangeDate: true,
-    priority: 1
-  };
-
-  TaskService.updateTaskFromForm(taskId, formData);
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    title: 'New Title',
-    description: 'New Description',
-    priority: 1,
-    planStartDate: new Date('2024-01-15'),
-    planEndDate: new Date('2024-01-20'),
-    isRangeDate: true
-  });
-});
-
-test('TaskService.updateTaskFromForm: handles empty description', () => {
-  const taskId = 'task-123';
-  const formData = {
-    title: 'Title Only',
-    description: '',
-    priority: 2
-  };
-
-  TaskService.updateTaskFromForm(taskId, formData);
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    title: 'Title Only',
-    description: undefined,
-    priority: 2,
-    planStartDate: undefined,
-    planEndDate: undefined,
-    isRangeDate: false
-  });
-});
-
-test('TaskService.changeTaskStatus: calls updateTask with new status', () => {
-  const taskId = 'task-123';
-  const newStatus = 'completed';
-
-  TaskService.changeTaskStatus(taskId, newStatus);
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: newStatus });
-});
-
-test('TaskService.deleteTask: clears selection and calls taskCoreStore.deleteTask', () => {
-  const taskId = 'task-123';
-  mockTaskStore.selectedTaskId = taskId;
-  const result = TaskService.deleteTask(taskId);
-
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockTaskCoreStore.deleteTask).toHaveBeenCalledWith(taskId);
-  expect(result).toBe(true);
-});
-
-test('TaskService.addTask: calls taskCoreStore.addTask with correct parameters', async () => {
-  const listId = 'list-123';
-  const taskData = {
-    title: 'New Task',
-    description: 'Task Description',
-    priority: 2
-  };
-
-  // Mock getProjectIdByListId to return a project ID
-  vi.mocked(mockTaskListStore.getProjectIdByListId).mockReturnValue('project-123');
-
-  const mockReturnTask = { id: 'new-task', title: 'New Task' } as TaskWithSubTasks;
-  vi.mocked(mockTaskCoreStore.addTask).mockImplementation(() => Promise.resolve(mockReturnTask));
-
-  const result = await TaskService.addTask(listId, taskData);
-
-  expect(mockTaskCoreStore.addTask).toHaveBeenCalledWith(
-    listId,
-    expect.objectContaining({
-      listId: listId,
-      title: 'New Task',
-      description: 'Task Description',
-      status: 'not_started',
-      priority: 2,
-      orderIndex: 0,
-      isArchived: false,
-      projectId: 'project-123',
-      assignedUserIds: [],
-      tagIds: []
-    })
-  );
-  expect(result).toBe(mockReturnTask);
-});
-
-test('TaskService.addTask: handles default priority', async () => {
-  const listId = 'list-123';
-  const taskData = {
-    title: 'Task Without Priority'
-  };
-
-  // Mock getProjectIdByListId to return a project ID
-  vi.mocked(mockTaskListStore.getProjectIdByListId).mockReturnValue('project-123');
-
-  await TaskService.addTask(listId, taskData);
-
-  expect(mockTaskCoreStore.addTask).toHaveBeenCalledWith(
-    listId,
-    expect.objectContaining({
-      listId: listId,
-      title: 'Task Without Priority',
-      description: undefined,
-      status: 'not_started',
-      priority: 0,
-      orderIndex: 0,
-      isArchived: false,
-      projectId: 'project-123',
-      assignedUserIds: [],
-      tagIds: []
-    })
-  );
-});
-
-test('TaskService.toggleSubTaskStatus: toggles subtask status correctly', () => {
-  const task: TaskWithSubTasks = {
-    id: 'task-123',
-    projectId: 'proj-1',
-    listId: 'list-123',
-    title: 'Test Task',
-    status: 'not_started',
-    priority: 0,
-    orderIndex: 0,
-    isArchived: false,
-    assignedUserIds: [],
-    tagIds: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    subTasks: [
-      {
-        id: 'subtask-1',
-        taskId: 'task-123',
-        title: 'Subtask 1',
-        status: 'not_started',
-        orderIndex: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tags: [],
-        completed: false,
-        assignedUserIds: []
-      },
-      {
-        id: 'subtask-2',
-        taskId: 'task-123',
-        title: 'Subtask 2',
-        status: 'completed',
-        orderIndex: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tags: [],
-        completed: false,
-        assignedUserIds: []
-      }
-    ],
-    tags: []
-  };
-
-  // Toggle not_started to completed
-  TaskService.toggleSubTaskStatus(task, 'subtask-1');
-
-  const expectedSubTasks = [{ ...task.subTasks[0], status: 'completed' }, task.subTasks[1]];
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith('task-123', {
-    sub_tasks: expectedSubTasks
-  });
-});
-
-test('TaskService.toggleSubTaskStatus: handles non-existent subtask', () => {
-  const task: TaskWithSubTasks = {
-    id: 'task-123',
-    projectId: 'proj-1',
-    listId: 'list-123',
-    title: 'Test Task',
-    status: 'not_started',
-    priority: 0,
-    orderIndex: 0,
-    isArchived: false,
-    assignedUserIds: [],
-    tagIds: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    subTasks: [],
-    tags: []
-  };
-
-  TaskService.toggleSubTaskStatus(task, 'non-existent');
-
-  expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.updateSubTaskFromForm: converts form data and calls updateSubTask', () => {
-  const subTaskId = 'subtask-123';
-  const formData = {
-    title: 'Updated Subtask',
-    description: 'Updated Description',
-    planStartDate: new Date('2024-01-15'),
-    planEndDate: new Date('2024-01-20'),
-    isRangeDate: true,
-    priority: 2
-  };
-
-  TaskService.updateSubTaskFromForm(subTaskId, formData);
-
-  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
-    title: 'Updated Subtask',
-    description: 'Updated Description',
-    priority: 2,
-    planStartDate: new Date('2024-01-15'),
-    planEndDate: new Date('2024-01-20'),
-    isRangeDate: true
-  });
-});
-
-test('TaskService.changeSubTaskStatus: calls updateSubTask with new status', () => {
-  const subTaskId = 'subtask-123';
-  const newStatus = 'in_progress';
-
-  TaskService.changeSubTaskStatus(subTaskId, newStatus);
-
-  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, { status: newStatus });
-});
-
-test('TaskService.deleteSubTask: calls deleteSubTask directly', () => {
-  const subTaskId = 'subtask-123';
-
-  const result = TaskService.deleteSubTask(subTaskId);
-
-  expect(mockSubTaskStore.deleteSubTask).toHaveBeenCalledWith(subTaskId);
-  expect(result).toBe(true);
-});
-
-// Add mocks for new test requirements
-vi.mock('../../src/lib/stores/tags.svelte', () => ({
-  tagStore: {
-    tags: [
-      { id: 'tag-1', name: 'Important' },
-      { id: 'tag-2', name: 'Work' }
-    ]
-  }
-}));
-
-vi.mock('../../src/lib/services/composite/recurrence-composite', () => ({
-  RecurrenceService: {
-    calculateNextDate: vi.fn()
-  }
-}));
-
-const mockRecurrenceService = vi.mocked(
-  await import('../../src/lib/services/composite/recurrence-composite')
-).RecurrenceService;
-
-// Update mockTaskStore to include all required methods
-Object.assign(mockTaskStore, {
-  isNewTaskMode: false,
-  pendingTaskSelection: null,
-  pendingSubTaskSelection: null,
-  cancelNewTaskMode: vi.fn(),
-  addSubTask: vi.fn(),
-  addTagToTask: vi.fn(),
-  addTagToSubTask: vi.fn()
-});
-
-test('TaskService.selectTask: returns false when in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true, pendingTaskSelection: null });
-
-  const result = TaskService.selectTask('task-123');
-
-  expect(result).toBe(false);
-  expect(mockTaskStore.pendingTaskSelection).toBe('task-123');
-  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.selectTask: returns true when not in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  const result = TaskService.selectTask('task-123');
-
-  expect(result).toBe(true);
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
-  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
-  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.selectTask: works with null taskId', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  const result = TaskService.selectTask(null);
-
-  expect(result).toBe(true);
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith(null);
-  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.selectSubTask: returns false when in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true, pendingSubTaskSelection: null });
-
-  const result = TaskService.selectSubTask('subtask-123');
-
-  expect(result).toBe(false);
-  expect(mockTaskStore.pendingSubTaskSelection).toBe('subtask-123');
-  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.selectSubTask: returns true when not in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  const result = TaskService.selectSubTask('subtask-123');
-
-  expect(result).toBe(true);
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
-  // Note: selectTask should NOT be called - mutual exclusivity handled by SelectionStore
-  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.forceSelectTask: cancels new task mode and selects task', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true });
-
-  TaskService.forceSelectTask('task-123');
-
-  expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
-  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
-  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.forceSelectTask: works when not in new task mode', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: false });
-
-  TaskService.forceSelectTask('task-123');
-
-  expect(mockTaskStore.cancelNewTaskMode).not.toHaveBeenCalled();
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledWith('task-123');
-  expect(mockSelectionStore.selectTask).toHaveBeenCalledTimes(1);
-  // Note: selectSubTask should NOT be called - mutual exclusivity handled by SelectionStore
-  expect(mockSelectionStore.selectSubTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.forceSelectSubTask: cancels new task mode and selects subtask', () => {
-  Object.assign(mockTaskStore, { isNewTaskMode: true });
-
-  TaskService.forceSelectSubTask('subtask-123');
-
-  expect(mockTaskStore.cancelNewTaskMode).toHaveBeenCalledOnce();
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledWith('subtask-123');
-  expect(mockSelectionStore.selectSubTask).toHaveBeenCalledTimes(1);
-  // Note: selectTask should NOT be called - mutual exclusivity handled by SelectionStore
-  expect(mockSelectionStore.selectTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.addSubTask: calls taskStore.addSubTask with correct parameters', async () => {
-  const taskId = 'task-123';
-  const subTaskData = {
-    title: 'New Subtask',
-    description: 'Subtask Description',
-    priority: 1
-  };
-
-  const mockSubTask = {
-    id: 'subtask-123',
-    title: 'New Subtask',
-    taskId: taskId,
-    status: 'not_started' as const,
-    orderIndex: 0,
-    tags: [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    completed: false,
-    assignedUserIds: []
-  };
-  vi.mocked(mockSubTaskStore.addSubTask).mockImplementation(() => Promise.resolve(mockSubTask));
-
-  const result = await TaskService.addSubTask(taskId, subTaskData);
-
-  expect(mockSubTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
-    title: 'New Subtask',
-    description: 'Subtask Description',
-    status: 'not_started',
-    priority: 1
-  });
-  expect(result).toBe(mockSubTask);
-});
-
-test('TaskService.addSubTask: handles default priority', async () => {
-  const taskId = 'task-123';
-  const subTaskData = { title: 'Subtask Without Priority' };
-
-  await TaskService.addSubTask(taskId, subTaskData);
-
-  expect(mockSubTaskStore.addSubTask).toHaveBeenCalledWith(taskId, {
-    title: 'Subtask Without Priority',
-    description: undefined,
-    status: 'not_started',
-    priority: 0
-  });
-});
-
-test('TaskService.updateSubTask: calls taskStore.updateSubTask with correct parameters', () => {
-  const subTaskId = 'subtask-123';
-  const updates = { title: 'Updated Subtask', priority: 2 };
-
-  TaskService.updateSubTask(subTaskId, updates);
-
-  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, updates);
-});
-
-test('TaskService.addTagToTask: creates tag via backend and attaches to store', async () => {
-  const taskId = 'task-123';
-  const tagId = 'tag-1';
-  const backendTag = { id: 'tag-1', name: 'Important' } as any;
-  mockTaggingService.createTaskTag.mockResolvedValueOnce(backendTag);
-
-  await TaskService.addTagToTask(taskId, tagId);
-
-  expect(mockTaggingService.createTaskTag).toHaveBeenCalledWith('project-1', taskId, 'Important');
-  expect(mockTaskStore.attachTagToTask).toHaveBeenCalledWith(taskId, backendTag);
-});
-
-test('TaskService.addTagToTask: does nothing when tag not found', async () => {
-  const taskId = 'task-123';
-  const tagId = 'nonexistent-tag';
-
-  await TaskService.addTagToTask(taskId, tagId);
-
-  expect(mockTaggingService.createTaskTag).not.toHaveBeenCalled();
-  expect(mockTaskStore.attachTagToTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.removeTagFromTask: detaches locally and syncs backend', async () => {
-  const taskId = 'task-123';
-  const tagId = 'tag-1';
-  const removedTag = { id: tagId, name: 'Important' } as any;
-  mockTaskStore.detachTagFromTask.mockReturnValueOnce(removedTag);
-
-  await TaskService.removeTagFromTask(taskId, tagId);
-
-  expect(mockTaggingService.deleteTaskTag).toHaveBeenCalledWith('project-1', taskId, tagId);
-  expect(mockErrorHandler.addSyncError).not.toHaveBeenCalled();
-});
-
-test('TaskService.removeTagFromTask: reattaches tag when backend sync fails', async () => {
-  const taskId = 'task-123';
-  const tagId = 'tag-1';
-  const removedTag = { id: tagId, name: 'Important' } as any;
-  mockTaskStore.detachTagFromTask.mockReturnValueOnce(removedTag);
-  mockTaggingService.deleteTaskTag.mockRejectedValueOnce(new Error('failure'));
-
-  await TaskService.removeTagFromTask(taskId, tagId);
-
-  expect(mockTaskStore.attachTagToTask).toHaveBeenCalledWith(taskId, removedTag);
-  expect(mockErrorHandler.addSyncError).toHaveBeenCalledWith('タスクタグ削除', 'task', taskId, expect.any(Error));
-});
-
-test('TaskService.addTagToSubTask: creates tag via backend and attaches to store', async () => {
-  const subTaskId = 'subtask-123';
-  const taskId = 'task-123';
-  const tagId = 'tag-2';
-  const backendTag = { id: tagId, name: 'Work' } as any;
-  mockTaggingService.createSubtaskTag.mockResolvedValueOnce(backendTag);
-
-  await TaskService.addTagToSubTask(subTaskId, taskId, tagId);
-
-  expect(mockTaggingService.createSubtaskTag).toHaveBeenCalledWith('project-1', subTaskId, 'Work');
-  expect(mockSubTaskStore.attachTagToSubTask).toHaveBeenCalledWith(subTaskId, backendTag);
-});
-
-test('TaskService.addTagToSubTask: does nothing when tag not found', async () => {
-  const subTaskId = 'subtask-123';
-  const taskId = 'task-123';
-  const tagId = 'nonexistent-tag';
-
-  await TaskService.addTagToSubTask(subTaskId, taskId, tagId);
-
-  expect(mockTaggingService.createSubtaskTag).not.toHaveBeenCalled();
-  expect(mockSubTaskStore.attachTagToSubTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.removeTagFromSubTask: detaches locally and syncs backend', async () => {
-  const subTaskId = 'subtask-123';
-  const taskId = 'task-123';
-  const tagId = 'tag-2';
-  const removedTag = { id: tagId, name: 'Work' } as any;
-  mockSubTaskStore.detachTagFromSubTask.mockReturnValueOnce(removedTag);
-
-  await TaskService.removeTagFromSubTask(subTaskId, taskId, tagId);
-
-  expect(mockTaggingService.deleteSubtaskTag).toHaveBeenCalledWith('project-1', subTaskId, tagId);
-  expect(mockErrorHandler.addSyncError).not.toHaveBeenCalled();
-});
-
-test('TaskService.removeTagFromSubTask: reattaches tag when backend sync fails', async () => {
-  const subTaskId = 'subtask-123';
-  const taskId = 'task-123';
-  const tagId = 'tag-2';
-  const removedTag = { id: tagId, name: 'Work' } as any;
-  mockSubTaskStore.detachTagFromSubTask.mockReturnValueOnce(removedTag);
-  mockTaggingService.deleteSubtaskTag.mockRejectedValueOnce(new Error('failure'));
-
-  await TaskService.removeTagFromSubTask(subTaskId, taskId, tagId);
-
-  expect(mockSubTaskStore.attachTagToSubTask).toHaveBeenCalledWith(subTaskId, removedTag);
-  expect(mockErrorHandler.addSyncError).toHaveBeenCalledWith('サブタスクタグ削除', 'subtask', subTaskId, expect.any(Error));
-});
-
-test('TaskService.updateTaskDueDateForView: updates due date for today view', () => {
-  const taskId = 'task-123';
-  const today = new Date();
-
-  TaskService.updateTaskDueDateForView(taskId, 'today');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    planEndDate: expect.objectContaining({
-      getDate: today.getDate,
-      getMonth: today.getMonth,
-      getFullYear: today.getFullYear
-    })
-  });
-});
-
-test('TaskService.updateTaskDueDateForView: updates due date for tomorrow view', () => {
-  const taskId = 'task-123';
-
-  TaskService.updateTaskDueDateForView(taskId, 'tomorrow');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    planEndDate: expect.any(Date)
-  });
-});
-
-test('TaskService.updateTaskDueDateForView: updates due date for next3days view', () => {
-  const taskId = 'task-123';
-
-  TaskService.updateTaskDueDateForView(taskId, 'next3days');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    planEndDate: expect.any(Date)
-  });
-});
-
-test('TaskService.updateTaskDueDateForView: updates due date for nextweek view', () => {
-  const taskId = 'task-123';
-
-  TaskService.updateTaskDueDateForView(taskId, 'nextweek');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    planEndDate: expect.any(Date)
-  });
-});
-
-test('TaskService.updateTaskDueDateForView: updates due date for thismonth view', () => {
-  const taskId = 'task-123';
-
-  TaskService.updateTaskDueDateForView(taskId, 'thismonth');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, {
-    planEndDate: expect.any(Date)
-  });
-});
-
-test('TaskService.updateTaskDueDateForView: does not update for unknown view', () => {
-  const taskId = 'task-123';
-
-  TaskService.updateTaskDueDateForView(taskId, 'unknown-view');
-
-  expect(mockTaskCoreStore.updateTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.updateSubTaskDueDateForView: updates due date for subtask', () => {
-  const subTaskId = 'subtask-123';
-  const taskId = 'task-123';
-
-  TaskService.updateSubTaskDueDateForView(subTaskId, taskId, 'today');
-
-  expect(mockSubTaskStore.updateSubTask).toHaveBeenCalledWith(subTaskId, {
-    planEndDate: expect.any(Date)
-  });
-});
-
-test('TaskService.changeTaskStatus: handles completion with recurrence', () => {
-  const taskId = 'task-123';
-  const mockRecurringTask = {
-    id: taskId,
-    projectId: 'proj-1',
-    title: 'Recurring Task',
-    status: 'not_started',
-    listId: 'list-123',
-    planEndDate: new Date('2024-01-15'),
-    recurrenceRule: { unit: 'day', interval: 1 }
-  };
-
-  const nextDate = new Date('2024-01-16');
-  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
-
-  TaskService.changeTaskStatus(taskId, 'completed');
-
-  expect(mockRecurrenceService.calculateNextDate).toHaveBeenCalledWith(
-    mockRecurringTask.planEndDate,
-    mockRecurringTask.recurrenceRule
-  );
-  expect(mockTaskCoreStore.createRecurringTask).toHaveBeenCalledWith(
-    expect.objectContaining({
-      listId: 'list-123',
-      title: 'Recurring Task',
-      status: 'not_started',
-      planEndDate: nextDate,
-      recurrenceRule: mockRecurringTask.recurrenceRule
-    })
-  );
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
-});
-
-test('TaskService.changeTaskStatus: handles completion with no recurrence', () => {
-  const taskId = 'task-123';
-
-  TaskService.changeTaskStatus(taskId, 'in_progress');
-
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'in_progress' });
-  expect(mockRecurrenceService.calculateNextDate).not.toHaveBeenCalled();
-  expect(mockTaskCoreStore.createRecurringTask).not.toHaveBeenCalled();
-});
-
-test('TaskService.changeTaskStatus: handles completion when next date calculation fails', () => {
-  const taskId = 'task-123';
-  const mockRecurringTask = {
-    id: taskId,
-    projectId: 'proj-1',
-    title: 'Recurring Task',
-    status: 'not_started',
-    listId: 'list-123',
-    planEndDate: new Date('2024-01-15'),
-    recurrenceRule: { unit: 'day', interval: 1 }
-  };
-
-  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(null); // No next date
-
-  TaskService.changeTaskStatus(taskId, 'completed');
-
-  expect(mockRecurrenceService.calculateNextDate).toHaveBeenCalled();
-  expect(mockTaskCoreStore.createRecurringTask).not.toHaveBeenCalled();
-  expect(mockTaskCoreStore.updateTask).toHaveBeenCalledWith(taskId, { status: 'completed' });
-});
-
-test('TaskService.changeTaskStatus: handles range date recurrence', () => {
-  const taskId = 'task-123';
-  const startDate = new Date('2024-01-10');
-  const endDate = new Date('2024-01-15');
-  const nextDate = new Date('2024-01-16');
-
-  const mockRecurringTask = {
-    id: taskId,
-    projectId: 'proj-1',
-    title: 'Range Task',
-    status: 'not_started',
-    listId: 'list-123',
-    planStartDate: startDate,
-    planEndDate: endDate,
-    isRangeDate: true,
-    recurrenceRule: { unit: 'day', interval: 1 }
-  };
-
-  (mockTaskStore.getTaskById as ReturnType<typeof vi.fn>).mockReturnValue(mockRecurringTask);
-  (mockRecurrenceService.calculateNextDate as ReturnType<typeof vi.fn>).mockReturnValue(nextDate);
-
-  TaskService.changeTaskStatus(taskId, 'completed');
-
-  expect(mockTaskCoreStore.createRecurringTask).toHaveBeenCalledWith(
-    expect.objectContaining({
-      planStartDate: new Date('2024-01-11'), // 5日間の範囲を維持
-      planEndDate: nextDate,
-      isRangeDate: true
-    })
-  );
+afterAll(() => {
+	uuidSpy.mockRestore();
 });

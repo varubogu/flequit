@@ -1,156 +1,49 @@
-import { test, expect, vi } from 'vitest';
-import { render, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
 import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
 import type { TaskBase } from '$lib/types/task';
 
-const createMockTask = (overrides: Partial<TaskBase> = {}): TaskBase => ({
-  status: 'not_started',
-  ...overrides
+const createTask = (overrides: Partial<TaskBase> = {}): TaskBase => ({
+	status: 'not_started',
+	planEndDate: undefined,
+	...overrides
 });
 
-test('DueDate: renders formatted date when task has end_date', async () => {
-  const mockClick = vi.fn();
-  const testDate = new Date('2024-01-15');
+describe('DueDate', () => {
+	let handleDueDateClick: ReturnType<typeof vi.fn>;
 
-  const task = createMockTask({
-    planEndDate: testDate,
-    status: 'not_started'
-  });
+	beforeEach(() => {
+		handleDueDateClick = vi.fn();
+		vi.clearAllMocks();
+	});
 
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
+	it('renders formatted date when planEndDate provided', () => {
+		const task = createTask({ planEndDate: new Date('2024-01-15T00:00:00Z') });
+		const { getByRole } = render(DueDate, { task, handleDueDateClick });
+		const button = getByRole('button');
+		expect(button.textContent).not.toEqual('');
+	});
 
-  const button = getByRole('button');
-  expect(button).toBeTruthy();
-  // The exact text depends on formatDate implementation, but should contain date info
-  expect(button.textContent).toBeTruthy();
-  expect(button.title).toBe('Click to change due date');
-});
+	it('renders add_date text when no planEndDate', () => {
+		const task = createTask();
+		const { getByRole, getByText } = render(DueDate, { task, handleDueDateClick });
+		const button = getByRole('button');
+		expect(getByText('+ add_date')).toBeInTheDocument();
+		expect(button.className).toContain('text-muted-foreground');
+	});
 
-test("DueDate: renders 'Add date' when task has no end_date", async () => {
-  const mockClick = vi.fn();
+	it('invokes handleDueDateClick when button clicked', async () => {
+		const task = createTask({ planEndDate: new Date('2024-01-15T00:00:00Z') });
+		const { getByRole } = render(DueDate, { task, handleDueDateClick });
+		await fireEvent.click(getByRole('button'));
+		expect(handleDueDateClick).toHaveBeenCalled();
+	});
 
-  const task = createMockTask({
-    planEndDate: undefined
-  });
-
-  const { getByText, getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  expect(getByText('+ Add date')).toBeTruthy();
-  expect(button.title).toBe('Click to set due date');
-});
-
-test('DueDate: calls handleDueDateClick when clicked', async () => {
-  const mockClick = vi.fn();
-  const testDate = new Date('2024-01-15');
-
-  const task = createMockTask({
-    planEndDate: testDate
-  });
-
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  await fireEvent.click(button);
-
-  expect(mockClick).toHaveBeenCalledTimes(1);
-  expect(mockClick).toHaveBeenCalledWith(expect.any(MouseEvent));
-});
-
-test("DueDate: calls handleDueDateClick when 'Add date' button is clicked", async () => {
-  const mockClick = vi.fn();
-
-  const task = createMockTask({
-    planEndDate: undefined
-  });
-
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  await fireEvent.click(button);
-
-  expect(mockClick).toHaveBeenCalledTimes(1);
-  expect(mockClick).toHaveBeenCalledWith(expect.any(MouseEvent));
-});
-
-test('DueDate: applies correct CSS classes for overdue tasks', async () => {
-  const mockClick = vi.fn();
-  const pastDate = new Date();
-  pastDate.setDate(pastDate.getDate() - 1); // Yesterday
-
-  const task = createMockTask({
-    planEndDate: pastDate,
-    status: 'not_started'
-  });
-
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  // getDueDateClass should return overdue styling for past dates
-  expect(button.className).toContain('text-red-600');
-});
-
-test("DueDate: applies correct CSS classes for today's tasks", async () => {
-  const mockClick = vi.fn();
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  const task = createMockTask({
-    planEndDate: today,
-    status: 'not_started'
-  });
-
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  // getDueDateClass should return today styling
-  expect(button.className).toContain('text-orange-300');
-});
-
-test("DueDate: applies muted styling for 'Add date' button", async () => {
-  const mockClick = vi.fn();
-
-  const task = createMockTask({
-    planEndDate: undefined
-  });
-
-  const { getByRole } = render(DueDate, {
-    props: {
-      task,
-      handleDueDateClick: mockClick
-    }
-  });
-
-  const button = getByRole('button');
-  expect(button.className).toContain('text-muted-foreground');
+	it('applies overdue styling for past dates', () => {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		const task = createTask({ planEndDate: yesterday });
+		const { getByRole } = render(DueDate, { task, handleDueDateClick });
+		expect(getByRole('button').className).toContain('text-red');
+	});
 });

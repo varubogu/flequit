@@ -1,5 +1,5 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
 import TaskDueDateSelector from '$lib/components/task/forms/task-due-date-selector.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
@@ -41,50 +41,32 @@ describe('TaskDueDateSelector Component', () => {
     vi.clearAllMocks();
   });
 
-  test('should render due date selector correctly', () => {
+  const renderComponent = (isSubTask: boolean) =>
     render(TaskDueDateSelector, {
       currentItem: mockTask,
-      isSubTask: false,
+      isSubTask,
       formData: mockFormData,
       onDueDateClick
     });
 
-    expect(screen.getByText('Due Date')).toBeInTheDocument();
+  it('renders due date label', () => {
+    const { getByText } = renderComponent(false);
+    expect(getByText('due_date')).toBeInTheDocument();
   });
 
-  test('should show optional label for subtask', () => {
-    render(TaskDueDateSelector, {
-      currentItem: mockTask,
-      isSubTask: true,
-      formData: mockFormData,
-      onDueDateClick
-    });
-
-    expect(screen.getByText('(Optional)')).toBeInTheDocument();
+  it('shows optional badge for subtasks', () => {
+    const { getByText } = renderComponent(true);
+    expect(getByText('optional')).toBeInTheDocument();
   });
 
-  test('should call onDueDateClick when date button is clicked', async () => {
-    render(TaskDueDateSelector, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: mockFormData,
-      onDueDateClick
-    });
+  it('omits optional badge for main tasks', () => {
+    const { queryByText } = renderComponent(false);
+    expect(queryByText('optional')).toBeNull();
+  });
 
-    const dateButton = screen.getByRole('button');
-    await fireEvent.click(dateButton);
-
+  it('emits click event via handleDueDateClick', async () => {
+    const { getByRole } = renderComponent(false);
+    await fireEvent.click(getByRole('button'));
     expect(onDueDateClick).toHaveBeenCalled();
-  });
-
-  test('should not show optional label for main task', () => {
-    render(TaskDueDateSelector, {
-      currentItem: mockTask,
-      isSubTask: false,
-      formData: mockFormData,
-      onDueDateClick
-    });
-
-    expect(screen.queryByText('(Optional)')).not.toBeInTheDocument();
   });
 });

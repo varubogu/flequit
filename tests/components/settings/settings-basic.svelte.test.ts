@@ -1,61 +1,145 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, afterAll, describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/basic/settings-basic.svelte';
-import { settingsStore } from '$lib/stores/settings.svelte';
-import { getTranslationService, localeStore } from '$lib/stores/locale.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
+import { setTranslationService, getTranslationService, localeStore } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
-// getTranslationServiceのモック化
-vi.mock('$lib/stores/locale.svelte', async () => {
-  const actual = await vi.importActual('$lib/stores/locale.svelte');
-  const { createUnitTestTranslationService } = await import('../../../tests/unit-translation-mock');
+type SupportedLocale = 'en' | 'ja';
+
+const supportedLocales: readonly SupportedLocale[] = ['en', 'ja'];
+
+type SettingsSnapshot = {
+  language: SupportedLocale;
+  weekStart: string;
+  timezone: string;
+  dateFormat: string;
+  effectiveTimezone: string;
+};
+
+function createInitialSettingsState(): SettingsSnapshot {
   return {
-    ...actual,
-    getTranslationService: vi.fn(() => createUnitTestTranslationService()),
-    reactiveMessage: (fn: () => string) => fn,
-    localeStore: {
-      setLocale: vi.fn()
-    }
-  };
-});
-
-// Mock settings store
-vi.mock('$lib/stores/settings.svelte', async (importOriginal) => {
-  const original = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...original,
-    settingsStore: {
-      setTimezone: vi.fn(),
-      effectiveTimezone: 'UTC',
-      timeLabels: []
-    },
-    getAvailableTimezones: vi.fn(() => [
-      { value: 'UTC', label: 'UTC' },
-      { value: 'America/New_York', label: 'Eastern Time' },
-      { value: 'Asia/Tokyo', label: 'Japan Time' }
-    ])
-  };
-});
-
-const mockSettingsStore = vi.mocked(settingsStore);
-const mockedGetTranslationService = vi.mocked(getTranslationService);
-const mockLocaleStore = vi.mocked(localeStore);
-const mockTranslationService = createUnitTestTranslationService();
-
-describe('SettingsBasic Component', () => {
-  const defaultSettings = {
+    language: 'en',
     weekStart: 'sunday',
     timezone: 'UTC',
     dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss',
-    customDueDays: []
+    effectiveTimezone: 'UTC'
+  } satisfies SettingsSnapshot;
+}
+
+function getDefaultAvailableTimezones() {
+  return [
+    { value: 'UTC', label: 'UTC' },
+    { value: 'America/New_York', label: 'Eastern Time' },
+    { value: 'Asia/Tokyo', label: 'Japan Time' }
+  ] as const;
+}
+
+function createSettingsStoreMock() {
+  const initialState = createInitialSettingsState();
+  const availableTimezones = getDefaultAvailableTimezones();
+  const store = {
+    ...initialState,
+    customDateFormats: [] as { id: string; name: string; format: string }[],
+    timeLabels: [] as { id: string; name: string; time: string }[],
+    setLanguage: vi.fn((language: string) => {
+      store.language = language as SupportedLocale;
+    }),
+    setWeekStart: vi.fn((weekStart: string) => {
+      store.weekStart = weekStart;
+    }),
+    setTimezone: vi.fn((timezone: string) => {
+      store.timezone = timezone;
+      store.effectiveTimezone = timezone === 'system' ? 'UTC' : timezone;
+    }),
+    setDateFormat: vi.fn((format: string) => {
+      store.dateFormat = format;
+    }),
+    addTimeLabel: vi.fn((name: string, time: string) => {
+      const id = crypto.randomUUID();
+      store.timeLabels.push({ id, name, time });
+      return id;
+    }),
+    updateTimeLabel: vi.fn((id: string, updates: Partial<{ name: string; time: string }>) => {
+      store.timeLabels = store.timeLabels.map((label) =>
+        label.id === id ? { ...label, ...updates } : label
+      );
+    }),
+    removeTimeLabel: vi.fn((id: string) => {
+      store.timeLabels = store.timeLabels.filter((label) => label.id !== id);
+    })
   };
+  return store;
+}
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockLocaleStore.setLocale.mockClear();
-    mockedGetTranslationService.mockReturnValue(mockTranslationService);
-  });
+vi.mock('$lib/stores/settings.svelte', () => ({
+  settingsStore: createSettingsStoreMock(),
+  getAvailableTimezones: vi.fn(() => getDefaultAvailableTimezones())
+}));
 
+const { settingsStore, getAvailableTimezones } = await import('$lib/stores/settings.svelte');
+const mockSettingsStore = vi.mocked(settingsStore);
+const getAvailableTimezonesMock = vi.mocked(getAvailableTimezones);
+
+const resetSettingsStore = () => {
+  const initialState = createInitialSettingsState();
+  mockSettingsStore.language = initialState.language;
+  mockSettingsStore.weekStart = initialState.weekStart;
+  mockSettingsStore.timezone = initialState.timezone;
+  mockSettingsStore.dateFormat = initialState.dateFormat;
+  mockSettingsStore.effectiveTimezone = initialState.effectiveTimezone;
+  mockSettingsStore.customDateFormats = [];
+  mockSettingsStore.timeLabels = [];
+  mockSettingsStore.setLanguage.mockClear();
+  mockSettingsStore.setWeekStart.mockClear();
+  mockSettingsStore.setTimezone.mockClear();
+  mockSettingsStore.setDateFormat.mockClear();
+  mockSettingsStore.addTimeLabel.mockClear();
+  mockSettingsStore.updateTimeLabel.mockClear();
+  mockSettingsStore.removeTimeLabel.mockClear();
+};
+
+const unitTranslationService = createUnitTestTranslationService();
+
+let currentLocale: SupportedLocale = 'en';
+
+const mockTranslationService: ITranslationService = {
+  getCurrentLocale: vi.fn(() => currentLocale),
+  setLocale: vi.fn((locale: string) => {
+    if (supportedLocales.includes(locale as SupportedLocale)) {
+      currentLocale = locale as SupportedLocale;
+    }
+  }),
+  getAvailableLocales: vi.fn(() => supportedLocales),
+  reactiveMessage: unitTranslationService.reactiveMessage,
+  getMessage: unitTranslationService.getMessage,
+  subscribe: unitTranslationService.subscribe
+};
+
+const originalTranslationService = getTranslationService();
+
+const defaultSettings = {
+  weekStart: 'sunday',
+  timezone: 'UTC',
+  dateFormat: 'yyyy年MM月dd日(E) HH:mm:ss',
+  customDueDays: [] as number[]
+};
+
+beforeEach(() => {
+  resetSettingsStore();
+  currentLocale = 'en';
+  mockTranslationService.getCurrentLocale.mockClear();
+  mockTranslationService.setLocale.mockClear();
+  mockTranslationService.getAvailableLocales.mockClear();
+  getAvailableTimezonesMock.mockClear();
+  setTranslationService(mockTranslationService);
+});
+
+afterAll(() => {
+  setTranslationService(originalTranslationService);
+});
+
+describe('SettingsBasic Component', () => {
   test('should render general settings section', () => {
     render(SettingsBasic, { settings: defaultSettings });
 
@@ -85,6 +169,7 @@ describe('SettingsBasic Component', () => {
     expect(screen.getByText('UTC')).toBeInTheDocument();
     expect(screen.getByText('Eastern Time')).toBeInTheDocument();
     expect(screen.getByText('Japan Time')).toBeInTheDocument();
+    expect(getAvailableTimezonesMock).toHaveBeenCalled();
   });
 
   test('should show effective timezone info', () => {
@@ -95,6 +180,7 @@ describe('SettingsBasic Component', () => {
 
   test('should render week start select with correct value', () => {
     const settings = { ...defaultSettings, weekStart: 'monday' };
+    mockSettingsStore.weekStart = 'monday';
     render(SettingsBasic, { settings });
 
     const weekStartSelect = screen.getByLabelText('TEST_WEEK_STARTS_ON') as HTMLSelectElement;
@@ -103,38 +189,49 @@ describe('SettingsBasic Component', () => {
 
   test('should render timezone select with correct value', () => {
     const settings = { ...defaultSettings, timezone: 'Asia/Tokyo' };
+    mockSettingsStore.timezone = 'Asia/Tokyo';
+    mockSettingsStore.effectiveTimezone = 'Asia/Tokyo';
     render(SettingsBasic, { settings });
 
     const timezoneSelect = screen.getByLabelText('TEST_TIMEZONE') as HTMLSelectElement;
     expect(timezoneSelect.value).toBe('Asia/Tokyo');
   });
 
+  test('should call settingsStore.setWeekStart when week start changes', async () => {
+    render(SettingsBasic, { settings: defaultSettings });
+
+    const weekStartSelect = screen.getByLabelText('TEST_WEEK_STARTS_ON') as HTMLSelectElement;
+    await fireEvent.change(weekStartSelect, { target: { value: 'monday' } });
+
+    expect(mockSettingsStore.setWeekStart).toHaveBeenCalledWith('monday');
+    expect(mockSettingsStore.weekStart).toBe('monday');
+  });
+
   test('should call settingsStore.setTimezone when timezone changes', async () => {
-    const settings = { ...defaultSettings, timezone: 'UTC' };
-    render(SettingsBasic, { settings });
+    render(SettingsBasic, { settings: defaultSettings });
 
-    // レンダリング時には setTimezone が呼ばれないことを確認
-    expect(mockSettingsStore.setTimezone).not.toHaveBeenCalled();
+    const timezoneSelect = screen.getByLabelText('TEST_TIMEZONE') as HTMLSelectElement;
+    await fireEvent.change(timezoneSelect, { target: { value: 'Asia/Tokyo' } });
 
-    // この部分は実際のコンポーネントがタイムゾーン変更をサポートしているかによって
-    // 適切なイベントテストに置き換える必要がある
+    expect(mockSettingsStore.setTimezone).toHaveBeenCalledWith('Asia/Tokyo');
+    expect(mockSettingsStore.timezone).toBe('Asia/Tokyo');
+    expect(mockSettingsStore.effectiveTimezone).toBe('Asia/Tokyo');
+  });
+
+  test('should call settingsStore.setDateFormat when date format changes', async () => {
+    render(SettingsBasic, { settings: defaultSettings });
+
+    const dateFormatInput = screen.getByLabelText('TEST_DATE_FORMAT') as HTMLInputElement;
+    await fireEvent.input(dateFormatInput, { target: { value: 'yyyy-MM-dd' } });
+
+    expect(mockSettingsStore.setDateFormat).toHaveBeenCalledWith('yyyy-MM-dd');
+    expect(mockSettingsStore.dateFormat).toBe('yyyy-MM-dd');
   });
 
   test('should render custom due date section', () => {
     render(SettingsBasic, { settings: defaultSettings });
 
     expect(screen.getByRole('button', { name: 'TEST_ADD_CUSTOM_DUE_DATE' })).toBeInTheDocument();
-  });
-
-  test('should handle add custom due day click', async () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    render(SettingsBasic, { settings: defaultSettings });
-
-    const addButton = screen.getByRole('button', { name: 'TEST_ADD_CUSTOM_DUE_DATE' });
-    await fireEvent.click(addButton);
-
-    expect(consoleSpy).toHaveBeenCalledWith('Add custom due day');
-    consoleSpy.mockRestore();
   });
 
   test('should have correct default values', () => {
@@ -161,25 +258,38 @@ describe('SettingsBasic Component', () => {
     render(SettingsBasic, { settings: defaultSettings });
 
     const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
-    // デフォルトの翻訳サービスは'en'を返すため
     expect(languageSelect.value).toBe('en');
   });
 
-  test('should call localeStore.setLocale when language changes', async () => {
+  test('should call localeStore.setLocale and settingsStore.setLanguage when language changes', async () => {
     render(SettingsBasic, { settings: defaultSettings });
 
     const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
+    const localeSpy = vi.spyOn(localeStore, 'setLocale');
+
     await fireEvent.change(languageSelect, { target: { value: 'ja' } });
 
-    expect(mockLocaleStore.setLocale).toHaveBeenCalledWith('ja');
+    expect(localeSpy).toHaveBeenCalledWith('ja');
+    expect(mockSettingsStore.setLanguage).toHaveBeenCalledWith('ja');
+    expect(mockTranslationService.setLocale).toHaveBeenCalledWith('ja');
+    expect(currentLocale).toBe('ja');
+
+    localeSpy.mockRestore();
   });
 
-  test('should not call localeStore.setLocale for invalid locale', async () => {
+  test('should not update locale for unsupported language', async () => {
     render(SettingsBasic, { settings: defaultSettings });
 
     const languageSelect = screen.getByLabelText('TEST_LANGUAGE') as HTMLSelectElement;
+    const localeSpy = vi.spyOn(localeStore, 'setLocale');
+
     await fireEvent.change(languageSelect, { target: { value: 'invalid' } });
 
-    expect(mockLocaleStore.setLocale).not.toHaveBeenCalled();
+    expect(localeSpy).not.toHaveBeenCalled();
+    expect(mockSettingsStore.setLanguage).not.toHaveBeenCalled();
+    expect(mockTranslationService.setLocale).not.toHaveBeenCalled();
+    expect(currentLocale).toBe('en');
+
+    localeSpy.mockRestore();
   });
 });

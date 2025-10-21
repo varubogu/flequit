@@ -1,21 +1,18 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterAll, vi } from 'vitest';
 import { render, fireEvent, screen, waitFor } from '@testing-library/svelte';
 import TaskAddForm from '$lib/components/task/forms/task-add-form.svelte';
 import { TaskListService } from '$lib/services/domain/task-list';
 import { taskInteractions } from '$lib/services/ui/task';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
-import { setTranslationService } from '$lib/stores/locale.svelte';
+import { setTranslationService, getTranslationService } from '$lib/stores/locale.svelte';
 import type { ITranslationService } from '$lib/services/translation-service';
-// import {
-//   createUnitTestTranslationService,
-//   'test-text'
-// } from '../../unit-translation-mock';
 
 // Mock services
 vi.mock('$lib/services/domain/task-list', () => ({
   TaskListService: {
     addNewTask: vi.fn()
-  }
+  },
+  configureTaskListSelectionResolver: vi.fn()
 }));
 
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -50,29 +47,56 @@ vi.mock('$lib/stores/selection-store.svelte', () => ({
 const mockTaskListService = vi.mocked(TaskListService);
 const mockTaskInteractions = vi.mocked(taskInteractions);
 const mockSelectionStore = vi.mocked(selectionStore);
+const originalTranslationService = getTranslationService();
+
+const createMockTranslationService = () => {
+  const translations: Record<string, () => string> = {
+    task_title: () => 'Task title',
+    add_task: () => 'Add task',
+    cancel: () => 'Cancel',
+    edit_task: () => 'Edit task',
+    save_task: () => 'Save task',
+    enter_task_title: () => 'Enter task title',
+    task_title_placeholder: () => 'Task title'
+  };
+
+  let currentLocale: 'en' | 'ja' = 'en';
+
+  const service: ITranslationService = {
+    getCurrentLocale: vi.fn(() => currentLocale),
+    setLocale: vi.fn((locale: string) => {
+      if (locale === 'en' || locale === 'ja') {
+        currentLocale = locale;
+      }
+    }),
+    reactiveMessage: vi.fn((fn) => fn),
+    getMessage: vi.fn((key: string) => translations[key] || (() => key)),
+    getAvailableLocales: vi.fn(() => ['en', 'ja'])
+  };
+
+  const reset = () => {
+    currentLocale = 'en';
+    service.getCurrentLocale.mockClear();
+    service.setLocale.mockClear();
+    service.reactiveMessage.mockClear();
+    service.getMessage.mockClear();
+    service.getAvailableLocales.mockClear();
+  };
+
+  return { service, reset };
+};
+
+const translationService = createMockTranslationService();
 
 describe('TaskAddForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const mockTranslationService: ITranslationService = {
-      getCurrentLocale: vi.fn().mockReturnValue('en'),
-      setLocale: vi.fn(),
-      reactiveMessage: vi.fn().mockImplementation((fn) => fn),
-      getMessage: vi.fn().mockImplementation((key: string) => {
-        const translations: Record<string, () => string> = {
-          'task_title': () => 'Task title',
-          'add_task': () => 'Add task',
-          'cancel': () => 'Cancel',
-          'edit_task': () => 'Edit task',
-          'save_task': () => 'Save task',
-          'enter_task_title': () => 'Enter task title',
-          'task_title_placeholder': () => 'Task title'
-        };
-        return translations[key] || (() => key);
-      }),
-      getAvailableLocales: vi.fn().mockReturnValue(['en', 'ja'])
-    };
-    setTranslationService(mockTranslationService);
+    translationService.reset();
+    setTranslationService(translationService.service);
+  });
+
+  afterAll(() => {
+    setTranslationService(originalTranslationService);
   });
 
   describe('rendering', () => {

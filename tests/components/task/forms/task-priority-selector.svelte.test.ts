@@ -1,5 +1,5 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
 import TaskPrioritySelector from '$lib/components/task/forms/task-priority-selector.svelte';
 
 describe('TaskPrioritySelector Component', () => {
@@ -21,77 +21,46 @@ describe('TaskPrioritySelector Component', () => {
     vi.clearAllMocks();
   });
 
-  test('should render priority selector with current value', () => {
+  const renderComponent = (isSubTask: boolean) =>
     render(TaskPrioritySelector, {
-      isSubTask: false,
+      isSubTask,
       formData: mockFormData,
       onPriorityChange,
       onFormChange
     });
 
-    const prioritySelect = screen.getByLabelText('Priority');
-    expect(prioritySelect).toBeInTheDocument();
-    expect(prioritySelect).toHaveValue('2');
+  it('renders selector with current value', () => {
+    const { getByLabelText } = renderComponent(false);
+    const select = getByLabelText('priority');
+    expect(select).toHaveValue('2');
   });
 
-  test('should show optional label for subtask', () => {
-    render(TaskPrioritySelector, {
-      isSubTask: true,
-      formData: mockFormData,
-      onPriorityChange,
-      onFormChange
-    });
-
-    expect(screen.getByText('(Optional)')).toBeInTheDocument();
+  it('shows optional badge for subtasks', () => {
+    const { getByText } = renderComponent(true);
+    expect(getByText('optional')).toBeInTheDocument();
   });
 
-  test('should show "Not Set" option for subtask', () => {
-    render(TaskPrioritySelector, {
-      isSubTask: true,
-      formData: mockFormData,
-      onPriorityChange,
-      onFormChange
-    });
+	it('shows not_set option for subtasks only', () => {
+		const { getByText, unmount } = renderComponent(true);
+		expect(getByText('not_set')).toBeInTheDocument();
+		unmount();
 
-    expect(screen.getByText('Not Set')).toBeInTheDocument();
+		const { queryByText } = renderComponent(false);
+		expect(queryByText('not_set')).toBeNull();
+	});
+
+  it('renders priority options', () => {
+    const { getByText } = renderComponent(false);
+    expect(getByText('high_priority')).toBeInTheDocument();
+    expect(getByText('medium_priority')).toBeInTheDocument();
+    expect(getByText('low_priority')).toBeInTheDocument();
+    expect(getByText('lowest_priority')).toBeInTheDocument();
   });
 
-  test('should not show "Not Set" option for main task', () => {
-    render(TaskPrioritySelector, {
-      isSubTask: false,
-      formData: mockFormData,
-      onPriorityChange,
-      onFormChange
-    });
-
-    expect(screen.queryByText('Not Set')).not.toBeInTheDocument();
-  });
-
-  test('should have all priority options', () => {
-    render(TaskPrioritySelector, {
-      isSubTask: false,
-      formData: mockFormData,
-      onPriorityChange,
-      onFormChange
-    });
-
-    expect(screen.getByText('High (1)')).toBeInTheDocument();
-    expect(screen.getByText('Medium (2)')).toBeInTheDocument();
-    expect(screen.getByText('Low (3)')).toBeInTheDocument();
-    expect(screen.getByText('Lowest (4)')).toBeInTheDocument();
-  });
-
-  test('should call onPriorityChange and onFormChange when priority is changed', async () => {
-    render(TaskPrioritySelector, {
-      isSubTask: false,
-      formData: mockFormData,
-      onPriorityChange,
-      onFormChange
-    });
-
-    const prioritySelect = screen.getByLabelText('Priority');
-    await fireEvent.change(prioritySelect, { target: { value: '1' } });
-
+  it('emits onPriorityChange and onFormChange when selection changes', async () => {
+    const { getByLabelText } = renderComponent(false);
+    const select = getByLabelText('priority');
+    await fireEvent.change(select, { target: { value: '1' } });
     expect(onPriorityChange).toHaveBeenCalledWith(1);
     expect(onFormChange).toHaveBeenCalled();
   });

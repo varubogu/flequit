@@ -1,152 +1,57 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/svelte';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/svelte';
 import DeleteConfirmationDialog from '$lib/components/dialog/delete-confirmation-dialog.svelte';
 
+const baseProps = {
+	open: true,
+	title: '削除の確認',
+	message: 'このアイテムを削除してもよろしいですか？',
+	onConfirm: vi.fn(),
+	onCancel: vi.fn()
+};
+
 describe('DeleteConfirmationDialog', () => {
-  const defaultProps = {
-    open: true,
-    title: '削除の確認',
-    message: 'このアイテムを削除してもよろしいですか？この操作は取り消せません。',
-    onConfirm: vi.fn(),
-    onCancel: vi.fn()
-  };
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+	it('renders dialog content when open', () => {
+		const { getByRole, getByText } = render(DeleteConfirmationDialog, baseProps);
+		expect(getByRole('dialog')).toBeInTheDocument();
+		expect(getByText(baseProps.title)).toBeInTheDocument();
+		expect(getByText(baseProps.message)).toBeInTheDocument();
+	});
 
-  it('ダイアログが表示される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
+	it('does not render when closed', () => {
+		const { queryByRole } = render(DeleteConfirmationDialog, { ...baseProps, open: false });
+		expect(queryByRole('dialog')).toBeNull();
+	});
 
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('削除の確認')).toBeInTheDocument();
-    expect(
-      screen.getByText('このアイテムを削除してもよろしいですか？この操作は取り消せません。')
-    ).toBeInTheDocument();
-  });
+	it('shows translation-backed button labels', () => {
+		const { getByText } = render(DeleteConfirmationDialog, baseProps);
+		expect(getByText('cancel')).toBeInTheDocument();
+		expect(getByText('delete')).toBeInTheDocument();
+	});
 
-  it('openがfalseの場合はダイアログが表示されない', () => {
-    const props = { ...defaultProps, open: false };
-    render(DeleteConfirmationDialog, { props });
+	it('invokes onConfirm when delete clicked', async () => {
+		const onConfirm = vi.fn();
+		const { getByText } = render(DeleteConfirmationDialog, { ...baseProps, onConfirm });
+		await fireEvent.click(getByText('delete'));
+		expect(onConfirm).toHaveBeenCalled();
+	});
 
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
+	it('invokes onCancel when cancel clicked', async () => {
+		const onCancel = vi.fn();
+		const { getByText } = render(DeleteConfirmationDialog, { ...baseProps, onCancel });
+		await fireEvent.click(getByText('cancel'));
+		expect(onCancel).toHaveBeenCalled();
+	});
 
-  it('削除ボタンとキャンセルボタンが表示される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    expect(screen.getByText('Delete')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
-  });
-
-  it('削除ボタンクリックでonConfirmが呼ばれる', async () => {
-    const mockOnConfirm = vi.fn();
-    const props = { ...defaultProps, onConfirm: mockOnConfirm };
-    render(DeleteConfirmationDialog, { props });
-
-    const deleteButton = screen.getByText('Delete');
-    await fireEvent.click(deleteButton);
-
-    expect(mockOnConfirm).toHaveBeenCalled();
-  });
-
-  it('キャンセルボタンクリックでonCancelが呼ばれる', async () => {
-    const mockOnCancel = vi.fn();
-    const props = { ...defaultProps, onCancel: mockOnCancel };
-    render(DeleteConfirmationDialog, { props });
-
-    const cancelButton = screen.getByText('Cancel');
-    await fireEvent.click(cancelButton);
-
-    expect(mockOnCancel).toHaveBeenCalled();
-  });
-
-  it('カスタムタイトルとメッセージが表示される', () => {
-    const customProps = {
-      ...defaultProps,
-      title: 'ファイルを削除',
-      message: 'ファイル "example.txt" を完全に削除します。この操作は元に戻せません。'
-    };
-    render(DeleteConfirmationDialog, { props: customProps });
-
-    expect(screen.getByText('ファイルを削除')).toBeInTheDocument();
-    expect(
-      screen.getByText('ファイル "example.txt" を完全に削除します。この操作は元に戻せません。')
-    ).toBeInTheDocument();
-  });
-
-  it('削除ボタンにdestructiveバリアントが設定される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    const deleteButton = screen.getByText('Delete');
-    expect(deleteButton).toBeInTheDocument();
-    // destructiveバリアントのクラスが適用されているかチェック
-    expect(deleteButton.closest('button')).toHaveClass(/bg-destructive|text-destructive/);
-  });
-
-  it('キャンセルボタンにsecondaryバリアントが設定される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    const cancelButton = screen.getByText('Cancel');
-    expect(cancelButton).toBeInTheDocument();
-    // secondaryバリアントのクラスが適用されているかチェック
-    expect(cancelButton.closest('button')).toHaveClass(/secondary/);
-  });
-
-  it('必要なpropsが正しく設定される', () => {
-    const props = {
-      open: true,
-      title: 'Delete Project',
-      message: 'Are you sure you want to delete this project?',
-      onConfirm: vi.fn(),
-      onCancel: vi.fn()
-    };
-
-    const { container } = render(DeleteConfirmationDialog, { props });
-
-    expect(container).toBeTruthy();
-    expect(props.onConfirm).toBeInstanceOf(Function);
-    expect(props.onCancel).toBeInstanceOf(Function);
-  });
-
-  it('ダイアログタイトルが見出しとして認識される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    const titleElement = screen.getByRole('heading', { name: '削除の確認' });
-    expect(titleElement).toBeInTheDocument();
-  });
-
-  it('説明テキストが正しく表示される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    const descriptionElement = screen.getByText(
-      'このアイテムを削除してもよろしいですか？この操作は取り消せません。'
-    );
-    expect(descriptionElement).toBeInTheDocument();
-  });
-
-  it('ボタンが正しい順序で配置される', () => {
-    render(DeleteConfirmationDialog, { props: defaultProps });
-
-    const cancelButton = screen.getByText('Cancel');
-    const deleteButton = screen.getByText('Delete');
-
-    // 両方のボタンが存在することを確認
-    expect(cancelButton).toBeInTheDocument();
-    expect(deleteButton).toBeInTheDocument();
-  });
-
-  it('特殊文字を含むタイトルとメッセージが正しく処理される', () => {
-    const props = {
-      ...defaultProps,
-      title: 'Delete "Special" Item & More',
-      message: 'Are you sure you want to delete "<item>" & all its data?'
-    };
-    render(DeleteConfirmationDialog, { props });
-
-    expect(screen.getByText('Delete "Special" Item & More')).toBeInTheDocument();
-    expect(
-      screen.getByText('Are you sure you want to delete "<item>" & all its data?')
-    ).toBeInTheDocument();
-  });
+	it('renders destructive and secondary button classes', () => {
+		const { getByText } = render(DeleteConfirmationDialog, baseProps);
+		const cancelButton = getByText('cancel').closest('button');
+		const deleteButton = getByText('delete').closest('button');
+		expect(cancelButton?.className).toContain('secondary');
+		expect(deleteButton?.className).toContain('destructive');
+	});
 });

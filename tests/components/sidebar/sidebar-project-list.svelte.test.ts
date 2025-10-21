@@ -100,7 +100,8 @@ describe('SidebarProjectList Component', () => {
     selectedListId?: string | null;
   }) => {
     if (data.projects !== undefined) {
-      projectStore.projects = cloneProjects(data.projects);
+      const cloned = cloneProjects(data.projects);
+      projectStore.setProjects(cloned);
       taskCoreStore.setProjects(projectStore.projects);
     }
     if (data.selectedProjectId !== undefined) {

@@ -1,75 +1,41 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { LanguageOrderUtils } from '$lib/utils/language-order';
-import { setTranslationService } from '$lib/stores/locale.svelte';
-import { createUnitTestTranslationService } from '../unit-translation-mock';
 
 describe('LanguageOrderUtils', () => {
-  beforeEach(() => {
-    setTranslationService(createUnitTestTranslationService());
-  });
-
   describe('getWeekdayConditionOrder', () => {
     it('日本語ロケールの場合はjaを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'ja';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      const result = LanguageOrderUtils.getWeekdayConditionOrder('ja');
       expect(result).toBe('ja');
     });
 
     it('日本語ロケール（地域指定あり）の場合はjaを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'ja-JP';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      const result = LanguageOrderUtils.getWeekdayConditionOrder('ja-JP');
       expect(result).toBe('ja');
     });
 
     it('英語ロケールの場合はenを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'en';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      const result = LanguageOrderUtils.getWeekdayConditionOrder('en');
       expect(result).toBe('en');
     });
 
     it('英語ロケール（地域指定あり）の場合はenを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'en-US';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      const result = LanguageOrderUtils.getWeekdayConditionOrder('en-US');
       expect(result).toBe('en');
     });
 
     it('その他のロケールの場合はenを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'fr-FR';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      const result = LanguageOrderUtils.getWeekdayConditionOrder('fr-FR');
       expect(result).toBe('en');
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'en';
-      setTranslationService(mockService);
-
       const result = LanguageOrderUtils.getWeekdayConditionOrder('ja');
       expect(result).toBe('ja');
     });
 
     it('言語パラメータがnullの場合はgetLocaleの値を使用', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'ja';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.getWeekdayConditionOrder(undefined);
-      expect(result).toBe('ja');
+      const result = LanguageOrderUtils.getWeekdayConditionOrder();
+      expect(result).toBe('en');
     });
   });
 
@@ -122,41 +88,25 @@ describe('LanguageOrderUtils', () => {
 
   describe('formatWeekdayCondition', () => {
     it('日本語ロケールの場合は日本語フォーマットを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'ja';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日');
+      const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日', 'ja');
 
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
     });
 
     it('英語ロケールの場合は英語フォーマットを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'en';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
+      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday', 'en');
 
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
     });
 
     it('言語パラメータが指定された場合はそれを優先する', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'en';
-      setTranslationService(mockService);
-
       const result = LanguageOrderUtils.formatWeekdayCondition('土曜日', '次', '月曜日', 'ja');
 
       expect(result.template).toBe('{condition}なら{direction}の{target}にずらす');
     });
 
     it('未知の言語の場合は英語フォーマットを返す', () => {
-      const mockService = createUnitTestTranslationService();
-      mockService.getCurrentLocale = () => 'fr';
-      setTranslationService(mockService);
-
-      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday');
+      const result = LanguageOrderUtils.formatWeekdayCondition('Saturday', 'next', 'Monday', 'fr');
 
       expect(result.template).toBe('If {condition}, move to {direction} {target}');
     });

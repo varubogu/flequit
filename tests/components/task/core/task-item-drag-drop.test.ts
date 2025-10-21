@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import TaskItem from '$lib/components/task/core/task-item.svelte';
-import { TaskService } from '$lib/services/domain/task';
+import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
@@ -12,6 +12,12 @@ vi.mock('$lib/services/task-service', () => ({
   TaskService: {
     selectTask: vi.fn(() => true),
     toggleTaskStatus: vi.fn(),
+    addTagToTask: vi.fn()
+  }
+}));
+
+vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+  taskMutations: {
     addTagToTask: vi.fn()
   }
 }));
@@ -55,6 +61,7 @@ describe('TaskItem - Drag & Drop', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(taskMutations.addTagToTask).mockClear();
   });
 
   describe('ドラッグ機能', () => {
@@ -129,7 +136,7 @@ describe('TaskItem - Drag & Drop', () => {
         type: 'task',
         id: 'task-1'
       });
-      expect(TaskService.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+      expect(taskMutations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
     });
 
     it('タグ以外がドロップされた場合はaddTagToTaskが呼ばれない', async () => {
@@ -150,7 +157,7 @@ describe('TaskItem - Drag & Drop', () => {
       await fireEvent(taskElement!, dropEvent);
 
       expect(DragDropManager.handleDrop).toHaveBeenCalled();
-      expect(TaskService.addTagToTask).not.toHaveBeenCalled();
+      expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
     });
 
     it('無効なドロップの場合はaddTagToTaskが呼ばれない', async () => {
@@ -168,7 +175,7 @@ describe('TaskItem - Drag & Drop', () => {
       await fireEvent(taskElement!, dropEvent);
 
       expect(DragDropManager.handleDrop).toHaveBeenCalled();
-      expect(TaskService.addTagToTask).not.toHaveBeenCalled();
+      expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
     });
   });
 
