@@ -5,44 +5,109 @@ import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
-// 必要なモック
-vi.mock('$lib/stores/tasks.svelte', () => ({
-  taskStore: {
-    selectedTaskId: null,
-    selectedSubTaskId: null,
-    allTasks: [],
-    todayTasks: [],
-    overdueTasks: [],
-    updateTask: vi.fn(),
-    addTagToTask: vi.fn(),
-    getTaskCountByTag: vi.fn(() => 0)
-  }
+// --- Translation Mock -------------------------------------------------------
+vi.mock('$lib/stores/locale.svelte', () => ({
+  getTranslationService: () => ({
+    getMessage: (key: string) => {
+      const messages: Record<string, () => string> = {
+        add_task: () => 'TEST_ADD_TASK',
+        no_search_results: () => 'TEST_NO_SEARCH_RESULTS',
+        no_tasks_found: () => 'TEST_NO_TASKS_FOUND',
+        try_different_search: () => 'TEST_TRY_DIFFERENT_SEARCH',
+        click_add_task: () => 'TEST_CLICK_ADD_TASK',
+        add_some_tasks: () => 'TEST_ADD_SOME_TASKS',
+        views_title: () => 'TEST_VIEWS',
+        tags: () => 'TEST_TAGS',
+        remove_tag_from_sidebar: () => 'Remove Tag',
+        add_tag_to_sidebar: () => 'Add Tag',
+        edit_tag: () => 'Edit Tag',
+        delete_tag: () => 'Delete Tag',
+        edit_task: () => 'Edit Task',
+        delete_task: () => 'Delete Task',
+        edit_subtask: () => 'Edit Subtask',
+        delete_subtask: () => 'Delete Subtask'
+      };
+      return messages[key] || (() => key);
+    }
+  })
 }));
 
-vi.mock('$lib/stores/tags.svelte', () => ({
-  tagStore: {
-    bookmarkedTagList: [
-      {
-        id: 'tag-1',
-        name: 'Important',
-        color: '#ff0000',
-        created_at: new Date(),
-        updated_at: new Date()
-      },
-      {
-        id: 'tag-2',
-        name: 'Work',
-        color: '#0000ff',
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    ],
+// --- Store & Service Mocks ---------------------------------------------------
+function createMockAllTasks() {
+  return [
+    {
+      id: 'all-task-1',
+      title: 'All Task 1',
+      status: 'not_started',
+      planEndDate: new Date(),
+      projectId: 'project-1'
+    },
+    {
+      id: 'all-task-2',
+      title: 'All Task 2',
+      status: 'completed',
+      planEndDate: new Date(),
+      projectId: 'project-1'
+    }
+  ];
+}
+
+vi.mock('$lib/stores/tasks.svelte', () => {
+  const allTasks = createMockAllTasks();
+  return {
+    taskStore: {
+      selectedTaskId: null,
+      selectedSubTaskId: null,
+      isNewTaskMode: false,
+      allTasks,
+      todayTasks: allTasks.slice(0, 1),
+      overdueTasks: allTasks.slice(0, 1),
+      removeTagFromAllTasks: vi.fn(),
+      getTaskCountByTag: vi.fn(() => 2)
+    }
+  };
+});
+
+const bookmarkedIds = new Set(['tag-1', 'tag-2']);
+function createMockTags() {
+  return [
+    {
+      id: 'tag-1',
+      name: 'Important',
+      color: '#ff0000',
+      created_at: new Date(),
+      updated_at: new Date()
+    },
+    {
+      id: 'tag-2',
+      name: 'Work',
+      color: '#0000ff',
+      created_at: new Date(),
+      updated_at: new Date()
+    }
+  ];
+}
+
+vi.mock('$lib/stores/tags.svelte', () => {
+  const mockTags = createMockTags();
+  const tagStore = {
+    tags: mockTags,
     removeBookmark: vi.fn(),
     deleteTag: vi.fn(),
     updateTag: vi.fn(),
-    moveBookmarkedTagToPosition: vi.fn()
-  }
-}));
+    moveBookmarkedTagToPosition: vi.fn(),
+    getProjectIdByTagId: vi.fn(async () => 'project-1'),
+    isBookmarked: vi.fn((tagId: string) => bookmarkedIds.has(tagId))
+  };
+
+  Object.defineProperty(tagStore, 'bookmarkedTagList', {
+    get() {
+      return mockTags.filter((tag) => bookmarkedIds.has(tag.id));
+    }
+  });
+
+  return { tagStore };
+});
 
 vi.mock('$lib/stores/views-visibility.svelte', () => ({
   viewsVisibilityStore: {
@@ -63,51 +128,97 @@ vi.mock('$lib/stores/view-store.svelte', () => ({
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   useSidebar: () => ({
     state: 'expanded',
-    isMobile: () => false,
+    isMobile: false,
     toggle: vi.fn()
   })
 }));
 
-// vitest.setup.tsの統一的なモック化を使用するため、locale.svelteの個別モック化は削除
+vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+  taskMutations: {
+    updateTaskDueDateForView: vi.fn(),
+    addTagToTask: vi.fn(),
+    toggleTaskStatus: vi.fn(),
+    deleteTask: vi.fn()
+  }
+}));
 
+vi.mock('$lib/services/domain/subtask', () => ({
+  SubTaskMutations: class {
+    updateSubTaskDueDateForView = vi.fn();
+    addTagToSubTask = vi.fn();
+    toggleSubTaskStatus = vi.fn();
+    deleteSubTask = vi.fn();
+  }
+}));
+
+vi.mock('$lib/services/domain/tag', () => ({
+  TagService: {
+    addBookmark: vi.fn(),
+    updateTag: vi.fn(),
+    deleteTag: vi.fn()
+  }
+}));
+
+vi.mock('$lib/services/ui/task-detail-ui-store.svelte', () => ({
+  useTaskDetailUiStore: () => ({
+    openTaskDetail: vi.fn(),
+    openSubTaskDetail: vi.fn()
+  })
+}));
+
+vi.mock('$lib/stores/selection-store.svelte', () => ({
+  selectionStore: {
+    selectTask: vi.fn(),
+    selectSubTask: vi.fn()
+  }
+}));
+
+vi.mock('$lib/services/domain/task-list', () => ({
+  TaskListService: {
+    getTaskCountText: (count: number) => `${count} tasks`
+  }
+}));
+
+// --- Test Data ----------------------------------------------------------------
+const mockTasks: TaskWithSubTasks[] = [
+  {
+    id: 'task-1',
+    title: 'Test Task 1',
+    description: '',
+    status: 'not_started',
+    priority: 1,
+    projectId: 'project-1',
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
+    tags: [],
+    listId: 'list-1',
+    orderIndex: 0,
+    isArchived: false
+  },
+  {
+    id: 'task-2',
+    title: 'Test Task 2',
+    description: '',
+    status: 'not_started',
+    priority: 2,
+    projectId: 'project-1',
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    subTasks: [],
+    tags: [],
+    listId: 'list-1',
+    orderIndex: 1,
+    isArchived: false
+  }
+];
+
+// --- Test Suites --------------------------------------------------------------
 describe('Task Drag & Drop Integration', () => {
-  const mockTasks: TaskWithSubTasks[] = [
-    {
-      id: 'task-1',
-      title: 'Test Task 1',
-      description: '',
-      status: 'not_started' as const,
-      priority: 1,
-      projectId: 'project-1',
-      assignedUserIds: [],
-      tagIds: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      subTasks: [],
-      tags: [],
-      listId: 'list-1',
-      orderIndex: 0,
-      isArchived: false
-    },
-    {
-      id: 'task-2',
-      title: 'Test Task 2',
-      description: '',
-      status: 'not_started' as const,
-      priority: 2,
-      projectId: 'project-1',
-      assignedUserIds: [],
-      tagIds: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      subTasks: [],
-      tags: [],
-      listId: 'list-1',
-      orderIndex: 1,
-      isArchived: false
-    }
-  ];
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -129,12 +240,11 @@ describe('Task Drag & Drop Integration', () => {
         }
       });
 
-      // タスクリストが正しくレンダリングされていることを確認
       expect(taskListComponent.getByTestId('task-list')).toBeDefined();
+
       expect(taskListComponent.getByText('Test Task 1')).toBeDefined();
       expect(taskListComponent.getByText('Test Task 2')).toBeDefined();
 
-      // ビューリストが正しくレンダリングされていることを確認
       expect(sidebarComponent.getByTestId('view-today')).toBeDefined();
       expect(sidebarComponent.getByTestId('view-tomorrow')).toBeDefined();
       expect(sidebarComponent.getByTestId('view-overdue')).toBeDefined();
@@ -154,18 +264,16 @@ describe('Task Drag & Drop Integration', () => {
     });
 
     it('ビューボタンがドロップイベントハンドラーを持っている', () => {
-      const onViewChange = vi.fn();
-      const { getByTestId, container } = render(SidebarViewList, {
+      const { container, getByTestId } = render(SidebarViewList, {
         props: {
           currentView: 'all',
-          onViewChange
+          onViewChange: vi.fn()
         }
       });
 
       const todayView = getByTestId('view-today');
       expect(todayView).toBeDefined();
 
-      // コンテナ内にdrop target（role="region"）が存在することを確認
       const dropRegions = container.querySelectorAll('[role="region"]');
       expect(dropRegions.length).toBeGreaterThan(0);
     });
@@ -173,23 +281,17 @@ describe('Task Drag & Drop Integration', () => {
 
   describe('タスクとタグのドラッグ&ドロップ', () => {
     it('タグリストが正しくレンダリングされる', () => {
-      // tagStoreのモックを更新してタグを返すようにする - モック内に直接設定
-
-      const { container } = render(SidebarTagList, {
+      const { getByText } = render(SidebarTagList, {
         props: {
           currentView: 'all',
           onViewChange: vi.fn()
         }
       });
 
-      // タグセクションが表示されていることを確認
-      const tagsSection = container.querySelector('h3');
-      expect(tagsSection?.textContent).toBe('Tags');
+      expect(getByText('TEST_TAGS')).toBeDefined();
     });
 
     it('タグアイテムがドラッグ可能である', () => {
-      // tagStoreのモックを更新 - モック内に直接設定
-
       const { container } = render(SidebarTagList, {
         props: {
           currentView: 'all',
@@ -197,7 +299,6 @@ describe('Task Drag & Drop Integration', () => {
         }
       });
 
-      // ドラッグ可能なタグ要素があることを確認
       const draggableElements = container.querySelectorAll('[draggable="true"]');
       expect(draggableElements.length).toBeGreaterThan(0);
     });
@@ -213,12 +314,11 @@ describe('Task Drag & Drop Integration', () => {
         }
       });
 
-      // ドラッグ&ドロップ対応要素が存在することを確認（タスクアイテムは基本的にはdraggable）
       const draggableElements = container.querySelectorAll('[draggable="true"]');
       expect(draggableElements.length).toBeGreaterThan(0);
     });
 
-    it('ドラッグアンドドロップ関連のCSS処理が正しく動作する', () => {
+    it('ドラッグアンドドロップ関連のエリアが存在する', () => {
       const { container } = render(SidebarViewList, {
         props: {
           currentView: 'all',
@@ -226,14 +326,8 @@ describe('Task Drag & Drop Integration', () => {
         }
       });
 
-      // ドロップ可能エリアが存在することを確認（role="region"の要素を確認）
       const dropAreas = container.querySelectorAll('[role="region"]');
       expect(dropAreas.length).toBeGreaterThan(0);
-
-      // 各ドロップエリアは region roleを持っていることを確認
-      dropAreas.forEach((area) => {
-        expect(area.getAttribute('role')).toBe('region');
-      });
     });
   });
 
@@ -251,8 +345,6 @@ describe('Task Drag & Drop Integration', () => {
     });
 
     it('空のタグリストでもエラーが発生しない', () => {
-      // 空のタグリストをモック - モック内に直接設定
-
       expect(() => {
         render(SidebarTagList, {
           props: {
@@ -268,7 +360,7 @@ describe('Task Drag & Drop Integration', () => {
         render(TaskList, {
           props: {
             title: '',
-            // @ts-expect-error 不正値を渡すため型チェック対象外
+            // @ts-expect-error 故意に不正な値を渡す
             tasks: undefined as unknown,
             showAddButton: false
           }

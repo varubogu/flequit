@@ -1,287 +1,355 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { TaskStore } from '../../src/lib/stores/tasks.svelte';
-import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
-import { tagStore } from '../../src/lib/stores/tags.svelte';
+import { describe, beforeEach, it, expect, vi } from 'vitest';
+import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
 import type { ProjectTree } from '$lib/types/project';
+import type { TaskWithSubTasks } from '$lib/types/task';
+import type { SubTaskWithTags } from '$lib/types/sub-task';
+import type { Tag } from '$lib/types/tag';
 
-describe('サブタスクとタグ管理の結合テスト', () => {
-  let store: TaskStore;
+type TestEnvironment = ReturnType<typeof createTestEnvironment>;
 
-  const createMockProject = (): ProjectTree => ({
-    id: 'project-1',
-    name: 'Test Project',
+function createBaseTag(name: string, overrides: Partial<Tag> = {}): Tag {
+  return {
+    id: `tag-${name}`,
+    name,
+    color: '#000000',
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+    ...overrides
+  };
+}
+
+function generateId(prefix: string) {
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createBaseSubTask(
+  overrides: Partial<SubTaskWithTags> = {}
+): SubTaskWithTags {
+  return {
+    id: generateId('sub'),
+    taskId: 'task-1',
+    title: 'SubTask',
+    description: '',
+    status: 'not_started',
+    priority: 0,
+    planStartDate: undefined,
+    planEndDate: undefined,
+    doStartDate: undefined,
+    doEndDate: undefined,
+    isRangeDate: false,
+    recurrenceRule: undefined,
+    orderIndex: 0,
+    completed: false,
+    assignedUserIds: [],
+    tagIds: [],
+    tags: [],
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+    ...overrides
+  };
+}
+
+function createBaseTask(
+  overrides: Partial<TaskWithSubTasks> = {}
+): TaskWithSubTasks {
+  return {
+    id: 'task-1',
+    projectId: 'project-1',
+    listId: 'list-1',
+    title: 'Parent Task',
+    description: '',
+    status: 'not_started',
+    priority: 1,
+    planStartDate: undefined,
+    planEndDate: undefined,
+    isRangeDate: false,
     orderIndex: 0,
     isArchived: false,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    assignedUserIds: [],
+    tagIds: [],
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
+    tags: [],
+    subTasks: [],
+    ...overrides
+  };
+}
+
+function createBaseProject(task: TaskWithSubTasks): ProjectTree {
+  return {
+    id: 'project-1',
+    name: 'Test Project',
+    description: '',
+    color: '#0080ff',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: new Date('2024-01-01T00:00:00Z'),
+    updatedAt: new Date('2024-01-01T00:00:00Z'),
     taskLists: [
       {
         id: 'list-1',
         projectId: 'project-1',
-        name: 'Test List',
+        name: 'List 1',
+        description: '',
+        color: undefined,
         orderIndex: 0,
         isArchived: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        tasks: [
-          {
-            id: 'task-1',
-            projectId: 'project-1',
-            listId: 'list-1',
-            title: 'Parent Task',
-            status: 'not_started',
-            priority: 1,
-            orderIndex: 0,
-            isArchived: false,
-            assignedUserIds: [],
-            tagIds: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            subTasks: [],
-            tags: []
-          }
-        ]
+        createdAt: new Date('2024-01-01T00:00:00Z'),
+        updatedAt: new Date('2024-01-01T00:00:00Z'),
+        tasks: [task]
       }
     ]
+  };
+}
+
+function createTestEnvironment() {
+  const task: TaskWithSubTasks = createBaseTask();
+  const project: ProjectTree = createBaseProject(task);
+  const tags: Tag[] = [];
+  let subTaskCounter = 0;
+
+  const getSubTaskById = (id: string) =>
+    task.subTasks.find((subTask) => subTask.id === id);
+
+  const taskStoreMock = {
+    getTaskProjectAndList: vi.fn((taskId: string) => {
+      if (taskId === task.id) {
+        return {
+          project,
+          taskList: project.taskLists[0]
+        };
+      }
+      return null;
+    })
+  };
+
+  const subTaskStoreMock = {
+    addSubTask: vi.fn(async (_taskId: string, data: Partial<SubTaskWithTags>) => {
+      if (_taskId !== task.id) {
+        console.error('Failed to find task for subtask creation:', _taskId);
+        return null;
+      }
+      const newSubTask = createBaseSubTask({
+        id: `sub-${++subTaskCounter}`,
+        taskId: task.id,
+        title: data.title ?? 'New SubTask',
+        status: (data.status as 'not_started' | 'completed') ?? 'not_started',
+        priority: data.priority ?? 0,
+        description: data.description
+      });
+      task.subTasks.push(newSubTask);
+      return newSubTask;
+    }),
+    updateSubTask: vi.fn(async (subTaskId: string, updates: Partial<SubTaskWithTags>) => {
+      const target = getSubTaskById(subTaskId);
+      if (!target) return;
+      Object.assign(target, updates, {
+        updatedAt: new Date()
+      });
+    }),
+    deleteSubTask: vi.fn(async (subTaskId: string) => {
+      const index = task.subTasks.findIndex((subTask) => subTask.id === subTaskId);
+      if (index !== -1) {
+        task.subTasks.splice(index, 1);
+      }
+    }),
+    attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
+      const target = getSubTaskById(subTaskId);
+      if (!target) return;
+      if (target.tags.some((existing) => existing.id === tag.id)) return;
+      target.tags.push(tag);
+      target.updatedAt = new Date();
+    }),
+    detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
+      const target = getSubTaskById(subTaskId);
+      if (!target) return null;
+      const index = target.tags.findIndex((tag) => tag.id === tagId);
+      if (index === -1) return null;
+      const [removed] = target.tags.splice(index, 1);
+      target.updatedAt = new Date();
+      return removed ?? null;
+    })
+  };
+
+  const taggingServiceMock = {
+    createSubtaskTag: vi.fn(
+      async (_projectId: string, _subTaskId: string, name: string) => {
+        return createBaseTag(name, {
+          id: `created-${name}-${Math.random().toString(36).slice(2, 7)}`
+        });
+      }
+    ),
+    deleteSubtaskTag: vi.fn(async () => {})
+  };
+
+  const errorHandlerMock = {
+    addSyncError: vi.fn()
+  };
+
+  const mutations = new SubTaskMutations({
+    taskStore: taskStoreMock as unknown as typeof taskStoreMock,
+    taskCoreStore: { updateTask: vi.fn() } as any,
+    subTaskStore: subTaskStoreMock as any,
+    tagStore: { tags } as any,
+    taggingService: taggingServiceMock as any,
+    errorHandler: errorHandlerMock as any
   });
+
+  return {
+    project,
+    task,
+    tags,
+    taskStoreMock,
+    subTaskStoreMock,
+    taggingServiceMock,
+    errorHandlerMock,
+    mutations,
+    getSubTaskById,
+    resetTags(newTags: Tag[] = []) {
+      tags.splice(0, tags.length, ...newTags);
+    },
+    addExistingTag(tag: Tag) {
+      if (!tags.some((existing) => existing.id === tag.id)) {
+        tags.push(tag);
+      }
+    }
+  };
+}
+
+describe('サブタスクとタグ管理の結合テスト', () => {
+  let env: TestEnvironment;
 
   beforeEach(() => {
-    store = new TaskStore();
-    // tagStoreの状態を手動でリセット（resetメソッドがないため）
-    // 新しいテストごとに独立した環境を作る
+    env = createTestEnvironment();
   });
 
-  describe('サブタスクとタグの連携テスト', () => {
-    beforeEach(() => {
-      store.setProjects([createMockProject()]);
+  it('サブタスクを作成してタグを追加できる', async () => {
+    const created = await env.mutations.addSubTask('task-1', {
+      title: 'Test SubTask',
+      priority: 2
     });
 
-    test('サブタスクを作成してタグを追加できる', async () => {
-      // サブタスクを作成
-      const newSubTask = await subTaskStore.addSubTask('task-1', {
-        title: 'Test SubTask',
-        description: 'Test description',
-        status: 'in_progress',
-        priority: 2
-      });
+    expect(created).not.toBeNull();
+    expect(created?.title).toBe('Test SubTask');
 
-      expect(newSubTask).not.toBeNull();
-      expect(newSubTask?.title).toBe('Test SubTask');
+    const subTaskId = created!.id;
+    await env.mutations.addTagToSubTaskByName(subTaskId, 'task-1', 'urgent');
 
-      // タグを作成
-      const testTag = tagStore.getOrCreateTag('urgent');
-      expect(testTag).not.toBeNull();
-      expect(testTag?.name).toBe('urgent');
-
-      // サブタスクにタグを追加
-      if (newSubTask) {
-        subTaskStore.addTagToSubTask(newSubTask.id, 'urgent');
-
-        const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
-
-        expect(subTask?.tags).toHaveLength(0);
-      }
-    });
-
-    test('サブタスクのライフサイクル管理', async () => {
-      // 1. サブタスクを作成
-      const newSubTask = await subTaskStore.addSubTask('task-1', {
-        title: 'Lifecycle Test SubTask',
-        status: 'not_started',
-        priority: 1
-      });
-
-      expect(newSubTask).not.toBeNull();
-
-      if (!newSubTask) return;
-
-      // 2. サブタスクを更新
-      await subTaskStore.updateSubTask(newSubTask.id, {
-        title: 'Updated SubTask',
-        status: 'completed',
-        priority: 3
-      });
-
-      let parentTask = store.getTaskById('task-1');
-      const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
-
-      expect(subTask?.title).toBe('Updated SubTask');
-      expect(subTask?.status).toBe('completed');
-      expect(subTask?.priority).toBe(3);
-
-      // 3. サブタスクを削除
-      await subTaskStore.deleteSubTask(newSubTask.id);
-
-      parentTask = store.getTaskById('task-1');
-      expect(parentTask?.subTasks).toHaveLength(0);
-    });
-
-    test('複数のサブタスクと複数のタグの管理（バックエンド未実装時はno-op）', async () => {
-      // 複数のサブタスクを作成
-      const subTask1 = await subTaskStore.addSubTask('task-1', {
-        title: 'SubTask 1',
-        priority: 1
-      });
-
-      const subTask2 = await subTaskStore.addSubTask('task-1', {
-        title: 'SubTask 2',
-        priority: 2
-      });
-
-      expect(subTask1).not.toBeNull();
-      expect(subTask2).not.toBeNull();
-
-      // 複数のタグを作成
-      const urgentTag = tagStore.getOrCreateTag('urgent');
-      const workTag = tagStore.getOrCreateTag('work');
-      const personalTag = tagStore.getOrCreateTag('personal');
-
-      expect(urgentTag).not.toBeNull();
-      expect(workTag).not.toBeNull();
-      expect(personalTag).not.toBeNull();
-
-      if (subTask1 && subTask2) {
-        // サブタスク1にタグを追加
-        subTaskStore.addTagToSubTask(subTask1.id, 'urgent');
-        subTaskStore.addTagToSubTask(subTask1.id, 'work');
-
-        // サブタスク2にタグを追加
-        subTaskStore.addTagToSubTask(subTask2.id, 'urgent');
-        subTaskStore.addTagToSubTask(subTask2.id, 'personal');
-
-        const parentTask = store.getTaskById('task-1');
-
-        const st1 = parentTask?.subTasks.find((st) => st.id === subTask1.id);
-        const st2 = parentTask?.subTasks.find((st) => st.id === subTask2.id);
-
-        expect(st1?.tags).toHaveLength(0);
-
-        expect(st2?.tags).toHaveLength(0);
-
-        // タグの削除テスト
-        // タグが存在しないためremoveしても変化なし
-        subTaskStore.removeTagFromSubTask(subTask1.id, 'non-existent');
-        const updatedTask = store.getTaskById('task-1');
-        const updatedSt1 = updatedTask?.subTasks.find((st) => st.id === subTask1.id);
-        expect(updatedSt1?.tags).toHaveLength(0);
-      }
-    });
-
-    test('タスクとサブタスクのタグ管理の独立性', async () => {
-      // タスクにタグを追加
-      await store.addTagToTask('task-1', 'task-tag');
-
-      // サブタスクを作成してタグを追加
-      const newSubTask = await subTaskStore.addSubTask('task-1', {
-        title: 'Independent SubTask'
-      });
-
-      if (newSubTask) {
-        subTaskStore.addTagToSubTask(newSubTask.id, 'subtask-tag');
-
-        const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
-
-        // バックエンド未実装のため、どちらもタグは付与されない
-        expect(parentTask?.tags).toHaveLength(0);
-        expect(subTask?.tags).toHaveLength(0);
-      }
-    });
-
-    test('サブタスクを削除してもタグストアには影響しない（未作成のまま）', async () => {
-      // サブタスクを作成してタグを追加
-      const newSubTask = await subTaskStore.addSubTask('task-1', {
-        title: 'Temporary SubTask'
-      });
-
-      if (newSubTask) {
-        await subTaskStore.addTagToSubTask(newSubTask.id, 'temporary-tag');
-
-        // バックエンド未実装のためタグストアにはタグが作成されない
-        const tag = tagStore.tags.find((t) => t.name === 'temporary-tag');
-        expect(tag).toBeUndefined();
-
-        // サブタスクは削除されている
-        const parentTask = store.getTaskById('task-1');
-        expect(parentTask?.subTasks).toHaveLength(1);
-
-        // サブタスクを削除
-        await subTaskStore.deleteSubTask(newSubTask.id);
-
-        // タグストアは変化しない（存在しないまま）
-        const remainingTag = tagStore.tags.find((t) => t.name === 'temporary-tag');
-        expect(remainingTag).toBeUndefined();
-
-        // サブタスクは削除されている
-        const updatedParentTask = store.getTaskById('task-1');
-        expect(updatedParentTask?.subTasks).toHaveLength(0);
-      }
-    });
-
-    test('サブタスクのタグ管理でバックエンド連携エラーが適切に処理される', async () => {
-      // エラーハンドラーをモック
-      const errorHandler = (await import('../../src/lib/stores/error-handler.svelte')).errorHandler;
-      const addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError');
-
-      const newSubTask = await subTaskStore.addSubTask('task-1', {
-        title: 'Error Test SubTask'
-      });
-
-      if (newSubTask) {
-        // タグを追加（Webバックエンド未実装によりエラーが発生しerrorHandler記録）
-        await subTaskStore.addTagToSubTask(newSubTask.id, 'error-prone-tag');
-        const parentTask = store.getTaskById('task-1');
-        const subTask = parentTask?.subTasks.find((st) => st.id === newSubTask.id);
-        expect(subTask?.tags).toHaveLength(0);
-        expect(addSyncErrorSpy).toHaveBeenCalled();
-      }
-
-      addSyncErrorSpy.mockRestore();
-    });
+    const subTask = env.getSubTaskById(subTaskId);
+    expect(subTask?.tags).toHaveLength(1);
+    expect(subTask?.tags?.[0].name).toBe('urgent');
+    expect(env.taggingServiceMock.createSubtaskTag).toHaveBeenCalledWith(
+      'project-1',
+      subTaskId,
+      'urgent'
+    );
   });
 
-  describe('エラーハンドリングテスト', () => {
-    beforeEach(() => {
-      store.setProjects([createMockProject()]);
+  it('サブタスクのライフサイクル管理', async () => {
+    const created = await env.mutations.addSubTask('task-1', {
+      title: 'Lifecycle Sub',
+      priority: 1
     });
+    expect(created).not.toBeNull();
+    const subTaskId = created!.id;
 
-    test('存在しないタスクにサブタスクを追加しようとした場合', async () => {
-      const result = await subTaskStore.addSubTask('non-existent-task', {
-        title: 'Failed SubTask'
+    env.mutations.updateSubTask(subTaskId, {
+      title: 'Updated',
+      status: 'completed',
+      priority: 3
+    });
+    const updated = env.getSubTaskById(subTaskId);
+    expect(updated?.title).toBe('Updated');
+    expect(updated?.status).toBe('completed');
+    expect(updated?.priority).toBe(3);
+
+    await env.mutations.deleteSubTask(subTaskId);
+    expect(env.task.subTasks).toHaveLength(0);
+  });
+
+  it('複数のサブタスクと複数のタグを管理できる', async () => {
+    const subTaskA = await env.mutations.addSubTask('task-1', {
+      title: 'SubA'
+    });
+    const subTaskB = await env.mutations.addSubTask('task-1', {
+      title: 'SubB'
+    });
+    expect(subTaskA).not.toBeNull();
+    expect(subTaskB).not.toBeNull();
+
+    await env.mutations.addTagToSubTaskByName(subTaskA!.id, 'task-1', 'urgent');
+    await env.mutations.addTagToSubTaskByName(subTaskA!.id, 'task-1', 'work');
+    await env.mutations.addTagToSubTaskByName(subTaskB!.id, 'task-1', 'urgent');
+    await env.mutations.addTagToSubTaskByName(subTaskB!.id, 'task-1', 'personal');
+
+    const subA = env.getSubTaskById(subTaskA!.id);
+    const subB = env.getSubTaskById(subTaskB!.id);
+    expect(subA?.tags).toHaveLength(2);
+    expect(subB?.tags).toHaveLength(2);
+
+    env.mutations.removeTagFromSubTask(subTaskA!.id, 'task-1', 'non-existent');
+    expect(env.getSubTaskById(subTaskA!.id)?.tags).toHaveLength(2);
+  });
+
+  it('タスクとサブタスクのタグ管理の独立性', async () => {
+    env.task.tags.push(createBaseTag('task-tag', { id: 'task-tag' }));
+
+    const created = await env.mutations.addSubTask('task-1', {
+      title: 'Independent'
+    });
+    await env.mutations.addTagToSubTaskByName(created!.id, 'task-1', 'subtask-tag');
+
+    expect(env.task.tags).toHaveLength(1);
+    const subTask = env.getSubTaskById(created!.id);
+    expect(subTask?.tags).toHaveLength(1);
+    expect(subTask?.tags?.[0].name).toBe('subtask-tag');
+  });
+
+  it('サブタスクを削除してもタグストアには影響しない', async () => {
+    const created = await env.mutations.addSubTask('task-1', { title: 'Temp' });
+    expect(created).not.toBeNull();
+
+    await env.mutations.addTagToSubTaskByName(created!.id, 'task-1', 'temporary-tag');
+    expect(env.tags).toHaveLength(0);
+
+    await env.mutations.deleteSubTask(created!.id);
+    expect(env.getSubTaskById(created!.id)).toBeUndefined();
+    expect(env.tags).toHaveLength(0);
+  });
+
+  it('タグ追加でエラーが発生した場合はエラーハンドラーが呼び出される', async () => {
+    const created = await env.mutations.addSubTask('task-1', { title: 'Error Case' });
+    env.taggingServiceMock.createSubtaskTag.mockRejectedValueOnce(new Error('network error'));
+
+    await env.mutations.addTagToSubTaskByName(created!.id, 'task-1', 'failing-tag');
+
+    const subTask = env.getSubTaskById(created!.id);
+    expect(subTask?.tags).toHaveLength(0);
+    expect(env.errorHandlerMock.addSyncError).toHaveBeenCalledWith(
+      'サブタスクタグ追加',
+      'subtask',
+      created!.id,
+      expect.any(Error)
+    );
+  });
+
+  describe('エラーハンドリング', () => {
+    it('存在しないタスクにサブタスクを追加しようとした場合はnullが返る', async () => {
+      const result = await env.mutations.addSubTask('non-existent-task', {
+        title: 'Should Fail'
       });
-
-      // Web版ではダミーデータが返されるが、実際のローカル状態には追加されない
-      expect(result).not.toBeNull(); // バックエンドからはダミーが返される
-
-      // しかし、実際のタスクリストには追加されていない
-      const allTasks = store.allTasks;
-      const hasSubTaskInAnyTask = allTasks.some((task) =>
-        task.subTasks.some((subTask) => subTask.title === 'Failed SubTask')
-      );
-      expect(hasSubTaskInAnyTask).toBe(false);
+      expect(result).toBeNull();
+      expect(env.task.subTasks).toHaveLength(0);
     });
 
-    test('存在しないサブタスクを更新しようとした場合', async () => {
-      // エラーを発生させずに何もしないことを確認
-      await subTaskStore.updateSubTask('non-existent-subtask', {
-        title: 'This should not work'
-      });
-
-      // 既存のデータに変更がないことを確認
-      const parentTask = store.getTaskById('task-1');
-      expect(parentTask?.subTasks).toHaveLength(0);
+    it('存在しないサブタスクを更新しようとしてもエラーにならない', async () => {
+      env.mutations.updateSubTask('missing-subtask', { title: 'No effect' });
+      expect(env.task.subTasks).toHaveLength(0);
     });
 
-    test('存在しないサブタスクを削除しようとした場合', async () => {
-      // エラーを発生させずに何もしないことを確認
-      await subTaskStore.deleteSubTask('non-existent-subtask');
-
-      // 既存のデータに変更がないことを確認
-      const parentTask = store.getTaskById('task-1');
-      expect(parentTask?.subTasks).toHaveLength(0);
+    it('存在しないサブタスクを削除しようとしてもエラーにならない', async () => {
+      await env.mutations.deleteSubTask('missing-subtask');
+      expect(env.task.subTasks).toHaveLength(0);
     });
   });
 });

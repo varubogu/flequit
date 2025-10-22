@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { settingsStore } from '$lib/stores/settings.svelte';
 import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
 import type { TimeLabel } from '$lib/types/settings';
@@ -12,6 +13,15 @@ vi.mock('$lib/infrastructure/backends', () => ({
         get: vi.fn(() => Promise.resolve(null)),
         getAll: vi.fn(() => Promise.resolve([])),
         update: vi.fn(() => Promise.resolve(true))
+      },
+      settingsManagement: {
+        loadSettings: vi.fn(() => Promise.resolve(null)),
+        saveSettings: vi.fn(() => Promise.resolve(true)),
+        settingsFileExists: vi.fn(() => Promise.resolve(false)),
+        initializeSettingsWithDefaults: vi.fn(() => Promise.resolve(true)),
+        getSettingsFilePath: vi.fn(() => Promise.resolve('/tmp/settings.json')),
+        updateSettingsPartially: vi.fn(() => Promise.resolve(null)),
+        addCustomDueDay: vi.fn(() => Promise.resolve(true))
       }
     })
   )
@@ -52,133 +62,146 @@ describe('TimeLabels Integration Tests', () => {
     });
 
     // settingsStoreの状態をリセット
-    settingsStore.timeLabels.splice(0);
+    const existingLabels = [...settingsStore.timeLabels];
+    existingLabels.forEach((label) => settingsStore.removeTimeLabel(label.id));
     vi.clearAllMocks();
   });
 
   it('時刻ラベルの完全なCRUD操作が動作すること', async () => {
-    render(TimeLabelsEditor);
+    let view = render(TimeLabelsEditor);
+    const rerender = () => {
+      view.unmount();
+      view = render(TimeLabelsEditor);
+    };
+
+    const addTimeLabelThroughUI = async (name: string, time: string) => {
+      const addButton = screen.getByRole('button', { name: /Add Time Label/i });
+      await fireEvent.click(addButton);
+
+      const nameInput = screen.getByLabelText('Label Name');
+      const timeInput = screen.getByLabelText('Time');
+
+      await fireEvent.input(nameInput, { target: { value: name } });
+      await fireEvent.input(timeInput, { target: { value: time } });
+
+      const saveButton = screen.getByRole('button', { name: /Save/i });
+      expect(saveButton).not.toBeDisabled();
+      await fireEvent.click(saveButton);
+      await tick();
+    };
+
+    const getActionButton = (labelText: string, index: number) => {
+      const labelElement = screen.getByText(labelText);
+      const card = labelElement.parentElement?.parentElement as HTMLElement | null;
+      if (!card) {
+        throw new Error(`Card for label "${labelText}" not found`);
+      }
+      const buttons = within(card).getAllByRole('button');
+      return buttons[index];
+    };
 
     // 初期状態：ラベルが存在しない
     expect(screen.getByText('No time labels configured yet')).toBeInTheDocument();
 
     // 1. 時刻ラベルを追加
-    const addButton = screen.getByRole('button', { name: /Add Time Label/i });
-    await fireEvent.click(addButton);
+    await addTimeLabelThroughUI('朝食', '08:00');
+    await waitFor(() => {
+      expect(settingsStore.timeLabels).toHaveLength(1);
+      expect(settingsStore.timeLabels[0]?.name).toBe('朝食');
+    });
+    rerender();
 
-    const nameInput = screen.getByLabelText('Label Name');
-    const timeInput = screen.getByLabelText('Time');
-
-    await fireEvent.input(nameInput, { target: { value: '朝食' } });
-    await fireEvent.input(timeInput, { target: { value: '08:00' } });
-
-    const saveButton = screen.getByRole('button', { name: /Save/i });
-    await fireEvent.click(saveButton);
-
-    // 追加されたラベルが表示されることを確認
     await waitFor(() => {
       expect(screen.getByText('朝食')).toBeInTheDocument();
       expect(screen.getByText('08:00')).toBeInTheDocument();
     });
-
-    // "No time labels"メッセージが表示されないことを確認
     expect(screen.queryByText('No time labels configured yet')).not.toBeInTheDocument();
 
     // 2. 別の時刻ラベルを追加
-    await fireEvent.click(addButton);
+    await addTimeLabelThroughUI('昼食', '12:00');
+    await waitFor(() => {
+      expect(settingsStore.timeLabels).toHaveLength(2);
+    });
+    rerender();
 
-    const nameInput2 = screen.getByLabelText('Label Name');
-    const timeInput2 = screen.getByLabelText('Time');
-
-    await fireEvent.input(nameInput2, { target: { value: '昼食' } });
-    await fireEvent.input(timeInput2, { target: { value: '12:00' } });
-
-    const saveButton2 = screen.getByRole('button', { name: /Save/i });
-    await fireEvent.click(saveButton2);
-
-    // 両方のラベルが表示されることを確認
     await waitFor(() => {
       expect(screen.getByText('朝食')).toBeInTheDocument();
       expect(screen.getByText('昼食')).toBeInTheDocument();
     });
 
     // 3. 時刻ラベルを編集
-    const editButtons = screen.getAllByRole('button');
-    const firstEditButton = editButtons.find(
-      (button) =>
-        button.innerHTML.includes('Edit') && button.closest('div')?.textContent?.includes('朝食')
-    );
+    const editButton = getActionButton('朝食', 0);
+    await fireEvent.click(editButton);
 
-    if (firstEditButton) {
-      await fireEvent.click(firstEditButton);
+    const editNameInput = screen.getByDisplayValue('朝食');
+    await fireEvent.input(editNameInput, { target: { value: '朝ごはん' } });
 
-      const editNameInput = screen.getByDisplayValue('朝食');
-      await fireEvent.input(editNameInput, { target: { value: '朝ごはん' } });
+    const editSaveButton = screen.getByRole('button', { name: /Save/i });
+    expect(editSaveButton).not.toBeDisabled();
+    await fireEvent.click(editSaveButton);
+    await tick();
+    rerender();
 
-      const editSaveButton = screen.getByRole('button', { name: /Save/i });
-      await fireEvent.click(editSaveButton);
-
-      // 編集されたラベルが表示されることを確認
-      await waitFor(() => {
-        expect(screen.getByText('朝ごはん')).toBeInTheDocument();
-        expect(screen.queryByText('朝食')).not.toBeInTheDocument();
-      });
-    }
+    await waitFor(() => {
+      expect(screen.getByText('朝ごはん')).toBeInTheDocument();
+      expect(screen.queryByText('朝食')).not.toBeInTheDocument();
+    });
 
     // 4. 時刻ラベルを削除
-    const deleteButtons = screen.getAllByRole('button');
-    const firstDeleteButton = deleteButtons.find(
-      (button) =>
-        button.innerHTML.includes('Trash') && button.closest('div')?.textContent?.includes('昼食')
-    );
+    const deleteButton = getActionButton('昼食', 1);
+    await fireEvent.click(deleteButton);
+    await tick();
+    rerender();
 
-    if (firstDeleteButton) {
-      await fireEvent.click(firstDeleteButton);
-
-      // 削除されたラベルが表示されないことを確認
-      await waitFor(() => {
-        expect(screen.queryByText('昼食')).not.toBeInTheDocument();
-        expect(screen.getByText('朝ごはん')).toBeInTheDocument();
-      });
-    }
+    await waitFor(() => {
+      expect(screen.queryByText('昼食')).not.toBeInTheDocument();
+      expect(screen.getByText('朝ごはん')).toBeInTheDocument();
+    });
   });
 
   it('同じ時刻に複数のラベルを設定できること', async () => {
-    render(TimeLabelsEditor);
+    let view = render(TimeLabelsEditor);
+    const rerender = () => {
+      view.unmount();
+      view = render(TimeLabelsEditor);
+    };
 
-    // 最初のラベル
-    const addButton = screen.getByRole('button', { name: /Add Time Label/i });
-    await fireEvent.click(addButton);
+    const addLabel = async (name: string) => {
+      const addButton = screen.getByRole('button', { name: /Add Time Label/i });
+      await fireEvent.click(addButton);
 
-    let nameInput = screen.getByLabelText('Label Name');
-    let timeInput = screen.getByLabelText('Time');
+      const nameInput = screen.getByLabelText('Label Name');
+      const timeInput = screen.getByLabelText('Time');
 
-    await fireEvent.input(nameInput, { target: { value: '朝食' } });
-    await fireEvent.input(timeInput, { target: { value: '08:00' } });
+      await fireEvent.input(nameInput, { target: { value: name } });
+      await fireEvent.input(timeInput, { target: { value: '08:00' } });
 
-    let saveButton = screen.getByRole('button', { name: /Save/i });
-    await fireEvent.click(saveButton);
+      const saveButton = screen.getByRole('button', { name: /Save/i });
+      expect(saveButton).not.toBeDisabled();
+      await fireEvent.click(saveButton);
+      await tick();
+    };
 
-    // 同じ時刻の2つ目のラベル
-    await fireEvent.click(addButton);
+    await addLabel('朝食');
+    await waitFor(() => {
+      const labels = settingsStore.timeLabels.filter((label) => label.time === '08:00');
+      expect(labels).toHaveLength(1);
+    });
+    rerender();
 
-    nameInput = screen.getByLabelText('Label Name');
-    timeInput = screen.getByLabelText('Time');
+    await addLabel('出勤準備');
+    await waitFor(() => {
+      const labels = settingsStore.timeLabels.filter((label) => label.time === '08:00');
+      expect(labels).toHaveLength(2);
+    });
+    rerender();
 
-    await fireEvent.input(nameInput, { target: { value: '出勤準備' } });
-    await fireEvent.input(timeInput, { target: { value: '08:00' } });
-
-    saveButton = screen.getByRole('button', { name: /Save/i });
-    await fireEvent.click(saveButton);
-
-    // 両方のラベルが表示されることを確認
     await waitFor(() => {
       expect(screen.getByText('朝食')).toBeInTheDocument();
       expect(screen.getByText('出勤準備')).toBeInTheDocument();
       expect(screen.getAllByText('08:00')).toHaveLength(2);
     });
 
-    // settingsStoreで同じ時刻のラベルが取得できることを確認
     const timeLabels = settingsStore.getTimeLabelsByTime('08:00');
     expect(timeLabels).toHaveLength(2);
     expect(timeLabels.map((t: TimeLabel) => t.name)).toEqual(['朝食', '出勤準備']);
