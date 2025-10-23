@@ -5,7 +5,14 @@ import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskListWithTasks } from '$lib/types/task-list';
 
-describe('TaskListStore', () => {
+/**
+ * TaskListStore 統合テスト
+ *
+ * このテストは TaskListStore のファサードとしての統合動作を検証します。
+ * 個別のクラス（TaskListQueries, TaskListMutations, TaskListOrdering）の
+ * 単体テストは別ファイルで実施しています。
+ */
+describe('TaskListStore (Integration)', () => {
   let store: TaskListStore;
   let projectStore: ProjectStore;
 
