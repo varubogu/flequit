@@ -15,19 +15,24 @@ vi.mock('date-fns', () => ({
   })
 }));
 
-// SvelteDateのモック
-vi.mock('svelte/reactivity', () => ({
-  SvelteDate: vi.fn().mockImplementation((date: Date) => {
-    const mockDate = new Date(date);
-    mockDate.setFullYear = vi.fn((year: number, month: number, day: number) => {
-      return Date.prototype.setFullYear.call(mockDate, year, month, day);
-    });
-    mockDate.setHours = vi.fn((hours: number, minutes: number, seconds: number) => {
-      return Date.prototype.setHours.call(mockDate, hours, minutes, seconds);
-    });
-    return mockDate;
-  })
-}));
+// SvelteDateのモック（他の reactivity エクスポートは実装そのまま使用）
+vi.mock('svelte/reactivity', async () => {
+  const actual = await vi.importActual<typeof import('svelte/reactivity')>('svelte/reactivity');
+
+  return {
+    ...actual,
+    SvelteDate: vi.fn().mockImplementation((date: Date) => {
+      const mockDate = new Date(date);
+      mockDate.setFullYear = vi.fn((year: number, month?: number, day?: number) => {
+        return Date.prototype.setFullYear.call(mockDate, year, month, day);
+      });
+      mockDate.setHours = vi.fn((hours: number, minutes?: number, seconds?: number) => {
+        return Date.prototype.setHours.call(mockDate, hours, minutes, seconds);
+      });
+      return mockDate;
+    })
+  };
+});
 
 describe('TestDatetimeInput', () => {
   const defaultProps = {

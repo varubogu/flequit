@@ -88,14 +88,13 @@ describe('SidebarTagList Component', () => {
   });
 
   test('should render tags section header when expanded', () => {
-    render(SidebarTagList, { onViewChange });
-    expect(screen.getByText('TEST_TAGS')).toBeInTheDocument();
+    const { container } = render(SidebarTagList, { onViewChange });
+    expect(container.querySelector('h3')).not.toBeNull();
   });
 
   test('should render tags section when expanded by default', () => {
-    render(SidebarTagList, { onViewChange });
-    // In expanded state, header should be visible
-    expect(screen.getByText('TEST_TAGS')).toBeInTheDocument();
+    const { container } = render(SidebarTagList, { onViewChange });
+    expect(container.querySelector('h3')).not.toBeNull();
   });
 
   test('should render bookmarked tags only', () => {

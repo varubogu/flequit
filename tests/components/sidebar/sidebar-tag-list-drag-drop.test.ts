@@ -28,20 +28,36 @@ vi.mock('$lib/utils/drag-drop', () => ({
 }));
 
 vi.mock('$lib/stores/tags.svelte', () => {
-  const mockTagStore = {
+  const state = {
     bookmarkedTagList: [] as Tag[],
-    tags: [] as Tag[],
+    tags: [] as Tag[]
+  };
+
+  const mockTagStore = {
+    get bookmarkedTagList() {
+      return state.bookmarkedTagList;
+    },
+    set bookmarkedTagList(value: Tag[]) {
+      state.bookmarkedTagList = value;
+    },
+    get tags() {
+      return state.tags;
+    },
+    set tags(value: Tag[]) {
+      state.tags = value;
+    },
     removeBookmark: vi.fn(),
     deleteTag: vi.fn(),
     updateTag: vi.fn(),
     moveBookmarkedTagToPosition: vi.fn(),
     addTagWithId: vi.fn((tag: Tag) => {
-      mockTagStore.tags.push(tag);
+      state.tags.push(tag);
       return tag;
     }),
     isBookmarked: vi.fn(() => true),
     getProjectIdByTagId: vi.fn(async () => 'project-1')
   };
+
   return {
     tagStore: mockTagStore
   };
