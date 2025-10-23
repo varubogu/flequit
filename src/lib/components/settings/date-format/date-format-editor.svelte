@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
-  import { toast } from 'svelte-sonner';
-  import { SvelteDate } from 'svelte/reactivity';
   import DateFormatEditorHeader from './date-format-editor-header.svelte';
   import TestDatetimeSection from './test-datetime-section.svelte';
   import MainDateFormatSection from './main-date-format-section.svelte';
@@ -9,15 +6,8 @@
   import TestFormatSection from './test-format-section.svelte';
   import CustomFormatControls from './custom-format-controls.svelte';
   import DeleteFormatDialog from './delete-format-dialog.svelte';
-
-  export type EditMode = 'manual' | 'new' | 'edit';
-
-  export interface DuplicateCheckResult {
-    isDuplicate: boolean;
-    type?: 'format' | 'name';
-    existingName?: string;
-    existingFormat?: string;
-  }
+  import { DateFormatEditorController } from './date-format-editor-controller.svelte';
+  import { useFormatManagement } from './hooks/use-format-management.svelte';
 
   interface Props {
     open: boolean;
@@ -25,230 +15,30 @@
 
   let { open = $bindable() }: Props = $props();
 
-  // State
-  // eslint-disable-next-line svelte/no-unnecessary-state-wrap -- binding assigns new instances so we need $state for reactivity
-  let testDateTime = $state(new SvelteDate());
-  let testFormat = $state('');
-  let testFormatName = $state('');
-  let editMode = $state<EditMode>('manual');
-  let editingFormatId = $state<string | null>(null);
-  let deleteDialogOpen = $state(false);
-  let isInitialized = $state(false);
-
-  // Derived states
-  const currentFormat = $derived(dateTimeFormatStore.currentFormat);
-  const allFormats = $derived(dateTimeFormatStore.allFormats);
-
-  const selectedPreset = $derived(() => {
-    if (editMode === 'edit' && editingFormatId) {
-      return allFormats().find((f) => f.id === editingFormatId) || null;
-    }
-    if (editMode === 'new') {
-      return null;
-    }
-    if (editMode === 'manual') {
-      return allFormats().find((f) => f.format === testFormat) || null;
-    }
-    return null;
-  });
-
-  const formatNameEnabled = $derived(() => editMode === 'new' || editMode === 'edit');
-  const addButtonEnabled = $derived(() => editMode === 'manual');
-  const editDeleteButtonEnabled = $derived(() => {
-    const preset = selectedPreset();
-    return editMode === 'manual' && preset?.group === 'カスタムフォーマット';
-  });
-  const saveButtonEnabled = $derived(
-    () =>
-      (editMode === 'new' || editMode === 'edit') &&
-      !!testFormatName.trim() &&
-      !!testFormat.trim()
-  );
-  const cancelButtonEnabled = $derived(() => editMode === 'new' || editMode === 'edit');
-
-  // Initialization
-  function initialize(isOpen: boolean) {
-    if (isOpen && !isInitialized) {
-      testFormat = dateTimeFormatStore.currentFormat;
-      testDateTime = new SvelteDate();
-      testFormatName = '';
-      editMode = 'manual';
-      editingFormatId = null;
-      isInitialized = true;
-    } else if (!isOpen) {
-      isInitialized = false;
-    }
-  }
+  // Controller
+  const controller = new DateFormatEditorController();
+  const { saveFormat, deleteCustomFormat } = useFormatManagement(controller);
 
   // Sync with open prop changes
   $effect(() => {
-    initialize(open);
+    controller.initialize(open);
   });
 
   // Event handlers
-  function handleDateTimeFormatChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    dateTimeFormatStore.setCurrentFormat(target.value);
-  }
-
   function handleTestFormatChange(event: Event) {
-    if (editMode !== 'manual') return;
     const target = event.target as HTMLInputElement;
-    const preset = allFormats().find((f) => f.format === target.value);
-    if (preset?.group === 'カスタムフォーマット') {
-      testFormatName = preset.name;
-    } else {
-      testFormatName = '';
-    }
+    controller.testFormat = target.value;
+    controller.handleTestFormatChange();
   }
 
   function handleFormatSelection(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const selectedId = target.value;
-    if (selectedId === '-10') return; // "Custom" entry
-    const selectedFormat = allFormats().find((f) => f.id.toString() === selectedId);
-    if (selectedFormat) {
-      testFormat = selectedFormat.format;
-      if (selectedFormat.group === 'カスタムフォーマット') {
-        testFormatName = selectedFormat.name;
-      } else {
-        testFormatName = '';
-      }
-    }
-  }
-
-  // Copy operations
-  function copyToTest() {
-    testFormat = currentFormat;
-    handleTestFormatChange({ target: { value: currentFormat } } as unknown as Event);
-  }
-
-  function copyToMain() {
-    dateTimeFormatStore.setCurrentFormat(testFormat);
-  }
-
-  // Format management
-  function checkDuplicates(
-    formatToCheck: string,
-    nameToCheck: string,
-    excludeId?: string
-  ): DuplicateCheckResult {
-    const formats = allFormats();
-    const filteredFormats = excludeId ? formats.filter((f) => f.id !== excludeId) : formats;
-    const duplicateByFormat = filteredFormats.find(
-      (f) => f.format === formatToCheck && f.group === 'カスタムフォーマット'
-    );
-    if (duplicateByFormat) {
-      return { isDuplicate: true, type: 'format', existingName: duplicateByFormat.name };
-    }
-    const duplicateByName = filteredFormats.find(
-      (f) => f.name === nameToCheck && f.group === 'カスタムフォーマット'
-    );
-    if (duplicateByName) {
-      return { isDuplicate: true, type: 'name', existingFormat: duplicateByName.format };
-    }
-    return { isDuplicate: false };
-  }
-
-  async function saveFormat() {
-    if (testFormatName.trim() && testFormat.trim()) {
-      const trimmedName = testFormatName.trim();
-      const trimmedFormat = testFormat.trim();
-      const duplicateCheck = checkDuplicates(
-        trimmedFormat,
-        trimmedName,
-        editMode === 'edit' ? editingFormatId || undefined : undefined
-      );
-      if (duplicateCheck.isDuplicate) {
-        toast.error(
-          `同じ${duplicateCheck.type === 'format' ? 'フォーマット文字列' : 'フォーマット名'}が既に存在します`,
-          {
-            description: `「${duplicateCheck.type === 'format' ? duplicateCheck.existingName : duplicateCheck.existingFormat}」で既に使用されています`
-          }
-        );
-        return;
-      }
-      try {
-        if (editMode === 'edit' && editingFormatId) {
-          await dateTimeFormatStore.updateCustomFormat(editingFormatId, {
-            name: trimmedName,
-            format: trimmedFormat
-          });
-          editMode = 'manual';
-          editingFormatId = null;
-          toast.success('フォーマットを更新しました');
-        } else {
-          const newId = await dateTimeFormatStore.addCustomFormat(trimmedName, trimmedFormat);
-          toast.success('新しいフォーマットを保存しました');
-          editMode = 'manual';
-          // Select the newly added format
-          const newFormat = allFormats().find((f) => f.id === newId);
-          if (newFormat) {
-            testFormat = newFormat.format;
-            testFormatName = newFormat.name;
-          }
-        }
-      } catch (error) {
-        console.error('Failed to save format:', error);
-        toast.error('保存に失敗しました');
-      }
-    }
-  }
-
-  function startAddMode() {
-    editMode = 'new';
-    editingFormatId = null;
-    testFormatName = '';
-    testFormat = '';
-  }
-
-  function startEditMode() {
-    const preset = selectedPreset();
-    if (preset?.group === 'カスタムフォーマット') {
-      editMode = 'edit';
-      editingFormatId = preset.id as string;
-      testFormatName = preset.name;
-      testFormat = preset.format;
-    }
-  }
-
-  function cancelEditMode() {
-    editMode = 'manual';
-    editingFormatId = null;
-    // Revert to the format of the currently selected preset
-    const preset = selectedPreset();
-    if (preset) {
-      testFormat = preset.format;
-      testFormatName = preset.group === 'カスタムフォーマット' ? preset.name : '';
-    }
-  }
-
-  function openDeleteDialog() {
-    if (selectedPreset()?.group === 'カスタムフォーマット') {
-      deleteDialogOpen = true;
-    }
-  }
-
-  async function deleteCustomFormat() {
-    const preset = selectedPreset();
-    if (preset?.group === 'カスタムフォーマット') {
-      try {
-        await dateTimeFormatStore.removeCustomFormat(preset.id as string);
-        testFormat = '';
-        testFormatName = '';
-        toast.success('フォーマットを削除しました');
-        deleteDialogOpen = false;
-      } catch (error) {
-        console.error('Failed to delete format:', error);
-        toast.error('削除に失敗しました');
-        deleteDialogOpen = false;
-      }
-    }
+    controller.handleFormatSelection(target.value);
   }
 
   function closeDialog() {
-    if (editMode !== 'manual') {
-      cancelEditMode();
+    if (controller.editMode !== 'manual') {
+      controller.cancelEditMode();
     }
     open = false;
   }
@@ -262,37 +52,40 @@
       <DateFormatEditorHeader onClose={closeDialog} />
 
       <div class="space-y-6">
-        <TestDatetimeSection bind:testDateTime />
+        <TestDatetimeSection bind:testDateTime={controller.testDateTime} />
         <MainDateFormatSection
-          {currentFormat}
-          bind:testDateTime
-          onFormatChange={handleDateTimeFormatChange}
+          currentFormat={controller.currentFormat}
+          bind:testDateTime={controller.testDateTime}
+          onFormatChange={controller.handleDateTimeFormatChange.bind(controller)}
         />
-        <FormatCopyButtons onCopyToTest={copyToTest} onCopyToMain={copyToMain} />
+        <FormatCopyButtons
+          onCopyToTest={controller.copyToTest.bind(controller)}
+          onCopyToMain={controller.copyToMain.bind(controller)}
+        />
         <TestFormatSection
-          bind:testFormat
-          bind:testFormatName
-          {testDateTime}
-          {editMode}
-          selectedPreset={selectedPreset()}
-          formatNameEnabled={formatNameEnabled()}
+          bind:testFormat={controller.testFormat}
+          bind:testFormatName={controller.testFormatName}
+          testDateTime={controller.testDateTime}
+          editMode={controller.editMode}
+          selectedPreset={controller.selectedPreset()}
+          formatNameEnabled={controller.formatNameEnabled()}
           onTestFormatChange={handleTestFormatChange}
           onFormatSelectionChange={handleFormatSelection}
         />
         <CustomFormatControls
-          onAdd={startAddMode}
-          onEdit={startEditMode}
-          onDelete={openDeleteDialog}
+          onAdd={controller.startAddMode.bind(controller)}
+          onEdit={controller.startEditMode.bind(controller)}
+          onDelete={controller.openDeleteDialog.bind(controller)}
           onSave={saveFormat}
-          onCancel={cancelEditMode}
-          addEnabled={addButtonEnabled()}
-          editDeleteEnabled={editDeleteButtonEnabled()}
-          saveEnabled={saveButtonEnabled()}
-          cancelEnabled={cancelButtonEnabled()}
+          onCancel={controller.cancelEditMode.bind(controller)}
+          addEnabled={controller.addButtonEnabled()}
+          editDeleteEnabled={controller.editDeleteButtonEnabled()}
+          saveEnabled={controller.saveButtonEnabled()}
+          cancelEnabled={controller.cancelButtonEnabled()}
         />
       </div>
     </div>
   </div>
 {/if}
 
-<DeleteFormatDialog bind:open={deleteDialogOpen} onConfirm={deleteCustomFormat} />
+<DeleteFormatDialog bind:open={controller.deleteDialogOpen} onConfirm={deleteCustomFormat} />
