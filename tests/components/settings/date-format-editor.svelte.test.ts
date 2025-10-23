@@ -2,141 +2,96 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
 
-// 依存関係のモック
-vi.mock('$lib/stores/datetime-format.svelte', () => ({
-  dateTimeFormatStore: {
+// Controller と hooks のモック
+vi.mock('$lib/components/settings/date-format/date-format-editor-controller.svelte', () => ({
+  DateFormatEditorController: vi.fn().mockImplementation(() => ({
+    testDateTime: new Date('2024-01-01'),
+    testFormat: 'yyyy-MM-dd',
+    testFormatName: '',
+    editMode: 'manual',
+    editingFormatId: null,
+    deleteDialogOpen: false,
+    isInitialized: false,
     currentFormat: 'yyyy-MM-dd',
-    allFormats: vi.fn(() => [
-      { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット' },
-      { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット' }
-    ]),
-    setCurrentFormat: vi.fn(),
-    addCustomFormat: vi.fn(() => 'new-id'),
-    updateCustomFormat: vi.fn(),
-    removeCustomFormat: vi.fn()
-  }
+    allFormats: vi.fn(() => []),
+    selectedPreset: vi.fn(() => null),
+    formatNameEnabled: vi.fn(() => false),
+    addButtonEnabled: vi.fn(() => true),
+    editDeleteButtonEnabled: vi.fn(() => false),
+    saveButtonEnabled: vi.fn(() => false),
+    cancelButtonEnabled: vi.fn(() => false),
+    initialize: vi.fn(),
+    handleDateTimeFormatChange: vi.fn(),
+    handleTestFormatChange: vi.fn(),
+    handleFormatSelection: vi.fn(),
+    copyToTest: vi.fn(),
+    copyToMain: vi.fn(),
+    startAddMode: vi.fn(),
+    startEditMode: vi.fn(),
+    cancelEditMode: vi.fn(),
+    openDeleteDialog: vi.fn(),
+    closeDeleteDialog: vi.fn(),
+    checkDuplicates: vi.fn(() => ({ isDuplicate: false }))
+  }))
 }));
 
-vi.mock('svelte-sonner', () => ({
-  toast: {
-    success: vi.fn(),
-    error: vi.fn()
-  }
+vi.mock('$lib/components/settings/date-format/hooks/use-format-management.svelte', () => ({
+  useFormatManagement: vi.fn(() => ({
+    saveFormat: vi.fn(),
+    deleteCustomFormat: vi.fn()
+  }))
 }));
 
 // 子コンポーネントのモック
-vi.mock('$lib/components/settings/date-format-editor-header.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/date-format-editor-header.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/test-datetime-section.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/test-datetime-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/main-date-format-section.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/main-date-format-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/format-copy-buttons.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/format-copy-buttons.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/test-format-section.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/test-format-section.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/custom-format-controls.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/custom-format-controls.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
-vi.mock('$lib/components/settings/delete-format-dialog.svelte', () => ({
+vi.mock('$lib/components/settings/date-format/delete-format-dialog.svelte', () => ({
   default: vi.fn().mockImplementation(() => ({
-    $$: {
-      on_mount: [],
-      on_destroy: [],
-      before_update: [],
-      after_update: [],
-      context: new Map(),
-      callbacks: new Map(),
-      dirty: [],
-      skip_bound: false,
-      bound: {}
-    }
+    $$: { on_mount: [], on_destroy: [], before_update: [], after_update: [], context: new Map(), callbacks: new Map(), dirty: [], skip_bound: false, bound: {} }
   }))
 }));
 
+/**
+ * DateFormatEditor コンポーネントのUIレンダリングテスト
+ * 
+ * ロジックのテストは以下の分離されたテストファイルを参照:
+ * - date-format-editor-controller.svelte.test.ts: 状態管理とロジック
+ * - use-format-management.svelte.test.ts: フォーマット管理機能
+ */
 describe('DateFormatEditor', () => {
   beforeEach(() => {
     vi.clearAllMocks();
