@@ -1,36 +1,45 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import TaskList from '$lib/components/task/core/task-list.svelte';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import {
+  setTranslationService,
+  getTranslationService
+} from '$lib/stores/locale.svelte';
+import type { ITranslationService } from '$lib/services/translation-service';
 
-// --- Translation Mock -------------------------------------------------------
-vi.mock('$lib/stores/locale.svelte', () => ({
-  getTranslationService: () => ({
-    getMessage: (key: string) => {
-      const messages: Record<string, () => string> = {
-        add_task: () => 'TEST_ADD_TASK',
-        no_search_results: () => 'TEST_NO_SEARCH_RESULTS',
-        no_tasks_found: () => 'TEST_NO_TASKS_FOUND',
-        try_different_search: () => 'TEST_TRY_DIFFERENT_SEARCH',
-        click_add_task: () => 'TEST_CLICK_ADD_TASK',
-        add_some_tasks: () => 'TEST_ADD_SOME_TASKS',
-        views_title: () => 'TEST_VIEWS',
-        tags: () => 'TEST_TAGS',
-        remove_tag_from_sidebar: () => 'Remove Tag',
-        add_tag_to_sidebar: () => 'Add Tag',
-        edit_tag: () => 'Edit Tag',
-        delete_tag: () => 'Delete Tag',
-        edit_task: () => 'Edit Task',
-        delete_task: () => 'Delete Task',
-        edit_subtask: () => 'Edit Subtask',
-        delete_subtask: () => 'Delete Subtask'
-      };
-      return messages[key] || (() => key);
-    }
-  })
-}));
+function createTestTranslationService(): ITranslationService {
+  const messages: Record<string, () => string> = {
+    add_task: () => 'TEST_ADD_TASK',
+    no_search_results: () => 'TEST_NO_SEARCH_RESULTS',
+    no_tasks_found: () => 'TEST_NO_TASKS_FOUND',
+    try_different_search: () => 'TEST_TRY_DIFFERENT_SEARCH',
+    click_add_task: () => 'TEST_CLICK_ADD_TASK',
+    add_some_tasks: () => 'TEST_ADD_SOME_TASKS',
+    views_title: () => 'TEST_VIEWS',
+    tags: () => 'TEST_TAGS',
+    remove_tag_from_sidebar: () => 'Remove Tag',
+    add_tag_to_sidebar: () => 'Add Tag',
+    edit_tag: () => 'Edit Tag',
+    delete_tag: () => 'Delete Tag',
+    edit_task: () => 'Edit Task',
+    delete_task: () => 'Delete Task',
+    edit_subtask: () => 'Edit Subtask',
+    delete_subtask: () => 'Delete Subtask'
+  };
+
+  return {
+    getCurrentLocale: () => 'en',
+    setLocale: vi.fn(),
+    reactiveMessage: <T extends (...args: unknown[]) => string>(fn: T) => fn,
+    getMessage: (key: string) => messages[key] || (() => key),
+    getAvailableLocales: () => ['en'] as const
+  };
+}
+
+const originalTranslationService = getTranslationService();
 
 // --- Store & Service Mocks ---------------------------------------------------
 function createMockAllTasks() {
@@ -221,6 +230,11 @@ const mockTasks: TaskWithSubTasks[] = [
 describe('Task Drag & Drop Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setTranslationService(createTestTranslationService());
+  });
+
+  afterAll(() => {
+    setTranslationService(originalTranslationService);
   });
 
   describe('タスクとビューのドラッグ&ドロップ', () => {
