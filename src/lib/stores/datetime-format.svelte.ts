@@ -1,264 +1,108 @@
 import { getLocale } from '$paraglide/runtime';
 import type {
-  DateTimeFormat,
-  AppPresetFormat,
-  CustomDateTimeFormat
+	DateTimeFormat,
+	AppPresetFormat,
+	CustomDateTimeFormat
 } from '$lib/types/datetime-format';
-import { CustomDateFormatTauriService } from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
-import type { CustomDateFormat } from '$lib/types/settings';
-// import { getTranslationService } from '$lib/stores/locale.svelte';
+import { getDefaultFormat, getPresetFormats, getCustomEntry } from './datetime-format/format-presets';
+import { FormatMutations } from './datetime-format/format-mutations.svelte';
+import { FormatStorage } from './datetime-format/format-storage';
 
-// デフォルトフォーマット（ID: -1）
-function getDefaultFormat(): AppPresetFormat {
-  return {
-    id: -1,
-    name: 'デフォルト',
-    format: '',
-    group: 'デフォルト',
-    order: 0
-  };
-}
-
-// プリセットフォーマット（ID: 負の整数）
-function getPresetFormats(): AppPresetFormat[] {
-  const locale = getLocale();
-
-  if (locale.startsWith('ja')) {
-    return [
-      {
-        id: -2,
-        name: '日本（西暦、24時間表記）',
-        format: 'yyyy年MM月dd日 HH:mm:ss',
-        group: 'プリセット',
-        order: 0
-      },
-      {
-        id: -3,
-        name: '日本（和暦、12時間表記）',
-        format: 'yyyy年MM月dd日 hh:mm:ss',
-        group: 'プリセット',
-        order: 1
-      },
-      { id: -4, name: '短縮形式', format: 'yyyy/MM/dd HH:mm', group: 'プリセット', order: 2 },
-      { id: -5, name: '日付のみ', format: 'yyyy年MM月dd日', group: 'プリセット', order: 3 },
-      { id: -6, name: '時刻のみ', format: 'HH:mm:ss', group: 'プリセット', order: 4 },
-      { id: -7, name: 'ISO形式', format: 'yyyy-MM-dd HH:mm:ss', group: 'プリセット', order: 5 }
-    ];
-  } else {
-    return [
-      { id: -2, name: 'America', format: 'MM/dd/yyyy HH:mm:ss', group: 'プリセット', order: 0 },
-      { id: -3, name: 'Europe', format: 'dd/MM/yyyy HH:mm:ss', group: 'プリセット', order: 1 },
-      { id: -4, name: 'Short format', format: 'MM/dd/yyyy HH:mm', group: 'プリセット', order: 2 },
-      { id: -5, name: 'Date only', format: 'MMMM do, yyyy', group: 'プリセット', order: 3 },
-      { id: -6, name: 'Time only', format: 'HH:mm:ss', group: 'プリセット', order: 4 },
-      { id: -7, name: 'ISO format', format: 'yyyy-MM-dd HH:mm:ss', group: 'プリセット', order: 5 }
-    ];
-  }
-}
-
-// カスタムエントリ（ID: -10）
-function getCustomEntry(): AppPresetFormat {
-  return {
-    id: -10,
-    name: 'カスタム',
-    format: '',
-    group: 'カスタム',
-    order: 0
-  };
-}
-
+/**
+ * DateTimeFormatStore - 日時フォーマット管理のFacadeストア
+ *
+ * 責務: フォーマット設定の統合管理（プリセット、カスタム、永続化）
+ */
 class DateTimeFormatStore {
-  // Tauriサービス
-  private customDateFormatService = new CustomDateFormatTauriService();
+	// 現在の日時フォーマット（ストア管理、即座反映）
+	currentFormat = $state('yyyy年MM月dd日 HH:mm:ss');
 
-  // 現在の日時フォーマット（ストア管理、即座反映）
-  currentFormat = $state('yyyy年MM月dd日 HH:mm:ss');
+	// ユーザー定義カスタムフォーマット（ストア管理、即座反映）
+	customFormats = $state<CustomDateTimeFormat[]>([]);
 
-  // ユーザー定義カスタムフォーマット（ストア管理、即座反映）
-  customFormats = $state<CustomDateTimeFormat[]>([]);
+	// サブモジュール
+	private mutations: FormatMutations;
+	private storage: FormatStorage;
 
-  // 全フォーマットの統合リスト（$derived）
-  allFormats = $derived(() => {
-    const defaultFormat = getDefaultFormat();
-    const presetFormats = getPresetFormats();
-    const customEntry = getCustomEntry();
+	constructor() {
+		this.mutations = new FormatMutations(() => this.customFormats);
+		this.storage = new FormatStorage();
 
-    return [
-      defaultFormat,
-      ...presetFormats,
-      ...this.customFormats,
-      customEntry
-    ] as DateTimeFormat[];
-  });
+		// 初期化
+		this.loadFromStorage();
+		this.loadCustomFormatsFromTauri().catch(console.error);
+	}
 
-  // デフォルトフォーマットを取得
-  getDefaultFormatString(locale: string = getLocale()): string {
-    if (locale.startsWith('ja')) {
-      return 'yyyy年MM月dd日(E) HH:mm:ss';
-    } else {
-      return 'EEEE, MMMM do, yyyy HH:mm:ss';
-    }
-  }
+	// 全フォーマットの統合リスト（$derived）
+	allFormats = $derived(() => {
+		const defaultFormat = getDefaultFormat();
+		const presetFormats = getPresetFormats();
+		const customEntry = getCustomEntry();
 
-  // 現在フォーマットを設定（即座反映）
-  setCurrentFormat(format: string) {
-    this.currentFormat = format;
-    this.saveToStorage();
-  }
+		return [defaultFormat, ...presetFormats, ...this.customFormats, customEntry] as DateTimeFormat[];
+	});
 
-  // カスタムフォーマットを追加（即座反映）
-  async addCustomFormat(name: string, format: string): Promise<string> {
-    const uuid = this.generateUUID();
-    let attempts = 0;
-    let finalUuid = uuid;
+	/**
+	 * デフォルトフォーマット文字列を取得
+	 */
+	getDefaultFormatString(locale: string = getLocale()): string {
+		if (locale.startsWith('ja')) {
+			return 'yyyy年MM月dd日(E) HH:mm:ss';
+		} else {
+			return 'EEEE, MMMM do, yyyy HH:mm:ss';
+		}
+	}
 
-    // 衝突回避（最大10回試行）
-    while (attempts < 10 && this.customFormats.some((f) => f.id === finalUuid)) {
-      finalUuid = this.generateUUID();
-      attempts++;
-    }
+	/**
+	 * 現在フォーマットを設定
+	 */
+	setCurrentFormat(format: string): void {
+		this.currentFormat = format;
+		this.storage.saveCurrentFormat(format);
+	}
 
-    if (attempts >= 10) {
-      throw new Error('Failed to generate unique UUID after 10 attempts');
-    }
+	/**
+	 * カスタムフォーマットを追加
+	 */
+	async addCustomFormat(name: string, format: string): Promise<string> {
+		const id = await this.mutations.addCustomFormat(name, format);
+		this.storage.saveCurrentFormat(this.currentFormat);
+		return id;
+	}
 
-    const newFormatForTauri: CustomDateFormat = {
-      id: finalUuid,
-      name,
-      format
-    };
+	/**
+	 * カスタムフォーマットを更新
+	 */
+	async updateCustomFormat(
+		id: string,
+		updates: Partial<Pick<CustomDateTimeFormat, 'name' | 'format'>>
+	): Promise<void> {
+		await this.mutations.updateCustomFormat(id, updates);
+		this.storage.saveCurrentFormat(this.currentFormat);
+	}
 
-    // Tauriに保存
-    const savedFormat = await this.customDateFormatService.create(newFormatForTauri);
-    if (savedFormat) {
-      // フロントエンドストアに追加
-      const newFormat: CustomDateTimeFormat = {
-        ...this.convertFromTauri(savedFormat),
-        order: this.customFormats.length
-      };
-      this.customFormats.push(newFormat);
-      this.saveToStorage();
-      return finalUuid;
-    } else {
-      throw new Error('Failed to save custom format to Tauri');
-    }
-  }
+	/**
+	 * カスタムフォーマットを削除
+	 */
+	async removeCustomFormat(id: string): Promise<void> {
+		await this.mutations.removeCustomFormat(id);
+		this.storage.saveCurrentFormat(this.currentFormat);
+	}
 
-  // カスタムフォーマットを更新（即座反映）
-  async updateCustomFormat(
-    id: string,
-    updates: Partial<Pick<CustomDateTimeFormat, 'name' | 'format'>>
-  ) {
-    const index = this.customFormats.findIndex((f) => f.id === id);
-    if (index !== -1) {
-      const currentFormat = this.customFormats[index];
-      const updatedFormat: CustomDateFormat = {
-        id: currentFormat.id,
-        name: updates.name ?? currentFormat.name,
-        format: updates.format ?? currentFormat.format
-      };
+	/**
+	 * localStorageから設定を読み込み
+	 */
+	private loadFromStorage(): void {
+		const defaultFormat = this.getDefaultFormatString();
+		this.currentFormat = this.storage.loadCurrentFormat(defaultFormat);
+	}
 
-      // Tauriで更新
-      const savedFormat = await this.customDateFormatService.update(updatedFormat);
-      if (savedFormat) {
-        // フロントエンドストアを更新
-        this.customFormats[index] = { ...this.customFormats[index], ...updates };
-        this.saveToStorage();
-      } else {
-        throw new Error('Failed to update custom format in Tauri');
-      }
-    }
-  }
-
-  // カスタムフォーマットを削除（即座反映）
-  async removeCustomFormat(id: string) {
-    // Tauriから削除
-    const success = await this.customDateFormatService.delete(id);
-    if (success) {
-      // フロントエンドストアから削除
-      this.customFormats = this.customFormats.filter((f) => f.id !== id);
-      this.saveToStorage();
-    } else {
-      throw new Error('Failed to delete custom format from Tauri');
-    }
-  }
-
-  // TauriのCustomDateFormatをCustomDateTimeFormatに変換
-  private convertFromTauri(tauriFormat: CustomDateFormat): CustomDateTimeFormat {
-    return {
-      id: tauriFormat.id,
-      name: tauriFormat.name,
-      format: tauriFormat.format,
-      group: 'カスタムフォーマット',
-      order: 0 // orderはフロントエンドで管理
-    };
-  }
-
-  // CustomDateTimeFormatをTauriのCustomDateFormatに変換
-  private convertToTauri(customFormat: CustomDateTimeFormat): CustomDateFormat {
-    return {
-      id: customFormat.id,
-      name: customFormat.name,
-      format: customFormat.format
-    };
-  }
-
-  // UUIDを生成
-  private generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c == 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
-  }
-
-  // ローカルストレージに保存
-  private saveToStorage() {
-    if (typeof localStorage !== 'undefined') {
-      const data = {
-        currentFormat: this.currentFormat,
-        customFormats: this.customFormats
-      };
-      localStorage.setItem('flequit-datetime-format', JSON.stringify(data));
-    }
-  }
-
-  // ローカルストレージから読み込み
-  private loadFromStorage() {
-    if (typeof localStorage !== 'undefined') {
-      const stored = localStorage.getItem('flequit-datetime-format');
-      if (stored) {
-        try {
-          const data = JSON.parse(stored);
-          if (data.currentFormat) {
-            this.currentFormat = data.currentFormat;
-          }
-          if (Array.isArray(data.customFormats)) {
-            this.customFormats = data.customFormats;
-          }
-        } catch (error) {
-          console.error('Failed to load datetime format settings:', error);
-        }
-      }
-    }
-  }
-
-  // Tauriからカスタムフォーマットを読み込み
-  async loadCustomFormatsFromTauri() {
-    try {
-      const tauriFormats = await this.customDateFormatService.getAll();
-      this.customFormats = tauriFormats.map((f) => this.convertFromTauri(f));
-    } catch (error) {
-      console.error('Failed to load custom formats from Tauri:', error);
-    }
-  }
-
-  constructor() {
-    this.loadFromStorage();
-
-    // Tauriからカスタムフォーマットを読み込み
-    this.loadCustomFormatsFromTauri().catch(console.error);
-  }
+	/**
+	 * Tauriバックエンドからカスタムフォーマットを読み込み
+	 */
+	private async loadCustomFormatsFromTauri(): Promise<void> {
+		this.customFormats = await this.storage.loadCustomFormatsFromTauri();
+	}
 }
 
 export const dateTimeFormatStore = new DateTimeFormatStore();
