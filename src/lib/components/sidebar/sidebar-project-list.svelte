@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
@@ -17,7 +17,7 @@ import { ProjectCompositeService } from '$lib/services/composite/project-composi
 
   let { currentView = 'all', onViewChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const projects = translationService.getMessage('projects');
   const noProjectsYet = translationService.getMessage('no_projects_yet');
 

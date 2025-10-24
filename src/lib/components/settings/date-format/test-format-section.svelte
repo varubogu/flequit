@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from '$lib/components/ui/input.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { format } from 'date-fns';
   import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
   import type { DateTimeFormat } from '$lib/types/datetime-format';
@@ -27,7 +27,7 @@
     onFormatSelectionChange
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const testFormatLabel = translationService.getMessage('test_format');
   const preview = translationService.getMessage('preview');
   const formatSelection = translationService.getMessage('format_selection');

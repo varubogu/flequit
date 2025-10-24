@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Plus, X } from 'lucide-svelte';
   import WeekdayConditionEditor from '../datetime/conditions/weekday-condition-editor.svelte';
@@ -29,7 +29,7 @@
     onWeekdayConditionUpdate
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const adjustmentConditions = translationService.getMessage('adjustment_conditions');
   const dateConditionsLabel = translationService.getMessage('date_conditions');
   const weekdayConditionsLabel = translationService.getMessage('weekday_conditions');

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   type Props = {
     value: number | undefined;
@@ -8,7 +8,7 @@
 
   let { value = $bindable(), onChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const repeatCountLabel = translationService.getMessage('repeat_count');
   const infiniteRepeatPlaceholder = translationService.getMessage('infinite_repeat_placeholder');
   const infiniteRepeatDescription = translationService.getMessage('infinite_repeat_description');

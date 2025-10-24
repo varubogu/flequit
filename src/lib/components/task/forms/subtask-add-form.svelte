@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import { Save, X } from 'lucide-svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { tick } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -12,7 +12,7 @@
 
   let { onSubTaskAdded, onCancel }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let newSubTaskTitle = $state('');
   let inputElement: HTMLInputElement;
 

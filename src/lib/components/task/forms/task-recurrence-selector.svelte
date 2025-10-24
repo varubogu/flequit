@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
   import { Repeat, RotateCcw } from 'lucide-svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
@@ -16,7 +16,7 @@
 
   let { recurrenceRule, onEdit, disabled = false }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // リアクティブメッセージ
   const noRecurrence = translationService.getMessage('no_recurrence');
 

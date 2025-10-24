@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import Select from '$lib/components/ui/select.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -11,7 +11,7 @@
 
   let { currentItem, onStatusChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const status = translationService.getMessage('status');
   const not_started = translationService.getMessage('not_started');

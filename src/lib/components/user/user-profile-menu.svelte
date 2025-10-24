@@ -3,7 +3,7 @@
   import Card from '$lib/components/ui/card.svelte';
   import { Settings, LogIn, LogOut, Users, Edit } from 'lucide-svelte';
   import type { User } from './user-profile.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     user: User | null;
@@ -16,7 +16,7 @@
 
   let { user = null, onlogin, onlogout, onsettings, onswitch, onedit }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const settingsLabel = translationService.getMessage('settings');
   const switchAccount = translationService.getMessage('switch_account');
   const signOut = translationService.getMessage('sign_out');

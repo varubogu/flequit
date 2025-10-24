@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     onClose: () => void;
@@ -8,7 +8,7 @@
 
   let { onClose }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const dateFormatEditor = translationService.getMessage('date_format_editor');
   const close = translationService.getMessage('close');
 </script>

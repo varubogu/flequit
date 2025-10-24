@@ -1,6 +1,6 @@
 <script lang="ts">
   import Input from '$lib/components/ui/input.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { format } from 'date-fns';
 
   interface Props {
@@ -11,7 +11,7 @@
 
   let { currentFormat = $bindable(), testDateTime = $bindable(), onFormatChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const dateFormatLabel = translationService.getMessage('date_format');
   const preview = translationService.getMessage('preview');
 

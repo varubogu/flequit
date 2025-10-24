@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
@@ -14,7 +14,7 @@
 
   let { task, completedSubTasks, subTaskProgress, handleDueDateClick }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Reactive messages
   const subtasksCompleted = $derived(

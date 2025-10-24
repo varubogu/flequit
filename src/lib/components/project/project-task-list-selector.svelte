@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Edit3 } from 'lucide-svelte';
 
@@ -13,7 +13,7 @@
 
   let { projectInfo, onEdit }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const project = translationService.getMessage('project');
   const task_list = translationService.getMessage('task_list');
   const change = translationService.getMessage('change');

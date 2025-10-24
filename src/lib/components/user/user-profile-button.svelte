@@ -2,7 +2,7 @@
   import Button from '$lib/components/shared/button.svelte';
   import { Users, ChevronUp } from 'lucide-svelte';
   import type { User } from './user-profile.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     user: User | null;
@@ -13,7 +13,7 @@
 
   let { user = null, collapsed = false, showMenu = false, ontoggle }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const notSignedIn = translationService.getMessage('not_signed_in');
 
   function getInitials(name: string): string {

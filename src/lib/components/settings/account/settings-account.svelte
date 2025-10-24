@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     settings: {
@@ -9,7 +9,7 @@
 
   let { settings }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive message functions
   const account_settings = translationService.getMessage('account_settings');
   const account_type = translationService.getMessage('account_type');

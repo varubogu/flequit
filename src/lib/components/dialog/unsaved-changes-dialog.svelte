@@ -7,7 +7,7 @@
   import DialogFooter from '$lib/components/ui/dialog-footer.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import { Save, Trash2, X } from 'lucide-svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     show: boolean;
@@ -18,7 +18,7 @@
 
   let { show, onSaveAndContinue, onDiscardAndContinue, onCancel }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const save = translationService.getMessage('save');
   const cancel = translationService.getMessage('cancel');
   const discard_changes = translationService.getMessage('discard_changes');

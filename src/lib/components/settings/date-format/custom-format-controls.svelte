@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     onAdd: () => void;
@@ -26,7 +26,7 @@
     cancelEnabled
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const addNewFormat = translationService.getMessage('add_new');
   const editFormat = translationService.getMessage('edit');
   const deleteFormat = translationService.getMessage('delete');

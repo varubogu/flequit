@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { User } from '$lib/types/user';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import Button from '$lib/components/ui/button/button.svelte';
@@ -24,7 +24,7 @@
 
   let { user, isOpen = false, onClose, onSave }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Form state
   let username = $state('');

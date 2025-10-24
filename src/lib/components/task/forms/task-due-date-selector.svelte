@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;
@@ -20,7 +20,7 @@
 
   let { currentItem, isSubTask, formData, onDueDateClick }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const due_date = translationService.getMessage('due_date');
   const optional = translationService.getMessage('optional');

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { errorHandler } from '$lib/stores/error-handler.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
@@ -23,7 +23,7 @@
     onAssignmentUpdated
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   let currentItem = $derived(subTask || task);
   let isSubTask = $derived(!!subTask);

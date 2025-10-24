@@ -2,7 +2,7 @@
   import { taskStore } from '$lib/stores/tasks.svelte';
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/shared/button.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     open?: boolean;
@@ -20,7 +20,7 @@
     onClose
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const selectProjectAndTaskList = translationService.getMessage('select_project_and_task_list');
   const project = translationService.getMessage('project');

@@ -2,7 +2,7 @@ import type { SubTask } from '$lib/types/sub-task';
 import type { ContextMenuList } from '$lib/types/context-menu';
 import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 import { Edit, Trash2 } from 'lucide-svelte';
-import type { TranslationService } from '$lib/services/i18n/translation-service';
+import type { ITranslationService } from '$lib/services/translation-service';
 
 /**
  * TaskItemContextMenu - タスクアイテムのコンテキストメニュー生成クラス
@@ -11,7 +11,7 @@ import type { TranslationService } from '$lib/services/i18n/translation-service'
  */
 export class TaskItemContextMenu {
 	constructor(
-		private translationService: TranslationService,
+		private translationService: ITranslationService,
 		private handlers: {
 			handleEditTask: () => void;
 			handleDeleteTask: () => void;

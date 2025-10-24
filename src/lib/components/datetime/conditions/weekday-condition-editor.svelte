@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { X } from 'lucide-svelte';
   import DayTargetSelector from '../calendar/day-target-selector.svelte';
   import type { WeekdayCondition } from '$lib/types/datetime-calendar';
@@ -15,7 +15,7 @@
 
   let { condition, onUpdate, onRemove }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // リアクティブメッセージ
   const previous = translationService.getMessage('previous');
   const next = translationService.getMessage('next');

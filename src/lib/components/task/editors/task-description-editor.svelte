@@ -3,7 +3,7 @@
   import type { SubTask } from '$lib/types/sub-task';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
@@ -34,7 +34,7 @@ const subTaskMutations = new SubTaskMutations();
     onDescriptionChange
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Get project ID for tag creation
   const projectId = $derived(() => {

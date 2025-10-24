@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskBase } from '$lib/types/task';
   import { getDueDateClass } from '$lib/utils/datetime/formatting';
 
@@ -12,7 +12,7 @@
 
   let { task, handleDueDateClick, variant = 'compact', class: className = '' }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const todayLabel = translationService.getMessage('today');
   const tomorrowLabel = translationService.getMessage('tomorrow');

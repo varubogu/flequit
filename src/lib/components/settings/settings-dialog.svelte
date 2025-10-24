@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import Dialog from '$lib/components/ui/dialog.svelte';
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
@@ -20,7 +20,7 @@ import SettingsDialogSidebar from './settings-dialog-sidebar.svelte';
 
   let { open = $bindable(false), onOpenChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Mobile detection
   const isMobile = new IsMobile();
   let sidebarOpen = $state(false);

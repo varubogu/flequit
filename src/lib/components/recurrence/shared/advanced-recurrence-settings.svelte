@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { RecurrencePattern } from '$lib/types/recurrence';
   import type { WeekOfMonth } from '$lib/types/datetime-calendar';
   import type { DayOfWeek } from '$lib/types/recurrence';
@@ -71,7 +71,7 @@
     ondetailschange?.(newDetails);
   }
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const advancedSettings = translationService.getMessage('advanced_settings');
   const specificDate = translationService.getMessage('specific_date');
   const specificDateExample = translationService.getMessage('specific_date_example');

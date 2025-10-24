@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { TagService } from '$lib/services/domain/tag';
@@ -39,7 +39,7 @@
     onDragLeave
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Get sidebar state
   const sidebar = useSidebar();
 

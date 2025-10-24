@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as AlertDialog from '$lib/components/ui/alert-dialog';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     open: boolean;
@@ -9,7 +9,7 @@
 
   let { open = $bindable(), onConfirm }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const cancel = translationService.getMessage('cancel');
   const delete_msg = translationService.getMessage('delete');
   const deleteFormatTitle = translationService.getMessage('delete_format_title');

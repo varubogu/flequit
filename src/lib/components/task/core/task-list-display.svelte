@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -31,7 +31,7 @@ const taskDetailUiStore = useTaskDetailUiStore();
   // projectStore.projectsから直接参照して確実にリアクティブにする
   let currentProject = $derived(projectStore.projects.find(p => p.id === project.id) ?? project);
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const editTaskList = translationService.getMessage('edit_task_list');
   const addTask = translationService.getMessage('add_task');
   const deleteTaskList = translationService.getMessage('delete_task_list');

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import Input from '$lib/components/ui/input.svelte';
   import { systemPrefersMode, userPrefersMode } from 'mode-watcher';
   import { themeStore } from '$lib/stores/theme-store.svelte';
   import { appearanceStore } from '$lib/stores/appearance-store.svelte';
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const appearanceSettings = translationService.getMessage('appearance_settings');
   const theme = translationService.getMessage('theme');

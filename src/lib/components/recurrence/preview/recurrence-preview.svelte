@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { cn } from '$lib/utils';
 
   type Props = {
@@ -18,7 +18,7 @@
     repeatCount
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const preview = translationService.getMessage('preview');
   const generatingPreview = translationService.getMessage('generating_preview');
   const recurrenceDisabledPreview = translationService.getMessage('recurrence_disabled_preview');

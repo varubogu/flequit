@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
@@ -19,7 +19,7 @@
 
   let { currentView = 'all', onViewChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);

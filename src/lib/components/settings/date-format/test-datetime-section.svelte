@@ -1,13 +1,13 @@
 <script lang="ts">
   import TestDateTimeInput from './test-datetime-input.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     testDateTime: Date;
   }
   let { testDateTime = $bindable() }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const testDateTimeLabel = translationService.getMessage('test_datetime');
 </script>
 

@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     onCopyToTest: () => void;
@@ -9,7 +9,7 @@
 
   let { onCopyToTest, onCopyToMain }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const applyDatetimeFormatToTestFormat = translationService.getMessage(
     'apply_datetime_format_to_test_format'
   );

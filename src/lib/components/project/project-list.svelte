@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
@@ -33,7 +33,7 @@
   let taskListDialogProject = $state<ProjectTree | null>(null);
 
   // Translation service
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Derived states
   const projectsData = $derived(projectStore.projects);

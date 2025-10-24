@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Reactive messages
   const no_task_selected = translationService.getMessage('no_task_selected');

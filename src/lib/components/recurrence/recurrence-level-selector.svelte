@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
 
   type Props = {
@@ -15,7 +15,7 @@
     onchange?.(value);
   }
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const recurrence = translationService.getMessage('recurrence');
   const recurrenceDisabled = translationService.getMessage('recurrence_disabled');
   const recurrenceEnabled = translationService.getMessage('recurrence_enabled');

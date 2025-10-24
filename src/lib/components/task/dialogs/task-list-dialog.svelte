@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import Button from '$lib/components/shared/button.svelte';
   import Input from '$lib/components/ui/input.svelte';
@@ -16,7 +16,7 @@
 
   let { open = false, mode, initialName = '', onsave, onclose }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let name = $state(initialName);
 
   // Reactiveメッセージ

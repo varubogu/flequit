@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { AdjustmentTarget } from '$lib/types/datetime-calendar';
   import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
@@ -11,7 +11,7 @@
 
   let { value, onchange, class: className = '' }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // リアクティブメッセージ
   const monday = translationService.getMessage('monday');
   const tuesday = translationService.getMessage('tuesday');

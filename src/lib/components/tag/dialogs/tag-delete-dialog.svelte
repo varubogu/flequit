@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { Tag } from '$lib/types/tag';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 
@@ -12,7 +12,7 @@
 
   let { open, tag, onConfirm, onCancel }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const deleteTag = translationService.getMessage('delete_tag');
   const deleteTagDescription = $derived(

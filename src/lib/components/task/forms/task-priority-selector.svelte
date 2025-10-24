@@ -1,6 +1,6 @@
 <script lang="ts">
   import Select from '$lib/components/ui/select.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     isSubTask: boolean;
@@ -18,7 +18,7 @@
 
   let { isSubTask, formData, onPriorityChange, onFormChange }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   function handlePriorityChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     onPriorityChange(Number(target.value));

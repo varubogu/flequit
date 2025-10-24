@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import TaskItem from './task-item.svelte';
   import TaskAddForm from '../forms/task-add-form.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
@@ -30,7 +30,7 @@
     onSubTaskClick
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let showAddForm = $state(false);
   let taskCountText = $derived(TaskListService.getTaskCountText(tasks.length));
   let isSearchView = $derived(title?.startsWith('Search:') || title === 'Search Results');

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { DayOfWeek } from '$lib/types/datetime-calendar';
 
   type Props = {
@@ -9,7 +9,7 @@
 
   let { selectedDays, ontoggleDayOfWeek }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const repeatWeekdays = translationService.getMessage('repeat_weekdays');
 
   const dayOfWeekOptions = [

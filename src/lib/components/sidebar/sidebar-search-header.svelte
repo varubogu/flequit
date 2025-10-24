@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import KeyboardShortcut from '$lib/components/ui/keyboard-shortcut.svelte';
   import SearchCommand from '$lib/components/command/search-command.svelte';
   import { Search } from 'lucide-svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let showSearchDialog = $state(false);
 
   // Reactive messages

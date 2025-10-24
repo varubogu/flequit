@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import { Repeat } from 'lucide-svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import RecurrenceDialogAdvancedContent from './shared/recurrence-dialog-advanced-content.svelte';
   import { createRecurrenceDialogFacade } from './shared/recurrence-dialog-facade.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
@@ -27,7 +27,7 @@
   }: Props = $props();
 
   // Translation service
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const dialogFacade = createRecurrenceDialogFacade({
     onSave: (rule) => {
       onSave?.(rule);

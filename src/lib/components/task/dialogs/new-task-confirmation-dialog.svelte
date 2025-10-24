@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Dialog from '$lib/components/ui/dialog';
   import Button from '$lib/components/shared/button.svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {
     open: boolean;
@@ -11,7 +11,7 @@
 
   let { open, onConfirm, onCancel }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   // Reactive messages
   const confirm_discard_changes = translationService.getMessage('confirm_discard_changes');
   const unsaved_task_message = translationService.getMessage('unsaved_task_message');

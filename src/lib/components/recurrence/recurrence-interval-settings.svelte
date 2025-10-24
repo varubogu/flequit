@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import NumericIntervalInput from './shared/numeric-interval-input.svelte';
   import WeekdaySelector from './weekday-conditions/weekday-selector.svelte';
   import AdvancedRecurrenceSettings from './shared/advanced-recurrence-settings.svelte';
@@ -40,7 +40,7 @@
     onintervalchange?.(newInterval);
   }
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const recurrenceInterval = translationService.getMessage('recurrence_interval');
 
   const unitOptions = [

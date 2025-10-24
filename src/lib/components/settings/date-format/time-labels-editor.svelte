@@ -3,11 +3,11 @@
   import Input from '$lib/components/ui/input.svelte';
   import { settingsStore } from '$lib/stores/settings.svelte';
   import type { TimeLabel } from '$lib/types/settings';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { Trash2, Plus, Edit2 } from 'lucide-svelte';
 
   // 翻訳サービスを取得
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Reactive messages
   const timeLabels = translationService.getMessage('time_labels');

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import Button from '$lib/components/shared/button.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
@@ -29,7 +29,7 @@
     onSubTaskAddCancel
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let subTaskCountText = $derived(
     TaskListService.getTaskCountText(task.subTasks.length).replace('task', 'subtask')
   );

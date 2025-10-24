@@ -6,7 +6,8 @@
   import { settingsStore, getAvailableTimezones } from '$lib/stores/settings.svelte';
   import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
   import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
-  import { localeStore, getTranslationService } from '$lib/stores/locale.svelte';
+  import { localeStore } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { WeekStart } from '$lib/types/settings';
 
   interface Props {
@@ -23,7 +24,7 @@
   let { settings, onWeekStartChange, onTimezoneChange }: Props = $props();
 
   // 翻訳サービスを取得
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Reactive messages
   const generalSettings = translationService.getMessage('general_settings');

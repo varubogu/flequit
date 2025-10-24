@@ -1,7 +1,7 @@
 <script lang="ts">
   import { draggable, droppable, type DragDropState } from '@thisux/sveltednd';
   import { GripVertical } from 'lucide-svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
 
   interface DragState {
@@ -23,7 +23,7 @@
   });
 
   // Translation service
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const visibleInSidebar = translationService.getMessage('visible_in_sidebar');
   const hiddenFromSidebar = translationService.getMessage('hidden_from_sidebar');
 

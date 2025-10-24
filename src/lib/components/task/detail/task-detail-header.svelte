@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import Button from '$lib/components/shared/button.svelte';
@@ -32,7 +32,7 @@
     onSaveNewTask
   }: Props = $props();
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   function handleTitleInput(event: CustomEvent<{ value: string }>) {
     onTitleChange(event.detail.value);
   }

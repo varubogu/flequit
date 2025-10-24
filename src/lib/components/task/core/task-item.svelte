@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
@@ -33,7 +33,7 @@
   let showSubTasks = $state(false);
 
   // Translation service
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
 
   // Derived states
   const isSelected = $derived(taskStore.selectedTaskId === task.id);

@@ -6,7 +6,7 @@
   import { Save, X, Edit3 } from 'lucide-svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { taskInteractions } from '$lib/services/ui/task';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { tick } from 'svelte';
   import { cn } from '$lib/utils';
 
@@ -24,7 +24,7 @@
     selectedProjectId: selectionStore.selectedProjectId
   }));
 
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   let newTaskTitle = $state('');
   let inputElement: HTMLInputElement;
 

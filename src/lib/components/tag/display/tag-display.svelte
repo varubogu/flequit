@@ -8,13 +8,13 @@
   import TagEditDialog from '../dialogs/tag-edit-dialog.svelte';
   import TagDeleteDialog from '../dialogs/tag-delete-dialog.svelte';
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
-  import { getTranslationService } from '$lib/stores/locale.svelte';
+  import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
   import { createContextMenu, createSeparator } from '$lib/types/context-menu';
   import { TagService } from '$lib/services/domain/tag';
 
   // Translation service
-  const translationService = getTranslationService();
+  const translationService = useTranslation();
   const removeTagFromItem = translationService.getMessage('remove_tag_from_item');
   const removeTagFromSidebar = translationService.getMessage('remove_tag_from_sidebar');
   const addTagToSidebar = translationService.getMessage('add_tag_to_sidebar');
