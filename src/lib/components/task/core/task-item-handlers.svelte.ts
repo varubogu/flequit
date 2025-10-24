@@ -1,0 +1,89 @@
+import type { TaskWithSubTasks } from '$lib/types/task';
+import type { SubTask } from '$lib/types/sub-task';
+import { taskStore } from '$lib/stores/tasks.svelte';
+import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+import { SubTaskMutations } from '$lib/services/domain/subtask';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
+import type { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
+
+/**
+ * TaskItemHandlers - タスクアイテムのイベントハンドラークラス
+ *
+ * 責務: タスクとサブタスクに対するユーザー操作の処理
+ */
+export class TaskItemHandlers {
+	private subTaskMutations = new SubTaskMutations();
+
+	constructor(
+		private task: TaskWithSubTasks,
+		private taskDetailUiStore: ReturnType<typeof useTaskDetailUiStore> | undefined,
+		private dispatchEvent: <T>(
+			type: string,
+			detail: T
+		) => void,
+		private callbacks?: {
+			onTaskClick?: (taskId: string) => void;
+			onSubTaskClick?: (subTaskId: string) => void;
+		}
+	) {}
+
+	// Task handlers
+	handleEditTask = () => {
+		// タスク詳細画面を開いて編集モードにする
+		this.taskDetailUiStore?.openTaskDetail(this.task.id);
+	};
+
+	handleDeleteTask = () => {
+		void taskMutations.deleteTask(this.task.id);
+	};
+
+	handleTaskClick = () => {
+		// モバイル時のカスタムハンドラーがある場合は優先
+		if (this.callbacks?.onTaskClick) {
+			this.callbacks.onTaskClick(this.task.id);
+			return;
+		}
+
+		// Try to select task, but if blocked due to new task mode, dispatch event for confirmation
+		if (taskStore.isNewTaskMode) {
+			this.dispatchEvent('taskSelectionRequested', { taskId: this.task.id });
+		} else {
+			selectionStore.selectTask(this.task.id);
+		}
+	};
+
+	handleStatusToggle = () => {
+		void taskMutations.toggleTaskStatus(this.task.id);
+	};
+
+	// SubTask handlers
+	handleEditSubTask = (subTask: SubTask) => {
+		// サブタスク詳細画面を開いて編集モードにする
+		this.taskDetailUiStore?.openSubTaskDetail(subTask.id);
+	};
+
+	handleDeleteSubTask = (subTask: SubTask) => {
+		// サブタスクを削除
+		void this.subTaskMutations.deleteSubTask(subTask.id);
+	};
+
+	handleSubTaskToggle = (event: Event | undefined, subTaskId: string) => {
+		event?.stopPropagation();
+		this.subTaskMutations.toggleSubTaskStatus(this.task, subTaskId);
+	};
+
+	handleSubTaskClick = (event: Event | undefined, subTaskId: string) => {
+		event?.stopPropagation();
+
+		if (this.callbacks?.onSubTaskClick) {
+			this.callbacks.onSubTaskClick(subTaskId);
+		} else {
+			// フォールバック: 統一的なアプローチを使わない場合
+			if (taskStore.isNewTaskMode) {
+				this.dispatchEvent('subTaskSelectionRequested', { subTaskId });
+			} else {
+				selectionStore.selectSubTask(subTaskId);
+			}
+		}
+	};
+}
