@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import AdvancedRecurrenceSettings from '$lib/components/recurrence/shared/advanced-recurrence-settings.svelte';
+import AdvancedRecurrenceSettings from '$lib/components/recurrence/settings/advanced-recurrence-settings.svelte';
 import type { RecurrencePattern } from '$lib/types/recurrence';
 
 // Mock translation service

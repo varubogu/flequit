@@ -2,7 +2,7 @@
 // @ts-nocheck
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
-import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/shared/recurrence-dialog-advanced-content.svelte';
+import RecurrenceDialogAdvancedContent from '$lib/components/recurrence/dialogs/recurrence-dialog-advanced-content.svelte';
 import type { RecurrenceDialogLogic } from '$lib/components/recurrence/shared/recurrence-dialog-facade.svelte';
 
 // Mock child components

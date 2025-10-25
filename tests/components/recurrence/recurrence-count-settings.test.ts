@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import RecurrenceCountSettings from '$lib/components/recurrence/recurrence-count-settings.svelte';
+import RecurrenceCountSettings from '$lib/components/recurrence/settings/recurrence-count-settings.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 
 // 翻訳サービスのモック

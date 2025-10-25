@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
-import RecurrenceIntervalSettings from '$lib/components/recurrence/recurrence-interval-settings.svelte';
+import RecurrenceIntervalSettings from '$lib/components/recurrence/settings/recurrence-interval-settings.svelte';
 import type { RecurrencePattern, RecurrenceUnit, DayOfWeek } from '$lib/types/recurrence';
 
 // Mock dependencies

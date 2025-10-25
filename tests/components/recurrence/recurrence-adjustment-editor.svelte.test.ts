@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import RecurrenceAdjustmentEditor from '$lib/components/recurrence/recurrence-adjustment-editor.svelte';
+import RecurrenceAdjustmentEditor from '$lib/components/recurrence/settings/recurrence-adjustment-editor.svelte';
 import type { DateCondition, WeekdayCondition, DateRelation } from '$lib/types/datetime-calendar';
 
 // Mock dependencies
