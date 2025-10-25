@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
 	checkWeekdayCondition,
 	applyWeekdayAdjustment
-} from '$lib/services/recurrence/adjustment/weekday-adjuster';
+} from '$lib/services/domain/recurrence/adjustment/weekday-adjuster';
 import type { WeekdayCondition } from '$lib/types/datetime-calendar';
 
 // Note: isHoliday の実装は土日を祝日として扱う簡略実装

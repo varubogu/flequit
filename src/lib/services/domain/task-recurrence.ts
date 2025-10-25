@@ -1,5 +1,5 @@
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import { RecurrenceService } from '$lib/services/recurrence/recurrence-service';
+import { RecurrenceService } from '$lib/services/domain/recurrence/recurrence-service';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 
 export class TaskRecurrenceService {
