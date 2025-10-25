@@ -2,8 +2,8 @@
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import { Repeat } from 'lucide-svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
-  import RecurrenceDialogAdvancedContent from './shared/recurrence-dialog-advanced-content.svelte';
-  import { createRecurrenceDialogFacade } from './shared/recurrence-dialog-facade.svelte';
+  import RecurrenceDialogAdvancedContent from './recurrence-dialog-advanced-content.svelte';
+  import { createRecurrenceDialogFacade } from './recurrence-dialog-facade.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
   interface Props {

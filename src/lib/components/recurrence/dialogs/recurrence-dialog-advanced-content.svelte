@@ -1,8 +1,8 @@
 <script lang="ts">
-  import RecurrenceLevelSelector from '../recurrence-level-selector.svelte';
-  import RecurrenceCountSettings from '../recurrence-count-settings.svelte';
-  import RecurrenceIntervalSettings from '../recurrence-interval-settings.svelte';
-  import RecurrenceAdjustmentEditor from '../recurrence-adjustment-editor.svelte';
+  import RecurrenceLevelSelector from '../settings/recurrence-level-selector.svelte';
+  import RecurrenceCountSettings from '../settings/recurrence-count-settings.svelte';
+  import RecurrenceIntervalSettings from '../settings/recurrence-interval-settings.svelte';
+  import RecurrenceAdjustmentEditor from '../settings/recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime/formatting';
   import RecurrencePreview from '../preview/recurrence-preview.svelte';
   import type { RecurrenceDialogLogic } from './recurrence-dialog-facade.svelte';

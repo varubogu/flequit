@@ -1,8 +1,8 @@
 <script lang="ts">
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
-  import NumericIntervalInput from './shared/numeric-interval-input.svelte';
-  import WeekdaySelector from './weekday-conditions/weekday-selector.svelte';
-  import AdvancedRecurrenceSettings from './shared/advanced-recurrence-settings.svelte';
+  import NumericIntervalInput from './numeric-interval-input.svelte';
+  import WeekdaySelector from '../weekday-conditions/weekday-selector.svelte';
+  import AdvancedRecurrenceSettings from './advanced-recurrence-settings.svelte';
   import type { RecurrencePattern } from '$lib/types/recurrence';
   import type { RecurrenceUnit } from '$lib/types/recurrence';
   import type { DayOfWeek } from '$lib/types/recurrence';

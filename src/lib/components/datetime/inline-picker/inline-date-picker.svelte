@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RecurrenceDialog from '$lib/components/recurrence/recurrence-dialog.svelte';
+  import RecurrenceDialog from '$lib/components/recurrence/dialogs/recurrence-dialog.svelte';
   import { SvelteDate } from 'svelte/reactivity';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
   import InlineDatePickerUI from './inline-date-picker-ui.svelte';
