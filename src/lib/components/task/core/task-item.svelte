@@ -108,7 +108,3 @@
 <TaskItemContent {logic} {task} {taskDatePicker} />
 
 <TaskDatePicker bind:this={taskDatePicker} {task} />
-
-<TaskItemContent {logic} {task} {taskDatePicker} />
-
-<TaskDatePicker bind:this={taskDatePicker} {task} />
