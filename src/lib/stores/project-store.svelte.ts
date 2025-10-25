@@ -203,7 +203,8 @@ export class ProjectStore implements IProjectStore {
 	}
 
 	setProjects(projects: ProjectTree[]) {
-		this.loadProjects(projects);
+		// 既に変換済みのプロジェクトデータを設定（タグ変換は不要）
+		this.projects = projects;
 	}
 
 	// テスト用
