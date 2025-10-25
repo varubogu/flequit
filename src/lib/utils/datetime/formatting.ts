@@ -74,14 +74,32 @@ export function getDueDateClass(date: Date | undefined, status?: string): string
 
   const now = new Date();
   const taskDate = new Date(date);
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  if (taskDate < today && status !== 'completed') {
-    return 'text-red-600 font-semibold'; // Overdue
-  } else if (taskDate.getTime() === today.getTime()) {
-    return 'text-orange-300 font-medium'; // Due today
-  } else {
+  // 時刻情報があるかどうかで判定方法を変える
+  if (hasTime(taskDate)) {
+    // 日時での比較（時刻まで考慮）
+    if (taskDate < now && status !== 'completed') {
+      return 'text-red-600 font-semibold'; // Overdue
+    }
+    // 「今日」判定は日付部分のみで判定
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
+    if (taskDay.getTime() === today.getTime()) {
+      return 'text-orange-300 font-medium'; // Due today
+    }
     return 'text-muted-foreground'; // Future
+  } else {
+    // 日付のみでの比較
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const taskDay = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
+
+    if (taskDay < today && status !== 'completed') {
+      return 'text-red-600 font-semibold'; // Overdue
+    } else if (taskDay.getTime() === today.getTime()) {
+      return 'text-orange-300 font-medium'; // Due today
+    } else {
+      return 'text-muted-foreground'; // Future
+    }
   }
 }
 
