@@ -1,8 +1,25 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { Settings, CustomDateFormat, TimeLabel, ViewItem } from '$lib/types/settings';
 import type { SettingsManagementService } from '$lib/infrastructure/backends/settings-management-service';
+import { CustomDueDayService } from './settings-categories/custom-due-day-service';
+import { CustomDateFormatService } from './settings-categories/custom-date-format-service';
+import { DateTimeFormatService } from './settings-categories/datetime-format-service';
+import { TimeLabelService } from './settings-categories/time-label-service';
+import { ViewItemService } from './settings-categories/view-item-service';
 
+/**
+ * Tauri設定管理サービス（Facade）
+ * 
+ * カテゴリ別サービスを統合し、統一的なインターフェースを提供します。
+ */
 export class SettingsManagementTauriService implements SettingsManagementService {
+  private customDueDayService = new CustomDueDayService();
+  private customDateFormatService = new CustomDateFormatService();
+  private dateTimeFormatService = new DateTimeFormatService();
+  private timeLabelService = new TimeLabelService();
+  private viewItemService = new ViewItemService();
+
+  // 基本設定操作
   async loadSettings(): Promise<Settings | null> {
     try {
       const result = (await invoke('load_settings')) as Settings | null;
@@ -25,7 +42,9 @@ export class SettingsManagementTauriService implements SettingsManagementService
 
   async updateSettingsPartially(partialSettings: Partial<Settings>): Promise<Settings | null> {
     try {
-      const result = (await invoke('update_settings_partially', { partialSettings })) as Settings | null;
+      const result = (await invoke('update_settings_partially', {
+        partialSettings
+      })) as Settings | null;
       return result;
     } catch (error) {
       console.error('Failed to update settings partially:', error);
@@ -63,218 +82,92 @@ export class SettingsManagementTauriService implements SettingsManagementService
     }
   }
 
-  // カスタム期日管理
+  // カスタム期日管理 - delegateパターン
   async addCustomDueDay(days: number): Promise<boolean> {
-    try {
-      const result = await invoke('add_custom_due_day', { days });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to add custom due day:', error);
-      return false;
-    }
+    return this.customDueDayService.addCustomDueDay(days);
   }
 
   async updateCustomDueDay(oldDays: number, newDays: number): Promise<boolean> {
-    try {
-      const result = await invoke('update_custom_due_day', { old_days: oldDays, new_days: newDays });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to update custom due day:', error);
-      return false;
-    }
+    return this.customDueDayService.updateCustomDueDay(oldDays, newDays);
   }
 
   async deleteCustomDueDay(days: number): Promise<boolean> {
-    try {
-      const result = await invoke('delete_custom_due_day', { days });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to delete custom due day:', error);
-      return false;
-    }
+    return this.customDueDayService.deleteCustomDueDay(days);
   }
 
-  // 日時フォーマット管理
+  // 日時フォーマット管理 - delegateパターン
   async addDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
-    try {
-      const result = await invoke('add_datetime_format_setting', { format_setting: formatSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to add datetime format setting:', error);
-      return false;
-    }
+    return this.dateTimeFormatService.addDateTimeFormatSetting(formatSetting);
   }
 
   async upsertDateTimeFormatSetting(formatSetting: Record<string, unknown>): Promise<boolean> {
-    try {
-      const result = await invoke('upsert_datetime_format_setting', { format_setting: formatSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to upsert datetime format setting:', error);
-      return false;
-    }
+    return this.dateTimeFormatService.upsertDateTimeFormatSetting(formatSetting);
   }
 
   async deleteDateTimeFormatSetting(formatId: string): Promise<boolean> {
-    try {
-      const result = await invoke('delete_datetime_format_setting', { format_id: formatId });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to delete datetime format setting:', error);
-      return false;
-    }
+    return this.dateTimeFormatService.deleteDateTimeFormatSetting(formatId);
   }
 
-  // カスタム日付フォーマット管理
+  // カスタム日付フォーマット管理 - delegateパターン
   async getCustomDateFormatSetting(formatId: string): Promise<CustomDateFormat | null> {
-    try {
-      const result = (await invoke('get_custom_date_format_setting', { format_id: formatId })) as CustomDateFormat | null;
-      return result;
-    } catch (error) {
-      console.error('Failed to get custom date format setting:', error);
-      return null;
-    }
+    return this.customDateFormatService.getCustomDateFormatSetting(formatId);
   }
 
   async getAllCustomDateFormatSettings(): Promise<CustomDateFormat[]> {
-    try {
-      const result = (await invoke('get_all_custom_date_format_settings')) as CustomDateFormat[];
-      return result;
-    } catch (error) {
-      console.error('Failed to get all custom date format settings:', error);
-      return [];
-    }
+    return this.customDateFormatService.getAllCustomDateFormatSettings();
   }
 
   async addCustomDateFormatSetting(formatSetting: CustomDateFormat): Promise<boolean> {
-    try {
-      const result = await invoke('add_custom_date_format_setting', { format_setting: formatSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to add custom date format setting:', error);
-      return false;
-    }
+    return this.customDateFormatService.addCustomDateFormatSetting(formatSetting);
   }
 
   async updateCustomDateFormatSetting(formatSetting: CustomDateFormat): Promise<boolean> {
-    try {
-      const result = await invoke('update_custom_date_format_setting', { format_setting: formatSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to update custom date format setting:', error);
-      return false;
-    }
+    return this.customDateFormatService.updateCustomDateFormatSetting(formatSetting);
   }
 
   async deleteCustomDateFormatSetting(formatId: string): Promise<boolean> {
-    try {
-      const result = await invoke('delete_custom_date_format_setting', { format_id: formatId });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to delete custom date format setting:', error);
-      return false;
-    }
+    return this.customDateFormatService.deleteCustomDateFormatSetting(formatId);
   }
 
-  // 時間ラベル管理
+  // 時間ラベル管理 - delegateパターン
   async getTimeLabelSetting(labelId: string): Promise<TimeLabel | null> {
-    try {
-      const result = (await invoke('get_time_label_setting', { label_id: labelId })) as TimeLabel | null;
-      return result;
-    } catch (error) {
-      console.error('Failed to get time label setting:', error);
-      return null;
-    }
+    return this.timeLabelService.getTimeLabelSetting(labelId);
   }
 
   async getAllTimeLabelSettings(): Promise<TimeLabel[]> {
-    try {
-      const result = (await invoke('get_all_time_label_settings')) as TimeLabel[];
-      return result;
-    } catch (error) {
-      console.error('Failed to get all time label settings:', error);
-      return [];
-    }
+    return this.timeLabelService.getAllTimeLabelSettings();
   }
 
   async addTimeLabelSetting(labelSetting: TimeLabel): Promise<boolean> {
-    try {
-      const result = await invoke('add_time_label_setting', { label_setting: labelSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to add time label setting:', error);
-      return false;
-    }
+    return this.timeLabelService.addTimeLabelSetting(labelSetting);
   }
 
   async updateTimeLabelSetting(labelSetting: TimeLabel): Promise<boolean> {
-    try {
-      const result = await invoke('update_time_label_setting', { label_setting: labelSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to update time label setting:', error);
-      return false;
-    }
+    return this.timeLabelService.updateTimeLabelSetting(labelSetting);
   }
 
   async deleteTimeLabelSetting(labelId: string): Promise<boolean> {
-    try {
-      const result = await invoke('delete_time_label_setting', { label_id: labelId });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to delete time label setting:', error);
-      return false;
-    }
+    return this.timeLabelService.deleteTimeLabelSetting(labelId);
   }
 
-  // ビューアイテム管理
+  // ビューアイテム管理 - delegateパターン
   async getViewItemSetting(itemId: string): Promise<ViewItem | null> {
-    try {
-      const result = (await invoke('get_view_item_setting', { item_id: itemId })) as ViewItem | null;
-      return result;
-    } catch (error) {
-      console.error('Failed to get view item setting:', error);
-      return null;
-    }
+    return this.viewItemService.getViewItemSetting(itemId);
   }
 
   async getAllViewItemSettings(): Promise<ViewItem[]> {
-    try {
-      const result = (await invoke('get_all_view_item_settings')) as ViewItem[];
-      return result;
-    } catch (error) {
-      console.error('Failed to get all view item settings:', error);
-      return [];
-    }
+    return this.viewItemService.getAllViewItemSettings();
   }
 
   async addViewItemSetting(itemSetting: ViewItem): Promise<boolean> {
-    try {
-      const result = await invoke('add_view_item_setting', { item_setting: itemSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to add view item setting:', error);
-      return false;
-    }
+    return this.viewItemService.addViewItemSetting(itemSetting);
   }
 
   async updateViewItemSetting(itemSetting: ViewItem): Promise<boolean> {
-    try {
-      const result = await invoke('update_view_item_setting', { item_setting: itemSetting });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to update view item setting:', error);
-      return false;
-    }
+    return this.viewItemService.updateViewItemSetting(itemSetting);
   }
 
   async deleteViewItemSetting(itemId: string): Promise<boolean> {
-    try {
-      const result = await invoke('delete_view_item_setting', { item_id: itemId });
-      return result as boolean;
-    } catch (error) {
-      console.error('Failed to delete view item setting:', error);
-      return false;
-    }
+    return this.viewItemService.deleteViewItemSetting(itemId);
   }
 }
