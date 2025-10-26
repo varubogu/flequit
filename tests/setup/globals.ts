@@ -63,6 +63,18 @@ Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
   writable: true
 });
 
+// Tauri API mocks for testing environment
+Object.defineProperty(window, '__TAURI_INTERNALS__', {
+  value: {
+    metadata: {
+      currentWindow: { label: 'test-window' }
+    },
+    invoke: async () => ({}),
+    transformCallback: () => {}
+  },
+  writable: true
+});
+
 // Console noise suppression (keep warn/error when necessary)
 const originalConsole = console;
 global.console = {
@@ -72,6 +84,9 @@ global.console = {
   info: () => {},
   warn: (message: string, ...args: unknown[]) => {
     if (typeof message === 'string' && message.includes('Web backends:') && message.includes('not implemented')) {
+      return;
+    }
+    if (typeof message === 'string' && message.includes('Tauri environment not available')) {
       return;
     }
     originalConsole.warn(message, ...args);
