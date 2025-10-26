@@ -169,7 +169,9 @@ export function createRecurrenceDialogFacade(options: RecurrenceDialogOptions): 
   );
 
   return {
-    logic,
+    get logic() {
+      return logic;
+    },
     setRecurrenceRule(rule) {
       latestRecurrenceRule = rule;
       if (!openState) {

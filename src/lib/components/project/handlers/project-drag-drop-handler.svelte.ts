@@ -7,7 +7,7 @@ import { ProjectCompositeService } from '$lib/services/composite/project-composi
 /**
  * プロジェクトのドラッグ&ドロップハンドラー
  */
-export function createProjectDragDropHandler(projectsData: ProjectTree[]) {
+export function createProjectDragDropHandler(getProjectsData: () => ProjectTree[]) {
   function handleProjectDragStart(event: DragEvent, project: ProjectTree) {
     const dragData: DragData = {
       type: 'project',
@@ -35,6 +35,7 @@ export function createProjectDragDropHandler(projectsData: ProjectTree[]) {
 
     if (dragData.type === 'project') {
       // プロジェクト同士の並び替え
+      const projectsData = getProjectsData();
       const targetIndex = projectsData.findIndex((p) => p.id === targetProject.id);
       await ProjectCompositeService.moveProjectToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'tasklist') {

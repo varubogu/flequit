@@ -68,5 +68,9 @@ export function useSettingsDraggableItemsController() {
 		handleDrop
 	}));
 
-	return { logic };
+	return {
+		get logic() {
+			return logic;
+		}
+	};
 }

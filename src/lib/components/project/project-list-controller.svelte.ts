@@ -74,7 +74,7 @@ export function useProjectListController(
   });
 
   // Drag & Drop handler
-  const dragDropHandler = createProjectDragDropHandler(projectsData);
+  const dragDropHandler = createProjectDragDropHandler(() => projectsData);
 
   // Dialog manager
   const dialogManager = createProjectDialogManager(onViewChange);
@@ -146,7 +146,9 @@ export function useProjectListController(
   });
 
   return {
-    logic,
+    get logic() {
+      return logic;
+    },
     dialogState: dialogManager.dialogState,
     handleProjectSave: dialogManager.handleProjectSave,
     handleTaskListSave: dialogManager.handleTaskListSave,
