@@ -5,7 +5,7 @@ import type { InlineDatePickerState, UseInlineDatePickerOptions } from './types'
 export function createInlineDatePickerState(
   options: UseInlineDatePickerOptions
 ): InlineDatePickerState {
-  return $state<InlineDatePickerState>({
+  const state = $state<InlineDatePickerState>({
     endDate: '',
     endTime: '00:00:00',
     startDate: '',
@@ -16,6 +16,7 @@ export function createInlineDatePickerState(
     lastSyncedRangeMode: options.isRangeDate ?? false,
     lastSyncedRecurrenceRule: options.recurrenceRule ?? null
   });
+  return state;
 }
 
 export function initializeState(
