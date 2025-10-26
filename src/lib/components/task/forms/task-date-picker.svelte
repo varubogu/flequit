@@ -1,11 +1,8 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
-  import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
-  import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-  import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
+  import { useTaskDatePickerController } from './task-date-picker/controller.svelte';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -13,222 +10,52 @@
 
   let { task }: Props = $props();
 
-  // Main task date picker state
-  let showDatePicker = $state(false);
-  let datePickerPosition = $state({ x: 0, y: 0 });
-
-  // SubTask date picker state
-  let showSubTaskDatePicker = $state(false);
-  let subTaskDatePickerPosition = $state({ x: 0, y: 0 });
-  let editingSubTaskId = $state<string | null>(null);
-
-  // RecurrenceRule保存処理（TaskDetailLogicと同様）
-  async function saveRecurrenceRule(
-    itemId: string,
-    isSubTask: boolean,
-    rule: RecurrenceRule | null
-  ) {
-    // タスクからprojectIdを取得（サブタスクの場合は親タスクから）
-    const projectId = task.projectId;
-
-    if (!projectId) {
-      console.error('Failed to get projectId for recurrence rule');
-      return;
-    }
-
-    try {
-      await RecurrenceSyncService.save({ projectId, itemId, isSubTask, rule });
-    } catch (error) {
-      console.error('Failed to save recurrence rule:', error);
-    }
-  }
-
-  // Main task date picker handlers
-function handleDueDateClick(event: MouseEvent) {
-  event.preventDefault();
-  event.stopPropagation();
-
-  showSubTaskDatePicker = false;
-  editingSubTaskId = null;
-
-  const rect = (event.target as HTMLElement).getBoundingClientRect();
-  datePickerPosition = {
-    x: Math.min(rect.left, window.innerWidth - 300),
-    y: rect.bottom + 8
-  };
-    showDatePicker = true;
-  }
-
-  async function handleDateChange(data: {
-    date: string;
-    dateTime: string;
-    range?: { start: string; end: string };
-    isRangeDate: boolean;
-    recurrenceRule?: RecurrenceRule | null;
-  }) {
-    const { dateTime, range, isRangeDate, recurrenceRule } = data;
-
-    if (isRangeDate) {
-      if (range) {
-        await taskMutations.updateTask(task.id, {
-          ...task,
-          planStartDate: new Date(range.start),
-          planEndDate: new Date(range.end),
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
-      } else {
-        const currentEndDate = task.planEndDate || new Date(dateTime);
-        await taskMutations.updateTask(task.id, {
-          ...task,
-          planStartDate: currentEndDate,
-          planEndDate: currentEndDate,
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
-      }
-    } else {
-      await taskMutations.updateTask(task.id, {
-        ...task,
-        planEndDate: new Date(dateTime),
-        planStartDate: undefined,
-        isRangeDate: false,
-        recurrenceRule: recurrenceRule ?? undefined
-      });
-    }
-
-    // RecurrenceRuleをバックエンドに保存
-    if (recurrenceRule !== undefined) {
-      await saveRecurrenceRule(task.id, false, recurrenceRule);
-    }
-
-  }
-
-  async function handleDateClear() {
-    await taskMutations.updateTask(task.id, {
-      ...task,
-      planStartDate: undefined,
-      planEndDate: undefined,
-      isRangeDate: false
-    });
-  }
-
-  function handleDatePickerClose() {
-    showDatePicker = false;
-  }
-
-  // SubTask date picker handlers
-  function handleSubTaskDueDateClick(event: MouseEvent, subTask: SubTask) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    showDatePicker = false;
-
-    const rect = (event.target as HTMLElement).getBoundingClientRect();
-    subTaskDatePickerPosition = {
-      x: Math.min(rect.left, window.innerWidth - 300),
-      y: rect.bottom + 8
-    };
-    editingSubTaskId = subTask.id;
-    showSubTaskDatePicker = true;
-  }
-
-  async function handleSubTaskDateChange(data: {
-    date: string;
-    dateTime: string;
-    range?: { start: string; end: string };
-    isRangeDate: boolean;
-    recurrenceRule?: RecurrenceRule | null;
-  }) {
-    if (!editingSubTaskId) return;
-
-    const { dateTime, range, isRangeDate, recurrenceRule } = data;
-    const subTaskIndex = task.subTasks.findIndex((st) => st.id === editingSubTaskId);
-    if (subTaskIndex === -1) return;
-
-    if (isRangeDate) {
-      if (range) {
-        subTaskStore.updateSubTask(editingSubTaskId, {
-          planStartDate: new Date(range.start),
-          planEndDate: new Date(range.end),
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
-      } else {
-        const subTask = task.subTasks[subTaskIndex];
-        const currentEndDate = subTask.planEndDate || new Date(dateTime);
-        subTaskStore.updateSubTask(editingSubTaskId, {
-          planStartDate: currentEndDate,
-          planEndDate: currentEndDate,
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
-      }
-    } else {
-      subTaskStore.updateSubTask(editingSubTaskId, {
-        planEndDate: new Date(dateTime),
-        planStartDate: undefined,
-        isRangeDate: false,
-        recurrenceRule: recurrenceRule ?? undefined
-      });
-    }
-
-    // RecurrenceRuleをバックエンドに保存
-    if (recurrenceRule !== undefined) {
-      await saveRecurrenceRule(editingSubTaskId, true, recurrenceRule);
-    }
-
-  }
-
-  function handleSubTaskDateClear() {
-    if (!editingSubTaskId) return;
-
-    subTaskStore.updateSubTask(editingSubTaskId, {
-      planStartDate: undefined,
-      planEndDate: undefined,
-      isRangeDate: false
-    });
-  }
-
-  function handleSubTaskDatePickerClose() {
-    showSubTaskDatePicker = false;
-    editingSubTaskId = null;
-  }
+  const controller = useTaskDatePickerController(task);
 
   // Export handlers for parent component
-  export { handleDueDateClick, handleSubTaskDueDateClick, datePickerPosition, showDatePicker };
+  export function handleDueDateClick(event: MouseEvent) {
+    controller.handleDueDateClick(event);
+  }
+
+  export function handleSubTaskDueDateClick(event: MouseEvent, subTask: SubTask) {
+    controller.handleSubTaskDueDateClick(event, subTask.id);
+  }
+
+  // Re-export state for parent component access
+  export function getDatePickerPosition() {
+    return controller.datePickerPosition;
+  }
+
+  export function getShowDatePicker() {
+    return controller.showDatePicker;
+  }
 </script>
 
 <!-- Main Task Date Picker -->
 <InlineDatePicker
-  show={showDatePicker}
+  show={controller.showDatePicker}
   currentDate={task.planEndDate ? task.planEndDate.toISOString() : ''}
   currentStartDate={task.planStartDate ? task.planStartDate.toISOString() : ''}
-  position={datePickerPosition}
+  position={controller.datePickerPosition}
   isRangeDate={task.isRangeDate || false}
   recurrenceRule={task.recurrenceRule}
-  onchange={handleDateChange}
-  onclear={handleDateClear}
-  onclose={handleDatePickerClose}
+  onchange={controller.handleDateChange}
+  onclear={controller.handleDateClear}
+  onclose={controller.handleDatePickerClose}
 />
 
 <!-- SubTask Date Picker -->
-<InlineDatePicker
-  show={showSubTaskDatePicker}
-  currentDate={editingSubTaskId
-    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.planEndDate?.toISOString() || ''
-    : ''}
-  currentStartDate={editingSubTaskId
-    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.planStartDate?.toISOString() || ''
-    : ''}
-  position={subTaskDatePickerPosition}
-  isRangeDate={editingSubTaskId
-    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.isRangeDate || false
-    : false}
-  recurrenceRule={editingSubTaskId
-    ? task.subTasks.find((st) => st.id === editingSubTaskId)?.recurrenceRule
-    : null}
-  onchange={handleSubTaskDateChange}
-  onclear={handleSubTaskDateClear}
-  onclose={handleSubTaskDatePickerClose}
-/>
+{#if controller.editingSubTaskId}
+  {@const editingSubTask = controller.getEditingSubTask()}
+  <InlineDatePicker
+    show={controller.showSubTaskDatePicker}
+    currentDate={editingSubTask?.planEndDate?.toISOString() || ''}
+    currentStartDate={editingSubTask?.planStartDate?.toISOString() || ''}
+    position={controller.subTaskDatePickerPosition}
+    isRangeDate={editingSubTask?.isRangeDate || false}
+    recurrenceRule={editingSubTask?.recurrenceRule}
+    onchange={controller.handleSubTaskDateChange}
+    onclear={controller.handleSubTaskDateClear}
+    onclose={controller.handleSubTaskDatePickerClose}
+  />
+{/if}

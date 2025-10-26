@@ -74,8 +74,8 @@ describe('TaskDatePicker Component', () => {
     // Check if exported functions are available
     expect(component.handleDueDateClick).toBeDefined();
     expect(component.handleSubTaskDueDateClick).toBeDefined();
-    expect(component.datePickerPosition).toBeDefined();
-    expect(component.showDatePicker).toBeDefined();
+    expect(component.getDatePickerPosition).toBeDefined();
+    expect(component.getShowDatePicker).toBeDefined();
   });
 
   test('should handle task date change for single date', async () => {
@@ -111,8 +111,8 @@ describe('TaskDatePicker Component', () => {
   test('should initialize with correct default state', () => {
     const { component } = render(TaskDatePicker, { task: mockTask });
 
-    expect(component.showDatePicker).toBe(false);
-    expect(component.datePickerPosition).toEqual({ x: 0, y: 0 });
+    expect(component.getShowDatePicker()).toBe(false);
+    expect(component.getDatePickerPosition()).toEqual({ x: 0, y: 0 });
   });
 
   test('should handle task without dates', () => {
