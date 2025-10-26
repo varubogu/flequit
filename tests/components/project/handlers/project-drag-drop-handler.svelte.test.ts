@@ -57,7 +57,7 @@ describe('ProjectDragDropHandler', () => {
         taskLists: []
       }
     ];
-    handler = createProjectDragDropHandler(mockProjects);
+    handler = createProjectDragDropHandler(() => mockProjects);
     // Mock DragEvent object for testing
     mockEvent = { preventDefault: vi.fn(), dataTransfer: {} } as unknown as DragEvent;
     vi.clearAllMocks();
