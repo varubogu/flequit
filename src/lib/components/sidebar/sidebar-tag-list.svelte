@@ -1,20 +1,11 @@
 <script lang="ts">
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
-  import { tagStore } from '$lib/stores/tags.svelte';
-  import { taskStore } from '$lib/stores/tasks.svelte';
-  import { viewStore } from '$lib/stores/view-store.svelte';
   import TagEditDialog from '$lib/components/tag/dialogs/tag-edit-dialog.svelte';
   import TagDeleteDialog from '$lib/components/tag/dialogs/tag-delete-dialog.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import SidebarTagItem from './sidebar-tag-item.svelte';
-  import type { Tag } from '$lib/types/tag';
-  import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
-
-  const subTaskMutations = new SubTaskMutations();
-  import { TagService } from '$lib/services/domain/tag';
+  import { useSidebarTagListController } from './sidebar-tag-list-controller.svelte';
 
   interface Props {
     currentView?: ViewType;
@@ -26,135 +17,15 @@
   let { currentView, onViewChange }: Props = $props();
 
   const translationService = useTranslation();
-  // Get sidebar state
   const sidebar = useSidebar();
-
-  let bookmarkedTags = $derived(tagStore.bookmarkedTagList);
+  const controller = useSidebarTagListController();
 
   // Reactive messages
   const tagsTitle = translationService.getMessage('tags');
-
-  // State for dialogs
-  let selectedTag: Tag | null = $state(null);
-  let showEditDialog = $state(false);
-  let showDeleteConfirm = $state(false);
-
-  function handleTagClick(tag: Tag) {
-    // タグ検索を実行する（#tagName形式）
-    const searchQuery = `#${tag.name}`;
-    viewStore.performSearch(searchQuery);
-  }
-
-  function handleRemoveFromBookmarks(tag: Tag) {
-    tagStore.removeBookmark(tag.id);
-  }
-
-  function handleEditTag(tag: Tag) {
-    selectedTag = tag;
-    showEditDialog = true;
-  }
-
-  function handleDeleteTag(tag: Tag) {
-    selectedTag = tag;
-    showDeleteConfirm = true;
-  }
-
-  function onEditComplete() {
-    showEditDialog = false;
-    selectedTag = null;
-  }
-
-  async function onEditSave(data: { name: string; color: string }) {
-    if (selectedTag) {
-      // Get project ID for this tag
-      const projectId = await tagStore.getProjectIdByTagId(selectedTag.id);
-      if (!projectId) {
-        console.error('Project ID not found for tag:', selectedTag.id);
-        return;
-      }
-      TagService.updateTag(projectId, selectedTag.id, {
-        name: data.name,
-        color: data.color
-      });
-    }
-    onEditComplete();
-  }
-
-  async function onDeleteConfirm() {
-    if (selectedTag) {
-      const projectId = await tagStore.getProjectIdByTagId(selectedTag.id);
-      if (!projectId) {
-        console.error('Project ID not found for tag:', selectedTag.id);
-        return;
-      }
-      TagService.deleteTag(projectId, selectedTag.id, (tagId: string) => {
-        // Remove tag from all tasks and subtasks
-        taskStore.removeTagFromAllTasks(tagId);
-      });
-      showDeleteConfirm = false;
-      selectedTag = null;
-    }
-  }
-
-  function onDeleteCancel() {
-    showDeleteConfirm = false;
-    selectedTag = null;
-  }
-
-  // Drag & Drop handlers
-  function handleTagDragStart(event: DragEvent, tag: Tag) {
-    const dragData: DragData = {
-      type: 'tag',
-      id: tag.id
-    };
-    DragDropManager.startDrag(event, dragData);
-  }
-
-  function handleTagDragOver(event: DragEvent, tag: Tag) {
-    const target: DropTarget = {
-      type: 'tag',
-      id: tag.id
-    };
-    DragDropManager.handleDragOver(event, target);
-  }
-
-  function handleTagDrop(event: DragEvent, targetTag: Tag) {
-    const target: DropTarget = {
-      type: 'tag',
-      id: targetTag.id
-    };
-
-    const dragData = DragDropManager.handleDrop(event, target);
-    if (!dragData) return;
-
-    if (dragData.type === 'tag') {
-      // タグ同士の並び替え
-      const targetIndex = bookmarkedTags.findIndex((t) => t.id === targetTag.id);
-      tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
-    } else if (dragData.type === 'task') {
-      // タスクをタグにドロップした場合、タスクにタグを付与
-      void taskMutations.addTagToTask(dragData.id, targetTag.id);
-    } else if (dragData.type === 'subtask' && dragData.taskId) {
-      // サブタスクをタグにドロップした場合、サブタスクにタグを付与
-      void subTaskMutations.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
-    }
-  }
-
-  function handleTagDragEnd(event: DragEvent) {
-    DragDropManager.handleDragEnd(event);
-  }
-
-  function handleTagDragEnter(event: DragEvent, element: HTMLElement) {
-    DragDropManager.handleDragEnter(event, element);
-  }
-
-  function handleTagDragLeave(event: DragEvent, element: HTMLElement) {
-    DragDropManager.handleDragLeave(event, element);
-  }
 </script>
 
 <!-- タグカテゴリ -->
-{#if bookmarkedTags.length > 0}
+{#if controller.bookmarkedTags.length > 0}
   <div class="mb-6 space-y-1">
     {#if sidebar.state !== 'collapsed'}
       <h3 class="text-muted-foreground px-3 text-xs font-medium tracking-wider uppercase">
@@ -162,19 +33,19 @@
       </h3>
     {/if}
 
-    {#each bookmarkedTags as tag (tag.id)}
+    {#each controller.bookmarkedTags as tag (tag.id)}
       <SidebarTagItem
         {tag}
-        onRemoveFromBookmarks={handleRemoveFromBookmarks}
-        onEditTag={handleEditTag}
-        onDeleteTag={handleDeleteTag}
-        onTagClick={() => handleTagClick(tag)}
-        onDragStart={(event) => handleTagDragStart(event, tag)}
-        onDragOver={(event) => handleTagDragOver(event, tag)}
-        onDrop={(event) => handleTagDrop(event, tag)}
-        onDragEnd={handleTagDragEnd}
-        onDragEnter={handleTagDragEnter}
-        onDragLeave={handleTagDragLeave}
+        onRemoveFromBookmarks={controller.handleRemoveFromBookmarks}
+        onEditTag={controller.handleEditTag}
+        onDeleteTag={controller.handleDeleteTag}
+        onTagClick={() => controller.handleTagClick(tag)}
+        onDragStart={(event) => controller.handleTagDragStart(event, tag)}
+        onDragOver={(event) => controller.handleTagDragOver(event, tag)}
+        onDrop={(event) => controller.handleTagDrop(event, tag)}
+        onDragEnd={controller.handleTagDragEnd}
+        onDragEnter={controller.handleTagDragEnter}
+        onDragLeave={controller.handleTagDragLeave}
       />
     {/each}
   </div>
@@ -182,16 +53,16 @@
 
 <!-- Tag Edit Dialog -->
 <TagEditDialog
-  open={showEditDialog}
-  tag={selectedTag}
-  onclose={onEditComplete}
-  onsave={onEditSave}
+  open={controller.showEditDialog}
+  tag={controller.selectedTag}
+  onclose={controller.onEditComplete}
+  onsave={controller.onEditSave}
 />
 
 <!-- Delete Confirmation Dialog -->
 <TagDeleteDialog
-  open={showDeleteConfirm}
-  tag={selectedTag}
-  onConfirm={onDeleteConfirm}
-  onCancel={onDeleteCancel}
+  open={controller.showDeleteConfirm}
+  tag={controller.selectedTag}
+  onConfirm={controller.onDeleteConfirm}
+  onCancel={controller.onDeleteCancel}
 />
