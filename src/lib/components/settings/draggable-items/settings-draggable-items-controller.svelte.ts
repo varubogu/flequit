@@ -1,5 +1,5 @@
 import type { DragDropState } from '@thisux/sveltednd';
-import { viewsVisibilityStore, type ViewItem } from '$lib/stores/views-visibility.svelte';
+import { useViewsVisibilityStore, type ViewItem } from '$lib/hooks/use-views-visibility-store.svelte';
 import { createDragDropStateManager } from './handlers/drag-drop-state-manager.svelte';
 import { createItemsReorderHandler } from './handlers/items-reorder-handler.svelte';
 
@@ -8,6 +8,7 @@ import { createItemsReorderHandler } from './handlers/items-reorder-handler.svel
  * 表示/非表示アイテムの並び替え処理を管理
  */
 export function useSettingsDraggableItemsController() {
+	const viewsVisibilityStore = useViewsVisibilityStore();
 	// Local state synchronized with store
 	let localVisibleItems = $state([...viewsVisibilityStore.visibleViews]);
 	let localHiddenItems = $state([...viewsVisibilityStore.hiddenViews]);

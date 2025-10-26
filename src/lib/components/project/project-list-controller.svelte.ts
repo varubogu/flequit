@@ -2,7 +2,7 @@ import { SvelteSet } from 'svelte/reactivity';
 import { useTranslation } from '$lib/hooks/use-translation.svelte';
 import type { ProjectTree } from '$lib/types/project';
 import type { ViewType } from '$lib/stores/view-store.svelte';
-import { projectStore } from '$lib/stores/project-store.svelte';
+import { useProjectStore } from '$lib/hooks/use-project-store.svelte';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { ContextMenuList } from '$lib/types/context-menu';
 import { createContextMenu, createSeparator } from '$lib/types/context-menu';
@@ -49,6 +49,7 @@ export function useProjectListController(
 } {
   // Translation service
   const translationService = useTranslation();
+  const projectStore = useProjectStore();
 
   // State
   const expandedProjects = new SvelteSet<string>();
