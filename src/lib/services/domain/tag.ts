@@ -164,7 +164,8 @@ export const TagService = {
    * タグIDからプロジェクトIDを取得
    */
   async getProjectIdByTagId(tagId: string): Promise<string | null> {
-    return taskStore.getProjectIdByTagId(tagId);
+    const projectId = await taskStore.getProjectIdByTagId(tagId);
+    return projectId ?? null;
   },
 
   /**
