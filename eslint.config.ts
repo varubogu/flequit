@@ -32,6 +32,21 @@ export default tseslint.config(
       parser: tseslint.parser
     }
   },
+  // src/lib 配下では Svelte コンポーネントをエイリアス経由で import することを強制
+  {
+    files: ['src/lib/**/*.{ts,svelte,svelte.ts}'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "ImportDeclaration[source.value=/^\\\.{1,2}/][source.value=/\\.svelte(\\?|$)/]",
+          message:
+            'Svelteコンポーネントを相対パスでimportすることは禁止です。エイリアス（例: $lib/components/...）を使用してください。エイリアスが存在しない場合のみコメントで理由を示した上で例外としてください。'
+        }
+      ]
+    }
+  },
   // Components層からInfrastructure層への参照を禁止
   {
     files: ['src/lib/components/**/*.{ts,svelte}'],
