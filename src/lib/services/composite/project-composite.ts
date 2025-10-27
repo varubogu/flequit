@@ -1,6 +1,6 @@
 import type { Project, ProjectTree } from '$lib/types/project';
 import { ProjectCrudService } from '$lib/services/domain/project/project-crud';
-import { projectStore } from '$lib/stores/project-store.svelte';
+import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 
 /**
  * プロジェクトコンポジットサービス（CRUD + Store更新）
@@ -26,7 +26,7 @@ export const ProjectCompositeService = {
 	}): Promise<ProjectTree | null> {
 		try {
 			const newProjectTree = await ProjectCrudService.createProjectTree(projectData);
-			projectStore.addProjectToStore(newProjectTree);
+			resolveProjectStore().addProjectToStore(newProjectTree);
 			return newProjectTree;
 		} catch (error) {
 			console.error('Failed to create project:', error);
@@ -51,7 +51,7 @@ export const ProjectCompositeService = {
 			const updatedProject = await ProjectCrudService.update(projectId, updates);
 			if (!updatedProject) return null;
 
-			projectStore.updateProjectInStore(projectId, {
+			resolveProjectStore().updateProjectInStore(projectId, {
 				name: updatedProject.name,
 				description: updatedProject.description,
 				color: updatedProject.color,
@@ -73,7 +73,7 @@ export const ProjectCompositeService = {
 		try {
 			const success = await ProjectCrudService.delete(projectId);
 			if (success) {
-				projectStore.removeProjectFromStore(projectId);
+				resolveProjectStore().removeProjectFromStore(projectId);
 			}
 			return success;
 		} catch (error) {
@@ -86,7 +86,7 @@ export const ProjectCompositeService = {
 	 * プロジェクト並べ替え（Store操作）
 	 */
 	async reorderProjects(fromIndex: number, toIndex: number): Promise<void> {
-		const updatedProjects = projectStore.reorderProjectsInStore(fromIndex, toIndex);
+		const updatedProjects = resolveProjectStore().reorderProjectsInStore(fromIndex, toIndex);
 		await Promise.allSettled(
 			updatedProjects.map((project) =>
 				ProjectCrudService.update(project.id, { order_index: project.orderIndex })
@@ -98,7 +98,7 @@ export const ProjectCompositeService = {
 	 * プロジェクト位置移動（Store操作）
 	 */
 	async moveProjectToPosition(projectId: string, targetIndex: number): Promise<void> {
-		const updatedProjects = projectStore.moveProjectToPositionInStore(projectId, targetIndex);
+		const updatedProjects = resolveProjectStore().moveProjectToPositionInStore(projectId, targetIndex);
 		await Promise.allSettled(
 			updatedProjects.map((project) =>
 				ProjectCrudService.update(project.id, { order_index: project.orderIndex })

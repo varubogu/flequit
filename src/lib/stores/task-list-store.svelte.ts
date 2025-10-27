@@ -1,6 +1,6 @@
 import type { ITaskListStore, IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
-import { projectStore } from './project-store.svelte';
+import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import { selectionStore } from './selection-store.svelte';
 import { TaskListQueries } from './task-list/task-list-queries.svelte';
 import { TaskListMutations } from './task-list/task-list-mutations.svelte';
@@ -81,7 +81,7 @@ export class TaskListStore implements ITaskListStore {
 let _taskListStore: TaskListStore | undefined;
 function getTaskListStore(): TaskListStore {
   if (!_taskListStore) {
-    _taskListStore = new TaskListStore(projectStore, selectionStore);
+    _taskListStore = new TaskListStore(resolveProjectStore(), selectionStore);
   }
   return _taskListStore;
 }

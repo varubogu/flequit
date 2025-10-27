@@ -5,7 +5,7 @@ import type { TaskList } from '$lib/types/task-list';
 import type { Tag } from '$lib/types/tag';
 import type { SubTask } from '$lib/types/sub-task';
 import { selectionStore } from './selection-store.svelte';
-import { projectStore } from './project-store.svelte';
+import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import { taskListStore } from './task-list-store.svelte';
 import { subTaskStore } from './sub-task-store.svelte';
 import { taskCoreStore } from './task-core-store.svelte';
@@ -15,7 +15,7 @@ import { TaskDraftStore } from './tasks/task-draft-store.svelte';
 import { TaskTagOperations } from './tasks/task-tag-operations.svelte';
 
 export type TaskStoreConfig = Partial<{
-	projectStore: typeof projectStore;
+	projectStore: ReturnType<typeof resolveProjectStore>;
 	selectionStore: typeof selectionStore;
 	taskListStore: typeof taskListStore;
 	subTaskStore: typeof subTaskStore;
@@ -35,7 +35,7 @@ export class TaskStore {
 
 	constructor(config: TaskStoreConfig = {}) {
 		const resolved = {
-			projectStore: config.projectStore ?? projectStore,
+			projectStore: config.projectStore ?? resolveProjectStore(),
 			selectionStore: config.selectionStore ?? selectionStore,
 			taskListStore: config.taskListStore ?? taskListStore,
 			subTaskStore: config.subTaskStore ?? subTaskStore,

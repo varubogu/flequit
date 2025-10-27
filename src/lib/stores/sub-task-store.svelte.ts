@@ -1,7 +1,7 @@
 import type { ISubTaskStore, IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { SubTask } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
-import { projectStore } from './project-store.svelte';
+import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import { selectionStore } from './selection-store.svelte';
 import { SubTaskQueries } from './sub-task/subtask-queries.svelte';
 import { SubTaskMutations } from './sub-task/subtask-mutations.svelte';
@@ -85,7 +85,7 @@ export class SubTaskStore implements ISubTaskStore {
 let _subTaskStore: SubTaskStore | undefined;
 function getSubTaskStore(): SubTaskStore {
 	if (!_subTaskStore) {
-		_subTaskStore = new SubTaskStore(projectStore, selectionStore);
+		_subTaskStore = new SubTaskStore(resolveProjectStore(), selectionStore);
 	}
 	return _subTaskStore;
 }

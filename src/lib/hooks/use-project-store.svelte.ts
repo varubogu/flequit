@@ -1,6 +1,9 @@
-import { projectStore, type ProjectStore } from '$lib/stores/project-store.svelte';
-
-let projectStoreOverride: ProjectStore | null = null;
+import type { ProjectStore } from '$lib/stores/project-store.svelte';
+import {
+	resolveProjectStore,
+	provideProjectStore,
+	resetProjectStoreOverride
+} from '$lib/stores/providers/project-store-provider';
 
 /**
  * useProjectStore - プロジェクトストアを取得するComposable
@@ -11,20 +14,8 @@ let projectStoreOverride: ProjectStore | null = null;
  * - テスト時に `$lib/stores/project-store.svelte` をモックすればよく、依存箇所を最小化できる
  * - Svelte 5 の runes パターンと相性が良い
  */
+export { provideProjectStore, resetProjectStoreOverride };
+
 export function useProjectStore(): ProjectStore {
-	return projectStoreOverride ?? projectStore;
-}
-
-/**
- * テストやStorybook等でカスタムストアを注入するためのヘルパー。
- */
-export function provideProjectStore(store: ProjectStore | null) {
-	projectStoreOverride = store;
-}
-
-/**
- * ストアの上書きをリセットする。
- */
-export function resetProjectStoreOverride() {
-	projectStoreOverride = null;
+	return resolveProjectStore();
 }

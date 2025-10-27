@@ -1,12 +1,11 @@
+import type { ViewItem, ViewsConfiguration } from '$lib/stores/views-visibility.svelte';
 import {
-	viewsVisibilityStore,
-	type ViewItem,
-	type ViewsConfiguration
-} from '$lib/stores/views-visibility.svelte';
+	resolveViewsVisibilityStore,
+	provideViewsVisibilityStore,
+	resetViewsVisibilityStoreOverride
+} from '$lib/stores/providers/views-visibility-store-provider';
 
-export type ViewsVisibilityStore = typeof viewsVisibilityStore;
-
-let viewsStoreOverride: ViewsVisibilityStore | null = null;
+export type ViewsVisibilityStore = ReturnType<typeof resolveViewsVisibilityStore>;
 
 /**
  * useViewsVisibilityStore - ビュー可視状態ストアを取得するComposable
@@ -16,16 +15,12 @@ let viewsStoreOverride: ViewsVisibilityStore | null = null;
  * - コンポーネントがストア実装に直接依存せず、テストモックも容易
  * - hooks 層で型を再エクスポートすることで API ドキュメント化を補助
  */
+export {
+	provideViewsVisibilityStore,
+	resetViewsVisibilityStoreOverride
+};
+
 export function useViewsVisibilityStore(): ViewsVisibilityStore {
-	return viewsStoreOverride ?? viewsVisibilityStore;
+	return resolveViewsVisibilityStore();
 }
-
-export function provideViewsVisibilityStore(store: ViewsVisibilityStore | null) {
-	viewsStoreOverride = store;
-}
-
-export function resetViewsVisibilityStoreOverride() {
-	viewsStoreOverride = null;
-}
-
 export type { ViewItem, ViewsConfiguration };

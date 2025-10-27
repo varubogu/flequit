@@ -2,7 +2,7 @@ import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
-import { projectStore } from '$lib/stores/project-store.svelte';
+import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import type { ProjectTree } from '$lib/types/project';
 
 /**
@@ -173,11 +173,12 @@ export const TaskListService = {
 		if (!selectedProjectId) {
 			return null;
 		}
-		return projectStore.getProjectById(selectedProjectId);
+		return resolveProjectStore().getProjectById(selectedProjectId);
 	},
 
 	findFirstAvailableList(): string | null {
-		for (const project of projectStore.projects) {
+		const store = resolveProjectStore();
+		for (const project of store.projects) {
 			if (project.taskLists?.length) {
 				return project.taskLists[0].id;
 			}
