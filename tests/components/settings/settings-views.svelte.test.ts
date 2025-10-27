@@ -1,10 +1,7 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
-import {
-	provideViewsVisibilityStore,
-	resetViewsVisibilityStoreOverride
-} from '$lib/hooks/use-views-visibility-store.svelte';
+import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -49,13 +46,15 @@ vi.mock('$lib/components/confirm-dialog.svelte', () => ({
 }));
 
 describe('SettingsViews Component', () => {
+  let cleanup: (() => void) | null = null;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    provideViewsVisibilityStore(mockViewsVisibilityStore);
+    cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore as never);
   });
 
   afterEach(() => {
-    resetViewsVisibilityStoreOverride();
+    cleanup?.();
   });
 
   test('should render views settings section', () => {

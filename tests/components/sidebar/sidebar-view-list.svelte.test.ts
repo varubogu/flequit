@@ -5,10 +5,7 @@ import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { type TaskWithSubTasks } from '$lib/types/task';
-import {
-	provideViewsVisibilityStore,
-	resetViewsVisibilityStoreOverride
-} from '$lib/hooks/use-views-visibility-store.svelte';
+import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -75,15 +72,17 @@ const mockTaskStore = vi.mocked(taskStore);
 describe('SidebarViewList Component', () => {
   let onViewChange: ReturnType<typeof vi.fn>;
 
+  let cleanup: (() => void) | null = null;
+
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());
     onViewChange = vi.fn();
     vi.clearAllMocks();
-    provideViewsVisibilityStore(mockViewsVisibilityStore);
+    cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore as never);
   });
 
   afterEach(() => {
-    resetViewsVisibilityStoreOverride();
+    cleanup?.();
   });
 
   const setTaskStoreData = (data: {

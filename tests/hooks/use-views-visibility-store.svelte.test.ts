@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import {
-	useViewsVisibilityStore,
-	provideViewsVisibilityStore,
-	resetViewsVisibilityStoreOverride
-} from '$lib/hooks/use-views-visibility-store.svelte';
+import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
+import { setupViewsVisibilityStoreOverride } from '../utils/store-overrides';
 
 const { mockViewsVisibilityStore } = vi.hoisted(() => ({
 	mockViewsVisibilityStore: {
@@ -16,14 +13,16 @@ const { mockViewsVisibilityStore } = vi.hoisted(() => ({
 	}
 }));
 
+let cleanup: (() => void) | null = null;
+
 describe('useViewsVisibilityStore', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		provideViewsVisibilityStore(mockViewsVisibilityStore);
+		cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore);
 	});
 
 	afterEach(() => {
-		resetViewsVisibilityStoreOverride();
+		cleanup?.();
 	});
 
 	it('ビュー可視ストアを取得できる', () => {
