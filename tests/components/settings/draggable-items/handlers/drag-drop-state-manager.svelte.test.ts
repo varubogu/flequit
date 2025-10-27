@@ -9,9 +9,9 @@ describe('DragDropStateManager', () => {
 	beforeEach(() => {
 		manager = createDragDropStateManager();
 		mockItems = [
-			{ id: 'all', label: 'All Tasks', icon: '📋', visible: true },
-			{ id: 'today', label: 'Today', icon: '📅', visible: true },
-			{ id: 'upcoming', label: 'Upcoming', icon: '🔜', visible: false }
+			{ id: 'all', label: 'All Tasks', icon: '📋', visible: true, order: 0 },
+			{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
+			{ id: 'upcoming', label: 'Upcoming', icon: '🔜', visible: false, order: 2 }
 		];
 	});
 
@@ -54,9 +54,8 @@ describe('DragDropStateManager', () => {
 		});
 
 		it('should calculate insert index from target element', () => {
-			const targetElement = {
-				dataset: { itemId: 'today' }
-			} as HTMLElement;
+			const targetElement = document.createElement('div');
+			targetElement.dataset.itemId = 'today';
 
 			manager.handleDragOver('visible', targetElement, mockItems);
 
@@ -64,12 +63,10 @@ describe('DragDropStateManager', () => {
 		});
 
 		it('should search parent elements for item id', () => {
-			const childElement = {} as HTMLElement;
-			const parentElement = {
-				dataset: { itemId: 'today' },
-				parentElement: null
-			} as HTMLElement;
-			childElement.parentElement = parentElement;
+			const parentElement = document.createElement('div');
+			parentElement.dataset.itemId = 'today';
+			const childElement = document.createElement('span');
+			parentElement.appendChild(childElement);
 
 			manager.handleDragOver('visible', childElement, mockItems);
 
@@ -83,10 +80,8 @@ describe('DragDropStateManager', () => {
 		});
 
 		it('should set insert index to -1 when item id not found', () => {
-			const targetElement = {
-				dataset: { itemId: 'unknown' },
-				parentElement: null
-			} as HTMLElement;
+			const targetElement = document.createElement('div');
+			targetElement.dataset.itemId = 'unknown';
 
 			manager.handleDragOver('visible', targetElement, mockItems);
 
@@ -119,15 +114,12 @@ describe('DragDropStateManager', () => {
 
 	describe('edge cases', () => {
 		it('should handle drag over with deeply nested parent elements', () => {
-			const deepElement = {} as HTMLElement;
-			const middleElement = { parentElement: null } as HTMLElement;
-			const topElement = {
-				dataset: { itemId: 'upcoming' },
-				parentElement: null
-			} as HTMLElement;
-
-			deepElement.parentElement = middleElement;
-			middleElement.parentElement = topElement;
+			const topElement = document.createElement('div');
+			topElement.dataset.itemId = 'upcoming';
+			const middleElement = document.createElement('div');
+			const deepElement = document.createElement('span');
+			topElement.appendChild(middleElement);
+			middleElement.appendChild(deepElement);
 
 			manager.handleDragStart('visible', mockItems[0]);
 			manager.handleDragOver('hidden', deepElement, mockItems);
@@ -136,9 +128,7 @@ describe('DragDropStateManager', () => {
 		});
 
 		it('should handle drag over with element without dataset', () => {
-			const elementWithoutDataset = {
-				parentElement: null
-			} as HTMLElement;
+			const elementWithoutDataset = document.createElement('div');
 
 			manager.handleDragStart('visible', mockItems[0]);
 			manager.handleDragOver('visible', elementWithoutDataset, mockItems);

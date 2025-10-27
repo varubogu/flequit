@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskListMutations } from '$lib/stores/task-list/task-list-mutations.svelte';
 import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';

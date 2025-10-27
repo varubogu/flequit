@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { getTasksForView } from '$lib/services/ui/view/view-queries';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ViewStoreDependencies } from '$lib/services/ui/view/types';
@@ -116,9 +116,21 @@ describe('ViewQueries', () => {
 				allTasks: mockTasks,
 				todayTasks: [mockTasks[1]],
 				overdueTasks: [mockTasks[0]],
+				isNewTaskMode: false,
 				selectedProjectId: null,
 				selectedListId: null,
 				projects: []
+			},
+			taskInteractions: {
+				cancelNewTaskMode: vi.fn()
+			},
+			selectionStore: {
+				selectTask: vi.fn(),
+				selectProject: vi.fn(),
+				selectList: vi.fn()
+			},
+			translationService: {
+				getMessage: vi.fn(() => () => '')
 			}
 		} as ViewStoreDependencies;
 	});

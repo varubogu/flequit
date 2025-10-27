@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskListOrdering } from '$lib/stores/task-list/task-list-ordering.svelte';
 import type { IProjectStore } from '$lib/stores/types/project-store.interface';

@@ -1,9 +1,12 @@
 import { beforeEach, afterAll, describe, expect, test, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsBasic from '$lib/components/settings/basic/settings-basic.svelte';
-import type { ITranslationService } from '$lib/services/translation-service';
+import type {
+  ITranslationServiceWithNotification
+} from '$lib/services/translation-service';
 import { setTranslationService, getTranslationService, localeStore } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
+import type { WeekStart } from '$lib/types/settings';
 
 type SupportedLocale = 'en' | 'ja';
 
@@ -11,7 +14,7 @@ const supportedLocales: readonly SupportedLocale[] = ['en', 'ja'];
 
 type SettingsSnapshot = {
   language: SupportedLocale;
-  weekStart: string;
+  weekStart: WeekStart;
   timezone: string;
   dateFormat: string;
   effectiveTimezone: string;
@@ -42,10 +45,10 @@ function createSettingsStoreMock() {
     ...initialState,
     customDateFormats: [] as { id: string; name: string; format: string }[],
     timeLabels: [] as { id: string; name: string; time: string }[],
-    setLanguage: vi.fn((language: string) => {
-      store.language = language as SupportedLocale;
+    setLanguage: vi.fn((language: SupportedLocale) => {
+      store.language = language;
     }),
-    setWeekStart: vi.fn((weekStart: string) => {
+    setWeekStart: vi.fn((weekStart: WeekStart) => {
       store.weekStart = weekStart;
     }),
     setTimezone: vi.fn((timezone: string) => {
@@ -103,17 +106,22 @@ const unitTranslationService = createUnitTestTranslationService();
 
 let currentLocale: SupportedLocale = 'en';
 
-const mockTranslationService: ITranslationService = {
-  getCurrentLocale: vi.fn(() => currentLocale),
-  setLocale: vi.fn((locale: string) => {
+const getCurrentLocaleMock = vi.fn(() => currentLocale);
+const setLocaleMock = vi.fn((locale: string) => {
     if (supportedLocales.includes(locale as SupportedLocale)) {
       currentLocale = locale as SupportedLocale;
     }
-  }),
-  getAvailableLocales: vi.fn(() => supportedLocales),
+  });
+const getAvailableLocalesMock = vi.fn(() => supportedLocales);
+const subscribeMock = vi.fn(() => () => {});
+
+const mockTranslationService: ITranslationServiceWithNotification = {
+  getCurrentLocale: getCurrentLocaleMock,
+  setLocale: setLocaleMock,
+  getAvailableLocales: getAvailableLocalesMock,
   reactiveMessage: unitTranslationService.reactiveMessage,
   getMessage: unitTranslationService.getMessage,
-  subscribe: unitTranslationService.subscribe
+  subscribe: subscribeMock
 };
 
 const originalTranslationService = getTranslationService();
@@ -128,9 +136,10 @@ const defaultSettings = {
 beforeEach(() => {
   resetSettingsStore();
   currentLocale = 'en';
-  mockTranslationService.getCurrentLocale.mockClear();
-  mockTranslationService.setLocale.mockClear();
-  mockTranslationService.getAvailableLocales.mockClear();
+  getCurrentLocaleMock.mockClear();
+  setLocaleMock.mockClear();
+  getAvailableLocalesMock.mockClear();
+  subscribeMock.mockClear();
   getAvailableTimezonesMock.mockClear();
   setTranslationService(mockTranslationService);
 });

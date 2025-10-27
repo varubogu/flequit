@@ -37,6 +37,39 @@ const { taskMutations } = await import('$lib/services/domain/task/task-mutations
 const { taskListStore } = await import('$lib/stores/task-list-store.svelte');
 const { ProjectCompositeService } = await import('$lib/services/composite/project-composite');
 
+const createMockTaskList = (overrides: Partial<ProjectTree['taskLists'][number]> = {}) => {
+  const now = new Date();
+  return {
+    id: 'tasklist-1',
+    projectId: 'project-1',
+    name: 'List 1',
+    description: '',
+    color: '#3b82f6',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: now,
+    updatedAt: now,
+    tasks: [],
+    ...overrides
+  };
+};
+
+const createMockProject = (overrides: Partial<ProjectTree> = {}): ProjectTree => {
+  const now = new Date();
+  return {
+    id: 'project-1',
+    name: 'Project 1',
+    description: '',
+    color: '#3b82f6',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: now,
+    updatedAt: now,
+    taskLists: [createMockTaskList()],
+    ...overrides
+  };
+};
+
 describe('ProjectDragDropHandler', () => {
   let handler: ReturnType<typeof createProjectDragDropHandler>;
   let mockProjects: ProjectTree[];
@@ -44,18 +77,13 @@ describe('ProjectDragDropHandler', () => {
 
   beforeEach(() => {
     mockProjects = [
-      {
-        id: 'project-1',
-        name: 'Project 1',
-        color: '#3b82f6',
-        taskLists: [{ id: 'tasklist-1', name: 'List 1', tasks: [] }]
-      },
-      {
+      createMockProject(),
+      createMockProject({
         id: 'project-2',
         name: 'Project 2',
         color: '#ef4444',
         taskLists: []
-      }
+      })
     ];
     handler = createProjectDragDropHandler(() => mockProjects);
     // Mock DragEvent object for testing

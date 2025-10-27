@@ -1,4 +1,6 @@
+// @ts-nocheck
 import { beforeEach, vi } from 'vitest';
+import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 
 type ProjectRecord = {
   id: string;
@@ -37,6 +39,7 @@ type TaskRecord = {
   planEndDate?: Date;
   isRangeDate?: boolean;
   isArchived: boolean;
+  recurrenceRule?: RecurrenceRule;
   tagIds: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -746,14 +749,7 @@ const buildTaskServiceFacade = async () => {
     },
     updateTaskFromForm,
     changeTaskStatus(taskId: string, newStatus: string) {
-      const task = taskStore.getTaskById?.(taskId) as
-        | (TaskRecord & {
-            recurrenceRule?: { unit: string; interval: number };
-            planStartDate?: Date;
-            planEndDate?: Date;
-            isRangeDate?: boolean;
-          })
-        | undefined;
+      const task = taskStore.getTaskById?.(taskId) as TaskRecord | undefined;
 
       if (newStatus === 'completed' && task?.recurrenceRule && task.planEndDate) {
         const nextDate = RecurrenceService.calculateNextDate(

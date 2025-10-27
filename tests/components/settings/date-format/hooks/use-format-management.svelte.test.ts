@@ -12,8 +12,8 @@ vi.mock('$lib/stores/datetime-format.svelte', () => {
     dateTimeFormatStore: {
       currentFormat: 'yyyy-MM-dd',
       allFormats: vi.fn(() => [
-        { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット' },
-        { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット' }
+        { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット', order: 0 },
+        { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット', order: 1 }
       ]),
       setCurrentFormat: vi.fn(),
       addCustomFormat: mockAddCustomFormat,
@@ -76,9 +76,9 @@ describe('useFormatManagement', () => {
     it('保存後に新しいフォーマットが選択される', async () => {
       mockAddCustomFormat.mockResolvedValue('3');
       const mockFormats = [
-        { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット' },
-        { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット' },
-        { id: '3', name: 'New Format', format: 'yyyy/MM/dd', group: 'カスタムフォーマット' }
+        { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット', order: 0 },
+        { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット', order: 1 },
+        { id: '3', name: 'New Format', format: 'yyyy/MM/dd', group: 'カスタムフォーマット', order: 2 }
       ];
 
       const { dateTimeFormatStore } = await import('$lib/stores/datetime-format.svelte');

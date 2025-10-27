@@ -1,29 +1,53 @@
-const svelteInternal = await import('svelte/internal/client');
-const svelteReactivity = await import('svelte/reactivity');
+export {};
 
-const stateImpl = svelteInternal.state ?? svelteReactivity.state;
-const derivedImpl = svelteInternal.derived ?? svelteReactivity.derived;
-const effectImpl = svelteInternal.effect ?? svelteReactivity.effect;
-const SvelteDateImpl = svelteReactivity.SvelteDate ?? class extends Date {};
-const SvelteMapImpl = svelteReactivity.SvelteMap ?? Map;
-const SvelteSetImpl = svelteReactivity.SvelteSet ?? Set;
+const svelteInternalModule = (await import('svelte/internal/client')) as Record<string, unknown>;
+const svelteReactivityModule = (await import('svelte/reactivity')) as Record<string, unknown>;
 
-(global as Record<string, unknown>).$state = stateImpl;
-(global as Record<string, unknown>).state = stateImpl;
-(global as Record<string, unknown>).$derived = derivedImpl;
-(global as Record<string, unknown>).derived = derivedImpl;
-(global as Record<string, unknown>).$effect = effectImpl;
-(global as Record<string, unknown>).effect = effectImpl;
-(global as Record<string, unknown>).SvelteDate = SvelteDateImpl;
-(global as Record<string, unknown>).SvelteMap = SvelteMapImpl as unknown as MapConstructor;
-(global as Record<string, unknown>).SvelteSet = SvelteSetImpl as unknown as SetConstructor;
-(global as Record<string, unknown>).tag = svelteInternal.tag ?? (() => undefined);
-(global as Record<string, unknown>).tag_proxy = svelteInternal.tag_proxy ?? ((value: unknown) => value);
-(global as Record<string, unknown>).trace = svelteInternal.trace ?? (() => ({ stop: () => undefined }));
-(global as Record<string, unknown>).proxy = svelteInternal.proxy ?? ((value: unknown) => value);
+const getModuleValue = <T>(module: Record<string, unknown>, key: string): T | undefined =>
+	(module[key] as T | undefined);
 
+const stateImpl = getModuleValue<unknown>(svelteInternalModule, 'state') ??
+	getModuleValue<unknown>(svelteReactivityModule, 'state');
+const derivedImpl = getModuleValue<unknown>(svelteInternalModule, 'derived') ??
+	getModuleValue<unknown>(svelteReactivityModule, 'derived');
+const effectImpl = getModuleValue<unknown>(svelteInternalModule, 'effect') ??
+	getModuleValue<unknown>(svelteReactivityModule, 'effect');
+const SvelteDateImpl =
+	getModuleValue<typeof Date>(svelteReactivityModule, 'SvelteDate') ?? class extends Date {};
+const SvelteMapImpl =
+	getModuleValue<MapConstructor>(svelteReactivityModule, 'SvelteMap') ?? Map;
+const SvelteSetImpl =
+	getModuleValue<SetConstructor>(svelteReactivityModule, 'SvelteSet') ?? Set;
+const tagImpl =
+	getModuleValue<(...args: unknown[]) => unknown>(svelteInternalModule, 'tag') ??
+	(() => undefined);
+const tagProxyImpl =
+	getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'tag_proxy') ??
+	((value: unknown) => value);
+const traceImpl =
+	getModuleValue<(...args: unknown[]) => { stop: () => void }>(
+		svelteInternalModule,
+		'trace'
+	) ?? (() => ({ stop: () => undefined }));
+const proxyImpl =
+	getModuleValue<(value: unknown) => unknown>(svelteInternalModule, 'proxy') ??
+	((value: unknown) => value);
 
+const globalRecord = globalThis as Record<string, unknown>;
 
+globalRecord.$state = stateImpl;
+globalRecord.state = stateImpl;
+globalRecord.$derived = derivedImpl;
+globalRecord.derived = derivedImpl;
+globalRecord.$effect = effectImpl;
+globalRecord.effect = effectImpl;
+globalRecord.SvelteDate = SvelteDateImpl;
+globalRecord.SvelteMap = SvelteMapImpl;
+globalRecord.SvelteSet = SvelteSetImpl;
+globalRecord.tag = tagImpl;
+globalRecord.tag_proxy = tagProxyImpl;
+globalRecord.trace = traceImpl;
+globalRecord.proxy = proxyImpl;
 // DOM API stubs that JSDOM does not provide
 global.ResizeObserver = class ResizeObserver {
   observe() {}

@@ -1,19 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
-import type { IProjectStore } from '$lib/stores/types/project-store.interface';
-import type { ISelectionStore } from '$lib/stores/types/selection-store.interface';
-import type { ProjectWithLists } from '$lib/types';
+import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
+import type { ProjectTree } from '$lib/types/project';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 // ProjectStore のモック
 const createMockProjectStore = (): IProjectStore => {
-	const mockProjects: ProjectWithLists[] = [
+	const mockProjects: ProjectTree[] = [
 		{
 			id: 'project-1',
 			name: 'Project 1',
 			description: 'Description 1',
 			color: '#FF0000',
-			icon: 'icon-1',
-			order: 0,
+			orderIndex: 0,
 			createdAt: new Date('2024-01-01'),
 			updatedAt: new Date('2024-01-01'),
 			taskLists: [
@@ -22,30 +21,33 @@ const createMockProjectStore = (): IProjectStore => {
 					projectId: 'project-1',
 					name: 'List 1',
 					description: 'Description 1',
-					order: 0,
+					orderIndex: 0,
 					createdAt: new Date('2024-01-01'),
 					updatedAt: new Date('2024-01-01'),
-					tasks: []
+					isArchived: false,
+					tasks: [] as TaskWithSubTasks[]
 				},
 				{
 					id: 'list-2',
 					projectId: 'project-1',
 					name: 'List 2',
 					description: 'Description 2',
-					order: 1,
+					orderIndex: 1,
 					createdAt: new Date('2024-01-02'),
 					updatedAt: new Date('2024-01-02'),
-					tasks: []
+					isArchived: false,
+					tasks: [] as TaskWithSubTasks[]
 				}
-			]
+			],
+			isArchived: false,
+			allTags: []
 		},
 		{
 			id: 'project-2',
 			name: 'Project 2',
 			description: 'Description 2',
 			color: '#00FF00',
-			icon: 'icon-2',
-			order: 1,
+			orderIndex: 1,
 			createdAt: new Date('2024-01-03'),
 			updatedAt: new Date('2024-01-03'),
 			taskLists: [
@@ -54,36 +56,76 @@ const createMockProjectStore = (): IProjectStore => {
 					projectId: 'project-2',
 					name: 'List 3',
 					description: 'Description 3',
-					order: 0,
+					orderIndex: 0,
 					createdAt: new Date('2024-01-03'),
 					updatedAt: new Date('2024-01-03'),
-					tasks: []
+					isArchived: false,
+					tasks: [] as TaskWithSubTasks[]
 				}
-			]
+			],
+			isArchived: false,
+			allTags: []
 		}
 	];
-
-	return {
+	const store: IProjectStore = {
 		projects: mockProjects,
-		addProject: vi.fn(),
-		updateProject: vi.fn(),
-		deleteProject: vi.fn(),
-		reorderProjects: vi.fn()
+		get selectedProject() {
+			return null;
+		},
+		addProjectToStore: vi.fn(),
+		updateProjectInStore: vi.fn(),
+		removeProjectFromStore: vi.fn(),
+		reorderProjectsInStore: vi.fn(),
+		moveProjectToPositionInStore: vi.fn(),
+		getProjectById: vi.fn((id: string) => mockProjects.find((p) => p.id === id) ?? null),
+		loadProjects: vi.fn(),
+		setProjects: vi.fn((projects: ProjectTree[]) => {
+			store.projects = projects;
+		}),
+		reset: vi.fn()
 	};
+	return store;
 };
 
 // SelectionStore のモック
 const createMockSelectionStore = (selectedListId: string | null = null): ISelectionStore => {
-	return {
+	const selection: ISelectionStore = {
 		selectedProjectId: null,
-		selectedTaskListId: null,
-		selectedTaskId: null,
 		selectedListId: selectedListId,
-		setSelectedProjectId: vi.fn(),
-		setSelectedTaskListId: vi.fn(),
-		setSelectedTaskId: vi.fn(),
-		clearSelection: vi.fn()
+		selectedTaskId: null,
+		selectedSubTaskId: null,
+		pendingTaskSelection: null,
+		pendingSubTaskSelection: null,
+		selectProject: vi.fn((projectId: string | null) => {
+			selection.selectedProjectId = projectId;
+			selection.selectedListId = null;
+		}),
+		selectList: vi.fn((listId: string | null) => {
+			selection.selectedListId = listId;
+			selection.selectedProjectId = null;
+		}),
+		selectTask: vi.fn((taskId: string | null) => {
+			selection.selectedTaskId = taskId;
+			selection.selectedSubTaskId = null;
+		}),
+		selectSubTask: vi.fn((subTaskId: string | null) => {
+			selection.selectedSubTaskId = subTaskId;
+			selection.selectedTaskId = null;
+		}),
+		clearPendingSelections: vi.fn(() => {
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
+		}),
+		reset: vi.fn(() => {
+			selection.selectedProjectId = null;
+			selection.selectedListId = null;
+			selection.selectedTaskId = null;
+			selection.selectedSubTaskId = null;
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
+		})
 	};
+	return selection;
 };
 
 describe('TaskListQueries', () => {
@@ -195,11 +237,12 @@ describe('TaskListQueries', () => {
 					name: 'Empty Project',
 					description: '',
 					color: '#000000',
-					icon: 'icon',
-					order: 0,
+					orderIndex: 0,
 					createdAt: new Date(),
 					updatedAt: new Date(),
-					taskLists: []
+					taskLists: [],
+					isArchived: false,
+					allTags: []
 				}
 			];
 			queries = new TaskListQueries(projectStore, selectionStore);

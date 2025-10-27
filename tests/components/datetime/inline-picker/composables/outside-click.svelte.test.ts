@@ -25,6 +25,7 @@ describe('outside-click.svelte', () => {
 
     // Create mock options with vi.fn() callbacks
     options = {
+      show: false,
       currentDate: undefined,
       currentStartDate: undefined,
       isRangeDate: false,
@@ -156,6 +157,9 @@ describe('outside-click.svelte', () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Call cleanup
+      if (!cleanup) {
+        throw new Error('Expected cleanup function');
+      }
       cleanup();
 
       // Click outside after cleanup

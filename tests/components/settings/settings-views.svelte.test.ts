@@ -1,8 +1,12 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
 import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 import type { ViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
+import {
+	ViewsVisibilityStore as ViewsVisibilityStoreClass,
+	type ViewItem
+} from '$lib/stores/views-visibility.svelte';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -25,16 +29,45 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-const { mockViewsVisibilityStore } = vi.hoisted(() => ({
-  mockViewsVisibilityStore: {
-    resetToDefaults: vi.fn(),
-    visibleViews: [
-      { id: 'today', name: 'Today' },
-      { id: 'upcoming', name: 'Upcoming' }
-    ],
-    hiddenViews: [{ id: 'completed', name: 'Completed' }]
-  }
-}));
+class MockViewsVisibilityStore extends ViewsVisibilityStoreClass {
+	constructor(
+		private visible: Array<ViewItem & { name?: string }> = [],
+		private hidden: Array<ViewItem & { name?: string }> = []
+	) {
+		super();
+	}
+
+	override get visibleViews(): ViewItem[] {
+		return this.visible.map(({ name, ...rest }) => ({
+			...rest,
+			label: name ?? rest.label ?? rest.id
+		}));
+	}
+
+	override get hiddenViews(): ViewItem[] {
+		return this.hidden.map(({ name, ...rest }) => ({
+			...rest,
+			label: name ?? rest.label ?? rest.id
+		}));
+	}
+
+	override setLists = vi.fn();
+	override resetToDefaults = vi.fn();
+	override async init(): Promise<void> {
+		// no-op for tests
+	}
+}
+
+const { mockViewsVisibilityStore } = vi.hoisted(() => {
+	const visible: ViewItem[] = [
+		{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 },
+		{ id: 'upcoming', label: 'Upcoming', icon: '🔜', visible: true, order: 1 }
+	];
+	const hidden: ViewItem[] = [{ id: 'completed', label: 'Completed', icon: '✅', visible: false, order: 2 }];
+	return {
+		mockViewsVisibilityStore: new MockViewsVisibilityStore(visible, hidden)
+	};
+});
 
 // Mock SettingsDraggableItems component
 vi.mock('$lib/components/settings/settings-draggable-items.svelte', () => ({

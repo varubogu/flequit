@@ -10,7 +10,6 @@ const createMockProjects = (): ProjectTree[] => {
 			name: 'Project 1',
 			description: '',
 			color: '#FF0000',
-			icon: 'icon-1',
 			orderIndex: 0,
 			isArchived: false,
 			createdAt: new Date(),

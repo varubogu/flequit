@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DateFormatEditorController } from '$lib/components/settings/date-format/date-format-editor-controller.svelte';
-import type { DateTimeFormat } from '$lib/types/settings';
+import type { DateTimeFormat } from '$lib/types/datetime-format';
 
 // Store のモック
 const mockFormats: DateTimeFormat[] = [
-  { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット' },
-  { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット' },
-  { id: '3', name: 'Another Custom', format: 'MM/dd/yyyy', group: 'カスタムフォーマット' }
+  { id: '1', name: 'ISO Date', format: 'yyyy-MM-dd', group: 'プリセット', order: 0 },
+  { id: '2', name: 'Custom Format', format: 'dd/MM/yyyy', group: 'カスタムフォーマット', order: 1 },
+  { id: '3', name: 'Another Custom', format: 'MM/dd/yyyy', group: 'カスタムフォーマット', order: 2 }
 ];
 
 vi.mock('$lib/stores/datetime-format.svelte', () => ({

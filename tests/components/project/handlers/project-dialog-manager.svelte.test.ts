@@ -27,6 +27,39 @@ const { taskListStore } = await import('$lib/stores/task-list-store.svelte');
 const { selectionStore } = await import('$lib/stores/selection-store.svelte');
 const { ProjectCompositeService } = await import('$lib/services/composite/project-composite');
 
+const createMockTaskList = (overrides: Partial<ProjectTree['taskLists'][number]> = {}) => {
+  const now = new Date();
+  return {
+    id: 'tasklist-123',
+    projectId: 'project-123',
+    name: 'New List',
+    description: '',
+    color: '#3b82f6',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: now,
+    updatedAt: now,
+    tasks: [],
+    ...overrides
+  };
+};
+
+const createMockProject = (overrides: Partial<ProjectTree> = {}): ProjectTree => {
+  const now = new Date();
+  return {
+    id: 'project-123',
+    name: 'Test Project',
+    description: '',
+    color: '#3b82f6',
+    orderIndex: 0,
+    isArchived: false,
+    createdAt: now,
+    updatedAt: now,
+    taskLists: [],
+    ...overrides
+  };
+};
+
 describe('ProjectDialogManager', () => {
   let onViewChange: ReturnType<typeof vi.fn>;
   let manager: ReturnType<typeof createProjectDialogManager>;
@@ -35,12 +68,7 @@ describe('ProjectDialogManager', () => {
   beforeEach(() => {
     onViewChange = vi.fn();
     manager = createProjectDialogManager(onViewChange);
-    mockProject = {
-      id: 'project-123',
-      name: 'Test Project',
-      color: '#3b82f6',
-      taskLists: []
-    };
+    mockProject = createMockProject();
     vi.clearAllMocks();
   });
 
@@ -73,7 +101,7 @@ describe('ProjectDialogManager', () => {
 
   describe('handleProjectSave', () => {
     it('should create new project in add mode', async () => {
-      const newProject = { ...mockProject, id: 'new-project-123' };
+      const newProject = createMockProject({ id: 'new-project-123' });
       vi.mocked(ProjectCompositeService.createProject).mockResolvedValue(newProject);
 
       manager.openProjectDialog('add');
@@ -112,7 +140,7 @@ describe('ProjectDialogManager', () => {
 
   describe('handleTaskListSave', () => {
     it('should create new task list and select it', async () => {
-      const newTaskList = { id: 'tasklist-123', name: 'New List', tasks: [] };
+      const newTaskList = createMockTaskList();
       vi.mocked(taskListStore.addTaskList).mockResolvedValue(newTaskList);
 
       manager.openTaskListDialog('add', mockProject);
@@ -181,7 +209,7 @@ describe('ProjectDialogManager', () => {
 
     it('should handle task list save without view change callback', async () => {
       const managerWithoutCallback = createProjectDialogManager();
-      const newTaskList = { id: 'tasklist-456', name: 'New List', tasks: [] };
+      const newTaskList = createMockTaskList({ id: 'tasklist-456' });
       vi.mocked(taskListStore.addTaskList).mockResolvedValue(newTaskList);
 
       managerWithoutCallback.openTaskListDialog('add', mockProject);

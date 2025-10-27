@@ -62,7 +62,7 @@ const DEFAULT_VIEW_ITEMS: ViewItem[] = [
 
 const STORAGE_KEY = 'views-configuration';
 
-class ViewsVisibilityStore {
+export class ViewsVisibilityStore {
   private _configuration = $state<ViewsConfiguration>({
     viewItems: [...DEFAULT_VIEW_ITEMS]
   });

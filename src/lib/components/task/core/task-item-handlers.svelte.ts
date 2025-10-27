@@ -6,6 +6,16 @@ import { SubTaskMutations } from '$lib/services/domain/subtask';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
 
+type TaskItemEventMap = {
+	taskSelectionRequested: { taskId: string };
+	subTaskSelectionRequested: { subTaskId: string };
+};
+
+type TaskItemEventDispatcher = <T extends keyof TaskItemEventMap>(
+	type: T,
+	detail: TaskItemEventMap[T]
+) => void;
+
 /**
  * TaskItemHandlers - タスクアイテムのイベントハンドラークラス
  *
@@ -17,10 +27,7 @@ export class TaskItemHandlers {
 	constructor(
 		private task: TaskWithSubTasks,
 		private taskDetailUiStore: ReturnType<typeof useTaskDetailUiStore> | undefined,
-		private dispatchEvent: <T>(
-			type: string,
-			detail: T
-		) => void,
+		private dispatchEvent: TaskItemEventDispatcher,
 		private callbacks?: {
 			onTaskClick?: (taskId: string) => void;
 			onSubTaskClick?: (subTaskId: string) => void;
