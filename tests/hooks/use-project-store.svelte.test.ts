@@ -1,5 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useProjectStore } from '$lib/hooks/use-project-store.svelte';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import {
+	useProjectStore,
+	provideProjectStore,
+	resetProjectStoreOverride
+} from '$lib/hooks/use-project-store.svelte';
 import type { ProjectStore } from '$lib/stores/project-store.svelte';
 
 const { mockProjectStore } = vi.hoisted(() => ({
@@ -18,17 +22,18 @@ const { mockProjectStore } = vi.hoisted(() => ({
 	}
 }));
 
-vi.mock('$lib/stores/project-store.svelte', () => ({
-	projectStore: mockProjectStore,
-	ProjectStore: vi.fn()
-}));
-
 describe('useProjectStore', () => {
 	let store: ProjectStore;
+	const typedMockStore = mockProjectStore as unknown as ProjectStore;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		provideProjectStore(typedMockStore);
 		store = useProjectStore();
+	});
+
+	afterEach(() => {
+		resetProjectStoreOverride();
 	});
 
 	it('プロジェクトストアを取得できる', () => {

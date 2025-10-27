@@ -5,6 +5,10 @@ import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { type TaskWithSubTasks } from '$lib/types/task';
+import {
+	provideViewsVisibilityStore,
+	resetViewsVisibilityStoreOverride
+} from '$lib/hooks/use-views-visibility-store.svelte';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -53,27 +57,18 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   };
 });
 
-vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
-  const { writable, get } = await import('svelte/store');
-  const original = (await importOriginal()) as Record<string, unknown>;
-  const viewsWritable = writable({
-    visibleViews: [
-      { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
-      { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-      { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
-    ]
-  });
-  return {
-    ...original,
-    viewsVisibilityStore: {
-      ...(original.viewsVisibilityStore || {}),
-      subscribe: viewsWritable.subscribe,
-      get visibleViews() {
-        return get(viewsWritable).visibleViews;
-      }
-    }
-  };
-});
+const { mockViewsVisibilityStore } = vi.hoisted(() => ({
+  mockViewsVisibilityStore: {
+    get visibleViews() {
+      return [
+        { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
+        { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
+        { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
+      ];
+    },
+    setLists: vi.fn()
+  }
+}));
 
 const mockTaskStore = vi.mocked(taskStore);
 
@@ -84,6 +79,11 @@ describe('SidebarViewList Component', () => {
     setTranslationService(createUnitTestTranslationService());
     onViewChange = vi.fn();
     vi.clearAllMocks();
+    provideViewsVisibilityStore(mockViewsVisibilityStore);
+  });
+
+  afterEach(() => {
+    resetViewsVisibilityStoreOverride();
   });
 
   const setTaskStoreData = (data: {

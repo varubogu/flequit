@@ -1,6 +1,10 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
+import {
+	provideViewsVisibilityStore,
+	resetViewsVisibilityStoreOverride
+} from '$lib/hooks/use-views-visibility-store.svelte';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -23,21 +27,16 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-// Mock views visibility store
-vi.mock('$lib/stores/views-visibility.svelte', async (importOriginal) => {
-  const original = (await importOriginal()) as Record<string, unknown>;
-  return {
-    ...original,
-    viewsVisibilityStore: {
-      resetToDefaults: vi.fn(),
-      visibleViews: [
-        { id: 'today', name: 'Today' },
-        { id: 'upcoming', name: 'Upcoming' }
-      ],
-      hiddenViews: [{ id: 'completed', name: 'Completed' }]
-    }
-  };
-});
+const { mockViewsVisibilityStore } = vi.hoisted(() => ({
+  mockViewsVisibilityStore: {
+    resetToDefaults: vi.fn(),
+    visibleViews: [
+      { id: 'today', name: 'Today' },
+      { id: 'upcoming', name: 'Upcoming' }
+    ],
+    hiddenViews: [{ id: 'completed', name: 'Completed' }]
+  }
+}));
 
 // Mock SettingsDraggableItems component
 vi.mock('$lib/components/settings/settings-draggable-items.svelte', () => ({
@@ -52,6 +51,11 @@ vi.mock('$lib/components/confirm-dialog.svelte', () => ({
 describe('SettingsViews Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    provideViewsVisibilityStore(mockViewsVisibilityStore);
+  });
+
+  afterEach(() => {
+    resetViewsVisibilityStoreOverride();
   });
 
   test('should render views settings section', () => {
