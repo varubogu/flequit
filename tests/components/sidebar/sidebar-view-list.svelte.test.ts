@@ -6,6 +6,7 @@ import SidebarViewList from '$lib/components/sidebar/sidebar-view-list.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { type TaskWithSubTasks } from '$lib/types/task';
 import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
+import type { ViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -78,7 +79,7 @@ describe('SidebarViewList Component', () => {
     setTranslationService(createUnitTestTranslationService());
     onViewChange = vi.fn();
     vi.clearAllMocks();
-    cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore as never);
+    cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore as ViewsVisibilityStore);
   });
 
   afterEach(() => {
