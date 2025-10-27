@@ -3,10 +3,11 @@
   import Button from '$lib/components/shared/button.svelte';
   import SettingsDraggableItems from '$lib/components/settings/draggable-items/settings-draggable-items.svelte';
   import ConfirmDialog from '../../dialog/confirm-dialog.svelte';
-  import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
+  import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
   import { RotateCcw } from 'lucide-svelte';
 
   const translationService = useTranslation();
+  const viewsVisibilityStore = useViewsVisibilityStore();
   let showResetConfirm = $state(false);
 
   function handleResetViews() {

@@ -6,6 +6,8 @@ import {
 
 export type ViewsVisibilityStore = typeof viewsVisibilityStore;
 
+let viewsStoreOverride: ViewsVisibilityStore | null = null;
+
 /**
  * useViewsVisibilityStore - ビュー可視状態ストアを取得するComposable
  *
@@ -15,7 +17,15 @@ export type ViewsVisibilityStore = typeof viewsVisibilityStore;
  * - hooks 層で型を再エクスポートすることで API ドキュメント化を補助
  */
 export function useViewsVisibilityStore(): ViewsVisibilityStore {
-	return viewsVisibilityStore;
+	return viewsStoreOverride ?? viewsVisibilityStore;
+}
+
+export function provideViewsVisibilityStore(store: ViewsVisibilityStore | null) {
+	viewsStoreOverride = store;
+}
+
+export function resetViewsVisibilityStoreOverride() {
+	viewsStoreOverride = null;
 }
 
 export type { ViewItem, ViewsConfiguration };

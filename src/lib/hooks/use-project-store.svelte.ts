@@ -1,5 +1,7 @@
 import { projectStore, type ProjectStore } from '$lib/stores/project-store.svelte';
 
+let projectStoreOverride: ProjectStore | null = null;
+
 /**
  * useProjectStore - プロジェクトストアを取得するComposable
  *
@@ -10,5 +12,19 @@ import { projectStore, type ProjectStore } from '$lib/stores/project-store.svelt
  * - Svelte 5 の runes パターンと相性が良い
  */
 export function useProjectStore(): ProjectStore {
-	return projectStore;
+	return projectStoreOverride ?? projectStore;
+}
+
+/**
+ * テストやStorybook等でカスタムストアを注入するためのヘルパー。
+ */
+export function provideProjectStore(store: ProjectStore | null) {
+	projectStoreOverride = store;
+}
+
+/**
+ * ストアの上書きをリセットする。
+ */
+export function resetProjectStoreOverride() {
+	projectStoreOverride = null;
 }

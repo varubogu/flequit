@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
-  import { viewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
+  import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
   import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
@@ -20,6 +20,7 @@
   let { currentView = 'all', onViewChange }: Props = $props();
 
   const translationService = useTranslation();
+  const viewsVisibilityStore = useViewsVisibilityStore();
   let visibleViews = $derived(viewsVisibilityStore.visibleViews);
   let todayTasksCount = $derived(taskStore.todayTasks.length);
   let overdueTasksCount = $derived(taskStore.overdueTasks.length);
