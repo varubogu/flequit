@@ -323,9 +323,13 @@ import type { Task } from '$lib/types';
 import { taskService } from '$lib/services/task-service';
 import TaskItem from '$lib/components/task-item.svelte';
 
-// 3. 相対パス
+// 3. 相対パス（エイリアスが利用できない場合のみ許可）
 import './component.css';
 ```
+
+#### Svelteコンポーネントのインポート
+- `src/lib/components` などエイリアスで参照できるディレクトリにある `.svelte` ファイルを import する際は、`$lib/components/textbox` のように必ずエイリアスを使用してください。
+- エイリアスが効かない（例: `src/routes` 配下のローカル補助コンポーネント）など、エイリアス未定義のフォルダを参照する場合のみ相対パスによる `.svelte` import を許可します。やむを得ず ESLint ルールを無効化する場合は理由をコメントで明記してください。
 
 #### Export規約
 ```typescript

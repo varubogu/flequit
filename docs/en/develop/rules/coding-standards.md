@@ -323,9 +323,13 @@ import type { Task } from '$lib/types';
 import { taskService } from '$lib/services/task-service';
 import TaskItem from '$lib/components/task-item.svelte';
 
-// 3. Relative paths
+// 3. Relative paths (only when no alias is available)
 import './component.css';
 ```
+
+#### Svelte Component Imports
+- Use aliases (e.g., `$lib/components/textbox`) instead of relative paths when importing Svelte components located under aliasable directories such as `src/lib/components`.
+- Relative imports of `.svelte` files are permitted only when the target folder has no alias mapping (e.g., local helper components within `src/routes`). Document the reason when disabling the ESLint rule for exceptional cases.
 
 #### Export Standards
 ```typescript
