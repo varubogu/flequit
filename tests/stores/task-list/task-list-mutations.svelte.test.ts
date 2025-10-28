@@ -1,10 +1,10 @@
-// @ts-nocheck
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskListMutations } from '$lib/stores/task-list/task-list-mutations.svelte';
 import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
-import type { IProjectStore } from '$lib/stores/types/project-store.interface';
-import type { ISelectionStore } from '$lib/stores/types/selection-store.interface';
-import type { ProjectWithLists, TaskListWithTasks } from '$lib/types';
+import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
+import type { TaskListWithTasks } from '$lib/types/task-list';
+import type { ProjectTree } from '$lib/types/project';
+import { createMockProjectTree, createMockTaskListWithTasks } from '../../utils/mock-factories';
 
 // TaskListService のモック
 vi.mock('$lib/services/domain/task-list', () => ({
@@ -16,64 +16,95 @@ vi.mock('$lib/services/domain/task-list', () => ({
 }));
 
 const createMockProjectStore = (): IProjectStore => {
-	const mockProjects: ProjectWithLists[] = [
-		{
-			id: 'project-1',
-			name: 'Project 1',
-			description: 'Description 1',
-			color: '#FF0000',
-			icon: 'icon-1',
-			order: 0,
-			createdAt: new Date('2024-01-01'),
-			updatedAt: new Date('2024-01-01'),
-			taskLists: [
-				{
-					id: 'list-1',
-					projectId: 'project-1',
-					name: 'List 1',
-					description: 'Description 1',
-					order: 0,
-					createdAt: new Date('2024-01-01'),
-					updatedAt: new Date('2024-01-01'),
-					tasks: []
-				},
-				{
-					id: 'list-2',
-					projectId: 'project-1',
-					name: 'List 2',
-					description: 'Description 2',
-					order: 1,
-					createdAt: new Date('2024-01-02'),
-					updatedAt: new Date('2024-01-02'),
-					tasks: []
-				}
-			]
-		}
-	];
+	const project = createMockProjectTree({
+		id: 'project-1',
+		name: 'Project 1',
+		description: 'Description 1',
+		color: '#FF0000',
+		taskLists: [
+			createMockTaskListWithTasks({
+				id: 'list-1',
+				name: 'List 1',
+				description: 'Description 1',
+				orderIndex: 0
+			}),
+			createMockTaskListWithTasks({
+				id: 'list-2',
+				name: 'List 2',
+				description: 'Description 2',
+				orderIndex: 1
+			})
+		]
+	});
 
-	return {
-		projects: mockProjects,
-		addProject: vi.fn(),
-		updateProject: vi.fn(),
-		deleteProject: vi.fn(),
-		reorderProjects: vi.fn()
+	const store: IProjectStore = {
+		projects: [project],
+		get selectedProject() {
+			return null;
+		},
+		addProjectToStore: vi.fn(),
+		updateProjectInStore: vi.fn(),
+		removeProjectFromStore: vi.fn(),
+		reorderProjectsInStore: vi.fn(),
+		moveProjectToPositionInStore: vi.fn(),
+		getProjectById: vi.fn((id: string) => store.projects.find((p) => p.id === id) ?? null),
+		loadProjects: vi.fn(),
+		setProjects: vi.fn((projects: ProjectTree[]) => {
+			store.projects = projects;
+		}),
+		reset: vi.fn()
 	};
+
+	return store;
 };
 
 const createMockSelectionStore = (): ISelectionStore => {
-	return {
+	const selection: ISelectionStore = {
 		selectedProjectId: null,
-		selectedTaskListId: null,
-		selectedTaskId: null,
 		selectedListId: null,
-		selectList: vi.fn(),
-		selectTask: vi.fn(),
-		selectSubTask: vi.fn(),
-		setSelectedProjectId: vi.fn(),
-		setSelectedTaskListId: vi.fn(),
-		setSelectedTaskId: vi.fn(),
-		clearSelection: vi.fn()
+		selectedTaskId: null,
+		selectedSubTaskId: null,
+		pendingTaskSelection: null,
+		pendingSubTaskSelection: null,
+		selectProject: vi.fn((projectId: string | null) => {
+			selection.selectedProjectId = projectId;
+			if (projectId !== null) {
+				selection.selectedListId = null;
+			}
+		}),
+		selectList: vi.fn((listId: string | null) => {
+			selection.selectedListId = listId;
+			if (listId !== null) {
+				selection.selectedProjectId = null;
+			}
+		}),
+		selectTask: vi.fn((taskId: string | null) => {
+			selection.selectedTaskId = taskId;
+			if (taskId !== null) {
+				selection.selectedSubTaskId = null;
+			}
+		}),
+		selectSubTask: vi.fn((subTaskId: string | null) => {
+			selection.selectedSubTaskId = subTaskId;
+			if (subTaskId !== null) {
+				selection.selectedTaskId = null;
+			}
+		}),
+		clearPendingSelections: vi.fn(() => {
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
+		}),
+		reset: vi.fn(() => {
+			selection.selectedProjectId = null;
+			selection.selectedListId = null;
+			selection.selectedTaskId = null;
+			selection.selectedSubTaskId = null;
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
+		})
 	};
+
+	return selection;
 };
 
 describe('TaskListMutations', () => {
@@ -107,16 +138,13 @@ describe('TaskListMutations', () => {
 
 	describe('addTaskList', () => {
 		it('新しいタスクリストを追加する', async () => {
-			const newTaskList: TaskListWithTasks = {
-				id: 'list-3',
-				projectId: 'project-1',
-				name: 'New List',
-				description: 'New Description',
-				order: 2,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const newTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-3',
+			projectId: 'project-1',
+			name: 'New List',
+			description: 'New Description',
+			orderIndex: 2
+		});
 
 			mockCreateTaskList.mockResolvedValue(newTaskList);
 
@@ -136,16 +164,13 @@ describe('TaskListMutations', () => {
 		});
 
 		it('プロジェクトが存在しない場合でもエラーにならない', async () => {
-			const newTaskList: TaskListWithTasks = {
-				id: 'list-3',
-				projectId: 'non-existent',
-				name: 'New List',
-				description: '',
-				order: 0,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const newTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-3',
+			projectId: 'non-existent',
+			name: 'New List',
+			description: '',
+			orderIndex: 0
+		});
 
 			mockCreateTaskList.mockResolvedValue(newTaskList);
 
@@ -157,29 +182,23 @@ describe('TaskListMutations', () => {
 		});
 
 		it('taskListsが未定義のプロジェクトに追加できる', async () => {
-			const newProject: ProjectWithLists = {
-				id: 'project-2',
-				name: 'Project 2',
-				description: '',
-				color: '#000000',
-				icon: 'icon',
-				order: 1,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				taskLists: undefined as any
-			};
-			projectStore.projects.push(newProject);
+		const newProject: ProjectTree = createMockProjectTree({
+			id: 'project-2',
+			name: 'Project 2',
+			description: '',
+			color: '#000000',
+			orderIndex: 1,
+			taskLists: undefined as unknown as TaskListWithTasks[]
+		});
+		projectStore.projects.push(newProject);
 
-			const newTaskList: TaskListWithTasks = {
-				id: 'list-3',
-				projectId: 'project-2',
-				name: 'New List',
-				description: '',
-				order: 0,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const newTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-3',
+			projectId: 'project-2',
+			name: 'New List',
+			description: '',
+			orderIndex: 0
+		});
 
 			mockCreateTaskList.mockResolvedValue(newTaskList);
 
@@ -204,16 +223,15 @@ describe('TaskListMutations', () => {
 		});
 
 		it('order_indexが正しく設定される', async () => {
-			const newTaskList: TaskListWithTasks = {
-				id: 'list-3',
-				projectId: 'project-1',
-				name: 'New List',
-				description: '',
-				order: 2,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const newTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-3',
+			projectId: 'project-1',
+			name: 'New List',
+			description: '',
+			orderIndex: 2,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
 
 			mockCreateTaskList.mockResolvedValue(newTaskList);
 
@@ -228,16 +246,15 @@ describe('TaskListMutations', () => {
 
 	describe('updateTaskList', () => {
 		it('タスクリストを更新する', async () => {
-			const updatedTaskList: TaskListWithTasks = {
-				id: 'list-1',
-				projectId: 'project-1',
-				name: 'Updated List',
-				description: 'Updated Description',
-				order: 0,
-				createdAt: new Date('2024-01-01'),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const updatedTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-1',
+			projectId: 'project-1',
+			name: 'Updated List',
+			description: 'Updated Description',
+			orderIndex: 0,
+			createdAt: new Date('2024-01-01'),
+			updatedAt: new Date()
+		});
 
 			mockUpdateTaskList.mockResolvedValue(updatedTaskList);
 
@@ -293,16 +310,15 @@ describe('TaskListMutations', () => {
 		});
 
 		it('部分的な更新が可能', async () => {
-			const updatedTaskList: TaskListWithTasks = {
-				id: 'list-1',
-				projectId: 'project-1',
-				name: 'Updated List',
-				description: 'Description 1',
-				order: 0,
-				createdAt: new Date('2024-01-01'),
-				updatedAt: new Date(),
-				tasks: []
-			};
+		const updatedTaskList: TaskListWithTasks = createMockTaskListWithTasks({
+			id: 'list-1',
+			projectId: 'project-1',
+			name: 'Updated List',
+			description: 'Description 1',
+			orderIndex: 0,
+			createdAt: new Date('2024-01-01'),
+			updatedAt: new Date()
+		});
 
 			mockUpdateTaskList.mockResolvedValue(updatedTaskList);
 

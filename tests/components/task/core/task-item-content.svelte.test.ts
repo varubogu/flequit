@@ -1,6 +1,7 @@
 import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
+import type TaskDatePicker from '$lib/components/task/forms/task-date-picker.svelte';
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import type { ContextMenuList } from '$lib/types/context-menu';
@@ -124,10 +125,8 @@ describe('TaskItemContent', () => {
 
   const mockTaskDatePicker = {
     handleDueDateClick: vi.fn(),
-    handleSubTaskDueDateClick: vi.fn(),
-    datePickerPosition: { x: 0, y: 0, width: 0, height: 0 },
-    showDatePicker: false as const
-  };
+    handleSubTaskDueDateClick: vi.fn()
+  } as unknown as TaskDatePicker;
 
   const defaultProps = {
     logic: mockLogic as unknown as TaskItemLogic,

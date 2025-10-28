@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
@@ -7,6 +7,7 @@ import { taskStore } from '$lib/stores/tasks.svelte';
 import { type TaskWithSubTasks } from '$lib/types/task';
 import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 import type { ViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
+import { MockViewsVisibilityStore } from '../../utils/mock-factories';
 
 // --- Sidebar Context Mock ---
 vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
@@ -55,18 +56,16 @@ vi.mock('$lib/stores/tasks.svelte', async (importOriginal) => {
   };
 });
 
-const { mockViewsVisibilityStore } = vi.hoisted(() => ({
-  mockViewsVisibilityStore: {
-    get visibleViews() {
-      return [
-        { id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
-        { id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
-        { id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
-      ];
-    },
-    setLists: vi.fn()
-  }
-}));
+const { mockViewsVisibilityStore } = vi.hoisted(() => {
+	const visible = [
+		{ id: 'allTasks', label: 'All Tasks', icon: '📝', visible: true, order: 0 },
+		{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 1 },
+		{ id: 'overdue', label: 'Overdue', icon: '⚠️', visible: true, order: 2 }
+	];
+	return {
+		mockViewsVisibilityStore: new MockViewsVisibilityStore({ visible })
+	};
+});
 
 const mockTaskStore = vi.mocked(taskStore);
 

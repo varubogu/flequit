@@ -3,6 +3,11 @@ import { getTasksForView } from '$lib/services/ui/view/view-queries';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { ViewStoreDependencies } from '$lib/services/ui/view/types';
 import * as viewDependencies from '$lib/services/ui/view/view-dependencies';
+import {
+	createMockProjectTree,
+	createMockTaskListWithTasks,
+	createMockTaskWithSubTasks
+} from '../../utils/mock-factories';
 
 describe('ViewQueries', () => {
 	const today = new Date('2024-01-15T12:00:00Z');
@@ -21,94 +26,88 @@ describe('ViewQueries', () => {
 		vi.setSystemTime(today);
 
 		mockTasks = [
-			{
+			createMockTaskWithSubTasks({
 				id: 'task-1',
 				title: 'Overdue Task',
 				description: 'This is overdue',
 				status: 'pending',
 				planEndDate: yesterday,
-				tags: [],
-				subTasks: [],
 				sortOrder: 0
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-2',
 				title: 'Today Task',
 				description: 'Due today',
 				status: 'pending',
 				planEndDate: today,
 				tags: [{ id: 't1', name: 'urgent', color: '#ff0000' }],
-				subTasks: [],
 				sortOrder: 1
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-3',
 				title: 'Tomorrow Task',
 				description: '',
 				status: 'pending',
 				planEndDate: tomorrow,
-				tags: [],
-				subTasks: [],
 				sortOrder: 2
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-4',
 				title: 'Three Days Task',
 				description: '',
 				status: 'pending',
 				planEndDate: threeDaysLater,
 				tags: [{ id: 't2', name: 'work', color: '#0000ff' }],
-				subTasks: [],
 				sortOrder: 3
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-5',
 				title: 'Next Week Task',
 				description: '',
 				status: 'pending',
 				planEndDate: oneWeekLater,
-				tags: [],
-				subTasks: [],
 				sortOrder: 4
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-6',
 				title: 'End of Month Task',
 				description: '',
 				status: 'pending',
 				planEndDate: endOfMonth,
-				tags: [],
-				subTasks: [],
 				sortOrder: 5
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-7',
 				title: 'Completed Task',
 				description: 'Already done',
 				status: 'completed',
 				planEndDate: yesterday,
-				tags: [],
-				subTasks: [],
 				sortOrder: 6
-			} as TaskWithSubTasks,
-			{
+			}),
+			createMockTaskWithSubTasks({
 				id: 'task-8',
 				title: 'No Due Date',
 				description: '',
 				status: 'pending',
 				planEndDate: undefined,
-				tags: [],
 				subTasks: [
 					{
 						id: 'sub-1',
+						taskId: 'task-8',
 						title: 'SubTask with keyword',
 						description: 'Contains urgent info',
 						status: 'pending',
-						sortOrder: 0
+						orderIndex: 0,
+						priority: 0,
+						completed: false,
+						assignedUserIds: [],
+						tagIds: [],
+						createdAt: new Date('2024-01-01'),
+						updatedAt: new Date('2024-01-01')
 					}
 				],
 				sortOrder: 7
-			} as TaskWithSubTasks
+			})
 		];
 
 		mockDeps = {
@@ -132,7 +131,7 @@ describe('ViewQueries', () => {
 			translationService: {
 				getMessage: vi.fn(() => () => '')
 			}
-		} as ViewStoreDependencies;
+		};
 	});
 
 	afterEach(() => {
@@ -193,18 +192,19 @@ describe('ViewQueries', () => {
 		});
 
 		it('should exclude tasks scheduled for next month', () => {
-			const nextMonthTask = {
-				...mockTasks[0],
+			const nextMonthTask = createMockTaskWithSubTasks({
 				id: 'task-next-month',
 				title: 'Next Month Task',
-				planEndDate: new Date('2024-02-02T00:00:00Z')
-			} as TaskWithSubTasks;
+				planEndDate: new Date('2024-02-02T00:00:00Z'),
+				sortOrder: 99
+			});
 			const depsWithFutureTask: ViewStoreDependencies = {
+				...mockDeps,
 				taskStore: {
 					...mockDeps.taskStore,
 					allTasks: [...mockDeps.taskStore.allTasks, nextMonthTask]
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('thismonth', '', depsWithFutureTask);
 
@@ -229,24 +229,24 @@ describe('ViewQueries', () => {
 		it('should return tasks for selected project', () => {
 			const projectTasks = [mockTasks[0], mockTasks[1]];
 			const depsWithProject: ViewStoreDependencies = {
+				...mockDeps,
 				taskStore: {
 					...mockDeps.taskStore,
 					selectedProjectId: 'project-1',
 					projects: [
-						{
+						createMockProjectTree({
 							id: 'project-1',
-							name: 'Project 1',
 							taskLists: [
-								{
+								createMockTaskListWithTasks({
 									id: 'list-1',
-									name: 'List 1',
+									projectId: 'project-1',
 									tasks: projectTasks
-								}
+								})
 							]
-						}
+						})
 					]
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('project', '', depsWithProject);
 			expect(result).toHaveLength(2);
@@ -255,24 +255,24 @@ describe('ViewQueries', () => {
 		it('should return tasks for selected list', () => {
 			const listTasks = [mockTasks[2]];
 			const depsWithList: ViewStoreDependencies = {
+				...mockDeps,
 				taskStore: {
 					...mockDeps.taskStore,
 					selectedListId: 'list-2',
 					projects: [
-						{
+						createMockProjectTree({
 							id: 'project-1',
-							name: 'Project 1',
 							taskLists: [
-								{
+								createMockTaskListWithTasks({
 									id: 'list-2',
-									name: 'List 2',
+									projectId: 'project-1',
 									tasks: listTasks
-								}
+								})
 							]
-						}
+						})
 					]
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('tasklist', '', depsWithList);
 			expect(result).toHaveLength(1);
@@ -281,12 +281,13 @@ describe('ViewQueries', () => {
 
 		it('should return empty array if project not found', () => {
 			const depsWithProject: ViewStoreDependencies = {
+				...mockDeps,
 				taskStore: {
 					...mockDeps.taskStore,
 					selectedProjectId: 'non-existent',
 					projects: []
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('project', '', depsWithProject);
 			expect(result).toHaveLength(0);
@@ -295,22 +296,30 @@ describe('ViewQueries', () => {
 		it('should prioritize selected list when both project and list are set', () => {
 			const listTasks = [mockTasks[4]];
 			const depsWithBoth: ViewStoreDependencies = {
+				...mockDeps,
 				taskStore: {
 					...mockDeps.taskStore,
 					selectedProjectId: 'project-1',
 					selectedListId: 'list-99',
 					projects: [
-						{
+						createMockProjectTree({
 							id: 'project-1',
-							name: 'Project 1',
 							taskLists: [
-								{ id: 'list-1', name: 'List 1', tasks: [mockTasks[0]] },
-								{ id: 'list-99', name: 'List 99', tasks: listTasks }
+								createMockTaskListWithTasks({
+									id: 'list-1',
+									projectId: 'project-1',
+									tasks: [mockTasks[0]]
+								}),
+								createMockTaskListWithTasks({
+									id: 'list-99',
+									projectId: 'project-1',
+									tasks: listTasks
+								})
 							]
-						}
+						})
 					]
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('project', '', depsWithBoth);
 
@@ -391,9 +400,21 @@ describe('ViewQueries', () => {
 					overdueTasks: [],
 					selectedProjectId: null,
 					selectedListId: null,
+					isNewTaskMode: false,
 					projects: []
+				},
+				taskInteractions: {
+					cancelNewTaskMode: vi.fn()
+				},
+				selectionStore: {
+					selectTask: vi.fn(),
+					selectProject: vi.fn(),
+					selectList: vi.fn()
+				},
+				translationService: {
+					getMessage: vi.fn(() => () => '')
 				}
-			} as ViewStoreDependencies;
+			};
 
 			const result = getTasksForView('all', '', emptyDeps);
 			expect(result).toHaveLength(0);
@@ -413,9 +434,24 @@ describe('ViewQueries', () => {
 					taskStore: {
 						allTasks: [],
 						todayTasks: [mockTasks[1]],
-						overdueTasks: []
+						overdueTasks: [],
+						selectedProjectId: null,
+						selectedListId: null,
+						isNewTaskMode: false,
+						projects: []
+					},
+					taskInteractions: {
+						cancelNewTaskMode: vi.fn()
+					},
+					selectionStore: {
+						selectTask: vi.fn(),
+						selectProject: vi.fn(),
+						selectList: vi.fn()
+					},
+					translationService: {
+						getMessage: vi.fn(() => () => '')
 					}
-				} as ViewStoreDependencies);
+				});
 
 			const result = getTasksForView('today');
 

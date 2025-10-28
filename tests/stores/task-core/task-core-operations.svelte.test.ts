@@ -1,80 +1,51 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskCoreOperations } from '$lib/stores/task-core/task-core-operations.svelte';
 import type { ProjectTree } from '$lib/types/project';
+import {
+	createMockProjectTree,
+	createMockTaskListWithTasks,
+	createMockTaskWithSubTasks
+} from '../../utils/mock-factories';
 
 const createMockProjects = (): ProjectTree[] => {
 	return [
-		{
+		createMockProjectTree({
 			id: 'project-1',
 			name: 'Project 1',
-			description: '',
 			color: '#FF0000',
-			icon: 'icon-1',
 			orderIndex: 0,
-			isArchived: false,
-			createdAt: new Date('2024-01-01'),
-			updatedAt: new Date('2024-01-01'),
 			taskLists: [
-				{
+				createMockTaskListWithTasks({
 					id: 'list-1',
-					projectId: 'project-1',
 					name: 'List 1',
-					description: '',
 					orderIndex: 0,
-					isArchived: false,
-					createdAt: new Date('2024-01-01'),
-					updatedAt: new Date('2024-01-01'),
 					tasks: [
-						{
+						createMockTaskWithSubTasks({
 							id: 'task-1',
-							projectId: 'project-1',
 							listId: 'list-1',
 							title: 'Task 1',
-							description: '',
-							status: 'not_started',
-							priority: 0,
 							orderIndex: 0,
-							isArchived: false,
-							assignedUserIds: [],
-							tagIds: [],
 							createdAt: new Date('2024-01-01'),
-							updatedAt: new Date('2024-01-01'),
-							subTasks: [],
-							tags: []
-						},
-						{
+							updatedAt: new Date('2024-01-01')
+						}),
+						createMockTaskWithSubTasks({
 							id: 'task-2',
-							projectId: 'project-1',
 							listId: 'list-1',
 							title: 'Task 2',
-							description: '',
-							status: 'not_started',
-							priority: 0,
 							orderIndex: 1,
-							isArchived: false,
-							assignedUserIds: [],
-							tagIds: [],
 							createdAt: new Date('2024-01-02'),
-							updatedAt: new Date('2024-01-02'),
-							subTasks: [],
-							tags: []
-						}
+							updatedAt: new Date('2024-01-02')
+						})
 					]
-				},
-				{
+				}),
+				createMockTaskListWithTasks({
 					id: 'list-2',
-					projectId: 'project-1',
 					name: 'List 2',
-					description: '',
 					orderIndex: 1,
-					isArchived: false,
-					createdAt: new Date('2024-01-03'),
-					updatedAt: new Date('2024-01-03'),
 					tasks: []
-				}
-			],
-			allTags: []
-		}
+				})
+			]
+		})
 	];
 };
 

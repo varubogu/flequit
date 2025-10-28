@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TagBookmarkOperations } from '$lib/stores/tags/tag-bookmark-operations.svelte';
 import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
 import type { Tag } from '$lib/types/tag';
+import { SvelteSet } from 'svelte/reactivity';
 
 // TagServiceのモック
 vi.mock('$lib/services/domain/tag', () => ({
@@ -18,17 +19,17 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			id: 'tag-1',
 			name: 'Work',
 			color: '#FF0000',
+			orderIndex: 0,
 			createdAt: new Date(),
-			updatedAt: new Date(),
-			bookmarkIndex: 0
+			updatedAt: new Date()
 		},
 		{
 			id: 'tag-2',
 			name: 'Personal',
 			color: '#00FF00',
+			orderIndex: 1,
 			createdAt: new Date(),
-			updatedAt: new Date(),
-			bookmarkIndex: 1
+			updatedAt: new Date()
 		}
 	];
 
@@ -46,7 +47,7 @@ describe('TagBookmarkOperations', () => {
 
 	beforeEach(() => {
 		bookmarkStore = new TagBookmarkStore();
-		bookmarkStore.bookmarkedTags = new Set(['tag-1', 'tag-2']);
+		bookmarkStore.bookmarkedTags = new SvelteSet(['tag-1', 'tag-2']);
 		bookmarkOps = new TagBookmarkOperations(bookmarkStore);
 	});
 
@@ -79,9 +80,9 @@ describe('TagBookmarkOperations', () => {
 		});
 	});
 
-	describe('addBookmark', () => {
-		it('ブックマークを追加できる', async () => {
-			bookmarkStore.bookmarkedTags = new Set();
+		describe('addBookmark', () => {
+			it('ブックマークを追加できる', async () => {
+				bookmarkStore.bookmarkedTags = new SvelteSet();
 
 			await bookmarkOps.addBookmark('tag-1');
 
@@ -97,9 +98,9 @@ describe('TagBookmarkOperations', () => {
 		});
 	});
 
-	describe('reorderBookmarkedTags', () => {
-		it('ブックマーク済みタグを並び替えられる', async () => {
-			await bookmarkOps.reorderBookmarkedTags(0, 1);
+		describe('reorderBookmarkedTags', () => {
+			it('ブックマーク済みタグを並び替えられる', async () => {
+				await bookmarkOps.reorderBookmarkedTags(0, 1);
 
 			// 並び替え操作が実行されることを確認（エラーなく完了）
 			expect(true).toBe(true);

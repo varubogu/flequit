@@ -3,10 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
 import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 import type { ViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
-import {
-	ViewsVisibilityStore as ViewsVisibilityStoreClass,
-	type ViewItem
-} from '$lib/stores/views-visibility.svelte';
+import type { ViewItem } from '$lib/stores/views-visibility.svelte';
+import { MockViewsVisibilityStore } from '../../utils/mock-factories';
 
 // Mock translation service
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -29,35 +27,6 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-class MockViewsVisibilityStore extends ViewsVisibilityStoreClass {
-	constructor(
-		private visible: Array<ViewItem & { name?: string }> = [],
-		private hidden: Array<ViewItem & { name?: string }> = []
-	) {
-		super();
-	}
-
-	override get visibleViews(): ViewItem[] {
-		return this.visible.map(({ name, ...rest }) => ({
-			...rest,
-			label: name ?? rest.label ?? rest.id
-		}));
-	}
-
-	override get hiddenViews(): ViewItem[] {
-		return this.hidden.map(({ name, ...rest }) => ({
-			...rest,
-			label: name ?? rest.label ?? rest.id
-		}));
-	}
-
-	override setLists = vi.fn();
-	override resetToDefaults = vi.fn();
-	override async init(): Promise<void> {
-		// no-op for tests
-	}
-}
-
 const { mockViewsVisibilityStore } = vi.hoisted(() => {
 	const visible: ViewItem[] = [
 		{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 },
@@ -65,7 +34,7 @@ const { mockViewsVisibilityStore } = vi.hoisted(() => {
 	];
 	const hidden: ViewItem[] = [{ id: 'completed', label: 'Completed', icon: '✅', visible: false, order: 2 }];
 	return {
-		mockViewsVisibilityStore: new MockViewsVisibilityStore(visible, hidden)
+		mockViewsVisibilityStore: new MockViewsVisibilityStore({ visible, hidden })
 	};
 });
 

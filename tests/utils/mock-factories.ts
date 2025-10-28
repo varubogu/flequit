@@ -3,6 +3,8 @@ import type { TaskListWithTasks } from '$lib/types/task-list';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
+import { ViewsVisibilityStore } from '$lib/stores/views-visibility.svelte';
+import type { ViewItem } from '$lib/stores/views-visibility.svelte';
 
 const defaultDate = () => new Date('2024-01-01T00:00:00Z');
 
@@ -88,4 +90,39 @@ export function createMockProjectTree(overrides: Partial<ProjectTree> = {}): Pro
 	}
 
 	return { ...base, ...overrides };
+}
+
+type ViewsVisibilityStoreOptions = {
+	visible?: ViewItem[];
+	hidden?: ViewItem[];
+	onSetLists?: (visible: ViewItem[], hidden: ViewItem[]) => void;
+	onReset?: () => void;
+};
+
+export class MockViewsVisibilityStore extends ViewsVisibilityStore {
+	constructor(private options: ViewsVisibilityStoreOptions = {}) {
+		super();
+	}
+
+	override get visibleViews(): ViewItem[] {
+		return this.options.visible ?? [];
+	}
+
+	override get hiddenViews(): ViewItem[] {
+		return this.options.hidden ?? [];
+	}
+
+	override setLists(visible: ViewItem[], hidden: ViewItem[]): void {
+		this.options.visible = visible;
+		this.options.hidden = hidden;
+		this.options.onSetLists?.(visible, hidden);
+	}
+
+	override resetToDefaults(): void {
+		this.options.onReset?.();
+	}
+
+	override async init(): Promise<void> {
+		// noop for tests
+	}
 }
