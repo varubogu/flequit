@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { SubTaskMutations } from '$lib/stores/sub-task/subtask-mutations.svelte';
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
-import type { ProjectTree } from '$lib/types/project';
+import type { Tag } from '$lib/types/tag';
+import {
+	createMockProjectTree,
+	createMockTaskListWithTasks,
+	createMockTaskWithSubTasks
+} from '../../utils/mock-factories';
 
 // SubTaskServiceのモック
 vi.mock('$lib/services/domain/subtask', () => ({
@@ -14,7 +19,9 @@ vi.mock('$lib/services/domain/subtask', () => ({
 				status: 'not_started',
 				priority: 0,
 				orderIndex: 0,
-				isArchived: false,
+				assignedUserIds: [],
+				tagIds: [],
+				tags: [] as Tag[],
 				createdAt: new Date(),
 				updatedAt: new Date()
 			})
@@ -31,37 +38,95 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 	}
 }));
 
-const createMockProjects = (): any => {
-	return {
-		projects: [
-			{
-				id: 'project-1',
-				taskLists: [
-					{
-						id: 'list-1',
-						tasks: [
+const createMockProjects = (): IProjectStore => {
+	const project = createMockProjectTree({
+		id: 'project-1',
+		name: 'Project 1',
+		color: '#FF0000',
+		taskLists: [
+			createMockTaskListWithTasks({
+				id: 'list-1',
+				projectId: 'project-1',
+				tasks: [
+					createMockTaskWithSubTasks({
+						id: 'task-1',
+						title: 'Task 1',
+						subTasks: [
 							{
-								id: 'task-1',
-								subTasks: [{ id: 'subtask-1', title: 'SubTask 1', tags: [] }]
+								id: 'subtask-1',
+								taskId: 'task-1',
+								title: 'SubTask 1',
+								description: 'Existing subtask',
+								status: 'not_started',
+								priority: 0,
+								orderIndex: 0,
+								completed: false,
+								assignedUserIds: [],
+								tagIds: [],
+								tags: [],
+								createdAt: new Date('2024-01-01'),
+								updatedAt: new Date('2024-01-01')
 							}
 						]
-					}
+					})
 				]
-			}
-		] as ProjectTree[]
+			})
+		]
+	});
+
+	const store: IProjectStore = {
+		projects: [project],
+		get selectedProject() {
+			return null;
+		},
+		addProjectToStore: vi.fn(),
+		updateProjectInStore: vi.fn(),
+		removeProjectFromStore: vi.fn(),
+		reorderProjectsInStore: vi.fn(),
+		moveProjectToPositionInStore: vi.fn(),
+		getProjectById: vi.fn((id: string) => store.projects.find((p) => p.id === id) ?? null),
+		loadProjects: vi.fn(),
+		setProjects: vi.fn((projects) => {
+			store.projects = projects;
+		}),
+		reset: vi.fn()
 	};
+
+	return store;
 };
 
-const createMockSelection = (): any => {
-	return {
+const createMockSelection = (): ISelectionStore => {
+	const selection: ISelectionStore = {
+		selectedProjectId: null,
+		selectedListId: null,
+		selectedTaskId: null,
 		selectedSubTaskId: null,
+		pendingTaskSelection: null,
+		pendingSubTaskSelection: null,
+		selectProject: vi.fn(),
+		selectList: vi.fn(),
+		selectTask: vi.fn(),
 		selectSubTask: vi.fn((id: string | null) => {
-			mockSelection.selectedSubTaskId = id;
+			selection.selectedSubTaskId = id;
+		}),
+		clearPendingSelections: vi.fn(() => {
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
+		}),
+		reset: vi.fn(() => {
+			selection.selectedProjectId = null;
+			selection.selectedListId = null;
+			selection.selectedTaskId = null;
+			selection.selectedSubTaskId = null;
+			selection.pendingTaskSelection = null;
+			selection.pendingSubTaskSelection = null;
 		})
 	};
+
+	return selection;
 };
 
-let mockSelection: any;
+let mockSelection: ISelectionStore;
 
 describe('SubTaskMutations', () => {
 	let mockProjects: IProjectStore;

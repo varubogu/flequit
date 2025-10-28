@@ -260,7 +260,9 @@ const mockTag: Tag = buildTag({ id: 'tag-1', name: 'Important', color: '#ff0000'
 		});
 
 		it('should coerce undefined responses to null', async () => {
-			vi.mocked(taskStore.getProjectIdByTagId).mockImplementation(() => undefined);
+			vi.mocked(taskStore.getProjectIdByTagId).mockResolvedValue(
+				undefined as unknown as string | null
+			);
 
 			const result = await TagService.getProjectIdByTagId('tag-undefined');
 

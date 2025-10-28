@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/svelte';
 import TaskItem from '$lib/components/task/core/task-item.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
 
 // Mock dependencies
 vi.mock('$lib/stores/locale.svelte', () => ({
@@ -98,35 +99,44 @@ describe('TaskItem (Integration)', () => {
 
 	beforeEach(() => {
 		const now = new Date();
-		mockTask = {
+		mockTask = createMockTaskWithSubTasks({
 			id: 'task-1',
 			title: 'Test Task',
-			description: '',
-			status: 'pending' as const,
-			priority: 'medium' as const,
-			dueDate: null,
-			createdAt: now,
-			updatedAt: now,
-			tags: [],
+			projectId: 'project-1',
+			listId: 'list-1',
 			subTasks: [
 				{
 					id: 'subtask-1',
+					taskId: 'task-1',
 					title: 'SubTask 1',
-					status: 'pending' as const,
+					description: 'SubTask description',
+					status: 'not_started',
+					priority: 0,
+					orderIndex: 0,
+					completed: false,
+					assignedUserIds: [],
+					tagIds: [],
+					tags: [],
 					createdAt: now,
-					updatedAt: now,
-					tags: []
+					updatedAt: now
 				},
 				{
 					id: 'subtask-2',
+					taskId: 'task-1',
 					title: 'SubTask 2',
-					status: 'completed' as const,
+					description: 'Another subtask',
+					status: 'completed',
+					priority: 0,
+					orderIndex: 1,
+					completed: true,
+					assignedUserIds: [],
+					tagIds: [],
+					tags: [],
 					createdAt: now,
-					updatedAt: now,
-					tags: []
+					updatedAt: now
 				}
 			]
-		};
+		});
 	});
 
 	describe('初期化', () => {

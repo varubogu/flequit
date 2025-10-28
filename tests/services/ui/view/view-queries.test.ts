@@ -7,7 +7,7 @@ import {
 	createMockProjectTree,
 	createMockTaskListWithTasks,
 	createMockTaskWithSubTasks
-} from '../../utils/mock-factories';
+} from '../../../utils/mock-factories';
 
 describe('ViewQueries', () => {
 	const today = new Date('2024-01-15T12:00:00Z');
@@ -25,90 +25,107 @@ describe('ViewQueries', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(today);
 
-		mockTasks = [
-			createMockTaskWithSubTasks({
-				id: 'task-1',
-				title: 'Overdue Task',
-				description: 'This is overdue',
-				status: 'pending',
-				planEndDate: yesterday,
-				sortOrder: 0
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-2',
-				title: 'Today Task',
-				description: 'Due today',
-				status: 'pending',
-				planEndDate: today,
-				tags: [{ id: 't1', name: 'urgent', color: '#ff0000' }],
-				sortOrder: 1
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-3',
-				title: 'Tomorrow Task',
-				description: '',
-				status: 'pending',
-				planEndDate: tomorrow,
-				sortOrder: 2
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-4',
-				title: 'Three Days Task',
-				description: '',
-				status: 'pending',
-				planEndDate: threeDaysLater,
-				tags: [{ id: 't2', name: 'work', color: '#0000ff' }],
-				sortOrder: 3
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-5',
-				title: 'Next Week Task',
-				description: '',
-				status: 'pending',
-				planEndDate: oneWeekLater,
-				sortOrder: 4
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-6',
-				title: 'End of Month Task',
-				description: '',
-				status: 'pending',
-				planEndDate: endOfMonth,
-				sortOrder: 5
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-7',
-				title: 'Completed Task',
-				description: 'Already done',
-				status: 'completed',
-				planEndDate: yesterday,
-				sortOrder: 6
-			}),
-			createMockTaskWithSubTasks({
-				id: 'task-8',
-				title: 'No Due Date',
-				description: '',
-				status: 'pending',
-				planEndDate: undefined,
-				subTasks: [
-					{
-						id: 'sub-1',
-						taskId: 'task-8',
-						title: 'SubTask with keyword',
-						description: 'Contains urgent info',
-						status: 'pending',
-						orderIndex: 0,
-						priority: 0,
-						completed: false,
-						assignedUserIds: [],
-						tagIds: [],
-						createdAt: new Date('2024-01-01'),
-						updatedAt: new Date('2024-01-01')
-					}
-				],
-				sortOrder: 7
-			})
-		];
+    mockTasks = [
+      createMockTaskWithSubTasks({
+        id: 'task-1',
+        title: 'Overdue Task',
+        description: 'This is overdue',
+        status: 'not_started',
+        planEndDate: yesterday,
+        orderIndex: 0
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-2',
+        title: 'Today Task',
+        description: 'Due today',
+        status: 'in_progress',
+        planEndDate: today,
+        tags: [
+          {
+            id: 't1',
+            name: 'urgent',
+            color: '#ff0000',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
+          }
+        ],
+        orderIndex: 1
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-3',
+        title: 'Tomorrow Task',
+        description: '',
+        status: 'not_started',
+        planEndDate: tomorrow,
+        orderIndex: 2
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-4',
+        title: 'Three Days Task',
+        description: '',
+        status: 'waiting',
+        planEndDate: threeDaysLater,
+        tags: [
+          {
+            id: 't2',
+            name: 'work',
+            color: '#0000ff',
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
+          }
+        ],
+        orderIndex: 3
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-5',
+        title: 'Next Week Task',
+        description: '',
+        status: 'not_started',
+        planEndDate: oneWeekLater,
+        orderIndex: 4
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-6',
+        title: 'End of Month Task',
+        description: '',
+        status: 'not_started',
+        planEndDate: endOfMonth,
+        orderIndex: 5
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-7',
+        title: 'Completed Task',
+        description: 'Already done',
+        status: 'completed',
+        planEndDate: yesterday,
+        orderIndex: 6
+      }),
+      createMockTaskWithSubTasks({
+        id: 'task-8',
+        title: 'No Due Date',
+        description: '',
+        status: 'not_started',
+        planEndDate: undefined,
+        subTasks: [
+          {
+            id: 'sub-1',
+            taskId: 'task-8',
+            title: 'SubTask with keyword',
+            description: 'Contains urgent info',
+            status: 'not_started',
+            priority: 0,
+            orderIndex: 0,
+            completed: false,
+            assignedUserIds: [],
+            tagIds: [],
+            tags: [],
+            createdAt: new Date('2024-01-01'),
+            updatedAt: new Date('2024-01-01')
+          }
+        ],
+        orderIndex: 7
+      })
+    ];
 
 		mockDeps = {
 			taskStore: {
@@ -196,7 +213,7 @@ describe('ViewQueries', () => {
 				id: 'task-next-month',
 				title: 'Next Month Task',
 				planEndDate: new Date('2024-02-02T00:00:00Z'),
-				sortOrder: 99
+				orderIndex: 99
 			});
 			const depsWithFutureTask: ViewStoreDependencies = {
 				...mockDeps,

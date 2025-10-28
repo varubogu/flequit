@@ -1,25 +1,42 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ITranslationServiceWithNotification } from '$lib/services/translation-service';
 
-describe('ParaglideTranslationService (mocked singleton)', () => {
-	let service: ITranslationServiceWithNotification & {
-		setMessages(locale: string, messages: Record<string, string>): void;
-		getSubscriberCount(): number;
+const { runtimeState } = vi.hoisted(() => {
+	let currentLocale = 'en';
+	return {
+		runtimeState: {
+			getLocale: () => currentLocale,
+			setLocale: (locale: string) => {
+				currentLocale = locale;
+			}
+		}
 	};
+});
+
+vi.mock('$paraglide/runtime', () => ({
+	__esModule: true,
+	getLocale: runtimeState.getLocale,
+	setLocale: (locale: string, _options?: { reload?: boolean }) => {
+		runtimeState.setLocale(locale);
+	},
+	locales: ['en', 'ja']
+}));
+
+vi.mock('$paraglide/messages.js', () => ({
+	__esModule: true,
+	test_message: () => (runtimeState.getLocale() === 'en' ? 'Test Message' : 'テストメッセージ'),
+	hello: ({ name }: { name: string }) =>
+		runtimeState.getLocale() === 'en' ? `Hello ${name}` : `こんにちは ${name}`
+}));
+
+describe('ParaglideTranslationService (mocked singleton)', () => {
+	let service: ITranslationServiceWithNotification;
 
 	beforeEach(async () => {
 		await vi.resetModules();
-		const module = await import('$lib/services/paraglide-translation-service.svelte');
-		service = module.translationService as typeof service;
-		service.setLocale('en');
-		service.setMessages('en', {
-			test_message: 'Test Message',
-			hello: 'Hello {name}'
-		});
-		service.setMessages('ja', {
-			test_message: 'テストメッセージ',
-			hello: 'こんにちは {name}'
-		});
+	const module = await import('$lib/services/paraglide-translation-service.svelte');
+	service = module.translationService;
+	service.setLocale('en');
 	});
 
 	it('exposes required API surface', () => {
@@ -49,18 +66,20 @@ describe('ParaglideTranslationService (mocked singleton)', () => {
 		expect(callback).not.toHaveBeenCalled();
 
 		unsubscribe();
-		expect(service.getSubscriberCount()).toBe(0);
 	});
 
 	it('provides memoised reactive messages', () => {
-		const messageFn = vi.fn(() => 'test_message');
+		const messageFn = vi.fn(() =>
+			runtimeState.getLocale() === 'en' ? 'Test Message' : 'テストメッセージ'
+		);
 		const reactive = service.reactiveMessage(messageFn);
 
 		expect(reactive()).toBe('Test Message');
-		expect(messageFn).toHaveBeenCalled();
+		expect(messageFn).toHaveBeenCalledTimes(1);
 
 		service.setLocale('ja');
 		expect(reactive()).toBe('テストメッセージ');
+		expect(messageFn).toHaveBeenCalledTimes(2);
 	});
 
 	it('fetches message by key via getMessage', () => {

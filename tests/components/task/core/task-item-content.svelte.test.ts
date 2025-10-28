@@ -5,6 +5,7 @@ import type TaskDatePicker from '$lib/components/task/forms/task-date-picker.sve
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import type { ContextMenuList } from '$lib/types/context-menu';
+import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
 
 interface TaskItemLogic {
   task: TaskWithSubTasks;
@@ -62,46 +63,40 @@ vi.mock('$lib/components/shared/context-menu-wrapper.svelte', () => ({
 }));
 
 describe('TaskItemContent', () => {
-  const mockTask: TaskWithSubTasks = {
+  const mockTask: TaskWithSubTasks = createMockTaskWithSubTasks({
     id: 'task-1',
     projectId: 'project-1',
+    listId: 'list-1',
     title: 'Test Task',
     description: 'Test description',
-    status: 'not_started' as TaskStatus,
+    status: 'not_started',
     priority: 2,
     planStartDate: new Date('2024-01-01'),
     planEndDate: new Date('2024-01-02'),
     isRangeDate: true,
-    listId: 'list-1',
-    assignedUserIds: [],
-    tagIds: [],
-    orderIndex: 0,
-    isArchived: false,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-    subTasks: [],
-    tags: []
-  };
+    orderIndex: 0
+  });
 
-  const mockTaskWithSubTasks: TaskWithSubTasks = {
+  const mockTaskWithSubTasks: TaskWithSubTasks = createMockTaskWithSubTasks({
     ...mockTask,
     subTasks: [
       {
         id: 'subtask-1',
+        taskId: 'task-1',
         title: 'Test SubTask',
         description: 'Test subtask description',
-        status: 'not_started' as TaskStatus,
+        status: 'not_started',
         priority: 1,
-        taskId: 'task-1',
         orderIndex: 0,
-        tags: [],
         completed: false,
         assignedUserIds: [],
+        tagIds: [],
+        tags: [],
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01')
       }
     ]
-  };
+  });
 
   const mockLogic = {
     showSubTasks: false,

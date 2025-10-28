@@ -40,15 +40,19 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 const createMockProjects = (): IProjectStore => {
 	const project = createMockProjectTree({
 		id: 'project-1',
+		name: 'Project 1',
+		color: '#FF0000',
 		taskLists: [
 			createMockTaskListWithTasks({
 				id: 'list-1',
 				projectId: 'project-1',
+				name: 'List 1',
 				tasks: [
 					createMockTaskWithSubTasks({
 						id: 'task-1',
 						projectId: 'project-1',
 						listId: 'list-1',
+						title: 'Task 1',
 						subTasks: [
 							{
 								id: 'subtask-1',
@@ -69,8 +73,11 @@ const createMockProjects = (): IProjectStore => {
 										createdAt: new Date('2024-01-01'),
 										updatedAt: new Date('2024-01-01')
 									}
-								]
-							]
+								],
+								createdAt: new Date('2024-01-01'),
+								updatedAt: new Date('2024-01-01')
+							}
+						]
 					})
 				]
 			})
@@ -218,8 +225,9 @@ describe('SubTaskStore (Integration)', () => {
 			store.attachTagToSubTask('subtask-1', newTag);
 
 			const subTask = mockProjects.projects[0].taskLists[0].tasks[0].subTasks[0];
-			expect(subTask.tags).toHaveLength(2);
-			expect(subTask.tags[1].id).toBe('tag-2');
+			const tags = subTask.tags ?? [];
+			expect(tags).toHaveLength(2);
+			expect(tags[1].id).toBe('tag-2');
 		});
 
 		it('サブタスクからタグを削除できる', () => {
@@ -229,7 +237,8 @@ describe('SubTaskStore (Integration)', () => {
 			expect(removed?.id).toBe('tag-1');
 
 			const subTask = mockProjects.projects[0].taskLists[0].tasks[0].subTasks[0];
-			expect(subTask.tags).toHaveLength(0);
+			const tags = subTask.tags ?? [];
+			expect(tags).toHaveLength(0);
 		});
 	});
 
@@ -244,20 +253,21 @@ describe('SubTaskStore (Integration)', () => {
 			const task = mockProjects.projects[0].taskLists[0].tasks[0];
 			expect(task.subTasks[1].title).toBe('Updated SubTask');
 
-			// 3. タグを付与
-			const newTag: Tag = {
-				id: 'tag-2',
-				name: 'Tag 2',
-				color: '#00FF00',
-				createdAt: new Date(),
-				updatedAt: new Date()
-			};
-			store.attachTagToSubTask('new-subtask-id', newTag);
-			expect(task.subTasks[1].tags).toHaveLength(1);
+		// 3. タグを付与
+		const newTag: Tag = {
+			id: 'tag-2',
+			name: 'Tag 2',
+			color: '#00FF00',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		};
+		store.attachTagToSubTask('new-subtask-id', newTag);
+		const addedTags = task.subTasks[1].tags ?? [];
+		expect(addedTags).toHaveLength(1);
 
-			// 4. サブタスクを削除
-			await store.deleteSubTask('new-subtask-id');
-			expect(task.subTasks).toHaveLength(1);
+		// 4. サブタスクを削除
+		await store.deleteSubTask('new-subtask-id');
+		expect(task.subTasks).toHaveLength(1);
 		});
 	});
 });

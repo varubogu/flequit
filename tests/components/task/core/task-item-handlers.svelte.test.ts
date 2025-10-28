@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskItemHandlers } from '$lib/components/task/core/task-item-handlers.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
+import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
 
 // Mock dependencies
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -46,27 +47,29 @@ describe('TaskItemHandlers', () => {
 
 	beforeEach(() => {
 		const now = new Date();
-		mockTask = {
+		mockTask = createMockTaskWithSubTasks({
 			id: 'task-1',
 			title: 'Test Task',
-			description: '',
-			status: 'pending' as const,
-			priority: 'medium' as const,
-			dueDate: null,
-			createdAt: now,
-			updatedAt: now,
-			tags: [],
-			subTasks: []
-		};
+			subTasks: [
+				{
+					id: 'subtask-1',
+					taskId: 'task-1',
+					title: 'Test SubTask',
+					description: 'Subtask description',
+					status: 'not_started',
+					priority: 0,
+					orderIndex: 0,
+					completed: false,
+					assignedUserIds: [],
+					tagIds: [],
+					tags: [],
+					createdAt: now,
+					updatedAt: now
+				}
+			]
+		});
 
-		mockSubTask = {
-			id: 'subtask-1',
-			title: 'Test SubTask',
-			status: 'pending' as const,
-			createdAt: now,
-			updatedAt: now,
-			tags: []
-		};
+		mockSubTask = mockTask.subTasks[0];
 
 		mockTaskDetailUiStore = {
 			openTaskDetail: vi.fn(),

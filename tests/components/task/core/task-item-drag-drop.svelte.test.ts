@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskItemDragDrop } from '$lib/components/task/core/task-item-drag-drop.svelte';
 import type { TaskWithSubTasks } from '$lib/types/task';
+import type { DragData } from '$lib/utils/drag-drop';
+import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
 
 // Mock DragDropManager
 vi.mock('$lib/utils/drag-drop', () => ({
@@ -26,19 +28,10 @@ describe('TaskItemDragDrop', () => {
 	let mockTask: TaskWithSubTasks;
 
 	beforeEach(() => {
-		const now = new Date();
-		mockTask = {
+		mockTask = createMockTaskWithSubTasks({
 			id: 'task-1',
-			title: 'Test Task',
-			description: '',
-			status: 'pending' as const,
-			priority: 'medium' as const,
-			dueDate: null,
-			createdAt: now,
-			updatedAt: now,
-			tags: [],
-			subTasks: []
-		};
+			title: 'Test Task'
+		});
 
 		dragDrop = new TaskItemDragDrop(mockTask);
 	});
@@ -83,10 +76,8 @@ describe('TaskItemDragDrop', () => {
 			);
 
 			// Mock handleDrop to return tag drag data
-			DragDropManager.handleDrop = vi.fn(() => ({
-				type: 'tag',
-				id: 'tag-1'
-			}));
+			const tagDragData: DragData = { type: 'tag', id: 'tag-1' };
+			DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => tagDragData);
 
 			const mockEvent = {} as DragEvent;
 
@@ -120,10 +111,8 @@ describe('TaskItemDragDrop', () => {
 				'$lib/services/domain/task/task-mutations-instance'
 			);
 
-			DragDropManager.handleDrop = vi.fn(() => ({
-				type: 'task',
-				id: 'task-2'
-			}));
+			const taskDragData: DragData = { type: 'task', id: 'task-2' };
+			DragDropManager.handleDrop = vi.fn<typeof DragDropManager.handleDrop>(() => taskDragData);
 
 			const mockEvent = {} as DragEvent;
 

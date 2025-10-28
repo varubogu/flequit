@@ -61,8 +61,20 @@ function createTaskServiceMock() {
 function createTagStoreMock() {
 	return {
 		tags: [
-			{ id: 'tag-1', name: 'Work' },
-			{ id: 'tag-2', name: 'Personal' }
+			{
+				id: 'tag-1',
+				name: 'Work',
+				color: '#ff0000',
+				createdAt: new Date('2024-01-01T00:00:00Z'),
+				updatedAt: new Date('2024-01-01T00:00:00Z')
+			},
+			{
+				id: 'tag-2',
+				name: 'Personal',
+				color: '#00ff00',
+				createdAt: new Date('2024-01-01T00:00:00Z'),
+				updatedAt: new Date('2024-01-01T00:00:00Z')
+			}
 		],
 		addTagWithId: vi.fn()
 	};

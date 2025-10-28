@@ -36,10 +36,10 @@ const renderComponent = (
 	const task = makeTask();
 	const formData = {
 		title: task.title,
-		description: overrideProps.description ?? task.description,
+		description: overrideProps.description ?? task.description ?? '',
 		plan_start_date: task.planStartDate,
 		plan_end_date: task.planEndDate,
-		is_range_date: task.isRangeDate,
+		is_range_date: task.isRangeDate ?? false,
 		priority: task.priority
 	};
 
@@ -62,7 +62,7 @@ describe('TaskDescriptionEditor', () => {
 
 	it('renders current description', () => {
 		const { result } = renderComponent();
-		const textarea = result.getByRole('textbox');
+	const textarea = result.getByRole('textbox') as HTMLTextAreaElement;
 		expect(textarea).toHaveValue('Test description');
 	});
 
@@ -79,20 +79,20 @@ describe('TaskDescriptionEditor', () => {
 
 	it('emits change event when user types', async () => {
 		const { result, onDescriptionChange } = renderComponent();
-		const textarea = result.getByRole('textbox');
+		const textarea = result.getByRole('textbox') as HTMLTextAreaElement;
 		await fireEvent.input(textarea, { target: { value: 'Updated text' } });
 		expect(onDescriptionChange).toHaveBeenCalledWith('Updated text');
 	});
 
 	it('uses task placeholder when description empty for main task', () => {
 		const { result } = renderComponent({ description: '', isSubTask: false });
-		const textarea = result.getByRole('textbox');
+		const textarea = result.getByRole('textbox') as HTMLTextAreaElement;
 		expect(textarea.placeholder).toBe('task_description');
 	});
 
 	it('uses subtask placeholder when description empty for subtask', () => {
 		const { result } = renderComponent({ description: '', isSubTask: true });
-		const textarea = result.getByRole('textbox');
+		const textarea = result.getByRole('textbox') as HTMLTextAreaElement;
 		expect(textarea.placeholder).toBe('sub_task_description_optional');
 	});
 });

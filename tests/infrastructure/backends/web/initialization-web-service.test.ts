@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InitializationWebService } from '$lib/infrastructure/backends/web/initialization-web-service';
-import type { ProjectTree } from '$lib/types/project';
 
 const storageBacking = () => {
 	const map = new Map<string, string>();
@@ -113,25 +112,25 @@ describe('InitializationWebService (web)', () => {
 	});
 
 	it('loadProjectData: parses stored payload dates into Date instances', async () => {
-		const stored: ProjectTree[] = [
-			{
-				id: 'stored-project',
-				name: 'Stored Project',
-				color: null,
-				orderIndex: 0,
-				archived: false,
-				projectId: 'stored-project',
-				createdAt: '2024-01-03T00:00:00Z',
-				updatedAt: '2024-01-04T00:00:00Z',
-				taskLists: []
-			}
-		];
+	const stored = [
+		{
+			id: 'stored-project',
+			name: 'Stored Project',
+			color: '#123456',
+			orderIndex: 0,
+			isArchived: false,
+			createdAt: '2024-01-03T00:00:00Z',
+			updatedAt: '2024-01-04T00:00:00Z',
+			taskLists: []
+		}
+	];
 		storage.getItem.mockReturnValueOnce(JSON.stringify(stored));
 
 		const projects = await service.loadProjectData();
 
-		expect(projects[0]?.created_at).toEqual(new Date('2024-01-03T00:00:00Z'));
-		expect(projects[0]?.updated_at).toEqual(new Date('2024-01-04T00:00:00Z'));
+	const loadedProject = projects[0];
+	expect(loadedProject?.createdAt).toEqual(new Date('2024-01-03T00:00:00Z'));
+	expect(loadedProject?.updatedAt).toEqual(new Date('2024-01-04T00:00:00Z'));
 	});
 
 	it('initializeAll: combines results from each step', async () => {

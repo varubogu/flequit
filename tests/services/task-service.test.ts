@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Task } from '$lib/types/task';
 
 const backendStub = {
@@ -25,7 +25,8 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 	errorHandler: errorHandlerMock
 }));
 
-const uuidSpy = vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue('uuid-123');
+const fixedUuid = '00000000-0000-0000-0000-000000000123';
+const uuidSpy = vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(fixedUuid);
 
 vi.unmock('$lib/services/domain/task');
 vi.unmock('$lib/services/domain/task/task-crud');
@@ -40,7 +41,7 @@ describe('TaskService (task-crud)', () => {
 	beforeEach(() => {
 		resolveBackendMock.mockClear().mockResolvedValue(backendStub);
 		errorHandlerMock.addSyncError.mockClear();
-		uuidSpy.mockReturnValue('uuid-123');
+		uuidSpy.mockReturnValue(fixedUuid);
 		backendStub.task.create.mockReset();
 		backendStub.task.update.mockReset();
 		backendStub.task.delete.mockReset();
@@ -50,29 +51,32 @@ describe('TaskService (task-crud)', () => {
 	test('createTask: プロジェクトID付きでタスクを生成しバックエンドへ登録する', async () => {
 		backendStub.task.create.mockResolvedValueOnce();
 
-		const result = await TaskService.createTask('list-123', {
-			projectId: 'project-123',
-			title: 'New Task',
-			description: 'Detail',
-			status: 'not_started',
-			priority: 1,
-			orderIndex: 0,
-			isArchived: false,
-			assignedUserIds: [],
-			tagIds: []
-		});
+	const result = await TaskService.createTask('list-123', {
+		projectId: 'project-123',
+		title: 'New Task',
+		description: 'Detail',
+		status: 'not_started',
+		priority: 1,
+		orderIndex: 0,
+		isArchived: false,
+		assignedUserIds: [],
+		tagIds: [],
+		listId: 'list-123',
+		createdAt: new Date('2024-01-01T00:00:00Z'),
+		updatedAt: new Date('2024-01-01T00:00:00Z')
+	});
 
 		expect(resolveBackendMock).toHaveBeenCalledTimes(1);
 		expect(backendStub.task.create).toHaveBeenCalledWith(
 			'project-123',
 			expect.objectContaining({
-				id: 'uuid-123',
+				id: fixedUuid,
 				listId: 'list-123',
 				projectId: 'project-123',
 				title: 'New Task'
 			})
 		);
-		expect(result.id).toBe('uuid-123');
+		expect(result.id).toBe(fixedUuid);
 		expect(result.listId).toBe('list-123');
 		expect(result.projectId).toBe('project-123');
 		expect(result.createdAt).toBeInstanceOf(Date);
@@ -80,18 +84,21 @@ describe('TaskService (task-crud)', () => {
 	});
 
 	test('createTask: プロジェクトIDが無い場合はエラーを投げる', async () => {
-		await expect(
-			TaskService.createTask('list-123', {
-				projectId: undefined as unknown as string,
-				title: 'Invalid Task',
-				status: 'not_started',
-				priority: 0,
-				orderIndex: 0,
-				isArchived: false,
-				assignedUserIds: [],
-				tagIds: []
-			})
-		).rejects.toThrow('タスクにproject_idが設定されていません。');
+	await expect(
+		TaskService.createTask('list-123', {
+			projectId: undefined as unknown as string,
+			title: 'Invalid Task',
+			status: 'not_started',
+			priority: 0,
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: [],
+			listId: 'list-123',
+			createdAt: new Date('2024-01-01T00:00:00Z'),
+			updatedAt: new Date('2024-01-01T00:00:00Z')
+		})
+	).rejects.toThrow('タスクにproject_idが設定されていません。');
 		expect(resolveBackendMock).not.toHaveBeenCalled();
 	});
 
@@ -99,23 +106,26 @@ describe('TaskService (task-crud)', () => {
 		const backendError = new Error('backend down');
 		backendStub.task.create.mockRejectedValueOnce(backendError);
 
-		await expect(
-			TaskService.createTask('list-123', {
-				projectId: 'project-123',
-				title: 'Fail Task',
-				status: 'not_started',
-				priority: 0,
-				orderIndex: 0,
-				isArchived: false,
-				assignedUserIds: [],
-				tagIds: []
-			})
-		).rejects.toThrow(backendError);
+	await expect(
+		TaskService.createTask('list-123', {
+			projectId: 'project-123',
+			title: 'Fail Task',
+			status: 'not_started',
+			priority: 0,
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: [],
+			listId: 'list-123',
+			createdAt: new Date('2024-01-01T00:00:00Z'),
+			updatedAt: new Date('2024-01-01T00:00:00Z')
+		})
+	).rejects.toThrow(backendError);
 
 		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
 			'タスク作成',
 			'task',
-			'uuid-123',
+			fixedUuid,
 			backendError
 		);
 	});
@@ -126,29 +136,27 @@ describe('TaskService (task-crud)', () => {
 		const doStartDate = new Date('2024-01-08T00:00:00Z');
 		const doEndDate = new Date('2024-01-09T00:00:00Z');
 
-		const updatedTask: Task = {
-			id: 'task-123',
-			projectId: 'project-123',
-			listId: 'list-123',
-			title: 'Updated',
-			description: 'Updated detail',
-			status: 'in_progress',
-			priority: 2,
-			planStartDate,
-			planEndDate,
-			doStartDate,
-			doEndDate,
-			isRangeDate: true,
-			recurrenceRule: { unit: 'day', interval: 1 },
-			orderIndex: 0,
-			isArchived: false,
-			assignedUserIds: [],
-			tagIds: [],
-			createdAt: new Date('2024-01-01T00:00:00Z'),
-			updatedAt: new Date('2024-01-10T00:00:00Z'),
-			subTasks: [],
-			tags: []
-		};
+	const updatedTask: Task = {
+		id: 'task-123',
+		projectId: 'project-123',
+		listId: 'list-123',
+		title: 'Updated',
+		description: 'Updated detail',
+		status: 'in_progress',
+		priority: 2,
+		planStartDate,
+		planEndDate,
+		doStartDate,
+		doEndDate,
+		isRangeDate: true,
+		recurrenceRule: { unit: 'day', interval: 1 },
+		orderIndex: 0,
+		isArchived: false,
+		assignedUserIds: [],
+		tagIds: [],
+		createdAt: new Date('2024-01-01T00:00:00Z'),
+		updatedAt: new Date('2024-01-10T00:00:00Z')
+	};
 
 		backendStub.task.update.mockResolvedValueOnce(true);
 		backendStub.task.get.mockResolvedValueOnce(updatedTask);
@@ -229,23 +237,21 @@ describe('TaskService (task-crud)', () => {
 	});
 
 	test('createTaskWithSubTasks: createTaskを委譲する', async () => {
-		const createSpy = vi.spyOn(TaskService, 'createTask').mockResolvedValueOnce({
-			id: 'uuid-123',
-			projectId: 'project-123',
-			listId: 'list-123',
-			title: 'Delegated',
-			description: '',
-			status: 'not_started',
-			priority: 0,
-			orderIndex: 0,
-			isArchived: false,
-			assignedUserIds: [],
-			tagIds: [],
-			subTasks: [],
-			tags: [],
-			createdAt: new Date(),
-			updatedAt: new Date()
-		});
+	const createSpy = vi.spyOn(TaskService, 'createTask').mockResolvedValueOnce({
+		id: fixedUuid,
+		projectId: 'project-123',
+		listId: 'list-123',
+		title: 'Delegated',
+		description: '',
+		status: 'not_started',
+		priority: 0,
+		orderIndex: 0,
+		isArchived: false,
+		assignedUserIds: [],
+		tagIds: [],
+		createdAt: new Date(),
+		updatedAt: new Date()
+	});
 
 		await TaskService.createTaskWithSubTasks('list-123', {} as Task);
 		expect(createSpy).toHaveBeenCalled();

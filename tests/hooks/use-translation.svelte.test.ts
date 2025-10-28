@@ -6,8 +6,10 @@ import type { ITranslationService } from '$lib/services/translation-service';
 vi.mock('$lib/stores/locale.svelte', () => ({
 	getTranslationService: vi.fn(() => ({
 		getMessage: vi.fn((key: string) => `translated_${key}`),
-		getLanguage: vi.fn(() => 'ja'),
-		setLanguage: vi.fn()
+		getCurrentLocale: vi.fn(() => 'ja'),
+		setLocale: vi.fn(),
+		reactiveMessage: vi.fn(<T extends (...args: unknown[]) => string>(fn: T) => fn),
+		getAvailableLocales: vi.fn(() => ['ja', 'en'] as const)
 	}))
 }));
 
@@ -22,7 +24,7 @@ describe('useTranslation', () => {
 		it('TranslationServiceを返す', () => {
 			expect(translationService).toBeDefined();
 			expect(translationService.getMessage).toBeDefined();
-			expect(translationService.getLanguage).toBeDefined();
+			expect(translationService.getCurrentLocale).toBeDefined();
 		});
 
 		it('getMessageを呼び出せる', () => {
@@ -32,11 +34,11 @@ describe('useTranslation', () => {
 			expect(translationService.getMessage).toHaveBeenCalledWith('test_key');
 		});
 
-		it('getLanguageを呼び出せる', () => {
-			const language = translationService.getLanguage();
+		it('getCurrentLocaleを呼び出せる', () => {
+			const locale = translationService.getCurrentLocale();
 
-			expect(language).toBe('ja');
-			expect(translationService.getLanguage).toHaveBeenCalled();
+			expect(locale).toBe('ja');
+			expect(translationService.getCurrentLocale).toHaveBeenCalled();
 		});
 	});
 

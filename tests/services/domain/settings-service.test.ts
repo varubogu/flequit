@@ -21,7 +21,10 @@ describe('SettingsService', () => {
   let sampleSettings: Settings;
   let resolveBackendSpy: ReturnType<typeof vi.spyOn>;
   let backendClientModule: typeof import('$lib/infrastructure/backend-client');
-  let addSyncErrorSpy: ReturnType<typeof vi.spyOn>;
+	type AddSyncErrorSpy = ReturnType<typeof vi.spyOn> & {
+		mockImplementation: (fn: (operation: string, resourceType: string, resourceId: string, originalError: unknown) => string) => AddSyncErrorSpy;
+	};
+	let addSyncErrorSpy: AddSyncErrorSpy;
 
   beforeAll(async () => {
     backendClientModule = await import('$lib/infrastructure/backend-client');
@@ -35,7 +38,8 @@ describe('SettingsService', () => {
     resolveBackendSpy = vi
       .spyOn(backendClientModule, 'resolveBackend')
       .mockResolvedValue(mockBackend as any);
-    addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError').mockImplementation(() => {});
+	addSyncErrorSpy = vi.spyOn(errorHandler, 'addSyncError') as unknown as AddSyncErrorSpy;
+	addSyncErrorSpy.mockImplementation(() => '');
     vi.doUnmock('$lib/services/domain/settings');
     ({ SettingsService } = await import('$lib/services/domain/settings'));
   });

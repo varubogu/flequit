@@ -153,22 +153,24 @@ function createTestEnvironment() {
         task.subTasks.splice(index, 1);
       }
     }),
-    attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
-      const target = getSubTaskById(subTaskId);
-      if (!target) return;
-      if (target.tags.some((existing) => existing.id === tag.id)) return;
-      target.tags.push(tag);
-      target.updatedAt = new Date();
-    }),
-    detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
-      const target = getSubTaskById(subTaskId);
-      if (!target) return null;
-      const index = target.tags.findIndex((tag) => tag.id === tagId);
-      if (index === -1) return null;
-      const [removed] = target.tags.splice(index, 1);
-      target.updatedAt = new Date();
-      return removed ?? null;
-    })
+	attachTagToSubTask: vi.fn((subTaskId: string, tag: Tag) => {
+		const target = getSubTaskById(subTaskId);
+		if (!target) return;
+		const tagsList = target.tags ?? (target.tags = []);
+		if (tagsList.some((existing) => existing.id === tag.id)) return;
+		tagsList.push(tag);
+		target.updatedAt = new Date();
+	}),
+	detachTagFromSubTask: vi.fn((subTaskId: string, tagId: string) => {
+		const target = getSubTaskById(subTaskId);
+		if (!target) return null;
+		const tagsList = target.tags ?? [];
+		const index = tagsList.findIndex((tag) => tag.id === tagId);
+		if (index === -1) return null;
+		const [removed] = tagsList.splice(index, 1);
+		target.updatedAt = new Date();
+		return removed ?? null;
+	})
   };
 
   const taggingServiceMock = {
