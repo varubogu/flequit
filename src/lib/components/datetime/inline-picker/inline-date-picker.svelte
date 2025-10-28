@@ -2,8 +2,8 @@
   import RecurrenceDialog from '$lib/components/recurrence/dialogs/recurrence-dialog.svelte';
   import { SvelteDate } from 'svelte/reactivity';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-  import InlineDatePickerUI from './inline-date-picker-ui.svelte';
-  import { useInlineDatePicker } from './use-inline-date-picker.svelte';
+  import InlineDatePickerUI from '$lib/components/datetime/inline-picker/inline-date-picker-ui.svelte';
+  import { useInlineDatePicker } from '$lib/components/datetime/inline-picker/use-inline-date-picker.svelte';
 
   export interface DateChangeData {
     date: string;

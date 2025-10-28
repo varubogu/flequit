@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TestDateTimeInput from './test-datetime-input.svelte';
+  import TestDateTimeInput from '$lib/components/settings/date-format/test-datetime-input.svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {

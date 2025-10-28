@@ -1,8 +1,8 @@
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
-import { RecurrenceState } from './recurrence-state.svelte';
-import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
-import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';
+import { RecurrenceState } from '$lib/components/recurrence/dialogs/recurrence-state.svelte';
+import { DateConditionManager } from '$lib/components/recurrence/date-conditions/date-condition-manager.svelte';
+import { WeekdayConditionManager } from '$lib/components/recurrence/weekday-conditions/weekday-condition-manager.svelte';
 
 export class RecurrenceInitializer {
   static initializeFromRule(

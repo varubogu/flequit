@@ -7,11 +7,11 @@
   import type { WeekStart } from '$lib/types/settings';
   import { ArrowLeft, Menu } from 'lucide-svelte';
   import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-  import SettingsBasic from './basic/settings-basic.svelte';
-  import SettingsViews from './views/settings-views.svelte';
-  import SettingsAppearance from './appearance/settings-appearance.svelte';
-import SettingsAccount from './account/settings-account.svelte';
-import SettingsDialogSidebar from './settings-dialog-sidebar.svelte';
+  import SettingsBasic from '$lib/components/settings/basic/settings-basic.svelte';
+  import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
+  import SettingsAppearance from '$lib/components/settings/appearance/settings-appearance.svelte';
+import SettingsAccount from '$lib/components/settings/account/settings-account.svelte';
+import SettingsDialogSidebar from '$lib/components/settings/settings-dialog-sidebar.svelte';
 
   interface Props {
     open?: boolean;

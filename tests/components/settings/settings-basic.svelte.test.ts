@@ -40,7 +40,6 @@ function getDefaultAvailableTimezones() {
 
 function createSettingsStoreMock() {
   const initialState = createInitialSettingsState();
-  const availableTimezones = getDefaultAvailableTimezones();
   const store = {
     ...initialState,
     customDateFormats: [] as { id: string; name: string; format: string }[],

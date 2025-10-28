@@ -1,10 +1,10 @@
 <script lang="ts">
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
   import SettingsDialog from '$lib/components/settings/settings-dialog.svelte';
-  import UserProfileEditDialog from './user-profile-edit-dialog.svelte';
-  import UserProfileButton from './user-profile-button.svelte';
-  import UserProfileMenu from './user-profile-menu.svelte';
-  import { createUserProfileController } from './user-profile-controller.svelte';
+  import UserProfileEditDialog from '$lib/components/user/user-profile-edit-dialog.svelte';
+  import UserProfileButton from '$lib/components/user/user-profile-button.svelte';
+  import UserProfileMenu from '$lib/components/user/user-profile-menu.svelte';
+  import { createUserProfileController } from '$lib/components/user/user-profile-controller.svelte';
   import type { User as FullUser } from '$lib/types/user';
 
   // このコンポーネント専用のUser型（簡略版）

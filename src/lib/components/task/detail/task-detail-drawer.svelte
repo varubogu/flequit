@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Drawer from '$lib/components/ui/drawer';
-  import TaskDetail from './task-detail.svelte';
+  import TaskDetail from '$lib/components/task/detail/task-detail.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
 
   interface Props {

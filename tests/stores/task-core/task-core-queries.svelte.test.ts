@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TaskCoreQueries } from '$lib/stores/task-core/task-core-queries.svelte';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskWithSubTasks } from '$lib/types/task';
 import {
 	createMockProjectTree,
 	createMockTaskListWithTasks,
@@ -72,13 +71,13 @@ describe('TaskCoreQueries', () => {
 		});
 
 		it('nullを渡した場合はnullを返す', () => {
-			const task = queries.getTaskById(null as any);
+			const task = queries.getTaskById(null as unknown as string);
 
 			expect(task).toBeNull();
 		});
 
 		it('undefinedを渡した場合はnullを返す', () => {
-			const task = queries.getTaskById(undefined as any);
+			const task = queries.getTaskById(undefined as unknown as string);
 
 			expect(task).toBeNull();
 		});

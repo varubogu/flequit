@@ -1,11 +1,11 @@
 <script lang="ts">
-  import RecurrenceLevelSelector from '../settings/recurrence-level-selector.svelte';
-  import RecurrenceCountSettings from '../settings/recurrence-count-settings.svelte';
-  import RecurrenceIntervalSettings from '../settings/recurrence-interval-settings.svelte';
-  import RecurrenceAdjustmentEditor from '../settings/recurrence-adjustment-editor.svelte';
+  import RecurrenceLevelSelector from '$lib/components/recurrence/settings/recurrence-level-selector.svelte';
+  import RecurrenceCountSettings from '$lib/components/recurrence/settings/recurrence-count-settings.svelte';
+  import RecurrenceIntervalSettings from '$lib/components/recurrence/settings/recurrence-interval-settings.svelte';
+  import RecurrenceAdjustmentEditor from '$lib/components/recurrence/settings/recurrence-adjustment-editor.svelte';
   import { formatDateTimeRange } from '$lib/utils/datetime/formatting';
-  import RecurrencePreview from '../preview/recurrence-preview.svelte';
-  import type { RecurrenceDialogLogic } from './recurrence-dialog-facade.svelte';
+  import RecurrencePreview from '$lib/components/recurrence/preview/recurrence-preview.svelte';
+  import type { RecurrenceDialogLogic } from '$lib/components/recurrence/dialogs/recurrence-dialog-facade.svelte';
 
   interface Props {
     logic: RecurrenceDialogLogic;

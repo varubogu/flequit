@@ -1,6 +1,6 @@
 import type { Project } from '$lib/types/project';
 import type { TaskList } from '$lib/types/task-list';
-import { taskStore } from '../tasks.svelte';
+import { taskStore } from '$lib/stores/tasks.svelte';
 
 export type TaskProjectContext = { project: Project; taskList: TaskList } | null;
 

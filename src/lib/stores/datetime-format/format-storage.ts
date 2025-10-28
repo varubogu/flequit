@@ -1,6 +1,9 @@
 import type { CustomDateTimeFormat } from '$lib/types/datetime-format';
 import type { CustomDateFormat } from '$lib/types/settings';
-import { CustomDateFormatTauriService } from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
+import {
+  CustomDateFormatTauriService,
+  type CustomDateFormatService
+} from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
 
 const STORAGE_KEY = 'flequit-datetime-format';
 
@@ -10,7 +13,9 @@ const STORAGE_KEY = 'flequit-datetime-format';
  * 責務: localStorageとTauriバックエンドからのフォーマット読み書き
  */
 export class FormatStorage {
-	private customDateFormatService = new CustomDateFormatTauriService();
+	constructor(
+		private readonly customDateFormatService: CustomDateFormatService = new CustomDateFormatTauriService()
+	) {}
 
 	/**
 	 * 現在のフォーマットをlocalStorageに保存

@@ -1,7 +1,7 @@
 import { getTranslationService } from '$lib/stores/locale.svelte';
-import { taskStore } from '../tasks.svelte';
+import { taskStore } from '$lib/stores/tasks.svelte';
 import type { TaskDetailDomainActions } from './task-detail-types';
-import type { TaskDetailViewState } from './task-detail-view-state.svelte';
+import type { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
 
 export class TaskDetailDialogsStore {
   #viewState: TaskDetailViewState;

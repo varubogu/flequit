@@ -1,7 +1,7 @@
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
 import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskWithSubTasks } from '$lib/types/task';
-import { errorHandler } from '../error-handler.svelte';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { SubTaskService } from '$lib/services/domain/subtask';
 

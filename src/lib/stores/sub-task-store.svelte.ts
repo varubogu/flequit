@@ -2,10 +2,10 @@ import type { ISubTaskStore, IProjectStore, ISelectionStore } from '$lib/types/s
 import type { SubTask } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
-import { selectionStore } from './selection-store.svelte';
-import { SubTaskQueries } from './sub-task/subtask-queries.svelte';
-import { SubTaskMutations } from './sub-task/subtask-mutations.svelte';
-import { SubTaskTagOperations } from './sub-task/subtask-tag-operations.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
+import { SubTaskQueries } from '$lib/stores/sub-task/subtask-queries.svelte';
+import { SubTaskMutations } from '$lib/stores/sub-task/subtask-mutations.svelte';
+import { SubTaskTagOperations } from '$lib/stores/sub-task/subtask-tag-operations.svelte';
 
 /**
  * SubTaskStore - サブタスク管理のFacadeストア

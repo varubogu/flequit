@@ -1,8 +1,8 @@
 import type { RecurrenceDialogLogic } from './types';
-import type { RecurrenceState } from '../recurrence-state.svelte';
-import type { DateConditionManager } from '../../date-conditions/date-condition-manager.svelte';
-import type { WeekdayConditionManager } from '../../weekday-conditions/weekday-condition-manager.svelte';
-import type { RecurrencePreviewManager } from '../../preview/recurrence-preview-manager.svelte';
+import type { RecurrenceState } from '$lib/components/recurrence/dialogs/recurrence-state.svelte';
+import type { DateConditionManager } from '$lib/components/recurrence/date-conditions/date-condition-manager.svelte';
+import type { WeekdayConditionManager } from '$lib/components/recurrence/weekday-conditions/weekday-condition-manager.svelte';
+import type { RecurrencePreviewManager } from '$lib/components/recurrence/preview/recurrence-preview-manager.svelte';
 import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
 import type { DateCondition, WeekdayCondition, RecurrenceLevel } from '$lib/types/datetime-calendar';
 

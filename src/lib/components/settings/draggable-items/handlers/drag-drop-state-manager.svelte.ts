@@ -11,7 +11,7 @@ export interface DragState {
  * ドラッグ&ドロップ状態を管理するハンドラー
  */
 export function createDragDropStateManager() {
-	let dragState = $state<DragState>({
+	const dragState = $state<DragState>({
 		isDragging: false,
 		draggedItem: null,
 		dropZone: null,

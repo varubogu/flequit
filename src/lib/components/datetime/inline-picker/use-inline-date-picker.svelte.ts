@@ -3,10 +3,10 @@ import {
   initializeState,
   updateCurrentDate,
   updateCurrentStartDate
-} from './composables/state.svelte';
-import { createEventHandlers } from './composables/handlers.svelte';
-import { setupOutsideClickHandler } from './composables/outside-click.svelte';
-import { setupSyncEffects } from './composables/effects.svelte';
+} from '$lib/components/datetime/inline-picker/composables/state.svelte';
+import { createEventHandlers } from '$lib/components/datetime/inline-picker/composables/handlers.svelte';
+import { setupOutsideClickHandler } from '$lib/components/datetime/inline-picker/composables/outside-click.svelte';
+import { setupSyncEffects } from '$lib/components/datetime/inline-picker/composables/effects.svelte';
 
 // Re-export types for backward compatibility
 export type {
@@ -41,4 +41,3 @@ export function useInlineDatePicker(options: import('./composables/types').UseIn
     updateCurrentStartDate: (date?: string) => updateCurrentStartDate(state, date)
   };
 }
-

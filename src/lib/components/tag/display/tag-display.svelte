@@ -5,8 +5,8 @@
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
   import { tagStore } from '$lib/stores/tags.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import TagEditDialog from '../dialogs/tag-edit-dialog.svelte';
-  import TagDeleteDialog from '../dialogs/tag-delete-dialog.svelte';
+  import TagEditDialog from '$lib/components/tag/dialogs/tag-edit-dialog.svelte';
+  import TagDeleteDialog from '$lib/components/tag/dialogs/tag-delete-dialog.svelte';
   import { X, Bookmark, BookmarkPlus, Edit, Trash2, Minus } from 'lucide-svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';

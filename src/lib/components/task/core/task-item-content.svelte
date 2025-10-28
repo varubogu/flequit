@@ -7,9 +7,9 @@
   import TaskStatusToggle from '$lib/components/task/controls/task-status-toggle.svelte';
   import TaskContent from '$lib/components/task/core/task-content.svelte';
   import SubTaskList from '$lib/components/task/subtasks/sub-task-list.svelte';
-  import TaskAccordionToggle from '../controls/task-accordion-toggle.svelte';
+  import TaskAccordionToggle from '$lib/components/task/controls/task-accordion-toggle.svelte';
   import ContextMenuWrapper from '$lib/components/shared/context-menu-wrapper.svelte';
-  import type TaskDatePicker from '../forms/task-date-picker.svelte';
+  import type TaskDatePicker from '$lib/components/task/forms/task-date-picker.svelte';
 
   interface TaskItemLogic {
     task: TaskWithSubTasks;

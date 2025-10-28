@@ -3,6 +3,7 @@ import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
+import { SvelteDate } from 'svelte/reactivity';
 
 interface DatePickerState {
   show: boolean;
@@ -15,10 +16,10 @@ interface SubTaskDatePickerState extends DatePickerState {
 
 export function useTaskDatePickerController(task: TaskWithSubTasks) {
   // Main task date picker state
-  let mainState = $state<DatePickerState>({ show: false, position: { x: 0, y: 0 } });
+  const mainState = $state<DatePickerState>({ show: false, position: { x: 0, y: 0 } });
 
   // SubTask date picker state
-  let subTaskState = $state<SubTaskDatePickerState>({
+  const subTaskState = $state<SubTaskDatePickerState>({
     show: false,
     position: { x: 0, y: 0 },
     editingSubTaskId: null
@@ -78,13 +79,16 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
       if (range) {
         await taskMutations.updateTask(task.id, {
           ...task,
-          planStartDate: new Date(range.start),
-          planEndDate: new Date(range.end),
+          planStartDate: new SvelteDate(range.start),
+          planEndDate: new SvelteDate(range.end),
           isRangeDate: true,
           recurrenceRule: recurrenceRule ?? undefined
         });
       } else {
-        const currentEndDate = task.planEndDate || new Date(dateTime);
+        const currentEndDate =
+          task.planEndDate !== undefined
+            ? new SvelteDate(task.planEndDate)
+            : new SvelteDate(dateTime);
         await taskMutations.updateTask(task.id, {
           ...task,
           planStartDate: currentEndDate,
@@ -96,7 +100,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     } else {
       await taskMutations.updateTask(task.id, {
         ...task,
-        planEndDate: new Date(dateTime),
+        planEndDate: new SvelteDate(dateTime),
         planStartDate: undefined,
         isRangeDate: false,
         recurrenceRule: recurrenceRule ?? undefined
@@ -149,14 +153,17 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     if (isRangeDate) {
       if (range) {
         subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
-          planStartDate: new Date(range.start),
-          planEndDate: new Date(range.end),
+          planStartDate: new SvelteDate(range.start),
+          planEndDate: new SvelteDate(range.end),
           isRangeDate: true,
           recurrenceRule: recurrenceRule ?? undefined
         });
       } else {
         const subTask = task.subTasks[subTaskIndex];
-        const currentEndDate = subTask.planEndDate || new Date(dateTime);
+        const currentEndDate =
+          subTask.planEndDate !== undefined
+            ? new SvelteDate(subTask.planEndDate)
+            : new SvelteDate(dateTime);
         subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
@@ -166,7 +173,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
       }
     } else {
       subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
-        planEndDate: new Date(dateTime),
+        planEndDate: new SvelteDate(dateTime),
         planStartDate: undefined,
         isRangeDate: false,
         recurrenceRule: recurrenceRule ?? undefined

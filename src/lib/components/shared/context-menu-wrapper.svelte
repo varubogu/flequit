@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
-  import ContextMenuItems from './context-menu-items.svelte';
+  import ContextMenuItems from '$lib/components/shared/context-menu-items.svelte';
   import type { ContextMenuList } from '$lib/types/context-menu';
 
   interface Props {

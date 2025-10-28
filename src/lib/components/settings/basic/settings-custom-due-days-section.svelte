@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
-  import { useSettingsSection } from './hooks/use-settings-section.svelte';
+  import { useSettingsSection } from '$lib/components/settings/basic/hooks/use-settings-section.svelte';
 
   const { translationService } = useSettingsSection();
 

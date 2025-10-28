@@ -1,5 +1,5 @@
 import type { User as FullUser } from '$lib/types/user';
-import type { User } from './user-profile.svelte';
+import type { User } from '$lib/components/user/user-profile.svelte';
 
 /**
  * User profile controller

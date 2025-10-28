@@ -4,8 +4,8 @@
   import TagEditDialog from '$lib/components/tag/dialogs/tag-edit-dialog.svelte';
   import TagDeleteDialog from '$lib/components/tag/dialogs/tag-delete-dialog.svelte';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
-  import SidebarTagItem from './sidebar-tag-item.svelte';
-  import { useSidebarTagListController } from './sidebar-tag-list-controller.svelte';
+  import SidebarTagItem from '$lib/components/sidebar/sidebar-tag-item.svelte';
+  import { useSidebarTagListController } from '$lib/components/sidebar/sidebar-tag-list-controller.svelte';
 
   interface Props {
     currentView?: ViewType;

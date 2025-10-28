@@ -2,7 +2,7 @@ import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import type { ProjectTree } from '$lib/types/project';
 import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';
-import { errorHandler } from '../error-handler.svelte';
+import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 
 /**

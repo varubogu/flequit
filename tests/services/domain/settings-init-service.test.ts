@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { BackendService } from '$lib/infrastructure/backends';
 import type { Setting, Settings } from '$lib/types/settings';
-import { buildSetting, buildSettings } from '../../factories/domain';
+import { buildSetting } from '../../factories/domain';
 
 const createMockBackend = () => ({
   setting: {

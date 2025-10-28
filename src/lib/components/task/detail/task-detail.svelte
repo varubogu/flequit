@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import Card from '$lib/components/ui/card.svelte';
-  import TaskDetailContent from './task-detail-content.svelte';
-  import TaskDetailDialogs from '../dialogs/task-detail-dialogs.svelte';
+  import TaskDetailContent from '$lib/components/task/detail/task-detail-content.svelte';
+  import TaskDetailDialogs from '$lib/components/task/dialogs/task-detail-dialogs.svelte';
   import {
     TaskDetailViewStore,
     type TaskDetailDomainActions

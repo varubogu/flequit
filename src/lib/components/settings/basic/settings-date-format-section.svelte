@@ -3,7 +3,7 @@
   import Input from '$lib/components/ui/input.svelte';
   import { format } from 'date-fns';
   import DateFormatEditor from '$lib/components/settings/date-format/date-format-editor.svelte';
-  import { useSettingsSection } from './hooks/use-settings-section.svelte';
+  import { useSettingsSection } from '$lib/components/settings/basic/hooks/use-settings-section.svelte';
 
   interface Props {
     dateFormat: string;

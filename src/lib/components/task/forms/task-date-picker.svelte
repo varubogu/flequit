@@ -2,7 +2,7 @@
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import InlineDatePicker from '$lib/components/datetime/inline-picker/inline-date-picker.svelte';
-  import { useTaskDatePickerController } from './task-date-picker/controller.svelte';
+  import { useTaskDatePickerController } from '$lib/components/task/forms/task-date-picker/controller.svelte';
 
   interface Props {
     task: TaskWithSubTasks;

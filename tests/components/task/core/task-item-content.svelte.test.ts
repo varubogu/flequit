@@ -2,7 +2,7 @@ import { render } from '@testing-library/svelte';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
 import type TaskDatePicker from '$lib/components/task/forms/task-date-picker.svelte';
-import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import type { ContextMenuList } from '$lib/types/context-menu';
 import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';

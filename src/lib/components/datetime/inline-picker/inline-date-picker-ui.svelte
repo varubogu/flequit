@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Switch } from '$lib/components/ui/switch';
   import { CalendarDate } from '@internationalized/date';
-  import DateTimeInputs from '../date-inputs/date-time-inputs.svelte';
-  import CalendarPicker from '../calendar/calendar-picker.svelte';
+  import DateTimeInputs from '$lib/components/datetime/date-inputs/date-time-inputs.svelte';
+  import CalendarPicker from '$lib/components/datetime/calendar/calendar-picker.svelte';
   import TaskRecurrenceSelector from '$lib/components/task/forms/task-recurrence-selector.svelte';
   import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 

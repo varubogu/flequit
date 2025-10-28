@@ -3,6 +3,9 @@ import { TaskItemHandlers } from '$lib/components/task/core/task-item-handlers.s
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { createMockTaskWithSubTasks } from '../../../utils/mock-factories';
+import type { TaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
+
+type TaskDetailStoreMock = Pick<TaskDetailUiStore, 'openTaskDetail' | 'openSubTaskDetail'>;
 
 // Mock dependencies
 vi.mock('$lib/stores/tasks.svelte', () => ({
@@ -38,7 +41,8 @@ describe('TaskItemHandlers', () => {
 	let handlers: TaskItemHandlers;
 	let mockTask: TaskWithSubTasks;
 	let mockSubTask: SubTask;
-	let mockTaskDetailUiStore: any;
+	let mockTaskDetailUiStore: TaskDetailUiStore;
+	let taskDetailHandlerMocks: TaskDetailStoreMock;
 	let mockDispatch: ReturnType<typeof vi.fn>;
 	let mockCallbacks: {
 		onTaskClick?: (taskId: string) => void;
@@ -71,10 +75,11 @@ describe('TaskItemHandlers', () => {
 
 		mockSubTask = mockTask.subTasks[0];
 
-		mockTaskDetailUiStore = {
+		taskDetailHandlerMocks = {
 			openTaskDetail: vi.fn(),
 			openSubTaskDetail: vi.fn()
 		};
+		mockTaskDetailUiStore = taskDetailHandlerMocks as unknown as TaskDetailUiStore;
 
 		mockDispatch = vi.fn();
 		mockCallbacks = {};
@@ -91,7 +96,7 @@ describe('TaskItemHandlers', () => {
 		it('タスク詳細画面を開く', () => {
 			handlers.handleEditTask();
 
-			expect(mockTaskDetailUiStore.openTaskDetail).toHaveBeenCalledWith('task-1');
+			expect(taskDetailHandlerMocks.openTaskDetail).toHaveBeenCalledWith('task-1');
 		});
 	});
 
@@ -153,7 +158,7 @@ describe('TaskItemHandlers', () => {
 		it('サブタスク詳細画面を開く', () => {
 			handlers.handleEditSubTask(mockSubTask);
 
-			expect(mockTaskDetailUiStore.openSubTaskDetail).toHaveBeenCalledWith('subtask-1');
+			expect(taskDetailHandlerMocks.openSubTaskDetail).toHaveBeenCalledWith('subtask-1');
 		});
 	});
 

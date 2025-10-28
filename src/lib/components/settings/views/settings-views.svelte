@@ -2,7 +2,7 @@
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import Button from '$lib/components/shared/button.svelte';
   import SettingsDraggableItems from '$lib/components/settings/draggable-items/settings-draggable-items.svelte';
-  import ConfirmDialog from '../../dialog/confirm-dialog.svelte';
+  import ConfirmDialog from '$lib/components/dialog/confirm-dialog.svelte';
   import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
   import { RotateCcw } from 'lucide-svelte';
 

@@ -1,4 +1,4 @@
-import type { RecurrenceState } from '../recurrence-state.svelte';
+import type { RecurrenceState } from '$lib/components/recurrence/dialogs/recurrence-state.svelte';
 import type { RecurrenceLevel } from '$lib/types/datetime-calendar';
 import type { RecurrenceUnit, DayOfWeek, RecurrencePattern } from '$lib/types/recurrence';
 

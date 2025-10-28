@@ -1,18 +1,14 @@
-import { RecurrenceState } from './recurrence-state.svelte';
-import { DateConditionManager } from '../date-conditions/date-condition-manager.svelte';
-import { WeekdayConditionManager } from '../weekday-conditions/weekday-condition-manager.svelte';
-import { RecurrenceRuleBuilder } from './recurrence-rule-builder.svelte';
-import { RecurrencePreviewManager } from '../preview/recurrence-preview-manager.svelte';
-import { RecurrenceInitializer } from './recurrence-initializer.svelte';
+import { RecurrenceState } from '$lib/components/recurrence/dialogs/recurrence-state.svelte';
+import { DateConditionManager } from '$lib/components/recurrence/date-conditions/date-condition-manager.svelte';
+import { WeekdayConditionManager } from '$lib/components/recurrence/weekday-conditions/weekday-condition-manager.svelte';
+import { RecurrenceRuleBuilder } from '$lib/components/recurrence/dialogs/recurrence-rule-builder.svelte';
+import { RecurrencePreviewManager } from '$lib/components/recurrence/preview/recurrence-preview-manager.svelte';
+import { RecurrenceInitializer } from '$lib/components/recurrence/dialogs/recurrence-initializer.svelte';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import {
-  type RecurrenceDialogFacade,
-  type RecurrenceDialogLogic,
-  type RecurrenceDialogOptions
-} from './facade-parts/types';
-import { createStateSetters } from './facade-parts/state-setters.svelte';
-import { buildDialogLogic } from './facade-parts/logic-builder.svelte';
-import { setupPreviewEffect, setupAutoSaveEffect } from './facade-parts/effects.svelte';
+import { type RecurrenceDialogFacade, type RecurrenceDialogOptions } from './facade-parts/types';
+import { createStateSetters } from '$lib/components/recurrence/dialogs/facade-parts/state-setters.svelte';
+import { buildDialogLogic } from '$lib/components/recurrence/dialogs/facade-parts/logic-builder.svelte';
+import { setupPreviewEffect, setupAutoSaveEffect } from '$lib/components/recurrence/dialogs/facade-parts/effects.svelte';
 
 // Re-export types for backward compatibility
 export type {

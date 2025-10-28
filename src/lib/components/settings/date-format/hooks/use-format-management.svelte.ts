@@ -1,6 +1,6 @@
 import { dateTimeFormatStore } from '$lib/stores/datetime-format.svelte';
 import { toast } from 'svelte-sonner';
-import type { DateFormatEditorController } from '../date-format-editor-controller.svelte';
+import type { DateFormatEditorController } from '$lib/components/settings/date-format/date-format-editor-controller.svelte';
 
 export function useFormatManagement(controller: DateFormatEditorController) {
   async function saveFormat() {

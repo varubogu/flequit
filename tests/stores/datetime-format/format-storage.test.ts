@@ -1,5 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FormatStorage } from '$lib/stores/datetime-format/format-storage';
+import type { CustomDateFormat } from '$lib/types/settings';
+import type { CustomDateFormatService } from '$lib/infrastructure/backends/tauri/custom-date-format-tauri-service';
 
 // localStorageのモック
 const localStorageMock = (() => {
@@ -101,10 +103,16 @@ describe('FormatStorage', () => {
 
 		it('Tauriエラー時は空配列を返す', async () => {
 			// エラーを返すカスタムサービスでストレージを作成
-			const errorStorage = new FormatStorage();
-			(errorStorage as any).customDateFormatService = {
-				getAll: vi.fn(() => Promise.reject(new Error('Tauri error')))
+			const errorService: CustomDateFormatService = {
+				create: vi.fn(async (_format: CustomDateFormat) => null),
+				get: vi.fn(async (_id: string) => null),
+				getAll: vi.fn(async () => {
+					throw new Error('Tauri error');
+				}),
+				update: vi.fn(async (_format: CustomDateFormat) => null),
+				delete: vi.fn(async (_id: string) => false)
 			};
+			const errorStorage = new FormatStorage(errorService);
 
 			const formats = await errorStorage.loadCustomFormatsFromTauri();
 

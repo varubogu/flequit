@@ -1,10 +1,10 @@
 import { tagStore } from '$lib/stores/tags.svelte';
 import type { Tag } from '$lib/types/tag';
-import { TagCompletionPosition } from './tag-completion-position.svelte';
-import { TagNameUtils } from '../utils/tag-name-utils.svelte';
-import { TagParser } from '../utils/tag-parser.svelte';
-import { TagElementUpdater } from '../utils/tag-element-updater.svelte';
-import type { TagDetectionData } from '../utils/tag-element-updater.svelte';
+import { TagCompletionPosition } from '$lib/components/tag/completion/tag-completion-position.svelte';
+import { TagNameUtils } from '$lib/components/tag/utils/tag-name-utils.svelte';
+import { TagParser } from '$lib/components/tag/utils/tag-parser.svelte';
+import { TagElementUpdater } from '$lib/components/tag/utils/tag-element-updater.svelte';
+import type { TagDetectionData } from '$lib/components/tag/utils/tag-element-updater.svelte';
 
 /**
  * Tag completion state and logic

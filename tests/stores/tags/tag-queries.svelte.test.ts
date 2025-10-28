@@ -5,7 +5,9 @@ import type { Tag } from '$lib/types/tag';
 // TagServiceのモック
 vi.mock('$lib/services/domain/tag', () => ({
 	TagService: {
-		getProjectIdByTagId: vi.fn((tagId: string) => Promise.resolve('project-1'))
+		getProjectIdByTagId: vi.fn((tagId: string) =>
+			Promise.resolve(tagId === 'tag-1' ? 'project-1' : null)
+		)
 	}
 }));
 

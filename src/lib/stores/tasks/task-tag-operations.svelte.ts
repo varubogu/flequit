@@ -1,8 +1,7 @@
-import type { TaskWithSubTasks } from '$lib/types/task';
 import type { Tag } from '$lib/types/tag';
 import { SvelteDate } from 'svelte/reactivity';
-import type { TaskEntitiesStore } from './task-entities-store.svelte';
-import type { TaskDraftStore } from './task-draft-store.svelte';
+import type { TaskEntitiesStore } from '$lib/stores/tasks/task-entities-store.svelte';
+import type { TaskDraftStore } from '$lib/stores/tasks/task-draft-store.svelte';
 
 /**
  * タスクのタグ操作

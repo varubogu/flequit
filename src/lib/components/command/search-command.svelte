@@ -1,12 +1,12 @@
 <script lang="ts">
   import * as Command from '$lib/components/ui/command/index.js';
-  import CommandSearchItem from './command-search-item.svelte';
-  import CommandTaskItem from './command-task-item.svelte';
-  import CommandQuickActions from './command-quick-actions.svelte';
-  import { createSearchMessages } from './search-command-messages.svelte';
+  import CommandSearchItem from '$lib/components/command/command-search-item.svelte';
+  import CommandTaskItem from '$lib/components/command/command-task-item.svelte';
+  import CommandQuickActions from '$lib/components/command/command-quick-actions.svelte';
+  import { createSearchMessages } from '$lib/components/command/search-command-messages.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
-import { taskInteractions } from '$lib/services/ui/task';
+  import { taskInteractions } from '$lib/services/ui/task';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
 
   import { viewStore } from '$lib/stores/view-store.svelte';

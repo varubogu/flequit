@@ -1,7 +1,7 @@
 <script lang="ts">
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { X } from 'lucide-svelte';
-  import DayTargetSelector from '../calendar/day-target-selector.svelte';
+  import DayTargetSelector from '$lib/components/datetime/calendar/day-target-selector.svelte';
   import type { WeekdayCondition } from '$lib/types/datetime-calendar';
   import type { AdjustmentTarget } from '$lib/types/datetime-calendar';
   import type { AdjustmentDirection } from '$lib/types/datetime-calendar';

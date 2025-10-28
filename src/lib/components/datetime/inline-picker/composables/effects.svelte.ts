@@ -1,5 +1,8 @@
 import type { InlineDatePickerState, UseInlineDatePickerOptions } from './types';
-import { updateCurrentDate, updateCurrentStartDate } from './state.svelte';
+import {
+  updateCurrentDate,
+  updateCurrentStartDate
+} from '$lib/components/datetime/inline-picker/composables/state.svelte';
 
 export function setupSyncEffects(
   state: InlineDatePickerState,

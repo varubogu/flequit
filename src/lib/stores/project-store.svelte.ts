@@ -1,8 +1,8 @@
 import type { IProjectStore } from '$lib/types/store-interfaces';
 import type { Project, ProjectTree } from '$lib/types/project';
 import type { ISelectionStore } from '$lib/types/store-interfaces';
-import { selectionStore } from './selection-store.svelte';
-import { tagStore } from './tags.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
+import { tagStore } from '$lib/stores/tags.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
 

@@ -5,11 +5,11 @@
   import { calculateSubTaskProgress } from '$lib/utils/task-utils';
   import { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
   import { createEventDispatcher } from 'svelte';
-  import TaskDatePicker from '../forms/task-date-picker.svelte';
-  import TaskItemContent from './task-item-content.svelte';
-  import { TaskItemHandlers } from './task-item-handlers.svelte';
-  import { TaskItemDragDrop } from './task-item-drag-drop.svelte';
-  import { TaskItemContextMenu } from './task-item-context-menu.svelte';
+  import TaskDatePicker from '$lib/components/task/forms/task-date-picker.svelte';
+  import TaskItemContent from '$lib/components/task/core/task-item-content.svelte';
+  import { TaskItemHandlers } from '$lib/components/task/core/task-item-handlers.svelte';
+  import { TaskItemDragDrop } from '$lib/components/task/core/task-item-drag-drop.svelte';
+  import { TaskItemContextMenu } from '$lib/components/task/core/task-item-context-menu.svelte';
 
   interface Props {
     task: TaskWithSubTasks;

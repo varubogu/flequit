@@ -1,7 +1,7 @@
 import type { DragDropState } from '@thisux/sveltednd';
-import { useViewsVisibilityStore, type ViewItem } from '$lib/hooks/use-views-visibility-store.svelte';
-import { createDragDropStateManager } from './handlers/drag-drop-state-manager.svelte';
-import { createItemsReorderHandler } from './handlers/items-reorder-handler.svelte';
+import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
+import { createDragDropStateManager } from '$lib/components/settings/draggable-items/handlers/drag-drop-state-manager.svelte';
+import { createItemsReorderHandler } from '$lib/components/settings/draggable-items/handlers/items-reorder-handler.svelte';
 
 /**
  * ドラッグ可能なアイテムリストのコントローラー

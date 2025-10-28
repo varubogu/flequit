@@ -1,6 +1,6 @@
-import { TaskDetailDialogsStore } from './task-detail/task-detail-dialogs-store.svelte';
-import { TaskDetailViewState } from './task-detail/task-detail-view-state.svelte';
-import { TaskEditFormStore } from './task-detail/task-edit-form-store.svelte';
+import { TaskDetailDialogsStore } from '$lib/stores/task-detail/task-detail-dialogs-store.svelte';
+import { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
+import { TaskEditFormStore } from '$lib/stores/task-detail/task-edit-form-store.svelte';
 import type { TaskDetailDomainActions } from './task-detail/task-detail-types';
 
 export type TaskDetailViewStoreOptions = {

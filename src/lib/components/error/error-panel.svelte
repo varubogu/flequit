@@ -1,6 +1,6 @@
 <script lang="ts">
   import { errorHandler } from '$lib/stores/error-handler.svelte';
-  import ErrorToast from './error-toast.svelte';
+  import ErrorToast from '$lib/components/error/error-toast.svelte';
 
   const errors = $derived(errorHandler.errors);
 </script>

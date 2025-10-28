@@ -1,13 +1,13 @@
 <script lang="ts">
-  import DateFormatEditorHeader from './date-format-editor-header.svelte';
-  import TestDatetimeSection from './test-datetime-section.svelte';
-  import MainDateFormatSection from './main-date-format-section.svelte';
-  import FormatCopyButtons from './format-copy-buttons.svelte';
-  import TestFormatSection from './test-format-section.svelte';
-  import CustomFormatControls from './custom-format-controls.svelte';
-  import DeleteFormatDialog from './delete-format-dialog.svelte';
-  import { DateFormatEditorController } from './date-format-editor-controller.svelte';
-  import { useFormatManagement } from './hooks/use-format-management.svelte';
+  import DateFormatEditorHeader from '$lib/components/settings/date-format/date-format-editor-header.svelte';
+  import TestDatetimeSection from '$lib/components/settings/date-format/test-datetime-section.svelte';
+  import MainDateFormatSection from '$lib/components/settings/date-format/main-date-format-section.svelte';
+  import FormatCopyButtons from '$lib/components/settings/date-format/format-copy-buttons.svelte';
+  import TestFormatSection from '$lib/components/settings/date-format/test-format-section.svelte';
+  import CustomFormatControls from '$lib/components/settings/date-format/custom-format-controls.svelte';
+  import DeleteFormatDialog from '$lib/components/settings/date-format/delete-format-dialog.svelte';
+  import { DateFormatEditorController } from '$lib/components/settings/date-format/date-format-editor-controller.svelte';
+  import { useFormatManagement } from '$lib/components/settings/date-format/hooks/use-format-management.svelte';
 
   interface Props {
     open: boolean;

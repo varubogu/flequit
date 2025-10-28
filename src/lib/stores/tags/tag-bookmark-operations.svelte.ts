@@ -1,6 +1,6 @@
 import type { Tag } from '$lib/types/tag';
-import { tagStore as tagStoreInternal } from './tag-store.svelte';
-import { TagBookmarkStore } from './tag-bookmark-store.svelte';
+import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
+import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
 import { TagService } from '$lib/services/domain/tag';
 
 /**

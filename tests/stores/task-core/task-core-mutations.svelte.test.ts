@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskCoreMutations } from '$lib/stores/task-core/task-core-mutations.svelte';
 import type { ProjectTree } from '$lib/types/project';
-import type { Task } from '$lib/types/task';
+import type { TaskWithSubTasks } from '$lib/types/task';
 
 const createMockProjects = (): ProjectTree[] => {
 	return [
@@ -260,7 +260,7 @@ describe('TaskCoreMutations', () => {
 
 	describe('insertTask', () => {
 		it('タスクを挿入できる', () => {
-			const taskToInsert: any = {
+			const taskToInsert: TaskWithSubTasks = {
 				id: 'new-task',
 				projectId: 'project-1',
 				listId: 'list-1',
@@ -285,7 +285,7 @@ describe('TaskCoreMutations', () => {
 		});
 
 		it('指定位置にタスクを挿入できる', () => {
-			const task2: any = {
+			const task2: TaskWithSubTasks = {
 				id: 'task-2',
 				projectId: 'project-1',
 				listId: 'list-1',
@@ -305,7 +305,7 @@ describe('TaskCoreMutations', () => {
 
 			mutations.insertTask('list-1', task2);
 
-			const taskToInsert: any = {
+			const taskToInsert: TaskWithSubTasks = {
 				id: 'new-task',
 				projectId: 'project-1',
 				listId: 'list-1',
@@ -329,7 +329,7 @@ describe('TaskCoreMutations', () => {
 		});
 
 		it('存在しないリストへの挿入はnullを返す', () => {
-			const taskToInsert: any = {
+			const taskToInsert: TaskWithSubTasks = {
 				id: 'new-task',
 				projectId: 'project-1',
 				listId: 'list-1',

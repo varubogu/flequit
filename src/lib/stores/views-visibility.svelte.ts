@@ -1,6 +1,7 @@
-import { getTranslationService } from './locale.svelte';
+import { getTranslationService } from '$lib/stores/locale.svelte';
 import { settingsInitService } from '$lib/services/domain/settings';
 import type { Setting } from '$lib/types/settings';
+import { SvelteDate, SvelteMap, SvelteSet } from 'svelte/reactivity';
 
 const translationService = getTranslationService();
 
@@ -96,7 +97,9 @@ export class ViewsVisibilityStore {
       ...visible.map((item, index) => ({ ...item, visible: true, order: index })),
       ...hidden.map((item, index) => ({ ...item, visible: false, order: visible.length + index }))
     ];
-    const itemMap = new Map(allItemsFromUI.map((i) => [i.id, i]));
+    const itemMap = new SvelteMap<string, ViewItem>(
+      allItemsFromUI.map((item) => [item.id, item] as const)
+    );
 
     const newViewItems = this._configuration.viewItems
       .map((originalItem) => {
@@ -121,7 +124,9 @@ export class ViewsVisibilityStore {
       if (viewsSetting) {
         const parsedConfig = JSON.parse(viewsSetting.value);
         // Merge with defaults to handle new view items
-        const existingIds = new Set(parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []);
+        const existingIds = new SvelteSet<string>(
+          parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+        );
         const mergedItems = [
           ...(parsedConfig.viewItems || []),
           ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
@@ -141,9 +146,9 @@ export class ViewsVisibilityStore {
           if (stored) {
             const parsedConfig = JSON.parse(stored);
             // Merge with defaults to handle new view items
-            const existingIds = new Set(
-              parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
-            );
+            const existingIds = new SvelteSet<string>(
+                parsedConfig.viewItems?.map((item: ViewItem) => item.id) || []
+              );
             const mergedItems = [
               ...(parsedConfig.viewItems || []),
               ...DEFAULT_VIEW_ITEMS.filter((item) => !existingIds.has(item.id))
@@ -181,8 +186,8 @@ export class ViewsVisibilityStore {
         key: 'views_visibility',
         value: JSON.stringify(this._configuration),
         dataType: 'json',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new SvelteDate(),
+        updatedAt: new SvelteDate()
       };
 
       await settingsInitService.updateSetting(setting);

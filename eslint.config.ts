@@ -39,12 +39,26 @@ export default tseslint.config(
       'no-restricted-syntax': [
         'error',
         {
-          selector:
-            "ImportDeclaration[source.value=/^\\\.{1,2}/][source.value=/\\.svelte(\\?|$)/]",
+          selector: 'ImportDeclaration[source.value=/^\\./][source.value=/\\.svelte(\\?|$)/]',
           message:
             'Svelteコンポーネントを相対パスでimportすることは禁止です。エイリアス（例: $lib/components/...）を使用してください。エイリアスが存在しない場合のみコメントで理由を示した上で例外としてください。'
         }
       ]
+    }
+  },
+  {
+    files: ['tests/**/*.{ts,tsx,svelte,svelte.ts}'],
+    linterOptions: {
+      reportUnusedDisableDirectives: 'off'
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'all' }
+      ],
+      'svelte/no-svelte-internal': 'off'
     }
   },
   // Components層からInfrastructure層への参照を禁止

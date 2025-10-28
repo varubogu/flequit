@@ -2,8 +2,8 @@
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import ProjectDialog from '$lib/components/project/project-dialog.svelte';
   import TaskListDialog from '$lib/components/task/dialogs/task-list-dialog.svelte';
-  import ProjectListContent from './project-list-content.svelte';
-  import { useProjectListController } from './project-list-controller.svelte';
+  import ProjectListContent from '$lib/components/project/project-list-content.svelte';
+  import { useProjectListController } from '$lib/components/project/project-list-controller.svelte';
 
   interface Props {
     currentView?: ViewType;

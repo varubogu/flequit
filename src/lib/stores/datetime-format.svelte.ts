@@ -1,11 +1,7 @@
 import { getLocale } from '$paraglide/runtime';
-import type {
-	DateTimeFormat,
-	AppPresetFormat,
-	CustomDateTimeFormat
-} from '$lib/types/datetime-format';
+import type { DateTimeFormat, CustomDateTimeFormat } from '$lib/types/datetime-format';
 import { getDefaultFormat, getPresetFormats, getCustomEntry } from './datetime-format/format-presets';
-import { FormatMutations } from './datetime-format/format-mutations.svelte';
+import { FormatMutations } from '$lib/stores/datetime-format/format-mutations.svelte';
 import { FormatStorage } from './datetime-format/format-storage';
 
 /**

@@ -8,8 +8,8 @@ import type { ContextMenuList } from '$lib/types/context-menu';
 import { createContextMenu, createSeparator } from '$lib/types/context-menu';
 import { Edit, Plus, Trash2 } from 'lucide-svelte';
 import { ProjectCompositeService } from '$lib/services/composite/project-composite';
-import { createProjectDragDropHandler } from './handlers/project-drag-drop-handler.svelte';
-import { createProjectDialogManager } from './handlers/project-dialog-manager.svelte';
+import { createProjectDragDropHandler } from '$lib/components/project/handlers/project-drag-drop-handler.svelte';
+import { createProjectDialogManager } from '$lib/components/project/handlers/project-dialog-manager.svelte';
 
 export interface ProjectListLogic {
   expandedProjects: SvelteSet<string>;

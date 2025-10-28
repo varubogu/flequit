@@ -17,7 +17,7 @@ interface DialogState {
 
 export function useSidebarTagListController() {
   // Dialog state
-  let dialogState = $state<DialogState>({
+  const dialogState = $state<DialogState>({
     selectedTag: null,
     showEditDialog: false,
     showDeleteConfirm: false

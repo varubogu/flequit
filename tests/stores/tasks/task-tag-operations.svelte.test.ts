@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TaskTagOperations } from '$lib/stores/tasks/task-tag-operations.svelte';
-import { TaskEntitiesStore } from '$lib/stores/tasks/task-entities-store.svelte';
-import { TaskDraftStore } from '$lib/stores/tasks/task-draft-store.svelte';
 import type { Tag } from '$lib/types/tag';
 import type { TaskWithSubTasks } from '$lib/types/task';
 

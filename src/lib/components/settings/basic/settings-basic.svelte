@@ -1,9 +1,9 @@
 <script lang="ts">
   import TimeLabelsEditor from '$lib/components/settings/date-format/time-labels-editor.svelte';
-  import SettingsGeneralSection from './settings-general-section.svelte';
-  import SettingsDateFormatSection from './settings-date-format-section.svelte';
-  import SettingsCustomDueDaysSection from './settings-custom-due-days-section.svelte';
-  import { useSettingsSection } from './hooks/use-settings-section.svelte';
+  import SettingsGeneralSection from '$lib/components/settings/basic/settings-general-section.svelte';
+  import SettingsDateFormatSection from '$lib/components/settings/basic/settings-date-format-section.svelte';
+  import SettingsCustomDueDaysSection from '$lib/components/settings/basic/settings-custom-due-days-section.svelte';
+  import { useSettingsSection } from '$lib/components/settings/basic/hooks/use-settings-section.svelte';
 
   interface Props {
     settings: {

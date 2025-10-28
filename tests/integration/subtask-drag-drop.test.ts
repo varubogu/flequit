@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
 import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
 import type { ProjectTree } from '$lib/types/project';
-import type { TaskWithSubTasks } from '$lib/types/task';
-import type { SubTaskWithTags } from '$lib/types/sub-task';
+import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
+import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
 
 type DragDropEnv = ReturnType<typeof createDragDropEnvironment>;
@@ -101,18 +101,24 @@ function createDragDropEnvironment() {
   ];
 
   const subTaskStoreMock = {
-    addSubTask: vi.fn(async (taskId: string, data: Partial<SubTaskWithTags>) => {
-      if (taskId !== task.id) return null;
-      const newSub = createSubTask({
-        id: genId('sub'),
-        taskId,
-        title: data.title ?? 'New SubTask',
-        priority: data.priority ?? 0
-      });
-      task.subTasks.push(newSub);
-      return newSub;
-    }),
-    updateSubTask: vi.fn(async (subTaskId: string, updates: Partial<SubTaskWithTags>) => {
+    addSubTask: vi.fn(
+      async (
+        taskId: string,
+        subTaskInput: { title: string; description?: string; status?: string; priority?: number }
+      ) => {
+        if (taskId !== task.id) return null;
+        const newSub = createSubTask({
+          id: genId('sub'),
+          taskId,
+          title: subTaskInput.title ?? 'New SubTask',
+          priority: subTaskInput.priority ?? 0,
+          status: (subTaskInput.status as TaskStatus | undefined) ?? 'not_started'
+        });
+        task.subTasks.push(newSub);
+        return newSub;
+      }
+    ),
+    updateSubTask: vi.fn(async (subTaskId: string, updates: Partial<SubTask>) => {
       const sub = task.subTasks.find((item) => item.id === subTaskId);
       if (!sub) return;
       Object.assign(sub, updates, { updatedAt: new Date() });
@@ -170,14 +176,18 @@ function createDragDropEnvironment() {
     addSyncError: vi.fn()
   };
 
-  const mutations = new SubTaskMutations({
-    taskStore: taskStoreMock as any,
-    taskCoreStore: { updateTask: vi.fn() } as any,
-    subTaskStore: subTaskStoreMock as any,
-    tagStore: { tags } as any,
-    taggingService: taggingServiceMock as any,
-    errorHandler: errorHandlerMock as any
-  });
+  const dependencies: ConstructorParameters<typeof SubTaskMutations>[0] = {
+    taskStore: taskStoreMock,
+    taskCoreStore: {
+      updateTask: vi.fn(() => true)
+    },
+    subTaskStore: subTaskStoreMock,
+    tagStore: { tags },
+    taggingService: taggingServiceMock,
+    errorHandler: errorHandlerMock
+  };
+
+  const mutations = new SubTaskMutations(dependencies);
 
   const subTask = createSubTask({ id: 'subtask-1', title: 'Initial' });
   task.subTasks.push(subTask);

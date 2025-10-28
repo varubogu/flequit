@@ -31,7 +31,7 @@
   import { mergeProps } from 'bits-ui';
   import type { ComponentProps, Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import { useSidebar } from './context.svelte.js';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   let {
     ref = $bindable(null),

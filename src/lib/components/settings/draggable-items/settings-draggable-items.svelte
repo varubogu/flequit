@@ -2,7 +2,7 @@
   import { draggable, droppable } from '@thisux/sveltednd';
   import { GripVertical } from 'lucide-svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
-  import { useSettingsDraggableItemsController } from './settings-draggable-items-controller.svelte';
+  import { useSettingsDraggableItemsController } from '$lib/components/settings/draggable-items/settings-draggable-items-controller.svelte';
 
   // Controller
   const controller = useSettingsDraggableItemsController();

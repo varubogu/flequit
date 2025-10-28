@@ -2,7 +2,7 @@
   import Select from '$lib/components/ui/select.svelte';
   import { localeStore } from '$lib/stores/locale.svelte';
   import { getAvailableTimezones } from '$lib/stores/settings.svelte';
-  import { useSettingsSection } from './hooks/use-settings-section.svelte';
+  import { useSettingsSection } from '$lib/components/settings/basic/hooks/use-settings-section.svelte';
   import type { WeekStart } from '$lib/types/settings';
 
   interface Props {

@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TaskListOrdering } from '$lib/stores/task-list/task-list-ordering.svelte';
-import type { IProjectStore } from '$lib/stores/types/project-store.interface';
-import type { ProjectWithLists, TaskListWithTasks } from '$lib/types';
+import type { IProjectStore } from '$lib/types/store-interfaces';
+import type { ProjectTree } from '$lib/types/project';
+import type { TaskListWithTasks } from '$lib/types/task-list';
 
 // TaskListService のモック
 vi.mock('$lib/services/domain/task-list', () => ({
@@ -18,85 +18,81 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 	}
 }));
 
-const createMockProjectStore = (): IProjectStore => {
-	const mockProjects: ProjectWithLists[] = [
-		{
-			id: 'project-1',
-			name: 'Project 1',
-			description: 'Description 1',
-			color: '#FF0000',
-			icon: 'icon-1',
-			order: 0,
-			createdAt: new Date('2024-01-01'),
-			updatedAt: new Date('2024-01-01'),
-			taskLists: [
-				{
-					id: 'list-1',
-					projectId: 'project-1',
-					name: 'List 1',
-					description: 'Description 1',
-					order: 0,
-					orderIndex: 0,
-					createdAt: new Date('2024-01-01'),
-					updatedAt: new Date('2024-01-01'),
-					tasks: []
-				},
-				{
-					id: 'list-2',
-					projectId: 'project-1',
-					name: 'List 2',
-					description: 'Description 2',
-					order: 1,
-					orderIndex: 1,
-					createdAt: new Date('2024-01-02'),
-					updatedAt: new Date('2024-01-02'),
-					tasks: []
-				},
-				{
-					id: 'list-3',
-					projectId: 'project-1',
-					name: 'List 3',
-					description: 'Description 3',
-					order: 2,
-					orderIndex: 2,
-					createdAt: new Date('2024-01-03'),
-					updatedAt: new Date('2024-01-03'),
-					tasks: []
-				}
-			]
-		},
-		{
-			id: 'project-2',
-			name: 'Project 2',
-			description: 'Description 2',
-			color: '#00FF00',
-			icon: 'icon-2',
-			order: 1,
-			createdAt: new Date('2024-01-04'),
-			updatedAt: new Date('2024-01-04'),
-			taskLists: [
-				{
-					id: 'list-4',
-					projectId: 'project-2',
-					name: 'List 4',
-					description: 'Description 4',
-					order: 0,
-					orderIndex: 0,
-					createdAt: new Date('2024-01-04'),
-					updatedAt: new Date('2024-01-04'),
-					tasks: []
-				}
-			]
-		}
-	];
+const createTaskList = (overrides: Partial<TaskListWithTasks>): TaskListWithTasks => ({
+	id: overrides.id ?? 'list-1',
+	projectId: overrides.projectId ?? 'project-1',
+	name: overrides.name ?? 'List',
+	description: overrides.description ?? '',
+	color: overrides.color,
+	orderIndex: overrides.orderIndex ?? 0,
+	isArchived: overrides.isArchived ?? false,
+	createdAt: overrides.createdAt ?? new Date(),
+	updatedAt: overrides.updatedAt ?? new Date(),
+	tasks: overrides.tasks ?? []
+});
 
-	return {
-		projects: mockProjects,
-		addProject: vi.fn(),
-		updateProject: vi.fn(),
-		deleteProject: vi.fn(),
-		reorderProjects: vi.fn()
+const createProject = (overrides: Partial<ProjectTree>): ProjectTree => ({
+	id: overrides.id ?? 'project-1',
+	name: overrides.name ?? 'Project',
+	description: overrides.description ?? '',
+	color: overrides.color,
+	orderIndex: overrides.orderIndex ?? 0,
+	isArchived: overrides.isArchived ?? false,
+	createdAt: overrides.createdAt ?? new Date(),
+	updatedAt: overrides.updatedAt ?? new Date(),
+	status: overrides.status,
+	ownerId: overrides.ownerId,
+	allTags: overrides.allTags,
+	taskLists: overrides.taskLists ?? []
+});
+
+const createMockProjectStore = (): IProjectStore => {
+	const project1 = createProject({
+		id: 'project-1',
+		name: 'Project 1',
+		color: '#FF0000',
+		orderIndex: 0,
+		taskLists: [
+			createTaskList({ id: 'list-1', name: 'List 1', orderIndex: 0 }),
+			createTaskList({ id: 'list-2', name: 'List 2', orderIndex: 1 }),
+			createTaskList({ id: 'list-3', name: 'List 3', orderIndex: 2 })
+		]
+	});
+
+	const project2 = createProject({
+		id: 'project-2',
+		name: 'Project 2',
+		color: '#00FF00',
+		orderIndex: 1,
+		taskLists: [createTaskList({ id: 'list-4', projectId: 'project-2', name: 'List 4', orderIndex: 0 })]
+	});
+
+	const projects: ProjectTree[] = [project1, project2];
+
+	const store: IProjectStore = {
+		projects,
+		selectedProject: null,
+		addProjectToStore: vi.fn((project: ProjectTree) => {
+			projects.push(project);
+			return project;
+		}),
+		updateProjectInStore: vi.fn(() => null),
+		removeProjectFromStore: vi.fn(() => false),
+		reorderProjectsInStore: vi.fn(() => projects),
+		moveProjectToPositionInStore: vi.fn(() => projects),
+		getProjectById: vi.fn((id: string) => projects.find((p) => p.id === id) ?? null),
+		loadProjects: vi.fn((next: ProjectTree[]) => {
+			store.projects = next;
+		}),
+		setProjects: vi.fn((next: ProjectTree[]) => {
+			store.projects = next;
+		}),
+		reset: vi.fn(() => {
+			store.projects = [];
+		})
 	};
+
+	return store;
 };
 
 describe('TaskListOrdering', () => {
@@ -118,7 +114,7 @@ describe('TaskListOrdering', () => {
 		mockUpdateTaskList = vi.mocked(TaskListService.updateTaskList);
 		mockAddSyncError = vi.mocked(errorHandler.addSyncError);
 
-		mockUpdateTaskList.mockResolvedValue({} as any);
+	mockUpdateTaskList.mockResolvedValue(null);
 	});
 
 	afterEach(() => {
@@ -198,10 +194,10 @@ describe('TaskListOrdering', () => {
 		});
 
 		it('一部のタスクリストの更新に失敗しても他は更新される', async () => {
-			mockUpdateTaskList
-				.mockResolvedValueOnce({} as any)
-				.mockRejectedValueOnce(new Error('Failed'))
-				.mockResolvedValueOnce({} as any);
+		mockUpdateTaskList
+			.mockResolvedValueOnce(null)
+			.mockRejectedValueOnce(new Error('Failed'))
+			.mockResolvedValueOnce(null);
 
 			await ordering.reorderTaskLists('project-1', 0, 2);
 
@@ -257,22 +253,12 @@ describe('TaskListOrdering', () => {
 
 		it('taskListsが未定義のプロジェクトから移動できる', async () => {
 			const project = projectStore.projects.find((p) => p.id === 'project-1');
-			if (project) {
-				project.taskLists = undefined as any;
-				project.taskLists = [
-					{
-						id: 'list-1',
-						projectId: 'project-1',
-						name: 'List 1',
-						description: '',
-						order: 0,
-						orderIndex: 0,
-						createdAt: new Date(),
-						updatedAt: new Date(),
-						tasks: []
-					}
-				];
-			}
+		if (project) {
+			(project as unknown as { taskLists?: TaskListWithTasks[] }).taskLists = undefined;
+			project.taskLists = [
+				createTaskList({ id: 'list-1', projectId: 'project-1', name: 'List 1', orderIndex: 0 })
+			];
+		}
 
 			await ordering.moveTaskListToProject('list-1', 'project-2');
 
@@ -282,9 +268,9 @@ describe('TaskListOrdering', () => {
 
 		it('taskListsが未定義のプロジェクトに移動できる', async () => {
 			const targetProject = projectStore.projects.find((p) => p.id === 'project-2');
-			if (targetProject) {
-				targetProject.taskLists = undefined as any;
-			}
+		if (targetProject) {
+			(targetProject as unknown as { taskLists?: TaskListWithTasks[] }).taskLists = undefined;
+		}
 
 			await ordering.moveTaskListToProject('list-1', 'project-2');
 
@@ -326,10 +312,10 @@ describe('TaskListOrdering', () => {
 
 		it('移動先の更新エラー時にエラーハンドラを呼ぶ', async () => {
 			const error = new Error('Target update failed');
-			mockUpdateTaskList
-				.mockResolvedValueOnce({} as any)
-				.mockResolvedValueOnce({} as any)
-				.mockRejectedValueOnce(error);
+		mockUpdateTaskList
+			.mockResolvedValueOnce(null)
+			.mockResolvedValueOnce(null)
+			.mockRejectedValueOnce(error);
 
 			await ordering.moveTaskListToProject('list-1', 'project-2');
 

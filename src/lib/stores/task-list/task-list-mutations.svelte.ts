@@ -1,8 +1,7 @@
 import type { IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
-import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskListWithTasks } from '$lib/types/task-list';
 import { TaskListService as TaskListCrudService } from '$lib/services/domain/task-list';
-import { SvelteDate } from 'svelte/reactivity';
-import type { TaskListQueries } from './task-list-queries.svelte';
+import type { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
 
 /**
  * タスクリストCRUD操作

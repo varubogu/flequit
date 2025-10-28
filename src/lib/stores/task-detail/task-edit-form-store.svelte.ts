@@ -1,10 +1,10 @@
 import { SvelteDate } from 'svelte/reactivity';
-import { subTaskStore } from '../sub-task-store.svelte';
+import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { taskInteractions } from '$lib/services/ui/task';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { fromLegacyRecurrenceRule, toLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 import type { EditFormState } from './task-detail-types';
-import type { TaskDetailViewState } from './task-detail-view-state.svelte';
+import type { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
 
 const SAVE_DEBOUNCE_MS = 500;
 

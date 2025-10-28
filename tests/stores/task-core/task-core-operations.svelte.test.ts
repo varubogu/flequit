@@ -229,6 +229,7 @@ describe('TaskCoreOperations', () => {
 			expect(projects[0].taskLists[1].tasks).toHaveLength(0);
 
 			const context2 = operations.moveTaskBetweenLists('task-1', 'list-2')!;
+			expect(context2.targetTaskList.id).toBe('list-2');
 			expect(projects[0].taskLists[0].tasks).toHaveLength(1);
 			expect(projects[0].taskLists[1].tasks).toHaveLength(1);
 		});

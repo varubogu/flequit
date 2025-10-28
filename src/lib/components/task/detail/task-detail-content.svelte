@@ -1,15 +1,15 @@
 <script lang="ts">
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
-  import TaskDetailHeader from './task-detail-header.svelte';
-  import TaskStatusSelector from '../forms/task-status-selector.svelte';
-  import TaskDueDateSelector from '../forms/task-due-date-selector.svelte';
-  import TaskPrioritySelector from '../forms/task-priority-selector.svelte';
-  import TaskDescriptionEditor from '../editors/task-description-editor.svelte';
-  import TaskDetailSubTasks from './task-detail-subtasks.svelte';
-  import TaskDetailTags from './task-detail-tags.svelte';
-  import TaskDetailMetadata from './task-detail-metadata.svelte';
-  import TaskDetailEmptyState from './task-detail-empty-state.svelte';
+  import TaskDetailHeader from '$lib/components/task/detail/task-detail-header.svelte';
+  import TaskStatusSelector from '$lib/components/task/forms/task-status-selector.svelte';
+  import TaskDueDateSelector from '$lib/components/task/forms/task-due-date-selector.svelte';
+  import TaskPrioritySelector from '$lib/components/task/forms/task-priority-selector.svelte';
+  import TaskDescriptionEditor from '$lib/components/task/editors/task-description-editor.svelte';
+  import TaskDetailSubTasks from '$lib/components/task/detail/task-detail-subtasks.svelte';
+  import TaskDetailTags from '$lib/components/task/detail/task-detail-tags.svelte';
+  import TaskDetailMetadata from '$lib/components/task/detail/task-detail-metadata.svelte';
+  import TaskDetailEmptyState from '$lib/components/task/detail/task-detail-empty-state.svelte';
   import ProjectTaskListSelector from '$lib/components/project/project-task-list-selector.svelte';
 
   interface Props {

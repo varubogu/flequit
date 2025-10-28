@@ -4,15 +4,15 @@ import type { Project } from '$lib/types/project';
 import type { TaskList } from '$lib/types/task-list';
 import type { Tag } from '$lib/types/tag';
 import type { SubTask } from '$lib/types/sub-task';
-import { selectionStore } from './selection-store.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
-import { taskListStore } from './task-list-store.svelte';
-import { subTaskStore } from './sub-task-store.svelte';
-import { taskCoreStore } from './task-core-store.svelte';
-import { TaskEntitiesStore } from './tasks/task-entities-store.svelte';
-import { TaskSelectionStore } from './tasks/task-selection-store.svelte';
-import { TaskDraftStore } from './tasks/task-draft-store.svelte';
-import { TaskTagOperations } from './tasks/task-tag-operations.svelte';
+import { taskListStore } from '$lib/stores/task-list-store.svelte';
+import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+import { TaskEntitiesStore } from '$lib/stores/tasks/task-entities-store.svelte';
+import { TaskSelectionStore } from '$lib/stores/tasks/task-selection-store.svelte';
+import { TaskDraftStore } from '$lib/stores/tasks/task-draft-store.svelte';
+import { TaskTagOperations } from '$lib/stores/tasks/task-tag-operations.svelte';
 
 export type TaskStoreConfig = Partial<{
 	projectStore: ReturnType<typeof resolveProjectStore>;

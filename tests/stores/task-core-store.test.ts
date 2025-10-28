@@ -223,6 +223,7 @@ describe('TaskCoreStore (Integration)', () => {
 
 			// 3. タスクを移動
 			const moveContext = store.moveTaskBetweenLists(task!.id, 'list-2')!;
+			expect(moveContext.targetTaskList.id).toBe('list-2');
 			current = store.getTaskById(task!.id);
 			expect(current?.listId).toBe('list-2');
 

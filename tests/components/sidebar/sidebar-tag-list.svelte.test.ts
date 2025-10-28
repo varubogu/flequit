@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render } from '@testing-library/svelte';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';

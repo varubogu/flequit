@@ -1,8 +1,8 @@
 import type { ProjectTree } from '$lib/types/project';
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import { TaskCoreQueries } from './task-core/task-core-queries.svelte';
-import { TaskCoreMutations } from './task-core/task-core-mutations.svelte';
-import { TaskCoreOperations, type TaskRemovalContext, type TaskMoveContext } from './task-core/task-core-operations.svelte';
+import { TaskCoreQueries } from '$lib/stores/task-core/task-core-queries.svelte';
+import { TaskCoreMutations } from '$lib/stores/task-core/task-core-mutations.svelte';
+import { TaskCoreOperations, type TaskRemovalContext, type TaskMoveContext } from '$lib/stores/task-core/task-core-operations.svelte';
 
 // 型を再エクスポート（既存コードとの互換性維持）
 export type { TaskRemovalContext, TaskMoveContext };

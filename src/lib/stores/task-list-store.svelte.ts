@@ -1,10 +1,10 @@
 import type { ITaskListStore, IProjectStore, ISelectionStore } from '$lib/types/store-interfaces';
-import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
+import type { TaskListWithTasks } from '$lib/types/task-list';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
-import { selectionStore } from './selection-store.svelte';
-import { TaskListQueries } from './task-list/task-list-queries.svelte';
-import { TaskListMutations } from './task-list/task-list-mutations.svelte';
-import { TaskListOrdering } from './task-list/task-list-ordering.svelte';
+import { selectionStore } from '$lib/stores/selection-store.svelte';
+import { TaskListQueries } from '$lib/stores/task-list/task-list-queries.svelte';
+import { TaskListMutations } from '$lib/stores/task-list/task-list-mutations.svelte';
+import { TaskListOrdering } from '$lib/stores/task-list/task-list-ordering.svelte';
 
 /**
  * タスクリスト管理ストア

@@ -3,7 +3,7 @@
   import { cn, type WithElementRef } from '$lib/utils';
   import type { HTMLAttributes } from 'svelte/elements';
   import { SIDEBAR_WIDTH_MOBILE } from './constants.js';
-  import { useSidebar } from './context.svelte.js';
+  import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';
 
   let {
     ref = $bindable(null),

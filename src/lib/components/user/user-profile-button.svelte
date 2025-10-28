@@ -1,7 +1,7 @@
 <script lang="ts">
   import Button from '$lib/components/shared/button.svelte';
   import { Users, ChevronUp } from 'lucide-svelte';
-  import type { User } from './user-profile.svelte';
+  import type { User } from '$lib/components/user/user-profile.svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
 
   interface Props {

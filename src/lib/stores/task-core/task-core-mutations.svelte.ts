@@ -1,6 +1,5 @@
 import type { ProjectTree } from '$lib/types/project';
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import type { TaskListWithTasks } from '$lib/types/task-list';
 import { ProjectTreeTraverser } from '$lib/utils/project-tree-traverser';
 import { SvelteDate } from 'svelte/reactivity';
 

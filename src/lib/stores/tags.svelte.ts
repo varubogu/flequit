@@ -1,9 +1,9 @@
 import type { Tag } from '$lib/types/tag';
-import { tagStore as tagStoreInternal } from './tags/tag-store.svelte';
-import { TagBookmarkStore } from './tags/tag-bookmark-store.svelte';
-import { TagMutations } from './tags/tag-mutations.svelte';
-import { TagQueries } from './tags/tag-queries.svelte';
-import { TagBookmarkOperations } from './tags/tag-bookmark-operations.svelte';
+import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
+import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
+import { TagMutations } from '$lib/stores/tags/tag-mutations.svelte';
+import { TagQueries } from '$lib/stores/tags/tag-queries.svelte';
+import { TagBookmarkOperations } from '$lib/stores/tags/tag-bookmark-operations.svelte';
 
 /**
  * TagStoreFacade - タグ管理のFacadeストア
