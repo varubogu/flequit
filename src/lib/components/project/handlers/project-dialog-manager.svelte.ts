@@ -7,7 +7,10 @@ import { ProjectCompositeService } from '$lib/services/composite/project-composi
 /**
  * プロジェクトダイアログ管理
  */
-export function createProjectDialogManager(onViewChange?: (view: ViewType) => void) {
+export function createProjectDialogManager(
+  onViewChange?: (view: ViewType) => void,
+  onProjectExpand?: (projectId: string) => void
+) {
   let showProjectDialog = $state(false);
   let projectDialogMode = $state<'add' | 'edit'>('add');
   let editingProject = $state<ProjectTree | null>(null);
@@ -31,6 +34,9 @@ export function createProjectDialogManager(onViewChange?: (view: ViewType) => vo
         name: data.name
       });
       if (newTaskList) {
+        // プロジェクトを展開
+        onProjectExpand?.(taskListDialogProject.id);
+        // タスクリストを選択
         selectionStore.selectList(newTaskList.id);
         onViewChange?.('tasklist');
       }

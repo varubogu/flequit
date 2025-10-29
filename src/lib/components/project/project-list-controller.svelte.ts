@@ -78,7 +78,9 @@ export function useProjectListController(
   const dragDropHandler = createProjectDragDropHandler(() => projectsData);
 
   // Dialog manager
-  const dialogManager = createProjectDialogManager(onViewChange);
+  const dialogManager = createProjectDialogManager(onViewChange, (projectId: string) => {
+    expandedProjects.add(projectId);
+  });
 
   // Project handlers
   function handleProjectSelect(project: ProjectTree) {
