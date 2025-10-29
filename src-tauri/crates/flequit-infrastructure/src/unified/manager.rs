@@ -84,9 +84,17 @@ impl UnifiedManager {
 
         // Automergeリポジトリの初期化
         if self.config.automerge_storage_enabled {
-            // 共有DocumentManagerを初期化
-            let base_path = std::env::temp_dir().join("flequit_automerge");
-            let document_manager = DocumentManager::new(base_path)?;
+            // 共有DocumentManagerを初期化（SQLiteと同じディレクトリ構造を使用）
+            let base_path = get_default_automerge_path()
+                .ok_or_else(|| "Failed to get default Automerge path")?;
+
+            // ディレクトリが存在しない場合は作成
+            if !base_path.exists() {
+                std::fs::create_dir_all(&base_path)
+                    .map_err(|e| format!("Failed to create Automerge directory: {}", e))?;
+            }
+
+            let document_manager = DocumentManager::new(base_path.clone())?;
             self.shared_document_manager = Some(Arc::new(Mutex::new(document_manager)));
 
             // 共有DocumentManagerを使用してAutomergeリポジトリを初期化
@@ -95,7 +103,7 @@ impl UnifiedManager {
             )
             .await?;
             self.automerge_repositories = Some(Arc::new(RwLock::new(automerge_repos)));
-            tracing::info!("Automergeリポジトリを共有DocumentManagerで初期化しました");
+            tracing::info!("Automergeリポジトリを共有DocumentManagerで初期化しました: {:?}", base_path);
         } else {
             self.automerge_repositories = None;
             self.shared_document_manager = None;
@@ -137,7 +145,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 ProjectLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 ProjectLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -190,7 +199,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 AccountLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 AccountLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -237,7 +247,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 TaskLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -287,7 +298,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TaskListLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 TaskListLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -335,7 +347,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 TagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -383,7 +396,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 SubTaskLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 SubTaskLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -433,7 +447,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 UserLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 UserLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -482,7 +497,8 @@ impl UnifiedManager {
                 TaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
                     .await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 TaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -531,7 +547,8 @@ impl UnifiedManager {
                 SubtaskAssignmentLocalAutomergeRepository::new_with_manager(doc_manager.clone())
                     .await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 SubtaskAssignmentLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -581,7 +598,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 TaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 TaskTagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -628,7 +646,8 @@ impl UnifiedManager {
             let automerge_repo = if let Some(doc_manager) = &self.shared_document_manager {
                 SubtaskTagLocalAutomergeRepository::new_with_manager(doc_manager.clone()).await?
             } else {
-                let base_path = std::env::temp_dir().join("flequit_automerge");
+                let base_path = get_default_automerge_path()
+                    .ok_or_else(|| "Failed to get default Automerge path")?;
                 SubtaskTagLocalAutomergeRepository::new(base_path).await?
             };
 
@@ -654,6 +673,26 @@ impl Default for UnifiedManager {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// デフォルトのAutomergeデータディレクトリパスを取得
+/// SQLiteと同じディレクトリ構造を使用: ~/.local/share/flequit/automerge/
+fn get_default_automerge_path() -> Option<std::path::PathBuf> {
+    use std::env;
+
+    // 環境変数からAutomergeパスを取得
+    if let Ok(automerge_path) = env::var("FLEQUIT_AUTOMERGE_PATH") {
+        return Some(std::path::PathBuf::from(automerge_path));
+    }
+
+    // SQLiteと同じベースディレクトリを使用
+    if let Some(data_dir) = dirs::data_dir() {
+        let app_data_dir = data_dir.join("flequit");
+        let automerge_dir = app_data_dir.join("automerge");
+        return Some(automerge_dir);
+    }
+
+    None
 }
 
 #[cfg(test)]

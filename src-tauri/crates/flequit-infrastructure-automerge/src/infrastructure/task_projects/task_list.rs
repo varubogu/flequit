@@ -140,15 +140,9 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalAutomergeRepositor
     }
 
     async fn delete(&self, project_id: &ProjectId, id: &TaskListId) -> Result<(), RepositoryError> {
-        let deleted = self.delete_task_list(project_id, &id.to_string()).await?;
-        if deleted {
-            Ok(())
-        } else {
-            Err(RepositoryError::NotFound(format!(
-                "TaskList not found: {}",
-                id
-            )))
-        }
+        // 削除操作は冪等性を保証するため、存在しない場合でも成功とする
+        self.delete_task_list(project_id, &id.to_string()).await?;
+        Ok(())
     }
 
     async fn exists(

@@ -887,6 +887,11 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     assert_eq!(count_after_delete, count - 1);
     println!("✅ TaskList count after deletion: {}", count_after_delete);
 
+    // 冪等性テスト: 既に削除されたタスクリストを再度削除してもエラーにならないことを確認
+    let second_delete_result = repository.delete(&project_id, &task_list_id).await;
+    assert!(second_delete_result.is_ok());
+    println!("✅ TaskList idempotent deletion confirmed (deleting already deleted item succeeded)");
+
     // automergeファイルを永続保存ディレクトリにコピー
     copy_to_persistent_storage(
         &automerge_dir,
