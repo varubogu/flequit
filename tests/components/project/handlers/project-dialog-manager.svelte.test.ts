@@ -62,12 +62,14 @@ const createMockProject = (overrides: Partial<ProjectTree> = {}): ProjectTree =>
 
 describe('ProjectDialogManager', () => {
   let onViewChange: ReturnType<typeof vi.fn>;
+  let onProjectExpand: ReturnType<typeof vi.fn>;
   let manager: ReturnType<typeof createProjectDialogManager>;
   let mockProject: ProjectTree;
 
   beforeEach(() => {
     onViewChange = vi.fn();
-    manager = createProjectDialogManager(onViewChange);
+    onProjectExpand = vi.fn();
+    manager = createProjectDialogManager(onViewChange, onProjectExpand);
     mockProject = createMockProject();
     vi.clearAllMocks();
   });
@@ -149,6 +151,7 @@ describe('ProjectDialogManager', () => {
       expect(taskListStore.addTaskList).toHaveBeenCalledWith('project-123', {
         name: 'New List'
       });
+      expect(onProjectExpand).toHaveBeenCalledWith('project-123');
       expect(selectionStore.selectList).toHaveBeenCalledWith('tasklist-123');
       expect(onViewChange).toHaveBeenCalledWith('tasklist');
       expect(manager.dialogState.showTaskListDialog).toBe(false);
@@ -160,6 +163,7 @@ describe('ProjectDialogManager', () => {
       manager.openTaskListDialog('add', mockProject);
       await manager.handleTaskListSave({ name: 'New List' });
 
+      expect(onProjectExpand).not.toHaveBeenCalled();
       expect(selectionStore.selectList).not.toHaveBeenCalled();
       expect(onViewChange).not.toHaveBeenCalled();
     });
@@ -216,7 +220,7 @@ describe('ProjectDialogManager', () => {
       await managerWithoutCallback.handleTaskListSave({ name: 'New List' });
 
       expect(selectionStore.selectList).toHaveBeenCalledWith('tasklist-456');
-      // onViewChange is not called because callback is not provided
+      // onViewChange and onProjectExpand are not called because callbacks are not provided
     });
   });
 });
