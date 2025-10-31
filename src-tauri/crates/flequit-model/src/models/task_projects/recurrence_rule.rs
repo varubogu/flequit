@@ -3,6 +3,7 @@ use super::recurrence_details::RecurrenceDetails;
 use super::subtask_recurrence::SubTaskRecurrence;
 use super::task_recurrence::TaskRecurrence;
 use crate::models::ModelConverter;
+use crate::traits::Trackable;
 use crate::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
 use crate::types::id_types::{RecurrenceRuleId, UserId};
 use async_trait::async_trait;
@@ -214,5 +215,89 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleTree {
             deleted: self.deleted,
             updated_by: self.updated_by,
         })
+    }
+}
+
+impl Trackable for RecurrenceRule {
+    fn mark_created(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.created_at = timestamp;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+        self.deleted = false;
+    }
+
+    fn mark_updated(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_deleted(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.deleted = true;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_restored(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.deleted = false;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
+    fn get_updated_by(&self) -> crate::types::id_types::UserId {
+        self.updated_by
+    }
+
+    fn get_created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
+}
+
+impl Trackable for RecurrenceRuleTree {
+    fn mark_created(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.created_at = timestamp;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+        self.deleted = false;
+    }
+
+    fn mark_updated(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_deleted(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.deleted = true;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_restored(&mut self, user_id: crate::types::id_types::UserId, timestamp: DateTime<Utc>) {
+        self.deleted = false;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
+    fn get_updated_by(&self) -> crate::types::id_types::UserId {
+        self.updated_by
+    }
+
+    fn get_created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
     }
 }

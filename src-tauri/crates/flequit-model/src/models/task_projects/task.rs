@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::ModelConverter;
 use crate::models::task_projects::subtask::SubTaskTree;
+use crate::traits::Trackable;
 use crate::types::id_types::ProjectId;
 
 /// 基本タスク情報を表現する構造体
@@ -257,5 +258,89 @@ impl ModelConverter<Task> for TaskTree {
             deleted: self.deleted,
             updated_by: self.updated_by,
         })
+    }
+}
+
+impl Trackable for Task {
+    fn mark_created(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.created_at = timestamp;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+        self.deleted = false;
+    }
+
+    fn mark_updated(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_deleted(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = true;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_restored(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = false;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
+    fn get_updated_by(&self) -> UserId {
+        self.updated_by
+    }
+
+    fn get_created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
+}
+
+impl Trackable for TaskTree {
+    fn mark_created(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.created_at = timestamp;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+        self.deleted = false;
+    }
+
+    fn mark_updated(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_deleted(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = true;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_restored(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = false;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
+    fn get_updated_by(&self) -> UserId {
+        self.updated_by
+    }
+
+    fn get_created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
+    fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
     }
 }

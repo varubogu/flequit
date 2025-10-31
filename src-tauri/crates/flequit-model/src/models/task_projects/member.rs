@@ -2,6 +2,7 @@ use crate::types::id_types::{MemberId, UserId};
 use crate::types::project_types::MemberRole;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use crate::traits::Trackable;
 
 /// プロジェクトメンバー情報を表現する構造体
 ///
@@ -38,4 +39,46 @@ pub struct Member {
     pub deleted: bool,
     /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
     pub updated_by: UserId,
+}
+
+impl Trackable for Member {
+    fn mark_created(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.joined_at = timestamp;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+        self.deleted = false;
+    }
+
+    fn mark_updated(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_deleted(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = true;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn mark_restored(&mut self, user_id: UserId, timestamp: DateTime<Utc>) {
+        self.deleted = false;
+        self.updated_at = timestamp;
+        self.updated_by = user_id;
+    }
+
+    fn is_deleted(&self) -> bool {
+        self.deleted
+    }
+
+    fn get_updated_by(&self) -> UserId {
+        self.updated_by
+    }
+
+    fn get_created_at(&self) -> DateTime<Utc> {
+        self.joined_at
+    }
+
+    fn get_updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
+    }
 }
