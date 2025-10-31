@@ -2,10 +2,12 @@
 //!
 //! このモジュールは繰り返しルール補正条件を管理する構造体を定義します。
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::models::task_projects::date_condition::DateCondition;
 use crate::models::task_projects::weekday_condition::WeekdayCondition;
+use crate::types::id_types::UserId;
 
 /// 繰り返しルール補正条件を表現する構造体
 ///
@@ -59,4 +61,12 @@ pub struct RecurrenceAdjustment {
     pub date_conditions: Vec<DateCondition>,
     /// 曜日に基づく条件のリスト
     pub weekday_conditions: Vec<WeekdayCondition>,
+    /// 補正条件作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }

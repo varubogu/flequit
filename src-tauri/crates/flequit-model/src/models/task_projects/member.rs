@@ -34,4 +34,8 @@ pub struct Member {
     pub joined_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }

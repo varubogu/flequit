@@ -2,7 +2,7 @@
 //!
 //! このモジュールは日付に基づく条件を管理する構造体を定義します。
 
-use crate::types::{datetime_calendar_types::DateRelation, id_types::DateConditionId};
+use crate::types::{datetime_calendar_types::DateRelation, id_types::{DateConditionId, UserId}};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -45,4 +45,12 @@ pub struct DateCondition {
     pub relation: DateRelation,
     /// 比較基準となる日付
     pub reference_date: DateTime<Utc>,
+    /// 条件作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }

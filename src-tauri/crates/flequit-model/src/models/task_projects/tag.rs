@@ -10,7 +10,7 @@
 use super::subtask_tag::SubTaskTag;
 use super::task_tag::TaskTag;
 use crate::models::ModelConverter;
-use crate::types::id_types::TagId;
+use crate::types::id_types::{TagId, UserId};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
@@ -84,6 +84,10 @@ pub struct Tag {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 /// タグとその関連情報を含むTree構造体
@@ -142,6 +146,10 @@ pub struct TagTree {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// このタグが付与されたタスクとの関連付け情報一覧
     pub task_tags: Vec<TaskTag>,
     /// このタグが付与されたサブタスクとの関連付け情報一覧
@@ -159,6 +167,8 @@ impl ModelConverter<Tag> for TagTree {
             order_index: self.order_index,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

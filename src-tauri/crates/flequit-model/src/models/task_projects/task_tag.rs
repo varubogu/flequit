@@ -6,7 +6,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::types::id_types::{TagId, TaskId};
+use crate::types::id_types::{TagId, TaskId, UserId};
 
 /// タスクとタグの関連付けを表現するモデル
 ///
@@ -40,4 +40,10 @@ pub struct TaskTag {
     pub tag_id: TagId,
     /// タグ付け作成日時
     pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }

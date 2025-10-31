@@ -38,12 +38,15 @@ use crate::models::ModelConverter;
 /// * `owner_id` - プロジェクトオーナーのユーザーID
 /// * `created_at` - プロジェクト作成日時
 /// * `updated_at` - 最終更新日時
+/// * `deleted` - 論理削除フラグ（Automerge同期用）
+/// * `updated_by` - 最終更新者のユーザーID（作成・更新・削除・復元すべて）
 ///
 /// # 設計思想
 ///
 /// - **フロントエンド最適化**: Svelteでの表示に最適化されたフィールド構成
 /// - **階層管理**: タスクリストやタスクの上位概念としての位置づけ
 /// - **チーム対応**: 複数メンバーでの共同作業を前提とした設計
+/// - **操作追跡**: 削除・復元を含むすべての操作を`updated_by`/`updated_at`で追跡
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
 #[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Project {
@@ -66,8 +69,12 @@ pub struct Project {
     pub owner_id: Option<UserId>, // プロジェクトオーナーのユーザーID
     /// プロジェクト作成日時
     pub created_at: DateTime<Utc>,
-    /// 最終更新日時
+    /// 最終更新日時（必須）
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 /// タスクリストを含むプロジェクトツリー構造体
@@ -112,8 +119,12 @@ pub struct ProjectTree {
     pub owner_id: Option<UserId>, // プロジェクトオーナーのユーザーID
     /// プロジェクト作成日時
     pub created_at: DateTime<Utc>,
-    /// 最終更新日時
+    /// 最終更新日時（必須）
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// 所属するタスクリスト一覧（タスク情報を含む）
     pub task_lists: Vec<TaskListTree>,
 }
@@ -133,6 +144,8 @@ impl ModelConverter<Project> for ProjectTree {
             owner_id: self.owner_id.clone(),
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

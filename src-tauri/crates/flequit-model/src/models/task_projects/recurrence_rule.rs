@@ -4,7 +4,7 @@ use super::subtask_recurrence::SubTaskRecurrence;
 use super::task_recurrence::TaskRecurrence;
 use crate::models::ModelConverter;
 use crate::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
-use crate::types::id_types::RecurrenceRuleId;
+use crate::types::id_types::{RecurrenceRuleId, UserId};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -107,6 +107,14 @@ pub struct RecurrenceRule {
     pub end_date: Option<DateTime<Utc>>,
     /// 最大回数（指定回数まで繰り返し）
     pub max_occurrences: Option<i32>,
+    /// 繰り返しルール作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 /// 繰り返しルールとその関連情報を含むTree構造体
@@ -174,6 +182,14 @@ pub struct RecurrenceRuleTree {
     pub end_date: Option<DateTime<Utc>>,
     /// 最大回数（指定回数まで繰り返し）
     pub max_occurrences: Option<i32>,
+    /// 繰り返しルール作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// このルールが適用されたタスクとの関連付け情報一覧
     pub task_recurrences: Vec<TaskRecurrence>,
     /// このルールが適用されたサブタスクとの関連付け情報一覧
@@ -193,6 +209,10 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleTree {
             adjustment: self.adjustment.clone(),
             end_date: self.end_date,
             max_occurrences: self.max_occurrences,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

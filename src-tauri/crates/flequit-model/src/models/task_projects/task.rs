@@ -112,6 +112,10 @@ pub struct Task {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 /// サブタスクとタグ情報を含む完全なタスクツリー構造体
@@ -216,6 +220,10 @@ pub struct TaskTree {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// 所属するサブタスクの配列（SubTask構造体）
     pub sub_tasks: Vec<SubTaskTree>,
     /// 付与されたタグIDの配列
@@ -246,6 +254,8 @@ impl ModelConverter<Task> for TaskTree {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

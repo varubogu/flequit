@@ -4,8 +4,9 @@
 
 use crate::types::{
     datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
-    id_types::WeekdayConditionId,
+    id_types::{UserId, WeekdayConditionId},
 };
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// 曜日に基づく条件調整を表現する構造体
@@ -58,4 +59,12 @@ pub struct WeekdayCondition {
     pub then_weekday: Option<DayOfWeek>,
     /// 調整日数（target=日数の場合）
     pub then_days: Option<i32>,
+    /// 条件作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }

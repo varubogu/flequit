@@ -8,13 +8,13 @@
 //! - `TaskList`: 基本タスクリスト情報（軽量、一般的な操作用）
 //! - `TaskListWithTasks`: タスクを含む完全なタスクリスト構造
 
-use crate::types::id_types::TaskListId;
+use crate::{models::task_projects::TaskTree, types::id_types::TaskListId};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use partially::Partial;
 use serde::{Deserialize, Serialize};
 
-use crate::{models::ModelConverter, types::id_types::ProjectId};
+use crate::{models::ModelConverter, types::id_types::{ProjectId, UserId}};
 
 /// 基本タスクリスト情報を表現する構造体
 ///
@@ -37,6 +37,8 @@ use crate::{models::ModelConverter, types::id_types::ProjectId};
 /// ## システム情報
 /// * `created_at` - タスクリスト作成日時
 /// * `updated_at` - 最終更新日時
+/// * `deleted` - 論理削除フラグ（Automerge同期用）
+/// * `updated_by` - 最終更新者のユーザーID（作成・更新・削除・復元すべての操作で記録）
 ///
 /// # 設計思想
 ///
@@ -91,8 +93,12 @@ pub struct TaskList {
     pub is_archived: bool,
     /// タスクリスト作成日時
     pub created_at: DateTime<Utc>,
-    /// 最終更新日時
+    /// 最終更新日時（必須）
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 /// タスクを含む完全なタスクリストツリー構造体
@@ -177,10 +183,14 @@ pub struct TaskListTree {
     pub is_archived: bool,
     /// タスクリスト作成日時
     pub created_at: DateTime<Utc>,
-    /// 最終更新日時
+    /// 最終更新日時（必須）
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// 所属するタスクの配列（TaskTree構造体）
-    pub tasks: Vec<super::task::TaskTree>,
+    pub tasks: Vec<TaskTree>,
 }
 
 #[async_trait]
@@ -197,6 +207,8 @@ impl ModelConverter<TaskList> for TaskListTree {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

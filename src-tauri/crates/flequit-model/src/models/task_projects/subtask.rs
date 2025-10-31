@@ -107,6 +107,10 @@ pub struct SubTask {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
@@ -145,6 +149,10 @@ pub struct SubTaskTree {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
     /// アサインされたユーザーIDリスト
     pub assigned_user_ids: Vec<UserId>, // アサインされたユーザーIDの配列
     /// 付与されたタグIDの配列
@@ -177,6 +185,8 @@ impl ModelConverter<SubTask> for SubTaskTree {
             completed: self.completed,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by,
         })
     }
 }

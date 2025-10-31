@@ -3,8 +3,9 @@
 //! このモジュールは繰り返しパターンの詳細設定を管理する構造体を定義します。
 
 use crate::models::task_projects::date_condition::DateCondition;
-
+use crate::types::id_types::UserId;
 use crate::types::datetime_calendar_types::{DayOfWeek, WeekOfMonth};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// 繰り返しパターンの詳細設定を表現する構造体
@@ -55,4 +56,12 @@ pub struct RecurrenceDetails {
     pub weekday_of_week: Option<DayOfWeek>,
     /// 追加の日付条件
     pub date_conditions: Option<Vec<DateCondition>>,
+    /// 詳細設定作成日時
+    pub created_at: DateTime<Utc>,
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+    /// 論理削除フラグ（Automerge同期用）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID（必須、作成・更新・削除・復元すべての操作で記録）
+    pub updated_by: UserId,
 }
