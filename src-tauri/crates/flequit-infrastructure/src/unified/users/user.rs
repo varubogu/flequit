@@ -1,6 +1,7 @@
 //! ユーザー用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::users::user::UserLocalAutomergeRepository;
@@ -24,10 +25,10 @@ impl UserRepositoryTrait for UserRepositoryVariant {}
 
 #[async_trait]
 impl Repository<User, UserId> for UserRepositoryVariant {
-    async fn save(&self, entity: &User) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &User, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(entity).await,
-            Self::LocalAutomerge(repo) => repo.save(entity).await,
+            Self::LocalSqlite(repo) => repo.save(entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(entity, user_id, timestamp).await,
         }
     }
 
@@ -140,7 +141,7 @@ impl UserUnifiedRepository {
 #[async_trait]
 impl Repository<User, UserId> for UserUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
-    async fn save(&self, entity: &User) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &User, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "UserUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
             self.save_repositories.len()
@@ -148,7 +149,7 @@ impl Repository<User, UserId> for UserUnifiedRepository {
         info!("{:?}", entity);
 
         for repo in &self.save_repositories {
-            repo.save(entity).await?;
+            repo.save(entity, user_id, timestamp).await?;
         }
 
         Ok(())

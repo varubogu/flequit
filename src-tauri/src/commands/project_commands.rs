@@ -4,7 +4,7 @@ use crate::state::AppState;
 use flequit_core::facades::project_facades;
 use flequit_core::services::{tag_service, task_list_service};
 use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
-use flequit_model::types::id_types::ProjectId;
+use flequit_model::types::id_types::{ProjectId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -13,11 +13,13 @@ use tracing::instrument;
 pub async fn create_project(
     state: State<'_, AppState>,
     project: ProjectCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let repositories = state.repositories.read().await;
     let internal_project = project.to_model().await?;
 
-    project_facades::create_project(&*repositories, &internal_project)
+    project_facades::create_project(&*repositories, &internal_project, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::project", command = "create_project", error = %e);
@@ -51,10 +53,12 @@ pub async fn update_project(
     state: State<'_, AppState>,
     id: String,
     patch: PartialProject,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let repositories = state.repositories.read().await;
     let project_id = ProjectId::from(id);
-    project_facades::update_project(&*repositories, &project_id, &patch)
+    project_facades::update_project(&*repositories, &project_id, &patch, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::project", command = "update_project", project_id = %project_id, error = %e);
@@ -135,6 +139,8 @@ pub async fn get_project_with_tasks_and_tags(
         owner_id: project.owner_id.map(|id| id.to_string()),
         created_at: project.created_at.to_rfc3339(),
         updated_at: project.updated_at.to_rfc3339(),
+        deleted: project.deleted,
+        updated_by: project.updated_by.to_string(),
         task_lists: task_list_commands,
         all_tags: tag_commands,
     };

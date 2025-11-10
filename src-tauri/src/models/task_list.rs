@@ -6,7 +6,7 @@ use crate::models::task::TaskTreeCommandModel;
 use crate::models::CommandModelConverter;
 use flequit_model::models::task_projects::task_list::{TaskList, TaskListTree};
 use flequit_model::models::ModelConverter;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 
 /// Tauriコマンド引数用のTaskList構造体
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,6 +21,8 @@ pub struct TaskListCommandModel {
     pub is_archived: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -46,6 +48,8 @@ impl ModelConverter<TaskList> for TaskListCommandModel {
             is_archived: self.is_archived,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -63,6 +67,8 @@ impl CommandModelConverter<TaskListCommandModel> for TaskList {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }
@@ -80,6 +86,8 @@ pub struct TaskListTreeCommandModel {
     pub is_archived: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
     pub tasks: Vec<TaskTreeCommandModel>,
 }
 
@@ -111,6 +119,8 @@ impl ModelConverter<TaskListTree> for TaskListTreeCommandModel {
             is_archived: self.is_archived,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
             tasks,
         })
     }
@@ -134,6 +144,8 @@ impl CommandModelConverter<TaskListTreeCommandModel> for TaskListTree {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
             tasks: task_commands,
         })
     }

@@ -37,6 +37,12 @@ pub struct UserDocument {
 
     /// プロフィール最終更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 impl UserDocument {
@@ -53,6 +59,8 @@ impl UserDocument {
             is_active: user.is_active,
             created_at: user.created_at,
             updated_at: user.updated_at,
+            deleted: user.deleted,
+            updated_by: user.updated_by.to_string(),
         }
     }
 
@@ -69,6 +77,8 @@ impl UserDocument {
             is_active: self.is_active,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::try_from_str(&self.updated_by).map_err(|e| e.to_string())?,
         })
     }
 }

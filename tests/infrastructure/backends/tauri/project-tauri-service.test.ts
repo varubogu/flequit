@@ -25,7 +25,9 @@ describe('ProjectTauriService', () => {
       orderIndex: 0,
       isArchived: false,
       createdAt: new Date('2024-01-01T00:00:00Z'),
-      updatedAt: new Date('2024-01-01T00:00:00Z')
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
     mockSearchCondition = {
       name: 'Test',
@@ -38,7 +40,7 @@ describe('ProjectTauriService', () => {
     it('should successfully create a project', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create(mockProject);
+      const result = await service.create(mockProject, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject });
       expect(result).toBe(true);
@@ -48,7 +50,7 @@ describe('ProjectTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create(mockProject);
+      const result = await service.create(mockProject, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject });
       expect(result).toBe(false);
@@ -62,7 +64,7 @@ describe('ProjectTauriService', () => {
     it('should successfully update a project', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockProject.id, mockProject);
+      const result = await service.update(mockProject.id, mockProject, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
       expect(result).toBe(true);
@@ -72,7 +74,7 @@ describe('ProjectTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockProject.id, mockProject);
+      const result = await service.update(mockProject.id, mockProject, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
       expect(result).toBe(false);
@@ -86,7 +88,7 @@ describe('ProjectTauriService', () => {
     it('should successfully delete a project', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('project-123');
+      const result = await service.delete('project-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123' });
       expect(result).toBe(true);
@@ -96,7 +98,7 @@ describe('ProjectTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('project-123');
+      const result = await service.delete('project-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123' });
       expect(result).toBe(false);
@@ -110,7 +112,7 @@ describe('ProjectTauriService', () => {
     it('should successfully retrieve a project', async () => {
       mockInvoke.mockResolvedValue(mockProject);
 
-      const result = await service.get('project-123');
+      const result = await service.get('project-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123' });
       expect(result).toEqual(mockProject);
@@ -119,7 +121,7 @@ describe('ProjectTauriService', () => {
     it('should return null when project not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('non-existent');
+      const result = await service.get('non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'non-existent' });
       expect(result).toBeNull();
@@ -129,7 +131,7 @@ describe('ProjectTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('project-123');
+      const result = await service.get('project-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123' });
       expect(result).toBeNull();

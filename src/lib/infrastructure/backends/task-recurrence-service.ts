@@ -8,25 +8,28 @@ export interface TaskRecurrenceService {
    * タスクに繰り返しルールを関連付ける
    * @param projectId プロジェクトID
    * @param taskRecurrence タスク繰り返し関連付け
+   * @param userId 操作を行ったユーザーID
    * @returns 成功したかどうか
    */
-  create(projectId: string, taskRecurrence: TaskRecurrence): Promise<boolean>;
+  create(projectId: string, taskRecurrence: TaskRecurrence, userId: string): Promise<boolean>;
 
   /**
    * タスクIDによる繰り返し関連付けを取得する
    * @param projectId プロジェクトID
    * @param taskId タスクID
+   * @param userId 操作を行ったユーザーID
    * @returns タスク繰り返し関連付け（存在しない場合はnull）
    */
-  getByTaskId(projectId: string, taskId: string): Promise<TaskRecurrence | null>;
+  getByTaskId(projectId: string, taskId: string, userId: string): Promise<TaskRecurrence | null>;
 
   /**
    * タスクの繰り返し関連付けを削除する
    * @param projectId プロジェクトID
    * @param taskId タスクID
+   * @param userId 操作を行ったユーザーID
    * @returns 成功したかどうか
    */
-  delete(projectId: string, taskId: string): Promise<boolean>;
+  delete(projectId: string, taskId: string, userId: string): Promise<boolean>;
 
   /**
    * タスク繰り返し関連付けを検索する

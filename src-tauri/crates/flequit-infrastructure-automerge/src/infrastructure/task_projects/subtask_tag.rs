@@ -4,9 +4,9 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_tag_repository_trait::SubTaskTagRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -19,6 +19,9 @@ struct SubtaskTagRelation {
     subtask_id: String,
     tag_id: String,
     created_at: chrono::DateTime<Utc>,
+    updated_at: chrono::DateTime<Utc>,
+    updated_by: String,
+    deleted: bool,
 }
 
 #[derive(Debug)]
@@ -123,6 +126,9 @@ impl SubtaskTagLocalAutomergeRepository {
                 subtask_id: subtask_id.to_string(),
                 tag_id: tag_id.to_string(),
                 created_at: Utc::now(),
+                updated_at: Utc::now(),
+                updated_by: UserId::from("system").to_string(),
+                deleted: false,
             });
 
             document.save_data("subtask_tags", &relations).await?;
@@ -222,6 +228,9 @@ impl SubtaskTagLocalAutomergeRepository {
                 subtask_id: subtask_id.to_string(),
                 tag_id: tag_id.to_string(),
                 created_at: Utc::now(),
+                updated_at: Utc::now(),
+                updated_by: UserId::from("system").to_string(),
+                deleted: false,
             });
         }
 
@@ -243,6 +252,8 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &TagId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         self.add_relation(project_id, parent_id, child_id).await
     }
@@ -279,8 +290,11 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
         for tag_id in tag_ids {
             let tag_relation = SubTaskTag {
                 subtask_id: parent_id.clone(),
-                tag_id,
-                created_at: chrono::Utc::now(), // 実際の作成日時の取得は追加実装が必要
+                tag_id: tag_id.clone(),
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                updated_by: UserId::from("system"),
+                deleted: false,
             };
             relations.push(tag_relation);
         }
@@ -328,6 +342,9 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
                     subtask_id: parent_id.clone(),
                     tag_id: child_id.clone(),
                     created_at: subtask_tag_relation.created_at,
+                    updated_at: subtask_tag_relation.updated_at,
+                    updated_by: UserId::from(subtask_tag_relation.updated_by.clone()),
+                    deleted: subtask_tag_relation.deleted,
                 };
                 Ok(Some(subtask_tag))
             } else {
@@ -346,9 +363,12 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId>
             let subtask_tags = subtask_tag_relations
                 .into_iter()
                 .map(|rel| SubTaskTag {
-                    subtask_id: SubTaskId::from(rel.subtask_id),
-                    tag_id: TagId::from(rel.tag_id),
+                    subtask_id: SubTaskId::from(rel.subtask_id.clone()),
+                    tag_id: TagId::from(rel.tag_id.clone()),
                     created_at: rel.created_at,
+                    updated_at: rel.updated_at,
+                    updated_by: UserId::from(rel.updated_by),
+                    deleted: rel.deleted,
                 })
                 .collect();
             Ok(subtask_tags)

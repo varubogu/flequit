@@ -3,9 +3,9 @@
 use super::super::document_manager::{DocumentManager, DocumentType};
 use crate::infrastructure::document::Document;
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId, UserId};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_recurrence_repository_trait::SubtaskRecurrenceRepositoryTrait;
@@ -19,6 +19,9 @@ struct SubTaskRecurrenceRelation {
     subtask_id: String,
     recurrence_rule_id: String,
     created_at: chrono::DateTime<Utc>,
+    updated_at: chrono::DateTime<Utc>,
+    updated_by: String,
+    deleted: bool,
 }
 
 #[derive(Debug)]
@@ -134,7 +137,7 @@ impl SubtaskRecurrenceRepositoryTrait for SubtaskRecurrenceLocalAutomergeReposit
 impl Repository<SubTaskRecurrence, SubTaskRecurrenceId>
     for SubtaskRecurrenceLocalAutomergeRepository
 {
-    async fn save(&self, _entity: &SubTaskRecurrence) -> Result<(), RepositoryError> {
+    async fn save(&self, _entity: &SubTaskRecurrence, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         Err(RepositoryError::InvalidOperation(
             "Use ProjectRelationRepository::add instead".into(),
         ))
@@ -183,6 +186,8 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &RecurrenceRuleId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         // サブタスクごとに1つのルールのみ許可（既存を置き換え）
         let mut list = self.load_all(project_id).await?;
@@ -194,6 +199,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
             subtask_id: s,
             recurrence_rule_id: r,
             created_at: Utc::now(),
+            updated_at: Utc::now(),
+            updated_by: UserId::from("system").to_string(),
+            deleted: false,
         });
 
         self.save_all(project_id, &list).await
@@ -236,6 +244,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
                 subtask_id: parent_id.clone(),
                 recurrence_rule_id: RecurrenceRuleId::from(v.recurrence_rule_id),
                 created_at: v.created_at,
+                updated_at: v.updated_at,
+                updated_by: UserId::from(v.updated_by),
+                deleted: v.deleted,
             });
         }
         Ok(out)
@@ -272,6 +283,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
                 subtask_id: SubTaskId::from(v.subtask_id),
                 recurrence_rule_id: RecurrenceRuleId::from(v.recurrence_rule_id),
                 created_at: v.created_at,
+                updated_at: v.updated_at,
+                updated_by: UserId::from(v.updated_by),
+                deleted: v.deleted,
             })
             .collect())
     }
@@ -293,6 +307,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
                 subtask_id: parent_id.clone(),
                 recurrence_rule_id: child_id.clone(),
                 created_at: found.created_at,
+                updated_at: found.updated_at,
+                updated_by: UserId::from(found.updated_by),
+                deleted: found.deleted,
             }));
         }
         Ok(None)

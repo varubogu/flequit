@@ -4,6 +4,7 @@ import type { TaskStore } from '$lib/stores/tasks.svelte';
 import type { TaskCoreStore } from '$lib/stores/task-core-store.svelte';
 import type { TaskListStore } from '$lib/stores/task-list-store.svelte';
 import type { ErrorHandler } from '$lib/stores/error-handler.svelte';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 type TaskStoreLike = Pick<TaskStore, 'selectedTaskId' | 'getTaskById' | 'getTaskProjectAndList'>;
 
@@ -180,6 +181,8 @@ export class TaskCrudMutations {
 			tagIds: taskData.tagIds ?? [],
 			createdAt: new SvelteDate(),
 			updatedAt: new SvelteDate(),
+			deleted: false,
+			updatedBy: getCurrentUserId(),
 			subTasks: taskData.subTasks ? [...taskData.subTasks] : [],
 			tags: taskData.tags ? [...taskData.tags] : []
 		};

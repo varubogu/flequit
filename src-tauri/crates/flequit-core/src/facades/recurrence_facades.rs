@@ -11,7 +11,7 @@ use flequit_model::{
         recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
         task_recurrence::TaskRecurrence,
     },
-    types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId},
+    types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId},
 };
 use flequit_types::errors::service_error::ServiceError;
 
@@ -28,11 +28,12 @@ pub async fn create_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
     rule: RecurrenceRule,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::create_recurrence_rule(repositories, project_id, rule).await {
+    match recurrence_service::create_recurrence_rule(repositories, project_id, rule, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create recurrence rule: {:?}", e)),
@@ -77,11 +78,12 @@ pub async fn update_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
     rule: RecurrenceRule,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::update_recurrence_rule(repositories, project_id, rule.clone()).await {
+    match recurrence_service::update_recurrence_rule(repositories, project_id, rule.clone(), user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update recurrence rule: {:?}", e)),

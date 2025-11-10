@@ -8,21 +8,29 @@ export interface TaggingService {
   /**
    * タスクにタグを関連付け
    */
-  createTaskTag(projectId: string, taskId: string, tagName: string): Promise<Tag>;
+  createTaskTag(projectId: string, taskId: string, tagName: string, userId: string): Promise<Tag>;
 
   /**
    * タスクとタグの関連付けを削除
+   * @param projectId プロジェクトID
+   * @param taskId タスクID
+   * @param tagId タグID
+   * @param userId 削除を行ったユーザーID
    */
-  deleteTaskTag(projectId: string, taskId: string, tagId: string): Promise<boolean>;
+  deleteTaskTag(projectId: string, taskId: string, tagId: string, userId: string): Promise<boolean>;
 
   // Subtask Tag operations
   /**
    * サブタスクにタグを関連付け
    */
-  createSubtaskTag(projectId: string, subtaskId: string, tagName: string): Promise<Tag>;
+  createSubtaskTag(projectId: string, subtaskId: string, tagName: string, userId: string): Promise<Tag>;
 
   /**
    * サブタスクとタグの関連付けを削除
+   * @param projectId プロジェクトID
+   * @param subtaskId サブタスクID
+   * @param tagId タグID
+   * @param userId 削除を行ったユーザーID
    */
-  deleteSubtaskTag(projectId: string, subtaskId: string, tagId: string): Promise<boolean>;
+  deleteSubtaskTag(projectId: string, subtaskId: string, tagId: string, userId: string): Promise<boolean>;
 }

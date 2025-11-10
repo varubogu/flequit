@@ -47,20 +47,21 @@ export class InitializationWebService implements InitializationService {
       const savedAccount = localStorage.getItem('flequit_account');
       if (savedAccount) {
         const parsed = JSON.parse(savedAccount);
-        return {
-          ...parsed,
-          created_at: new Date(parsed.created_at),
-          updated_at: new Date(parsed.updated_at)
-        };
+        return parsed;
       }
 
       // デフォルトアカウントを作成
       const defaultAccount: Account = {
         id: 'web-user-1',
-        name: 'Web Demo User',
+        userId: 'web-demo-user',
+        displayName: 'Web Demo User',
         email: 'demo@example.com',
-        created_at: new Date(),
-        updated_at: new Date()
+        provider: 'local',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deleted: false,
+        updatedBy: 'system'
       };
 
       // localStorageに保存

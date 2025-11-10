@@ -9,18 +9,20 @@ pub async fn create_subtask_assignment(
     state: State<'_, AppState>,
     project_id: String,
     subtask_assignment: SubtaskAssignmentCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id_typed = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
     let subtask_id = SubTaskId::from(subtask_assignment.subtask_id);
-    let user_id = UserId::from(subtask_assignment.user_id);
+    let assigned_user_id = UserId::from(subtask_assignment.user_id);
     let repositories = state.repositories.read().await;
-    facades::add(&*repositories, &project_id_typed, &subtask_id, &user_id)
+    facades::add(&*repositories, &project_id_typed, &subtask_id, &assigned_user_id, &user_id_typed)
         .await
         .map_err(|e| {
-            tracing::error!(target: "commands::subtask_assignment", command = "create_subtask_assignment", project_id = %project_id_typed, subtask_id = %subtask_id, user_id = %user_id, error = %e);
+            tracing::error!(target: "commands::subtask_assignment", command = "create_subtask_assignment", project_id = %project_id_typed, subtask_id = %subtask_id, user_id = %assigned_user_id, error = %e);
             e
         })
 }

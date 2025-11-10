@@ -18,6 +18,8 @@ export function generateSampleData(): ProjectTree[] {
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'system',
       allTags: [
         {
           id: 'tag-1',
@@ -25,7 +27,9 @@ export function generateSampleData(): ProjectTree[] {
           color: '#ef4444',
           orderIndex: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system'
         },
         {
           id: 'tag-2',
@@ -33,7 +37,9 @@ export function generateSampleData(): ProjectTree[] {
           color: '#3b82f6',
           orderIndex: 1,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system'
         }
       ],
       taskLists: [
@@ -47,6 +53,8 @@ export function generateSampleData(): ProjectTree[] {
           isArchived: false,
           createdAt: new Date(),
           updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system',
           tasks: [
             {
               id: 'task-1',
@@ -63,6 +71,8 @@ export function generateSampleData(): ProjectTree[] {
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [
                 {
                   id: 'subtask-1',
@@ -83,7 +93,9 @@ export function generateSampleData(): ProjectTree[] {
                   assignedUserIds: [],
                   tagIds: [],
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 },
                 {
                   id: 'subtask-2',
@@ -95,7 +107,9 @@ export function generateSampleData(): ProjectTree[] {
                   assignedUserIds: [],
                   tagIds: [],
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ],
               tags: [
@@ -104,7 +118,9 @@ export function generateSampleData(): ProjectTree[] {
                   name: 'work',
                   color: '#f59e0b',
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ]
             },
@@ -123,6 +139,8 @@ export function generateSampleData(): ProjectTree[] {
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [],
               tags: [
                 {
@@ -130,7 +148,9 @@ export function generateSampleData(): ProjectTree[] {
                   name: 'personal',
                   color: '#8b5cf6',
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ]
             },
@@ -149,6 +169,8 @@ export function generateSampleData(): ProjectTree[] {
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [],
               tags: []
             }
@@ -163,6 +185,8 @@ export function generateSampleData(): ProjectTree[] {
           isArchived: false,
           createdAt: new Date(),
           updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system',
           tasks: [
             {
               id: 'task-4',
@@ -179,6 +203,8 @@ export function generateSampleData(): ProjectTree[] {
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [],
               tags: [
                 {
@@ -186,7 +212,9 @@ export function generateSampleData(): ProjectTree[] {
                   name: 'travel',
                   color: '#06b6d4',
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ]
             }
@@ -203,6 +231,8 @@ export function generateSampleData(): ProjectTree[] {
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'system',
       allTags: [
         {
           id: 'tag-3',
@@ -210,7 +240,9 @@ export function generateSampleData(): ProjectTree[] {
           color: '#10b981',
           orderIndex: 0,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system'
         },
         {
           id: 'tag-4',
@@ -218,7 +250,9 @@ export function generateSampleData(): ProjectTree[] {
           color: '#f59e0b',
           orderIndex: 1,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system'
         }
       ],
       taskLists: [
@@ -231,6 +265,8 @@ export function generateSampleData(): ProjectTree[] {
           isArchived: false,
           createdAt: new Date(),
           updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system',
           tasks: [
             {
               id: 'task-5',
@@ -247,6 +283,8 @@ export function generateSampleData(): ProjectTree[] {
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [
                 {
                   id: 'subtask-3',
@@ -261,7 +299,9 @@ export function generateSampleData(): ProjectTree[] {
                   assignedUserIds: [],
                   tagIds: [],
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 },
                 {
                   id: 'subtask-4',
@@ -276,7 +316,9 @@ export function generateSampleData(): ProjectTree[] {
                   assignedUserIds: [],
                   tagIds: [],
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 },
                 {
                   id: 'subtask-5',
@@ -291,7 +333,9 @@ export function generateSampleData(): ProjectTree[] {
                   assignedUserIds: [],
                   tagIds: [],
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ],
               tags: [
@@ -300,14 +344,18 @@ export function generateSampleData(): ProjectTree[] {
                   name: 'development',
                   color: '#10b981',
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 },
                 {
                   id: 'tag-5',
                   name: 'high-priority',
                   color: '#ef4444',
                   createdAt: new Date(),
-                  updatedAt: new Date()
+                  updatedAt: new Date(),
+                  deleted: false,
+                  updatedBy: 'system'
                 }
               ]
             }

@@ -5,8 +5,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::project::{Column, Entity as ProjectEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::project::Project;
-use flequit_model::types::id_types::ProjectId;
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_repository::base_repository_trait::Repository;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
@@ -80,7 +81,7 @@ impl ProjectLocalSqliteRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalSqliteRepository {
-    async fn save(&self, project: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, project: &Project, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalSqliteRepository::save - 開始: {:?}",
             project.id

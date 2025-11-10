@@ -1,6 +1,7 @@
 import type { SubTask } from '$lib/types/sub-task';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * サブタスクドメインサービス
@@ -41,12 +42,14 @@ export const SubTaskService = {
       assignedUserIds: [],
       tagIds: [],
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: getCurrentUserId()
     };
 
     try {
       const backend = await resolveBackend();
-      await backend.subtask.create(projectId, newSubTask);
+      await backend.subtask.create(projectId, newSubTask, getCurrentUserId());
       return newSubTask;
     } catch (error) {
       console.error('Failed to create subtask:', error);
@@ -78,11 +81,11 @@ export const SubTaskService = {
 
     try {
       const backend = await resolveBackend();
-      const success = await backend.subtask.update(projectId, subTaskId, patchData);
+      const success = await backend.subtask.update(projectId, subTaskId, patchData, getCurrentUserId());
       if (!success) {
         return null;
       }
-      return await backend.subtask.get(projectId, subTaskId);
+      return await backend.subtask.get(projectId, subTaskId, getCurrentUserId());
     } catch (error) {
       console.error('Failed to update subtask:', error);
       errorHandler.addSyncError('サブタスク更新', 'subtask', subTaskId, error);
@@ -96,7 +99,7 @@ export const SubTaskService = {
   async deleteSubTask(projectId: string, subTaskId: string): Promise<boolean> {
     try {
       const backend = await resolveBackend();
-      return await backend.subtask.delete(projectId, subTaskId);
+      return await backend.subtask.delete(projectId, subTaskId, getCurrentUserId());
     } catch (error) {
       console.error('Failed to delete subtask:', error);
       errorHandler.addSyncError('サブタスク削除', 'subtask', subTaskId, error);
@@ -110,8 +113,8 @@ export const SubTaskService = {
   async addTagToSubTask(projectId: string, subTaskId: string, tagId: string): Promise<void> {
     try {
       const backend = await resolveBackend();
-      const subTask = await backend.subtask.get(projectId, subTaskId);
-      const tag = await backend.tag.get(projectId, tagId);
+      const subTask = await backend.subtask.get(projectId, subTaskId, getCurrentUserId());
+      const tag = await backend.tag.get(projectId, tagId, getCurrentUserId());
 
       if (!subTask || !tag) {
         console.warn('addTagToSubTask is deprecated and requires existing entities.');
@@ -132,7 +135,7 @@ export const SubTaskService = {
     void _tagId;
     try {
       const backend = await resolveBackend();
-      const subTask = await backend.subtask.get(projectId, subTaskId);
+      const subTask = await backend.subtask.get(projectId, subTaskId, getCurrentUserId());
       if (!subTask) {
         console.warn('removeTagFromSubTask is deprecated and subtask not found.');
         return;

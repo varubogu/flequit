@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use flequit_model::types::id_types::ProjectId;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_types::errors::repository_error::RepositoryError;
 
 /// プロジェクト単位でリレーションデータ管理するリポジトリのベーストレイト
@@ -35,6 +36,8 @@ where
         project_id: &ProjectId,
         parent_id: &TParentId,
         child_id: &TChildId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError>;
 
     /// プロジェクト内でリレーションを削除
@@ -191,13 +194,15 @@ where
         &self,
         project_id: &ProjectId,
         relations: &[(TParentId, TChildId)],
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError>
     where
         TParentId: Clone,
         TChildId: Clone,
     {
         for (parent_id, child_id) in relations {
-            self.add(project_id, parent_id, child_id).await?;
+            self.add(project_id, parent_id, child_id, user_id, timestamp).await?;
         }
         Ok(())
     }

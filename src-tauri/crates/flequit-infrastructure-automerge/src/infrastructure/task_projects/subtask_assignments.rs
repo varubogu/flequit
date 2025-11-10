@@ -4,7 +4,7 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_assignment::SubTaskAssignment;
 use flequit_model::types::id_types::{ProjectId, SubTaskId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
@@ -19,6 +19,9 @@ struct SubtaskAssignmentRelation {
     subtask_id: String,
     user_id: String,
     created_at: chrono::DateTime<Utc>,
+    updated_at: chrono::DateTime<Utc>,
+    updated_by: String,
+    deleted: bool,
 }
 
 #[derive(Debug)]
@@ -124,9 +127,12 @@ impl SubtaskAssignmentLocalAutomergeRepository {
         if !exists {
             // 割り当てが存在しない場合のみ追加
             assignments.push(SubtaskAssignmentRelation {
-                subtask_id: subtask_id_str,
-                user_id: user_id_str,
+                subtask_id: subtask_id_str.clone(),
+                user_id: user_id_str.clone(),
                 created_at: Utc::now(),
+                updated_at: Utc::now(),
+                updated_by: user_id_str,
+                deleted: false,
             });
 
             document
@@ -231,10 +237,14 @@ impl SubtaskAssignmentLocalAutomergeRepository {
 
         // 新しい割り当てを追加
         for user_id in user_ids {
+            let user_id_str = user_id.to_string();
             assignments.push(SubtaskAssignmentRelation {
                 subtask_id: subtask_id.to_string(),
-                user_id: user_id.to_string(),
+                user_id: user_id_str.clone(),
                 created_at: Utc::now(),
+                updated_at: Utc::now(),
+                updated_by: user_id_str,
+                deleted: false,
             });
         }
 
@@ -258,6 +268,8 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &UserId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         self.add_assignment(project_id, parent_id, child_id).await
     }
@@ -295,8 +307,11 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
         for user_id in user_ids {
             let assignment = SubTaskAssignment {
                 subtask_id: parent_id.clone(),
-                user_id,
-                created_at: chrono::Utc::now(), // 実際の作成日時の取得は追加実装が必要
+                user_id: user_id.clone(),
+                created_at: chrono::Utc::now(),
+                updated_at: chrono::Utc::now(),
+                updated_by: user_id,
+                deleted: false,
             };
             relations.push(assignment);
         }
@@ -344,6 +359,9 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
                     subtask_id: parent_id.clone(),
                     user_id: child_id.clone(),
                     created_at: assignment_relation.created_at,
+                    updated_at: assignment_relation.updated_at,
+                    updated_by: UserId::from(assignment_relation.updated_by.clone()),
+                    deleted: assignment_relation.deleted,
                 };
                 Ok(Some(assignment))
             } else {
@@ -366,9 +384,12 @@ impl ProjectRelationRepository<SubTaskAssignment, SubTaskId, UserId>
             let subtask_assignments = assignment_relations
                 .into_iter()
                 .map(|rel| SubTaskAssignment {
-                    subtask_id: SubTaskId::from(rel.subtask_id),
-                    user_id: UserId::from(rel.user_id),
+                    subtask_id: SubTaskId::from(rel.subtask_id.clone()),
+                    user_id: UserId::from(rel.user_id.clone()),
                     created_at: rel.created_at,
+                    updated_at: rel.updated_at,
+                    updated_by: UserId::from(rel.updated_by),
+                    deleted: rel.deleted,
                 })
                 .collect();
             Ok(subtask_assignments)

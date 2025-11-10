@@ -4,7 +4,7 @@ use crate::state::AppState;
 use flequit_core::facades::account_facades;
 use flequit_model::models::accounts::account::PartialAccount;
 use flequit_model::models::ModelConverter;
-use flequit_model::types::id_types::AccountId;
+use flequit_model::types::id_types::{AccountId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -13,10 +13,12 @@ use tracing::instrument;
 pub async fn create_account(
     state: State<'_, AppState>,
     account: AccountCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let internal_account = account.to_model().await?;
     let repositories = state.repositories.read().await;
-    account_facades::create_account(&*repositories, &internal_account)
+    account_facades::create_account(&*repositories, &internal_account, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::account", command = "create_account", error = %e);

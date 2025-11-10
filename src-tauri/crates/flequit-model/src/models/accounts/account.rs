@@ -30,6 +30,8 @@ use serde::{Deserialize, Serialize};
 /// * `is_active` - アカウントの有効性フラグ
 /// * `created_at` - アカウント作成日時
 /// * `updated_at` - 最終更新日時
+/// * `deleted` - 削除フラグ（論理削除）
+/// * `updated_by` - 最終更新者のユーザーID
 ///
 /// # 設計思想
 ///
@@ -57,6 +59,8 @@ use serde::{Deserialize, Serialize};
 ///     is_active: true,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 ///
 /// // ローカル認証アカウントの例
@@ -71,6 +75,8 @@ use serde::{Deserialize, Serialize};
 ///     is_active: true,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize, Partial)]
@@ -98,4 +104,8 @@ pub struct Account {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID
+    pub updated_by: UserId,
 }

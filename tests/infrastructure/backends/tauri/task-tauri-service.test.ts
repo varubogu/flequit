@@ -32,7 +32,9 @@ describe('TaskTauriService', () => {
       orderIndex: 0,
       isArchived: false,
       createdAt: new Date('2024-01-01T00:00:00Z'),
-      updatedAt: new Date('2024-01-01T00:00:00Z')
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
     vi.clearAllMocks();
   });
@@ -41,7 +43,7 @@ describe('TaskTauriService', () => {
     it('should successfully create a task', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create('test-project-id', mockTask);
+      const result = await service.create('test-project-id', mockTask, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.objectContaining({
         id: mockTask.id,
@@ -55,7 +57,7 @@ describe('TaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create('test-project-id', mockTask);
+      const result = await service.create('test-project-id', mockTask, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.any(Object) });
       expect(result).toBe(false);
@@ -79,7 +81,7 @@ describe('TaskTauriService', () => {
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockTask.id, patchData);
+      const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });
       expect(result).toBe(true);
@@ -99,7 +101,7 @@ describe('TaskTauriService', () => {
         do_start_date: mockTask.doStartDate?.toISOString(),
         do_end_date: mockTask.doEndDate?.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockTask.id, patchData);
+      const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData });
       expect(result).toBe(false);
@@ -113,7 +115,7 @@ describe('TaskTauriService', () => {
     it('should successfully delete a task', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('test-project-id', 'task-123');
+      const result = await service.delete('test-project-id', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBe(true);
@@ -123,7 +125,7 @@ describe('TaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('test-project-id', 'task-123');
+      const result = await service.delete('test-project-id', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBe(false);
@@ -137,7 +139,7 @@ describe('TaskTauriService', () => {
     it('should successfully retrieve a task', async () => {
       mockInvoke.mockResolvedValue(mockTask);
 
-      const result = await service.get('test-project-id', 'task-123');
+      const result = await service.get('test-project-id', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toEqual(mockTask);
@@ -146,7 +148,7 @@ describe('TaskTauriService', () => {
     it('should return null when task not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('test-project-id', 'non-existent');
+      const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'non-existent' });
       expect(result).toBeNull();
@@ -156,7 +158,7 @@ describe('TaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('test-project-id', 'task-123');
+      const result = await service.get('test-project-id', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' });
       expect(result).toBeNull();

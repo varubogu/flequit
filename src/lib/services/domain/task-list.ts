@@ -4,6 +4,7 @@ import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import type { ProjectTree } from '$lib/types/project';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * タスクリストドメインサービス（CRUD操作）
@@ -52,12 +53,14 @@ export const TaskListService = {
       orderIndex: taskListData.order_index ?? 0,
       isArchived: false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: getCurrentUserId()
     };
 
     try {
       const backend = await resolveBackend();
-      await backend.tasklist.create(projectId, newTaskList);
+      await backend.tasklist.create(projectId, newTaskList, getCurrentUserId());
       return newTaskList;
     } catch (error) {
       console.error('Failed to create task list:', error);
@@ -82,10 +85,10 @@ export const TaskListService = {
         updated_at: new Date()
       };
 
-      const success = await backend.tasklist.update(projectId, taskListId, patchData);
+      const success = await backend.tasklist.update(projectId, taskListId, patchData, getCurrentUserId());
 
       if (success) {
-        return await backend.tasklist.get(projectId, taskListId);
+        return await backend.tasklist.get(projectId, taskListId, getCurrentUserId());
       }
       return null;
     } catch (error) {
@@ -101,7 +104,7 @@ export const TaskListService = {
   async deleteTaskList(projectId: string, taskListId: string): Promise<boolean> {
     try {
       const backend = await resolveBackend();
-      return await backend.tasklist.delete(projectId, taskListId);
+      return await backend.tasklist.delete(projectId, taskListId, getCurrentUserId());
     } catch (error) {
       console.error('Failed to delete task list:', error);
       errorHandler.addSyncError('タスクリスト削除', 'tasklist', taskListId, error);

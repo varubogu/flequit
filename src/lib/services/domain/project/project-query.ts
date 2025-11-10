@@ -47,7 +47,9 @@ export const ProjectQueryService = {
 				orderIndex: list.orderIndex,
 				isArchived: list.isArchived,
 				createdAt: list.createdAt,
-				updatedAt: list.updatedAt
+				updatedAt: list.updatedAt,
+				deleted: list.deleted,
+				updatedBy: list.updatedBy
 			}))
 		};
 	},
@@ -64,7 +66,9 @@ export const ProjectQueryService = {
 			orderIndex: project.orderIndex,
 			isArchived: project.isArchived,
 			createdAt: project.createdAt,
-			updatedAt: project.updatedAt
+			updatedAt: project.updatedAt,
+			deleted: project.deleted,
+			updatedBy: project.updatedBy
 		}));
 	},
 
@@ -121,7 +125,9 @@ export const ProjectQueryService = {
 				orderIndex: result.project.orderIndex,
 				isArchived: result.project.isArchived,
 				createdAt: result.project.createdAt,
-				updatedAt: result.project.updatedAt
+				updatedAt: result.project.updatedAt,
+				deleted: result.project.deleted,
+				updatedBy: result.project.updatedBy
 			},
 			taskList: {
 				id: result.taskList.id,
@@ -132,7 +138,9 @@ export const ProjectQueryService = {
 				orderIndex: result.taskList.orderIndex,
 				isArchived: result.taskList.isArchived,
 				createdAt: result.taskList.createdAt,
-				updatedAt: result.taskList.updatedAt
+				updatedAt: result.taskList.updatedAt,
+				deleted: result.taskList.deleted,
+				updatedBy: result.taskList.updatedBy
 			}
 		};
 	}

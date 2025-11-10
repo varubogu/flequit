@@ -4,13 +4,14 @@
 //! アカウントエンティティに最適化されたアクセスパターンを提供する。
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_repository::patchable_trait::Patchable;
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::accounts::account::AccountLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
 use flequit_model::models::accounts::account::Account;
-use flequit_model::types::id_types::AccountId;
+use flequit_model::types::id_types::{AccountId, UserId};
 use flequit_repository::repositories::accounts::account_repository_trait::AccountRepositoryTrait;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -28,10 +29,10 @@ impl AccountRepositoryTrait for AccountRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountRepositoryVariant {
-    async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Account, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(entity).await,
-            Self::LocalAutomerge(repo) => repo.save(entity).await,
+            Self::LocalSqlite(repo) => repo.save(entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(entity, user_id, timestamp).await,
         }
     }
 
@@ -153,7 +154,7 @@ impl AccountUnifiedRepository {
 impl Repository<Account, AccountId> for AccountUnifiedRepository {
     /// 保存用リポジトリ（SQLite + Automerge + α）に保存
 
-    async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Account, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "AccountUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
             self.save_repositories.len()
@@ -162,7 +163,7 @@ impl Repository<Account, AccountId> for AccountUnifiedRepository {
 
         // 全ての保存用リポジトリに順次保存
         for repo in &self.save_repositories {
-            repo.save(entity).await?;
+            repo.save(entity, user_id, timestamp).await?;
         }
 
         Ok(())

@@ -1,0 +1,650 @@
+   0.289106665s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit_lib"}: cargo::core::compiler::fingerprint: fingerprint error for flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri)/Check { test: false }/TargetInner { ..: lib_target("flequit_lib", ["staticlib", "cdylib", "rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/src/lib.rs", Edition2021) }
+   0.289140698s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit_lib"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-1ed57aa985f28a53/lib-flequit_lib`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.316179954s  INFO prepare_target{force=false package_id=flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core) target="flequit_core"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core)/Check { test: false }/TargetInner { ..: lib_target("flequit_core", ["rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core/src/lib.rs", Edition2021) }
+   0.316197985s  INFO prepare_target{force=false package_id=flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core) target="flequit_core"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-core-d7eab4f6377cee22/lib-flequit_core`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: cargo::core::compiler::compile
+   6: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   7: cargo::ops::cargo_compile::compile_ws
+   8: cargo::ops::cargo_compile::compile_with_exec
+   9: cargo::ops::cargo_compile::compile
+  10: cargo::commands::check::exec
+  11: <cargo::cli::Exec>::exec
+  12: cargo::main
+  13: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  14: std::rt::lang_start::<()>::{closure#0}
+  15: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  16: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  17: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  18: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  19: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  20: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  21: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  22: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  23: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  24: main
+  25: <unknown>
+  26: __libc_start_main
+  27: <unknown>
+   0.316921148s  INFO prepare_target{force=false package_id=flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure) target="flequit_infrastructure"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("flequit_infrastructure", ["lib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure/src/lib.rs", Edition2024) }
+   0.316933346s  INFO prepare_target{force=false package_id=flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure) target="flequit_infrastructure"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-28a6ab0d22de6324/lib-flequit_infrastructure`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: cargo::core::compiler::compile
+   6: cargo::core::compiler::compile
+   7: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   8: cargo::ops::cargo_compile::compile_ws
+   9: cargo::ops::cargo_compile::compile_with_exec
+  10: cargo::ops::cargo_compile::compile
+  11: cargo::commands::check::exec
+  12: <cargo::cli::Exec>::exec
+  13: cargo::main
+  14: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  15: std::rt::lang_start::<()>::{closure#0}
+  16: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  17: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  18: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  19: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  20: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  21: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  22: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  23: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  24: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  25: main
+  26: <unknown>
+  27: __libc_start_main
+  28: <unknown>
+   0.328693614s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="flequit_infrastructure_sqlite"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)/Check { test: false }/TargetInner { ..: lib_target("flequit_infrastructure_sqlite", ["rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite/src/lib.rs", Edition2021) }
+   0.328712938s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="flequit_infrastructure_sqlite"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-sqlite-1bb5b1d6110d330e/lib-flequit_infrastructure_sqlite`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: cargo::core::compiler::compile
+   6: cargo::core::compiler::compile
+   7: cargo::core::compiler::compile
+   8: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   9: cargo::ops::cargo_compile::compile_ws
+  10: cargo::ops::cargo_compile::compile_with_exec
+  11: cargo::ops::cargo_compile::compile
+  12: cargo::commands::check::exec
+  13: <cargo::cli::Exec>::exec
+  14: cargo::main
+  15: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  16: std::rt::lang_start::<()>::{closure#0}
+  17: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  18: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  19: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  20: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  21: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  22: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  23: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  24: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  25: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  26: main
+  27: <unknown>
+  28: __libc_start_main
+  29: <unknown>
+   0.338266525s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit_lib"}: cargo::core::compiler::fingerprint: fingerprint error for flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri)/Check { test: true }/TargetInner { ..: lib_target("flequit_lib", ["staticlib", "cdylib", "rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/src/lib.rs", Edition2021) }
+   0.338283651s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit_lib"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-1dc50ac288d7e436/test-lib-flequit_lib`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.340284621s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit"}: cargo::core::compiler::fingerprint: fingerprint error for flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri)/Check { test: false }/TargetInner { name: "flequit", doc: true, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/src/main.rs", Edition2021) }
+   0.340304815s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-f957ea4618e6de59/bin-flequit`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.342056208s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit"}: cargo::core::compiler::fingerprint: fingerprint error for flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri)/Check { test: true }/TargetInner { name: "flequit", doc: true, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/src/main.rs", Edition2021) }
+   0.342070214s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="flequit"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-a018b1f32c06cee7/test-bin-flequit`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.343696920s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="config_integration_test"}: cargo::core::compiler::fingerprint: fingerprint error for flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri)/Check { test: true }/TargetInner { kind: "test", name: "config_integration_test", benched: false, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/tests/config_integration_test.rs", Edition2021) }
+   0.343713135s  INFO prepare_target{force=false package_id=flequit v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri) target="config_integration_test"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-2ede91284c52a794/test-integration-test-config_integration_test`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.345161635s  INFO prepare_target{force=false package_id=flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core) target="flequit_core"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core)/Check { test: true }/TargetInner { ..: lib_target("flequit_core", ["rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core/src/lib.rs", Edition2021) }
+   0.345178150s  INFO prepare_target{force=false package_id=flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core) target="flequit_core"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-core-b72578b3312c4211/test-lib-flequit_core`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.345764804s  INFO prepare_target{force=false package_id=flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure) target="flequit_infrastructure"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("flequit_infrastructure", ["lib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure/src/lib.rs", Edition2024) }
+   0.345772713s  INFO prepare_target{force=false package_id=flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure) target="flequit_infrastructure"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-bb5fe3b9dea1849f/test-lib-flequit_infrastructure`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.348423384s  INFO prepare_target{force=false package_id=flequit-infrastructure-automerge v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-automerge) target="integration_tests"}: cargo::core::compiler::fingerprint: fingerprint dirty for flequit-infrastructure-automerge v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-automerge)/Check { test: true }/TargetInner { kind: "test", name: "integration_tests", benched: false, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-automerge/tests/integration_tests.rs", Edition2021) }
+   0.348444269s  INFO prepare_target{force=false package_id=flequit-infrastructure-automerge v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-automerge) target="integration_tests"}: cargo::core::compiler::fingerprint:     dirty: UnitDependencyInfoChanged { old_name: "flequit_infrastructure_automerge", old_fingerprint: 2319660544151085184, new_name: "flequit_infrastructure_automerge", new_fingerprint: 15677157314500263618 }
+   0.351004024s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="flequit_infrastructure_sqlite"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)/Check { test: true }/TargetInner { ..: lib_target("flequit_infrastructure_sqlite", ["rlib"], "/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite/src/lib.rs", Edition2021) }
+   0.351026074s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="flequit_infrastructure_sqlite"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-sqlite-88dbf1aafd844d00/test-lib-flequit_infrastructure_sqlite`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.352848743s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="migration_runner"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)/Check { test: false }/TargetInner { name: "migration_runner", doc: true, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite/src/bin/migration_runner.rs", Edition2021) }
+   0.352861641s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="migration_runner"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-sqlite-780f22f5d03986e6/bin-migration_runner`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.353587347s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="migration_runner"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)/Check { test: true }/TargetInner { name: "migration_runner", doc: true, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite/src/bin/migration_runner.rs", Edition2021) }
+   0.353597233s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="migration_runner"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-sqlite-ab43677ad4b1cca5/test-bin-migration_runner`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.354563452s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="integration_tests"}: cargo::core::compiler::fingerprint: fingerprint error for flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)/Check { test: true }/TargetInner { kind: "test", name: "integration_tests", benched: false, ..: with_path("/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite/tests/integration_tests.rs", Edition2021) }
+   0.354585357s  INFO prepare_target{force=false package_id=flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite) target="integration_tests"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/target/debug/.fingerprint/flequit-infrastructure-sqlite-fd5faf6dbef12342/test-integration-test-integration_tests`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/core/src/ops/function.rs:290:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  16: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  17: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:589:40
+  20: std::panicking::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panicking.rs:552:19
+  21: std::panic::catch_unwind
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/1159e78c4747b02ef996e55082b704c09b970588/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+warning: flequit-infrastructure-sqlite@0.1.0: 🔧 SQLiteテストテンプレートデータベース作成開始 (infra-sqlite)
+warning: flequit-infrastructure-sqlite@0.1.0: 🏠 プロジェクトルート:
+warning: flequit-infrastructure-sqlite@0.1.0: 📍 テンプレートパス: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: 🗑️ 既存テンプレートDB削除中...
+warning: flequit-infrastructure-sqlite@0.1.0: 🚀 migration_runner実行開始...
+warning: flequit-infrastructure-sqlite@0.1.0: 📤 migration_runner stdout: 🔧 マイグレーション実行開始: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: ✅ SQLiteテストテンプレートDB作成完了: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: 📁 ファイル存在確認: true
+warning: flequit-infrastructure-automerge@0.1.0: 🔧 Automergeテスト出力ディレクトリ作成開始 (infra-automerge)
+warning: flequit-infrastructure-automerge@0.1.0: 🏠 プロジェクトルート:
+warning: flequit-infrastructure-automerge@0.1.0: 📁 テスト出力ディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge
+warning: flequit-infrastructure-automerge@0.1.0: 📁 automergeディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge/automerge
+warning: flequit-infrastructure-automerge@0.1.0: 📁 jsonディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge/json
+warning: flequit-infrastructure-automerge@0.1.0: ✅ Automergeテスト出力ディレクトリセットアップ完了
+    Checking flequit-infrastructure-sqlite v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-sqlite)
+warning: flequit@0.1.0: 🔍 build.rs実行: PROFILE=debug, target_env=false, is_test_build=false
+warning: flequit@0.1.0: 🔧 SQLiteテストテンプレートデータベース作成開始
+warning: flequit@0.1.0: ❌ マイグレーション失敗: error: no bin target named `migration_runner` in default-run packages
+    Checking flequit-infrastructure-automerge v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure-automerge)
+warning: flequit-infrastructure-automerge@0.1.0: 🔧 Automergeテスト出力ディレクトリ作成開始 (infra-automerge)
+warning: flequit-infrastructure-automerge@0.1.0: 🏠 プロジェクトルート:
+warning: flequit-infrastructure-automerge@0.1.0: 📁 テスト出力ディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge
+warning: flequit-infrastructure-automerge@0.1.0: 📁 automergeディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge/automerge
+warning: flequit-infrastructure-automerge@0.1.0: 📁 jsonディレクトリ作成完了: .tmp/tests/cargo/flequit-infrastructure-automerge/json
+warning: flequit-infrastructure-automerge@0.1.0: ✅ Automergeテスト出力ディレクトリセットアップ完了
+error: could not compile `flequit-infrastructure-automerge` (test "integration_tests") due to 27 previous errors
+warning: build failed, waiting for other jobs to finish...
+    Checking flequit-infrastructure v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-infrastructure)
+warning: flequit-infrastructure-sqlite@0.1.0: 🔧 SQLiteテストテンプレートデータベース作成開始 (infra-sqlite)
+warning: flequit-infrastructure-sqlite@0.1.0: 🏠 プロジェクトルート:
+warning: flequit-infrastructure-sqlite@0.1.0: 📍 テンプレートパス: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: 🗑️ 既存テンプレートDB削除中...
+warning: flequit-infrastructure-sqlite@0.1.0: 🚀 migration_runner実行開始...
+warning: flequit-infrastructure-sqlite@0.1.0: 📤 migration_runner stdout: 🔧 マイグレーション実行開始: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: ✅ SQLiteテストテンプレートDB作成完了: .tmp/tests/test_database.db
+warning: flequit-infrastructure-sqlite@0.1.0: 📁 ファイル存在確認: true
+error: could not compile `flequit-infrastructure-sqlite` (test "integration_tests") due to 97 previous errors
+    Checking flequit-core v0.1.0 (/home/toyosuke/Projects/repo/github.com/varubogu/flequit/src-tauri/crates/flequit-core)
+error: could not compile `flequit-core` (lib) due to 8 previous errors
+error: could not compile `flequit-core` (lib test) due to 8 previous errors

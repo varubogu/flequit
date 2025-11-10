@@ -31,6 +31,10 @@ pub struct AccountCommandModel {
     pub created_at: String,
     /// 更新日時
     pub updated_at: String,
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -63,6 +67,11 @@ impl ModelConverter<Account> for AccountCommandModel {
             is_active: self.is_active,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(
+                Uuid::parse_str(&self.updated_by)
+                    .map_err(|e| format!("Invalid updated_by ID: {}", e))?,
+            ),
         })
     }
 }
@@ -82,6 +91,8 @@ impl CommandModelConverter<AccountCommandModel> for Account {
             is_active: self.is_active,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

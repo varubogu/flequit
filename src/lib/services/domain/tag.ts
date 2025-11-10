@@ -5,6 +5,7 @@ import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte'
 import { tagStore as tagStoreFacade } from '$lib/stores/tags.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * タグドメインサービス
@@ -40,7 +41,9 @@ export const TagService = {
       name: trimmedName,
       color: tagData.color,
       createdAt: new SvelteDate(),
-      updatedAt: new SvelteDate()
+      updatedAt: new SvelteDate(),
+      deleted: false,
+      updatedBy: getCurrentUserId()
     };
 
     // 1. Storeに追加
@@ -49,7 +52,7 @@ export const TagService = {
     // 2. バックエンドに同期
     try {
       const backend = await resolveBackend();
-      await backend.tag.create(projectId, newTag);
+      await backend.tag.create(projectId, newTag, getCurrentUserId());
     } catch (error) {
       console.error('Failed to sync new tag to backend:', error);
       errorHandler.addSyncError('タグ作成', 'tag', newTag.id, error);
@@ -89,7 +92,7 @@ export const TagService = {
       await backend.tag.update(projectId, tagId, {
         ...updates,
         updatedAt: new Date()
-      });
+      }, getCurrentUserId());
 
       // 更新通知
       this.notifyTagUpdate(tagStoreInternal.findTagById(tagId)!);
@@ -126,7 +129,7 @@ export const TagService = {
     // 2. バックエンドに同期
     try {
       const backend = await resolveBackend();
-      await backend.tag.delete(projectId, tagId);
+      await backend.tag.delete(projectId, tagId, getCurrentUserId());
 
       // 削除コールバック
       onDelete?.(tagId);

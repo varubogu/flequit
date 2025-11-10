@@ -1,6 +1,7 @@
+use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task_tag::TaskTag;
-use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
+use flequit_model::types::id_types::{ProjectId, TagId, TaskId, UserId};
 use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
@@ -11,6 +12,7 @@ pub async fn add_task_tag_relation<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     tag_id: &TagId,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -18,7 +20,7 @@ where
     let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
     repositories
         .task_tags()
-        .add(&actual_project_id, task_id, tag_id)
+        .add(&actual_project_id, task_id, tag_id, user_id, &Utc::now())
         .await
         .map_err(ServiceError::Repository)?;
     Ok(())
@@ -93,6 +95,7 @@ pub async fn update_task_tag_relations<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     tag_ids: &[TagId],
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -103,10 +106,11 @@ where
         .remove_all(&actual_project_id, task_id)
         .await
         .map_err(ServiceError::Repository)?;
+    let now = Utc::now();
     for tag_id in tag_ids {
         repositories
             .task_tags()
-            .add(&actual_project_id, task_id, tag_id)
+            .add(&actual_project_id, task_id, tag_id, user_id, &now)
             .await
             .map_err(ServiceError::Repository)?;
     }

@@ -23,7 +23,9 @@ describe('SubtaskWebService', () => {
       assignedUserIds: [],
       tags: [],
       createdAt: new Date('2024-01-01T00:00:00Z'),
-      updatedAt: new Date('2024-01-01T00:00:00Z')
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     mockSearchCondition = {

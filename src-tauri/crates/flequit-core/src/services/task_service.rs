@@ -11,11 +11,13 @@ pub async fn create_task<R>(
     repositories: &R,
     project_id: &ProjectId,
     task: &Task,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    repositories.tasks().save(project_id, task).await?;
+    let now = Utc::now();
+    repositories.tasks().save(project_id, task, user_id, &now).await?;
     Ok(())
 }
 
@@ -45,13 +47,15 @@ pub async fn update_task<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     patch: &PartialTask,
+    user_id: &UserId,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    let now = Utc::now();
     Ok(repositories
         .tasks()
-        .patch(project_id, task_id, patch)
+        .patch(project_id, task_id, patch, user_id, &now)
         .await?)
 }
 
@@ -116,6 +120,7 @@ pub async fn assign_task<R>(
     project_id: &str,
     task_id: &str,
     assignee_id: Option<String>,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -153,7 +158,8 @@ where
         task.updated_at = Utc::now();
 
         // 保存
-        repositories.tasks().save(&project_id_typed, &task).await?;
+        let now = Utc::now();
+        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
     }
 
     Ok(())
@@ -164,6 +170,7 @@ pub async fn update_task_status<R>(
     project_id: &str,
     task_id: &str,
     status: &TaskStatus,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -193,7 +200,8 @@ where
         task.updated_at = Utc::now();
 
         // 保存
-        repositories.tasks().save(&project_id_typed, &task).await?;
+        let now = Utc::now();
+        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
     }
 
     Ok(())
@@ -204,6 +212,7 @@ pub async fn update_task_priority<R>(
     project_id: &str,
     task_id: &str,
     priority: i32,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -233,7 +242,8 @@ where
         task.updated_at = Utc::now();
 
         // 保存
-        repositories.tasks().save(&project_id_typed, &task).await?;
+        let now = Utc::now();
+        repositories.tasks().save(&project_id_typed, &task, user_id, &now).await?;
     }
 
     Ok(())

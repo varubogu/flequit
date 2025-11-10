@@ -46,6 +46,12 @@ pub struct Model {
 
     /// プロフィール最終更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -68,6 +74,8 @@ impl SqliteModelConverter<User> for Model {
             is_active: self.is_active,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -87,6 +95,8 @@ impl DomainToSqliteConverter<ActiveModel> for User {
             is_active: Set(self.is_active),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

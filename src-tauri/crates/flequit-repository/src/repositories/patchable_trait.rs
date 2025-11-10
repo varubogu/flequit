@@ -1,5 +1,7 @@
 use super::base_repository_trait::Repository;
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::UserId;
 use flequit_types::errors::repository_error::RepositoryError;
 use partially::Partial;
 
@@ -48,7 +50,7 @@ where
     /// 変更がなかった場合は`Ok(false)`、
     /// エンティティが存在しない場合は`Ok(false)`、
     /// エラー時は`Err(RepositoryError)`
-    async fn patch<P>(&self, id: &TId, patch: &P) -> Result<bool, RepositoryError>
+    async fn patch<P>(&self, id: &TId, patch: &P, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<bool, RepositoryError>
     where
         P: Send + Sync + Clone,
         T: Partial<Item = P> + Clone,
@@ -56,7 +58,7 @@ where
         if let Some(mut entity) = self.find_by_id(id).await? {
             let changed = entity.apply_some(patch.clone());
             if changed {
-                self.save(&entity).await?;
+                self.save(&entity, user_id, timestamp).await?;
             }
             Ok(changed)
         } else {

@@ -3,9 +3,9 @@ import type { SubtaskRecurrence, SubtaskRecurrenceSearchCondition } from '$lib/t
 import type { SubtaskRecurrenceService } from '$lib/infrastructure/backends/subtask-recurrence-service';
 
 export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
-  async create(projectId: string, subtaskRecurrence: SubtaskRecurrence): Promise<boolean> {
+  async create(projectId: string, subtaskRecurrence: SubtaskRecurrence, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('create_subtask_recurrence', { projectId, subtaskRecurrence });
+      const result = await invoke('create_subtask_recurrence', { projectId, subtaskRecurrence, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create subtask recurrence:', error);
@@ -13,9 +13,9 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
     }
   }
 
-  async getBySubtaskId(projectId: string, subtaskId: string): Promise<SubtaskRecurrence | null> {
+  async getBySubtaskId(projectId: string, subtaskId: string, userId: string): Promise<SubtaskRecurrence | null> {
     try {
-      const result = (await invoke('get_subtask_recurrence_by_subtask_id', { projectId, subtaskId })) as SubtaskRecurrence | null;
+      const result = (await invoke('get_subtask_recurrence_by_subtask_id', { projectId, subtaskId, userId })) as SubtaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get subtask recurrence by subtask ID:', error);
@@ -23,9 +23,9 @@ export class SubtaskRecurrenceTauriService implements SubtaskRecurrenceService {
     }
   }
 
-  async delete(projectId: string, subtaskId: string): Promise<boolean> {
+  async delete(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_subtask_recurrence', { projectId, subtaskId });
+      const result = await invoke('delete_subtask_recurrence', { projectId, subtaskId, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete subtask recurrence:', error);

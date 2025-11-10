@@ -153,6 +153,9 @@ impl HybridMigrator {
         // 1. subtasksテーブルにdo_start_dateとdo_end_dateカラムを追加
         self.add_subtask_do_date_columns().await?;
 
+        // 2. 全テーブルにdeleted/updated_byカラムを追加
+        self.add_tracking_columns().await?;
+
         Ok(())
     }
 
@@ -200,15 +203,84 @@ impl HybridMigrator {
         Ok(())
     }
 
+    /// 全テーブルにdeleted/updated_byカラムを追加
+    async fn add_tracking_columns(&self) -> Result<(), DbErr> {
+        // 追加対象のテーブル一覧
+        let tables = vec![
+            "projects",
+            "task_lists",
+            "tasks",
+            "subtasks",
+            "tags",
+            "members",
+            "recurrence_rules",
+            "date_conditions",
+            "weekday_conditions",
+            "task_assignments",
+            "subtask_assignments",
+            "task_tags",
+            "subtask_tags",
+            "task_recurrence",
+            "subtask_recurrence",
+        ];
+
+        for table in tables {
+            // deleted カラムを追加
+            let add_deleted_sql = format!(
+                "ALTER TABLE {} ADD COLUMN deleted BOOLEAN DEFAULT FALSE;",
+                table
+            );
+
+            if let Err(e) = self.db.execute_unprepared(&add_deleted_sql).await {
+                let error_msg = e.to_string();
+                if !error_msg.contains("duplicate column name") && !error_msg.contains("no such table") {
+                    return Err(e);
+                }
+                if error_msg.contains("duplicate column name") {
+                    println!("  ℹ️  {}.deleted カラムは既に存在します", table);
+                } else if error_msg.contains("no such table") {
+                    println!("  ⚠️  {} テーブルが存在しません（スキップ）", table);
+                }
+            } else {
+                println!("  📝 {}.deleted カラムを追加しました", table);
+            }
+
+            // updated_by カラムを追加
+            let add_updated_by_sql = format!(
+                "ALTER TABLE {} ADD COLUMN updated_by TEXT;",
+                table
+            );
+
+            if let Err(e) = self.db.execute_unprepared(&add_updated_by_sql).await {
+                let error_msg = e.to_string();
+                if !error_msg.contains("duplicate column name") && !error_msg.contains("no such table") {
+                    return Err(e);
+                }
+                if error_msg.contains("duplicate column name") {
+                    println!("  ℹ️  {}.updated_by カラムは既に存在します", table);
+                } else if error_msg.contains("no such table") {
+                    println!("  ⚠️  {} テーブルが存在しません（スキップ）", table);
+                }
+            } else {
+                println!("  📝 {}.updated_by カラムを追加しました", table);
+            }
+        }
+
+        Ok(())
+    }
+
     /// 手動補完：複合制約、CASCADE等
     async fn apply_manual_supplements(&self) -> Result<(), DbErr> {
-        // 1. 複合ユニークインデックス
+        // 1. 複合外部キーを持つテーブルの再作成
+        self.recreate_tables_with_composite_fk().await?;
+
+        // 2. 複合ユニークインデックス
         self.create_composite_indexes().await?;
 
-        // 2. CASCADE制約
+        // 3. CASCADE制約
         self.add_cascade_constraints().await?;
 
-        // 3. 追加インデックス
+        // 4. 追加インデックス
         self.create_additional_indexes().await?;
 
         Ok(())
@@ -252,6 +324,111 @@ impl HybridMigrator {
         self.db.execute_unprepared(&sql).await?;
         println!("  🔗 複合ユニークインデックス作成: tags(project_id, name)");
 
+        Ok(())
+    }
+
+    /// 複合外部キーを持つテーブルの再作成
+    async fn recreate_tables_with_composite_fk(&self) -> Result<(), DbErr> {
+        // task_recurrenceテーブルの再作成
+        self.recreate_task_recurrence_table().await?;
+
+        // subtask_recurrenceテーブルの再作成
+        self.recreate_subtask_recurrence_table().await?;
+
+        Ok(())
+    }
+
+    /// task_recurrenceテーブルを複合外部キー付きで再作成
+    async fn recreate_task_recurrence_table(&self) -> Result<(), DbErr> {
+        // 既存データをバックアップ
+        let backup_sql = "CREATE TEMPORARY TABLE task_recurrence_backup AS SELECT * FROM task_recurrence;";
+        if let Err(e) = self.db.execute_unprepared(backup_sql).await {
+            if !e.to_string().contains("no such table") {
+                return Err(e);
+            }
+            // テーブルが存在しない場合はスキップ
+            println!("  ℹ️  task_recurrenceテーブルが存在しないため、再作成をスキップ");
+            return Ok(());
+        }
+
+        // 既存テーブルを削除
+        self.db.execute_unprepared("DROP TABLE IF EXISTS task_recurrence;").await?;
+
+        // 複合外部キー付きで再作成
+        let create_sql = r#"
+            CREATE TABLE task_recurrence (
+                project_id VARCHAR NOT NULL,
+                task_id VARCHAR NOT NULL,
+                recurrence_rule_id VARCHAR NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_task_recurrence PRIMARY KEY (project_id, task_id, recurrence_rule_id),
+                FOREIGN KEY (project_id, task_id) REFERENCES tasks (project_id, id) ON DELETE CASCADE,
+                FOREIGN KEY (project_id, recurrence_rule_id) REFERENCES recurrence_rules (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+
+        // データを復元
+        let restore_sql = "INSERT INTO task_recurrence SELECT * FROM task_recurrence_backup;";
+        if let Err(e) = self.db.execute_unprepared(restore_sql).await {
+            // データ復元失敗は警告のみ（新規インストールの場合はデータがない）
+            println!("  ⚠️  task_recurrenceデータ復元失敗（新規インストールの可能性）: {}", e);
+        }
+
+        // 一時テーブルを削除
+        self.db.execute_unprepared("DROP TABLE IF EXISTS task_recurrence_backup;").await?;
+
+        println!("  🔗 task_recurrenceテーブルを複合外部キー付きで再作成しました");
+        Ok(())
+    }
+
+    /// subtask_recurrenceテーブルを複合外部キー付きで再作成
+    async fn recreate_subtask_recurrence_table(&self) -> Result<(), DbErr> {
+        // 既存データをバックアップ
+        let backup_sql = "CREATE TEMPORARY TABLE subtask_recurrence_backup AS SELECT * FROM subtask_recurrence;";
+        if let Err(e) = self.db.execute_unprepared(backup_sql).await {
+            if !e.to_string().contains("no such table") {
+                return Err(e);
+            }
+            // テーブルが存在しない場合はスキップ
+            println!("  ℹ️  subtask_recurrenceテーブルが存在しないため、再作成をスキップ");
+            return Ok(());
+        }
+
+        // 既存テーブルを削除
+        self.db.execute_unprepared("DROP TABLE IF EXISTS subtask_recurrence;").await?;
+
+        // 複合外部キー付きで再作成
+        let create_sql = r#"
+            CREATE TABLE subtask_recurrence (
+                project_id VARCHAR NOT NULL,
+                subtask_id VARCHAR NOT NULL,
+                recurrence_rule_id VARCHAR NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_subtask_recurrence PRIMARY KEY (project_id, subtask_id, recurrence_rule_id),
+                FOREIGN KEY (project_id, subtask_id) REFERENCES subtasks (project_id, id) ON DELETE CASCADE,
+                FOREIGN KEY (project_id, recurrence_rule_id) REFERENCES recurrence_rules (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+
+        // データを復元
+        let restore_sql = "INSERT INTO subtask_recurrence SELECT * FROM subtask_recurrence_backup;";
+        if let Err(e) = self.db.execute_unprepared(restore_sql).await {
+            // データ復元失敗は警告のみ（新規インストールの場合はデータがない）
+            println!("  ⚠️  subtask_recurrenceデータ復元失敗（新規インストールの可能性）: {}", e);
+        }
+
+        // 一時テーブルを削除
+        self.db.execute_unprepared("DROP TABLE IF EXISTS subtask_recurrence_backup;").await?;
+
+        println!("  🔗 subtask_recurrenceテーブルを複合外部キー付きで再作成しました");
         Ok(())
     }
 

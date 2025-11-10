@@ -2,7 +2,7 @@ use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId, UserId};
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -27,35 +27,20 @@ pub struct Model {
 
     /// 作成日時
     pub created_at: DateTime<Utc>,
+
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::task::Entity",
-        from = "Column::TaskId",
-        to = "super::task::Column::Id"
-    )]
-    Task,
-    #[sea_orm(
-        belongs_to = "super::recurrence_rule::Entity",
-        from = "Column::RecurrenceRuleId",
-        to = "super::recurrence_rule::Column::Id"
-    )]
-    RecurrenceRule,
-}
-
-impl Related<super::task::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Task.def()
-    }
-}
-
-impl Related<super::recurrence_rule::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::RecurrenceRule.def()
-    }
-}
+pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
 
@@ -66,6 +51,9 @@ impl SqliteModelConverter<TaskRecurrence> for Model {
             task_id: TaskId::from(self.task_id.clone()),
             recurrence_rule_id: RecurrenceRuleId::from(self.recurrence_rule_id.clone()),
             created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -82,6 +70,9 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskRecurrence {
             task_id: Set(self.task_id.to_string()),
             recurrence_rule_id: Set(self.recurrence_rule_id.to_string()),
             created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

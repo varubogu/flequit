@@ -1,18 +1,19 @@
 use crate::services::task_list_service;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList};
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,
     task_list: &TaskList,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match task_list_service::create_task_list(repositories, project_id, task_list).await {
+    match task_list_service::create_task_list(repositories, project_id, task_list, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create task list: {:?}", e)),
@@ -39,11 +40,12 @@ pub async fn update_task_list<R>(
     project_id: &ProjectId,
     task_list_id: &TaskListId,
     patch: &PartialTaskList,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match task_list_service::update_task_list(repositories, project_id, task_list_id, patch).await {
+    match task_list_service::update_task_list(repositories, project_id, task_list_id, patch, user_id).await {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update task list: {:?}", e)),

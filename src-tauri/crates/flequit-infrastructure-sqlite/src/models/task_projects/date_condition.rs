@@ -6,7 +6,7 @@ use flequit_model::{
     models::task_projects::date_condition::DateCondition,
     types::{
         datetime_calendar_types::DateRelation,
-        id_types::{DateConditionId, ProjectId},
+        id_types::{DateConditionId, ProjectId, UserId},
     },
 };
 use sea_orm::entity::prelude::*;
@@ -42,6 +42,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -65,6 +72,10 @@ impl SqliteModelConverter<DateCondition> for Model {
             id: DateConditionId::from(self.id.clone()),
             relation,
             reference_date: self.reference_date,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -88,8 +99,10 @@ impl DomainToSqliteConverterWithProjectId<Model> for DateCondition {
             project_id: project_id.to_string(),
             relation: relation_str.to_string(),
             reference_date: self.reference_date,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

@@ -5,8 +5,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::weekday_condition::{Column, Entity as WeekdayConditionEntity};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::weekday_condition::WeekdayCondition;
-use flequit_model::types::id_types::{ProjectId, WeekdayConditionId};
+use flequit_model::types::id_types::{ProjectId, WeekdayConditionId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::weekday_condition_repository_trait::WeekdayConditionRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -33,6 +34,8 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
         &self,
         project_id: &ProjectId,
         entity: &WeekdayCondition,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -55,6 +58,8 @@ impl ProjectRepository<WeekdayCondition, WeekdayConditionId>
             then_days: Set(sqlite_model.then_days),
             created_at: Set(sqlite_model.created_at),
             updated_at: Set(sqlite_model.updated_at),
+            deleted: Set(sqlite_model.deleted),
+            updated_by: Set(sqlite_model.updated_by),
         };
 
         active_model

@@ -3,11 +3,11 @@ import type { Task } from '$lib/types/task';
 import type { TaskService } from '../task-service';
 
 export class TaskTauriService implements TaskService {
-  async create(projectId: string, task: Task): Promise<boolean> {
+  async create(projectId: string, task: Task, userId: string): Promise<boolean> {
     try {
       // TaskCommandModel形式でproject_idを設定
       const taskWithProjectId = { ...task, projectId };
-      await invoke('create_task', { task: taskWithProjectId });
+      await invoke('create_task', { task: taskWithProjectId, userId });
       return true;
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -15,9 +15,12 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<Task>): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<Task>, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_task', { projectId, id, patch });
+      // patchにidを含める（Tauriコマンドの要求）
+      const patchWithId = { ...patch, id };
+      console.log('[TaskTauriService.update] Sending patch:', JSON.stringify(patchWithId, null, 2));
+      const result = await invoke('update_task', { projectId, patch: patchWithId, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update task:', error);
@@ -25,9 +28,9 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async delete(projectId: string, id: string): Promise<boolean> {
+  async delete(projectId: string, id: string, userId: string): Promise<boolean> {
     try {
-      await invoke('delete_task', { projectId, id });
+      await invoke('delete_task', { projectId, id, userId });
       return true;
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -35,9 +38,9 @@ export class TaskTauriService implements TaskService {
     }
   }
 
-  async get(projectId: string, id: string): Promise<Task | null> {
+  async get(projectId: string, id: string, userId: string): Promise<Task | null> {
     try {
-      const result = (await invoke('get_task', { projectId, id })) as Task | null;
+      const result = (await invoke('get_task', { projectId, id, userId })) as Task | null;
       return result;
     } catch (error) {
       console.error('Failed to get task:', error);

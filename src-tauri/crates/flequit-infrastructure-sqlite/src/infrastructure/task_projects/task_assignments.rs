@@ -5,7 +5,7 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_assignments::{Column, Entity as TaskAssignmentEntity};
 use crate::models::SqliteModelConverter;
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_assignment::TaskAssignment;
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
@@ -100,11 +100,15 @@ impl TaskAssignmentLocalSqliteRepository {
 
         if existing.is_none() {
             // 割り当てが存在しない場合のみ追加
+            let now = Utc::now();
             let active_model = crate::models::task_assignments::ActiveModel {
                 task_id: Set(task_id.to_string()),
                 project_id: Set(project_id.to_string()),
                 user_id: Set(user_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(user_id.to_string()),
             };
 
             active_model
@@ -197,11 +201,15 @@ impl TaskAssignmentLocalSqliteRepository {
 
         // 新しい割り当てを追加
         for user_id in user_ids {
+            let now = Utc::now();
             let active_model = crate::models::task_assignments::ActiveModel {
                 task_id: Set(task_id.to_string()),
                 project_id: Set(project_id.to_string()),
                 user_id: Set(user_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(user_id.to_string()),
             };
 
             active_model.insert(db).await?;
@@ -220,6 +228,8 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId>
         project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &UserId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         self.add_assignment(project_id, parent_id, child_id).await
     }

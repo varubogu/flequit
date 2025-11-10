@@ -4,9 +4,9 @@ use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_recurrence::{Column, Entity as TaskRecurrenceEntity};
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_recurrence::TaskRecurrence;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::task_recurrence_repository_trait::TaskRecurrenceRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -38,6 +38,8 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &RecurrenceRuleId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -55,11 +57,15 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if existing.is_none() {
+            let now = Utc::now();
             let active = crate::models::task_recurrence::ActiveModel {
                 project_id: Set(project_id.to_string()),
                 task_id: Set(parent_id.to_string()),
                 recurrence_rule_id: Set(child_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(project_id.to_string()),
             };
 
             active
@@ -139,6 +145,9 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
                 task_id: TaskId::from(m.task_id),
                 recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
                 created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
             };
             result.push(d);
         }
@@ -210,6 +219,9 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
                 task_id: TaskId::from(m.task_id),
                 recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
                 created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
             };
             result.push(d);
         }
@@ -240,10 +252,13 @@ impl ProjectRelationRepository<TaskRecurrence, TaskId, RecurrenceRuleId>
         match model {
             Some(m) => {
                 let d = TaskRecurrence {
-                    task_id: TaskId::from(m.task_id),
-                    recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
-                    created_at: m.created_at,
-                };
+                task_id: TaskId::from(m.task_id),
+                recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
+                created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
+            };
                 Ok(Some(d))
             }
             None => Ok(None),

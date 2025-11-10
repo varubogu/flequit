@@ -45,6 +45,13 @@ pub struct Model {
 
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -69,6 +76,8 @@ impl SqliteModelConverter<Member> for Model {
             role,
             joined_at: self.joined_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -93,6 +102,8 @@ impl DomainToSqliteConverterWithProjectId<Model> for Member {
             role: role_str.to_string(),
             joined_at: self.joined_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

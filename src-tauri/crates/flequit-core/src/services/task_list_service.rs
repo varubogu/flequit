@@ -1,8 +1,9 @@
+use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
 use flequit_model::models::task_projects::SubTaskTree;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
@@ -11,13 +12,15 @@ pub async fn create_task_list<R>(
     repositories: &R,
     project_id: &ProjectId,
     task_list: &TaskList,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    let now = Utc::now();
     repositories
         .task_lists()
-        .save(project_id, task_list)
+        .save(project_id, task_list, user_id, &now)
         .await?;
     Ok(())
 }
@@ -41,13 +44,15 @@ pub async fn update_task_list<R>(
     project_id: &ProjectId,
     task_list_id: &TaskListId,
     patch: &PartialTaskList,
+    user_id: &UserId,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    let now = Utc::now();
     Ok(repositories
         .task_lists()
-        .patch(project_id, task_list_id, patch)
+        .patch(project_id, task_list_id, patch, user_id, &now)
         .await?)
 }
 
@@ -142,6 +147,8 @@ where
                     completed: subtask.completed,
                     created_at: subtask.created_at,
                     updated_at: subtask.updated_at,
+                    deleted: subtask.deleted,
+                    updated_by: subtask.updated_by.clone(),
                     assigned_user_ids: subtask.assigned_user_ids.clone(),
                     tag_ids: subtask.tag_ids.clone(),
                 };
@@ -167,6 +174,8 @@ where
                 is_archived: task.is_archived,
                 created_at: task.created_at,
                 updated_at: task.updated_at,
+                deleted: task.deleted,
+                updated_by: task.updated_by.clone(),
                 sub_tasks: sub_task_trees,
                 tag_ids: task.tag_ids.clone(),
             };
@@ -185,6 +194,8 @@ where
             is_archived: task_list.is_archived,
             created_at: task_list.created_at,
             updated_at: task_list.updated_at,
+            deleted: task_list.deleted,
+            updated_by: task_list.updated_by,
             tasks: tasks_with_subtasks,
         };
 

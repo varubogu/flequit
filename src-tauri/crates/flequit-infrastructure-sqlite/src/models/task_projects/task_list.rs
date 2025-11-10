@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::task_list::TaskList,
-    types::id_types::{ProjectId, TaskListId},
+    types::id_types::{ProjectId, TaskListId, UserId},
 };
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
@@ -48,6 +48,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)] // 削除済みデータのフィルタ用
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -90,6 +97,8 @@ impl SqliteModelConverter<TaskList> for Model {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -108,6 +117,8 @@ impl DomainToSqliteConverter<ActiveModel> for TaskList {
             is_archived: Set(self.is_archived),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }
@@ -129,6 +140,8 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskList {
             is_archived: Set(self.is_archived),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

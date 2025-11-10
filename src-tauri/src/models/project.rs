@@ -23,6 +23,8 @@ pub struct ProjectCommandModel {
     pub owner_id: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -57,6 +59,8 @@ impl ModelConverter<Project> for ProjectCommandModel {
                 .map(|id| UserId::from(Uuid::parse_str(id).unwrap_or_default())),
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -76,6 +80,8 @@ impl CommandModelConverter<ProjectCommandModel> for Project {
             owner_id: Option::from(self.owner_id.unwrap_or_default().to_string()),
             created_at: self.created_at.to_string(),
             updated_at: self.updated_at.to_string(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }
@@ -94,6 +100,8 @@ pub struct ProjectTreeCommandModel {
     pub owner_id: Option<String>,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
     pub task_lists: Vec<super::task_list::TaskListTreeCommandModel>,
     pub all_tags: Vec<super::tag::TagCommandModel>,
 }
@@ -133,6 +141,8 @@ impl ModelConverter<ProjectTree> for ProjectTreeCommandModel {
             owner_id: Option::from(UserId::from(self.owner_id.clone().unwrap_or_default())),
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
             task_lists: task_list_commands,
         })
     }
@@ -153,6 +163,8 @@ impl CommandModelConverter<ProjectTreeCommandModel> for ProjectTree {
             owner_id: self.owner_id.as_ref().map(|id| id.to_string()),
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
             task_lists: {
                 let mut task_list_commands = Vec::new();
                 for task_list in &self.task_lists {

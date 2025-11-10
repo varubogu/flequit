@@ -33,7 +33,9 @@ describe('SubtaskTauriService', () => {
       assignedUserIds: [],
       tags: [],
       createdAt: new Date('2024-01-01T00:00:00Z'),
-      updatedAt: new Date('2024-01-01T00:00:00Z')
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
     vi.clearAllMocks();
   });
@@ -42,7 +44,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully create a subtask', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create('test-project-id', mockSubTask);
+      const result = await service.create('test-project-id', mockSubTask, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
         projectId: 'test-project-id',
@@ -60,7 +62,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create('test-project-id', mockSubTask);
+      const result = await service.create('test-project-id', mockSubTask, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
         projectId: 'test-project-id',
@@ -86,10 +88,12 @@ describe('SubtaskTauriService', () => {
         completed: false,
         tags: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id'
       };
 
-      const result = await service.create('test-project-id', minimalSubTask);
+      const result = await service.create('test-project-id', minimalSubTask, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_sub_task', expect.objectContaining({
         projectId: 'test-project-id',
@@ -124,7 +128,7 @@ describe('SubtaskTauriService', () => {
         created_at: mockSubTask.createdAt.toISOString(),
         updated_at: mockSubTask.updatedAt.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockSubTask.id, patchData);
+      const result = await service.update('test-project-id', mockSubTask.id, patchData, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
@@ -153,7 +157,7 @@ describe('SubtaskTauriService', () => {
         created_at: mockSubTask.createdAt.toISOString(),
         updated_at: mockSubTask.updatedAt.toISOString()
       } as Record<string, unknown>;
-      const result = await service.update('test-project-id', mockSubTask.id, patchData);
+      const result = await service.update('test-project-id', mockSubTask.id, patchData, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
@@ -191,7 +195,7 @@ describe('SubtaskTauriService', () => {
         updated_at: (updatedSubTask.updated_at as Date).toISOString()
       } as Record<string, unknown>;
 
-      const result = await service.update('test-project-id', updatedSubTask.id, patchData);
+      const result = await service.update('test-project-id', updatedSubTask.id, patchData, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
@@ -206,7 +210,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully delete a subtask', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('test-project-id', 'subtask-123');
+      const result = await service.delete('test-project-id', 'subtask-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
         projectId: 'test-project-id',
@@ -219,7 +223,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('test-project-id', 'subtask-123');
+      const result = await service.delete('test-project-id', 'subtask-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
         projectId: 'test-project-id',
@@ -236,7 +240,7 @@ describe('SubtaskTauriService', () => {
     it('should successfully retrieve a subtask', async () => {
       mockInvoke.mockResolvedValue(mockSubTask);
 
-      const result = await service.get('test-project-id', 'subtask-123');
+      const result = await service.get('test-project-id', 'subtask-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
@@ -248,7 +252,7 @@ describe('SubtaskTauriService', () => {
     it('should return null when subtask not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('test-project-id', 'non-existent');
+      const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
@@ -261,7 +265,7 @@ describe('SubtaskTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('test-project-id', 'subtask-123');
+      const result = await service.get('test-project-id', 'subtask-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
@@ -344,19 +348,23 @@ describe('SubtaskTauriService', () => {
             name: 'urgent',
             color: '#FF0000',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            deleted: false,
+            updatedBy: 'test-user-id'
           },
           {
             id: 'tag-2',
             name: 'review',
             color: '#00FF00',
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            deleted: false,
+            updatedBy: 'test-user-id'
           }
         ]
       };
 
-      const result = await service.create('test-project-id', subTaskWithTags);
+      const result = await service.create('test-project-id', subTaskWithTags, 'test-user-id');
 
       expect(result).toBe(true);
     });
@@ -373,7 +381,7 @@ describe('SubtaskTauriService', () => {
         }
       };
 
-      const result = await service.create('test-project-id', subTaskWithRecurrence);
+      const result = await service.create('test-project-id', subTaskWithRecurrence, 'test-user-id');
 
       expect(result).toBe(true);
     });

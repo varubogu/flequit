@@ -2,7 +2,8 @@ use super::super::document_manager::{DocumentManager, DocumentType};
 use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
@@ -123,7 +124,7 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListLocalAutomergeRepository
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListLocalAutomergeRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &TaskList, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         self.set_task_list(project_id, entity).await
     }
 

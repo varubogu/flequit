@@ -2,7 +2,7 @@ use chrono::Utc;
 
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::{PartialTag, Tag};
-use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
@@ -10,6 +10,7 @@ pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
     tag: &Tag,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -20,7 +21,7 @@ where
     new_data.updated_at = now;
 
     let repository = repositories;
-    repository.tags().save(project_id, &new_data).await?;
+    repository.tags().save(project_id, &new_data, user_id, &now).await?;
 
     Ok(())
 }
@@ -53,6 +54,7 @@ pub async fn update_tag<R>(
     project_id: &ProjectId,
     tag_id: &TagId,
     patch: &PartialTag,
+    user_id: &UserId,
 ) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -74,7 +76,8 @@ where
         tag.updated_at = Utc::now();
 
         // 保存
-        repositories.tags().save(project_id, &tag).await?;
+        let now = Utc::now();
+        repositories.tags().save(project_id, &tag, user_id, &now).await?;
         Ok(true)
     } else {
         Ok(false)

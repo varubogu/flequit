@@ -1,12 +1,13 @@
 //! サブタスクタグ用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::subtask_tag::SubtaskTagLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::subtask_tag::SubtaskTagLocalSqliteRepository;
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_tag_repository_trait::SubTaskTagRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -26,10 +27,12 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagRepos
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &TagId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id).await,
+            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
         }
     }
 
@@ -180,6 +183,8 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &TagId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         info!(
             "Adding subtask tag relation - project: {}, subtask: {}, tag: {}",
@@ -187,7 +192,7 @@ impl ProjectRelationRepository<SubTaskTag, SubTaskId, TagId> for SubTaskTagUnifi
         );
 
         for repository in &self.save_repositories {
-            repository.add(project_id, parent_id, child_id).await?;
+            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
         }
 
         Ok(())

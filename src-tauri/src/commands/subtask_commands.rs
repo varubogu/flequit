@@ -5,7 +5,7 @@ use crate::models::{
 use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, subtask_facades};
 use flequit_model::models::{task_projects::subtask::PartialSubTask, ModelConverter};
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -17,7 +17,9 @@ pub async fn create_sub_task(
     state: State<'_, AppState>,
     project_id: String,
     sub_task: SubtaskCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -25,7 +27,7 @@ pub async fn create_sub_task(
     let subtask_param = sub_task.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param)
+    subtask_facades::create_sub_task(&*repositories, &project_id, &subtask_param, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::subtask", command = "create_sub_task", project_id = %project_id, error = %e);
@@ -67,7 +69,9 @@ pub async fn update_sub_task(
     project_id: String,
     id: String,
     patch: PartialSubTask,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -78,7 +82,7 @@ pub async fn update_sub_task(
     };
     let repositories = state.repositories.read().await;
 
-    subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch)
+    subtask_facades::update_sub_task(&*repositories, &project_id, &subtask_id, &patch, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::subtask", command = "update_sub_task", project_id = %project_id, subtask_id = %subtask_id, error = %e);

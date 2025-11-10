@@ -23,6 +23,16 @@ pub struct Model {
 
     /// 作成日時
     pub created_at: DateTime<Utc>,
+
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

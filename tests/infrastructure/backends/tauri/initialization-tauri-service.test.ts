@@ -29,11 +29,16 @@ describe('InitializationTauriService', () => {
 
     mockAccount = {
       id: 'account-123',
-      name: 'Test User',
+      userId: 'user-123',
+      displayName: 'Test User',
       email: 'test@example.com',
-      profile_image: 'https://example.com/avatar.jpg',
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      avatarUrl: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z',
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     mockProjects = [
@@ -46,6 +51,8 @@ describe('InitializationTauriService', () => {
         isArchived: false,
         createdAt: new Date('2024-01-01T00:00:00Z'),
         updatedAt: new Date('2024-01-01T00:00:00Z'),
+        deleted: false,
+        updatedBy: 'test-user-id',
         taskLists: []
       }
     ];
@@ -155,29 +162,32 @@ describe('InitializationTauriService', () => {
     it('should handle account without optional fields', async () => {
       const minimalAccount = {
         id: 'account-minimal',
-        name: 'Minimal User',
-        created_at: new Date(),
-        updated_at: new Date()
+        userId: 'user-minimal',
+        displayName: 'Minimal User',
+        provider: 'local',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
       mockInvoke.mockResolvedValue(minimalAccount);
 
       const result = await service.loadAccount();
 
       expect(result?.email).toBeUndefined();
-      expect(result?.profile_image).toBeUndefined();
-      expect(result?.name).toBe('Minimal User');
+      expect(result?.avatarUrl).toBeUndefined();
+      expect(result?.displayName).toBe('Minimal User');
     });
 
     it('should handle account with all optional fields', async () => {
       const fullAccount = {
         ...mockAccount,
-        profile_image: 'https://example.com/custom-avatar.png'
+        avatarUrl: 'https://example.com/custom-avatar.png'
       };
       mockInvoke.mockResolvedValue(fullAccount);
 
       const result = await service.loadAccount();
 
-      expect(result?.profile_image).toBe('https://example.com/custom-avatar.png');
+      expect(result?.avatarUrl).toBe('https://example.com/custom-avatar.png');
     });
   });
 

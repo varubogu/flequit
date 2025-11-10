@@ -13,7 +13,7 @@
 //! User Documentは以下の特別な制約があります：
 //! - **追加**: 新しいユーザープロフィールの追加は常に可能
 //! - **更新**: 既存のユーザープロフィールの更新は可能
-//! - **削除**: ユーザープロフィールの削除は不可（情報蓄積方式）
+//! - **削除**: ユーザープロフィールの論理削除が可能（deleted フラグを使用）
 //! - **編集権限**: 自分のAccount.user_idにマッチするプロフィールのみ編集可能
 
 use crate::models::ModelConverter;
@@ -43,6 +43,8 @@ use serde::{Deserialize, Serialize};
 /// * `is_active` - アクティブ状態（必須）
 /// * `created_at` - ユーザー作成日時
 /// * `updated_at` - プロフィール最終更新日時
+/// * `deleted` - 削除フラグ（論理削除）
+/// * `updated_by` - 最終更新者のユーザーID
 ///
 /// # フロントエンド互換性
 ///
@@ -65,8 +67,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// let user = User {
 ///     id: UserId::new(),
-///     username: "john_doe".to_string(),
-///     display_name: Some("John Doe".to_string()),
+///     handle_id: "john_doe".to_string(),
+///     display_name: "John Doe".to_string(),
 ///     email: Some("john@example.com".to_string()),
 ///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
 ///     bio: Some("Software developer".to_string()),
@@ -74,6 +76,8 @@ use serde::{Deserialize, Serialize};
 ///     is_active: true,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 /// };
 /// ```
 ///
@@ -106,6 +110,10 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     /// プロフィール最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID
+    pub updated_by: UserId,
 }
 
 /// ユーザーとその割り当て情報を含むTree構造体
@@ -126,6 +134,8 @@ pub struct User {
 /// * `is_active` - アクティブ状態
 /// * `created_at` - ユーザー作成日時
 /// * `updated_at` - プロフィール最終更新日時
+/// * `deleted` - 削除フラグ（論理削除）
+/// * `updated_by` - 最終更新者のユーザーID
 /// * `task_assignments` - このユーザーに割り当てられたタスクの一覧
 /// * `subtask_assignments` - このユーザーに割り当てられたサブタスクの一覧
 ///
@@ -140,8 +150,8 @@ pub struct User {
 ///
 /// let user_tree = UserTree {
 ///     id: UserId::new(),
-///     username: "john_doe".to_string(),
-///     display_name: Some("John Doe".to_string()),
+///     handle_id: "john_doe".to_string(),
+///     display_name: "John Doe".to_string(),
 ///     email: Some("john@example.com".to_string()),
 ///     avatar_url: Some("https://example.com/avatar.jpg".to_string()),
 ///     bio: Some("Software developer".to_string()),
@@ -149,6 +159,8 @@ pub struct User {
 ///     is_active: true,
 ///     created_at: Utc::now(),
 ///     updated_at: Utc::now(),
+///     deleted: false,
+///     updated_by: UserId::new(),
 ///     task_assignments: vec![
 ///         TaskAssignment {
 ///             task_id: TaskId::from("task_123".to_string()),
@@ -181,6 +193,10 @@ pub struct UserTree {
     pub created_at: DateTime<Utc>,
     /// プロフィール最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+    /// 最終更新者のユーザーID
+    pub updated_by: UserId,
     /// このユーザーに割り当てられたタスクの一覧
     pub task_assignments: Vec<TaskAssignment>,
     /// このユーザーに割り当てられたサブタスクの一覧
@@ -202,6 +218,8 @@ impl ModelConverter<User> for UserTree {
             is_active: self.is_active,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by.clone(),
         })
     }
 }

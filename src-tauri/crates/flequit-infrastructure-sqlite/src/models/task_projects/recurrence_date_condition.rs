@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// RecurrenceDateCondition用SQLiteエンティティ定義
 ///
 /// 日付に基づく条件を管理するテーブル
-/// 特定の基準日に対する相対的な関係性を定義
+/// 「この日付より前」「この日付以降」などの日付条件を定義
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "recurrence_date_conditions")]
 pub struct Model {
@@ -17,16 +17,16 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
 
-    /// 繰り返し調整ID（adjustment経由の場合）
+    /// 繰り返し調整ID（nullの場合は詳細条件）
     pub recurrence_adjustment_id: Option<String>,
 
-    /// 繰り返し詳細ID（detail経由の場合）
+    /// 繰り返し詳細ID（nullの場合は調整条件）
     pub recurrence_detail_id: Option<String>,
 
-    /// 基準日との関係性（before, after, same等の文字列形式）
+    /// 日付の関係（before, on_or_before, same, on_or_after, after）
     pub relation: String,
 
-    /// 比較基準となる日付
+    /// 基準日付
     pub reference_date: DateTime<Utc>,
 
     /// 作成日時
@@ -34,6 +34,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -11,14 +11,22 @@ export interface LocalSettings {
 
 /**
  * アカウントデータ
+ *
+ * Note: このインターフェースは$lib/types/account.tsのAccountと同じ構造に変更されました
  */
 export interface Account {
   id: string;
-  name: string;
+  userId: string;
+  displayName?: string;
   email?: string;
-  profile_image?: string;
-  created_at: Date;
-  updated_at: Date;
+  avatarUrl?: string;
+  provider: string;
+  providerId?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  deleted: boolean;
+  updatedBy: string;
 }
 
 /**

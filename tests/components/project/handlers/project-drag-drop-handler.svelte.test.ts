@@ -49,6 +49,8 @@ const createMockTaskList = (overrides: Partial<ProjectTree['taskLists'][number]>
     isArchived: false,
     createdAt: now,
     updatedAt: now,
+    deleted: false,
+    updatedBy: 'system',
     tasks: [],
     ...overrides
   };
@@ -65,6 +67,8 @@ const createMockProject = (overrides: Partial<ProjectTree> = {}): ProjectTree =>
     isArchived: false,
     createdAt: now,
     updatedAt: now,
+    deleted: false,
+    updatedBy: 'system',
     taskLists: [createMockTaskList()],
     ...overrides
   };

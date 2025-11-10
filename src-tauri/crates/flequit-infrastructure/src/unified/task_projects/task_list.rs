@@ -1,12 +1,13 @@
 //! タスクリスト用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::task_list::TaskListLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task_list::TaskListLocalSqliteRepository;
 use flequit_model::models::task_projects::task_list::TaskList;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
@@ -24,10 +25,10 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &TaskList, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
-            Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
+            Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
         }
     }
 
@@ -145,14 +146,14 @@ impl ProjectPatchable<TaskList, TaskListId> for TaskListUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<TaskList, TaskListId> for TaskListUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &TaskList) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &TaskList, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "Saving task list entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity).await?;
+            repository.save(project_id, entity, user_id, timestamp).await?;
         }
 
         Ok(())

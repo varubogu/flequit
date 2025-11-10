@@ -1,3 +1,4 @@
+use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::task_assignment::TaskAssignment;
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
@@ -11,14 +12,16 @@ pub async fn add_task_assignment<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     user_id: &UserId,
+    updating_user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let actual_project_id = find_project_id_by_task_id(repositories, project_id, task_id).await?;
+    let now = Utc::now();
     repositories
         .task_assignments()
-        .add(&actual_project_id, task_id, user_id)
+        .add(&actual_project_id, task_id, user_id, updating_user_id, &now)
         .await
         .map_err(ServiceError::Repository)
 }
@@ -92,6 +95,7 @@ pub async fn update_task_assignments<R>(
     project_id: &ProjectId,
     task_id: &TaskId,
     user_ids: &[UserId],
+    updating_user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -102,10 +106,11 @@ where
         .remove_all(&actual_project_id, task_id)
         .await
         .map_err(ServiceError::Repository)?;
+    let now = Utc::now();
     for uid in user_ids {
         repositories
             .task_assignments()
-            .add(&actual_project_id, task_id, uid)
+            .add(&actual_project_id, task_id, uid, updating_user_id, &now)
             .await
             .map_err(ServiceError::Repository)?;
     }

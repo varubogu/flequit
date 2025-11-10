@@ -29,6 +29,8 @@
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'system',
       taskLists: [
         {
           id: 'list-1',
@@ -38,6 +40,8 @@
           isArchived: false,
           createdAt: new Date(),
           updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'system',
           tasks: [
             {
               id: 'task-1',
@@ -53,6 +57,8 @@
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [],
               tags: []
             } as TaskWithSubTasks,
@@ -70,6 +76,8 @@
               isArchived: false,
               createdAt: new Date(),
               updatedAt: new Date(),
+              deleted: false,
+              updatedBy: 'system',
               subTasks: [],
               tags: []
             } as TaskWithSubTasks
@@ -85,6 +93,8 @@
       isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'system',
       taskLists: []
     }
   ];

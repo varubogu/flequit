@@ -30,6 +30,16 @@ pub struct Model {
 
     /// 作成日時
     pub created_at: DateTime<Utc>,
+
+    /// 最終更新日時
+    pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -69,6 +79,9 @@ impl SqliteModelConverter<TaskAssignment> for Model {
             task_id: TaskId::from(self.task_id.clone()),
             user_id: UserId::from(self.user_id.clone()),
             created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -85,6 +98,9 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for TaskAssignment {
             project_id: Set(project_id.to_string()),
             user_id: Set(self.user_id.to_string()),
             created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

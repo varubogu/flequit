@@ -1,13 +1,14 @@
 //! プロジェクト用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_repository::patchable_trait::Patchable;
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::project::ProjectLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
 use flequit_model::models::task_projects::project::Project;
-use flequit_model::types::id_types::ProjectId;
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -22,10 +23,10 @@ impl ProjectRepositoryTrait for ProjectRepositoryVariant {}
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectRepositoryVariant {
-    async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Project, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(entity).await,
-            Self::LocalAutomerge(repo) => repo.save(entity).await,
+            Self::LocalSqlite(repo) => repo.save(entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(entity, user_id, timestamp).await,
         }
     }
 
@@ -131,14 +132,14 @@ impl ProjectUnifiedRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectUnifiedRepository {
-    async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Project, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "ProjectUnifiedRepository::save - 保存用リポジトリ {} 箇所に保存",
             self.save_repositories.len()
         );
 
         for repo in &self.save_repositories {
-            repo.save(entity).await?;
+            repo.save(entity, user_id, timestamp).await?;
         }
         Ok(())
     }

@@ -3,10 +3,10 @@ import type { AssignmentService } from '$lib/infrastructure/backends/assignment-
 
 export class AssignmentTauriService implements AssignmentService {
   // Task Assignment operations
-  async createTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean> {
+  async createTaskAssignment(projectId: string, taskId: string, userId: string, createdByUserId: string): Promise<boolean> {
     try {
       const taskAssignment = { taskId, userId };
-      await invoke('create_task_assignment', { projectId, taskAssignment });
+      await invoke('create_task_assignment', { projectId, taskAssignment, userId: createdByUserId });
       return true;
     } catch (error) {
       console.error('Failed to create task assignment:', error);
@@ -14,9 +14,9 @@ export class AssignmentTauriService implements AssignmentService {
     }
   }
 
-  async deleteTaskAssignment(projectId: string, taskId: string, userId: string): Promise<boolean> {
+  async deleteTaskAssignment(projectId: string, taskId: string, userId: string, deletedByUserId: string): Promise<boolean> {
     try {
-      await invoke('delete_task_assignment', { projectId, taskId, userId });
+      await invoke('delete_task_assignment', { projectId, taskId, userId, deletedByUserId });
       return true;
     } catch (error) {
       console.error('Failed to delete task assignment:', error);
@@ -25,10 +25,10 @@ export class AssignmentTauriService implements AssignmentService {
   }
 
   // Subtask Assignment operations
-  async createSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
+  async createSubtaskAssignment(projectId: string, subtaskId: string, userId: string, createdByUserId: string): Promise<boolean> {
     try {
       const subtaskAssignment = { subtaskId, userId };
-      await invoke('create_subtask_assignment', { projectId, subtaskAssignment });
+      await invoke('create_subtask_assignment', { projectId, subtaskAssignment, userId: createdByUserId });
       return true;
     } catch (error) {
       console.error('Failed to create subtask assignment:', error);
@@ -36,9 +36,9 @@ export class AssignmentTauriService implements AssignmentService {
     }
   }
 
-  async deleteSubtaskAssignment(projectId: string, subtaskId: string, userId: string): Promise<boolean> {
+  async deleteSubtaskAssignment(projectId: string, subtaskId: string, userId: string, deletedByUserId: string): Promise<boolean> {
     try {
-      await invoke('delete_subtask_assignment', { projectId, subtaskId, userId });
+      await invoke('delete_subtask_assignment', { projectId, subtaskId, userId, deletedByUserId });
       return true;
     } catch (error) {
       console.error('Failed to delete subtask assignment:', error);

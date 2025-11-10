@@ -43,6 +43,10 @@ pub struct ProjectDocument {
     pub created_at: DateTime<Utc>,
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+    /// 最終更新者のユーザーID
+    pub updated_by: UserId,
+    /// 論理削除フラグ
+    pub deleted: bool,
 
     // プロジェクト内のエンティティ
     /// タスクリスト配列
@@ -135,6 +139,8 @@ impl ProjectLocalAutomergeRepository {
         let owner_id: Option<Option<UserId>> = document.load_data("owner_id").await?;
         let created_at: Option<DateTime<Utc>> = document.load_data("created_at").await?;
         let updated_at: Option<DateTime<Utc>> = document.load_data("updated_at").await?;
+        let updated_by: Option<UserId> = document.load_data("updated_by").await?;
+        let deleted: Option<bool> = document.load_data("deleted").await?;
 
         // プロジェクト内エンティティの読み込み
         let task_lists: Option<Vec<TaskList>> = document.load_data("task_lists").await?;
@@ -148,7 +154,7 @@ impl ProjectLocalAutomergeRepository {
             (id, name, created_at, updated_at)
         {
             Ok(Some(ProjectDocument {
-                id,
+                id: id.clone(),
                 name,
                 description: description.unwrap_or(None),
                 color: color.unwrap_or(None),
@@ -158,6 +164,8 @@ impl ProjectLocalAutomergeRepository {
                 owner_id: owner_id.unwrap_or(None),
                 created_at,
                 updated_at,
+                updated_by: updated_by.unwrap_or_else(|| UserId::from(id)),
+                deleted: deleted.unwrap_or(false),
                 task_lists: task_lists.unwrap_or_default(),
                 tasks: tasks.unwrap_or_default(),
                 subtasks: subtasks.unwrap_or_default(),
@@ -237,6 +245,8 @@ impl ProjectLocalAutomergeRepository {
             owner_id: project.owner_id.clone(),
             created_at: project.created_at,
             updated_at: project.updated_at,
+            updated_by: project.updated_by.clone(),
+            deleted: project.deleted,
             task_lists: Vec::new(),
             tasks: Vec::new(),
             subtasks: Vec::new(),
@@ -266,6 +276,8 @@ impl ProjectLocalAutomergeRepository {
                 owner_id: document.owner_id,
                 created_at: document.created_at,
                 updated_at: document.updated_at,
+                updated_by: document.updated_by,
+                deleted: document.deleted,
             }))
         } else {
             Ok(None)
@@ -525,7 +537,7 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
-    async fn save(&self, entity: &Project) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Project, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
             entity.id

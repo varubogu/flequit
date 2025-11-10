@@ -4,11 +4,11 @@ use flequit_model::models::users::user::User;
 use flequit_model::types::id_types::UserId;
 use flequit_types::errors::service_error::ServiceError;
 
-pub async fn create_user<R>(repositories: &R, user: &User) -> Result<bool, String>
+pub async fn create_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match user_service::create_user(repositories, user).await {
+    match user_service::create_user(repositories, user, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create user: {:?}", e)),
@@ -27,11 +27,11 @@ where
     }
 }
 
-pub async fn update_user<R>(repositories: &R, user: &User) -> Result<bool, String>
+pub async fn update_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match user_service::update_user(repositories, user).await {
+    match user_service::update_user(repositories, user, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update user: {:?}", e)),

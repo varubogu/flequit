@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask::SubTask;
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TaskId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TaskId, UserId};
 use flequit_model::types::task_types::TaskStatus;
 use sea_orm::{entity::prelude::*, Set};
 use serde::{Deserialize, Serialize};
@@ -75,6 +75,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -137,6 +144,8 @@ impl SqliteModelConverter<SubTask> for Model {
             completed: self.completed,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -177,6 +186,8 @@ impl DomainToSqliteConverter<ActiveModel> for SubTask {
             completed: Set(self.completed),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }
@@ -220,6 +231,8 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for SubTask {
             completed: Set(self.completed),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

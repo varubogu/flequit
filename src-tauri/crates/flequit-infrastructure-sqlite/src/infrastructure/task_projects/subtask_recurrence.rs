@@ -4,9 +4,9 @@ use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::subtask_recurrence::{Column, Entity as SubTaskRecurrenceEntity};
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask_recurrence::SubTaskRecurrence;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, SubTaskRecurrenceId, UserId};
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::task_projects::subtask_recurrence_repository_trait::SubtaskRecurrenceRepositoryTrait;
@@ -84,7 +84,7 @@ impl SubtaskRecurrenceRepositoryTrait for SubtaskRecurrenceLocalSqliteRepository
 
 #[async_trait]
 impl Repository<SubTaskRecurrence, SubTaskRecurrenceId> for SubtaskRecurrenceLocalSqliteRepository {
-    async fn save(&self, _entity: &SubTaskRecurrence) -> Result<(), RepositoryError> {
+    async fn save(&self, _entity: &SubTaskRecurrence, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         Err(RepositoryError::InvalidOperation(
             "Use ProjectRelationRepository::add instead".into(),
         ))
@@ -133,6 +133,8 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         project_id: &ProjectId,
         parent_id: &SubTaskId,
         child_id: &RecurrenceRuleId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -149,11 +151,15 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if existing.is_none() {
+            let now = Utc::now();
             let active = crate::models::task_projects::subtask_recurrence::ActiveModel {
                 project_id: Set(project_id.to_string()),
                 subtask_id: Set(parent_id.to_string()),
                 recurrence_rule_id: Set(child_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(project_id.to_string()),
             };
 
             active
@@ -233,6 +239,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
                 subtask_id: SubTaskId::from(m.subtask_id),
                 recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
                 created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
             };
             result.push(d);
         }
@@ -304,6 +313,9 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
                 subtask_id: SubTaskId::from(m.subtask_id),
                 recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
                 created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
             };
             result.push(d);
         }
@@ -334,10 +346,13 @@ impl ProjectRelationRepository<SubTaskRecurrence, SubTaskId, RecurrenceRuleId>
         match model {
             Some(m) => {
                 let d = SubTaskRecurrence {
-                    subtask_id: SubTaskId::from(m.subtask_id),
-                    recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
-                    created_at: m.created_at,
-                };
+                subtask_id: SubTaskId::from(m.subtask_id),
+                recurrence_rule_id: RecurrenceRuleId::from(m.recurrence_rule_id),
+                created_at: m.created_at,
+                updated_at: m.updated_at,
+                deleted: m.deleted,
+                updated_by: UserId::from(m.updated_by),
+            };
                 Ok(Some(d))
             }
             None => Ok(None),

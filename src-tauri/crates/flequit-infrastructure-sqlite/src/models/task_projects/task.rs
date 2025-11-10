@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use flequit_model::{
     models::task_projects::task::Task,
     types::{
-        id_types::{ProjectId, TaskId, TaskListId},
+        id_types::{ProjectId, TaskId, TaskListId, UserId},
         task_types::TaskStatus,
     },
 };
@@ -73,6 +73,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)] // 削除済みデータのフィルタ用
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -156,6 +163,8 @@ impl SqliteModelConverter<Task> for Model {
             is_archived: self.is_archived,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -194,6 +203,8 @@ impl DomainToSqliteConverter<ActiveModel> for Task {
             is_archived: Set(self.is_archived),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }
@@ -235,6 +246,8 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for Task {
             is_archived: Set(self.is_archived),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

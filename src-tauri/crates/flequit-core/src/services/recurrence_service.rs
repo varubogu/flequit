@@ -10,7 +10,7 @@ use flequit_model::models::task_projects::{
     recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
     task_recurrence::TaskRecurrence,
 };
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
@@ -26,6 +26,7 @@ pub async fn create_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
     rule: RecurrenceRule,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -46,9 +47,10 @@ where
         }
     }
 
+    let now = Utc::now();
     repositories
         .recurrence_rules()
-        .save(project_id, &rule)
+        .save(project_id, &rule, user_id, &now)
         .await
         .map_err(|e| ServiceError::Repository(e))?;
 
@@ -99,6 +101,7 @@ pub async fn update_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
     rule: RecurrenceRule,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -119,9 +122,10 @@ where
         }
     }
 
+    let now = Utc::now();
     repositories
         .recurrence_rules()
-        .save(project_id, &rule)
+        .save(project_id, &rule, user_id, &now)
         .await
         .map_err(|e| ServiceError::Repository(e))?;
 
@@ -272,10 +276,14 @@ pub async fn create_task_recurrence<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    let now = Utc::now();
     let _task_recurrence = TaskRecurrence {
         task_id: task_id.clone(),
         recurrence_rule_id: recurrence_rule_id.clone(),
-        created_at: Utc::now(),
+        created_at: now,
+        updated_at: now,
+        deleted: false,
+        updated_by: UserId::from("system"),
     };
 
     // 実際のリポジトリ実装待ち
@@ -325,10 +333,14 @@ pub async fn create_subtask_recurrence<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    let now = Utc::now();
     let _subtask_recurrence = SubTaskRecurrence {
         subtask_id: subtask_id.clone(),
         recurrence_rule_id: recurrence_rule_id.clone(),
-        created_at: Utc::now(),
+        created_at: now,
+        updated_at: now,
+        deleted: false,
+        updated_by: UserId::from("system"),
     };
 
     // 実際のリポジトリ実装待ち

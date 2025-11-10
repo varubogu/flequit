@@ -5,22 +5,22 @@ export interface CrudInterface<T, TPatch = Partial<T>> {
   /**
    * 新規作成
    */
-  create(item: T): Promise<boolean>;
+  create(item: T, userId: string): Promise<boolean>;
 
   /**
    * 部分更新
    */
-  update(id: string, patch: TPatch): Promise<boolean>;
+  update(id: string, patch: TPatch, userId: string): Promise<boolean>;
 
   /**
    * 削除
    */
-  delete(id: string): Promise<boolean>;
+  delete(id: string, userId: string): Promise<boolean>;
 
   /**
    * 1件取得
    */
-  get(id: string): Promise<T | null>;
+  get(id: string, userId: string): Promise<T | null>;
 }
 
 /**
@@ -30,7 +30,7 @@ export interface SearchInterface<T, TSearchCondition> {
   /**
    * 検索（複数件）
    */
-  search(condition: TSearchCondition): Promise<T[]>;
+  search(condition: TSearchCondition, userId: string): Promise<T[]>;
 }
 
 /**
@@ -60,22 +60,22 @@ export interface AccountInterface<T, TPatch = Partial<T>> {
   /**
    * 新規作成
    */
-  create(item: T): Promise<boolean>;
+  create(item: T, userId: string): Promise<boolean>;
 
   /**
    * IDでアカウントを取得
    */
-  get(id: string): Promise<T | null>;
+  get(id: string, userId: string): Promise<T | null>;
 
   /**
    * アカウントの部分更新
    */
-  update(id: string, patch: TPatch): Promise<boolean>;
+  update(id: string, patch: TPatch, userId: string): Promise<boolean>;
 
   /**
    * アカウントを削除
    */
-  delete(id: string): Promise<boolean>;
+  delete(id: string, userId: string): Promise<boolean>;
 }
 
 /**
@@ -85,22 +85,22 @@ export interface ProjectCrudInterface<T, TPatch = Partial<T>> {
   /**
    * 新規作成
    */
-  create(projectId: string, item: T): Promise<boolean>;
+  create(projectId: string, item: T, userId: string): Promise<boolean>;
 
   /**
    * 部分更新
    */
-  update(projectId: string, id: string, patch: TPatch): Promise<boolean>;
+  update(projectId: string, id: string, patch: TPatch, userId: string): Promise<boolean>;
 
   /**
    * 削除
    */
-  delete(projectId: string, id: string): Promise<boolean>;
+  delete(projectId: string, id: string, userId: string): Promise<boolean>;
 
   /**
    * 1件取得
    */
-  get(projectId: string, id: string): Promise<T | null>;
+  get(projectId: string, id: string, userId: string): Promise<T | null>;
 }
 
 /**
@@ -110,5 +110,5 @@ export interface ProjectSearchInterface<T, TSearchCondition> {
   /**
    * 検索（複数件）
    */
-  search(projectId: string, condition: TSearchCondition): Promise<T[]>;
+  search(projectId: string, condition: TSearchCondition, userId: string): Promise<T[]>;
 }

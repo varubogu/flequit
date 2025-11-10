@@ -3,7 +3,8 @@ use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task::Task;
-use flequit_model::types::id_types::{ProjectId, TaskId};
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
@@ -156,7 +157,7 @@ impl ProjectPatchable<Task, TaskId> for TaskLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskLocalAutomergeRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Task, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         log::info!("TaskLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_task(project_id, entity).await;
         if result.is_ok() {

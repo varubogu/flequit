@@ -2,6 +2,7 @@ import type { Tag } from '$lib/types/tag';
 import { SvelteDate } from 'svelte/reactivity';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
 import { TagService } from '$lib/services/domain/tag';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * タグのCRUD操作
@@ -29,7 +30,9 @@ export class TagMutations {
 			name: trimmedName,
 			color: tagData.color,
 			createdAt: now,
-			updatedAt: now
+			updatedAt: now,
+			deleted: false,
+			updatedBy: getCurrentUserId()
 		};
 
 		return tagStoreInternal.addTagWithId(newTag);

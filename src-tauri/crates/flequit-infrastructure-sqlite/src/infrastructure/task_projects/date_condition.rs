@@ -5,8 +5,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::date_condition::{Column, Entity as DateConditionEntity};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::date_condition::DateCondition;
-use flequit_model::types::id_types::{DateConditionId, ProjectId};
+use flequit_model::types::id_types::{DateConditionId, ProjectId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::date_condition_repository_trait::DateConditionRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -31,6 +32,8 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
         &self,
         project_id: &ProjectId,
         entity: &DateCondition,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
@@ -50,6 +53,8 @@ impl ProjectRepository<DateCondition, DateConditionId> for DateConditionLocalSql
             reference_date: Set(sqlite_model.reference_date),
             created_at: Set(sqlite_model.created_at),
             updated_at: Set(sqlite_model.updated_at),
+            deleted: Set(sqlite_model.deleted),
+            updated_by: Set(sqlite_model.updated_by),
         };
 
         active_model

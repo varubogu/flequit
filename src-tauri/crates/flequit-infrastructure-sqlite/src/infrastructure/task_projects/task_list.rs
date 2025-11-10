@@ -5,8 +5,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_list::{Column, Entity as TaskListEntity};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_list::TaskList;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_list_repository_trait::TaskListRepositoryTrait;
@@ -64,6 +65,8 @@ impl ProjectRepository<TaskList, TaskListId> for TaskListLocalSqliteRepository {
         &self,
         project_id: &ProjectId,
         task_list: &TaskList,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager

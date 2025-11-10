@@ -21,7 +21,9 @@ vi.mock('$lib/stores/tags.svelte', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     }
   ];
 
@@ -106,7 +108,9 @@ describe('useSidebarTagListController', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     it('should handle tag click', async () => {
@@ -146,7 +150,9 @@ describe('useSidebarTagListController', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     it('should handle edit complete', () => {
@@ -203,7 +209,9 @@ describe('useSidebarTagListController', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     it('should handle drag start', async () => {

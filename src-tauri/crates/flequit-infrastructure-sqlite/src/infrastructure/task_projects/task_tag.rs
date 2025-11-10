@@ -5,9 +5,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_tag::{Column, Entity as TaskTagEntity};
 use crate::models::SqliteModelConverter;
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::task_tag::TaskTag;
-use flequit_model::types::id_types::{ProjectId, TagId, TaskId};
+use flequit_model::types::id_types::{ProjectId, TagId, TaskId, UserId};
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
@@ -105,11 +105,15 @@ impl TaskTagLocalSqliteRepository {
 
         if existing.is_none() {
             // 関連が存在しない場合のみ追加
+            let now = Utc::now();
             let active_model = crate::models::task_tag::ActiveModel {
                 task_id: Set(task_id.to_string()),
                 project_id: Set(project_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(project_id.to_string()),
             };
 
             log::info!(
@@ -215,11 +219,15 @@ impl TaskTagLocalSqliteRepository {
 
         // 新しい関連付けを追加
         for tag_id in tag_ids {
+            let now = Utc::now();
             let active_model = crate::models::task_tag::ActiveModel {
                 task_id: Set(task_id.to_string()),
                 project_id: Set(project_id.to_string()),
                 tag_id: Set(tag_id.to_string()),
-                created_at: Set(Utc::now()),
+                created_at: Set(now),
+                updated_at: Set(now),
+                deleted: Set(false),
+                updated_by: Set(project_id.to_string()),
             };
 
             active_model.insert(db).await?;
@@ -236,6 +244,8 @@ impl ProjectRelationRepository<TaskTag, TaskId, TagId> for TaskTagLocalSqliteRep
         project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &TagId,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         self.add_relation(project_id, parent_id, child_id).await
     }

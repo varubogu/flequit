@@ -31,6 +31,8 @@ const mockProjects: ProjectTree[] = [
     isArchived: false,
     createdAt: new Date(),
     updatedAt: new Date(),
+    deleted: false,
+    updatedBy: 'test-user-id',
     taskLists: [
       {
         id: 'list-1',
@@ -40,6 +42,8 @@ const mockProjects: ProjectTree[] = [
         isArchived: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id',
         tasks: [{ id: 'task-1' } as TaskWithSubTasks, { id: 'task-2' } as TaskWithSubTasks]
       },
       {
@@ -50,6 +54,8 @@ const mockProjects: ProjectTree[] = [
         isArchived: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id',
         tasks: [{ id: 'task-3' } as TaskWithSubTasks]
       }
     ]
@@ -62,6 +68,8 @@ const mockProjects: ProjectTree[] = [
     isArchived: false,
     createdAt: new Date(),
     updatedAt: new Date(),
+    deleted: false,
+    updatedBy: 'test-user-id',
     taskLists: []
   }
 ];

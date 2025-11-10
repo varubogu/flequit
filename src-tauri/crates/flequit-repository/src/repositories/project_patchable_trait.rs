@@ -1,6 +1,7 @@
 use super::project_repository_trait::ProjectRepository;
 use async_trait::async_trait;
-use flequit_model::types::id_types::ProjectId;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_types::errors::repository_error::RepositoryError;
 use partially::Partial;
 
@@ -57,6 +58,8 @@ where
         project_id: &ProjectId,
         id: &TId,
         patch: &P,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<bool, RepositoryError>
     where
         P: Send + Sync + Clone,
@@ -65,7 +68,7 @@ where
         if let Some(mut entity) = self.find_by_id(project_id, id).await? {
             let changed = entity.apply_some(patch.clone());
             if changed {
-                self.save(project_id, &entity).await?;
+                self.save(project_id, &entity, user_id, timestamp).await?;
             }
             Ok(changed)
         } else {
@@ -93,6 +96,8 @@ where
         project_id: &ProjectId,
         ids: &[TId],
         patch: &P,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<u64, RepositoryError>
     where
         P: Send + Sync + Clone,
@@ -101,7 +106,7 @@ where
     {
         let mut changed_count = 0;
         for id in ids {
-            if self.patch(project_id, id, patch).await? {
+            if self.patch(project_id, id, patch, user_id, timestamp).await? {
                 changed_count += 1;
             }
         }

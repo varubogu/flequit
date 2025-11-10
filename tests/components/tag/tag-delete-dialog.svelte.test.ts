@@ -14,7 +14,9 @@ describe('TagDeleteDialog', () => {
     name: 'test-tag',
     color: '#ff0000',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    deleted: false,
+    updatedBy: 'test-user-id'
   };
 
   const defaultProps = {
@@ -145,7 +147,9 @@ describe('TagDeleteDialog', () => {
       name: 'different-tag',
       color: '#00ff00',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     render(TagDeleteDialog, {

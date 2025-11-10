@@ -44,6 +44,8 @@ export class TaskDraftStore {
 			tagIds: [],
 			createdAt: new SvelteDate(),
 			updatedAt: new SvelteDate(),
+			deleted: false,
+			updatedBy: 'system',
 			subTasks: [],
 			tags: []
 		} as TaskWithSubTasks;

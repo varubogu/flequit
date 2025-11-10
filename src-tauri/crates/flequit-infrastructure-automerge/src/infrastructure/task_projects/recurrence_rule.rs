@@ -5,7 +5,8 @@ use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
-use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId};
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -171,6 +172,8 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId>
         &self,
         project_id: &ProjectId,
         entity: &RecurrenceRule,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         self.set_recurrence_rule(project_id, entity).await
     }

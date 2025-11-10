@@ -3,9 +3,17 @@ import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/r
 import type { RecurrenceRuleService } from '$lib/infrastructure/backends/recurrence-rule-service';
 
 export class RecurrenceRuleTauriService implements RecurrenceRuleService {
-  async create(projectId: string, rule: RecurrenceRule): Promise<boolean> {
+  async create(projectId: string, rule: RecurrenceRule, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('create_recurrence_rule', { projectId, rule });
+      // createdAtとupdatedAtが未設定の場合は現在時刻を設定
+      const ruleWithTimestamps = {
+        ...rule,
+        createdAt: rule.createdAt || new Date(),
+        updatedAt: rule.updatedAt || new Date(),
+        deleted: false,
+        updatedBy: userId
+      };
+      const result = await invoke('create_recurrence_rule', { projectId, rule: ruleWithTimestamps, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create recurrence rule:', error);
@@ -13,9 +21,9 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async get(projectId: string, ruleId: string): Promise<RecurrenceRule | null> {
+  async get(projectId: string, ruleId: string, userId: string): Promise<RecurrenceRule | null> {
     try {
-      const result = (await invoke('get_recurrence_rule', { projectId, ruleId })) as RecurrenceRule | null;
+      const result = (await invoke('get_recurrence_rule', { projectId, ruleId, userId })) as RecurrenceRule | null;
       return result;
     } catch (error) {
       console.error('Failed to get recurrence rule:', error);
@@ -23,9 +31,9 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async getAll(projectId: string): Promise<RecurrenceRule[]> {
+  async getAll(projectId: string, userId: string): Promise<RecurrenceRule[]> {
     try {
-      const result = (await invoke('get_all_recurrence_rules', { projectId })) as RecurrenceRule[];
+      const result = (await invoke('get_all_recurrence_rules', { projectId, userId })) as RecurrenceRule[];
       return result;
     } catch (error) {
       console.error('Failed to get all recurrence rules:', error);
@@ -33,9 +41,9 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async update(projectId: string, rule: RecurrenceRule): Promise<boolean> {
+  async update(projectId: string, rule: RecurrenceRule, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_recurrence_rule', { projectId, rule });
+      const result = await invoke('update_recurrence_rule', { projectId, rule, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);
@@ -43,9 +51,9 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async delete(projectId: string, ruleId: string): Promise<boolean> {
+  async delete(projectId: string, ruleId: string, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_recurrence_rule', { projectId, ruleId });
+      const result = await invoke('delete_recurrence_rule', { projectId, ruleId, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete recurrence rule:', error);

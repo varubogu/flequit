@@ -65,6 +65,8 @@ export class TaskCoreMutations {
 			tagIds: taskData.tagIds || [],
 			createdAt: new SvelteDate(),
 			updatedAt: new SvelteDate(),
+			deleted: false,
+			updatedBy: 'system',
 			subTasks: [],
 			tags: []
 		};
@@ -105,6 +107,8 @@ export class TaskCoreMutations {
 			tagIds: [],
 			createdAt: new SvelteDate(),
 			updatedAt: new SvelteDate(),
+			deleted: false,
+			updatedBy: 'system',
 			subTasks: [],
 			tags: []
 		};

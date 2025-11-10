@@ -81,6 +81,8 @@ where
             owner_id: project.owner_id,
             created_at: project.created_at,
             updated_at: project.updated_at,
+            deleted: project.deleted,
+            updated_by: project.updated_by,
             task_lists,
         };
 

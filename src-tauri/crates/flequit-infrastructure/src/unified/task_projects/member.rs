@@ -1,6 +1,7 @@
 //! メンバー用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::member::MemberLocalAutomergeRepository;
@@ -18,10 +19,10 @@ pub enum MemberRepositoryVariant {
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Member, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
-            Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
+            Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
         }
     }
 
@@ -111,14 +112,14 @@ impl MemberUnifiedRepository {
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Member, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "Saving member entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity).await?;
+            repository.save(project_id, entity, user_id, timestamp).await?;
         }
 
         Ok(())

@@ -61,7 +61,15 @@ createdAt: string;
 /**
  * 更新日時
  */
-updatedAt: string }
+updatedAt: string; 
+/**
+ * 削除フラグ（論理削除）
+ */
+deleted: boolean; 
+/**
+ * 最終更新者のユーザーID
+ */
+updatedBy: string }
 
 /** tauri-specta globals **/
 

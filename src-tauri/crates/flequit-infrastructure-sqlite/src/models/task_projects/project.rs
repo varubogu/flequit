@@ -51,6 +51,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)] // 削除済みデータのフィルタ用
+    pub deleted: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -103,6 +110,8 @@ impl SqliteModelConverter<Project> for Model {
             owner_id: self.owner_id.as_ref().map(|id| UserId::from(id.clone())),
             created_at: self.created_at,
             updated_at: self.updated_at,
+            updated_by: UserId::from(self.updated_by.clone()),
+            deleted: self.deleted,
         })
     }
 }
@@ -133,6 +142,8 @@ impl DomainToSqliteConverter<ActiveModel> for Project {
             owner_id: Set(self.owner_id.as_ref().map(|id| id.to_string())),
             created_at: Set(self.created_at),
             updated_at: Set(self.updated_at),
+            updated_by: Set(self.updated_by.to_string()),
+            deleted: Set(self.deleted),
         })
     }
 }

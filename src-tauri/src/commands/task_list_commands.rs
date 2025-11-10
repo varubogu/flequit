@@ -5,7 +5,7 @@ use flequit_core::facades::task_list_facades;
 use flequit_core::services::task_list_service;
 use flequit_model::models::task_projects::task_list::PartialTaskList;
 use flequit_model::models::ModelConverter;
-use flequit_model::types::id_types::{ProjectId, TaskListId};
+use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -14,7 +14,9 @@ use tracing::instrument;
 pub async fn create_task_list(
     state: State<'_, AppState>,
     task_list: TaskListCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&task_list.project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -22,7 +24,7 @@ pub async fn create_task_list(
     let internal_task_list = task_list.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    task_list_facades::create_task_list(&*repositories, &project_id, &internal_task_list)
+    task_list_facades::create_task_list(&*repositories, &project_id, &internal_task_list, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::task_list", command = "create_task_list", project_id = %project_id, error = %e);
@@ -67,7 +69,9 @@ pub async fn update_task_list(
     project_id: String,
     id: String,
     patch: PartialTaskList,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -78,7 +82,7 @@ pub async fn update_task_list(
     };
     let repositories = state.repositories.read().await;
 
-    task_list_facades::update_task_list(&*repositories, &project_id, &task_list_id, &patch)
+    task_list_facades::update_task_list(&*repositories, &project_id, &task_list_id, &patch, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::task_list", command = "update_task_list", project_id = %project_id, task_list_id = %task_list_id, error = %e);

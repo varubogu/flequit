@@ -1,6 +1,7 @@
 import type { Task } from '$lib/types/task';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * タスクドメインサービス
@@ -22,7 +23,9 @@ export const TaskService = {
       ...taskData,
       listId: listId,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: getCurrentUserId()
     };
 
     const projectId = newTask.projectId;
@@ -32,7 +35,7 @@ export const TaskService = {
 
     try {
       const backend = await resolveBackend();
-      await backend.task.create(projectId, newTask);
+      await backend.task.create(projectId, newTask, getCurrentUserId());
       return newTask;
     } catch (error) {
       console.error('Failed to create task:', error);
@@ -49,25 +52,39 @@ export const TaskService = {
     taskId: string,
     updates: Partial<Task>
   ): Promise<Task | null> {
-    const patchData = {
-      ...updates,
-      plan_start_date: updates.planStartDate?.toISOString() ?? undefined,
-      plan_end_date: updates.planEndDate?.toISOString() ?? undefined,
-      do_start_date: updates.doStartDate?.toISOString() ?? undefined,
-      do_end_date: updates.doEndDate?.toISOString() ?? undefined
-    } as Record<string, unknown>;
+    // TaskWithSubTasksから来る可能性があるため、不要なフィールドを除外
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { subTasks, tags, planStartDate, planEndDate, doStartDate, doEndDate, recurrenceRule, ...taskUpdates } = updates as Record<string, unknown>;
 
-    if (updates.recurrenceRule !== undefined) {
-      patchData.recurrence_rule = updates.recurrenceRule;
+    const patchData: Record<string, unknown> = {
+      ...taskUpdates,
+      id: taskId // patchにidを含める（Tauriコマンドの要求）
+    };
+
+    // 日時フィールドはsnake_caseに変換して追加
+    if (planStartDate !== undefined) {
+      patchData.plan_start_date = planStartDate?.toISOString() ?? null;
+    }
+    if (planEndDate !== undefined) {
+      patchData.plan_end_date = planEndDate?.toISOString() ?? null;
+    }
+    if (doStartDate !== undefined) {
+      patchData.do_start_date = doStartDate?.toISOString() ?? null;
+    }
+    if (doEndDate !== undefined) {
+      patchData.do_end_date = doEndDate?.toISOString() ?? null;
+    }
+    if (recurrenceRule !== undefined) {
+      patchData.recurrence_rule = recurrenceRule;
     }
 
     try {
       const backend = await resolveBackend();
-      const success = await backend.task.update(projectId, taskId, patchData);
+      const success = await backend.task.update(projectId, taskId, patchData, getCurrentUserId());
       if (!success) {
         return null;
       }
-      return await backend.task.get(projectId, taskId);
+      return await backend.task.get(projectId, taskId, getCurrentUserId());
     } catch (error) {
       console.error('Failed to update task:', error);
       errorHandler.addSyncError('タスク更新', 'task', taskId, error);
@@ -81,7 +98,7 @@ export const TaskService = {
   async deleteTask(projectId: string, taskId: string): Promise<boolean> {
     try {
       const backend = await resolveBackend();
-      return await backend.task.delete(projectId, taskId);
+      return await backend.task.delete(projectId, taskId, getCurrentUserId());
     } catch (error) {
       console.error('Failed to delete task:', error);
       errorHandler.addSyncError('タスク削除', 'task', taskId, error);

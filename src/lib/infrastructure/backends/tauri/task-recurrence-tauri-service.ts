@@ -3,9 +3,9 @@ import type { TaskRecurrence, TaskRecurrenceSearchCondition } from '$lib/types/r
 import type { TaskRecurrenceService } from '$lib/infrastructure/backends/task-recurrence-service';
 
 export class TaskRecurrenceTauriService implements TaskRecurrenceService {
-  async create(projectId: string, taskRecurrence: TaskRecurrence): Promise<boolean> {
+  async create(projectId: string, taskRecurrence: TaskRecurrence, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('create_task_recurrence', { projectId, taskRecurrence });
+      const result = await invoke('create_task_recurrence', { projectId, taskRecurrence, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to create task recurrence:', error);
@@ -13,9 +13,9 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
     }
   }
 
-  async getByTaskId(projectId: string, taskId: string): Promise<TaskRecurrence | null> {
+  async getByTaskId(projectId: string, taskId: string, userId: string): Promise<TaskRecurrence | null> {
     try {
-      const result = (await invoke('get_task_recurrence_by_task_id', { projectId, taskId })) as TaskRecurrence | null;
+      const result = (await invoke('get_task_recurrence_by_task_id', { projectId, taskId, userId })) as TaskRecurrence | null;
       return result;
     } catch (error) {
       console.error('Failed to get task recurrence by task ID:', error);
@@ -23,9 +23,9 @@ export class TaskRecurrenceTauriService implements TaskRecurrenceService {
     }
   }
 
-  async delete(projectId: string, taskId: string): Promise<boolean> {
+  async delete(projectId: string, taskId: string, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('delete_task_recurrence', { projectId, taskId });
+      const result = await invoke('delete_task_recurrence', { projectId, taskId, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to delete task recurrence:', error);

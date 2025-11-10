@@ -4,7 +4,7 @@ use crate::state::AppState;
 use flequit_core::facades::tag_facades;
 use flequit_model::models::task_projects::tag::PartialTag;
 use flequit_model::models::ModelConverter;
-use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -14,7 +14,9 @@ pub async fn create_tag(
     state: State<'_, AppState>,
     project_id: String,
     tag: TagCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -22,7 +24,7 @@ pub async fn create_tag(
     let internal_tag = tag.to_model().await?;
     let repositories = state.repositories.read().await;
 
-    tag_facades::create_tag(&*repositories, &project_id, &internal_tag)
+    tag_facades::create_tag(&*repositories, &project_id, &internal_tag, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::tag", command = "create_tag", project_id = %project_id, error = %e);
@@ -66,7 +68,9 @@ pub async fn update_tag(
     project_id: String,
     tag_id: String,
     patch: PartialTag,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -77,7 +81,7 @@ pub async fn update_tag(
     };
     let repositories = state.repositories.read().await;
 
-    tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch)
+    tag_facades::update_tag(&*repositories, &project_id, &tag_id, &patch, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::tag", command = "update_tag", project_id = %project_id, tag_id = %tag_id, error = %e);

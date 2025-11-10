@@ -8,7 +8,7 @@ use crate::traits::Trackable;
 
 use crate::models::task_projects::date_condition::DateCondition;
 use crate::models::task_projects::weekday_condition::WeekdayCondition;
-use crate::types::id_types::UserId;
+use crate::types::id_types::{RecurrenceAdjustmentId, RecurrenceRuleId, UserId};
 
 /// 繰り返しルール補正条件を表現する構造体
 ///
@@ -58,6 +58,10 @@ use crate::types::id_types::UserId;
 /// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecurrenceAdjustment {
+    /// 調整条件の一意識別子
+    pub id: RecurrenceAdjustmentId,
+    /// 繰り返しルールID
+    pub recurrence_rule_id: RecurrenceRuleId,
     /// 日付に基づく条件のリスト
     pub date_conditions: Vec<DateCondition>,
     /// 曜日に基づく条件のリスト

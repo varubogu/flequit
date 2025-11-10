@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use flequit_model::types::id_types::ProjectId;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_types::errors::repository_error::RepositoryError;
 
 /// プロジェクト単位でデータ管理するリポジトリのベーストレイト
@@ -9,7 +10,7 @@ use flequit_types::errors::repository_error::RepositoryError;
 #[async_trait]
 pub trait ProjectRepository<T: Send + Sync, ID: Send + Sync>: Send + Sync {
     /// エンティティを保存（プロジェクトスコープ内）
-    async fn save(&self, project_id: &ProjectId, entity: &T) -> Result<(), RepositoryError>;
+    async fn save(&self, project_id: &ProjectId, entity: &T, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
 
     /// IDでエンティティを検索（プロジェクトスコープ内）
     async fn find_by_id(
@@ -35,9 +36,11 @@ pub trait ProjectRepository<T: Send + Sync, ID: Send + Sync>: Send + Sync {
         &self,
         project_id: &ProjectId,
         entities: &[T],
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         for entity in entities {
-            self.save(project_id, entity).await?;
+            self.save(project_id, entity, user_id, timestamp).await?;
         }
         Ok(())
     }

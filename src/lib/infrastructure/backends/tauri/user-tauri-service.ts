@@ -3,9 +3,9 @@ import type { User } from '$lib/types/user';
 import type { UserService } from '$lib/infrastructure/backends/user-service';
 
 export class UserTauriService implements UserService {
-  async create(user: User): Promise<boolean> {
+  async create(user: User, userId: string): Promise<boolean> {
     try {
-      await invoke('create_user', { user });
+      await invoke('create_user', { user, userId });
       return true;
     } catch (error) {
       console.error('Failed to create user:', error);
@@ -13,9 +13,9 @@ export class UserTauriService implements UserService {
     }
   }
 
-  async get(id: string): Promise<User | null> {
+  async get(id: string, userId: string): Promise<User | null> {
     try {
-      const result = (await invoke('get_user', { id })) as User | null;
+      const result = (await invoke('get_user', { id, userId })) as User | null;
       return result;
     } catch (error) {
       console.error('Failed to get user:', error);
@@ -23,9 +23,9 @@ export class UserTauriService implements UserService {
     }
   }
 
-  async update(user: User): Promise<boolean> {
+  async update(user: User, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_user', { user });
+      const result = await invoke('update_user', { user, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update user:', error);
@@ -33,9 +33,9 @@ export class UserTauriService implements UserService {
     }
   }
 
-  async delete(userId: string): Promise<boolean> {
+  async delete(id: string, userId: string): Promise<boolean> {
     try {
-      await invoke('delete_user', { userId });
+      await invoke('delete_user', { userId: id, deletedByUserId: userId });
       return true;
     } catch (error) {
       console.error('Failed to delete user:', error);

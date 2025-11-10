@@ -73,6 +73,8 @@ pub async fn load_all_project_data(
             owner_id: project_tree.owner_id.map(|id| id.to_string()),
             created_at: project_tree.created_at.to_rfc3339(),
             updated_at: project_tree.updated_at.to_rfc3339(),
+            deleted: project_tree.deleted,
+            updated_by: project_tree.updated_by.to_string(),
             task_lists: task_list_commands,
             all_tags: tag_commands,
         };

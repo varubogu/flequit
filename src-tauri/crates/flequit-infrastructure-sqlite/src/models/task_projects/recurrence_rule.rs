@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use flequit_model::types::datetime_calendar_types::RecurrenceUnit;
-use flequit_model::types::id_types::ProjectId;
+use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_model::{
     models::task_projects::recurrence_rule::RecurrenceRule, types::id_types::RecurrenceRuleId,
 };
@@ -44,6 +44,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -104,6 +111,10 @@ impl SqliteModelConverter<RecurrenceRule> for Model {
             adjustment: None,   // 関連テーブルから取得
             end_date: self.end_date,
             max_occurrences: self.max_occurrences,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -130,7 +141,6 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for RecurrenceRule {
 
         // IDは呼び出し元で設定する想定
         let id = uuid::Uuid::new_v4().to_string();
-        let now = Utc::now();
 
         Ok(ActiveModel {
             id: Set(id),
@@ -139,8 +149,10 @@ impl DomainToSqliteConverterWithProjectId<ActiveModel> for RecurrenceRule {
             interval: Set(self.interval),
             end_date: Set(self.end_date),
             max_occurrences: Set(self.max_occurrences),
-            created_at: Set(now),
-            updated_at: Set(now),
+            created_at: Set(self.created_at),
+            updated_at: Set(self.updated_at),
+            deleted: Set(self.deleted),
+            updated_by: Set(self.updated_by.to_string()),
         })
     }
 }

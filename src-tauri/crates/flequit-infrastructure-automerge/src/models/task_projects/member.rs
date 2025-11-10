@@ -27,6 +27,12 @@ pub struct MemberAutomerge {
 
     /// 最終更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者ID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    pub deleted: bool,
 }
 
 impl MemberAutomerge {
@@ -45,6 +51,8 @@ impl MemberAutomerge {
             role: role_str.to_string(),
             joined_at: domain.joined_at,
             updated_at: domain.updated_at,
+            updated_by: domain.updated_by.to_string(),
+            deleted: domain.deleted,
         }
     }
 
@@ -60,10 +68,12 @@ impl MemberAutomerge {
 
         Ok(Member {
             id: flequit_model::types::id_types::MemberId::from(self.id),
-            user_id: UserId::from(self.user_id),
+            user_id: UserId::from(self.user_id.clone()),
             role,
             joined_at: self.joined_at,
             updated_at: self.updated_at,
+            updated_by: UserId::from(self.user_id),
+            deleted: self.deleted,
         })
     }
 }

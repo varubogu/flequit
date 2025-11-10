@@ -1,6 +1,7 @@
 //! タスク割り当て用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::task_assignments::TaskAssignmentLocalAutomergeRepository;
@@ -26,10 +27,12 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &UserId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id).await,
-            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id).await,
+            Self::LocalSqlite(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.add(project_id, parent_id, child_id, user_id, timestamp).await,
         }
     }
 
@@ -195,6 +198,8 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         project_id: &ProjectId,
         parent_id: &TaskId,
         child_id: &UserId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         info!(
             "Adding task assignment - project: {}, task: {}, user: {}",
@@ -202,7 +207,7 @@ impl ProjectRelationRepository<TaskAssignment, TaskId, UserId> for TaskAssignmen
         );
 
         for repository in &self.save_repositories {
-            repository.add(project_id, parent_id, child_id).await?;
+            repository.add(project_id, parent_id, child_id, user_id, timestamp).await?;
         }
 
         Ok(())

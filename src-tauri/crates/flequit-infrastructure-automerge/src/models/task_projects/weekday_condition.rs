@@ -36,6 +36,12 @@ pub struct WeekdayConditionAutomerge {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者ID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    pub deleted: bool,
 }
 
 impl WeekdayConditionAutomerge {
@@ -87,8 +93,10 @@ impl WeekdayConditionAutomerge {
             then_target: then_target_str.to_string(),
             then_weekday: then_weekday_str,
             then_days: domain.then_days,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: domain.created_at,
+            updated_at: domain.updated_at,
+            updated_by: domain.updated_by.to_string(),
+            deleted: domain.deleted,
         }
     }
 
@@ -144,6 +152,10 @@ impl WeekdayConditionAutomerge {
             then_target,
             then_weekday,
             then_days: self.then_days,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            updated_by: self.updated_by.into(),
+            deleted: self.deleted,
         })
     }
 }

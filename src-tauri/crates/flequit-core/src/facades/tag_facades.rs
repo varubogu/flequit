@@ -1,18 +1,19 @@
 use crate::services::tag_service;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::{PartialTag, Tag};
-use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
     tag: &Tag,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match tag_service::create_tag(repositories, project_id, tag).await {
+    match tag_service::create_tag(repositories, project_id, tag, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create tag: {:?}", e)),
@@ -40,11 +41,12 @@ pub async fn update_tag<R>(
     project_id: &ProjectId,
     tag_id: &TagId,
     patch: &PartialTag,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match tag_service::update_tag(repositories, project_id, tag_id, patch).await {
+    match tag_service::update_tag(repositories, project_id, tag_id, patch, user_id).await {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update tag: {:?}", e)),

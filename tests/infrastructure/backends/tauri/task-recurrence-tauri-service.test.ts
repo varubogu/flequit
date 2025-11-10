@@ -31,7 +31,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should successfully create a task recurrence', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.create('test-project', mockTaskRecurrence);
+      const result = await service.create('test-project', mockTaskRecurrence, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
         projectId: 'test-project', taskRecurrence: mockTaskRecurrence
@@ -43,7 +43,7 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create('test-project', mockTaskRecurrence);
+      const result = await service.create('test-project', mockTaskRecurrence, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
         projectId: 'test-project', taskRecurrence: mockTaskRecurrence
@@ -64,7 +64,7 @@ describe('TaskRecurrenceTauriService', () => {
       ];
 
       for (const testCase of testCases) {
-        const result = await service.create('test-project', testCase);
+        const result = await service.create('test-project', testCase, 'test-user-id');
         expect(result).toBe(true);
         expect(mockInvoke).toHaveBeenCalledWith('create_task_recurrence', {
           projectId: 'test-project', taskRecurrence: testCase
@@ -77,7 +77,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should successfully retrieve a task recurrence by task ID', async () => {
       mockInvoke.mockResolvedValue(mockTaskRecurrence);
 
-      const result = await service.getByTaskId('test-project', 'task-123');
+      const result = await service.getByTaskId('test-project', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
         projectId: 'test-project', taskId: 'task-123'
@@ -88,7 +88,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should return null when task recurrence not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.getByTaskId('test-project', 'non-existent');
+      const result = await service.getByTaskId('test-project', 'non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
         projectId: 'test-project', taskId: 'non-existent'
@@ -100,7 +100,7 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.getByTaskId('test-project', 'task-123');
+      const result = await service.getByTaskId('test-project', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
         projectId: 'test-project', taskId: 'task-123'
@@ -117,7 +117,7 @@ describe('TaskRecurrenceTauriService', () => {
       const taskIds = ['task-123', 'TASK_456', 'task.789', 'task@abc'];
 
       for (const taskId of taskIds) {
-        const result = await service.getByTaskId('test-project', taskId);
+        const result = await service.getByTaskId('test-project', taskId, 'test-user-id');
         expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
           projectId: 'test-project', taskId
         });
@@ -130,7 +130,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should successfully delete a task recurrence', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.delete('test-project', 'task-123');
+      const result = await service.delete('test-project', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
         projectId: 'test-project', taskId: 'task-123'
@@ -142,7 +142,7 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('test-project', 'task-123');
+      const result = await service.delete('test-project', 'task-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
         projectId: 'test-project', taskId: 'task-123'
@@ -156,7 +156,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should handle deletion of non-existent task recurrence', async () => {
       mockInvoke.mockResolvedValue(false);
 
-      const result = await service.delete('test-project', 'non-existent');
+      const result = await service.delete('test-project', 'non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_task_recurrence', {
         projectId: 'test-project', taskId: 'non-existent'
@@ -218,7 +218,7 @@ describe('TaskRecurrenceTauriService', () => {
     it('should handle empty string task IDs', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.getByTaskId('test-project', '');
+      const result = await service.getByTaskId('test-project', '', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_task_recurrence_by_task_id', {
         projectId: 'test-project', taskId: ''
@@ -234,7 +234,7 @@ describe('TaskRecurrenceTauriService', () => {
         recurrenceRuleId: 'rule-' + 'b'.repeat(100)
       };
 
-      const result = await service.create('test-project', longTaskRecurrence);
+      const result = await service.create('test-project', longTaskRecurrence, 'test-user-id');
 
       expect(result).toBe(true);
     });
@@ -243,10 +243,10 @@ describe('TaskRecurrenceTauriService', () => {
       mockInvoke.mockResolvedValue(true);
 
       const operations = [
-        service.create('test-project', { taskId: 'task-1', recurrenceRuleId: 'rule-1' }),
-        service.create('test-project', { taskId: 'task-2', recurrenceRuleId: 'rule-2' }),
-        service.getByTaskId('test-project', 'task-3'),
-        service.delete('test-project', 'task-4')
+        service.create('test-project', { taskId: 'task-1', recurrenceRuleId: 'rule-1' }, 'test-user-id'),
+        service.create('test-project', { taskId: 'task-2', recurrenceRuleId: 'rule-2' }, 'test-user-id'),
+        service.getByTaskId('test-project', 'task-3', 'test-user-id'),
+        service.delete('test-project', 'task-4', 'test-user-id')
       ];
 
       const results = await Promise.all(operations);

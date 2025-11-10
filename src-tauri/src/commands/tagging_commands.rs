@@ -2,7 +2,7 @@ use crate::models::tag::TagCommandModel;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
 use flequit_core::facades::{subtask_facades, task_facades};
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, TaskId, UserId};
 use tauri::State;
 use tracing::instrument;
 
@@ -15,7 +15,9 @@ pub async fn create_task_tag(
     project_id: String,
     task_id: String,
     tag_name: String,
+    user_id: String,
 ) -> Result<TagCommandModel, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -23,7 +25,7 @@ pub async fn create_task_tag(
     let task_id = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
 
-    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name).await;
+    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name, &user_id_typed).await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_task_tag", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -64,14 +66,16 @@ pub async fn create_task_tag_by_name(
     project_id: String,
     task_id: String,
     tag_name: String,
+    user_id: String,
 ) -> Result<TagCommandModel, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
     let task_id = TaskId::from(task_id);
     let repositories = state.repositories.read().await;
-    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name).await;
+    let result = task_facades::add_task_tag(&*repositories, &project_id, &task_id, &tag_name, &user_id_typed).await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_task_tag_by_name", project_id = %project_id, task_id = %task_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -86,7 +90,9 @@ pub async fn create_subtask_tag_by_name(
     project_id: String,
     subtask_id: String,
     tag_name: String,
+    user_id: String,
 ) -> Result<TagCommandModel, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -94,7 +100,7 @@ pub async fn create_subtask_tag_by_name(
     let subtask_id = SubTaskId::from(subtask_id);
     let repositories = state.repositories.read().await;
     let result =
-        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name).await;
+        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name, &user_id_typed).await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag_by_name", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);
@@ -111,7 +117,9 @@ pub async fn create_subtask_tag(
     project_id: String,
     subtask_id: String,
     tag_name: String,
+    user_id: String,
 ) -> Result<TagCommandModel, String> {
+    let user_id_typed = UserId::from(user_id);
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -120,7 +128,7 @@ pub async fn create_subtask_tag(
     let repositories = state.repositories.read().await;
 
     let result =
-        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name).await;
+        subtask_facades::add_subtask_tag(&*repositories, &project_id, &subtask_id, &tag_name, &user_id_typed).await;
     if let Err(e) = result {
         tracing::error!(target: "commands::tagging", command = "create_subtask_tag", project_id = %project_id, subtask_id = %subtask_id, tag_name = %tag_name, error = %e);
         return Err(e);

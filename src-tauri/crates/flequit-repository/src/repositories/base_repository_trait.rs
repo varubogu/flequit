@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::UserId;
 use flequit_types::errors::repository_error::RepositoryError;
 
 /// 汎用的なリポジトリトレイト
@@ -51,11 +53,13 @@ where
     /// # 引数
     ///
     /// * `entity` - 保存するエンティティ
+    /// * `user_id` - 操作を実行するユーザーのID
+    /// * `timestamp` - 操作のタイムスタンプ
     ///
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn save(&self, entity: &T) -> Result<(), RepositoryError>;
+    async fn save(&self, entity: &T, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
 
     /// IDでエンティティを取得
     ///

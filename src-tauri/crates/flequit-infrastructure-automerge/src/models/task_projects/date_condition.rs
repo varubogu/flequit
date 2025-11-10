@@ -27,6 +27,12 @@ pub struct DateConditionAutomerge {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 最終更新者ID
+    pub updated_by: String,
+
+    /// 論理削除フラグ
+    pub deleted: bool,
 }
 
 impl DateConditionAutomerge {
@@ -44,8 +50,10 @@ impl DateConditionAutomerge {
             id: domain.id.to_string(),
             relation: relation_str.to_string(),
             reference_date: domain.reference_date,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: domain.created_at,
+            updated_at: domain.updated_at,
+            updated_by: domain.updated_by.to_string(),
+            deleted: domain.deleted,
         }
     }
 
@@ -64,6 +72,10 @@ impl DateConditionAutomerge {
             id: self.id.into(),
             relation,
             reference_date: self.reference_date,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            updated_by: self.updated_by.into(),
+            deleted: self.deleted,
         })
     }
 }

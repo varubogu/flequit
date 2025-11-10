@@ -35,6 +35,8 @@ pub struct TaskCommandModel {
     pub is_archived: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -122,6 +124,8 @@ impl ModelConverter<Task> for TaskCommandModel {
             is_archived: self.is_archived,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -149,6 +153,8 @@ pub struct TaskTreeCommandModel {
     pub is_archived: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
     pub sub_tasks: Vec<super::subtask::SubTaskTreeCommandModel>,
     pub tag_ids: Vec<String>,
 }
@@ -238,6 +244,8 @@ impl ModelConverter<TaskTree> for TaskTreeCommandModel {
             is_archived: self.is_archived,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
             sub_tasks: subtasks,
             tag_ids: self
                 .tag_ids
@@ -285,6 +293,8 @@ impl CommandModelConverter<TaskTreeCommandModel> for TaskTree {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
             sub_tasks: subtask_commands,
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
@@ -324,6 +334,8 @@ impl CommandModelConverter<TaskCommandModel> for Task {
             is_archived: self.is_archived,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

@@ -2,8 +2,9 @@ use crate::infrastructure::document::Document;
 
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::accounts::account::Account;
-use flequit_model::types::id_types::AccountId;
+use flequit_model::types::id_types::{AccountId, UserId};
 use flequit_repository::repositories::accounts::AccountRepositoryTrait;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -236,7 +237,7 @@ impl AccountRepositoryTrait for AccountLocalAutomergeRepository {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
-    async fn save(&self, entity: &Account) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Account, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         // 既存のset_userメソッドを活用
         self.set_user(entity).await
     }

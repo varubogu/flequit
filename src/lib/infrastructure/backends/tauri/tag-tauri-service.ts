@@ -3,9 +3,9 @@ import type { TagSearchCondition, Tag } from '$lib/types/tag';
 import type { TagService } from '$lib/infrastructure/backends/tag-service';
 
 export class TagTauriService implements TagService {
-  async create(projectId: string, tag: Tag): Promise<boolean> {
+  async create(projectId: string, tag: Tag, userId: string): Promise<boolean> {
     try {
-      await invoke('create_tag', { projectId, tag });
+      await invoke('create_tag', { projectId, tag, userId });
       return true;
     } catch (error) {
       console.error('Failed to create tag:', error);
@@ -13,9 +13,9 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<Tag>): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<Tag>, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_tag', { projectId, tagId: id, patch });
+      const result = await invoke('update_tag', { projectId, tagId: id, patch, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update tag:', error);
@@ -23,9 +23,9 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async delete(projectId: string, id: string): Promise<boolean> {
+  async delete(projectId: string, id: string, userId: string): Promise<boolean> {
     try {
-      await invoke('delete_tag', { projectId, id });
+      await invoke('delete_tag', { projectId, id, userId });
       return true;
     } catch (error) {
       console.error('Failed to delete tag:', error);
@@ -33,9 +33,9 @@ export class TagTauriService implements TagService {
     }
   }
 
-  async get(projectId: string, id: string): Promise<Tag | null> {
+  async get(projectId: string, id: string, userId: string): Promise<Tag | null> {
     try {
-      const result = (await invoke('get_tag', { projectId, id })) as Tag | null;
+      const result = (await invoke('get_tag', { projectId, id, userId })) as Tag | null;
       return result;
     } catch (error) {
       console.error('Failed to get tag:', error);

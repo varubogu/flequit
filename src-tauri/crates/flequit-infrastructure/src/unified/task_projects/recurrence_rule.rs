@@ -1,6 +1,7 @@
 //! 繰り返しルール用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 // RecurrenceRuleリポジトリ実装をインポート
@@ -8,7 +9,7 @@ use flequit_infrastructure_automerge::infrastructure::task_projects::recurrence_
 use flequit_infrastructure_sqlite::infrastructure::task_projects::recurrence_rule::RecurrenceRuleLocalSqliteRepository;
 use flequit_model::{
     models::task_projects::recurrence_rule::RecurrenceRule,
-    types::id_types::{ProjectId, RecurrenceRuleId},
+    types::id_types::{ProjectId, RecurrenceRuleId, UserId},
 };
 use flequit_repository::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
@@ -28,10 +29,12 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleRepos
         &self,
         project_id: &ProjectId,
         entity: &RecurrenceRule,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
-            Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
+            Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
         }
     }
     async fn find_by_id(
@@ -168,6 +171,8 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleUnifi
         &self,
         project_id: &ProjectId,
         entity: &RecurrenceRule,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
     ) -> Result<(), RepositoryError> {
         info!(
             "Saving recurrence rule entity with ID: {} in project: {}",
@@ -175,7 +180,7 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleUnifi
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity).await?;
+            repository.save(project_id, entity, user_id, timestamp).await?;
         }
 
         Ok(())

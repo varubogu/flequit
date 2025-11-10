@@ -7,8 +7,9 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::subtask::{Column, Entity as SubtaskEntity};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::subtask::SubTask;
-use flequit_model::types::id_types::{ProjectId, SubTaskId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
@@ -106,7 +107,7 @@ impl SubTaskLocalSqliteRepository {
 
 #[async_trait]
 impl ProjectRepository<SubTask, SubTaskId> for SubTaskLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, subtask: &SubTask) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, subtask: &SubTask, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

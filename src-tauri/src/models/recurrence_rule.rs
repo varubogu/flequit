@@ -2,10 +2,11 @@
 
 use crate::models::CommandModelConverter;
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
-use flequit_model::types::id_types::RecurrenceRuleId;
+use flequit_model::types::id_types::{RecurrenceRuleId, UserId};
 use serde::{Deserialize, Serialize};
 
 /// Tauriコマンド用の繰り返しルール構造体（日時フィールドはString）
@@ -27,6 +28,10 @@ pub struct RecurrenceRuleCommandModel {
     pub end_date: Option<String>,
     /// 最大回数
     pub max_occurrences: Option<i32>,
+    pub created_at: String,
+    pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -99,6 +104,15 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleCommandModel {
             None
         };
 
+        let created_at = self
+            .created_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid created_at format: {}", e))?;
+        let updated_at = self
+            .updated_at
+            .parse::<DateTime<Utc>>()
+            .map_err(|e| format!("Invalid updated_at format: {}", e))?;
+
         Ok(RecurrenceRule {
             id: RecurrenceRuleId::from(self.id.clone()),
             unit,
@@ -108,6 +122,10 @@ impl ModelConverter<RecurrenceRule> for RecurrenceRuleCommandModel {
             adjustment,
             end_date,
             max_occurrences: self.max_occurrences,
+            created_at,
+            updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -176,6 +194,10 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
             adjustment,
             end_date: self.end_date.as_ref().map(|d| d.to_rfc3339()),
             max_occurrences: self.max_occurrences,
+            created_at: self.created_at.to_rfc3339(),
+            updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

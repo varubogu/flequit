@@ -1,12 +1,13 @@
 //! タスク用統合リポジトリ
 
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use log::info;
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
 use flequit_model::models::task_projects::task::Task;
-use flequit_model::types::id_types::{ProjectId, TaskId};
+use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::task_repository_trait::TaskRepositoryTrait;
@@ -24,10 +25,10 @@ impl ProjectPatchable<Task, TaskId> for TaskRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskRepositoryVariant {
-    async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Task, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         match self {
-            Self::LocalSqlite(repo) => repo.save(project_id, entity).await,
-            Self::LocalAutomerge(repo) => repo.save(project_id, entity).await,
+            Self::LocalSqlite(repo) => repo.save(project_id, entity, user_id, timestamp).await,
+            Self::LocalAutomerge(repo) => repo.save(project_id, entity, user_id, timestamp).await,
         }
     }
 
@@ -141,14 +142,14 @@ impl ProjectPatchable<Task, TaskId> for TaskUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Task) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Task, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         info!(
             "Saving task entity with ID: {} in project: {}",
             entity.id, project_id
         );
 
         for repository in &self.save_repositories {
-            repository.save(project_id, entity).await?;
+            repository.save(project_id, entity, user_id, timestamp).await?;
         }
 
         Ok(())
@@ -183,6 +184,27 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
     async fn delete(&self, project_id: &ProjectId, id: &TaskId) -> Result<(), RepositoryError> {
         info!("Deleting task with ID: {} in project: {}", id, project_id);
 
+        // 削除前に全リポジトリでデータの存在を確認
+        let mut existence_status = Vec::new();
+        for (idx, repository) in self.save_repositories.iter().enumerate() {
+            let exists = repository.exists(project_id, id).await?;
+            existence_status.push((idx, exists));
+            info!(
+                "Repository {} - Task {} existence: {}",
+                idx, id, exists
+            );
+        }
+
+        // 少なくとも1つのリポジトリにデータが存在することを確認
+        let any_exists = existence_status.iter().any(|(_, exists)| *exists);
+        if !any_exists {
+            return Err(RepositoryError::NotFound(format!(
+                "Task not found in any repository: {}",
+                id
+            )));
+        }
+
+        // 削除処理を実行
         for repository in &self.save_repositories {
             repository.delete(project_id, id).await?;
         }

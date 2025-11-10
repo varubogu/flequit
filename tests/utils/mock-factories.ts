@@ -31,6 +31,8 @@ export function createMockTaskWithSubTasks(
 		isArchived: false,
 		createdAt: defaultDate(),
 		updatedAt: defaultDate(),
+		deleted: false,
+		updatedBy: 'system',
 		subTasks: [],
 		tags: []
 	};
@@ -57,6 +59,8 @@ export function createMockTaskListWithTasks(
 		isArchived: false,
 		createdAt: defaultDate(),
 		updatedAt: defaultDate(),
+		deleted: false,
+		updatedBy: 'system',
 		tasks: []
 	};
 
@@ -77,6 +81,8 @@ export function createMockProjectTree(overrides: Partial<ProjectTree> = {}): Pro
 		isArchived: false,
 		createdAt: defaultDate(),
 		updatedAt: defaultDate(),
+		deleted: false,
+		updatedBy: 'system',
 		taskLists: [],
 		allTags: []
 	};

@@ -39,6 +39,12 @@ pub struct AccountDocument {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 削除フラグ（論理削除）
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 impl AccountDocument {
@@ -55,6 +61,8 @@ impl AccountDocument {
             is_active: account.is_active,
             created_at: account.created_at,
             updated_at: account.updated_at,
+            deleted: account.deleted,
+            updated_by: account.updated_by.to_string(),
         }
     }
 
@@ -79,6 +87,12 @@ impl AccountDocument {
             is_active: self.is_active,
             created_at: self.created_at,
             updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::try_from_str(&self.updated_by).map_err(|e| {
+                RepositoryError::from(
+                    crate::errors::automerge_error::AutomergeError::ConversionError(e.to_string()),
+                )
+            })?,
         })
     }
 }

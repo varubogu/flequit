@@ -13,10 +13,12 @@ use tracing::instrument;
 pub async fn create_user(
     state: State<'_, AppState>,
     user: UserCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let repositories = state.repositories.read().await;
     let internal_user = user.to_model().await?;
-    user_facades::create_user(&*repositories, &internal_user)
+    user_facades::create_user(&*repositories, &internal_user, &user_id_typed)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::user", command = "create_user", error = %e);
@@ -52,12 +54,14 @@ pub async fn update_user(
     state: State<'_, AppState>,
     id: String,
     patch: PartialUserCommandModel,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
     let repositories = state.repositories.read().await;
-    let user_id = UserId::from(id);
+    let target_user_id = UserId::from(id);
 
     // 既存のユーザーを取得
-    let existing_user = match user_facades::get_user(&*repositories, &user_id).await? {
+    let existing_user = match user_facades::get_user(&*repositories, &target_user_id).await? {
         Some(user) => user,
         None => return Err("User not found".to_string()),
     };
@@ -74,12 +78,14 @@ pub async fn update_user(
         is_active: patch.is_active.unwrap_or(existing_user.is_active),
         created_at: existing_user.created_at,
         updated_at: chrono::Utc::now(), // 更新時刻を現在時刻に設定
+        deleted: existing_user.deleted,
+        updated_by: user_id_typed.clone(),
     };
 
-    user_facades::update_user(&*repositories, &updated_user)
+    user_facades::update_user(&*repositories, &updated_user, &user_id_typed)
         .await
         .map_err(|e| {
-            tracing::error!(target: "commands::user", command = "update_user", user_id = %user_id, error = %e);
+            tracing::error!(target: "commands::user", command = "update_user", user_id = %target_user_id, error = %e);
             e
         })
 }

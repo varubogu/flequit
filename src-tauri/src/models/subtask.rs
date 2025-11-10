@@ -31,6 +31,8 @@ pub struct SubtaskCommandModel {
     pub completed: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -119,6 +121,8 @@ impl ModelConverter<SubTask> for SubtaskCommandModel {
             completed: self.completed,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -154,6 +158,8 @@ impl CommandModelConverter<SubtaskCommandModel> for SubTask {
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }
@@ -179,6 +185,8 @@ pub struct SubTaskTreeCommandModel {
     pub completed: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
     pub tag_ids: Vec<String>,
 }
 
@@ -213,6 +221,8 @@ impl SubTaskTreeCommandModel {
             completed: subtask.completed,
             created_at: subtask.created_at.to_rfc3339(),
             updated_at: subtask.updated_at.to_rfc3339(),
+            deleted: subtask.deleted,
+            updated_by: subtask.updated_by.to_string(),
             tag_ids: subtask.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
     }
@@ -292,6 +302,8 @@ impl ModelConverter<SubTaskTree> for SubTaskTreeCommandModel {
             completed: self.completed,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
             assigned_user_ids: self
                 .assigned_user_ids
                 .iter()
@@ -335,6 +347,8 @@ impl CommandModelConverter<SubTaskTreeCommandModel> for SubTaskTree {
             completed: self.completed,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
             tag_ids: self.tag_ids.iter().map(|id| id.to_string()).collect(),
         })
     }

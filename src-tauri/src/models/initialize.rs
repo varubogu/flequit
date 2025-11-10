@@ -54,6 +54,8 @@ impl CommandModelConverter<InitializedResult> for InitializedData {
                 owner_id: project.owner_id.clone(),
                 created_at: project.created_at,
                 updated_at: project.updated_at,
+                deleted: project.deleted,
+                updated_by: project.updated_by.clone(),
                 task_lists: Vec::new(), // 空のタスクリスト
             })
             .collect();

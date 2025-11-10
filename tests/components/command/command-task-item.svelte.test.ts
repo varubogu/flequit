@@ -21,6 +21,8 @@ describe('CommandTaskItem', () => {
     isArchived: false,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
+    deleted: false,
+    updatedBy: 'system',
     subTasks: [],
     tags: [
       {
@@ -28,14 +30,18 @@ describe('CommandTaskItem', () => {
         name: 'urgent',
         color: '#ff0000',
         createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
+        updatedAt: new Date('2024-01-01'),
+        deleted: false,
+        updatedBy: 'system'
       },
       {
         id: 'tag-2',
         name: 'work',
         color: '#00ff00',
         createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
+        updatedAt: new Date('2024-01-01'),
+        deleted: false,
+        updatedBy: 'system'
       }
     ]
   };
@@ -82,6 +88,8 @@ describe('CommandTaskItem', () => {
         isArchived: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'system',
         subTasks: [],
         tags: []
       };
@@ -223,21 +231,27 @@ describe('CommandTaskItem', () => {
             name: 'tag with spaces',
             color: '#ff0000',
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           },
           {
             id: 'tag-2',
             name: 'タグ',
             color: '#00ff00',
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           },
           {
             id: 'tag-3',
             name: 'tag&symbols!',
             color: '#0000ff',
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           }
         ]
       };
@@ -491,20 +505,26 @@ describe('CommandTaskItem', () => {
             name: '',
             color: '#ff0000',
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           },
           {
             id: 'tag-2',
             name: 'test',
             color: undefined,
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           },
           {
             id: 'tag-3',
             name: 'no-color',
             createdAt: new Date('2024-01-01'),
-            updatedAt: new Date('2024-01-01')
+            updatedAt: new Date('2024-01-01'),
+            deleted: false,
+            updatedBy: 'system'
           }
         ]
       };

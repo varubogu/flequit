@@ -26,7 +26,9 @@ describe('AccountTauriService', () => {
       providerId: 'provider-123',
       isActive: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-01T00:00:00Z'
+      updatedAt: '2024-01-01T00:00:00Z',
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
     vi.clearAllMocks();
   });
@@ -35,7 +37,7 @@ describe('AccountTauriService', () => {
     it('should successfully create an account', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create(mockAccount);
+      const result = await service.create(mockAccount, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount });
       expect(result).toBe(true);
@@ -45,7 +47,7 @@ describe('AccountTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create(mockAccount);
+      const result = await service.create(mockAccount, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount });
       expect(result).toBe(false);
@@ -59,7 +61,7 @@ describe('AccountTauriService', () => {
     it('should successfully retrieve an account', async () => {
       mockInvoke.mockResolvedValue(mockAccount);
 
-      const result = await service.get('account-123');
+      const result = await service.get('account-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123' });
       expect(result).toEqual(mockAccount);
@@ -68,7 +70,7 @@ describe('AccountTauriService', () => {
     it('should return null when account not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('non-existent');
+      const result = await service.get('non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'non-existent' });
       expect(result).toBeNull();
@@ -78,7 +80,7 @@ describe('AccountTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('account-123');
+      const result = await service.get('account-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123' });
       expect(result).toBeNull();
@@ -92,7 +94,7 @@ describe('AccountTauriService', () => {
     it('should successfully update an account', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update(mockAccount.id, mockAccount);
+      const result = await service.update(mockAccount.id, mockAccount, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
       expect(result).toBe(true);
@@ -102,7 +104,7 @@ describe('AccountTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update(mockAccount.id, mockAccount);
+      const result = await service.update(mockAccount.id, mockAccount, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
       expect(result).toBe(false);
@@ -116,7 +118,7 @@ describe('AccountTauriService', () => {
     it('should successfully delete an account', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('account-123');
+      const result = await service.delete('account-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
       expect(result).toBe(true);
@@ -126,7 +128,7 @@ describe('AccountTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('account-123');
+      const result = await service.delete('account-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
       expect(result).toBe(false);

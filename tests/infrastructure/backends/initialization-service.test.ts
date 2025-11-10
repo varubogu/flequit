@@ -34,11 +34,14 @@ describe('InitializationService Interface', () => {
 
     mockAccount = {
       id: 'account-123',
-      name: 'Test User',
+      userId: 'user-123',
+      displayName: 'Test User',
       email: 'test@example.com',
-      profile_image: 'https://example.com/avatar.jpg',
-      created_at: new Date('2024-01-01T00:00:00Z'),
-      updated_at: new Date('2024-01-01T00:00:00Z')
+      avatarUrl: 'https://example.com/avatar.jpg',
+      provider: 'local',
+      isActive: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-01T00:00:00Z'
     };
 
     mockProjects = [

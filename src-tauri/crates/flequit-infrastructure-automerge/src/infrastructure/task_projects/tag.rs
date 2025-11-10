@@ -3,7 +3,8 @@ use crate::infrastructure::document::Document;
 use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::tag::Tag;
-use flequit_model::types::id_types::{ProjectId, TagId};
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::tag_repository_trait::TagRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -149,7 +150,7 @@ impl TagRepositoryTrait for TagLocalAutomergeRepository {}
 
 #[async_trait]
 impl ProjectRepository<Tag, TagId> for TagLocalAutomergeRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Tag) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Tag, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         log::info!("TagLocalAutomergeRepository::save - 開始: {:?}", entity.id);
         let result = self.set_tag(project_id, entity).await;
         if result.is_ok() {

@@ -5,6 +5,7 @@ use crate::errors::sqlite_error::SQLiteError;
 use crate::models::task_projects::member::{Column, Entity as MemberEntity};
 use crate::models::{DomainToSqliteConverterWithProjectId, SqliteModelConverter};
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use flequit_model::models::task_projects::member::Member;
 use flequit_model::types::id_types::{ProjectId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
@@ -30,7 +31,7 @@ impl MemberRepositoryTrait for MemberLocalSqliteRepository {}
 
 #[async_trait]
 impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
-    async fn save(&self, project_id: &ProjectId, entity: &Member) -> Result<(), RepositoryError> {
+    async fn save(&self, project_id: &ProjectId, entity: &Member, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()
@@ -49,6 +50,8 @@ impl ProjectRepository<Member, UserId> for MemberLocalSqliteRepository {
             role: Set(sqlite_model.role.clone()),
             joined_at: Set(sqlite_model.joined_at),
             updated_at: Set(sqlite_model.updated_at),
+            deleted: Set(sqlite_model.deleted),
+            updated_by: Set(sqlite_model.updated_by),
         };
 
         active_model

@@ -3,7 +3,7 @@ import type { SubTask } from '$lib/types/sub-task';
 import type { SubTaskService } from '../subtask-service';
 
 export class SubtaskTauriService implements SubTaskService {
-  async create(projectId: string, subTask: SubTask): Promise<boolean> {
+  async create(projectId: string, subTask: SubTask, userId: string): Promise<boolean> {
     try {
       // SubTaskからSubtaskCommandModel形式に変換
       const subTaskCommandModel = {
@@ -25,9 +25,11 @@ export class SubtaskTauriService implements SubTaskService {
         completed: subTask.completed,
         createdAt: subTask.createdAt.toISOString(),
         updatedAt: subTask.updatedAt.toISOString(),
+        deleted: subTask.deleted,
+        updatedBy: subTask.updatedBy
       };
 
-      await invoke('create_sub_task', { projectId, subTask: subTaskCommandModel });
+      await invoke('create_sub_task', { projectId, subTask: subTaskCommandModel, userId });
       return true;
     } catch (error) {
       console.error('Failed to create sub task:', error);
@@ -35,7 +37,7 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async update(projectId: string, id: string, patch: Partial<SubTask>): Promise<boolean> {
+  async update(projectId: string, id: string, patch: Partial<SubTask>, userId: string): Promise<boolean> {
     try {
       // Partial<SubTask>からSubtaskCommandModel形式に変換（Date/ISO文字列両対応）
       const toIsoString = (v: unknown): string | undefined => {
@@ -65,7 +67,7 @@ export class SubtaskTauriService implements SubTaskService {
         tagIds?: string[];
       };
 
-      const result = await invoke('update_sub_task', { projectId, id, patch: subtaskPatchCommandModel });
+      const result = await invoke('update_sub_task', { projectId, id, patch: subtaskPatchCommandModel, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update subtask:', error);
@@ -73,9 +75,9 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async delete(projectId: string, id: string): Promise<boolean> {
+  async delete(projectId: string, id: string, userId: string): Promise<boolean> {
     try {
-      await invoke('delete_sub_task', { projectId, id });
+      await invoke('delete_sub_task', { projectId, id, userId });
       return true;
     } catch (error) {
       console.error('Failed to delete sub task:', error);
@@ -83,9 +85,9 @@ export class SubtaskTauriService implements SubTaskService {
     }
   }
 
-  async get(projectId: string, id: string): Promise<SubTask | null> {
+  async get(projectId: string, id: string, userId: string): Promise<SubTask | null> {
     try {
-      const result = (await invoke('get_sub_task', { projectId, id })) as SubTask | null;
+      const result = (await invoke('get_sub_task', { projectId, id, userId })) as SubTask | null;
       return result;
     } catch (error) {
       console.error('Failed to get sub task:', error);

@@ -3,9 +3,9 @@ import type { Account } from '$lib/types/account';
 import type { AccountService } from '$lib/infrastructure/backends/account-service';
 
 export class AccountTauriService implements AccountService {
-  async create(account: Account): Promise<boolean> {
+  async create(account: Account, userId: string): Promise<boolean> {
     try {
-      await invoke('create_account', { account });
+      await invoke('create_account', { account, userId });
       return true;
     } catch (error) {
       console.error('Failed to create account:', error);
@@ -13,9 +13,9 @@ export class AccountTauriService implements AccountService {
     }
   }
 
-  async get(id: string): Promise<Account | null> {
+  async get(id: string, userId: string): Promise<Account | null> {
     try {
-      const result = (await invoke('get_account', { id })) as Account | null;
+      const result = (await invoke('get_account', { id, userId })) as Account | null;
       return result;
     } catch (error) {
       console.error('Failed to get account:', error);
@@ -23,9 +23,9 @@ export class AccountTauriService implements AccountService {
     }
   }
 
-  async update(id: string, patch: Partial<Account>): Promise<boolean> {
+  async update(id: string, patch: Partial<Account>, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_account', { id, patch });
+      const result = await invoke('update_account', { id, patch, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update account:', error);
@@ -33,9 +33,9 @@ export class AccountTauriService implements AccountService {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, userId: string): Promise<boolean> {
     try {
-      await invoke('delete_account', { accountId: id });
+      await invoke('delete_account', { accountId: id, userId });
       return true;
     } catch (error) {
       console.error('Failed to delete account:', error);

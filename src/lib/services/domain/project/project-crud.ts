@@ -1,6 +1,7 @@
 import type { Project, ProjectTree } from '$lib/types/project';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * プロジェクトCRUDサービス（バックエンド操作のみ）
@@ -30,12 +31,14 @@ export const ProjectCrudService = {
 			orderIndex: projectData.order_index ?? 0,
 			isArchived: false,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
+			deleted: false,
+			updatedBy: getCurrentUserId()
 		};
 
 		try {
 			const backend = await resolveBackend();
-			await backend.project.create(newProject);
+			await backend.project.create(newProject, getCurrentUserId());
 			return newProject;
 		} catch (error) {
 			console.error('Failed to create project:', error);
@@ -50,7 +53,7 @@ export const ProjectCrudService = {
 	async get(projectId: string): Promise<Project | null> {
 		try {
 			const backend = await resolveBackend();
-			return await backend.project.get(projectId);
+			return await backend.project.get(projectId, getCurrentUserId());
 		} catch (error) {
 			console.error('Failed to get project:', error);
 			throw error;
@@ -78,10 +81,10 @@ export const ProjectCrudService = {
 				updated_at: new Date()
 			};
 
-			const success = await backend.project.update(projectId, patchData);
+			const success = await backend.project.update(projectId, patchData, getCurrentUserId());
 
 			if (success) {
-				return await backend.project.get(projectId);
+				return await backend.project.get(projectId, getCurrentUserId());
 			}
 			return null;
 		} catch (error) {
@@ -97,7 +100,7 @@ export const ProjectCrudService = {
 	async delete(projectId: string): Promise<boolean> {
 		try {
 			const backend = await resolveBackend();
-			return await backend.project.delete(projectId);
+			return await backend.project.delete(projectId, getCurrentUserId());
 		} catch (error) {
 			console.error('Failed to delete project:', error);
 			errorHandler.addSyncError('プロジェクト削除', 'project', projectId, error);

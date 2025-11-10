@@ -6,7 +6,7 @@ use flequit_model::{
     models::task_projects::weekday_condition::WeekdayCondition,
     types::{
         datetime_calendar_types::{AdjustmentDirection, AdjustmentTarget, DayOfWeek},
-        id_types::{ProjectId, WeekdayConditionId},
+        id_types::{ProjectId, UserId, WeekdayConditionId},
     },
 };
 use sea_orm::entity::prelude::*;
@@ -52,6 +52,13 @@ pub struct Model {
 
     /// 更新日時
     pub updated_at: DateTime<Utc>,
+
+    /// 論理削除フラグ
+    #[sea_orm(indexed)]
+    pub deleted: bool,
+
+    /// 最終更新者のユーザーID
+    pub updated_by: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -112,6 +119,10 @@ impl SqliteModelConverter<WeekdayCondition> for Model {
             then_target,
             then_weekday,
             then_days: self.then_days,
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -169,8 +180,10 @@ impl DomainToSqliteConverterWithProjectId<Model> for WeekdayCondition {
             then_target: then_target_str.to_string(),
             then_weekday: then_weekday_str,
             then_days: self.then_days,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: self.created_at,
+            updated_at: self.updated_at,
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

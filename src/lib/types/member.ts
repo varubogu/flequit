@@ -10,6 +10,10 @@ export interface Member {
   joinedAt: Date;
   /** 更新日時 */
   updatedAt: Date;
+  /** 削除フラグ（論理削除） */
+  deleted: boolean;
+  /** 最終更新者のユーザーID */
+  updatedBy: string;
 }
 
 /**

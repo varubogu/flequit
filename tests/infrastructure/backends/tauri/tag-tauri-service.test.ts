@@ -23,7 +23,9 @@ describe('TagTauriService', () => {
       color: '#FF5733',
       orderIndex: 0,
       createdAt: new Date('2024-01-01T00:00:00Z'),
-      updatedAt: new Date('2024-01-01T00:00:00Z')
+      updatedAt: new Date('2024-01-01T00:00:00Z'),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
     mockSearchCondition = {
       name: 'urgent'
@@ -35,7 +37,7 @@ describe('TagTauriService', () => {
     it('should successfully create a tag', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.create('test-project-id', mockTag);
+      const result = await service.create('test-project-id', mockTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag });
       expect(result).toBe(true);
@@ -45,7 +47,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Creation failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.create('test-project-id', mockTag);
+      const result = await service.create('test-project-id', mockTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag });
       expect(result).toBe(false);
@@ -61,10 +63,12 @@ describe('TagTauriService', () => {
         id: 'tag-minimal',
         name: 'basic',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id'
       };
 
-      const result = await service.create('test-project-id', minimalTag);
+      const result = await service.create('test-project-id', minimalTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: minimalTag });
       expect(result).toBe(true);
@@ -79,10 +83,12 @@ describe('TagTauriService', () => {
         color: '#00FF00',
         orderIndex: 5,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id'
       };
 
-      const result = await service.create('test-project-id', fullTag);
+      const result = await service.create('test-project-id', fullTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: fullTag });
       expect(result).toBe(true);
@@ -93,7 +99,7 @@ describe('TagTauriService', () => {
     it('should successfully update a tag', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update('test-project-id', mockTag.id, mockTag);
+      const result = await service.update('test-project-id', mockTag.id, mockTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag });
       expect(result).toBe(true);
@@ -103,7 +109,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update('test-project-id', mockTag.id, mockTag);
+      const result = await service.update('test-project-id', mockTag.id, mockTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag });
       expect(result).toBe(false);
@@ -121,7 +127,7 @@ describe('TagTauriService', () => {
         updatedAt: new Date()
       };
 
-      const result = await service.update('test-project-id', updatedTag.id, updatedTag);
+      const result = await service.update('test-project-id', updatedTag.id, updatedTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: updatedTag.id, patch: updatedTag });
       expect(result).toBe(true);
@@ -136,7 +142,7 @@ describe('TagTauriService', () => {
         updatedAt: new Date()
       };
 
-      const result = await service.update('test-project-id', renamedTag.id, renamedTag);
+      const result = await service.update('test-project-id', renamedTag.id, renamedTag, 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: renamedTag.id, patch: renamedTag });
       expect(result).toBe(true);
@@ -147,7 +153,7 @@ describe('TagTauriService', () => {
     it('should successfully delete a tag', async () => {
       mockInvoke.mockResolvedValue(undefined);
 
-      const result = await service.delete('test-project-id', 'tag-123');
+      const result = await service.delete('test-project-id', 'tag-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123' });
       expect(result).toBe(true);
@@ -157,7 +163,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Deletion failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.delete('test-project-id', 'tag-123');
+      const result = await service.delete('test-project-id', 'tag-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123' });
       expect(result).toBe(false);
@@ -171,7 +177,7 @@ describe('TagTauriService', () => {
     it('should successfully retrieve a tag', async () => {
       mockInvoke.mockResolvedValue(mockTag);
 
-      const result = await service.get('test-project-id', 'tag-123');
+      const result = await service.get('test-project-id', 'tag-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123' });
       expect(result).toEqual(mockTag);
@@ -180,7 +186,7 @@ describe('TagTauriService', () => {
     it('should return null when tag not found', async () => {
       mockInvoke.mockResolvedValue(null);
 
-      const result = await service.get('test-project-id', 'non-existent');
+      const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'non-existent' });
       expect(result).toBeNull();
@@ -190,7 +196,7 @@ describe('TagTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Retrieval failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.get('test-project-id', 'tag-123');
+      const result = await service.get('test-project-id', 'tag-123', 'test-user-id');
 
       expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123' });
       expect(result).toBeNull();
@@ -234,10 +240,12 @@ describe('TagTauriService', () => {
         name: '重要！@#$%',
         color: '#FF0000',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id'
       };
 
-      const result = await service.create('test-project-id', specialCharTag);
+      const result = await service.create('test-project-id', specialCharTag, 'test-user-id');
 
       expect(result).toBe(true);
     });
@@ -263,10 +271,12 @@ describe('TagTauriService', () => {
           name: `color-${color}`,
           color,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user-id'
         };
 
-        const result = await service.create('test-project-id', colorTag);
+        const result = await service.create('test-project-id', colorTag, 'test-user-id');
         expect(result).toBe(true);
       }
     });
@@ -278,10 +288,12 @@ describe('TagTauriService', () => {
         id: 'tag-no-color',
         name: 'no-color',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user-id'
       };
 
-      const result = await service.create('test-project-id', noColorTag);
+      const result = await service.create('test-project-id', noColorTag, 'test-user-id');
 
       expect(result).toBe(true);
     });
@@ -297,10 +309,12 @@ describe('TagTauriService', () => {
           name: `order-${orderIndex}`,
           orderIndex: orderIndex,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user-id'
         };
 
-        const result = await service.create('test-project-id', orderTag);
+        const result = await service.create('test-project-id', orderTag, 'test-user-id');
         expect(result).toBe(true);
       }
     });

@@ -70,7 +70,9 @@ export const buildTag = (overrides: Partial<Tag> = {}): Tag => {
     name: 'New Tag',
     color: '#00ff00',
     createdAt: new Date(now),
-    updatedAt: new Date(now)
+    updatedAt: new Date(now),
+    deleted: false,
+    updatedBy: 'test-user-id'
   };
 
   return {
@@ -95,6 +97,8 @@ export const buildTaskWithSubTasks = (overrides: Partial<TaskWithSubTasks> = {})
     isArchived: false,
     createdAt: new Date(now),
     updatedAt: new Date(now),
+    deleted: false,
+    updatedBy: 'test-user-id',
     tags: [],
     subTasks: []
   };

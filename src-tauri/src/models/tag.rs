@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use flequit_model::types::id_types::TagId;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::{TagId, UserId};
 use serde::{Deserialize, Serialize};
 
 use crate::models::CommandModelConverter;
@@ -16,6 +17,8 @@ pub struct TagCommandModel {
     pub order_index: Option<i32>,
     pub created_at: String,
     pub updated_at: String,
+    pub deleted: bool,
+    pub updated_by: String,
 }
 
 #[async_trait]
@@ -40,6 +43,8 @@ impl ModelConverter<Tag> for TagCommandModel {
             order_index: self.order_index,
             created_at,
             updated_at,
+            deleted: self.deleted,
+            updated_by: UserId::from(self.updated_by.clone()),
         })
     }
 }
@@ -54,6 +59,8 @@ impl CommandModelConverter<TagCommandModel> for Tag {
             order_index: self.order_index,
             created_at: self.created_at.to_rfc3339(),
             updated_at: self.updated_at.to_rfc3339(),
+            deleted: self.deleted,
+            updated_by: self.updated_by.to_string(),
         })
     }
 }

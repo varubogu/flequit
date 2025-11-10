@@ -39,6 +39,14 @@ export interface TaskRecurrence {
 	taskId: string;
 	/** 繰り返しルールID */
 	recurrenceRuleId: string;
+	/** 作成日時 */
+	createdAt: Date;
+	/** 更新日時 */
+	updatedAt: Date;
+	/** 削除フラグ（論理削除） */
+	deleted: boolean;
+	/** 最終更新者のユーザーID */
+	updatedBy: string;
 }
 
 /**
@@ -49,6 +57,14 @@ export interface SubtaskRecurrence {
 	subtaskId: string;
 	/** 繰り返しルールID */
 	recurrenceRuleId: string;
+	/** 作成日時 */
+	createdAt: Date;
+	/** 更新日時 */
+	updatedAt: Date;
+	/** 削除フラグ（論理削除） */
+	deleted: boolean;
+	/** 最終更新者のユーザーID */
+	updatedBy: string;
 }
 
 /**
@@ -120,15 +136,22 @@ export interface ProjectRecurrenceSearchCondition {
  *
  * @param taskId - タスクID
  * @param recurrenceRuleId - 繰り返しルールID
+ * @param updatedBy - 更新者のユーザーID
  * @returns タスク繰り返し関連付け
  */
 export function createTaskRecurrence(
 	taskId: string,
-	recurrenceRuleId: string
+	recurrenceRuleId: string,
+	updatedBy: string
 ): TaskRecurrence {
+	const now = new Date();
 	return {
 		taskId,
-		recurrenceRuleId
+		recurrenceRuleId,
+		createdAt: now,
+		updatedAt: now,
+		deleted: false,
+		updatedBy
 	};
 }
 
@@ -137,15 +160,22 @@ export function createTaskRecurrence(
  *
  * @param subtaskId - サブタスクID
  * @param recurrenceRuleId - 繰り返しルールID
+ * @param updatedBy - 更新者のユーザーID
  * @returns サブタスク繰り返し関連付け
  */
 export function createSubtaskRecurrence(
 	subtaskId: string,
-	recurrenceRuleId: string
+	recurrenceRuleId: string,
+	updatedBy: string
 ): SubtaskRecurrence {
+	const now = new Date();
 	return {
 		subtaskId,
-		recurrenceRuleId
+		recurrenceRuleId,
+		createdAt: now,
+		updatedAt: now,
+		deleted: false,
+		updatedBy
 	};
 }
 

@@ -75,7 +75,6 @@ use crate::types::id_types::ProjectId;
 #[partially(derive(Debug, Clone, Serialize, Deserialize, Default))]
 pub struct Task {
     /// タスクの一意識別子
-    #[partially(omit)] // IDは更新対象外
     pub id: TaskId,
     /// 所属プロジェクトID
     pub project_id: ProjectId,

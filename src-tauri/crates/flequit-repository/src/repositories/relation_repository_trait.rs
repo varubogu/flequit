@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
+use flequit_model::types::id_types::UserId;
 use flequit_types::errors::repository_error::RepositoryError;
 
 /// 関係性管理リポジトリトレイト
@@ -52,7 +54,7 @@ where
     /// # 戻り値
     ///
     /// 成功時は`Ok(())`、失敗時は`Err(RepositoryError)`
-    async fn add(&self, parent_id: &TParentId, child_id: &TChildId) -> Result<(), RepositoryError>;
+    async fn add(&self, parent_id: &TParentId, child_id: &TChildId, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError>;
 
     /// 紐づけを削除
     ///

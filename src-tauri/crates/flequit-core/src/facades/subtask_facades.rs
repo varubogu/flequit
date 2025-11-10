@@ -3,18 +3,19 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::subtask::{PartialSubTask, SubTask};
 use flequit_model::models::task_projects::subtask_tag::SubTaskTag;
 use flequit_model::models::task_projects::tag::Tag;
-use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId};
+use flequit_model::types::id_types::{ProjectId, SubTaskId, TagId, UserId};
 use flequit_types::errors::service_error::ServiceError;
 
 pub async fn create_sub_task<R>(
     repositories: &R,
     project_id: &ProjectId,
     subtask: &SubTask,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_service::create_subtask(repositories, project_id, &subtask).await {
+    match subtask_service::create_subtask(repositories, project_id, &subtask, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to create subtask: {:?}", e)),
@@ -41,11 +42,12 @@ pub async fn update_sub_task<R>(
     project_id: &ProjectId,
     subtask_id: &SubTaskId,
     patch: &PartialSubTask,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match subtask_service::update_subtask(repositories, project_id, subtask_id, patch).await {
+    match subtask_service::update_subtask(repositories, project_id, subtask_id, patch, user_id).await {
         Ok(changed) => Ok(changed),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update subtask: {:?}", e)),
@@ -74,6 +76,7 @@ pub async fn add_subtask_tag_relation<R>(
     project_id: &ProjectId,
     subtask_id: &SubTaskId,
     tag_id: &TagId,
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -83,6 +86,7 @@ where
         project_id,
         subtask_id,
         tag_id,
+        user_id,
     )
     .await
     {
@@ -97,6 +101,7 @@ pub async fn add_subtask_tag<R>(
     project_id: &ProjectId,
     subtask_id: &SubTaskId,
     tag_name: &str,
+    user_id: &UserId,
 ) -> Result<Tag, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -121,8 +126,10 @@ where
             order_index: None,
             created_at: now,
             updated_at: now,
+            deleted: false,
+            updated_by: user_id.clone(),
         };
-        match tag_service::create_tag(repositories, project_id, &new_tag).await {
+        match tag_service::create_tag(repositories, project_id, &new_tag, user_id).await {
             Ok(_) => new_tag,
             Err(ServiceError::ValidationError(msg)) => return Err(msg),
             Err(e) => return Err(format!("Failed to create tag: {:?}", e)),
@@ -135,6 +142,7 @@ where
         project_id,
         subtask_id,
         &tag.id,
+        user_id,
     )
     .await
     {
@@ -203,6 +211,7 @@ pub async fn update_subtask_tag_relations<R>(
     project_id: &ProjectId,
     subtask_id: &SubTaskId,
     tag_ids: &[TagId],
+    user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -212,6 +221,7 @@ where
         project_id,
         subtask_id,
         tag_ids,
+        user_id,
     )
     .await
     {

@@ -5,6 +5,7 @@ import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
+import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
  * プロジェクト管理ストア
@@ -125,6 +126,8 @@ export class ProjectStore implements IProjectStore {
 			isArchived: false,
 			createdAt: new SvelteDate(),
 			updatedAt: new SvelteDate(),
+			deleted: false,
+			updatedBy: getCurrentUserId(),
 			taskLists: [],
 			allTags: []
 		};
@@ -167,7 +170,9 @@ export class ProjectStore implements IProjectStore {
 			orderIndex: updated.orderIndex,
 			isArchived: updated.isArchived,
 			createdAt: updated.createdAt,
-			updatedAt: updated.updatedAt
+			updatedAt: updated.updatedAt,
+			deleted: updated.deleted,
+			updatedBy: updated.updatedBy
 		};
 
 		return result;

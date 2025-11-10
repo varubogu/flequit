@@ -4,10 +4,11 @@
 
 use super::super::database_manager::DatabaseManager;
 use crate::errors::sqlite_error::SQLiteError;
+use chrono::{DateTime, Utc};
 use crate::models::account::{ActiveModel as AccountActiveModel, Column, Entity as AccountEntity};
 use crate::models::{DomainToSqliteConverter, SqliteModelConverter};
 use flequit_model::models::accounts::account::Account;
-use flequit_model::types::id_types::AccountId;
+use flequit_model::types::id_types::{AccountId, UserId};
 use flequit_repository::repositories::accounts::account_repository_trait::AccountRepositoryTrait;
 use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::repository_error::RepositoryError;
@@ -201,7 +202,7 @@ impl AccountRepositoryTrait for AccountLocalSqliteRepository {}
 
 #[async_trait::async_trait]
 impl Repository<Account, AccountId> for AccountLocalSqliteRepository {
-    async fn save(&self, account: &Account) -> Result<(), RepositoryError> {
+    async fn save(&self, account: &Account, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;
         let db = db_manager
             .get_connection()

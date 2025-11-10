@@ -13,7 +13,7 @@ pub async fn can_edit_user_profile(current_account: &Account, target_user_id: &U
     current_account.user_id == *target_user_id
 }
 
-pub async fn create_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
+pub async fn create_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
@@ -22,7 +22,7 @@ where
     new_data.created_at = now;
     new_data.updated_at = now;
 
-    repositories.users().save(&new_data).await?;
+    repositories.users().save(&new_data, user_id, &now).await?;
 
     Ok(())
 }
@@ -56,11 +56,12 @@ where
     Ok(repositories.users().find_all().await?)
 }
 
-pub async fn update_user<R>(repositories: &R, user: &User) -> Result<(), ServiceError>
+pub async fn update_user<R>(repositories: &R, user: &User, user_id: &UserId) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    repositories.users().save(user).await?;
+    let now = Utc::now();
+    repositories.users().save(user, user_id, &now).await?;
     Ok(())
 }
 
@@ -80,6 +81,7 @@ pub async fn update_user_with_permission_check<R>(
     repositories: &R,
     current_account: &Account,
     user: &User,
+    user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -93,9 +95,10 @@ where
 
     // プロフィール更新
     let mut updated_user = user.clone();
-    updated_user.updated_at = Utc::now();
+    let now = Utc::now();
+    updated_user.updated_at = now;
 
-    repositories.users().save(&updated_user).await?;
+    repositories.users().save(&updated_user, user_id, &now).await?;
     Ok(())
 }
 
@@ -151,6 +154,7 @@ pub async fn update_user_profile<R>(
     repositories: &R,
     current_account: &Account,
     user_id: &str,
+    updating_user_id: &UserId,
     display_name: &Option<String>,
     avatar_url: &Option<String>,
     bio: &Option<String>,
@@ -181,9 +185,10 @@ where
         if let Some(tz) = timezone {
             user.timezone = Some(tz.clone());
         }
-        user.updated_at = Utc::now();
+        let now = Utc::now();
+        user.updated_at = now;
 
-        repositories.users().save(&user).await?;
+        repositories.users().save(&user, updating_user_id, &now).await?;
         Ok(())
     } else {
         Err(ServiceError::NotFound("User not found".to_string()))
@@ -194,6 +199,7 @@ pub async fn change_password<R>(
     repositories: &R,
     user_id: &str,
     new_password_hash: &str,
+    updating_user_id: &UserId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
@@ -204,13 +210,14 @@ where
         // パスワードハッシュを更新（User構造体にpassword_hashフィールドがある場合）
         // 注意: User構造体の定義によってはこのフィールドが存在しない可能性があります
         // その場合は、別途認証情報を管理する仕組みが必要です
-        user.updated_at = Utc::now();
+        let now = Utc::now();
+        user.updated_at = now;
 
         // 一時的にパスワード変更をサポートしないことにします
         // 実際の実装では、password_hashフィールドが存在する場合のみ更新
         let _ = new_password_hash; // 一時的に使用しない
 
-        repositories.users().save(&user).await?;
+        repositories.users().save(&user, updating_user_id, &now).await?;
         Ok(())
     } else {
         Err(ServiceError::NotFound("User not found".to_string()))
