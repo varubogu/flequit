@@ -40,11 +40,11 @@ Service層
 
 すべてのエンティティテーブルに以下のフィールドを追加する：
 
-| フィールド名 | 型 | 説明 | SQLite | Automerge |
-|------------|-----|------|--------|-----------|
-| `deleted` | `bool` | 削除フラグ（論理削除用） | 追加（物理削除後は使用されない） | 追加（必須） |
-| `updated_by` | `Option<UserId>` | 最終更新を実行したユーザーID<br>（作成・更新・削除・復元すべての操作で記録） | 追加 | 追加 |
-| `updated_at` | `Option<DateTime<Utc>>` | 最終更新実行日時<br>（作成・更新・削除・復元すべての操作で記録） | 追加 | 追加 |
+| フィールド名 | 型 | 説明 | フロントエンド | バックエンド（lequit-model） | SQLite（flequit-infrastructure-sqlite） | Automerge（flequit-infrastructure-automerge） |
+|------------|-----|------|--------|--------|-----------|
+| `deleted` | `bool` | 削除フラグ（論理削除用） | 追加 | 追加 | 追加 | 追加 |
+| `updated_by` | `Option<UserId>` | 最終更新を実行したユーザーID<br>（作成・更新・削除・復元すべての操作で記録） | 追加 | 追加 | 追加 | 追加 |
+| `updated_at` | `Option<DateTime<Utc>>` | 最終更新実行日時<br>（作成・更新・削除・復元すべての操作で記録） | 追加 | 追加 | 追加 | 追加 |
 
 ### フィールドの用途
 
