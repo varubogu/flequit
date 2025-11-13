@@ -240,11 +240,14 @@ export class TaskDetailActionsService {
         isSubTask: isSubTask(current),
         rule
       });
+      
+      // Successfully saved, close dialog
+      this.#store.dialogs.closeRecurrenceDialog();
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
+      // Keep dialog open so user can retry or review the error
+      console.error('Recurrence dialog remains open for user to retry');
     }
-
-    this.#store.dialogs.closeRecurrenceDialog();
   };
 }
 

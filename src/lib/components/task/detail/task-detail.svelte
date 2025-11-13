@@ -91,22 +91,22 @@
       selectedSubTaskId={detailStore.selectedSubTaskId}
       projectInfo={detailStore.projectInfo}
       {isDrawerMode}
-      onTitleChange={detailActions.handleTitleChange}
-      onDescriptionChange={detailActions.handleDescriptionChange}
-      onPriorityChange={detailActions.handlePriorityChange}
-      onStatusChange={detailActions.handleStatusChange}
-      onDueDateClick={detailActions.handleDueDateClick}
-      onFormChange={detailActions.handleFormChange}
-      onDelete={detailActions.handleDelete}
-      onSaveNewTask={detailActions.handleSaveNewTask}
-      onSubTaskClick={detailActions.handleSubTaskClick}
-      onSubTaskToggle={detailActions.handleSubTaskToggle}
-      onAddSubTask={detailActions.handleAddSubTask}
+      onTitleChange={(title) => detailActions.handleTitleChange(title)}
+      onDescriptionChange={(description) => detailActions.handleDescriptionChange(description)}
+      onPriorityChange={(priority) => detailActions.handlePriorityChange(priority)}
+      onStatusChange={(event) => detailActions.handleStatusChange(event)}
+      onDueDateClick={(event) => detailActions.handleDueDateClick(event)}
+      onFormChange={() => detailActions.handleFormChange()}
+      onDelete={() => detailActions.handleDelete()}
+      onSaveNewTask={() => detailActions.handleSaveNewTask()}
+      onSubTaskClick={(subTaskId) => detailActions.handleSubTaskClick(subTaskId)}
+      onSubTaskToggle={(subTaskId) => detailActions.handleSubTaskToggle(subTaskId)}
+      onAddSubTask={() => detailActions.handleAddSubTask()}
       showSubTaskAddForm={detailStore.showSubTaskAddForm}
-      onSubTaskAdded={detailActions.handleSubTaskAdded}
-      onSubTaskAddCancel={detailActions.handleSubTaskAddCancel}
-      onGoToParentTask={detailActions.handleGoToParentTask}
-      onProjectTaskListEdit={detailActions.handleProjectTaskListEdit}
+      onSubTaskAdded={(title) => detailActions.handleSubTaskAdded(title)}
+      onSubTaskAddCancel={() => detailActions.handleSubTaskAddCancel()}
+      onGoToParentTask={() => detailActions.handleGoToParentTask()}
+      onProjectTaskListEdit={() => detailActions.handleProjectTaskListEdit()}
     />
   </div>
 {:else}
@@ -122,22 +122,22 @@
       selectedSubTaskId={detailStore.selectedSubTaskId}
       projectInfo={detailStore.projectInfo}
       {isDrawerMode}
-      onTitleChange={detailActions.handleTitleChange}
-      onDescriptionChange={detailActions.handleDescriptionChange}
-      onPriorityChange={detailActions.handlePriorityChange}
-      onStatusChange={detailActions.handleStatusChange}
-      onDueDateClick={detailActions.handleDueDateClick}
-      onFormChange={detailActions.handleFormChange}
-      onDelete={detailActions.handleDelete}
-      onSaveNewTask={detailActions.handleSaveNewTask}
-      onSubTaskClick={detailActions.handleSubTaskClick}
-      onSubTaskToggle={detailActions.handleSubTaskToggle}
-      onAddSubTask={detailActions.handleAddSubTask}
+      onTitleChange={(title) => detailActions.handleTitleChange(title)}
+      onDescriptionChange={(description) => detailActions.handleDescriptionChange(description)}
+      onPriorityChange={(priority) => detailActions.handlePriorityChange(priority)}
+      onStatusChange={(event) => detailActions.handleStatusChange(event)}
+      onDueDateClick={(event) => detailActions.handleDueDateClick(event)}
+      onFormChange={() => detailActions.handleFormChange()}
+      onDelete={() => detailActions.handleDelete()}
+      onSaveNewTask={() => detailActions.handleSaveNewTask()}
+      onSubTaskClick={(subTaskId) => detailActions.handleSubTaskClick(subTaskId)}
+      onSubTaskToggle={(subTaskId) => detailActions.handleSubTaskToggle(subTaskId)}
+      onAddSubTask={() => detailActions.handleAddSubTask()}
       showSubTaskAddForm={detailStore.showSubTaskAddForm}
-      onSubTaskAdded={detailActions.handleSubTaskAdded}
-      onSubTaskAddCancel={detailActions.handleSubTaskAddCancel}
-      onGoToParentTask={detailActions.handleGoToParentTask}
-      onProjectTaskListEdit={detailActions.handleProjectTaskListEdit}
+      onSubTaskAdded={(title) => detailActions.handleSubTaskAdded(title)}
+      onSubTaskAddCancel={() => detailActions.handleSubTaskAddCancel()}
+      onGoToParentTask={() => detailActions.handleGoToParentTask()}
+      onProjectTaskListEdit={() => detailActions.handleProjectTaskListEdit()}
     />
   </Card>
 {/if}
@@ -155,15 +155,15 @@
   showProjectTaskListDialog={detailStore.showProjectTaskListDialog}
   showRecurrenceDialog={detailStore.showRecurrenceDialog}
   projectInfo={detailStore.projectInfo}
-  onDateChange={detailActions.handleDateChange}
-  onDateClear={detailActions.handleDateClear}
-  onDatePickerClose={detailActions.handleDatePickerClose}
-  onConfirmDiscard={detailActions.handleConfirmDiscard}
-  onCancelDiscard={detailActions.handleCancelDiscard}
-  onConfirmDelete={detailActions.handleConfirmDelete}
-  onCancelDelete={detailActions.handleCancelDelete}
-  onProjectTaskListChange={detailActions.handleProjectTaskListChange}
-  onProjectTaskListDialogClose={detailActions.handleProjectTaskListDialogClose}
-  onRecurrenceChange={detailActions.handleRecurrenceChange}
-  onRecurrenceDialogClose={detailActions.handleRecurrenceDialogClose}
+  onDateChange={(data) => detailActions.handleDateChange(data)}
+  onDateClear={() => detailActions.handleDateClear()}
+  onDatePickerClose={() => detailActions.handleDatePickerClose()}
+  onConfirmDiscard={() => detailActions.handleConfirmDiscard()}
+  onCancelDiscard={() => detailActions.handleCancelDiscard()}
+  onConfirmDelete={() => detailActions.handleConfirmDelete()}
+  onCancelDelete={() => detailActions.handleCancelDelete()}
+  onProjectTaskListChange={(data) => detailActions.handleProjectTaskListChange(data)}
+  onProjectTaskListDialogClose={() => detailActions.handleProjectTaskListDialogClose()}
+  onRecurrenceChange={(rule) => detailActions.handleRecurrenceChange(rule)}
+  onRecurrenceDialogClose={(open) => detailActions.handleRecurrenceDialogClose(open)}
 />
