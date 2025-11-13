@@ -12,6 +12,7 @@ use flequit_model::models::task_projects::{
 };
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_types::errors::service_error::ServiceError;
 
 // Command models are not available in core layer - using domain models directly
@@ -268,8 +269,8 @@ where
 /// タスクに繰り返しルールを関連付けます。
 
 pub async fn create_task_recurrence<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
+    repositories: &R,
+    project_id: &ProjectId,
     task_id: &TaskId,
     recurrence_rule_id: &RecurrenceRuleId,
 ) -> Result<(), ServiceError>
@@ -277,44 +278,54 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let now = Utc::now();
-    let _task_recurrence = TaskRecurrence {
-        task_id: task_id.clone(),
-        recurrence_rule_id: recurrence_rule_id.clone(),
-        created_at: now,
-        updated_at: now,
-        deleted: false,
-        updated_by: UserId::from("system"),
-    };
+    let user_id = UserId::from("system");
 
-    // 実際のリポジトリ実装待ち
+    // タスク・繰り返しルール関連付けを保存
+    repositories
+        .task_recurrences()
+        .add(project_id, task_id, recurrence_rule_id, &user_id, &now)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
     Ok(())
 }
 
 /// タスクIDによる繰り返し関連付けを取得します。
 
 pub async fn get_task_recurrence_by_task_id<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _task_id: &TaskId,
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: &TaskId,
 ) -> Result<Option<TaskRecurrence>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // 仮実装
-    Ok(None)
+    // find_relationsを使用して、タスクIDに関連する最初の繰り返し関連付けを取得
+    let relations = repositories
+        .task_recurrences()
+        .find_relations(project_id, task_id)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
+    Ok(relations.into_iter().next())
 }
 
 /// タスクの繰り返し関連付けを削除します。
 
 pub async fn delete_task_recurrence<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _task_id: &TaskId,
+    repositories: &R,
+    project_id: &ProjectId,
+    task_id: &TaskId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // 実際のリポジトリ実装待ち
+    repositories
+        .task_recurrences()
+        .remove_all(project_id, task_id)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
     Ok(())
 }
 
@@ -325,8 +336,8 @@ where
 /// サブタスクに繰り返しルールを関連付けます。
 
 pub async fn create_subtask_recurrence<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
+    repositories: &R,
+    project_id: &ProjectId,
     subtask_id: &SubTaskId,
     recurrence_rule_id: &RecurrenceRuleId,
 ) -> Result<(), ServiceError>
@@ -334,43 +345,53 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let now = Utc::now();
-    let _subtask_recurrence = SubTaskRecurrence {
-        subtask_id: subtask_id.clone(),
-        recurrence_rule_id: recurrence_rule_id.clone(),
-        created_at: now,
-        updated_at: now,
-        deleted: false,
-        updated_by: UserId::from("system"),
-    };
+    let user_id = UserId::from("system");
 
-    // 実際のリポジトリ実装待ち
+    // サブタスク・繰り返しルール関連付けを保存
+    repositories
+        .subtask_recurrences()
+        .add(project_id, subtask_id, recurrence_rule_id, &user_id, &now)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
     Ok(())
 }
 
 /// サブタスクIDによる繰り返し関連付けを取得します。
 
 pub async fn get_subtask_recurrence_by_subtask_id<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _subtask_id: &SubTaskId,
+    repositories: &R,
+    project_id: &ProjectId,
+    subtask_id: &SubTaskId,
 ) -> Result<Option<SubTaskRecurrence>, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // 仮実装
-    Ok(None)
+    // find_relationsを使用して、サブタスクIDに関連する最初の繰り返し関連付けを取得
+    let relations = repositories
+        .subtask_recurrences()
+        .find_relations(project_id, subtask_id)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
+    Ok(relations.into_iter().next())
 }
 
 /// サブタスクの繰り返し関連付けを削除します。
 
 pub async fn delete_subtask_recurrence<R>(
-    _repositories: &R,
-    _project_id: &ProjectId,
-    _subtask_id: &SubTaskId,
+    repositories: &R,
+    project_id: &ProjectId,
+    subtask_id: &SubTaskId,
 ) -> Result<(), ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // 実際のリポジトリ実装待ち
+    repositories
+        .subtask_recurrences()
+        .remove_all(project_id, subtask_id)
+        .await
+        .map_err(|e| ServiceError::Repository(e))?;
+
     Ok(())
 }

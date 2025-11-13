@@ -47,6 +47,12 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     /// サブタスクタグリポジトリへのアクセス
     fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository;
 
+    /// タスク繰り返しルール関連付けリポジトリへのアクセス
+    fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository;
+
+    /// サブタスク繰り返しルール関連付けリポジトリへのアクセス
+    fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository;
+
     /// リポジトリの初期化処理
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
@@ -72,6 +78,8 @@ pub struct InfrastructureRepositories {
     pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
     pub task_tags: TaskTagUnifiedRepository,
     pub subtask_tags: SubTaskTagUnifiedRepository,
+    pub task_recurrences: TaskRecurrenceUnifiedRepository,
+    pub subtask_recurrences: SubTaskRecurrenceUnifiedRepository,
 
     // Unified層の設定・管理
     unified_manager: UnifiedManager,
@@ -96,6 +104,8 @@ impl InfrastructureRepositories {
             subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
             task_tags: TaskTagUnifiedRepository::default(),
             subtask_tags: SubTaskTagUnifiedRepository::default(),
+            task_recurrences: TaskRecurrenceUnifiedRepository::default(),
+            subtask_recurrences: SubTaskRecurrenceUnifiedRepository::default(),
             unified_manager: UnifiedManager::default(),
         }
     }
@@ -118,7 +128,9 @@ impl InfrastructureRepositories {
         let tags = unified_manager.create_tag_unified_repository().await?;
         let sub_tasks = unified_manager.create_sub_task_unified_repository().await?;
         let users = unified_manager.create_user_unified_repository().await?;
-        let recurrence_rules = RecurrenceRuleUnifiedRepository::default();
+        let recurrence_rules = unified_manager
+            .create_recurrence_rule_unified_repository()
+            .await?;
         let task_assignments = unified_manager
             .create_task_assignment_unified_repository()
             .await?;
@@ -128,6 +140,12 @@ impl InfrastructureRepositories {
         let task_tags = unified_manager.create_task_tag_unified_repository().await?;
         let subtask_tags = unified_manager
             .create_sub_task_tag_unified_repository()
+            .await?;
+        let task_recurrences = unified_manager
+            .create_task_recurrence_unified_repository()
+            .await?;
+        let subtask_recurrences = unified_manager
+            .create_subtask_recurrence_unified_repository()
             .await?;
 
         tracing::info!("全UnifiedRepositoryの構築完了");
@@ -145,6 +163,8 @@ impl InfrastructureRepositories {
             subtask_assignments,
             task_tags,
             subtask_tags,
+            task_recurrences,
+            subtask_recurrences,
             unified_manager,
         })
     }
@@ -234,6 +254,14 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         &self.subtask_tags
     }
 
+    fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository {
+        &self.task_recurrences
+    }
+
+    fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository {
+        &self.subtask_recurrences
+    }
+
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリの初期化処理
         // TODO: 実際のSQLiteとAutomergeの接続・初期化処理を実装
@@ -274,6 +302,8 @@ pub mod mock {
         pub subtask_assignments: SubTaskAssignmentUnifiedRepository,
         pub task_tags: TaskTagUnifiedRepository,
         pub subtask_tags: SubTaskTagUnifiedRepository,
+        pub task_recurrences: TaskRecurrenceUnifiedRepository,
+        pub subtask_recurrences: SubTaskRecurrenceUnifiedRepository,
         pub unified_manager: UnifiedManager,
     }
 
@@ -293,6 +323,8 @@ pub mod mock {
                 subtask_assignments: SubTaskAssignmentUnifiedRepository::default(),
                 task_tags: TaskTagUnifiedRepository::default(),
                 subtask_tags: SubTaskTagUnifiedRepository::default(),
+                task_recurrences: TaskRecurrenceUnifiedRepository::default(),
+                subtask_recurrences: SubTaskRecurrenceUnifiedRepository::default(),
                 unified_manager: UnifiedManager::default(),
             }
         }
@@ -380,6 +412,16 @@ pub mod mock {
         fn subtask_tags(&self) -> &SubTaskTagUnifiedRepository {
             self.log_call("subtask_tags");
             &self.subtask_tags
+        }
+
+        fn task_recurrences(&self) -> &TaskRecurrenceUnifiedRepository {
+            self.log_call("task_recurrences");
+            &self.task_recurrences
+        }
+
+        fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository {
+            self.log_call("subtask_recurrences");
+            &self.subtask_recurrences
         }
 
         async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {

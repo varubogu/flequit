@@ -30,9 +30,9 @@ pub use manager::UnifiedManager;
 pub use accounts::AccountUnifiedRepository;
 pub use task_projects::{
     ProjectUnifiedRepository, RecurrenceRuleUnifiedRepository, SubTaskAssignmentUnifiedRepository,
-    SubTaskTagUnifiedRepository, SubTaskUnifiedRepository, TagUnifiedRepository,
-    TaskAssignmentUnifiedRepository, TaskListUnifiedRepository, TaskTagUnifiedRepository,
-    TaskUnifiedRepository,
+    SubTaskRecurrenceUnifiedRepository, SubTaskTagUnifiedRepository, SubTaskUnifiedRepository,
+    TagUnifiedRepository, TaskAssignmentUnifiedRepository, TaskListUnifiedRepository,
+    TaskRecurrenceUnifiedRepository, TaskTagUnifiedRepository, TaskUnifiedRepository,
 };
 pub use users::UserUnifiedRepository;
 
