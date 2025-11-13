@@ -75,10 +75,6 @@ export const SubTaskService = {
       updated_at: new Date()
     } as Record<string, unknown>;
 
-    if (updates.recurrenceRule !== undefined) {
-      patchData.recurrence_rule = updates.recurrenceRule;
-    }
-
     try {
       const backend = await resolveBackend();
       const success = await backend.subtask.update(projectId, subTaskId, patchData, getCurrentUserId());

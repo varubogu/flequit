@@ -74,9 +74,6 @@ export const TaskService = {
     if (doEndDate !== undefined) {
       patchData.do_end_date = doEndDate?.toISOString() ?? null;
     }
-    if (recurrenceRule !== undefined) {
-      patchData.recurrence_rule = recurrenceRule;
-    }
 
     try {
       const backend = await resolveBackend();
