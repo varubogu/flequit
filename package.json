@@ -16,8 +16,8 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:e2e": "npx playwright test",
-    "tauri": "tauri",
-    "tauri:dev": "tauri dev --host",
+    "tauri": "export RUST_LOG=debug && tauri",
+    "tauri:dev": "export RUST_LOG=debug && tauri dev --host",
     "machine-translate": "inlang machine translate --project project.inlang"
   },
   "license": "MIT",
