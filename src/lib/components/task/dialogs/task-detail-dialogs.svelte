@@ -117,10 +117,10 @@
 <!-- 繰り返し設定ダイアログ -->
 <RecurrenceDialog
   open={showRecurrenceDialog}
-  recurrenceRule={currentItem?.recurrenceRule}
+  recurrenceRule={editForm.recurrenceRule}
   startDateTime={currentItem?.planStartDate}
   endDateTime={currentItem?.planEndDate}
-  isRangeDate={currentItem?.isRangeDate}
+  isRangeDate={editForm.is_range_date}
   onSave={onRecurrenceChange}
   onOpenChange={onRecurrenceDialogClose}
 />

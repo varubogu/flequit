@@ -7,10 +7,12 @@ use chrono::Utc;
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::{
     recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
-    recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
+    recurrence_rule::{PartialRecurrenceRule, RecurrenceRule},
+    subtask_recurrence::SubTaskRecurrence,
     task_recurrence::TaskRecurrence,
 };
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId};
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_types::errors::service_error::ServiceError;
@@ -101,36 +103,18 @@ where
 pub async fn update_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
-    rule: RecurrenceRule,
+    rule_id: &RecurrenceRuleId,
+    patch: &PartialRecurrenceRule,
     user_id: &UserId,
-) -> Result<(), ServiceError>
+) -> Result<bool, ServiceError>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // バリデーション
-    if rule.interval <= 0 {
-        return Err(ServiceError::ValidationError(
-            "繰り返し間隔は1以上である必要があります".to_string(),
-        ));
-    }
-
-    // max_occurrencesが指定されている場合、正の値である必要がある
-    if let Some(max) = rule.max_occurrences {
-        if max <= 0 {
-            return Err(ServiceError::ValidationError(
-                "最大回数は1以上である必要があります".to_string(),
-            ));
-        }
-    }
-
     let now = Utc::now();
-    repositories
+    Ok(repositories
         .recurrence_rules()
-        .save(project_id, &rule, user_id, &now)
-        .await
-        .map_err(|e| ServiceError::Repository(e))?;
-
-    Ok(())
+        .patch(project_id, rule_id, patch, user_id, &now)
+        .await?)
 }
 
 /// 繰り返しルールを削除します。

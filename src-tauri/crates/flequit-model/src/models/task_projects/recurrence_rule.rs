@@ -8,6 +8,7 @@ use crate::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
 use crate::types::id_types::{RecurrenceRuleId, UserId};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use partially::Partial;
 use serde::{Deserialize, Serialize};
 
 /// 統合繰り返しルールを表現する構造体
@@ -90,7 +91,8 @@ use serde::{Deserialize, Serialize};
 /// 3. `details`で詳細パターン適用
 /// 4. `adjustment`で最終調整
 /// 5. `end_date`または`max_occurrences`で終了判定
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Partial)]
+#[partially(derive(Debug, Clone, Serialize, Deserialize))]
 pub struct RecurrenceRule {
     /// 繰り返しルールの一意識別子
     pub id: RecurrenceRuleId,

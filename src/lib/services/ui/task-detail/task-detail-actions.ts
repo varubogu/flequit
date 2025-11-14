@@ -10,6 +10,8 @@ import type { TaskInteractionsService } from '$lib/services/ui/task/task-interac
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { isSubTask } from './task-detail-guards';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 
 export type TaskDetailActionsDependencies = {
   store: TaskDetailViewStore;
@@ -220,8 +222,10 @@ export class TaskDetailActionsService {
   };
 
   handleRecurrenceChange = async (rule: Parameters<TaskDetailRecurrenceActions['save']>[0]['rule']) => {
-    const current = this.#store.currentItem as TaskWithSubTasks | SubTask | null;
+    console.log('[handleRecurrenceChange] 開始:', { rule });
+    const current = this.#store.currentItem;
     if (!current || this.#store.isNewTaskMode) {
+      console.log('[handleRecurrenceChange] displayItem or isNewTaskMode invalid');
       return;
     }
 
@@ -234,14 +238,26 @@ export class TaskDetailActionsService {
     }
 
     try {
+      console.log('[handleRecurrenceChange] RecurrenceSyncService.save()呼び出し中');
       await this.#recurrence.save({
         projectId,
         itemId: current.id,
         isSubTask: isSubTask(current),
         rule
       });
-      
-      // Successfully saved, close dialog
+
+      console.log('[handleRecurrenceChange] RecurrenceSyncService.save()完了, ローカルストア更新中');
+      // Successfully saved, update local store with new recurrence rule
+      if (isSubTask(current)) {
+        console.log('[handleRecurrenceChange] サブタスク更新:', current.id);
+        await subTaskStore.updateSubTask(current.id, { recurrenceRule: rule ?? undefined });
+      } else {
+        console.log('[handleRecurrenceChange] タスク更新:', current.id);
+        taskCoreStore.updateTask(current.id, { recurrenceRule: rule ?? undefined });
+      }
+
+      console.log('[handleRecurrenceChange] ローカルストア更新完了, ダイアログをクローズ');
+      // Close dialog
       this.#store.dialogs.closeRecurrenceDialog();
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);

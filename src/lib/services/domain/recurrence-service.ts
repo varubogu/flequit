@@ -1,4 +1,4 @@
-import type { RecurrenceRule } from '$lib/types/recurrence';
+import type { RecurrenceRule, RecurrenceRulePatch } from '$lib/types/recurrence';
 import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-reference';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
@@ -52,8 +52,13 @@ export const RecurrenceService = {
 
   async updateRecurrenceRule(projectId: string, rule: RecurrenceRule): Promise<boolean> {
     try {
+      if (!rule.id) {
+        throw new Error('RecurrenceRule ID is required for update');
+      }
       const backend = await resolveBackend();
-      return await backend.recurrenceRule.update(projectId, rule, getCurrentUserId());
+      // ruleからidを除外してpatchを作成
+      const { id, createdAt: _createdAt, updatedAt: _updatedAt, updatedBy: _updatedBy, ...patch } = rule;
+      return await backend.recurrenceRule.update(projectId, id, patch, getCurrentUserId());
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);
       errorHandler.addSyncError(

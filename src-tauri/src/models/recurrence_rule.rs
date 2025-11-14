@@ -3,7 +3,7 @@
 use crate::models::CommandModelConverter;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use flequit_model::models::task_projects::recurrence_rule::RecurrenceRule;
+use flequit_model::models::task_projects::recurrence_rule::{PartialRecurrenceRule, RecurrenceRule};
 use flequit_model::models::ModelConverter;
 use flequit_model::types::datetime_calendar_types::{DayOfWeek, RecurrenceUnit};
 use flequit_model::types::id_types::{RecurrenceRuleId, UserId};
@@ -206,6 +206,8 @@ impl CommandModelConverter<RecurrenceRuleCommandModel> for RecurrenceRule {
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct PartialRecurrenceRuleCommandModel {
+    /// ID（更新時に必須）
+    pub id: Option<String>,
     pub unit: Option<String>,
     pub interval: Option<i32>,
     pub days_of_week: Option<Option<Vec<String>>>,
@@ -213,4 +215,116 @@ pub struct PartialRecurrenceRuleCommandModel {
     pub adjustment: Option<Option<String>>,
     pub end_date: Option<Option<String>>,
     pub max_occurrences: Option<Option<i32>>,
+}
+
+#[async_trait]
+impl ModelConverter<PartialRecurrenceRule> for PartialRecurrenceRuleCommandModel {
+    async fn to_model(&self) -> Result<PartialRecurrenceRule, String> {
+        use flequit_model::models::task_projects::recurrence_rule::PartialRecurrenceRule;
+
+        // unit文字列をRecurrenceUnitに変換
+        let unit = if let Some(ref unit_str) = self.unit {
+            Some(match unit_str.as_str() {
+                "minute" => RecurrenceUnit::Minute,
+                "hour" => RecurrenceUnit::Hour,
+                "day" => RecurrenceUnit::Day,
+                "week" => RecurrenceUnit::Week,
+                "month" => RecurrenceUnit::Month,
+                "quarter" => RecurrenceUnit::Quarter,
+                "halfyear" => RecurrenceUnit::HalfYear,
+                "year" => RecurrenceUnit::Year,
+                _ => return Err(format!("Invalid recurrence unit: {}", unit_str)),
+            })
+        } else {
+            None
+        };
+
+        // days_of_week文字列をDayOfWeekに変換
+        let days_of_week = if let Some(ref days_opt) = self.days_of_week {
+            Some(if let Some(ref days) = days_opt {
+                let converted_days: Result<Vec<DayOfWeek>, String> = days
+                    .iter()
+                    .map(|day| match day.as_str() {
+                        "monday" => Ok(DayOfWeek::Monday),
+                        "tuesday" => Ok(DayOfWeek::Tuesday),
+                        "wednesday" => Ok(DayOfWeek::Wednesday),
+                        "thursday" => Ok(DayOfWeek::Thursday),
+                        "friday" => Ok(DayOfWeek::Friday),
+                        "saturday" => Ok(DayOfWeek::Saturday),
+                        "sunday" => Ok(DayOfWeek::Sunday),
+                        _ => Err(format!("Invalid day of week: {}", day)),
+                    })
+                    .collect();
+                Some(converted_days?)
+            } else {
+                None
+            })
+        } else {
+            None
+        };
+
+        // 終了日の変換
+        let end_date = if let Some(ref date_opt) = self.end_date {
+            Some(if let Some(ref date_str) = date_opt {
+                Some(
+                    date_str
+                        .parse::<DateTime<Utc>>()
+                        .map_err(|e| format!("Invalid end_date format: {}", e))?,
+                )
+            } else {
+                None
+            })
+        } else {
+            None
+        };
+
+        // adjustmentの変換
+        let adjustment = if let Some(ref adj_opt) = self.adjustment {
+            Some(if let Some(ref adj_str) = adj_opt {
+                Some(
+                    serde_json::from_str(adj_str)
+                        .map_err(|e| format!("Invalid adjustment format: {}", e))?,
+                )
+            } else {
+                None
+            })
+        } else {
+            None
+        };
+
+        // detailsの変換
+        let details = if let Some(ref det_opt) = self.details {
+            Some(if let Some(ref det_str) = det_opt {
+                Some(
+                    serde_json::from_str(det_str)
+                        .map_err(|e| format!("Invalid details format: {}", e))?,
+                )
+            } else {
+                None
+            })
+        } else {
+            None
+        };
+
+        let id = if let Some(ref id_str) = self.id {
+            Some(RecurrenceRuleId::from(id_str.clone()))
+        } else {
+            None
+        };
+
+        Ok(PartialRecurrenceRule {
+            id,
+            unit,
+            interval: self.interval,
+            days_of_week,
+            details,
+            adjustment,
+            end_date,
+            max_occurrences: self.max_occurrences,
+            created_at: None,
+            updated_at: None,
+            deleted: None,
+            updated_by: None,
+        })
+    }
 }

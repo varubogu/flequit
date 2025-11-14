@@ -16,13 +16,19 @@ export type TaskProjectContext = { project: Project; taskList: TaskList } | null
 export class TaskDetailViewState {
   #lastSyncedItemId = $state<string | undefined>(undefined);
 
-  task = $derived(taskStore.selectedTask);
+  task = $derived.by(() => {
+    const t = taskStore.selectedTask;
+    console.log('[TaskDetailViewState] task derived:', t?.id);
+    return t;
+  });
   subTask = $derived(taskStore.selectedSubTask);
   isSubTask = $derived(!!this.subTask);
   isNewTaskMode = $derived(taskStore.isNewTaskMode);
-  currentItem = $derived(
-    this.task || this.subTask || (this.isNewTaskMode ? taskStore.newTaskData : null)
-  );
+  currentItem = $derived.by(() => {
+    const ci = this.task || this.subTask || (this.isNewTaskMode ? taskStore.newTaskData : null);
+    console.log('[TaskDetailViewState] currentItem derived:', ci?.id);
+    return ci;
+  });
   selectedSubTaskId = $derived(taskStore.selectedSubTaskId);
   projectInfo = $derived.by<TaskProjectContext>(() => {
     const item = this.currentItem;

@@ -73,6 +73,8 @@
     }
   });
 
+
+
   onDestroy(() => {
     detailStore.dispose();
   });

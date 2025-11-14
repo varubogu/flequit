@@ -4,6 +4,7 @@ use flequit_model::models::task_projects::task::TaskTree;
 use flequit_model::models::task_projects::task_list::{PartialTaskList, TaskList, TaskListTree};
 use flequit_model::models::task_projects::SubTaskTree;
 use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
+use flequit_repository::project_relation_repository_trait::ProjectRelationRepository;
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
@@ -107,6 +108,27 @@ where
     let all_tasks = repositories.tasks().find_all(project_id).await?;
     let all_subtasks = repositories.sub_tasks().find_all(project_id).await?;
 
+    // 3-1. プロジェクト内の全 task_recurrence、subtask_recurrence、recurrence_rule を取得
+    let all_task_recurrences = repositories.task_recurrences().find_all(project_id).await?;
+    let all_subtask_recurrences = repositories.subtask_recurrences().find_all(project_id).await?;
+    let all_recurrence_rules = repositories.recurrence_rules().find_all(project_id).await?;
+
+    // 3-2. HashMap を作成してルックアップを高速化
+    let recurrence_rule_map: std::collections::HashMap<_, _> = all_recurrence_rules
+        .into_iter()
+        .map(|rule| (rule.id.clone(), rule))
+        .collect();
+
+    let task_recurrence_map: std::collections::HashMap<_, _> = all_task_recurrences
+        .into_iter()
+        .map(|tr| (tr.task_id.clone(), tr.recurrence_rule_id.clone()))
+        .collect();
+
+    let subtask_recurrence_map: std::collections::HashMap<_, _> = all_subtask_recurrences
+        .into_iter()
+        .map(|sr| (sr.subtask_id.clone(), sr.recurrence_rule_id.clone()))
+        .collect();
+
     let mut task_lists_with_tasks = Vec::new();
 
     // 4. 各タスクリストに対してタスクを取得
@@ -130,6 +152,12 @@ where
             // SubTaskからSubTaskTreeに変換
             let mut sub_task_trees = Vec::new();
             for subtask in subtasks {
+                // サブタスクの recurrence_rule を HashMap からルックアップ
+                let recurrence_rule = subtask_recurrence_map
+                    .get(&subtask.id)
+                    .and_then(|rule_id| recurrence_rule_map.get(rule_id))
+                    .cloned();
+
                 let sub_task_tree = SubTaskTree {
                     id: subtask.id.clone(),
                     task_id: subtask.task_id.clone(),
@@ -142,7 +170,7 @@ where
                     do_start_date: subtask.do_start_date,
                     do_end_date: subtask.do_end_date,
                     is_range_date: subtask.is_range_date,
-                    recurrence_rule: subtask.recurrence_rule.clone(),
+                    recurrence_rule,
                     order_index: subtask.order_index,
                     completed: subtask.completed,
                     created_at: subtask.created_at,
@@ -154,6 +182,12 @@ where
                 };
                 sub_task_trees.push(sub_task_tree);
             }
+
+            // タスクの recurrence_rule を HashMap からルックアップ
+            let recurrence_rule = task_recurrence_map
+                .get(&task.id)
+                .and_then(|rule_id| recurrence_rule_map.get(rule_id))
+                .cloned();
 
             let task_tree = TaskTree {
                 id: task.id.clone(),
@@ -168,7 +202,7 @@ where
                 do_start_date: task.do_start_date,
                 do_end_date: task.do_end_date,
                 is_range_date: task.is_range_date,
-                recurrence_rule: task.recurrence_rule.clone(),
+                recurrence_rule,
                 assigned_user_ids: task.assigned_user_ids.clone(),
                 order_index: task.order_index,
                 is_archived: task.is_archived,

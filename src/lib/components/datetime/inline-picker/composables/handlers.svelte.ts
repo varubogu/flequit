@@ -11,8 +11,15 @@ export function createEventHandlers(
   }
 
   function handleDateChange() {
+    console.log('[InlineDatePicker.handleDateChange] 呼び出し:', { endDate: state.endDate, endTime: state.endTime });
     if (!state.endDate) return;
     const dateTime = `${state.endDate}T${state.endTime}`;
+    console.log('[InlineDatePicker.handleDateChange] emitChange呼び出し:', {
+      date: state.endDate,
+      dateTime,
+      isRangeDate: false,
+      recurrenceRule: state.currentRecurrenceRule
+    });
     emitChange({
       date: state.endDate,
       dateTime,
@@ -22,7 +29,23 @@ export function createEventHandlers(
   }
 
   function handleRangeInputChange() {
+    console.log('[InlineDatePicker.handleRangeInputChange] 呼び出し:', { 
+      startDate: state.startDate, 
+      endDate: state.endDate,
+      startTime: state.startTime,
+      endTime: state.endTime
+    });
     if (!state.startDate && !state.endDate) return;
+    console.log('[InlineDatePicker.handleRangeInputChange] emitChange呼び出し:', {
+      date: state.startDate || state.endDate || '',
+      dateTime: `${state.startDate || state.endDate || ''}T${state.startTime}`,
+      range: state.startDate && state.endDate ? {
+        start: `${state.startDate}T${state.startTime}`,
+        end: `${state.endDate}T${state.endTime}`
+      } : undefined,
+      isRangeDate: true,
+      recurrenceRule: state.currentRecurrenceRule
+    });
     emitChange({
       date: state.startDate || state.endDate || '',
       dateTime: `${state.startDate || state.endDate || ''}T${state.startTime}`,
@@ -98,14 +121,25 @@ export function createEventHandlers(
   }
 
   function handleRecurrenceSave(rule: RecurrenceRule | null) {
+    console.log('[InlineDatePicker.handleRecurrenceSave] 開始:', rule);
+    console.log('[InlineDatePicker.handleRecurrenceSave] 現在の状態:', {
+      useRangeMode: state.useRangeMode,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      startTime: state.startTime,
+      endTime: state.endTime
+    });
+    
     state.currentRecurrenceRule = rule;
     state.lastSyncedRecurrenceRule = rule;
 
+    console.log('[InlineDatePicker.handleRecurrenceSave] state更新完了、emitChange呼び出し開始');
     if (state.useRangeMode) {
       handleRangeInputChange();
     } else {
       handleDateChange();
     }
+    console.log('[InlineDatePicker.handleRecurrenceSave] 完了');
   }
 
   function handleRecurrenceDialogClose() {

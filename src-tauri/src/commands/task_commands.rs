@@ -1,10 +1,14 @@
 use crate::models::{
     recurrence_adjustment::RecurrenceAdjustmentCommandModel,
-    recurrence_details::RecurrenceDetailsCommandModel, recurrence_rule::RecurrenceRuleCommandModel,
-    task::TaskCommandModel, task_recurrence::TaskRecurrenceCommandModel, CommandModelConverter,
+    recurrence_details::RecurrenceDetailsCommandModel,
+    recurrence_rule::{PartialRecurrenceRuleCommandModel, RecurrenceRuleCommandModel},
+    task::TaskCommandModel,
+    task_recurrence::TaskRecurrenceCommandModel,
+    CommandModelConverter,
 };
 use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, task_facades};
+use flequit_model::models::task_projects::recurrence_rule::PartialRecurrenceRule;
 use flequit_model::models::task_projects::task::PartialTask;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId, UserId};
@@ -281,12 +285,12 @@ pub async fn get_all_recurrence_rules(
 
 /// 繰り返しルールを更新します。
 
-#[instrument(level = "info", skip(state, rule), fields(project_id = %project_id, rule_id = %rule.id))]
+#[instrument(level = "info", skip(state, patch), fields(project_id = %project_id, rule_id = ?patch.id))]
 #[tauri::command]
 pub async fn update_recurrence_rule(
     state: State<'_, AppState>,
     project_id: String,
-    rule: RecurrenceRuleCommandModel,
+    patch: PartialRecurrenceRuleCommandModel,
     user_id: String,
 ) -> Result<bool, String> {
     let user_id_typed = UserId::from(user_id);
@@ -294,12 +298,19 @@ pub async fn update_recurrence_rule(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let internal_rule = rule.to_model().await?;
+
+    // patchからrule_idを取得
+    let rule_id = match &patch.id {
+        Some(id) => RecurrenceRuleId::from(id.clone()),
+        None => return Err("Recurrence rule ID is required in patch".to_string()),
+    };
+
+    let internal_patch = patch.to_model().await?;
     let repositories = state.repositories.read().await;
-    recurrence_facades::update_recurrence_rule(&*repositories, &project_id, internal_rule, &user_id_typed)
+    recurrence_facades::update_recurrence_rule(&*repositories, &project_id, &rule_id, &internal_patch, &user_id_typed)
         .await
         .map_err(|e| {
-            tracing::error!(target: "commands::task", command = "update_recurrence_rule", project_id = %project_id, error = %e);
+            tracing::error!(target: "commands::task", command = "update_recurrence_rule", project_id = %project_id, rule_id = %rule_id, error = %e);
             e
         })
 }

@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
+import type { RecurrenceRule, RecurrenceRulePatch, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 import type { RecurrenceRuleService } from '$lib/infrastructure/backends/recurrence-rule-service';
 
 export class RecurrenceRuleTauriService implements RecurrenceRuleService {
@@ -41,9 +41,14 @@ export class RecurrenceRuleTauriService implements RecurrenceRuleService {
     }
   }
 
-  async update(projectId: string, rule: RecurrenceRule, userId: string): Promise<boolean> {
+  async update(projectId: string, ruleId: string, patch: RecurrenceRulePatch, userId: string): Promise<boolean> {
     try {
-      const result = await invoke('update_recurrence_rule', { projectId, rule, userId });
+      // patchにidを含める（Rust側で必須）
+      const patchWithId = {
+        ...patch,
+        id: ruleId
+      };
+      const result = await invoke('update_recurrence_rule', { projectId, patch: patchWithId, userId });
       return result as boolean;
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);

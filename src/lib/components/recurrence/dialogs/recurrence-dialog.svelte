@@ -30,6 +30,7 @@
   const translationService = useTranslation();
   const dialogFacade = createRecurrenceDialogFacade({
     onSave: (rule) => {
+      console.log('[recurrence-dialog] onSave呼び出し:', rule);
       onSave?.(rule);
     }
   });

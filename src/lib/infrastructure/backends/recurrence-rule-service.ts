@@ -1,4 +1,4 @@
-import type { RecurrenceRule, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
+import type { RecurrenceRule, RecurrenceRulePatch, RecurrenceRuleSearchCondition } from '$lib/types/recurrence';
 
 /**
  * 繰り返しルール管理サービスのインターフェース
@@ -31,13 +31,14 @@ export interface RecurrenceRuleService {
   getAll(projectId: string, userId: string): Promise<RecurrenceRule[]>;
 
   /**
-   * 繰り返しルールを更新する
+   * 繰り返しルールを更新する（差分更新）
    * @param projectId プロジェクトID
-   * @param rule 更新する繰り返しルール（id含む）
+   * @param ruleId 更新する繰り返しルールID
+   * @param patch 更新する繰り返しルールの差分データ
    * @param userId 操作を行ったユーザーID
    * @returns 成功したかどうか
    */
-  update(projectId: string, rule: RecurrenceRule, userId: string): Promise<boolean>;
+  update(projectId: string, ruleId: string, patch: RecurrenceRulePatch, userId: string): Promise<boolean>;
 
   /**
    * 繰り返しルールを削除する

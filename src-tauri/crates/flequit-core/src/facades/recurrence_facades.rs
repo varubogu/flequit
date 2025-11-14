@@ -8,7 +8,8 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::{
     models::task_projects::{
         recurrence_adjustment::RecurrenceAdjustment, recurrence_details::RecurrenceDetails,
-        recurrence_rule::RecurrenceRule, subtask_recurrence::SubTaskRecurrence,
+        recurrence_rule::{PartialRecurrenceRule, RecurrenceRule},
+        subtask_recurrence::SubTaskRecurrence,
         task_recurrence::TaskRecurrence,
     },
     types::id_types::{ProjectId, RecurrenceRuleId, SubTaskId, TaskId, UserId},
@@ -77,13 +78,14 @@ where
 pub async fn update_recurrence_rule<R>(
     repositories: &R,
     project_id: &ProjectId,
-    rule: RecurrenceRule,
+    rule_id: &RecurrenceRuleId,
+    patch: &PartialRecurrenceRule,
     user_id: &UserId,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    match recurrence_service::update_recurrence_rule(repositories, project_id, rule.clone(), user_id).await {
+    match recurrence_service::update_recurrence_rule(repositories, project_id, rule_id, patch, user_id).await {
         Ok(_) => Ok(true),
         Err(ServiceError::ValidationError(msg)) => Err(msg),
         Err(e) => Err(format!("Failed to update recurrence rule: {:?}", e)),

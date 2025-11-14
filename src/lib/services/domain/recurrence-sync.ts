@@ -22,7 +22,7 @@ export const RecurrenceSyncService = {
         const deleteSuccess = isSubTask
           ? await backend.subtaskRecurrence.delete(projectId, itemId, userId)
           : await backend.taskRecurrence.delete(projectId, itemId, userId);
-        
+
         if (!deleteSuccess) {
           console.warn('Failed to delete recurrence association');
         }
@@ -38,15 +38,19 @@ export const RecurrenceSyncService = {
       : await backend.taskRecurrence.getByTaskId(projectId, itemId, userId);
 
     if (existing) {
-      // Update existing rule
+      // Update existing rule (差分更新)
       try {
-        const updateSuccess = await backend.recurrenceRule.update(projectId, {
-          ...unifiedRule!,
-          id: existing.recurrenceRuleId
-        }, userId);
-        
+        // unifiedRuleを差分として送信（idは除外）
+        const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, updatedBy: _updatedBy, ...patch } = unifiedRule!;
+
+        const updateSuccess = await backend.recurrenceRule.update(
+          projectId,
+          existing.recurrenceRuleId,
+          patch,
+          userId
+        );
+
         if (!updateSuccess) {
-          console.warn('Failed to update recurrence rule');
           throw new Error('Failed to update recurrence rule');
         }
       } catch (error) {
@@ -57,7 +61,7 @@ export const RecurrenceSyncService = {
       // Create new rule and association
       try {
         const ruleId = crypto.randomUUID();
-        
+
         // Step 1: Create recurrence rule
         const ruleCreateSuccess = await backend.recurrenceRule.create(projectId, {
           ...unifiedRule!,
@@ -65,9 +69,8 @@ export const RecurrenceSyncService = {
           deleted: false,
           updatedBy: userId
         }, userId);
-        
+
         if (!ruleCreateSuccess) {
-          console.error('Failed to create recurrence rule');
           throw new Error('Failed to create recurrence rule');
         }
 
@@ -91,7 +94,6 @@ export const RecurrenceSyncService = {
             }, userId);
 
         if (!associationSuccess) {
-          console.error('Failed to create recurrence association');
           throw new Error('Failed to create recurrence association');
         }
       } catch (error) {

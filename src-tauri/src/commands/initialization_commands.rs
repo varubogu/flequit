@@ -81,6 +81,7 @@ pub async fn load_all_project_data(
 
         command_results.push(project_tree_command);
     }
+
     Ok(command_results)
 }
 

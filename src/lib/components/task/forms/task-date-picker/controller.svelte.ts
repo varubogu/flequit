@@ -4,6 +4,11 @@ import { taskMutations } from '$lib/services/domain/task/task-mutations-instance
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 import { SvelteDate } from 'svelte/reactivity';
+import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
+
+interface TaskDatePickerState {
+  taskId: string;
+}
 
 interface DatePickerState {
   show: boolean;
@@ -15,6 +20,14 @@ interface SubTaskDatePickerState extends DatePickerState {
 }
 
 export function useTaskDatePickerController(task: TaskWithSubTasks) {
+  // Task state
+  const taskState = $state<TaskDatePickerState>({ taskId: task.id });
+  
+  // 最新の task を取得（リアクティブ）
+  const currentTask = $derived.by(() => {
+    return taskCoreStore.getTaskById(taskState.taskId) || task;
+  });
+
   // Main task date picker state
   const mainState = $state<DatePickerState>({ show: false, position: { x: 0, y: 0 } });
 
@@ -73,42 +86,56 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     isRangeDate: boolean;
     recurrenceRule?: RecurrenceRule | null;
   }) {
+    console.log('[TaskDatePickerController.handleDateChange] 開始:', data);
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
+
+    // 更新データを準備
+    let updates: any = {};
 
     if (isRangeDate) {
       if (range) {
-        await taskMutations.updateTask(task.id, {
+        updates = {
           ...task,
           planStartDate: new SvelteDate(range.start),
           planEndDate: new SvelteDate(range.end),
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
+          isRangeDate: true
+        };
       } else {
         const currentEndDate =
           task.planEndDate !== undefined
             ? new SvelteDate(task.planEndDate)
             : new SvelteDate(dateTime);
-        await taskMutations.updateTask(task.id, {
+        updates = {
           ...task,
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
+          isRangeDate: true
+        };
       }
     } else {
-      await taskMutations.updateTask(task.id, {
+      updates = {
         ...task,
         planEndDate: new SvelteDate(dateTime),
         planStartDate: undefined,
-        isRangeDate: false,
-        recurrenceRule: recurrenceRule ?? undefined
-      });
+        isRangeDate: false
+      };
     }
 
+    // タスクの日付を先に更新
+    console.log('[TaskDatePickerController.handleDateChange] タスク更新開始:', updates);
+    await taskMutations.updateTask(task.id, updates);
+    console.log('[TaskDatePickerController.handleDateChange] タスク更新完了');
+
+    // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
+      console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存開始:', recurrenceRule);
       await saveRecurrenceRule(task.id, false, recurrenceRule);
+      console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存完了');
+      
+      // タスクストアの recurrenceRule を直接更新
+      console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新開始');
+      taskCoreStore.updateTask(task.id, { recurrenceRule: recurrenceRule ?? undefined });
+      console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新完了');
     }
   }
 
@@ -144,44 +171,58 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     isRangeDate: boolean;
     recurrenceRule?: RecurrenceRule | null;
   }) {
+    console.log('[TaskDatePickerController.handleSubTaskDateChange] 開始:', data);
     if (!subTaskState.editingSubTaskId) return;
 
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
     const subTaskIndex = task.subTasks.findIndex((st) => st.id === subTaskState.editingSubTaskId);
     if (subTaskIndex === -1) return;
 
+    // 更新データを準備
+    let updates: any = {};
+
     if (isRangeDate) {
       if (range) {
-        subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
+        updates = {
           planStartDate: new SvelteDate(range.start),
           planEndDate: new SvelteDate(range.end),
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
+          isRangeDate: true
+        };
       } else {
         const subTask = task.subTasks[subTaskIndex];
         const currentEndDate =
           subTask.planEndDate !== undefined
             ? new SvelteDate(subTask.planEndDate)
             : new SvelteDate(dateTime);
-        subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
+        updates = {
           planStartDate: currentEndDate,
           planEndDate: currentEndDate,
-          isRangeDate: true,
-          recurrenceRule: recurrenceRule ?? undefined
-        });
+          isRangeDate: true
+        };
       }
     } else {
-      subTaskStore.updateSubTask(subTaskState.editingSubTaskId, {
+      updates = {
         planEndDate: new SvelteDate(dateTime),
         planStartDate: undefined,
-        isRangeDate: false,
-        recurrenceRule: recurrenceRule ?? undefined
-      });
+        isRangeDate: false
+      };
     }
 
+    // サブタスクの日付を先に更新
+    console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスク更新開始:', updates);
+    subTaskStore.updateSubTask(subTaskState.editingSubTaskId, updates);
+    console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスク更新完了');
+
+    // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
+      console.log('[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存開始:', recurrenceRule);
       await saveRecurrenceRule(subTaskState.editingSubTaskId, true, recurrenceRule);
+      console.log('[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存完了');
+      
+      // サブタスクストアの recurrenceRule を直接更新
+      console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新開始');
+      subTaskStore.updateSubTask(subTaskState.editingSubTaskId, { recurrenceRule: recurrenceRule ?? undefined });
+      console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新完了');
     }
   }
 

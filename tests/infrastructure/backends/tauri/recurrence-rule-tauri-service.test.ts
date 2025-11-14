@@ -167,9 +167,10 @@ describe('RecurrenceRuleTauriService', () => {
     it('should successfully update a recurrence rule', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const result = await service.update('test-project', mockRecurrenceRule, 'test-user-id');
+      const { id, ...patch } = mockRecurrenceRule;
+      const result = await service.update('test-project', id!, patch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', rule: mockRecurrenceRule });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...patch, id }, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -177,9 +178,10 @@ describe('RecurrenceRuleTauriService', () => {
       mockInvoke.mockRejectedValue(new Error('Update failed'));
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-      const result = await service.update('test-project', mockRecurrenceRule, 'test-user-id');
+      const { id, ...patch } = mockRecurrenceRule;
+      const result = await service.update('test-project', id!, patch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', rule: mockRecurrenceRule });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...patch, id }, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update recurrence rule:', expect.any(Error));
 
@@ -189,28 +191,26 @@ describe('RecurrenceRuleTauriService', () => {
     it('should handle interval change', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const updatedRule = {
-        ...mockRecurrenceRule,
+      const updatedPatch = {
         interval: 3
       };
 
-      const result = await service.update('test-project', updatedRule, 'test-user-id');
+      const result = await service.update('test-project', mockRecurrenceRule.id!, updatedPatch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', rule: updatedRule });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...updatedPatch, id: mockRecurrenceRule.id }, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
     it('should handle unit change', async () => {
       mockInvoke.mockResolvedValue(true);
 
-      const updatedRule = {
-        ...mockRecurrenceRule,
+      const updatedPatch = {
         unit: 'month' as const
       };
 
-      const result = await service.update('test-project', updatedRule, 'test-user-id');
+      const result = await service.update('test-project', mockRecurrenceRule.id!, updatedPatch, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', rule: updatedRule });
+      expect(mockInvoke).toHaveBeenCalledWith('update_recurrence_rule', { projectId: 'test-project', patch: { ...updatedPatch, id: mockRecurrenceRule.id }, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
   });

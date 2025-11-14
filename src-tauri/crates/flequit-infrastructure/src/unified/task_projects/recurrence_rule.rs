@@ -12,6 +12,7 @@ use flequit_model::{
     types::id_types::{ProjectId, RecurrenceRuleId, UserId},
 };
 use flequit_repository::project_repository_trait::ProjectRepository;
+use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::task_projects::recurrence_rule_repository_trait::RecurrenceRuleRepositoryTrait;
 use flequit_types::errors::repository_error::RepositoryError;
 
@@ -22,6 +23,8 @@ pub enum RecurrenceRuleRepositoryVariant {
 }
 
 impl RecurrenceRuleRepositoryTrait for RecurrenceRuleRepositoryVariant {}
+
+impl ProjectPatchable<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleRepositoryVariant {}
 
 #[async_trait]
 impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleRepositoryVariant {
@@ -174,6 +177,8 @@ impl RecurrenceRuleUnifiedRepository {
 }
 
 impl RecurrenceRuleRepositoryTrait for RecurrenceRuleUnifiedRepository {}
+
+impl ProjectPatchable<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleUnifiedRepository {}
 
 #[async_trait]
 impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleUnifiedRepository {
