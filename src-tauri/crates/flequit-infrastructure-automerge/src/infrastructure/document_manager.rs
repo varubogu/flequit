@@ -2,13 +2,14 @@ use super::file_storage::FileStorage;
 use crate::{errors::automerge_error::AutomergeError, infrastructure::document::Document};
 use automerge_repo::RepoHandle;
 use flequit_model::types::id_types::ProjectId;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
 
 /// Automergeドキュメントタイプ（設計仕様準拠の4つ）
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DocumentType {
     /// 設定・プロジェクト一覧ドキュメント (settings.automerge)
     /// - プロジェクト一覧
@@ -51,6 +52,25 @@ impl DocumentType {
             _ => None,
         }
     }
+
+    /// ファイル名からDocumentTypeを判定
+    pub fn from_filename(filename: &str) -> Option<Self> {
+        match filename {
+            "settings.automerge" => Some(DocumentType::Settings),
+            "account.automerge" => Some(DocumentType::Account),
+            "user.automerge" => Some(DocumentType::User),
+            name if name.starts_with("project_") && name.ends_with(".automerge") => {
+                // "project_{uuid}.automerge" から uuid を抽出
+                let id_str = name
+                    .strip_prefix("project_")?
+                    .strip_suffix(".automerge")?;
+                let uuid = uuid::Uuid::parse_str(id_str).ok()?;
+                let project_id = ProjectId::from(uuid);
+                Some(DocumentType::Project(project_id))
+            }
+            _ => None,
+        }
+    }
 }
 
 /// Automerge-Repoドキュメントの管理を行うマネージャー
@@ -58,7 +78,9 @@ impl DocumentType {
 pub struct DocumentManager {
     base_path: PathBuf,
     repo_handle: RepoHandle,
+    /// DocumentType -> Document のキャッシュ
     documents: HashMap<DocumentType, Document>,
+    file_storage: std::sync::Arc<FileStorage>,
 }
 
 impl DocumentManager {
@@ -73,16 +95,21 @@ impl DocumentManager {
         }
 
         // FileStorageを使用してAutomerge-Repoを初期化
-        let file_storage = FileStorage::new(base_path.clone())?;
-        let repo = automerge_repo::Repo::new(None, Box::new(file_storage));
+        let file_storage = std::sync::Arc::new(FileStorage::new(base_path.clone())?);
+        let file_storage_clone = file_storage.clone();
+        let repo = automerge_repo::Repo::new(None, Box::new((*file_storage_clone).clone()));
         let repo_handle = repo.run();
+
+        log::info!("DocumentManager initialized without mapping files");
 
         Ok(Self {
             base_path,
             repo_handle,
             documents: HashMap::new(),
+            file_storage,
         })
     }
+
 
     /// ドキュメントファイルのフルパスを取得（将来の機能で使用予定）
     fn _document_path(&self, doc_type: &DocumentType) -> PathBuf {
@@ -94,15 +121,53 @@ impl DocumentManager {
         &mut self,
         doc_type: &DocumentType,
     ) -> Result<Document, AutomergeError> {
+        log::debug!("get_or_create called for document type: {:?}", doc_type);
+
+        // キャッシュから取得
         if let Some(doc) = self.documents.get(&doc_type) {
-            Ok(doc.clone())
+            log::debug!("Document found in cache for type: {:?}", doc_type);
+            return Ok(doc.clone());
+        }
+
+        // ファイルの存在確認
+        let file_path = self.base_path.join(doc_type.filename());
+        log::debug!("Checking if file exists: {:?}", file_path);
+        let doc_handle = if file_path.exists() {
+            // 既存ファイルをロード
+            log::info!("Loading existing document from file: {:?}", file_path);
+            let doc_id = self.file_storage.get_document_id_by_filename(&doc_type.filename())?;
+            log::debug!("Retrieved DocumentId {} for filename {}", doc_id, doc_type.filename());
+            self.repo_handle
+                .request_document(doc_id)
+                .await
+                .map_err(|e| {
+                    log::error!("Failed to load document from {:?}: {:?}", file_path, e);
+                    AutomergeError::AutomergeError(format!(
+                        "Failed to load document from {:?}: {:?}",
+                        file_path, e
+                    ))
+                })?
         } else {
             // 新しいドキュメントを作成
-            let doc_handle = self.repo_handle.new_document();
-            let doc = Document::new(self.base_path.clone(), doc_type.clone(), doc_handle);
-            self.documents.insert(doc_type.clone(), doc.clone());
-            Ok(doc)
-        }
+            log::info!("Creating new document for {:?} at {:?}", doc_type, file_path);
+            let handle = self.repo_handle.new_document();
+            let doc_id = handle.document_id();
+
+            // ファイル名をDocumentIdに紐付け（メモリ内のみ）
+            let desired_filename = doc_type.filename().replace(".automerge", "");
+            self.file_storage.set_mapping(doc_id.clone(), desired_filename.clone());
+            log::info!(
+                "Mapped filename '{}' to document ID {} (in memory)",
+                desired_filename,
+                doc_id
+            );
+
+            handle
+        };
+
+        let doc = Document::new(self.base_path.clone(), doc_type.clone(), doc_handle);
+        self.documents.insert(doc_type.clone(), doc.clone());
+        Ok(doc)
     }
 
     /// ドキュメントからデータをロード

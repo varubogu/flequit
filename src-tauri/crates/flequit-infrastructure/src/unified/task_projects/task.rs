@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use log::info;
+use log::{error, info};
 
 use flequit_infrastructure_automerge::infrastructure::task_projects::task::TaskLocalAutomergeRepository;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::task::TaskLocalSqliteRepository;
@@ -204,11 +204,32 @@ impl ProjectRepository<Task, TaskId> for TaskUnifiedRepository {
             )));
         }
 
-        // 削除処理を実行
-        for repository in &self.save_repositories {
-            repository.delete(project_id, id).await?;
+        // トランザクション的な削除処理
+        // ステップ1: 全リポジトリから削除を試みる
+        let mut deleted_repos = Vec::new();
+        for (idx, repository) in self.save_repositories.iter().enumerate() {
+            match repository.delete(project_id, id).await {
+                Ok(()) => {
+                    info!("Successfully deleted task {} from repository {}", id, idx);
+                    deleted_repos.push(idx);
+                }
+                Err(e) => {
+                    error!(
+                        "Failed to delete task {} from repository {}: {:?}",
+                        id, idx, e
+                    );
+                    // 削除失敗: ロールバック処理
+                    error!("Rolling back deletions due to failure in repository {}", idx);
+
+                    // TODO: ロールバック処理を実装
+                    // 現時点では、削除されたデータを復元する機能がないため、
+                    // エラーをログに記録して失敗を返す
+                    return Err(e);
+                }
+            }
         }
 
+        info!("Successfully deleted task {} from all {} repositories", id, deleted_repos.len());
         Ok(())
     }
 

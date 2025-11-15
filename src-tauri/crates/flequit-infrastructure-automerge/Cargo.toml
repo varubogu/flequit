@@ -27,7 +27,7 @@ async-trait = "0.1.88"
 futures = "0.3.31"
 
 # Utilities
-uuid = { version = "1.0", features = ["v4", "serde"] }
+uuid = { version = "1.0", features = ["v4", "v5", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 dirs = "6.0.0"
 
