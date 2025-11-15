@@ -268,6 +268,68 @@ Repository Error → Service Error → Facade Error → Command Error → Fronte
 - その他フィールド：全てOptional（将来の拡張性考慮）
 - 型変換失敗：不正ドキュメントとしてエラー処理
 
+## ファイルストレージとDocumentIDマッピング
+
+### ファイルストレージアーキテクチャ
+
+Automergeファイルストレージの実装は、**人間が読めるファイル名**を使用しながら、automerge-repoのDocumentIdベースのシステムとの互換性を**インメモリマッピング**によって維持します。
+
+### ファイル命名規則
+
+ファイルは `~/.local/share/flequit/automerge/` に説明的な名前で保存されます：
+
+- `settings.automerge` - アプリケーション設定とプロジェクト一覧
+- `account.automerge` - アカウント情報
+- `user.automerge` - ユーザープロフィール
+- `project_{uuid}.automerge` - プロジェクト固有ドキュメント（1プロジェクト = 1ファイル）
+
+### 動的マッピングシステム
+
+**永続化されたマッピングファイルは使用しません。** 代わりに、起動時にインメモリの双方向マッピングを構築します：
+
+1. **起動時スキャン**: `FileStorage::new()` がストレージディレクトリ内の全 `.automerge` ファイルをスキャン
+2. **DocumentId抽出**: 各ファイルを読み込み、バイナリAutomergeデータから埋め込まれたDocumentIdを抽出
+3. **DocumentId生成**: ファイル内容からDocumentIdを抽出できない場合、ファイル名から決定的に生成（UUID v5使用）
+4. **マッピング構築**: `HashMap<DocumentId, Filename>` と `HashMap<Filename, DocumentId>` をメモリ内に構築
+5. **実行時アクセス**: 全ファイル操作でインメモリマッピングを使用してDocumentIdとファイル名を変換
+
+### ファイルポータビリティの利点
+
+この設計により以下が実現されます：
+
+- **簡単なファイル共有**: ユーザーは `.automerge` ファイルを直接コピーしてデータを共有可能
+- **クラウドストレージ互換性**: クラウドストレージフォルダへのシンボリックリンクがシームレスに動作
+- **ゼロコンフィグレーション**: コピーされたファイルはセットアップなしで即座に動作
+- **クリーンなストレージ**: ストレージディレクトリには `.automerge` ファイルのみ存在（メタデータファイル不要）
+
+### 実装詳細
+
+```rust
+// インメモリのみのマッピング（永続化しない）
+struct FileNameMapping {
+    id_to_filename: HashMap<String, String>,
+    filename_to_id: HashMap<String, String>,
+}
+
+// 起動時初期化
+pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, AutomergeError> {
+    // 既存の .automerge ファイルをスキャン
+    // ファイルのバイナリ内容からDocumentIdを抽出
+    // 抽出失敗時はファイル名から決定的に生成
+    // インメモリマッピングを構築
+}
+```
+
+### DocumentId抽出と生成
+
+**抽出**: DocumentIdはautomerge-repoのバイナリファイルフォーマットに埋め込まれています。`extract_document_id_from_file()` メソッドがバイナリ構造を解析して、automerge-repoシステム内でドキュメントを識別するUUIDを取得します。
+
+**生成**: ファイル内容からDocumentIdを抽出できない場合（compactされたファイルなど）、`generate_document_id_from_filename()` メソッドがファイル名からUUID v5（名前ベースUUID）を使用して決定的にDocumentIdを生成します。これにより、同じファイル名から常に同じDocumentIdが生成され、ファイル内容に関係なく一貫性が保たれます。
+
+### ファイル書き込み時のマッピング保持
+
+`append()` および `compact()` 操作時、`ensure_mapping_from_path()` メソッドが自動的に呼び出され、ファイルパスからファイル名を抽出してマッピングを確保します。これにより、ファイル内容が変更されてもマッピングが維持されます。
+
 ## パフォーマンス最適化
 
 ### 2層ストレージアーキテクチャ

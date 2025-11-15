@@ -268,6 +268,60 @@ Repository Error → Service Error → Facade Error → Command Error → Fronte
 - Other fields: All Optional (considering future extensibility)
 - Type conversion failure: Process as invalid document error
 
+## File Storage and Document ID Mapping
+
+### File Storage Architecture
+
+The Automerge file storage implementation uses **human-readable filenames** while maintaining compatibility with automerge-repo's DocumentId-based system through **in-memory mapping**.
+
+### File Naming Conventions
+
+Files are stored with descriptive names in `~/.local/share/flequit/automerge/`:
+
+- `settings.automerge` - Application settings and project list
+- `account.automerge` - Account information
+- `user.automerge` - User profile
+- `project_{uuid}.automerge` - Project-specific documents (one per project)
+
+### Dynamic Mapping System
+
+**No persistent mapping files are used.** Instead, the system builds an in-memory bidirectional mapping at startup:
+
+1. **Startup Scan**: `FileStorage::new()` scans all `.automerge` files in the storage directory
+2. **DocumentId Extraction**: Reads each file and extracts the embedded DocumentId from the binary Automerge data
+3. **Mapping Construction**: Builds `HashMap<DocumentId, Filename>` and `HashMap<Filename, DocumentId>` in memory
+4. **Runtime Access**: All file operations use the in-memory mapping to translate between DocumentIds and filenames
+
+### File Portability Benefits
+
+This design enables:
+
+- **Easy File Sharing**: Users can copy `.automerge` files directly to share data
+- **Cloud Storage Compatibility**: Symbolic links to cloud storage folders work seamlessly
+- **Zero Configuration**: Copied files work immediately without setup
+- **Clean Storage**: Only `.automerge` files exist in the storage directory (no metadata files)
+
+### Implementation Details
+
+```rust
+// In-memory only mapping (not persisted)
+struct FileNameMapping {
+    id_to_filename: HashMap<String, String>,
+    filename_to_id: HashMap<String, String>,
+}
+
+// Startup initialization
+pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, AutomergeError> {
+    // Scan existing .automerge files
+    // Extract DocumentId from each file's binary content
+    // Build in-memory mapping
+}
+```
+
+### DocumentId Extraction
+
+DocumentIds are embedded in the automerge-repo binary file format. The `extract_document_id_from_file()` method parses the binary structure to retrieve the UUID that identifies each document within the automerge-repo system.
+
 ## Performance Optimization
 
 ### 2-Layer Storage Architecture
