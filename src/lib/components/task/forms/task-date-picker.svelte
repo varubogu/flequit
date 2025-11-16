@@ -34,11 +34,11 @@
 <!-- Main Task Date Picker -->
 <InlineDatePicker
   show={controller.showDatePicker}
-  currentDate={task.planEndDate ? task.planEndDate.toISOString() : ''}
-  currentStartDate={task.planStartDate ? task.planStartDate.toISOString() : ''}
+  currentDate={controller.currentTask.planEndDate ? controller.currentTask.planEndDate.toISOString() : ''}
+  currentStartDate={controller.currentTask.planStartDate ? controller.currentTask.planStartDate.toISOString() : ''}
   position={controller.datePickerPosition}
-  isRangeDate={task.isRangeDate || false}
-  recurrenceRule={task.recurrenceRule}
+  isRangeDate={controller.currentTask.isRangeDate || false}
+  recurrenceRule={controller.currentTask.recurrenceRule}
   onchange={controller.handleDateChange}
   onclear={controller.handleDateClear}
   onclose={controller.handleDatePickerClose}

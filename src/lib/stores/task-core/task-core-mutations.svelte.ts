@@ -23,7 +23,9 @@ export class TaskCoreMutations {
 
 	updateTask(taskId: string, updates: Partial<Task>): boolean {
 		return this.applyTaskUpdate(taskId, (task) => {
-			Object.assign(task, updates);
+			// Svelte 5の$stateプロキシを通常のオブジェクトに変換してから代入
+			const plainUpdates = $state.snapshot(updates);
+			Object.assign(task, plainUpdates);
 		});
 	}
 

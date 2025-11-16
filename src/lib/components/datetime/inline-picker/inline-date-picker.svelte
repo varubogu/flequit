@@ -61,6 +61,19 @@
 
   initializeState();
 
+  // Props の recurrenceRule 変更を pickerState に手動で同期
+  $effect(() => {
+    const nextRule = recurrenceRule ?? null;
+    if (nextRule !== pickerState.lastSyncedRecurrenceRule) {
+      console.log('[InlineDatePicker] props の recurrenceRule が変更されました。pickerState を同期します:', {
+        from: $state.snapshot(pickerState.lastSyncedRecurrenceRule),
+        to: $state.snapshot(nextRule)
+      });
+      pickerState.currentRecurrenceRule = nextRule;
+      pickerState.lastSyncedRecurrenceRule = nextRule;
+    }
+  });
+
   $effect(() => {
     if (!show) return;
     const pickerElement = uiComponent?.getPickerElement();

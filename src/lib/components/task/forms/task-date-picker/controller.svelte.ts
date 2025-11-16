@@ -28,6 +28,14 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     return taskCoreStore.getTaskById(taskState.taskId) || task;
   });
 
+  // currentTask の recurrenceRule 変更を監視
+  $effect(() => {
+    console.log('[TaskDatePickerController] currentTask.recurrenceRule が変更されました:', {
+      taskId: taskState.taskId,
+      recurrenceRule: $state.snapshot(currentTask.recurrenceRule)
+    });
+  });
+
   // Main task date picker state
   const mainState = $state<DatePickerState>({ show: false, position: { x: 0, y: 0 } });
 
@@ -43,18 +51,20 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     itemId: string,
     isSubTask: boolean,
     rule: RecurrenceRule | null
-  ) {
+  ): Promise<boolean> {
     const projectId = task.projectId;
 
     if (!projectId) {
       console.error('Failed to get projectId for recurrence rule');
-      return;
+      return false;
     }
 
     try {
       await RecurrenceSyncService.save({ projectId, itemId, isSubTask, rule });
+      return true;
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
+      return false;
     }
   }
 
@@ -129,13 +139,17 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
       console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存開始:', recurrenceRule);
-      await saveRecurrenceRule(task.id, false, recurrenceRule);
-      console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存完了');
-      
-      // タスクストアの recurrenceRule を直接更新
-      console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新開始');
-      taskCoreStore.updateTask(task.id, { recurrenceRule: recurrenceRule ?? undefined });
-      console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新完了');
+      const success = await saveRecurrenceRule(task.id, false, recurrenceRule);
+      console.log('[TaskDatePickerController.handleDateChange] recurrenceRule保存完了:', success);
+
+      // バックエンド保存が成功した場合のみストアを更新
+      if (success) {
+        console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新開始');
+        taskCoreStore.updateTask(task.id, { recurrenceRule: recurrenceRule ?? undefined });
+        console.log('[TaskDatePickerController.handleDateChange] タスクストアのrecurrenceRule更新完了');
+      } else {
+        console.error('[TaskDatePickerController.handleDateChange] バックエンド保存失敗のためストア更新をスキップ');
+      }
     }
   }
 
@@ -216,13 +230,17 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     // recurrenceRule の保存とストア更新
     if (recurrenceRule !== undefined) {
       console.log('[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存開始:', recurrenceRule);
-      await saveRecurrenceRule(subTaskState.editingSubTaskId, true, recurrenceRule);
-      console.log('[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存完了');
-      
-      // サブタスクストアの recurrenceRule を直接更新
-      console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新開始');
-      subTaskStore.updateSubTask(subTaskState.editingSubTaskId, { recurrenceRule: recurrenceRule ?? undefined });
-      console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新完了');
+      const success = await saveRecurrenceRule(subTaskState.editingSubTaskId, true, recurrenceRule);
+      console.log('[TaskDatePickerController.handleSubTaskDateChange] recurrenceRule保存完了:', success);
+
+      // バックエンド保存が成功した場合のみストアを更新
+      if (success) {
+        console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新開始');
+        subTaskStore.updateSubTask(subTaskState.editingSubTaskId, { recurrenceRule: recurrenceRule ?? undefined });
+        console.log('[TaskDatePickerController.handleSubTaskDateChange] サブタスクストアのrecurrenceRule更新完了');
+      } else {
+        console.error('[TaskDatePickerController.handleSubTaskDateChange] バックエンド保存失敗のためストア更新をスキップ');
+      }
     }
   }
 
@@ -248,6 +266,11 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
   }
 
   return {
+    // Current task (リアクティブにストアから取得)
+    get currentTask() {
+      return currentTask;
+    },
+
     // Main task state
     get showDatePicker() {
       return mainState.show;
