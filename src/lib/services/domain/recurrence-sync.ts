@@ -1,20 +1,19 @@
 import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
 import { fromLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 export type RecurrenceSaveParams = {
   projectId: string;
   itemId: string;
   isSubTask: boolean;
   rule: LegacyRecurrenceRule | null;
+  userId: string; // 追加: 呼び出し元から渡す
 };
 
 export const RecurrenceSyncService = {
-  async save({ projectId, itemId, isSubTask, rule }: RecurrenceSaveParams) {
+  async save({ projectId, itemId, isSubTask, rule, userId }: RecurrenceSaveParams) {
     const backend = await resolveBackend();
     const unifiedRule = fromLegacyRecurrenceRule(rule);
-    const userId = getCurrentUserId();
 
     if (rule === null) {
       // Delete recurrence

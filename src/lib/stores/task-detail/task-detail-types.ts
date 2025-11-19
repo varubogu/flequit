@@ -45,5 +45,6 @@ export type TaskDetailRecurrenceActions = {
     itemId: string;
     isSubTask: boolean;
     rule: LegacyRecurrenceRule | null;
+    userId: string; // 追加
   }) => Promise<void>;
 };

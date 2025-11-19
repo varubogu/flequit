@@ -237,13 +237,20 @@ export class TaskDetailActionsService {
       return;
     }
 
+    const userId = current.updatedBy;
+    if (!userId) {
+      console.error('Failed to get userId for recurrence rule');
+      return;
+    }
+
     try {
       console.log('[handleRecurrenceChange] RecurrenceSyncService.save()呼び出し中');
       await this.#recurrence.save({
         projectId,
         itemId: current.id,
         isSubTask: isSubTask(current),
-        rule
+        rule,
+        userId
       });
 
       console.log('[handleRecurrenceChange] RecurrenceSyncService.save()完了, ローカルストア更新中');

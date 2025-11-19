@@ -23,13 +23,14 @@ export class RecurrenceRuleBuilder {
       interval,
       ...(unit === 'week' && daysOfWeek.length > 0 && { daysOfWeek: daysOfWeek }),
       ...(showAdvancedSettings && isComplexUnit && Object.keys(pattern).length > 0 && { pattern }),
-      ...(showAdvancedSettings &&
-        (dateConditions.length > 0 || weekdayConditions.length > 0) && {
-          adjustment: {
-            dateConditions: dateConditions,
-            weekdayConditions: weekdayConditions
-          }
-        }),
+      // 高度な設定モードの場合、conditions が空でも adjustment を保存
+      // これにより次回ダイアログを開いたときに 'advanced' モードと判定される
+      ...(showAdvancedSettings && {
+        adjustment: {
+          dateConditions: dateConditions,
+          weekdayConditions: weekdayConditions
+        }
+      }),
       ...(endDate && { endDate: endDate }),
       ...(repeatCount && repeatCount > 0 && { maxOccurrences: repeatCount })
     };

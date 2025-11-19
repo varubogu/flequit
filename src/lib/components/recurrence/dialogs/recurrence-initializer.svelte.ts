@@ -12,12 +12,11 @@ export class RecurrenceInitializer {
     weekdayConditionManager: WeekdayConditionManager
   ) {
     // Determine recurrence level
+    // adjustment オブジェクトが存在する場合は 'advanced' モードと判定
+    // （条件が空でも、高度な設定モードとして保存されている）
     const recurrenceLevel: RecurrenceLevel = !rule
       ? 'disabled'
-      : (rule.adjustment &&
-            ((rule.adjustment.dateConditions?.length ?? 0) > 0 ||
-              (rule.adjustment.weekdayConditions?.length ?? 0) > 0)) ||
-          (rule.pattern && Object.keys(rule.pattern).length > 0)
+      : rule.adjustment || (rule.pattern && Object.keys(rule.pattern).length > 0)
         ? 'advanced'
         : 'enabled';
 

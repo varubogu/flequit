@@ -1,4 +1,5 @@
 import type { TaskWithSubTasks } from '$lib/types/task';
+import type { SubTask } from '$lib/types/sub-task';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
 import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
@@ -53,14 +54,20 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     rule: RecurrenceRule | null
   ): Promise<boolean> {
     const projectId = task.projectId;
+    const userId = task.updatedBy; // タスクの updatedBy を使用
 
     if (!projectId) {
       console.error('Failed to get projectId for recurrence rule');
       return false;
     }
 
+    if (!userId) {
+      console.error('Failed to get userId for recurrence rule');
+      return false;
+    }
+
     try {
-      await RecurrenceSyncService.save({ projectId, itemId, isSubTask, rule });
+      await RecurrenceSyncService.save({ projectId, itemId, isSubTask, rule, userId });
       return true;
     } catch (error) {
       console.error('Failed to save recurrence rule:', error);
@@ -100,7 +107,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     const { dateTime, range, isRangeDate, recurrenceRule } = data;
 
     // 更新データを準備
-    let updates: any = {};
+    let updates: Partial<TaskWithSubTasks> = {};
 
     if (isRangeDate) {
       if (range) {
@@ -193,7 +200,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
     if (subTaskIndex === -1) return;
 
     // 更新データを準備
-    let updates: any = {};
+    let updates: Partial<SubTask> = {};
 
     if (isRangeDate) {
       if (range) {
