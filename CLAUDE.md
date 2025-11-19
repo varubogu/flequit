@@ -26,7 +26,7 @@ For detailed design and specifications, please refer to the documents in the `do
 ### Development Rules
 
 * When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
-* **Do not use `sed` command or regex-based search and replace.** Use proper file editing tools instead.
+* When performing replacements using regular expressions or similar methods, always verify beforehand to ensure no unintended effects occur before proceeding with the replacement.
 * `docs/en/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
 * `docs/en/develop/rules/documentation.md` - Documentation editing rules
 * Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:

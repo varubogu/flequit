@@ -23,7 +23,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 開発ルール
 - 何かを修正を指示するように言われた場合、そのソースに関連する部分以外はすぐには修正せず、ユーザーに修正して良いか必ず許可を求めてください。
-- **`sed`コマンドおよび正規表現による置換は使用禁止。適切なファイル編集ツールを使用してください。**
+- 正規表現などによる置換を行う場合、必ず一度検証を行って余計な影響が出ないことを確認してから置換を行ってください。
 - `docs/en/develop/rules/` - 各種開発ルール（backend.md, frontend.md, testing.md等）
 - `docs/ja/develop/rules/documentation.md` - ドキュメント編集ルール
 - 加えて、bunとcargoの両方で、ビルド時と全体テスト実行時はワーカー数を4に制限する（ユーザーの意図せぬ負荷を防ぐため）
