@@ -56,14 +56,14 @@
       bind:value={startDate}
       oninput={handleInput}
       onkeydown={handleKeydown}
-      class="border-input bg-background rounded-md border px-3 py-2 text-sm [&::-webkit-calendar-picker-indicator]:hidden"
+      class="border-input bg-background text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 [&::-webkit-calendar-picker-indicator]:hidden"
     />
     <input
       type="time"
       step="1"
       bind:value={startTime}
       oninput={handleInput}
-      class="border-input bg-background rounded-md border px-3 py-2 text-sm"
+      class="border-input bg-background text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
     />
   </div>
 {/if}
@@ -75,13 +75,13 @@
     bind:value={endDate}
     oninput={handleInput}
     onkeydown={handleKeydown}
-    class="border-input bg-background rounded-md border px-3 py-2 text-sm [&::-webkit-calendar-picker-indicator]:hidden"
+    class="border-input bg-background text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 [&::-webkit-calendar-picker-indicator]:hidden"
   />
   <input
     type="time"
     step="1"
     bind:value={endTime}
     oninput={handleInput}
-    class="border-input bg-background rounded-md border px-3 py-2 text-sm"
+    class="border-input bg-background text-foreground rounded-md border px-3 py-2 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
   />
 </div>

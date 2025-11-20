@@ -30,12 +30,16 @@
     </span>
     <div class="grid grid-cols-7 gap-2">
       {#each dayOfWeekOptions as dayOption (dayOption.value)}
+        {@const isSelected = selectedDays?.includes(dayOption.value as DayOfWeek) ?? false}
         <button
           type="button"
-          class="border-border rounded border p-2 text-sm {selectedDays &&
-          selectedDays.includes(dayOption.value as DayOfWeek)
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-background text-foreground hover:bg-accent hover:text-accent-foreground'}"
+          class="border-border rounded border p-2 text-sm transition-colors"
+          class:bg-primary={isSelected}
+          class:text-primary-foreground={isSelected}
+          class:bg-background={!isSelected}
+          class:text-foreground={!isSelected}
+          class:hover:bg-accent={!isSelected}
+          class:hover:text-accent-foreground={!isSelected}
           onclick={() => ontoggleDayOfWeek?.(dayOption.value as DayOfWeek)}
         >
           {dayOption.label().slice(0, 1)}
