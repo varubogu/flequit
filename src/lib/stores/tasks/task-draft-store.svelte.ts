@@ -30,6 +30,13 @@ export class TaskDraftStore {
 			return;
 		}
 
+		// デフォルトの期日を今日の23:59:59に設定
+		const getDefaultDueDate = (): SvelteDate => {
+			const today = new SvelteDate();
+			today.setHours(23, 59, 59, 999);
+			return today;
+		};
+
 		this.newTaskDraft = {
 			id: 'new-task',
 			projectId,
@@ -37,7 +44,8 @@ export class TaskDraftStore {
 			title: '',
 			description: '',
 			status: 'not_started',
-			priority: 0,
+			priority: 2, // デフォルトを中（2）に変更
+			planEndDate: getDefaultDueDate(), // デフォルトで今日中に設定
 			orderIndex: 0,
 			isArchived: false,
 			assignedUserIds: [],

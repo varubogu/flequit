@@ -163,6 +163,13 @@ export class TaskCrudMutations {
 			return null;
 		}
 
+		// デフォルトの期日を今日の23:59:59に設定
+		const getDefaultDueDate = (): SvelteDate => {
+			const today = new SvelteDate();
+			today.setHours(23, 59, 59, 999);
+			return today;
+		};
+
 		const newTask: TaskWithSubTasks = {
 			id: crypto.randomUUID(),
 			projectId,
@@ -170,9 +177,9 @@ export class TaskCrudMutations {
 			title: taskData.title?.trim() ?? '',
 			description: taskData.description,
 			status: taskData.status ?? 'not_started',
-			priority: taskData.priority ?? 0,
+			priority: taskData.priority ?? 2, // デフォルトを中（2）に変更
 			planStartDate: taskData.planStartDate,
-			planEndDate: taskData.planEndDate,
+			planEndDate: taskData.planEndDate ?? getDefaultDueDate(), // デフォルトで今日中に設定
 			isRangeDate: taskData.isRangeDate ?? false,
 			recurrenceRule: taskData.recurrenceRule,
 			orderIndex: taskData.orderIndex ?? 0,
