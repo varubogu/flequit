@@ -40,8 +40,8 @@
   }
 
   const domainActions: TaskDetailDomainActions = {
-    selectTask: selectionStore.selectTask,
-    selectSubTask: selectionStore.selectSubTask,
+    selectTask: (taskId: string | null) => selectionStore.selectTask(taskId),
+    selectSubTask: (subTaskId: string | null) => selectionStore.selectSubTask(subTaskId),
     forceSelectTask,
     forceSelectSubTask,
     changeTaskStatus: (taskId: string, status: TaskStatus) =>

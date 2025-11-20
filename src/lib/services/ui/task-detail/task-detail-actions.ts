@@ -12,6 +12,7 @@ import type { SubTask } from '$lib/types/sub-task';
 import { isSubTask } from './task-detail-guards';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
+import { taskListUIState } from '$lib/stores/task-list/task-list-ui-state.svelte';
 
 export type TaskDetailActionsDependencies = {
   store: TaskDetailViewStore;
@@ -138,6 +139,14 @@ export class TaskDetailActionsService {
   };
 
   handleSubTaskClick = (subTaskId: string) => {
+    // Get parent task ID to expand it in task list
+    const parentTaskId = subTaskStore.getTaskIdBySubTaskId(subTaskId);
+    if (parentTaskId) {
+      // Expand parent task in task list so subtask is visible
+      taskListUIState.expandTask(parentTaskId);
+    }
+
+    // Select subtask
     this.#domain.selectSubTask(subTaskId);
   };
 
@@ -163,7 +172,14 @@ export class TaskDetailActionsService {
   handleGoToParentTask = () => {
     const current = this.#store.currentItem;
     if (isSubTask(current)) {
-      this.#domain.selectTask(current.taskId);
+      const parentTaskId = current.taskId;
+      
+      // Note: In the current data model, tasks cannot be nested as subtasks of other tasks.
+      // If this changes in the future, we would need to check if the parent task is itself
+      // a subtask and expand its parent task accordingly.
+      
+      // Select parent task - this will automatically show it in the task detail view
+      this.#domain.selectTask(parentTaskId);
     }
   };
 

@@ -29,8 +29,11 @@
   // Get handlers from child components
   let taskDatePicker: TaskDatePicker | undefined = $state();
 
-  // State
-  let showSubTasks = $state(false);
+  // Import UI state store
+  import { taskListUIState } from '$lib/stores/task-list/task-list-ui-state.svelte';
+
+  // State - use store instead of local state
+  const showSubTasks = $derived(taskListUIState.isTaskExpanded(task.id));
 
   // Translation service
   const translationService = useTranslation();
@@ -77,7 +80,7 @@
 
   function toggleSubTasksAccordion(event?: Event) {
     event?.stopPropagation();
-    showSubTasks = !showSubTasks;
+    taskListUIState.toggleTaskExpansion(task.id);
   }
 
   // Create logic object for TaskItemContent
