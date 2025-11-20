@@ -11,11 +11,6 @@ use crate::models::{
     task_projects::{
         member::Entity as MemberEntity,
         recurrence_rule::Entity as RecurrenceRuleEntity,
-        recurrence_adjustment::Entity as RecurrenceAdjustmentEntity,
-        recurrence_detail::Entity as RecurrenceDetailEntity,
-        recurrence_days_of_week::Entity as RecurrenceDaysOfWeekEntity,
-        recurrence_date_condition::Entity as RecurrenceDateConditionEntity,
-        recurrence_weekday_condition::Entity as RecurrenceWeekdayConditionEntity,
         subtask::Entity as SubtaskEntity,
         subtask_assignments::Entity as SubtaskAssignmentEntity,
         subtask_recurrence::Entity as SubtaskRecurrenceEntity,
@@ -126,26 +121,7 @@ impl HybridMigrator {
                 "recurrence_rules",
                 schema.create_table_from_entity(RecurrenceRuleEntity),
             ),
-            (
-                "recurrence_adjustments",
-                schema.create_table_from_entity(RecurrenceAdjustmentEntity),
-            ),
-            (
-                "recurrence_details",
-                schema.create_table_from_entity(RecurrenceDetailEntity),
-            ),
-            (
-                "recurrence_days_of_week",
-                schema.create_table_from_entity(RecurrenceDaysOfWeekEntity),
-            ),
-            (
-                "recurrence_date_conditions",
-                schema.create_table_from_entity(RecurrenceDateConditionEntity),
-            ),
-            (
-                "recurrence_weekday_conditions",
-                schema.create_table_from_entity(RecurrenceWeekdayConditionEntity),
-            ),
+            // recurrence関連テーブルは複合外部キー付きで手動作成（recreate_tables_with_composite_fkで作成）
             (
                 "task_recurrence",
                 schema.create_table_from_entity(TaskRecurrenceEntity),
@@ -359,34 +335,34 @@ impl HybridMigrator {
 
     /// 複合外部キーを持つテーブルの再作成
     async fn recreate_tables_with_composite_fk(&self) -> Result<(), DbErr> {
+        // 外部キー制約を一時的に無効化（テーブル再作成のため）
+        self.db.execute_unprepared("PRAGMA foreign_keys = OFF;").await?;
+
         // task_recurrenceテーブルの再作成
         self.recreate_task_recurrence_table().await?;
 
         // subtask_recurrenceテーブルの再作成
         self.recreate_subtask_recurrence_table().await?;
 
+        // recurrence関連テーブルの再作成（依存関係の逆順で削除）
+        self.recreate_recurrence_weekday_conditions_table().await?;
+        self.recreate_recurrence_date_conditions_table().await?;
+        self.recreate_recurrence_days_of_week_table().await?;
+        self.recreate_recurrence_details_table().await?;
+        self.recreate_recurrence_adjustments_table().await?;
+
+        // 外部キー制約を再度有効化
+        self.db.execute_unprepared("PRAGMA foreign_keys = ON;").await?;
+
         Ok(())
     }
 
-    /// task_recurrenceテーブルを複合外部キー付きで再作成
+    /// task_recurrenceテーブルを複合外部キー付きで作成
     async fn recreate_task_recurrence_table(&self) -> Result<(), DbErr> {
-        // 既存データをバックアップ
-        let backup_sql = "CREATE TEMPORARY TABLE task_recurrence_backup AS SELECT * FROM task_recurrence;";
-        if let Err(e) = self.db.execute_unprepared(backup_sql).await {
-            if !e.to_string().contains("no such table") {
-                return Err(e);
-            }
-            // テーブルが存在しない場合はスキップ
-            println!("  ℹ️  task_recurrenceテーブルが存在しないため、再作成をスキップ");
-            return Ok(());
-        }
-
-        // 既存テーブルを削除
-        self.db.execute_unprepared("DROP TABLE IF EXISTS task_recurrence;").await?;
-
-        // 複合外部キー付きで再作成
+        // DROP TABLE IF EXISTSを削除（既存データを保持するため）
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
         let create_sql = r#"
-            CREATE TABLE task_recurrence (
+            CREATE TABLE IF NOT EXISTS task_recurrence (
                 project_id VARCHAR NOT NULL,
                 task_id VARCHAR NOT NULL,
                 recurrence_rule_id VARCHAR NOT NULL,
@@ -400,40 +376,16 @@ impl HybridMigrator {
             );
         "#;
         self.db.execute_unprepared(create_sql).await?;
-
-        // データを復元
-        let restore_sql = "INSERT INTO task_recurrence SELECT * FROM task_recurrence_backup;";
-        if let Err(e) = self.db.execute_unprepared(restore_sql).await {
-            // データ復元失敗は警告のみ（新規インストールの場合はデータがない）
-            println!("  ⚠️  task_recurrenceデータ復元失敗（新規インストールの可能性）: {}", e);
-        }
-
-        // 一時テーブルを削除
-        self.db.execute_unprepared("DROP TABLE IF EXISTS task_recurrence_backup;").await?;
-
-        println!("  🔗 task_recurrenceテーブルを複合外部キー付きで再作成しました");
+        println!("  🔗 task_recurrenceテーブルを複合外部キー付きで作成しました");
         Ok(())
     }
 
-    /// subtask_recurrenceテーブルを複合外部キー付きで再作成
+    /// subtask_recurrenceテーブルを複合外部キー付きで作成
     async fn recreate_subtask_recurrence_table(&self) -> Result<(), DbErr> {
-        // 既存データをバックアップ
-        let backup_sql = "CREATE TEMPORARY TABLE subtask_recurrence_backup AS SELECT * FROM subtask_recurrence;";
-        if let Err(e) = self.db.execute_unprepared(backup_sql).await {
-            if !e.to_string().contains("no such table") {
-                return Err(e);
-            }
-            // テーブルが存在しない場合はスキップ
-            println!("  ℹ️  subtask_recurrenceテーブルが存在しないため、再作成をスキップ");
-            return Ok(());
-        }
-
-        // 既存テーブルを削除
-        self.db.execute_unprepared("DROP TABLE IF EXISTS subtask_recurrence;").await?;
-
-        // 複合外部キー付きで再作成
+        // DROP TABLE IF EXISTSを削除（既存データを保持するため）
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
         let create_sql = r#"
-            CREATE TABLE subtask_recurrence (
+            CREATE TABLE IF NOT EXISTS subtask_recurrence (
                 project_id VARCHAR NOT NULL,
                 subtask_id VARCHAR NOT NULL,
                 recurrence_rule_id VARCHAR NOT NULL,
@@ -447,18 +399,7 @@ impl HybridMigrator {
             );
         "#;
         self.db.execute_unprepared(create_sql).await?;
-
-        // データを復元
-        let restore_sql = "INSERT INTO subtask_recurrence SELECT * FROM subtask_recurrence_backup;";
-        if let Err(e) = self.db.execute_unprepared(restore_sql).await {
-            // データ復元失敗は警告のみ（新規インストールの場合はデータがない）
-            println!("  ⚠️  subtask_recurrenceデータ復元失敗（新規インストールの可能性）: {}", e);
-        }
-
-        // 一時テーブルを削除
-        self.db.execute_unprepared("DROP TABLE IF EXISTS subtask_recurrence_backup;").await?;
-
-        println!("  🔗 subtask_recurrenceテーブルを複合外部キー付きで再作成しました");
+        println!("  🔗 subtask_recurrenceテーブルを複合外部キー付きで作成しました");
         Ok(())
     }
 
@@ -611,6 +552,125 @@ impl HybridMigrator {
         self.run_migration().await?;
 
         println!("✅ 強制再マイグレーション完了");
+        Ok(())
+    }
+
+    /// recurrence_adjustmentsテーブルを複合外部キー付きで作成
+    async fn recreate_recurrence_adjustments_table(&self) -> Result<(), DbErr> {
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
+        let create_sql = r#"
+            CREATE TABLE IF NOT EXISTS recurrence_adjustments (
+                project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
+                recurrence_rule_id VARCHAR NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                updated_by VARCHAR NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                CONSTRAINT pk_recurrence_adjustments PRIMARY KEY (project_id, id),
+                FOREIGN KEY (project_id, recurrence_rule_id) REFERENCES recurrence_rules (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+        println!("  🔗 recurrence_adjustmentsテーブルを複合外部キー付きで作成しました");
+        Ok(())
+    }
+
+    /// recurrence_detailsテーブルを複合外部キー付きで作成
+    async fn recreate_recurrence_details_table(&self) -> Result<(), DbErr> {
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
+        let create_sql = r#"
+            CREATE TABLE IF NOT EXISTS recurrence_details (
+                project_id VARCHAR NOT NULL,
+                recurrence_rule_id VARCHAR NOT NULL,
+                specific_date INTEGER,
+                week_of_period VARCHAR,
+                weekday_of_week VARCHAR,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_recurrence_details PRIMARY KEY (project_id, recurrence_rule_id),
+                FOREIGN KEY (project_id, recurrence_rule_id) REFERENCES recurrence_rules (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+        println!("  🔗 recurrence_detailsテーブルを複合外部キー付きで作成しました");
+        Ok(())
+    }
+
+    /// recurrence_days_of_weekテーブルを複合外部キー付きで作成
+    async fn recreate_recurrence_days_of_week_table(&self) -> Result<(), DbErr> {
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
+        let create_sql = r#"
+            CREATE TABLE IF NOT EXISTS recurrence_days_of_week (
+                project_id VARCHAR NOT NULL,
+                recurrence_rule_id VARCHAR NOT NULL,
+                day_of_week VARCHAR NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                updated_by VARCHAR NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                CONSTRAINT pk_recurrence_days_of_week PRIMARY KEY (project_id, recurrence_rule_id, day_of_week),
+                FOREIGN KEY (project_id, recurrence_rule_id) REFERENCES recurrence_rules (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+        println!("  🔗 recurrence_days_of_weekテーブルを複合外部キー付きで作成しました");
+        Ok(())
+    }
+
+    /// recurrence_date_conditionsテーブルを複合外部キー付きで作成
+    async fn recreate_recurrence_date_conditions_table(&self) -> Result<(), DbErr> {
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
+        let create_sql = r#"
+            CREATE TABLE IF NOT EXISTS recurrence_date_conditions (
+                project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
+                recurrence_adjustment_id VARCHAR,
+                recurrence_detail_id VARCHAR,
+                relation VARCHAR NOT NULL,
+                reference_date TIMESTAMP NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                updated_by VARCHAR NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                CONSTRAINT pk_recurrence_date_conditions PRIMARY KEY (project_id, id),
+                FOREIGN KEY (project_id, recurrence_adjustment_id) REFERENCES recurrence_adjustments (project_id, id) ON DELETE CASCADE,
+                FOREIGN KEY (project_id, recurrence_detail_id) REFERENCES recurrence_details (project_id, recurrence_rule_id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+        println!("  🔗 recurrence_date_conditionsテーブルを複合外部キー付きで作成しました");
+        Ok(())
+    }
+
+    /// recurrence_weekday_conditionsテーブルを複合外部キー付きで作成
+    async fn recreate_recurrence_weekday_conditions_table(&self) -> Result<(), DbErr> {
+        // DROP TABLE IF EXISTSを削除（既存データを保持するため）
+        // 複合外部キー付きで作成（既に存在する場合はスキップ）
+
+        // 複合外部キー付きで作成
+        let create_sql = r#"
+            CREATE TABLE IF NOT EXISTS recurrence_weekday_conditions (
+                project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
+                recurrence_adjustment_id VARCHAR NOT NULL,
+                if_weekday VARCHAR NOT NULL,
+                then_direction VARCHAR NOT NULL,
+                then_target VARCHAR NOT NULL,
+                then_weekday VARCHAR,
+                then_days INTEGER,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_recurrence_weekday_conditions PRIMARY KEY (project_id, id),
+                FOREIGN KEY (project_id, recurrence_adjustment_id) REFERENCES recurrence_adjustments (project_id, id) ON DELETE CASCADE
+            );
+        "#;
+        self.db.execute_unprepared(create_sql).await?;
+        println!("  🔗 recurrence_weekday_conditionsテーブルを複合外部キー付きで作成しました");
         Ok(())
     }
 }

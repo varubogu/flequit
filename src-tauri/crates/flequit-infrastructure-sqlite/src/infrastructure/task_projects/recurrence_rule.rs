@@ -145,6 +145,12 @@ impl RecurrenceRuleLocalSqliteRepository {
         let project_id_str = project_id.to_string();
 
         // 1. adjustment を取得
+        tracing::info!(
+            "load_adjustment: project_id={}, rule_id={}",
+            project_id_str,
+            rule_id_str
+        );
+
         let adjustment_model = RecurrenceAdjustmentEntity::find()
             .filter(RecurrenceAdjustmentColumn::ProjectId.eq(&project_id_str))
             .filter(RecurrenceAdjustmentColumn::RecurrenceRuleId.eq(&rule_id_str))
@@ -153,6 +159,7 @@ impl RecurrenceRuleLocalSqliteRepository {
             .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
 
         if let Some(adj) = adjustment_model {
+            tracing::info!("load_adjustment: found adjustment with id={}", adj.id);
             let adjustment_id_str = adj.id.clone();
 
             // 2. date_conditions を取得
@@ -230,6 +237,11 @@ impl RecurrenceRuleLocalSqliteRepository {
                 updated_by: UserId::from(adj.updated_by),
             }))
         } else {
+            tracing::info!(
+                "load_adjustment: no adjustment found for project_id={}, rule_id={}",
+                project_id_str,
+                rule_id_str
+            );
             Ok(None)
         }
     }
@@ -481,9 +493,27 @@ impl ProjectRepository<RecurrenceRule, RecurrenceRuleId> for RecurrenceRuleLocal
             .await?;
 
         // 3. adjustment の保存
+        tracing::info!(
+            "save: project_id={}, rule_id={}, adjustment is_some={}",
+            project_id,
+            rule.id,
+            rule.adjustment.is_some()
+        );
+
         if let Some(ref adjustment) = rule.adjustment {
+            tracing::info!(
+                "save: saving adjustment with id={}, date_conditions={}, weekday_conditions={}",
+                adjustment.id,
+                adjustment.date_conditions.len(),
+                adjustment.weekday_conditions.len()
+            );
             self.save_adjustment(&txn, project_id, &rule.id, adjustment)
                 .await?;
+        } else {
+            tracing::warn!(
+                "save: adjustment is None for rule_id={}, skipping adjustment save",
+                rule.id
+            );
         }
 
         // 4. details の保存（未実装のためスキップ）

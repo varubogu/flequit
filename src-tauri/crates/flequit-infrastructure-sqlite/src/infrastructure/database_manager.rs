@@ -77,6 +77,15 @@ impl DatabaseManager {
                 // データベースに接続
                 let db = Database::connect(opt).await.map_err(SQLiteError::from)?;
 
+                // 外部キー制約を有効化（SQLiteでは接続ごとに設定が必要）
+                use sea_orm::ConnectionTrait;
+                db.execute(sea_orm::Statement::from_string(
+                    sea_orm::DatabaseBackend::Sqlite,
+                    "PRAGMA foreign_keys = ON;".to_string(),
+                ))
+                .await
+                .map_err(SQLiteError::from)?;
+
                 // ハイブリッドマイグレーション実行（常に実行してテーブルの存在を確保）
                 let migrator = super::hybrid_migration::HybridMigrator::new(db.clone());
                 migrator.run_migration().await.map_err(SQLiteError::from)?;
