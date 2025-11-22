@@ -25,8 +25,8 @@ vi.mock('$lib/stores/tags.svelte', () => ({
 
 describe('TagInput', () => {
   const mockTags: Tag[] = [
-    { id: '1', name: 'タグ1', color: '#ff0000', createdAt: new Date(), updatedAt: new Date() },
-    { id: '2', name: 'タグ2', color: '#00ff00', createdAt: new Date(), updatedAt: new Date() }
+    { id: '1', name: 'タグ1', color: '#ff0000', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' },
+    { id: '2', name: 'タグ2', color: '#00ff00', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' }
   ];
 
   const defaultProps = {

@@ -147,13 +147,13 @@ describe('TagStore - ドラッグ&ドロップ機能', () => {
         id: 'tag-1',
         name: 'タグ1',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       const tag2: Tag = {
         id: 'tag-2',
         name: 'タグ2',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       tagStore.addTagWithId(tag1);

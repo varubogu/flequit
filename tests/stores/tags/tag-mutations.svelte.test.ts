@@ -11,7 +11,7 @@ vi.mock('$lib/services/domain/tag', () => ({
 				name: tagData.name,
 				color: tagData.color,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		updateTag: vi.fn(() => Promise.resolve()),
@@ -22,7 +22,7 @@ vi.mock('$lib/services/domain/tag', () => ({
 				name,
 				color,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		getProjectIdByTagId: vi.fn(() => Promise.resolve('project-1'))

@@ -95,14 +95,14 @@ describe('SidebarTagList - Drag & Drop', () => {
       name: 'Work',
       color: '#blue',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: 'tag-2',
       name: 'Personal',
       color: '#green',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
   ];
 

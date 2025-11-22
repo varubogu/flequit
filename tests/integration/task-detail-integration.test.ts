@@ -78,7 +78,7 @@ const mockTaskService = {
     return {
       id: taskId,
       ...updates,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as TaskWithSubTasks;
   }),
 
@@ -87,7 +87,7 @@ const mockTaskService = {
       id: subTaskId,
       taskId: taskId,
       ...updates,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as SubTask;
   }),
 
@@ -134,21 +134,21 @@ const mockTagStore = {
       name: '重要',
       color: '#ef4444',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: 'tag-2',
       name: '作業',
       color: '#3b82f6',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: 'tag-3',
       name: '個人',
       color: '#10b981',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
   ] as Tag[],
 
@@ -164,7 +164,7 @@ const mockTagStore = {
       name: tagData.name,
       color: tagData.color || '#6b7280',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as Tag;
     mockTagStore.availableTags.push(newTag);
     return newTag;
@@ -223,7 +223,7 @@ const sampleTask: TaskWithSubTasks = {
       name: '重要',
       color: '#ef4444',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
   ]
 };

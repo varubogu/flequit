@@ -20,7 +20,7 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			name: 'Personal',
 			color: '#00FF00',
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		},
 		{ id: 'tag-3', name: 'Project', color: '#0000FF', createdAt: new Date(), updatedAt: new Date() }
 	];

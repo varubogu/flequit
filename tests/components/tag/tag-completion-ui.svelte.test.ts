@@ -10,20 +10,24 @@ vi.mock('lucide-svelte', () => ({
 
 describe('TagCompletionUI', () => {
   const mockTags: Tag[] = [
-    { id: 'tag-1', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date() },
+    { id: 'tag-1', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' },
     {
       id: 'tag-2',
       name: 'personal',
       color: '#00ff00',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user'
     },
     {
       id: 'tag-3',
       name: 'urgent',
       color: undefined,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user'
     }
   ];
 
@@ -275,14 +279,18 @@ describe('TagCompletionUI', () => {
           name: 'tag-with-dash',
           color: '#ff0000',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user'
         },
         {
           id: 'tag-2',
           name: 'tag with spaces',
           color: '#00ff00',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user'
         }
       ];
 
@@ -382,13 +390,15 @@ describe('TagCompletionUI', () => {
 
     it('should handle tags without ids', () => {
       const tagsWithoutIds: Tag[] = [
-        { id: '', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date() },
+        { id: '', name: 'work', color: '#ff0000', createdAt: new Date(), updatedAt: new Date(), deleted: false, updatedBy: 'test-user' },
         {
           id: null as unknown as string,
           name: 'personal',
           color: '#00ff00',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user'
         }
       ];
 
@@ -409,7 +419,9 @@ describe('TagCompletionUI', () => {
           name: 'A'.repeat(100),
           color: '#ff0000',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          deleted: false,
+          updatedBy: 'test-user'
         }
       ];
 

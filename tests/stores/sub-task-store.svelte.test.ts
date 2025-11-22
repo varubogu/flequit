@@ -22,7 +22,7 @@ vi.mock('$lib/services/domain/subtask', () => ({
 				orderIndex: 0,
 				isArchived: false,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		updateSubTask: vi.fn(() => Promise.resolve()),
@@ -219,7 +219,7 @@ describe('SubTaskStore (Integration)', () => {
 				name: 'Tag 2',
 				color: '#00FF00',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			store.attachTagToSubTask('subtask-1', newTag);
@@ -259,7 +259,7 @@ describe('SubTaskStore (Integration)', () => {
 			name: 'Tag 2',
 			color: '#00FF00',
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		};
 		store.attachTagToSubTask('new-subtask-id', newTag);
 		const addedTags = task.subTasks[1].tags ?? [];

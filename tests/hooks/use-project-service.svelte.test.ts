@@ -29,7 +29,7 @@ vi.mock('$lib/services/composite/project-composite', () => ({
 				orderIndex: updates.order_index ?? 0,
 				isArchived: updates.is_archived ?? false,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		deleteProject: vi.fn(async () => true),

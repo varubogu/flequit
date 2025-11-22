@@ -23,7 +23,7 @@ test('task creation workflow', () => {
         orderIndex: taskData.orderIndex || 0,
         isArchived: taskData.isArchived || false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       } as Task;
       mockStore.tasks.push(newTask);
       return newTask;
@@ -63,7 +63,7 @@ test('task status update workflow', () => {
         mockStore.tasks[taskIndex] = {
           ...mockStore.tasks[taskIndex],
           ...updates,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
         return mockStore.tasks[taskIndex];
       }
@@ -123,7 +123,7 @@ test('subtask management workflow', () => {
             completed: false,
             assignedUserIds: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           } as SubTask,
           {
             id: 'sub-2',
@@ -135,7 +135,7 @@ test('subtask management workflow', () => {
             completed: false,
             assignedUserIds: [],
             createdAt: new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           } as SubTask
         ]
       } as TaskWithSubTasks

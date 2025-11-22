@@ -76,7 +76,7 @@ describe('TaskTagOperations', () => {
 				name: 'New Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.attachTagToTask('task-1', newTag);
@@ -92,7 +92,7 @@ describe('TaskTagOperations', () => {
 				name: 'Duplicate Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.attachTagToTask('task-1', duplicateTag);
@@ -107,7 +107,7 @@ describe('TaskTagOperations', () => {
 				name: 'EXISTING TAG',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.attachTagToTask('task-1', duplicateTag);
@@ -122,7 +122,7 @@ describe('TaskTagOperations', () => {
 				name: 'New Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.attachTagToTask('non-existent', newTag);
@@ -196,7 +196,7 @@ describe('TaskTagOperations', () => {
 				name: 'Updated Tag',
 				color: '#FF00FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.updateTagInAllTasks(updatedTag);
@@ -210,7 +210,7 @@ describe('TaskTagOperations', () => {
 				name: 'Updated Draft Tag',
 				color: '#FF00FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.updateTagInAllTasks(updatedTag);
@@ -225,7 +225,7 @@ describe('TaskTagOperations', () => {
 				name: 'Non Existent Tag',
 				color: '#FF00FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.updateTagInAllTasks(updatedTag);
@@ -241,7 +241,7 @@ describe('TaskTagOperations', () => {
 				name: 'Updated Tag',
 				color: '#FF00FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			operations.updateTagInAllTasks(updatedTag);

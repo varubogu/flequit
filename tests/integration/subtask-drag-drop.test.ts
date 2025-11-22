@@ -167,7 +167,7 @@ function createDragDropEnvironment() {
       name,
       color: '#00aa00',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     })),
     deleteSubtaskTag: vi.fn(async () => {})
   };

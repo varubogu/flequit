@@ -250,7 +250,7 @@ describe('TaskService (task-crud)', () => {
 		assignedUserIds: [],
 		tagIds: [],
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
 	});
 
 		await TaskService.createTaskWithSubTasks('list-123', {} as Task);

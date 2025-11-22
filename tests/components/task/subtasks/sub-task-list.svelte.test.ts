@@ -56,7 +56,7 @@ describe('SubTaskList', () => {
         completed: false,
         assignedUserIds: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       {
         id: 'subtask-2',
@@ -75,7 +75,7 @@ describe('SubTaskList', () => {
         completed: true,
         assignedUserIds: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }
     ],
     tags: []

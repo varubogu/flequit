@@ -134,7 +134,7 @@ describe('TasklistTauriService', () => {
       const renamedTaskList = {
         ...mockTaskList,
         name: 'Updated Development Tasks',
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const result = await service.update('test-project-id', renamedTaskList.id, renamedTaskList, 'test-user-id');
@@ -149,7 +149,7 @@ describe('TasklistTauriService', () => {
       const archivedTaskList = {
         ...mockTaskList,
         isArchived: true,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const result = await service.update('test-project-id', archivedTaskList.id, archivedTaskList, 'test-user-id');

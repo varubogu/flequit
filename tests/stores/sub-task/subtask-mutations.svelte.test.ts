@@ -23,7 +23,7 @@ vi.mock('$lib/services/domain/subtask', () => ({
 				tagIds: [],
 				tags: [] as Tag[],
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		updateSubTask: vi.fn(() => Promise.resolve()),

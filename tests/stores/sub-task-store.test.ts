@@ -25,7 +25,7 @@ const { createSubTaskMock, updateSubTaskMock, deleteSubTaskMock } = vi.hoisted((
 		assignedUserIds: [],
 		tagIds: [],
 		createdAt: new Date(),
-		updatedAt: new Date()
+		updatedAt: new Date(),
 	}));
 
 	const updateSubTask = vi.fn(async () => ({ success: true }));

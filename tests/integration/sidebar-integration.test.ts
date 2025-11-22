@@ -123,14 +123,14 @@ const mockTagStore = {
       name: '重要',
       color: '#ef4444',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     },
     {
       id: 'tag-2',
       name: '作業',
       color: '#3b82f6',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
   ] as Tag[],
 

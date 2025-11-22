@@ -21,7 +21,7 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			color: '#FF0000',
 			orderIndex: 0,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		},
 		{
 			id: 'tag-2',
@@ -29,7 +29,7 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			color: '#00FF00',
 			orderIndex: 1,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		}
 	];
 

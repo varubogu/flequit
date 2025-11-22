@@ -124,7 +124,7 @@ describe('TagTauriService', () => {
       const updatedTag = {
         ...mockTag,
         color: '#0066CC',
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const result = await service.update('test-project-id', updatedTag.id, updatedTag, 'test-user-id');
@@ -139,7 +139,7 @@ describe('TagTauriService', () => {
       const renamedTag = {
         ...mockTag,
         name: 'high-priority',
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const result = await service.update('test-project-id', renamedTag.id, renamedTag, 'test-user-id');

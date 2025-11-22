@@ -230,7 +230,7 @@ describe('TaskListMutations', () => {
 			description: '',
 			orderIndex: 2,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		});
 
 			mockCreateTaskList.mockResolvedValue(newTaskList);
@@ -253,7 +253,7 @@ describe('TaskListMutations', () => {
 			description: 'Updated Description',
 			orderIndex: 0,
 			createdAt: new Date('2024-01-01'),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		});
 
 			mockUpdateTaskList.mockResolvedValue(updatedTaskList);
@@ -317,7 +317,7 @@ describe('TaskListMutations', () => {
 			description: 'Description 1',
 			orderIndex: 0,
 			createdAt: new Date('2024-01-01'),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		});
 
 			mockUpdateTaskList.mockResolvedValue(updatedTaskList);

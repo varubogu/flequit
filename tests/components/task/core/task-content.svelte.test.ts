@@ -15,7 +15,9 @@ describe('TaskContent', () => {
     name: 'Test Tag',
     color: '#ff0000',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    deleted: false,
+    updatedBy: 'test-user'
   };
 
   const mockTask: TaskWithSubTasks = {
@@ -45,7 +47,9 @@ describe('TaskContent', () => {
         completed: false,
         assignedUserIds: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user'
       },
       {
         id: 'sub-2',
@@ -57,7 +61,9 @@ describe('TaskContent', () => {
         completed: false,
         assignedUserIds: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user'
       }
     ]
   };
@@ -166,7 +172,9 @@ describe('TaskContent', () => {
       name: 'Second Tag',
       color: '#00ff00',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user'
     };
 
     const taskWithMultipleTags = {
@@ -358,7 +366,9 @@ describe('TaskContent', () => {
         completed: false,
         assignedUserIds: [],
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        deleted: false,
+        updatedBy: 'test-user'
       }))
     };
 

@@ -12,7 +12,7 @@ vi.mock('$lib/services/domain/tag', () => ({
 				name: tagData.name,
 				color: tagData.color,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		updateTag: vi.fn(async () => {}),
@@ -23,12 +23,12 @@ vi.mock('$lib/services/domain/tag', () => ({
 				name,
 				color,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			})
 		),
 		getProjectIdByTagId: vi.fn(async () => 'test-project-id'),
 		addBookmark: vi.fn(async () => {}),
-		removeBookmark: vi.fn(() => {}),
+		removeBookmark: vi.fn(async () => {}),
 		notifyTagUpdate: vi.fn(() => {})
 	}
 }));
@@ -103,10 +103,10 @@ describe('useTagService', () => {
 		expect(tagService.addBookmark).toHaveBeenCalledWith('project-1', 'tag-1');
 	});
 
-	it('タグをブックマークから削除できる', () => {
-		tagService.removeBookmark('tag-1');
+	it('タグをブックマークから削除できる', async () => {
+		await tagService.removeBookmark('project-1', 'tag-1');
 
-		expect(tagService.removeBookmark).toHaveBeenCalledWith('tag-1');
+		expect(tagService.removeBookmark).toHaveBeenCalledWith('project-1', 'tag-1');
 	});
 
 	it('タグ更新を通知できる', () => {
@@ -115,7 +115,7 @@ describe('useTagService', () => {
 			name: 'Test Tag',
 			color: '#FF0000',
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		};
 
 		tagService.notifyTagUpdate(tag);

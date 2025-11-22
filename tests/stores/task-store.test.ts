@@ -181,7 +181,7 @@ describe('TaskStore', () => {
         orderIndex: 0,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       expect(newTask).not.toBeNull();
@@ -322,7 +322,7 @@ describe('TaskStore', () => {
         orderIndex: 3,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const newTask = await taskCoreStore.addTask('list-1', newTaskData);
@@ -351,7 +351,7 @@ describe('TaskStore', () => {
         orderIndex: 0,
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       expect(result).toBeNull();

@@ -225,7 +225,7 @@ describe('TaskStore (Integration)', () => {
 				name: 'Test Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			store.attachTagToTask('task-1', tag);
@@ -241,7 +241,7 @@ describe('TaskStore (Integration)', () => {
 				name: 'Test Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			store.attachTagToTask('task-1', tag);

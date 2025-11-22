@@ -18,7 +18,7 @@ const mockTaskStore = {
       orderIndex: projectData.orderIndex || 0,
       isArchived: projectData.isArchived || false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as Project;
     mockTaskStore.projects.push(newProject);
     return newProject;
@@ -34,7 +34,7 @@ const mockTaskStore = {
       orderIndex: listData.orderIndex || 0,
       isArchived: listData.isArchived || false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as TaskList;
     mockTaskStore.taskLists.push(newList);
     return newList;
@@ -56,7 +56,7 @@ const mockTaskStore = {
       orderIndex: taskData.orderIndex || 0,
       isArchived: taskData.isArchived || false,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as Task;
     mockTaskStore.tasks.push(newTask);
     return newTask;
@@ -232,7 +232,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
           orderIndex: projectData.orderIndex || 0,
           isArchived: projectData.isArchived || false,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as Project;
         localMockStore.projects.push(newProject);
         return newProject;
@@ -248,7 +248,7 @@ describe('プロジェクトワークフロー結合テスト', () => {
           orderIndex: listData.orderIndex || 0,
           isArchived: listData.isArchived || false,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         } as TaskList;
         localMockStore.taskLists.push(newList);
         return newList;

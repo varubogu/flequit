@@ -14,7 +14,9 @@ describe('TagEditDialog', () => {
     name: 'テストタグ',
     color: '#ff0000',
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
+    deleted: false,
+    updatedBy: 'test-user-id'
   };
 
   const defaultProps = {

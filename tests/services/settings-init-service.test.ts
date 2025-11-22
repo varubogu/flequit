@@ -218,7 +218,7 @@ describe('SettingsInitService', () => {
           value: 'test',
           dataType: 'string' as const,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }
       ];
 
@@ -234,7 +234,7 @@ describe('SettingsInitService', () => {
           value: 'test',
           dataType: 'string' as const,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }
       ];
 
@@ -251,7 +251,7 @@ describe('SettingsInitService', () => {
         value: `value_${i}`,
         dataType: 'string' as const,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }));
 
       const start = performance.now();
@@ -269,7 +269,7 @@ describe('SettingsInitService', () => {
         value: `value_${i}`,
         dataType: 'string' as const,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }));
 
       const start = performance.now();

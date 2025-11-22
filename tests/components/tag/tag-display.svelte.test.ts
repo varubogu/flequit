@@ -111,7 +111,9 @@ describe('TagDisplay', () => {
       name: 'no-color-tag',
       color: undefined,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     render(TagDisplay, {
@@ -162,7 +164,9 @@ describe('TagDisplay', () => {
       name: 'different-tag',
       color: '#00ff00',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      deleted: false,
+      updatedBy: 'test-user-id'
     };
 
     render(TagDisplay, {

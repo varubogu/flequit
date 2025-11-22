@@ -160,14 +160,14 @@ const mockTaskStore = {
           name: '重要',
           color: '#ef4444',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         {
           id: 'tag-2',
           name: '作業',
           color: '#3b82f6',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }
       ],
       orderIndex: 0,
@@ -193,7 +193,7 @@ const mockTaskStore = {
           name: '作業',
           color: '#3b82f6',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }
       ],
       orderIndex: 1,
@@ -219,7 +219,7 @@ const mockTaskStore = {
           name: '個人',
           color: '#10b981',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         }
       ],
       orderIndex: 0,

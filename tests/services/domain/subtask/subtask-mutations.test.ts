@@ -78,7 +78,7 @@ describe('SubTaskMutations', () => {
 						priority: 0,
 						orderIndex: 0,
 						createdAt: new Date(),
-						updatedAt: new Date()
+						updatedAt: new Date(),
 					} as SubTask
 				],
 				tags: []
@@ -119,7 +119,7 @@ describe('SubTaskMutations', () => {
 						priority: 0,
 						orderIndex: 0,
 						createdAt: new Date(),
-						updatedAt: new Date()
+						updatedAt: new Date(),
 					} as SubTask
 				],
 				tags: []

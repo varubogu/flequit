@@ -144,7 +144,7 @@ function createTestEnvironment() {
       const target = getSubTaskById(subTaskId);
       if (!target) return;
       Object.assign(target, updates, {
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
     }),
     deleteSubTask: vi.fn(async (subTaskId: string) => {

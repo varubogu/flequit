@@ -89,7 +89,7 @@ describe('SubTaskTagOperations', () => {
 				name: 'Tag 2',
 				color: '#00FF00',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			tagOps.attachTagToSubTask('subtask-1', newTag);
@@ -106,7 +106,7 @@ describe('SubTaskTagOperations', () => {
 				name: 'Duplicate Tag',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			tagOps.attachTagToSubTask('subtask-1', duplicateTag);
@@ -122,7 +122,7 @@ describe('SubTaskTagOperations', () => {
 				name: 'TAG 1',
 				color: '#0000FF',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			tagOps.attachTagToSubTask('subtask-1', duplicateTag);
@@ -138,7 +138,7 @@ describe('SubTaskTagOperations', () => {
 				name: 'Tag 2',
 				color: '#00FF00',
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
 			};
 
 			tagOps.attachTagToSubTask('non-existent', newTag);
