@@ -53,13 +53,15 @@ export function useSidebarTagListController() {
   }
 
   async function onEditSave(data: { name: string; color: string }) {
-    if (dialogState.selectedTag) {
-      const projectId = await tagStore.getProjectIdByTagId(dialogState.selectedTag.id);
+    // ダイアログが閉じる前にタグ情報をローカル変数にコピー
+    const currentTag = dialogState.selectedTag;
+    if (currentTag) {
+      const projectId = await tagStore.getProjectIdByTagId(currentTag.id);
       if (!projectId) {
-        console.error('Project ID not found for tag:', dialogState.selectedTag.id);
+        console.error('Project ID not found for tag:', currentTag.id);
         return;
       }
-      TagService.updateTag(projectId, dialogState.selectedTag.id, {
+      TagService.updateTag(projectId, currentTag.id, {
         name: data.name,
         color: data.color
       });
@@ -68,13 +70,15 @@ export function useSidebarTagListController() {
   }
 
   async function onDeleteConfirm() {
-    if (dialogState.selectedTag) {
-      const projectId = await tagStore.getProjectIdByTagId(dialogState.selectedTag.id);
+    // ダイアログが閉じる前にタグ情報をローカル変数にコピー
+    const currentTag = dialogState.selectedTag;
+    if (currentTag) {
+      const projectId = await tagStore.getProjectIdByTagId(currentTag.id);
       if (!projectId) {
-        console.error('Project ID not found for tag:', dialogState.selectedTag.id);
+        console.error('Project ID not found for tag:', currentTag.id);
         return;
       }
-      TagService.deleteTag(projectId, dialogState.selectedTag.id, (tagId: string) => {
+      TagService.deleteTag(projectId, currentTag.id, (tagId: string) => {
         taskStore.removeTagFromAllTasks(tagId);
       });
       dialogState.showDeleteConfirm = false;
