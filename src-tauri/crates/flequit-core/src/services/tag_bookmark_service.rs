@@ -247,3 +247,36 @@ where
 
     Ok(())
 }
+
+/// タグに紐づくすべてのブックマークを削除（タグ削除時に使用）
+pub async fn delete_bookmarks_by_tag<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    tag_id: &TagId,
+) -> Result<(), ServiceError>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    // タグに紐づくブックマークを取得
+    let bookmarks = repositories
+        .tag_bookmarks_sqlite()
+        .find_by_project_and_tag(project_id, tag_id)
+        .await?;
+
+    // 各ブックマークを削除
+    for bookmark in bookmarks {
+        // SQLiteから削除
+        repositories
+            .tag_bookmarks_sqlite()
+            .delete(&bookmark.id)
+            .await?;
+
+        // Automergeから削除
+        repositories
+            .tag_bookmarks_automerge()
+            .delete(&bookmark.user_id, &bookmark.project_id, &bookmark.tag_id)
+            .await?;
+    }
+
+    Ok(())
+}

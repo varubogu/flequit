@@ -160,6 +160,37 @@ impl TagBookmarkLocalSqliteRepository {
         Ok(bookmarks)
     }
 
+    /// プロジェクトIDとタグIDで全ブックマークを取得
+    pub async fn find_by_project_and_tag(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<Vec<TagBookmark>, RepositoryError> {
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+
+        let models = TagBookmarkEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::TagId.eq(tag_id.to_string()))
+            .all(db)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        let mut bookmarks = Vec::new();
+        for model in models {
+            let bookmark = model
+                .to_domain_model()
+                .await
+                .map_err(|e: String| RepositoryError::from(SQLiteError::ConversionError(e)))?;
+            bookmarks.push(bookmark);
+        }
+
+        Ok(bookmarks)
+    }
+
     /// ブックマークを更新
     pub async fn update(&self, bookmark: &TagBookmark) -> Result<(), RepositoryError> {
         let db_manager = self.db_manager.read().await;

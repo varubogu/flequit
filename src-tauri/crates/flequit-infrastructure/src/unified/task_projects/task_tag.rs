@@ -18,6 +18,20 @@ pub enum TaskTagRepositoryVariant {
     LocalAutomerge(TaskTagLocalAutomergeRepository),
 }
 
+impl TaskTagRepositoryVariant {
+    /// タグに関連する全ての関連付けを削除
+    pub async fn remove_all_relations_by_tag_id(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        match self {
+            Self::LocalSqlite(repo) => repo.remove_all_relations_by_tag_id(project_id, tag_id).await,
+            Self::LocalAutomerge(repo) => repo.remove_all_relations_by_tag_id(project_id, tag_id).await,
+        }
+    }
+}
+
 impl TaskTagRepositoryTrait for TaskTagRepositoryVariant {}
 
 #[async_trait]
@@ -161,6 +175,24 @@ impl TaskTagUnifiedRepository {
 
     pub fn search_repositories_count(&self) -> usize {
         self.search_repositories.len()
+    }
+
+    /// タグに関連する全ての関連付けを削除
+    pub async fn remove_all_relations_by_tag_id(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        info!(
+            "Removing all task tag relations for tag - project: {}, tag: {}",
+            project_id, tag_id
+        );
+
+        for repository in &self.save_repositories {
+            repository.remove_all_relations_by_tag_id(project_id, tag_id).await?;
+        }
+
+        Ok(())
     }
 }
 

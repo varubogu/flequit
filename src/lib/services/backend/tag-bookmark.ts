@@ -12,7 +12,7 @@ export const TagBookmarkBackendService = {
 	async create(input: CreateTagBookmarkInput): Promise<TagBookmark> {
 		console.log('[TagBookmarkBackendService.create] Invoking Tauri command - userId:', input.userId, 'projectId:', input.projectId, 'tagId:', input.tagId);
 		try {
-			const result = await invoke('create_tag_bookmark', {
+			const result = await invoke<TagBookmark>('create_tag_bookmark', {
 				userId: input.userId,
 				projectId: input.projectId,
 				tagId: input.tagId
