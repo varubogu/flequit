@@ -75,3 +75,4 @@ define_id!(DueDateButtonsId);
 define_id!(WeekdayConditionId);
 define_id!(TaskRecurrenceId);
 define_id!(SubTaskRecurrenceId);
+define_id!(TagBookmarkId);

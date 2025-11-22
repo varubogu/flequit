@@ -10,9 +10,9 @@ import type { RecurrenceRuleService } from '$lib/infrastructure/backends/recurre
 function convertFromTauriModel(tauriModel: Record<string, unknown>): RecurrenceRule {
   const rule: RecurrenceRule = {
     id: tauriModel.id as string,
-    unit: tauriModel.unit as string,
+    unit: tauriModel.unit as RecurrenceRule['unit'],
     interval: tauriModel.interval as number,
-    daysOfWeek: tauriModel.daysOfWeek as string[] | undefined,
+    daysOfWeek: tauriModel.daysOfWeek as RecurrenceRule['daysOfWeek'],
     endDate: tauriModel.endDate ? new Date(tauriModel.endDate as string) : undefined,
     maxOccurrences: tauriModel.maxOccurrences as number | undefined,
     createdAt: tauriModel.createdAt ? new Date(tauriModel.createdAt as string) : undefined,

@@ -16,6 +16,7 @@ use crate::infrastructure::{
     task_projects::task_list::TaskListLocalAutomergeRepository,
     task_projects::task_tag::TaskTagLocalAutomergeRepository,
     users::user::UserLocalAutomergeRepository,
+    user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository,
 };
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -37,6 +38,7 @@ pub struct LocalAutomergeRepositories {
     pub subtask_assignments: SubtaskAssignmentLocalAutomergeRepository,
     pub accounts: AccountLocalAutomergeRepository,
     pub users: UserLocalAutomergeRepository,
+    pub tag_bookmarks: TagBookmarkLocalAutomergeRepository,
 }
 
 impl LocalAutomergeRepositories {
@@ -56,7 +58,8 @@ impl LocalAutomergeRepositories {
             subtask_assignments: SubtaskAssignmentLocalAutomergeRepository::new(base_path.clone())
                 .await?,
             accounts: AccountLocalAutomergeRepository::new(base_path.clone()).await?,
-            users: UserLocalAutomergeRepository::new(base_path).await?,
+            users: UserLocalAutomergeRepository::new(base_path.clone()).await?,
+            tag_bookmarks: TagBookmarkLocalAutomergeRepository::new(base_path).await?,
         })
     }
 
@@ -100,7 +103,8 @@ impl LocalAutomergeRepositories {
             .await?,
             accounts: AccountLocalAutomergeRepository::new_with_manager(document_manager.clone())
                 .await?,
-            users: UserLocalAutomergeRepository::new_with_manager(document_manager).await?,
+            users: UserLocalAutomergeRepository::new_with_manager(document_manager.clone()).await?,
+            tag_bookmarks: TagBookmarkLocalAutomergeRepository::new_with_manager(document_manager).await?,
         })
     }
 
@@ -147,6 +151,11 @@ impl LocalAutomergeRepositories {
     /// サブタスクアサインリポジトリへのアクセス
     pub fn subtask_assignments(&self) -> &SubtaskAssignmentLocalAutomergeRepository {
         &self.subtask_assignments
+    }
+
+    /// タグブックマークリポジトリへのアクセス
+    pub fn tag_bookmarks(&self) -> &TagBookmarkLocalAutomergeRepository {
+        &self.tag_bookmarks
     }
 }
 

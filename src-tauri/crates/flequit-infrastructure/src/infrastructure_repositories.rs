@@ -4,6 +4,8 @@
 
 use crate::unified::*;
 use async_trait::async_trait;
+use flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository;
+use flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
 
 /// Infrastructure層統合リポジトリのトレイト定義
 ///
@@ -53,6 +55,12 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     /// サブタスク繰り返しルール関連付けリポジトリへのアクセス
     fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository;
 
+    /// TagBookmark SQLiteリポジトリへのアクセス
+    fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository;
+
+    /// TagBookmark Automergeリポジトリへのアクセス
+    fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
+
     /// リポジトリの初期化処理
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
@@ -81,6 +89,10 @@ pub struct InfrastructureRepositories {
     pub task_recurrences: TaskRecurrenceUnifiedRepository,
     pub subtask_recurrences: SubTaskRecurrenceUnifiedRepository,
 
+    // User Preferences
+    pub tag_bookmarks_sqlite: flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
+    pub tag_bookmarks_automerge: flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository,
+
     // Unified層の設定・管理
     unified_manager: UnifiedManager,
 }
@@ -106,6 +118,21 @@ impl InfrastructureRepositories {
             subtask_tags: SubTaskTagUnifiedRepository::default(),
             task_recurrences: TaskRecurrenceUnifiedRepository::default(),
             subtask_recurrences: SubTaskRecurrenceUnifiedRepository::default(),
+            // User Preferences - テスト用のダミーインスタンス
+            // 実際の使用時はsetup_with_sqlite_and_automerge()を使用すること
+            tag_bookmarks_sqlite: {
+                use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+                use std::sync::Arc;
+                use tokio::sync::RwLock;
+
+                // 非同期コンテキストがないため、とりあえずダミーマネージャーを作成
+                // これは主にテスト用で、本番ではsetup_with_sqlite_and_automerge()を使用
+                let dummy_db = Arc::new(RwLock::new(unsafe {
+                    std::mem::zeroed::<DatabaseManager>()
+                }));
+                TagBookmarkLocalSqliteRepository::new(dummy_db)
+            },
+            tag_bookmarks_automerge: TagBookmarkLocalAutomergeRepository::default(),
             unified_manager: UnifiedManager::default(),
         }
     }
@@ -148,6 +175,24 @@ impl InfrastructureRepositories {
             .create_subtask_recurrence_unified_repository()
             .await?;
 
+        // User Preferences - LocalRepositoriesから取得
+        // SQLiteまたはAutomergeが無効な場合、TagBookmarkリポジトリは使用不可
+        let tag_bookmarks_sqlite = unified_manager
+            .sqlite_repositories()
+            .ok_or("SQLite repositories not initialized")?
+            .read()
+            .await
+            .tag_bookmarks()
+            .clone();
+
+        let tag_bookmarks_automerge = unified_manager
+            .automerge_repositories()
+            .ok_or("Automerge repositories not initialized")?
+            .read()
+            .await
+            .tag_bookmarks()
+            .clone();
+
         tracing::info!("全UnifiedRepositoryの構築完了");
 
         Ok(Self {
@@ -165,6 +210,8 @@ impl InfrastructureRepositories {
             subtask_tags,
             task_recurrences,
             subtask_recurrences,
+            tag_bookmarks_sqlite,
+            tag_bookmarks_automerge,
             unified_manager,
         })
     }
@@ -262,6 +309,14 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         &self.subtask_recurrences
     }
 
+    fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository {
+        &self.tag_bookmarks_sqlite
+    }
+
+    fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository {
+        &self.tag_bookmarks_automerge
+    }
+
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         // 各リポジトリの初期化処理
         // TODO: 実際のSQLiteとAutomergeの接続・初期化処理を実装
@@ -286,7 +341,7 @@ pub mod mock {
     use super::*;
     use std::sync::{Arc, Mutex};
 
-    #[derive(Debug, Default)]
+    #[derive(Debug)]
     pub struct MockInfrastructureRepositories {
         pub call_log: Arc<Mutex<Vec<String>>>,
         // 各種モックリポジトリのインスタンス（必要に応じて追加）
@@ -304,6 +359,8 @@ pub mod mock {
         pub subtask_tags: SubTaskTagUnifiedRepository,
         pub task_recurrences: TaskRecurrenceUnifiedRepository,
         pub subtask_recurrences: SubTaskRecurrenceUnifiedRepository,
+        pub tag_bookmarks_sqlite: flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
+        pub tag_bookmarks_automerge: flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository,
         pub unified_manager: UnifiedManager,
     }
 
@@ -325,6 +382,8 @@ pub mod mock {
                 subtask_tags: SubTaskTagUnifiedRepository::default(),
                 task_recurrences: TaskRecurrenceUnifiedRepository::default(),
                 subtask_recurrences: SubTaskRecurrenceUnifiedRepository::default(),
+                tag_bookmarks_sqlite: flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository::default(),
+                tag_bookmarks_automerge: flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository::default(),
                 unified_manager: UnifiedManager::default(),
             }
         }
@@ -422,6 +481,16 @@ pub mod mock {
         fn subtask_recurrences(&self) -> &SubTaskRecurrenceUnifiedRepository {
             self.log_call("subtask_recurrences");
             &self.subtask_recurrences
+        }
+
+        fn tag_bookmarks_sqlite(&self) -> &flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository {
+            self.log_call("tag_bookmarks_sqlite");
+            &self.tag_bookmarks_sqlite
+        }
+
+        fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository {
+            self.log_call("tag_bookmarks_automerge");
+            &self.tag_bookmarks_automerge
         }
 
         async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>> {

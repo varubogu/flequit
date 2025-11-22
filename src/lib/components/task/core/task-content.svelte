@@ -74,7 +74,7 @@
   {#if task.tags && task.tags.length > 0}
     <div class="mt-2 flex w-full min-w-0 flex-wrap gap-1 overflow-hidden">
       {#each task.tags as tag (tag.id)}
-        <TagDisplay {tag} onTagRemoveFromItem={handleTagRemoveFromTask} />
+        <TagDisplay {tag} projectId={task.projectId} onTagRemoveFromItem={handleTagRemoveFromTask} />
       {/each}
     </div>
   {/if}

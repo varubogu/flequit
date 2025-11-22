@@ -1,6 +1,6 @@
 import type { Tag } from '$lib/types/tag';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
+import { tagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
 import { TagMutations } from '$lib/stores/tags/tag-mutations.svelte';
 import { TagQueries } from '$lib/stores/tags/tag-queries.svelte';
 import { TagBookmarkOperations } from '$lib/stores/tags/tag-bookmark-operations.svelte';
@@ -11,7 +11,7 @@ import { TagBookmarkOperations } from '$lib/stores/tags/tag-bookmark-operations.
  * 責務: タグCRUD操作とブックマーク管理の統合インターフェース提供
  */
 export class TagStoreFacade {
-	private bookmarkStore = new TagBookmarkStore();
+	private bookmarkStore = tagBookmarkStore;
 	private mutations = new TagMutations();
 	private queries = new TagQueries();
 	private bookmarkOps = new TagBookmarkOperations(this.bookmarkStore);
@@ -25,10 +25,11 @@ export class TagStoreFacade {
 	}
 
 	get bookmarkedTags() {
-		return this.bookmarkStore.bookmarkedTags;
+		return this.bookmarkStore.bookmarkedTagIds;
 	}
-	set bookmarkedTags(value) {
-		this.bookmarkStore.bookmarkedTags = value;
+	set bookmarkedTags(value: string[]) {
+		// bookmarkedTagIdsはreadonlyなので、setBookmarksを使用
+		console.warn('bookmarkedTags setter is deprecated. Use TagBookmarkService.loadBookmarksByProject instead.');
 	}
 
 	// Queries
@@ -54,6 +55,17 @@ export class TagStoreFacade {
 	// Mutations
 	setTags(tags: Tag[]) {
 		tagStoreInternal.setTags(tags);
+		// ブックマーク状態を初期化
+		this.initializeBookmarksFromTags(tags);
+	}
+
+	/**
+	 * タグのis_bookmarkedフィールドからブックマーク状態を初期化
+	 * @private
+	 */
+	private initializeBookmarksFromTags(tags: Tag[]) {
+		// この機能は廃止されました
+		// TagBookmarkServiceを使用してブックマークをロードしてください
 	}
 	async addTag(tagData: { name: string; color?: string }, projectId?: string): Promise<Tag | null> {
 		return this.mutations.addTag(tagData, projectId);

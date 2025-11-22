@@ -1,5 +1,5 @@
 import type { Tag } from '$lib/types/tag';
-import { SvelteDate } from 'svelte/reactivity';
+import { SvelteDate, SvelteSet } from 'svelte/reactivity';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
 import { tagStore as tagStoreFacade } from '$lib/stores/tags.svelte';
@@ -173,18 +173,28 @@ export const TagService = {
 
   /**
    * タグをブックマークに追加
-   * @param projectId プロジェクトID（必須）- 将来的にプロジェクト固有のブックマーク管理に使用
+   * @deprecated TagBookmarkServiceを使用してください
+   * @param projectId プロジェクトID（必須）
    */
-  async addBookmark(_projectId: string, tagId: string) {
-    // TODO: プロジェクト固有のブックマーク管理を実装する際にprojectIdを使用
-    await tagStoreFacade.addBookmark(tagId);
+  async addBookmark(projectId: string, tagId: string) {
+    // 新しいTagBookmarkServiceに移行
+    const { TagBookmarkService } = await import('./tag-bookmark');
+    await TagBookmarkService.create(projectId, tagId);
   },
 
   /**
    * タグをブックマークから削除
+   * @deprecated TagBookmarkServiceを使用してください
+   * @param projectId プロジェクトID（必須）
    */
-  removeBookmark(tagId: string) {
-    tagStoreFacade.removeBookmark(tagId);
+  async removeBookmark(projectId: string, tagId: string) {
+    // 新しいTagBookmarkServiceに移行
+    const { TagBookmarkService } = await import('./tag-bookmark');
+    const { tagBookmarkStore } = await import('$lib/stores/tags/tag-bookmark-store.svelte');
+    const bookmark = tagBookmarkStore.findBookmarkByTagId(tagId);
+    if (bookmark) {
+      await TagBookmarkService.delete(bookmark.id, tagId);
+    }
   },
 
   /**

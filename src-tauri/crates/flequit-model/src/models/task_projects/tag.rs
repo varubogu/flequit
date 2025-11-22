@@ -80,7 +80,7 @@ pub struct Tag {
     /// タグの色（16進数カラーコード等、UI表示用）
     pub color: Option<String>,
     /// 表示順序（昇順ソート用、Svelteフロントエンド対応）
-    pub order_index: Option<i32>, // Svelte側に合わせて追加
+    pub order_index: Option<i32>,
     /// タグ作成日時
     pub created_at: DateTime<Utc>,
     /// 最終更新日時

@@ -34,6 +34,7 @@ pub mod task_search_request;
 pub mod task_tag;
 pub mod time_label;
 pub mod user;
+pub mod user_preferences;
 pub mod view_item;
 pub mod weekday_condition;
 

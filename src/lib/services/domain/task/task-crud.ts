@@ -63,16 +63,16 @@ export const TaskService = {
 
     // 日時フィールドはsnake_caseに変換して追加
     if (planStartDate !== undefined) {
-      patchData.plan_start_date = planStartDate?.toISOString() ?? null;
+      patchData.plan_start_date = (planStartDate as Date | null)?.toISOString() ?? null;
     }
     if (planEndDate !== undefined) {
-      patchData.plan_end_date = planEndDate?.toISOString() ?? null;
+      patchData.plan_end_date = (planEndDate as Date | null)?.toISOString() ?? null;
     }
     if (doStartDate !== undefined) {
-      patchData.do_start_date = doStartDate?.toISOString() ?? null;
+      patchData.do_start_date = (doStartDate as Date | null)?.toISOString() ?? null;
     }
     if (doEndDate !== undefined) {
-      patchData.do_end_date = doEndDate?.toISOString() ?? null;
+      patchData.do_end_date = (doEndDate as Date | null)?.toISOString() ?? null;
     }
 
     try {

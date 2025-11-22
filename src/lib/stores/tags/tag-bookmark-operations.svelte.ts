@@ -1,6 +1,7 @@
 import type { Tag } from '$lib/types/tag';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
+import { tagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
+import { TagBookmarkService } from '$lib/services/domain/tag-bookmark';
 import { TagService } from '$lib/services/domain/tag';
 
 /**
@@ -9,20 +10,26 @@ import { TagService } from '$lib/services/domain/tag';
  * 責務: ブックマークの追加、削除、並び替え
  */
 export class TagBookmarkOperations {
-	constructor(private bookmarkStore: TagBookmarkStore) {}
+	constructor(private bookmarkStore: typeof tagBookmarkStore) {}
 
 	/**
 	 * ブックマーク済みタグのリストを取得
 	 */
 	get bookmarkedTagList(): Tag[] {
-		return this.bookmarkStore.getBookmarkedTagList(tagStoreInternal.tags);
+		const bookmarkedTagIds = this.bookmarkStore.bookmarkedTagIds;
+		return tagStoreInternal.tags.filter((tag) => bookmarkedTagIds.includes(tag.id));
 	}
 
 	/**
 	 * ブックマークのトグル
 	 */
-	toggleBookmark(tagId: string) {
-		this.bookmarkStore.toggleBookmark(tagId);
+	async toggleBookmark(tagId: string) {
+		const projectId = await TagService.getProjectIdByTagId(tagId);
+		if (!projectId) {
+			console.error('Project ID not found for tag:', tagId);
+			return;
+		}
+		await TagBookmarkService.toggleBookmark(projectId, tagId);
 	}
 
 	/**
@@ -37,76 +44,69 @@ export class TagBookmarkOperations {
 	 */
 	async addBookmark(tagId: string) {
 		const projectId = await TagService.getProjectIdByTagId(tagId);
-		const updateFn = projectId
-			? (id: string, updates: Partial<Tag>) => TagService.updateTag(projectId, id, updates)
-			: (id: string, updates: Partial<Tag>) => tagStoreInternal.updateTagInStore(id, updates);
-
-		this.bookmarkStore.addBookmark(tagId, tagStoreInternal.tags, updateFn);
+		if (!projectId) {
+			console.error('Project ID not found for tag:', tagId);
+			return;
+		}
+		await TagBookmarkService.create(projectId, tagId);
 	}
 
 	/**
-	 * 初期化用にブックマークを設定
+	 * 初期化用にブックマークを設定（非推奨）
+	 * @deprecated TagBookmarkService.loadBookmarksByProject を使用してください
 	 */
 	setBookmarkForInitialization(tagId: string) {
-		this.bookmarkStore.setBookmarkForInitialization(tagId, tagStoreInternal.tags);
+		// この機能は廃止されました
+		console.warn('setBookmarkForInitialization is deprecated. Use TagBookmarkService.loadBookmarksByProject instead.');
 	}
 
 	/**
 	 * ブックマークを削除
 	 */
-	removeBookmark(tagId: string) {
-		this.bookmarkStore.removeBookmark(tagId);
+	async removeBookmark(tagId: string) {
+		const bookmark = this.bookmarkStore.findBookmarkByTagId(tagId);
+		if (!bookmark) {
+			console.error('Bookmark not found for tag:', tagId);
+			return;
+		}
+		await TagBookmarkService.delete(bookmark.id, tagId);
 	}
 
 	/**
 	 * ブックマーク済みタグを並び替え
 	 */
 	async reorderBookmarkedTags(fromIndex: number, toIndex: number) {
-		const firstTag = this.bookmarkedTagList[0];
-		if (!firstTag) return;
+		const projectId = await this.getProjectIdFromFirstBookmark();
+		if (!projectId) return;
 
-		const projectId = await TagService.getProjectIdByTagId(firstTag.id);
-		const updateFn = projectId
-			? (id: string, updates: Partial<Tag>) => TagService.updateTag(projectId, id, updates)
-			: (id: string, updates: Partial<Tag>) => tagStoreInternal.updateTagInStore(id, updates);
-
-		this.bookmarkStore.reorderBookmarkedTags(
-			tagStoreInternal.tags,
-			fromIndex,
-			toIndex,
-			updateFn
-		);
+		await TagBookmarkService.reorder(projectId, fromIndex, toIndex);
 	}
 
 	/**
 	 * ブックマーク済みタグを指定位置に移動
 	 */
 	async moveBookmarkedTagToPosition(tagId: string, targetIndex: number) {
-		const projectId = await TagService.getProjectIdByTagId(tagId);
-		const updateFn = projectId
-			? (id: string, updates: Partial<Tag>) => TagService.updateTag(projectId, id, updates)
-			: (id: string, updates: Partial<Tag>) => tagStoreInternal.updateTagInStore(id, updates);
+		// reorderを使って実装
+		const currentIndex = this.bookmarkedTagList.findIndex((tag) => tag.id === tagId);
+		if (currentIndex === -1 || currentIndex === targetIndex) return;
 
-		this.bookmarkStore.moveBookmarkedTagToPosition(
-			tagStoreInternal.tags,
-			tagId,
-			targetIndex,
-			updateFn
-		);
+		await this.reorderBookmarkedTags(currentIndex, targetIndex);
 	}
 
 	/**
-	 * タグの順序インデックスを初期化
+	 * タグの順序インデックスを初期化（非推奨）
+	 * @deprecated ブックマークの順序はorder_indexで自動管理されます
 	 */
 	async initializeTagOrderIndices() {
-		const firstTag = tagStoreInternal.tags[0];
-		if (!firstTag) return;
+		console.warn('initializeTagOrderIndices is deprecated. Order is managed by TagBookmark.orderIndex.');
+	}
 
-		const projectId = await TagService.getProjectIdByTagId(firstTag.id);
-		const updateFn = projectId
-			? (id: string, updates: Partial<Tag>) => TagService.updateTag(projectId, id, updates)
-			: (id: string, updates: Partial<Tag>) => tagStoreInternal.updateTagInStore(id, updates);
-
-		this.bookmarkStore.initializeTagOrderIndices(tagStoreInternal.tags, updateFn);
+	/**
+	 * 最初のブックマークからプロジェクトIDを取得
+	 */
+	private async getProjectIdFromFirstBookmark(): Promise<string | null> {
+		const firstBookmark = this.bookmarkStore.bookmarks[0];
+		if (!firstBookmark) return null;
+		return firstBookmark.projectId;
 	}
 }

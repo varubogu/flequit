@@ -101,6 +101,14 @@ pub fn run() {
                 tag_commands::get_tag,
                 tag_commands::update_tag,
                 tag_commands::delete_tag,
+                // Tag Bookmark commands (User Preferences)
+                user_preferences_commands::create_tag_bookmark,
+                user_preferences_commands::list_tag_bookmarks_by_project,
+                user_preferences_commands::list_tag_bookmarks_by_user,
+                user_preferences_commands::update_tag_bookmark,
+                user_preferences_commands::delete_tag_bookmark,
+                user_preferences_commands::is_tag_bookmarked,
+                user_preferences_commands::reorder_tag_bookmarks,
                 // TaskList commands
                 task_list_commands::create_task_list,
                 task_list_commands::get_task_list,

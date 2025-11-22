@@ -73,6 +73,7 @@ use async_trait::async_trait;
 pub mod accounts;
 pub mod initialized_data;
 pub mod task_projects;
+pub mod user_preferences;
 pub mod users;
 
 pub mod search;

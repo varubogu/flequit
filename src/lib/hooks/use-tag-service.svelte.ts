@@ -18,7 +18,7 @@ export interface ITagService {
 	getOrCreateTag(projectId: string, name: string, color?: string): Promise<Tag | null>;
 	getProjectIdByTagId(tagId: string): Promise<string | null>;
 	addBookmark(projectId: string, tagId: string): Promise<void>;
-	removeBookmark(tagId: string): void;
+	removeBookmark(projectId: string, tagId: string): Promise<void>;
 	notifyTagUpdate(tag: Tag): void;
 }
 

@@ -23,6 +23,7 @@ use crate::models::{
         task_tag::Entity as TaskTagEntity,
     },
     user::Entity as UserEntity,
+    user_preferences::tag_bookmark::Entity as TagBookmarkEntity,
 };
 
 /// ハイブリッドマイグレーション管理
@@ -96,6 +97,10 @@ impl HybridMigrator {
             ("accounts", schema.create_table_from_entity(AccountEntity)),
             ("projects", schema.create_table_from_entity(ProjectEntity)),
             ("users", schema.create_table_from_entity(UserEntity)),
+            (
+                "user_tag_bookmarks",
+                schema.create_table_from_entity(TagBookmarkEntity),
+            ),
             ("members", schema.create_table_from_entity(MemberEntity)),
             (
                 "task_lists",
@@ -330,6 +335,21 @@ impl HybridMigrator {
         self.db.execute_unprepared(&sql).await?;
         println!("  🔗 複合ユニークインデックス作成: tags(project_id, name)");
 
+        // user_tag_bookmarks: (user_id, project_id, tag_id) 複合ユニーク
+        let tag_bookmark_unique_index = Index::create()
+            .name("idx_user_tag_bookmarks_user_project_tag")
+            .table(TagBookmarkEntity)
+            .col(crate::models::user_preferences::tag_bookmark::Column::UserId)
+            .col(crate::models::user_preferences::tag_bookmark::Column::ProjectId)
+            .col(crate::models::user_preferences::tag_bookmark::Column::TagId)
+            .unique()
+            .if_not_exists()
+            .to_owned();
+
+        let sql = tag_bookmark_unique_index.to_string(SqliteQueryBuilder);
+        self.db.execute_unprepared(&sql).await?;
+        println!("  🔗 複合ユニークインデックス作成: user_tag_bookmarks(user_id, project_id, tag_id)");
+
         Ok(())
     }
 
@@ -436,6 +456,9 @@ impl HybridMigrator {
             "CREATE INDEX IF NOT EXISTS idx_tasks_end_date_status ON tasks(end_date, status);",
             "CREATE INDEX IF NOT EXISTS idx_accounts_email_active ON accounts(email, is_active);",
             "CREATE INDEX IF NOT EXISTS idx_projects_owner_archived ON projects(owner_id, is_archived);",
+            // user_tag_bookmarks用のインデックス
+            "CREATE INDEX IF NOT EXISTS idx_user_tag_bookmarks_user_project ON user_tag_bookmarks(user_id, project_id, order_index);",
+            "CREATE INDEX IF NOT EXISTS idx_user_tag_bookmarks_tag ON user_tag_bookmarks(tag_id);",
         ];
 
         for sql in additional_indexes {

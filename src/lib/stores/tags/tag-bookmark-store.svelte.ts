@@ -1,125 +1,98 @@
-import type { Tag } from '$lib/types/tag';
-import { SvelteSet } from 'svelte/reactivity';
+import type { TagBookmark } from '$lib/types/tag-bookmark';
 
 /**
- * Tag bookmark management and reordering
- *
- * Responsibilities:
- * - Bookmark toggle and state management
- * - Drag & drop reordering of bookmarked tags
- * - Order index management
+ * TagBookmarkストア
+ * サイドバーにピン留めされたタグのブックマーク情報を管理
  */
-export class TagBookmarkStore {
-  bookmarkedTags = $state<SvelteSet<string>>(new SvelteSet());
+class TagBookmarkStore {
+	bookmarks = $state<TagBookmark[]>([]);
 
-  // Computed values
-  getBookmarkedTagList(allTags: Tag[]): Tag[] {
-    // Explicitly access both reactive properties to ensure reactivity
-    const tags = allTags;
-    const bookmarked = this.bookmarkedTags;
-    return tags
-      .filter((tag) => bookmarked.has(tag.id))
-      .sort((a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
-  }
+	/**
+	 * ブックマーク一覧を設定
+	 */
+	setBookmarks(bookmarks: TagBookmark[]) {
+		// order_indexでソート
+		this.bookmarks = [...bookmarks].sort((a, b) => a.orderIndex - b.orderIndex);
+	}
 
-  // Bookmark management methods
-  toggleBookmark(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    if (newBookmarks.has(tagId)) {
-      newBookmarks.delete(tagId);
-    } else {
-      newBookmarks.add(tagId);
-    }
-    this.bookmarkedTags = newBookmarks;
-  }
+	/**
+	 * ブックマークを追加
+	 */
+	addBookmark(bookmark: TagBookmark) {
+		// 既存のブックマークがないか確認
+		if (this.findBookmarkById(bookmark.id)) {
+			return;
+		}
 
-  isBookmarked(tagId: string): boolean {
-    return this.bookmarkedTags.has(tagId);
-  }
+		this.bookmarks = [...this.bookmarks, bookmark].sort(
+			(a, b) => a.orderIndex - b.orderIndex
+		);
+	}
 
-  addBookmark(tagId: string, allTags: Tag[], updateTagCallback: (tagId: string, updates: Partial<Tag>) => void) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.add(tagId);
-    this.bookmarkedTags = newBookmarks;
+	/**
+	 * ブックマークを削除
+	 */
+	removeBookmark(bookmarkId: string) {
+		this.bookmarks = this.bookmarks.filter((b) => b.id !== bookmarkId);
+	}
 
-    // 新しくブックマークされたタグにorder_indexを設定
-    const tag = allTags.find((t) => t.id === tagId);
-    if (tag && tag.orderIndex === undefined) {
-      const currentBookmarkedTags = this.getBookmarkedTagList(allTags);
-      updateTagCallback(tagId, { orderIndex: currentBookmarkedTags.length - 1 });
-    }
-  }
+	/**
+	 * ブックマークを並び替え
+	 */
+	reorderBookmarks(fromIndex: number, toIndex: number) {
+		const newBookmarks = [...this.bookmarks];
+		const [moved] = newBookmarks.splice(fromIndex, 1);
+		newBookmarks.splice(toIndex, 0, moved);
 
-  // 初期化専用：ストア状態の設定のみでバックエンド更新は行わない
-  setBookmarkForInitialization(tagId: string, allTags: Tag[]) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.add(tagId);
-    this.bookmarkedTags = newBookmarks;
+		// order_indexを再設定
+		newBookmarks.forEach((bookmark, index) => {
+			bookmark.orderIndex = index;
+		});
 
-    // 初期化時はorder_indexもローカルで設定するのみ
-    const tag = allTags.find((t) => t.id === tagId);
-    if (tag && tag.orderIndex === undefined) {
-      const currentBookmarkedTags = allTags.filter((t) => newBookmarks.has(t.id));
-      tag.orderIndex = currentBookmarkedTags.length - 1;
-    }
-  }
+		this.bookmarks = newBookmarks;
+	}
 
-  removeBookmark(tagId: string) {
-    const newBookmarks = new SvelteSet(this.bookmarkedTags);
-    newBookmarks.delete(tagId);
-    this.bookmarkedTags = newBookmarks;
-  }
+	/**
+	 * IDでブックマークを検索
+	 */
+	findBookmarkById(id: string): TagBookmark | undefined {
+		return this.bookmarks.find((b) => b.id === id);
+	}
 
-  // Drag & Drop methods for bookmarked tags
-  reorderBookmarkedTags(
-    allTags: Tag[],
-    fromIndex: number,
-    toIndex: number,
-    updateTagCallback: (tagId: string, updates: Partial<Tag>) => void
-  ) {
-    const bookmarkedTags = this.getBookmarkedTagList(allTags);
+	/**
+	 * タグIDでブックマークを検索
+	 */
+	findBookmarkByTagId(tagId: string): TagBookmark | undefined {
+		return this.bookmarks.find((b) => b.tagId === tagId);
+	}
 
-    if (
-      fromIndex === toIndex ||
-      fromIndex < 0 ||
-      toIndex < 0 ||
-      fromIndex >= bookmarkedTags.length ||
-      toIndex >= bookmarkedTags.length
-    ) {
-      return;
-    }
+	/**
+	 * タグがブックマーク済みかチェック
+	 */
+	isBookmarked(tagId: string): boolean {
+		return this.bookmarks.some((b) => b.tagId === tagId);
+	}
 
-    // ブックマークされたタグの並び順を変更
-    const [movedTag] = bookmarkedTags.splice(fromIndex, 1);
-    bookmarkedTags.splice(toIndex, 0, movedTag);
+	/**
+	 * プロジェクトのブックマークを取得
+	 */
+	getBookmarksByProject(projectId: string): TagBookmark[] {
+		return this.bookmarks.filter((b) => b.projectId === projectId);
+	}
 
-    // order_indexを更新
-    bookmarkedTags.forEach((tag, index) => {
-      updateTagCallback(tag.id, { orderIndex: index });
-    });
-  }
+	/**
+	 * ブックマーク済みのタグID一覧を取得
+	 */
+	get bookmarkedTagIds(): string[] {
+		return this.bookmarks.map((b) => b.tagId);
+	}
 
-  moveBookmarkedTagToPosition(
-    allTags: Tag[],
-    tagId: string,
-    targetIndex: number,
-    updateTagCallback: (tagId: string, updates: Partial<Tag>) => void
-  ) {
-    const bookmarkedTags = this.getBookmarkedTagList(allTags);
-    const currentIndex = bookmarkedTags.findIndex((tag) => tag.id === tagId);
-
-    if (currentIndex === -1 || currentIndex === targetIndex) return;
-
-    this.reorderBookmarkedTags(allTags, currentIndex, targetIndex, updateTagCallback);
-  }
-
-  initializeTagOrderIndices(allTags: Tag[], updateTagCallback: (tagId: string, updates: Partial<Tag>) => void) {
-    // 既存のブックマークされたタグにorder_indexを設定（まだ設定されていない場合）
-    const bookmarkedTags = allTags.filter((tag) => this.bookmarkedTags.has(tag.id));
-    bookmarkedTags.forEach((tag, index) => {
-      if (tag.orderIndex === undefined) {
-        updateTagCallback(tag.id, { orderIndex: index });
-      }
-    });
-  }
+	/**
+	 * ストアをクリア
+	 */
+	clear() {
+		this.bookmarks = [];
+	}
 }
+
+export const tagBookmarkStore = new TagBookmarkStore();

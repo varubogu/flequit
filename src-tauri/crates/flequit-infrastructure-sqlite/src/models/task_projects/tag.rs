@@ -35,7 +35,7 @@ pub struct Model {
     pub color: Option<String>,
 
     /// 表示順序
-    #[sea_orm(indexed)] // ソート用
+    #[sea_orm(indexed)]
     pub order_index: Option<i32>,
 
     /// 使用回数（キャッシュ用）

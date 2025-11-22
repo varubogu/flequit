@@ -33,7 +33,7 @@ export function useSidebarTagListController() {
   }
 
   function handleRemoveFromBookmarks(tag: Tag) {
-    tagStore.removeBookmark(tag.id);
+    void tagStore.removeBookmark(tag.id);
   }
 
   function handleEditTag(tag: Tag) {

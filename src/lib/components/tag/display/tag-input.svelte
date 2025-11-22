@@ -83,6 +83,7 @@
       {#each tags as tag (tag.id)}
         <TagDisplay
           {tag}
+          {projectId}
           showRemoveButton={true}
           onRemove={removeTag}
           onTagRemoveFromItem={removeTag}

@@ -27,6 +27,9 @@ pub async fn load_current_account<R>(repositories: &R) -> Result<Option<Account>
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
+    use chrono::Utc;
+    use flequit_model::types::id_types::{AccountId, UserId};
+
     // 現在のアカウント取得ロジック：アクティブなアカウントを探す
     // まずアクティブなアカウントがあるかチェック
     let accounts = repositories
@@ -40,11 +43,68 @@ where
 
     if active_account.is_some() {
         Ok(active_account)
-    } else {
+    } else if !accounts.is_empty() {
         // アクティブなアカウントがない場合は、最新のアカウントを返す
         let mut sorted_accounts = accounts;
         sorted_accounts.sort_by(|a, b| b.created_at.cmp(&a.created_at));
         Ok(sorted_accounts.into_iter().next())
+    } else {
+        // アカウントが一つも存在しない場合、デフォルトのユーザーとアカウントを作成
+        println!("[initialization_service] No accounts found, creating default user and account");
+
+        let now = Utc::now();
+        let user_id = UserId::new();
+        let account_id = AccountId::new();
+
+        // デフォルトユーザーを作成
+        let default_user = flequit_model::models::users::user::User {
+            id: user_id.clone(),
+            handle_id: "local_user".to_string(),
+            display_name: "Local User".to_string(),
+            email: None,
+            avatar_url: None,
+            bio: None,
+            timezone: Some("UTC".to_string()),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+            deleted: false,
+            updated_by: user_id.clone(),
+        };
+
+        repositories
+            .users()
+            .save(&default_user, &user_id, &now)
+            .await
+            .map_err(|e| ServiceError::InternalError(format!("Failed to create default user: {:?}", e)))?;
+
+        println!("[initialization_service] Created default user: {}", user_id);
+
+        // デフォルトアカウントを作成
+        let default_account = flequit_model::models::accounts::account::Account {
+            id: account_id,
+            user_id: user_id.clone(),
+            email: None,
+            display_name: Some("Local User".to_string()),
+            avatar_url: None,
+            provider: "local".to_string(),
+            provider_id: Some("local_account".to_string()),
+            is_active: true,
+            created_at: now,
+            updated_at: now,
+            deleted: false,
+            updated_by: user_id.clone(),
+        };
+
+        repositories
+            .accounts()
+            .save(&default_account, &user_id, &now)
+            .await
+            .map_err(|e| ServiceError::InternalError(format!("Failed to create default account: {:?}", e)))?;
+
+        println!("[initialization_service] Created default account: {}", default_account.id);
+
+        Ok(Some(default_account))
     }
 }
 

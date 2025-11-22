@@ -10,3 +10,4 @@ pub mod task_assignment_commands;
 pub mod task_commands;
 pub mod task_list_commands;
 pub mod user_commands;
+pub mod user_preferences_commands;

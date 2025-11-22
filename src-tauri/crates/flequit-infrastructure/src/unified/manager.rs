@@ -815,6 +815,16 @@ impl UnifiedManager {
     pub fn config(&self) -> &UnifiedConfig {
         &self.config
     }
+
+    /// SQLiteリポジトリへのアクセス（内部用）
+    pub(crate) fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+        self.sqlite_repositories.as_ref()
+    }
+
+    /// Automergeリポジトリへのアクセス（内部用）
+    pub(crate) fn automerge_repositories(&self) -> Option<&Arc<RwLock<LocalAutomergeRepositories>>> {
+        self.automerge_repositories.as_ref()
+    }
 }
 
 impl Default for UnifiedManager {

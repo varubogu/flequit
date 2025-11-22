@@ -14,6 +14,7 @@ use crate::infrastructure::{
     task_projects::task_assignments::TaskAssignmentLocalSqliteRepository,
     task_projects::task_list::TaskListLocalSqliteRepository,
     task_projects::task_tag::TaskTagLocalSqliteRepository, users::user::UserLocalSqliteRepository,
+    user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
 };
 
 /// SQLiteリポジトリ群の統合管理
@@ -33,6 +34,7 @@ pub struct LocalSqliteRepositories {
     pub subtask_assignments: SubtaskAssignmentLocalSqliteRepository,
     pub accounts: AccountLocalSqliteRepository,
     pub users: UserLocalSqliteRepository,
+    pub tag_bookmarks: TagBookmarkLocalSqliteRepository,
 }
 
 impl LocalSqliteRepositories {
@@ -53,7 +55,8 @@ impl LocalSqliteRepositories {
             subtask_tags: SubtaskTagLocalSqliteRepository::new(db_manager.clone()),
             subtask_assignments: SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
             accounts: AccountLocalSqliteRepository::new(db_manager.clone()),
-            users: UserLocalSqliteRepository::new(db_manager),
+            users: UserLocalSqliteRepository::new(db_manager.clone()),
+            tag_bookmarks: TagBookmarkLocalSqliteRepository::new(db_manager),
         })
     }
 
@@ -106,6 +109,11 @@ impl LocalSqliteRepositories {
     /// サブタスクアサインリポジトリへのアクセス
     pub fn subtask_assignments(&self) -> &SubtaskAssignmentLocalSqliteRepository {
         &self.subtask_assignments
+    }
+
+    /// タグブックマークリポジトリへのアクセス
+    pub fn tag_bookmarks(&self) -> &TagBookmarkLocalSqliteRepository {
+        &self.tag_bookmarks
     }
 }
 
