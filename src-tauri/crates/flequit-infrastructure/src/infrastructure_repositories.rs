@@ -4,8 +4,14 @@
 
 use crate::unified::*;
 use async_trait::async_trait;
+use flequit_infrastructure_sqlite::infrastructure::local_sqlite_repositories::LocalSqliteRepositories;
 use flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository;
 use flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
+use flequit_model::traits::TransactionManager;
+use flequit_types::errors::repository_error::RepositoryError;
+use sea_orm::DatabaseTransaction;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// Infrastructure層統合リポジトリのトレイト定義
 ///
@@ -60,6 +66,11 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
 
     /// TagBookmark Automergeリポジトリへのアクセス
     fn tag_bookmarks_automerge(&self) -> &flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository;
+
+    /// SQLiteリポジトリ群へのアクセス
+    ///
+    /// トランザクション制御のために直接SQLiteリポジトリにアクセスする必要がある場合に使用します。
+    fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>>;
 
     /// リポジトリの初期化処理
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
@@ -329,6 +340,61 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
         // TODO: 実際のSQLiteとAutomergeの接続クローズ処理を実装
         tracing::info!("Infrastructure repositories cleaned up");
         Ok(())
+    }
+
+    fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+        self.unified_manager.sqlite_repositories()
+    }
+}
+
+/// TransactionManagerトレイトの実装
+///
+/// InfrastructureRepositoriesがトランザクション管理機能を提供します。
+/// 内部的にはSQLiteのDatabaseManagerのTransactionManager実装を使用します。
+#[async_trait]
+impl TransactionManager for InfrastructureRepositories {
+    type Transaction = DatabaseTransaction;
+
+    async fn begin(&self) -> Result<Self::Transaction, RepositoryError> {
+        // unified_manager経由でSQLite Database Managerにアクセスしてトランザクションを開始
+        if let Some(sqlite_repos) = self.unified_manager.sqlite_repositories() {
+            let sqlite_repos_guard = sqlite_repos.read().await;
+            let db_manager = sqlite_repos_guard.database_manager();
+            let db_manager_guard = db_manager.read().await;
+            db_manager_guard.begin().await
+        } else {
+            Err(RepositoryError::DatabaseError(
+                "SQLite repositories not initialized".to_string(),
+            ))
+        }
+    }
+
+    async fn commit(&self, txn: Self::Transaction) -> Result<(), RepositoryError> {
+        // unified_manager経由でSQLite Database Managerにアクセスしてコミット
+        if let Some(sqlite_repos) = self.unified_manager.sqlite_repositories() {
+            let sqlite_repos_guard = sqlite_repos.read().await;
+            let db_manager = sqlite_repos_guard.database_manager();
+            let db_manager_guard = db_manager.read().await;
+            db_manager_guard.commit(txn).await
+        } else {
+            Err(RepositoryError::DatabaseError(
+                "SQLite repositories not initialized".to_string(),
+            ))
+        }
+    }
+
+    async fn rollback(&self, txn: Self::Transaction) -> Result<(), RepositoryError> {
+        // unified_manager経由でSQLite Database Managerにアクセスしてロールバック
+        if let Some(sqlite_repos) = self.unified_manager.sqlite_repositories() {
+            let sqlite_repos_guard = sqlite_repos.read().await;
+            let db_manager = sqlite_repos_guard.database_manager();
+            let db_manager_guard = db_manager.read().await;
+            db_manager_guard.rollback(txn).await
+        } else {
+            Err(RepositoryError::DatabaseError(
+                "SQLite repositories not initialized".to_string(),
+            ))
+        }
     }
 }
 

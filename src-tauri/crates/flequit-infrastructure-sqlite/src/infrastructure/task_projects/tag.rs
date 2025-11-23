@@ -14,7 +14,7 @@ use flequit_repository::repositories::project_repository_trait::ProjectRepositor
 use flequit_types::errors::repository_error::RepositoryError;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QuerySelect,
+    QuerySelect, TransactionTrait,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -190,6 +190,85 @@ impl TagLocalSqliteRepository {
         } else {
             Ok(None)
         }
+    }
+
+    /// タグをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn delete_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        TagEntity::delete_by_id((project_id.to_string(), tag_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        Ok(())
+    }
+
+    /// タグを関連データと共にトランザクション内で削除
+    ///
+    /// **非推奨**: このメソッドは後方互換性のために残されています。
+    /// 新しいコードではFacade層でトランザクションを管理し、各Repositoryメソッドを個別に呼び出してください。
+    pub async fn delete_with_relations(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        use crate::models::subtask_tag::{Column as SubtaskTagColumn, Entity as SubtaskTagEntity};
+        use crate::models::task_tag::{Column as TaskTagColumn, Entity as TaskTagEntity};
+        use crate::models::user_preferences::tag_bookmark::{Column as TagBookmarkColumn, Entity as TagBookmarkEntity};
+
+        let db_manager = self.db_manager.read().await;
+        let db = db_manager
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+
+        // トランザクションを開始
+        let txn = db
+            .begin()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 1. タグブックマークを削除
+        TagBookmarkEntity::delete_many()
+            .filter(TagBookmarkColumn::ProjectId.eq(project_id.to_string()))
+            .filter(TagBookmarkColumn::TagId.eq(tag_id.to_string()))
+            .exec(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 2. タスクタグの関連付けを削除
+        TaskTagEntity::delete_many()
+            .filter(TaskTagColumn::ProjectId.eq(project_id.to_string()))
+            .filter(TaskTagColumn::TagId.eq(tag_id.to_string()))
+            .exec(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 3. サブタスクタグの関連付けを削除
+        SubtaskTagEntity::delete_many()
+            .filter(SubtaskTagColumn::ProjectId.eq(project_id.to_string()))
+            .filter(SubtaskTagColumn::TagId.eq(tag_id.to_string()))
+            .exec(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 4. タグを削除
+        TagEntity::delete_by_id((project_id.to_string(), tag_id.to_string()))
+            .exec(&txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // コミット（エラー時は自動ロールバック）
+        txn.commit()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        Ok(())
     }
 }
 

@@ -4,7 +4,10 @@
 //! アプリケーション全体で単一の接続を共有する。
 
 use crate::errors::sqlite_error::SQLiteError;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use async_trait::async_trait;
+use flequit_model::traits::TransactionManager;
+use flequit_types::errors::repository_error::RepositoryError;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, TransactionTrait};
 use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::{OnceCell, RwLock};
@@ -120,4 +123,36 @@ fn get_default_database_path() -> Option<String> {
     }
 
     None
+}
+
+/// TransactionManagerトレイトの実装
+///
+/// DatabaseManagerがトランザクション管理機能を提供します。
+/// Facade層でトランザクションを開始・コミット・ロールバックする際に使用されます。
+#[async_trait]
+impl TransactionManager for DatabaseManager {
+    type Transaction = DatabaseTransaction;
+
+    async fn begin(&self) -> Result<Self::Transaction, RepositoryError> {
+        let db = self
+            .get_connection()
+            .await
+            .map_err(|e| RepositoryError::from(e))?;
+
+        db.begin()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))
+    }
+
+    async fn commit(&self, txn: Self::Transaction) -> Result<(), RepositoryError> {
+        txn.commit()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))
+    }
+
+    async fn rollback(&self, txn: Self::Transaction) -> Result<(), RepositoryError> {
+        txn.rollback()
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))
+    }
 }

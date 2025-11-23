@@ -16,6 +16,8 @@ use crate::infrastructure::{
     task_projects::task_tag::TaskTagLocalSqliteRepository, users::user::UserLocalSqliteRepository,
     user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
 };
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// SQLiteリポジトリ群の統合管理
 ///
@@ -23,6 +25,7 @@ use crate::infrastructure::{
 /// 検索系操作の高速実行を担当する。
 #[derive(Debug)]
 pub struct LocalSqliteRepositories {
+    db_manager: Arc<RwLock<DatabaseManager>>,
     pub projects: ProjectLocalSqliteRepository,
     pub task_lists: TaskListLocalSqliteRepository,
     pub tasks: TaskLocalSqliteRepository,
@@ -45,6 +48,7 @@ impl LocalSqliteRepositories {
         let db_manager = DatabaseManager::instance().await?;
 
         Ok(Self {
+            db_manager: db_manager.clone(),
             projects: ProjectLocalSqliteRepository::new(db_manager.clone()),
             task_lists: TaskListLocalSqliteRepository::new(db_manager.clone()),
             tasks: TaskLocalSqliteRepository::new(db_manager.clone()),
@@ -114,6 +118,11 @@ impl LocalSqliteRepositories {
     /// タグブックマークリポジトリへのアクセス
     pub fn tag_bookmarks(&self) -> &TagBookmarkLocalSqliteRepository {
         &self.tag_bookmarks
+    }
+
+    /// データベースマネージャーへのアクセス
+    pub fn database_manager(&self) -> &Arc<RwLock<DatabaseManager>> {
+        &self.db_manager
     }
 }
 

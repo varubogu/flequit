@@ -6,8 +6,6 @@ use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_types::errors::service_error::ServiceError;
 
-use super::tag_bookmark_service;
-
 pub async fn create_tag<R>(
     repositories: &R,
     project_id: &ProjectId,
@@ -94,26 +92,14 @@ pub async fn delete_tag<R>(
 where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
-    // タグを削除する前に、関連データをすべて削除
-
-    // 1. タグブックマークを削除
-    tag_bookmark_service::delete_bookmarks_by_tag(repositories, project_id, tag_id).await?;
-
-    // 2. タスクタグの関連付けを削除
+    // タグを関連データと共にトランザクション内で削除
+    // (タグブックマーク、タスクタグ、サブタスクタグ、タグ本体)
+    // SQLiteは単一トランザクションで全削除、Automergeも削除
     repositories
-        .task_tags()
-        .remove_all_relations_by_tag_id(project_id, tag_id)
+        .tags()
+        .delete_with_relations(project_id, tag_id)
         .await?;
 
-    // 3. サブタスクタグの関連付けを削除
-    repositories
-        .subtask_tags()
-        .remove_all_relations_by_tag_id(project_id, tag_id)
-        .await?;
-
-    // 4. タグを削除
-    let repository = repositories;
-    repository.tags().delete(project_id, tag_id).await?;
     Ok(())
 }
 

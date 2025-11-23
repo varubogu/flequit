@@ -23,6 +23,9 @@ serde_json = "1.0.142"
 tokio = { version = "1.47.1", features = ["full"] }
 async-trait = "0.1.88"
 
+# Database ORM (for transaction types)
+sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
+
 # Utilities
 uuid = { version = "1.0", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }

@@ -178,7 +178,29 @@ impl TaskTagLocalSqliteRepository {
         Ok(())
     }
 
+    /// 指定タグの全ての関連付けをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn remove_all_by_tag_id_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        TaskTagEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::TagId.eq(tag_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        Ok(())
+    }
+
     /// 指定タグの全ての関連付けを削除
+    ///
+    /// **非推奨**: このメソッドは後方互換性のために残されています。
+    /// 新しいコードではFacade層でトランザクションを管理し、`remove_all_by_tag_id_with_txn`を使用してください。
     pub async fn remove_all_relations_by_tag_id(
         &self,
         project_id: &ProjectId,

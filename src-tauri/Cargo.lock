@@ -1375,6 +1375,7 @@ dependencies = [
  "flequit-repository",
  "flequit-types",
  "log",
+ "sea-orm",
  "serde",
  "serde_json",
  "thiserror 2.0.16",
@@ -1397,6 +1398,7 @@ dependencies = [
  "flequit-types",
  "log",
  "scopeguard",
+ "sea-orm",
  "serde",
  "tokio",
  "tracing",
@@ -1458,6 +1460,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "chrono",
+ "flequit-types",
  "partially",
  "serde",
  "specta",

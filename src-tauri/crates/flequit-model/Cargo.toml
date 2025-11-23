@@ -12,3 +12,6 @@ uuid = { version = "1.18.0", features = ["serde", "v4"] }
 specta = { version = "=2.0.0-rc.22", features = ["uuid"] }
 specta-typescript = "0.0.9"
 specta-jsdoc = "0.0.9"
+
+# Internal dependencies
+flequit-types = { path = "../flequit-types" }

@@ -131,6 +131,34 @@ impl TagUnifiedRepository {
     pub fn search_repositories_count(&self) -> usize {
         self.search_repositories.len()
     }
+
+    /// タグを関連データと共にトランザクション内で削除
+    pub async fn delete_with_relations(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<(), RepositoryError> {
+        info!(
+            "Deleting tag with relations - project: {}, tag: {}",
+            project_id, tag_id
+        );
+
+        // SQLiteリポジトリでトランザクション内で全削除を実行
+        for repository in &self.save_repositories {
+            match repository {
+                TagRepositoryVariant::LocalSqlite(repo) => {
+                    // SQLiteはトランザクション付き削除を使用
+                    repo.delete_with_relations(project_id, tag_id).await?;
+                }
+                TagRepositoryVariant::LocalAutomerge(repo) => {
+                    // Automergeは通常の削除（トランザクション不要）
+                    repo.delete(project_id, tag_id).await?;
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl TagRepositoryTrait for TagUnifiedRepository {}
