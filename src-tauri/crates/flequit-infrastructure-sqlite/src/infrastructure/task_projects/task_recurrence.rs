@@ -25,6 +25,25 @@ impl TaskRecurrenceLocalSqliteRepository {
     pub fn new(db_manager: Arc<RwLock<DatabaseManager>>) -> Self {
         Self { db_manager }
     }
+
+    /// トランザクション内で指定タスクの全ての関連付けを削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn remove_all_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+        parent_id: &TaskId,
+    ) -> Result<(), RepositoryError> {
+        TaskRecurrenceEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::TaskId.eq(parent_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        Ok(())
+    }
 }
 
 impl TaskRecurrenceRepositoryTrait for TaskRecurrenceLocalSqliteRepository {}

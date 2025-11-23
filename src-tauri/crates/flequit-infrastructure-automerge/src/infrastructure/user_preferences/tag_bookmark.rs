@@ -1,9 +1,8 @@
 //! TagBookmark用Automergeリポジトリ
 
 use crate::infrastructure::document_manager::{DocumentManager, DocumentType};
-use async_trait::async_trait;
 use flequit_model::models::user_preferences::tag_bookmark::TagBookmark;
-use flequit_model::types::id_types::{ProjectId, TagBookmarkId, TagId, UserId};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
 use std::sync::Arc;

@@ -77,6 +77,21 @@ impl ProjectLocalSqliteRepository {
 
         Ok(projects)
     }
+
+    /// プロジェクトをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn delete_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        id: &ProjectId,
+    ) -> Result<(), RepositoryError> {
+        ProjectEntity::delete_by_id(id.to_string())
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        Ok(())
+    }
 }
 
 #[async_trait]

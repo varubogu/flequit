@@ -13,6 +13,7 @@ use crate::infrastructure::{
     task_projects::tag::TagLocalSqliteRepository, task_projects::task::TaskLocalSqliteRepository,
     task_projects::task_assignments::TaskAssignmentLocalSqliteRepository,
     task_projects::task_list::TaskListLocalSqliteRepository,
+    task_projects::task_recurrence::TaskRecurrenceLocalSqliteRepository,
     task_projects::task_tag::TaskTagLocalSqliteRepository, users::user::UserLocalSqliteRepository,
     user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository,
 };
@@ -33,6 +34,7 @@ pub struct LocalSqliteRepositories {
     pub tags: TagLocalSqliteRepository,
     pub task_tags: TaskTagLocalSqliteRepository,
     pub task_assignments: TaskAssignmentLocalSqliteRepository,
+    pub task_recurrences: TaskRecurrenceLocalSqliteRepository,
     pub subtask_tags: SubtaskTagLocalSqliteRepository,
     pub subtask_assignments: SubtaskAssignmentLocalSqliteRepository,
     pub accounts: AccountLocalSqliteRepository,
@@ -56,6 +58,7 @@ impl LocalSqliteRepositories {
             tags: TagLocalSqliteRepository::new(db_manager.clone()),
             task_tags: TaskTagLocalSqliteRepository::new(db_manager.clone()),
             task_assignments: TaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
+            task_recurrences: TaskRecurrenceLocalSqliteRepository::new(db_manager.clone()),
             subtask_tags: SubtaskTagLocalSqliteRepository::new(db_manager.clone()),
             subtask_assignments: SubtaskAssignmentLocalSqliteRepository::new(db_manager.clone()),
             accounts: AccountLocalSqliteRepository::new(db_manager.clone()),

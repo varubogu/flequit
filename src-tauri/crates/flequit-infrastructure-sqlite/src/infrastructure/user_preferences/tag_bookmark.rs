@@ -290,8 +290,7 @@ impl Default for TagBookmarkLocalSqliteRepository {
         // 実際の使用時は必ずnew()で適切なdb_managerを渡すこと
         // 注: DatabaseManagerはシングルトンなので、instance()を呼び出す必要があるが
         // Defaultトレイトでは非同期処理が使えないため、別のアプローチを取る
-        use std::sync::Arc;
-        use tokio::sync::RwLock;
+
 
         // ダミーのDatabaseManagerを作成（実際には使用されないことを想定）
         // DatabaseManagerのnew_testメソッドがあればそれを使用、なければpanic

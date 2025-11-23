@@ -150,7 +150,27 @@ impl SubtaskTagLocalSqliteRepository {
         Ok(())
     }
 
+    /// 指定サブタスクの全ての関連付けをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn remove_all_by_subtask_id_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        subtask_id: &SubTaskId,
+    ) -> Result<(), RepositoryError> {
+        SubtaskTagEntity::delete_many()
+            .filter(Column::SubtaskId.eq(subtask_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        Ok(())
+    }
+
     /// 指定サブタスクの全ての関連付けを削除
+    ///
+    /// **非推奨**: このメソッドは後方互換性のために残されています。
+    /// 新しいコードではFacade層でトランザクションを管理し、`remove_all_by_subtask_id_with_txn`を使用してください。
     pub async fn remove_all_relations_by_subtask_id(
         &self,
         subtask_id: &SubTaskId,

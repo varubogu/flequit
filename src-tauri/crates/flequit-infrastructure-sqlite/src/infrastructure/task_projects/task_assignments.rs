@@ -142,7 +142,27 @@ impl TaskAssignmentLocalSqliteRepository {
         Ok(())
     }
 
+    /// 指定タスクの全ての割り当てをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn remove_all_by_task_id_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        task_id: &TaskId,
+    ) -> Result<(), RepositoryError> {
+        TaskAssignmentEntity::delete_many()
+            .filter(Column::TaskId.eq(task_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        Ok(())
+    }
+
     /// 指定タスクの全ての割り当てを削除
+    ///
+    /// **非推奨**: このメソッドは後方互換性のために残されています。
+    /// 新しいコードではFacade層でトランザクションを管理し、`remove_all_by_task_id_with_txn`を使用してください。
     pub async fn remove_all_assignments_by_task_id(
         &self,
         task_id: &TaskId,

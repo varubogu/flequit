@@ -57,6 +57,38 @@ impl TaskListLocalSqliteRepository {
 
         Ok(task_lists)
     }
+
+    /// タスクリストをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn delete_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+        id: &TaskListId,
+    ) -> Result<(), RepositoryError> {
+        TaskListEntity::delete_by_id((project_id.to_string(), id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        Ok(())
+    }
+
+    /// 指定プロジェクトの全タスクリストをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    pub async fn remove_all_by_project_id_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+    ) -> Result<(), RepositoryError> {
+        TaskListEntity::delete_many()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .exec(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        Ok(())
+    }
 }
 
 #[async_trait]

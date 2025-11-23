@@ -103,6 +103,43 @@ impl SubTaskLocalSqliteRepository {
 
         Ok(subtasks)
     }
+
+    /// 指定タスクに関連する全サブタスクをトランザクション内で削除
+    ///
+    /// トランザクションは呼び出し側（Facade層）が管理します。
+    /// 各サブタスクに関連するsubtask_tagsも削除されます。
+    pub async fn remove_all_by_task_id_with_txn(
+        &self,
+        txn: &sea_orm::DatabaseTransaction,
+        project_id: &ProjectId,
+        task_id: &str,
+    ) -> Result<(), RepositoryError> {
+        // タスクに関連する全サブタスクのIDを取得
+        let subtask_models = SubtaskEntity::find()
+            .filter(Column::ProjectId.eq(project_id.to_string()))
+            .filter(Column::TaskId.eq(task_id))
+            .all(txn)
+            .await
+            .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+
+        // 各サブタスクについて、関連するsubtask_tagsを削除してから本体を削除
+        for model in subtask_models {
+            let subtask_id = SubTaskId::from(model.id.clone());
+
+            // 関連するsubtask_tagsを削除
+            self.subtask_tag_repository
+                .remove_all_by_subtask_id_with_txn(txn, &subtask_id)
+                .await?;
+
+            // サブタスク本体を削除
+            SubtaskEntity::delete_by_id((project_id.to_string(), model.id))
+                .exec(txn)
+                .await
+                .map_err(|e| RepositoryError::from(SQLiteError::from(e)))?;
+        }
+
+        Ok(())
+    }
 }
 
 #[async_trait]

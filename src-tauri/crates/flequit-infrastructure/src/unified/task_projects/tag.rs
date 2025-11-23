@@ -147,8 +147,8 @@ impl TagUnifiedRepository {
         for repository in &self.save_repositories {
             match repository {
                 TagRepositoryVariant::LocalSqlite(repo) => {
-                    // SQLiteはトランザクション付き削除を使用
-                    repo.delete_with_relations(project_id, tag_id).await?;
+                    // SQLiteは単純削除（関連削除はFacade層で実行済み）
+                    repo.delete(project_id, tag_id).await?;
                 }
                 TagRepositoryVariant::LocalAutomerge(repo) => {
                     // Automergeは通常の削除（トランザクション不要）
