@@ -587,8 +587,131 @@ async fn test_tag_deletion_rollback_on_error() {
 - [Rust async/await](https://rust-lang.github.io/async-book/)
 - [ACID Properties](https://en.wikipedia.org/wiki/ACID)
 
-## 11. Change History
+## 11. Implementation Status
+
+### 11.1 Completed Features
+
+#### Phase 1: Foundation (✅ Completed)
+- **TransactionManager Trait** ([flequit-model/src/traits/transaction.rs](../../../../../../src-tauri/crates/flequit-model/src/traits/transaction.rs))
+  - Abstract interface for transaction management
+  - `begin()`, `commit()`, `rollback()` methods
+  
+- **SQLite Implementation** ([flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs))
+  - DatabaseManager implements TransactionManager
+  - Uses Sea-ORM's DatabaseTransaction
+
+- **InfrastructureRepositories Implementation** ([flequit-infrastructure/src/infrastructure_repositories.rs](../../../../../../src-tauri/crates/flequit-infrastructure/src/infrastructure_repositories.rs))
+  - InfrastructureRepositories implements TransactionManager
+  - Provides access to SQLite repositories via `sqlite_repositories()`
+
+#### Phase 2: Pilot Implementation - Tag Deletion (✅ Completed)
+- **Repository Layer**
+  - `TagLocalSqliteRepository::delete_with_txn()` - Delete tag with transaction
+  - `TaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - Delete task-tag relations
+  - `SubtaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - Delete subtask-tag relations
+  - `TagBookmarkLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - Delete tag bookmarks
+
+- **Facade Layer** ([flequit-core/src/facades/tag_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/tag_facades.rs))
+  - `delete_tag()` - Transaction control implementation
+  - Cascade deletion of related entities within single transaction
+  - Proper error handling with rollback
+
+#### Phase 3: Other Entities - Deletion (✅ Completed)
+
+##### Task Deletion
+- **Repository Layer** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
+  - `TaskLocalSqliteRepository::delete_with_txn()` - Delete task with transaction
+  - `TaskLocalSqliteRepository::find_ids_by_project_id()` - Helper for cascade deletion
+  - `SubTaskLocalSqliteRepository::remove_all_by_task_id_with_txn()` - Delete all subtasks by task
+  - `TaskTagLocalSqliteRepository::remove_all_by_task_id_with_txn()` - Delete task-tag relations
+  - `TaskAssignmentLocalSqliteRepository::remove_all_by_task_id_with_txn()` - Delete task assignments
+  - `TaskRecurrenceLocalSqliteRepository::remove_all_with_txn()` - Delete task recurrences
+  - `SubtaskTagLocalSqliteRepository::remove_all_by_subtask_id_with_txn()` - Delete subtask-tag relations
+
+- **Facade Layer** ([flequit-core/src/facades/task_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/task_facades.rs))
+  - `delete_task()` - Complete transaction control implementation
+  - Cascade deletion: Subtasks → Task tags → Assignments → Recurrences → Task
+  - Automerge deletion outside transaction
+
+##### Project Deletion
+- **Repository Layer** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
+  - `ProjectLocalSqliteRepository::delete_with_txn()` - Delete project with transaction
+  - `TaskListLocalSqliteRepository::delete_with_txn()` - Delete task list with transaction
+  - `TaskListLocalSqliteRepository::remove_all_by_project_id_with_txn()` - Delete all task lists
+  - `TagLocalSqliteRepository::find_ids_by_project_id()` - Helper for cascade deletion
+
+- **Facade Layer** ([flequit-core/src/facades/project_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/project_facades.rs))
+  - `delete_project()` - Complete transaction control implementation
+  - Comprehensive cascade deletion:
+    1. All tasks (with their subtasks, tags, assignments, recurrences)
+    2. All tags (with their bookmarks and relations)
+    3. All task lists
+    4. Project itself
+  - Automerge deletion outside transaction
+
+#### Phase 4: Repository Layer Cleanup (✅ Completed)
+- **Removed Methods**
+  - `TagLocalSqliteRepository::delete_with_relations()` - Deprecated, functionality moved to Facade layer
+  
+- **Updated Methods**
+  - `TaskLocalSqliteRepository::delete()` - Removed internal transaction handling, marked as deprecated
+  - Unified layer updated to use simple `delete()` instead of deprecated `delete_with_relations()`
+
+- **Maintenance Decision**
+  - `TaskRepository::save()`, `SubTaskRepository::save()/delete()` - Keep internal transaction handling until Facade layer implementation is complete
+
+### 11.2 Implementation Progress
+
+#### Tag Create/Update (✅ Analysis Completed)
+- **Decision**: No transaction control needed
+- **Reason**: Single-entity operations without cascade relationships
+- **Status**: Existing implementation maintained as-is
+
+#### Pending Implementation
+- **Task Create/Update**: Transaction control for task creation and updates with tag relations
+- **SubTask Create/Update**: Transaction control for subtask operations with tag relations
+- **Project Create/Update**: Transaction control for project operations
+- **TaskList Create/Update/Delete**: Transaction control for task list operations
+- **RecurrenceRule Create/Update/Delete**: Transaction control for recurrence rule operations
+
+### 11.3 Implementation Guidelines
+
+When implementing transaction control for new entities:
+
+1. **Add `_with_txn` methods to Repository layer**
+   ```rust
+   pub async fn delete_with_txn(
+       &self,
+       txn: &sea_orm::DatabaseTransaction,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<(), RepositoryError>
+   ```
+
+2. **Update Facade layer with transaction control**
+   ```rust
+   pub async fn delete_entity<R>(
+       repositories: &R,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<bool, String>
+   where
+       R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction> + Send + Sync,
+   {
+       let txn = repositories.begin().await?;
+       // ... execute operations ...
+       repositories.commit(txn).await?;
+       Ok(true)
+   }
+   ```
+
+3. **Keep backward compatibility**
+   - Mark old methods as deprecated
+   - Keep them for gradual migration
+
+## 12. Change History
 
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
+| 2025-11-23 | 1.1 | Added implementation status section | - |
 | 2025-11-22 | 1.0 | Initial version | - |

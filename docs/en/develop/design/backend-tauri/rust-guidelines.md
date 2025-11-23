@@ -445,6 +445,93 @@ impl SqliteTaskRepository {
 }
 ```
 
+### Transaction Management
+
+For database transaction management, see the dedicated [Transaction Management Design Document](transaction-management.md).
+
+**Key Principles:**
+
+1. **Transaction Control at Facade Layer Only**
+   - Facade layer starts, commits, and rolls back transactions
+   - Repository layer accepts transaction objects via `_with_txn` methods
+   - Never start nested transactions
+
+2. **Repository Layer Pattern**
+   ```rust
+   // Accept transaction from Facade layer
+   pub async fn delete_with_txn(
+       &self,
+       txn: &sea_orm::DatabaseTransaction,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<(), RepositoryError> {
+       Entity::delete_by_id((...))
+           .exec(txn)  // Use provided transaction
+           .await?;
+       Ok(())
+   }
+   ```
+
+3. **Facade Layer Pattern**
+   ```rust
+   pub async fn delete_entity<R>(
+       repositories: &R,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<bool, String>
+   where
+       R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction>,
+   {
+       // 1. Begin transaction
+       let txn = repositories.begin().await?;
+       
+       let sqlite_repos_guard = repositories.sqlite_repositories()?.read().await;
+       
+       // 2. Execute operations within transaction
+       sqlite_repos_guard.related_entity
+           .delete_related_with_txn(&txn, project_id, id).await?;
+       sqlite_repos_guard.entity
+           .delete_with_txn(&txn, project_id, id).await?;
+       
+       drop(sqlite_repos_guard);
+       
+       // 3. Commit transaction
+       repositories.commit(txn).await?;
+       
+       // 4. Automerge operations (outside transaction)
+       repositories.entity().delete(project_id, id).await?;
+       
+       Ok(true)
+   }
+   ```
+
+4. **Error Handling with Rollback**
+   ```rust
+   // If operation fails, rollback is automatic (transaction dropped)
+   // For explicit error handling:
+   if let Err(e) = sqlite_repos_guard.entity.delete_with_txn(&txn, id).await {
+       drop(sqlite_repos_guard);
+       repositories.rollback(txn).await?;
+       return Err(format!("Failed to delete: {:?}", e));
+   }
+   ```
+
+5. **Implementation Status**
+   - ✅ Tag deletion - Complete transaction control
+   - ✅ Task deletion - Complete cascade deletion with transaction
+   - ✅ Project deletion - Complete cascade deletion with transaction
+   - See [Implementation Status](transaction-management.md#11-implementation-status) for details
+
+**When to Use Transactions:**
+- Multiple related entities must be modified atomically
+- Cascade deletion across multiple tables
+- Data consistency requirements across operations
+
+**When NOT to Use Transactions:**
+- Single entity operations without relationships
+- Read-only queries
+- Automerge operations (CRDT-based, no transactions needed)
+
 ### Memory Efficiency Optimization
 
 ```rust

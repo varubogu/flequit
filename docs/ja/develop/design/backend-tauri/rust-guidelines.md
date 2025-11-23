@@ -445,6 +445,93 @@ impl SqliteTaskRepository {
 }
 ```
 
+### トランザクション管理
+
+データベーストランザクション管理については、専用の[トランザクション管理設計書](transaction-management.md)を参照してください。
+
+**重要な原則:**
+
+1. **Facade層でのみトランザクション制御**
+   - Facade層がトランザクションの開始、コミット、ロールバックを行う
+   - Repository層は`_with_txn`メソッドでトランザクションオブジェクトを受け取る
+   - ネストしたトランザクションを開始しない
+
+2. **Repository層のパターン**
+   ```rust
+   // Facade層からトランザクションを受け取る
+   pub async fn delete_with_txn(
+       &self,
+       txn: &sea_orm::DatabaseTransaction,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<(), RepositoryError> {
+       Entity::delete_by_id((...))
+           .exec(txn)  // 提供されたトランザクションを使用
+           .await?;
+       Ok(())
+   }
+   ```
+
+3. **Facade層のパターン**
+   ```rust
+   pub async fn delete_entity<R>(
+       repositories: &R,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<bool, String>
+   where
+       R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction>,
+   {
+       // 1. トランザクション開始
+       let txn = repositories.begin().await?;
+       
+       let sqlite_repos_guard = repositories.sqlite_repositories()?.read().await;
+       
+       // 2. トランザクション内で操作を実行
+       sqlite_repos_guard.related_entity
+           .delete_related_with_txn(&txn, project_id, id).await?;
+       sqlite_repos_guard.entity
+           .delete_with_txn(&txn, project_id, id).await?;
+       
+       drop(sqlite_repos_guard);
+       
+       // 3. トランザクションをコミット
+       repositories.commit(txn).await?;
+       
+       // 4. Automerge操作（トランザクション外）
+       repositories.entity().delete(project_id, id).await?;
+       
+       Ok(true)
+   }
+   ```
+
+4. **ロールバックを伴うエラーハンドリング**
+   ```rust
+   // 操作が失敗した場合、ロールバックは自動（トランザクションがドロップされる）
+   // 明示的なエラーハンドリングの場合:
+   if let Err(e) = sqlite_repos_guard.entity.delete_with_txn(&txn, id).await {
+       drop(sqlite_repos_guard);
+       repositories.rollback(txn).await?;
+       return Err(format!("削除に失敗: {:?}", e));
+   }
+   ```
+
+5. **実装状況**
+   - ✅ タグ削除 - 完全なトランザクション制御
+   - ✅ タスク削除 - トランザクション付き完全カスケード削除
+   - ✅ プロジェクト削除 - トランザクション付き完全カスケード削除
+   - 詳細は[実装状況](transaction-management.md#11-実装状況)を参照
+
+**トランザクションを使用すべき場合:**
+- 複数の関連エンティティをアトミックに変更する必要がある
+- 複数のテーブルにわたるカスケード削除
+- 操作間でデータ整合性が必要
+
+**トランザクションを使用すべきでない場合:**
+- 関連のない単一エンティティ操作
+- 読み取り専用クエリ
+- Automerge操作（CRDTベース、トランザクション不要）
+
 ### メモリ効率の最適化
 
 ```rust

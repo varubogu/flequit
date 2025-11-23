@@ -587,8 +587,131 @@ async fn test_tag_deletion_rollback_on_error() {
 - [Rust async/await](https://rust-lang.github.io/async-book/)
 - [ACID特性](https://en.wikipedia.org/wiki/ACID)
 
-## 11. 変更履歴
+## 11. 実装状況
+
+### 11.1 完了済み機能
+
+#### Phase 1: 基盤実装 (✅ 完了)
+- **TransactionManagerトレイト** ([flequit-model/src/traits/transaction.rs](../../../../../../src-tauri/crates/flequit-model/src/traits/transaction.rs))
+  - トランザクション管理の抽象インターフェース
+  - `begin()`, `commit()`, `rollback()` メソッド
+  
+- **SQLite実装** ([flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/database_manager.rs))
+  - DatabaseManagerがTransactionManagerを実装
+  - Sea-ORMのDatabaseTransactionを使用
+
+- **InfrastructureRepositories実装** ([flequit-infrastructure/src/infrastructure_repositories.rs](../../../../../../src-tauri/crates/flequit-infrastructure/src/infrastructure_repositories.rs))
+  - InfrastructureRepositoriesがTransactionManagerを実装
+  - `sqlite_repositories()`でSQLiteリポジトリへのアクセスを提供
+
+#### Phase 2: パイロット実装 - タグ削除 (✅ 完了)
+- **Repository層**
+  - `TagLocalSqliteRepository::delete_with_txn()` - トランザクション付きタグ削除
+  - `TaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - タスクタグ関連削除
+  - `SubtaskTagLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - サブタスクタグ関連削除
+  - `TagBookmarkLocalSqliteRepository::remove_all_by_tag_id_with_txn()` - タグブックマーク削除
+
+- **Facade層** ([flequit-core/src/facades/tag_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/tag_facades.rs))
+  - `delete_tag()` - トランザクション制御の実装
+  - 関連エンティティのカスケード削除を単一トランザクション内で実行
+  - 適切なエラーハンドリングとロールバック処理
+
+#### Phase 3: その他のエンティティ - 削除処理 (✅ 完了)
+
+##### タスク削除
+- **Repository層** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
+  - `TaskLocalSqliteRepository::delete_with_txn()` - トランザクション付きタスク削除
+  - `TaskLocalSqliteRepository::find_ids_by_project_id()` - カスケード削除用ヘルパー
+  - `SubTaskLocalSqliteRepository::remove_all_by_task_id_with_txn()` - タスクに紐づく全サブタスク削除
+  - `TaskTagLocalSqliteRepository::remove_all_by_task_id_with_txn()` - タスクタグ関連削除
+  - `TaskAssignmentLocalSqliteRepository::remove_all_by_task_id_with_txn()` - タスク担当者削除
+  - `TaskRecurrenceLocalSqliteRepository::remove_all_with_txn()` - タスク繰り返しルール削除
+  - `SubtaskTagLocalSqliteRepository::remove_all_by_subtask_id_with_txn()` - サブタスクタグ関連削除
+
+- **Facade層** ([flequit-core/src/facades/task_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/task_facades.rs))
+  - `delete_task()` - 完全なトランザクション制御実装
+  - カスケード削除: サブタスク → タスクタグ → 担当者 → 繰り返しルール → タスク
+  - Automerge削除はトランザクション外で実行
+
+##### プロジェクト削除
+- **Repository層** ([flequit-infrastructure-sqlite/src/infrastructure/task_projects/](../../../../../../src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/))
+  - `ProjectLocalSqliteRepository::delete_with_txn()` - トランザクション付きプロジェクト削除
+  - `TaskListLocalSqliteRepository::delete_with_txn()` - トランザクション付きタスクリスト削除
+  - `TaskListLocalSqliteRepository::remove_all_by_project_id_with_txn()` - 全タスクリスト削除
+  - `TagLocalSqliteRepository::find_ids_by_project_id()` - カスケード削除用ヘルパー
+
+- **Facade層** ([flequit-core/src/facades/project_facades.rs](../../../../../../src-tauri/crates/flequit-core/src/facades/project_facades.rs))
+  - `delete_project()` - 完全なトランザクション制御実装
+  - 包括的なカスケード削除:
+    1. 全タスク（サブタスク、タグ、担当者、繰り返しルールを含む）
+    2. 全タグ（ブックマークと関連を含む）
+    3. 全タスクリスト
+    4. プロジェクト本体
+  - Automerge削除はトランザクション外で実行
+
+#### Phase 4: Repository層のクリーンアップ (✅ 完了)
+- **削除されたメソッド**
+  - `TagLocalSqliteRepository::delete_with_relations()` - 非推奨化、機能はFacade層に移行
+  
+- **更新されたメソッド**
+  - `TaskLocalSqliteRepository::delete()` - 内部トランザクション処理を削除、非推奨マーク付与
+  - Unified層を更新して非推奨の`delete_with_relations()`の代わりにシンプルな`delete()`を使用
+
+- **保守の判断**
+  - `TaskRepository::save()`, `SubTaskRepository::save()/delete()` - Facade層の実装が完了するまで内部トランザクション処理を維持
+
+### 11.2 実装進捗状況
+
+#### タグの作成・更新 (✅ 分析完了)
+- **判断**: トランザクション制御は不要
+- **理由**: カスケード関係のない単一エンティティ操作
+- **状態**: 既存実装をそのまま維持
+
+#### 実装予定
+- **タスクの作成・更新**: タグ関連を含むタスク作成・更新のトランザクション制御
+- **サブタスクの作成・更新**: タグ関連を含むサブタスク操作のトランザクション制御
+- **プロジェクトの作成・更新**: プロジェクト操作のトランザクション制御
+- **タスクリストの作成・更新・削除**: タスクリスト操作のトランザクション制御
+- **繰り返しルールの作成・更新・削除**: 繰り返しルール操作のトランザクション制御
+
+### 11.3 実装ガイドライン
+
+新しいエンティティにトランザクション制御を実装する際の手順：
+
+1. **Repository層に`_with_txn`メソッドを追加**
+   ```rust
+   pub async fn delete_with_txn(
+       &self,
+       txn: &sea_orm::DatabaseTransaction,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<(), RepositoryError>
+   ```
+
+2. **Facade層でトランザクション制御を実装**
+   ```rust
+   pub async fn delete_entity<R>(
+       repositories: &R,
+       project_id: &ProjectId,
+       id: &EntityId,
+   ) -> Result<bool, String>
+   where
+       R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction> + Send + Sync,
+   {
+       let txn = repositories.begin().await?;
+       // ... 処理を実行 ...
+       repositories.commit(txn).await?;
+       Ok(true)
+   }
+   ```
+
+3. **後方互換性の維持**
+   - 既存のメソッドは非推奨マークを付けて残す
+   - 段階的な移行を可能にする
+
+## 12. 変更履歴
 
 | 日付 | バージョン | 変更内容 | 著者 |
 |------|-----------|---------|------|
+| 2025-11-23 | 1.1 | 実装状況セクションを追加 | - |
 | 2025-11-22 | 1.0 | 初版作成 | - |
