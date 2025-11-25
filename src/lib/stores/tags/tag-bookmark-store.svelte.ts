@@ -4,7 +4,7 @@ import type { TagBookmark } from '$lib/types/tag-bookmark';
  * TagBookmarkストア
  * サイドバーにピン留めされたタグのブックマーク情報を管理
  */
-class TagBookmarkStore {
+export class TagBookmarkStore {
 	bookmarks = $state<TagBookmark[]>([]);
 
 	/**

@@ -47,6 +47,13 @@ export class InitializationWebService implements InitializationService {
       const savedAccount = localStorage.getItem('flequit_account');
       if (savedAccount) {
         const parsed = JSON.parse(savedAccount);
+        // 日付フィールドをDateオブジェクトに変換
+        if (parsed.created_at) {
+          parsed.created_at = new Date(parsed.created_at);
+        }
+        if (parsed.updated_at) {
+          parsed.updated_at = new Date(parsed.updated_at);
+        }
         return parsed;
       }
 
@@ -139,29 +146,29 @@ export class InitializationWebService implements InitializationService {
   private parseProjectDates(projects: ProjectTree[]): ProjectTree[] {
     return projects.map((project) => ({
       ...project,
-      created_at: new Date(project.createdAt),
-      updated_at: new Date(project.updatedAt),
-      task_lists: project.taskLists.map((taskList) => ({
+      createdAt: new Date(project.createdAt),
+      updatedAt: new Date(project.updatedAt),
+      taskLists: project.taskLists.map((taskList) => ({
         ...taskList,
-        created_at: new Date(taskList.createdAt),
-        updated_at: new Date(taskList.updatedAt),
+        createdAt: new Date(taskList.createdAt),
+        updatedAt: new Date(taskList.updatedAt),
         tasks: taskList.tasks.map((task) => ({
           ...task,
-          created_at: new Date(task.createdAt),
-          updated_at: new Date(task.updatedAt),
-          plan_start_date: task.planStartDate ? new Date(task.planStartDate) : undefined,
-          plan_end_date: task.planEndDate ? new Date(task.planEndDate) : undefined,
-          sub_tasks: task.subTasks.map((subTask) => ({
+          createdAt: new Date(task.createdAt),
+          updatedAt: new Date(task.updatedAt),
+          planStartDate: task.planStartDate ? new Date(task.planStartDate) : undefined,
+          planEndDate: task.planEndDate ? new Date(task.planEndDate) : undefined,
+          subTasks: task.subTasks.map((subTask) => ({
             ...subTask,
-            created_at: new Date(subTask.createdAt),
-            updated_at: new Date(subTask.updatedAt),
-            plan_start_date: subTask.planStartDate ? new Date(subTask.planStartDate) : undefined,
-            plan_end_date: subTask.planEndDate ? new Date(subTask.planEndDate) : undefined
+            createdAt: new Date(subTask.createdAt),
+            updatedAt: new Date(subTask.updatedAt),
+            planStartDate: subTask.planStartDate ? new Date(subTask.planStartDate) : undefined,
+            planEndDate: subTask.planEndDate ? new Date(subTask.planEndDate) : undefined
           })),
           tags: task.tags.map((tag) => ({
             ...tag,
-            created_at: new Date(tag.createdAt),
-            updated_at: new Date(tag.updatedAt)
+            createdAt: new Date(tag.createdAt),
+            updatedAt: new Date(tag.updatedAt)
           }))
         }))
       }))
