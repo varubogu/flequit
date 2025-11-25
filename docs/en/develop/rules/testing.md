@@ -74,3 +74,75 @@
 
 ### Internationalization System Testing
 - For details, refer to the "Translation System Testing" section in `docs/develop/design/testing.md`
+
+### Error Handling Tests
+
+When testing error handling behavior, follow these principles to keep test output clean:
+
+#### Principle: Mock Expected Error Logs
+
+**Problem**: When testing error handling, implementation code often logs errors with `console.error()`. This causes error messages to appear in test output even when tests pass, which is confusing.
+
+**Solution**: 
+1. Mock `console.error` to suppress expected error logs
+2. Verify that the error handler was called correctly
+3. Verify that the appropriate error log was output
+4. Always restore the mock after the test
+
+**Example**:
+```typescript
+it('should handle network errors gracefully', async () => {
+  // Mock console.error to suppress expected error logs
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  
+  // Trigger the error condition
+  mockService.fetchData.mockRejectedValueOnce(new Error('network error'));
+  await service.processData();
+  
+  // Verify error handler was called
+  expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+    'Data processing',
+    'service',
+    'data-id',
+    expect.any(Error)
+  );
+  
+  // Verify error log was output
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    'Failed to process data:',
+    expect.any(Error)
+  );
+  
+  // Restore the mock
+  consoleErrorSpy.mockRestore();
+});
+```
+
+**Why This Approach**:
+- ✅ Test output remains clean when tests pass
+- ✅ Verifies both error handling behavior AND logging behavior
+- ✅ Unexpected errors will cause tests to fail (not mocked)
+- ✅ Helps reviewers understand the test intent
+
+**Anti-pattern**: Do NOT add `console.error` to mock implementations for debugging purposes. If needed for debugging, remove it after investigation.
+
+```typescript
+// ❌ BAD: Unnecessary console.error in mock
+const mockStore = {
+  getData: vi.fn((id) => {
+    if (!data[id]) {
+      console.error('Data not found:', id);  // Remove this!
+      return null;
+    }
+    return data[id];
+  })
+};
+
+// ✅ GOOD: Just return the value
+const mockStore = {
+  getData: vi.fn((id) => {
+    if (!data[id]) return null;
+    return data[id];
+  })
+};
+```

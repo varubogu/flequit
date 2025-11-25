@@ -74,3 +74,75 @@
 
 ### 国際化システムのテスト
 - 詳細は`docs/develop/design/testing.md`の「翻訳システムのテスト」セクションを参照
+
+### エラーハンドリングのテスト
+
+エラーハンドリングの動作をテストする際は、テスト出力をクリーンに保つために以下の原則に従います。
+
+#### 原則: 想定されるエラーログをモック化する
+
+**問題**: エラーハンドリングをテストする際、実装コードが `console.error()` でエラーをログ出力することが多いです。これにより、テストが成功してもテスト出力にエラーメッセージが表示され、混乱を招きます。
+
+**解決策**: 
+1. `console.error` をモック化して想定されるエラーログを抑制する
+2. エラーハンドラーが正しく呼ばれたことを検証する
+3. 適切なエラーログが出力されたことを検証する
+4. テスト後は必ずモックをリストアする
+
+**実例**:
+```typescript
+it('ネットワークエラーを適切に処理できる', async () => {
+  // console.errorをモック化して想定されるエラーログを抑制
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  
+  // エラー条件をトリガー
+  mockService.fetchData.mockRejectedValueOnce(new Error('network error'));
+  await service.processData();
+  
+  // エラーハンドラーが呼ばれたことを検証
+  expect(errorHandler.addSyncError).toHaveBeenCalledWith(
+    'データ処理',
+    'service',
+    'data-id',
+    expect.any(Error)
+  );
+  
+  // エラーログが出力されたことを検証
+  expect(consoleErrorSpy).toHaveBeenCalledWith(
+    'Failed to process data:',
+    expect.any(Error)
+  );
+  
+  // モックをリストア
+  consoleErrorSpy.mockRestore();
+});
+```
+
+**このアプローチの利点**:
+- ✅ テスト成功時にテスト出力がクリーンに保たれる
+- ✅ エラーハンドリングの動作とログ出力の両方を検証できる
+- ✅ 想定外のエラーが発生した場合はテストが失敗する（モック化されていない）
+- ✅ レビュアーがテストの意図を理解しやすい
+
+**アンチパターン**: モック実装にデバッグ用の `console.error` を追加しないでください。デバッグに必要な場合は、調査後に削除してください。
+
+```typescript
+// ❌ 悪い例: モック内の不要な console.error
+const mockStore = {
+  getData: vi.fn((id) => {
+    if (!data[id]) {
+      console.error('Data not found:', id);  // これを削除！
+      return null;
+    }
+    return data[id];
+  })
+};
+
+// ✅ 良い例: 単に値を返すだけ
+const mockStore = {
+  getData: vi.fn((id) => {
+    if (!data[id]) return null;
+    return data[id];
+  })
+};
+```
