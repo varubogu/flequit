@@ -3,10 +3,10 @@ import type { Task } from '$lib/types/task';
 
 const backendStub = {
 	task: {
-		create: vi.fn(async (_projectId: string, _task: Task) => {}),
-		update: vi.fn(async (_projectId: string, _taskId: string, _patch: Record<string, unknown>) => true),
-		delete: vi.fn(async (_projectId: string, _taskId: string) => true),
-		get: vi.fn(async (_projectId: string, _taskId: string) => null as Task | null)
+		create: vi.fn(async (_projectId: string, _task: Task, _userId: string) => {}),
+		update: vi.fn(async (_projectId: string, _taskId: string, _patch: Record<string, unknown>, _userId: string) => true),
+		delete: vi.fn(async (_projectId: string, _taskId: string, _userId: string) => true),
+		get: vi.fn(async (_projectId: string, _taskId: string, _userId: string) => null as Task | null)
 	}
 };
 
@@ -23,6 +23,10 @@ const errorHandlerMock = {
 
 vi.mock('$lib/stores/error-handler.svelte', () => ({
 	errorHandler: errorHandlerMock
+}));
+
+vi.mock('$lib/utils/user-id-helper', () => ({
+	getCurrentUserId: vi.fn(() => 'system')
 }));
 
 const fixedUuid = '00000000-0000-0000-0000-000000000123';
@@ -74,7 +78,8 @@ describe('TaskService (task-crud)', () => {
 				listId: 'list-123',
 				projectId: 'project-123',
 				title: 'New Task'
-			})
+			}),
+			'system'
 		);
 		expect(result.id).toBe(fixedUuid);
 		expect(result.listId).toBe('list-123');
@@ -174,15 +179,16 @@ describe('TaskService (task-crud)', () => {
 			'project-123',
 			'task-123',
 			expect.objectContaining({
+				id: 'task-123',
 				title: 'Updated',
 				plan_start_date: planStartDate.toISOString(),
 				plan_end_date: planEndDate.toISOString(),
 				do_start_date: doStartDate.toISOString(),
-				do_end_date: doEndDate.toISOString(),
-				recurrence_rule: updatedTask.recurrenceRule
-			})
+				do_end_date: doEndDate.toISOString()
+			}),
+			'system'
 		);
-		expect(backendStub.task.get).toHaveBeenCalledWith('project-123', 'task-123');
+		expect(backendStub.task.get).toHaveBeenCalledWith('project-123', 'task-123', 'system');
 		expect(result).toEqual(updatedTask);
 	});
 

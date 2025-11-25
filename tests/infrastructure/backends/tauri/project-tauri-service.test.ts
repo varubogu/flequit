@@ -42,7 +42,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.create(mockProject, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -52,7 +52,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.create(mockProject, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('create_project', { project: mockProject, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create project:', expect.any(Error));
 
@@ -66,7 +66,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.update(mockProject.id, mockProject, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -76,7 +76,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.update(mockProject.id, mockProject, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject });
+      expect(mockInvoke).toHaveBeenCalledWith('update_project', { id: mockProject.id, patch: mockProject, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update project:', expect.any(Error));
 
@@ -90,7 +90,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.delete('project-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123', userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -100,7 +100,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.delete('project-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_project', { id: 'project-123', userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete project:', expect.any(Error));
 
@@ -114,7 +114,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.get('project-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123', userId: 'test-user-id' });
       expect(result).toEqual(mockProject);
     });
 
@@ -123,7 +123,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.get('non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'non-existent' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'non-existent', userId: 'test-user-id' });
       expect(result).toBeNull();
     });
 
@@ -133,7 +133,7 @@ describe('ProjectTauriService', () => {
 
       const result = await service.get('project-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_project', { id: 'project-123', userId: 'test-user-id' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get project:', expect.any(Error));
 

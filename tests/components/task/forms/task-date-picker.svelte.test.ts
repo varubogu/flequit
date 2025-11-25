@@ -12,7 +12,8 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 
 vi.mock('$lib/stores/task-core-store.svelte', () => ({
   taskCoreStore: {
-    updateTask: vi.fn()
+    updateTask: vi.fn(),
+    getTaskById: vi.fn()
   }
 }));
 

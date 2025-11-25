@@ -19,17 +19,19 @@ const createMockProjects = (): ProjectTree[] => [
 				orderIndex: 0,
 				tasks: [
 					createMockTaskWithSubTasks({
-						id: 'task-1',
-						listId: 'list-1',
-						status: 'not_started',
-						orderIndex: 0
-					}),
+					id: 'task-1',
+					listId: 'list-1',
+					title: 'Task 1',
+					status: 'not_started',
+					orderIndex: 0
+				}),
 					createMockTaskWithSubTasks({
-						id: 'task-2',
-						listId: 'list-1',
-						status: 'completed',
-						orderIndex: 1
-					})
+					id: 'task-2',
+					listId: 'list-1',
+					title: 'Task 2',
+					status: 'completed',
+					orderIndex: 1
+				})
 				]
 			})
 		]

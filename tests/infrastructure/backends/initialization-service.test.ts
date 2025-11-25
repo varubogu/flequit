@@ -137,7 +137,7 @@ describe('InitializationService Interface', () => {
 
       expect(service.loadAccount).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockAccount);
-      expect(result?.name).toBe('Test User');
+      expect(result?.displayName).toBe('Test User');
       expect(result?.email).toBe('test@example.com');
     });
 

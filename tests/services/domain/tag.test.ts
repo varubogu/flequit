@@ -3,7 +3,6 @@ import { TagService } from '$lib/services/domain/tag';
 import type { Tag } from '$lib/types/tag';
 import * as backendClient from '$lib/infrastructure/backend-client';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { tagStore as tagStoreFacade } from '$lib/stores/tags.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { buildTag } from '../../factories/domain';
@@ -25,12 +24,6 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => ({
 		deleteTagFromStore: vi.fn()
 	}
 }));
-vi.mock('$lib/stores/tags.svelte', () => ({
-	tagStore: {
-		addBookmark: vi.fn(),
-		removeBookmark: vi.fn()
-	}
-}));
 vi.mock('$lib/stores/error-handler.svelte', () => ({
 	errorHandler: {
 		addSyncError: vi.fn()
@@ -40,6 +33,9 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 	taskStore: {
 		getProjectIdByTagId: vi.fn()
 	}
+}));
+vi.mock('$lib/utils/user-id-helper', () => ({
+	getCurrentUserId: vi.fn(() => 'system')
 }));
 
 describe('TagService', () => {
@@ -84,8 +80,14 @@ const mockTag: Tag = buildTag({ id: 'tag-1', name: 'Important', color: '#ff0000'
 				projectId,
 				expect.objectContaining({
 					name: 'New Tag',
-					color: '#00ff00'
-				})
+					color: '#00ff00',
+					id: expect.any(String),
+					createdAt: expect.any(Date),
+					updatedAt: expect.any(Date),
+					updatedBy: 'system',
+					deleted: false
+				}),
+				'system'
 			);
 			expect(result).not.toBeNull();
 			expect(result?.name).toBe('New Tag');
@@ -151,8 +153,10 @@ const mockTag: Tag = buildTag({ id: 'tag-1', name: 'Important', color: '#ff0000'
 				projectId,
 				'tag-1',
 				expect.objectContaining({
-					name: 'Updated Tag'
-				})
+					name: 'Updated Tag',
+					updatedAt: expect.any(Date)
+				}),
+				'system'
 			);
 		});
 
@@ -186,7 +190,7 @@ const mockTag: Tag = buildTag({ id: 'tag-1', name: 'Important', color: '#ff0000'
 			await TagService.deleteTag(projectId, 'tag-1', onDelete);
 
 			expect(tagStoreInternal.deleteTagFromStore).toHaveBeenCalledWith('tag-1');
-			expect(mockBackend.tag.delete).toHaveBeenCalledWith(projectId, 'tag-1');
+			expect(mockBackend.tag.delete).toHaveBeenCalledWith(projectId, 'tag-1', 'system');
 			expect(onDelete).toHaveBeenCalledWith('tag-1');
 		});
 
@@ -280,22 +284,48 @@ const mockTag: Tag = buildTag({ id: 'tag-1', name: 'Important', color: '#ff0000'
 
 	describe('bookmark operations', () => {
 		it('should add bookmark', async () => {
-			vi.mocked(tagStoreFacade.addBookmark).mockResolvedValue(undefined);
+			// TagBookmarkServiceをモック
+			vi.doMock('$lib/services/domain/tag-bookmark', () => ({
+				TagBookmarkService: {
+					create: vi.fn().mockResolvedValue(undefined)
+				}
+			}));
 
 			await TagService.addBookmark(projectId, 'tag-1');
 
-			expect(tagStoreFacade.addBookmark).toHaveBeenCalledWith('tag-1');
+			// TagBookmarkServiceのcreateが呼ばれることを確認
+			const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+			expect(TagBookmarkService.create).toHaveBeenCalledWith(projectId, 'tag-1');
 		});
 
-		it('should remove bookmark', () => {
-			TagService.removeBookmark('tag-1');
+		it('should remove bookmark', async () => {
+			// TagBookmarkServiceとtagBookmarkStoreをモック
+			vi.doMock('$lib/services/domain/tag-bookmark', () => ({
+				TagBookmarkService: {
+					delete: vi.fn().mockResolvedValue(undefined)
+				}
+			}));
+			vi.doMock('$lib/stores/tags/tag-bookmark-store.svelte', () => ({
+				tagBookmarkStore: {
+					findBookmarkByTagId: vi.fn().mockReturnValue({ id: 'bookmark-1' })
+				}
+			}));
 
-			expect(tagStoreFacade.removeBookmark).toHaveBeenCalledWith('tag-1');
+			await TagService.removeBookmark(projectId, 'tag-1');
+
+			const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+			const { tagBookmarkStore } = await import('$lib/stores/tags/tag-bookmark-store.svelte');
+			expect(tagBookmarkStore.findBookmarkByTagId).toHaveBeenCalledWith('tag-1');
+			expect(TagBookmarkService.delete).toHaveBeenCalledWith('bookmark-1', 'tag-1');
 		});
 
 		it('should surface errors from addBookmark', async () => {
 			const error = new Error('bookmark failed');
-			vi.mocked(tagStoreFacade.addBookmark).mockRejectedValue(error);
+			vi.doMock('$lib/services/domain/tag-bookmark', () => ({
+				TagBookmarkService: {
+					create: vi.fn().mockRejectedValue(error)
+				}
+			}));
 
 			await expect(TagService.addBookmark(projectId, 'tag-1')).rejects.toThrow('bookmark failed');
 		});

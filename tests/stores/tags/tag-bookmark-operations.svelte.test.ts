@@ -2,13 +2,23 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TagBookmarkOperations } from '$lib/stores/tags/tag-bookmark-operations.svelte';
 import { TagBookmarkStore } from '$lib/stores/tags/tag-bookmark-store.svelte';
 import type { Tag } from '$lib/types/tag';
-import { SvelteSet } from 'svelte/reactivity';
+import type { TagBookmark } from '$lib/types/tag-bookmark';
 
 // TagServiceのモック
 vi.mock('$lib/services/domain/tag', () => ({
 	TagService: {
 		getProjectIdByTagId: vi.fn(() => Promise.resolve('project-1')),
 		updateTag: vi.fn(() => Promise.resolve())
+	}
+}));
+
+// TagBookmarkServiceのモック
+vi.mock('$lib/services/domain/tag-bookmark', () => ({
+	TagBookmarkService: {
+		create: vi.fn(() => Promise.resolve()),
+		delete: vi.fn(() => Promise.resolve()),
+		toggleBookmark: vi.fn(() => Promise.resolve()),
+		reorder: vi.fn(() => Promise.resolve())
 	}
 }));
 
@@ -22,6 +32,8 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			orderIndex: 0,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			deleted: false,
+			updatedBy: 'test-user'
 		},
 		{
 			id: 'tag-2',
@@ -30,6 +42,8 @@ vi.mock('$lib/stores/tags/tag-store.svelte', () => {
 			orderIndex: 1,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			deleted: false,
+			updatedBy: 'test-user'
 		}
 	];
 
@@ -45,10 +59,76 @@ describe('TagBookmarkOperations', () => {
 	let bookmarkStore: TagBookmarkStore;
 	let bookmarkOps: TagBookmarkOperations;
 
-	beforeEach(() => {
+	beforeEach(async () => {
+		// モックをクリア
+		vi.clearAllMocks();
+
 		bookmarkStore = new TagBookmarkStore();
-		bookmarkStore.bookmarkedTags = new SvelteSet(['tag-1', 'tag-2']);
+
+		// モックのブックマークを設定
+		const mockBookmarks: TagBookmark[] = [
+			{
+				id: 'bookmark-1',
+				userId: 'test-user',
+				projectId: 'project-1',
+				tagId: 'tag-1',
+				orderIndex: 0,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
+			},
+			{
+				id: 'bookmark-2',
+				userId: 'test-user',
+				projectId: 'project-1',
+				tagId: 'tag-2',
+				orderIndex: 1,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
+			}
+		];
+		bookmarkStore.setBookmarks(mockBookmarks);
 		bookmarkOps = new TagBookmarkOperations(bookmarkStore);
+
+		// モックされたTagBookmarkServiceを取得して、ストアを操作するように設定
+		const { TagBookmarkService } = await import('$lib/services/domain/tag-bookmark');
+
+		vi.mocked(TagBookmarkService.create).mockImplementation(async (_projectId: string, tagId: string) => {
+			const newBookmark: TagBookmark = {
+				id: crypto.randomUUID(),
+				userId: 'test-user',
+				projectId: 'project-1',
+				tagId,
+				orderIndex: bookmarkStore.bookmarks.length,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString()
+			};
+			bookmarkStore.setBookmarks([...bookmarkStore.bookmarks, newBookmark]);
+			return newBookmark;
+		});
+
+		vi.mocked(TagBookmarkService.delete).mockImplementation(async (_bookmarkId: string, tagId: string) => {
+			const filtered = bookmarkStore.bookmarks.filter(b => b.tagId !== tagId);
+			bookmarkStore.setBookmarks(filtered);
+		});
+
+		vi.mocked(TagBookmarkService.toggleBookmark).mockImplementation(async (_projectId: string, tagId: string) => {
+			const exists = bookmarkStore.bookmarks.some(b => b.tagId === tagId);
+			if (exists) {
+				const filtered = bookmarkStore.bookmarks.filter(b => b.tagId !== tagId);
+				bookmarkStore.setBookmarks(filtered);
+			} else {
+				const newBookmark: TagBookmark = {
+					id: crypto.randomUUID(),
+					userId: 'test-user',
+					projectId: 'project-1',
+					tagId,
+					orderIndex: bookmarkStore.bookmarks.length,
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString()
+				};
+				bookmarkStore.setBookmarks([...bookmarkStore.bookmarks, newBookmark]);
+			}
+		});
 	});
 
 	describe('bookmarkedTagList', () => {
@@ -62,12 +142,12 @@ describe('TagBookmarkOperations', () => {
 	});
 
 	describe('toggleBookmark', () => {
-		it('ブックマークをトグルできる', () => {
-			bookmarkOps.toggleBookmark('tag-1');
+		it('ブックマークをトグルできる', async () => {
+			await bookmarkOps.toggleBookmark('tag-1');
 
 			expect(bookmarkOps.isBookmarked('tag-1')).toBe(false);
 
-			bookmarkOps.toggleBookmark('tag-1');
+			await bookmarkOps.toggleBookmark('tag-1');
 
 			expect(bookmarkOps.isBookmarked('tag-1')).toBe(true);
 		});
@@ -80,9 +160,10 @@ describe('TagBookmarkOperations', () => {
 		});
 	});
 
-		describe('addBookmark', () => {
-			it('ブックマークを追加できる', async () => {
-				bookmarkStore.bookmarkedTags = new SvelteSet();
+	describe('addBookmark', () => {
+		it('ブックマークを追加できる', async () => {
+			// ブックマークをクリア
+			bookmarkStore.clear();
 
 			await bookmarkOps.addBookmark('tag-1');
 
@@ -91,8 +172,8 @@ describe('TagBookmarkOperations', () => {
 	});
 
 	describe('removeBookmark', () => {
-		it('ブックマークを削除できる', () => {
-			bookmarkOps.removeBookmark('tag-1');
+		it('ブックマークを削除できる', async () => {
+			await bookmarkOps.removeBookmark('tag-1');
 
 			expect(bookmarkOps.isBookmarked('tag-1')).toBe(false);
 		});

@@ -31,6 +31,7 @@ describe('SubtaskTauriService', () => {
       orderIndex: 0,
       completed: false,
       assignedUserIds: [],
+      tagIds: [],
       tags: [],
       createdAt: new Date('2024-01-01T00:00:00Z'),
       updatedAt: new Date('2024-01-01T00:00:00Z'),
@@ -133,7 +134,8 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
         id: mockSubTask.id,
-        patch: patchData
+        patch: patchData,
+        userId: 'test-user-id'
       });
       expect(result).toBe(true);
     });
@@ -162,7 +164,8 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
         id: mockSubTask.id,
-        patch: patchData
+        patch: patchData,
+        userId: 'test-user-id'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update subtask:', expect.any(Error));
@@ -200,7 +203,8 @@ describe('SubtaskTauriService', () => {
       expect(mockInvoke).toHaveBeenCalledWith('update_sub_task', {
         projectId: 'test-project-id',
         id: updatedSubTask.id,
-        patch: patchData
+        patch: patchData,
+        userId: 'test-user-id'
       });
       expect(result).toBe(true);
     });
@@ -214,7 +218,8 @@ describe('SubtaskTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
         projectId: 'test-project-id',
-        id: 'subtask-123'
+        id: 'subtask-123',
+        userId: 'test-user-id'
       });
       expect(result).toBe(true);
     });
@@ -227,7 +232,8 @@ describe('SubtaskTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('delete_sub_task', {
         projectId: 'test-project-id',
-        id: 'subtask-123'
+        id: 'subtask-123',
+        userId: 'test-user-id'
       });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete sub task:', expect.any(Error));
@@ -244,7 +250,8 @@ describe('SubtaskTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
-        id: 'subtask-123'
+        id: 'subtask-123',
+        userId: 'test-user-id'
       });
       expect(result).toEqual(mockSubTask);
     });
@@ -256,7 +263,8 @@ describe('SubtaskTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
-        id: 'non-existent'
+        id: 'non-existent',
+        userId: 'test-user-id'
       });
       expect(result).toBeNull();
     });
@@ -269,7 +277,8 @@ describe('SubtaskTauriService', () => {
 
       expect(mockInvoke).toHaveBeenCalledWith('get_sub_task', {
         projectId: 'test-project-id',
-        id: 'subtask-123'
+        id: 'subtask-123',
+        userId: 'test-user-id'
       });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get sub task:', expect.any(Error));
@@ -279,6 +288,17 @@ describe('SubtaskTauriService', () => {
   });
 
   describe('search', () => {
+    let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+
+    beforeEach(() => {
+      // search は未実装のため、警告が出力される。テスト出力をクリーンに保つためモック化
+      consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
+    });
+
     it('should return empty array as search is not implemented', async () => {
       const result = await service.search();
 
@@ -387,11 +407,18 @@ describe('SubtaskTauriService', () => {
     });
 
     it('should handle different priority values', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      
       const result = await service.search();
 
       // search is not implemented, so invoke should not be called
       expect(mockInvoke).not.toHaveBeenCalled();
       expect(result).toEqual([]);
+      
+      // 未実装警告が出力されたことを検証
+      expect(consoleWarnSpy).toHaveBeenCalledWith('search_sub_tasks is not implemented on Tauri side - using mock implementation');
+      
+      consoleWarnSpy.mockRestore();
     });
   });
 });

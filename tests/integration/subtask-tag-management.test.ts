@@ -126,7 +126,6 @@ function createTestEnvironment() {
   const subTaskStoreMock = {
     addSubTask: vi.fn(async (_taskId: string, data: Partial<SubTaskWithTags>) => {
       if (_taskId !== task.id) {
-        console.error('Failed to find task for subtask creation:', _taskId);
         return null;
       }
       const newSubTask = createBaseSubTask({
@@ -320,6 +319,8 @@ describe('サブタスクとタグ管理の結合テスト', () => {
   });
 
   it('タグ追加でエラーが発生した場合はエラーハンドラーが呼び出される', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
     const created = await env.mutations.addSubTask('task-1', { title: 'Error Case' });
     env.taggingServiceMock.createSubtaskTag.mockRejectedValueOnce(new Error('network error'));
 
@@ -327,12 +328,22 @@ describe('サブタスクとタグ管理の結合テスト', () => {
 
     const subTask = env.getSubTaskById(created!.id);
     expect(subTask?.tags).toHaveLength(0);
+    
+    // エラーハンドラーが正しく呼ばれたことを検証
     expect(env.errorHandlerMock.addSyncError).toHaveBeenCalledWith(
       'サブタスクタグ追加',
       'subtask',
       created!.id,
       expect.any(Error)
     );
+    
+    // 適切なエラーログが出力されたことを検証
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to sync subtask tag addition to backends:',
+      expect.any(Error)
+    );
+    
+    consoleErrorSpy.mockRestore();
   });
 
   describe('エラーハンドリング', () => {

@@ -39,7 +39,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.create(mockAccount, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -49,7 +49,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.create(mockAccount, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('create_account', { account: mockAccount, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create account:', expect.any(Error));
 
@@ -63,7 +63,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.get('account-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123', userId: 'test-user-id' });
       expect(result).toEqual(mockAccount);
     });
 
@@ -72,7 +72,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.get('non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'non-existent' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'non-existent', userId: 'test-user-id' });
       expect(result).toBeNull();
     });
 
@@ -82,7 +82,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.get('account-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_account', { id: 'account-123', userId: 'test-user-id' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get account:', expect.any(Error));
 
@@ -96,7 +96,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.update(mockAccount.id, mockAccount, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -106,7 +106,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.update(mockAccount.id, mockAccount, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount });
+      expect(mockInvoke).toHaveBeenCalledWith('update_account', { id: mockAccount.id, patch: mockAccount, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update account:', expect.any(Error));
 
@@ -120,7 +120,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.delete('account-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123', userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -130,7 +130,7 @@ describe('AccountTauriService', () => {
 
       const result = await service.delete('account-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_account', { accountId: 'account-123', userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete account:', expect.any(Error));
 

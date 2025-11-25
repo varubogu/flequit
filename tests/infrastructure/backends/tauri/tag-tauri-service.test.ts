@@ -39,7 +39,7 @@ describe('TagTauriService', () => {
 
       const result = await service.create('test-project-id', mockTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -49,7 +49,7 @@ describe('TagTauriService', () => {
 
       const result = await service.create('test-project-id', mockTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: mockTag, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create tag:', expect.any(Error));
 
@@ -70,7 +70,7 @@ describe('TagTauriService', () => {
 
       const result = await service.create('test-project-id', minimalTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: minimalTag });
+      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: minimalTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -90,7 +90,7 @@ describe('TagTauriService', () => {
 
       const result = await service.create('test-project-id', fullTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: fullTag });
+      expect(mockInvoke).toHaveBeenCalledWith('create_tag', { projectId: 'test-project-id', tag: fullTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
   });
@@ -101,7 +101,7 @@ describe('TagTauriService', () => {
 
       const result = await service.update('test-project-id', mockTag.id, mockTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -111,7 +111,7 @@ describe('TagTauriService', () => {
 
       const result = await service.update('test-project-id', mockTag.id, mockTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: mockTag.id, patch: mockTag, userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update tag:', expect.any(Error));
 
@@ -129,7 +129,7 @@ describe('TagTauriService', () => {
 
       const result = await service.update('test-project-id', updatedTag.id, updatedTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: updatedTag.id, patch: updatedTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: updatedTag.id, patch: updatedTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -144,7 +144,7 @@ describe('TagTauriService', () => {
 
       const result = await service.update('test-project-id', renamedTag.id, renamedTag, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: renamedTag.id, patch: renamedTag });
+      expect(mockInvoke).toHaveBeenCalledWith('update_tag', { projectId: 'test-project-id', tagId: renamedTag.id, patch: renamedTag, userId: 'test-user-id' });
       expect(result).toBe(true);
     });
   });
@@ -155,7 +155,7 @@ describe('TagTauriService', () => {
 
       const result = await service.delete('test-project-id', 'tag-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123', userId: 'test-user-id' });
       expect(result).toBe(true);
     });
 
@@ -165,7 +165,7 @@ describe('TagTauriService', () => {
 
       const result = await service.delete('test-project-id', 'tag-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_tag', { projectId: 'test-project-id', id: 'tag-123', userId: 'test-user-id' });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete tag:', expect.any(Error));
 
@@ -179,7 +179,7 @@ describe('TagTauriService', () => {
 
       const result = await service.get('test-project-id', 'tag-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123', userId: 'test-user-id' });
       expect(result).toEqual(mockTag);
     });
 
@@ -188,7 +188,7 @@ describe('TagTauriService', () => {
 
       const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'non-existent' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'non-existent', userId: 'test-user-id' });
       expect(result).toBeNull();
     });
 
@@ -198,7 +198,7 @@ describe('TagTauriService', () => {
 
       const result = await service.get('test-project-id', 'tag-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_tag', { projectId: 'test-project-id', id: 'tag-123', userId: 'test-user-id' });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get tag:', expect.any(Error));
 
