@@ -18,5 +18,8 @@
     "sqlx",
     "tauri",
     "thiserror"
-  ]
+  ],
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  }
 }
