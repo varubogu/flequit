@@ -27,15 +27,13 @@ vi.mock('$lib/stores/locale.svelte', () => ({
   reactiveMessage: (fn: () => string) => fn
 }));
 
-const { mockViewsVisibilityStore } = vi.hoisted(() => {
-	const visible: ViewItem[] = [
+// Initialize mock store outside hoisted to avoid initialization errors
+const mockViewsVisibilityStore = new MockViewsVisibilityStore({
+	visible: [
 		{ id: 'today', label: 'Today', icon: '📅', visible: true, order: 0 },
 		{ id: 'upcoming', label: 'Upcoming', icon: '🔜', visible: true, order: 1 }
-	];
-	const hidden: ViewItem[] = [{ id: 'completed', label: 'Completed', icon: '✅', visible: false, order: 2 }];
-	return {
-		mockViewsVisibilityStore: new MockViewsVisibilityStore({ visible, hidden })
-	};
+	],
+	hidden: [{ id: 'completed', label: 'Completed', icon: '✅', visible: false, order: 2 }]
 });
 
 // Mock SettingsDraggableItems component

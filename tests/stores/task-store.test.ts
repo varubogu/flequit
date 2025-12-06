@@ -340,6 +340,8 @@ describe('TaskStore', () => {
     });
 
     test('addTask should return null for non-existent list', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
       const result = await taskCoreStore.addTask('non-existent-list', {
         projectId: 'non-existent-proj',
         listId: 'non-existent-list',
@@ -355,6 +357,13 @@ describe('TaskStore', () => {
       });
 
       expect(result).toBeNull();
+      
+      // エラーログが出力されたことを検証
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Task list not found: non-existent-list'
+      );
+      
+      consoleErrorSpy.mockRestore();
     });
 
     test('deleteTask should remove the task and clear selection if selected', async () => {
@@ -414,12 +423,22 @@ describe('TaskStore', () => {
     });
 
     test('addSubTask should handle creation failure gracefully', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
       const result = await subTaskStore.addSubTask('non-existent-task', {
         title: 'Failed SubTask'
       });
 
       // 失敗時は null が返され、ローカル状態にも変化がない
       expect(result).toBeNull();
+      
+      // エラーログが出力されたことを検証
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to find task for subtask creation:',
+        'non-existent-task'
+      );
+      
+      consoleErrorSpy.mockRestore();
 
       // 期待通り、実際のタスクリストには追加されていない
       const allTasks = store.allTasks;
@@ -441,8 +460,16 @@ describe('TaskStore', () => {
   });
 
   describe('subtask tag management', () => {
+    let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+
     beforeEach(() => {
       store.setProjects([createMockProject()]);
+      // deprecated メソッドの警告を抑制
+      consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
     });
 
     test('addTagToSubTask should be no-op without backends (graceful)', async () => {

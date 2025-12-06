@@ -140,6 +140,17 @@ describe('TagStoreFacade (Integration)', () => {
 	});
 
 	describe('ブックマーク操作', () => {
+		let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
+		beforeEach(() => {
+			// ブックマーク操作でのエラーログを抑制（ユーザーがいない、ブックマークが見つからない等）
+			consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		});
+
+		afterEach(() => {
+			consoleErrorSpy.mockRestore();
+		});
+
 		it('ブックマークをトグルできる', () => {
 			store.toggleBookmark('tag-1');
 
@@ -150,15 +161,21 @@ describe('TagStoreFacade (Integration)', () => {
 		it('ブックマークを追加できる', async () => {
 			await store.addBookmark('tag-1');
 
-			// エラーが発生しないことを確認
-			expect(true).toBe(true);
+			// ユーザーがいないためエラーログが出力される
+			expect(consoleErrorSpy).toHaveBeenCalledWith(
+				'[TagBookmarkService.create] No current user - account:',
+				null
+			);
 		});
 
 		it('ブックマークを削除できる', () => {
 			store.removeBookmark('tag-1');
 
-			// エラーが発生しないことを確認
-			expect(true).toBe(true);
+			// ブックマークが見つからないためエラーログが出力される
+			expect(consoleErrorSpy).toHaveBeenCalledWith(
+				'Bookmark not found for tag:',
+				'tag-1'
+			);
 		});
 	});
 
