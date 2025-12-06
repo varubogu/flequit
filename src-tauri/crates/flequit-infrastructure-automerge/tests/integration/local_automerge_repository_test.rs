@@ -3,7 +3,7 @@
 //! Repository trait、DocumentManager、FileStorageの連携をテストし、
 //! 実際のCRUD操作とautomerge-repoの動作を結合テストレベルで検証する
 
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde_json::json;
 use std::path::{Path, PathBuf};
 
@@ -121,6 +121,8 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // テスト用プロジェクトデータを作成
     let project_id = ProjectId::new();
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+    let user_id = UserId::new();
     let project = Project {
         id: project_id.clone(),
         name: "統合テストプロジェクト".to_string(),
@@ -130,14 +132,16 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
         is_archived: false,
         status: None,
         owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     println!("Creating project: {:?}", project.name);
 
     // Create操作テスト
-    repository.save(&project).await?;
+    repository.save(&project, &user_id, &timestamp).await?;
     println!("✅ Project created successfully");
 
     // Read操作テスト
@@ -155,7 +159,7 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
     updated_project.color = Some("#33ff57".to_string());
     updated_project.updated_at = Utc::now();
 
-    repository.save(&updated_project).await?;
+    repository.save(&updated_project, &user_id, &timestamp).await?;
     println!("✅ Project updated successfully");
 
     // 更新確認
@@ -212,6 +216,9 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
 
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone()).await?;
 
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+    let user_id = UserId::new();
+
     // 複数のプロジェクトを作成
     let mut projects = Vec::new();
     for i in 0..5 {
@@ -223,9 +230,11 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
             order_index: i as i32,
             is_archived: false,
             status: None,
-            owner_id: Some(UserId::new()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            owner_id: Some(user_id),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: user_id,
         };
         projects.push(project);
     }
@@ -238,7 +247,7 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
 
     // 並行作成
     for project in &projects {
-        repository.save(project).await?;
+        repository.save(project, &user_id, &timestamp).await?;
         project_list_repository
             .add_or_update_project(project)
             .await?;
@@ -264,8 +273,9 @@ async fn test_multiple_projects_concurrent_operations() -> Result<(), Box<dyn st
             updated_project.name = format!("更新されたプロジェクト_{}", i + 1);
             updated_project.description = Some(format!("更新された説明 {}", i + 1));
             updated_project.updated_at = Utc::now();
+            updated_project.updated_by = user_id;
 
-            repository.save(&updated_project).await?;
+            repository.save(&updated_project, &user_id, &timestamp).await?;
             project_list_repository
                 .add_or_update_project(&updated_project)
                 .await?;
@@ -305,6 +315,8 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
     let repository = ProjectLocalAutomergeRepository::new(automerge_dir.clone()).await?;
 
     let project_id = ProjectId::new();
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+    let user_id = UserId::new();
 
     // Stage 1: 基本プロジェクト作成
     let stage1_project = Project {
@@ -315,12 +327,14 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
         order_index: 0,
         is_archived: false,
         status: None,
-        owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        owner_id: Some(user_id),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
-    repository.save(&stage1_project).await?;
+    repository.save(&stage1_project, &user_id, &timestamp).await?;
     println!("✅ Stage 1: Basic project created");
 
     // Stage 1の状態をエクスポート
@@ -335,14 +349,17 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
         .await?;
 
     // Stage 2: タグとメンバー追加
+    let user_id2 = UserId::new();
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let mut stage2_project = stage1_project.clone();
     stage2_project.name = "段階的変更テストプロジェクト（ステージ2）".to_string();
     stage2_project.description = Some("ステージ2で更新されたプロジェクト".to_string());
     stage2_project.color = Some("#cc6600".to_string());
     stage2_project.order_index = 1;
-    stage2_project.updated_at = Utc::now();
+    stage2_project.updated_at = timestamp2;
+    stage2_project.updated_by = user_id2;
 
-    repository.save(&stage2_project).await?;
+    repository.save(&stage2_project, &user_id2, &timestamp2).await?;
     println!("✅ Stage 2: Tags and members added");
 
     // Stage 2の状態をエクスポート
@@ -356,15 +373,18 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
         .await?;
 
     // Stage 3: プロジェクト詳細拡張
+    let timestamp3 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+    let user_id3 = UserId::new();
     let mut stage3_project = stage2_project.clone();
     stage3_project.name = "段階的変更テストプロジェクト（最終版）".to_string();
     stage3_project.description = Some("ステージ3で完成されたプロジェクト".to_string());
     stage3_project.color = Some("#00cc66".to_string());
     stage3_project.order_index = 2;
     stage3_project.is_archived = false;
-    stage3_project.updated_at = Utc::now();
+    stage3_project.updated_at = timestamp3;
+    stage3_project.updated_by = user_id3;
 
-    repository.save(&stage3_project).await?;
+    repository.save(&stage3_project, &user_id3, &timestamp3).await?;
     println!("✅ Stage 3: Project fully enhanced");
 
     // Stage 3の状態をエクスポート
@@ -441,6 +461,9 @@ async fn test_project_repository_json_export_with_detailed_changes(
 
     // プロジェクト1: 基本プロジェクト
     let project1_id = ProjectId::new();
+    let user_id = UserId::new();
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+
     let project1 = Project {
         id: project1_id.clone(),
         name: "基本プロジェクト".to_string(),
@@ -449,12 +472,14 @@ async fn test_project_repository_json_export_with_detailed_changes(
         order_index: 0,
         is_archived: false,
         status: None,
-        owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        owner_id: Some(user_id),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
-    repository.save(&project1).await?;
+    repository.save(&project1, &user_id, &timestamp).await?;
     println!("📝 プロジェクト1作成完了: {}", project1.name);
 
     // Change 1をエクスポート
@@ -470,6 +495,8 @@ async fn test_project_repository_json_export_with_detailed_changes(
 
     // プロジェクト2: 第二のプロジェクト追加
     let project2_id = ProjectId::new();
+    let user_id2 = UserId::new();
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project2_id.clone(),
         name: "拡張プロジェクト".to_string(),
@@ -478,12 +505,14 @@ async fn test_project_repository_json_export_with_detailed_changes(
         order_index: 1,
         is_archived: false,
         status: None,
-        owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        owner_id: Some(user_id2),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
-    repository.save(&project2).await?;
+    repository.save(&project2, &user_id2, &timestamp2).await?;
     println!("📝 プロジェクト2作成完了: {}", project2.name);
 
     // Change 2をエクスポート
@@ -497,14 +526,17 @@ async fn test_project_repository_json_export_with_detailed_changes(
         .await?;
 
     // プロジェクト1を更新（色変更とアーカイブ）
+    let user_id3 = UserId::new();
+    let timestamp3 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let mut updated_project1 = project1.clone();
     updated_project1.name = "更新された基本プロジェクト".to_string();
     updated_project1.description = Some("説明を更新したプロジェクト".to_string());
     updated_project1.color = Some("#f39c12".to_string());
     updated_project1.order_index = 10;
-    updated_project1.updated_at = Utc::now();
+    updated_project1.updated_at = timestamp3;
+    updated_project1.updated_by = user_id3;
 
-    repository.save(&updated_project1).await?;
+    repository.save(&updated_project1, &user_id3, &timestamp3).await?;
     println!("📝 プロジェクト1更新完了: {}", updated_project1.name);
 
     // Change 3をエクスポート
@@ -519,6 +551,8 @@ async fn test_project_repository_json_export_with_detailed_changes(
 
     // プロジェクト3: 第三のプロジェクト追加（複雑な設定）
     let project3_id = ProjectId::new();
+    let user_id_p3 = UserId::new();
+    let timestamp_p3 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project3 = Project {
         id: project3_id.clone(),
         name: "高度な設定プロジェクト".to_string(),
@@ -528,11 +562,13 @@ async fn test_project_repository_json_export_with_detailed_changes(
         is_archived: false,
         status: None,
         owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp_p3,
+        updated_at: timestamp_p3,
+        deleted: false,
+        updated_by: user_id_p3.clone(),
     };
 
-    repository.save(&project3).await?;
+    repository.save(&project3, &user_id_p3, &timestamp_p3).await?;
     println!("📝 プロジェクト3作成完了: {}", project3.name);
 
     // Change 4をエクスポート
@@ -547,11 +583,14 @@ async fn test_project_repository_json_export_with_detailed_changes(
 
     // プロジェクト2をアーカイブ
     let mut archived_project2 = project2.clone();
+    let user_id_archive = UserId::new();
+    let timestamp_archive = Utc::now();
     archived_project2.is_archived = true;
     archived_project2.name = "アーカイブされた拡張プロジェクト".to_string();
-    archived_project2.updated_at = Utc::now();
+    archived_project2.updated_at = timestamp_archive;
+    archived_project2.updated_by = user_id_archive.clone();
 
-    repository.save(&archived_project2).await?;
+    repository.save(&archived_project2, &user_id_archive, &timestamp_archive).await?;
     println!("📝 プロジェクト2アーカイブ完了: {}", archived_project2.name);
 
     // Change 5をエクスポート
@@ -634,6 +673,7 @@ async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std:
 
     // プロジェクトを作成（ユーザーと関連付け）
     let project_id = ProjectId::new();
+    let timestamp = Utc::now();
     let project = Project {
         id: project_id.clone(),
         name: "統合テスト用プロジェクト".to_string(),
@@ -643,11 +683,13 @@ async fn test_multiple_repository_types_integration() -> Result<(), Box<dyn std:
         is_archived: false,
         status: None,
         owner_id: Some(user_id.clone()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
     println!("✅ Project created with user relationship");
 
     // プロジェクトの検証
@@ -691,6 +733,8 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
     println!("✅ Non-existent ID handling verified");
 
     // 存在しないプロジェクトの更新テスト
+    let fake_user_id = UserId::new();
+    let fake_timestamp = Utc::now();
     let fake_project = Project {
         id: ProjectId::new(),
         name: "存在しないプロジェクト".to_string(),
@@ -700,12 +744,14 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         is_archived: false,
         status: None,
         owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: fake_timestamp,
+        updated_at: fake_timestamp,
+        deleted: false,
+        updated_by: fake_user_id.clone(),
     };
 
     // 更新は成功する可能性があります（automergeの特性上、新規作成として扱われる場合）
-    let update_result = repository.save(&fake_project).await;
+    let update_result = repository.save(&fake_project, &fake_user_id, &fake_timestamp).await;
     println!(
         "✅ Update non-existent project result: {:?}",
         update_result.is_ok()
@@ -719,6 +765,8 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
     );
 
     // 空のプロジェクト名でのテスト
+    let empty_user_id = UserId::new();
+    let empty_timestamp = Utc::now();
     let empty_name_project = Project {
         id: ProjectId::new(),
         name: "".to_string(),
@@ -728,17 +776,21 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         is_archived: false,
         status: None,
         owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: empty_timestamp,
+        updated_at: empty_timestamp,
+        deleted: false,
+        updated_by: empty_user_id.clone(),
     };
 
-    let create_result = repository.save(&empty_name_project).await;
+    let create_result = repository.save(&empty_name_project, &empty_user_id, &empty_timestamp).await;
     println!(
         "✅ Empty name project creation result: {:?}",
         create_result.is_ok()
     );
 
     // 大きなデータでのテスト
+    let large_user_id = UserId::new();
+    let large_timestamp = Utc::now();
     let large_project = Project {
         id: ProjectId::new(),
         name: "大きなプロジェクト".to_string(),
@@ -748,11 +800,13 @@ async fn test_error_handling_and_edge_cases() -> Result<(), Box<dyn std::error::
         is_archived: false,
         status: None,
         owner_id: Some(UserId::new()),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: large_timestamp,
+        updated_at: large_timestamp,
+        deleted: false,
+        updated_by: large_user_id.clone(),
     };
 
-    let large_create_result = repository.save(&large_project).await;
+    let large_create_result = repository.save(&large_project, &large_user_id, &large_timestamp).await;
     println!(
         "✅ Large project creation result: {:?}",
         large_create_result.is_ok()
@@ -798,6 +852,8 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     // テスト用TaskListデータを作成
     let task_list_id = TaskListId::new();
     let project_id = ProjectId::new();
+    let user_id = UserId::new();
+    let timestamp = Utc::now();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -806,14 +862,16 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
         color: Some("#3498db".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     println!("Creating task list: {:?}", task_list.name);
 
     // Create操作テスト
-    repository.save(&project_id, &task_list).await?;
+    repository.save(&project_id, &task_list, &user_id, &timestamp).await?;
     println!("✅ TaskList created successfully");
 
     // Read操作テスト
@@ -828,13 +886,16 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
 
     // Update操作テスト
     let mut updated_task_list = task_list.clone();
+    let update_user_id = UserId::new();
+    let update_timestamp = Utc::now();
     updated_task_list.name = "更新された統合テスト用タスクリスト".to_string();
     updated_task_list.description = Some("更新されたタスクリスト説明".to_string());
     updated_task_list.color = Some("#e74c3c".to_string());
     updated_task_list.order_index = 2;
-    updated_task_list.updated_at = Utc::now();
+    updated_task_list.updated_at = update_timestamp;
+    updated_task_list.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_task_list).await?;
+    repository.save(&project_id, &updated_task_list, &update_user_id, &update_timestamp).await?;
     println!("✅ TaskList updated successfully");
 
     // 更新確認
@@ -925,6 +986,8 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     let task_id = TaskId::new();
     let project_id = ProjectId::new();
     let task_list_id = TaskListId::new();
+    let user_id = UserId::new();
+    let timestamp = Utc::now();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -943,14 +1006,16 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     println!("Creating task: {:?}", task.title);
 
     // Create操作テスト
-    repository.save(&project_id, &task).await?;
+    repository.save(&project_id, &task, &user_id, &timestamp).await?;
     println!("✅ Task created successfully");
 
     // Read操作テスト
@@ -965,13 +1030,16 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
 
     // Update操作テスト
     let mut updated_task = task.clone();
+    let update_user_id = UserId::new();
+    let update_timestamp = Utc::now();
     updated_task.title = "更新された統合テスト用タスク".to_string();
     updated_task.description = Some("更新されたタスク説明".to_string());
     updated_task.status = TaskStatus::InProgress;
     updated_task.priority = 2;
-    updated_task.updated_at = Utc::now();
+    updated_task.updated_at = update_timestamp;
+    updated_task.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_task).await?;
+    repository.save(&project_id, &updated_task, &update_user_id, &update_timestamp).await?;
     println!("✅ Task updated successfully");
 
     // 更新確認
@@ -1035,6 +1103,8 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     let project_id = ProjectId::new();
     let subtask_id = SubTaskId::new();
     let task_id = TaskId::new();
+    let user_id = UserId::new();
+    let timestamp = Utc::now();
     let subtask = SubTask {
         id: subtask_id.clone(),
         task_id: task_id.clone(),
@@ -1052,14 +1122,16 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     println!("Creating subtask: {:?}", subtask.title);
 
     // Create操作テスト
-    repository.save(&project_id, &subtask).await?;
+    repository.save(&project_id, &subtask, &user_id, &timestamp).await?;
     println!("✅ SubTask created successfully");
 
     // Read操作テスト
@@ -1073,13 +1145,16 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // Update操作テスト
     let mut updated_subtask = subtask.clone();
+    let update_user_id = UserId::new();
+    let update_timestamp = Utc::now();
     updated_subtask.title = "更新された統合テスト用サブタスク".to_string();
     updated_subtask.description = Some("更新されたサブタスク説明".to_string());
     updated_subtask.status = TaskStatus::Completed;
     updated_subtask.order_index = 2;
-    updated_subtask.updated_at = Utc::now();
+    updated_subtask.updated_at = update_timestamp;
+    updated_subtask.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_subtask).await?;
+    repository.save(&project_id, &updated_subtask, &update_user_id, &update_timestamp).await?;
     println!("✅ SubTask updated successfully");
 
     // 更新確認
@@ -1145,19 +1220,23 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     // テスト用プロジェクトIDとTagデータを作成
     let project_id = ProjectId::new();
     let tag_id = TagId::new();
+    let user_id = UserId::new();
+    let timestamp = Utc::now();
     let tag = Tag {
         id: tag_id.clone(),
         name: "統合テスト".to_string(),
         color: Some("#f39c12".to_string()),
         order_index: Some(1),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     println!("Creating tag: {:?}", tag.name);
 
     // Create操作テスト
-    repository.save(&project_id, &tag).await?;
+    repository.save(&project_id, &tag, &user_id, &timestamp).await?;
     println!("✅ Tag created successfully");
 
     // Read操作テスト
@@ -1171,12 +1250,15 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
 
     // Update操作テスト
     let mut updated_tag = tag.clone();
+    let update_user_id = UserId::new();
+    let update_timestamp = Utc::now();
     updated_tag.name = "更新された統合テスト".to_string();
     updated_tag.color = Some("#e74c3c".to_string());
     updated_tag.order_index = Some(2);
-    updated_tag.updated_at = Utc::now();
+    updated_tag.updated_at = update_timestamp;
+    updated_tag.updated_by = update_user_id.clone();
 
-    repository.save(&project_id, &updated_tag).await?;
+    repository.save(&project_id, &updated_tag, &update_user_id, &update_timestamp).await?;
     println!("✅ Tag updated successfully");
 
     // 更新確認

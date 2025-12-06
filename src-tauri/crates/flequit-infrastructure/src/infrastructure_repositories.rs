@@ -479,6 +479,10 @@ pub mod mock {
 
     #[async_trait]
     impl InfrastructureRepositoriesTrait for MockInfrastructureRepositories {
+        fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+            None
+        }
+
         fn accounts(&self) -> &AccountUnifiedRepository {
             self.log_call("accounts");
             &self.accounts

@@ -237,7 +237,12 @@ impl AccountRepositoryTrait for AccountLocalAutomergeRepository {}
 
 #[async_trait]
 impl Repository<Account, AccountId> for AccountLocalAutomergeRepository {
-    async fn save(&self, entity: &Account, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        entity: &Account,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         // 既存のset_userメソッドを活用
         self.set_user(entity).await
     }
@@ -310,6 +315,8 @@ mod tests {
             is_active: true,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            deleted: false,
+            updated_by: UserId::new(),
         };
 
         // Vec<Account>の完全な保存/読み込みテスト（改良後）
@@ -328,6 +335,8 @@ mod tests {
             is_active: false,
             created_at: Utc::now(),
             updated_at: Utc::now(),
+            deleted: false,
+            updated_by: UserId::new(),
         };
 
         repo.set_user(&account2).await.unwrap();
@@ -399,23 +408,30 @@ mod tests {
         // Repository トレイトとして使用
         let repository: &dyn Repository<Account, AccountId> = &repo;
 
+        // テスト用ユーザーID
+        let user_id = UserId::new();
+        // テスト用タイムスタンプ
+        let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+
         // テスト用アカウント作成
         let test_account_id = AccountId::new();
         let account = Account {
             id: test_account_id,
-            user_id: UserId::new(),
+            user_id: user_id,
             email: Some("repo_test@example.com".to_string()),
             display_name: Some("Repository Test User".to_string()),
             avatar_url: None,
             provider: "local".to_string(),
             provider_id: None,
             is_active: true,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: user_id,
         };
 
         // Repository トレイトメソッドのテスト
-        repository.save(&account).await.unwrap();
+        repository.save(&account, &user_id, &timestamp).await.unwrap();
 
         let found = repository.find_by_id(&test_account_id).await.unwrap();
         assert!(found.is_some());

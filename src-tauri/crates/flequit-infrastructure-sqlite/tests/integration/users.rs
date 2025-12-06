@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteユーザーリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::users::user::UserLocalSqliteRepository;
 use flequit_model::models::users::user::User;
@@ -34,6 +35,7 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
 
     // テストデータ作成
     let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user = User {
         id: user_id.clone(),
         handle_id: "test_user1".to_string(),
@@ -43,12 +45,14 @@ async fn test_user_create_operation() -> Result<(), Box<dyn std::error::Error>> 
         bio: Some("Create操作のためのテストユーザーです".to_string()),
         timezone: Some("Asia/Tokyo".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作（saveメソッドを使用）
-    user_repo.save(&user).await?;
+    user_repo.save(&user, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved_user = user_repo.find_by_id(&user_id).await?;
@@ -82,6 +86,7 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user1 = User {
         id: user_id1.clone(),
         handle_id: "read_test_user1".to_string(),
@@ -91,11 +96,14 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
         bio: Some("Read操作のためのテストユーザー1".to_string()),
         timezone: Some("America/New_York".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user2 = User {
         id: user_id2.clone(),
         handle_id: "read_test_user2".to_string(),
@@ -105,13 +113,15 @@ async fn test_user_read_operation() -> Result<(), Box<dyn std::error::Error>> {
         bio: None,
         timezone: Some("Europe/London".to_string()),
         is_active: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    user_repo.save(&user1).await?;
-    user_repo.save(&user2).await?;
+    user_repo.save(&user1, &user_id1, &timestamp).await?;
+    user_repo.save(&user2, &user_id2, &timestamp).await?;
 
     // 1件目のみRead操作
     let retrieved_user = user_repo.find_by_id(&user_id1).await?;
@@ -148,6 +158,7 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
 
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user1 = User {
         id: user_id1.clone(),
         handle_id: "update_test_user1".to_string(),
@@ -157,11 +168,14 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
         bio: Some("Update操作のためのテストユーザー1".to_string()),
         timezone: Some("Asia/Tokyo".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user2 = User {
         id: user_id2.clone(),
         handle_id: "update_test_user2".to_string(),
@@ -171,13 +185,15 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
         bio: None,
         timezone: Some("UTC".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    user_repo.save(&user1).await?;
-    user_repo.save(&user2).await?;
+    user_repo.save(&user1, &user_id1, &timestamp).await?;
+    user_repo.save(&user2, &user_id2, &timestamp).await?;
 
     // 1件目のみUpdate操作
     let mut updated_user = user1.clone();
@@ -186,8 +202,9 @@ async fn test_user_update_operation() -> Result<(), Box<dyn std::error::Error>> 
     updated_user.email = Some("updated1@example.com".to_string());
     updated_user.bio = Some("更新されたユーザーの説明".to_string());
     updated_user.is_active = false;
-    updated_user.updated_at = chrono::Utc::now();
-    user_repo.save(&updated_user).await?;
+    updated_user.updated_at = timestamp;
+    updated_user.updated_by = user_id2;
+    user_repo.save(&updated_user, &user_id2, &timestamp).await?;
 
     // 更新後の取得確認（1件目）
     let retrieved_updated = user_repo.find_by_id(&user_id1).await?;
@@ -229,6 +246,7 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
 
     // 2件のテストデータを作成
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user1 = User {
         id: user_id1.clone(),
         handle_id: "delete_test_user1".to_string(),
@@ -238,11 +256,14 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
         bio: Some("Delete操作のためのテストユーザー1".to_string()),
         timezone: Some("Asia/Tokyo".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user2 = User {
         id: user_id2.clone(),
         handle_id: "delete_test_user2".to_string(),
@@ -252,13 +273,15 @@ async fn test_user_delete_operation() -> Result<(), Box<dyn std::error::Error>> 
         bio: None,
         timezone: Some("UTC".to_string()),
         is_active: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    user_repo.save(&user1).await?;
-    user_repo.save(&user2).await?;
+    user_repo.save(&user1, &user_id1, &timestamp).await?;
+    user_repo.save(&user2, &user_id2, &timestamp).await?;
 
     // 1件目のみDelete操作
     user_repo.delete(&user_id1).await?;
@@ -304,6 +327,7 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
 
     // DB1にユーザー作成
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user1 = User {
         id: user_id1.clone(),
         handle_id: "db1_user".to_string(),
@@ -313,10 +337,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         bio: None,
         timezone: Some("Asia/Tokyo".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id1,
     };
-    user_repo1.save(&user1).await?;
+    user_repo1.save(&user1, &user_id1, &timestamp).await?;
 
     // DB2からは見えないことを確認
     let not_found = user_repo2.find_by_id(&user_id1).await?;
@@ -324,6 +350,7 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
 
     // DB2にも別のユーザー作成
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let user2 = User {
         id: user_id2.clone(),
         handle_id: "db2_user".to_string(),
@@ -333,10 +360,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         bio: None,
         timezone: Some("UTC".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id2,
     };
-    user_repo2.save(&user2).await?;
+    user_repo2.save(&user2, &user_id2, &timestamp).await?;
 
     // DB1からは見えないことを確認
     let not_found = user_repo1.find_by_id(&user_id2).await?;

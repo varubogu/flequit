@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクタグリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
@@ -48,6 +49,8 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
 
     // テストデータ作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "SubtaskTag紐づけテスト用プロジェクト".to_string(),
@@ -57,12 +60,16 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -71,14 +78,18 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         color: None,
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
     task_list_repo
-        .save(&task_list.project_id, &task_list)
+        .save(&task_list.project_id, &task_list, &user_id, &timestamp)
         .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -97,10 +108,12 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&task.project_id, &task).await?;
+    task_repo.save(&task.project_id, &task, &user_id, &timestamp).await?;
 
     let subtask_id = SubTaskId::from(Uuid::new_v4());
     let subtask = SubTask {
@@ -120,33 +133,43 @@ async fn test_subtask_tag_relation_operations() -> Result<(), Box<dyn std::error
         tag_ids: vec![], // 初期状態では空
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    subtask_repo.save(&task.project_id, &subtask).await?;
+    subtask_repo.save(&task.project_id, &subtask, &user_id, &timestamp).await?;
 
     // テスト用タグ作成
     let tag1_id = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag1_id.clone(),
         name: "詳細調査".to_string(),
         color: Some("#00BCD4".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    tag_repo.save(&project_id, &tag1).await?;
+    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
 
     let tag2_id = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag2_id.clone(),
         name: "確認要".to_string(),
         color: Some("#795548".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    tag_repo.save(&project_id, &tag2).await?;
+    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
 
     // 1. サブタスクとタグの関連付け追加テスト
     subtask_tag_repo
@@ -225,6 +248,8 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
 
     // テストデータ作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "SubtaskTag一括更新テスト用プロジェクト".to_string(),
@@ -234,12 +259,16 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -248,14 +277,18 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         color: None,
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
     task_list_repo
-        .save(&task_list.project_id, &task_list)
+        .save(&task_list.project_id, &task_list, &user_id, &timestamp)
         .await?;
 
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -274,12 +307,16 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&task.project_id, &task).await?;
+    task_repo.save(&task.project_id, &task, &user_id, &timestamp).await?;
 
     let subtask_id = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask = SubTask {
         id: subtask_id.clone(),
         task_id: task_id.clone(),
@@ -297,24 +334,30 @@ async fn test_subtask_tag_bulk_update() -> Result<(), Box<dyn std::error::Error>
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    subtask_repo.save(&task.project_id, &subtask).await?;
+    subtask_repo.save(&task.project_id, &subtask, &user_id, &timestamp).await?;
 
     // テスト用タグ作成
     let mut tag_ids = Vec::new();
     for i in 1..=3 {
         let tag_id = TagId::from(Uuid::new_v4());
+        let user_id = UserId::from(Uuid::new_v4());
+        let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
         let tag = Tag {
             id: tag_id.clone(),
             name: format!("サブタスクタグ{}", i),
             color: None,
             order_index: Some(i),
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: user_id,
         };
-        tag_repo.save(&project_id, &tag).await?;
+        tag_repo.save(&project_id, &tag, &user_id, &timestamp).await?;
         tag_ids.push(tag_id);
     }
 

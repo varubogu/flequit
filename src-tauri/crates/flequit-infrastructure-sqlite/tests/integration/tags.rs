@@ -2,10 +2,11 @@
 //!
 //! testing.mdルール準拠のSQLiteタグリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::tag::TagLocalSqliteRepository;
 use flequit_model::models::task_projects::tag::Tag;
-use flequit_model::types::id_types::{ProjectId, TagId};
+use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::project_repository_trait::ProjectRepository;
 use std::sync::Arc;
 use uuid::Uuid;
@@ -37,17 +38,21 @@ async fn test_tag_create_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     // タグ作成
     let tag_id = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag = Tag {
         id: tag_id.clone(),
         name: "Create操作SQLiteタグ".to_string(),
         color: Some("#FF9800".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作
-    tag_repo.save(&project_id, &tag).await?;
+    tag_repo.save(&project_id, &tag, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved = tag_repo.find_by_id(&project_id, &tag_id).await?;
@@ -83,28 +88,36 @@ async fn test_tag_read_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "Read操作SQLiteタグ1".to_string(),
         color: Some("#E91E63".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "Read操作SQLiteタグ2".to_string(),
         color: Some("#9C27B0".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    tag_repo.save(&project_id, &tag1).await?;
-    tag_repo.save(&project_id, &tag2).await?;
+    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
+    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
 
     // 1件目のみRead操作
     let retrieved = tag_repo.find_by_id(&project_id, &tag_id1).await?;
@@ -143,35 +156,43 @@ async fn test_tag_update_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "Update操作SQLiteタグ1".to_string(),
         color: Some("#FF5722".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "Update操作SQLiteタグ2".to_string(),
         color: Some("#607D8B".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+            created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    tag_repo.save(&project_id, &tag1).await?;
-    tag_repo.save(&project_id, &tag2).await?;
+    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
+    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
 
     // 1件目のみUpdate操作
     let mut updated = tag1.clone();
     updated.name = "更新されたUpdate操作SQLiteタグ1".to_string();
     updated.color = Some("#009688".to_string());
     updated.order_index = Some(3);
-    tag_repo.save(&project_id, &updated).await?;
+    tag_repo.save(&project_id, &updated, &user_id, &timestamp).await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = tag_repo.find_by_id(&project_id, &tag_id1).await?;
@@ -212,28 +233,36 @@ async fn test_tag_delete_operation() -> Result<(), Box<dyn std::error::Error>> {
 
     // 2件のタグ作成
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "Delete操作SQLiteタグ1".to_string(),
         color: Some("#3F51B5".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "Delete操作SQLiteタグ2".to_string(),
         color: Some("#FF9800".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    tag_repo.save(&project_id, &tag1).await?;
-    tag_repo.save(&project_id, &tag2).await?;
+    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
+    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
 
     // 1件目のみDelete操作
     tag_repo.delete(&project_id, &tag_id1).await?;
@@ -274,28 +303,36 @@ async fn test_tag_unique_constraint_across_projects() -> Result<(), Box<dyn std:
 
     // 同じ名前のタグを異なるプロジェクトで作成
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "共通タグ名".to_string(),
         color: Some("#FF9800".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "共通タグ名".to_string(), // 同じ名前
         color: Some("#E91E63".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 異なるプロジェクトで同じ名前のタグを作成（成功するはず）
-    tag_repo.save(&project_id1, &tag1).await?;
-    tag_repo.save(&project_id2, &tag2).await?;
+    tag_repo.save(&project_id1, &tag1, &user_id, &timestamp).await?;
+    tag_repo.save(&project_id2, &tag2, &user_id, &timestamp).await?;
 
     // 両方のタグが正常に作成されたことを確認
     let retrieved1 = tag_repo.find_by_id(&project_id1, &tag_id1).await?;
@@ -332,31 +369,39 @@ async fn test_tag_unique_constraint_within_project() -> Result<(), Box<dyn std::
 
     // 最初のタグを作成
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "重複テストタグ".to_string(),
         color: Some("#FF9800".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 同じプロジェクト内で同じ名前のタグを作成
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "重複テストタグ".to_string(), // 同じ名前
         color: Some("#E91E63".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 最初のタグを保存
-    tag_repo.save(&project_id, &tag1).await?;
+    tag_repo.save(&project_id, &tag1, &user_id, &timestamp).await?;
 
     // 同じプロジェクト内で同じ名前のタグを保存（重複チェックにより無視されるはず）
-    tag_repo.save(&project_id, &tag2).await?;
+    tag_repo.save(&project_id, &tag2, &user_id, &timestamp).await?;
 
     // 最初のタグが存在することを確認
     let retrieved1 = tag_repo.find_by_id(&project_id, &tag_id1).await?;
@@ -398,24 +443,29 @@ async fn test_tag_update_with_same_name() -> Result<(), Box<dyn std::error::Erro
 
     // タグを作成
     let tag_id = TagId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let mut tag = Tag {
         id: tag_id.clone(),
         name: "更新テストタグ".to_string(),
         color: Some("#FF9800".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 最初の保存
-    tag_repo.save(&project_id, &tag).await?;
+    tag_repo.save(&project_id, &tag, &user_id, &timestamp).await?;
 
     // 同じタグの名前を変更して更新
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     tag.name = "更新されたタグ名".to_string();
     tag.color = Some("#E91E63".to_string());
-    tag.updated_at = chrono::Utc::now();
+    tag.updated_at = timestamp2;
 
-    tag_repo.save(&project_id, &tag).await?;
+    tag_repo.save(&project_id, &tag, &user_id, &timestamp2).await?;
 
     // 更新されたタグを取得して確認
     let retrieved = tag_repo.find_by_id(&project_id, &tag_id).await?;

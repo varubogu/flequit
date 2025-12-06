@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteアカウントリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::accounts::account::AccountLocalSqliteRepository;
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_model::models::accounts::account::Account;
@@ -34,6 +35,7 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
     // テストデータ作成
     let account_id = AccountId::from(Uuid::new_v4());
     let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account = Account {
         id: account_id.clone(),
         user_id: user_id.clone(),
@@ -43,12 +45,14 @@ async fn test_account_create_operation() -> Result<(), Box<dyn std::error::Error
         provider: "google".to_string(),
         provider_id: Some("google_123456789".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作（saveメソッドを使用）
-    account_repo.save(&account).await?;
+    account_repo.save(&account, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved_account = account_repo.find_by_id(&account_id).await?;
@@ -84,6 +88,7 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account1 = Account {
         id: account_id1.clone(),
         user_id: user_id1.clone(),
@@ -93,12 +98,15 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
         provider: "github".to_string(),
         provider_id: Some("github_111".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account2 = Account {
         id: account_id2.clone(),
         user_id: user_id2.clone(),
@@ -108,13 +116,15 @@ async fn test_account_read_operation() -> Result<(), Box<dyn std::error::Error>>
         provider: "local".to_string(),
         provider_id: None,
         is_active: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    account_repo.save(&account1).await?;
-    account_repo.save(&account2).await?;
+    account_repo.save(&account1, &user_id1, &timestamp1).await?;
+    account_repo.save(&account2, &user_id2, &timestamp2).await?;
 
     // 1件目のみRead操作
     let retrieved_account = account_repo.find_by_id(&account_id1).await?;
@@ -153,6 +163,7 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account1 = Account {
         id: account_id1.clone(),
         user_id: user_id1.clone(),
@@ -162,12 +173,15 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
         provider: "google".to_string(),
         provider_id: Some("google_update1".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account2 = Account {
         id: account_id2.clone(),
         user_id: user_id2.clone(),
@@ -177,19 +191,23 @@ async fn test_account_update_operation() -> Result<(), Box<dyn std::error::Error
         provider: "github".to_string(),
         provider_id: Some("github_update2".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    account_repo.save(&account1).await?;
-    account_repo.save(&account2).await?;
+    account_repo.save(&account1, &user_id1, &timestamp1).await?;
+    account_repo.save(&account2, &user_id2, &timestamp2).await?;
 
     // 1件目のUpdate操作 - 基本的なフィールドをテスト
+    let timestamp3 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let mut updated_account = account1.clone();
     updated_account.is_active = false; // is_activeフィールドの更新をテスト
-    updated_account.updated_at = chrono::Utc::now();
-    account_repo.save(&updated_account).await?;
+    updated_account.updated_at = timestamp3;
+    updated_account.updated_by = user_id2;
+    account_repo.save(&updated_account, &user_id2, &timestamp3).await?;
 
     // 更新後の取得確認（1件目）- is_activeフィールドが更新されたことを確認
     let retrieved_updated = account_repo.find_by_id(&account_id1).await?;
@@ -231,6 +249,7 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
     // 2件のテストデータを作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account1 = Account {
         id: account_id1.clone(),
         user_id: user_id1.clone(),
@@ -240,12 +259,15 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
         provider: "google".to_string(),
         provider_id: Some("google_delete1".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account2 = Account {
         id: account_id2.clone(),
         user_id: user_id2.clone(),
@@ -255,13 +277,15 @@ async fn test_account_delete_operation() -> Result<(), Box<dyn std::error::Error
         provider: "local".to_string(),
         provider_id: None,
         is_active: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    account_repo.save(&account1).await?;
-    account_repo.save(&account2).await?;
+    account_repo.save(&account1, &user_id1, &timestamp1).await?;
+    account_repo.save(&account2, &user_id2, &timestamp2).await?;
 
     // 1件目のみDelete操作
     account_repo.delete(&account_id1).await?;
@@ -299,6 +323,7 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
     // Google認証アカウント
     let google_account_id = AccountId::from(Uuid::new_v4());
     let google_user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let google_account = Account {
         id: google_account_id.clone(),
         user_id: google_user_id.clone(),
@@ -308,13 +333,16 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         provider: "google".to_string(),
         provider_id: Some("google_123456789".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: google_user_id,
     };
 
     // GitHub認証アカウント
     let github_account_id = AccountId::from(Uuid::new_v4());
     let github_user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let github_account = Account {
         id: github_account_id.clone(),
         user_id: github_user_id.clone(),
@@ -324,13 +352,16 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         provider: "github".to_string(),
         provider_id: Some("github_123456".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: github_user_id,
     };
 
     // ローカル認証アカウント
     let local_account_id = AccountId::from(Uuid::new_v4());
     let local_user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let local_account = Account {
         id: local_account_id.clone(),
         user_id: local_user_id.clone(),
@@ -340,14 +371,16 @@ async fn test_account_provider_specific_operations() -> Result<(), Box<dyn std::
         provider: "local".to_string(),
         provider_id: None,
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: local_user_id,
     };
 
     // 全て保存
-    account_repo.save(&google_account).await?;
-    account_repo.save(&github_account).await?;
-    account_repo.save(&local_account).await?;
+    account_repo.save(&google_account, &google_user_id, &timestamp).await?;
+    account_repo.save(&github_account, &github_user_id, &timestamp).await?;
+    account_repo.save(&local_account, &local_user_id, &timestamp).await?;
 
     // 各プロバイダーアカウントの取得確認
     let retrieved_google = account_repo.find_by_id(&google_account_id).await?;
@@ -405,6 +438,7 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // DB1にアカウント作成
     let account_id1 = AccountId::from(Uuid::new_v4());
     let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account1 = Account {
         id: account_id1.clone(),
         user_id: user_id1.clone(),
@@ -414,10 +448,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         provider: "local".to_string(),
         provider_id: None,
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id1,
     };
-    account_repo1.save(&account1).await?;
+    account_repo1.save(&account1, &user_id1, &timestamp).await?;
 
     // DB2からは見えないことを確認
     let not_found = account_repo2.find_by_id(&account_id1).await?;
@@ -426,6 +462,7 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
     // DB2にも別のアカウント作成
     let account_id2 = AccountId::from(Uuid::new_v4());
     let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let account2 = Account {
         id: account_id2.clone(),
         user_id: user_id2.clone(),
@@ -435,10 +472,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         provider: "google".to_string(),
         provider_id: Some("google_db2".to_string()),
         is_active: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
-    account_repo2.save(&account2).await?;
+    account_repo2.save(&account2, &user_id2, &timestamp2).await?;
 
     // DB1からは見えないことを確認
     let not_found = account_repo1.find_by_id(&account_id2).await?;

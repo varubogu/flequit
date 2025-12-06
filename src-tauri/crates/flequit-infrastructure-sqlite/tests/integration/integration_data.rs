@@ -2,6 +2,7 @@
 //!
 //! 複数エンティティにわたる統合テスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
@@ -49,6 +50,8 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
 
     // === プロジェクトを2件作成 ===
     let project_id1 = ProjectId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project1 = Project {
         id: project_id1.clone(),
         name: "マルチエンティティテストプロジェクト1".to_string(),
@@ -58,11 +61,15 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let project_id2 = ProjectId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project_id2.clone(),
         name: "マルチエンティティテストプロジェクト2".to_string(),
@@ -72,12 +79,14 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
-    project_repo.save(&project1).await?;
-    project_repo.save(&project2).await?;
+    project_repo.save(&project1, &user_id1, &timestamp1).await?;
+    project_repo.save(&project2, &user_id2, &timestamp2).await?;
 
     // プロジェクト取得確認
     let retrieved_project1 = project_repo.find_by_id(&project_id1).await?;
@@ -97,8 +106,10 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         color: Some("#795548".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let task_list_id2 = TaskListId::from(Uuid::new_v4());
@@ -110,16 +121,16 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         color: Some("#009688".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     task_list_repo
-        .save(&task_list1.project_id, &task_list1)
-        .await?;
+        .save(&task_list1.project_id, &task_list1, &user_id1, &timestamp1).await?;
     task_list_repo
-        .save(&task_list2.project_id, &task_list2)
-        .await?;
+        .save(&task_list2.project_id, &task_list2, &user_id2, &timestamp2).await?;
 
     // タスクリスト取得確認
     let retrieved_task_list1 = task_list_repo
@@ -136,6 +147,8 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     // === タスクを2件作成 ===
 
     let task_id1 = TaskId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task1 = Task {
         id: task_id1.clone(),
         project_id: project_id1.clone(),
@@ -154,11 +167,15 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let task_id2 = TaskId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task2 = Task {
         id: task_id2.clone(),
         project_id: project_id2.clone(),
@@ -177,12 +194,14 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
-    task_repo.save(&task1.project_id, &task1).await?;
-    task_repo.save(&task2.project_id, &task2).await?;
+    task_repo.save(&task1.project_id, &task1, &user_id1, &timestamp1).await?;
+    task_repo.save(&task2.project_id, &task2, &user_id2, &timestamp2).await?;
 
     // タスク取得確認
     let retrieved_task1 = task_repo.find_by_id(&task1.project_id, &task_id1).await?;
@@ -194,6 +213,8 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
 
     // === サブタスクを2件作成 ===
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask1 = SubTask {
         id: subtask_id1.clone(),
         task_id: task_id1.clone(),
@@ -211,11 +232,15 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let subtask_id2 = SubTaskId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask2 = SubTask {
         id: subtask_id2.clone(),
         task_id: task_id2.clone(),
@@ -233,12 +258,14 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
         tag_ids: vec![],
         order_index: 1,
         completed: true,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
-    subtask_repo.save(&project_id1, &subtask1).await?;
-    subtask_repo.save(&project_id2, &subtask2).await?;
+    subtask_repo.save(&project_id1, &subtask1, &user_id1, &timestamp1).await?;
+    subtask_repo.save(&project_id2, &subtask2, &user_id2, &timestamp2).await?;
 
     // サブタスク取得確認
     let retrieved_subtask1 = subtask_repo.find_by_id(&project_id1, &subtask_id1).await?;
@@ -250,27 +277,35 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
 
     // === タグを2件作成 ===
     let tag_id1 = TagId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp3 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag1 = Tag {
         id: tag_id1.clone(),
         name: "マルチエンティティテストタグ1".to_string(),
         color: Some("#F44336".to_string()),
         order_index: Some(1),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp3,
+        updated_at: timestamp3,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let tag_id2 = TagId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp4 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let tag2 = Tag {
         id: tag_id2.clone(),
         name: "マルチエンティティテストタグ2".to_string(),
         color: Some("#3F51B5".to_string()),
         order_index: Some(2),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp4,
+        updated_at: timestamp4,
+        deleted: false,
+        updated_by: user_id2,
     };
 
-    tag_repo.save(&project_id1, &tag1).await?;
-    tag_repo.save(&project_id2, &tag2).await?;
+    tag_repo.save(&project_id1, &tag1, &user_id1, &timestamp3).await?;
+    tag_repo.save(&project_id2, &tag2, &user_id2, &timestamp4).await?;
 
     // タグ取得確認
     let retrieved_tag1 = tag_repo.find_by_id(&project_id1, &tag_id1).await?;
@@ -284,7 +319,7 @@ async fn test_multiple_entities_crud_operations() -> Result<(), Box<dyn std::err
     // プロジェクト更新
     let mut updated_project1 = project1.clone();
     updated_project1.name = "更新済みマルチエンティティテストプロジェクト1".to_string();
-    project_repo.save(&updated_project1).await?;
+    project_repo.save(&updated_project1, &user_id1, &timestamp1).await?;
 
     let retrieved_updated_project1 = project_repo.find_by_id(&project_id1).await?;
     assert!(retrieved_updated_project1.is_some());

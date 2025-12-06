@@ -127,7 +127,7 @@ where
     R: InfrastructureRepositoriesTrait + Send + Sync,
 {
     let now = Utc::now();
-    let mut updated_bookmarks: Vec<TagBookmark> = bookmarks
+    let updated_bookmarks: Vec<TagBookmark> = bookmarks
         .iter()
         .map(|b| {
             let mut updated = b.clone();

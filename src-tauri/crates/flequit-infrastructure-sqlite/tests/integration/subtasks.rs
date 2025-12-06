@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteサブタスクリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository, subtask::SubTaskLocalSqliteRepository,
@@ -44,6 +45,8 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Create操作サブタスクテスト用プロジェクト".to_string(),
@@ -52,14 +55,18 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         order_index: 1,
         is_archived: false,
         status: Some(ProjectStatus::Active),
-        owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        owner_id: Some(user_id.clone()),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 親タスクリスト作成
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -68,13 +75,17 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#FF9800".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list).await?;
+    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -93,13 +104,17 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&project_id, &task).await?;
+    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
 
     // サブタスク作成
     let subtask_id = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask = SubTask {
         id: subtask_id.clone(),
         task_id: task_id.clone(),
@@ -117,12 +132,14 @@ async fn test_subtask_create_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作
-    subtask_repo.save(&project_id, &subtask).await?;
+    subtask_repo.save(&project_id, &subtask, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id).await?;
@@ -158,6 +175,8 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Read操作サブタスクテスト用プロジェクト".to_string(),
@@ -166,14 +185,18 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         order_index: 1,
         is_archived: false,
         status: Some(ProjectStatus::Active),
-        owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        owner_id: Some(user_id.clone()),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 親タスクリスト作成
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -182,13 +205,17 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         color: Some("#E91E63".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list).await?;
+    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -207,13 +234,17 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&project_id, &task).await?;
+    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask1 = SubTask {
         id: subtask_id1.clone(),
         task_id: task_id.clone(),
@@ -231,11 +262,15 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let subtask_id2 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask2 = SubTask {
         id: subtask_id2.clone(),
         task_id: task_id.clone(),
@@ -253,13 +288,15 @@ async fn test_subtask_read_operation() -> Result<(), Box<dyn std::error::Error>>
         tag_ids: vec![],
         order_index: 2,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1).await?;
-    subtask_repo.save(&project_id, &subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
+    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
 
     // 1件目のみRead操作
     let retrieved = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
@@ -298,6 +335,8 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Update操作サブタスクテスト用プロジェクト".to_string(),
@@ -307,13 +346,17 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 親タスクリスト作成
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -322,13 +365,17 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#9C27B0".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list).await?;
+    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -347,13 +394,17 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&project_id, &task).await?;
+    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask1 = SubTask {
         id: subtask_id1.clone(),
         task_id: task_id.clone(),
@@ -371,11 +422,15 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let subtask_id2 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask2 = SubTask {
         id: subtask_id2.clone(),
         task_id: task_id.clone(),
@@ -393,13 +448,15 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 2,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1).await?;
-    subtask_repo.save(&project_id, &subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
+    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
 
     // 1件目のみUpdate操作
     let mut updated = subtask1.clone();
@@ -408,8 +465,8 @@ async fn test_subtask_update_operation() -> Result<(), Box<dyn std::error::Error
     updated.status = TaskStatus::Completed;
     updated.priority = Some(3);
     updated.completed = true;
-    updated.do_end_date = Some(chrono::Utc::now());
-    subtask_repo.save(&project_id, &updated).await?;
+    updated.do_end_date = Some(timestamp);
+    subtask_repo.save(&project_id, &updated, &user_id, &timestamp).await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = subtask_repo.find_by_id(&project_id, &subtask_id1).await?;
@@ -452,6 +509,8 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Delete操作サブタスクテスト用プロジェクト".to_string(),
@@ -461,13 +520,17 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 親タスクリスト作成
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -476,13 +539,17 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#FF5722".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_list_repo.save(&project_id, &task_list).await?;
+    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
 
     // 親タスク作成
     let task_id = TaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task = Task {
         id: task_id.clone(),
         project_id: project_id.clone(),
@@ -501,13 +568,17 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    task_repo.save(&project_id, &task).await?;
+    task_repo.save(&project_id, &task, &user_id, &timestamp).await?;
 
     // 2件のサブタスク作成
     let subtask_id1 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask1 = SubTask {
         id: subtask_id1.clone(),
         task_id: task_id.clone(),
@@ -525,11 +596,15 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let subtask_id2 = SubTaskId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let subtask2 = SubTask {
         id: subtask_id2.clone(),
         task_id: task_id.clone(),
@@ -547,13 +622,15 @@ async fn test_subtask_delete_operation() -> Result<(), Box<dyn std::error::Error
         tag_ids: vec![],
         order_index: 2,
         completed: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    subtask_repo.save(&project_id, &subtask1).await?;
-    subtask_repo.save(&project_id, &subtask2).await?;
+    subtask_repo.save(&project_id, &subtask1, &user_id, &timestamp).await?;
+    subtask_repo.save(&project_id, &subtask2, &user_id, &timestamp).await?;
 
     // 1件目のみDelete操作
     subtask_repo.delete(&project_id, &subtask_id1).await?;

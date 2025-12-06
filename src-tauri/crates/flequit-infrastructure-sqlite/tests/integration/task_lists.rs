@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteタスクリストリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::{
     project::ProjectLocalSqliteRepository, task_list::TaskListLocalSqliteRepository,
@@ -39,6 +40,8 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Create操作タスクリストテスト用プロジェクト".to_string(),
@@ -48,13 +51,17 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // タスクリスト作成
     let task_list_id = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list = TaskList {
         id: task_list_id.clone(),
         project_id: project_id.clone(),
@@ -63,12 +70,14 @@ async fn test_task_list_create_operation() -> Result<(), Box<dyn std::error::Err
         color: Some("#FF9800".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作
-    task_list_repo.save(&project_id, &task_list).await?;
+    task_list_repo.save(&project_id, &task_list, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved = task_list_repo
@@ -104,6 +113,8 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Read操作タスクリストテスト用プロジェクト".to_string(),
@@ -113,13 +124,17 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 2件のタスクリスト作成
     let task_list_id1 = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list1 = TaskList {
         id: task_list_id1.clone(),
         project_id: project_id.clone(),
@@ -128,11 +143,15 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#E91E63".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let task_list_id2 = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list2 = TaskList {
         id: task_list_id2.clone(),
         project_id: project_id.clone(),
@@ -141,13 +160,15 @@ async fn test_task_list_read_operation() -> Result<(), Box<dyn std::error::Error
         color: Some("#9C27B0".to_string()),
         order_index: 2,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1).await?;
-    task_list_repo.save(&project_id, &task_list2).await?;
+    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
+    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
 
     // 1件目のみRead操作
     let retrieved = task_list_repo
@@ -189,6 +210,8 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Update操作タスクリストテスト用プロジェクト".to_string(),
@@ -198,10 +221,12 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 2件のタスクリスト作成
     let task_list_id1 = TaskListId::from(Uuid::new_v4());
@@ -213,11 +238,15 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
         color: Some("#FF5722".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let task_list_id2 = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list2 = TaskList {
         id: task_list_id2.clone(),
         project_id: project_id.clone(),
@@ -226,20 +255,22 @@ async fn test_task_list_update_operation() -> Result<(), Box<dyn std::error::Err
         color: Some("#607D8B".to_string()),
         order_index: 2,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1).await?;
-    task_list_repo.save(&project_id, &task_list2).await?;
+    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
+    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
 
     // 1件目のみUpdate操作
     let mut updated = task_list1.clone();
     updated.name = "更新されたUpdate操作SQLiteタスクリスト1".to_string();
     updated.description = Some("更新されたUpdate操作SQLiteテスト用タスクリスト1".to_string());
     updated.color = Some("#009688".to_string());
-    task_list_repo.save(&project_id, &updated).await?;
+    task_list_repo.save(&project_id, &updated, &user_id, &timestamp).await?;
 
     // 更新後の取得確認（1件目）
     let updated_result = task_list_repo
@@ -283,6 +314,8 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
 
     // 親プロジェクト作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Delete操作タスクリストテスト用プロジェクト".to_string(),
@@ -292,13 +325,17 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 2件のタスクリスト作成
     let task_list_id1 = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list1 = TaskList {
         id: task_list_id1.clone(),
         project_id: project_id.clone(),
@@ -307,11 +344,15 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
         color: Some("#FF9800".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     let task_list_id2 = TaskListId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let task_list2 = TaskList {
         id: task_list_id2.clone(),
         project_id: project_id.clone(),
@@ -320,13 +361,15 @@ async fn test_task_list_delete_operation() -> Result<(), Box<dyn std::error::Err
         color: Some("#673AB7".to_string()),
         order_index: 2,
         is_archived: false,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // 2件とも保存
-    task_list_repo.save(&project_id, &task_list1).await?;
-    task_list_repo.save(&project_id, &task_list2).await?;
+    task_list_repo.save(&project_id, &task_list1, &user_id, &timestamp).await?;
+    task_list_repo.save(&project_id, &task_list2, &user_id, &timestamp).await?;
 
     // 1件目のみDelete操作
     task_list_repo.delete(&project_id, &task_list_id1).await?;

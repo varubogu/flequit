@@ -202,7 +202,12 @@ impl UserRepositoryTrait for UserLocalAutomergeRepository {}
 
 #[async_trait]
 impl Repository<User, UserId> for UserLocalAutomergeRepository {
-    async fn save(&self, entity: &User, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(
+        &self,
+        entity: &User,
+        _user_id: &UserId,
+        _timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
         // 既存のset_userメソッドを活用
         self.set_user(entity).await
     }
@@ -258,6 +263,12 @@ mod tests {
         let users = repo.list_users().await.unwrap();
         assert_eq!(users.len(), 0);
 
+        // テスト用ユーザーID
+        let user_id = UserId::new();
+
+        // テスト用タイムスタンプ
+        let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+
         // テスト用ユーザーを作成
         let test_user_id = UserId::new();
         let user = User {
@@ -269,15 +280,20 @@ mod tests {
             bio: Some("Test bio".to_string()),
             timezone: Some("UTC".to_string()),
             is_active: true,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: user_id,
         };
 
         // Vec<User>の完全な保存/読み込みテスト
         repo.set_user(&user).await.unwrap();
 
-        // 追加のテストユーザーを作成
+        // 追加のテストユーザー2を作成
         let test_user_id2 = UserId::new();
+        // テスト用タイムスタンプ2
+        let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+
         let user2 = User {
             id: test_user_id2,
             handle_id: "seconduser".to_string(),
@@ -287,8 +303,10 @@ mod tests {
             bio: None,
             timezone: Some("Asia/Tokyo".to_string()),
             is_active: true,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: timestamp2,
+            updated_at: timestamp2,
+            deleted: false,
+            updated_by: user_id,
         };
 
         repo.set_user(&user2).await.unwrap();
@@ -358,6 +376,9 @@ mod tests {
 
         // テスト用ユーザー作成
         let test_user_id = UserId::new();
+        // テスト用タイムスタンプ
+        let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
+
         let user = User {
             id: test_user_id,
             handle_id: "repotestuser".to_string(),
@@ -367,12 +388,14 @@ mod tests {
             bio: None,
             timezone: None,
             is_active: true,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: test_user_id,
         };
 
         // Repository トレイトメソッドのテスト
-        repository.save(&user).await.unwrap();
+        repository.save(&user, &test_user_id, &timestamp).await.unwrap();
 
         let found = repository.find_by_id(&test_user_id).await.unwrap();
         assert!(found.is_some());

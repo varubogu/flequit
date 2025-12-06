@@ -97,6 +97,7 @@ impl TestProjectDocumentRepository {
         project_id: &ProjectId,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // 統合後のAPIではProject構造体が必要
+        let timestamp = Utc::now();
         let project = Project {
             id: project_id.clone(),
             name: format!("Test Project {}", project_id),
@@ -106,8 +107,10 @@ impl TestProjectDocumentRepository {
             is_archived: false,
             status: None,
             owner_id: None,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: timestamp,
+            updated_at: timestamp,
+            deleted: false,
+            updated_by: UserId::new(),
         };
         Ok(self.inner.create_empty_project_document(&project).await?)
     }
@@ -264,6 +267,9 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
     // 1. TaskList 2個追加テスト
     println!("\n📝 TaskList Tests");
 
+    let timestamp = Utc::now();
+    let user_id = UserId::new();
+
     let task_list_1 = TaskList {
         id: TaskListId::new(),
         project_id: project_id.clone(),
@@ -272,8 +278,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         color: Some("#e3f2fd".to_string()),
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     let task_list_2 = TaskList {
@@ -284,8 +292,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         color: Some("#fff3e0".to_string()),
         order_index: 2,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     repository.add_task_list(&project_id, &task_list_1).await?;
@@ -326,8 +336,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         tag_ids: vec![],
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     let task_2 = Task {
@@ -348,8 +360,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         tag_ids: vec![],
         order_index: 2,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     repository.add_task(&project_id, &task_1).await?;
@@ -389,8 +403,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         tag_ids: vec![],
         order_index: 1,
         completed: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     let subtask_2 = SubTask {
@@ -410,8 +426,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         tag_ids: vec![],
         order_index: 2,
         completed: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     repository.add_subtask(&project_id, &subtask_1).await?;
@@ -439,8 +457,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         name: "重要".to_string(),
         color: Some("#ff5722".to_string()),
         order_index: Some(1),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     let tag_2 = Tag {
@@ -448,8 +468,10 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         name: "緊急".to_string(),
         color: Some("#f44336".to_string()),
         order_index: Some(2),
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     repository.add_tag(&project_id, &tag_1).await?;
@@ -476,16 +498,20 @@ async fn test_project_document_comprehensive_operations() -> Result<(), Box<dyn 
         id: MemberId::new(),
         user_id: UserId::new(),
         role: MemberRole::Owner,
-        joined_at: Utc::now(),
-        updated_at: Utc::now(),
+        joined_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     let member_2 = Member {
         id: MemberId::new(),
         user_id: UserId::new(),
         role: MemberRole::Admin,
-        joined_at: Utc::now(),
-        updated_at: Utc::now(),
+        joined_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
 
     repository.add_member(&project_id, &member_1).await?;
@@ -639,6 +665,8 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
         .await?;
 
     // プロジェクト1にタスクリスト追加
+    let timestamp = Utc::now();
+    let user_id = UserId::new();
     let task_list_p1 = TaskList {
         id: TaskListId::new(),
         project_id: project_id_1.clone(),
@@ -647,8 +675,10 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
         color: None,
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
     repository
         .add_task_list(&project_id_1, &task_list_p1)
@@ -663,8 +693,10 @@ async fn test_multiple_projects_isolation() -> Result<(), Box<dyn std::error::Er
         color: None,
         order_index: 1,
         is_archived: false,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id.clone(),
     };
     repository
         .add_task_list(&project_id_2, &task_list_p2)

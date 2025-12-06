@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use flequit_model::types::id_types::{TagId, UserId};
 use serde::{Deserialize, Serialize};
 

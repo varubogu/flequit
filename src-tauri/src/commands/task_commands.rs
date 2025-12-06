@@ -8,7 +8,6 @@ use crate::models::{
 };
 use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, task_facades};
-use flequit_model::models::task_projects::recurrence_rule::PartialRecurrenceRule;
 use flequit_model::models::task_projects::task::PartialTask;
 use flequit_model::models::ModelConverter;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId, UserId};

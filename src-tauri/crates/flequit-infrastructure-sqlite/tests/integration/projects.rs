@@ -2,6 +2,7 @@
 //!
 //! testing.mdルール準拠のSQLiteプロジェクトリポジトリテスト
 
+use chrono::{DateTime, Utc};
 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
 use flequit_infrastructure_sqlite::infrastructure::task_projects::project::ProjectLocalSqliteRepository;
 use flequit_model::models::task_projects::project::Project;
@@ -36,6 +37,8 @@ async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error
 
     // テストデータ作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "Create操作テストプロジェクト".to_string(),
@@ -45,12 +48,14 @@ async fn test_project_create_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     // Create操作（saveメソッドを使用）
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     // 作成確認
     let retrieved_project = project_repo.find_by_id(&project_id).await?;
@@ -83,6 +88,8 @@ async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>>
 
     // 2件のテストデータを作成
     let project_id1 = ProjectId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project1 = Project {
         id: project_id1.clone(),
         name: "Read操作テストプロジェクト1".to_string(),
@@ -92,11 +99,15 @@ async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>>
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let project_id2 = ProjectId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project_id2.clone(),
         name: "Read操作テストプロジェクト2".to_string(),
@@ -106,13 +117,15 @@ async fn test_project_read_operation() -> Result<(), Box<dyn std::error::Error>>
         is_archived: false,
         status: Some(ProjectStatus::Planning),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    project_repo.save(&project1).await?;
-    project_repo.save(&project2).await?;
+    project_repo.save(&project1, &user_id1, &timestamp1).await?;
+    project_repo.save(&project2, &user_id2, &timestamp2).await?;
 
     // 1件目のみRead操作
     let retrieved_project = project_repo.find_by_id(&project_id1).await?;
@@ -149,6 +162,8 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
 
     // 2件のテストデータを作成
     let project_id1 = ProjectId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project1 = Project {
         id: project_id1.clone(),
         name: "Update操作テストプロジェクト1".to_string(),
@@ -158,11 +173,15 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let project_id2 = ProjectId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project_id2.clone(),
         name: "Update操作テストプロジェクト2".to_string(),
@@ -172,13 +191,15 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::OnHold),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    project_repo.save(&project1).await?;
-    project_repo.save(&project2).await?;
+    project_repo.save(&project1, &user_id1, &timestamp1).await?;
+    project_repo.save(&project2, &user_id2, &timestamp2).await?;
 
     // 1件目のみUpdate操作
     let mut updated_project = project1.clone();
@@ -186,7 +207,7 @@ async fn test_project_update_operation() -> Result<(), Box<dyn std::error::Error
     updated_project.description =
         Some("更新されたUpdate操作のためのテストプロジェクト1".to_string());
     updated_project.status = Some(ProjectStatus::Completed);
-    project_repo.save(&updated_project).await?;
+    project_repo.save(&updated_project, &user_id1, &timestamp1).await?;
 
     // 更新後の取得確認（1件目）
     let retrieved_updated = project_repo.find_by_id(&project_id1).await?;
@@ -225,6 +246,8 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
 
     // 2件のテストデータを作成
     let project_id1 = ProjectId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project1 = Project {
         id: project_id1.clone(),
         name: "Delete操作テストプロジェクト1".to_string(),
@@ -234,11 +257,15 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
 
     let project_id2 = ProjectId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project_id2.clone(),
         name: "Delete操作テストプロジェクト2".to_string(),
@@ -248,13 +275,15 @@ async fn test_project_delete_operation() -> Result<(), Box<dyn std::error::Error
         is_archived: false,
         status: Some(ProjectStatus::Completed),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
 
     // 2件とも保存
-    project_repo.save(&project1).await?;
-    project_repo.save(&project2).await?;
+    project_repo.save(&project1, &user_id1, &timestamp1).await?;
+    project_repo.save(&project2, &user_id2, &timestamp2).await?;
 
     // 1件目のみDelete操作
     project_repo.delete(&project_id1).await?;
@@ -302,6 +331,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
 
     // DB1にプロジェクト作成
     let project_id1 = ProjectId::from(Uuid::new_v4());
+    let user_id1 = UserId::from(Uuid::new_v4());
+    let timestamp1 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project1 = Project {
         id: project_id1.clone(),
         name: "DB1プロジェクト".to_string(),
@@ -311,10 +342,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp1,
+        updated_at: timestamp1,
+        deleted: false,
+        updated_by: user_id1,
     };
-    project_repo1.save(&project1).await?;
+    project_repo1.save(&project1, &user_id1, &timestamp1).await?;
 
     // DB2からは見えないことを確認
     let not_found = project_repo2.find_by_id(&project_id1).await?;
@@ -322,6 +355,8 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
 
     // DB2にも別のプロジェクト作成
     let project_id2 = ProjectId::from(Uuid::new_v4());
+    let user_id2 = UserId::from(Uuid::new_v4());
+    let timestamp2 = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project2 = Project {
         id: project_id2.clone(),
         name: "DB2プロジェクト".to_string(),
@@ -331,10 +366,12 @@ async fn test_repository_isolation() -> Result<(), Box<dyn std::error::Error>> {
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp2,
+        updated_at: timestamp2,
+        deleted: false,
+        updated_by: user_id2,
     };
-    project_repo2.save(&project2).await?;
+    project_repo2.save(&project2, &user_id2, &timestamp2).await?;
 
     // DB1からは見えないことを確認
     let not_found = project_repo1.find_by_id(&project_id2).await?;
@@ -365,6 +402,8 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
 
     // テストデータ作成
     let project_id = ProjectId::from(Uuid::new_v4());
+    let user_id = UserId::from(Uuid::new_v4());
+    let timestamp = DateTime::<Utc>::from_timestamp(1717708800, 0).unwrap();
     let project = Project {
         id: project_id.clone(),
         name: "デバッグテストプロジェクト".to_string(),
@@ -374,14 +413,16 @@ async fn test_sqlite_data_persistence_debug() -> Result<(), Box<dyn std::error::
         is_archived: false,
         status: Some(ProjectStatus::Active),
         owner_id: Some(UserId::from(Uuid::new_v4())),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
+        created_at: timestamp,
+        updated_at: timestamp,
+        deleted: false,
+        updated_by: user_id,
     };
 
     println!("💾 プロジェクト保存前");
 
     // 保存
-    project_repo.save(&project).await?;
+    project_repo.save(&project, &user_id, &timestamp).await?;
 
     println!("💾 プロジェクト保存後");
 
