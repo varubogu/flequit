@@ -154,12 +154,15 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
 
     // Update操作テスト
     let mut updated_project = project.clone();
+    let update_user_id = UserId::new();
+    let update_timestamp = Utc::now();
     updated_project.name = "更新された統合テストプロジェクト".to_string();
     updated_project.description = Some("更新されたプロジェクト説明".to_string());
     updated_project.color = Some("#33ff57".to_string());
-    updated_project.updated_at = Utc::now();
+    updated_project.updated_at = update_timestamp;
+    updated_project.updated_by = update_user_id.clone();
 
-    repository.save(&updated_project, &user_id, &timestamp).await?;
+    repository.save(&updated_project, &update_user_id, &update_timestamp).await?;
     println!("✅ Project updated successfully");
 
     // 更新確認
@@ -171,6 +174,10 @@ async fn test_project_repository_crud_operations() -> Result<(), Box<dyn std::er
         updated.description,
         Some("更新されたプロジェクト説明".to_string())
     );
+    // updated_at が更新されていることを確認
+    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    // updated_by が正しく設定されていることを確認
+    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
 
     // List操作テスト (ProjectListLocalAutomergeRepositoryを使用)
     let project_list_repository =
@@ -909,6 +916,10 @@ async fn test_task_list_repository_crud_operations() -> Result<(), Box<dyn std::
     );
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, 2);
+    // updated_at が更新されていることを確認
+    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    // updated_by が正しく設定されていることを確認
+    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
 
     // List操作テスト
     let all_task_lists = repository.find_all(&project_id).await?;
@@ -1049,6 +1060,10 @@ async fn test_task_repository_crud_operations() -> Result<(), Box<dyn std::error
     assert_eq!(updated.title, "更新された統合テスト用タスク");
     assert_eq!(updated.status, TaskStatus::InProgress);
     assert_eq!(updated.priority, 2);
+    // updated_at が更新されていることを確認
+    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    // updated_by が正しく設定されていることを確認
+    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
 
     // List操作テスト
     let all_tasks = repository.find_all(&project_id).await?;
@@ -1164,6 +1179,10 @@ async fn test_subtask_repository_crud_operations() -> Result<(), Box<dyn std::er
     assert_eq!(updated.title, "更新された統合テスト用サブタスク");
     assert_eq!(updated.status, TaskStatus::Completed);
     assert_eq!(updated.order_index, 2);
+    // updated_at が更新されていることを確認
+    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    // updated_by が正しく設定されていることを確認
+    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
 
     // List操作テスト
     let all_subtasks = repository.find_all(&project_id).await?;
@@ -1268,6 +1287,10 @@ async fn test_tag_repository_crud_operations() -> Result<(), Box<dyn std::error:
     assert_eq!(updated.name, "更新された統合テスト");
     assert_eq!(updated.color, Some("#e74c3c".to_string()));
     assert_eq!(updated.order_index, Some(2));
+    // updated_at が更新されていることを確認
+    assert_ne!(updated.updated_at, timestamp, "updated_at should be updated");
+    // updated_by が正しく設定されていることを確認
+    assert_eq!(updated.updated_by, update_user_id, "updated_by should match the update user");
 
     // List操作テスト
     let all_tags = repository.find_all(&project_id).await?;

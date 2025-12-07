@@ -211,6 +211,12 @@ impl ProjectLocalAutomergeRepository {
         document
             .save_data("updated_at", &project_document.updated_at)
             .await?;
+        document
+            .save_data("updated_by", &project_document.updated_by)
+            .await?;
+        document
+            .save_data("deleted", &project_document.deleted)
+            .await?;
 
         // プロジェクト内エンティティを個別に保存
         document
@@ -304,6 +310,8 @@ impl ProjectLocalAutomergeRepository {
             document.status = project.status.clone();
             document.owner_id = project.owner_id.clone();
             document.updated_at = project.updated_at;
+            document.updated_by = project.updated_by.clone();
+            document.deleted = project.deleted;
 
             self.save_project_document(&project.id, &document).await
         } else {
@@ -537,12 +545,18 @@ impl ProjectLocalAutomergeRepository {
 
 #[async_trait]
 impl Repository<Project, ProjectId> for ProjectLocalAutomergeRepository {
-    async fn save(&self, entity: &Project, _user_id: &UserId, _timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
+    async fn save(&self, entity: &Project, user_id: &UserId, timestamp: &DateTime<Utc>) -> Result<(), RepositoryError> {
         log::info!(
             "ProjectLocalAutomergeRepository::save - 開始: {:?}",
             entity.id
         );
-        let result = self.set_project(entity).await;
+
+        // updated_by と updated_at を更新
+        let mut updated_entity = entity.clone();
+        updated_entity.updated_by = user_id.clone();
+        updated_entity.updated_at = *timestamp;
+
+        let result = self.set_project(&updated_entity).await;
         if result.is_ok() {
             log::info!(
                 "ProjectLocalAutomergeRepository::save - 完了: {:?}",
