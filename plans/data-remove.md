@@ -40,7 +40,7 @@ Service層
 
 すべてのエンティティテーブルに以下のフィールドを追加する：
 
-| フィールド名 | 型 | 説明 | フロントエンド | バックエンド（lequit-model） | SQLite（flequit-infrastructure-sqlite） | Automerge（flequit-infrastructure-automerge） |
+| フィールド名 | 型 | 説明 | フロントエンド | バックエンド（flequit-model） | SQLite（flequit-infrastructure-sqlite） | Automerge（flequit-infrastructure-automerge） |
 |------------|-----|------|--------|--------|-----------|
 | `deleted` | `bool` | 削除フラグ（論理削除用） | 追加 | 追加 | 追加 | 追加 |
 | `updated_by` | `Option<UserId>` | 最終更新を実行したユーザーID<br>（作成・更新・削除・復元すべての操作で記録） | 追加 | 追加 | 追加 | 追加 |
