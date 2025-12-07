@@ -78,7 +78,7 @@ CRDT operation types:
 
 - Insert: Add new entities
 - Update: Partial update of existing data
-- Delete: **Logical deletion only** (no physical deletion)
+- Delete: Move documents to `.deleted/` folder (see "Document Deletion and Trash Feature" below)
 
 For detailed implementation examples, refer to the separate document "automerge-document-operations.md".
 
@@ -214,8 +214,9 @@ Repository Error → Service Error → Facade Error → Command Error → Fronte
 
 **Operations on Deleted Entities**:
 
-- Operations on logically deleted or physically deleted entities fail
+- Operations on entities moved to `.deleted/` folder fail
 - Return as RepositoryError
+- Deleted documents are automatically excluded during FileStorage initialization
 
 **Validation Errors**:
 
@@ -288,9 +289,12 @@ Files are stored with descriptive names in `~/.local/share/flequit/automerge/`:
 **No persistent mapping files are used.** Instead, the system builds an in-memory bidirectional mapping at startup:
 
 1. **Startup Scan**: `FileStorage::new()` scans all `.automerge` files in the storage directory
+   - Files in `.deleted/` folder are excluded (deleted files)
+   - Directories are skipped (only files are processed)
 2. **DocumentId Extraction**: Reads each file and extracts the embedded DocumentId from the binary Automerge data
-3. **Mapping Construction**: Builds `HashMap<DocumentId, Filename>` and `HashMap<Filename, DocumentId>` in memory
-4. **Runtime Access**: All file operations use the in-memory mapping to translate between DocumentIds and filenames
+3. **DocumentId Generation**: If DocumentId cannot be extracted from file content, it is deterministically generated from the filename (using UUID v5)
+4. **Mapping Construction**: Builds `HashMap<DocumentId, Filename>` and `HashMap<Filename, DocumentId>` in memory
+5. **Runtime Access**: All file operations use the in-memory mapping to translate between DocumentIds and filenames
 
 ### File Portability Benefits
 
@@ -318,9 +322,119 @@ pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, AutomergeError> {
 }
 ```
 
-### DocumentId Extraction
+### DocumentId Extraction and Generation
 
-DocumentIds are embedded in the automerge-repo binary file format. The `extract_document_id_from_file()` method parses the binary structure to retrieve the UUID that identifies each document within the automerge-repo system.
+**Extraction**: DocumentIds are embedded in the automerge-repo binary file format. The `extract_document_id_from_file()` method parses the binary structure to retrieve the UUID that identifies each document within the automerge-repo system.
+
+**Generation**: If the DocumentId cannot be extracted from file content (e.g., compacted files), the `generate_document_id_from_filename()` method deterministically generates the DocumentId from the filename using UUID v5 (name-based UUID). This ensures that the same filename always generates the same DocumentId, maintaining consistency regardless of file content.
+
+### File Write Mapping Retention
+
+During `append()` and `compact()` operations, the `ensure_mapping_from_path()` method is automatically called to extract the filename from the file path and ensure the mapping. This maintains the mapping even when file contents change.
+
+## Document Deletion and Trash Feature
+
+### Deletion Strategy
+
+Automerge document deletion is implemented by **moving to the `.deleted/` folder** rather than physical deletion. This provides the following benefits:
+
+- **Protection from Accidental Deletion**: Files are not completely deleted and can be restored
+- **Data Backup**: Deleted files are included in backups
+- **Audit Trail**: Records deletion datetime and original location
+
+### File Structure
+
+```
+~/.local/share/flequit/automerge/
+├── settings.automerge          # Active files
+├── account.automerge           # Active files
+├── user.automerge              # Active files
+├── project_xxx.automerge       # Active files
+└── .deleted/                   # Deleted folder
+    ├── project_yyy.automerge       # Deleted project
+    ├── project_yyy.meta.json       # Deletion metadata
+    ├── project_zzz.automerge       # Deleted project
+    └── project_zzz.meta.json       # Deletion metadata
+```
+
+### Deletion Metadata
+
+A `.meta.json` file is automatically generated for each deleted file:
+
+```json
+{
+  "doc_type": "Project(ProjectId(16e13612-6223-429b-b97f-45a6bfdf0b76))",
+  "deleted_at": "2025-12-07T20:09:16.903708468Z",
+  "original_filename": "project_16e13612-6223-429b-b97f-45a6bfdf0b76.automerge",
+  "original_path": ".../automerge_data/project_16e13612-6223-429b-b97f-45a6bfdf0b76.automerge"
+}
+```
+
+### Deletion Process Flow
+
+1. **Remove from Memory Cache**: `DocumentManager::delete()` removes the document from memory
+2. **File Check**: Verify original file exists
+3. **Create `.deleted/` Folder**: Create if it doesn't exist
+4. **Move File**: Move the original file to `.deleted/` folder
+5. **Create Metadata**: Create a `.meta.json` file recording deletion datetime and original path
+6. **Log Recording**: Record the deletion operation in logs
+
+### FileStorage Initialization Exclusions
+
+During `FileStorage::new()` startup scan, the following are automatically excluded:
+
+- All files within `.deleted/` folder
+- Directories (only files are processed)
+- `.meta.json` files (metadata)
+
+This ensures deleted documents are never loaded by the application.
+
+### Future Extension Features
+
+The following features can be implemented in the future:
+
+#### Restore Function
+```rust
+/// Restore file from .deleted/ folder to original location
+pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+- Get original path from metadata file
+- Move file to original location
+- Delete metadata file
+- Update memory cache
+
+#### Permanent Deletion Function (Platform-specific)
+
+**Desktop Environments (Windows/macOS/Linux)**:
+```rust
+/// Move file from .deleted/ folder to OS trash
+/// Uses trash crate
+pub fn permanent_delete(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+**Mobile Environments (iOS/Android)**:
+```rust
+/// Permanently delete from .deleted/ folder
+pub fn permanent_delete_mobile(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+#### Auto-Cleanup Function
+```rust
+/// Automatically delete files that have been deleted for specified number of days
+pub fn cleanup_old_deleted_files(&mut self, days: u32) -> Result<(), AutomergeError>
+```
+
+- Check `deleted_at` in metadata
+- Move files older than specified days to OS trash (desktop) or permanently delete (mobile)
+
+### Design Benefits
+
+✅ **Two-Stage Safety Net**: App restore → OS trash → Permanent deletion
+✅ **Cross-Platform**: Unified operation across desktop and mobile
+✅ **Easy Backup**: Complete migration including deleted files by copying folder
+✅ **Simple Implementation**: Achieved with file moves only
+✅ **Extensibility**: Restore, permanent delete, and auto-cleanup can be added incrementally
 
 ## Performance Optimization
 

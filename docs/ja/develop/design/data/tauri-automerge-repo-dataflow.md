@@ -78,7 +78,7 @@ CRDT操作の種類:
 
 - Insert: 新規エンティティ追加
 - Update: 既存データ部分更新
-- Delete: **論理削除のみ**（物理削除は行わない）
+- Delete: ドキュメントを `.deleted/` フォルダに移動（後述の「ドキュメント削除とゴミ箱機能」を参照）
 
 詳細な実装例については別紙「automerge-document-operations.md」を参照。
 
@@ -214,8 +214,9 @@ Repository Error → Service Error → Facade Error → Command Error → Fronte
 
 **削除済みエンティティへの操作**:
 
-- 論理削除済み・物理削除済みエンティティへの操作は失敗
+- `.deleted/` フォルダに移動済みのエンティティへの操作は失敗
 - RepositoryErrorとしてエラーを返却
+- 削除されたドキュメントはFileStorage初期化時に読み込み対象から除外される
 
 **バリデーションエラー**:
 
@@ -288,6 +289,8 @@ Automergeファイルストレージの実装は、**人間が読めるファイ
 **永続化されたマッピングファイルは使用しません。** 代わりに、起動時にインメモリの双方向マッピングを構築します：
 
 1. **起動時スキャン**: `FileStorage::new()` がストレージディレクトリ内の全 `.automerge` ファイルをスキャン
+   - `.deleted/` フォルダ内のファイルは除外（削除済みファイル）
+   - ディレクトリはスキップ（ファイルのみ処理）
 2. **DocumentId抽出**: 各ファイルを読み込み、バイナリAutomergeデータから埋め込まれたDocumentIdを抽出
 3. **DocumentId生成**: ファイル内容からDocumentIdを抽出できない場合、ファイル名から決定的に生成（UUID v5使用）
 4. **マッピング構築**: `HashMap<DocumentId, Filename>` と `HashMap<Filename, DocumentId>` をメモリ内に構築
@@ -329,6 +332,110 @@ pub fn new<P: AsRef<Path>>(base_path: P) -> Result<Self, AutomergeError> {
 ### ファイル書き込み時のマッピング保持
 
 `append()` および `compact()` 操作時、`ensure_mapping_from_path()` メソッドが自動的に呼び出され、ファイルパスからファイル名を抽出してマッピングを確保します。これにより、ファイル内容が変更されてもマッピングが維持されます。
+
+## ドキュメント削除とゴミ箱機能
+
+### 削除戦略
+
+Automergeドキュメントの削除は、物理削除ではなく **`.deleted/` フォルダへの移動** によって実現されます。これにより、以下の利点が得られます：
+
+- **誤削除からの保護**: ファイルは完全には削除されず、復元可能
+- **データバックアップ**: 削除されたファイルもバックアップに含まれる
+- **監査証跡**: 削除日時と元の場所を記録
+
+### ファイル構造
+
+```
+~/.local/share/flequit/automerge/
+├── settings.automerge          # 有効なファイル
+├── account.automerge           # 有効なファイル
+├── user.automerge              # 有効なファイル
+├── project_xxx.automerge       # 有効なファイル
+└── .deleted/                   # 削除済みフォルダ
+    ├── project_yyy.automerge       # 削除されたプロジェクト
+    ├── project_yyy.meta.json       # 削除メタデータ
+    ├── project_zzz.automerge       # 削除されたプロジェクト
+    └── project_zzz.meta.json       # 削除メタデータ
+```
+
+### 削除メタデータ
+
+各削除ファイルに対して、`.meta.json` ファイルが自動生成されます：
+
+```json
+{
+  "doc_type": "Project(ProjectId(16e13612-6223-429b-b97f-45a6bfdf0b76))",
+  "deleted_at": "2025-12-07T20:09:16.903708468Z",
+  "original_filename": "project_16e13612-6223-429b-b97f-45a6bfdf0b76.automerge",
+  "original_path": ".../automerge_data/project_16e13612-6223-429b-b97f-45a6bfdf0b76.automerge"
+}
+```
+
+### 削除処理フロー
+
+1. **メモリキャッシュから削除**: `DocumentManager::delete()` がメモリ内のドキュメントを削除
+2. **ファイルチェック**: 元ファイルの存在確認
+3. **`.deleted/` フォルダ作成**: 存在しない場合は作成
+4. **ファイル移動**: 元のファイルを `.deleted/` フォルダに移動
+5. **メタデータ作成**: 削除日時と元パスを記録した `.meta.json` ファイルを作成
+6. **ログ記録**: 削除操作をログに記録
+
+### FileStorage初期化時の除外
+
+`FileStorage::new()` の起動時スキャンでは、以下を自動的に除外します：
+
+- `.deleted/` フォルダ内の全ファイル
+- ディレクトリ（ファイルのみ処理）
+- `.meta.json` ファイル（メタデータ）
+
+これにより、削除済みドキュメントがアプリケーションから読み込まれることはありません。
+
+### 将来的な拡張機能
+
+以下の機能は将来的に実装可能です：
+
+#### 復元機能
+```rust
+/// .deleted/ フォルダから元の場所にファイルを復元
+pub fn restore(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+- メタデータファイルから元のパスを取得
+- ファイルを元の場所に移動
+- メタデータファイルを削除
+- メモリキャッシュを更新
+
+#### 完全削除機能（プラットフォーム別）
+
+**デスクトップ環境（Windows/macOS/Linux）**:
+```rust
+/// .deleted/ フォルダからOSのゴミ箱にファイルを移動
+/// trash クレートを使用
+pub fn permanent_delete(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+**モバイル環境（iOS/Android）**:
+```rust
+/// .deleted/ フォルダから完全に削除
+pub fn permanent_delete_mobile(&mut self, filename: &str) -> Result<(), AutomergeError>
+```
+
+#### 自動クリーンアップ機能
+```rust
+/// 指定日数経過した削除ファイルを自動削除
+pub fn cleanup_old_deleted_files(&mut self, days: u32) -> Result<(), AutomergeError>
+```
+
+- メタデータの `deleted_at` を確認
+- 指定日数以上経過したファイルをOSゴミ箱に移動（デスクトップ）または完全削除（モバイル）
+
+### 設計の利点
+
+✅ **二段階の安全網**: アプリ内復元 → OSゴミ箱 → 完全削除
+✅ **クロスプラットフォーム**: デスクトップ・モバイルで統一的な動作
+✅ **バックアップ容易**: フォルダごとコピーで削除ファイルも含めて完全移行
+✅ **実装シンプル**: ファイル移動のみで実現
+✅ **拡張性**: 復元・完全削除・自動クリーンアップを段階的に追加可能
 
 ## パフォーマンス最適化
 
