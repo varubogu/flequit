@@ -455,7 +455,7 @@ async fn test_project_incremental_changes_with_history() -> Result<(), Box<dyn s
 #[tokio::test]
 async fn test_project_repository_json_export_with_detailed_changes(
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_automerge");
+    let temp_dir_path = TestPathGenerator::generate_test_dir(file!(), "test_project_repository_json_export_with_detailed_changes");
     std::fs::create_dir_all(&temp_dir_path)?;
     let persistent_dir =
         create_persistent_test_dir("test_project_repository_json_export_with_detailed_changes");

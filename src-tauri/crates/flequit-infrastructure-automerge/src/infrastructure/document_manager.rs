@@ -1,12 +1,27 @@
 use super::file_storage::FileStorage;
 use crate::{errors::automerge_error::AutomergeError, infrastructure::document::Document};
 use automerge_repo::RepoHandle;
+use chrono::{DateTime, Utc};
 use flequit_model::types::id_types::ProjectId;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
+
+/// 削除されたドキュメントのメタデータ
+/// .deleted/ フォルダに {filename}.meta.json として保存される
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeletedDocumentMetadata {
+    /// 削除されたドキュメントのタイプ
+    pub doc_type: String,
+    /// 削除日時（UTC）
+    pub deleted_at: DateTime<Utc>,
+    /// 元のファイル名
+    pub original_filename: String,
+    /// 元のファイルパス（base_pathからの相対パス）
+    pub original_path: String,
+}
 
 /// Automergeドキュメントタイプ（設計仕様準拠の4つ）
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -305,9 +320,46 @@ impl DocumentManager {
             .map_err(|e| AutomergeError::SerializationError(e.to_string()))
     }
 
-    /// ドキュメントを削除
+    /// ドキュメントを削除（.deletedフォルダに移動）
+    /// 
+    /// 削除されたファイルは .deleted/ サブフォルダに移動され、
+    /// アプリケーションから復元または完全削除（ゴミ箱移動）が可能です。
     pub fn delete(&mut self, doc_type: DocumentType) -> Result<(), AutomergeError> {
+        // メモリ内のドキュメントを削除
         self.documents.remove(&doc_type);
+        
+        let source_path = self.base_path.join(doc_type.filename());
+        if !source_path.exists() {
+            return Ok(()); // ファイルが存在しなければ何もしない
+        }
+        
+        // .deleted/ フォルダを作成
+        let deleted_dir = self.base_path.join(".deleted");
+        std::fs::create_dir_all(&deleted_dir)
+            .map_err(|e| AutomergeError::IOError(format!("Failed to create .deleted directory: {}", e)))?;
+        
+        // ファイルを .deleted/ フォルダに移動
+        let dest_path = deleted_dir.join(doc_type.filename());
+        std::fs::rename(&source_path, &dest_path)
+            .map_err(|e| AutomergeError::IOError(format!("Failed to move file to .deleted: {}", e)))?;
+        
+        // メタデータファイルを作成
+        let metadata = DeletedDocumentMetadata {
+            doc_type: format!("{:?}", doc_type),
+            deleted_at: Utc::now(),
+            original_filename: doc_type.filename(),
+            original_path: source_path.to_string_lossy().to_string(),
+        };
+        
+        let meta_filename = format!("{}.meta.json", doc_type.filename().replace(".automerge", ""));
+        let meta_path = deleted_dir.join(meta_filename);
+        let meta_json = serde_json::to_string_pretty(&metadata)
+            .map_err(|e| AutomergeError::SerializationError(e.to_string()))?;
+        std::fs::write(&meta_path, meta_json)
+            .map_err(|e| AutomergeError::IOError(format!("Failed to write metadata file: {}", e)))?;
+        
+        log::info!("Moved to .deleted folder: {:?} -> {:?} (with metadata)", source_path, dest_path);
+        
         Ok(())
     }
 

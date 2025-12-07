@@ -72,6 +72,21 @@ impl FileStorage {
             let mut mapped_count = 0;
             for entry in entries.flatten() {
                 let path = entry.path();
+                
+                // .deleted フォルダ内のファイルはスキップ
+                if let Some(parent) = path.parent() {
+                    if let Some(parent_name) = parent.file_name().and_then(|n| n.to_str()) {
+                        if parent_name == ".deleted" {
+                            continue;
+                        }
+                    }
+                }
+                
+                // ディレクトリはスキップ（ファイルのみ処理）
+                if !path.is_file() {
+                    continue;
+                }
+                
                 if let Some(filename) = path.file_name().and_then(|n| n.to_str()) {
                     if filename.ends_with(".automerge") {
                         scanned_count += 1;
