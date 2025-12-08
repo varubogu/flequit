@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import TagDisplay from '$lib/components/tag/display/tag-display.svelte';
   import DueDate from '$lib/components/datetime/date-inputs/due-date.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 
   interface Props {
     task: TaskWithSubTasks;
@@ -25,7 +25,7 @@
   );
 
   function handleTagRemoveFromTask(tagId: string) {
-    void taskMutations.removeTagFromTask(task.id, tagId);
+    void taskOperations.removeTagFromTask(task.id, tagId);
   }
 </script>
 

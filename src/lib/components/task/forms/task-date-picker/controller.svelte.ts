@@ -1,7 +1,7 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import type { RecurrenceRule } from '$lib/types/datetime-calendar';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
 import { SvelteDate } from 'svelte/reactivity';
@@ -140,7 +140,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
 
     // タスクの日付を先に更新
     console.log('[TaskDatePickerController.handleDateChange] タスク更新開始:', updates);
-    await taskMutations.updateTask(task.id, updates);
+    await taskOperations.updateTask(task.id, updates);
     console.log('[TaskDatePickerController.handleDateChange] タスク更新完了');
 
     // recurrenceRule の保存とストア更新
@@ -161,7 +161,7 @@ export function useTaskDatePickerController(task: TaskWithSubTasks) {
   }
 
   async function handleDateClear() {
-    await taskMutations.updateTask(task.id, {
+    await taskOperations.updateTask(task.id, {
       ...task,
       planStartDate: undefined,
       planEndDate: undefined,

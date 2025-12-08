@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
 
@@ -56,7 +56,7 @@
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, tagName);
     } else if ('listId' in currentItem) {
-      void taskMutations.addTagToTaskByName(currentItem.id, tagName);
+      void taskOperations.addTagToTaskByName(currentItem.id, tagName);
     }
   }
 
@@ -68,7 +68,7 @@
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.removeTagFromSubTask(currentItem.id, currentItem.taskId, tagId);
     } else if ('listId' in currentItem) {
-      void taskMutations.removeTagFromTask(currentItem.id, tagId);
+      void taskOperations.removeTagFromTask(currentItem.id, tagId);
     }
   }
 </script>

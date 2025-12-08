@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
 
   const subTaskMutations = new SubTaskMutations();
@@ -97,7 +97,7 @@
   function handleViewDrop(viewId: string, dragData: DragData) {
     if (dragData.type === 'task') {
       // タスクをビューにドロップした場合、期日を更新
-      void taskMutations.updateTaskDueDateForView(dragData.id, viewId);
+      void taskOperations.updateTaskDueDateForView(dragData.id, viewId);
     } else if (dragData.type === 'subtask' && dragData.taskId) {
       // サブタスクをビューにドロップした場合、サブタスクの期日を更新
       subTaskMutations.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);

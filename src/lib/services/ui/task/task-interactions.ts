@@ -9,7 +9,7 @@ export type TaskInteractionsDependencies = {
 	entities: TaskEntitiesStore;
 	selection: TaskSelectionStore;
 	draft: TaskDraftStore;
-	taskMutations: {
+	taskOperations: {
 		addTask(listId: string, taskData: Partial<TaskWithSubTasks>): Promise<TaskWithSubTasks | null>;
 	};
 	tagStore: {
@@ -57,7 +57,7 @@ export class TaskInteractionsService {
 			return null;
 		}
 
-		const newTask = await this.#deps.taskMutations.addTask(draft.listId, draft);
+		const newTask = await this.#deps.taskOperations.addTask(draft.listId, draft);
 		if (!newTask) {
 			return null;
 		}

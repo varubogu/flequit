@@ -1,5 +1,5 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { ProjectTree } from '$lib/types/project';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { taskListStore } from '$lib/stores/task-list-store.svelte';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
 import { ProjectCompositeService } from '$lib/services/composite/project-composite';
@@ -45,7 +45,7 @@ export function createProjectDragDropHandler(getProjectsData: () => ProjectTree[
       // タスクをプロジェクトにドロップ（デフォルトのタスクリストに移動）
       if (targetProject.taskLists.length > 0) {
         const defaultTaskList = targetProject.taskLists[0];
-        await taskMutations.moveTaskToList(dragData.id, defaultTaskList.id);
+        await taskOperations.moveTaskToList(dragData.id, defaultTaskList.id);
       }
     }
   }

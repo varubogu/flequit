@@ -1,7 +1,7 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
 import { taskInteractions } from '$lib/services/ui/task';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+import { taskOperations } from '$lib/services/domain/task';
 import { fromLegacyRecurrenceRule, toLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 import type { EditFormState } from './task-detail-types';
 import type { TaskDetailViewState } from '$lib/stores/task-detail/task-detail-view-state.svelte';
@@ -151,7 +151,7 @@ export class TaskEditFormStore {
     } else if (this.#viewState.isSubTask && currentItem) {
       subTaskStore.updateSubTask(currentItem.id, updates);
     } else {
-      void taskMutations.updateTask(currentItem.id, updates);
+      void taskOperations.updateTask(currentItem.id, updates);
     }
   }
 }

@@ -7,7 +7,7 @@
     TaskDetailViewStore,
     type TaskDetailDomainActions
   } from '$lib/stores/task-detail-view-store.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+  import { taskOperations } from '$lib/services/domain/task';
   import { taskInteractions } from '$lib/services/ui/task';
   import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
@@ -45,17 +45,17 @@
     forceSelectTask,
     forceSelectSubTask,
     changeTaskStatus: (taskId: string, status: TaskStatus) =>
-      taskMutations.changeTaskStatus(taskId, status),
+      taskOperations.changeTaskStatus(taskId, status),
     changeSubTaskStatus: (subTaskId: string, status: TaskStatus) =>
       subTaskMutations.changeSubTaskStatus(subTaskId, status),
-    deleteTask: (taskId: string) => taskMutations.deleteTask(taskId),
+    deleteTask: (taskId: string) => taskOperations.deleteTask(taskId),
     deleteSubTask: (subTaskId: string) => subTaskMutations.deleteSubTask(subTaskId),
     toggleSubTaskStatus: (task: TaskWithSubTasks, subTaskId: string) =>
       subTaskMutations.toggleSubTaskStatus(task, subTaskId),
     addSubTask: (taskId: string, data: { title: string }) =>
       subTaskMutations.addSubTask(taskId, data),
     moveTaskToList: (taskId: string, taskListId: string) =>
-      taskMutations.moveTaskToList(taskId, taskListId)
+      taskOperations.moveTaskToList(taskId, taskListId)
   };
 
   const detailStore = new TaskDetailViewStore({ actions: domainActions });

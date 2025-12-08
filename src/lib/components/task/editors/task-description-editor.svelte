@@ -1,11 +1,11 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
   import Textarea from '$lib/components/ui/textarea.svelte';
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
 
@@ -71,7 +71,7 @@ const subTaskMutations = new SubTaskMutations();
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
     } else if ('listId' in currentItem) {
-      void taskMutations.addTagToTaskByName(currentItem.id, event.detail.tagName);
+      void taskOperations.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }
   }
 

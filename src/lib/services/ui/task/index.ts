@@ -1,6 +1,6 @@
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+import { taskOperations } from '$lib/services/domain/task';
 import { TaskInteractionsService } from './task-interactions';
 
 let _taskInteractions: TaskInteractionsService | undefined;
@@ -10,7 +10,7 @@ function createTaskInteractions(): TaskInteractionsService {
 		entities: taskStore.entities,
 		selection: taskStore.selection,
 		draft: taskStore.draft,
-		taskMutations,
+		taskOperations,
 		tagStore
 	});
 }

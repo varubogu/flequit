@@ -1,6 +1,6 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 
 /**
  * TaskItemDragDrop - タスクアイテムのドラッグ&ドロップ処理クラス
@@ -37,7 +37,7 @@ export class TaskItemDragDrop {
 
 		if (dragData.type === 'tag') {
 			// タグをタスクにドロップした場合、タグを付与
-			void taskMutations.addTagToTask(this.task.id, dragData.id);
+			void taskOperations.addTagToTask(this.task.id, dragData.id);
 		}
 	};
 

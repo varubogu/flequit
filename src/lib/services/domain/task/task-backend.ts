@@ -4,15 +4,19 @@ import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
- * タスクドメインサービス
+ * TaskBackend - タスクのバックエンド通信を担当
  *
  * 責務:
- * 1. バックエンドへの登録 (resolveBackend経由)
- * 2. タスクCRUD操作
+ * - バックエンド（Tauri/Web）へのタスクの永続化
+ * - CRUD操作のバックエンド呼び出し
+ * - バックエンドエラーのハンドリング
+ *
+ * 注意: このサービスはローカル状態（store）を操作しません。
+ * ローカル状態の操作は TaskOperations が担当します。
  */
-export const TaskService = {
+export const TaskBackend = {
   /**
-   * 新しいタスクを作成します
+   * 新しいタスクをバックエンドに作成します
    */
   async createTask(
     listId: string,
@@ -45,7 +49,7 @@ export const TaskService = {
   },
 
   /**
-   * タスクを更新します
+   * タスクをバックエンドで更新します
    */
   async updateTask(
     projectId: string,
@@ -90,7 +94,7 @@ export const TaskService = {
   },
 
   /**
-   * タスクを削除します
+   * タスクをバックエンドから削除します
    */
   async deleteTask(projectId: string, taskId: string): Promise<boolean> {
     try {

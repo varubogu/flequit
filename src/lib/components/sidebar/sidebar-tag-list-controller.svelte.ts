@@ -1,9 +1,9 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { Tag } from '$lib/types/tag';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { viewStore } from '$lib/stores/view-store.svelte';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { SubTaskMutations } from '$lib/services/domain/subtask';
 import { TagService } from '$lib/services/domain/tag';
 
@@ -121,7 +121,7 @@ export function useSidebarTagListController() {
       const targetIndex = getBookmarkedTags().findIndex((t) => t.id === targetTag.id);
       tagStore.moveBookmarkedTagToPosition(dragData.id, targetIndex);
     } else if (dragData.type === 'task') {
-      void taskMutations.addTagToTask(dragData.id, targetTag.id);
+      void taskOperations.addTagToTask(dragData.id, targetTag.id);
     } else if (dragData.type === 'subtask' && dragData.taskId) {
       void subTaskMutations.addTagToSubTask(dragData.id, dragData.taskId, targetTag.id);
     }

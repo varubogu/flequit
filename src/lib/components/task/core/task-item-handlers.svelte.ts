@@ -1,7 +1,7 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { SubTaskMutations } from '$lib/services/domain/subtask';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
@@ -41,7 +41,7 @@ export class TaskItemHandlers {
 	};
 
 	handleDeleteTask = () => {
-		void taskMutations.deleteTask(this.task.id);
+		void taskOperations.deleteTask(this.task.id);
 	};
 
 	handleTaskClick = () => {
@@ -60,7 +60,7 @@ export class TaskItemHandlers {
 	};
 
 	handleStatusToggle = () => {
-		void taskMutations.toggleTaskStatus(this.task.id);
+		void taskOperations.toggleTaskStatus(this.task.id);
 	};
 
 	// SubTask handlers

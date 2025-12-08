@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { ProjectTree } from '$lib/types/project';
   import type { ViewType } from '$lib/stores/view-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { useProjectStore } from '$lib/hooks/use-project-store.svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { taskListStore } from '$lib/stores/task-list-store.svelte';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
@@ -111,7 +111,7 @@
       await taskListStore.moveTaskListToPosition(dragData.id, project.id, targetIndex);
   } else if (dragData.type === 'task') {
     // タスクをタスクリストにドロップ
-    await taskMutations.moveTaskToList(dragData.id, targetList.id);
+    await taskOperations.moveTaskToList(dragData.id, targetList.id);
   }
 }
 

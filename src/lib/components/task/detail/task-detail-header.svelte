@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { taskOperations } from '$lib/services/domain/task';
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import type { TaskWithSubTasks } from '$lib/types/task';
   import type { SubTask } from '$lib/types/sub-task';
@@ -6,7 +7,6 @@
   import Input from '$lib/components/ui/input.svelte';
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
-  import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
   import { taskInteractions } from '$lib/services/ui/task';
   import { SubTaskMutations } from '$lib/services/domain/subtask';
 
@@ -46,7 +46,7 @@
     } else if (isSubTask && 'taskId' in currentItem) {
       void subTaskMutations.addTagToSubTaskByName(currentItem.id, currentItem.taskId, event.detail.tagName);
     } else if ('listId' in currentItem) {
-      void taskMutations.addTagToTaskByName(currentItem.id, event.detail.tagName);
+      void taskOperations.addTagToTaskByName(currentItem.id, event.detail.tagName);
     }
   }
 

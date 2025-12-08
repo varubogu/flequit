@@ -1,7 +1,7 @@
+import { taskOperations } from '$lib/services/domain/task';
 import type { TaskList, TaskListWithTasks } from '$lib/types/task-list';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import type { ProjectTree } from '$lib/types/project';
 import { getCurrentUserId } from '$lib/utils/user-id-helper';
@@ -145,7 +145,7 @@ export const TaskListService = {
 			return null;
 		}
 
-		const newTask = await taskMutations.addTask(targetListId, {
+		const newTask = await taskOperations.addTask(targetListId, {
 			title: trimmedTitle
 		});
 
