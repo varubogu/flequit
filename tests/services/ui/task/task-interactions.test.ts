@@ -91,7 +91,7 @@ let selectionState: SelectionStateMock;
 	let selection: TaskSelectionStore;
 	let taskListStoreStub: { getProjectIdByListId: ReturnType<typeof vi.fn> };
 	let draft: TaskDraftStore;
-	let taskMutationsStub: { addTask: ReturnType<typeof vi.fn> };
+	let taskOperationsStub: { addTask: ReturnType<typeof vi.fn> };
 	let tagStoreStub: { getOrCreateTagWithProject: ReturnType<typeof vi.fn> };
 	let service: TaskInteractionsService;
 
@@ -161,7 +161,7 @@ let selectionState: SelectionStateMock;
 			selection
 		});
 
-		taskMutationsStub = {
+		taskOperationsStub = {
 			addTask: vi.fn(async (_listId: string, taskData: Partial<TaskWithSubTasks>) => ({
 				...(entities.getTaskById('task-1') ?? {}),
 				...taskData,
@@ -181,7 +181,7 @@ let selectionState: SelectionStateMock;
 			entities,
 			selection,
 			draft,
-			taskMutations: taskMutationsStub,
+			taskOperations: taskOperationsStub,
 			tagStore: tagStoreStub
 		});
 	});
@@ -213,7 +213,7 @@ let selectionState: SelectionStateMock;
 		const newTaskId = await service.saveNewTask();
 
 		expect(newTaskId).toBe('created-task');
-		expect(taskMutationsStub.addTask).toHaveBeenCalled();
+		expect(taskOperationsStub.addTask).toHaveBeenCalled();
 		expect(selection.selectedTaskId).toBe('created-task');
 	});
 

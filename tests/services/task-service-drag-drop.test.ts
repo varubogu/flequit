@@ -1,15 +1,34 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { TaskMutations, type TaskMutationDependencies } from '$lib/services/domain/task/task-mutations';
+import { TaskOperations, type TaskOperationsDependencies } from '$lib/services/domain/task/task-operations';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
+// Mock TaskBackend
+vi.mock('$lib/services/domain/task/task-backend', () => ({
+	TaskBackend: {
+		createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+		updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+		deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
+		updateTask: vi.fn().mockResolvedValue(undefined)
+	}
+}));
+
+// Mock TaggingService
+vi.mock('$lib/services/domain/tagging', () => ({
+	TaggingService: {
+		createTaskTag: vi.fn(),
+		deleteTaskTag: vi.fn()
+	}
+}));
+
+import { TaskBackend } from '$lib/services/domain/task/task-backend';
+import { TaggingService } from '$lib/services/domain/tagging';
+
 type TestContext = {
-	mutations: TaskMutations;
+	mutations: TaskOperations;
 	deps: {
 		taskStore: ReturnType<typeof createTaskStoreMock>;
 		taskCoreStore: ReturnType<typeof createTaskCoreStoreMock>;
-		taskService: ReturnType<typeof createTaskServiceMock>;
 		tagStore: ReturnType<typeof createTagStoreMock>;
-		taggingService: ReturnType<typeof createTaggingServiceMock>;
 	};
 	currentTask: TaskWithSubTasks;
 };
@@ -49,15 +68,6 @@ function createTaskCoreStoreMock(task: TaskWithSubTasks) {
 	};
 }
 
-function createTaskServiceMock() {
-	return {
-		createTaskWithSubTasks: vi.fn(),
-		updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
-		deleteTaskWithSubTasks: vi.fn(),
-		updateTask: vi.fn()
-	};
-}
-
 function createTagStoreMock() {
 	return {
 		tags: [
@@ -80,45 +90,37 @@ function createTagStoreMock() {
 	};
 }
 
-function createTaggingServiceMock() {
-	return {
-		createTaskTag: vi.fn(),
-		deleteTaskTag: vi.fn()
-	};
-}
-
 function createDependencies(task: TaskWithSubTasks): TestContext {
 	const taskStore = createTaskStoreMock(task);
 	const taskCoreStore = createTaskCoreStoreMock(task);
 	const taskListStore = { getProjectIdByListId: vi.fn(() => 'project-1') };
-	const taskService = createTaskServiceMock();
 	const tagStore = createTagStoreMock();
-	const taggingService = createTaggingServiceMock();
 	const errorHandler = { addSyncError: vi.fn() };
 	const recurrenceService = { scheduleNextOccurrence: vi.fn() };
 
-	const deps: TaskMutationDependencies = {
+	const deps: TaskOperationsDependencies = {
 		taskStore,
 		taskCoreStore,
 		taskListStore,
 		tagStore,
-		taggingService,
 		errorHandler,
-		taskService,
 		recurrenceService
 	};
 
 	return {
-		mutations: new TaskMutations(deps),
-		deps: { taskStore, taskCoreStore, taskService, tagStore, taggingService },
+		mutations: new TaskOperations(deps),
+		deps: { taskStore, taskCoreStore, tagStore },
 		currentTask: task
 	};
 }
 
-describe('TaskMutations - Drag & Drop 相当機能', () => {
+describe('TaskOperations - Drag & Drop 相当機能', () => {
 	let context: TestContext;
 
 	beforeEach(() => {
+		// Clear all mocks before each test
+		vi.clearAllMocks();
+
 		const task: TaskWithSubTasks = {
 			id: 'task-1',
 			projectId: 'project-1',
@@ -148,11 +150,11 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 	describe('addTagToTask', () => {
 		it('タスクにタグを追加する（バックエンド連携含む）', async () => {
 			const backendTag = { id: 'tag-1', name: 'Work' };
-			context.deps.taggingService.createTaskTag.mockResolvedValueOnce(backendTag);
+			TaggingService.createTaskTag.mockResolvedValueOnce(backendTag);
 
 			await context.mutations.addTagToTask('task-1', 'tag-1');
 
-			expect(context.deps.taggingService.createTaskTag).toHaveBeenCalledWith(
+			expect(TaggingService.createTaskTag).toHaveBeenCalledWith(
 				'project-1',
 				'task-1',
 				'Work'
@@ -163,7 +165,7 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 		it('存在しないタグIDの場合は何もしない', async () => {
 			await context.mutations.addTagToTask('task-1', 'unknown-tag');
 
-			expect(context.deps.taggingService.createTaskTag).not.toHaveBeenCalled();
+			expect(TaggingService.createTaskTag).not.toHaveBeenCalled();
 			expect(context.deps.taskStore.attachTagToTask).not.toHaveBeenCalled();
 		});
 	});
@@ -176,7 +178,7 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 
 		afterEach(() => {
 			vi.useRealTimers();
-			context.deps.taskService.updateTaskWithSubTasks.mockClear();
+			TaskBackend.updateTaskWithSubTasks.mockClear();
 			context.deps.taskStore.getTaskById.mockClear();
 		});
 
@@ -219,7 +221,7 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 			it(`${view}ビューにドロップされた場合は対応する期日を設定する`, async () => {
 				await context.mutations.updateTaskDueDateForView('task-1', view);
 
-				expect(context.deps.taskService.updateTaskWithSubTasks).toHaveBeenCalledWith(
+				expect(TaskBackend.updateTaskWithSubTasks).toHaveBeenCalledWith(
 					'project-1',
 					'task-1',
 					expect.objectContaining({
@@ -227,7 +229,7 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 					})
 				);
 
-				const [, , payload] = context.deps.taskService.updateTaskWithSubTasks.mock.calls.at(-1)!;
+				const [, , payload] = TaskBackend.updateTaskWithSubTasks.mock.calls.at(-1)!;
 				const expectedDate = expected();
 				expect((payload as { planEndDate?: Date }).planEndDate?.toISOString()).toBe(
 					expectedDate?.toISOString()
@@ -238,7 +240,7 @@ describe('TaskMutations - Drag & Drop 相当機能', () => {
 		it('未対応ビューの場合は更新しない', async () => {
 			await context.mutations.updateTaskDueDateForView('task-1', 'unknown-view');
 
-			expect(context.deps.taskService.updateTaskWithSubTasks).not.toHaveBeenCalled();
+			expect(TaskBackend.updateTaskWithSubTasks).not.toHaveBeenCalled();
 		});
 	});
 });

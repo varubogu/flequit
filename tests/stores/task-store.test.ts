@@ -6,32 +6,40 @@ import { projectStore } from '../../src/lib/stores/project-store.svelte';
 import { taskListStore } from '../../src/lib/stores/task-list-store.svelte';
 import { subTaskStore } from '../../src/lib/stores/sub-task-store.svelte';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { TaskMutations } from '$lib/services/domain/task/task-mutations';
+import { TaskOperations } from '$lib/services/domain/task/task-operations';
 import type { ProjectTree } from '$lib/types/project';
 
-function createTaskMutations(store: TaskStore) {
-  return new TaskMutations({
+// TaskBackend のモック
+vi.mock('$lib/services/domain/task/task-backend', () => ({
+  TaskBackend: {
+    createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+    updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+    deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
+    updateTask: vi.fn().mockResolvedValue(undefined)
+  }
+}));
+
+// TaggingService のモック
+vi.mock('$lib/services/domain/tagging', () => ({
+  TaggingService: {
+    createTaskTag: vi.fn(),
+    deleteTaskTag: vi.fn()
+  }
+}));
+
+function createTaskOperations(store: TaskStore) {
+  return new TaskOperations({
     taskStore: store as any,
     taskCoreStore,
     taskListStore,
     tagStore: { tags: [] } as any,
-    taggingService: {
-      createTaskTag: vi.fn(),
-      deleteTaskTag: vi.fn()
-    } as any,
     errorHandler: {
       addSyncError: vi.fn()
-    } as any,
-    taskService: {
-      createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
-      updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
-      deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
-      updateTask: vi.fn().mockResolvedValue(undefined)
     } as any,
     recurrenceService: {
       scheduleNextOccurrence: vi.fn()
     } as any
-  } as any);
+  });
 }
 
 describe('TaskStore', () => {
@@ -369,8 +377,8 @@ describe('TaskStore', () => {
     test('deleteTask should remove the task and clear selection if selected', async () => {
       selectionStore.selectTask('task-1');
 
-      const taskMutations = createTaskMutations(store);
-      await taskMutations.deleteTask('task-1');
+      const taskOperations = createTaskOperations(store);
+      await taskOperations.deleteTask('task-1');
 
       const allTasks = store.allTasks;
       expect(allTasks).toHaveLength(2);

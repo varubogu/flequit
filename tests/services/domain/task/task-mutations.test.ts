@@ -2,12 +2,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @ts-nocheck
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { TaskMutations } from '$lib/services/domain/task/task-mutations';
+import { TaskOperations } from '$lib/services/domain/task/task-operations';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { TaskRemovalContext } from '$lib/stores/task-core-store.svelte';
 
+// Mock TaskBackend
+vi.mock('$lib/services/domain/task/task-backend', () => ({
+	TaskBackend: {
+		createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+		updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
+		deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
+		updateTask: vi.fn().mockResolvedValue(undefined)
+	}
+}));
+
+// Mock TaggingService
+vi.mock('$lib/services/domain/tagging', () => ({
+	TaggingService: {
+		createTaskTag: vi.fn(),
+		deleteTaskTag: vi.fn()
+	}
+}));
+
+import { TaskBackend } from '$lib/services/domain/task/task-backend';
+import { TaggingService } from '$lib/services/domain/tagging';
+
 /**
- * TaskMutations Facade統合テスト
+ * TaskOperations Facade統合テスト
  *
  * このテストは、Facadeが各mutationクラスに正しく委譲していることを確認します。
  * 個別のmutationクラスの詳細なテストは、mutations/配下の各テストファイルで実施されます。
@@ -71,18 +92,8 @@ const createDeps = () => {
 	};
 
 	const tagStore = { tags: [], addTagWithId: vi.fn() };
-	const taggingService = {
-		createTaskTag: vi.fn(),
-		deleteTaskTag: vi.fn()
-	};
 	const errorHandler = {
 		addSyncError: vi.fn()
-	};
-	const taskService = {
-		createTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
-		updateTaskWithSubTasks: vi.fn().mockResolvedValue(undefined),
-		deleteTaskWithSubTasks: vi.fn().mockResolvedValue(true),
-		updateTask: vi.fn().mockResolvedValue(undefined)
 	};
 	const recurrenceService = {
 		scheduleNextOccurrence: vi.fn()
@@ -93,20 +104,18 @@ const createDeps = () => {
 		taskCoreStore,
 		taskListStore,
 		tagStore,
-		taggingService,
 		errorHandler,
-		taskService,
 		recurrenceService
 	};
 };
 
-describe('TaskMutations (Facade)', () => {
+describe('TaskOperations (Facade)', () => {
 	let deps: ReturnType<typeof createDeps>;
-	let service: TaskMutations;
+	let service: TaskOperations;
 
 	beforeEach(() => {
 		deps = createDeps();
-		service = new TaskMutations(deps as any);
+		service = new TaskOperations(deps as any);
 	});
 
 	describe('CRUD operations delegation', () => {
@@ -117,7 +126,7 @@ describe('TaskMutations (Facade)', () => {
 				'task-1',
 				expect.any(Function)
 			);
-			expect(deps.taskService.updateTaskWithSubTasks).toHaveBeenCalledWith(
+			expect(TaskBackend.updateTaskWithSubTasks).toHaveBeenCalledWith(
 				'project-1',
 				'task-1',
 				expect.objectContaining({ title: 'Updated' })
@@ -129,14 +138,14 @@ describe('TaskMutations (Facade)', () => {
 
 			expect(result).not.toBeNull();
 			expect(deps.taskCoreStore.insertTask).toHaveBeenCalled();
-			expect(deps.taskService.createTaskWithSubTasks).toHaveBeenCalled();
+			expect(TaskBackend.createTaskWithSubTasks).toHaveBeenCalled();
 		});
 
 		test('deleteTask delegates to TaskCrudMutations', async () => {
 			await service.deleteTask('task-1');
 
 			expect(deps.taskCoreStore.removeTask).toHaveBeenCalledWith('task-1');
-			expect(deps.taskService.deleteTaskWithSubTasks).toHaveBeenCalled();
+			expect(TaskBackend.deleteTaskWithSubTasks).toHaveBeenCalled();
 		});
 
 		test('updateTaskFromForm delegates to TaskCrudMutations', async () => {
@@ -157,7 +166,7 @@ describe('TaskMutations (Facade)', () => {
 		test('updateTaskDueDateForView delegates to TaskCrudMutations', async () => {
 			await service.updateTaskDueDateForView('task-1', 'today');
 
-			expect(deps.taskService.updateTaskWithSubTasks).toHaveBeenCalled();
+			expect(TaskBackend.updateTaskWithSubTasks).toHaveBeenCalled();
 		});
 	});
 
@@ -188,11 +197,11 @@ describe('TaskMutations (Facade)', () => {
 	describe('Tag operations delegation', () => {
 		test('addTagToTaskByName delegates to TaskTagMutations', async () => {
 			const tag = { id: 'tag-1', name: 'Test Tag', color: '#ff0000' };
-			deps.taggingService.createTaskTag.mockResolvedValue(tag);
+			TaggingService.createTaskTag.mockResolvedValue(tag);
 
 			await service.addTagToTaskByName('task-1', 'Test Tag');
 
-			expect(deps.taggingService.createTaskTag).toHaveBeenCalledWith(
+			expect(TaggingService.createTaskTag).toHaveBeenCalledWith(
 				'project-1',
 				'task-1',
 				'Test Tag'
@@ -202,11 +211,11 @@ describe('TaskMutations (Facade)', () => {
 		test('addTagToTask delegates to TaskTagMutations', async () => {
 			const tag = { id: 'tag-1', name: 'Test Tag', color: '#ff0000' };
 			deps.tagStore.tags = [tag];
-			deps.taggingService.createTaskTag.mockResolvedValue(tag);
+			TaggingService.createTaskTag.mockResolvedValue(tag);
 
 			await service.addTagToTask('task-1', 'tag-1');
 
-			expect(deps.taggingService.createTaskTag).toHaveBeenCalled();
+			expect(TaggingService.createTaskTag).toHaveBeenCalled();
 		});
 
 		test('removeTagFromTask delegates to TaskTagMutations', async () => {
@@ -215,7 +224,7 @@ describe('TaskMutations (Facade)', () => {
 
 			await service.removeTagFromTask('task-1', 'tag-1');
 
-			expect(deps.taggingService.deleteTaskTag).toHaveBeenCalled();
+			expect(TaggingService.deleteTaskTag).toHaveBeenCalled();
 		});
 	});
 
@@ -224,14 +233,14 @@ describe('TaskMutations (Facade)', () => {
 			await service.moveTaskToList('task-1', 'list-2');
 
 			expect(deps.taskCoreStore.moveTaskBetweenLists).toHaveBeenCalledWith('task-1', 'list-2');
-			expect(deps.taskService.updateTask).toHaveBeenCalledWith('project-2', 'task-1', {
+			expect(TaskBackend.updateTask).toHaveBeenCalledWith('project-2', 'task-1', {
 				listId: 'list-2'
 			});
 		});
 
 		test('moveTaskToList handles restore on failure', async () => {
 			const error = new Error('fail');
-			deps.taskService.updateTask.mockRejectedValueOnce(error);
+			TaskBackend.updateTask.mockRejectedValueOnce(error);
 
 			await service.moveTaskToList('task-1', 'list-2');
 
@@ -248,7 +257,7 @@ describe('TaskMutations (Facade)', () => {
 	describe('Error handling integration', () => {
 		test('CRUD errors are handled correctly', async () => {
 			const error = new Error('sync failed');
-			deps.taskService.updateTaskWithSubTasks.mockRejectedValueOnce(error);
+			TaskBackend.updateTaskWithSubTasks.mockRejectedValueOnce(error);
 
 			await service.updateTask('task-1', { title: 'Updated' });
 
@@ -269,7 +278,7 @@ describe('TaskMutations (Facade)', () => {
 			} satisfies TaskRemovalContext;
 			deps.taskCoreStore.removeTask.mockReturnValue(removal);
 			const error = new Error('fail');
-			deps.taskService.deleteTaskWithSubTasks.mockRejectedValueOnce(error);
+			TaskBackend.deleteTaskWithSubTasks.mockRejectedValueOnce(error);
 
 			await service.deleteTask('task-1');
 

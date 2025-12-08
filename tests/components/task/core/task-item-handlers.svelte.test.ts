@@ -16,8 +16,8 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 	}
 }));
 
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
-	taskMutations: {
+vi.mock('$lib/services/domain/task', () => ({
+	taskOperations: {
 		deleteTask: vi.fn(() => Promise.resolve()),
 		toggleTaskStatus: vi.fn(() => Promise.resolve())
 	}
@@ -102,13 +102,13 @@ describe('TaskItemHandlers', () => {
 
 	describe('handleDeleteTask', () => {
 		it('タスクを削除する', async () => {
-			const { taskMutations } = await import(
-				'$lib/services/domain/task/task-mutations-instance'
+			const { taskOperations } = await import(
+				'$lib/services/domain/task'
 			);
 
 			handlers.handleDeleteTask();
 
-			expect(taskMutations.deleteTask).toHaveBeenCalledWith('task-1');
+			expect(taskOperations.deleteTask).toHaveBeenCalledWith('task-1');
 		});
 	});
 
@@ -144,13 +144,13 @@ describe('TaskItemHandlers', () => {
 
 	describe('handleStatusToggle', () => {
 		it('タスクのステータスをトグルする', async () => {
-			const { taskMutations } = await import(
-				'$lib/services/domain/task/task-mutations-instance'
+			const { taskOperations } = await import(
+				'$lib/services/domain/task'
 			);
 
 			handlers.handleStatusToggle();
 
-			expect(taskMutations.toggleTaskStatus).toHaveBeenCalledWith('task-1');
+			expect(taskOperations.toggleTaskStatus).toHaveBeenCalledWith('task-1');
 		});
 	});
 

@@ -67,7 +67,7 @@ const addTaskMock = vi.fn(async (listId: string, data: { title: string }) =>
 );
 
 vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
-  taskMutations: {
+  taskOperations: {
     addTask: addTaskMock
   }
 }));
