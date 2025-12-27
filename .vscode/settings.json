@@ -12,6 +12,8 @@
     "chrono",
     "CRDT",
     "flequit",
+    "Inlang",
+    "Paraglide",
     "rlib",
     "rustls",
     "serde",
