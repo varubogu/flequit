@@ -3,7 +3,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import TaskItem from '$lib/components/task/core/task-item.svelte';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+import { taskOperations } from '$lib/services/domain/task';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import type { TaskWithSubTasks } from '$lib/types/task';
 
@@ -16,8 +16,8 @@ vi.mock('$lib/services/task-service', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
-  taskMutations: {
+vi.mock('$lib/services/domain/task', () => ({
+  taskOperations: {
     addTagToTask: vi.fn()
   }
 }));
@@ -61,7 +61,7 @@ describe('TaskItem - Drag & Drop', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(taskMutations.addTagToTask).mockClear();
+    vi.mocked(taskOperations.addTagToTask).mockClear();
   });
 
   describe('ドラッグ機能', () => {
@@ -136,7 +136,7 @@ describe('TaskItem - Drag & Drop', () => {
         type: 'task',
         id: 'task-1'
       });
-      expect(taskMutations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+      expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
     });
 
     it('タグ以外がドロップされた場合はaddTagToTaskが呼ばれない', async () => {
@@ -157,7 +157,7 @@ describe('TaskItem - Drag & Drop', () => {
       await fireEvent(taskElement!, dropEvent);
 
       expect(DragDropManager.handleDrop).toHaveBeenCalled();
-      expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+      expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
     });
 
     it('無効なドロップの場合はaddTagToTaskが呼ばれない', async () => {
@@ -175,7 +175,7 @@ describe('TaskItem - Drag & Drop', () => {
       await fireEvent(taskElement!, dropEvent);
 
       expect(DragDropManager.handleDrop).toHaveBeenCalled();
-      expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+      expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
     });
   });
 

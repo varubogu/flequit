@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
+import { SubTaskOperations } from '$lib/services/domain/subtask/subtask-operations';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 
@@ -45,13 +45,13 @@ const createDeps = () => {
 	};
 };
 
-describe('SubTaskMutations', () => {
+describe('SubTaskOperations', () => {
 	let deps: ReturnType<typeof createDeps>;
-	let service: SubTaskMutations;
+	let service: SubTaskOperations;
 
 	beforeEach(() => {
 		deps = createDeps();
-		service = new SubTaskMutations(deps);
+		service = new SubTaskOperations(deps);
 	});
 
 	describe('toggleSubTaskStatus', () => {

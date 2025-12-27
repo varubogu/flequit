@@ -4,7 +4,7 @@
  */
 
 import type { Task, TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from '$lib/types/subtask';
+import type { SubTask } from '$lib/types/sub-task';
 import type { Tag } from '$lib/types/tag';
 import type { TaskListWithTasks } from '$lib/types/task-list';
 

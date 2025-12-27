@@ -4,7 +4,7 @@ import type { ProjectTree } from '$lib/types/project';
 import { DragDropManager } from '$lib/utils/drag-drop';
 
 // Mock stores and services
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   taskMutations: {
     moveTaskToList: vi.fn()
   }
@@ -33,7 +33,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
   }
 }));
 
-const { taskMutations } = await import('$lib/services/domain/task/task-mutations-instance');
+const { taskOperations } = await import('$lib/services/domain/task');
 const { taskListStore } = await import('$lib/stores/task-list-store.svelte');
 const { ProjectCompositeService } = await import('$lib/services/composite/project-composite');
 
@@ -158,7 +158,7 @@ describe('ProjectDragDropHandler', () => {
 
       await handler.handleProjectDrop(mockEvent, mockProjects[0]);
 
-      expect(taskMutations.moveTaskToList).toHaveBeenCalledWith('task-123', 'tasklist-1');
+      expect(taskOperations.moveTaskToList).toHaveBeenCalledWith('task-123', 'tasklist-1');
     });
 
     it('should not move task when project has no task lists', async () => {
@@ -169,7 +169,7 @@ describe('ProjectDragDropHandler', () => {
 
       await handler.handleProjectDrop(mockEvent, mockProjects[1]); // project-2 has no task lists
 
-      expect(taskMutations.moveTaskToList).not.toHaveBeenCalled();
+      expect(taskOperations.moveTaskToList).not.toHaveBeenCalled();
     });
 
     it('should do nothing when drag data is null', async () => {
@@ -179,7 +179,7 @@ describe('ProjectDragDropHandler', () => {
 
       expect(ProjectCompositeService.moveProjectToPosition).not.toHaveBeenCalled();
       expect(taskListStore.moveTaskListToProject).not.toHaveBeenCalled();
-      expect(taskMutations.moveTaskToList).not.toHaveBeenCalled();
+      expect(taskOperations.moveTaskToList).not.toHaveBeenCalled();
     });
   });
 

@@ -1,5 +1,5 @@
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
+import { SubTaskOperations } from '$lib/services/domain/subtask/subtask-operations';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTaskWithTags } from '$lib/types/sub-task';
@@ -187,7 +187,7 @@ function createTestEnvironment() {
     addSyncError: vi.fn()
   };
 
-  const mutations = new SubTaskMutations({
+  const mutations = new SubTaskOperations({
     taskStore: taskStoreMock as unknown as typeof taskStoreMock,
     taskCoreStore: { updateTask: vi.fn() } as any,
     subTaskStore: subTaskStoreMock as any,

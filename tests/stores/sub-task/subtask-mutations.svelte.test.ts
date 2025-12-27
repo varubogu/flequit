@@ -8,9 +8,9 @@ import {
 	createMockTaskWithSubTasks
 } from '../../utils/mock-factories';
 
-// SubTaskServiceのモック
+// SubTaskBackendのモック
 vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskService: {
+	SubTaskBackend: {
 		createSubTask: vi.fn((projectId, taskId, subTask) =>
 			Promise.resolve({
 				id: 'new-subtask-id',

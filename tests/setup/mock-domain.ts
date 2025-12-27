@@ -1024,10 +1024,10 @@ beforeEach(() => {
 });
 
 vi.mock('$lib/services/domain/project', () => ({
-  ProjectService: {
-    createProject: dataServiceImpl.createProject.bind(dataServiceImpl),
-    updateProject: dataServiceImpl.updateProject.bind(dataServiceImpl),
-    deleteProject: dataServiceImpl.deleteProject.bind(dataServiceImpl),
+  ProjectBackend: {
+    create: dataServiceImpl.createProject.bind(dataServiceImpl),
+    update: dataServiceImpl.updateProject.bind(dataServiceImpl),
+    delete: dataServiceImpl.deleteProject.bind(dataServiceImpl),
     createProjectTree: dataServiceImpl.createProjectTree.bind(dataServiceImpl)
   }
 }));
@@ -1237,14 +1237,12 @@ vi.mock('$lib/stores/tags.svelte', async () => {
 });
 
 vi.mock('$lib/services/domain/subtask', () => ({
-  SubTaskService: {
+  SubTaskBackend: {
     createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),
     updateSubTask: dataServiceImpl.updateSubTask.bind(dataServiceImpl),
-    deleteSubTask: dataServiceImpl.deleteSubTask.bind(dataServiceImpl),
-    addTagToSubTask: dataServiceImpl.addTagToSubTask.bind(dataServiceImpl),
-    removeTagFromSubTask: dataServiceImpl.removeTagFromSubTask.bind(dataServiceImpl)
+    deleteSubTask: dataServiceImpl.deleteSubTask.bind(dataServiceImpl)
   },
-  SubTaskMutations: class {
+  SubTaskOperations: class {
     toggleSubTaskStatus = vi.fn();
     addSubTask = vi.fn();
     updateSubTaskFromForm = vi.fn();

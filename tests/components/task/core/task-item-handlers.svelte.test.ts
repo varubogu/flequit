@@ -24,7 +24,7 @@ vi.mock('$lib/services/domain/task', () => ({
 }));
 
 vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskMutations: vi.fn().mockImplementation(() => ({
+	SubTaskOperations: vi.fn().mockImplementation(() => ({
 		deleteSubTask: vi.fn(() => Promise.resolve()),
 		toggleSubTaskStatus: vi.fn()
 	}))

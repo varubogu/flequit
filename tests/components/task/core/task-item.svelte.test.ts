@@ -41,7 +41,7 @@ vi.mock('$lib/services/ui/task-detail-ui-store.svelte', () => ({
 	}))
 }));
 
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+vi.mock('$lib/services/domain/task', () => ({
 	taskMutations: {
 		toggleTaskStatus: vi.fn(),
 		deleteTask: vi.fn(),
@@ -50,7 +50,7 @@ vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
 }));
 
 vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskMutations: vi.fn().mockImplementation(() => ({
+	SubTaskOperations: vi.fn().mockImplementation(() => ({
 		toggleSubTaskStatus: vi.fn(),
 		deleteSubTask: vi.fn()
 	}))

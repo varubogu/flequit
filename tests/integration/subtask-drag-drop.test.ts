@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DragDropManager, type DragData } from '$lib/utils/drag-drop';
-import { SubTaskMutations } from '$lib/services/domain/subtask/subtask-mutations';
+import { SubTaskOperations } from '$lib/services/domain/subtask/subtask-operations';
 import type { ProjectTree } from '$lib/types/project';
 import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
@@ -176,7 +176,7 @@ function createDragDropEnvironment() {
     addSyncError: vi.fn()
   };
 
-  const dependencies: ConstructorParameters<typeof SubTaskMutations>[0] = {
+  const dependencies: ConstructorParameters<typeof SubTaskOperations>[0] = {
     taskStore: taskStoreMock,
     taskCoreStore: {
       updateTask: vi.fn(() => true)
@@ -187,7 +187,7 @@ function createDragDropEnvironment() {
     errorHandler: errorHandlerMock
   };
 
-  const mutations = new SubTaskMutations(dependencies);
+  const mutations = new SubTaskOperations(dependencies);
 
   const subTask = createSubTask({ id: 'subtask-1', title: 'Initial' });
   task.subTasks.push(subTask);
@@ -240,7 +240,7 @@ describe('SubTask Drag and Drop Integration', () => {
   });
 
   describe('View drop handling', () => {
-    const handleViewDrop = (viewId: string, dragData: DragData, mutations: SubTaskMutations) => {
+    const handleViewDrop = (viewId: string, dragData: DragData, mutations: SubTaskOperations) => {
       if (dragData.type === 'subtask' && dragData.taskId) {
         mutations.updateSubTaskDueDateForView(dragData.id, dragData.taskId, viewId);
       }
@@ -275,7 +275,7 @@ describe('SubTask Drag and Drop Integration', () => {
       const handleTagDrop = async (
         targetTagId: string,
         dragData: DragData,
-        mutations: SubTaskMutations
+        mutations: SubTaskOperations
       ) => {
         if (dragData.type === 'subtask' && dragData.taskId) {
           await mutations.addTagToSubTask(dragData.id, dragData.taskId, targetTagId);
@@ -293,7 +293,7 @@ describe('SubTask Drag and Drop Integration', () => {
     });
   });
 
-  describe('SubTaskMutations direct methods', () => {
+  describe('SubTaskOperations direct methods', () => {
     it('updateSubTaskDueDateForView delegates to store', () => {
       env.mutations.updateSubTaskDueDateForView(env.subTask.id, env.task.id, 'today');
       expect(env.subTaskStoreMock.updateSubTask).toHaveBeenCalledTimes(1);

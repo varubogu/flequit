@@ -5,13 +5,13 @@ import { render, fireEvent } from '@testing-library/svelte';
 import { setTranslationService } from '$lib/stores/locale.svelte';
 import { createUnitTestTranslationService } from '../../unit-translation-mock';
 import SidebarTagList from '$lib/components/sidebar/sidebar-tag-list.svelte';
-import { taskMutations } from '$lib/services/domain/task/task-mutations-instance';
+import { taskOperations } from '$lib/services/domain/task';
 import { DragDropManager } from '$lib/utils/drag-drop';
 import type { Tag } from '$lib/types/tag';
 
 // モック
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
-  taskMutations: {
+vi.mock('$lib/services/domain/task', () => ({
+  taskOperations: {
     addTagToTask: vi.fn()
   }
 }));
@@ -109,7 +109,7 @@ describe('SidebarTagList - Drag & Drop', () => {
   beforeEach(() => {
     setTranslationService(createUnitTestTranslationService());
     vi.clearAllMocks();
-    vi.mocked(taskMutations.addTagToTask).mockClear();
+    vi.mocked(taskOperations.addTagToTask).mockClear();
   });
 
   describe('タスクをタグにドロップ', () => {
@@ -146,7 +146,7 @@ describe('SidebarTagList - Drag & Drop', () => {
     await fireEvent(tagElements[0], dropEvent);
 
     expect(DragDropManager.handleDrop).toHaveBeenCalled();
-    expect(taskMutations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+    expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
       }
     });
 
@@ -183,7 +183,7 @@ describe('SidebarTagList - Drag & Drop', () => {
         expect(
           (tagStore as unknown as Record<string, unknown>).moveBookmarkedTagToPosition
         ).toHaveBeenCalledWith('tag-2', 0);
-        expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+        expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
       }
     });
 
@@ -214,7 +214,7 @@ describe('SidebarTagList - Drag & Drop', () => {
         await fireEvent(tagElements[0], dropEvent);
 
         expect(DragDropManager.handleDrop).toHaveBeenCalled();
-        expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+        expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
         expect(
           (tagStore as unknown as Record<string, unknown>).moveBookmarkedTagToPosition
         ).not.toHaveBeenCalled();

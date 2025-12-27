@@ -33,15 +33,15 @@ const fixedUuid = '00000000-0000-0000-0000-000000000123';
 const uuidSpy = vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(fixedUuid);
 
 vi.unmock('$lib/services/domain/task');
-vi.unmock('$lib/services/domain/task/task-crud');
+vi.unmock('$lib/services/domain/task/task-backend');
 vi.unmock('../../src/lib/services/domain/task');
-vi.unmock('../../src/lib/services/domain/task/task-crud');
+vi.unmock('../../src/lib/services/domain/task/task-backend');
 
-const { TaskService } = await vi.importActual<
-	typeof import('../../src/lib/services/domain/task/task-crud')
->('../../src/lib/services/domain/task/task-crud');
+const { TaskBackend } = await vi.importActual<
+	typeof import('../../src/lib/services/domain/task/task-backend')
+>('../../src/lib/services/domain/task/task-backend');
 
-describe('TaskService (task-crud)', () => {
+describe('TaskBackend', () => {
 	beforeEach(() => {
 		resolveBackendMock.mockClear().mockResolvedValue(backendStub);
 		errorHandlerMock.addSyncError.mockClear();
@@ -55,7 +55,7 @@ describe('TaskService (task-crud)', () => {
 	test('createTask: プロジェクトID付きでタスクを生成しバックエンドへ登録する', async () => {
 		backendStub.task.create.mockResolvedValueOnce();
 
-	const result = await TaskService.createTask('list-123', {
+	const result = await TaskBackend.createTask('list-123', {
 		projectId: 'project-123',
 		title: 'New Task',
 		description: 'Detail',
@@ -90,7 +90,7 @@ describe('TaskService (task-crud)', () => {
 
 	test('createTask: プロジェクトIDが無い場合はエラーを投げる', async () => {
 	await expect(
-		TaskService.createTask('list-123', {
+		TaskBackend.createTask('list-123', {
 			projectId: undefined as unknown as string,
 			title: 'Invalid Task',
 			status: 'not_started',
@@ -112,7 +112,7 @@ describe('TaskService (task-crud)', () => {
 		backendStub.task.create.mockRejectedValueOnce(backendError);
 
 	await expect(
-		TaskService.createTask('list-123', {
+		TaskBackend.createTask('list-123', {
 			projectId: 'project-123',
 			title: 'Fail Task',
 			status: 'not_started',
@@ -166,7 +166,7 @@ describe('TaskService (task-crud)', () => {
 		backendStub.task.update.mockResolvedValueOnce(true);
 		backendStub.task.get.mockResolvedValueOnce(updatedTask);
 
-		const result = await TaskService.updateTask('project-123', 'task-123', {
+		const result = await TaskBackend.updateTask('project-123', 'task-123', {
 			title: 'Updated',
 			planStartDate,
 			planEndDate,
@@ -195,7 +195,7 @@ describe('TaskService (task-crud)', () => {
 	test('updateTask: バックエンドがfalseを返した場合はnullを返す', async () => {
 		backendStub.task.update.mockResolvedValueOnce(false);
 
-		const result = await TaskService.updateTask('project-123', 'task-123', { title: 'No change' });
+		const result = await TaskBackend.updateTask('project-123', 'task-123', { title: 'No change' });
 
 		expect(result).toBeNull();
 		expect(backendStub.task.get).not.toHaveBeenCalled();
@@ -206,7 +206,7 @@ describe('TaskService (task-crud)', () => {
 		backendStub.task.update.mockRejectedValueOnce(backendError);
 
 		await expect(
-			TaskService.updateTask('project-123', 'task-123', { title: 'Broken' })
+			TaskBackend.updateTask('project-123', 'task-123', { title: 'Broken' })
 		).rejects.toThrow(backendError);
 
 		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
@@ -220,11 +220,11 @@ describe('TaskService (task-crud)', () => {
 	test('deleteTask: 削除成功時はtrue、失敗時はfalseを返す', async () => {
 		backendStub.task.delete.mockResolvedValueOnce(true);
 
-		const success = await TaskService.deleteTask('project-123', 'task-123');
+		const success = await TaskBackend.deleteTask('project-123', 'task-123');
 		expect(success).toBe(true);
 
 		backendStub.task.delete.mockResolvedValueOnce(false);
-		const failure = await TaskService.deleteTask('project-123', 'task-123');
+		const failure = await TaskBackend.deleteTask('project-123', 'task-123');
 		expect(failure).toBe(false);
 	});
 
@@ -232,7 +232,7 @@ describe('TaskService (task-crud)', () => {
 		const backendError = new Error('delete failed');
 		backendStub.task.delete.mockRejectedValueOnce(backendError);
 
-		await expect(TaskService.deleteTask('project-123', 'task-123')).rejects.toThrow(backendError);
+		await expect(TaskBackend.deleteTask('project-123', 'task-123')).rejects.toThrow(backendError);
 
 		expect(errorHandlerMock.addSyncError).toHaveBeenCalledWith(
 			'タスク削除',
@@ -259,21 +259,21 @@ describe('TaskService (task-crud)', () => {
 		updatedAt: new Date(),
 	});
 
-		await TaskService.createTaskWithSubTasks('list-123', {} as Task);
+		await TaskBackend.createTaskWithSubTasks('list-123', {} as Task);
 		expect(createSpy).toHaveBeenCalled();
 		createSpy.mockRestore();
 	});
 
 	test('updateTaskWithSubTasks: updateTaskへ委譲する', async () => {
-		const updateSpy = vi.spyOn(TaskService, 'updateTask').mockResolvedValueOnce(null);
-		await TaskService.updateTaskWithSubTasks('project-123', 'task-123', {});
+		const updateSpy = vi.spyOn(TaskBackend, 'updateTask').mockResolvedValueOnce(null);
+		await TaskBackend.updateTaskWithSubTasks('project-123', 'task-123', {});
 		expect(updateSpy).toHaveBeenCalledWith('project-123', 'task-123', {});
 		updateSpy.mockRestore();
 	});
 
 	test('deleteTaskWithSubTasks: deleteTaskへ委譲し結果を返す', async () => {
-		const deleteSpy = vi.spyOn(TaskService, 'deleteTask').mockResolvedValueOnce(true);
-		const result = await TaskService.deleteTaskWithSubTasks('project-123', 'task-123');
+		const deleteSpy = vi.spyOn(TaskBackend, 'deleteTask').mockResolvedValueOnce(true);
+		const result = await TaskBackend.deleteTaskWithSubTasks('project-123', 'task-123');
 		expect(deleteSpy).toHaveBeenCalledWith('project-123', 'task-123');
 		expect(result).toBe(true);
 		deleteSpy.mockRestore();

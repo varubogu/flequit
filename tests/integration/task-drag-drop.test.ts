@@ -142,7 +142,7 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+vi.mock('$lib/services/domain/task', () => ({
   taskMutations: {
     updateTaskDueDateForView: vi.fn(),
     addTagToTask: vi.fn(),
@@ -152,7 +152,7 @@ vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
 }));
 
 vi.mock('$lib/services/domain/subtask', () => ({
-  SubTaskMutations: class {
+  SubTaskOperations: class {
     updateSubTaskDueDateForView = vi.fn();
     addTagToSubTask = vi.fn();
     toggleSubTaskStatus = vi.fn();

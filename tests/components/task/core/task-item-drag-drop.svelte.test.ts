@@ -17,7 +17,7 @@ vi.mock('$lib/utils/drag-drop', () => ({
 }));
 
 // Mock taskMutations
-vi.mock('$lib/services/domain/task/task-mutations-instance', () => ({
+vi.mock('$lib/services/domain/task', () => ({
 	taskMutations: {
 		addTagToTask: vi.fn(() => Promise.resolve())
 	}
@@ -71,8 +71,8 @@ describe('TaskItemDragDrop', () => {
 	describe('handleDrop', () => {
 		it('タグをドロップした場合、タスクにタグを追加', async () => {
 			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskMutations } = await import(
-				'$lib/services/domain/task/task-mutations-instance'
+			const { taskOperations } = await import(
+				'$lib/services/domain/task'
 			);
 
 			// Mock handleDrop to return tag drag data
@@ -87,13 +87,13 @@ describe('TaskItemDragDrop', () => {
 				type: 'task',
 				id: 'task-1'
 			});
-			expect(taskMutations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
+			expect(taskOperations.addTagToTask).toHaveBeenCalledWith('task-1', 'tag-1');
 		});
 
 		it('ドラッグデータがnullの場合は何もしない', async () => {
 			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskMutations } = await import(
-				'$lib/services/domain/task/task-mutations-instance'
+			const { taskOperations } = await import(
+				'$lib/services/domain/task'
 			);
 
 			DragDropManager.handleDrop = vi.fn(() => null);
@@ -102,13 +102,13 @@ describe('TaskItemDragDrop', () => {
 
 			dragDrop.handleDrop(mockEvent);
 
-			expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+			expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
 		});
 
 		it('タグ以外のドラッグデータの場合は何もしない', async () => {
 			const { DragDropManager } = await import('$lib/utils/drag-drop');
-			const { taskMutations } = await import(
-				'$lib/services/domain/task/task-mutations-instance'
+			const { taskOperations } = await import(
+				'$lib/services/domain/task'
 			);
 
 			const taskDragData: DragData = { type: 'task', id: 'task-2' };
@@ -118,7 +118,7 @@ describe('TaskItemDragDrop', () => {
 
 			dragDrop.handleDrop(mockEvent);
 
-			expect(taskMutations.addTagToTask).not.toHaveBeenCalled();
+			expect(taskOperations.addTagToTask).not.toHaveBeenCalled();
 		});
 	});
 
