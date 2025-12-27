@@ -1,28 +1,51 @@
+/**
+ * SubTaskOperations - サブタスク操作の統合サービス
+ *
+ * 責務:
+ * - サブタスクの CRUD 操作（作成、読み取り、更新、削除）
+ * - ステータス変更（完了/未完了のトグル）
+ * - タグ管理（追加/削除）
+ * - 楽観的更新とエラーハンドリング
+ *
+ * アーキテクチャ:
+ * UIコンポーネント
+ *     ↓
+ * SubTaskOperations (このファイル)
+ *     ├─→ subTaskStore (ローカル状態管理)
+ *     ├─→ SubTaskBackend (バックエンド通信)
+ *     └─→ errorHandler (エラー処理)
+ */
+
 import type { Task, TaskWithSubTasks, TaskStatus } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
-import { taskStore } from '$lib/stores/tasks.svelte';
-import { subTaskStore } from '$lib/stores/sub-task-store.svelte';
-import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
-import { TaggingService } from '$lib/services/domain/tagging';
-import { tagStore } from '$lib/stores/tags.svelte';
-import { errorHandler } from '$lib/stores/error-handler.svelte';
+import type { TaskStore } from '$lib/stores/tasks.svelte';
+import type { TaskCoreStore } from '$lib/stores/task-core-store.svelte';
+import type { SubTaskStore } from '$lib/stores/sub-task-store.svelte';
+import type { TagStore } from '$lib/stores/tags.svelte';
+import type { ErrorHandler } from '$lib/stores/error-handler.svelte';
+import type { Tag } from '$lib/types/tag';
 
-type TaskStoreLike = Pick<typeof taskStore, 'getTaskProjectAndList'>;
+// ===== 型定義 =====
 
-type TaskCoreStoreLike = Pick<typeof taskCoreStore, 'updateTask'>;
+type TaskStoreLike = Pick<TaskStore, 'getTaskProjectAndList'>;
+
+type TaskCoreStoreLike = Pick<TaskCoreStore, 'updateTask'>;
 
 type SubTaskStoreLike = Pick<
-	typeof subTaskStore,
+	SubTaskStore,
 	'addSubTask' | 'updateSubTask' | 'deleteSubTask' | 'attachTagToSubTask' | 'detachTagFromSubTask'
 >;
 
-type TagStoreLike = Pick<typeof tagStore, 'tags'>;
+type TagStoreLike = Pick<TagStore, 'tags'>;
 
-type TaggingServiceLike = Pick<typeof TaggingService, 'createSubtaskTag' | 'deleteSubtaskTag'>;
+type ErrorHandlerLike = Pick<ErrorHandler, 'addSyncError'>;
 
-type ErrorHandlerLike = Pick<typeof errorHandler, 'addSyncError'>;
+type TaggingServiceLike = {
+	createSubtaskTag: (projectId: string, subTaskId: string, tagName: string) => Promise<Tag>;
+	deleteSubtaskTag: (projectId: string, subTaskId: string, tagId: string) => Promise<void>;
+};
 
-type SubTaskMutationDependencies = {
+export type SubTaskOperationsDependencies = {
 	taskStore: TaskStoreLike;
 	taskCoreStore: TaskCoreStoreLike;
 	subTaskStore: SubTaskStoreLike;
@@ -31,35 +54,26 @@ type SubTaskMutationDependencies = {
 	errorHandler: ErrorHandlerLike;
 };
 
-function getDefaultDependencies(): SubTaskMutationDependencies {
-	return {
-		taskStore,
-		taskCoreStore,
-		subTaskStore,
-		tagStore,
-		taggingService: TaggingService,
-		errorHandler
-	};
-}
+// ===== SubTaskOperations クラス =====
 
 /**
- * サブタスク変更操作サービス
+ * サブタスク操作を統合したサービスクラス
  *
- * 責務:
- * 1. サブタスクのステータス変更
- * 2. サブタスクの更新（フォームからの更新を含む）
- * 3. サブタスクの削除
- * 4. サブタスクの作成
- * 5. サブタスクへのタグ操作
- * 6. ビュー用の期日更新
+ * すべてのサブタスク操作はこのクラスを通じて行われます。
+ * ローカル状態の楽観的更新とバックエンドへの永続化を自動的に処理します。
  */
-export class SubTaskMutations {
-	#deps: SubTaskMutationDependencies;
+export class SubTaskOperations {
+	#deps: SubTaskOperationsDependencies;
 
-	constructor(deps?: SubTaskMutationDependencies) {
-		this.#deps = deps ?? getDefaultDependencies();
+	constructor(deps: SubTaskOperationsDependencies) {
+		this.#deps = deps;
 	}
 
+	// ===== ステータス操作 =====
+
+	/**
+	 * サブタスクのステータスをトグル（完了 ⇔ 未完了）します
+	 */
 	toggleSubTaskStatus(task: TaskWithSubTasks, subTaskId: string): void {
 		const { taskCoreStore } = this.#deps;
 		const subTask = task.subTasks.find((st) => st.id === subTaskId);
@@ -73,6 +87,18 @@ export class SubTaskMutations {
 		void taskCoreStore.updateTask(task.id, { sub_tasks: updatedSubTasks } as Partial<Task>);
 	}
 
+	/**
+	 * サブタスクのステータスを変更します
+	 */
+	changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
+		void this.#deps.subTaskStore.updateSubTask(subTaskId, { status: newStatus });
+	}
+
+	// ===== CRUD 操作 =====
+
+	/**
+	 * 新しいサブタスクを追加します
+	 */
 	async addSubTask(
 		taskId: string,
 		subTaskData: {
@@ -90,6 +116,16 @@ export class SubTaskMutations {
 		});
 	}
 
+	/**
+	 * サブタスクを更新します
+	 */
+	updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
+		void this.#deps.subTaskStore.updateSubTask(subTaskId, updates);
+	}
+
+	/**
+	 * フォームデータからサブタスクを更新します
+	 */
 	updateSubTaskFromForm(
 		subTaskId: string,
 		formData: {
@@ -113,20 +149,20 @@ export class SubTaskMutations {
 		void this.#deps.subTaskStore.updateSubTask(subTaskId, updates);
 	}
 
-	updateSubTask(subTaskId: string, updates: Partial<SubTask>): void {
-		void this.#deps.subTaskStore.updateSubTask(subTaskId, updates);
-	}
-
-	changeSubTaskStatus(subTaskId: string, newStatus: TaskStatus): void {
-		void this.#deps.subTaskStore.updateSubTask(subTaskId, { status: newStatus });
-	}
-
+	/**
+	 * サブタスクを削除します
+	 */
 	async deleteSubTask(subTaskId: string): Promise<void> {
 		await this.#deps.subTaskStore.deleteSubTask(subTaskId);
 	}
 
+	// ===== タグ操作 =====
+
+	/**
+	 * タグ名からサブタスクにタグを追加します
+	 */
 	async addTagToSubTaskByName(subTaskId: string, taskId: string, tagName: string): Promise<void> {
-		const { taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
+		const { taskStore, subTaskStore, taggingService, errorHandler } = this.#deps;
 		const trimmed = tagName.trim();
 		if (!trimmed) {
 			console.warn('Empty tag name provided');
@@ -148,8 +184,11 @@ export class SubTaskMutations {
 		}
 	}
 
+	/**
+	 * タグIDからサブタスクにタグを追加します
+	 */
 	async addTagToSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
-		const { tagStore, taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
+		const { tagStore, taskStore, subTaskStore, taggingService, errorHandler } = this.#deps;
 		const tag = tagStore.tags.find((t) => t.id === tagId);
 		if (!tag) return;
 
@@ -172,8 +211,11 @@ export class SubTaskMutations {
 		}
 	}
 
+	/**
+	 * サブタスクからタグを削除します
+	 */
 	async removeTagFromSubTask(subTaskId: string, taskId: string, tagId: string): Promise<void> {
-		const { taskStore, taggingService, subTaskStore, errorHandler } = this.#deps;
+		const { taskStore, subTaskStore, taggingService, errorHandler } = this.#deps;
 		const context = taskStore.getTaskProjectAndList(taskId);
 		if (!context) return;
 
@@ -189,6 +231,11 @@ export class SubTaskMutations {
 		}
 	}
 
+	// ===== ビュー操作 =====
+
+	/**
+	 * ビューに応じてサブタスクの期日を更新します
+	 */
 	updateSubTaskDueDateForView(subTaskId: string, _taskId: string, viewId: string): void {
 		const { subTaskStore } = this.#deps;
 		const today = new Date();

@@ -3,7 +3,7 @@ import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { SvelteDate } from 'svelte/reactivity';
-import { SubTaskService } from '$lib/services/domain/subtask';
+import { SubTaskBackend } from '$lib/services/domain/subtask';
 
 /**
  * サブタスクのCRUD操作
@@ -44,7 +44,7 @@ export class SubTaskMutations {
 		}
 
 		try {
-			const newSubTask = await SubTaskService.createSubTask(targetProjectId, taskId, subTask);
+			const newSubTask = await SubTaskBackend.createSubTask(targetProjectId, taskId, subTask);
 			const subTaskWithTags = { ...newSubTask, tags: [] } as SubTaskWithTags;
 			targetTask.subTasks.push(subTaskWithTags);
 			return newSubTask;
@@ -73,7 +73,7 @@ export class SubTaskMutations {
 
 						const projectId = project.id;
 						try {
-							await SubTaskService.updateSubTask(projectId, subTaskId, updates);
+							await SubTaskBackend.updateSubTask(projectId, subTaskId, updates);
 						} catch (error) {
 							console.error('Failed to sync subtask update to backends:', error);
 							errorHandler.addSyncError('サブタスク更新', 'task', subTaskId, error);
@@ -106,7 +106,7 @@ export class SubTaskMutations {
 						}
 
 						try {
-							await SubTaskService.deleteSubTask(projectId, subTaskId);
+							await SubTaskBackend.deleteSubTask(projectId, subTaskId);
 						} catch (error) {
 							console.error('Failed to sync subtask deletion to backends:', error);
 							errorHandler.addSyncError('サブタスク削除', 'task', subTaskId, error);

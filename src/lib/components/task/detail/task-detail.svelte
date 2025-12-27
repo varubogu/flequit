@@ -10,11 +10,11 @@
   import { taskOperations } from '$lib/services/domain/task';
   import { taskInteractions } from '$lib/services/ui/task';
   import type { TaskStatus, TaskWithSubTasks } from '$lib/types/task';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+  import { subTaskOperations } from '$lib/services/domain/subtask';
   import { selectionStore } from '$lib/stores/selection-store.svelte';
   import { createTaskDetailActions } from '$lib/services/ui/task-detail/task-detail-actions';
 
-  const subTaskMutations = new SubTaskMutations();
+  const subTaskMutations = subTaskOperations;
   import { RecurrenceSyncService } from '$lib/services/domain/recurrence-sync';
   import { taskStore } from '$lib/stores/tasks.svelte';
 

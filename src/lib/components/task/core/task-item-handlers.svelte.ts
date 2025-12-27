@@ -2,7 +2,7 @@ import { taskOperations } from '$lib/services/domain/task';
 import type { TaskWithSubTasks } from '$lib/types/task';
 import type { SubTask } from '$lib/types/sub-task';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { SubTaskMutations } from '$lib/services/domain/subtask';
+import { subTaskOperations } from '$lib/services/domain/subtask';
 import { selectionStore } from '$lib/stores/selection-store.svelte';
 import type { useTaskDetailUiStore } from '$lib/services/ui/task-detail-ui-store.svelte';
 
@@ -22,7 +22,7 @@ type TaskItemEventDispatcher = <T extends keyof TaskItemEventMap>(
  * 責務: タスクとサブタスクに対するユーザー操作の処理
  */
 export class TaskItemHandlers {
-	private subTaskMutations = new SubTaskMutations();
+	private subTaskMutations = subTaskOperations;
 
 	constructor(
 		private task: TaskWithSubTasks,

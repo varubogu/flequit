@@ -7,9 +7,9 @@
   import { useTranslation } from '$lib/hooks/use-translation.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { taskInteractions } from '$lib/services/ui/task';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+  import { subTaskOperations } from '$lib/services/domain/subtask';
 
-const subTaskMutations = new SubTaskMutations();
+const subTaskMutations = subTaskOperations;
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;

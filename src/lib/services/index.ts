@@ -7,7 +7,7 @@
 
 // Domain Services（単一エンティティ操作）
 export {
-	ProjectCrudService,
+	ProjectBackend,
 	ProjectQueryService,
 	ProjectHelpers
 } from './domain/project/index';

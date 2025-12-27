@@ -5,9 +5,9 @@
   import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import SidebarButton from '$lib/components/sidebar/sidebar-button.svelte';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+  import { subTaskOperations } from '$lib/services/domain/subtask';
 
-  const subTaskMutations = new SubTaskMutations();
+  const subTaskMutations = subTaskOperations;
   import { SvelteDate } from 'svelte/reactivity';
   import type { DragData } from '$lib/utils/drag-drop';
   import { useSidebar } from '$lib/components/ui/sidebar/context.svelte.js';

@@ -4,10 +4,10 @@ import { tagStore } from '$lib/stores/tags.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
 import { viewStore } from '$lib/stores/view-store.svelte';
 import { DragDropManager, type DragData, type DropTarget } from '$lib/utils/drag-drop';
-import { SubTaskMutations } from '$lib/services/domain/subtask';
+import { subTaskOperations } from '$lib/services/domain/subtask';
 import { TagService } from '$lib/services/domain/tag';
 
-const subTaskMutations = new SubTaskMutations();
+const subTaskMutations = subTaskOperations;
 
 interface DialogState {
   selectedTag: Tag | null;

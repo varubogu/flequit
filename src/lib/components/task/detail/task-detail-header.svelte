@@ -8,9 +8,9 @@
   import TagCompletionProvider from '$lib/components/tag/completion/tag-completion-provider.svelte';
   import { Trash2, Save } from 'lucide-svelte';
   import { taskInteractions } from '$lib/services/ui/task';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+  import { subTaskOperations } from '$lib/services/domain/subtask';
 
-  const subTaskMutations = new SubTaskMutations();
+  const subTaskMutations = subTaskOperations;
 
   interface Props {
     currentItem: TaskWithSubTasks | SubTask;

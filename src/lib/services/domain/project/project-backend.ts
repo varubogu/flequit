@@ -4,18 +4,19 @@ import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { getCurrentUserId } from '$lib/utils/user-id-helper';
 
 /**
- * プロジェクトCRUDサービス（バックエンド操作のみ）
+ * ProjectBackend - プロジェクトのバックエンド通信を担当
  *
  * 責務:
- * 1. バックエンドへのCRUD操作
- * 2. エラーハンドリング
+ * - バックエンド（Tauri/Web）へのプロジェクトの永続化
+ * - CRUD操作のバックエンド呼び出し
+ * - バックエンドエラーのハンドリング
  *
- * 注意: このサービスはStoreを更新しません。
- * Store更新が必要な場合は ProjectCompositeService を使用してください。
+ * 注意: このサービスはローカル状態（store）を操作しません。
+ * ローカル状態の操作は ProjectOperations が担当します。
  */
-export const ProjectCrudService = {
+export const ProjectBackend = {
 	/**
-	 * 新しいプロジェクトを作成します（バックエンドのみ）
+	 * 新しいプロジェクトを作成します
 	 */
 	async create(projectData: {
 		name: string;
@@ -61,7 +62,7 @@ export const ProjectCrudService = {
 	},
 
 	/**
-	 * プロジェクトを更新します（バックエンドのみ）
+	 * プロジェクトを更新します
 	 */
 	async update(
 		projectId: string,
@@ -95,7 +96,7 @@ export const ProjectCrudService = {
 	},
 
 	/**
-	 * プロジェクトを削除します（バックエンドのみ）
+	 * プロジェクトを削除します
 	 */
 	async delete(projectId: string): Promise<boolean> {
 		try {

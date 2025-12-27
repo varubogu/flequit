@@ -1,12 +1,12 @@
 import type { Project, ProjectTree } from '$lib/types/project';
-import { ProjectCrudService } from '$lib/services/domain/project/project-crud';
+import { ProjectBackend } from '$lib/services/domain/project';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 
 /**
  * プロジェクトコンポジットサービス（CRUD + Store更新）
  *
  * 責務:
- * 1. バックエンド操作（ProjectCrudServiceを使用）
+ * 1. バックエンド操作（ProjectBackendを使用）
  * 2. Store更新（projectStoreを使用）
  * 3. エラーハンドリング
  *
@@ -25,7 +25,7 @@ export const ProjectCompositeService = {
 		order_index?: number;
 	}): Promise<ProjectTree | null> {
 		try {
-			const newProjectTree = await ProjectCrudService.createProjectTree(projectData);
+			const newProjectTree = await ProjectBackend.createProjectTree(projectData);
 			resolveProjectStore().addProjectToStore(newProjectTree);
 			return newProjectTree;
 		} catch (error) {
@@ -48,7 +48,7 @@ export const ProjectCompositeService = {
 		}
 	): Promise<Project | null> {
 		try {
-			const updatedProject = await ProjectCrudService.update(projectId, updates);
+			const updatedProject = await ProjectBackend.update(projectId, updates);
 			if (!updatedProject) return null;
 
 			resolveProjectStore().updateProjectInStore(projectId, {
@@ -71,7 +71,7 @@ export const ProjectCompositeService = {
 	 */
 	async deleteProject(projectId: string): Promise<boolean> {
 		try {
-			const success = await ProjectCrudService.delete(projectId);
+			const success = await ProjectBackend.delete(projectId);
 			if (success) {
 				resolveProjectStore().removeProjectFromStore(projectId);
 			}
@@ -89,7 +89,7 @@ export const ProjectCompositeService = {
 		const updatedProjects = resolveProjectStore().reorderProjectsInStore(fromIndex, toIndex);
 		await Promise.allSettled(
 			updatedProjects.map((project) =>
-				ProjectCrudService.update(project.id, { order_index: project.orderIndex })
+				ProjectBackend.update(project.id, { order_index: project.orderIndex })
 			)
 		);
 	},
@@ -101,7 +101,7 @@ export const ProjectCompositeService = {
 		const updatedProjects = resolveProjectStore().moveProjectToPositionInStore(projectId, targetIndex);
 		await Promise.allSettled(
 			updatedProjects.map((project) =>
-				ProjectCrudService.update(project.id, { order_index: project.orderIndex })
+				ProjectBackend.update(project.id, { order_index: project.orderIndex })
 			)
 		);
 	},

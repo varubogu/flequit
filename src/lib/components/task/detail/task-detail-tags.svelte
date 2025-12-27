@@ -5,9 +5,9 @@
   import type { SubTask, SubTaskWithTags } from '$lib/types/sub-task';
   import { taskStore } from '$lib/stores/tasks.svelte';
   import { taskInteractions } from '$lib/services/ui/task';
-  import { SubTaskMutations } from '$lib/services/domain/subtask';
+  import { subTaskOperations } from '$lib/services/domain/subtask';
 
-  const subTaskMutations = new SubTaskMutations();
+  const subTaskMutations = subTaskOperations;
   import TagInput from '$lib/components/tag/display/tag-input.svelte';
 
   type SubTaskForProps = SubTask | SubTaskWithTags;
