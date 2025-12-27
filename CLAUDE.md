@@ -5,103 +5,53 @@ This file provides guidance for Claude Code (claude.ai/code) when working with t
 ## Response Guidelines
 
 * Always respond **in Japanese**.
-* After loading this file, first say “✅️ CLAUDE.md loaded” and then follow the instructions.
-
-## Design Documents
-
-For detailed design and specifications, please refer to the documents in the `docs` directory:
-
-### Architecture & Design
-
-* `docs/en/develop/design/architecture.md` - Overall architecture
-* `docs/en/develop/design/data/` - Data-related design
-
-  * `data-model.md` - Data structure specifications
-  * `data-security.md` - Security design
-  * `tauri-automerge-repo-dataflow.md` - Data flow design
-  * `partial-update-implementation.md` - Partial update system implementation details
-* `docs/en/develop/design/frontend/` - Frontend design
-* `docs/en/develop/design/database/` - Database design
-
-### Development Rules
-
-* When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
-* When performing replacements using regular expressions or similar methods, always verify beforehand to ensure no unintended effects occur before proceeding with the replacement.
-* `docs/en/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
-* `docs/en/develop/rules/documentation.md` - Documentation editing rules
-* Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:
-
-  * `cargo test -j 4`
-  * `bun run test` (already configured in the settings file; no need for manual adjustment)
-* For frontend type checking, use `bun check` (do **not** use `bun run check` or `bun run typecheck`).
-* For frontend linting, use `bun run lint` (do **not** use `bun lint`, `bun run check`, or `bun run typecheck`).
-* If you get an error saying a file or directory does not exist when executing a command, verify your current working directory with `pwd`.
-
-### Requirements Definition
-
-* `docs/en/develop/requirements/` - Requirement documents (performance.md, security.md, testing.md, etc.)
-
-### Testing
-
-* `docs/en/develop/design/testing.md` - Testing strategy and guidelines
-
-Refer to these documents as needed and ensure your work is always based on the latest design information.
-When testing, first execute tests for a single file to confirm correctness, then run the full suite.
-
-* **Web Frontend Tests:** Use `bun run test` (not `bun test`)
-* **Tauri Backend Tests:** Use `cargo test -j 4` (always specify `-j 4`)
+* After loading this file, first say "✅️ CLAUDE.md loaded" and then follow the instructions.
 
 ## Application Overview
 
 A **Tauri-based desktop task management application** that supports project management and task collaboration.
-Currently designed for **local operation (SQLite)**, but future updates will support **web and cloud storage synchronization**.
-An **AutoMerge-based data management system** is used to prevent conflicts during synchronization.
 
-## Tech Stack
+**Tech Stack**:
+- Frontend: SvelteKit (SSG) + Svelte 5 + Inlang Paraglide
+- Backend: Tauri (Rust) + SQLite + Automerge
+- Architecture: Clean Architecture (Crate separation)
 
-See `docs/en/develop/design/tech-stack.md` for details.
+## Important Development Rules
 
-## Project Structure
+* When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
+* When performing replacements using regular expressions or similar methods, always verify beforehand to ensure no unintended effects occur before proceeding with the replacement.
+* If you get an error saying a file or directory does not exist when executing a command, verify your current working directory with `pwd`.
 
-See `docs/en/develop/design/tech-stack.md` for details.
+## Documentation & Skills
 
-## Svelte 5 Design Patterns
+Claude Code has specialized **skills** for common tasks. These skills provide detailed guidance:
 
-See `docs/en/develop/design/frontend/svelte5-patterns.md` for details.
+* **`.claude/skills/frontend-testing/`** - Frontend testing (Vitest, Svelte 5)
+* **`.claude/skills/backend-testing/`** - Backend testing (Rust, cargo)
+* **`.claude/skills/tauri-command/`** - Tauri command implementation
+* **`.claude/skills/architecture-review/`** - Architecture compliance check
+* **`.claude/skills/debugging/`** - Debugging support
+* **`.claude/skills/i18n/`** - Internationalization (Inlang Paraglide)
+* **`.claude/skills/documentation/`** - Documentation editing (ja/en)
+* **`.claude/skills/coding-standards/`** - Coding standards check
 
-## Internationalization System
+For detailed design and specifications, refer to the documents in the `docs` directory:
 
-See `docs/en/develop/design/frontend/i18n-system.md` for details.
+* **Architecture & Design**: `docs/en/develop/design/`
+  * `architecture.md` - Overall architecture
+  * `tech-stack.md` - Tech stack and project structure
+  * `frontend/` - Frontend design (Svelte 5, i18n, layers, etc.)
+  * `backend-tauri/` - Backend design (Rust guidelines, transactions, etc.)
+  * `data/` - Data design (models, security, Automerge, etc.)
 
-## Coding Standards
+* **Development Rules**: `docs/en/develop/rules/`
+  * `coding-standards.md` - Coding standards
+  * `frontend.md` - Frontend rules
+  * `backend.md` - Backend rules
+  * `testing.md` - Testing rules
+  * `documentation.md` - Documentation editing rules (MUST update both ja/en)
 
-See `docs/en/develop/rules/coding-standards.md` for details.
+* **Requirements**: `docs/en/develop/requirements/`
+  * `performance.md`, `security.md`, `testing.md`, etc.
 
-### Tauri ⇔ Frontend Communication Rules
-
-**Important:** Tauri automatically converts JavaScript `camelCase` parameters into Rust `snake_case`.
-
-* **JavaScript side:** Use `camelCase` (e.g., `projectId`, `taskAssignment`, `partialSettings`)
-* **Rust side:** Use `snake_case` (e.g., `project_id`, `task_assignment`, `partial_settings`)
-* **Return values:** Commands returning `void` should return `true` on success and `false` on failure
-* **Error handling:** Follow the unified error-handling pattern
-
-For more details, see the “Tauri ⇔ Frontend Communication Rules” section in
-`docs/en/develop/rules/coding-standards.md`.
-
-### Rust Guidelines
-
-See `docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
-
-### Module Relationships
-
-See the “Architecture Structure” section in
-`docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
-
-## Development Workflow
-
-See `docs/en/develop/rules/workflow.md` for details.
-
-## Command List
-
-See `docs/en/develop/commands.md` for details.
+Refer to these documents and skills as needed. Skills will be automatically invoked based on your tasks.
