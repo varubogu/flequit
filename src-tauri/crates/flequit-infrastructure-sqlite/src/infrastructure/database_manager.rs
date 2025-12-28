@@ -89,9 +89,11 @@ impl DatabaseManager {
                 .await
                 .map_err(SQLiteError::from)?;
 
-                // ハイブリッドマイグレーション実行（常に実行してテーブルの存在を確保）
-                let migrator = super::hybrid_migration::HybridMigrator::new(db.clone());
-                migrator.run_migration().await.map_err(SQLiteError::from)?;
+                // Sea-ORM Migratorでマイグレーション実行
+                use sea_orm_migration::MigratorTrait;
+                crate::migrator::Migrator::up(&db, None)
+                    .await
+                    .map_err(SQLiteError::from)?;
 
                 Ok(db)
             })

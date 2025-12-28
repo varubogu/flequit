@@ -3,9 +3,8 @@
 //! build.rsから呼び出され、指定されたパスにSQLiteデータベースを作成し、
 //! マイグレーションを実行する。
 
-use flequit_infrastructure_sqlite::infrastructure::{
-    database_manager::DatabaseManager, hybrid_migration::HybridMigrator,
-};
+use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
+use sea_orm_migration::MigratorTrait;
 use std::env;
 
 #[tokio::main]
@@ -21,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let force_mode = args.len() == 3 && args[2] == "--force";
 
     if force_mode {
-        println!("🔄 強制マイグレーション実行開始: {}", db_path);
+        println!("🔄 強制マイグレーション実行開始（全テーブル削除→再作成）: {}", db_path);
     } else {
         println!("🔧 マイグレーション実行開始: {}", db_path);
     }
@@ -29,17 +28,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 環境変数でデータベースパスを指定
     env::set_var("FLEQUIT_DB_PATH", db_path);
 
+    // 強制モードの場合は、既存のDBファイルを削除
+    if force_mode {
+        if std::path::Path::new(db_path).exists() {
+            println!("⚠️  既存のデータベースファイルを削除します");
+            std::fs::remove_file(db_path)?;
+        }
+    }
+
     // DatabaseManagerを作成（シングルトンではない新しいインスタンスが必要）
     let db_manager = DatabaseManager::new_for_test(db_path);
+    let db = db_manager.get_connection().await?;
 
-    // マイグレーション実行
-    let migrator = HybridMigrator::new(db_manager.get_connection().await?.clone());
-
-    if force_mode {
-        migrator.force_remigration().await?;
-    } else {
-        migrator.run_migration().await?;
-    }
+    // マイグレーション実行（通常モード・強制モード共に同じ処理）
+    // 強制モードの場合はファイル削除済みなので、新規作成として実行される
+    flequit_infrastructure_sqlite::migrator::Migrator::up(db, None).await?;
 
     println!("✅ マイグレーション完了: {}", db_path);
 

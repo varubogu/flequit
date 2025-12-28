@@ -19,6 +19,7 @@ flequit-repository = { path = "../flequit-repository" }
 
 # Database and ORM
 sea-orm = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls", "macros"] }
+sea-orm-migration = { version = "1.1.14", features = ["sqlx-sqlite", "runtime-tokio-rustls"] }
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
