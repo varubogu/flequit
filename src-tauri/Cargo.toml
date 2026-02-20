@@ -38,7 +38,7 @@ flequit-infrastructure = { path = "crates/flequit-infrastructure" }
 flequit-settings = { path = "crates/flequit-settings" }
 
 # Tauri framework
-tauri = { version = "2.8.4", features = [] }
+tauri = { version = "2.10.2", features = [] }
 tauri-plugin-opener = "2.5.0"
 
 # Serialization (for commands)
