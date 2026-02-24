@@ -56,6 +56,7 @@ export class TagBookmarkOperations {
 	 * @deprecated TagBookmarkService.loadBookmarksByProject を使用してください
 	 */
 	setBookmarkForInitialization(tagId: string) {
+		void tagId;
 		// この機能は廃止されました
 		console.warn('setBookmarkForInitialization is deprecated. Use TagBookmarkService.loadBookmarksByProject instead.');
 	}

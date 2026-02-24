@@ -4,7 +4,7 @@ import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { resolveProjectStore } from '$lib/stores/providers/project-store-provider';
 import type { ProjectTree } from '$lib/types/project';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * タスクリストドメインサービス（CRUD操作）

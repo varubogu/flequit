@@ -1,11 +1,10 @@
 import type { Tag } from '$lib/types/tag';
-import { SvelteDate, SvelteSet } from 'svelte/reactivity';
+import { SvelteDate } from 'svelte/reactivity';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
-import { tagStore as tagStoreFacade } from '$lib/stores/tags.svelte';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
 import { taskStore } from '$lib/stores/tasks.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * タグドメインサービス

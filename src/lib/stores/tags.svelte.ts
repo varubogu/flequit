@@ -64,6 +64,7 @@ export class TagStoreFacade {
 	 * @private
 	 */
 	private initializeBookmarksFromTags(tags: Tag[]) {
+		void tags;
 		// この機能は廃止されました
 		// TagBookmarkServiceを使用してブックマークをロードしてください
 	}

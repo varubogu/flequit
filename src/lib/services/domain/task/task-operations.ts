@@ -24,7 +24,7 @@ import type { TaskCoreStore } from '$lib/stores/task-core-store.svelte';
 import type { TaskListStore } from '$lib/stores/task-list-store.svelte';
 import type { TagStore } from '$lib/stores/tags.svelte';
 import type { ErrorHandler } from '$lib/stores/error-handler.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 import { TaskBackend } from './task-backend';
 import { TaggingService } from '$lib/services/domain/tagging';
 import { TaskRecurrenceService } from '../task-recurrence';

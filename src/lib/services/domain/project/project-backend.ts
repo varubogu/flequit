@@ -1,7 +1,7 @@
 import type { Project, ProjectTree } from '$lib/types/project';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * ProjectBackend - プロジェクトのバックエンド通信を担当

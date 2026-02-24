@@ -1,7 +1,7 @@
 import type { SubTask } from '$lib/types/sub-task';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * SubTaskBackend - サブタスクのバックエンド通信を担当

@@ -2,7 +2,7 @@ import type { RecurrenceRule, RecurrenceRulePatch } from '$lib/types/recurrence'
 import type { TaskRecurrence, SubtaskRecurrence } from '$lib/types/recurrence-reference';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * 繰り返しルールドメインサービス
@@ -56,9 +56,13 @@ export const RecurrenceService = {
         throw new Error('RecurrenceRule ID is required for update');
       }
       const backend = await resolveBackend();
-      // ruleからidを除外してpatchを作成
-      const { id, createdAt: _createdAt, updatedAt: _updatedAt, updatedBy: _updatedBy, ...patch } = rule;
-      return await backend.recurrenceRule.update(projectId, id, patch, getCurrentUserId());
+      // ruleからid/監査項目を除外してpatchを作成
+      const patch: RecurrenceRulePatch = { ...rule };
+      delete patch.id;
+      delete patch.createdAt;
+      delete patch.updatedAt;
+      delete patch.updatedBy;
+      return await backend.recurrenceRule.update(projectId, rule.id, patch, getCurrentUserId());
     } catch (error) {
       console.error('Failed to update recurrence rule:', error);
       errorHandler.addSyncError(

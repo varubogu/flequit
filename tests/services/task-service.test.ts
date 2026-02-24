@@ -25,7 +25,7 @@ vi.mock('$lib/stores/error-handler.svelte', () => ({
 	errorHandler: errorHandlerMock
 }));
 
-vi.mock('$lib/utils/user-id-helper', () => ({
+vi.mock('$lib/services/domain/current-user-id', () => ({
 	getCurrentUserId: vi.fn(() => 'system')
 }));
 
@@ -243,21 +243,21 @@ describe('TaskBackend', () => {
 	});
 
 	test('createTaskWithSubTasks: createTaskを委譲する', async () => {
-	const createSpy = vi.spyOn(TaskService, 'createTask').mockResolvedValueOnce({
-		id: fixedUuid,
-		projectId: 'project-123',
-		listId: 'list-123',
-		title: 'Delegated',
-		description: '',
-		status: 'not_started',
-		priority: 0,
-		orderIndex: 0,
-		isArchived: false,
-		assignedUserIds: [],
-		tagIds: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+		const createSpy = vi.spyOn(TaskBackend, 'createTask').mockResolvedValueOnce({
+			id: fixedUuid,
+			projectId: 'project-123',
+			listId: 'list-123',
+			title: 'Delegated',
+			description: '',
+			status: 'not_started',
+			priority: 0,
+			orderIndex: 0,
+			isArchived: false,
+			assignedUserIds: [],
+			tagIds: [],
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
 
 		await TaskBackend.createTaskWithSubTasks('list-123', {} as Task);
 		expect(createSpy).toHaveBeenCalled();

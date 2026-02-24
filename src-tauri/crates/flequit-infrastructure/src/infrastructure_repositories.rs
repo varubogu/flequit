@@ -138,14 +138,11 @@ impl InfrastructureRepositories {
             // 実際の使用時はsetup_with_sqlite_and_automerge()を使用すること
             tag_bookmarks_sqlite: {
                 use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
-                use std::sync::Arc;
-                use tokio::sync::RwLock;
 
-                // 非同期コンテキストがないため、とりあえずダミーマネージャーを作成
-                // これは主にテスト用で、本番ではsetup_with_sqlite_and_automerge()を使用
-                let dummy_db = Arc::new(RwLock::new(unsafe {
-                    std::mem::zeroed::<DatabaseManager>()
-                }));
+                // 同期コンテキストでも安全に構築できるテスト用DatabaseManagerを使用
+                let dummy_db = Arc::new(RwLock::new(DatabaseManager::new_for_test(
+                    "/tmp/flequit-placeholder.sqlite",
+                )));
                 TagBookmarkLocalSqliteRepository::new(dummy_db)
             },
             tag_bookmarks_automerge: TagBookmarkLocalAutomergeRepository::default(),
@@ -414,6 +411,7 @@ impl TransactionManager for InfrastructureRepositories {
 #[cfg(test)]
 pub mod mock {
     use super::*;
+    use flequit_infrastructure_sqlite::infrastructure::database_manager::DatabaseManager;
     use std::sync::{Arc, Mutex};
 
     #[derive(Debug)]
@@ -457,7 +455,12 @@ pub mod mock {
                 subtask_tags: SubTaskTagUnifiedRepository::default(),
                 task_recurrences: TaskRecurrenceUnifiedRepository::default(),
                 subtask_recurrences: SubTaskRecurrenceUnifiedRepository::default(),
-                tag_bookmarks_sqlite: flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository::default(),
+                tag_bookmarks_sqlite:
+                    flequit_infrastructure_sqlite::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalSqliteRepository::new(
+                        Arc::new(RwLock::new(DatabaseManager::new_for_test(
+                            "/tmp/flequit-placeholder.sqlite",
+                        ))),
+                    ),
                 tag_bookmarks_automerge: flequit_infrastructure_automerge::infrastructure::user_preferences::tag_bookmark::TagBookmarkLocalAutomergeRepository::default(),
                 unified_manager: UnifiedManager::default(),
             }

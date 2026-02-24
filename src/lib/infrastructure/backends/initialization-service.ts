@@ -25,8 +25,8 @@ export interface Account {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  deleted: boolean;
-  updatedBy: string;
+  deleted?: boolean;
+  updatedBy?: string;
 }
 
 /**

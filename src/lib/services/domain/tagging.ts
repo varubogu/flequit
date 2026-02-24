@@ -1,6 +1,6 @@
 import type { Tag } from '$lib/types/tag';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 export const TaggingService = {
   async createTaskTag(projectId: string, taskId: string, name: string): Promise<Tag> {

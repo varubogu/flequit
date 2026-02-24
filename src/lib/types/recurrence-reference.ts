@@ -40,13 +40,13 @@ export interface TaskRecurrence {
 	/** 繰り返しルールID */
 	recurrenceRuleId: string;
 	/** 作成日時 */
-	createdAt: Date;
+	createdAt?: Date;
 	/** 更新日時 */
-	updatedAt: Date;
+	updatedAt?: Date;
 	/** 削除フラグ（論理削除） */
-	deleted: boolean;
+	deleted?: boolean;
 	/** 最終更新者のユーザーID */
-	updatedBy: string;
+	updatedBy?: string;
 }
 
 /**
@@ -58,13 +58,13 @@ export interface SubtaskRecurrence {
 	/** 繰り返しルールID */
 	recurrenceRuleId: string;
 	/** 作成日時 */
-	createdAt: Date;
+	createdAt?: Date;
 	/** 更新日時 */
-	updatedAt: Date;
+	updatedAt?: Date;
 	/** 削除フラグ（論理削除） */
-	deleted: boolean;
+	deleted?: boolean;
 	/** 最終更新者のユーザーID */
-	updatedBy: string;
+	updatedBy?: string;
 }
 
 /**

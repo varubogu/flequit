@@ -1,5 +1,5 @@
 import { resolveBackend } from '$lib/infrastructure/backend-client';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 export const AssignmentService = {
   async createTaskAssignment(projectId: string, taskId: string, userId: string) {

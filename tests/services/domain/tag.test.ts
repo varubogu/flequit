@@ -34,7 +34,7 @@ vi.mock('$lib/stores/tasks.svelte', () => ({
 		getProjectIdByTagId: vi.fn()
 	}
 }));
-vi.mock('$lib/utils/user-id-helper', () => ({
+vi.mock('$lib/services/domain/current-user-id', () => ({
 	getCurrentUserId: vi.fn(() => 'system')
 }));
 

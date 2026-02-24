@@ -1,6 +1,6 @@
 import type { User } from '$lib/types/user';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 export const UserService = {
   async update(user: User): Promise<boolean> {

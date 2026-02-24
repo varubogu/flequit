@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { tagStore } from '$lib/stores/tags.svelte';
 import type { Tag } from '$lib/types/tag';
-import { SvelteSet } from 'svelte/reactivity';
 
 async function createTag(name: string, color?: string) {
   const tag = await tagStore.addTag({ name, color });
@@ -14,7 +13,7 @@ async function createTag(name: string, color?: string) {
 describe('TagStore - ドラッグ&ドロップ機能', () => {
   beforeEach(() => {
     tagStore.tags = [];
-    tagStore.bookmarkedTags = new SvelteSet<string>();
+    tagStore.bookmarkedTags = [];
   });
 
   describe('ブックマークされたタグの並び替え', () => {

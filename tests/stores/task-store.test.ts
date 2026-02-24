@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TaskStore } from '../../src/lib/stores/tasks.svelte';
 import { selectionStore } from '../../src/lib/stores/selection-store.svelte';
 import { projectStore } from '../../src/lib/stores/project-store.svelte';

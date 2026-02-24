@@ -2,7 +2,7 @@ import type { Tag } from '$lib/types/tag';
 import { SvelteDate } from 'svelte/reactivity';
 import { tagStore as tagStoreInternal } from '$lib/stores/tags/tag-store.svelte';
 import { TagService } from '$lib/services/domain/tag';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * タグのCRUD操作

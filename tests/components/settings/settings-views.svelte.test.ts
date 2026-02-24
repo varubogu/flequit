@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/svelte';
 import SettingsViews from '$lib/components/settings/views/settings-views.svelte';
 import { setupViewsVisibilityStoreOverride } from '../../utils/store-overrides';
 import type { ViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.svelte';
-import type { ViewItem } from '$lib/stores/views-visibility.svelte';
 import { MockViewsVisibilityStore } from '../../utils/mock-factories';
 
 // Mock translation service

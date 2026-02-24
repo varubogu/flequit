@@ -1,4 +1,5 @@
 import type { RecurrenceRule as LegacyRecurrenceRule } from '$lib/types/datetime-calendar';
+import type { RecurrenceRulePatch } from '$lib/types/recurrence';
 import { fromLegacyRecurrenceRule } from '$lib/utils/recurrence-converter';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 
@@ -39,8 +40,12 @@ export const RecurrenceSyncService = {
     if (existing) {
       // Update existing rule (差分更新)
       try {
-        // unifiedRuleを差分として送信（idは除外）
-        const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, updatedBy: _updatedBy, ...patch } = unifiedRule!;
+        // unifiedRuleを差分として送信（id/監査項目は除外）
+        const patch: RecurrenceRulePatch = { ...unifiedRule! };
+        delete patch.id;
+        delete patch.createdAt;
+        delete patch.updatedAt;
+        delete patch.updatedBy;
 
         const updateSuccess = await backend.recurrenceRule.update(
           projectId,

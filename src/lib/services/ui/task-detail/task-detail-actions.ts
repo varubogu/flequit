@@ -7,8 +7,6 @@ import type {
 import type { TaskDetailViewStore } from '$lib/stores/task-detail-view-store.svelte';
 import type { TaskStatus } from '$lib/types/task';
 import type { TaskInteractionsService } from '$lib/services/ui/task/task-interactions';
-import type { TaskWithSubTasks } from '$lib/types/task';
-import type { SubTask } from '$lib/types/sub-task';
 import { isSubTask } from './task-detail-guards';
 import { taskCoreStore } from '$lib/stores/task-core-store.svelte';
 import { subTaskStore } from '$lib/stores/sub-task-store.svelte';

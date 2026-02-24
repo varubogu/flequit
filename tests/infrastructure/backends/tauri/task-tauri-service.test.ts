@@ -45,11 +45,14 @@ describe('TaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockTask, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.objectContaining({
-        id: mockTask.id,
-        listId: mockTask.listId,
-        title: mockTask.title
-      }) });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task', {
+        task: expect.objectContaining({
+          id: mockTask.id,
+          listId: mockTask.listId,
+          title: mockTask.title
+        }),
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -59,7 +62,10 @@ describe('TaskTauriService', () => {
 
       const result = await service.create('test-project-id', mockTask, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('create_task', { task: expect.any(Object) });
+      expect(mockInvoke).toHaveBeenCalledWith('create_task', {
+        task: expect.any(Object),
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to create task:', expect.any(Error));
 
@@ -83,7 +89,11 @@ describe('TaskTauriService', () => {
       } as Record<string, unknown>;
       const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task', {
+        projectId: 'test-project-id',
+        patch: { ...patchData, id: mockTask.id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -103,7 +113,11 @@ describe('TaskTauriService', () => {
       } as Record<string, unknown>;
       const result = await service.update('test-project-id', mockTask.id, patchData, 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('update_task', { projectId: 'test-project-id', id: mockTask.id, patch: patchData }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('update_task', {
+        projectId: 'test-project-id',
+        patch: { ...patchData, id: mockTask.id },
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to update task:', expect.any(Error));
 
@@ -117,7 +131,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'task-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task', {
+        projectId: 'test-project-id',
+        id: 'task-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(true);
     });
 
@@ -127,7 +145,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.delete('test-project-id', 'task-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('delete_task', { projectId: 'test-project-id', id: 'task-123' }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('delete_task', {
+        projectId: 'test-project-id',
+        id: 'task-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('Failed to delete task:', expect.any(Error));
 
@@ -141,7 +163,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'task-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', {
+        projectId: 'test-project-id',
+        id: 'task-123',
+        userId: 'test-user-id'
+      });
       expect(result).toEqual(mockTask);
     });
 
@@ -150,7 +176,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'non-existent', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'non-existent' }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', {
+        projectId: 'test-project-id',
+        id: 'non-existent',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
     });
 
@@ -160,7 +190,11 @@ describe('TaskTauriService', () => {
 
       const result = await service.get('test-project-id', 'task-123', 'test-user-id');
 
-      expect(mockInvoke).toHaveBeenCalledWith('get_task', { projectId: 'test-project-id', id: 'task-123' }, userId: 'test-user-id' });
+      expect(mockInvoke).toHaveBeenCalledWith('get_task', {
+        projectId: 'test-project-id',
+        id: 'task-123',
+        userId: 'test-user-id'
+      });
       expect(result).toBeNull();
       expect(consoleSpy).toHaveBeenCalledWith('Failed to get task:', expect.any(Error));
 

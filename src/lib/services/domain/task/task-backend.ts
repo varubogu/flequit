@@ -1,7 +1,7 @@
 import type { Task } from '$lib/types/task';
 import { resolveBackend } from '$lib/infrastructure/backend-client';
 import { errorHandler } from '$lib/stores/error-handler.svelte';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * TaskBackend - タスクのバックエンド通信を担当

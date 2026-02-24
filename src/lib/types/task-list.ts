@@ -23,9 +23,9 @@ export interface TaskList {
   /** 更新日時 */
   updatedAt: Date;
   /** 削除フラグ（論理削除） */
-  deleted: boolean;
+  deleted?: boolean;
   /** 最終更新者のユーザーID */
-  updatedBy: string;
+  updatedBy?: string;
 }
 
 /**

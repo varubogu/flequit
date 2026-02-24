@@ -5,7 +5,7 @@ import { selectionStore } from '$lib/stores/selection-store.svelte';
 import { tagStore } from '$lib/stores/tags.svelte';
 import { SvelteDate } from 'svelte/reactivity';
 import { loadProjectsData as loadProjects, registerTagsToStore } from '$lib/services/data-loader';
-import { getCurrentUserId } from '$lib/utils/user-id-helper';
+import { getCurrentUserId } from '$lib/services/domain/current-user-id';
 
 /**
  * プロジェクト管理ストア

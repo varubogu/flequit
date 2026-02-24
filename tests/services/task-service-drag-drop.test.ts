@@ -147,10 +147,15 @@ describe('TaskOperations - Drag & Drop 相当機能', () => {
 		context = createDependencies(task);
 	});
 
-	describe('addTagToTask', () => {
-		it('タスクにタグを追加する（バックエンド連携含む）', async () => {
-			const backendTag = { id: 'tag-1', name: 'Work' };
-			TaggingService.createTaskTag.mockResolvedValueOnce(backendTag);
+		describe('addTagToTask', () => {
+			it('タスクにタグを追加する（バックエンド連携含む）', async () => {
+				const backendTag = {
+					id: 'tag-1',
+					name: 'Work',
+					createdAt: new Date('2024-01-01T00:00:00Z'),
+					updatedAt: new Date('2024-01-01T00:00:00Z')
+				};
+				vi.mocked(TaggingService.createTaskTag).mockResolvedValueOnce(backendTag);
 
 			await context.mutations.addTagToTask('task-1', 'tag-1');
 
@@ -176,11 +181,11 @@ describe('TaskOperations - Drag & Drop 相当機能', () => {
 			vi.setSystemTime(baseTime);
 		});
 
-		afterEach(() => {
-			vi.useRealTimers();
-			TaskBackend.updateTaskWithSubTasks.mockClear();
-			context.deps.taskStore.getTaskById.mockClear();
-		});
+			afterEach(() => {
+				vi.useRealTimers();
+				vi.mocked(TaskBackend.updateTaskWithSubTasks).mockClear();
+				context.deps.taskStore.getTaskById.mockClear();
+			});
 
 		const views: Array<{ view: string; expected: () => Date | undefined }> = [
 			{
@@ -229,7 +234,7 @@ describe('TaskOperations - Drag & Drop 相当機能', () => {
 					})
 				);
 
-				const [, , payload] = TaskBackend.updateTaskWithSubTasks.mock.calls.at(-1)!;
+					const [, , payload] = vi.mocked(TaskBackend.updateTaskWithSubTasks).mock.calls.at(-1)!;
 				const expectedDate = expected();
 				expect((payload as { planEndDate?: Date }).planEndDate?.toISOString()).toBe(
 					expectedDate?.toISOString()
