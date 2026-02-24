@@ -14,37 +14,37 @@ A **Tauri-based desktop task management application** that supports project mana
 **Tech Stack**:
 - Frontend: SvelteKit 2 (SSG) + Svelte 5 (runes) + Tailwind CSS 4 + bits-ui + Inlang Paraglide
 - Backend: Tauri 2 (Rust) + Sea-ORM + SQLite + Automerge (CRDT)
-- Package Manager: **Bun**（npm / yarn / pnpm 使用禁止）
-- Type Safety: Specta（Rust → TypeScript 型自動生成）
-- Architecture: Clean Architecture (Crate separation)
+- Package Manager: **Bun** (do not use npm / yarn / pnpm)
+- Type Safety: Specta (Rust -> TypeScript automatic type generation)
+- Architecture: Clean Architecture (crate separation)
 
 ## Frontend Architecture
 
 ### Directory Structure (`src/lib/`)
 
 ```
-components/              # UI 表示層 (.svelte)
+components/              # UI presentation layer (.svelte)
 services/
-  domain/                # 単一エンティティ操作 + Tauri invoke 呼び出し
-  composite/             # 複数エンティティをまたぐ操作
-  ui/                    # UI 状態管理のみ（invoke 禁止）
-stores/                  # Svelte $state 管理（.svelte.ts ファイル）
+  domain/                # Single-entity operations + Tauri invoke calls
+  composite/             # Cross-entity operations
+  ui/                    # UI state orchestration only (no invoke)
+stores/                  # Svelte $state management (.svelte.ts files)
 infrastructure/
   backends/
-    tauri/               # Tauri IPC 実装（Components から直接参照禁止）
-    web/                 # Web API 実装（フォールバック）
-types/                   # 型定義のみ（ロジック禁止）
-utils/                   # ユーティリティ
+    tauri/               # Tauri IPC implementation (must not be imported directly by components)
+    web/                 # Web API implementation (fallback)
+types/                   # Type definitions only (no logic)
+utils/                   # Utilities
 ```
 
-### Layer Rules（重要）
+### Layer Rules (Important)
 
-- **Components** → `services/` のみ参照（`infrastructure/` への直接参照禁止）
-- **services/domain/** → `infrastructure/backends/` で backend 呼び出し（invoke はここ）
-- **stores/** → 状態管理のみ（invoke も services の import も禁止）
-- **Optimistic Update パターン**: stores を先に更新 → backend 呼び出し → エラー時ロールバック
+- **Components** -> depend on `services/` only (no direct dependency on `infrastructure/`)
+- **services/domain/** -> call backends via `infrastructure/backends/` (invoke lives here)
+- **stores/** -> state management only (no invoke, no services imports)
+- **Optimistic update pattern**: update stores first -> call backend -> rollback on error
 
-### Svelte 5 Runes（必ず新記法を使用）
+### Svelte 5 Runes (Always use the new syntax)
 
 ```svelte
 <!-- ✅ OK: Svelte 5 -->
@@ -56,7 +56,7 @@ utils/                   # ユーティリティ
 </script>
 <button onclick={() => count++}>Click</button>
 
-<!-- ❌ NG: Svelte 4 記法（使用禁止） -->
+<!-- ❌ NG: Svelte 4 syntax (do not use) -->
 <script>
   export let title;
   let count = 0;
@@ -67,28 +67,28 @@ utils/                   # ユーティリティ
 
 ## Backend Architecture
 
-### Crate Dependencies（依存関係順）
+### Crate Dependencies (dependency order)
 
 ```
-flequit-types                        # 共通型 (ProjectId, TaskId 等)
-  ↓ flequit-model                    # ドメインモデル
-  ↓ flequit-repository               # Repository トレイト定義のみ
-  ↓ flequit-core                     # Service + Facade（ビジネスロジック）
-  ↓ flequit-infrastructure-sqlite    # SQLite 実装
-  ↓ src-tauri/src/commands/          # Tauri IPC コマンド
+flequit-types                        # Shared types (ProjectId, TaskId, etc.)
+  ↓ flequit-model                    # Domain models
+  ↓ flequit-repository               # Repository trait definitions only
+  ↓ flequit-core                     # Services + facades (business logic)
+  ↓ flequit-infrastructure-sqlite    # SQLite implementation
+  ↓ src-tauri/src/commands/          # Tauri IPC commands
 ```
 
-### Tauri Command パターン（必須）
+### Tauri Command Pattern (Required)
 
 ```rust
 use tracing::instrument;
 
-// ✅ 必ずこのパターンで実装
+// ✅ Always follow this pattern
 #[instrument(level = "info", skip(state, task), fields(project_id = %task.project_id))]
 #[tauri::command]
 pub async fn create_task(
     state: State<'_, AppState>,
-    task: TaskCommandModel,           // IPC DTO（CommandModel 形式）
+    task: TaskCommandModel,           // IPC DTO (CommandModel format)
     user_id: String,
 ) -> Result<bool, String> {
     let user_id_typed = UserId::from(user_id);
@@ -96,8 +96,8 @@ pub async fn create_task(
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
     };
-    let internal_task = task.to_model().await?;       // CommandModel → ドメインモデル
-    let repositories = state.repositories.read().await;  // ロック取得（必須）
+    let internal_task = task.to_model().await?;       // CommandModel -> domain model
+    let repositories = state.repositories.read().await;  // Acquire lock (required)
     task_facades::create_task(&*repositories, &project_id, &internal_task, &user_id_typed)
         .await
         .map_err(|e| {
@@ -107,55 +107,55 @@ pub async fn create_task(
 }
 ```
 
-**ルール**:
-- 全コマンドに `#[instrument]` 必須
-- ログは `tracing::error!/warn!/info!`（`log::` 使用禁止）
-- State アクセス: `state.repositories.read().await`（直接 `&state.repositories` 不可）
-- CommandModel → ドメインモデル変換: `task.to_model().await?`
+**Rules**:
+- `#[instrument]` is required on all commands
+- Use `tracing::error!/warn!/info!` for logging (do not use `log::`)
+- State access: `state.repositories.read().await` (do not use `&state.repositories` directly)
+- CommandModel -> domain conversion: `task.to_model().await?`
 
 ## Critical Commands
 
-| 用途 | コマンド | 備考 |
+| Purpose | Command | Notes |
 |------|---------|------|
-| 型チェック（TS） | `bun check` | `bun run check` は使用禁止 |
-| フロントエンドテスト | `bun run test [file]` | 単一ファイルから実施 |
-| バックエンドテスト | `cargo test -j 4` | 必ず `-j 4` を付ける |
-| ビルド | `bun run build` | i18n 型も自動生成 |
-| 機械翻訳 | `bun run machine-translate` | 翻訳後 `bun run build` で型生成 |
-| Rust チェック | `cargo check --quiet` | エラーのみ確認 |
-| Tauri 開発モード | `bun run tauri dev` | - |
+| Type check (TS) | `bun check` | Do not use `bun run check` |
+| Frontend tests | `bun run test [file]` | Start with single-file scope |
+| Backend tests | `cargo test -j 4` | Always include `-j 4` |
+| Build | `bun run build` | i18n types are also regenerated |
+| Machine translation | `bun run machine-translate` | Run `bun run build` after translation |
+| Rust check | `cargo check --quiet` | Focus on errors only |
+| Tauri dev mode | `bun run tauri dev` | - |
 
-## Common Mistakes（コード生成時の注意）
+## Common Mistakes (Code Generation)
 
 ### Tauri invoke
 
 ```typescript
-// ❌ NG: 古いパッケージパス
+// ❌ NG: old package path
 import { invoke } from '@tauri-apps/api/tauri';
 
-// ✅ OK: 正しいパッケージパス
+// ✅ OK: correct package path
 import { invoke } from '@tauri-apps/api/core';
 ```
 
-### Architecture 違反
+### Architecture violations
 
 ```typescript
-// ❌ NG: Component から直接 invoke
+// ❌ NG: direct invoke in component
 // src/lib/components/TaskItem.svelte
 import { invoke } from '@tauri-apps/api/core';
 const tasks = await invoke('get_tasks', ...);
 
-// ✅ OK: services/domain/ 経由
+// ✅ OK: go through services/domain/
 import { getTasksService } from '$lib/services/domain/task/task-read-service';
 const tasks = await getTasksService(projectId);
 ```
 
 ```typescript
-// ❌ NG: store から services を import
+// ❌ NG: importing services in a store
 // src/lib/stores/task-store.svelte.ts
 import { createTask } from '$lib/services/domain/task/task-write-service';
 
-// ✅ OK: store は状態管理のみ
+// ✅ OK: store handles state only
 let tasks = $state<Task[]>([]);
 ```
 
@@ -169,14 +169,14 @@ let tasks = $state<Task[]>([]);
 
 Claude Code has specialized **skills** for common tasks. These skills provide detailed guidance:
 
-* **`.claude/skills/frontend-testing/`** - フロントエンドテスト（Vitest / Svelte 5）
-* **`.claude/skills/backend-testing/`** - バックエンドテスト（Rust / cargo）
-* **`.claude/skills/tauri-command/`** - Tauri コマンド実装（フロント ↔ バック通信）
-* **`.claude/skills/architecture-review/`** - アーキテクチャ準拠チェック
-* **`.claude/skills/debugging/`** - デバッグ支援
-* **`.claude/skills/i18n/`** - 国際化対応（Inlang Paraglide）
-* **`.claude/skills/documentation/`** - ドキュメント編集（日本語・英語同時）
-* **`.claude/skills/coding-standards/`** - コーディング標準チェック
+* **`.claude/skills/frontend-testing/`** - Frontend testing (Vitest / Svelte 5)
+* **`.claude/skills/backend-testing/`** - Backend testing (Rust / cargo)
+* **`.claude/skills/tauri-command/`** - Tauri command implementation (frontend <-> backend IPC)
+* **`.claude/skills/architecture-review/`** - Architecture compliance checks
+* **`.claude/skills/debugging/`** - Debugging support
+* **`.claude/skills/i18n/`** - Internationalization (Inlang Paraglide)
+* **`.claude/skills/documentation/`** - Documentation editing (keep Japanese and English synced)
+* **`.claude/skills/coding-standards/`** - Coding standards checks
 
 For detailed design and specifications, refer to the documents in the `docs` directory:
 
@@ -192,7 +192,7 @@ For detailed design and specifications, refer to the documents in the `docs` dir
   * `frontend.md` - Frontend rules
   * `backend.md` - Backend rules
   * `testing.md` - Testing rules
-  * `documentation.md` - Documentation editing rules (MUST update both ja/en)
+  * `documentation.md` - Documentation editing rules (must update both ja/en)
 
 * **Requirements**: `docs/en/develop/requirements/`
   * `performance.md`, `security.md`, `testing.md`, etc.
