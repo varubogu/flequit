@@ -572,6 +572,69 @@ impl ProjectLocalAutomergeRepository {
         }
     }
 
+    /// プロジェクト内のすべてのタスクを論理削除
+    pub async fn mark_all_tasks_deleted(
+        &self,
+        project_id: &ProjectId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        for task in &mut document.tasks {
+            task.mark_deleted(user_id.clone(), *timestamp);
+        }
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// プロジェクト内のすべてのタグを論理削除
+    pub async fn mark_all_tags_deleted(
+        &self,
+        project_id: &ProjectId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        for tag in &mut document.tags {
+            tag.mark_deleted(user_id.clone(), *timestamp);
+        }
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// プロジェクト内のすべてのタスクリストを論理削除
+    pub async fn mark_all_task_lists_deleted(
+        &self,
+        project_id: &ProjectId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        for task_list in &mut document.task_lists {
+            task_list.mark_deleted(user_id.clone(), *timestamp);
+        }
+
+        self.save_project_document(project_id, &document).await
+    }
+
     // ========== スナップショット機能（Phase 2） ==========
 
     /// スナップショットを作成（更新前の状態を保存）
