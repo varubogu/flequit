@@ -1,106 +1,105 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+Project-specific guidance for AI coding agents working in this repository.
 
 ## Response Guidelines
 
-* Always respond **in Japanese**.
-* After loading this file, first say “✅️ AGENTS.md loaded” and then follow the instructions.
+- Always respond in Japanese.
+- Right after loading this file, print `✅️ AGENTS.md loaded` first.
+- Write `AGENTS.md` and skill files primarily in English to reduce context size.
 
-## Design Documents
+## Scope Policy (Important)
 
-For detailed design and specifications, please refer to the documents in the `docs` directory:
-
-### Architecture & Design
-
-* `docs/en/develop/design/architecture.md` - Overall architecture
-* `docs/en/develop/design/data/` - Data-related design
-
-  * `data-model.md` - Data structure specifications
-  * `data-security.md` - Security design
-  * `tauri-automerge-repo-dataflow.md` - Data flow design
-  * `partial-update-implementation.md` - Partial update system implementation details
-* `docs/en/develop/design/frontend/` - Frontend design
-* `docs/en/develop/design/database/` - Database design
-
-### Development Rules
-
-* When instructed to make changes, do **not** modify unrelated parts of the source code without first asking for permission from the user.
-* `docs/en/develop/rules/` - Development rules (backend.md, frontend.md, testing.md, etc.)
-* `docs/en/develop/rules/documentation.md` - Documentation editing rules
-* Limit the number of workers to **4** during build and test execution for both `bun` and `cargo`, to avoid unintended system load:
-
-  * `cargo test -j 4`
-  * `bun run test` (already configured in the settings file; no need for manual adjustment)
-* For frontend type checking, use `bun check` (do **not** use `bun run check` or `bun run typecheck`).
-* For frontend linting, use `bun run lint` (do **not** use `bun lint`, `bun run check`, or `bun run typecheck`).
-* If you get an error saying a file or directory does not exist when executing a command, verify your current working directory with `pwd`.
-
-### Requirements Definition
-
-* `docs/en/develop/requirements/` - Requirement documents (performance.md, security.md, testing.md, etc.)
-
-### Testing
-
-* `docs/en/develop/design/testing.md` - Testing strategy and guidelines
-
-Refer to these documents as needed and ensure your work is always based on the latest design information.
-When testing, first execute tests for a single file to confirm correctness, then run the full suite.
-
-* **Web Frontend Tests:** Use `bun run test` (not `bun test`)
-* **Tauri Backend Tests:** Use `cargo test -j 4` (always specify `-j 4`)
+- Store project-specific constraints in this file and `docs/`.
+- Store reusable, cross-project procedures in user-level Codex skills (`~/.codex/skills/`).
+- Treat Codex skills as user-scoped; do not embed repository-specific rules in shared skills.
 
 ## Application Overview
 
-A **Tauri-based desktop task management application** that supports project management and task collaboration.
-Currently designed for **local operation (SQLite)**, but future updates will support **web and cloud storage synchronization**.
-An **AutoMerge-based data management system** is used to prevent conflicts during synchronization.
+- Tauri-based desktop task management app with project/task collaboration.
+- Current mode is local-first (SQLite), with future web/cloud sync support.
+- Uses Automerge-based data handling to reduce sync conflicts.
 
 ## Tech Stack
 
+- Frontend: SvelteKit 2 (SSG), Svelte 5 runes, Tailwind CSS 4, bits-ui, Inlang Paraglide
+- Backend: Tauri 2 (Rust), Sea-ORM, SQLite, Automerge (CRDT)
+- Package manager: Bun only (do not use npm/yarn/pnpm)
+- Type safety: Specta (Rust -> TypeScript type generation)
+
 See `docs/en/develop/design/tech-stack.md` for details.
 
-## Project Structure
+## Architecture Rules
 
-See `docs/en/develop/design/tech-stack.md` for details.
+### Frontend Layers
 
-## Svelte 5 Design Patterns
+- `src/lib/components/` may depend on `services/` only.
+- `src/lib/services/domain/` handles single-entity operations and backend calls.
+- `src/lib/services/composite/` handles cross-entity orchestration.
+- `src/lib/services/ui/` handles UI orchestration only (no invoke).
+- `src/lib/stores/` handles state only (no invoke, no services import).
+- `src/lib/infrastructure/backends/tauri/` contains IPC adapters (not imported directly by components).
 
-See `docs/en/develop/design/frontend/svelte5-patterns.md` for details.
+### Backend Dependency Order
 
-## Internationalization System
+`flequit-types` -> `flequit-model` -> `flequit-repository` -> `flequit-core` -> `flequit-infrastructure-*` -> `src-tauri/src/commands`
 
-See `docs/en/develop/design/frontend/i18n-system.md` for details.
+## Tauri <-> Frontend Communication
 
-## Coding Standards
+- Use `camelCase` in JavaScript/TypeScript parameters.
+- Use `snake_case` in Rust command parameters.
+- Tauri maps JS `camelCase` to Rust `snake_case` automatically.
+- Command handlers that return success/failure should use `Result<bool, String>` by default.
+- Frontend invoke import must be `@tauri-apps/api/core`.
 
-See `docs/en/develop/rules/coding-standards.md` for details.
+## Svelte 5 Rules
 
-### Tauri ⇔ Frontend Communication Rules
+- Use Svelte 5 runes (`$state`, `$derived`, `$effect`, `$props`).
+- Do not introduce new Svelte 4 syntax (`export let`, `$:`, etc.).
 
-**Important:** Tauri automatically converts JavaScript `camelCase` parameters into Rust `snake_case`.
+## Critical Commands
 
-* **JavaScript side:** Use `camelCase` (e.g., `projectId`, `taskAssignment`, `partialSettings`)
-* **Rust side:** Use `snake_case` (e.g., `project_id`, `task_assignment`, `partial_settings`)
-* **Return values:** Commands returning `void` should return `true` on success and `false` on failure
-* **Error handling:** Follow the unified error-handling pattern
+- Frontend typecheck: `bun check` (do not use `bun run check` or `bun run typecheck`)
+- Frontend lint: `bun run lint` (do not use `bun lint`)
+- Frontend tests: `bun run test [file]` then `bun run test`
+- Backend tests: `cargo test -j 4` (always include `-j 4`)
+- Rust check: `cargo check --quiet`
+- Build: `bun run build`
+- Machine translate: `bun run machine-translate`
 
-For more details, see the “Tauri ⇔ Frontend Communication Rules” section in
-`docs/en/develop/rules/coding-standards.md`.
+## Testing Policy
 
-### Rust Guidelines
+- Run single-file/single-target tests first, then run broader suites.
+- Always keep backend test workers capped with `cargo test -j 4`.
 
-See `docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
+## Documentation Policy
 
-### Module Relationships
+- Keep Japanese and English docs aligned when updating project documentation.
+- Follow `docs/en/develop/rules/documentation.md`.
 
-See the “Architecture Structure” section in
-`docs/en/develop/design/backend-tauri/rust-guidelines.md` for details.
+## Non-Negotiable Development Rules
 
-## Development Workflow
+- Do not change unrelated code unless the user explicitly approves.
+- Before broad regex-style replacements, verify scope and side effects.
+- If a command fails with missing path/file errors, check `pwd` first.
 
-See `docs/en/develop/rules/workflow.md` for details.
+## Primary References
 
-## Command List
+- Architecture & design: `docs/en/develop/design/`
+- Development rules: `docs/en/develop/rules/`
+- Requirements: `docs/en/develop/requirements/`
+- Testing strategy: `docs/en/develop/design/testing.md`
 
-See `docs/en/develop/commands.md` for details.
+Frequently used files:
+
+- `docs/en/develop/design/architecture.md`
+- `docs/en/develop/design/tech-stack.md`
+- `docs/en/develop/design/frontend/svelte5-patterns.md`
+- `docs/en/develop/design/frontend/i18n-system.md`
+- `docs/en/develop/design/backend-tauri/rust-guidelines.md`
+- `docs/en/develop/rules/coding-standards.md`
+- `docs/en/develop/rules/frontend.md`
+- `docs/en/develop/rules/backend.md`
+- `docs/en/develop/rules/testing.md`
+- `docs/en/develop/rules/workflow.md`
+- `docs/en/develop/commands.md`
