@@ -3,6 +3,7 @@
 use super::super::document_manager::{DocumentManager, DocumentType};
 use crate::infrastructure::document::Document;
 use flequit_model::models::task_projects::project::Project;
+use flequit_model::traits::Trackable;
 use flequit_model::types::id_types::ProjectId;
 use flequit_types::errors::repository_error::RepositoryError;
 use std::path::PathBuf;
@@ -37,9 +38,9 @@ impl ProjectListLocalAutomergeRepository {
             .map_err(|e| RepositoryError::AutomergeError(e.to_string()))
     }
 
-    /// 全プロジェクト一覧を取得
+    /// 全プロジェクト一覧を取得（削除済み含む、内部処理用）
 
-    pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
+    async fn list_all_projects_raw(&self) -> Result<Vec<Project>, RepositoryError> {
         let document = self.get_or_create_settings_document().await?;
         let projects = document.load_data::<Vec<Project>>("projects").await?;
         if let Some(projects) = projects {
@@ -49,12 +50,19 @@ impl ProjectListLocalAutomergeRepository {
         }
     }
 
+    /// アクティブなプロジェクト一覧を取得（deleted=falseのみ）
+
+    pub async fn list_projects(&self) -> Result<Vec<Project>, RepositoryError> {
+        let projects = self.list_all_projects_raw().await?;
+        Ok(projects.into_iter().filter(|p| !p.is_deleted()).collect())
+    }
+
     /// プロジェクトをプロジェクト一覧に追加または更新
 
     pub async fn add_or_update_project(&self, project: &Project) -> Result<(), RepositoryError> {
         log::info!("add_or_update_project - 開始: {:?}", project.id);
 
-        let mut projects = self.list_projects().await?;
+        let mut projects = self.list_all_projects_raw().await?;
         log::info!(
             "add_or_update_project - 現在のプロジェクト数: {}",
             projects.len()
@@ -107,7 +115,7 @@ impl ProjectListLocalAutomergeRepository {
         &self,
         project_id: &str,
     ) -> Result<bool, RepositoryError> {
-        let mut projects = self.list_projects().await?;
+        let mut projects = self.list_all_projects_raw().await?;
         let initial_len = projects.len();
         projects.retain(|p| p.id != project_id.into());
 
@@ -135,5 +143,12 @@ impl ProjectListLocalAutomergeRepository {
     ) -> Result<bool, RepositoryError> {
         let found = self.get_project_from_list(&project_id.to_string()).await?;
         Ok(found.is_some())
+    }
+
+    /// 削除済みプロジェクト一覧を取得（deleted=trueのみ）
+
+    pub async fn list_deleted_projects(&self) -> Result<Vec<Project>, RepositoryError> {
+        let projects = self.list_all_projects_raw().await?;
+        Ok(projects.into_iter().filter(|p| p.is_deleted()).collect())
     }
 }

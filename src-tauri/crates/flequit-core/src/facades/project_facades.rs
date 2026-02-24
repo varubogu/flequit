@@ -4,6 +4,7 @@ use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::service_error::ServiceError;
 use sea_orm::DatabaseTransaction;
 
@@ -229,6 +230,50 @@ where
             }
         }
         return Err(format!("Failed to commit transaction: {:?}", e));
+    }
+
+    Ok(true)
+}
+
+pub async fn restore_project<R>(
+    repositories: &R,
+    id: &ProjectId,
+    user_id: &UserId,
+    timestamp: &DateTime<Utc>,
+) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    // 1. Automergeから削除済みプロジェクトを取得
+    let deleted_project = if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+        match automerge_guard.projects.get_deleted_project(id).await {
+            Ok(Some(p)) => p,
+            Ok(None) => return Err(format!("Project not found or not deleted: {}", id)),
+            Err(e) => return Err(format!("Failed to get deleted project: {:?}", e)),
+        }
+    } else {
+        return Err("Automerge repositories not initialized".to_string());
+    };
+
+    // 2. SQLiteにプロジェクトを再作成
+    if let Err(e) = repositories.projects().save(&deleted_project, user_id, timestamp).await {
+        return Err(format!("Failed to recreate project in SQLite: {:?}", e));
+    }
+
+    // 3. Automergeでdeleted=falseに設定（復元操作を記録）
+    if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+        if let Err(e) = automerge_guard.projects.restore_project(id, user_id, timestamp).await {
+            // Automerge復元失敗 → SQLiteから再削除してロールバック
+            if let Err(delete_err) = repositories.projects().delete(id).await {
+                tracing::error!(
+                    "Failed to restore Automerge and cleanup SQLite also failed: automerge={:?}, sqlite={:?}",
+                    e, delete_err
+                );
+            }
+            return Err(format!("Failed to restore project in Automerge: {:?}", e));
+        }
     }
 
     Ok(true)

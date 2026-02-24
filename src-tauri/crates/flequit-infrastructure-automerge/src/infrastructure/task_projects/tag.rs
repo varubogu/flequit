@@ -4,6 +4,7 @@ use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::tag::Tag;
 use chrono::{DateTime, Utc};
+use flequit_model::traits::Trackable;
 use flequit_model::types::id_types::{ProjectId, TagId, UserId};
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
 use flequit_repository::repositories::task_projects::tag_repository_trait::TagRepositoryTrait;
@@ -71,7 +72,7 @@ impl TagLocalAutomergeRepository {
 
     /// 指定されたプロジェクトの全タグを取得
 
-    pub async fn list_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
+    async fn list_all_tags_raw(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tags = document.load_data::<Vec<Tag>>("tags").await?;
         if let Some(tags) = tags {
@@ -79,6 +80,11 @@ impl TagLocalAutomergeRepository {
         } else {
             Ok(Vec::new())
         }
+    }
+
+    pub async fn list_tags(&self, project_id: &ProjectId) -> Result<Vec<Tag>, RepositoryError> {
+        let tags = self.list_all_tags_raw(project_id).await?;
+        Ok(tags.into_iter().filter(|t| !t.is_deleted()).collect())
     }
 
     /// IDでタグを取得
@@ -96,7 +102,7 @@ impl TagLocalAutomergeRepository {
 
     pub async fn set_tag(&self, project_id: &ProjectId, tag: &Tag) -> Result<(), RepositoryError> {
         log::info!("set_tag - 開始: {:?}", tag.id);
-        let mut tags = self.list_tags(project_id).await?;
+        let mut tags = self.list_all_tags_raw(project_id).await?;
         log::info!("set_tag - 現在のタグ数: {}", tags.len());
 
         // 既存のタグを更新、または新規追加
@@ -130,7 +136,7 @@ impl TagLocalAutomergeRepository {
         project_id: &ProjectId,
         tag_id: &str,
     ) -> Result<bool, RepositoryError> {
-        let mut tags = self.list_tags(project_id).await?;
+        let mut tags = self.list_all_tags_raw(project_id).await?;
         let initial_len = tags.len();
         tags.retain(|t| t.id != tag_id.into());
 

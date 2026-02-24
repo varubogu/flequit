@@ -4,6 +4,7 @@ use super::super::document_manager::{DocumentManager, DocumentType};
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task::Task;
 use chrono::{DateTime, Utc};
+use flequit_model::traits::Trackable;
 use flequit_model::types::id_types::{ProjectId, TaskId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
@@ -72,7 +73,7 @@ impl TaskLocalAutomergeRepository {
 
     /// 指定されたプロジェクトの全タスクを取得
 
-    pub async fn list_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+    async fn list_all_tasks_raw(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
         let document = self.get_or_create_document(project_id).await?;
         let tasks = document.load_data::<Vec<Task>>("tasks").await?;
         if let Some(tasks) = tasks {
@@ -80,6 +81,11 @@ impl TaskLocalAutomergeRepository {
         } else {
             Ok(Vec::new())
         }
+    }
+
+    pub async fn list_tasks(&self, project_id: &ProjectId) -> Result<Vec<Task>, RepositoryError> {
+        let tasks = self.list_all_tasks_raw(project_id).await?;
+        Ok(tasks.into_iter().filter(|t| !t.is_deleted()).collect())
     }
 
     /// IDでタスクを取得
@@ -101,7 +107,7 @@ impl TaskLocalAutomergeRepository {
         task: &Task,
     ) -> Result<(), RepositoryError> {
         log::info!("set_task - 開始: {:?}", task.id);
-        let mut tasks = self.list_tasks(project_id).await?;
+        let mut tasks = self.list_all_tasks_raw(project_id).await?;
         log::info!("set_task - 現在のタスク数: {}", tasks.len());
 
         // 既存のタスクを更新、または新規追加
@@ -135,7 +141,7 @@ impl TaskLocalAutomergeRepository {
         project_id: &ProjectId,
         task_id: &str,
     ) -> Result<bool, RepositoryError> {
-        let mut tasks = self.list_tasks(project_id).await?;
+        let mut tasks = self.list_all_tasks_raw(project_id).await?;
         let initial_len = tasks.len();
         tasks.retain(|t| t.id != task_id.into());
 

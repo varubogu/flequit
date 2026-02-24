@@ -88,6 +88,25 @@ pub async fn delete_project(
 
 #[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
+pub async fn restore_project(
+    state: State<'_, AppState>,
+    id: String,
+    user_id: String,
+) -> Result<bool, String> {
+    let timestamp = Utc::now();
+    let repositories = state.repositories.read().await;
+    let project_id = ProjectId::from(id);
+    let user_id_typed = UserId::from(user_id);
+    project_facades::restore_project(&*repositories, &project_id, &user_id_typed, &timestamp)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::project", command = "restore_project", project_id = %project_id, error = %e);
+            e
+        })
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %id))]
+#[tauri::command]
 pub async fn get_project_with_tasks_and_tags(
     state: State<'_, AppState>,
     id: String,

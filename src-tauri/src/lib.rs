@@ -49,6 +49,7 @@ pub fn run() {
                 project_commands::get_project,
                 project_commands::update_project,
                 project_commands::delete_project,
+                project_commands::restore_project,
                 project_commands::get_project_with_tasks_and_tags,
                 // Setting management commands (legacy)
                 settings_commands::get_setting,

@@ -3,6 +3,7 @@ use crate::infrastructure::document::Document;
 use async_trait::async_trait;
 use flequit_model::models::task_projects::task_list::TaskList;
 use chrono::{DateTime, Utc};
+use flequit_model::traits::Trackable;
 use flequit_model::types::id_types::{ProjectId, TaskListId, UserId};
 use flequit_repository::repositories::project_patchable_trait::ProjectPatchable;
 use flequit_repository::repositories::project_repository_trait::ProjectRepository;
@@ -50,7 +51,7 @@ impl TaskListLocalAutomergeRepository {
     }
 
     /// 指定されたプロジェクトの全タスクリストを取得
-    pub async fn list_task_lists(
+    async fn list_all_task_lists_raw(
         &self,
         project_id: &ProjectId,
     ) -> Result<Vec<TaskList>, RepositoryError> {
@@ -61,6 +62,14 @@ impl TaskListLocalAutomergeRepository {
         } else {
             Ok(Vec::new())
         }
+    }
+
+    pub async fn list_task_lists(
+        &self,
+        project_id: &ProjectId,
+    ) -> Result<Vec<TaskList>, RepositoryError> {
+        let task_lists = self.list_all_task_lists_raw(project_id).await?;
+        Ok(task_lists.into_iter().filter(|tl| !tl.is_deleted()).collect())
     }
 
     /// IDでタスクリストを取得
@@ -81,7 +90,7 @@ impl TaskListLocalAutomergeRepository {
         project_id: &ProjectId,
         task_list: &TaskList,
     ) -> Result<(), RepositoryError> {
-        let mut task_lists = self.list_task_lists(project_id).await?;
+        let mut task_lists = self.list_all_task_lists_raw(project_id).await?;
 
         // 既存のタスクリストを更新、または新規追加
         if let Some(existing) = task_lists.iter_mut().find(|tl| tl.id == task_list.id) {
@@ -103,7 +112,7 @@ impl TaskListLocalAutomergeRepository {
         project_id: &ProjectId,
         task_list_id: &str,
     ) -> Result<bool, RepositoryError> {
-        let mut task_lists = self.list_task_lists(project_id).await?;
+        let mut task_lists = self.list_all_task_lists_raw(project_id).await?;
         let initial_len = task_lists.len();
         task_lists.retain(|tl| tl.id != task_list_id.into());
 
