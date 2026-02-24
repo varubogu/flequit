@@ -1,8 +1,6 @@
 ---
 name: frontend-testing
 description: フロントエンド（TypeScript/Svelte 5/Vitest）のテスト実装とデバッグを行います。テストの作成、テストの実行、テストエラーの修正、Svelte 5 コンポーネントのテスト、国際化対応のモックなどのテスト関連タスクに使用します。
-allowed-tools: Read, Edit, Write, Bash(bun run test:*), Bash(bun check:*)
-model: sonnet
 ---
 
 # Frontend Testing Skill

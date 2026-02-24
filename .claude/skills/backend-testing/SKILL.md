@@ -1,8 +1,6 @@
 ---
 name: backend-testing
 description: バックエンド（Rust/Tauri）のテスト実装とデバッグを行います。Rustのテスト作成、cargo testの実行、テストエラーの修正、Repository/Service/Facadeレイヤーのテストなどのバックエンドテスト関連タスクに使用します。
-allowed-tools: Read, Edit, Write, Bash(cargo test:*), Bash(cargo check:*)
-model: sonnet
 ---
 
 # Backend Testing Skill
@@ -19,8 +17,8 @@ Flequit プロジェクトのバックエンドテスト（Rust/Tauri）を実�
 # 全テスト実行
 cargo test -j 4
 
-# Storage レイヤーのみ
-cargo test --lib -p flequit-storage -j 4
+# Infrastructure レイヤーのみ（SQLite）
+cargo test --lib -p flequit-infrastructure-sqlite -j 4
 
 # Business logic レイヤーのみ
 cargo test --lib -p flequit-core -j 4

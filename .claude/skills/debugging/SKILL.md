@@ -1,8 +1,6 @@
 ---
 name: debugging
 description: フロントエンドとバックエンドのデバッグを支援します。エラーの原因特定、ログの確認、型エラーの修正、実行時エラーの解析、Tauri 通信のデバッグなどに使用します。
-allowed-tools: Read, Edit, Bash(bun check:*), Bash(cargo check:*), Bash(bun run lint:*)
-model: sonnet
 ---
 
 # Debugging Skill
@@ -187,7 +185,7 @@ cargo check
 cargo check --workspace
 
 # 特定の crate のみ
-cargo check -p flequit-storage
+cargo check -p flequit-infrastructure-sqlite
 ```
 
 #### よくあるコンパイルエラー
@@ -259,27 +257,29 @@ trait TaskRepository {
 
 #### ログの確認
 
+**重要**: このプロジェクトでは `log::` ではなく `tracing::` を使用します。
+
 ```rust
-// ログレベル
-log::error!("Critical error: {}", error);  // エラー
-log::warn!("Warning: {}", warning);        // 警告
-log::info!("Information: {}", info);       // 情報
-log::debug!("Debug info: {}", debug);      // デバッグ
-log::trace!("Trace: {}", trace);           // トレース
+// ✅ OK: tracing を使用（このプロジェクトの標準）
+use tracing::instrument;
 
-// 使用例
-pub async fn get_task(id: &TaskId) -> Result<Task, ServiceError> {
-    log::debug!("Getting task: {}", id);
+tracing::error!(target: "commands::task", error = %e);  // エラー
+tracing::warn!("Warning: {}", warning);                  // 警告
+tracing::info!("Information: {}", info);                 // 情報
+tracing::debug!("Debug info: {}", debug);                // デバッグ
 
-    let task = repository.find_by_id(id).await?;
+// ❌ NG: log:: は使用禁止
+log::error!("Critical error: {}", error);
 
-    if let Some(task) = task {
-        log::info!("Task found: {}", task.id);
-        Ok(task)
-    } else {
-        log::warn!("Task not found: {}", id);
-        Err(ServiceError::NotFound(format!("Task {} not found", id)))
-    }
+// コマンドでの実際のパターン
+#[instrument(level = "info", skip(state, task), fields(task_id = %task.id))]
+#[tauri::command]
+pub async fn get_task(state: State<'_, AppState>, id: String) -> Result<Option<TaskCommandModel>, String> {
+    // ... 処理 ...
+    .map_err(|e| {
+        tracing::error!(target: "commands::task", command = "get_task", error = %e);
+        e
+    })
 }
 ```
 

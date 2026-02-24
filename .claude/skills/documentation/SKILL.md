@@ -1,7 +1,6 @@
 ---
 name: documentation
 description: プロジェクトドキュメントの作成・編集を支援します。ドキュメントの追加、更新、翻訳（日本語・英語の両方）、Markdown フォーマット、ドキュメント構造の維持などに使用します。必ず日本語版と英語版の両方を同時に更新します。
-model: sonnet
 ---
 
 # Documentation Skill

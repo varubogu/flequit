@@ -1,7 +1,6 @@
 ---
 name: architecture-review
 description: Flequit のクリーンアーキテクチャ、レイヤードアーキテクチャへの準拠をチェックします。レイヤー間の依存関係、crate 間のアクセス制御、Store と Service の分離、アンチパターンの検出などのアーキテクチャレビューに使用します。
-model: sonnet
 ---
 
 # Architecture Review Skill
@@ -13,35 +12,41 @@ Flequit プロジェクトのアーキテクチャ準拠をチェックするス
 ### バックエンド: クリーンアーキテクチャ（Crate分離版）
 
 ```
-Main Crate (flequit)
-├── Application Layer (commands, controllers, events)
+src-tauri/src/commands/    # Tauri IPC コマンド
     ↓
-flequit-core Crate
-├── Domain Layer (facade → services)
+flequit-core Crate         # Facade + Service（ビジネスロジック）
     ↓
-flequit-storage Crate
-├── Data Access Layer (repositories)
+flequit-infrastructure-sqlite Crate  # SQLite Repository 実装
+flequit-infrastructure-automerge Crate  # Automerge 実装
+    ↓ (依存)
+flequit-repository Crate   # Repository トレイト定義
+flequit-model Crate        # ドメインモデル
+flequit-types Crate        # 共通型 (ID型等)
 ```
 
-### フロントエンド: レイヤードアーキテクチャ
+### フロントエンド: レイヤードアーキテクチャ（実際の構成）
 
 ```
-UI Layer (Components)
-    ↓
-UI Service Layer (Orchestration, Side Effects)
-    ↓
-Store Layer (Reactive State)
-    ↓
-Backend Communication (Tauri Commands)
+Components (src/lib/components/)
+    ↓ 呼び出し
+services/domain/       # 単一エンティティ操作 + Tauri invoke
+services/composite/    # 複数エンティティをまたぐ操作
+services/ui/           # UI状態管理のみ（invoke禁止）
+    ↓ 状態更新
+stores/ (.svelte.ts)   # $state 管理のみ（invoke禁止）
+    ↑
+infrastructure/backends/tauri/  # Tauri IPC実装（直接参照不可）
 ```
+
+**重要**: `services/domain/` が Tauri invoke を行う（`services/ui/` ではない）
 
 ## バックエンド: Crate 間アクセス制御
 
 ### ルール
 
-1. **Main Crate (flequit)**: `flequit-core` のみ参照可能
-2. **flequit-core**: `flequit-storage` のみ参照可能
-3. **flequit-storage**: 外部 crate 参照不可（完全独立）
+1. **src-tauri/commands/**: `flequit-core` の facades のみ参照可能
+2. **flequit-core**: `flequit-infrastructure-sqlite` / `flequit-infrastructure-automerge` を参照可能
+3. **flequit-infrastructure-sqlite**: `flequit-repository`（トレイト）のみ参照可能（完全独立）
 
 ### Crate 内アクセス制御
 

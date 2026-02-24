@@ -1,7 +1,6 @@
 ---
 name: i18n
 description: Inlang Paraglide を使用した国際化（i18n）対応を支援します。翻訳メッセージの追加、reactiveMessage の使用、言語切り替え実装、翻訳のテスト、パラメータ付きメッセージなどの国際化関連タスクに使用します。
-model: sonnet
 ---
 
 # Internationalization (i18n) Skill
@@ -64,7 +63,18 @@ src/lib/stores/
 }
 ```
 
-### 2. ビルドして型を生成
+### 2. 機械翻訳（オプション）
+
+日本語訳を自動生成する場合：
+
+```bash
+# 機械翻訳を実行（en.json → ja.json の下書き生成）
+bun run machine-translate
+
+# 翻訳後は必ずレビューして修正してから commit する
+```
+
+### 3. ビルドして型を生成
 
 ```bash
 bun run build

@@ -1,8 +1,6 @@
 ---
 name: coding-standards
 description: Flequit プロジェクトのコーディング標準への準拠をチェックします。命名規則、ファイル構造、型定義、エラーハンドリング、コメント、インポート順序などのコーディング標準チェックに使用します。
-allowed-tools: Read, Edit, Bash(bun check:*), Bash(bun run lint:*)
-model: sonnet
 ---
 
 # Coding Standards Skill
@@ -241,8 +239,8 @@ pub async fn get_task(id: &TaskId) -> Task {
 
 ```typescript
 // 1. Node modules
-import { invoke } from '@tauri-apps/api/tauri';
-import { writable } from 'svelte/store';
+import { invoke } from '@tauri-apps/api/core';  // ← @tauri-apps/api/tauri は使用禁止
+import { mount } from 'svelte';
 
 // 2. Internal libraries ($lib で始まる)
 import type { Task } from '$lib/types';
@@ -365,6 +363,32 @@ function calculateProgressAndUpdate(completedTasks: number, totalTasks: number):
 ```
 
 ## Svelte 5 パターン
+
+### イベントハンドラ記法（重要）
+
+```svelte
+<!-- ❌ NG: Svelte 4 の on:event 記法（使用禁止） -->
+<button on:click={handleClick}>クリック</button>
+<input on:input={handleInput} on:change={handleChange} />
+<form on:submit|preventDefault={handleSubmit}>
+
+<!-- ✅ OK: Svelte 5 のイベント属性記法 -->
+<button onclick={handleClick}>クリック</button>
+<input oninput={handleInput} onchange={handleChange} />
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+```
+
+### ファイル命名（Svelte stores）
+
+```
+✅ OK: $state を使う store は .svelte.ts 拡張子
+stores/task-entities-store.svelte.ts
+stores/task-draft-store.svelte.ts
+stores/project-store.svelte.ts
+
+❌ NG: $state を使うのに .ts のみ
+stores/task-store.ts
+```
 
 ### Props 定義
 
