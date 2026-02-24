@@ -1,9 +1,9 @@
 use crate::services::project_service;
+use chrono::{DateTime, Utc};
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::project::{PartialProject, Project};
 use flequit_model::traits::TransactionManager;
 use flequit_model::types::id_types::{ProjectId, UserId};
-use flequit_repository::repositories::base_repository_trait::Repository;
 use flequit_types::errors::service_error::ServiceError;
 use sea_orm::DatabaseTransaction;
 
@@ -46,11 +46,30 @@ where
     }
 }
 
-pub async fn delete_project<R>(repositories: &R, id: &ProjectId) -> Result<bool, String>
+pub async fn delete_project<R>(
+    repositories: &R,
+    id: &ProjectId,
+    user_id: &UserId,
+    timestamp: &DateTime<Utc>,
+) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction> + Send + Sync,
 {
-    // トランザクションを開始
+    // 1. Automergeスナップショットを作成（ロールバック用）
+    let snapshot = if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+        match automerge_guard.projects.create_snapshot(id).await {
+            Ok(snap) => Some(snap),
+            Err(e) => {
+                tracing::warn!("Failed to create Automerge snapshot: {:?}", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    // 2. SQLiteトランザクションを開始
     let txn = match repositories.begin().await {
         Ok(txn) => txn,
         Err(e) => return Err(format!("Failed to begin transaction: {:?}", e)),
@@ -185,16 +204,31 @@ where
 
     drop(sqlite_repos_guard);
 
-    // トランザクションをコミット
-    if let Err(e) = repositories.commit(txn).await {
-        return Err(format!("Failed to commit transaction: {:?}", e));
+    // 5. Automerge論理削除をSQLiteコミット前に実行
+    if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+        if let Err(e) = automerge_guard.projects.mark_project_deleted(id, user_id, timestamp).await {
+            // Automerge失敗 → SQLiteロールバック
+            if let Err(rollback_err) = repositories.rollback(txn).await {
+                return Err(format!(
+                    "Failed to delete from Automerge: {:?} and rollback failed: {:?}",
+                    e, rollback_err
+                ));
+            }
+            return Err(format!("Failed to delete from Automerge: {:?}", e));
+        }
     }
 
-    // 5. Automergeリポジトリからも削除（トランザクション不要）
-    if let Err(e) = repositories.projects().delete(id).await {
-        // Automergeの削除に失敗してもSQLiteは既にコミットされているので、
-        // ログを記録して続行
-        tracing::warn!("Failed to delete project from Automerge: {:?}", e);
+    // 6. SQLiteをコミット
+    if let Err(e) = repositories.commit(txn).await {
+        // SQLiteコミット失敗 → Automergeスナップショットから復元
+        if let (Some(snap), Some(automerge)) = (snapshot, repositories.automerge_repositories()) {
+            let automerge_guard = automerge.read().await;
+            if let Err(restore_err) = automerge_guard.projects.restore_from_snapshot(id, &snap).await {
+                tracing::error!("Failed to restore Automerge snapshot after commit failure: {:?}", restore_err);
+            }
+        }
+        return Err(format!("Failed to commit transaction: {:?}", e));
     }
 
     Ok(true)

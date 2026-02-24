@@ -72,6 +72,11 @@ pub trait InfrastructureRepositoriesTrait: Send + Sync + std::fmt::Debug {
     /// トランザクション制御のために直接SQLiteリポジトリにアクセスする必要がある場合に使用します。
     fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>>;
 
+    /// Automergeリポジトリ群へのアクセス
+    ///
+    /// Automergeの論理削除などで直接Automergeリポジトリにアクセスする必要がある場合に使用します。
+    fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>>;
+
     /// リポジトリの初期化処理
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
@@ -345,6 +350,10 @@ impl InfrastructureRepositoriesTrait for InfrastructureRepositories {
     fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
         self.unified_manager.sqlite_repositories()
     }
+
+    fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>> {
+        self.unified_manager.automerge_repositories()
+    }
 }
 
 /// TransactionManagerトレイトの実装
@@ -480,6 +489,10 @@ pub mod mock {
     #[async_trait]
     impl InfrastructureRepositoriesTrait for MockInfrastructureRepositories {
         fn sqlite_repositories(&self) -> Option<&Arc<RwLock<LocalSqliteRepositories>>> {
+            None
+        }
+
+        fn automerge_repositories(&self) -> Option<&Arc<RwLock<flequit_infrastructure_automerge::infrastructure::local_automerge_repositories::LocalAutomergeRepositories>>> {
             None
         }
 

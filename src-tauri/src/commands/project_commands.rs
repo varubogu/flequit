@@ -1,6 +1,7 @@
 use crate::models::project::{ProjectCommandModel, ProjectTreeCommandModel};
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
+use chrono::Utc;
 use flequit_core::facades::project_facades;
 use flequit_core::services::{tag_service, task_list_service};
 use flequit_model::models::{task_projects::project::PartialProject, ModelConverter};
@@ -68,10 +69,16 @@ pub async fn update_project(
 
 #[instrument(level = "info", skip(state), fields(project_id = %id))]
 #[tauri::command]
-pub async fn delete_project(state: State<'_, AppState>, id: String) -> Result<bool, String> {
+pub async fn delete_project(
+    state: State<'_, AppState>,
+    id: String,
+    user_id: String,
+) -> Result<bool, String> {
+    let timestamp = Utc::now();
     let repositories = state.repositories.read().await;
     let project_id = ProjectId::from(id);
-    project_facades::delete_project(&*repositories, &project_id)
+    let user_id_typed = UserId::from(user_id);
+    project_facades::delete_project(&*repositories, &project_id, &user_id_typed, &timestamp)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::project", command = "delete_project", project_id = %project_id, error = %e);

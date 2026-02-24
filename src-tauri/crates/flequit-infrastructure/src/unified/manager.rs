@@ -821,8 +821,8 @@ impl UnifiedManager {
         self.sqlite_repositories.as_ref()
     }
 
-    /// Automergeリポジトリへのアクセス（内部用）
-    pub(crate) fn automerge_repositories(&self) -> Option<&Arc<RwLock<LocalAutomergeRepositories>>> {
+    /// Automergeリポジトリへのアクセス
+    pub fn automerge_repositories(&self) -> Option<&Arc<RwLock<LocalAutomergeRepositories>>> {
         self.automerge_repositories.as_ref()
     }
 }
