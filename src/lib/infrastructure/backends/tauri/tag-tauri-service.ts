@@ -33,6 +33,16 @@ export class TagTauriService implements TagService {
     }
   }
 
+  async restore(projectId: string, id: string, userId: string): Promise<boolean> {
+    try {
+      await invoke('restore_tag', { projectId, id, userId });
+      return true;
+    } catch (error) {
+      console.error('Failed to restore tag:', error);
+      return false;
+    }
+  }
+
   async get(projectId: string, id: string, userId: string): Promise<Tag | null> {
     try {
       const result = (await invoke('get_tag', { projectId, id, userId })) as Tag | null;

@@ -36,6 +36,16 @@ export class TasklistTauriService implements TaskListService {
     }
   }
 
+  async restore(projectId: string, id: string, userId: string): Promise<boolean> {
+    try {
+      await invoke('restore_task_list', { projectId, id, userId });
+      return true;
+    } catch (error) {
+      console.error('Failed to restore task list:', error);
+      return false;
+    }
+  }
+
   async get(projectId: string, id: string, userId: string): Promise<TaskList | null> {
     try {
       const result = (await invoke('get_task_list', { projectId, id, userId })) as TaskList | null;

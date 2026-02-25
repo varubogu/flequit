@@ -20,6 +20,12 @@ export class TasklistWebService implements TaskListService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
+  async restore(projectId: string, id: string): Promise<boolean> {
+    // TODO: Web API実装を追加
+    console.warn('Web backends: restoreTaskList not implemented', projectId, id);
+    return false;
+  }
+
   async get(projectId: string, id: string): Promise<TaskList | null> {
     // TODO: Web API実装を追加
     console.warn('Web backends: getTaskList not implemented', projectId, id);

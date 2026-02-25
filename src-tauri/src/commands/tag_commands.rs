@@ -1,6 +1,7 @@
 use crate::models::tag::TagCommandModel;
 use crate::models::CommandModelConverter;
 use crate::state::AppState;
+use chrono::Utc;
 use flequit_core::facades::tag_facades;
 use flequit_model::models::task_projects::tag::PartialTag;
 use flequit_model::models::ModelConverter;
@@ -95,7 +96,10 @@ pub async fn delete_tag(
     state: State<'_, AppState>,
     project_id: String,
     id: String,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
+    let timestamp = Utc::now();
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -106,10 +110,38 @@ pub async fn delete_tag(
     };
     let repositories = state.repositories.read().await;
 
-    tag_facades::delete_tag(&*repositories, &project_id, &tag_id)
+    tag_facades::delete_tag(&*repositories, &project_id, &tag_id, &user_id_typed, &timestamp)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::tag", command = "delete_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
+            e
+        })
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, tag_id = %id))]
+#[tauri::command]
+pub async fn restore_tag(
+    state: State<'_, AppState>,
+    project_id: String,
+    id: String,
+    user_id: String,
+) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
+    let timestamp = Utc::now();
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let tag_id = match TagId::try_from_str(&id) {
+        Ok(t) => t,
+        Err(e) => return Err(e.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+
+    tag_facades::restore_tag(&*repositories, &project_id, &tag_id, &user_id_typed, &timestamp)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::tag", command = "restore_tag", project_id = %project_id, tag_id = %tag_id, error = %e);
             e
         })
 }

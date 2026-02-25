@@ -10,6 +10,9 @@ class MockProjectService implements ProjectService {
   delete = vi.fn();
   get = vi.fn();
 
+  // RestorableInterface メソッド
+  restore = vi.fn();
+
   // SearchInterface メソッド
   search = vi.fn();
 }

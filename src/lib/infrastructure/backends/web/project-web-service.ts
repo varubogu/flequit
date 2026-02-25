@@ -20,6 +20,12 @@ export class ProjectWebService implements ProjectService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
+  async restore(id: string): Promise<boolean> {
+    // TODO: Web API実装を追加
+    console.warn('Web backends: restoreProject not implemented', id);
+    return false;
+  }
+
   async get(id: string): Promise<Project | null> {
     // TODO: Web API実装を追加
     console.warn('Web backends: getProject not implemented', id);

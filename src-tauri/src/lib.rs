@@ -40,6 +40,7 @@ pub fn run() {
                 task_commands::get_task,
                 task_commands::update_task,
                 task_commands::delete_task,
+                task_commands::restore_task,
                 // Task recurrence commands
                 task_commands::create_task_recurrence,
                 task_commands::get_task_recurrence_by_task_id,
@@ -102,6 +103,7 @@ pub fn run() {
                 tag_commands::get_tag,
                 tag_commands::update_tag,
                 tag_commands::delete_tag,
+                tag_commands::restore_tag,
                 // Tag Bookmark commands (User Preferences)
                 user_preferences_commands::create_tag_bookmark,
                 user_preferences_commands::list_tag_bookmarks_by_project,
@@ -115,6 +117,7 @@ pub fn run() {
                 task_list_commands::get_task_list,
                 task_list_commands::update_task_list,
                 task_list_commands::delete_task_list,
+                task_list_commands::restore_task_list,
                 task_list_commands::get_task_lists_with_tasks,
                 // User commands
                 user_commands::create_user,

@@ -187,5 +187,19 @@ export const TaskListService = {
 			}
 		}
 		return null;
-	}
+	},
+
+  /**
+   * 論理削除されたタスクリストをバックエンドから復元します
+   */
+  async restoreTaskList(projectId: string, taskListId: string): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.tasklist.restore(projectId, taskListId, getCurrentUserId());
+    } catch (error) {
+      console.error('Failed to restore task list:', error);
+      errorHandler.addSyncError('タスクリスト復元', 'tasklist', taskListId, error);
+      throw error;
+    }
+  }
 };

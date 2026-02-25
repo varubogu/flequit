@@ -207,5 +207,19 @@ export const TagService = {
         })
       );
     }
+  },
+
+  /**
+   * 論理削除されたタグをバックエンドから復元します
+   */
+  async restoreTag(projectId: string, tagId: string): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.tag.restore(projectId, tagId, getCurrentUserId());
+    } catch (error) {
+      console.error('Failed to restore tag:', error);
+      errorHandler.addSyncError('タグ復元', 'tag', tagId, error);
+      throw error;
+    }
   }
 };

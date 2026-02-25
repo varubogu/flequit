@@ -112,3 +112,23 @@ export interface ProjectSearchInterface<T, TSearchCondition> {
    */
   search(projectId: string, condition: TSearchCondition, userId: string): Promise<T[]>;
 }
+
+/**
+ * 復元操作インターフェース（プロジェクト用・projectId不要）
+ */
+export interface RestorableInterface {
+  /**
+   * 論理削除されたエンティティを復元
+   */
+  restore(id: string, userId: string): Promise<boolean>;
+}
+
+/**
+ * プロジェクト固有の復元操作インターフェース
+ */
+export interface RestorableProjectInterface {
+  /**
+   * 論理削除されたエンティティを復元
+   */
+  restore(projectId: string, id: string, userId: string): Promise<boolean>;
+}

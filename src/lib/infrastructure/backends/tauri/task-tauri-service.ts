@@ -38,6 +38,16 @@ export class TaskTauriService implements TaskService {
     }
   }
 
+  async restore(projectId: string, id: string, userId: string): Promise<boolean> {
+    try {
+      await invoke('restore_task', { projectId, id, userId });
+      return true;
+    } catch (error) {
+      console.error('Failed to restore task:', error);
+      return false;
+    }
+  }
+
   async get(projectId: string, id: string, userId: string): Promise<Task | null> {
     try {
       const result = (await invoke('get_task', { projectId, id, userId })) as Task | null;

@@ -8,7 +8,7 @@ use flequit_model::models::task_projects::{
     project::Project, subtask::SubTask, tag::Tag, task::Task, task_list::TaskList,
 };
 use flequit_model::traits::Trackable;
-use flequit_model::types::id_types::{ProjectId, UserId};
+use flequit_model::types::id_types::{ProjectId, TagId, TaskId, TaskListId, UserId};
 use flequit_model::types::project_types::ProjectStatus;
 use flequit_repository::base_repository_trait::Repository;
 use flequit_repository::repositories::task_projects::project_repository_trait::ProjectRepositoryTrait;
@@ -899,6 +899,215 @@ impl ProjectLocalAutomergeRepository {
         }
 
         self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タスクの論理削除
+    pub async fn mark_task_deleted(
+        &self,
+        project_id: &ProjectId,
+        task_id: &TaskId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let task = document.tasks.iter_mut().find(|t| t.id == *task_id).ok_or_else(|| {
+            RepositoryError::NotFound(format!("Task not found: {}", task_id))
+        })?;
+        task.mark_deleted(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タグの論理削除
+    pub async fn mark_tag_deleted(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let tag = document.tags.iter_mut().find(|t| t.id == *tag_id).ok_or_else(|| {
+            RepositoryError::NotFound(format!("Tag not found: {}", tag_id))
+        })?;
+        tag.mark_deleted(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タスクリストの論理削除
+    pub async fn mark_task_list_deleted(
+        &self,
+        project_id: &ProjectId,
+        task_list_id: &TaskListId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let task_list = document
+            .task_lists
+            .iter_mut()
+            .find(|tl| tl.id == *task_list_id)
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("TaskList not found: {}", task_list_id))
+            })?;
+        task_list.mark_deleted(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タスクの復元
+    pub async fn restore_task(
+        &self,
+        project_id: &ProjectId,
+        task_id: &TaskId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let task = document.tasks.iter_mut().find(|t| t.id == *task_id).ok_or_else(|| {
+            RepositoryError::NotFound(format!("Task not found: {}", task_id))
+        })?;
+        if !task.is_deleted() {
+            return Err(RepositoryError::InvalidOperation(format!(
+                "Task is not deleted: {}",
+                task_id
+            )));
+        }
+        task.mark_restored(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タグの復元
+    pub async fn restore_tag(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let tag = document.tags.iter_mut().find(|t| t.id == *tag_id).ok_or_else(|| {
+            RepositoryError::NotFound(format!("Tag not found: {}", tag_id))
+        })?;
+        if !tag.is_deleted() {
+            return Err(RepositoryError::InvalidOperation(format!(
+                "Tag is not deleted: {}",
+                tag_id
+            )));
+        }
+        tag.mark_restored(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 個別タスクリストの復元
+    pub async fn restore_task_list(
+        &self,
+        project_id: &ProjectId,
+        task_list_id: &TaskListId,
+        user_id: &UserId,
+        timestamp: &DateTime<Utc>,
+    ) -> Result<(), RepositoryError> {
+        let mut document = self
+            .get_project_document(project_id)
+            .await?
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("Project not found: {}", project_id))
+            })?;
+
+        let task_list = document
+            .task_lists
+            .iter_mut()
+            .find(|tl| tl.id == *task_list_id)
+            .ok_or_else(|| {
+                RepositoryError::NotFound(format!("TaskList not found: {}", task_list_id))
+            })?;
+        if !task_list.is_deleted() {
+            return Err(RepositoryError::InvalidOperation(format!(
+                "TaskList is not deleted: {}",
+                task_list_id
+            )));
+        }
+        task_list.mark_restored(user_id.clone(), *timestamp);
+
+        self.save_project_document(project_id, &document).await
+    }
+
+    /// 削除済み個別タスクの取得
+    pub async fn get_deleted_task_by_id(
+        &self,
+        project_id: &ProjectId,
+        task_id: &TaskId,
+    ) -> Result<Option<Task>, RepositoryError> {
+        let document = match self.get_project_document(project_id).await? {
+            Some(doc) => doc,
+            None => return Ok(None),
+        };
+
+        Ok(document.tasks.into_iter().find(|t| t.id == *task_id && t.is_deleted()))
+    }
+
+    /// 削除済み個別タグの取得
+    pub async fn get_deleted_tag_by_id(
+        &self,
+        project_id: &ProjectId,
+        tag_id: &TagId,
+    ) -> Result<Option<Tag>, RepositoryError> {
+        let document = match self.get_project_document(project_id).await? {
+            Some(doc) => doc,
+            None => return Ok(None),
+        };
+
+        Ok(document.tags.into_iter().find(|t| t.id == *tag_id && t.is_deleted()))
+    }
+
+    /// 削除済み個別タスクリストの取得
+    pub async fn get_deleted_task_list_by_id(
+        &self,
+        project_id: &ProjectId,
+        task_list_id: &TaskListId,
+    ) -> Result<Option<TaskList>, RepositoryError> {
+        let document = match self.get_project_document(project_id).await? {
+            Some(doc) => doc,
+            None => return Ok(None),
+        };
+
+        Ok(document
+            .task_lists
+            .into_iter()
+            .find(|tl| tl.id == *task_list_id && tl.is_deleted()))
     }
 }
 

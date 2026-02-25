@@ -1,7 +1,7 @@
 use log::info;
 
 use crate::services::{tag_service, task_service, task_tag_service};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use flequit_infrastructure::InfrastructureRepositoriesTrait;
 use flequit_model::models::task_projects::tag::Tag;
 use flequit_model::models::task_projects::task::{PartialTask, Task};
@@ -66,11 +66,27 @@ pub async fn delete_task<R>(
     repositories: &R,
     project_id: &ProjectId,
     id: &TaskId,
+    user_id: &UserId,
+    timestamp: &DateTime<Utc>,
 ) -> Result<bool, String>
 where
     R: InfrastructureRepositoriesTrait + TransactionManager<Transaction = DatabaseTransaction> + Send + Sync,
 {
-    // トランザクションを開始
+    // 1. Automergeスナップショットを作成（ロールバック用）
+    let snapshot = if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+        match automerge_guard.projects.create_snapshot(project_id).await {
+            Ok(snap) => Some(snap),
+            Err(e) => {
+                tracing::warn!("Failed to create Automerge snapshot: {:?}", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
+    // 2. SQLiteトランザクションを開始
     let txn = match repositories.begin().await {
         Ok(txn) => txn,
         Err(e) => return Err(format!("Failed to begin transaction: {:?}", e)),
@@ -131,16 +147,84 @@ where
 
     drop(sqlite_repos_guard);
 
-    // トランザクションをコミット
+    // 6. Automerge論理削除をSQLiteコミット前に実行
+    if let Some(automerge) = repositories.automerge_repositories() {
+        let automerge_guard = automerge.read().await;
+
+        if let Err(e) = automerge_guard.projects.mark_task_deleted(project_id, id, user_id, timestamp).await {
+            // Automerge失敗 → スナップショットから復元
+            if let Some(ref snap) = snapshot {
+                if let Err(re) = automerge_guard.projects.restore_from_snapshot(project_id, snap).await {
+                    tracing::error!(
+                        "Failed to restore Automerge snapshot after deletion failure: {:?}",
+                        re
+                    );
+                }
+            }
+            // SQLiteロールバック
+            if let Err(rollback_err) = repositories.rollback(txn).await {
+                return Err(format!(
+                    "Failed to delete from Automerge: {:?} and rollback failed: {:?}",
+                    e, rollback_err
+                ));
+            }
+            return Err(format!("Failed to delete from Automerge: {:?}", e));
+        }
+    }
+
+    // 7. SQLiteをコミット
     if let Err(e) = repositories.commit(txn).await {
+        // SQLiteコミット失敗 → Automergeスナップショットから復元
+        if let (Some(snap), Some(automerge)) = (snapshot, repositories.automerge_repositories()) {
+            let automerge_guard = automerge.read().await;
+            if let Err(restore_err) = automerge_guard.projects.restore_from_snapshot(project_id, &snap).await {
+                tracing::error!("Failed to restore Automerge snapshot after commit failure: {:?}", restore_err);
+            }
+        }
         return Err(format!("Failed to commit transaction: {:?}", e));
     }
 
-    // 6. Automergeリポジトリからも削除（トランザクション不要）
-    if let Err(e) = repositories.tasks().delete(project_id, id).await {
-        // Automergeの削除に失敗してもSQLiteは既にコミットされているので、
-        // ログを記録して続行
-        tracing::warn!("Failed to delete task from Automerge: {:?}", e);
+    Ok(true)
+}
+
+pub async fn restore_task<R>(
+    repositories: &R,
+    project_id: &ProjectId,
+    id: &TaskId,
+    user_id: &UserId,
+    timestamp: &DateTime<Utc>,
+) -> Result<bool, String>
+where
+    R: InfrastructureRepositoriesTrait + Send + Sync,
+{
+    let automerge = match repositories.automerge_repositories() {
+        Some(a) => a,
+        None => return Err("Automerge repositories not initialized".to_string()),
+    };
+    let automerge_guard = automerge.read().await;
+
+    // 1. Automergeから削除済みタスクを取得
+    let deleted_task = match automerge_guard.projects.get_deleted_task_by_id(project_id, id).await {
+        Ok(Some(t)) => t,
+        Ok(None) => return Err(format!("Task not found or not deleted: {}", id)),
+        Err(e) => return Err(format!("Failed to get deleted task: {:?}", e)),
+    };
+
+    // 2. SQLiteにタスクを再作成
+    if let Err(e) = repositories.tasks().save(project_id, &deleted_task, user_id, timestamp).await {
+        return Err(format!("Failed to recreate task in SQLite: {:?}", e));
+    }
+
+    // 3. Automergeでタスクを復元（deleted=false）
+    if let Err(e) = automerge_guard.projects.restore_task(project_id, id, user_id, timestamp).await {
+        // Automerge復元失敗 → SQLiteから再削除してロールバック
+        if let Err(del_err) = repositories.tasks().delete(project_id, id).await {
+            tracing::error!(
+                "Failed to restore Automerge and cleanup SQLite also failed: automerge={:?}, sqlite={:?}",
+                e, del_err
+            );
+        }
+        return Err(format!("Failed to restore task in Automerge: {:?}", e));
     }
 
     Ok(true)

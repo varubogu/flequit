@@ -20,6 +20,12 @@ export class TaskWebService implements TaskService {
     return true; // 警告を出しつつ正常終了として扱う
   }
 
+  async restore(projectId: string, id: string): Promise<boolean> {
+    // TODO: Web API実装を追加
+    console.warn('Web backends: restoreTask not implemented', projectId, id);
+    return false;
+  }
+
   async get(projectId: string, id: string): Promise<Task | null> {
     // TODO: Web API実装を追加
     console.warn('Web backends: getTask not implemented (called for data retrieval)', projectId, id);

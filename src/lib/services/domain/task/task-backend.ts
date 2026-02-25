@@ -130,5 +130,19 @@ export const TaskBackend = {
    */
   async deleteTaskWithSubTasks(projectId: string, taskId: string): Promise<boolean> {
     return this.deleteTask(projectId, taskId);
+  },
+
+  /**
+   * 論理削除されたタスクをバックエンドから復元します
+   */
+  async restoreTask(projectId: string, taskId: string): Promise<boolean> {
+    try {
+      const backend = await resolveBackend();
+      return await backend.task.restore(projectId, taskId, getCurrentUserId());
+    } catch (error) {
+      console.error('Failed to restore task:', error);
+      errorHandler.addSyncError('タスク復元', 'task', taskId, error);
+      throw error;
+    }
   }
 };

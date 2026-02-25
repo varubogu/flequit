@@ -33,6 +33,16 @@ export class ProjectTauriService implements ProjectService {
     }
   }
 
+  async restore(id: string, userId: string): Promise<boolean> {
+    try {
+      await invoke('restore_project', { id, userId });
+      return true;
+    } catch (error) {
+      console.error('Failed to restore project:', error);
+      return false;
+    }
+  }
+
   async get(id: string, userId: string): Promise<Project | null> {
     try {
       const result = (await invoke('get_project', { id, userId })) as Project | null;

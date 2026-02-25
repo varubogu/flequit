@@ -110,6 +110,20 @@ export const ProjectBackend = {
 	},
 
 	/**
+	 * 論理削除されたプロジェクトをバックエンドから復元します
+	 */
+	async restore(projectId: string): Promise<boolean> {
+		try {
+			const backend = await resolveBackend();
+			return await backend.project.restore(projectId, getCurrentUserId());
+		} catch (error) {
+			console.error('Failed to restore project:', error);
+			errorHandler.addSyncError('プロジェクト復元', 'project', projectId, error);
+			throw error;
+		}
+	},
+
+	/**
 	 * プロジェクトツリーを作成します（Store互換用）
 	 */
 	async createProjectTree(projectData: {

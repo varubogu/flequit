@@ -10,6 +10,7 @@ use crate::state::AppState;
 use flequit_core::facades::{recurrence_facades, task_facades};
 use flequit_model::models::task_projects::task::PartialTask;
 use flequit_model::models::ModelConverter;
+use chrono::Utc;
 use flequit_model::types::id_types::{ProjectId, RecurrenceRuleId, TaskId, UserId};
 use tauri::State;
 use tracing::instrument;
@@ -99,7 +100,10 @@ pub async fn delete_task(
     state: State<'_, AppState>,
     project_id: String,
     id: String,
+    user_id: String,
 ) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
+    let timestamp = Utc::now();
     let project_id = match ProjectId::try_from_str(&project_id) {
         Ok(id) => id,
         Err(err) => return Err(err.to_string()),
@@ -109,10 +113,37 @@ pub async fn delete_task(
         Err(err) => return Err(err.to_string()),
     };
     let repositories = state.repositories.read().await;
-    task_facades::delete_task(&*repositories, &project_id, &task_id)
+    task_facades::delete_task(&*repositories, &project_id, &task_id, &user_id_typed, &timestamp)
         .await
         .map_err(|e| {
             tracing::error!(target: "commands::task", command = "delete_task", project_id = %project_id, task_id = %task_id, error = %e);
+            e
+        })
+}
+
+#[instrument(level = "info", skip(state), fields(project_id = %project_id, task_id = %id))]
+#[tauri::command]
+pub async fn restore_task(
+    state: State<'_, AppState>,
+    project_id: String,
+    id: String,
+    user_id: String,
+) -> Result<bool, String> {
+    let user_id_typed = UserId::from(user_id);
+    let timestamp = Utc::now();
+    let project_id = match ProjectId::try_from_str(&project_id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let task_id = match TaskId::try_from_str(&id) {
+        Ok(id) => id,
+        Err(err) => return Err(err.to_string()),
+    };
+    let repositories = state.repositories.read().await;
+    task_facades::restore_task(&*repositories, &project_id, &task_id, &user_id_typed, &timestamp)
+        .await
+        .map_err(|e| {
+            tracing::error!(target: "commands::task", command = "restore_task", project_id = %project_id, task_id = %task_id, error = %e);
             e
         })
 }
