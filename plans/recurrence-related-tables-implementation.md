@@ -4,6 +4,14 @@
 
 繰り返しルール（RecurrenceRule）の`adjustment`と`details`(pattern)を正しく保存・取得するため、関連テーブルの実装を完了させる。
 
+## 進捗サマリ（2026-02-25時点）
+
+- ✅ Phase 1: 関連テーブルモデル確認完了
+- ✅ Phase 2.1: `adjustment` + 子テーブル（`recurrence_date_conditions`, `recurrence_weekday_conditions`）保存完了
+- 🟡 Phase 3: `adjustment` の読込は完了（`find_by_id` / `find_all`）。`details` / `days_of_week` は未実装
+- 🟡 Phase 4: トランザクション + 既存関連データ削除→再作成戦略は導入済み（`adjustment`中心）
+- ⬜ Phase 2.2, 2.3, 5: 未着手
+
 ## 背景
 
 ### 現在の問題
@@ -18,7 +26,7 @@
 #### RecurrenceRuleモデル (src-tauri/crates/flequit-infrastructure-sqlite/src/models/task_projects/recurrence_rule.rs)
 
 ```rust
-// Line 109-111: 関連データは常にNoneで返される
+// 関連データ本体はリポジトリ層で読込む前提
 days_of_week: None, // 紐づけテーブルから取得
 details: None,      // 関連テーブルから取得
 adjustment: None,   // 関連テーブルから取得
@@ -27,13 +35,20 @@ adjustment: None,   // 関連テーブルから取得
 #### RecurrenceRuleリポジトリ (src-tauri/crates/flequit-infrastructure-sqlite/src/infrastructure/task_projects/recurrence_rule.rs)
 
 ```rust
-// Line 165-169: 基本フィールドのみ更新
-active_model.unit = new_active.unit;
-active_model.interval = new_active.interval;
-active_model.end_date = new_active.end_date;
-active_model.max_occurrences = new_active.max_occurrences;
-active_model.updated_at = new_active.updated_at;
-// ⚠️ adjustment, details, days_of_weekの保存処理がない
+// save()でトランザクション + 既存関連データ削除
+self.delete_related_data(&txn, project_id, &rule.id).await?;
+
+// adjustment保存は実装済み
+if let Some(ref adjustment) = rule.adjustment {
+    self.save_adjustment(&txn, project_id, &rule.id, adjustment).await?;
+}
+
+// details / days_of_week は未実装
+// TODO: Phase 2.2 で実装
+// TODO: Phase 2.3 で実装
+
+// find_by_id / find_all で adjustment は読込済み
+rule.adjustment = self.load_adjustment(db, project_id, id).await?;
 ```
 
 ## 実装計画
@@ -183,14 +198,18 @@ async fn save(...) {
 ## 実装順序
 
 1. ✅ **Phase 1**: 関連テーブルモデルの確認（30分）
-2. ⬜ **Phase 2.1**: RecurrenceAdjustment保存処理（2時間）
+2. ✅ **Phase 2.1**: RecurrenceAdjustment保存処理（2時間）
 3. ⬜ **Phase 2.2**: RecurrenceDetail保存処理（1時間）
 4. ⬜ **Phase 2.3**: DaysOfWeek保存処理（1時間）
-5. ⬜ **Phase 3**: 取得処理の実装（2時間）
-6. ⬜ **Phase 4**: 更新処理の実装（1時間）
+5. 🟡 **Phase 3**: 取得処理の実装（2時間）
+   - 実装済み: `adjustment` とその子データ取得
+   - 未実装: `details` / `days_of_week` 取得
+6. 🟡 **Phase 4**: 更新処理の実装（1時間）
+   - 実装済み: トランザクション + 削除再作成戦略（`adjustment`中心）
+   - 未実装: `details` / `days_of_week` を含む完全更新
 7. ⬜ **Phase 5**: テストと検証（1時間）
 
-**推定合計時間**: 8.5時間
+**残作業の推定時間**: 4.5〜6.0時間
 
 ## リスク
 
@@ -229,7 +248,7 @@ async fn save(...) {
 
 ## 決定事項
 
-- [ ] 実装方針の決定（本格実装 vs 代替案A vs 代替案B）
+- [x] 実装方針の決定（本格実装を採用。関連テーブルへ正規化して保存）
 - [ ] スケジュール調整
 
 ## 参考資料
