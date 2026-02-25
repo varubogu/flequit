@@ -1042,7 +1042,9 @@ mod tests {
         },
         id_types::{DateConditionId, ProjectId, RecurrenceAdjustmentId, RecurrenceRuleId, UserId, WeekdayConditionId},
     };
-    use sea_orm::{ConnectionTrait, EntityTrait, PaginatorTrait, QueryFilter};
+    use sea_orm::{
+        ConnectionTrait, DatabaseBackend, EntityTrait, PaginatorTrait, QueryFilter, Statement,
+    };
     use tempfile::TempDir;
 
     async fn create_test_repository(
@@ -1055,103 +1057,63 @@ mod tests {
 
         {
             let db_manager_ref = db_manager.read().await;
-            let db = db_manager_ref.get_connection().await?;
-
-            // 現行リポジトリ実装が期待する recurrence_* スキーマをテスト用に強制適用
-            db.execute_unprepared("PRAGMA foreign_keys = OFF;").await?;
-            db.execute_unprepared(
-                r#"
-                DROP TABLE IF EXISTS recurrence_weekday_conditions;
-                DROP TABLE IF EXISTS recurrence_date_conditions;
-                DROP TABLE IF EXISTS recurrence_days_of_week;
-                DROP TABLE IF EXISTS recurrence_details;
-                DROP TABLE IF EXISTS recurrence_adjustments;
-                DROP TABLE IF EXISTS recurrence_rules;
-
-                CREATE TABLE recurrence_rules (
-                    project_id VARCHAR NOT NULL,
-                    id VARCHAR NOT NULL,
-                    unit VARCHAR NOT NULL,
-                    interval INTEGER NOT NULL,
-                    end_date TIMESTAMP,
-                    max_occurrences INTEGER,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, id)
-                );
-
-                CREATE TABLE recurrence_adjustments (
-                    project_id VARCHAR NOT NULL,
-                    id VARCHAR NOT NULL,
-                    recurrence_rule_id VARCHAR NOT NULL,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, id)
-                );
-
-                CREATE TABLE recurrence_details (
-                    project_id VARCHAR NOT NULL,
-                    recurrence_rule_id VARCHAR NOT NULL,
-                    specific_date INTEGER,
-                    week_of_period VARCHAR,
-                    weekday_of_week VARCHAR,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, recurrence_rule_id)
-                );
-
-                CREATE TABLE recurrence_days_of_week (
-                    project_id VARCHAR NOT NULL,
-                    recurrence_rule_id VARCHAR NOT NULL,
-                    day_of_week VARCHAR NOT NULL,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, recurrence_rule_id, day_of_week)
-                );
-
-                CREATE TABLE recurrence_date_conditions (
-                    project_id VARCHAR NOT NULL,
-                    id VARCHAR NOT NULL,
-                    recurrence_adjustment_id VARCHAR,
-                    recurrence_detail_id VARCHAR,
-                    relation VARCHAR NOT NULL,
-                    reference_date TIMESTAMP NOT NULL,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, id)
-                );
-
-                CREATE TABLE recurrence_weekday_conditions (
-                    project_id VARCHAR NOT NULL,
-                    id VARCHAR NOT NULL,
-                    recurrence_adjustment_id VARCHAR NOT NULL,
-                    if_weekday VARCHAR NOT NULL,
-                    then_direction VARCHAR NOT NULL,
-                    then_target VARCHAR NOT NULL,
-                    then_weekday VARCHAR,
-                    then_days INTEGER,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                    updated_by VARCHAR NOT NULL,
-                    PRIMARY KEY (project_id, id)
-                );
-                "#,
-            )
-            .await?;
+            db_manager_ref.get_connection().await?;
         }
 
         Ok((temp_dir, RecurrenceRuleLocalSqliteRepository::new(db_manager)))
+    }
+
+    async fn seed_user_and_project(
+        repo: &RecurrenceRuleLocalSqliteRepository,
+        project_id: &ProjectId,
+        user_id: &UserId,
+        now: DateTime<Utc>,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let db_manager = repo.db_manager.read().await;
+        let db = db_manager.get_connection().await?;
+        let user_id_str = user_id.to_string();
+        let project_id_str = project_id.to_string();
+        let username = format!("test_user_{}", user_id_str);
+
+        db.execute(Statement::from_sql_and_values(
+            DatabaseBackend::Sqlite,
+            r#"
+            INSERT INTO users (
+                id, handle_id, display_name, email, avatar_url,
+                bio, timezone, is_active, created_at, updated_at, deleted, updated_by
+            ) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, TRUE, ?, ?, FALSE, ?)
+            "#,
+            vec![
+                user_id_str.clone().into(),
+                username.into(),
+                "Test User".into(),
+                now.into(),
+                now.into(),
+                user_id_str.clone().into(),
+            ],
+        ))
+        .await?;
+
+        db.execute(Statement::from_sql_and_values(
+            DatabaseBackend::Sqlite,
+            r#"
+            INSERT INTO projects (
+                id, name, description, color, order_index, is_archived,
+                status, owner_id, created_at, updated_at, deleted, updated_by
+            ) VALUES (?, ?, NULL, NULL, 0, FALSE, NULL, ?, ?, ?, FALSE, ?)
+            "#,
+            vec![
+                project_id_str.into(),
+                "Test Project".into(),
+                user_id_str.clone().into(),
+                now.into(),
+                now.into(),
+                user_id_str.into(),
+            ],
+        ))
+        .await?;
+
+        Ok(())
     }
 
     fn build_full_rule(
@@ -1270,6 +1232,7 @@ mod tests {
         let now = Utc::now();
         let rule_id = RecurrenceRuleId::new();
         let rule = build_full_rule(rule_id, user_id, now);
+        seed_user_and_project(&repo, &project_id, &user_id, now).await?;
 
         repo.save(&project_id, &rule, &user_id, &now).await?;
 
@@ -1322,6 +1285,7 @@ mod tests {
         let user_id = UserId::new();
         let now = Utc::now();
         let rule_id = RecurrenceRuleId::new();
+        seed_user_and_project(&repo, &project_id, &user_id, now).await?;
 
         // 初回は関連データありで保存
         let initial_rule = build_full_rule(rule_id, user_id, now);

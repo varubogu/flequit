@@ -58,6 +58,8 @@ impl MigrationTrait for Migration {
             "recurrence_details",
             "recurrence_adjustments",
             "recurrence_rules",
+            "weekday_conditions",
+            "date_conditions",
             "subtask_assignments",
             "task_assignments",
             "subtask_tags",
@@ -66,7 +68,7 @@ impl MigrationTrait for Migration {
             "subtasks",
             "tasks",
             "task_lists",
-            "members",
+            "project_members",
             "user_tag_bookmarks",
             "projects",
             "accounts",
@@ -99,10 +101,13 @@ async fn create_basic_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
             r#"
             CREATE TABLE IF NOT EXISTS users (
                 id VARCHAR NOT NULL PRIMARY KEY,
-                username VARCHAR NOT NULL UNIQUE,
+                handle_id VARCHAR NOT NULL UNIQUE,
+                display_name VARCHAR NOT NULL,
                 email VARCHAR,
-                display_name VARCHAR,
                 avatar_url VARCHAR,
+                bio VARCHAR,
+                timezone VARCHAR,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -120,15 +125,16 @@ async fn create_basic_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
             CREATE TABLE IF NOT EXISTS accounts (
                 id VARCHAR NOT NULL PRIMARY KEY,
                 user_id VARCHAR NOT NULL,
-                provider VARCHAR NOT NULL,
-                provider_id VARCHAR NOT NULL,
                 email VARCHAR,
+                display_name VARCHAR,
+                avatar_url VARCHAR,
+                provider VARCHAR NOT NULL,
+                provider_id VARCHAR,
                 is_active BOOLEAN NOT NULL DEFAULT TRUE,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                updated_by VARCHAR NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                updated_by VARCHAR NOT NULL
             );
             "#,
         )
@@ -146,35 +152,37 @@ async fn create_project_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr>
             r#"
             CREATE TABLE IF NOT EXISTS projects (
                 id VARCHAR NOT NULL PRIMARY KEY,
-                owner_id VARCHAR NOT NULL,
                 name VARCHAR NOT NULL,
                 description VARCHAR,
+                color VARCHAR,
+                order_index INTEGER NOT NULL DEFAULT 0,
                 is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+                status VARCHAR,
+                owner_id VARCHAR,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
-                updated_by VARCHAR NOT NULL,
-                FOREIGN KEY (owner_id) REFERENCES users (id)
+                updated_by VARCHAR NOT NULL
             );
             "#,
         )
         .await?;
 
-    // membersテーブル
+    // project_membersテーブル
     manager
         .get_connection()
         .execute_unprepared(
             r#"
-            CREATE TABLE IF NOT EXISTS members (
+            CREATE TABLE IF NOT EXISTS project_members (
                 project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
                 user_id VARCHAR NOT NULL,
                 role VARCHAR NOT NULL,
                 joined_at TIMESTAMP NOT NULL,
-                created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
                 updated_by VARCHAR NOT NULL,
-                CONSTRAINT pk_members PRIMARY KEY (project_id, user_id),
+                CONSTRAINT pk_project_members PRIMARY KEY (project_id, id),
                 FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             );
@@ -188,13 +196,13 @@ async fn create_project_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr>
         .execute_unprepared(
             r#"
             CREATE TABLE IF NOT EXISTS user_tag_bookmarks (
+                id VARCHAR NOT NULL PRIMARY KEY,
                 user_id VARCHAR NOT NULL,
                 project_id VARCHAR NOT NULL,
                 tag_id VARCHAR NOT NULL,
                 order_index INTEGER NOT NULL,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
-                CONSTRAINT pk_user_tag_bookmarks PRIMARY KEY (user_id, project_id, tag_id),
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
                 FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
             );
@@ -217,7 +225,9 @@ async fn create_task_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 id VARCHAR NOT NULL,
                 name VARCHAR NOT NULL,
                 description VARCHAR,
-                list_order INTEGER NOT NULL,
+                color VARCHAR,
+                order_index INTEGER NOT NULL,
+                is_archived BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -241,10 +251,12 @@ async fn create_task_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 title VARCHAR NOT NULL,
                 description VARCHAR,
                 status VARCHAR NOT NULL,
-                priority VARCHAR,
+                priority INTEGER NOT NULL DEFAULT 0,
                 start_date TIMESTAMP,
                 end_date TIMESTAMP,
-                task_order INTEGER NOT NULL,
+                is_range_date BOOLEAN,
+                order_index INTEGER NOT NULL,
+                is_archived BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -267,10 +279,15 @@ async fn create_task_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 task_id VARCHAR NOT NULL,
                 title VARCHAR NOT NULL,
                 description VARCHAR,
-                is_completed BOOLEAN NOT NULL DEFAULT FALSE,
-                subtask_order INTEGER NOT NULL,
+                status VARCHAR NOT NULL,
+                priority INTEGER,
+                plan_start_date TIMESTAMP,
+                plan_end_date TIMESTAMP,
                 do_start_date TIMESTAMP,
                 do_end_date TIMESTAMP,
+                is_range_date BOOLEAN,
+                order_index INTEGER NOT NULL,
+                completed BOOLEAN NOT NULL DEFAULT FALSE,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -292,11 +309,57 @@ async fn create_task_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 id VARCHAR NOT NULL,
                 name VARCHAR NOT NULL,
                 color VARCHAR,
+                order_index INTEGER,
+                usage_count INTEGER NOT NULL DEFAULT 0,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
                 updated_by VARCHAR NOT NULL,
-                CONSTRAINT pk_tags PRIMARY KEY (project_id, id),
+                CONSTRAINT pk_tags PRIMARY KEY (project_id, id)
+            );
+            "#,
+        )
+        .await?;
+
+    // date_conditionsテーブル
+    manager
+        .get_connection()
+        .execute_unprepared(
+            r#"
+            CREATE TABLE IF NOT EXISTS date_conditions (
+                project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
+                relation VARCHAR NOT NULL,
+                reference_date TIMESTAMP NOT NULL,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_date_conditions PRIMARY KEY (project_id, id),
+                FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+            );
+            "#,
+        )
+        .await?;
+
+    // weekday_conditionsテーブル
+    manager
+        .get_connection()
+        .execute_unprepared(
+            r#"
+            CREATE TABLE IF NOT EXISTS weekday_conditions (
+                project_id VARCHAR NOT NULL,
+                id VARCHAR NOT NULL,
+                if_weekday VARCHAR NOT NULL,
+                then_direction VARCHAR NOT NULL,
+                then_target VARCHAR NOT NULL,
+                then_weekday VARCHAR,
+                then_days INTEGER,
+                created_at TIMESTAMP NOT NULL,
+                updated_at TIMESTAMP NOT NULL,
+                deleted BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_by VARCHAR NOT NULL,
+                CONSTRAINT pk_weekday_conditions PRIMARY KEY (project_id, id),
                 FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
             );
             "#,
@@ -316,10 +379,10 @@ async fn create_recurrence_tables(manager: &SchemaManager<'_>) -> Result<(), DbE
             CREATE TABLE IF NOT EXISTS recurrence_rules (
                 project_id VARCHAR NOT NULL,
                 id VARCHAR NOT NULL,
-                frequency VARCHAR NOT NULL,
-                interval_value INTEGER NOT NULL,
-                start_date TIMESTAMP NOT NULL,
+                unit VARCHAR NOT NULL,
+                interval INTEGER NOT NULL,
                 end_date TIMESTAMP,
+                max_occurrences INTEGER,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -540,7 +603,6 @@ async fn create_junction_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 project_id VARCHAR NOT NULL,
                 task_id VARCHAR NOT NULL,
                 user_id VARCHAR NOT NULL,
-                assigned_at TIMESTAMP NOT NULL,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -562,7 +624,6 @@ async fn create_junction_tables(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 project_id VARCHAR NOT NULL,
                 subtask_id VARCHAR NOT NULL,
                 user_id VARCHAR NOT NULL,
-                assigned_at TIMESTAMP NOT NULL,
                 created_at TIMESTAMP NOT NULL,
                 updated_at TIMESTAMP NOT NULL,
                 deleted BOOLEAN NOT NULL DEFAULT FALSE,
@@ -596,7 +657,14 @@ async fn create_composite_indexes(manager: &SchemaManager<'_>) -> Result<(), DbE
         )
         .await?;
 
-    // user_tag_bookmarks: (user_id, project_id, tag_id) 複合ユニーク（既にPKで定義済み）
+    // user_tag_bookmarks: (user_id, project_id, tag_id) 複合ユニーク
+    manager
+        .get_connection()
+        .execute_unprepared(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_user_tag_bookmarks_user_project_tag ON user_tag_bookmarks(user_id, project_id, tag_id);",
+        )
+        .await?;
+
     // user_tag_bookmarks: 順序用インデックス
     manager
         .get_connection()
