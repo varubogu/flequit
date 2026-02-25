@@ -8,6 +8,54 @@ import type { ViewItem } from '$lib/stores/views-visibility.svelte';
 
 const defaultDate = () => new Date('2024-01-01T00:00:00Z');
 
+export function createMockTag(overrides: Partial<Tag> = {}): Tag {
+	const base: Tag = {
+		id: 'tag-1',
+		name: 'Mock Tag',
+		color: '#FF0000',
+		orderIndex: 0,
+		createdAt: defaultDate(),
+		updatedAt: defaultDate(),
+		deleted: false,
+		updatedBy: 'system'
+	};
+
+	return { ...base, ...overrides };
+}
+
+export function createMockSubTask(overrides: Partial<SubTask> = {}): SubTask {
+	const base: SubTask = {
+		id: 'subtask-1',
+		taskId: 'task-1',
+		title: 'Mock SubTask',
+		description: '',
+		status: 'not_started',
+		priority: 0,
+		planStartDate: undefined,
+		planEndDate: undefined,
+		doStartDate: undefined,
+		doEndDate: undefined,
+		isRangeDate: false,
+		recurrenceRule: undefined,
+		orderIndex: 0,
+		completed: false,
+		assignedUserIds: [],
+		tagIds: [],
+		tags: [],
+		createdAt: defaultDate(),
+		updatedAt: defaultDate(),
+		deleted: false,
+		updatedBy: 'system'
+	};
+
+	const merged = { ...base, ...overrides };
+
+	return {
+		...merged,
+		tags: (merged.tags ?? []).map((tag) => createMockTag(tag))
+	};
+}
+
 export function createMockTaskWithSubTasks(
 	overrides: Partial<TaskWithSubTasks> = {}
 ): TaskWithSubTasks {
@@ -37,14 +85,13 @@ export function createMockTaskWithSubTasks(
 		tags: []
 	};
 
-	if (overrides.subTasks) {
-		base.subTasks = overrides.subTasks as SubTask[];
-	}
-	if (overrides.tags) {
-		base.tags = overrides.tags as Tag[];
-	}
+	const merged = { ...base, ...overrides };
 
-	return { ...base, ...overrides };
+	return {
+		...merged,
+		subTasks: (merged.subTasks ?? []).map((subTask) => createMockSubTask(subTask)),
+		tags: (merged.tags ?? []).map((tag) => createMockTag(tag))
+	};
 }
 
 export function createMockTaskListWithTasks(
@@ -64,11 +111,12 @@ export function createMockTaskListWithTasks(
 		tasks: []
 	};
 
-	if (overrides.tasks) {
-		base.tasks = overrides.tasks.map((task) => createMockTaskWithSubTasks(task));
-	}
+	const merged = { ...base, ...overrides };
 
-	return { ...base, ...overrides };
+	return {
+		...merged,
+		tasks: (merged.tasks ?? []).map((task) => createMockTaskWithSubTasks(task))
+	};
 }
 
 export function createMockProjectTree(overrides: Partial<ProjectTree> = {}): ProjectTree {
@@ -87,15 +135,13 @@ export function createMockProjectTree(overrides: Partial<ProjectTree> = {}): Pro
 		allTags: []
 	};
 
-	if (overrides.taskLists) {
-		base.taskLists = overrides.taskLists.map((taskList) => createMockTaskListWithTasks(taskList));
-	}
+	const merged = { ...base, ...overrides };
 
-	if (overrides.allTags) {
-		base.allTags = overrides.allTags;
-	}
-
-	return { ...base, ...overrides };
+	return {
+		...merged,
+		taskLists: (merged.taskLists ?? []).map((taskList) => createMockTaskListWithTasks(taskList)),
+		allTags: (merged.allTags ?? []).map((tag) => createMockTag(tag))
+	};
 }
 
 type ViewsVisibilityStoreOptions = {
