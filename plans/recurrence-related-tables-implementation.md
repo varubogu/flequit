@@ -12,7 +12,7 @@
 - ✅ Phase 2.3: `days_of_week` 保存完了
 - ✅ Phase 3: `adjustment` / `details` / `days_of_week` の読込完了（`find_by_id` / `find_all`）
 - ✅ Phase 4: トランザクション + 既存関連データ削除→再作成戦略を `details` / `days_of_week` まで拡張完了
-- ⬜ Phase 5: テストと検証
+- 🟡 Phase 5: `recurrence_rule` 向けテスト追加と対象検証は完了。全体統合テストは既存スキーマ不整合により別課題が残る
 
 ## 背景
 
@@ -20,8 +20,8 @@
 
 1. **設計**: `recurrence_rules`テーブルは基本フィールド（unit, interval, end_date, max_occurrences）のみ
 2. **関連テーブル**: `recurrence_adjustment`と`recurrence_detail`は別テーブルとして設計されている
-3. **残課題**: 保存・取得処理は実装済みだが、専用テスト（ユニット/統合）が不足
-4. **残リスク**: 「有効（高度）」モードの回帰を継続的に検知する仕組みが弱い
+3. **残課題**: `recurrence_rule` の専用テストは追加済み。全体統合テスト基盤（テンプレートDBと現行スキーマの差分）が未整備
+4. **残リスク**: 全体統合テストが壊れているため、他機能との横断回帰検知が弱い
 
 ### 現在の実装状況
 
@@ -209,9 +209,12 @@ async fn save(...) {
 4. ✅ **Phase 2.3**: DaysOfWeek保存処理（1時間）
 5. ✅ **Phase 3**: 取得処理の実装（2時間）
 6. ✅ **Phase 4**: 更新処理の実装（1時間）
-7. ⬜ **Phase 5**: テストと検証（1時間）
+7. 🟡 **Phase 5**: テストと検証（1時間）
+   - 実施済み: `recurrence_rule` のユニットテスト3件追加（保存/取得/更新置換 + 変換ヘルパー）
+   - 実施済み: `cargo test -j 4 -p flequit-infrastructure-sqlite recurrence_rule::tests` で3件成功
+   - 残課題: `cargo test -j 4 -p flequit-infrastructure-sqlite` は既存の統合テスト41件がスキーマ不整合（`projects.updated_by` など）で失敗
 
-**残作業の推定時間**: 1.0〜2.0時間
+**残作業の推定時間**: 2.0〜4.0時間（統合テスト基盤の修正を含む）
 
 ## リスク
 
