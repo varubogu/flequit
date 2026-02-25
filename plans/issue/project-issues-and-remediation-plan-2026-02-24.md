@@ -8,7 +8,8 @@
 - ✅ Phase 1（即時復旧）: `bun check` / `bun run lint` / `task-tauri-service` 単体テストを通過
 - ✅ Phase 2（規約整合）: `utils -> stores/services` 依存を撤去し、`current-user-id` を services 層へ移設
 - ✅ Phase 3（Rust 安全性）: `std::mem::zeroed::<DatabaseManager>()` を廃止し、安全な初期化へ置換
-- ⬜ Phase 4（回帰防止）: 共通 factory 導入・テスト基盤整理は未着手
+- ✅ Phase 4（回帰防止）: 共通 factory 導入・テスト基盤整理を実施
+- ✅ Phase 4 補足: `src-tauri/src/logger.rs` に root crate のユニットテストを追加（`cargo test -j 4` で 1 件実行）
 
 ## 調査方法
 
@@ -111,8 +112,8 @@
 
 完了条件:
 
-- 型変更時の修正箇所が factory 側へ集約される
-- Rust ユニットテストが 1 件以上存在する
+- ✅ 型変更時の修正箇所が factory 側へ集約される
+- ✅ Rust ユニットテストが 1 件以上存在する
 
 ## 推奨実施順
 
