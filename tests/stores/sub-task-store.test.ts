@@ -38,13 +38,18 @@ const { createSubTaskMock, updateSubTaskMock, deleteSubTaskMock } = vi.hoisted((
 	};
 });
 
-vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskService: {
+vi.mock('$lib/services/domain/subtask', () => {
+	const subTaskBackend = {
 		createSubTask: createSubTaskMock,
 		updateSubTask: updateSubTaskMock,
 		deleteSubTask: deleteSubTaskMock
-	}
-}));
+	};
+
+	return {
+		SubTaskService: subTaskBackend,
+		SubTaskBackend: subTaskBackend
+	};
+});
 
 describe('SubTaskStore', () => {
   let store: SubTaskStore;

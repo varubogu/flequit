@@ -23,12 +23,18 @@ vi.mock('$lib/services/domain/task', () => ({
 	}
 }));
 
-vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskOperations: vi.fn().mockImplementation(() => ({
+vi.mock('$lib/services/domain/subtask', () => {
+	const subTaskOperations = {
 		deleteSubTask: vi.fn(() => Promise.resolve()),
 		toggleSubTaskStatus: vi.fn()
-	}))
-}));
+	};
+
+	return {
+		SubTaskOperations: vi.fn().mockImplementation(() => subTaskOperations),
+		getSubTaskOperations: vi.fn(() => subTaskOperations),
+		subTaskOperations
+	};
+});
 
 vi.mock('$lib/stores/selection-store.svelte', () => ({
 	selectionStore: {

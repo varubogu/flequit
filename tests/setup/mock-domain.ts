@@ -1236,25 +1236,42 @@ vi.mock('$lib/stores/tags.svelte', async () => {
   };
 });
 
-vi.mock('$lib/services/domain/subtask', () => ({
-  SubTaskBackend: {
-    createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),
-    updateSubTask: dataServiceImpl.updateSubTask.bind(dataServiceImpl),
-    deleteSubTask: dataServiceImpl.deleteSubTask.bind(dataServiceImpl)
-  },
-  SubTaskOperations: class {
-    toggleSubTaskStatus = vi.fn();
-    addSubTask = vi.fn();
-    updateSubTaskFromForm = vi.fn();
-    updateSubTask = vi.fn();
-    changeSubTaskStatus = vi.fn();
-    deleteSubTask = vi.fn();
-    addTagToSubTaskByName = vi.fn();
-    addTagToSubTask = vi.fn();
-    removeTagFromSubTask = vi.fn();
-    updateSubTaskDueDateForView = vi.fn();
-  }
-}));
+vi.mock('$lib/services/domain/subtask', () => {
+  const subTaskOperations = {
+    toggleSubTaskStatus: vi.fn(),
+    addSubTask: vi.fn(),
+    updateSubTaskFromForm: vi.fn(),
+    updateSubTask: vi.fn(),
+    changeSubTaskStatus: vi.fn(),
+    deleteSubTask: vi.fn(),
+    addTagToSubTaskByName: vi.fn(),
+    addTagToSubTask: vi.fn(),
+    removeTagFromSubTask: vi.fn(),
+    updateSubTaskDueDateForView: vi.fn()
+  };
+
+  return {
+    SubTaskBackend: {
+      createSubTask: dataServiceImpl.createSubTask.bind(dataServiceImpl),
+      updateSubTask: dataServiceImpl.updateSubTask.bind(dataServiceImpl),
+      deleteSubTask: dataServiceImpl.deleteSubTask.bind(dataServiceImpl)
+    },
+    SubTaskOperations: class {
+      toggleSubTaskStatus = subTaskOperations.toggleSubTaskStatus;
+      addSubTask = subTaskOperations.addSubTask;
+      updateSubTaskFromForm = subTaskOperations.updateSubTaskFromForm;
+      updateSubTask = subTaskOperations.updateSubTask;
+      changeSubTaskStatus = subTaskOperations.changeSubTaskStatus;
+      deleteSubTask = subTaskOperations.deleteSubTask;
+      addTagToSubTaskByName = subTaskOperations.addTagToSubTaskByName;
+      addTagToSubTask = subTaskOperations.addTagToSubTask;
+      removeTagFromSubTask = subTaskOperations.removeTagFromSubTask;
+      updateSubTaskDueDateForView = subTaskOperations.updateSubTaskDueDateForView;
+    },
+    getSubTaskOperations: vi.fn(() => subTaskOperations),
+    subTaskOperations
+  };
+});
 
 vi.mock('$lib/services/domain/settings', async () => {
   const actual = await vi.importActual<typeof import('$lib/services/domain/settings')>(

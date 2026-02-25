@@ -99,6 +99,41 @@ Object.defineProperty(window, '__TAURI_INTERNALS__', {
   writable: true
 });
 
+if (
+  typeof globalThis.localStorage === 'undefined' ||
+  typeof globalThis.localStorage.getItem !== 'function' ||
+  typeof globalThis.localStorage.setItem !== 'function'
+) {
+  const storage = new Map<string, string>();
+  const localStorageMock: Storage = {
+    get length() {
+      return storage.size;
+    },
+    clear() {
+      storage.clear();
+    },
+    getItem(key: string) {
+      return storage.get(key) ?? null;
+    },
+    key(index: number) {
+      const keys = Array.from(storage.keys());
+      return keys[index] ?? null;
+    },
+    removeItem(key: string) {
+      storage.delete(key);
+    },
+    setItem(key: string, value: string) {
+      storage.set(key, String(value));
+    }
+  };
+
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true,
+    writable: true,
+    value: localStorageMock
+  });
+}
+
 // Console noise suppression (keep warn/error when necessary)
 const originalConsole = console;
 global.console = {

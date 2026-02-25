@@ -142,23 +142,39 @@ vi.mock('$lib/components/ui/sidebar/context.svelte.js', () => ({
   })
 }));
 
-vi.mock('$lib/services/domain/task', () => ({
-  taskMutations: {
+vi.mock('$lib/services/domain/task', () => {
+  const taskOperations = {
     updateTaskDueDateForView: vi.fn(),
     addTagToTask: vi.fn(),
     toggleTaskStatus: vi.fn(),
     deleteTask: vi.fn()
-  }
-}));
+  };
 
-vi.mock('$lib/services/domain/subtask', () => ({
-  SubTaskOperations: class {
-    updateSubTaskDueDateForView = vi.fn();
-    addTagToSubTask = vi.fn();
-    toggleSubTaskStatus = vi.fn();
-    deleteSubTask = vi.fn();
-  }
-}));
+  return {
+    taskMutations: taskOperations,
+    taskOperations
+  };
+});
+
+vi.mock('$lib/services/domain/subtask', () => {
+  const subTaskOperations = {
+    updateSubTaskDueDateForView: vi.fn(),
+    addTagToSubTask: vi.fn(),
+    toggleSubTaskStatus: vi.fn(),
+    deleteSubTask: vi.fn()
+  };
+
+  return {
+    SubTaskOperations: class {
+      updateSubTaskDueDateForView = subTaskOperations.updateSubTaskDueDateForView;
+      addTagToSubTask = subTaskOperations.addTagToSubTask;
+      toggleSubTaskStatus = subTaskOperations.toggleSubTaskStatus;
+      deleteSubTask = subTaskOperations.deleteSubTask;
+    },
+    getSubTaskOperations: vi.fn(() => subTaskOperations),
+    subTaskOperations
+  };
+});
 
 vi.mock('$lib/services/domain/tag', () => ({
   TagService: {

@@ -74,8 +74,9 @@ function getNextWeekTasks(deps: ViewStoreDependencies): TaskWithSubTasks[] {
 }
 
 function getThisMonthTasks(deps: ViewStoreDependencies): TaskWithSubTasks[] {
-  const today = new Date();
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
   return deps.taskStore.allTasks.filter((task) => {
     if (task.status === 'completed' || !task.planEndDate) {
@@ -83,7 +84,7 @@ function getThisMonthTasks(deps: ViewStoreDependencies): TaskWithSubTasks[] {
     }
 
     const dueDate = new Date(task.planEndDate);
-    return dueDate >= today && dueDate <= endOfMonth;
+    return dueDate >= startOfToday && dueDate <= endOfMonth;
   });
 }
 

@@ -3,27 +3,23 @@ import { useViewsVisibilityStore } from '$lib/hooks/use-views-visibility-store.s
 import { setupViewsVisibilityStoreOverride } from '../utils/store-overrides';
 import { MockViewsVisibilityStore } from '../utils/mock-factories';
 
-const { mockViewsVisibilityStore, onSetLists, onReset } = vi.hoisted(() => {
-	const onSetLists = vi.fn();
-	const onReset = vi.fn();
-	return {
-		mockViewsVisibilityStore: new MockViewsVisibilityStore({
-			visible: [{ id: 'all', label: 'All', icon: '📝', visible: true, order: 0 }],
-			hidden: [{ id: 'archived', label: 'Archived', icon: '📦', visible: false, order: 1 }],
-			onSetLists,
-			onReset
-		}),
-		onSetLists,
-		onReset
-	};
-});
-
+let mockViewsVisibilityStore: MockViewsVisibilityStore;
+let onSetLists: ReturnType<typeof vi.fn>;
+let onReset: ReturnType<typeof vi.fn>;
 let cleanup: (() => void) | null = null;
 
 describe('useViewsVisibilityStore', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-	cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore);
+		onSetLists = vi.fn();
+		onReset = vi.fn();
+		mockViewsVisibilityStore = new MockViewsVisibilityStore({
+			visible: [{ id: 'all', label: 'All', icon: '📝', visible: true, order: 0 }],
+			hidden: [{ id: 'archived', label: 'Archived', icon: '📦', visible: false, order: 1 }],
+			onSetLists,
+			onReset
+		});
+		cleanup = setupViewsVisibilityStoreOverride(mockViewsVisibilityStore);
 	});
 
 	afterEach(() => {
@@ -43,18 +39,18 @@ describe('useViewsVisibilityStore', () => {
 	});
 
 	it('setListsを呼び出せる', () => {
-	const store = useViewsVisibilityStore();
-	const visible = [...store.visibleViews];
-	const hidden = [...store.hiddenViews];
-	store.setLists(visible, hidden);
-	expect(mockViewsVisibilityStore.visibleViews).toBe(visible);
-	expect(mockViewsVisibilityStore.hiddenViews).toBe(hidden);
-	expect(onSetLists).toHaveBeenCalledWith(visible, hidden);
+		const store = useViewsVisibilityStore();
+		const visible = [...store.visibleViews];
+		const hidden = [...store.hiddenViews];
+		store.setLists(visible, hidden);
+		expect(mockViewsVisibilityStore.visibleViews).toBe(visible);
+		expect(mockViewsVisibilityStore.hiddenViews).toBe(hidden);
+		expect(onSetLists).toHaveBeenCalledWith(visible, hidden);
 	});
 
 	it('resetToDefaultsを呼び出せる', () => {
-	const store = useViewsVisibilityStore();
-	store.resetToDefaults();
-	expect(onReset).toHaveBeenCalled();
+		const store = useViewsVisibilityStore();
+		store.resetToDefaults();
+		expect(onReset).toHaveBeenCalled();
 	});
 });

@@ -23,6 +23,8 @@ function createTask(overrides: Partial<TaskWithSubTasks> = {}): TaskWithSubTasks
     tagIds: [],
     orderIndex: 0,
     isArchived: false,
+    deleted: false,
+    updatedBy: 'test-user-id',
     createdAt: new Date(),
     updatedAt: new Date(),
     subTasks: [],
@@ -40,6 +42,8 @@ function createSubTask(overrides: Partial<SubTask> = {}): SubTask {
     orderIndex: 0,
     assignedUserIds: [],
     completed: false,
+    deleted: false,
+    updatedBy: 'test-user-id',
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -163,7 +167,7 @@ describe('TaskDetailActionsService', () => {
   });
 
   it('saves recurrence rule with project context', async () => {
-    store.currentItem = createTask({ id: 'task-1' });
+    store.currentItem = createTask({ id: 'task-1', updatedBy: 'test-user-id' });
     const mockProject: Project = {
       id: 'project-1',
       name: 'Project 1',
@@ -191,7 +195,8 @@ describe('TaskDetailActionsService', () => {
       projectId: 'project-1',
       itemId: 'task-1',
       isSubTask: false,
-      rule: null
+      rule: null,
+      userId: 'test-user-id'
     });
   });
 

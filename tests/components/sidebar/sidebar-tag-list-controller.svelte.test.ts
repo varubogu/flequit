@@ -60,17 +60,28 @@ vi.mock('$lib/utils/drag-drop', () => ({
   }
 }));
 
-vi.mock('$lib/services/domain/task', () => ({
-  taskMutations: {
+vi.mock('$lib/services/domain/task', () => {
+  const taskOperations = {
     addTagToTask: vi.fn()
-  }
-}));
+  };
 
-vi.mock('$lib/services/domain/subtask', () => ({
-  SubTaskOperations: vi.fn(() => ({
+  return {
+    taskMutations: taskOperations,
+    taskOperations
+  };
+});
+
+vi.mock('$lib/services/domain/subtask', () => {
+  const subTaskOperations = {
     addTagToSubTask: vi.fn()
-  }))
-}));
+  };
+
+  return {
+    SubTaskOperations: vi.fn(() => subTaskOperations),
+    getSubTaskOperations: vi.fn(() => subTaskOperations),
+    subTaskOperations
+  };
+});
 
 vi.mock('$lib/services/domain/tag', () => ({
   TagService: {

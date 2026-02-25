@@ -17,13 +17,28 @@ export class FormatStorage {
 		private readonly customDateFormatService: CustomDateFormatService = new CustomDateFormatTauriService()
 	) {}
 
+	private getLocalStorage():
+		| Pick<Storage, 'getItem' | 'setItem'>
+		| null {
+		const storage = globalThis.localStorage;
+		if (
+			!storage ||
+			typeof storage.getItem !== 'function' ||
+			typeof storage.setItem !== 'function'
+		) {
+			return null;
+		}
+		return storage;
+	}
+
 	/**
 	 * 現在のフォーマットをlocalStorageに保存
 	 */
 	saveCurrentFormat(format: string): void {
-		if (typeof localStorage !== 'undefined') {
+		const storage = this.getLocalStorage();
+		if (storage) {
 			const data = { currentFormat: format };
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+			storage.setItem(STORAGE_KEY, JSON.stringify(data));
 		}
 	}
 
@@ -31,8 +46,9 @@ export class FormatStorage {
 	 * localStorageから現在のフォーマットを読み込み
 	 */
 	loadCurrentFormat(defaultFormat: string): string {
-		if (typeof localStorage !== 'undefined') {
-			const stored = localStorage.getItem(STORAGE_KEY);
+		const storage = this.getLocalStorage();
+		if (storage) {
+			const stored = storage.getItem(STORAGE_KEY);
 			if (stored) {
 				try {
 					const data = JSON.parse(stored);

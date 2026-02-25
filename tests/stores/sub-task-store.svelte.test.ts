@@ -9,10 +9,10 @@ import {
 	createMockTaskWithSubTasks
 } from '../utils/mock-factories';
 
-// SubTaskServiceのモック
-vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskService: {
-		createSubTask: vi.fn((projectId, taskId, subTask) =>
+// SubTaskService / SubTaskBackend のモック
+vi.mock('$lib/services/domain/subtask', () => {
+	const subTaskBackend = {
+		createSubTask: vi.fn((_projectId, taskId, subTask) =>
 			Promise.resolve({
 				id: 'new-subtask-id',
 				taskId,
@@ -22,13 +22,18 @@ vi.mock('$lib/services/domain/subtask', () => ({
 				orderIndex: 0,
 				isArchived: false,
 				createdAt: new Date(),
-				updatedAt: new Date(),
+				updatedAt: new Date()
 			})
 		),
 		updateSubTask: vi.fn(() => Promise.resolve()),
 		deleteSubTask: vi.fn(() => Promise.resolve())
-	}
-}));
+	};
+
+	return {
+		SubTaskService: subTaskBackend,
+		SubTaskBackend: subTaskBackend
+	};
+});
 
 // エラーハンドラのモック
 vi.mock('$lib/stores/error-handler.svelte', () => ({

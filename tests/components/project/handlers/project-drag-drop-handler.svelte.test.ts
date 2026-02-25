@@ -4,11 +4,16 @@ import type { ProjectTree } from '$lib/types/project';
 import { DragDropManager } from '$lib/utils/drag-drop';
 
 // Mock stores and services
-vi.mock('$lib/services/domain/task', () => ({
-  taskMutations: {
+vi.mock('$lib/services/domain/task', () => {
+  const taskOperations = {
     moveTaskToList: vi.fn()
-  }
-}));
+  };
+
+  return {
+    taskMutations: taskOperations,
+    taskOperations
+  };
+});
 
 vi.mock('$lib/stores/task-list-store.svelte', () => ({
   taskListStore: {

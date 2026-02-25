@@ -41,20 +41,31 @@ vi.mock('$lib/services/ui/task-detail-ui-store.svelte', () => ({
 	}))
 }));
 
-vi.mock('$lib/services/domain/task', () => ({
-	taskMutations: {
+vi.mock('$lib/services/domain/task', () => {
+	const taskOperations = {
 		toggleTaskStatus: vi.fn(),
 		deleteTask: vi.fn(),
 		addTagToTask: vi.fn()
-	}
-}));
+	};
 
-vi.mock('$lib/services/domain/subtask', () => ({
-	SubTaskOperations: vi.fn().mockImplementation(() => ({
+	return {
+		taskMutations: taskOperations,
+		taskOperations
+	};
+});
+
+vi.mock('$lib/services/domain/subtask', () => {
+	const subTaskOperations = {
 		toggleSubTaskStatus: vi.fn(),
 		deleteSubTask: vi.fn()
-	}))
-}));
+	};
+
+	return {
+		SubTaskOperations: vi.fn().mockImplementation(() => subTaskOperations),
+		getSubTaskOperations: vi.fn(() => subTaskOperations),
+		subTaskOperations
+	};
+});
 
 vi.mock('$lib/stores/selection-store.svelte', () => ({
 	selectionStore: {

@@ -16,12 +16,17 @@ vi.mock('$lib/utils/drag-drop', () => ({
 	}
 }));
 
-// Mock taskMutations
-vi.mock('$lib/services/domain/task', () => ({
-	taskMutations: {
+// Mock taskOperations and legacy taskMutations alias
+vi.mock('$lib/services/domain/task', () => {
+	const taskOperations = {
 		addTagToTask: vi.fn(() => Promise.resolve())
-	}
-}));
+	};
+
+	return {
+		taskMutations: taskOperations,
+		taskOperations
+	};
+});
 
 describe('TaskItemDragDrop', () => {
 	let dragDrop: TaskItemDragDrop;
