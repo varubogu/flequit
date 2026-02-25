@@ -57,6 +57,19 @@
   - In-memory cache
   - Transaction optimization
 
+### 2.3 First-Launch Data Bootstrap
+
+- On startup, backend initialization commands perform a minimum data check before returning account/project payloads.
+- If non-deleted data does not exist for each entity, create only the missing minimum records:
+  - User: `Local user`
+  - Account: `Local Account` (provider: `local`)
+  - Project: `My Tasks`
+- Initialization is idempotent:
+  - Existing user data is not overwritten.
+  - Existing account data is not overwritten.
+  - Existing project data is not overwritten.
+- This bootstrap is triggered by startup read commands (e.g. account/project load) so an empty local DB can still reach task creation flow.
+
 ## 3. Web Application Architecture
 
 ### 3.1 SvelteKit+Supabase Architecture
