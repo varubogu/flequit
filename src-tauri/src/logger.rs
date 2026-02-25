@@ -119,3 +119,22 @@ pub fn test_logging() {
     log::warn!("🟡 log!マクロテスト - 警告");
     log::info!("🔵 log!マクロテスト - 情報");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::get_log_directory;
+    use std::path::Path;
+
+    #[test]
+    fn get_log_directory_appends_flequit_logs_segments() {
+        let path = get_log_directory().expect("log directory should be resolvable");
+        let expected_suffix = Path::new("flequit").join("logs");
+
+        assert!(
+            path.ends_with(&expected_suffix),
+            "expected suffix {:?}, actual path {:?}",
+            expected_suffix,
+            path
+        );
+    }
+}
